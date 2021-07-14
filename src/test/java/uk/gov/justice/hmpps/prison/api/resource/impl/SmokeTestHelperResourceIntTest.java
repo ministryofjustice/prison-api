@@ -5,17 +5,16 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImprisonmentStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImprisonmentStatusRepository;
+import uk.gov.justice.hmpps.prison.service.PrisonerReleaseAndTransferService;
 import uk.gov.justice.hmpps.prison.service.SmokeTestHelperService;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
@@ -29,6 +28,8 @@ public class SmokeTestHelperResourceIntTest extends ResourceTest {
     private OffenderImprisonmentStatusRepository repository;
     @Autowired
     private TestRestTemplate testRestTemplate;
+    @Autowired
+    private PrisonerReleaseAndTransferService prisonerReleaseAndTransferService;
     @Autowired
     private SmokeTestHelperService smokeTestHelperService;
 
@@ -130,8 +131,16 @@ public class SmokeTestHelperResourceIntTest extends ResourceTest {
                 createHttpEntity(authTokenHelper.getToken(AuthTokenHelper.AuthToken.SMOKE_TEST), null),
                 Void.class
             );
-
             assertThat(response.getStatusCode()).isEqualTo(OK);
+
+            // TODO Remove this line - this is just to reset the imprisonment status back to its original
+            // This can be removed once the smoke test is complete
+            testRestTemplate.exchange(
+                "/api/smoketest/offenders/A1234AA/recall",
+                HttpMethod.PUT,
+                createHttpEntity(authTokenHelper.getToken(AuthTokenHelper.AuthToken.SMOKE_TEST), null),
+                Void.class
+            );
         }
     }
 }

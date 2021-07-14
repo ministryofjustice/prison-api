@@ -46,10 +46,20 @@ public class SmokeTestHelperResource {
     @ApiResponses({
         @ApiResponse(code = 403, message = "Requires role ROLE_SMOKE_TEST", response = ErrorResponse.class),
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class)})
-    @ApiOperation(value = "Releases this offender, setting smoke test data")
+    @ApiOperation(value = "Releases this offender, with smoke test data")
     @PutMapping("/offenders/{offenderNo}/release")
     @ProxyUser
     public void releasePrisoner(@PathVariable("offenderNo") @ApiParam(value = "offenderNo", required = true, example = "A1234AA") @NotNull final String offenderNo) {
         service.releasePrisoner(offenderNo);
+    }
+
+    @ApiResponses({
+        @ApiResponse(code = 403, message = "Requires role ROLE_SMOKE_TEST", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Recalls this offender, with smoke test data")
+    @PutMapping("/offenders/{offenderNo}/recall")
+    @ProxyUser
+    public void recallPrisoner(@PathVariable("offenderNo") @ApiParam(value = "offenderNo", required = true, example = "A1234AA") @NotNull final String offenderNo) {
+        service.recallPrisoner(offenderNo);
     }
 }

@@ -1,22 +1,14 @@
 package uk.gov.justice.hmpps.prison.service;
 
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Builder.Default;
-import org.hibernate.validator.constraints.Length;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
-import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
+import uk.gov.justice.hmpps.prison.api.model.RequestToRecall;
 import uk.gov.justice.hmpps.prison.api.model.RequestToReleasePrisoner;
 import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 import static java.lang.String.format;
@@ -51,7 +43,7 @@ public class SmokeTestHelperService {
 
     private OffenderBookingIdSeq.BookingAndSeq getBookingAndSeqOrThrow(String offenderNo, OffenderBookingIdSeq latestOffenderBooking) {
         return latestOffenderBooking.getBookingAndSeq()
-                .orElseThrow(() -> EntityNotFoundException.withMessage(format("No booking found for offender %s", offenderNo)));
+            .orElseThrow(() -> EntityNotFoundException.withMessage(format("No booking found for offender %s", offenderNo)));
     }
 
     @Transactional
@@ -63,5 +55,19 @@ public class SmokeTestHelperService {
             .movementReasonCode("CR")
             .build();
         prisonerReleaseAndTransferService.releasePrisoner(offenderNo, requestToReleasePrisoner, null);
+    }
+
+    @Transactional
+    @VerifyBookingAccess(overrideRoles = "SMOKE_TEST")
+    @PreAuthorize("hasRole('SMOKE_TEST') and hasAuthority('SCOPE_write')")
+    public void recallPrisoner(String offenderNo) {
+        RequestToRecall requestToRecall = RequestToRecall.builder()
+            .prisonId("MDI")
+            .movementReasonCode("24")
+            .imprisonmentStatus("CUR_ORA")
+            .cellLocation("MDI-1-1-001")
+            .youthOffender(false)
+            .build();
+        prisonerReleaseAndTransferService.recallPrisoner(offenderNo, requestToRecall);
     }
 }
