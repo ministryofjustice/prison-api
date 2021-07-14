@@ -1,12 +1,22 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Builder.Default;
+import org.hibernate.validator.constraints.Length;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
+import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
+import uk.gov.justice.hmpps.prison.api.model.RequestToReleasePrisoner;
 import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 import static java.lang.String.format;
@@ -15,11 +25,14 @@ import static java.lang.String.format;
 public class SmokeTestHelperService {
 
     private final BookingService bookingService;
+    private final PrisonerReleaseAndTransferService prisonerReleaseAndTransferService;
     private final OffenderBookingRepository offenderBookingRepository;
 
-    public SmokeTestHelperService(BookingService bookingService, OffenderBookingRepository offenderBookingRepository) {
+    public SmokeTestHelperService(BookingService bookingService, OffenderBookingRepository offenderBookingRepository,
+                                  PrisonerReleaseAndTransferService prisonerReleaseAndTransferService) {
         this.bookingService = bookingService;
         this.offenderBookingRepository = offenderBookingRepository;
+        this.prisonerReleaseAndTransferService = prisonerReleaseAndTransferService;
     }
 
     @Transactional
@@ -41,4 +54,14 @@ public class SmokeTestHelperService {
                 .orElseThrow(() -> EntityNotFoundException.withMessage(format("No booking found for offender %s", offenderNo)));
     }
 
+    @Transactional
+    @VerifyBookingAccess(overrideRoles = "SMOKE_TEST")
+    @PreAuthorize("hasRole('SMOKE_TEST') and hasAuthority('SCOPE_write')")
+    public void releasePrisoner(String offenderNo) {
+        RequestToReleasePrisoner requestToReleasePrisoner = RequestToReleasePrisoner.builder()
+            .commentText("Prisoner was released as part of smoke test")
+            .movementReasonCode("CR")
+            .build();
+        prisonerReleaseAndTransferService.releasePrisoner(offenderNo, requestToReleasePrisoner, null);
+    }
 }

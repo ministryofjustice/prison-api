@@ -1,17 +1,21 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImprisonmentStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImprisonmentStatusRepository;
+import uk.gov.justice.hmpps.prison.service.SmokeTestHelperService;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
@@ -25,6 +29,8 @@ public class SmokeTestHelperResourceIntTest extends ResourceTest {
     private OffenderImprisonmentStatusRepository repository;
     @Autowired
     private TestRestTemplate testRestTemplate;
+    @Autowired
+    private SmokeTestHelperService smokeTestHelperService;
 
     @Test
     @DisplayName("requires ROLE_SMOKE_TEST")
@@ -32,10 +38,10 @@ public class SmokeTestHelperResourceIntTest extends ResourceTest {
         final var request = createHttpEntity(authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_USER_READ_WRITE), null);
 
         final var response = testRestTemplate.exchange(
-                "/api/smoketest/offenders/A1234AA/imprisonment-status",
-                HttpMethod.POST,
-                request,
-                Void.class
+            "/api/smoketest/offenders/A1234AA/imprisonment-status",
+            HttpMethod.POST,
+            request,
+            Void.class
         );
 
         assertThat(response.getStatusCode()).isEqualTo(FORBIDDEN);
@@ -46,10 +52,10 @@ public class SmokeTestHelperResourceIntTest extends ResourceTest {
     public void notFound() {
 
         final var response = testRestTemplate.exchange(
-                "/api/smoketest/offenders/NOT_AN_OFFENDER/imprisonment-status",
-                HttpMethod.POST,
-                createHttpEntity(authTokenHelper.getToken(AuthTokenHelper.AuthToken.SMOKE_TEST), null),
-                Void.class
+            "/api/smoketest/offenders/NOT_AN_OFFENDER/imprisonment-status",
+            HttpMethod.POST,
+            createHttpEntity(authTokenHelper.getToken(AuthTokenHelper.AuthToken.SMOKE_TEST), null),
+            Void.class
         );
 
         assertThat(response.getStatusCode()).isEqualTo(NOT_FOUND);
@@ -64,15 +70,15 @@ public class SmokeTestHelperResourceIntTest extends ResourceTest {
 
         // WHEN I setup the smoke test data
         final var response = testRestTemplate.exchange(
-                "/api/smoketest/offenders/A1234AA/imprisonment-status",
-                HttpMethod.POST,
-                createHttpEntity(authTokenHelper.getToken(AuthTokenHelper.AuthToken.SMOKE_TEST), null),
-                Void.class
+            "/api/smoketest/offenders/A1234AA/imprisonment-status",
+            HttpMethod.POST,
+            createHttpEntity(authTokenHelper.getToken(AuthTokenHelper.AuthToken.SMOKE_TEST), null),
+            Void.class
         );
         assertThat(response.getStatusCode()).isEqualTo(OK);
 
 
-        // THEN I have twp imprisonment statuses
+        // THEN I have two imprisonment statuses
         final List<OffenderImprisonmentStatus> statuses = repository.findByOffenderBookingId(bookingId);
         assertThat(statuses).hasSize(2);
         assertThat(statuses.get(0).isActiveLatestStatus()).isFalse();
@@ -81,5 +87,51 @@ public class SmokeTestHelperResourceIntTest extends ResourceTest {
         assertThat(statuses.get(1).isActiveLatestStatus()).isTrue();
     }
 
+    @Nested
+    public class ReleasePrisoner {
 
+        @Test
+        @DisplayName("requires ROLE_SMOKE_TEST")
+        public void requiresCorrectRole() {
+            final var request = createHttpEntity(authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_USER_READ_WRITE), null);
+
+            final var response = testRestTemplate.exchange(
+                "/api/smoketest/offenders/A1234AA/release",
+                HttpMethod.PUT,
+                request,
+                Void.class
+            );
+
+            assertThat(response.getStatusCode()).isEqualTo(FORBIDDEN);
+        }
+
+
+        @Test
+        @DisplayName("not found")
+        public void notFound() {
+
+            final var response = testRestTemplate.exchange(
+                "/api/smoketest/offenders/NOT_AN_OFFENDER/release",
+                HttpMethod.PUT,
+                createHttpEntity(authTokenHelper.getToken(AuthTokenHelper.AuthToken.SMOKE_TEST), null),
+                Void.class
+            );
+
+            assertThat(response.getStatusCode()).isEqualTo(NOT_FOUND);
+        }
+
+        @Test
+        @DisplayName("will release the prisoner")
+        public void willReleasePrisoner() {
+
+            final var response = testRestTemplate.exchange(
+                "/api/smoketest/offenders/A1234AA/release",
+                HttpMethod.PUT,
+                createHttpEntity(authTokenHelper.getToken(AuthTokenHelper.AuthToken.SMOKE_TEST), null),
+                Void.class
+            );
+
+            assertThat(response.getStatusCode()).isEqualTo(OK);
+        }
+    }
 }
