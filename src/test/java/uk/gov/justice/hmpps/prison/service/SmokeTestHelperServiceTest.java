@@ -28,7 +28,8 @@ public class SmokeTestHelperServiceTest {
 
     private final BookingService bookingService = mock(BookingService.class);
     private final OffenderBookingRepository offenderBookingRepository = mock(OffenderBookingRepository.class);
-    private final SmokeTestHelperService smokeTestHelperService = new SmokeTestHelperService(bookingService, offenderBookingRepository);
+    private final PrisonerReleaseAndTransferService prisonerReleaseAndTransferService = mock(PrisonerReleaseAndTransferService.class);
+    private final SmokeTestHelperService smokeTestHelperService = new SmokeTestHelperService(bookingService, offenderBookingRepository, prisonerReleaseAndTransferService);
 
     private final static String SOME_OFFENDER_NO = "A1234AA";
     private final static long SOME_BOOKING_ID = 11L;

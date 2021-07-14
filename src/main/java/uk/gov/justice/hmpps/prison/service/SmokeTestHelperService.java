@@ -3,6 +3,8 @@ package uk.gov.justice.hmpps.prison.service;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.gov.justice.hmpps.prison.api.model.RequestToRecall;
+import uk.gov.justice.hmpps.prison.api.model.RequestToReleasePrisoner;
 import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
@@ -15,11 +17,14 @@ import static java.lang.String.format;
 public class SmokeTestHelperService {
 
     private final BookingService bookingService;
+    private final PrisonerReleaseAndTransferService prisonerReleaseAndTransferService;
     private final OffenderBookingRepository offenderBookingRepository;
 
-    public SmokeTestHelperService(BookingService bookingService, OffenderBookingRepository offenderBookingRepository) {
+    public SmokeTestHelperService(BookingService bookingService, OffenderBookingRepository offenderBookingRepository,
+                                  PrisonerReleaseAndTransferService prisonerReleaseAndTransferService) {
         this.bookingService = bookingService;
         this.offenderBookingRepository = offenderBookingRepository;
+        this.prisonerReleaseAndTransferService = prisonerReleaseAndTransferService;
     }
 
     @Transactional
@@ -38,7 +43,31 @@ public class SmokeTestHelperService {
 
     private OffenderBookingIdSeq.BookingAndSeq getBookingAndSeqOrThrow(String offenderNo, OffenderBookingIdSeq latestOffenderBooking) {
         return latestOffenderBooking.getBookingAndSeq()
-                .orElseThrow(() -> EntityNotFoundException.withMessage(format("No booking found for offender %s", offenderNo)));
+            .orElseThrow(() -> EntityNotFoundException.withMessage(format("No booking found for offender %s", offenderNo)));
     }
 
+    @Transactional
+    @VerifyBookingAccess(overrideRoles = "SMOKE_TEST")
+    @PreAuthorize("hasRole('SMOKE_TEST') and hasAuthority('SCOPE_write')")
+    public void releasePrisoner(String offenderNo) {
+        RequestToReleasePrisoner requestToReleasePrisoner = RequestToReleasePrisoner.builder()
+            .commentText("Prisoner was released as part of smoke test")
+            .movementReasonCode("CR")
+            .build();
+        prisonerReleaseAndTransferService.releasePrisoner(offenderNo, requestToReleasePrisoner, null);
+    }
+
+    @Transactional
+    @VerifyBookingAccess(overrideRoles = "SMOKE_TEST")
+    @PreAuthorize("hasRole('SMOKE_TEST') and hasAuthority('SCOPE_write')")
+    public void recallPrisoner(String offenderNo) {
+        RequestToRecall requestToRecall = RequestToRecall.builder()
+            .prisonId("MDI")
+            .movementReasonCode("24")
+            .imprisonmentStatus("CUR_ORA")
+            .cellLocation("MDI-1-1-001")
+            .youthOffender(false)
+            .build();
+        prisonerReleaseAndTransferService.recallPrisoner(offenderNo, requestToRecall);
+    }
 }
