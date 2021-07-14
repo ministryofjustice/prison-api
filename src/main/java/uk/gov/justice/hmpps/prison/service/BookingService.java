@@ -731,14 +731,7 @@ public class BookingService {
     }
 
     public List<OffenderSentenceCalculation> getOffenderSentenceCalculationsForAgency(final Set<String> agencyIds) {
-
-        final var offenderSentenceSummaryRaw = bookingRepository.getOffenderSentenceCalculations(agencyIds);
-
-        final var identifyLatest = offenderSentenceSummaryRaw.parallelStream()
-                .collect(Collectors.groupingBy(OffenderSentenceCalculation::getBookingId,
-                        Collectors.maxBy(Comparator.comparing(OffenderSentenceCalculation::getOffenderSentCalculationId))));
-
-        return identifyLatest.values().stream().filter(Optional::isPresent).map(Optional::get).collect(toList());
+        return bookingRepository.getOffenderSentenceCalculations(agencyIds);
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})

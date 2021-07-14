@@ -212,9 +212,16 @@ enum class BookingRepositorySql(val sql: String) {
                 FROM OFFENDER_BOOKINGS OB
         INNER JOIN OFFENDER_SENT_CALCULATIONS OSC ON OSC.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID
                 INNER JOIN OFFENDERS O ON OB.OFFENDER_ID = O.OFFENDER_ID
+        WHERE OSC.OFFENDER_SENT_CALCULATION_ID IN (
+            SELECT MAX(OSC.OFFENDER_SENT_CALCULATION_ID)
+            FROM OFFENDER_BOOKINGS OB
+                     INNER JOIN OFFENDER_SENT_CALCULATIONS OSC ON OSC.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID
                 WHERE OB.AGY_LOC_ID IN (:agencyIds)
-        AND OB.ACTIVE_FLAG = :activeFlag
-        AND OB.BOOKING_SEQ = :bookingSeq
+                  AND OB.ACTIVE_FLAG = :activeFlag
+                  AND OB.BOOKING_SEQ = :bookingSeq
+                GROUP BY OB.OFFENDER_BOOK_ID
+        )
+        
     """
   ),
 
