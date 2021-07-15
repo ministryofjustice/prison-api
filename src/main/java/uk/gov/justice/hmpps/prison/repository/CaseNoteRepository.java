@@ -1,17 +1,24 @@
 package uk.gov.justice.hmpps.prison.repository;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.stereotype.Repository;
 import org.springframework.validation.annotation.Validated;
+import uk.gov.justice.hmpps.prison.api.model.CaseNote;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteEvent;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteStaffUsage;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsage;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageByBookingId;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
+import uk.gov.justice.hmpps.prison.api.support.Order;
+import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
+import uk.gov.justice.hmpps.prison.repository.mapping.FieldMapper;
+import uk.gov.justice.hmpps.prison.repository.mapping.PageAwareRowMapper;
+import uk.gov.justice.hmpps.prison.repository.mapping.Row2BeanRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
 import uk.gov.justice.hmpps.prison.repository.sql.CaseNoteRepositorySql;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
@@ -38,6 +45,21 @@ public class CaseNoteRepository extends RepositoryBase {
     private static final RowMapper<ReferenceCodeDetail> REF_CODE_DETAIL_ROW_MAPPER =
         new StandardBeanPropertyRowMapper<>(ReferenceCodeDetail.class);
 
+    private final Map<String, FieldMapper> CASE_NOTE_MAPPING = new ImmutableMap.Builder<String, FieldMapper>()
+        .put("OFFENDER_BOOK_ID", new FieldMapper("bookingId"))
+        .put("CASE_NOTE_ID", new FieldMapper("caseNoteId"))
+        .put("CASE_NOTE_TYPE", new FieldMapper("type"))
+        .put("CASE_NOTE_TYPE_DESC", new FieldMapper("typeDescription"))
+        .put("CASE_NOTE_SUB_TYPE", new FieldMapper("subType"))
+        .put("CASE_NOTE_SUB_TYPE_DESC", new FieldMapper("subTypeDescription"))
+        .put("NOTE_SOURCE_CODE", new FieldMapper("source"))
+        .put("AGY_LOC_ID", new FieldMapper("agencyId"))
+        .put("CONTACT_TIME", new FieldMapper("occurrenceDateTime", DateTimeConverter::toISO8601LocalDateTime))
+        .put("CREATE_DATETIME", new FieldMapper("creationDateTime", DateTimeConverter::toISO8601LocalDateTime))
+        .put("CASE_NOTE_TEXT", new FieldMapper("text"))
+        .put("STAFF_NAME", new FieldMapper("authorName"))
+        .build();
+
     private static final RowMapper<CaseNoteUsage> CASE_NOTE_USAGE_MAPPER =
         new StandardBeanPropertyRowMapper<>(CaseNoteUsage.class);
 
@@ -49,6 +71,55 @@ public class CaseNoteRepository extends RepositoryBase {
 
     private static final RowMapper<CaseNoteEvent> CASE_NOTE_EVENT_ROW_MAPPER =
         new StandardBeanPropertyRowMapper<>(CaseNoteEvent.class);
+
+
+    public Page<CaseNote> getCaseNotes(final long bookingId, final String query, final LocalDate from, final LocalDate to, final String orderByField,
+                                       final Order order, final long offset, final long limit) {
+
+        var initialSql = CaseNoteRepositorySql.FIND_CASENOTES.getSql();
+        final var params = createParams("bookingId", bookingId, "offset", offset, "limit", limit);
+        if (from != null) {
+            initialSql += " AND CN.CONTACT_DATE >= :fromDate";
+            params.addValue("fromDate", DateTimeConverter.toDate(from));
+        }
+        if (to != null) {
+            initialSql += " AND CN.CONTACT_DATE < :toDate";
+
+            // Adjust to be strictly less than start of *next day.
+
+            // This handles a query which includes an inclusive 'date to' element of a date range filter being used to retrieve
+            // case notes based on the OFFENDER_CASE_NOTES.CONTACT_DATE falling on or between two dates
+            // (inclusive date from and date to elements included) or being on or before a specified date (inclusive date to
+            // element only).
+            //
+            // As the CONTACT_DATE field is a DATE, a clause which performs a '<='
+            // comparison between CONTACT_DATE and the provided 'date to' value will not evaluate to 'true' for CONTACT_DATE
+            // values on the same day as the 'date to' value.
+            //
+            // This processing step has been introduced to ADD ONE DAY to a provided 'date to' value and replace 
+            // it with an exclusive test. This approach ensures all eligible case notes are returned.
+            //
+            params.addValue("toDate", DateTimeConverter.toDate(to.plusDays(1)));
+        }
+        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, CASE_NOTE_MAPPING);
+
+        final var sql = builder
+            .addRowCount()
+            .addQuery(query)
+            .addOrderBy(order == Order.ASC, orderByField)
+            .addPagination()
+            .build();
+
+        final var caseNoteRowMapper = Row2BeanRowMapper.makeMapping(CaseNote.class, CASE_NOTE_MAPPING);
+        final var paRowMapper = new PageAwareRowMapper<>(caseNoteRowMapper);
+
+        final var caseNotes = jdbcTemplate.query(
+            sql,
+            params,
+            paRowMapper);
+
+        return new Page<>(caseNotes, paRowMapper.getTotalRecords(), offset, limit);
+    }
 
 
     public List<CaseNoteUsage> getCaseNoteUsage(@NotNull final LocalDate fromDate, @NotNull final LocalDate toDate, final String agencyId, final List<String> offenderNos, final Integer staffId, final String type, final String subType) {
