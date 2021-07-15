@@ -59,7 +59,7 @@ public class AdjudicationServiceImplTest {
 
         assertThat(adjudicationService.findAdjudications(criteria)).isEqualTo(expectedResult);
 
-        verify(bookingService).verifyCanViewSensitiveBookingInfo(criteria.getOffenderNumber());
+        verify(bookingService).getOffenderIdentifiers(criteria.getOffenderNumber());
     }
 
     @Test
