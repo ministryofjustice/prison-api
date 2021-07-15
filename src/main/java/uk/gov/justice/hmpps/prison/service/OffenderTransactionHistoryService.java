@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -56,7 +57,7 @@ public class OffenderTransactionHistoryService {
         this.historyRepository = historyRepository;
     }
 
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyOffenderAccess
     public List<OffenderTransactionHistoryDto> getTransactionHistory(final String offenderNo,
                                                                      final String accountCode,
                                                                      final LocalDate fromDate,

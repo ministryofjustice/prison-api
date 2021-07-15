@@ -25,7 +25,7 @@ public class OffenderDamageObligationService {
         this.repository = repository;
     }
 
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyOffenderAccess
     @Transactional
     public List<OffenderDamageObligationModel> getDamageObligations(final String offenderNo, final Status status) {
 

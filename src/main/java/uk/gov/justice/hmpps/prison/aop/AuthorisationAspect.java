@@ -71,7 +71,7 @@ public class AuthorisationAspect {
         final var annotation = method.getAnnotation(VerifyOffenderAccess.class);
         final var overrideRoles = annotation.overrideRoles();
 
-        bookingService.getOffenderIdentifiers(offenderNo, overrideRoles);
+        bookingService.verifyCanViewSensitiveBookingInfo(offenderNo, overrideRoles);
     }
 
     @Before(value = "verifyAgencyAccessPointcut(agencyId)", argNames = "jp,agencyId")
