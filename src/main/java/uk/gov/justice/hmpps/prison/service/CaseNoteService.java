@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.service;
 
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -21,6 +22,7 @@ import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsage;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageByBookingId;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
+import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.repository.CaseNoteRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteSubType;
@@ -97,6 +99,29 @@ public class CaseNoteService {
         this.caseNoteTypeReferenceCodeRepository = caseNoteTypeReferenceCodeRepository;
         this.caseNoteSubTypeReferenceCodeRepository = caseNoteSubTypeReferenceCodeRepository;
         this.staffUserAccountRepository = staffUserAccountRepository;
+    }
+
+    @VerifyBookingAccess
+    @Deprecated
+    public uk.gov.justice.hmpps.prison.api.support.Page<CaseNote> getCaseNotes(final Long bookingId, final String query, final LocalDate from, final LocalDate to, final String orderBy, final Order order, final long offset, final long limit) {
+        final var orderByBlank = StringUtils.isBlank(orderBy);
+
+        final var caseNotePage = caseNoteRepository.getCaseNotes(
+                bookingId,
+                query,
+                from,
+                to,
+                orderByBlank ? "creationDateTime" : orderBy,
+                orderByBlank ? Order.DESC : order,
+                offset,
+                limit);
+
+        final var transformedCaseNotes =
+                caseNotePage.getItems().stream().map(transformer::transform).collect(Collectors.toList());
+
+        log.info("Returning {} out of {} matching Case Notes, starting at {} for booking id {}", transformedCaseNotes.size(), caseNotePage.getTotalRecords(), caseNotePage.getPageOffset(), bookingId);
+
+        return new uk.gov.justice.hmpps.prison.api.support.Page<>(transformedCaseNotes, caseNotePage.getTotalRecords(), caseNotePage.getPageOffset(), caseNotePage.getPageLimit());
     }
 
     public Page<CaseNote> getCaseNotes(final CaseNoteFilter caseNoteFilter, final Pageable pageable) {
