@@ -132,7 +132,7 @@ public class PrisonerReleaseAndTransferService {
 
         final var releaseDateTime = getAndCheckMovementTime(requestToReleasePrisoner.getReleaseTime(), booking.getBookingId());
         // set previous active movements to false
-        booking.setPreviousMovementsToInactive();
+        deactivatePreviousMovements(booking);
 
         final var supportingPrison = requestToDischargePrisoner != null && requestToDischargePrisoner.getSupportingPrisonId() != null ? agencyLocationRepository.findById(requestToDischargePrisoner.getSupportingPrisonId()).orElseThrow(EntityNotFoundException.withMessage(format("No %s agency found", requestToDischargePrisoner.getSupportingPrisonId()))) : booking.getLocation();
         final var toLocation = agencyLocationRepository.findById(requestToReleasePrisoner.getToLocationCode()).orElseThrow(EntityNotFoundException.withMessage(format("No %s agency found", requestToReleasePrisoner.getToLocationCode())));
@@ -213,7 +213,7 @@ public class PrisonerReleaseAndTransferService {
 
         final var transferDateTime = getAndCheckMovementTime(requestToTransferOut.getMovementTime(), booking.getBookingId());
         // set previous active movements to false
-        booking.setPreviousMovementsToInactive();
+        deactivatePreviousMovements(booking);
 
         final var agencyLocationType = agencyLocationTypeRepository.findById(AgencyLocationType.INST).orElseThrow(EntityNotFoundException.withMessage(format("Agency Location Type of %s not Found", AgencyLocationType.INST.getCode())));
         final var toLocation = agencyLocationRepository.findByIdAndTypeAndActiveFlagAndDeactivationDateIsNull(requestToTransferOut.getToLocation(), agencyLocationType, ActiveFlag.Y).orElseThrow(EntityNotFoundException.withMessage(format("No %s agency found", requestToTransferOut.getToLocation())));
@@ -278,7 +278,7 @@ public class PrisonerReleaseAndTransferService {
         final var receiveTime = getAndCheckMovementTime(requestToRecall.getRecallTime(), booking.getBookingId());
 
         // set previous active movements to false
-        booking.setPreviousMovementsToInactive();
+        deactivatePreviousMovements(booking);
 
         // Generate the external movement in
         createInMovement(booking, movementReason, fromLocation, prisonToRecallTo, receiveTime, "Recall");
@@ -390,7 +390,7 @@ public class PrisonerReleaseAndTransferService {
         final var movementReason = movementReasonRepository.findById(MovementReason.pk(requestForNewBooking.getMovementReasonCode())).orElseThrow(EntityNotFoundException.withMessage(format("No movement reason %s found", requestForNewBooking.getMovementReasonCode())));
 
         // set previous active movements to false
-        booking.setPreviousMovementsToInactive();
+        deactivatePreviousMovements(booking);
 
         // Generate the external movement in
         createInMovement(booking, movementReason, fromLocation, receivedPrison, receiveTime, "New Booking");
@@ -497,7 +497,7 @@ public class PrisonerReleaseAndTransferService {
 
         final var receiveTime = getAndCheckMovementTime(requestToTransferIn.getReceiveTime(), booking.getBookingId());
         // set previous active movements to false
-        booking.setPreviousMovementsToInactive();
+        deactivatePreviousMovements(booking);
 
         createInMovement(booking, movementReason, latestExternalMovement.getFromAgency(), latestExternalMovement.getToAgency(), receiveTime, requestToTransferIn.getCommentText());
         booking.setStatusReason(ADM.getCode() + "-" + movementReason.getCode());
@@ -552,6 +552,11 @@ public class PrisonerReleaseAndTransferService {
         return now;
     }
 
+    private void deactivatePreviousMovements(final OffenderBooking booking) {
+        booking.setPreviousMovementsToInactive();
+        // need to ensure the above updates are executed before booking updates as it invokes a trigger that updates the booking status reason
+        entityManager.flush();
+    }
 
     private void createOutMovement(final OffenderBooking booking,
                                    final ReferenceCode.Pk movementCode,
