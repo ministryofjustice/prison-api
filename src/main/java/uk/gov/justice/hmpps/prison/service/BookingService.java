@@ -104,7 +104,6 @@ public class BookingService {
 
     private static final String AGENCY_LOCATION_ID_KEY = "agencyLocationId";
     private static final String IEP_LEVEL_DOMAIN = "IEP_LEVEL";
-    public static final String[] RESTRICTED_ALLOWED_ROLES = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "CREATE_CATEGORISATION", "APPROVE_CATEGORISATION"};
 
     private final Comparator<ScheduledEvent> startTimeComparator = Comparator.comparing(ScheduledEvent::getStartTime, nullsLast(naturalOrder()));
 
@@ -269,7 +268,7 @@ public class BookingService {
     }
 
     public Map<Long, PrivilegeSummary> getBookingIEPSummary(final List<Long> bookingIds, final boolean withDetails) {
-        if (withDetails || !isAllowedToViewAllPrisonerData(RESTRICTED_ALLOWED_ROLES)) {
+        if (withDetails || !isViewAllOffenders()) {
             bookingIds.forEach(this::verifyBookingAccess);
         }
         final Map<Long, PrivilegeSummary> mapOfEip = new HashMap<>();
@@ -508,13 +507,19 @@ public class BookingService {
         return bookingRepository.getBookingsByRelationship(personId, relationshipType);
     }
 
+    public void verifyCanViewSensitiveBookingInfo(final String offenderNo, final String... rolesAllowed) {
+        getOffenderIdentifiers(offenderNo, rolesAllowed);
+    }
 
     public OffenderBookingIdSeq getOffenderIdentifiers(final String offenderNo, final String... rolesAllowed) {
         final var offenderIdentifier = bookingRepository.getLatestBookingIdentifierForOffender(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
 
-        offenderIdentifier.getBookingAndSeq().ifPresent(b -> verifyBookingAccess(b.getBookingId(), rolesAllowed));
+        if (isRestrictedByCaseload()) {
+            verifyBookingAccess(offenderIdentifier.getBookingAndSeq().orElseThrow(EntityNotFoundException.withId(offenderIdentifier.getOffenderNo())).getBookingId(), rolesAllowed);
+        }
         return offenderIdentifier;
     }
+
 
     @VerifyBookingAccess
     public uk.gov.justice.hmpps.prison.api.support.Page<ScheduledEvent> getBookingAppointments(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final long offset, final long limit, final String orderByFields, final Order order) {
@@ -636,7 +641,7 @@ public class BookingService {
      */
     public void verifyBookingAccess(final Long bookingId, final String... rolesAllowed) {
         // system user has access to everything
-        if (isAllowedToViewAllPrisonerData(rolesAllowed)) return;
+        if (securityUtils.isOverrideRole(rolesAllowed)) return;
 
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
@@ -749,8 +754,7 @@ public class BookingService {
     }
 
     public List<OffenderSentenceDetail> getBookingSentencesSummary(final List<Long> bookingIds) {
-        final var offenderSentenceSummary = bookingSentenceSummaries(bookingIds, caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false),
-            !isAllowedToViewAllPrisonerData(RESTRICTED_ALLOWED_ROLES));
+        final var offenderSentenceSummary = bookingSentenceSummaries(bookingIds, caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false), !isViewAllOffenders());
         return getOffenderSentenceDetails(offenderSentenceSummary);
     }
 
@@ -855,7 +859,7 @@ public class BookingService {
     }
 
     private Set<String> getCaseLoadIdForUserIfRequired() {
-        return isAllowedToViewAllPrisonerData(RESTRICTED_ALLOWED_ROLES) ? Set.of() : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
+        return isViewAllOffenders() ? Set.of() : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
     }
 
     private List<OffenderSentenceDetail> getOffenderSentenceDetails(final List<OffenderSentenceDetailDto> offenderSentenceSummary) {
@@ -923,7 +927,7 @@ public class BookingService {
 
     private List<OffenderSentenceDetailDto> offenderSentenceSummaries(final String agencyId, final List<String> offenderNos) {
 
-        final var viewAllBookings = isAllowedToViewAllPrisonerData(RESTRICTED_ALLOWED_ROLES);
+        final var viewAllBookings = isViewAllOffenders();
         final var caseLoadIdsForUser = getCaseLoadIdForUserIfRequired();
 
         if (offenderNos == null || offenderNos.isEmpty()) {
@@ -965,8 +969,12 @@ public class BookingService {
                 .collect(Collectors.toList());
     }
 
-    private boolean isAllowedToViewAllPrisonerData(final String[] overrideRoles) {
-        return securityUtils.isOverrideRole(overrideRoles);
+    private boolean isViewAllOffenders() {
+        return securityUtils.isOverrideRole("SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "CREATE_CATEGORISATION", "APPROVE_CATEGORISATION");
+    }
+
+    private boolean isRestrictedByCaseload() {
+        return !isViewAllOffenders();
     }
 
     private boolean isViewInactiveBookings() {
@@ -976,6 +984,7 @@ public class BookingService {
     private boolean isOverrideRole(final String otherRole) {
         return securityUtils.isOverrideRole(otherRole, "SYSTEM_USER");
     }
+
 
     private static String quotedAndPipeDelimited(final Stream<String> values) {
         return values.collect(Collectors.joining("'|'", "'", "'"));
