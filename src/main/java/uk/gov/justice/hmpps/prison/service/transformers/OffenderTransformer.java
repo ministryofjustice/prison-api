@@ -55,7 +55,6 @@ public class OffenderTransformer {
                     .question(pd.getId().getType().getDescription())
                     .resultValue(pd.getCode().getDescription())
                     .build()).collect(Collectors.toList()))
-            .restrictivePatient(latestBooking.getRestrictivePatientDetails())
             .build()
             .deriveStatus()
             .splitStatusReason();

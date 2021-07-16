@@ -295,7 +295,6 @@ public class InmateService {
                             inmate.setLatestLocationId(lastMovement.getFromAgency().getId());
                             if (REL.getCode().equals(inmate.getLastMovementTypeCode())) {
                                 inmate.setLocationDescription(calculateReleaseLocationDescription(lastMovement));
-                                inmate.setRestrictivePatient(uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking.mapRestrictivePatient(lastMovement, inmate.getLegalStatus(), inmate.getSentenceDetail() != null ? inmate.getSentenceDetail().getReleaseDate() : null));
                             }
                         },
                         () -> {
