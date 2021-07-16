@@ -10,9 +10,11 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
+import uk.gov.justice.hmpps.prison.api.model.RequestToReleasePrisoner;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.service.SmokeTestHelperService;
 
@@ -41,5 +43,23 @@ public class SmokeTestHelperResource {
         service.imprisonmentDataSetup(offenderNo);
     }
 
+    @ApiResponses({
+        @ApiResponse(code = 403, message = "Requires role ROLE_SMOKE_TEST", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Releases this offender, with smoke test data")
+    @PutMapping("/offenders/{offenderNo}/release")
+    @ProxyUser
+    public void releasePrisoner(@PathVariable("offenderNo") @ApiParam(value = "offenderNo", required = true, example = "A1234AA") @NotNull final String offenderNo) {
+        service.releasePrisoner(offenderNo);
+    }
 
+    @ApiResponses({
+        @ApiResponse(code = 403, message = "Requires role ROLE_SMOKE_TEST", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Recalls this offender, with smoke test data")
+    @PutMapping("/offenders/{offenderNo}/recall")
+    @ProxyUser
+    public void recallPrisoner(@PathVariable("offenderNo") @ApiParam(value = "offenderNo", required = true, example = "A1234AA") @NotNull final String offenderNo) {
+        service.recallPrisoner(offenderNo);
+    }
 }
