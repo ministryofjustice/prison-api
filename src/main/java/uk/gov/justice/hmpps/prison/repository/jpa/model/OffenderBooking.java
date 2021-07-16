@@ -11,10 +11,8 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.ListIndexBase;
 import uk.gov.justice.hmpps.prison.api.model.LegalStatus;
-import uk.gov.justice.hmpps.prison.api.model.RestrictivePatient;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord.BookingAndSequence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail.PK;
-import uk.gov.justice.hmpps.prison.service.transformers.AgencyTransformer;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -29,10 +27,8 @@ import javax.persistence.OrderBy;
 import javax.persistence.OrderColumn;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -40,13 +36,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
-import static uk.gov.justice.hmpps.prison.api.model.LegalStatus.CONVICTED_UNSENTENCED;
-import static uk.gov.justice.hmpps.prison.api.model.LegalStatus.IMMIGRATION_DETAINEE;
-import static uk.gov.justice.hmpps.prison.api.model.LegalStatus.INDETERMINATE_SENTENCE;
-import static uk.gov.justice.hmpps.prison.api.model.LegalStatus.RECALL;
-import static uk.gov.justice.hmpps.prison.api.model.LegalStatus.SENTENCED;
-import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason.DISCHARGE_TO_PSY_HOSPITAL;
-import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.REL;
 
 @EqualsAndHashCode(of = "bookingId", callSuper = false)
 @Data
@@ -303,34 +292,5 @@ public class OffenderBooking extends ExtendedAuditableEntity {
         return getActiveImprisonmentStatus().map(
             is -> is.getImprisonmentStatus().getConvictedStatus()
         ).orElse(null);
-    }
-
-    public RestrictivePatient getRestrictivePatientDetails() {
-        return getLastMovement().map(lastMovement -> mapRestrictivePatient(lastMovement, getLegalStatus(), null)).orElse(null);
-    }
-
-    public static RestrictivePatient mapRestrictivePatient(final ExternalMovement lastMovement, final LegalStatus legalStatus, final LocalDate releaseDate) {
-        if (!isReleasedAndDischargedToHospital(lastMovement)) return null;
-        if (!isCorrectLegalStatus(legalStatus)) return null;
-        if (releaseDateInTheFuture(releaseDate)) return null;
-
-        return RestrictivePatient.builder()
-            .dischargeDate(lastMovement.getMovementDate())
-            .dischargedHospital(lastMovement.getToAgency().isHospital() ? AgencyTransformer.transform(lastMovement.getToAgency(), false) : null)
-            .supportingPrison(lastMovement.getFromAgency().isPrison() ? AgencyTransformer.transform(lastMovement.getFromAgency(), false) : null)
-            .dischargeDetails(lastMovement.getCommentText())
-            .build();
-    }
-
-    private static boolean isReleasedAndDischargedToHospital(final ExternalMovement lastMovement) {
-        return REL.getCode().equals(lastMovement.getMovementType().getCode()) && DISCHARGE_TO_PSY_HOSPITAL.getCode().equals(lastMovement.getMovementReason().getCode());
-    }
-
-    private static boolean isCorrectLegalStatus(final LegalStatus legalStatus) {
-        return legalStatus != null && Arrays.asList(INDETERMINATE_SENTENCE, RECALL, SENTENCED, CONVICTED_UNSENTENCED, IMMIGRATION_DETAINEE).contains(legalStatus);
-    }
-
-    private static boolean releaseDateInTheFuture(final LocalDate releaseDate) {
-        return releaseDate != null && LocalDate.now().isAfter(releaseDate);
     }
 }

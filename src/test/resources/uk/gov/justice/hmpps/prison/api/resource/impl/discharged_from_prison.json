@@ -12,20 +12,5 @@
   "status": "INACTIVE OUT",
   "statusReason": "REL-HP",
   "lastMovementTypeCode": "REL",
-  "lastMovementReasonCode": "HP",
-  "restrictivePatient": {
-    "supportingPrison": {
-      "agencyId": "LEI",
-      "description": "Leeds",
-      "agencyType": "INST",
-      "active": true
-    },
-    "dischargedHospital": {
-      "agencyId": "HAZLWD",
-      "description": "Hazelwood House",
-      "agencyType": "HSHOSP",
-      "active": true
-    },
-    "dischargeDetails": "Psychiatric Hospital Discharge to Hazelwood House"
-  }
+  "lastMovementReasonCode": "HP"
 }
