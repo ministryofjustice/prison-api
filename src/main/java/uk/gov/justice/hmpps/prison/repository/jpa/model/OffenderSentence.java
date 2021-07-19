@@ -12,9 +12,11 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.io.Serializable;
+import java.time.LocalDate;
 
 @Getter
 @Entity
@@ -31,7 +33,7 @@ public class OffenderSentence extends AuditableEntity {
     @EqualsAndHashCode
     public static class PK implements Serializable {
         private OffenderBooking offenderBooking;
-        private Long sequence;
+        private Integer sequence;
     }
 
     @Id
@@ -41,7 +43,10 @@ public class OffenderSentence extends AuditableEntity {
 
     @Id
     @Column(name = "SENTENCE_SEQ")
-    private Long sequence;
+    private Integer sequence;
+
+    @Column(name = "CONSEC_TO_SENTENCE_SEQ")
+    private Integer consecutiveToSentenceSequence;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "ORDER_ID", nullable = false)
@@ -51,9 +56,24 @@ public class OffenderSentence extends AuditableEntity {
     @JoinColumn(name = "CASE_ID", nullable = false)
     private OffenderCourtCase courtCase;
 
-    @Column(name = "SENTENCE_CALC_TYPE")
-    private String calcType;
-
     @Column(name = "SENTENCE_STATUS")
     private String status;
+
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumns({
+        @JoinColumn(name="SENTENCE_CALC_TYPE", referencedColumnName="SENTENCE_CALC_TYPE"),
+        @JoinColumn(name="SENTENCE_CATEGORY", referencedColumnName="SENTENCE_CATEGORY")
+    })
+    private SentenceCalcType calculationType;
+
+    @Column(name = "START_DATE")
+    private LocalDate sentenceStartDate;
+
+    @Column(name = "FINE_AMOUNT")
+    private Double fineAmount;
+
+    @Column(name = "LINE_SEQ")
+    private Long lineSequence;
+
+
 }

@@ -875,19 +875,6 @@ public class BookingServiceTest {
                         .build());
     }
 
-    @Test
-    public void getOffenderSentenceTerms_shouldDefaultToImp() {
-        bookingService.getOffenderSentenceTerms(-1L, Collections.emptyList());
-
-        verify(bookingRepository).getOffenderSentenceTerms(-1L, List.of("IMP"));
-    }
-
-    @Test
-    public void getOffenderSentenceTerms() {
-        bookingService.getOffenderSentenceTerms(-1L, List.of("LIC"));
-
-        verify(bookingRepository).getOffenderSentenceTerms(-1L, List.of("LIC"));
-    }
 
     @Test
     void getOffenderCourtCases_active_only_mapped() {
