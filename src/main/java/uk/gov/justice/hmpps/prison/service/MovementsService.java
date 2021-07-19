@@ -24,6 +24,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderInReception;
 import uk.gov.justice.hmpps.prison.api.model.OffenderMovement;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOut;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOutTodayDto;
+import uk.gov.justice.hmpps.prison.api.model.PrisonerInPrisonSummary;
 import uk.gov.justice.hmpps.prison.api.model.ReleaseEvent;
 import uk.gov.justice.hmpps.prison.api.model.RollCount;
 import uk.gov.justice.hmpps.prison.api.model.TransferEvent;
@@ -36,6 +37,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
@@ -63,16 +65,19 @@ public class MovementsService {
     private final MovementsRepository movementsRepository;
     private final ExternalMovementRepository externalMovementRepository;
     private final CourtEventRepository courtEventRepository;
+    private final OffenderBookingRepository offenderBookingRepository;
     private final int maxBatchSize;
 
 
     public MovementsService(final MovementsRepository movementsRepository,
-                            ExternalMovementRepository externalMovementRepository,
-                            CourtEventRepository courtEventRepository,
+                            final ExternalMovementRepository externalMovementRepository,
+                            final CourtEventRepository courtEventRepository,
+                            final OffenderBookingRepository offenderBookingRepository,
                             @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.movementsRepository = movementsRepository;
         this.externalMovementRepository = externalMovementRepository;
         this.courtEventRepository = courtEventRepository;
+        this.offenderBookingRepository = offenderBookingRepository;
         this.maxBatchSize = maxBatchSize;
     }
 
@@ -84,28 +89,37 @@ public class MovementsService {
     @VerifyBookingAccess
     public Optional<Movement> getMovementByBookingIdAndSequence(@NotNull final Long bookingId, @NotNull final Integer sequenceNumber) {
         return movementsRepository.getMovementByBookingIdAndSequence(bookingId, sequenceNumber)
-                .map(movement -> movement.toBuilder()
-                        .fromAgencyDescription(StringUtils.trimToEmpty(LocationProcessor.formatLocation(movement.getFromAgencyDescription())))
-                        .toAgencyDescription(StringUtils.trimToEmpty(LocationProcessor.formatLocation(movement.getToAgencyDescription())))
-                        .toCity(capitalizeFully(StringUtils.trimToEmpty(movement.getToCity())))
-                        .fromCity(capitalizeFully(StringUtils.trimToEmpty(movement.getFromCity())))
-                        .build());
-    }
-
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH', 'VIEW_PRISONER_DATA')")
-    public List<Movement> getMovementsByOffenders(final List<String> offenderNumbers, final List<String> movementTypes, final boolean latestOnly, final boolean allBookings) {
-        final var movements = Lists.partition(offenderNumbers, maxBatchSize)
-                .stream()
-                .map(offenders -> movementsRepository.getMovementsByOffenders(offenders, movementTypes, latestOnly, allBookings))
-                .flatMap(List::stream);
-
-        return movements.map(movement -> movement.toBuilder()
+            .map(movement -> movement.toBuilder()
                 .fromAgencyDescription(StringUtils.trimToEmpty(LocationProcessor.formatLocation(movement.getFromAgencyDescription())))
                 .toAgencyDescription(StringUtils.trimToEmpty(LocationProcessor.formatLocation(movement.getToAgencyDescription())))
                 .toCity(capitalizeFully(StringUtils.trimToEmpty(movement.getToCity())))
                 .fromCity(capitalizeFully(StringUtils.trimToEmpty(movement.getFromCity())))
-                .build())
-                .collect(toList());
+                .build());
+    }
+
+    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'VIEW_PRISONER_DATA')")
+    public PrisonerInPrisonSummary getPrisonerInPrisonSummary(final String offenderNo) {
+        final var latestBooking = offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(offenderNo, 1).orElseThrow(EntityNotFoundException.withId(offenderNo));
+
+        return latestBooking.getOffender().getRootOffender().getPrisonerInPrisonSummary();
+    }
+
+
+
+    @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH', 'VIEW_PRISONER_DATA')")
+    public List<Movement> getMovementsByOffenders(final List<String> offenderNumbers, final List<String> movementTypes, final boolean latestOnly, final boolean allBookings) {
+        final var movements = Lists.partition(offenderNumbers, maxBatchSize)
+            .stream()
+            .map(offenders -> movementsRepository.getMovementsByOffenders(offenders, movementTypes, latestOnly, allBookings))
+            .flatMap(List::stream);
+
+        return movements.map(movement -> movement.toBuilder()
+            .fromAgencyDescription(StringUtils.trimToEmpty(LocationProcessor.formatLocation(movement.getFromAgencyDescription())))
+            .toAgencyDescription(StringUtils.trimToEmpty(LocationProcessor.formatLocation(movement.getToAgencyDescription())))
+            .toCity(capitalizeFully(StringUtils.trimToEmpty(movement.getToCity())))
+            .fromCity(capitalizeFully(StringUtils.trimToEmpty(movement.getFromCity())))
+            .build())
+            .collect(toList());
     }
 
     @VerifyAgencyAccess
@@ -124,21 +138,21 @@ public class MovementsService {
         final var offenders = movementsRepository.getOffendersOut(agencyId, movementDate, upperCase(stripToNull(movementType)));
 
         return offenders
-                .stream()
-                .map(this::toOffenderOutTodayDto)
-                .collect(toList());
+            .stream()
+            .map(this::toOffenderOutTodayDto)
+            .collect(toList());
     }
 
     private OffenderOutTodayDto toOffenderOutTodayDto(final OffenderMovement offenderMovement) {
         return OffenderOutTodayDto
-                .builder()
-                .dateOfBirth(offenderMovement.getDateOfBirth())
-                .firstName(capitalizeFully(offenderMovement.getFirstName()))
-                .lastName(capitalizeFully(offenderMovement.getLastName()))
-                .reasonDescription(capitalizeFully(offenderMovement.getMovementReasonDescription()))
-                .offenderNo(offenderMovement.getOffenderNo())
-                .timeOut(offenderMovement.getMovementTime())
-                .build();
+            .builder()
+            .dateOfBirth(offenderMovement.getDateOfBirth())
+            .firstName(capitalizeFully(offenderMovement.getFirstName()))
+            .lastName(capitalizeFully(offenderMovement.getLastName()))
+            .reasonDescription(capitalizeFully(offenderMovement.getMovementReasonDescription()))
+            .offenderNo(offenderMovement.getOffenderNo())
+            .timeOut(offenderMovement.getMovementTime())
+            .build();
     }
 
     @VerifyAgencyAccess
@@ -147,10 +161,10 @@ public class MovementsService {
         final var movements = movementsRepository.getEnrouteMovementsOffenderMovementList(agencyId, date);
 
         return movements.stream().map(movement -> movement.toBuilder()
-                .fromAgencyDescription(LocationProcessor.formatLocation(movement.getFromAgencyDescription()))
-                .toAgencyDescription(LocationProcessor.formatLocation(movement.getToAgencyDescription()))
-                .build())
-                .collect(toList());
+            .fromAgencyDescription(LocationProcessor.formatLocation(movement.getFromAgencyDescription()))
+            .toAgencyDescription(LocationProcessor.formatLocation(movement.getToAgencyDescription()))
+            .build())
+            .collect(toList());
 
     }
 
@@ -164,50 +178,50 @@ public class MovementsService {
         final var offendersIn = movementsRepository.getOffendersIn(agencyId, date);
 
         return offendersIn
-                .stream()
-                .map(offender -> offender.toBuilder()
-                        .firstName(capitalizeFully(offender.getFirstName()))
-                        .lastName(capitalizeFully(offender.getLastName()))
-                        .middleName(capitalizeFully(StringUtils.trimToEmpty(offender.getMiddleName())))
-                        .fromAgencyDescription(LocationProcessor.formatLocation(offender.getFromAgencyDescription()))
-                        .toAgencyDescription(LocationProcessor.formatLocation(offender.getToAgencyDescription()))
-                        .location(StringUtils.trimToEmpty(offender.getLocation()))
-                        .movementTime(offender.getMovementDateTime().toLocalTime())
-                        .build())
-                .collect(toList());
+            .stream()
+            .map(offender -> offender.toBuilder()
+                .firstName(capitalizeFully(offender.getFirstName()))
+                .lastName(capitalizeFully(offender.getLastName()))
+                .middleName(capitalizeFully(StringUtils.trimToEmpty(offender.getMiddleName())))
+                .fromAgencyDescription(LocationProcessor.formatLocation(offender.getFromAgencyDescription()))
+                .toAgencyDescription(LocationProcessor.formatLocation(offender.getToAgencyDescription()))
+                .location(StringUtils.trimToEmpty(offender.getLocation()))
+                .movementTime(offender.getMovementDateTime().toLocalTime())
+                .build())
+            .collect(toList());
     }
 
     @VerifyAgencyAccess
     public List<OffenderInReception> getOffendersInReception(final String agencyId) {
         return movementsRepository.getOffendersInReception(agencyId)
-                .stream()
-                .map(offender -> offender.toBuilder()
-                        .firstName(capitalizeFully(offender.getFirstName()))
-                        .lastName(capitalizeFully(offender.getLastName()))
-                        .build())
-                .collect(toList());
+            .stream()
+            .map(offender -> offender.toBuilder()
+                .firstName(capitalizeFully(offender.getFirstName()))
+                .lastName(capitalizeFully(offender.getLastName()))
+                .build())
+            .collect(toList());
     }
 
     public List<OffenderOut> getOffendersCurrentlyOut(final long livingUnitId) {
         return movementsRepository
-                .getOffendersCurrentlyOut(livingUnitId)
-                .stream()
-                .map(offender -> offender.toBuilder()
-                        .firstName(capitalizeFully(offender.getFirstName()))
-                        .lastName(capitalizeFully(offender.getLastName()))
-                        .build())
-                .collect(toList());
+            .getOffendersCurrentlyOut(livingUnitId)
+            .stream()
+            .map(offender -> offender.toBuilder()
+                .firstName(capitalizeFully(offender.getFirstName()))
+                .lastName(capitalizeFully(offender.getLastName()))
+                .build())
+            .collect(toList());
     }
 
     public List<OffenderOut> getOffendersCurrentlyOut(final String agencyId) {
         return movementsRepository
-                .getOffendersCurrentlyOut(agencyId)
-                .stream()
-                .map(offender -> offender.toBuilder()
-                        .firstName(capitalizeFully(offender.getFirstName()))
-                        .lastName(capitalizeFully(offender.getLastName()))
-                        .build())
-                .collect(toList());
+            .getOffendersCurrentlyOut(agencyId)
+            .stream()
+            .map(offender -> offender.toBuilder()
+                .firstName(capitalizeFully(offender.getFirstName()))
+                .lastName(capitalizeFully(offender.getLastName()))
+                .build())
+            .collect(toList());
     }
 
     @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH')")
@@ -250,27 +264,27 @@ public class MovementsService {
         }
 
         return TransferSummary.builder()
-                .courtEvents(listOfCourtEvents)
-                .releaseEvents(listOfReleaseEvents)
-                .transferEvents(listOfTransferEvents)
-                .movements(listOfMovements)
-                .build();
+            .courtEvents(listOfCourtEvents)
+            .releaseEvents(listOfReleaseEvents)
+            .transferEvents(listOfTransferEvents)
+            .movements(listOfMovements)
+            .build();
     }
 
     @PreAuthorize("hasRole('SYSTEM_USER')")
     public List<CourtEventBasic> getUpcomingCourtAppearances() {
         return courtEventRepository.getCourtEventsUpcoming(LocalDate.now().atStartOfDay())
-                .stream()
-                .map(e -> CourtEventBasic.builder()
-                        .offenderNo((String) e.get("offenderNo"))
-                        .startTime((LocalDateTime) e.get("startTime"))
-                        .court((String) e.get("court"))
-                        .courtDescription(LocationProcessor.formatLocation((String) e.get("courtDescription")))
-                        .eventSubType((String) e.get("eventSubType"))
-                        .eventDescription((String) e.get("eventDescription"))
-                        .hold("Y".equals(e.get("holdFlag")))
-                        .build()
-                ).collect(Collectors.toList());
+            .stream()
+            .map(e -> CourtEventBasic.builder()
+                .offenderNo((String) e.get("offenderNo"))
+                .startTime((LocalDateTime) e.get("startTime"))
+                .court((String) e.get("court"))
+                .courtDescription(LocationProcessor.formatLocation((String) e.get("courtDescription")))
+                .eventSubType((String) e.get("eventSubType"))
+                .eventDescription((String) e.get("eventDescription"))
+                .hold("Y".equals(e.get("holdFlag")))
+                .build()
+            ).collect(Collectors.toList());
     }
 
     private final String checkTransferParameters(final List<String> agencyIds, final LocalDateTime fromDateTime, final LocalDateTime toDateTime,
@@ -318,21 +332,21 @@ public class MovementsService {
         final var fromCityDescription = Optional.ofNullable(m.getFromCity()).map(City::getDescription).orElse(null);
         final var toCityDescription = Optional.ofNullable(m.getToCity()).map(City::getDescription).orElse(null);
         return OffenderIn.builder()
-                .offenderNo(offender.getNomsId())
-                .bookingId(m.getOffenderBooking().getBookingId())
-                .dateOfBirth(offender.getBirthDate())
-                .firstName(capitalizeFully(offender.getFirstName()))
-                .middleName(capitalizeFully(offender.getMiddleName()))
-                .lastName(capitalizeFully(offender.getLastName()))
-                .fromAgencyId(fromAgency.map(AgencyLocation::getId).orElse(null))
-                .fromAgencyDescription(fromAgency.map(AgencyLocation::getDescription).orElse(null))
-                .toAgencyId(toAgency.map(AgencyLocation::getId).orElse(null))
-                .toAgencyDescription(toAgency.map(AgencyLocation::getDescription).orElse(null))
-                .fromCity(fromCityDescription)
-                .toCity(toCityDescription)
-                .movementDateTime(m.getMovementTime())
-                .movementTime(m.getMovementTime().toLocalTime())
-                .location(description)
-                .build();
+            .offenderNo(offender.getNomsId())
+            .bookingId(m.getOffenderBooking().getBookingId())
+            .dateOfBirth(offender.getBirthDate())
+            .firstName(capitalizeFully(offender.getFirstName()))
+            .middleName(capitalizeFully(offender.getMiddleName()))
+            .lastName(capitalizeFully(offender.getLastName()))
+            .fromAgencyId(fromAgency.map(AgencyLocation::getId).orElse(null))
+            .fromAgencyDescription(fromAgency.map(AgencyLocation::getDescription).orElse(null))
+            .toAgencyId(toAgency.map(AgencyLocation::getId).orElse(null))
+            .toAgencyDescription(toAgency.map(AgencyLocation::getDescription).orElse(null))
+            .fromCity(fromCityDescription)
+            .toCity(toCityDescription)
+            .movementDateTime(m.getMovementTime())
+            .movementTime(m.getMovementTime().toLocalTime())
+            .location(description)
+            .build();
     }
 }

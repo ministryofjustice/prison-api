@@ -12,6 +12,9 @@ import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.Where;
 import org.springframework.data.annotation.CreatedDate;
+import uk.gov.justice.hmpps.prison.api.model.MovementDate;
+import uk.gov.justice.hmpps.prison.api.model.PrisonPeriod;
+import uk.gov.justice.hmpps.prison.api.model.PrisonerInPrisonSummary;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIdentifier.OffenderIdentifierPK;
 
 import javax.persistence.CascadeType;
@@ -33,6 +36,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.Ethnicity.ETHNICITY;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.Gender.SEX;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.Suffix.SUFFIX;
@@ -193,4 +197,106 @@ public class Offender extends ExtendedAuditableEntity {
         identifiers.add(offenderIdentifier);
         return offenderIdentifier;
     }
+
+    public List<ExternalMovement> getAllMovements() {
+        final var externalMovements = new ArrayList<ExternalMovement>();
+        bookings.forEach(b -> externalMovements.addAll(b.getExternalMovements()));
+        return externalMovements.stream()
+            .sorted(Comparator.comparing(ExternalMovement::getMovementTime))
+            .collect(Collectors.toList());
+    }
+
+    public void addBooking(final OffenderBooking booking) {
+        booking.setOffender(this);
+        bookings.add(booking);
+        bookings.forEach(OffenderBooking::incBookingSequence);
+
+    }
+    public PrisonerInPrisonSummary getPrisonerInPrisonSummary() {
+        final var movementMap = getAllMovements()
+            .stream()
+            .filter(f -> f.getMovementType() != null && List.of("ADM", "REL", "TAP").contains(f.getMovementType().getCode()))
+            .collect(Collectors.groupingBy(ExternalMovement::getOffenderBooking));
+
+        final var summary = PrisonerInPrisonSummary.builder()
+            .prisonerNumber(getNomsId())
+            .prisonPeriod(movementMap.entrySet().stream()
+                .filter(p -> p.getValue().size() > 0)
+                .map(e ->
+                    PrisonPeriod.builder()
+                        .bookingId(e.getKey().getBookingId())
+                        .bookNumber(e.getKey().getBookNumber())
+                        .movementDates(buildMovements(e.getValue()))
+                        .build())
+                .collect(toList())
+            )
+            .build();
+
+        summary.getPrisonPeriod().forEach(
+            pp -> {
+                pp.setEntryDate(pp.getMovementDates().stream().findFirst()
+                    .filter( m -> "ADM".equals(m.getInwardType()) )
+                    .map(MovementDate::getDateInToPrison).orElse(null));
+
+                pp.setReleaseDate(pp.getLastMovement()
+                    .filter( m -> "REL".equals(m.getOutwardType()) )
+                    .map(MovementDate::getDateOutOfPrison).orElse(null));
+            }
+        );
+        return summary;
+    }
+
+    private List<MovementDate> buildMovements(final List<ExternalMovement> externalMovements) {
+        final var movements = new ArrayList<MovementDate>();
+
+        MovementDate lastMovement = null;
+        for (ExternalMovement externalMovement : externalMovements) {
+            final var movementRange = createMovementRange(externalMovement, lastMovement);
+            if (movementRange.isPresent()) {
+                movements.add(movementRange.get());
+                lastMovement = movementRange.get();
+            }
+        }
+
+        return movements;
+    }
+
+    private Optional<MovementDate> createMovementRange(final ExternalMovement m, final MovementDate md) {
+
+        MovementDate newMovement = md;
+        boolean newEntry = false;
+        if (md == null || (md.getDateInToPrison() != null && md.getDateOutOfPrison() != null)) {
+            // new entry
+            newMovement = MovementDate.builder().build();
+            newEntry = true;
+        }
+        if ("ADM".equals(m.getMovementType().getCode()) && newMovement.getDateInToPrison() == null) {
+            inward(m, newMovement);
+
+        } else if ("REL".equals(m.getMovementType().getCode()) && newMovement.getDateOutOfPrison() == null) {
+            outward(m, newMovement);
+
+        } else if ("TAP".equals(m.getMovementType().getCode())) {
+            if (newMovement.getDateInToPrison() != null && m.getMovementDirection() == MovementDirection.OUT) {
+                outward(m, newMovement);
+            } else if (m.getMovementDirection() == MovementDirection.IN){
+                inward(m, newMovement);
+            }
+        }
+
+        return newEntry ? Optional.of(newMovement) : Optional.empty();
+    }
+
+    private void outward(final ExternalMovement m, final MovementDate md) {
+        md.setDateOutOfPrison(m.getMovementTime());
+        md.setReasonOutOfPrison(m.getMovementReason().getDescription());
+        md.setOutwardType(m.getMovementType().getCode());
+    }
+
+    private void inward(final ExternalMovement m, final MovementDate md) {
+        md.setDateInToPrison(m.getMovementTime());
+        md.setReasonInToPrison(m.getMovementReason().getDescription());
+        md.setInwardType(m.getMovementType().getCode());
+    }
+
 }

@@ -30,6 +30,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -53,12 +54,14 @@ public class MovementsServiceImplTest {
     private ExternalMovementRepository externalMovementRepository;
     @Mock
     private CourtEventRepository courtEventRepository;
+    @Mock
+    private OffenderBookingRepository offenderBookingRepository;
 
     private MovementsService movementsService;
 
     @BeforeEach
     public void init() {
-        movementsService = new MovementsService(movementsRepository, externalMovementRepository, courtEventRepository, 1);
+        movementsService = new MovementsService(movementsRepository, externalMovementRepository, courtEventRepository, offenderBookingRepository, 1);
     }
 
     @Test

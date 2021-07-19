@@ -1,0 +1,25 @@
+{
+  "prisonerNumber": "A1234AA",
+  "prisonPeriod": [
+    {
+      "bookNumber": "A00111",
+      "bookingId": -1,
+      "entryDate": "2019-10-01T17:00:00",
+      "movementDates": [
+        {
+          "reasonInToPrison": "Unconvicted Remand",
+          "dateInToPrison": "2019-10-01T17:00:00",
+          "inwardType": "ADM",
+          "reasonOutOfPrison": "Abscond",
+          "dateOutOfPrison": "2019-10-03T09:30:00",
+          "outwardType": "REL"
+        },
+        {
+          "reasonInToPrison": "Unconvicted Remand",
+          "dateInToPrison": "2019-10-17T17:30:00",
+          "inwardType": "ADM"
+        }
+      ]
+    }
+  ]
+}
