@@ -244,6 +244,7 @@ public class OffenderBooking extends ExtendedAuditableEntity {
     }
 
     public int incBookingSequence() {
+        if (bookingSequence == null) bookingSequence = 0;
         bookingSequence = bookingSequence + 1;
         return bookingSequence;
     }
@@ -345,4 +346,6 @@ public class OffenderBooking extends ExtendedAuditableEntity {
     private static boolean releaseDateInTheFuture(final LocalDate releaseDate) {
         return releaseDate != null && LocalDate.now().isAfter(releaseDate);
     }
+
+
 }

@@ -1,16 +1,20 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @ApiModel(description = "A period of time in prison")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -27,7 +31,14 @@ public class PrisonPeriod {
     private LocalDateTime entryDate;
     private LocalDateTime releaseDate;
 
-    private List<MovementDate> movementDates;
+    @Default
+    private List<MovementDate> movementDates = new ArrayList<>();
+
+    @JsonIgnore
+    public Optional<MovementDate> getLastMovement() {
+        if (movementDates.isEmpty() ) return Optional.empty();
+        return Optional.of(movementDates.get(movementDates.size() - 1));
+    }
 
 
 }

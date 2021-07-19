@@ -22,7 +22,9 @@ import java.time.LocalDateTime;
 public class MovementDate {
     private String reasonInToPrison;
     private LocalDateTime dateInToPrison;
+    private String inwardType;
     private String reasonOutOfPrison;
     private LocalDateTime dateOutOfPrison;
+    private String outwardType;
 
 }
