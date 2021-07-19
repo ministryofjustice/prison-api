@@ -730,15 +730,6 @@ public class BookingRepository extends RepositoryBase {
                         SENTENCE_CALC_ROW_MAPPER);
     }
 
-    public List<OffenderSentenceTerms> getOffenderSentenceTerms(final Long bookingId, final List<String> sentenceTermCodes) {
-        final var sql = BookingRepositorySql.GET_OFFENDER_SENTENCE_TERMS.getSql();
-        return jdbcTemplate
-                .query(
-                        sql,
-                        createParams("bookingId", bookingId, "sentenceTermCodes", sentenceTermCodes),
-                        SENTENCE_TERMS_ROW_MAPPER);
-    }
-
     public long createAppointment(final AppointmentDetails details, final AppointmentDefaults defaults, final String agencyId) {
         final var generatedKeyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(
