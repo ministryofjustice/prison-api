@@ -370,6 +370,23 @@ public class OffendersResourceTest extends ResourceTest {
     }
 
     @Test
+    public void testViewPrisonTimeline() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA);
+
+        final var httpEntity = createHttpEntity(token, null);
+        final var prisonerNo = "A1234AA";
+        final var response = testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/prison-timeline",
+            GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            prisonerNo);
+
+        assertThatJsonFileAndStatus(response, 200, "prisoner_timeline.json");
+    }
+
+    @Test
     public void testCannotReleasePrisonerInTheFuture() {
         final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
 
