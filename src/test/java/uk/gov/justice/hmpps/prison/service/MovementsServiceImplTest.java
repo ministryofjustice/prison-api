@@ -5,7 +5,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
@@ -38,17 +37,19 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepositor
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -70,8 +71,6 @@ public class MovementsServiceImplTest {
     private ReferenceCodeRepository<MovementType> movementTypeRepository;
     @Mock
     private ReferenceCodeRepository<MovementReason> movementReasonRepository;
-    @Mock
-    private OffenderBookingRepository offenderBookingRepository;
 
     private MovementsService movementsService;
 
@@ -547,6 +546,7 @@ public class MovementsServiceImplTest {
         final MovementReason MOVEMENT_REASON_CR = new MovementReason("CR", "Conditional release");
         final OffenderBooking OFFENDER_BOOKING = OffenderBooking.builder()
             .bookingId(1L)
+            .activeFlag("N")
             .offender(Offender.builder()
                 .nomsId("A12345")
                 .firstName("Bob")
@@ -641,43 +641,6 @@ public class MovementsServiceImplTest {
                 when(movementTypeRepository.findById(MovementType.pk("REL"))).thenReturn(Optional.of(MOVEMENT_TYPE_RELEASE));
                 when(movementReasonRepository.findById(MovementReason.pk("CR"))).thenReturn(Optional.of(MOVEMENT_REASON_CR));
                 when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.of(OFFENDER_BOOKING));
-
-                when(externalMovementRepository.save(any())).thenReturn(ExternalMovement
-                    .builder()
-                    .offenderBooking(OFFENDER_BOOKING)
-                    .movementSequence(0L)
-                    .movementTime(NOW)
-                    .movementDate(NOW.toLocalDate())
-                    .fromAgency(PRISON)
-                    .toAgency(HOSPITAL)
-                    .movementDirection(MovementDirection.OUT)
-                    .movementType(MOVEMENT_TYPE_RELEASE)
-                    .movementReason(MOVEMENT_REASON_CR)
-                    .build());
-
-            }
-
-            @Test
-            public void testCallSaveWithTheCorrectParameters() {
-                movementsService.createExternalMovement(1L, CREATE_MOVEMENT);
-
-                final var captor = ArgumentCaptor.forClass(ExternalMovement.class);
-
-                verify(externalMovementRepository).save(captor.capture());
-
-                assertThat(captor.getValue())
-                    .extracting(
-                        "offenderBooking",
-                        "movementSequence",
-                        "movementDate",
-                        "movementTime",
-                        "fromAgency",
-                        "toAgency",
-                        "activeFlag",
-                        "movementDirection",
-                        "movementType",
-                        "movementReason"
-                    ).contains(OFFENDER_BOOKING, 0L, NOW.toLocalDate(), NOW, PRISON, HOSPITAL, ActiveFlag.Y, MovementDirection.OUT, MOVEMENT_TYPE_RELEASE, MOVEMENT_REASON_CR);
             }
 
             @Test

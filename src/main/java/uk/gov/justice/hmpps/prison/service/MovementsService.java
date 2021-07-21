@@ -42,7 +42,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepos
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
@@ -75,7 +74,6 @@ public class MovementsService {
     private final ReferenceCodeRepository<MovementType> movementTypeRepository;
     private final ReferenceCodeRepository<MovementReason> movementReasonRepository;
     private final OffenderBookingRepository offenderBookingRepository;
-    private final OffenderBookingRepository offenderBookingRepository;
     private final int maxBatchSize;
 
 
@@ -83,11 +81,8 @@ public class MovementsService {
                             final ExternalMovementRepository externalMovementRepository,
                             final CourtEventRepository courtEventRepository,
                             final AgencyLocationRepository agencyLocationRepository,
-                            final ReferenceCodeRepository<uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType> movementTypeRepository,
-                            final ReferenceCodeRepository<uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason> movementReasonRepository,
-                            final OffenderBookingRepository offenderBookingRepository,
-                            final ExternalMovementRepository externalMovementRepository,
-                            final CourtEventRepository courtEventRepository,
+                            final ReferenceCodeRepository<MovementType> movementTypeRepository,
+                            final ReferenceCodeRepository<MovementReason> movementReasonRepository,
                             final OffenderBookingRepository offenderBookingRepository,
                             @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.movementsRepository = movementsRepository;
@@ -97,7 +92,6 @@ public class MovementsService {
         this.agencyLocationRepository = agencyLocationRepository;
         this.movementTypeRepository = movementTypeRepository;
         this.movementReasonRepository = movementReasonRepository;
-        this.offenderBookingRepository = offenderBookingRepository;
         this.maxBatchSize = maxBatchSize;
     }
 
@@ -332,6 +326,69 @@ public class MovementsService {
         }
 
         return null;
+    }
+
+    @VerifyBookingAccess
+    @Transactional
+    public OffenderMovement createExternalMovement(final Long bookingId, final CreateExternalMovement createExternalMovement) {
+        final var offenderBooking = offenderBookingRepository.findById(bookingId)
+            .orElseThrow(EntityNotFoundException.withMessage("booking not found using %s", bookingId));
+
+        if (createExternalMovement.getMovementType().equals(MovementType.REL.getCode()) && offenderBooking.isActive())
+            throw new RuntimeException("Can not create an external movement of type REL if the offender is active");
+
+        final var fromAgency = agencyLocationRepository.findById(createExternalMovement.getFromAgencyId())
+            .orElseThrow(EntityNotFoundException.withMessage("fromAgency not found using: %s", createExternalMovement.getFromAgencyId()));
+
+        final var toAgency = agencyLocationRepository.findById(createExternalMovement.getToAgencyId())
+            .orElseThrow(EntityNotFoundException.withMessage("toAgency not found using: %s", createExternalMovement.getToAgencyId()));
+
+        final var movementType = movementTypeRepository.findById(MovementType.pk(createExternalMovement.getMovementType()))
+            .orElseThrow(EntityNotFoundException.withMessage("movementType not found using: %s", createExternalMovement.getMovementType()));
+
+        final var movementReason = movementReasonRepository.findById(MovementReason.pk(createExternalMovement.getMovementReason()))
+            .orElseThrow(EntityNotFoundException.withMessage("movementReason not found using: %s", createExternalMovement.getMovementReason()));
+
+        final var externalMovement = ExternalMovement
+            .builder()
+            .offenderBooking(offenderBooking)
+            .movementSequence(0L)
+            .movementDate(createExternalMovement.getMovementTime().toLocalDate())
+            .movementTime(createExternalMovement.getMovementTime())
+            .fromAgency(fromAgency)
+            .toAgency(toAgency)
+            .movementDirection(MovementDirection.valueOf(createExternalMovement.getDirectionCode()))
+            .movementType(movementType)
+            .movementReason(movementReason)
+            .activeFlag(ActiveFlag.Y)
+            .build();
+
+        offenderBooking.addExternalMovement(externalMovement);
+
+        return transformToOffenderMovement(externalMovement);
+    }
+
+    private OffenderMovement transformToOffenderMovement(final ExternalMovement externalMovement) {
+        return OffenderMovement
+            .builder()
+            .offenderNo(externalMovement.getOffenderBooking().getOffender().getNomsId())
+            .bookingId(externalMovement.getOffenderBooking().getBookingId())
+            .dateOfBirth(externalMovement.getOffenderBooking().getOffender().getBirthDate())
+            .firstName(externalMovement.getOffenderBooking().getOffender().getFirstName())
+            .lastName(externalMovement.getOffenderBooking().getOffender().getLastName())
+            .middleName(externalMovement.getOffenderBooking().getOffender().getMiddleName())
+            .movementDate(externalMovement.getMovementDate())
+            .movementTime(externalMovement.getMovementTime().toLocalTime())
+            .directionCode(externalMovement.getMovementDirection().toString())
+            .movementReason(externalMovement.getMovementReason().getCode())
+            .movementReasonDescription(externalMovement.getMovementReason().getDescription())
+            .movementType(externalMovement.getMovementType().getCode())
+            .movementTypeDescription(externalMovement.getMovementType().getDescription())
+            .fromAgency(externalMovement.getFromAgency().getId())
+            .fromAgencyDescription(LocationProcessor.formatLocation(externalMovement.getFromAgency().getDescription()))
+            .toAgency(externalMovement.getToAgency().getId())
+            .toAgencyDescription(LocationProcessor.formatLocation(externalMovement.getToAgency().getDescription()))
+            .build();
     }
 
     @VerifyBookingAccess
