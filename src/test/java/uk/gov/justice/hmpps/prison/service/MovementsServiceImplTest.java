@@ -38,19 +38,17 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepositor
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -64,6 +62,8 @@ public class MovementsServiceImplTest {
     private ExternalMovementRepository externalMovementRepository;
     @Mock
     private CourtEventRepository courtEventRepository;
+    @Mock
+    private OffenderBookingRepository offenderBookingRepository;
     @Mock
     private AgencyLocationRepository agencyLocationRepository;
     @Mock

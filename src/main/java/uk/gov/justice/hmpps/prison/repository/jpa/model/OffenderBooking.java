@@ -126,6 +126,18 @@ public class OffenderBooking extends ExtendedAuditableEntity {
     @Default
     private List<OffenderCaseNote> caseNotes = new ArrayList<>();
 
+    @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
+    @Default
+    private List<OffenderCharge> charges = new ArrayList<>();
+
+    @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
+    @Default
+    private List<SentenceCalculation> sentenceCalculations = new ArrayList<>();
+
+    @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
+    @Default
+    private List<SentenceTerm> terms = new ArrayList<>();
+
     @Column(name = "ROOT_OFFENDER_ID")
     private Long rootOffenderId;
 
@@ -221,6 +233,7 @@ public class OffenderBooking extends ExtendedAuditableEntity {
     }
 
     public int incBookingSequence() {
+        if (bookingSequence == null) bookingSequence = 0;
         bookingSequence = bookingSequence + 1;
         return bookingSequence;
     }

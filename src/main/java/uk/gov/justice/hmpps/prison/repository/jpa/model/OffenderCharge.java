@@ -12,6 +12,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.math.BigDecimal;
@@ -41,11 +42,12 @@ public class OffenderCharge extends AuditableEntity {
     @JoinColumn(name = "CASE_ID", nullable = false)
     private OffenderCourtCase offenderCourtCase;
 
-    @Column(name = "STATUTE_CODE", nullable = false)
-    private String statuteCode;
-
-    @Column(name = "OFFENCE_CODE", nullable = false)
-    private String offenceCode;
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumns({
+        @JoinColumn(name="OFFENCE_CODE", referencedColumnName="OFFENCE_CODE"),
+        @JoinColumn(name="STATUTE_CODE", referencedColumnName="STATUTE_CODE")
+    })
+    private Offence offence;
 
     @Column(name = "NO_OF_OFFENCES")
     private Integer numberOfOffences;
@@ -77,11 +79,13 @@ public class OffenderCharge extends AuditableEntity {
     @Column(name = "CHARGE_STATUS")
     private String chargeStatus;
 
-    @Column(name = "RESULT_CODE_1")
-    private String resultCodeOne;
+    @ManyToOne(optional = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "RESULT_CODE_1", nullable = true)
+    private OffenceResult resultCodeOne;
 
-    @Column(name = "RESULT_CODE_2")
-    private String resultCodeTwo;
+    @ManyToOne(optional = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "RESULT_CODE_2", nullable = true)
+    private OffenceResult resultCodeTwo;
 
     @Column(name = "RESULT_CODE_1_INDICATOR")
     private String resultCodeOneIndicator;
