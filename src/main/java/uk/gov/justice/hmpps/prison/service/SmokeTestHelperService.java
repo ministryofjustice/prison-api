@@ -65,7 +65,7 @@ public class SmokeTestHelperService {
             .prisonId("MDI")
             .movementReasonCode("24")
             .imprisonmentStatus("CUR_ORA")
-            .cellLocation("MDI-1-1-001")
+            .cellLocation("MDI-RECP")
             .youthOffender(false)
             .build();
         prisonerReleaseAndTransferService.recallPrisoner(offenderNo, requestToRecall);
