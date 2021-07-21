@@ -39,7 +39,7 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 
 @EqualsAndHashCode(of = "bookingId", callSuper = false)
 @Data
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity

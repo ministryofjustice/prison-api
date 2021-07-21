@@ -1,0 +1,17 @@
+{
+  "offenderNo": "A1234AA",
+  "bookingId": -1,
+  "dateOfBirth": "1969-12-30",
+  "firstName": "ARTHUR",
+  "middleName": "BORIS",
+  "lastName": "ANDERSON",
+  "fromAgency": "HAZLWD",
+  "fromAgencyDescription": "Hazelwood House",
+  "toAgency": "OUT",
+  "toAgencyDescription": "Outside",
+  "movementType": "REL",
+  "movementTypeDescription": "Release",
+  "movementReason": "CR",
+  "movementReasonDescription": "Conditional Release (CJA91) -SH Term>1YR",
+  "directionCode": "OUT"
+}

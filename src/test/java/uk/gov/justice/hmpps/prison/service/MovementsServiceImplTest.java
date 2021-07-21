@@ -2,14 +2,17 @@ package uk.gov.justice.hmpps.prison.service;
 
 import com.google.common.collect.ImmutableList;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.prison.api.model.CourtEvent;
+import uk.gov.justice.hmpps.prison.api.model.CreateExternalMovement;
 import uk.gov.justice.hmpps.prison.api.model.Movement;
 import uk.gov.justice.hmpps.prison.api.model.MovementSummary;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIn;
@@ -26,20 +29,28 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.City;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -53,12 +64,28 @@ public class MovementsServiceImplTest {
     private ExternalMovementRepository externalMovementRepository;
     @Mock
     private CourtEventRepository courtEventRepository;
+    @Mock
+    private AgencyLocationRepository agencyLocationRepository;
+    @Mock
+    private ReferenceCodeRepository<MovementType> movementTypeRepository;
+    @Mock
+    private ReferenceCodeRepository<MovementReason> movementReasonRepository;
+    @Mock
+    private OffenderBookingRepository offenderBookingRepository;
 
     private MovementsService movementsService;
 
     @BeforeEach
     public void init() {
-        movementsService = new MovementsService(movementsRepository, externalMovementRepository, courtEventRepository, 1);
+        movementsService = new MovementsService(
+            movementsRepository,
+            externalMovementRepository,
+            courtEventRepository,
+            agencyLocationRepository,
+            movementTypeRepository,
+            movementReasonRepository,
+            offenderBookingRepository,
+            1);
     }
 
     @Test
@@ -107,12 +134,12 @@ public class MovementsServiceImplTest {
     @Test
     public void testGetEnrouteOffenderMovements() {
         final List<OffenderMovement> oms = ImmutableList.of(OffenderMovement.builder()
-                .offenderNo(TEST_OFFENDER_NO)
-                .bookingId(123L).firstName("JAMES")
-                .lastName("SMITH")
-                .fromAgencyDescription("LEEDS")
-                .toAgencyDescription("MOORLANDS")
-                .build());
+            .offenderNo(TEST_OFFENDER_NO)
+            .bookingId(123L).firstName("JAMES")
+            .lastName("SMITH")
+            .fromAgencyDescription("LEEDS")
+            .toAgencyDescription("MOORLANDS")
+            .build());
 
         when(movementsRepository.getEnrouteMovementsOffenderMovementList("LEI", LocalDate.of(2015, 9, 12))).thenReturn(oms);
 
@@ -148,17 +175,17 @@ public class MovementsServiceImplTest {
     public void testGetOffenders_OutToday() {
         final var timeOut = LocalTime.now();
         final List<OffenderMovement> singleOffender = ImmutableList.of(
-                OffenderMovement.builder()
-                        .offenderNo("1234")
-                        .directionCode("OUT")
-                        .dateOfBirth(LocalDate.now())
-                        .movementDate(LocalDate.now())
-                        .fromAgency("LEI")
-                        .firstName("JOHN")
-                        .lastName("DOE")
-                        .movementReasonDescription("NORMAL TRANSFER")
-                        .movementTime(timeOut)
-                        .build());
+            OffenderMovement.builder()
+                .offenderNo("1234")
+                .directionCode("OUT")
+                .dateOfBirth(LocalDate.now())
+                .movementDate(LocalDate.now())
+                .fromAgency("LEI")
+                .firstName("JOHN")
+                .lastName("DOE")
+                .movementReasonDescription("NORMAL TRANSFER")
+                .movementTime(timeOut)
+                .build());
 
         when(movementsRepository.getOffendersOut("LEI", LocalDate.now(), null)).thenReturn(singleOffender);
 
@@ -208,81 +235,81 @@ public class MovementsServiceImplTest {
         final var agency = "LEI";
 
         when(movementsRepository.getOffendersInReception(agency))
-                .thenReturn(
-                        Collections.singletonList(OffenderInReception.builder()
-                                .firstName("FIRST")
-                                .lastName("LASTNAME")
-                                .dateOfBirth(LocalDate.of(1950, 10, 10))
-                                .offenderNo("1234A")
-                                .build()
-                        )
-                );
+            .thenReturn(
+                Collections.singletonList(OffenderInReception.builder()
+                    .firstName("FIRST")
+                    .lastName("LASTNAME")
+                    .dateOfBirth(LocalDate.of(1950, 10, 10))
+                    .offenderNo("1234A")
+                    .build()
+                )
+            );
 
         final var offenders = movementsService.getOffendersInReception(agency);
 
         assertThat(offenders)
-                .containsExactly(OffenderInReception.builder()
-                        .firstName("First")
-                        .lastName("Lastname")
-                        .dateOfBirth(LocalDate.of(1950, 10, 10))
-                        .offenderNo("1234A")
-                        .build());
+            .containsExactly(OffenderInReception.builder()
+                .firstName("First")
+                .lastName("Lastname")
+                .dateOfBirth(LocalDate.of(1950, 10, 10))
+                .offenderNo("1234A")
+                .build());
     }
 
     @Test
     public void testMappingToProperCase_CurrentlyOut() {
 
         when(movementsRepository.getOffendersCurrentlyOut(1L))
-                .thenReturn(
-                        Collections.singletonList(OffenderOut.builder()
-                                .firstName("FIRST")
-                                .lastName("LASTNAME")
-                                .dateOfBirth(LocalDate.of(1950, 10, 10))
-                                .offenderNo("1234A")
-                                .location("x-1-1")
-                                .build()
-                        )
-                );
+            .thenReturn(
+                Collections.singletonList(OffenderOut.builder()
+                    .firstName("FIRST")
+                    .lastName("LASTNAME")
+                    .dateOfBirth(LocalDate.of(1950, 10, 10))
+                    .offenderNo("1234A")
+                    .location("x-1-1")
+                    .build()
+                )
+            );
 
         final var offenders = movementsService.getOffendersCurrentlyOut(1L);
 
         assertThat(offenders)
-                .containsExactly(OffenderOut.builder()
-                        .firstName("First")
-                        .lastName("Lastname")
-                        .dateOfBirth(LocalDate.of(1950, 10, 10))
-                        .offenderNo("1234A")
-                        .location("x-1-1")
-                        .build());
+            .containsExactly(OffenderOut.builder()
+                .firstName("First")
+                .lastName("Lastname")
+                .dateOfBirth(LocalDate.of(1950, 10, 10))
+                .offenderNo("1234A")
+                .location("x-1-1")
+                .build());
     }
 
     @Test
     public void testThatCallsToRecentMovements_AreBatched() {
         final var offenders = List.of("offender1", "offender2");
         final var movement1 = Movement.builder()
-                .offenderNo("offender1")
-                .fromAgencyDescription("Lei")
-                .toAgencyDescription("York")
-                .toCity("York")
-                .fromCity("Leeds")
-                .movementType("TRN")
-                .movementReason("COURT")
-                .build();
+            .offenderNo("offender1")
+            .fromAgencyDescription("Lei")
+            .toAgencyDescription("York")
+            .toCity("York")
+            .fromCity("Leeds")
+            .movementType("TRN")
+            .movementReason("COURT")
+            .build();
         final var movement2 = Movement.builder()
-                .offenderNo("offender2")
-                .fromAgencyDescription("Hli")
-                .toAgencyDescription("York")
-                .toCity("York")
-                .fromCity("Hull")
-                .movementType("TRN")
-                .movementReason("COURT")
-                .build();
+            .offenderNo("offender2")
+            .fromAgencyDescription("Hli")
+            .toAgencyDescription("York")
+            .toCity("York")
+            .fromCity("Hull")
+            .movementType("TRN")
+            .movementReason("COURT")
+            .build();
 
         when(movementsRepository.getMovementsByOffenders(List.of("offender1"), Collections.emptyList(), true, false))
-                .thenReturn(List.of(movement1));
+            .thenReturn(List.of(movement1));
 
         when(movementsRepository.getMovementsByOffenders(List.of("offender2"), Collections.emptyList(), true, false))
-                .thenReturn(List.of(movement2));
+            .thenReturn(List.of(movement2));
 
         final var movements = movementsService.getMovementsByOffenders(offenders, Collections.emptyList(), true, false);
 
@@ -297,21 +324,21 @@ public class MovementsServiceImplTest {
     public void testMovementsForAgenciesBetweenTwoTimes() {
 
         final var listOfMovements = List.of(
-                MovementSummary.builder().offenderNo("1111").movementType("TRN").movementTime(LocalDateTime.now()).fromAgency("LEI").fromAgencyDescription("Leicester").toAgency("MDI").toAgencyDescription("Midlands").movementReason("Court").build(),
-                MovementSummary.builder().offenderNo("2222").movementType("TRN").movementTime(LocalDateTime.now()).fromAgency("MDI").fromAgencyDescription("Midlands").toAgency("LEI").toAgencyDescription("Leicester").movementReason("Transfer").build(),
-                MovementSummary.builder().offenderNo("4333").movementType("TRN").movementTime(LocalDateTime.now()).fromAgency("MDI").fromAgencyDescription("Midlands").toAgency("HOW").toAgencyDescription("Howden").movementReason("Transfer").build()
+            MovementSummary.builder().offenderNo("1111").movementType("TRN").movementTime(LocalDateTime.now()).fromAgency("LEI").fromAgencyDescription("Leicester").toAgency("MDI").toAgencyDescription("Midlands").movementReason("Court").build(),
+            MovementSummary.builder().offenderNo("2222").movementType("TRN").movementTime(LocalDateTime.now()).fromAgency("MDI").fromAgencyDescription("Midlands").toAgency("LEI").toAgencyDescription("Leicester").movementReason("Transfer").build(),
+            MovementSummary.builder().offenderNo("4333").movementType("TRN").movementTime(LocalDateTime.now()).fromAgency("MDI").fromAgencyDescription("Midlands").toAgency("HOW").toAgencyDescription("Howden").movementReason("Transfer").build()
         );
 
         final var listOfCourtEvents = List.of(
-                CourtEvent.builder().offenderNo("5555").eventType("CRT").startTime(LocalDateTime.now()).build()
+            CourtEvent.builder().offenderNo("5555").eventType("CRT").startTime(LocalDateTime.now()).build()
         );
 
         final var listOfReleaseEvents = List.of(
-                ReleaseEvent.builder().offenderNo("6666").movementTypeCode("REL").createDateTime(LocalDateTime.now()).build()
+            ReleaseEvent.builder().offenderNo("6666").movementTypeCode("REL").createDateTime(LocalDateTime.now()).build()
         );
 
         final var listOfTransferEvents = List.of(
-                TransferEvent.builder().offenderNo("7777").eventClass("TRN").createDateTime(LocalDateTime.now()).build()
+            TransferEvent.builder().offenderNo("7777").eventClass("TRN").createDateTime(LocalDateTime.now()).build()
         );
 
         final var from = LocalDateTime.parse("2019-05-01T11:00:00");
@@ -410,11 +437,11 @@ public class MovementsServiceImplTest {
     public void testAgencyEventsCombinationQuery() {
 
         final var listOfCourtEvents = List.of(
-                CourtEvent.builder().offenderNo("5555").eventType("CRT").startTime(LocalDateTime.now()).build()
+            CourtEvent.builder().offenderNo("5555").eventType("CRT").startTime(LocalDateTime.now()).build()
         );
 
         final var listOfTransferEvents = List.of(
-                TransferEvent.builder().offenderNo("7777").eventClass("TRN").createDateTime(LocalDateTime.now()).build()
+            TransferEvent.builder().offenderNo("7777").eventClass("TRN").createDateTime(LocalDateTime.now()).build()
         );
 
         final var from = LocalDateTime.parse("2019-05-01T11:00:00");
@@ -448,65 +475,247 @@ public class MovementsServiceImplTest {
     public void getOffenderIn_verifyRetrieval() {
 
         when(externalMovementRepository.findMovements(any(), any(), any(), any(), any(), any()))
-                .thenReturn(
-                        new PageImpl<>(Collections.singletonList(ExternalMovement.builder()
-                                .movementTime(LocalDateTime.of(2020, 1, 30, 12, 30))
-                                .offenderBooking(OffenderBooking.builder()
-                                        .bookingId(-1L)
-                                        .assignedLivingUnit(AgencyInternalLocation.builder().description("INSIDE").build())
-                                        .offender(Offender.builder()
-                                                .nomsId("A1234AA")
-                                                .firstName("BOB")
-                                                .middleName("JOHN")
-                                                .lastName("SMITH")
-                                                .birthDate(LocalDate.of(2001, 1, 2))
-                                                .build())
-                                        .build())
-                                .activeFlag(ActiveFlag.Y)
-                                .fromCity(new City("CIT-1", "City 1"))
-                                .toCity(new City("CIT-2", "City 2"))
-                                .toAgency(AgencyLocation.builder()
-                                        .id("LEI")
-                                        .description("LEEDS")
-                                        .build())
-                                .fromAgency(AgencyLocation.builder()
-                                        .id("MDI")
-                                        .description("MOORLAND")
-                                        .build()
-                                ).build())));
+            .thenReturn(
+                new PageImpl<>(Collections.singletonList(ExternalMovement.builder()
+                    .movementTime(LocalDateTime.of(2020, 1, 30, 12, 30))
+                    .offenderBooking(OffenderBooking.builder()
+                        .bookingId(-1L)
+                        .assignedLivingUnit(AgencyInternalLocation.builder().description("INSIDE").build())
+                        .offender(Offender.builder()
+                            .nomsId("A1234AA")
+                            .firstName("BOB")
+                            .middleName("JOHN")
+                            .lastName("SMITH")
+                            .birthDate(LocalDate.of(2001, 1, 2))
+                            .build())
+                        .build())
+                    .activeFlag(ActiveFlag.Y)
+                    .fromCity(new City("CIT-1", "City 1"))
+                    .toCity(new City("CIT-2", "City 2"))
+                    .toAgency(AgencyLocation.builder()
+                        .id("LEI")
+                        .description("LEEDS")
+                        .build())
+                    .fromAgency(AgencyLocation.builder()
+                        .id("MDI")
+                        .description("MOORLAND")
+                        .build()
+                    ).build())));
 
         final var offenders = movementsService.getOffendersIn(
-                "LEI",
-                LocalDateTime.of(2020, 1, 2, 1, 2),
-                LocalDateTime.of(2020, 2, 2, 1, 2),
-                PageRequest.of(1, 2), false);
+            "LEI",
+            LocalDateTime.of(2020, 1, 2, 1, 2),
+            LocalDateTime.of(2020, 2, 2, 1, 2),
+            PageRequest.of(1, 2), false);
 
         assertThat(offenders).containsExactly(OffenderIn.builder()
-                .offenderNo("A1234AA")
-                .firstName("Bob")
-                .middleName("John")
-                .lastName("Smith")
-                .bookingId(-1L)
-                .dateOfBirth(LocalDate.of(2001, 1, 2))
-                .movementDateTime(LocalDateTime.of(2020, 1, 30, 12, 30))
-                .movementTime(LocalTime.of(12, 30))
-                .fromCity("City 1")
-                .toCity("City 2")
-                .fromAgencyId("MDI")
-                .fromAgencyDescription("MOORLAND")
-                .toAgencyId("LEI")
-                .toAgencyDescription("LEEDS")
-                .location("INSIDE")
-                .build());
+            .offenderNo("A1234AA")
+            .firstName("Bob")
+            .middleName("John")
+            .lastName("Smith")
+            .bookingId(-1L)
+            .dateOfBirth(LocalDate.of(2001, 1, 2))
+            .movementDateTime(LocalDateTime.of(2020, 1, 30, 12, 30))
+            .movementTime(LocalTime.of(12, 30))
+            .fromCity("City 1")
+            .toCity("City 2")
+            .fromAgencyId("MDI")
+            .fromAgencyDescription("MOORLAND")
+            .toAgencyId("LEI")
+            .toAgencyDescription("LEEDS")
+            .location("INSIDE")
+            .build());
 
 
         verify(externalMovementRepository).findMovements(
-                "LEI",
-                ActiveFlag.Y,
-                MovementDirection.IN,
-                LocalDateTime.of(2020, 1, 2, 1, 2),
-                LocalDateTime.of(2020, 2, 2, 1, 2),
-                PageRequest.of(1, 2));
+            "LEI",
+            ActiveFlag.Y,
+            MovementDirection.IN,
+            LocalDateTime.of(2020, 1, 2, 1, 2),
+            LocalDateTime.of(2020, 2, 2, 1, 2),
+            PageRequest.of(1, 2));
     }
 
+
+    @Nested
+    class CreateExternalMovementTests {
+        final LocalDateTime NOW = LocalDateTime.parse("2021-01-01T21:00");
+
+        final AgencyLocation PRISON = AgencyLocation.builder().id("MDI").description("Moorland (HMP & YOI)").build();
+        final AgencyLocation HOSPITAL = AgencyLocation.builder().id("HAZLWD").description("Hazelwood House").build();
+        final MovementType MOVEMENT_TYPE_RELEASE = new MovementType("REL", "Released");
+        final MovementReason MOVEMENT_REASON_CR = new MovementReason("CR", "Conditional release");
+        final OffenderBooking OFFENDER_BOOKING = OffenderBooking.builder()
+            .bookingId(1L)
+            .offender(Offender.builder()
+                .nomsId("A12345")
+                .firstName("Bob")
+                .middleName("Good")
+                .lastName("Doe")
+                .birthDate(LocalDate.of(1980, 10, 10))
+                .build())
+            .build();
+
+        final CreateExternalMovement CREATE_MOVEMENT = CreateExternalMovement.builder()
+            .bookingId(1L)
+            .movementTime(NOW)
+            .toAgencyId("HAZLWD")
+            .fromAgencyId("MDI")
+            .directionCode("OUT")
+            .movementType("REL")
+            .movementReason("CR")
+            .build();
+
+        @Test
+        public void testBookingNotFound() {
+            Throwable exception = assertThrows(EntityNotFoundException.class, () -> movementsService.createExternalMovement(1L, CREATE_MOVEMENT));
+
+            assertThat(exception.getMessage()).isEqualTo("booking not found using 1");
+        }
+
+        @Test
+        public void testFromAgencyNotFound() {
+            when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.of(OFFENDER_BOOKING));
+
+            Throwable exception = assertThrows(EntityNotFoundException.class, () -> movementsService.createExternalMovement(1L, CREATE_MOVEMENT));
+
+            assertThat(exception.getMessage()).isEqualTo("fromAgency not found using: MDI");
+        }
+
+        @Test
+        public void testToAgencyNotFound() {
+            when(agencyLocationRepository.findById("MDI")).thenReturn(Optional.of(AgencyLocation.builder().build()));
+            when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.of(OFFENDER_BOOKING));
+
+            Throwable exception = assertThrows(EntityNotFoundException.class, () -> movementsService.createExternalMovement(1L, CREATE_MOVEMENT));
+
+            assertThat(exception.getMessage()).isEqualTo("toAgency not found using: HAZLWD");
+        }
+
+        @Test
+        public void testMovementTypeNotFound() {
+            when(agencyLocationRepository.findById("MDI")).thenReturn(Optional.of(AgencyLocation.builder().build()));
+            when(agencyLocationRepository.findById("HAZLWD")).thenReturn(Optional.of(AgencyLocation.builder().build()));
+            when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.of(OFFENDER_BOOKING));
+
+            Throwable exception = assertThrows(EntityNotFoundException.class, () -> movementsService.createExternalMovement(1L, CREATE_MOVEMENT));
+
+            assertThat(exception.getMessage()).isEqualTo("movementType not found using: REL");
+        }
+
+        @Test
+        public void testMovementReasonNotFound() {
+            when(agencyLocationRepository.findById("MDI")).thenReturn(Optional.of(AgencyLocation.builder().build()));
+            when(agencyLocationRepository.findById("HAZLWD")).thenReturn(Optional.of(AgencyLocation.builder().build()));
+            when(movementTypeRepository.findById(MovementType.pk("REL"))).thenReturn(Optional.of(MOVEMENT_TYPE_RELEASE));
+            when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.of(OFFENDER_BOOKING));
+
+            Throwable exception = assertThrows(EntityNotFoundException.class, () -> movementsService.createExternalMovement(1L, CREATE_MOVEMENT));
+
+            assertThat(exception.getMessage()).isEqualTo("movementReason not found using: CR");
+        }
+
+        @Nested
+        class RulesAroundMovements {
+            @Test
+            public void testStopReleaseMovementsForOffenders_currentlyInside() {
+                when(offenderBookingRepository.findById(anyLong()))
+                    .thenReturn(Optional.of(OFFENDER_BOOKING
+                        .toBuilder()
+                        .activeFlag(ActiveFlag.Y.toString())
+                        .bookingStatus("ACTIVE IN")
+                        .build()));
+
+                Throwable exception = assertThrows(RuntimeException.class, () -> movementsService.createExternalMovement(1L, CREATE_MOVEMENT));
+
+                assertThat(exception.getMessage()).isEqualTo("Can not create an external movement of type REL if the offender is active");
+            }
+        }
+
+        @Nested
+        class ParametersAndMapping {
+            @BeforeEach
+            public void beforeEach() {
+                when(agencyLocationRepository.findById("MDI")).thenReturn(Optional.of(PRISON));
+                when(agencyLocationRepository.findById("HAZLWD")).thenReturn(Optional.of(HOSPITAL));
+                when(movementTypeRepository.findById(MovementType.pk("REL"))).thenReturn(Optional.of(MOVEMENT_TYPE_RELEASE));
+                when(movementReasonRepository.findById(MovementReason.pk("CR"))).thenReturn(Optional.of(MOVEMENT_REASON_CR));
+                when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.of(OFFENDER_BOOKING));
+
+                when(externalMovementRepository.save(any())).thenReturn(ExternalMovement
+                    .builder()
+                    .offenderBooking(OFFENDER_BOOKING)
+                    .movementSequence(0L)
+                    .movementTime(NOW)
+                    .movementDate(NOW.toLocalDate())
+                    .fromAgency(PRISON)
+                    .toAgency(HOSPITAL)
+                    .movementDirection(MovementDirection.OUT)
+                    .movementType(MOVEMENT_TYPE_RELEASE)
+                    .movementReason(MOVEMENT_REASON_CR)
+                    .build());
+
+            }
+
+            @Test
+            public void testCallSaveWithTheCorrectParameters() {
+                movementsService.createExternalMovement(1L, CREATE_MOVEMENT);
+
+                final var captor = ArgumentCaptor.forClass(ExternalMovement.class);
+
+                verify(externalMovementRepository).save(captor.capture());
+
+                assertThat(captor.getValue())
+                    .extracting(
+                        "offenderBooking",
+                        "movementSequence",
+                        "movementDate",
+                        "movementTime",
+                        "fromAgency",
+                        "toAgency",
+                        "activeFlag",
+                        "movementDirection",
+                        "movementType",
+                        "movementReason"
+                    ).contains(OFFENDER_BOOKING, 0L, NOW.toLocalDate(), NOW, PRISON, HOSPITAL, ActiveFlag.Y, MovementDirection.OUT, MOVEMENT_TYPE_RELEASE, MOVEMENT_REASON_CR);
+            }
+
+            @Test
+            public void testMapping() {
+                final var movement = movementsService.createExternalMovement(1L, CREATE_MOVEMENT);
+
+                assertThat(movement)
+                    .extracting(
+                        "offenderNo",
+                        "bookingId",
+                        "dateOfBirth",
+                        "firstName",
+                        "lastName",
+                        "middleName",
+                        "fromAgency",
+                        "fromAgencyDescription",
+                        "toAgency",
+                        "toAgencyDescription",
+                        "movementType",
+                        "movementTypeDescription",
+                        "movementReason",
+                        "movementReasonDescription",
+                        "directionCode",
+                        "movementTime",
+                        "movementDate")
+                    .contains("A12345", 1L,
+                        LocalDate.of(1980, 10, 10), "Bob", "Doe", "Good",
+                        PRISON.getId(), PRISON.getDescription(),
+                        HOSPITAL.getId(), HOSPITAL.getDescription(),
+                        MOVEMENT_TYPE_RELEASE.getCode(),
+                        MOVEMENT_TYPE_RELEASE.getDescription(),
+                        MOVEMENT_REASON_CR.getCode(),
+                        MOVEMENT_REASON_CR.getDescription(),
+                        MovementDirection.OUT.toString(),
+                        NOW.toLocalTime(),
+                        NOW.toLocalDate());
+
+            }
+        }
+    }
 }
