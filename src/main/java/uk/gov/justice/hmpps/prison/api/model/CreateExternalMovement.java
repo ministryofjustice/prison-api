@@ -7,7 +7,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Builder
@@ -18,17 +20,24 @@ import java.time.LocalDateTime;
 @ApiModel(description = "Create new external movement")
 public class CreateExternalMovement {
     @ApiModelProperty(value = "Booking id", required = true, example = "1")
+    @NotNull
     private Long bookingId;
     @ApiModelProperty(value = "Agency location moving from", required = true, example = "MDI")
+    @NotNull
     private String fromAgencyId;
     @ApiModelProperty(value = "Agency location moving to", required = true, example = "OUT")
+    @NotNull
     private String toAgencyId;
     @ApiModelProperty(value = "Date time of movement", required = true, example = "2020-02-28T14:40:00")
+    @NotNull
     private LocalDateTime movementTime;
-    @ApiModelProperty(value = "Type of movement", required = true, example = "REL", allowableValues = "REL,TRN,ADM,TAP,CRT")
+    @ApiModelProperty(value = "Type of movement", required = true, example = "TRN")
+    @NotNull
     private String movementType;
-    @ApiModelProperty(value = "Movement reason", required = true, example = "CR", allowableValues = "CRT,HP,0,CR")
+    @ApiModelProperty(value = "Movement reason", required = true, example = "SEC")
+    @NotNull
     private String movementReason;
     @ApiModelProperty(value = "Direction code", required = true, example = "OUT", allowableValues = "IN,OUT")
-    private String directionCode;
+    @NotNull
+    private MovementDirection directionCode;
 }

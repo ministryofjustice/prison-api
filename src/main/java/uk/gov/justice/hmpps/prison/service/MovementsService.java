@@ -350,7 +350,7 @@ public class MovementsService {
             throw new EntityNotFoundException("Invalid movement reason for supplied movement type");
 
         if (createExternalMovement.getMovementType().equals(MovementType.REL.getCode()) && offenderBooking.isActive())
-            throw new RuntimeException("Can not create an external movement of type REL if the offender is active");
+            throw new IllegalStateException("Can not create an external movement of type REL if the offender is active");
 
         final var fromAgency = agencyLocationRepository.findById(createExternalMovement.getFromAgencyId())
             .orElseThrow(EntityNotFoundException.withMessage("fromAgency not found using: %s", createExternalMovement.getFromAgencyId()));
@@ -366,7 +366,7 @@ public class MovementsService {
             .movementTime(createExternalMovement.getMovementTime())
             .fromAgency(fromAgency)
             .toAgency(toAgency)
-            .movementDirection(MovementDirection.valueOf(createExternalMovement.getDirectionCode()))
+            .movementDirection(createExternalMovement.getDirectionCode())
             .movementType(movementType)
             .movementReason(movementReason)
             .activeFlag(ActiveFlag.Y)

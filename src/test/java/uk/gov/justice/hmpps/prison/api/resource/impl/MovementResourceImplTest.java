@@ -5,11 +5,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.justice.hmpps.prison.api.model.CreateExternalMovement;
 import uk.gov.justice.hmpps.prison.api.resource.MovementResource;
 import uk.gov.justice.hmpps.prison.service.MovementsService;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.Mockito.verify;
@@ -45,22 +43,5 @@ public class MovementResourceImplTest {
         movementResource.getMovementsByOffenders(List.of(), List.of(), false, false);
 
         verify(movementsService).getMovementsByOffenders(List.of(), List.of(), false, false);
-    }
-
-    @Test
-    public void createExternalMovement() {
-        final var externalMovement = CreateExternalMovement.builder()
-            .bookingId(1L)
-            .movementType("REL")
-            .movementReason("CR")
-            .directionCode("OUT")
-            .fromAgencyId("HAZLWD")
-            .toAgencyId("OUT")
-            .movementTime(LocalDateTime.now())
-            .build();
-
-        movementResource.createExternalMovement(externalMovement);
-
-        verify(movementsService).createExternalMovement(1L, externalMovement);
     }
 }

@@ -568,7 +568,7 @@ public class MovementsServiceImplTest {
             .movementTime(NOW)
             .toAgencyId("HAZLWD")
             .fromAgencyId("MDI")
-            .directionCode("OUT")
+            .directionCode(MovementDirection.OUT)
             .movementType("REL")
             .movementReason("CR")
             .build();
@@ -650,7 +650,7 @@ public class MovementsServiceImplTest {
                         .bookingStatus("ACTIVE IN")
                         .build()));
 
-                Throwable exception = assertThrows(RuntimeException.class, () -> movementsService.createExternalMovement(1L, CREATE_MOVEMENT));
+                Throwable exception = assertThrows(IllegalStateException.class, () -> movementsService.createExternalMovement(1L, CREATE_MOVEMENT));
 
                 assertThat(exception.getMessage()).isEqualTo("Can not create an external movement of type REL if the offender is active");
             }
