@@ -9,6 +9,7 @@ import org.springframework.test.context.ContextConfiguration;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderAlertPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderChargePendingDeletion;
 import uk.gov.justice.hmpps.prison.PrisonApiServer;
+import uk.gov.justice.hmpps.prison.RepositoryConfiguration;
 
 import java.time.LocalDate;
 
@@ -18,7 +19,7 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @DataJpaTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = NONE)
-@ContextConfiguration(classes = { PrisonApiServer.class })
+@ContextConfiguration(classes = { PrisonApiServer.class, RepositoryConfiguration.class})
 class OffenderAliasPendingDeletionRepositoryTest {
 
     @Autowired
