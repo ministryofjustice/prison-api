@@ -210,6 +210,11 @@ public class MovementResource {
 
     @ApiOperation(value = "Create a new external movement", nickname = "createExternalMovement")
     @ResponseStatus(value = HttpStatus.CREATED)
+    @ApiResponses({
+        @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)}
+    )
     @PostMapping
     public OffenderMovement createExternalMovement(@Valid @RequestBody CreateExternalMovement createExternalMovement) {
         return movementsService.createExternalMovement(createExternalMovement.getBookingId(), createExternalMovement);

@@ -41,6 +41,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.MovementTypeAndReasonRespository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
@@ -74,6 +75,7 @@ public class MovementsService {
     private final ReferenceCodeRepository<MovementType> movementTypeRepository;
     private final ReferenceCodeRepository<MovementReason> movementReasonRepository;
     private final OffenderBookingRepository offenderBookingRepository;
+    private final MovementTypeAndReasonRespository movementTypeAndReasonRespository;
     private final int maxBatchSize;
 
 
@@ -84,6 +86,7 @@ public class MovementsService {
                             final ReferenceCodeRepository<MovementType> movementTypeRepository,
                             final ReferenceCodeRepository<MovementReason> movementReasonRepository,
                             final OffenderBookingRepository offenderBookingRepository,
+                            final MovementTypeAndReasonRespository movementTypeAndReasonRespository,
                             @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.movementsRepository = movementsRepository;
         this.externalMovementRepository = externalMovementRepository;
@@ -92,6 +95,7 @@ public class MovementsService {
         this.agencyLocationRepository = agencyLocationRepository;
         this.movementTypeRepository = movementTypeRepository;
         this.movementReasonRepository = movementReasonRepository;
+        this.movementTypeAndReasonRespository = movementTypeAndReasonRespository;
         this.maxBatchSize = maxBatchSize;
     }
 
@@ -117,7 +121,6 @@ public class MovementsService {
 
         return latestBooking.getOffender().getRootOffender().getPrisonerInPrisonSummary();
     }
-
 
 
     @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH', 'VIEW_PRISONER_DATA')")
@@ -334,6 +337,18 @@ public class MovementsService {
         final var offenderBooking = offenderBookingRepository.findById(bookingId)
             .orElseThrow(EntityNotFoundException.withMessage("booking not found using %s", bookingId));
 
+        final var movementType = movementTypeRepository.findById(MovementType.pk(createExternalMovement.getMovementType()))
+            .orElseThrow(EntityNotFoundException.withMessage("movementType not found using: %s", createExternalMovement.getMovementType()));
+
+        final var movementReason = movementReasonRepository.findById(MovementReason.pk(createExternalMovement.getMovementReason()))
+            .orElseThrow(EntityNotFoundException.withMessage("movementReason not found using: %s", createExternalMovement.getMovementReason()));
+
+        final var movementReasons =
+            movementTypeAndReasonRespository.findMovementTypeAndReasonByTypeIs(createExternalMovement.getMovementType());
+
+        if (movementReasons.stream().noneMatch(r -> r.getReasonCode().equals(createExternalMovement.getMovementReason())))
+            throw new EntityNotFoundException("Invalid movement reason for supplied movement type");
+
         if (createExternalMovement.getMovementType().equals(MovementType.REL.getCode()) && offenderBooking.isActive())
             throw new RuntimeException("Can not create an external movement of type REL if the offender is active");
 
@@ -342,12 +357,6 @@ public class MovementsService {
 
         final var toAgency = agencyLocationRepository.findById(createExternalMovement.getToAgencyId())
             .orElseThrow(EntityNotFoundException.withMessage("toAgency not found using: %s", createExternalMovement.getToAgencyId()));
-
-        final var movementType = movementTypeRepository.findById(MovementType.pk(createExternalMovement.getMovementType()))
-            .orElseThrow(EntityNotFoundException.withMessage("movementType not found using: %s", createExternalMovement.getMovementType()));
-
-        final var movementReason = movementReasonRepository.findById(MovementReason.pk(createExternalMovement.getMovementReason()))
-            .orElseThrow(EntityNotFoundException.withMessage("movementReason not found using: %s", createExternalMovement.getMovementReason()));
 
         final var externalMovement = ExternalMovement
             .builder()

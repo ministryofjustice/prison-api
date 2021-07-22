@@ -21,8 +21,8 @@ public class OffenderMovementsResourceIntTest_createExternalMovement extends Res
             "fromAgencyId", "HAZLWD",
             "toAgencyId", "OUT",
             "movementTime", now,
-            "movementType", "REL",
-            "movementReason", "CR",
+            "movementType", "TRN",
+            "movementReason", "SEC",
             "directionCode", "OUT"
         );
 

@@ -15,6 +15,7 @@ import javax.persistence.IdClass;
 import java.io.Serializable;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "MOVEMENT_REASONS")

@@ -9,9 +9,9 @@
   "fromAgencyDescription": "Hazelwood House",
   "toAgency": "OUT",
   "toAgencyDescription": "Outside",
-  "movementType": "REL",
-  "movementTypeDescription": "Release",
-  "movementReason": "CR",
-  "movementReasonDescription": "Conditional Release (CJA91) -SH Term>1YR",
+  "movementType": "TRN",
+  "movementTypeDescription": "Transfers",
+  "movementReason": "SEC",
+  "movementReasonDescription": "Security Reasons",
   "directionCode": "OUT"
 }
