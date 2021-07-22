@@ -331,9 +331,8 @@ public class MovementsService {
         return null;
     }
 
-    @VerifyBookingAccess
     @Transactional
-    public OffenderMovement createExternalMovement(final Long bookingId, final CreateExternalMovement createExternalMovement) {
+    public OffenderMovement createExternalMovement(@NotNull final Long bookingId, final CreateExternalMovement createExternalMovement) {
         final var offenderBooking = offenderBookingRepository.findById(bookingId)
             .orElseThrow(EntityNotFoundException.withMessage("booking not found using %s", bookingId));
 
@@ -349,8 +348,8 @@ public class MovementsService {
         if (movementReasons.stream().noneMatch(r -> r.getReasonCode().equals(createExternalMovement.getMovementReason())))
             throw new EntityNotFoundException("Invalid movement reason for supplied movement type");
 
-        if (createExternalMovement.getMovementType().equals(MovementType.REL.getCode()) && offenderBooking.isActive())
-            throw new IllegalStateException("Can not create an external movement of type REL if the offender is active");
+        if (offenderBooking.isActive())
+            throw new IllegalStateException("You can only create an external movement for inactive offenders");
 
         final var fromAgency = agencyLocationRepository.findById(createExternalMovement.getFromAgencyId())
             .orElseThrow(EntityNotFoundException.withMessage("fromAgency not found using: %s", createExternalMovement.getFromAgencyId()));

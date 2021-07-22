@@ -652,7 +652,7 @@ public class MovementsServiceImplTest {
 
                 Throwable exception = assertThrows(IllegalStateException.class, () -> movementsService.createExternalMovement(1L, CREATE_MOVEMENT));
 
-                assertThat(exception.getMessage()).isEqualTo("Can not create an external movement of type REL if the offender is active");
+                assertThat(exception.getMessage()).isEqualTo("You can only create an external movement for inactive offenders");
             }
         }
 

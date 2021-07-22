@@ -15,7 +15,7 @@ public class OffenderMovementsResourceIntTest_createExternalMovement extends Res
     @Test
     public void createExternalMovement() {
 
-        final var entity = createHttpEntity(authTokenHelper.getToken(AuthToken.NORMAL_USER), getBody());
+        final var entity = createHttpEntity(authTokenHelper.getToken(AuthToken.INACTIVE_BOOKING_USER), getBody());
 
         final var response = testRestTemplate.exchange(
             "/api/movements",
@@ -29,8 +29,8 @@ public class OffenderMovementsResourceIntTest_createExternalMovement extends Res
     }
 
     @Test
-    public void returnNotFound_whenThePrisonerIsOutsideOfOurCaseload() {
-       final var entity = createHttpEntity(authTokenHelper.getToken(AuthToken.NO_CASELOAD_USER), getBody());
+    public void returnNotAuthorised_whenTheUserIsMissingTheCorrectRole() {
+       final var entity = createHttpEntity(authTokenHelper.getToken(AuthToken.NORMAL_USER), getBody());
 
         final var response = testRestTemplate.exchange(
             "/api/movements",
@@ -39,12 +39,12 @@ public class OffenderMovementsResourceIntTest_createExternalMovement extends Res
             new ParameterizedTypeReference<String>() {
             });
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(404);
+        assertThat(response.getStatusCodeValue()).isEqualTo(403);
     }
 
     private Map<String,Object> getBody() {
         return  Map.of(
-            "bookingId", -1,
+            "bookingId", -21,
             "fromAgencyId", "HAZLWD",
             "toAgencyId", "OUT",
             "movementTime", LocalDateTime.now(),

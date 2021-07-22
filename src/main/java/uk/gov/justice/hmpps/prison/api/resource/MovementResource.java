@@ -9,6 +9,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,6 +33,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderOutTodayDto;
 import uk.gov.justice.hmpps.prison.api.model.RollCount;
 import uk.gov.justice.hmpps.prison.api.model.TransferSummary;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
+import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.service.MovementsService;
 
 import javax.validation.Valid;
@@ -208,7 +210,7 @@ public class MovementResource {
         return movementsService.getUpcomingCourtAppearances();
     }
 
-    @ApiOperation(value = "Create a new external movement", nickname = "createExternalMovement")
+    @ApiOperation(value = "Create a new external movement for inactive bookings only, requires the INACTIVE_BOOKINGS role", nickname = "createExternalMovement")
     @ResponseStatus(value = HttpStatus.CREATED)
     @ApiResponses({
         @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
@@ -216,6 +218,8 @@ public class MovementResource {
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)}
     )
     @PostMapping
+    @PreAuthorize("hasRole('INACTIVE_BOOKINGS') and hasAuthority('SCOPE_write')")
+    @ProxyUser
     public OffenderMovement createExternalMovement(@Valid @RequestBody CreateExternalMovement createExternalMovement) {
         return movementsService.createExternalMovement(createExternalMovement.getBookingId(), createExternalMovement);
     }
