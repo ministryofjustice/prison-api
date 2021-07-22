@@ -11,6 +11,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderWithImage;
 import uk.gov.justice.hmpps.prison.PrisonApiServer;
+import uk.gov.justice.hmpps.prison.RepositoryConfiguration;
 
 import java.time.LocalDateTime;
 
@@ -21,7 +22,7 @@ import static org.springframework.data.domain.Sort.Direction.ASC;
 @DataJpaTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = NONE)
-@ContextConfiguration(classes = { PrisonApiServer.class })
+@ContextConfiguration(classes = { PrisonApiServer.class, RepositoryConfiguration.class})
 class OffenderImageUpdateRepositoryTest {
 
     @Autowired

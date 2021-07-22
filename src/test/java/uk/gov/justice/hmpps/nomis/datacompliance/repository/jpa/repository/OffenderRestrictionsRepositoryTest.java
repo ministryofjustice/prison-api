@@ -9,6 +9,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderRestrictions;
 import uk.gov.justice.hmpps.prison.PrisonApiServer;
+import uk.gov.justice.hmpps.prison.RepositoryConfiguration;
 
 import java.util.List;
 
@@ -20,7 +21,7 @@ import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TES
 @DataJpaTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = NONE)
-@ContextConfiguration(classes = {PrisonApiServer.class})
+@ContextConfiguration(classes = { PrisonApiServer.class, RepositoryConfiguration.class})
 @Sql(value = "define_regexp_like.sql")
 @Sql(value = "drop_regexp_like.sql", executionPhase = AFTER_TEST_METHOD)
 class OffenderRestrictionsRepositoryTest {

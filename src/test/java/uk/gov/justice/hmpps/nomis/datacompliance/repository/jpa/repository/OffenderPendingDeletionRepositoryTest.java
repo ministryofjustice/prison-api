@@ -11,6 +11,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderPendingDeletion;
 import uk.gov.justice.hmpps.prison.PrisonApiServer;
+import uk.gov.justice.hmpps.prison.RepositoryConfiguration;
 
 import java.time.LocalDate;
 
@@ -21,7 +22,7 @@ import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TES
 @DataJpaTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = NONE)
-@ContextConfiguration(classes = { PrisonApiServer.class })
+@ContextConfiguration(classes = { PrisonApiServer.class, RepositoryConfiguration.class})
 class OffenderPendingDeletionRepositoryTest {
 
     private static final LocalDate SENTENCE_END_DATE = LocalDate.of(2020, 3, 24);

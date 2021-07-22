@@ -9,6 +9,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.DuplicateOffender;
 import uk.gov.justice.hmpps.prison.PrisonApiServer;
+import uk.gov.justice.hmpps.prison.RepositoryConfiguration;
 
 import java.util.Set;
 
@@ -19,7 +20,7 @@ import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TES
 @DataJpaTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = NONE)
-@ContextConfiguration(classes = { PrisonApiServer.class })
+@ContextConfiguration(classes = { PrisonApiServer.class, RepositoryConfiguration.class})
 @Sql(value = "define_regexp_substr.sql")
 @Sql(value = "define_jaro_winkler_similarity.sql")
 @Sql(value = "mv_offender_match_details.sql")
