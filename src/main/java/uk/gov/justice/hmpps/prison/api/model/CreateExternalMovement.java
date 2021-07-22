@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@ApiModel(description = "Create new external movement")
+@ApiModel(description = "Create external movement")
 public class CreateExternalMovement {
     @ApiModelProperty(value = "Booking id", required = true, example = "1")
     @NotNull
