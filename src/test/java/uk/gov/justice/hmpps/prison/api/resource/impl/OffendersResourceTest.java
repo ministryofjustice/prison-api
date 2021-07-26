@@ -667,6 +667,45 @@ public class OffendersResourceTest extends ResourceTest {
 
     }
 
+    @Test
+    public void testNewBookingRejectedIfCellAtCapacity() {
+        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
+
+        final var body = Map.of(
+            "pncNumber", "03/11965Z",
+            "lastName", "BookedInto",
+            "firstName", "FullCell",
+            "title", "MR",
+            "dateOfBirth", LocalDate.of(2001, 10, 30).format(DateTimeFormatter.ISO_LOCAL_DATE),
+            "gender", "M",
+            "ethnicity", "W1");
+
+        final var entity = createHttpEntity(token, body);
+
+        final var response =  testRestTemplate.exchange(
+            "/api/offenders",
+            POST,
+            entity,
+            new ParameterizedTypeReference<String>() {
+            }
+        );
+
+        final var offenderNo = new Gson().fromJson(response.getBody(), Map.class).get("offenderNo");
+
+        final var newBookingBody = Map.of("prisonId", "MDI", "fromLocationId", "COURT1", "movementReasonCode", "24", "youthOffender", "false", "imprisonmentStatus", "CUR_ORA", "cellLocation", "MDI-FULL");
+        final var newBookingEntity = createHttpEntity(token, newBookingBody);
+
+        final var newBookingResponse =  testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/booking",
+            POST,
+            newBookingEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            offenderNo
+        );
+        assertThatStatus(newBookingResponse, 409);
+    }
+
 
     @Test
     public void testCannotCreateNewPrisonerWithExistingPNC() {

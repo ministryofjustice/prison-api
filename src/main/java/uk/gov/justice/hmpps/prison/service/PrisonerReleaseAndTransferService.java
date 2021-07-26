@@ -353,6 +353,9 @@ public class PrisonerReleaseAndTransferService {
         final var internalLocation = requestForNewBooking.getCellLocation() != null ? requestForNewBooking.getCellLocation() : receivedPrison.getId() + "-" + "RECP";
 
         final var cellLocation = agencyInternalLocationRepository.findOneByDescriptionAndAgencyId(internalLocation, receivedPrison.getId()).orElseThrow(EntityNotFoundException.withMessage(format("%s cell location not found", internalLocation)));
+        if (!cellLocation.hasSpace(true)) {
+            throw ConflictingRequestException.withMessage(format("The cell %s does not have any available capacity", internalLocation));
+        }
 
         final var currentUsername = authenticationFacade.getCurrentUsername();
 
@@ -749,7 +752,7 @@ public class PrisonerReleaseAndTransferService {
         int number = rnd.nextInt(99999);
 
         // this will convert any number sequence into 6 character.
-        return String.format("%05d", number);
+        return format("%05d", number);
     }
 
 }
