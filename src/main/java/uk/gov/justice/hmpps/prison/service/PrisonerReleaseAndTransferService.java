@@ -353,7 +353,7 @@ public class PrisonerReleaseAndTransferService {
         final var internalLocation = requestForNewBooking.getCellLocation() != null ? requestForNewBooking.getCellLocation() : receivedPrison.getId() + "-" + "RECP";
 
         final var cellLocation = agencyInternalLocationRepository.findOneByDescriptionAndAgencyId(internalLocation, receivedPrison.getId()).orElseThrow(EntityNotFoundException.withMessage(format("%s cell location not found", internalLocation)));
-        if (!cellLocation.isActiveCellWithSpace(true)) {
+        if (!cellLocation.hasSpace(true)) {
             throw ConflictingRequestException.withMessage(format("The cell %s does not have any available capacity", internalLocation));
         }
 

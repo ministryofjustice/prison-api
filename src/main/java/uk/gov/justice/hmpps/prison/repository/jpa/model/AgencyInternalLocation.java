@@ -92,7 +92,7 @@ public class AgencyInternalLocation {
         return isActive() && isCell();
     }
 
-    private boolean hasSpace(final boolean treatZeroOperationalCapacityAsNull) {
+    public boolean hasSpace(final boolean treatZeroOperationalCapacityAsNull) {
         final var capacity = getActualCapacity(treatZeroOperationalCapacityAsNull);
         return capacity != null && currentOccupancy != null && currentOccupancy < capacity;
     }
