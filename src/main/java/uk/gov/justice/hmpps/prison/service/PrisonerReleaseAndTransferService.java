@@ -263,6 +263,9 @@ public class PrisonerReleaseAndTransferService {
         final var internalLocation = requestToRecall.getCellLocation() != null ? requestToRecall.getCellLocation() : prisonToRecallTo.getId() + "-" + "RECP";
 
         final var cellLocation = agencyInternalLocationRepository.findOneByDescriptionAndAgencyId(internalLocation, prisonToRecallTo.getId()).orElseThrow(EntityNotFoundException.withMessage(format("%s cell location not found", internalLocation)));
+        if (!cellLocation.hasSpace(true)) {
+            throw ConflictingRequestException.withMessage(format("The cell %s does not have any available capacity", internalLocation));
+        }
 
         booking.setInOutStatus(IN.name());
         booking.setActiveFlag("Y");
@@ -485,6 +488,9 @@ public class PrisonerReleaseAndTransferService {
         final var internalLocation = requestToTransferIn.getCellLocation() != null ? requestToTransferIn.getCellLocation() : latestExternalMovement.getToAgency().getId() + "-" + "RECP";
 
         final var cellLocation = agencyInternalLocationRepository.findOneByDescriptionAndAgencyId(internalLocation, latestExternalMovement.getToAgency().getId()).orElseThrow(EntityNotFoundException.withMessage(format("%s cell location not found", internalLocation)));
+        if (!cellLocation.hasSpace(true)) {
+            throw ConflictingRequestException.withMessage(format("The cell %s does not have any available capacity", internalLocation));
+        }
 
         booking.setInOutStatus(IN.name());
         booking.setActiveFlag("Y");

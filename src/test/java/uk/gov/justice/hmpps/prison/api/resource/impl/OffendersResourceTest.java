@@ -858,6 +858,61 @@ public class OffendersResourceTest extends ResourceTest {
     }
 
     @Test
+    public void testCannotTransferAPrisonerIntoLocationAtCapacity() {
+        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
+
+        final var now = LocalDateTime.now();
+        final var body = Map.of("transferReasonCode", "NOTR", "commentText", "transferred prisoner today", "toLocation", "MDI",
+            "movementTime", now.minusHours(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+
+        final var entity = createHttpEntity(token, body);
+
+        final var prisonerNo = "A1180HJ";
+        final var response =  testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/transfer-out",
+            PUT,
+            entity,
+            new ParameterizedTypeReference<String>() {
+            },
+            prisonerNo
+        );
+
+        assertThatStatus(response, 200);
+
+        final var failingTranferInRequest = Map.of("receiveTime", now.minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), "commentText", "admitted",
+            "cellLocation", "MDI-FULL");
+
+        final var failingTransferInEntity = createHttpEntity(token, failingTranferInRequest);
+
+        final var failingTransferInResponse =  testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/transfer-in",
+            PUT,
+            failingTransferInEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            prisonerNo
+        );
+
+        assertThatStatus(failingTransferInResponse, 409);
+
+        final var tranferInRequest = Map.of("receiveTime", now.minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), "commentText", "admitted",
+            "cellLocation", "MDI-1-3-022");
+
+        final var transferInEntity = createHttpEntity(token, tranferInRequest);
+
+        final var transferInResponse =  testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/transfer-in",
+            PUT,
+            transferInEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            prisonerNo
+        );
+
+        assertThatStatus(transferInResponse, 200);
+    }
+
+    @Test
     public void testCannotReleasePrisonerAlreadyOut() {
         final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
 
@@ -910,6 +965,26 @@ public class OffendersResourceTest extends ResourceTest {
         );
 
         assertThat(releaseResponse.getStatusCodeValue()).isEqualTo(200);
+    }
+
+    @Test
+    public void testRecallAPrisonerFailsIfLocationAtCapacity() {
+        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
+
+        final var body = Map.of("prisonId", "MDI", "fromLocationId", "COURT1", "movementReasonCode", "24", "youthOffender", "true", "imprisonmentStatus", "CUR_ORA", "cellLocation", "MDI-FULL");
+
+        final var recallEntity = createHttpEntity(token, body);
+
+        final var response =  testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/recall",
+            PUT,
+            recallEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            "Z0022ZZ"
+        );
+
+        assertThatStatus(response, 409);
     }
 
     @Test
