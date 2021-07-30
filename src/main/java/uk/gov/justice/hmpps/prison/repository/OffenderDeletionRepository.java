@@ -2,11 +2,14 @@ package uk.gov.justice.hmpps.prison.repository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
+import uk.gov.justice.hmpps.prison.aop.connectionproxy.AppModuleName;
 import uk.gov.justice.hmpps.prison.repository.sql.OffenderDeletionRepositorySql;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import static java.lang.String.format;
 
 @Repository
 @Slf4j
@@ -36,6 +39,16 @@ public class OffenderDeletionRepository extends RepositoryBase {
         log.info("Deleted {} offender records (excluding non-base-records) for offenderNumber: '{}'", offenderIds.size(), offenderNumber);
 
         return offenderIds;
+    }
+
+    public void setContext(final AppModuleName context)  {
+
+        final var sql = format("BEGIN \n" +
+            "nomis_context.set_context('AUDIT_MODULE_NAME','%s'); \n" +
+            "END;", context);
+
+        getJdbcTemplateBase().execute(sql);
+
     }
 
     private Set<Long> offenderIdsFor(final String offenderNumber) {
