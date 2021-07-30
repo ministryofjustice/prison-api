@@ -27,19 +27,6 @@ Feature: User Details and Roles
       | API_TEST_USER       | KW_ADMIN,OMIC_ADMIN  |
       | NO_CASELOAD_USER    | VIEW_PRISONER_DATA,LICENCE_RO |
 
-  Scenario Outline: As a logged in user I can find out which users have a given role at a particular caseload
-    Given a user has authenticated with the API
-    When a request for users having role "<role>" at caseload "<caseload>" is made
-    Then the matching "<usernames>" are returned
-
-    Examples:
-    | role     | caseload | usernames                          |
-    | WING_OFF | LEI      | PRISON_API_USER,ITAG_USER,JBRIEN,NONWEB,RENEGADE |
-    | WING_OFF | MUL      | API_TEST_USER                      |
-    | WING_OFF | XXXXXX   |                                    |
-    | XXXXX    | LEI      |                                    |
-    | KW_ADMIN | NWEB     | API_TEST_USER,ITAG_USER            |
-
   Scenario: A trusted client can make api-role assignments to users.
     Given a trusted client that can maintain access roles has authenticated with the API
     When the client assigns api-role "KW_ADMIN" to user "API_TEST_USER"
@@ -86,16 +73,6 @@ Feature: User Details and Roles
     Given a user has a token name of "ADMIN_TOKEN"
     When a request for users with usernames "JBRIEN,RENEGADE" is made
     Then a list of users is returned with usernames "JBRIEN,RENEGADE"
-
-  Scenario: A list of staff users by caseload and namefilter can be retrieved
-    Given a user has a token name of "ADMIN_TOKEN"
-    When a request for users with caseload "LEI" and namefilter "User" and role "" is made
-    Then a list of users is returned with usernames "PRISON_API_USER,ITAG_USER,CA_USER,DM_USER,PPL_USER,RCTL_USER,POM_USER,PF_RO_USER"
-
-  Scenario: A list of staff users by caseload and namefilter and access role can be retrieved
-    Given a user has a token name of "ADMIN_TOKEN"
-    When a request for users with caseload "LEI" and namefilter "User" and role "OMIC_ADMIN" is made
-    Then a list of users is returned with usernames "ITAG_USER"
 
   Scenario: A list of staff users by LAA and namefilter can be retrieved
     Given a user has a token name of "LAA_USER"

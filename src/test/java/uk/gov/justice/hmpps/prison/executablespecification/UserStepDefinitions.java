@@ -145,11 +145,6 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
         user.verifyCaseNoteTypesHaveSubTypes();
     }
 
-    @When("^a request for users having role \"([^\"]*)\" at caseload \"([^\"]*)\" is made$")
-    public void aRequestForUsersHavingAtIsMade(final String role, final String caseload) {
-        user.findUsernamesHavingRoleAtCaseload(role, caseload);
-    }
-
     @Then("^the matching \"([^\"]*)\" are returned$")
     public void theMatchingAreReturned(final String usernames) {
         user.verifyUsernames(usernames);
@@ -185,14 +180,9 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
         user.userDoesNotHaveRoleAtCaseload(username, role, caseload);
     }
 
-    @When("^a request for users with caseload \"([^\"]*)\" is made$")
-    public void aRequestForUsersWithCaseloadIsMade(final String caseloadId) {
-        user.getUsersByCaseload(caseloadId, null, null, false);
-    }
-
     @When("^a request for users is made$")
     public void aRequestForUsersIsMade() {
-        user.getUsers(null, null, false);
+        user.getUsers(null, null);
     }
 
     @When("^a request for users with usernames \"([^\"]*)\" is made$")
@@ -213,11 +203,6 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
     @Then("^a list of roles is returned with role codes \"([^\"]*)\"$")
     public void aListOfRolesIsReturnedWithRoleCodes(final String roleCodeList) {
         user.verifyRoleList(roleCodeList);
-    }
-
-    @When("^a request for users with caseload \"([^\"]*)\" and namefilter \"([^\"]*)\" and role \"([^\"]*)\" is made$")
-    public void aRequestForUsersWithCaseloadAndNamefilterAndRoleIsMade(final String caseloadId, final String nameFilter, final String roleCode) {
-        user.getUsersByCaseload(caseloadId, roleCode, nameFilter, false);
     }
 
     @When("^a request for users by local administrator with namefilter \"([^\"]*)\" and role \"([^\"]*)\" is made$")

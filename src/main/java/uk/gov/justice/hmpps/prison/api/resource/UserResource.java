@@ -25,7 +25,6 @@ import uk.gov.justice.hmpps.prison.api.model.CaseloadUpdate;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
-import uk.gov.justice.hmpps.prison.api.model.StaffDetail;
 import uk.gov.justice.hmpps.prison.api.model.UserDetail;
 import uk.gov.justice.hmpps.prison.api.model.UserRole;
 import uk.gov.justice.hmpps.prison.api.support.Order;
@@ -71,34 +70,6 @@ public class UserResource {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "List of users who have the named role at the named caseload", notes = "List of users who have the named role at the named caseload", nickname = "getAllUsersHavingRoleAtCaseload")
-    @GetMapping("/access-roles/caseload/{caseload}/access-role/{roleCode}")
-    public Set<String> getAllUsersHavingRoleAtCaseload(@PathVariable("caseload") @ApiParam(value = "Caseload Id", required = true) final String caseload, @PathVariable("roleCode") @ApiParam(value = "access role code", required = true) final String roleCode) {
-        return userService.getAllUsernamesForCaseloadAndRole(caseload, roleCode);
-    }
-
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = UserDetail.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "Get user details by prison.", notes = "Get user details by prison.", nickname = "getUsersByCaseLoad")
-    @GetMapping("/caseload/{caseload}")
-    public ResponseEntity<List<UserDetail>> getUsersByCaseLoad(@PathVariable("caseload") @ApiParam(value = "The agency (prison) id.", required = true) final String caseload, @RequestParam(value = "nameFilter", required = false) @ApiParam("Filter results by first name and/or username and/or last name of staff member.") final String nameFilter, @RequestParam(value = "accessRole", required = false) @ApiParam("Filter results by access role") final String accessRole, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @ApiParam(value = "Requested offset of first record in returned collection of caseload records.", defaultValue = "0") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @ApiParam(value = "Requested limit to number of caseload records returned.", defaultValue = "10") final Long pageLimit, @RequestHeader(value = "Sort-Fields", required = false) @ApiParam("Comma separated list of one or more of the following fields - <b>firstName, lastName</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") final Order sortOrder) {
-
-        final var pageRequest = new PageRequest(sortFields, sortOrder, pageOffset, pageLimit);
-        final var userDetails = userService.getUsersByCaseload(caseload, nameFilter, accessRole, pageRequest);
-
-        return ResponseEntity.ok()
-                .headers(userDetails.getPaginationHeaders())
-                .body(userDetails.getItems());
-    }
-
-    @ApiResponses({
             @ApiResponse(code = 200, message = "OK", response = UserDetail.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
@@ -120,18 +91,6 @@ public class UserResource {
         return ResponseEntity.ok()
                 .headers(userDetails.getPaginationHeaders())
                 .body(userDetails.getItems());
-    }
-
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = UserDetail.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    @Deprecated
-    @ApiOperation(value = "Deprecated: Get staff details for local administrators", notes = "Deprecated: please use /users/local-administrator/available", nickname = "getStaffUsersForLocalAdministrator")
-    @GetMapping("/local-administrator/caseload/{caseload}")
-    public ResponseEntity<List<UserDetail>> deprecatedPleaseRemove(@PathVariable("caseload") @ApiParam(value = "The agency (prison) id.", required = true, allowEmptyValue = true) final String caseload, @RequestParam(value = "nameFilter", required = false) @ApiParam("Filter results by first name and/or username and/or last name of staff member.") final String nameFilter, @RequestParam(value = "accessRole", required = false) @ApiParam("Filter results by access role") final String accessRole, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @ApiParam(value = "Requested offset of first record in returned collection of caseload records.", defaultValue = "0") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @ApiParam(value = "Requested limit to number of caseload records returned.", defaultValue = "10") final Long pageLimit, @RequestHeader(value = "Sort-Fields", required = false) @ApiParam("Comma separated list of one or more of the following fields - <b>firstName, lastName</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") final Order sortOrder) {
-        return getStaffUsersForLocalAdministrator(nameFilter, accessRole, Status.ALL, pageOffset, pageLimit, sortFields, sortOrder);
     }
 
     @ApiResponses({
@@ -290,18 +249,6 @@ public class UserResource {
                             .build());
         }
         return ResponseEntity.ok().build();
-    }
-
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = StaffDetail.class),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @ApiOperation(value = "Staff detail.", notes = "Deprecated: Use <b>/staff/{staffId}</b> instead. This API will be removed in a future release.", nickname = "getStaffDetail")
-    @Deprecated
-    @GetMapping("/staff/{staffId}")
-    public StaffDetail getStaffDetail(@PathVariable("staffId") @ApiParam(value = "The staff id of the staff member.", required = true) final Long staffId) {
-        return staffService.getStaffDetail(staffId);
     }
 
     @ApiResponses({

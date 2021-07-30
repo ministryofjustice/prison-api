@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.AccessRole;
 import uk.gov.justice.hmpps.prison.api.model.CaseLoad;
 import uk.gov.justice.hmpps.prison.api.model.CaseloadUpdate;
-import uk.gov.justice.hmpps.prison.api.model.StaffUserRole;
 import uk.gov.justice.hmpps.prison.api.model.UserDetail;
 import uk.gov.justice.hmpps.prison.api.model.UserRole;
 import uk.gov.justice.hmpps.prison.api.support.Page;
@@ -140,14 +139,6 @@ public class UserService {
                 .withMessage("User not found for external identifier with idType [{}] and id [{}].", idType, id));
     }
 
-    public Set<String> getAllUsernamesForCaseloadAndRole(final String caseload, final String roleCode) {
-        return userRepository
-                .getAllStaffRolesForCaseload(caseload, roleCode)
-                .stream()
-                .map(StaffUserRole::getUsername)
-                .collect(Collectors.toSet());
-    }
-
     public boolean isUserAssessibleCaseloadAvailable(final String caseload, final String username) {
         return userRepository.isUserAssessibleCaseloadAvailable(caseload, username);
     }
@@ -254,15 +245,6 @@ public class UserService {
                 .caseload(caseloadId)
                 .numUsersEnabled(caseloadsAdded.size())
                 .build();
-    }
-
-    @PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES_ADMIN')")
-    public Page<UserDetail> getUsersByCaseload(final String caseload, final String nameFilter, final String accessRole, final PageRequest pageRequest) {
-
-        final var pageWithDefaults = getPageRequestDefaultLastNameOrder(pageRequest);
-
-        return userRepository
-                .findUsersByCaseload(caseload, accessRole, new NameFilter(nameFilter), pageWithDefaults);
     }
 
     public Page<UserDetail> getUsersAsLocalAdministrator(final String laaUsername, final String nameFilter, final String accessRole, final Status status, final PageRequest pageRequest) {

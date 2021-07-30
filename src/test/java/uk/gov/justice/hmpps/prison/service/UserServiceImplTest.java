@@ -68,15 +68,6 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void testGetUsersByCaseload() {
-        final var pr = new PageRequest("lastName,firstName", Order.ASC, 0L, 10L);  //the default if non provided
-        final var nameFilterDto = new NameFilter("A");
-        userService.getUsersByCaseload(LEEDS_CASELOAD_ID, "A", ROLE_CODE, null);
-
-        verify(userRepository).findUsersByCaseload(eq(LEEDS_CASELOAD_ID), eq(ROLE_CODE), refEq(nameFilterDto), refEq(pr));
-    }
-
-    @Test
     public void testGetUsers() {
         final var pr = new PageRequest("lastName,firstName", Order.ASC, 0L, 10L);  //the default if non provided
         final var nameFilterDto = new NameFilter("A");
@@ -110,15 +101,6 @@ public class UserServiceImplTest {
         userService.getUsers("A", ROLE_CODE, Status.INACTIVE, null);
 
         verify(userRepository).findUsers(eq(ROLE_CODE), refEq(nameFilterDto), eq(Status.INACTIVE),refEq(pr));
-    }
-
-    @Test
-    public void testGetUsersByCaseloadWithSortFieldDifferentToDefault() {
-        final var pr = new PageRequest("firstName", Order.ASC, 10L, 20L);
-        final var nameFilterDto = new NameFilter("A");
-        userService.getUsersByCaseload(LEEDS_CASELOAD_ID, "A", ROLE_CODE, pr);
-
-        verify(userRepository).findUsersByCaseload(eq(LEEDS_CASELOAD_ID), eq(ROLE_CODE), refEq(nameFilterDto), refEq(pr));
     }
 
     @Test
