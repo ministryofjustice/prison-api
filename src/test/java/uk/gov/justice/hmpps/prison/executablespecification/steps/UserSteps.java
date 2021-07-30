@@ -13,6 +13,7 @@ import uk.gov.justice.hmpps.prison.api.model.UserRole;
 import uk.gov.justice.hmpps.prison.test.PrisonApiClientException;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -24,11 +25,9 @@ public class UserSteps extends CommonSteps {
     private static final String API_USERS_ME_LOCATIONS_REQUEST_URL = API_USERS_ME_REQUEST_URL + "/locations";
     private static final String API_USERS_ME_ROLES_REQUEST_URL = API_USERS_ME_REQUEST_URL + "/roles";
     private static final String API_USERS_ME_CASE_NOTE_TYPES_REQUEST_URL = API_USERS_ME_REQUEST_URL + "/caseNoteTypes";
-    private static final String API_USERS_USERNAMES_HAVING_ROLE_AT_CASELOAD = API_PREFIX + "/users/access-roles/caseload/{caseload}/access-role/{roleCode}";
     private static final String API_ASSIGN_API_ROLE_TO_USER = API_PREFIX + "/users/{username}/access-role/{roleCode}";
     private static final String API_ASSIGN_ACCESS_ROLE_TO_USER_FOR_CASELOAD = API_PREFIX + "/users/{username}/caseload/{caseload}/access-role/{roleCode}";
     private static final String API_REMOVE_ROLE_FROM_USER_AT_CASELOAD = API_PREFIX + "/users/{username}/caseload/{caseload}/access-role/{roleCode}";
-    private static final String API_USERS_AT_CASELOAD = API_PREFIX + "/users/caseload/{caseload}";
     private static final String API_USERS = API_PREFIX + "/users";
     private static final String API_USERS_LIST = API_PREFIX + "/users/list";
     private static final String API_LOCAL_ADMINISTRATOR_USERS = API_PREFIX + "/users/local-administrator/available";
@@ -110,15 +109,11 @@ public class UserSteps extends CommonSteps {
         assertThat(caseNoteTypes.stream().filter(type -> type.getSubCodes().isEmpty()).count()).isEqualTo(0);
     }
 
-    public void getUsersByCaseload(final String caseloadId, final String roleCode, final String nameFilter, final boolean localAdministratorUsersOnly) {
-        dispatchUsersByCaseloadRequest(caseloadId, roleCode, nameFilter, localAdministratorUsersOnly);
-    }
-
     public void getUsersByLaa(final String roleCode, final String nameFilter) {
-        dispatchUsersByCaseloadRequest(null, roleCode, nameFilter, true);
+        dispatchUsersByCaseloadRequest(null, roleCode, nameFilter);
     }
 
-    public void getUsers(final String roleCode, final String nameFilter, final boolean localAdministratorUsersOnly) {
+    public void getUsers(final String roleCode, final String nameFilter) {
         dispatchUsersRequest(roleCode, nameFilter);
     }
 
@@ -128,11 +123,6 @@ public class UserSteps extends CommonSteps {
 
     public void getRolesByUserAndCaseload(final String username, final String caseload) {
         dispatchRolesByUserAndCaseloadRequest(username, caseload);
-    }
-
-    //    @Step("Find usernames having role at caseload")
-    public void findUsernamesHavingRoleAtCaseload(final String role, final String caseload) {
-        dispatchUsernamesHavingRoleAtCaseloadRequest(role, caseload);
     }
 
     //    @Step("Verify usernames")
@@ -153,27 +143,25 @@ public class UserSteps extends CommonSteps {
     }
 
     public void verifyApiRoleAssignment(final String username, final String role) {
-        dispatchUsernamesHavingRoleAtCaseloadRequest(role, "NWEB");
-        assertThat(username).isIn(usernames);
+        verifyAccessRoleAssignment(username, role, "NWEB");
     }
 
     public void verifyAccessRoleAssignment(final String username, final String role, final String caseload) {
-        dispatchUsernamesHavingRoleAtCaseloadRequest(role, caseload);
-        assertThat(username).isIn(usernames);
+        dispatchRolesByUserAndCaseloadRequest(username, caseload);
+        assertThat(role).isIn(userRoles.stream().map(UserRole::getRoleCode).collect(Collectors.toList()));
     }
 
     public void userDoesNotHaveRoleAtCaseload(final String username, final String role, final String caseload) {
-        dispatchUsernamesHavingRoleAtCaseloadRequest(role, caseload);
-        assertThat(username).isNotIn(usernames);
-
+        dispatchRolesByUserAndCaseloadRequest(username, caseload);
+        assertThat(role).isNotIn(userRoles.stream().map(UserRole::getRoleCode).collect(Collectors.toList()));
     }
 
     public void verifyUserList(final String expectedUsernames) {
-        assertThat(userDetails).extracting("username").containsOnlyElementsOf(csv2list(expectedUsernames));
+        assertThat(userDetails).extracting("username").isSubsetOf(csv2list(expectedUsernames));
     }
 
     public void verifyRoleList(final String expectedRoleCodes) {
-        assertThat(userRoles).extracting("roleCode").containsOnlyElementsOf(csv2list(expectedRoleCodes));
+        assertThat(userRoles).extracting("roleCode").isSubsetOf(csv2list(expectedRoleCodes));
     }
 
     private void dispatchRemoveRoleFromUserAtCaseload(final String role, final String username, final String caseload) {
@@ -219,25 +207,9 @@ public class UserSteps extends CommonSteps {
         }
     }
 
-
-    private void dispatchUsernamesHavingRoleAtCaseloadRequest(final String role, final String caseload) {
+    private void dispatchUsersByCaseloadRequest(final String caseload, final String role, final String nameFilter) {
         init();
-
-        final var response = restTemplate.exchange(
-                API_USERS_USERNAMES_HAVING_ROLE_AT_CASELOAD,
-                HttpMethod.GET,
-                createEntity(),
-                new ParameterizedTypeReference<List<String>>() {
-                },
-                caseload,
-                role);
-
-        usernames = response.getBody();
-    }
-
-    private void dispatchUsersByCaseloadRequest(final String caseload, final String role, final String nameFilter, final boolean localAdministratorUsers) {
-        init();
-        var url = localAdministratorUsers ? API_LOCAL_ADMINISTRATOR_USERS : API_USERS_AT_CASELOAD;
+        var url = API_LOCAL_ADMINISTRATOR_USERS;
 
         if (StringUtils.isNotBlank(role) || StringUtils.isNotBlank(nameFilter)) {
             final var queryParameters = buildQueryStringParameters(ImmutableMap.of("accessRole", role, "nameFilter", nameFilter));
@@ -283,10 +255,9 @@ public class UserSteps extends CommonSteps {
 
     private void dispatchPostUsersRequest(final List<String> usernames) {
         init();
-        var url = API_USERS_LIST;
 
         final var response = restTemplate.exchange(
-                url,
+                API_USERS_LIST,
                 HttpMethod.POST,
                 createEntity(usernames),
                 new ParameterizedTypeReference<List<UserDetail>>() {
@@ -358,8 +329,8 @@ public class UserSteps extends CommonSteps {
                     API_USERS_ME_CASE_NOTE_TYPES_REQUEST_URL,
                     HttpMethod.GET,
                     createEntity(),
-                    new ParameterizedTypeReference<List<ReferenceCode>>() {
-                    });
+                new ParameterizedTypeReference<>() {
+                });
 
             caseNoteTypes = response.getBody();
 
