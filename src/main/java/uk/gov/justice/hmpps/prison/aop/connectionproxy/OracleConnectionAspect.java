@@ -98,7 +98,7 @@ public class OracleConnectionAspect extends AbstractConnectionAspect {
                 "nomis_context.set_context('AUDIT_MODULE_NAME','%s'); \n" +
                 "nomis_context.set_client_nomis_context('%s', '%s', '%s', '%s'); \n" +
                 "END;",
-                "PRISON_API",
+                AppModuleName.PRISON_API,
                 MDC.get(USER_ID_HEADER),
                 MDC.get(IP_ADDRESS),
                 "API",

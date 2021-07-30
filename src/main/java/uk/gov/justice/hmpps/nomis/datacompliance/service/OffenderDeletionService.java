@@ -17,6 +17,7 @@ import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderD
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderAliasPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderBookingPendingDeletion;
 import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.repository.OffenderAliasPendingDeletionRepository;
+import uk.gov.justice.hmpps.prison.aop.connectionproxy.AppModuleName;
 import uk.gov.justice.hmpps.prison.repository.OffenderDeletionRepository;
 
 import java.util.Collection;
@@ -44,7 +45,11 @@ public class OffenderDeletionService {
 
         checkRequestedDeletion(grant);
 
+        offenderDeletionRepository.setContext(AppModuleName.MERGE);
+
         final var offenderIds = offenderDeletionRepository.cleanseOffenderData(grant.getOffenderNo());
+
+        offenderDeletionRepository.setContext(AppModuleName.PRISON_API);
 
         dataComplianceEventPusher.send(new OffenderDeletionComplete(grant.getOffenderNo(), grant.getReferralId()));
 
