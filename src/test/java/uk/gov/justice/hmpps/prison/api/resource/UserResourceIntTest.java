@@ -109,6 +109,20 @@ public class UserResourceIntTest extends ResourceTest {
     }
 
     @Test
+    public void getUser_statusUsesDefaultValueAllWhenBlankSupplied() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisation(
+            "BOB",
+            List.of("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN"),
+            Map.of());
+        final var pageRequest = new PageRequest(null, Order.ASC, 0L, 20L);
+        final var userDetails = new Page<UserDetail>(List.of(), 0, pageRequest);
+        when(userRepository.findUsers(any(), any(), any(), isNull(), isNull(), any())).thenReturn(userDetails);
+        final var responseEntity = testRestTemplate.exchange("/api/users?accessRole=&nameFilter=&caseload=&status=&activeCaseload=", HttpMethod.GET, requestEntity, String.class);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        verify(userRepository).findUsers(eq(""), any(NameFilter.class), eq(Status.ALL), isNull(), isNull(), any(PageRequest.class));
+    }
+
+    @Test
     public void getUser_caseloadSearch() {
         final var requestEntity = createHttpEntityWithBearerAuthorisation(
             "BOB",

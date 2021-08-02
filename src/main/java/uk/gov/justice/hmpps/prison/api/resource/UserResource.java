@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -127,7 +128,8 @@ public class UserResource {
                                                          @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") final Order sortOrder) {
         final var pageRequest = new PageRequest(sortFields, sortOrder, pageOffset, pageLimit);
 
-        final var userDetails = userService.getUsers(nameFilter, accessRole, status, caseload, activeCaseload, pageRequest);
+        final var userDetails = userService.getUsers(nameFilter, accessRole, status,
+            StringUtils.trimToNull(caseload), StringUtils.trimToNull(activeCaseload), pageRequest);
 
         return ResponseEntity.ok()
             .headers(userDetails.getPaginationHeaders())
