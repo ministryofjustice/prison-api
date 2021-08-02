@@ -145,11 +145,6 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
         user.verifyCaseNoteTypesHaveSubTypes();
     }
 
-    @Then("^the matching \"([^\"]*)\" are returned$")
-    public void theMatchingAreReturned(final String usernames) {
-        user.verifyUsernames(usernames);
-    }
-
     @When("^the client assigns api-role \"([^\"]*)\" to user \"([^\"]*)\"$")
     public void theClientAssignsApiRoleToUser(final String role, final String username) {
         user.assignApiRoleToUser(role, username);
@@ -178,11 +173,6 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
     @Then("^user \"([^\"]*)\" does not have role \"([^\"]*)\" at caseload \"([^\"]*)\"$")
     public void userDoesNotHaveRoleAtCaseload(final String username, final String role, final String caseload) {
         user.userDoesNotHaveRoleAtCaseload(username, role, caseload);
-    }
-
-    @When("^a request for users is made$")
-    public void aRequestForUsersIsMade() {
-        user.getUsers(null, null);
     }
 
     @When("^a request for users with usernames \"([^\"]*)\" is made$")

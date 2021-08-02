@@ -248,25 +248,27 @@ public class UserRepository extends RepositoryBase {
         final var sql = UserRepositorySql.FIND_USERS_BY_USERNAMES.getSql();
 
         return jdbcTemplate.query(
-                sql,
-                createParams("usernames", usernames),
-                USER_DETAIL_ROW_MAPPER);
+            sql,
+            createParams("usernames", usernames),
+            USER_DETAIL_ROW_MAPPER);
     }
 
 
-
-    public Page<UserDetail> findUsersByCaseload(final String caseload, final String accessRole, final NameFilter nameFilter, final PageRequest pageRequest) {
-        Validate.notBlank(caseload, "An caseload id is required.");
+    public Page<UserDetail> findUsersByCaseload(final String caseload, final String accessRole, final NameFilter nameFilter, final Status status, final String activeCaseload, final PageRequest pageRequest) {
+        Validate.notBlank(caseload, "A caseload is required.");
         Validate.notNull(pageRequest, "Page request details are required.");
 
-        return getUsersByCaseload(UserRepositorySql.FIND_USERS_BY_CASELOAD, nameFilter, accessRole, Status.ALL, pageRequest, caseload, null);
+        return getUsersByCaseload(UserRepositorySql.FIND_USERS_BY_CASELOAD, nameFilter, accessRole, status, pageRequest, caseload, activeCaseload, null);
     }
 
 
-    public Page<UserDetail> findUsers(final String accessRole, final NameFilter nameFilter,  final Status status, final PageRequest pageRequest) {
+    public Page<UserDetail> findUsers(final String accessRole, final NameFilter nameFilter, final Status status, final String caseload, final String activeCaseload, final PageRequest pageRequest) {
         Validate.notNull(pageRequest, "Page request details are required.");
 
-        return getUsersByCaseload(UserRepositorySql.FIND_USERS, nameFilter, accessRole, status, pageRequest, null, null);
+        if (StringUtils.isNotBlank(caseload))
+            return findUsersByCaseload(caseload, accessRole, nameFilter, status, activeCaseload, pageRequest);
+
+        return getUsersByCaseload(UserRepositorySql.FIND_USERS, nameFilter, accessRole, status, pageRequest, null, activeCaseload, null);
     }
 
 
@@ -274,19 +276,19 @@ public class UserRepository extends RepositoryBase {
         Validate.notBlank(laaUsername, "A username is required.");
         Validate.notNull(pageRequest, "Page request details are required.");
 
-        return getUsersByCaseload(UserRepositorySql.FIND_USERS_AVAILABLE_TO_LAA_USER, nameFilter, accessRole, status, pageRequest, null, laaUsername);
+        return getUsersByCaseload(UserRepositorySql.FIND_USERS_AVAILABLE_TO_LAA_USER, nameFilter, accessRole, status, pageRequest, null, null, laaUsername);
     }
 
-    private Page<UserDetail> getUsersByCaseload(final UserRepositorySql query, final NameFilter nameFilter, final String accessRole, final Status status, final PageRequest pageRequest, final String caseload, final String laaUsername) {
+    private Page<UserDetail> getUsersByCaseload(final UserRepositorySql query, final NameFilter nameFilter, final String accessRole, final Status status, final PageRequest pageRequest, final String caseload, final String activeCaseload, final String laaUsername) {
         final var baseSql = applyAccessRoleQuery(applyNameFilterQuery(query.getSql(), nameFilter), accessRole);
 
 
         final var builder = queryBuilderFactory.getQueryBuilder(baseSql, USER_DETAIL_ROW_MAPPER.getFieldMap());
         final var sql = builder
-                .addRowCount()
-                .addOrderBy(pageRequest)
-                .addPagination()
-                .build();
+            .addRowCount()
+            .addOrderBy(pageRequest)
+            .addPagination()
+            .build();
 
         final var paRowMapper = new PageAwareRowMapper<>(USER_DETAIL_ROW_MAPPER);
 
@@ -294,6 +296,7 @@ public class UserRepository extends RepositoryBase {
                 sql,
                 createParamSource(pageRequest,
                     "caseloadId", caseload,
+                    "activeCaseloadId", activeCaseload,
                     "laaUsername", laaUsername,
                     "activeFlag", "Y",
                     "searchTerm", StringUtils.isNotBlank(nameFilter.getSearchTerm()) ? nameFilter.getSearchTerm() + "%" : null,
@@ -302,8 +305,8 @@ public class UserRepository extends RepositoryBase {
                     "apiCaseloadId", apiCaseloadId,
                     "applicationType", applicationType,
                     "roleCode", accessRole,
-                    "status", status.getSqlName()),
-                paRowMapper);
+                    "status", status == null ? Status.ALL : status.getSqlName()),
+            paRowMapper);
 
         return new Page<>(users, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
     }

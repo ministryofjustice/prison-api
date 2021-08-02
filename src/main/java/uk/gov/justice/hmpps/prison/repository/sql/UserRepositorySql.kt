@@ -202,8 +202,9 @@ enum class UserRepositorySql(val sql: String) {
                 FROM STAFF_USER_ACCOUNTS SUA
         INNER JOIN STAFF_MEMBERS SM ON SUA.STAFF_ID = SM.STAFF_ID
                 INNER JOIN USER_ACCESSIBLE_CASELOADS UAC ON SUA.USERNAME = UAC.USERNAME
-
                 WHERE UAC.CASELOAD_ID = :caseloadId
+                  AND (:status = 'ALL' or SM.STATUS = :status)
+                  AND (:activeCaseloadId is null or SUA.WORKING_CASELOAD_ID = :activeCaseloadId)
     """
   ),
 
@@ -218,7 +219,8 @@ enum class UserRepositorySql(val sql: String) {
                 FROM STAFF_USER_ACCOUNTS SUA
         INNER JOIN STAFF_MEMBERS SM ON SUA.STAFF_ID = SM.STAFF_ID
         
-        WHERE (:status = 'ALL' or SM.STATUS = :status) 
+        WHERE (:status = 'ALL' or SM.STATUS = :status)
+          AND (:activeCaseloadId is null or SUA.WORKING_CASELOAD_ID = :activeCaseloadId)
     """
   ),
 
