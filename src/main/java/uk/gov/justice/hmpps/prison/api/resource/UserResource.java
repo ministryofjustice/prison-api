@@ -115,17 +115,19 @@ public class UserResource {
     public ResponseEntity<List<UserDetail>> getUsers(@RequestParam(value = "nameFilter", required = false) @ApiParam("Filter results by first name and/or username and/or last name of staff member.") final String nameFilter,
                                                      @RequestParam(value = "accessRole", required = false) @ApiParam("Filter results by access role") final String accessRole,
                                                      @RequestParam(value = "status", required = false, defaultValue = "ALL") @ApiParam("Limit to active / inactive / show all users.") final Status status,
+                                                     @RequestParam(value = "caseload", required = false) @ApiParam(value = "Filter results to include only those users that have access to the specified caseload (irrespective of whether it is currently active or not", example = "MDI") final String caseload,
+                                                     @RequestParam(value = "activeCaseload", required = false) @ApiParam(value = "Filter results by user's currently active caseload i.e. the one they have currently selected.", example = "MDI") final String activeCaseload,
                                                      @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false)
-                                                     @ApiParam(value = "Requested offset of first record in returned collection of user records.", defaultValue = "0") final Long pageOffset,
+                                                         @ApiParam(value = "Requested offset of first record in returned collection of user records.", defaultValue = "0") final Long pageOffset,
                                                      @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false)
-                                                     @ApiParam(value = "Requested limit to number of user records returned.", defaultValue = "10") final Long pageLimit,
+                                                         @ApiParam(value = "Requested limit to number of user records returned.", defaultValue = "10") final Long pageLimit,
                                                      @RequestHeader(value = "Sort-Fields", required = false)
-                                                     @ApiParam("Comma separated list of one or more of the following fields - <b>firstName, lastName</b>") final String sortFields,
+                                                         @ApiParam("Comma separated list of one or more of the following fields - <b>firstName, lastName</b>") final String sortFields,
                                                      @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false)
-                                                     @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") final Order sortOrder) {
+                                                         @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") final Order sortOrder) {
         final var pageRequest = new PageRequest(sortFields, sortOrder, pageOffset, pageLimit);
 
-        final var userDetails = userService.getUsers(nameFilter, accessRole, status, pageRequest);
+        final var userDetails = userService.getUsers(nameFilter, accessRole, status, caseload, activeCaseload, pageRequest);
 
         return ResponseEntity.ok()
             .headers(userDetails.getPaginationHeaders())

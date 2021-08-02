@@ -1,9 +1,11 @@
 package uk.gov.justice.hmpps.prison.service.filters;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
 @Getter
+@EqualsAndHashCode
 public class NameFilter {
     private final String searchTerm;
     private String firstName;

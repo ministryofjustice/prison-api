@@ -36,7 +36,6 @@ public class UserSteps extends CommonSteps {
     private List<Location> userLocations;
     private List<UserRole> userRoles;
     private List<ReferenceCode> caseNoteTypes;
-    private List<String> usernames;
     private List<UserDetail> userDetails;
 
     @Override
@@ -46,25 +45,6 @@ public class UserSteps extends CommonSteps {
         userLocations = null;
         userRoles = null;
         caseNoteTypes = null;
-    }
-
-    @Step("Verify current user details")
-    public void verifyDetails(final String username, final String firstName, final String lastName) {
-        try {
-            final var response = restTemplate.exchange(
-                    API_USERS_ME_REQUEST_URL,
-                    HttpMethod.GET,
-                    createEntity(),
-                    UserDetail.class);
-
-            final var userDetails = response.getBody();
-
-            assertThat(userDetails.getUsername()).isEqualToIgnoringCase(username);
-            assertThat(userDetails).hasFieldOrPropertyWithValue("firstName", firstName);
-            assertThat(userDetails).hasFieldOrPropertyWithValue("lastName", lastName);
-        } catch (final PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
     }
 
     @Step("Retrieve user locations")
@@ -113,21 +93,12 @@ public class UserSteps extends CommonSteps {
         dispatchUsersByCaseloadRequest(null, roleCode, nameFilter);
     }
 
-    public void getUsers(final String roleCode, final String nameFilter) {
-        dispatchUsersRequest(roleCode, nameFilter);
-    }
-
     public void getUsers(final List<String> usernames) {
         dispatchPostUsersRequest(usernames);
     }
 
     public void getRolesByUserAndCaseload(final String username, final String caseload) {
         dispatchRolesByUserAndCaseloadRequest(username, caseload);
-    }
-
-    //    @Step("Verify usernames")
-    public void verifyUsernames(final String expectedUsernames) {
-        verifyIdentical(usernames, csv2list(expectedUsernames));
     }
 
     public void assignApiRoleToUser(final String role, final String username) {
@@ -226,29 +197,6 @@ public class UserSteps extends CommonSteps {
                 new ParameterizedTypeReference<List<UserDetail>>() {
                 },
                 caseload);
-
-        userDetails = response.getBody();
-    }
-
-    private void dispatchUsersRequest(final String role, final String nameFilter) {
-        init();
-        var url = API_USERS;
-
-        if (StringUtils.isNotBlank(role) || StringUtils.isNotBlank(nameFilter)) {
-            final var queryParameters = buildQueryStringParameters(ImmutableMap.of("accessRole", role, "nameFilter", nameFilter));
-            if (StringUtils.isNotBlank(queryParameters))
-                url += String.format("?=%", queryParameters);
-        }
-
-        applyPagination(0L, 100L);
-        final var httpEntity = createEntity(null, addPaginationHeaders());
-
-        final var response = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<List<UserDetail>>() {
-                });
 
         userDetails = response.getBody();
     }

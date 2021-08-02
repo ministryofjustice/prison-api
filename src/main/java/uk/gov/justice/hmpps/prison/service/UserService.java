@@ -280,11 +280,11 @@ public class UserService {
     }
 
     @PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES_ADMIN')")
-    public Page<UserDetail> getUsers(final String nameFilter, final String accessRole, final Status status, final PageRequest pageRequest) {
+    public Page<UserDetail> getUsers(final String nameFilter, final String accessRole, final Status status, final String caseload, final String activeCaseload, final PageRequest pageRequest) {
 
         final var pageWithDefaults = getPageRequestDefaultLastNameOrder(pageRequest);
 
         return userRepository
-                .findUsers(accessRole, new NameFilter(nameFilter), status, pageWithDefaults);
+            .findUsers(accessRole, new NameFilter(nameFilter), status, caseload, activeCaseload, pageWithDefaults);
     }
 }

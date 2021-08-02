@@ -101,17 +101,57 @@ public class UserRepositoryTest {
     @Test
     public void testFindUsersByCaseload() {
 
-        final var page = userRepository.findUsersByCaseload("LEI", null, new NameFilter(null), new PageRequest("last_name", Order.ASC, 0L, 5L));
+        final var page = userRepository.findUsersByCaseload("LEI", null, new NameFilter(null), Status.ALL, null, new PageRequest("last_name", Order.ASC, 0L, 5L));
         final var items = page.getItems();
 
-        assertThat(items).hasSize(5);
-        assertThat(items).extracting("username").contains("JBRIEN");
+        assertThat(items).hasSizeBetween(5, 20);
+        assertThat(items).extracting(UserDetail::getUsername).contains("JBRIEN");
+    }
+
+    @Test
+    public void testFindUsersWithCaseloadSearch() {
+
+        final var page = userRepository.findUsers(null, new NameFilter(null), Status.ALL, "LEI", null, new PageRequest("last_name", Order.ASC, 0L, 5L));
+        final var items = page.getItems();
+
+        assertThat(items).hasSizeBetween(5, 20);
+        assertThat(items).extracting(UserDetail::getUsername).contains("JBRIEN");
+    }
+
+    @Test
+    public void testFindUsersWithCaseloadAndActiveCaseloadSearch() {
+
+        final var page = userRepository.findUsers(null, new NameFilter(null), Status.ALL, "MDI", "LEI", new PageRequest("last_name", Order.ASC, 0L, 5L));
+        final var items = page.getItems();
+
+        assertThat(items).extracting(UserDetail::getActiveCaseLoadId).contains("LEI");
+        assertThat(items).extracting(UserDetail::getUsername).contains("ITAG_USER");
+    }
+
+    @Test
+    public void testFindUsersWithActiveCaseloadSearch() {
+
+        final var page = userRepository.findUsers(null, new NameFilter(null), Status.ALL, null, "LEI", new PageRequest("last_name", Order.ASC, 0L, 5L));
+        final var items = page.getItems();
+
+        assertThat(items).hasSizeBetween(5, 20);
+        assertThat(items).extracting(UserDetail::getUsername).contains("GLOBAL_SEARCH_USER");
+        assertThat(items).extracting(UserDetail::getActiveCaseLoadId).containsOnly("LEI");
+    }
+
+    @Test
+    public void testFindUsersByCaseloadInactiveOnly() {
+
+        final var page = userRepository.findUsersByCaseload("LEI", null, new NameFilter(null), Status.INACTIVE, null, new PageRequest("last_name", Order.ASC, 0L, 5L));
+        final var items = page.getItems();
+
+        assertThat(items).hasSize(0);
     }
 
     @Test
     public void testFindUsersByCaseloadAndNameFilter() {
 
-        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", null, new NameFilter("User"), new PageRequest());
+        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", null, new NameFilter("User"), Status.ALL, null, new PageRequest());
 
         assertThat(usersByCaseload.getItems()).extracting("username").contains("ITAG_USER");
     }
@@ -119,7 +159,7 @@ public class UserRepositoryTest {
     @Test
     public void testFindUserByFullNameSearch() {
 
-        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", null, new NameFilter("User Api"), new PageRequest());
+        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", null, new NameFilter("User Api"), Status.ALL, null, new PageRequest());
 
         assertThat(usersByCaseload.getItems()).extracting(UserDetail::getUsername).containsExactly("ITAG_USER");
     }
@@ -127,21 +167,21 @@ public class UserRepositoryTest {
     @Test
     public void testFindUserByFullNameSearchReversed() {
 
-        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", null, new NameFilter("Api User"), new PageRequest());
+        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", null, new NameFilter("Api User"), Status.ALL, null, new PageRequest());
         assertThat(usersByCaseload.getItems()).extracting(UserDetail::getUsername).containsExactly("ITAG_USER");
     }
 
     @Test
     public void testFindUserByFullNameSearchWithComma() {
 
-        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", null, new NameFilter("User, Api"), new PageRequest());
+        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", null, new NameFilter("User, Api"), Status.ALL, null, new PageRequest());
         assertThat(usersByCaseload.getItems()).extracting(UserDetail::getUsername).containsExactly("ITAG_USER");
     }
 
     @Test
     public void testFindUserByFullNameSearchNoresults() {
 
-        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", null, new NameFilter("Other Api"), new PageRequest());
+        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", null, new NameFilter("Other Api"), Status.ALL, null, new PageRequest());
 
         assertThat(usersByCaseload.getItems()).isEmpty();
     }
@@ -149,7 +189,7 @@ public class UserRepositoryTest {
     @Test
     public void testFindUsersByCaseloadAndNameFilterUsername() {
 
-        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", null, new NameFilter("ITAG_USER"), new PageRequest());
+        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", null, new NameFilter("ITAG_USER"), Status.ALL, null, new PageRequest());
 
         assertThat(usersByCaseload.getItems()).extracting("username").contains("ITAG_USER");
     }
@@ -157,7 +197,7 @@ public class UserRepositoryTest {
     @Test
     public void testFindUsersByCaseloadAndNameFilterAndAccessRoleFilter() {
 
-        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", "OMIC_ADMIN", new NameFilter("User"), new PageRequest());
+        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", "OMIC_ADMIN", new NameFilter("User"), Status.ALL, null, new PageRequest());
 
         assertThat(usersByCaseload.getItems()).extracting("username").contains("ITAG_USER");
     }
@@ -165,7 +205,7 @@ public class UserRepositoryTest {
     @Test
     public void testFindUsersByCaseloadAndAccessRoleFilter() {
 
-        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", "OMIC_ADMIN", new NameFilter("User Api"), new PageRequest());
+        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", "OMIC_ADMIN", new NameFilter("User Api"), Status.ALL, null, new PageRequest());
 
         assertThat(usersByCaseload.getItems()).extracting(UserDetail::getUsername).contains("ITAG_USER");
     }
@@ -173,7 +213,7 @@ public class UserRepositoryTest {
     @Test
     public void testFindUsersByCaseloadAndAccessRoleFilterRoleNotAssigned() {
 
-        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", "ACCESS_ROLE_GENERAL", new NameFilter("User"), new PageRequest());
+        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", "ACCESS_ROLE_GENERAL", new NameFilter("User"), Status.ALL, null, new PageRequest());
 
         assertThat(usersByCaseload.getItems()).isEmpty();
     }
@@ -181,7 +221,7 @@ public class UserRepositoryTest {
     @Test
     public void testFindUsersByCaseloadAndAccessRoleFilterRoleNotAnAccessRole() {
 
-        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", "WING_OFF", new NameFilter("User"), new PageRequest());
+        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", "WING_OFF", new NameFilter("User"), Status.ALL, null, new PageRequest());
 
         assertThat(usersByCaseload.getItems()).isEmpty();
     }
@@ -189,7 +229,7 @@ public class UserRepositoryTest {
     @Test
     public void testFindUsersByCaseloadAndAccessRoleFilterNonExistantRole() {
 
-        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", "OMIC_ADMIN_DOESNT_EXIST", new NameFilter("User"), new PageRequest());
+        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", "OMIC_ADMIN_DOESNT_EXIST", new NameFilter("User"), Status.ALL, null, new PageRequest());
 
         assertThat(usersByCaseload.getItems()).isEmpty();
     }
