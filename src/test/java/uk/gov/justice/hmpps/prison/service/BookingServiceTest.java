@@ -37,6 +37,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.DisciplinaryAction;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.KeyDateAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LegalCaseType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryBranch;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryDischarge;
@@ -45,12 +46,11 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderContactPerson;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderKeyDateAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPropertyContainer;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentenceAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.PropertyContainer;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.RelationshipType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitorInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.WarZone;
@@ -1015,42 +1015,42 @@ public class BookingServiceTest {
     @Test
     void getSentenceAdjustments() {
         final var offenderSentenceAdjustments = List.of(
-                OffenderSentenceAdjustment.builder()
+                SentenceAdjustment.builder()
                         .id(-8L)
                         .offenderBookId(-6L)
                         .sentenceAdjustCode("RSR")
                         .activeFlag(ActiveFlag.Y)
                         .adjustDays(4)
                         .build(),
-                OffenderSentenceAdjustment.builder()
+                SentenceAdjustment.builder()
                         .id(-9L)
                         .offenderBookId(-6L)
                         .sentenceAdjustCode("RST")
                         .activeFlag(ActiveFlag.N)
                         .adjustDays(4)
                         .build(),
-                OffenderSentenceAdjustment.builder()
+                SentenceAdjustment.builder()
                         .id(-10L)
                         .offenderBookId(-6L)
                         .sentenceAdjustCode("RX")
                         .activeFlag(ActiveFlag.Y)
                         .adjustDays(4)
                         .build(),
-                OffenderSentenceAdjustment.builder()
+                SentenceAdjustment.builder()
                         .id(-11L)
                         .offenderBookId(-6L)
                         .sentenceAdjustCode("S240A")
                         .activeFlag(ActiveFlag.N)
                         .adjustDays(4)
                         .build(),
-                OffenderSentenceAdjustment.builder()
+                SentenceAdjustment.builder()
                         .id(-12L)
                         .offenderBookId(-6L)
                         .sentenceAdjustCode("UR")
                         .activeFlag(ActiveFlag.Y)
                         .adjustDays(4)
                         .build(),
-                OffenderSentenceAdjustment.builder()
+                SentenceAdjustment.builder()
                         .id(-13L)
                         .offenderBookId(-6L)
                         .sentenceAdjustCode("RX")
@@ -1060,7 +1060,7 @@ public class BookingServiceTest {
         );
 
         final var offenderKeyDateAdjustments = List.of(
-                OffenderKeyDateAdjustment
+                KeyDateAdjustment
                         .builder()
                         .id(-8L)
                         .sentenceAdjustCode("ADA")
@@ -1068,7 +1068,7 @@ public class BookingServiceTest {
                         .offenderBookId(-6L)
                         .adjustDays(4)
                         .build(),
-                OffenderKeyDateAdjustment
+                KeyDateAdjustment
                         .builder()
                         .id(-9L)
                         .sentenceAdjustCode("ADA")
@@ -1076,7 +1076,7 @@ public class BookingServiceTest {
                         .offenderBookId(-6L)
                         .adjustDays(9)
                         .build(),
-                OffenderKeyDateAdjustment
+                KeyDateAdjustment
                         .builder()
                         .id(-10L)
                         .sentenceAdjustCode("ADA")
@@ -1084,7 +1084,7 @@ public class BookingServiceTest {
                         .offenderBookId(-6L)
                         .adjustDays(13)
                         .build(),
-                OffenderKeyDateAdjustment
+                KeyDateAdjustment
                         .builder()
                         .id(-11L)
                         .sentenceAdjustCode("UAL")
@@ -1092,7 +1092,7 @@ public class BookingServiceTest {
                         .offenderBookId(-6L)
                         .adjustDays(1)
                         .build(),
-                OffenderKeyDateAdjustment
+                KeyDateAdjustment
                         .builder()
                         .id(-12L)
                         .sentenceAdjustCode("RADA")
@@ -1100,7 +1100,7 @@ public class BookingServiceTest {
                         .offenderBookId(-6L)
                         .adjustDays(2)
                         .build(),
-                OffenderKeyDateAdjustment
+                KeyDateAdjustment
                         .builder()
                         .id(-13L)
                         .sentenceAdjustCode("UAL")

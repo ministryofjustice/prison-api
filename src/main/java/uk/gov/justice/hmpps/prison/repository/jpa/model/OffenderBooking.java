@@ -23,8 +23,10 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
 import javax.persistence.OrderColumn;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
@@ -136,6 +138,14 @@ public class OffenderBooking extends ExtendedAuditableEntity {
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
+    private List<KeyDateAdjustment> keyDateAdjustments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
+    @Default
+    private List<SentenceAdjustment> sentenceAdjustments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
+    @Default
     private List<SentenceTerm> terms = new ArrayList<>();
 
     @Column(name = "ROOT_OFFENDER_ID")
@@ -176,6 +186,21 @@ public class OffenderBooking extends ExtendedAuditableEntity {
 
     @Column(name = "ADMISSION_REASON")
     private String admissionReason;
+
+    @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL)
+    @PrimaryKeyJoinColumn
+    private ReleaseDetail releaseDetail;
+
+    public Optional<SentenceCalculation> getLatestCalculation() {
+        return sentenceCalculations.stream().max(Comparator.comparing(SentenceCalculation::getId));
+    }
+
+    public SentenceCalculation addNewCalculation(SentenceCalculation sentenceCalculation) {
+        sentenceCalculation.setOffenderBooking(this);
+        sentenceCalculations.add(sentenceCalculation);
+
+        return sentenceCalculation;
+    }
 
     public void add(final OffenderMilitaryRecord omr) {
         militaryRecords.add(omr);

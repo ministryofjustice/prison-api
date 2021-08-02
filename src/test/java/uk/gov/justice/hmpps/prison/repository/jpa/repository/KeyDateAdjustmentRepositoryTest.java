@@ -6,18 +6,17 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderKeyDateAdjustment;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.KeyDateAdjustment;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @DataJpaTest
 @ActiveProfiles("test")
 
 @AutoConfigureTestDatabase(replace = NONE)
-public class OffenderKeyDateAdjustmentRepositoryTest {
+public class KeyDateAdjustmentRepositoryTest {
 
     @Autowired
     private OffenderKeyDateAdjustmentRepository repository;
@@ -25,7 +24,7 @@ public class OffenderKeyDateAdjustmentRepositoryTest {
     @Test
     public void findAllForBooking() {
         final var expected = List.of(
-                            OffenderKeyDateAdjustment
+                            KeyDateAdjustment
                                     .builder()
                                     .id(-8L)
                                     .sentenceAdjustCode("ADA")
@@ -33,7 +32,7 @@ public class OffenderKeyDateAdjustmentRepositoryTest {
                                     .offenderBookId(-6L)
                                     .adjustDays(4)
                                     .build(),
-                            OffenderKeyDateAdjustment
+                            KeyDateAdjustment
                                     .builder()
                                     .id(-9L)
                                     .sentenceAdjustCode("ADA")
@@ -41,7 +40,7 @@ public class OffenderKeyDateAdjustmentRepositoryTest {
                                     .offenderBookId(-6L)
                                     .adjustDays(9)
                                     .build(),
-                            OffenderKeyDateAdjustment
+                            KeyDateAdjustment
                                     .builder()
                                     .id(-10L)
                                     .sentenceAdjustCode("ADA")
@@ -49,7 +48,7 @@ public class OffenderKeyDateAdjustmentRepositoryTest {
                                     .offenderBookId(-6L)
                                     .adjustDays(13)
                                     .build(),
-                            OffenderKeyDateAdjustment
+                            KeyDateAdjustment
                                     .builder()
                                     .id(-11L)
                                     .sentenceAdjustCode("UAL")
@@ -57,7 +56,7 @@ public class OffenderKeyDateAdjustmentRepositoryTest {
                                     .offenderBookId(-6L)
                                     .adjustDays(1)
                                     .build(),
-                            OffenderKeyDateAdjustment
+                            KeyDateAdjustment
                                     .builder()
                                     .id(-12L)
                                     .sentenceAdjustCode("RADA")
@@ -65,7 +64,7 @@ public class OffenderKeyDateAdjustmentRepositoryTest {
                                     .offenderBookId(-6L)
                                     .adjustDays(2)
                                     .build(),
-                            OffenderKeyDateAdjustment
+                            KeyDateAdjustment
                                     .builder()
                                     .id(-13L)
                                     .sentenceAdjustCode("UAL")

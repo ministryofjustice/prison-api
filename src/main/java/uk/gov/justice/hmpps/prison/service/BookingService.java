@@ -46,11 +46,11 @@ import uk.gov.justice.hmpps.prison.repository.InmateRepository;
 import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq;
 import uk.gov.justice.hmpps.prison.repository.SentenceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.KeyDateAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderContactPerson;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderKeyDateAdjustment;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentenceAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
@@ -180,8 +180,8 @@ public class BookingService {
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public SentenceAdjustmentDetail getBookingSentenceAdjustments(final Long bookingId) {
 
-        final var activeSentenceAdjustments = offenderSentenceAdjustmentRepository.findAllByOffenderBookId(bookingId).stream().filter(OffenderSentenceAdjustment::isActive).collect(toList());
-        final var keyDateAdjustments = offenderKeyDateAdjustmentRepository.findAllByOffenderBookId(bookingId).stream().filter(OffenderKeyDateAdjustment::isActive).collect(toList());
+        final var activeSentenceAdjustments = offenderSentenceAdjustmentRepository.findAllByOffenderBooking_BookingId(bookingId).stream().filter(SentenceAdjustment::isActive).collect(toList());
+        final var keyDateAdjustments = offenderKeyDateAdjustmentRepository.findAllByOffenderBooking_BookingId(bookingId).stream().filter(KeyDateAdjustment::isActive).collect(toList());
 
         return SentenceAdjustmentDetail.builder()
                 .additionalDaysAwarded(getDaysForKeyDateAdjustmentsCode(keyDateAdjustments, "ADA"))
@@ -197,18 +197,18 @@ public class BookingService {
                 .build();
     }
 
-    private Integer getDaysForSentenceAdjustmentsCode(final List<OffenderSentenceAdjustment> adjustmentsList, final String code) {
+    private Integer getDaysForSentenceAdjustmentsCode(final List<SentenceAdjustment> adjustmentsList, final String code) {
         return adjustmentsList
                 .stream()
                 .filter(adj -> code.equals(adj.getSentenceAdjustCode()))
-                .mapToInt(OffenderSentenceAdjustment::getAdjustDays).sum();
+                .mapToInt(SentenceAdjustment::getAdjustDays).sum();
     }
 
-    private Integer getDaysForKeyDateAdjustmentsCode(final List<OffenderKeyDateAdjustment> adjustmentsList, final String code) {
+    private Integer getDaysForKeyDateAdjustmentsCode(final List<KeyDateAdjustment> adjustmentsList, final String code) {
         return adjustmentsList
                 .stream()
                 .filter(adj -> code.equals(adj.getSentenceAdjustCode()))
-                .mapToInt(OffenderKeyDateAdjustment::getAdjustDays).sum();
+                .mapToInt(KeyDateAdjustment::getAdjustDays).sum();
     }
 
 
