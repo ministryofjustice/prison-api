@@ -183,7 +183,6 @@ public class OffenderResource {
     @PutMapping("/{offenderNo}/recall")
     @PreAuthorize("hasRole('TRANSFER_PRISONER') and hasAuthority('SCOPE_write')")
     @ProxyUser
-    @VerifyOffenderAccess
     public InmateDetail recallPrisoner(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToRecall requestToRecall) {
@@ -229,7 +228,6 @@ public class OffenderResource {
     @PutMapping("/{offenderNo}/transfer-in")
     @PreAuthorize("hasRole('TRANSFER_PRISONER') and hasAuthority('SCOPE_write')")
     @ProxyUser
-    @VerifyOffenderAccess(overrideRoles = {"TRANSFER_PRISONER"})
     public InmateDetail transferInPrisoner(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToTransferIn requestToTransferIn) {
