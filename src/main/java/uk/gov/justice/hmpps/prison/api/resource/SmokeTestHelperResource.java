@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
-import uk.gov.justice.hmpps.prison.api.model.RequestToReleasePrisoner;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.service.SmokeTestHelperService;
 

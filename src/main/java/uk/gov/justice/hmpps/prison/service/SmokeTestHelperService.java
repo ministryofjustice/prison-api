@@ -62,11 +62,9 @@ public class SmokeTestHelperService {
     @PreAuthorize("hasRole('SMOKE_TEST') and hasAuthority('SCOPE_write')")
     public void recallPrisoner(String offenderNo) {
         RequestToRecall requestToRecall = RequestToRecall.builder()
-            .prisonId("MDI")
+            .prisonId("LEI")
             .movementReasonCode("24")
             .imprisonmentStatus("CUR_ORA")
-            .cellLocation("MDI-RECP")
-            .youthOffender(false)
             .build();
         prisonerReleaseAndTransferService.recallPrisoner(offenderNo, requestToRecall);
     }
