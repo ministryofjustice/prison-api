@@ -9,7 +9,7 @@ Feature: Offender Search V2
   Scenario: Search all offenders across all allowed locations
     When an offender search is made without prisoner name or ID and across "LEI" location
     Then "10" offender records are returned
-    And  "26" total offender records are available
+    And  "27" total offender records are available
 
   Scenario Outline: Search based on keywords
     When an offender search is made with keywords "<keywords>" in location "<location>"
@@ -37,10 +37,10 @@ Feature: Offender Search V2
 
     Examples:
       | location  | number |
-      | LEI-A     | 10     |
+      | LEI-A     | 11     |
       | LEI-H     | 14     |
       | BXI       | 0      |
-      | LEI       | 26     |
+      | LEI       | 27     |
       | XXX       | 0      |
 
   Scenario Outline: Search based on keywords and locations
@@ -99,6 +99,6 @@ Feature: Offender Search V2
 
     Examples:
       | location | fromDob    | toDob       |  number | date of birth                                                                |
-      | LEI      | 1970-01-01 | 1972-01-01  |  4      | 1970-01-01,1970-01-01,1970-03-01,1972-01-01                                  |
+      | LEI      | 1970-01-01 | 1972-01-01  |  5      | 1970-01-01,1970-01-01,1970-03-01,1970-12-30,1972-01-01                       |
       | LEI      | 1972-01-02 |             |  7      | 1974-01-01,1977-01-02,1979-12-31,1980-01-02,1986-06-01,1998-08-28,1999-10-27 |
       | LEI      |            | 1945-01-09  |  1      | 1945-01-09                                                                   |

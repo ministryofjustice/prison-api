@@ -31,7 +31,7 @@ public class SmokeTestHelperServiceTest {
     private final PrisonerReleaseAndTransferService prisonerReleaseAndTransferService = mock(PrisonerReleaseAndTransferService.class);
     private final SmokeTestHelperService smokeTestHelperService = new SmokeTestHelperService(bookingService, offenderBookingRepository, prisonerReleaseAndTransferService);
 
-    private final static String SOME_OFFENDER_NO = "A1234AA";
+    private final static String SOME_OFFENDER_NO = "A1060AA";
     private final static long SOME_BOOKING_ID = 11L;
     private final static int SOME_BOOKING_SEQ = 1;
     private final static OffenderBookingIdSeq SOME_BOOKING_ID_SEQ = new OffenderBookingIdSeq(SOME_OFFENDER_NO, SOME_BOOKING_ID, SOME_BOOKING_SEQ);
@@ -154,7 +154,7 @@ public class SmokeTestHelperServiceTest {
                 LocalDate.now().minusDays(1),
                 LocalDateTime.now().minusDays(1),
                 expiryDate,
-                "MDI",
+                "LEI",
                 "Comment",
                 latestStatus,
                 LocalDate.now().minusDays(1)

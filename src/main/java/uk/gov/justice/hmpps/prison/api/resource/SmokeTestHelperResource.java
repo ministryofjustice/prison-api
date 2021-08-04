@@ -7,18 +7,22 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
-import uk.gov.justice.hmpps.prison.api.model.RequestToReleasePrisoner;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.service.SmokeTestHelperService;
 
 import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @RestController
 @Api(tags = {"smoketest"})
@@ -44,6 +48,7 @@ public class SmokeTestHelperResource {
     }
 
     @ApiResponses({
+        @ApiResponse(code = 200, message = "OK"),
         @ApiResponse(code = 403, message = "Requires role ROLE_SMOKE_TEST", response = ErrorResponse.class),
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class)})
     @ApiOperation(value = "Releases this offender, with smoke test data")
@@ -52,8 +57,24 @@ public class SmokeTestHelperResource {
     public void releasePrisoner(@PathVariable("offenderNo") @ApiParam(value = "offenderNo", required = true, example = "A1234AA") @NotNull final String offenderNo) {
         service.releasePrisoner(offenderNo);
     }
+/*
+    @ApiResponses({
+        @ApiResponse(code = 200, message = "OK"),
+        @ApiResponse(code = 403, message = "Requires role ROLE_SMOKE_TEST", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Releases this offender, with smoke test data")
+    @PutMapping("/offenders/{offenderNo}/resetImprisonment")
+    @ProxyUser
+    public void resetImprisonment(@PathVariable("offenderNo") @ApiParam(value = "offenderNo", required = true, example = "A1234AA") @NotNull final String offenderNo) throws InterruptedException {
+    //   @RequestParam(value = "recallTime", required = false) @DateTimeFormat(iso = ISO.DATE_TIME) @ApiParam(value = "imprisonment recall time", example = "2021-02-03 10:23") final LocalDateTime recallTime) {
+        service.resetImprisonment(offenderNo);
+
+    }
+
+ */
 
     @ApiResponses({
+        @ApiResponse(code = 200, message = "OK"),
         @ApiResponse(code = 403, message = "Requires role ROLE_SMOKE_TEST", response = ErrorResponse.class),
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class)})
     @ApiOperation(value = "Recalls this offender, with smoke test data")

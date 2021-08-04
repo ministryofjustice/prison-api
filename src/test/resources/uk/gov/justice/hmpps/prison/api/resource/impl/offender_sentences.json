@@ -482,4 +482,16 @@
   },
   "dateOfBirth": "1977-11-14",
   "agencyLocationDesc": "LEEDS"
+},
+{
+  "bookingId": -58,
+  "offenderNo": "A1060AA",
+  "firstName": "TEST",
+  "lastName": "RELEASE",
+  "agencyLocationId": "LEI",
+  "sentenceDetail": {
+    "bookingId": -58
+  },
+  "dateOfBirth": "1970-12-30",
+  "agencyLocationDesc": "LEEDS"
 }]
