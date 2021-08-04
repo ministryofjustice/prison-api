@@ -58,35 +58,25 @@ public class XtagEventsService {
 
     private OffenderEvent addAdditionalEventData(final OffenderEvent oe) {
         switch (oe.getEventType()) {
-            case "OFFENDER_DETAILS-CHANGED":
-            case "OFFENDER_ALIAS-CHANGED":
-            case "OFFENDER-UPDATED": {
+            case "OFFENDER_DETAILS-CHANGED", "OFFENDER_ALIAS-CHANGED", "OFFENDER-UPDATED" -> {
                 final var nomsId = offenderRepository.findById(oe.getOffenderId()).map(Offender::getNomsId)
-                        .orElse(null);
+                    .orElse(null);
                 oe.setOffenderIdDisplay(nomsId);
-                break;
             }
-            case "BED_ASSIGNMENT_HISTORY-INSERTED":
-            case "OFFENDER_MOVEMENT-DISCHARGE":
-            case "OFFENDER_MOVEMENT-RECEPTION":
-            case "CONFIRMED_RELEASE_DATE-CHANGED":
-            case "SENTENCE_DATES-CHANGED": {
+            case "BED_ASSIGNMENT_HISTORY-INSERTED", "OFFENDER_MOVEMENT-DISCHARGE", "OFFENDER_MOVEMENT-RECEPTION", "CONFIRMED_RELEASE_DATE-CHANGED", "SENTENCE_DATES-CHANGED" -> {
                 final var nomsId = offenderBookingRepository.findById(oe.getBookingId()).map(b -> b.getOffender().getNomsId())
-                        .orElse(null);
+                    .orElse(null);
                 oe.setOffenderIdDisplay(nomsId);
-                break;
             }
-            case "EXTERNAL_MOVEMENT_RECORD-INSERTED":
-                movementsService.getMovementByBookingIdAndSequence(oe.getBookingId(), oe.getMovementSeq().intValue())
-                        .ifPresent(movement -> {
-                            oe.setOffenderIdDisplay(movement.getOffenderNo());
-                            oe.setFromAgencyLocationId(movement.getFromAgency());
-                            oe.setToAgencyLocationId(movement.getToAgency());
-                            oe.setDirectionCode(movement.getDirectionCode());
-                            oe.setMovementDateTime(movement.getMovementTime() != null && movement.getMovementDate() != null ? movement.getMovementTime().atDate(movement.getMovementDate()) : null);
-                            oe.setMovementType(movement.getMovementType());
-                        });
-                break;
+            case "EXTERNAL_MOVEMENT_RECORD-INSERTED" -> movementsService.getMovementByBookingIdAndSequence(oe.getBookingId(), oe.getMovementSeq().intValue())
+                .ifPresent(movement -> {
+                    oe.setOffenderIdDisplay(movement.getOffenderNo());
+                    oe.setFromAgencyLocationId(movement.getFromAgency());
+                    oe.setToAgencyLocationId(movement.getToAgency());
+                    oe.setDirectionCode(movement.getDirectionCode());
+                    oe.setMovementDateTime(movement.getMovementTime() != null && movement.getMovementDate() != null ? movement.getMovementTime().atDate(movement.getMovementDate()) : null);
+                    oe.setMovementType(movement.getMovementType());
+                });
         }
         return oe;
     }
