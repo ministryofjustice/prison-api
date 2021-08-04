@@ -42,24 +42,13 @@ public class PrisonerRepository extends RepositoryBase {
         }
 
         public static Map<String, String> getColumnMappingsForDialect(final DatabaseDialect databaseDialect) {
-            final Map<String, String> mappings;
 
-            switch (databaseDialect) {
-                case ORACLE_11:
-                    mappings = ORACLE_11.columnMappings;
-                    break;
-                case ORACLE_12:
-                    mappings = ORACLE_12.columnMappings;
-                    break;
-                case HSQLDB:
-                    mappings = HSQLDB.columnMappings;
-                    break;
-                default:
-                    mappings = Collections.emptyMap();
-                    break;
-            }
-
-            return mappings;
+            return switch (databaseDialect) {
+                case ORACLE_11 -> ORACLE_11.columnMappings;
+                case ORACLE_12 -> ORACLE_12.columnMappings;
+                case HSQLDB -> HSQLDB.columnMappings;
+                default -> Collections.emptyMap();
+            };
         }
 
         public DatabaseDialect getDatabaseDialect() {

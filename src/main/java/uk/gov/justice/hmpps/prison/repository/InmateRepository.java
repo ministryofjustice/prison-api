@@ -1020,13 +1020,8 @@ public class InmateRepository extends RepositoryBase {
 
         if (StringUtils.isNotBlank(criteriaValue)) {
             switch (criteriaValue) {
-                case "OUT":
-                    appendNonBlankNameCriteria(query, "latestLocationId", criteriaValue, operatorTemplate, logicOperator);
-                    break;
-                case "IN":
-                    appendNonBlankNameCriteria(query, "latestLocationId", "OUT", neqTemplate, logicOperator);
-                    break;
-                default:
+                case "OUT" -> appendNonBlankNameCriteria(query, "latestLocationId", criteriaValue, operatorTemplate, logicOperator);
+                case "IN" -> appendNonBlankNameCriteria(query, "latestLocationId", "OUT", neqTemplate, logicOperator);
             }
         }
     }

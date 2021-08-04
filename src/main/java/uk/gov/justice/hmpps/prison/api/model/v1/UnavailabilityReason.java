@@ -41,21 +41,10 @@ public class UnavailabilityReason {
 
     public UnavailabilityReason update(UnavailabilityReasonSP r) {
         switch (r.getReason()) {
-            case "COURT": {
-                setExternalMovement(true);
-                break;
-            }
-            case "BAN": {
-                setBanned(true);
-                break;
-            }
-            case "VO": {
-                setOutOfVo(true);
-                break;
-            }
-            case "VISIT": {
-                getExistingVisits().add(new Visit(r.getVisitId(), r.getSlotStart(), r.getSlotEnd()));
-            }
+            case "COURT" -> setExternalMovement(true);
+            case "BAN" -> setBanned(true);
+            case "VO" -> setOutOfVo(true);
+            case "VISIT" -> getExistingVisits().add(new Visit(r.getVisitId(), r.getSlotStart(), r.getSlotEnd()));
         }
         return this;
     }

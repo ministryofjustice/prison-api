@@ -193,18 +193,13 @@ public class AgencyRepository extends RepositoryBase {
         var end = bookedOnDay.plusDays(1).atStartOfDay();
         if (bookedOnPeriod != null) {
             switch (bookedOnPeriod) {
-                case AM:
-                    end = bookedOnDay.atTime(12, 0);
-                    break;
-                case PM:
+                case AM -> end = bookedOnDay.atTime(12, 0);
+                case PM -> {
                     start = bookedOnDay.atTime(12, 0);
                     end = bookedOnDay.atTime(17, 0);
-                    break;
-                case ED:
-                    start = bookedOnDay.atTime(17, 0);
-                    break;
-                default:
-                    throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Unrecognised timeslot: " + bookedOnPeriod);
+                }
+                case ED -> start = bookedOnDay.atTime(17, 0);
+                default -> throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Unrecognised timeslot: " + bookedOnPeriod);
             }
         }
         end = end.minus(1, ChronoUnit.SECONDS);
