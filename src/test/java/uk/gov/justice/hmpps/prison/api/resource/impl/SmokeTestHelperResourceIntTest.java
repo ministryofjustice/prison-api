@@ -97,7 +97,7 @@ public class SmokeTestHelperResourceIntTest extends ResourceTest {
             final var request = createHttpEntity(authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_USER_READ_WRITE), null);
 
             final var response = testRestTemplate.exchange(
-                "/api/smoketest/offenders/A1234AA/release",
+                "/api/smoketest/offenders/A1060AA/release",
                 HttpMethod.PUT,
                 request,
                 Void.class
@@ -128,7 +128,7 @@ public class SmokeTestHelperResourceIntTest extends ResourceTest {
             final var request = createHttpEntity(authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_USER_READ_WRITE), null);
 
             final var response = testRestTemplate.exchange(
-                "/api/smoketest/offenders/A1234AA/recall",
+                "/api/smoketest/offenders/A1060AA/recall",
                 HttpMethod.PUT,
                 request,
                 Void.class
@@ -158,7 +158,7 @@ public class SmokeTestHelperResourceIntTest extends ResourceTest {
         public void willReleaseAndRecallPrisoner() {
 
             var response = testRestTemplate.exchange(
-                "/api/smoketest/offenders/A1234AA/release",
+                "/api/smoketest/offenders/A1060AA/release",
                 HttpMethod.PUT,
                 createHttpEntity(authTokenHelper.getToken(AuthTokenHelper.AuthToken.SMOKE_TEST), null),
                 Void.class
@@ -166,7 +166,7 @@ public class SmokeTestHelperResourceIntTest extends ResourceTest {
             assertThat(response.getStatusCode()).isEqualTo(OK);
 
             response = testRestTemplate.exchange(
-                "/api/smoketest/offenders/A1234AA/recall",
+                "/api/smoketest/offenders/A1060AA/recall",
                 HttpMethod.PUT,
                 createHttpEntity(authTokenHelper.getToken(AuthTokenHelper.AuthToken.SMOKE_TEST), null),
                 Void.class

@@ -35,7 +35,7 @@ Feature: Locations
 
     Examples:
     | agencyCode | countInmates |
-    | LEI        |  26          |
+    | LEI        |  27          |
     | BMI        |  0           |
 
   Scenario Outline: Retrieve a list of inmates at specific agency to check convicted status

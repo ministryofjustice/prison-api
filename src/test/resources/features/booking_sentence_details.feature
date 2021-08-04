@@ -230,7 +230,7 @@ Feature: Booking Sentence Details
 
   Scenario: Retrieve sentence details as a list
     When sentence details are requested of offenders for the logged in users caseloads
-    Then "26" offenders are returned
+    Then "27" offenders are returned
 
   Scenario: Retrieve sentence details for an agency
     When sentence details are requested of offenders for agency "MDI"
@@ -271,7 +271,7 @@ Feature: Booking Sentence Details
 
   Scenario Outline: Retrieve sentence details with sorting and with sentence date set
     When sentence details are requested of offenders for the logged in users caseloads
-    Then "26" offenders are returned
+    Then "27" offenders are returned
     When I look at row "<row_num>"
     And sentence start date matches "<ssd>"
     And home detention curfew eligibility date matches "<hdced>"
