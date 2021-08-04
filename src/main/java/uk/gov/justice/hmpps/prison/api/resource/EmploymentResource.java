@@ -34,9 +34,9 @@ public class EmploymentResource {
         @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @ApiOperation(value = "A list of offender employments.", notes = "A list of offender employments.", nickname = "getPrisonerEmployments")
+    @ApiOperation(value = "A list of offender employments.", notes = "A list of offender employments.  Requires VIEW_PRISONER_DATA or SYSTEM_USER role", nickname = "getPrisonerEmployments")
     @GetMapping("/prisoner/{offenderNo}")
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH', 'VIEW_PRISONER_DATA')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'VIEW_PRISONER_DATA')")
     public Page<Employment> getPrisonerEmployments(
         @PathVariable(value = "offenderNo") @ApiParam(value = "List of offender NOMS numbers. NOMS numbers have the format:<b>ANNNNAA</b>") final String offenderNo,
         @RequestParam(value = "page", defaultValue = "0", required = false) @ApiParam(value = "The page number of the paged results", defaultValue = "0") final Integer page,
