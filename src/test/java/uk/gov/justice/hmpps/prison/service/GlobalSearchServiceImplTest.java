@@ -195,11 +195,10 @@ public class GlobalSearchServiceImplTest {
                 .prioritisedMatch(true)
                 .offenderNos(TEST_OFFENDER_NO)
                 .lastName(TEST_LAST_NAME)
-                .location("IN")
                 .build();
 
         final var offNoCriteria = PrisonerDetailSearchCriteria.builder().offenderNos(TEST_OFFENDER_NO).build();
-        final var personalAttrsCriteria = PrisonerDetailSearchCriteria.builder().lastName(TEST_LAST_NAME).location("IN").build();
+        final var personalAttrsCriteria = PrisonerDetailSearchCriteria.builder().lastName(TEST_LAST_NAME).build();
 
         when(inmateRepository.generateFindOffendersQuery(offNoCriteria)).thenReturn(TEST_OFFENDER_NO_QUERY);
         when(inmateRepository.generateFindOffendersQuery(personalAttrsCriteria)).thenReturn(TEST_PERSONAL_ATTRS_QUERY);
