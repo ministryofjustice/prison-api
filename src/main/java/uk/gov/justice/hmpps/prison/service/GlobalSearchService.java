@@ -146,7 +146,6 @@ public class GlobalSearchService {
                 .dob(originalCriteria.getDob())
                 .partialNameMatch(originalCriteria.isPartialNameMatch())
                 .anyMatch(originalCriteria.isAnyMatch())
-                .location(originalCriteria.getLocation())
                 .build();
 
         var response = executeQuery(criteria, pageRequest);
