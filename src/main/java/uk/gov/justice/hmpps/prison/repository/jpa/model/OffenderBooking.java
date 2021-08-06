@@ -219,6 +219,7 @@ public class OffenderBooking extends ExtendedAuditableEntity {
         ).orElse(new DerivedKeyDates(null, null)).releaseDate();
     }
 
+    // TODO: Add all the other dates in!
     public SentenceDetail getSentenceDetail() {
         return getLatestCalculation().map(
             sc -> SentenceDetail.sentenceDetailBuilder()
