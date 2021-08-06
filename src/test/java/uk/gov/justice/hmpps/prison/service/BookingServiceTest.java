@@ -1017,42 +1017,42 @@ public class BookingServiceTest {
         final var offenderSentenceAdjustments = List.of(
                 SentenceAdjustment.builder()
                         .id(-8L)
-                        .offenderBookId(-6L)
+                    .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                         .sentenceAdjustCode("RSR")
                         .activeFlag(ActiveFlag.Y)
                         .adjustDays(4)
                         .build(),
                 SentenceAdjustment.builder()
                         .id(-9L)
-                        .offenderBookId(-6L)
+                    .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                         .sentenceAdjustCode("RST")
                         .activeFlag(ActiveFlag.N)
                         .adjustDays(4)
                         .build(),
                 SentenceAdjustment.builder()
                         .id(-10L)
-                        .offenderBookId(-6L)
+                    .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                         .sentenceAdjustCode("RX")
                         .activeFlag(ActiveFlag.Y)
                         .adjustDays(4)
                         .build(),
                 SentenceAdjustment.builder()
                         .id(-11L)
-                        .offenderBookId(-6L)
+                    .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                         .sentenceAdjustCode("S240A")
                         .activeFlag(ActiveFlag.N)
                         .adjustDays(4)
                         .build(),
                 SentenceAdjustment.builder()
                         .id(-12L)
-                        .offenderBookId(-6L)
+                    .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                         .sentenceAdjustCode("UR")
                         .activeFlag(ActiveFlag.Y)
                         .adjustDays(4)
                         .build(),
                 SentenceAdjustment.builder()
                         .id(-13L)
-                        .offenderBookId(-6L)
+                    .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                         .sentenceAdjustCode("RX")
                         .activeFlag(ActiveFlag.Y)
                         .adjustDays(4)
@@ -1065,7 +1065,7 @@ public class BookingServiceTest {
                         .id(-8L)
                         .sentenceAdjustCode("ADA")
                         .activeFlag(ActiveFlag.Y)
-                        .offenderBookId(-6L)
+                    .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                         .adjustDays(4)
                         .build(),
                 KeyDateAdjustment
@@ -1073,7 +1073,7 @@ public class BookingServiceTest {
                         .id(-9L)
                         .sentenceAdjustCode("ADA")
                         .activeFlag(ActiveFlag.N)
-                        .offenderBookId(-6L)
+                    .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                         .adjustDays(9)
                         .build(),
                 KeyDateAdjustment
@@ -1081,7 +1081,7 @@ public class BookingServiceTest {
                         .id(-10L)
                         .sentenceAdjustCode("ADA")
                         .activeFlag(ActiveFlag.Y)
-                        .offenderBookId(-6L)
+                    .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                         .adjustDays(13)
                         .build(),
                 KeyDateAdjustment
@@ -1089,7 +1089,7 @@ public class BookingServiceTest {
                         .id(-11L)
                         .sentenceAdjustCode("UAL")
                         .activeFlag(ActiveFlag.N)
-                        .offenderBookId(-6L)
+                    .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                         .adjustDays(1)
                         .build(),
                 KeyDateAdjustment
@@ -1097,7 +1097,7 @@ public class BookingServiceTest {
                         .id(-12L)
                         .sentenceAdjustCode("RADA")
                         .activeFlag(ActiveFlag.Y)
-                        .offenderBookId(-6L)
+                    .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                         .adjustDays(2)
                         .build(),
                 KeyDateAdjustment
@@ -1105,13 +1105,13 @@ public class BookingServiceTest {
                         .id(-13L)
                         .sentenceAdjustCode("UAL")
                         .activeFlag(ActiveFlag.Y)
-                        .offenderBookId(-6L)
+                    .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                         .adjustDays(7)
                         .build()
         );
 
-        when(offenderKeyDateAdjustmentRepository.findAllByOffenderBookId(-6L)).thenReturn(offenderKeyDateAdjustments);
-        when(offenderSentenceAdjustmentRepository.findAllByOffenderBookId(-6L)).thenReturn(offenderSentenceAdjustments);
+        when(offenderKeyDateAdjustmentRepository.findAllByOffenderBooking_BookingId(-6L)).thenReturn(offenderKeyDateAdjustments);
+        when(offenderSentenceAdjustmentRepository.findAllByOffenderBooking_BookingId(-6L)).thenReturn(offenderSentenceAdjustments);
 
         final SentenceAdjustmentDetail sentenceAdjustmentDetail = bookingService.getBookingSentenceAdjustments(-6L);
 

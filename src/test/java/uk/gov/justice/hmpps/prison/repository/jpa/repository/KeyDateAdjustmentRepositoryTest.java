@@ -7,9 +7,11 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.KeyDateAdjustment;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @DataJpaTest
@@ -29,7 +31,7 @@ public class KeyDateAdjustmentRepositoryTest {
                                     .id(-8L)
                                     .sentenceAdjustCode("ADA")
                                     .activeFlag(ActiveFlag.Y)
-                                    .offenderBookId(-6L)
+                                .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                                     .adjustDays(4)
                                     .build(),
                             KeyDateAdjustment
@@ -37,7 +39,7 @@ public class KeyDateAdjustmentRepositoryTest {
                                     .id(-9L)
                                     .sentenceAdjustCode("ADA")
                                     .activeFlag(ActiveFlag.N)
-                                    .offenderBookId(-6L)
+                                .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                                     .adjustDays(9)
                                     .build(),
                             KeyDateAdjustment
@@ -45,7 +47,7 @@ public class KeyDateAdjustmentRepositoryTest {
                                     .id(-10L)
                                     .sentenceAdjustCode("ADA")
                                     .activeFlag(ActiveFlag.Y)
-                                    .offenderBookId(-6L)
+                                .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                                     .adjustDays(13)
                                     .build(),
                             KeyDateAdjustment
@@ -53,7 +55,7 @@ public class KeyDateAdjustmentRepositoryTest {
                                     .id(-11L)
                                     .sentenceAdjustCode("UAL")
                                     .activeFlag(ActiveFlag.N)
-                                    .offenderBookId(-6L)
+                                .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                                     .adjustDays(1)
                                     .build(),
                             KeyDateAdjustment
@@ -61,7 +63,7 @@ public class KeyDateAdjustmentRepositoryTest {
                                     .id(-12L)
                                     .sentenceAdjustCode("RADA")
                                     .activeFlag(ActiveFlag.Y)
-                                    .offenderBookId(-6L)
+                                .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                                     .adjustDays(2)
                                     .build(),
                             KeyDateAdjustment
@@ -69,12 +71,12 @@ public class KeyDateAdjustmentRepositoryTest {
                                     .id(-13L)
                                     .sentenceAdjustCode("UAL")
                                     .activeFlag(ActiveFlag.Y)
-                                    .offenderBookId(-6L)
+                                .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                                     .adjustDays(7)
                                     .build()
                             );
 
-        final var keyDateAdjustments = repository.findAllByOffenderBookId(-6L);
+        final var keyDateAdjustments = repository.findAllByOffenderBooking_BookingId(-6L);
 
         assertThat(keyDateAdjustments).isEqualTo(expected);
     }
