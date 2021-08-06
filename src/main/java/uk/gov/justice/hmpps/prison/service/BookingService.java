@@ -180,11 +180,13 @@ public class BookingService {
 
     @NotNull
     private SentenceDetail calcDerivedDates(final SentenceDetail sentenceDetail) {
-        final var keyDateValues = OffenderBooking.deriveKeyDates(buildKeyDateValues(sentenceDetail));
+        final var derivedKeyDates = OffenderBooking.deriveKeyDates(buildKeyDateValues(sentenceDetail));
 
-        sentenceDetail.setNonDtoReleaseDate(keyDateValues.nonDtoReleaseDate().getReleaseDate());
-        sentenceDetail.setNonDtoReleaseDateType(keyDateValues.nonDtoReleaseDate().getReleaseDateType());
-        sentenceDetail.setReleaseDate(keyDateValues.releaseDate());
+        if (derivedKeyDates.nonDtoReleaseDate() != null) {
+            sentenceDetail.setNonDtoReleaseDate(derivedKeyDates.nonDtoReleaseDate().getReleaseDate());
+            sentenceDetail.setNonDtoReleaseDateType(derivedKeyDates.nonDtoReleaseDate().getReleaseDateType());
+        }
+        sentenceDetail.setReleaseDate(derivedKeyDates.releaseDate());
 
         return sentenceDetail;
     }

@@ -222,6 +222,8 @@ public class OffenderBooking extends ExtendedAuditableEntity {
     public SentenceDetail getSentenceDetail() {
         return getLatestCalculation().map(
             sc -> SentenceDetail.sentenceDetailBuilder()
+                .sentenceStartDate(getSentenceStartDate().orElse(null))
+                .additionalDaysAwarded(getAdditionalDaysAwarded())
                 .automaticReleaseDate(sc.getArdCalculatedDate())
                 .automaticReleaseOverrideDate(sc.getArdOverridedDate())
                 .conditionalReleaseDate(sc.getCrdCalculatedDate())
