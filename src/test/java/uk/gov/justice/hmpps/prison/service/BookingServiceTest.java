@@ -64,6 +64,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitorRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.support.PayableAttendanceOutcomeDto;
+import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -118,6 +119,8 @@ public class BookingServiceTest {
     @Mock
     private AuthenticationFacade authenticationFacade;
     @Mock
+    private OffenderTransformer offenderTransformer;
+    @Mock
     private CaseloadToAgencyMappingService caseloadToAgencyMappingService;
 
     private BookingService bookingService;
@@ -140,6 +143,7 @@ public class BookingServiceTest {
                 offenderKeyDateAdjustmentRepository,
                 offenderContactPersonsRepository,
                 securityUtils, authenticationFacade,
+                offenderTransformer,
                 "1",
                 10);
     }
