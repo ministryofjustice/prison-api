@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.NonDtoReleaseDateType;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -22,9 +23,6 @@ import java.time.LocalDate;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class SentenceDetail extends BaseSentenceDetail {
-    public enum NonDtoReleaseDateType {
-        ARD, CRD, NPD, PRRD,
-    }
 
     @ApiModelProperty(required = true, value = "Offender booking id.", position = 1, example = "1234123")
     @NotNull

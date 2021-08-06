@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -51,6 +52,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderContactPerson;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceAdjustment;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.KeyDateValues;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
@@ -63,7 +65,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitorRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
-import uk.gov.justice.hmpps.prison.service.support.NonDtoReleaseDate;
 import uk.gov.justice.hmpps.prison.service.transformers.CourtCaseTransformer;
 import uk.gov.justice.hmpps.prison.service.transformers.PropertyContainerTransformer;
 import uk.gov.justice.hmpps.prison.service.validation.AttendanceTypesValid;
@@ -174,7 +175,34 @@ public class BookingService {
         final var confirmedReleaseDate = sentenceRepository.getConfirmedReleaseDate(bookingId);
         sentenceDetail.setConfirmedReleaseDate(confirmedReleaseDate.orElse(null));
 
-        return deriveSentenceDetail(sentenceDetail);
+        return calcDerivedDates(sentenceDetail);
+    }
+
+    @NotNull
+    private SentenceDetail calcDerivedDates(final SentenceDetail sentenceDetail) {
+        final var keyDateValues = OffenderBooking.deriveKeyDates(buildKeyDateValues(sentenceDetail));
+
+        sentenceDetail.setNonDtoReleaseDate(keyDateValues.nonDtoReleaseDate().getReleaseDate());
+        sentenceDetail.setNonDtoReleaseDateType(keyDateValues.nonDtoReleaseDate().getReleaseDateType());
+        sentenceDetail.setReleaseDate(keyDateValues.releaseDate());
+
+        return sentenceDetail;
+    }
+
+    private KeyDateValues buildKeyDateValues(final SentenceDetail sentenceDetail) {
+        return new KeyDateValues(
+            sentenceDetail.getAutomaticReleaseDate(),
+            sentenceDetail.getAutomaticReleaseOverrideDate(),
+            sentenceDetail.getConditionalReleaseDate(),
+            sentenceDetail.getConditionalReleaseOverrideDate(),
+            sentenceDetail.getNonParoleDate(),
+            sentenceDetail.getNonParoleOverrideDate(),
+            sentenceDetail.getPostRecallReleaseDate(),
+            sentenceDetail.getPostRecallReleaseOverrideDate(),
+            sentenceDetail.getActualParoleDate(),
+            sentenceDetail.getHomeDetentionCurfewActualDate(),
+            sentenceDetail.getMidTermDate(),
+            sentenceDetail.getConfirmedReleaseDate());
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
@@ -220,24 +248,6 @@ public class BookingService {
 
     private SentenceDetail emptySentenceDetail(final Long bookingId) {
         return SentenceDetail.sentenceDetailBuilder().bookingId(bookingId).build();
-    }
-
-    private SentenceDetail deriveSentenceDetail(final SentenceDetail sentenceDetail) {
-
-        // Determine non-DTO release date
-        final var nonDtoReleaseDate = deriveNonDtoReleaseDate(sentenceDetail);
-
-        if (Objects.nonNull(nonDtoReleaseDate)) {
-            sentenceDetail.setNonDtoReleaseDate(nonDtoReleaseDate.getReleaseDate());
-            sentenceDetail.setNonDtoReleaseDateType(nonDtoReleaseDate.getReleaseDateType());
-        }
-
-        // Determine offender release date
-        final var releaseDate = deriveOffenderReleaseDate(sentenceDetail);
-
-        sentenceDetail.setReleaseDate(releaseDate);
-
-        return sentenceDetail;
     }
 
     public PrivilegeSummary getBookingIEPSummary(final Long bookingId, final boolean withDetails) {
@@ -564,69 +574,6 @@ public class BookingService {
         }
     }
 
-    private NonDtoReleaseDate deriveNonDtoReleaseDate(final SentenceDetail sentenceDetail) {
-        final List<NonDtoReleaseDate> nonDtoReleaseDates = new ArrayList<>();
-
-        if (Objects.nonNull(sentenceDetail)) {
-            addReleaseDate(nonDtoReleaseDates, sentenceDetail.getAutomaticReleaseDate(), SentenceDetail.NonDtoReleaseDateType.ARD, false);
-            addReleaseDate(nonDtoReleaseDates, sentenceDetail.getAutomaticReleaseOverrideDate(), SentenceDetail.NonDtoReleaseDateType.ARD, true);
-            addReleaseDate(nonDtoReleaseDates, sentenceDetail.getConditionalReleaseDate(), SentenceDetail.NonDtoReleaseDateType.CRD, false);
-            addReleaseDate(nonDtoReleaseDates, sentenceDetail.getConditionalReleaseOverrideDate(), SentenceDetail.NonDtoReleaseDateType.CRD, true);
-            addReleaseDate(nonDtoReleaseDates, sentenceDetail.getNonParoleDate(), SentenceDetail.NonDtoReleaseDateType.NPD, false);
-            addReleaseDate(nonDtoReleaseDates, sentenceDetail.getNonParoleOverrideDate(), SentenceDetail.NonDtoReleaseDateType.NPD, true);
-            addReleaseDate(nonDtoReleaseDates, sentenceDetail.getPostRecallReleaseDate(), SentenceDetail.NonDtoReleaseDateType.PRRD, false);
-            addReleaseDate(nonDtoReleaseDates, sentenceDetail.getPostRecallReleaseOverrideDate(), SentenceDetail.NonDtoReleaseDateType.PRRD, true);
-
-            Collections.sort(nonDtoReleaseDates);
-        }
-
-        return nonDtoReleaseDates.isEmpty() ? null : nonDtoReleaseDates.get(0);
-    }
-
-    private void addReleaseDate(final List<NonDtoReleaseDate> nonDtoReleaseDates, final LocalDate releaseDate,
-                                final SentenceDetail.NonDtoReleaseDateType releaseDateType, final boolean isOverride) {
-
-        if (Objects.nonNull(releaseDate)) {
-            nonDtoReleaseDates.add(new NonDtoReleaseDate(releaseDateType, releaseDate, isOverride));
-        }
-    }
-
-    private LocalDate deriveOffenderReleaseDate(final SentenceDetail sentenceDetail) {
-        // Offender release date is determined according to algorithm.
-        //
-        // 1. If there is a confirmed release date, the offender release date is the confirmed release date.
-        //
-        // 2. If there is no confirmed release date for the offender, the offender release date is either the actual
-        //    parole date or the home detention curfew actual date.
-        //
-        // 3. If there is no confirmed release date, actual parole date or home detention curfew actual date for the
-        //    offender, the release date is the later of the nonDtoReleaseDate or midTermDate value (if either or both
-        //    are present).
-        //
-        final LocalDate releaseDate;
-
-        if (Objects.nonNull(sentenceDetail.getConfirmedReleaseDate())) {
-            releaseDate = sentenceDetail.getConfirmedReleaseDate();
-        } else if (Objects.nonNull(sentenceDetail.getActualParoleDate())) {
-            releaseDate = sentenceDetail.getActualParoleDate();
-        } else if (Objects.nonNull(sentenceDetail.getHomeDetentionCurfewActualDate())) {
-            releaseDate = sentenceDetail.getHomeDetentionCurfewActualDate();
-        } else {
-            final var nonDtoReleaseDate = sentenceDetail.getNonDtoReleaseDate();
-            final var midTermDate = sentenceDetail.getMidTermDate();
-
-            if (Objects.isNull(midTermDate)) {
-                releaseDate = nonDtoReleaseDate;
-            } else if (Objects.isNull(nonDtoReleaseDate)) {
-                releaseDate = midTermDate;
-            } else {
-                releaseDate = midTermDate.isAfter(nonDtoReleaseDate) ? midTermDate : nonDtoReleaseDate;
-            }
-        }
-
-        return releaseDate;
-    }
-
     /**
      * Verifies that current user is authorised to access specified offender booking. If offender booking is in an
      * agency location that is not part of any caseload accessible to the current user, a 'Resource Not Found'
@@ -872,7 +819,7 @@ public class BookingService {
                 .map(this::mapper)
                 .collect(toList());
 
-        offenderSentenceDetails.forEach(s -> deriveSentenceDetail(s.getSentenceDetail()));
+        offenderSentenceDetails.forEach(s -> calcDerivedDates(s.getSentenceDetail()));
 
         final Comparator<OffenderSentenceDetail> compareDate = Comparator.comparing(
                 s -> s.getSentenceDetail().getReleaseDate(),

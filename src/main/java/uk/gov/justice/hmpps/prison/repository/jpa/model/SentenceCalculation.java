@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import uk.gov.justice.hmpps.prison.service.support.NonDtoReleaseDate;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -18,6 +19,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Getter
 @Entity
@@ -186,4 +192,99 @@ public class SentenceCalculation extends AuditableEntity {
     public LocalDate getLicenceExpiryDate() {
         return ledOverridedDate != null ? ledOverridedDate : ledCalculatedDate;
     }
+
+    public LocalDate getActualParoleDate() {
+        return apdOverridedDate != null ? apdOverridedDate : apdCalculatedDate;
+    }
+
+    public LocalDate getAutomaticReleaseDate() {
+        return ardOverridedDate != null ? ardOverridedDate : ardCalculatedDate;
+    }
+
+    public LocalDate getConditionalReleaseDate() {
+        return crdOverridedDate != null ? crdOverridedDate : crdCalculatedDate;
+    }
+
+    public LocalDate getNonParoleDate() {
+        return npdOverridedDate != null ? npdOverridedDate : npdCalculatedDate;
+    }
+
+    public LocalDate getPostRecallReleaseDate() {
+        return prrdOverridedDate != null ? prrdOverridedDate : prrdCalculatedDate;
+    }
+
+    public LocalDate getHomeDetentionCurfewActualDate() {
+        return hdcadOverridedDate != null ? hdcadOverridedDate : hdcadCalculatedDate;
+    }
+
+    public LocalDate getMidTermDate() {
+        return mtdOverridedDate != null ? mtdOverridedDate : mtdCalculatedDate;
+    }
+
+    public LocalDate getNonDtoReleaseDate() {
+        return deriveNonDtoReleaseDate(buildKeyDates()).map(NonDtoReleaseDate::getReleaseDate).orElse(null);
+    }
+
+    public NonDtoReleaseDateType getNonDtoReleaseDateType() {
+        return deriveNonDtoReleaseDate(buildKeyDates()).map(NonDtoReleaseDate::getReleaseDateType).orElse(null);
+    }
+
+    private KeyDateValues buildKeyDates() {
+        return new KeyDateValues(
+            getArdCalculatedDate(),
+            getArdOverridedDate(),
+            getCrdCalculatedDate(),
+            getCrdOverridedDate(),
+            getNpdCalculatedDate(),
+            getNpdOverridedDate(),
+            getPrrdCalculatedDate(),
+            getPrrdOverridedDate(),
+            getActualParoleDate(),
+            getHomeDetentionCurfewActualDate(),
+            getMidTermDate(),
+            null);
+    }
+
+
+    public static Optional<NonDtoReleaseDate> deriveNonDtoReleaseDate(final KeyDateValues sentenceDetail) {
+        final List<NonDtoReleaseDate> nonDtoReleaseDates = new ArrayList<>();
+
+        if (Objects.nonNull(sentenceDetail)) {
+            addReleaseDate(nonDtoReleaseDates, sentenceDetail.automaticReleaseDate(), NonDtoReleaseDateType.ARD, false);
+            addReleaseDate(nonDtoReleaseDates, sentenceDetail.automaticReleaseOverrideDate(), NonDtoReleaseDateType.ARD, true);
+            addReleaseDate(nonDtoReleaseDates, sentenceDetail.conditionalReleaseDate(), NonDtoReleaseDateType.CRD, false);
+            addReleaseDate(nonDtoReleaseDates, sentenceDetail.conditionalReleaseOverrideDate(), NonDtoReleaseDateType.CRD, true);
+            addReleaseDate(nonDtoReleaseDates, sentenceDetail.nonParoleDate(), NonDtoReleaseDateType.NPD, false);
+            addReleaseDate(nonDtoReleaseDates, sentenceDetail.nonParoleOverrideDate(), NonDtoReleaseDateType.NPD, true);
+            addReleaseDate(nonDtoReleaseDates, sentenceDetail.postRecallReleaseDate(), NonDtoReleaseDateType.PRRD, false);
+            addReleaseDate(nonDtoReleaseDates, sentenceDetail.postRecallReleaseOverrideDate(), NonDtoReleaseDateType.PRRD, true);
+
+            Collections.sort(nonDtoReleaseDates);
+        }
+
+        return nonDtoReleaseDates.isEmpty() ? Optional.empty() : Optional.of(nonDtoReleaseDates.get(0));
+    }
+
+    private static void addReleaseDate(final List<NonDtoReleaseDate> nonDtoReleaseDates, final LocalDate releaseDate,
+                                       final NonDtoReleaseDateType releaseDateType, final boolean isOverride) {
+
+        if (Objects.nonNull(releaseDate)) {
+            nonDtoReleaseDates.add(new NonDtoReleaseDate(releaseDateType, releaseDate, isOverride));
+        }
+    }
+
+
+    public enum NonDtoReleaseDateType {
+        ARD, CRD, NPD, PRRD,
+    }
+
+    public record KeyDateValues(LocalDate automaticReleaseDate, LocalDate automaticReleaseOverrideDate,
+                                LocalDate conditionalReleaseDate,
+                                LocalDate conditionalReleaseOverrideDate, LocalDate nonParoleDate,
+                                LocalDate nonParoleOverrideDate, LocalDate postRecallReleaseDate,
+                                LocalDate postRecallReleaseOverrideDate, LocalDate actualParoleDate,
+                                LocalDate homeDetentionCurfewActualDate, LocalDate midTermDate,
+                                LocalDate confirmedReleaseDate) {
+    }
+
 }
