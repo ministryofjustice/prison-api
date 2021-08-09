@@ -28,27 +28,10 @@ public class QueryBuilderFactory {
     }
 
     public IQueryBuilder getQueryBuilder(final String initialSql, final Map<String, FieldMapper> fieldMap) {
-        final IQueryBuilder queryBuilder;
 
-        switch (dialect) {
-            case HSQLDB:
-                queryBuilder = new HSQLDBQueryBuilder(initialSql, fieldMap, dialect);
-
-                break;
-
-            case ORACLE_11:
-            case ORACLE_12:
-            case POSTGRES:
-                queryBuilder = new OracleQueryBuilder(initialSql, fieldMap, dialect);
-
-                break;
-
-            default:
-                queryBuilder = null;
-
-                break;
-        }
-
-        return queryBuilder;
+        return switch (dialect) {
+            case HSQLDB -> new HSQLDBQueryBuilder(initialSql, fieldMap, dialect);
+            case ORACLE_11, ORACLE_12, POSTGRES -> new OracleQueryBuilder(initialSql, fieldMap, dialect);
+        };
     }
 }

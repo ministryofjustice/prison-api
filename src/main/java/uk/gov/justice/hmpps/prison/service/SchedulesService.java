@@ -178,14 +178,11 @@ public class SchedulesService {
     private List<PrisonerSchedule> getPrisonerSchedules(final Long locationId, final String usage, final String sortFields, final Order sortOrder, final LocalDate day) {
         final var orderByFields = StringUtils.defaultString(sortFields, "lastName");
         final var order = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);
-        switch (usage) {
-            case "APP":
-                return scheduleRepository.getLocationAppointments(locationId, day, day, orderByFields, order);
-            case "VISIT":
-                return scheduleRepository.getLocationVisits(locationId, day, day, orderByFields, order);
-            default:
-                return scheduleRepository.getActivitiesAtLocation(locationId, day, day, orderByFields, order, false);
-        }
+        return switch (usage) {
+            case "APP" -> scheduleRepository.getLocationAppointments(locationId, day, day, orderByFields, order);
+            case "VISIT" -> scheduleRepository.getLocationVisits(locationId, day, day, orderByFields, order);
+            default -> scheduleRepository.getActivitiesAtLocation(locationId, day, day, orderByFields, order, false);
+        };
     }
 
     public List<PrisonerSchedule> getVisits(final String agencyId, final List<String> offenderNos, final LocalDate date, final TimeSlot timeSlot) {

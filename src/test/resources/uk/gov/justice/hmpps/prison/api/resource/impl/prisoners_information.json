@@ -406,5 +406,20 @@
     "englishSpeaking": false,
     "bookingBeginDate": "2009-05-16",
     "communityStatus": "ACTIVE IN"
+  },
+  {
+    "nomsId": "A1060AA",
+    "establishmentCode": "LEI",
+    "bookingId": -58,
+    "givenName1": "TEST",
+    "givenName2": "RECALL",
+    "lastName": "RELEASE",
+    "dateOfBirth": "1970-12-30",
+    "gender": "Male",
+    "englishSpeaking": false,
+    "unitCode1": "A",
+    "unitCode2": "1",
+    "unitCode3": "1",
+    "communityStatus": "ACTIVE IN"
   }
 ]

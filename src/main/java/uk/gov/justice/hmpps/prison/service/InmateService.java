@@ -51,6 +51,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
+import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.support.AssessmentDto;
 import uk.gov.justice.hmpps.prison.service.support.InmateDto;
 import uk.gov.justice.hmpps.prison.service.support.InmatesHelper;
@@ -225,6 +226,7 @@ public class InmateService {
         return getOffenderDetails(inmate, extraInfo, csraSummary);
     }
 
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public InmateDetail findOffender(final String offenderNo, final boolean extraInfo) {
         final var inmate = repository.findOffender(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
         return getOffenderDetails(inmate, extraInfo, false);
