@@ -49,6 +49,10 @@ public abstract class ResourceTest {
         return createHttpEntity(authTokenHelper.getToken(authToken), null, Collections.emptyMap());
     }
 
+    protected HttpEntity<?> createEmptyHttpEntity(final AuthToken authToken, final Map<String, String> additionalHeaders) {
+        return createHttpEntity(authTokenHelper.getToken(authToken), null, additionalHeaders);
+    }
+
     protected HttpEntity<?> createHttpEntity(final String bearerToken, final Object body, final Map<String, String> additionalHeaders) {
         final var headers = new HttpHeaders();
 
