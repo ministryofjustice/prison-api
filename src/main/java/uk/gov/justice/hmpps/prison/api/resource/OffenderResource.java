@@ -81,6 +81,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static uk.gov.justice.hmpps.prison.util.ResourceUtils.nvl;
 
@@ -336,6 +338,30 @@ public class OffenderResource {
             query,
             StringUtils.defaultIfBlank(sortFields, "bookingId,alertId"),
             nvl(sortOrder, Order.ASC));
+    }
+
+    @ApiResponses({
+        @ApiResponse(code = 200, message = "OK", response = Alert.class, responseContainer = "List"),
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Return a list of alerts for latest booking for a given offender No.", notes = "System or cat tool access only")
+    @GetMapping("/{offenderNo}/bookings/latest/alerts")
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "CREATE_CATEGORISATION", "APPROVE_CATEGORISATION"})
+    public List<Alert> getAlertsFotLatestBookingByOffenderNo(
+        @PathVariable("offenderNo") @ApiParam(value = "Noms ID or Prisoner number", required = true, example = "A1234AA") @NotNull final String offenderNo,
+        @RequestParam(value = "alertCodes", required = false) @ApiParam(value = "Comma separated list of alertCodes to filter by", example = "XA,RSS") final String alertCodes,
+        @RequestParam(value = "sort", defaultValue = "alertType", required = false) @ApiParam(value = "Comma separated list of one or more Alert fields", allowableValues = "alertId, bookingId, alertType, alertCode, comment, dateCreated, dateExpires, active", defaultValue = "alertType") final String sort,
+        @RequestParam(value = "direction", defaultValue = "ASC", required = false) @ApiParam(value = "Sort order", defaultValue = "ASC", example = "DESC") final Order direction) {
+        final var query = Optional.ofNullable(alertCodes).map(codes -> Arrays.stream(codes.split(","))
+            .map(alertCode -> String.format("alertCode:eq:'%s'", alertCode))
+            .collect(Collectors.joining(",or:"))).orElse(null);
+        return alertService.getInmateAlertsByOffenderNos(
+            offenderNo,
+            true,
+            query,
+            sort,
+            direction);
     }
 
     @ApiResponses({
