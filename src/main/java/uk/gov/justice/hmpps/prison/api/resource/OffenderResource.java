@@ -112,7 +112,6 @@ public class OffenderResource {
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation("Full details about the current state of an offender")
     @GetMapping("/{offenderNo}")
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public InmateDetail getOffender(@Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of offender", example = "A1234AA", required = true) final String offenderNo) {
         return inmateService.findOffender(offenderNo, true);
     }
@@ -123,7 +122,7 @@ public class OffenderResource {
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation("Full details about the current state of an offender")
     @GetMapping("/{offenderNo}/prison-timeline")
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
+    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'VIEW_PRISONER_DATA')")
     public PrisonerInPrisonSummary getOffenderPrisonPeriods(@Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of offender", example = "A1234AA", required = true) final String offenderNo) {
         return movementsService.getPrisonerInPrisonSummary(offenderNo);
     }
@@ -166,7 +165,6 @@ public class OffenderResource {
     @PutMapping("/{offenderNo}/discharge-to-hospital")
     @PreAuthorize("hasRole('RELEASE_PRISONER') and hasAuthority('SCOPE_write')")
     @ProxyUser
-    @VerifyOffenderAccess(overrideRoles = {"RELEASE_PRISONER"})
     public InmateDetail dischargePrisonerToHospital(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToDischargePrisoner requestToDischargePrisoner) {
@@ -212,7 +210,6 @@ public class OffenderResource {
     @PutMapping("/{offenderNo}/transfer-out")
     @PreAuthorize("hasRole('TRANSFER_PRISONER') and hasAuthority('SCOPE_write')")
     @ProxyUser
-    @VerifyOffenderAccess(overrideRoles = {"TRANSFER_PRISONER"})
     public InmateDetail transferOutPrisoner(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToTransferOut requestToTransferOut) {
@@ -331,7 +328,6 @@ public class OffenderResource {
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation(value = "Return a list of alerts for a given offender No.", notes = "System or cat tool access only")
     @GetMapping("/{offenderNo}/alerts")
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "CREATE_CATEGORISATION", "APPROVE_CATEGORISATION"})
     public List<Alert> getAlertsByOffenderNo(@PathVariable("offenderNo") @ApiParam(value = "Noms ID or Prisoner number", required = true, example = "A1234AA") @NotNull final String offenderNo, @RequestParam(value = "latestOnly", defaultValue = "true", required = false) @ApiParam("Only get alerts for the latest booking (prison term)") final Boolean latestOnly, @RequestParam(value = "query", required = false) @ApiParam(value = "Search parameters with the format [connector]:&lt;fieldName&gt;:&lt;operator&gt;:&lt;value&gt;:[format],... <p>Connector operators - and, or <p>Supported Operators - eq, neq, gt, gteq, lt, lteq, like, in</p> <p>Supported Fields - " +
         "alertId, bookingId, alertType, alertCode, comment, dateCreated, dateExpires, active</p> ", required = false, example = "alertCode:eq:'XA',or:alertCode:eq:'RSS'") final String query, @RequestHeader(value = "Sort-Fields", defaultValue = "bookingId,alertType", required = false) @ApiParam(value = "Comma separated list of one or more Alert fields", allowableValues = "alertId, bookingId, alertType, alertCode, comment, dateCreated, dateExpires, active", defaultValue = "bookingId,alertType") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @ApiParam(value = "Sort order", defaultValue = "ASC") final Order sortOrder) {
         return alertService.getInmateAlertsByOffenderNos(
@@ -430,7 +426,6 @@ public class OffenderResource {
         @ApiResponse(code = 200, message = "OK", response = OffenderSentenceDetail.class)})
     @ApiOperation(value = "Offender Sentence Details", notes = "Retrieve an single offender sentence details", nickname = "getOffenderSentenceDetails")
     @GetMapping("/{offenderNo}/sentences")
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public OffenderSentenceDetail getOffenderSentenceDetail(@PathVariable("offenderNo") @ApiParam(value = "Noms ID or Prisoner number (also called offenderNo)", required = true) final String offenderNo) {
         return bookingService.getOffenderSentenceDetail(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
     }
