@@ -352,6 +352,7 @@ public class OffenderResource {
         @ApiResponse(code = 200, message = "OK", response = CaseNote.class)})
     @ApiOperation(value = "Offender case notes", notes = "Retrieve an offenders case notes for latest booking")
     @GetMapping("/{offenderNo}/case-notes/v2")
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public Page<CaseNote> getOffenderCaseNotes(@PathVariable("offenderNo") @ApiParam(value = "Noms ID or Prisoner number (also called offenderNo)", required = true, example = "A1234AA") final String offenderNo,
                                                @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam(value = "start contact date to search from", example = "2021-02-03") final LocalDate from,
                                                @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam(value = "end contact date to search up to (including this date)", example = "2021-02-04") final LocalDate to,
@@ -378,6 +379,7 @@ public class OffenderResource {
         @ApiResponse(code = 200, message = "OK", response = CaseNote.class)})
     @ApiOperation(value = "Offender case note detail.", notes = "Retrieve an single offender case note", nickname = "getOffenderCaseNote")
     @GetMapping("/{offenderNo}/case-notes/{caseNoteId}")
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public CaseNote getOffenderCaseNote(@PathVariable("offenderNo") @ApiParam(value = "Noms ID or Prisoner number (also called offenderNo)", required = true) final String offenderNo, @PathVariable("caseNoteId") @ApiParam(value = "The case note id", required = true) final Long caseNoteId) {
         final var latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
         try {

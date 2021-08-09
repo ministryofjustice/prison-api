@@ -553,7 +553,6 @@ public class BookingService {
     }
 
     // FOR INTERNAL USE - ONLY CALL FROM SERVICE LAYER
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public OffenderSummary getLatestBookingByOffenderNo(final String offenderNo) {
         return bookingRepository.getLatestBookingByOffenderNo(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
     }
