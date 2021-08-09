@@ -62,6 +62,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitorRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
+import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 import uk.gov.justice.hmpps.prison.service.support.NonDtoReleaseDate;
 import uk.gov.justice.hmpps.prison.service.transformers.CourtCaseTransformer;
@@ -552,6 +553,7 @@ public class BookingService {
     }
 
     // FOR INTERNAL USE - ONLY CALL FROM SERVICE LAYER
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public OffenderSummary getLatestBookingByOffenderNo(final String offenderNo) {
         return bookingRepository.getLatestBookingByOffenderNo(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
     }
@@ -763,6 +765,7 @@ public class BookingService {
         return getOffenderSentenceDetails(offenderSentenceSummary);
     }
 
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public Optional<OffenderSentenceDetail> getOffenderSentenceDetail(final String offenderNo) {
         final var offender = inmateRepository.findOffender(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
         return getBookingSentencesSummary(List.of(offender.getBookingId()))
