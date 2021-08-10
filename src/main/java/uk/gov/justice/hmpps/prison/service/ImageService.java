@@ -1,14 +1,12 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
-import uk.gov.justice.hmpps.prison.repository.ImageRepository;
-import uk.gov.justice.hmpps.prison.repository.PrisonerRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImage;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImageRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,44 +18,34 @@ import static java.util.stream.Collectors.toList;
 @Transactional(readOnly = true)
 public class ImageService {
 
-    @Autowired
-    private ImageRepository repository;
+    private final OffenderImageRepository offenderImageRepository;
 
-    @Autowired
-    private OffenderImageRepository offenderImageRepository;
-
-    @Autowired
-    private PrisonerRepository prisonerRepository;
+    private final OffenderRepository offenderRepository;
 
     public List<ImageDetail> findOffenderImagesFor(final String offenderNumber) {
 
-        if (prisonerRepository.getOffenderIdsFor(offenderNumber).isEmpty()) throw EntityNotFoundException.withId(offenderNumber);
+        if (offenderRepository.findByNomsId(offenderNumber).isEmpty()) throw EntityNotFoundException.withId(offenderNumber);
 
         return offenderImageRepository.getImagesByOffenderNumber(offenderNumber).stream()
-                .map(this::convertFrom)
+                .map(OffenderImage::transform)
                 .collect(toList());
     }
 
     public ImageDetail findImageDetail(final Long imageId) {
-        return repository.findImageDetail(imageId).orElseThrow(EntityNotFoundException.withId(imageId));
+        return offenderImageRepository.findById(imageId)
+            .map(OffenderImage::transform)
+            .orElse(null);
     }
 
     public Optional<byte[]> getImageContent(final Long imageId, final boolean fullSizeImage) {
-        return Optional.ofNullable(repository.getImageContent(imageId, fullSizeImage));
+        return offenderImageRepository.findById(imageId)
+        .map(i -> fullSizeImage ? i.getFullSizeImage() : i.getThumbnailImage());
     }
 
     public Optional<byte[]> getImageContent(final String offenderNo, final boolean fullSizeImage) {
-        return Optional.ofNullable(repository.getImageContent(offenderNo, fullSizeImage));
+        return offenderImageRepository.findLatestByOffenderNumber(offenderNo)
+            .map(i -> fullSizeImage ? i.getFullSizeImage() : i.getThumbnailImage());
     }
 
-    private ImageDetail convertFrom(final OffenderImage image) {
-        return ImageDetail.builder()
-                .imageId(image.getOffenderImageId())
-                .captureDate(image.getCaptureDateTime().toLocalDate())
-                .imageView(image.getImageViewType())
-                .imageOrientation(image.getOrientationType())
-                .imageType(image.getImageObjectType())
-                .objectId(image.getImageObjectId())
-                .build();
-    }
+
 }

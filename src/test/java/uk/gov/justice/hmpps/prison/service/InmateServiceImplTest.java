@@ -107,7 +107,7 @@ public class InmateServiceImplTest {
     public void init() {
         serviceToTest = new InmateService(repository, caseLoadService, inmateAlertService,
                 referenceDomainService, bookingService, agencyService, userService, authenticationFacade,
-                telemetryClient, "WING", 100, offenderAssessmentService, offenderLanguageRepository, offenderRepository, externalMovementRepository);
+                telemetryClient, "WING", 100, offenderAssessmentService, offenderLanguageRepository, offenderRepository, externalMovementRepository, null);
     }
 
     @Test

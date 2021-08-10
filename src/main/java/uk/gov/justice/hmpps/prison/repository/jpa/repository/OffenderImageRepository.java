@@ -8,24 +8,19 @@ import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImage;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface OffenderImageRepository extends CrudRepository<OffenderImage, Long> {
 
-    @Query(value =
-            "SELECT " +
-                    "i.offender_image_id," +
-                    "i.capture_datetime," +
-                    "i.image_view_type," +
-                    "i.orientation_type," +
-                    "i.image_object_type," +
-                    "i.image_object_id " +
-                    "FROM offender_images i " +
-            "INNER JOIN offender_bookings ob " +
-            "ON ob.offender_book_id = i.offender_book_id " +
-            "INNER JOIN offenders o " +
-            "ON o.offender_id = ob.offender_id " +
-            "WHERE o.offender_id_display = :offenderNo",
-            nativeQuery = true)
-    List<OffenderImage> getImagesByOffenderNumber(@Param("offenderNo") final String offenderNumber);
+    @Query(value = "SELECT i FROM OffenderImage i join i.offenderBooking ob join ob.offender o where o.nomsId = :offenderNumber")
+    List<OffenderImage> getImagesByOffenderNumber(@Param("offenderNumber") final String offenderNumber);
+
+    @Query(value = "select oi from OffenderImage oi where oi.id = (SELECT max(i.id) FROM OffenderImage i join i.offenderBooking ob join ob.offender o where o.nomsId = :offenderNumber " +
+        "and i.viewType = 'FACE' and i.orientationType = 'FRONT' and i.imageType = 'OFF_BKG' )")
+    Optional<OffenderImage> findLatestByOffenderNumber(@Param("offenderNumber") final String offenderNumber);
+
+    @Query(value = "select oi from OffenderImage oi where oi.id = (SELECT max(i.id) FROM OffenderImage i where i.offenderBooking.bookingId = :bookingId " +
+        "and i.viewType = 'FACE' and i.orientationType = 'FRONT' and i.imageType = 'OFF_BKG' )")
+    Optional<OffenderImage> findLatestByBookingId(@Param("bookingId") final Long bookingId);
 }
