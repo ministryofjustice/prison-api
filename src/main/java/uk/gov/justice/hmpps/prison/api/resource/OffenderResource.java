@@ -121,6 +121,7 @@ public class OffenderResource {
             // TODO: This is WIP as not all data is yet mapped
             return bookingService.getOffender(offenderNo);
         }
+        return inmateService.findOffender(offenderNo, true);
     }
 
     @ApiResponses({
