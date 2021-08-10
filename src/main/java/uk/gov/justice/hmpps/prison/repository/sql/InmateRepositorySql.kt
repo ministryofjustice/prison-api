@@ -127,27 +127,6 @@ enum class InmateRepositorySql(val sql: String) {
     """
   ),
 
-  GET_IMAGE_DATA_FOR_BOOKING(
-    """
-        SELECT
-        I.OFFENDER_IMAGE_ID AS IMAGE_ID,
-        I.CAPTURE_DATETIME AS CAPTURE_DATE,
-        I.IMAGE_VIEW_TYPE,
-        I.ORIENTATION_TYPE,
-        I.IMAGE_OBJECT_TYPE,
-        I.IMAGE_OBJECT_ID
-        FROM OFFENDER_IMAGES I
-        WHERE I.OFFENDER_IMAGE_ID =
-        (SELECT MAX(OI.OFFENDER_IMAGE_ID)
-                FROM OFFENDER_IMAGES OI
-                WHERE OI.ACTIVE_FLAG = 'Y'
-        AND IMAGE_OBJECT_TYPE = 'OFF_BKG'
-        AND OI.OFFENDER_BOOK_ID = :bookingId
-        AND OI.IMAGE_VIEW_TYPE = 'FACE'
-        AND OI.ORIENTATION_TYPE = 'FRONT')
-    """
-  ),
-
   FIND_ASSIGNED_LIVING_UNIT(
     """
         SELECT B.AGY_LOC_ID,

@@ -17,7 +17,6 @@ import uk.gov.justice.hmpps.prison.api.model.CategorisationDetail;
 import uk.gov.justice.hmpps.prison.api.model.CategorisationUpdateDetail;
 import uk.gov.justice.hmpps.prison.api.model.CategoryApprovalDetail;
 import uk.gov.justice.hmpps.prison.api.model.CategoryRejectionDetail;
-import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
 import uk.gov.justice.hmpps.prison.api.model.ImprisonmentStatus;
 import uk.gov.justice.hmpps.prison.api.model.InmateBasicDetails;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
@@ -441,20 +440,6 @@ public class InmateRepository extends RepositoryBase {
                 sql,
                 createParams("bookingId", bookingId),
                 PROFILE_INFORMATION_MAPPER);
-    }
-
-
-    public Optional<ImageDetail> getMainBookingImage(final long bookingId) {
-        final var sql = InmateRepositorySql.GET_IMAGE_DATA_FOR_BOOKING.getSql();
-        ImageDetail imageDetail;
-        try {
-            imageDetail = jdbcTemplate.queryForObject(sql,
-                    createParams("bookingId", bookingId),
-                    ImageRepository.IMAGE_DETAIL_MAPPER);
-        } catch (final EmptyResultDataAccessException e) {
-            imageDetail = null;
-        }
-        return Optional.ofNullable(imageDetail);
     }
 
 

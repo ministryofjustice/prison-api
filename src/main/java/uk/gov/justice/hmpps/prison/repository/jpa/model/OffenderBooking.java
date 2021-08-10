@@ -154,6 +154,10 @@ public class OffenderBooking extends ExtendedAuditableEntity {
     @Default
     private List<OffenderSentence> sentences = new ArrayList<>();
 
+    @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
+    @Default
+    private List<OffenderImage> images = new ArrayList<>();
+
     @Column(name = "ROOT_OFFENDER_ID")
     private Long rootOffenderId;
 
@@ -482,5 +486,14 @@ public class OffenderBooking extends ExtendedAuditableEntity {
         return getActiveImprisonmentStatus().map(
             is -> is.getImprisonmentStatus().getConvictedStatus()
         ).orElse(null);
+    }
+
+    public Optional<OffenderImage> getLatestFaceImage() {
+        return images.stream()
+            .filter(i -> i.getActiveFlag().isActive())
+            .filter(i -> "OFF_BKG".equals(i.getImageType()))
+            .filter(i -> "FACE".equals(i.getViewType()))
+            .filter(i -> "FRONT".equals(i.getOrientationType()))
+            .max(Comparator.comparing(OffenderImage::getId));
     }
 }
