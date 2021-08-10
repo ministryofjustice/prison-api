@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.ApprovalStatus;
-import uk.gov.justice.hmpps.prison.api.model.BaseSentenceDetail;
+import uk.gov.justice.hmpps.prison.api.model.BaseSentenceCalcDates;
 import uk.gov.justice.hmpps.prison.api.model.HdcChecks;
 import uk.gov.justice.hmpps.prison.api.model.HomeDetentionCurfew;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceCalc;
@@ -44,7 +44,7 @@ public class OffenderCurfewService {
     /**
      * Comparator for sorting OffenderSentenceCalc instances by HDCED (HomeDetentionCurfewEligibilityDate). Nulls sort high.
      */
-    static final Comparator<OffenderSentenceCalc<? extends BaseSentenceDetail>> OSC_BY_HDCED_COMPARATOR =
+    static final Comparator<OffenderSentenceCalc<? extends BaseSentenceCalcDates>> OSC_BY_HDCED_COMPARATOR =
             comparing(
                     OffenderSentenceCalc::getSentenceDetail,
                     comparing(bsd -> bsd == null ? null : bsd.getHomeDetentionCurfewEligibilityDate(),
@@ -96,7 +96,7 @@ public class OffenderCurfewService {
                         .firstName(os.getFirstName())
                         .lastName(os.getLastName())
                         .agencyLocationId(os.getAgencyLocationId())
-                        .sentenceDetail(BaseSentenceDetail.builder()
+                        .sentenceDetail(BaseSentenceCalcDates.builder()
                                 .sentenceExpiryDate(os.getSentenceExpiryDate())
                                 .homeDetentionCurfewEligibilityDate(os.getHomeDetCurfEligibilityDate())
                                 .homeDetentionCurfewActualDate(os.getHomeDetCurfActualDate())

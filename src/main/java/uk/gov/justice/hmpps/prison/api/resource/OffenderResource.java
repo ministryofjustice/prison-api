@@ -114,7 +114,13 @@ public class OffenderResource {
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation("Full details about the current state of an offender")
     @GetMapping("/{offenderNo}")
-    public InmateDetail getOffender(@Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of offender", example = "A1234AA", required = true) final String offenderNo) {
+    public InmateDetail getOffender(
+        @RequestHeader(value = "version", defaultValue = "1.0", required = false) @ApiParam(value = "Version of Offender details, default is 1.0, Beta is version 1.1_beta and is WIP (do not use in production)", defaultValue = "1.0") final String version,
+        @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of offender", example = "A1234AA", required = true) final String offenderNo) {
+        if ("1.1_beta".equals(version)) {
+            // TODO: This is WIP as not all data is yet mapped
+            return bookingService.getOffender(offenderNo);
+        }
         return inmateService.findOffender(offenderNo, true);
     }
 

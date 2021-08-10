@@ -1,7 +1,7 @@
 package uk.gov.justice.hmpps.prison.service.support;
 
 import org.junit.jupiter.api.Test;
-import uk.gov.justice.hmpps.prison.api.model.SentenceDetail;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -28,14 +28,14 @@ public class NonDtoReleaseDateTest {
 
     @Test
     public void testConstructorReleaseDateRequired() {
-        assertThatThrownBy(() -> new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.ARD, null, true)).isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> new NonDtoReleaseDate(SentenceCalculation.NonDtoReleaseDateType.ARD, null, true)).isInstanceOf(NullPointerException.class);
     }
 
     // When both are overrides but have different dates, later release date has higher priority
     @Test
     public void testCompareToBothOverridesDiffDates() {
-        final var date1 = new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.ARD, RELEASE_DATE_NOW, true);
-        final var date2 = new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.CRD, EARLIER_RELEASE_DATE, true);
+        final var date1 = new NonDtoReleaseDate(SentenceCalculation.NonDtoReleaseDateType.ARD, RELEASE_DATE_NOW, true);
+        final var date2 = new NonDtoReleaseDate(SentenceCalculation.NonDtoReleaseDateType.CRD, EARLIER_RELEASE_DATE, true);
 
         assertThat(date1.compareTo(date2)).isEqualTo(HIGHER_PRIORITY);
         assertThat(date2.compareTo(date1)).isEqualTo(LOWER_PRIORITY);
@@ -50,8 +50,8 @@ public class NonDtoReleaseDateTest {
     // When both are overrides but have same date, priority determined by enumerated release date type (e.g. ARD > CRD > NPD > PRRD)
     @Test
     public void testCompareToBothOverridesSameDates() {
-        final var date1 = new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.NPD, RELEASE_DATE_NOW, true);
-        final var date2 = new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.CRD, RELEASE_DATE_NOW, true);
+        final var date1 = new NonDtoReleaseDate(SentenceCalculation.NonDtoReleaseDateType.NPD, RELEASE_DATE_NOW, true);
+        final var date2 = new NonDtoReleaseDate(SentenceCalculation.NonDtoReleaseDateType.CRD, RELEASE_DATE_NOW, true);
 
         assertThat(date1.compareTo(date2)).isEqualTo(LOWER_PRIORITY);  // Because CRD higher priority than NPD
         assertThat(date2.compareTo(date1)).isEqualTo(HIGHER_PRIORITY); // Because NPD lower priority than CRD
@@ -66,8 +66,8 @@ public class NonDtoReleaseDateTest {
     // When different types with only one override but having different dates, later release date has higher priority
     @Test
     public void testCompareToOneOverrideDiffDates() {
-        final var date1 = new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.NPD, RELEASE_DATE_NOW, true);
-        final var date2 = new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.CRD, LATER_RELEASE_DATE, false);
+        final var date1 = new NonDtoReleaseDate(SentenceCalculation.NonDtoReleaseDateType.NPD, RELEASE_DATE_NOW, true);
+        final var date2 = new NonDtoReleaseDate(SentenceCalculation.NonDtoReleaseDateType.CRD, LATER_RELEASE_DATE, false);
 
         assertThat(date1.compareTo(date2)).isEqualTo(LOWER_PRIORITY);
         assertThat(date2.compareTo(date1)).isEqualTo(HIGHER_PRIORITY);
@@ -82,8 +82,8 @@ public class NonDtoReleaseDateTest {
     // When same type with only one override but having different dates, override has higher priority
     @Test
     public void testCompareToOneOverrideSameTypesDiffDates() {
-        final var date1 = new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.CRD, RELEASE_DATE_NOW, false);
-        final var date2 = new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.CRD, EARLIER_RELEASE_DATE, true);
+        final var date1 = new NonDtoReleaseDate(SentenceCalculation.NonDtoReleaseDateType.CRD, RELEASE_DATE_NOW, false);
+        final var date2 = new NonDtoReleaseDate(SentenceCalculation.NonDtoReleaseDateType.CRD, EARLIER_RELEASE_DATE, true);
 
         assertThat(date1.compareTo(date2)).isEqualTo(LOWER_PRIORITY);
         assertThat(date2.compareTo(date1)).isEqualTo(HIGHER_PRIORITY);
@@ -98,8 +98,8 @@ public class NonDtoReleaseDateTest {
     // When same type with only one override but having same dates, override has higher priority
     @Test
     public void testCompareToOneOverrideSameTypesSameDates() {
-        final var date1 = new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.NPD, RELEASE_DATE_NOW, true);
-        final var date2 = new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.NPD, RELEASE_DATE_NOW, false);
+        final var date1 = new NonDtoReleaseDate(SentenceCalculation.NonDtoReleaseDateType.NPD, RELEASE_DATE_NOW, true);
+        final var date2 = new NonDtoReleaseDate(SentenceCalculation.NonDtoReleaseDateType.NPD, RELEASE_DATE_NOW, false);
 
         assertThat(date1.compareTo(date2)).isEqualTo(HIGHER_PRIORITY);
         assertThat(date2.compareTo(date1)).isEqualTo(LOWER_PRIORITY);
@@ -114,8 +114,8 @@ public class NonDtoReleaseDateTest {
     // When both are calculated and different types with different dates, later release date has higher priority
     @Test
     public void testCompareToNoOverridesDiffTypesDiffDates() {
-        final var date1 = new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.ARD, RELEASE_DATE_NOW, false);
-        final var date2 = new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.NPD, LATER_RELEASE_DATE, false);
+        final var date1 = new NonDtoReleaseDate(SentenceCalculation.NonDtoReleaseDateType.ARD, RELEASE_DATE_NOW, false);
+        final var date2 = new NonDtoReleaseDate(SentenceCalculation.NonDtoReleaseDateType.NPD, LATER_RELEASE_DATE, false);
 
         assertThat(date1.compareTo(date2)).isEqualTo(LOWER_PRIORITY);
         assertThat(date2.compareTo(date1)).isEqualTo(HIGHER_PRIORITY);
@@ -130,8 +130,8 @@ public class NonDtoReleaseDateTest {
     // When both are calculated but have same date, priority determined by enumerated release date type (e.g. ARD > CRD > NPD > PRRD)
     @Test
     public void testCompareToNoOverridesARDvsCRD() {
-        final var date1 = new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.ARD, RELEASE_DATE_NOW, false);
-        final var date2 = new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.CRD, RELEASE_DATE_NOW, false);
+        final var date1 = new NonDtoReleaseDate(SentenceCalculation.NonDtoReleaseDateType.ARD, RELEASE_DATE_NOW, false);
+        final var date2 = new NonDtoReleaseDate(SentenceCalculation.NonDtoReleaseDateType.CRD, RELEASE_DATE_NOW, false);
 
         assertThat(date1.compareTo(date2)).isEqualTo(HIGHER_PRIORITY);  // Because ARD higher priority than CRD
         assertThat(date2.compareTo(date1)).isEqualTo(LOWER_PRIORITY); // Because CRD lower priority than ARD
@@ -146,8 +146,8 @@ public class NonDtoReleaseDateTest {
     // When both are calculated but have same date, priority determined by enumerated release date type (e.g. ARD > CRD > NPD > PRRD)
     @Test
     public void testCompareToNoOverridesARDvsNPD() {
-        final var date1 = new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.ARD, RELEASE_DATE_NOW, false);
-        final var date2 = new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.NPD, RELEASE_DATE_NOW, false);
+        final var date1 = new NonDtoReleaseDate(SentenceCalculation.NonDtoReleaseDateType.ARD, RELEASE_DATE_NOW, false);
+        final var date2 = new NonDtoReleaseDate(SentenceCalculation.NonDtoReleaseDateType.NPD, RELEASE_DATE_NOW, false);
 
         assertThat(date1.compareTo(date2)).isEqualTo(HIGHER_PRIORITY);  // Because ARD higher priority than NPD
         assertThat(date2.compareTo(date1)).isEqualTo(LOWER_PRIORITY); // Because NPD lower priority than ARD
@@ -162,8 +162,8 @@ public class NonDtoReleaseDateTest {
     // When both are calculated but have same date, priority determined by enumerated release date type (e.g. ARD > CRD > NPD > PRRD)
     @Test
     public void testCompareToNoOverridesARDvsPRRD() {
-        final var date1 = new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.ARD, RELEASE_DATE_NOW, false);
-        final var date2 = new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.PRRD, RELEASE_DATE_NOW, false);
+        final var date1 = new NonDtoReleaseDate(SentenceCalculation.NonDtoReleaseDateType.ARD, RELEASE_DATE_NOW, false);
+        final var date2 = new NonDtoReleaseDate(SentenceCalculation.NonDtoReleaseDateType.PRRD, RELEASE_DATE_NOW, false);
 
         assertThat(date1.compareTo(date2)).isEqualTo(HIGHER_PRIORITY);  // Because ARD higher priority than PRRD
         assertThat(date2.compareTo(date1)).isEqualTo(LOWER_PRIORITY); // Because PRRD lower priority than ARD
@@ -178,8 +178,8 @@ public class NonDtoReleaseDateTest {
     // When both are calculated but have same date, priority determined by enumerated release date type (e.g. ARD > CRD > NPD > PRRD)
     @Test
     public void testCompareToNoOverridesCRDvsNPD() {
-        final var date1 = new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.CRD, RELEASE_DATE_NOW, false);
-        final var date2 = new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.NPD, RELEASE_DATE_NOW, false);
+        final var date1 = new NonDtoReleaseDate(SentenceCalculation.NonDtoReleaseDateType.CRD, RELEASE_DATE_NOW, false);
+        final var date2 = new NonDtoReleaseDate(SentenceCalculation.NonDtoReleaseDateType.NPD, RELEASE_DATE_NOW, false);
 
         assertThat(date1.compareTo(date2)).isEqualTo(HIGHER_PRIORITY);  // Because CRD higher priority than NPD
         assertThat(date2.compareTo(date1)).isEqualTo(LOWER_PRIORITY); // Because NPD lower priority than CRD
@@ -194,8 +194,8 @@ public class NonDtoReleaseDateTest {
     // When both are calculated but have same date, priority determined by enumerated release date type (e.g. ARD > CRD > NPD > PRRD)
     @Test
     public void testCompareToNoOverridesCRDvsPRRD() {
-        final var date1 = new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.CRD, RELEASE_DATE_NOW, false);
-        final var date2 = new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.PRRD, RELEASE_DATE_NOW, false);
+        final var date1 = new NonDtoReleaseDate(SentenceCalculation.NonDtoReleaseDateType.CRD, RELEASE_DATE_NOW, false);
+        final var date2 = new NonDtoReleaseDate(SentenceCalculation.NonDtoReleaseDateType.PRRD, RELEASE_DATE_NOW, false);
 
         assertThat(date1.compareTo(date2)).isEqualTo(HIGHER_PRIORITY);  // Because CRD higher priority than PRRD
         assertThat(date2.compareTo(date1)).isEqualTo(LOWER_PRIORITY); // Because PRRD lower priority than CRD
@@ -210,8 +210,8 @@ public class NonDtoReleaseDateTest {
     // When both are calculated but have same date, priority determined by enumerated release date type (e.g. ARD > CRD > NPD > PRRD)
     @Test
     public void testCompareToNoOverridesNPDvsPRRD() {
-        final var date1 = new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.NPD, RELEASE_DATE_NOW, false);
-        final var date2 = new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.PRRD, RELEASE_DATE_NOW, false);
+        final var date1 = new NonDtoReleaseDate(SentenceCalculation.NonDtoReleaseDateType.NPD, RELEASE_DATE_NOW, false);
+        final var date2 = new NonDtoReleaseDate(SentenceCalculation.NonDtoReleaseDateType.PRRD, RELEASE_DATE_NOW, false);
 
         assertThat(date1.compareTo(date2)).isEqualTo(HIGHER_PRIORITY);  // Because NPD higher priority than PRRD
         assertThat(date2.compareTo(date1)).isEqualTo(LOWER_PRIORITY); // Because PRRD lower priority than NPD
@@ -225,8 +225,8 @@ public class NonDtoReleaseDateTest {
 
     @Test
     public void testCompareToIdenticalObjects() {
-        final var date1 = new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.ARD, RELEASE_DATE_NOW, false);
-        final var date2 = new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.ARD, RELEASE_DATE_NOW, false);
+        final var date1 = new NonDtoReleaseDate(SentenceCalculation.NonDtoReleaseDateType.ARD, RELEASE_DATE_NOW, false);
+        final var date2 = new NonDtoReleaseDate(SentenceCalculation.NonDtoReleaseDateType.ARD, RELEASE_DATE_NOW, false);
 
         assertThat(date1.compareTo(date2)).isEqualTo(SAME_PRIORITY);
         assertThat(date2.compareTo(date1)).isEqualTo(SAME_PRIORITY);

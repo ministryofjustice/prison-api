@@ -3,7 +3,7 @@ package uk.gov.justice.hmpps.prison.service.support;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import uk.gov.justice.hmpps.prison.api.model.SentenceDetail;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.NonDtoReleaseDateType;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -15,11 +15,11 @@ import java.util.Objects;
 @Getter
 @ToString
 public final class NonDtoReleaseDate implements Comparable<NonDtoReleaseDate> {
-    private final SentenceDetail.NonDtoReleaseDateType releaseDateType;
+    private final NonDtoReleaseDateType releaseDateType;
     private final LocalDate releaseDate;
     private final boolean isOverride;
 
-    public NonDtoReleaseDate(final SentenceDetail.NonDtoReleaseDateType releaseDateType, final LocalDate releaseDate, final boolean isOverride) {
+    public NonDtoReleaseDate(final NonDtoReleaseDateType releaseDateType, final LocalDate releaseDate, final boolean isOverride) {
         Objects.requireNonNull(releaseDateType, "A release date type must be defined.");
         Objects.requireNonNull(releaseDate, "A release date must be defined.");
 
