@@ -196,16 +196,6 @@ public class BookingSentenceDetailStepDefinitions extends AbstractStepDefinition
         bookingSentenceDetail.getOffenderSentenceDetailsUsingPostRequest(offenderNos);
     }
 
-    @When("^sentence details are requested by a POST request for booking ids \"([^\"]*)\"$")
-    public void sentenceDetailsAreRequestedByPostForBookingIds(final String bookingIds) {
-        bookingSentenceDetail.getBookingSentenceDetailsUsingPostRequest(bookingIds);
-    }
-
-    @Then("^bad request response is received from booking sentence API$")
-    public void badRequestResponseIsReceivedFromBookingSentenceAPI() {
-        bookingSentenceDetail.verifyBadRequest("List of Offender Ids must be provided");
-    }
-
     @When("^sentence details are requested of offenders for the logged in users caseloads$")
     public void sentenceDetailsAreRequestedForAnOffendersInLoggedInUsersCaseloads() {
         bookingSentenceDetail.getOffenderSentenceDetails();
