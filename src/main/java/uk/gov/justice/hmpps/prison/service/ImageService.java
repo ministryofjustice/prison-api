@@ -34,7 +34,7 @@ public class ImageService {
     public ImageDetail findImageDetail(final Long imageId) {
         return offenderImageRepository.findById(imageId)
             .map(OffenderImage::transform)
-            .orElse(null);
+            .orElseThrow(EntityNotFoundException.withId(imageId));
     }
 
     public Optional<byte[]> getImageContent(final Long imageId, final boolean fullSizeImage) {

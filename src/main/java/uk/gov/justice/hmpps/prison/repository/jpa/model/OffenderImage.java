@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
 
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@EqualsAndHashCode(of = { "id" }, callSuper = false)
 @Table(name = "OFFENDER_IMAGES")
 public class OffenderImage extends AuditableEntity {
     @Id
