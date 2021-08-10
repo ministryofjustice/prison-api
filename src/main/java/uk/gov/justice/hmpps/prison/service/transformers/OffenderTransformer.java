@@ -50,7 +50,7 @@ public class OffenderTransformer {
                 .build())
             .assignedLivingUnitId(latestBooking.getAssignedLivingUnit() != null ? latestBooking.getAssignedLivingUnit().getLocationId() : null)
             .sentenceTerms(latestBooking.getTerms().stream().map(SentenceTerm::getSentenceSummary).collect(Collectors.toList()))
-            .sentenceDetail(latestBooking.getSentenceDetail())
+            .sentenceDetail(latestBooking.getSentenceCalcDates())
             .profileInformation(latestBooking.getActiveProfileDetails().stream()
                 .filter(pd -> pd.getCode() != null)
                 .map(pd -> ProfileInformation.builder()

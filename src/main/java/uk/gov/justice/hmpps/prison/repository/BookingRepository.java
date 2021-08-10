@@ -23,7 +23,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeDetail;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
-import uk.gov.justice.hmpps.prison.api.model.SentenceDetail;
+import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
 import uk.gov.justice.hmpps.prison.api.model.VisitBalances;
 import uk.gov.justice.hmpps.prison.api.model.VisitDetails;
@@ -192,7 +192,7 @@ public class BookingRepository extends RepositoryBase {
         return Optional.ofNullable(agencyId);
     }
 
-    public Optional<SentenceDetail> getBookingSentenceDetail(final Long bookingId) {
+    public Optional<SentenceCalcDates> getBookingSentenceCalcDates(final Long bookingId) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
         final var initialSql = BookingRepositorySql.GET_BOOKING_SENTENCE_DETAIL.getSql();
@@ -200,9 +200,9 @@ public class BookingRepository extends RepositoryBase {
         final var sql = builder.build();
 
         final var sentenceDetailRowMapper =
-            Row2BeanRowMapper.makeMapping(SentenceDetail.class, SENTENCE_DETAIL_MAPPING);
+            Row2BeanRowMapper.makeMapping(SentenceCalcDates.class, SENTENCE_DETAIL_MAPPING);
 
-        SentenceDetail sentenceDetail;
+        SentenceCalcDates sentenceDetail;
 
         try {
             sentenceDetail =

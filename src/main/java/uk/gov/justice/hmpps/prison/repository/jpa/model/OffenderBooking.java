@@ -11,7 +11,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.ListIndexBase;
 import uk.gov.justice.hmpps.prison.api.model.LegalStatus;
-import uk.gov.justice.hmpps.prison.api.model.SentenceDetail;
+import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord.BookingAndSequence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail.PK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.KeyDateValues;
@@ -216,29 +216,71 @@ public class OffenderBooking extends ExtendedAuditableEntity {
                 sc.getHomeDetentionCurfewActualDate(),
                 sc.getMidTermDate(),
                 getConfirmedReleaseDate().orElse(null)))
-        ).orElse(new DerivedKeyDates(null, null)).releaseDate();
+        ).orElse(deriveKeyDates(new KeyDateValues(
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            getConfirmedReleaseDate().orElse(null))))
+            .releaseDate();
     }
 
     // TODO: Add all the other dates in!
-    public SentenceDetail getSentenceDetail() {
+    public SentenceCalcDates getSentenceCalcDates() {
         return getLatestCalculation().map(
-            sc -> SentenceDetail.sentenceDetailBuilder()
+            sc -> SentenceCalcDates.sentenceCalcDatesBuilder()
+                .bookingId(getBookingId())
                 .sentenceStartDate(getSentenceStartDate().orElse(null))
+                .effectiveSentenceEndDate(sc.getEffectiveSentenceEndDate())
                 .additionalDaysAwarded(getAdditionalDaysAwarded())
                 .automaticReleaseDate(sc.getArdCalculatedDate())
                 .automaticReleaseOverrideDate(sc.getArdOverridedDate())
                 .conditionalReleaseDate(sc.getCrdCalculatedDate())
                 .conditionalReleaseOverrideDate(sc.getCrdOverridedDate())
+                .sentenceExpiryDate(sc.getSentenceExpiryDate())
+                .postRecallReleaseDate(sc.getPrrdCalculatedDate())
+                .postRecallReleaseOverrideDate(sc.getPrrdOverridedDate())
+                .licenceExpiryDate(sc.getLicenceExpiryDate())
+                .homeDetentionCurfewEligibilityDate(sc.getHomeDetentionCurfewEligibilityDate())
+                .paroleEligibilityDate(sc.getParoleEligibilityDate())
+                .homeDetentionCurfewActualDate(sc.getHomeDetentionCurfewActualDate())
+                .actualParoleDate(sc.getActualParoleDate())
+                .releaseOnTemporaryLicenceDate(sc.getRotlOverridedDate())
+                .earlyRemovalSchemeEligibilityDate(sc.getErsedOverridedDate())
                 .tariffEarlyRemovalSchemeEligibilityDate(sc.getTersedOverridedDate())
+                .earlyTermDate(sc.getEarlyTermDate())
                 .midTermDate(sc.getMidTermDate())
+                .lateTermDate(sc.getLateTermDate())
+                .topupSupervisionExpiryDate(sc.getTopupSupervisionExpiryDate())
+                .tariffDate(sc.getTariffDate())
+                .dtoPostRecallReleaseDate(sc.getDprrdCalculatedDate())
+                .dtoPostRecallReleaseDateOverride(sc.getDprrdOverridedDate())
+                .nonParoleDate(sc.getNpdCalculatedDate())
+                .nonParoleOverrideDate(sc.getNpdOverridedDate())
                 .nonDtoReleaseDate(sc.getNonDtoReleaseDate())
                 .nonDtoReleaseDateType(sc.getNonDtoReleaseDateType())
                 .releaseDate(getReleaseDate())
                 .confirmedReleaseDate(getConfirmedReleaseDate().orElse(null))
-                .build()).orElse(null);
+                .build())
+            .orElse(
+                SentenceCalcDates.sentenceCalcDatesBuilder()
+                    .bookingId(getBookingId())
+                    .sentenceStartDate(getSentenceStartDate().orElse(null))
+                    .additionalDaysAwarded(getAdditionalDaysAwarded())
+                    .releaseDate(getReleaseDate())
+                    .confirmedReleaseDate(getConfirmedReleaseDate().orElse(null))
+                    .build());
     }
 
-    public record DerivedKeyDates(NonDtoReleaseDate nonDtoReleaseDate, LocalDate releaseDate) {}
+    public record DerivedKeyDates(NonDtoReleaseDate nonDtoReleaseDate, LocalDate releaseDate) {
+    }
 
     public static DerivedKeyDates deriveKeyDates(final KeyDateValues keyDateValues) {
 
@@ -252,18 +294,18 @@ public class OffenderBooking extends ExtendedAuditableEntity {
     }
 
     /**
-     *   Offender release date is determined according to algorithm.
+     * Offender release date is determined according to algorithm.
+     * <p>
+     * 1. If there is a confirmed release date, the offender release date is the confirmed release date.
+     * <p>
+     * 2. If there is no confirmed release date for the offender, the offender release date is either the actual
+     * parole date or the home detention curfew actual date.
+     * <p>
+     * 3. If there is no confirmed release date, actual parole date or home detention curfew actual date for the
+     * offender, the release date is the later of the nonDtoReleaseDate or midTermDate value (if either or both
+     * are present).
      *
-     *          1. If there is a confirmed release date, the offender release date is the confirmed release date.
-     *
-     *          2. If there is no confirmed release date for the offender, the offender release date is either the actual
-     *            parole date or the home detention curfew actual date.
-     *
-     *          3. If there is no confirmed release date, actual parole date or home detention curfew actual date for the
-     *            offender, the release date is the later of the nonDtoReleaseDate or midTermDate value (if either or both
-     *            are present).
-     *
-     * @param keyDateValues a set of key date values used to determine the Non deterministic release date
+     * @param keyDateValues     a set of key date values used to determine the Non deterministic release date
      * @param nonDtoReleaseDate derived Non deterministic release date information
      * @return releaseDate
      */
@@ -308,7 +350,8 @@ public class OffenderBooking extends ExtendedAuditableEntity {
     }
 
     public Integer getAdditionalDaysAwarded() {
-        return keyDateAdjustments.stream().filter(kda -> "ADA".equals(kda.getSentenceAdjustCode()) && kda.isActive()).mapToInt(KeyDateAdjustment::getAdjustDays).sum();
+        final var adjustedDays = keyDateAdjustments.stream().filter(kda -> "ADA".equals(kda.getSentenceAdjustCode()) && kda.isActive()).mapToInt(KeyDateAdjustment::getAdjustDays).sum();
+        return adjustedDays == 0 ? null : adjustedDays;
     }
 
     public void add(final OffenderMilitaryRecord omr) {

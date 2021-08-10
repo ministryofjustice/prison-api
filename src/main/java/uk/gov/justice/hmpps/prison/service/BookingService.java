@@ -35,7 +35,7 @@ import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
 import uk.gov.justice.hmpps.prison.api.model.PropertyContainer;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentDetail;
-import uk.gov.justice.hmpps.prison.api.model.SentenceDetail;
+import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
 import uk.gov.justice.hmpps.prison.api.model.VisitBalances;
 import uk.gov.justice.hmpps.prison.api.model.VisitDetails;
@@ -173,18 +173,31 @@ public class BookingService {
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
-    public SentenceDetail getBookingSentenceDetail(final Long bookingId) {
+    public SentenceCalcDates getBookingSentenceCalcDates(final Long bookingId) {
 
-        final var sentenceDetail = getSentenceDetail(bookingId);
+        final var sentenceCalcDates = getSentenceCalcDates(bookingId);
 
         final var confirmedReleaseDate = sentenceRepository.getConfirmedReleaseDate(bookingId);
-        sentenceDetail.setConfirmedReleaseDate(confirmedReleaseDate.orElse(null));
+        sentenceCalcDates.setConfirmedReleaseDate(confirmedReleaseDate.orElse(null));
 
-        return calcDerivedDates(sentenceDetail);
+        return calcDerivedDates(sentenceCalcDates);
+    }
+
+    /**
+     * Version 1.1 of sentence calculation dates, uses JPA entity model to derive data
+     * @param bookingId prisoner booking Id
+     * @return latest sentence calcultions
+     */
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
+    public SentenceCalcDates getBookingSentenceCalcDatesV1_1(final Long bookingId) {
+
+        return offenderBookingRepository.findById(bookingId)
+            .orElseThrow(EntityNotFoundException.withId(bookingId))
+            .getSentenceCalcDates();
     }
 
     @NotNull
-    private SentenceDetail calcDerivedDates(final SentenceDetail sentenceDetail) {
+    private SentenceCalcDates calcDerivedDates(final SentenceCalcDates sentenceDetail) {
         final var derivedKeyDates = OffenderBooking.deriveKeyDates(buildKeyDateValues(sentenceDetail));
 
         if (derivedKeyDates.nonDtoReleaseDate() != null) {
@@ -196,7 +209,7 @@ public class BookingService {
         return sentenceDetail;
     }
 
-    private KeyDateValues buildKeyDateValues(final SentenceDetail sentenceDetail) {
+    private KeyDateValues buildKeyDateValues(final SentenceCalcDates sentenceDetail) {
         return new KeyDateValues(
             sentenceDetail.getAutomaticReleaseDate(),
             sentenceDetail.getAutomaticReleaseOverrideDate(),
@@ -247,14 +260,14 @@ public class BookingService {
     }
 
 
-    private SentenceDetail getSentenceDetail(final Long bookingId) {
-        final var optSentenceDetail = bookingRepository.getBookingSentenceDetail(bookingId);
+    private SentenceCalcDates getSentenceCalcDates(final Long bookingId) {
+        final var optSentenceCalcDates = bookingRepository.getBookingSentenceCalcDates(bookingId);
 
-        return optSentenceDetail.orElse(emptySentenceDetail(bookingId));
+        return optSentenceCalcDates.orElse(emptySentenceCalcDates(bookingId));
     }
 
-    private SentenceDetail emptySentenceDetail(final Long bookingId) {
-        return SentenceDetail.sentenceDetailBuilder().bookingId(bookingId).build();
+    private SentenceCalcDates emptySentenceCalcDates(final Long bookingId) {
+        return SentenceCalcDates.sentenceCalcDatesBuilder().bookingId(bookingId).build();
     }
 
     public PrivilegeSummary getBookingIEPSummary(final Long bookingId, final boolean withDetails) {
@@ -847,7 +860,7 @@ public class BookingService {
                 .agencyLocationDesc(os.getAgencyLocationDesc())
                 .facialImageId(os.getFacialImageId())
                 .internalLocationDesc(LocationProcessor.stripAgencyId(os.getInternalLocationDesc(), os.getAgencyLocationId()))
-                .sentenceDetail(SentenceDetail.sentenceDetailBuilder()
+                .sentenceDetail(SentenceCalcDates.sentenceCalcDatesBuilder()
                         .bookingId(os.getBookingId())
                         .sentenceStartDate(os.getSentenceStartDate())
                         .additionalDaysAwarded(os.getAdditionalDaysAwarded())

@@ -20,9 +20,9 @@ public class BookingSentenceDetailStepDefinitions extends AbstractStepDefinition
 
 
     // Sentence Detail Step Definitions (for testing of /bookings/{bookingId}/sentenceDetail endpoint)
-    @When("^sentence details are requested for an offender with booking id \"([^\"]*)\"$")
-    public void sentenceDetailsAreRequestedForAnOffenderWithBookingId(final String bookingId) {
-        bookingSentenceDetail.getBookingSentenceDetail(Long.valueOf(bookingId));
+    @When("^sentence details are requested for an offender with booking id \"([^\"]*)\" and version \"([^\"]*)\"$")
+    public void sentenceDetailsAreRequestedForAnOffenderWithBookingId(final String bookingId, final String version) {
+        bookingSentenceDetail.getBookingSentenceDetail(Long.valueOf(bookingId), version);
     }
 
     @When("^I look at row \"([^\"]*)\"$")

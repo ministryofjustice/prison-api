@@ -156,7 +156,7 @@ public class InmateDetail {
     private List<PersonalCareNeed> personalCareNeeds;
 
     @ApiModelProperty(value = "Sentence Detail", notes = "Only returned when requesting extra details")
-    private SentenceDetail sentenceDetail;
+    private SentenceCalcDates sentenceDetail;
 
     @ApiModelProperty(value = "Offence History", notes = "Only returned when requesting extra details")
     private List<OffenceHistoryDetail> offenceHistory;

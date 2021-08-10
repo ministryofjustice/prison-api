@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.ApprovalStatus;
-import uk.gov.justice.hmpps.prison.api.model.BaseSentenceDetail;
+import uk.gov.justice.hmpps.prison.api.model.BaseSentenceCalcDates;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceCalc;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceCalculation;
 import uk.gov.justice.hmpps.prison.repository.OffenderCurfewRepository;
@@ -130,7 +130,7 @@ public class OffenderCurfewServiceTest {
         return OffenderCurfewService.OFFENDER_CURFEW_COMPARATOR.compare(a, b);
     }
 
-    private void assertOscComparison(OffenderSentenceCalc<? extends BaseSentenceDetail> a, OffenderSentenceCalc<? extends BaseSentenceDetail> b, int expected) {
+    private void assertOscComparison(OffenderSentenceCalc<? extends BaseSentenceCalcDates> a, OffenderSentenceCalc<? extends BaseSentenceCalcDates> b, int expected) {
         assertThat(OffenderCurfewService.OSC_BY_HDCED_COMPARATOR.compare(a, b)).isEqualTo(expected);
     }
 
@@ -324,16 +324,16 @@ public class OffenderCurfewServiceTest {
                 .collect(toList());
     }
 
-    private OffenderSentenceCalc<? extends BaseSentenceDetail> offenderSentenceCalc() {
+    private OffenderSentenceCalc<? extends BaseSentenceCalcDates> offenderSentenceCalc() {
         return OffenderSentenceCalc.builder().build();
     }
 
-    private OffenderSentenceCalc<? extends BaseSentenceDetail> offenderSentenceCalc(LocalDate hdced) {
+    private OffenderSentenceCalc<? extends BaseSentenceCalcDates> offenderSentenceCalc(LocalDate hdced) {
 
         return OffenderSentenceCalc
                 .builder()
                 .sentenceDetail(
-                        BaseSentenceDetail
+                        BaseSentenceCalcDates
                                 .builder()
                                 .homeDetentionCurfewEligibilityDate(hdced)
                                 .build())

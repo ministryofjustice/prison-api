@@ -217,8 +217,36 @@ public class SentenceCalculation extends AuditableEntity {
         return hdcadOverridedDate != null ? hdcadOverridedDate : hdcadCalculatedDate;
     }
 
+    public LocalDate getHomeDetentionCurfewEligibilityDate() {
+        return hdcedOverridedDate != null ? hdcedOverridedDate : hdcedCalculatedDate;
+    }
+
+    public LocalDate getEarlyTermDate() {
+        return etdOverridedDate != null ? etdOverridedDate : etdCalculatedDate;
+    }
+
     public LocalDate getMidTermDate() {
         return mtdOverridedDate != null ? mtdOverridedDate : mtdCalculatedDate;
+    }
+
+    public LocalDate getLateTermDate() {
+        return ltdOverridedDate != null ? ltdOverridedDate : ltdCalculatedDate;
+    }
+
+    public LocalDate getParoleEligibilityDate() {
+        return pedOverridedDate != null ? pedOverridedDate : pedCalculatedDate;
+    }
+
+    public LocalDate getTopupSupervisionExpiryDate() {
+        return tusedOverridedDate != null ? tusedOverridedDate : tusedCalculatedDate;
+    }
+
+    public LocalDate getTariffDate() {
+        return tariffOverridedDate != null ? tariffOverridedDate : tariffCalculatedDate;
+    }
+
+    public LocalDate getDtoPostRecallReleaseDate() {
+        return dprrdOverridedDate != null ? dprrdOverridedDate : dprrdCalculatedDate;
     }
 
     public LocalDate getNonDtoReleaseDate() {
@@ -279,11 +307,10 @@ public class SentenceCalculation extends AuditableEntity {
     }
 
     public record KeyDateValues(LocalDate automaticReleaseDate, LocalDate automaticReleaseOverrideDate,
-                                LocalDate conditionalReleaseDate,
-                                LocalDate conditionalReleaseOverrideDate, LocalDate nonParoleDate,
-                                LocalDate nonParoleOverrideDate, LocalDate postRecallReleaseDate,
-                                LocalDate postRecallReleaseOverrideDate, LocalDate actualParoleDate,
-                                LocalDate homeDetentionCurfewActualDate, LocalDate midTermDate,
+                                LocalDate conditionalReleaseDate, LocalDate conditionalReleaseOverrideDate,
+                                LocalDate nonParoleDate, LocalDate nonParoleOverrideDate,
+                                LocalDate postRecallReleaseDate, LocalDate postRecallReleaseOverrideDate,
+                                LocalDate actualParoleDate, LocalDate homeDetentionCurfewActualDate, LocalDate midTermDate,
                                 LocalDate confirmedReleaseDate) {
     }
 
