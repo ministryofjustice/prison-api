@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.executablespecification.steps;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
@@ -8,7 +9,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
-import uk.gov.justice.hmpps.prison.api.model.SentenceDetail;
+import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
 import uk.gov.justice.hmpps.prison.test.PrisonApiClientException;
 
 import java.time.LocalDate;
@@ -34,14 +35,14 @@ public class BookingSentenceDetailSteps extends CommonSteps {
     private static final ParameterizedTypeReference<List<OffenderSentenceDetail>> LIST_OF_OFFENDER_SENTENCE_DETAIL_TYPE = new ParameterizedTypeReference<>() {
     };
 
-    private SentenceDetail sentenceDetail;
+    private SentenceCalcDates sentenceDetail;
     private OffenderSentenceTerms offenderSentenceTerms;
     private List<OffenderSentenceTerms> offenderSentenceTermsList;
     private List<OffenderSentenceDetail> offenderSentenceDetails;
 
     @Step("Get booking sentence detail")
-    public void getBookingSentenceDetail(final Long bookingId) {
-        dispatchSentenceDetail(bookingId);
+    public void getBookingSentenceDetail(final Long bookingId, final String version) {
+        dispatchSentenceDetail(bookingId, version);
     }
 
     @Step("Get offender sentence details by offender nos and agency id")
@@ -244,14 +245,18 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         sentenceDetail = null;
     }
 
-    private void dispatchSentenceDetail(final Long bookingId) {
+    private void dispatchSentenceDetail(final Long bookingId, final String version) {
         init();
 
-        final ResponseEntity<SentenceDetail> response;
+        final ResponseEntity<SentenceCalcDates> response;
 
         try {
-            response = restTemplate.exchange(BOOKING_SENTENCE_DETAIL_API_URL, HttpMethod.GET, createEntity(),
-                    SentenceDetail.class, bookingId);
+            response = restTemplate.exchange(
+                BOOKING_SENTENCE_DETAIL_API_URL,
+                HttpMethod.GET,
+                createEntity(null, ImmutableMap.of("version", version)),
+                SentenceCalcDates.class,
+                bookingId);
 
             sentenceDetail = response.getBody();
         } catch (final PrisonApiClientException ex) {

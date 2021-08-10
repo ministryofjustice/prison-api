@@ -21,7 +21,7 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class OffenderSentenceCalc<S extends BaseSentenceDetail> {
+public class OffenderSentenceCalc<S extends BaseSentenceCalcDates> {
     @ApiModelProperty(required = true, value = "Offender booking id.", position = 0, example = "12341321")
     @NotNull
     private Long bookingId;

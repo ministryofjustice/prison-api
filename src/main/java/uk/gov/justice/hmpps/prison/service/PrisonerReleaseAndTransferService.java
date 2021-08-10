@@ -699,10 +699,10 @@ public class PrisonerReleaseAndTransferService {
 
     private void deactivateSentences(final Long bookingId) {
 
-        offenderSentenceAdjustmentRepository.findAllByOffenderBookIdAndActiveFlag(bookingId, ActiveFlag.Y)
+        offenderSentenceAdjustmentRepository.findAllByOffenderBooking_BookingIdAndActiveFlag(bookingId, ActiveFlag.Y)
             .forEach(s -> s.setActiveFlag(ActiveFlag.N));
 
-        offenderKeyDateAdjustmentRepository.findAllByOffenderBookIdAndActiveFlag(bookingId, ActiveFlag.Y)
+        offenderKeyDateAdjustmentRepository.findAllByOffenderBooking_BookingIdAndActiveFlag(bookingId, ActiveFlag.Y)
             .forEach(s -> s.setActiveFlag(ActiveFlag.N));
     }
 

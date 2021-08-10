@@ -11,6 +11,7 @@ import uk.gov.justice.hmpps.prison.api.model.PhysicalAttributes;
 import uk.gov.justice.hmpps.prison.api.model.ProfileInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
 import java.time.Clock;
@@ -48,6 +49,8 @@ public class OffenderTransformer {
                 .locationId(latestBooking.getAssignedLivingUnit() != null ? latestBooking.getAssignedLivingUnit().getLocationId() : null)
                 .build())
             .assignedLivingUnitId(latestBooking.getAssignedLivingUnit() != null ? latestBooking.getAssignedLivingUnit().getLocationId() : null)
+            .sentenceTerms(latestBooking.getTerms().stream().map(SentenceTerm::getSentenceSummary).collect(Collectors.toList()))
+            .sentenceDetail(latestBooking.getSentenceCalcDates())
             .profileInformation(latestBooking.getActiveProfileDetails().stream()
                 .filter(pd -> pd.getCode() != null)
                 .map(pd -> ProfileInformation.builder()

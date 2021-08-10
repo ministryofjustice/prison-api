@@ -68,7 +68,7 @@ import uk.gov.justice.hmpps.prison.api.model.ReasonableAdjustments;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.SecondaryLanguage;
 import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentDetail;
-import uk.gov.justice.hmpps.prison.api.model.SentenceDetail;
+import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendanceBatch;
 import uk.gov.justice.hmpps.prison.api.model.UpdateCaseNote;
@@ -567,8 +567,13 @@ public class BookingResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation(value = "Offender sentence detail (key dates and additional days awarded).", nickname = "getBookingSentenceDetail", notes = "<h3>Algorithm</h3><ul><li>If there is a confirmed release date, the offender release date is the confirmed release date.</li><li>If there is no confirmed release date for the offender, the offender release date is either the actual parole date or the home detention curfew actual date.</li><li>If there is no confirmed release date, actual parole date or home detention curfew actual date for the offender, the release date is the later of the nonDtoReleaseDate or midTermDate value (if either or both are present)</li></ul>")
     @GetMapping("/{bookingId}/sentenceDetail")
-    public SentenceDetail getBookingSentenceDetail(@PathVariable("bookingId") @ApiParam(value = "The booking id of offender", required = true) final Long bookingId) {
-        return bookingService.getBookingSentenceDetail(bookingId);
+    public SentenceCalcDates getBookingSentenceDetail(
+        @RequestHeader(value = "version", defaultValue = "1.0", required = false) @ApiParam(value = "Version of Sentence Calc Dates, 1.0 is default", defaultValue = "1.0") final String version,
+        @PathVariable("bookingId") @ApiParam(value = "The booking id of offender", required = true) final Long bookingId) {
+        if ("1.1".equals(version)) {
+            return bookingService.getBookingSentenceCalcDatesV1_1(bookingId);
+        }
+        return bookingService.getBookingSentenceCalcDates(bookingId);
     }
 
     @ApiResponses({

@@ -14,9 +14,11 @@ import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Entity
@@ -65,6 +67,13 @@ public class OffenderSentence extends AuditableEntity {
         @JoinColumn(name="SENTENCE_CATEGORY", referencedColumnName="SENTENCE_CATEGORY")
     })
     private SentenceCalcType calculationType;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumns({
+        @JoinColumn(name="OFFENDER_BOOK_ID", referencedColumnName="OFFENDER_BOOK_ID"),
+        @JoinColumn(name="SENTENCE_SEQ", referencedColumnName="SENTENCE_SEQ")
+    })
+    private List<SentenceTerm> terms;
 
     @Column(name = "START_DATE")
     private LocalDate sentenceStartDate;

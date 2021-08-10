@@ -11,15 +11,15 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
 /**
- * Basic Sentence Details
+ * Base Sentence Calc Dates
  **/
-@ApiModel(description = "Sentence Details")
+@ApiModel(description = "Base Sentence Calc Dates")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class BaseSentenceDetail {
+public class BaseSentenceCalcDates {
 
     @ApiModelProperty(value = "SED - date on which sentence expires.", position = 50, example = "2020-02-03")
     private LocalDate sentenceExpiryDate;

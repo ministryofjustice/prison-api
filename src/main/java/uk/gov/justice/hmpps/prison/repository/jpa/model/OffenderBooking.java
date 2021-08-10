@@ -11,8 +11,11 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.ListIndexBase;
 import uk.gov.justice.hmpps.prison.api.model.LegalStatus;
+import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord.BookingAndSequence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail.PK;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.KeyDateValues;
+import uk.gov.justice.hmpps.prison.service.support.NonDtoReleaseDate;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -23,10 +26,13 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
 import javax.persistence.OrderColumn;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -34,8 +40,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toUnmodifiableList;
 
 @EqualsAndHashCode(of = "bookingId", callSuper = false)
 @Data
@@ -136,7 +140,19 @@ public class OffenderBooking extends ExtendedAuditableEntity {
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
+    private List<KeyDateAdjustment> keyDateAdjustments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
+    @Default
+    private List<SentenceAdjustment> sentenceAdjustments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
+    @Default
     private List<SentenceTerm> terms = new ArrayList<>();
+
+    @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
+    @Default
+    private List<OffenderSentence> sentences = new ArrayList<>();
 
     @Column(name = "ROOT_OFFENDER_ID")
     private Long rootOffenderId;
@@ -177,6 +193,167 @@ public class OffenderBooking extends ExtendedAuditableEntity {
     @Column(name = "ADMISSION_REASON")
     private String admissionReason;
 
+    @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL)
+    @PrimaryKeyJoinColumn
+    private ReleaseDetail releaseDetail;
+
+    public Optional<SentenceCalculation> getLatestCalculation() {
+        return sentenceCalculations.stream().max(Comparator.comparing(SentenceCalculation::getId));
+    }
+
+    public LocalDate getReleaseDate() {
+        return getLatestCalculation().map(
+            sc -> deriveKeyDates(new KeyDateValues(
+                sc.getArdCalculatedDate(),
+                sc.getArdOverridedDate(),
+                sc.getCrdCalculatedDate(),
+                sc.getCrdOverridedDate(),
+                sc.getNpdCalculatedDate(),
+                sc.getNpdOverridedDate(),
+                sc.getPrrdCalculatedDate(),
+                sc.getPrrdOverridedDate(),
+                sc.getActualParoleDate(),
+                sc.getHomeDetentionCurfewActualDate(),
+                sc.getMidTermDate(),
+                getConfirmedReleaseDate().orElse(null)))
+        ).orElse(deriveKeyDates(new KeyDateValues(
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            getConfirmedReleaseDate().orElse(null))))
+            .releaseDate();
+    }
+
+    // TODO: Add all the other dates in!
+    public SentenceCalcDates getSentenceCalcDates() {
+        return getLatestCalculation().map(
+            sc -> SentenceCalcDates.sentenceCalcDatesBuilder()
+                .bookingId(getBookingId())
+                .sentenceStartDate(getSentenceStartDate().orElse(null))
+                .effectiveSentenceEndDate(sc.getEffectiveSentenceEndDate())
+                .additionalDaysAwarded(getAdditionalDaysAwarded())
+                .automaticReleaseDate(sc.getArdCalculatedDate())
+                .automaticReleaseOverrideDate(sc.getArdOverridedDate())
+                .conditionalReleaseDate(sc.getCrdCalculatedDate())
+                .conditionalReleaseOverrideDate(sc.getCrdOverridedDate())
+                .sentenceExpiryDate(sc.getSentenceExpiryDate())
+                .postRecallReleaseDate(sc.getPrrdCalculatedDate())
+                .postRecallReleaseOverrideDate(sc.getPrrdOverridedDate())
+                .licenceExpiryDate(sc.getLicenceExpiryDate())
+                .homeDetentionCurfewEligibilityDate(sc.getHomeDetentionCurfewEligibilityDate())
+                .paroleEligibilityDate(sc.getParoleEligibilityDate())
+                .homeDetentionCurfewActualDate(sc.getHomeDetentionCurfewActualDate())
+                .actualParoleDate(sc.getActualParoleDate())
+                .releaseOnTemporaryLicenceDate(sc.getRotlOverridedDate())
+                .earlyRemovalSchemeEligibilityDate(sc.getErsedOverridedDate())
+                .tariffEarlyRemovalSchemeEligibilityDate(sc.getTersedOverridedDate())
+                .earlyTermDate(sc.getEarlyTermDate())
+                .midTermDate(sc.getMidTermDate())
+                .lateTermDate(sc.getLateTermDate())
+                .topupSupervisionExpiryDate(sc.getTopupSupervisionExpiryDate())
+                .tariffDate(sc.getTariffDate())
+                .dtoPostRecallReleaseDate(sc.getDprrdCalculatedDate())
+                .dtoPostRecallReleaseDateOverride(sc.getDprrdOverridedDate())
+                .nonParoleDate(sc.getNpdCalculatedDate())
+                .nonParoleOverrideDate(sc.getNpdOverridedDate())
+                .nonDtoReleaseDate(sc.getNonDtoReleaseDate())
+                .nonDtoReleaseDateType(sc.getNonDtoReleaseDateType())
+                .releaseDate(getReleaseDate())
+                .confirmedReleaseDate(getConfirmedReleaseDate().orElse(null))
+                .build())
+            .orElse(
+                SentenceCalcDates.sentenceCalcDatesBuilder()
+                    .bookingId(getBookingId())
+                    .sentenceStartDate(getSentenceStartDate().orElse(null))
+                    .additionalDaysAwarded(getAdditionalDaysAwarded())
+                    .releaseDate(getReleaseDate())
+                    .confirmedReleaseDate(getConfirmedReleaseDate().orElse(null))
+                    .build());
+    }
+
+    public record DerivedKeyDates(NonDtoReleaseDate nonDtoReleaseDate, LocalDate releaseDate) {
+    }
+
+    public static DerivedKeyDates deriveKeyDates(final KeyDateValues keyDateValues) {
+
+        // Determine non-DTO release date
+        final var nonDtoReleaseDate = SentenceCalculation.deriveNonDtoReleaseDate(keyDateValues).orElse(null);
+
+        // Determine offender release date
+        final var releaseDate = deriveOffenderReleaseDate(keyDateValues, nonDtoReleaseDate);
+
+        return new DerivedKeyDates(nonDtoReleaseDate, releaseDate);
+    }
+
+    /**
+     * Offender release date is determined according to algorithm.
+     * <p>
+     * 1. If there is a confirmed release date, the offender release date is the confirmed release date.
+     * <p>
+     * 2. If there is no confirmed release date for the offender, the offender release date is either the actual
+     * parole date or the home detention curfew actual date.
+     * <p>
+     * 3. If there is no confirmed release date, actual parole date or home detention curfew actual date for the
+     * offender, the release date is the later of the nonDtoReleaseDate or midTermDate value (if either or both
+     * are present).
+     *
+     * @param keyDateValues     a set of key date values used to determine the Non deterministic release date
+     * @param nonDtoReleaseDate derived Non deterministic release date information
+     * @return releaseDate
+     */
+    private static LocalDate deriveOffenderReleaseDate(final KeyDateValues keyDateValues, final NonDtoReleaseDate nonDtoReleaseDate) {
+
+        final LocalDate releaseDate;
+
+        if (Objects.nonNull(keyDateValues.confirmedReleaseDate())) {
+            releaseDate = keyDateValues.confirmedReleaseDate();
+        } else if (Objects.nonNull(keyDateValues.actualParoleDate())) {
+            releaseDate = keyDateValues.actualParoleDate();
+        } else if (Objects.nonNull(keyDateValues.homeDetentionCurfewActualDate())) {
+            releaseDate = keyDateValues.homeDetentionCurfewActualDate();
+        } else {
+            final var midTermDate = keyDateValues.midTermDate();
+
+            if (Objects.nonNull(nonDtoReleaseDate)) {
+                if (Objects.isNull(midTermDate)) {
+                    releaseDate = nonDtoReleaseDate.getReleaseDate();
+                } else {
+                    releaseDate = midTermDate.isAfter(nonDtoReleaseDate.getReleaseDate()) ? midTermDate : nonDtoReleaseDate.getReleaseDate();
+                }
+            } else {
+                releaseDate = midTermDate;
+            }
+        }
+
+        return releaseDate;
+    }
+
+
+    public Optional<LocalDate> getConfirmedReleaseDate() {
+        return Optional.ofNullable(releaseDetail != null ? releaseDetail.getReleaseDate() != null ? releaseDetail.getReleaseDate() : releaseDetail.getAutoReleaseDate() : null);
+    }
+
+    public Optional<LocalDate> getSentenceStartDate() {
+        return sentences.stream()
+            .filter(s -> "A".equals(s.getStatus()))
+            .flatMap(s -> s.getTerms().stream())
+            .min(Comparator.comparing(SentenceTerm::getStartDate))
+            .map(SentenceTerm::getStartDate);
+    }
+
+    public Integer getAdditionalDaysAwarded() {
+        final var adjustedDays = keyDateAdjustments.stream().filter(kda -> "ADA".equals(kda.getSentenceAdjustCode()) && kda.isActive()).mapToInt(KeyDateAdjustment::getAdjustDays).sum();
+        return adjustedDays == 0 ? null : adjustedDays;
+    }
+
     public void add(final OffenderMilitaryRecord omr) {
         militaryRecords.add(omr);
         omr.setBookingAndSequence(new BookingAndSequence(this, militaryRecords.size()));
@@ -210,11 +387,11 @@ public class OffenderBooking extends ExtendedAuditableEntity {
     }
 
     public List<OffenderCourtCase> getActiveCourtCases() {
-        return courtCases.stream().filter(offenderCourtCase -> offenderCourtCase != null && offenderCourtCase.isActive()).collect(toUnmodifiableList());
+        return courtCases.stream().filter(offenderCourtCase -> offenderCourtCase != null && offenderCourtCase.isActive()).toList();
     }
 
     public List<OffenderPropertyContainer> getActivePropertyContainers() {
-        return propertyContainers.stream().filter(OffenderPropertyContainer::isActive).collect(toUnmodifiableList());
+        return propertyContainers.stream().filter(OffenderPropertyContainer::isActive).toList();
     }
 
     public List<OffenderProfileDetail> getActiveProfileDetails() {

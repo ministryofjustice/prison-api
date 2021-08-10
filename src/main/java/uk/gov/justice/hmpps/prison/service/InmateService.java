@@ -276,7 +276,7 @@ public class InmateService {
             if (extraInfo) {
                 inmate.setAliases(repository.findInmateAliases(bookingId, "createDate", Order.ASC, 0, 100).getItems());
                 inmate.setPrivilegeSummary(bookingService.getBookingIEPSummary(bookingId, false));
-                inmate.setSentenceDetail(bookingService.getBookingSentenceDetail(bookingId));
+                inmate.setSentenceDetail(bookingService.getBookingSentenceCalcDates(bookingId));
                 inmate.setPersonalCareNeeds(getPersonalCareNeeds(bookingId, List.of("DISAB", "MATSTAT", "PHY", "PSYCH", "SC")).getPersonalCareNeeds());
 
                 repository.getImprisonmentStatus(bookingId).ifPresent(status -> {
