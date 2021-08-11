@@ -65,11 +65,6 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
         user.authenticateAsClient(CATEGORISATION_CREATE);
     }
 
-    @Given("^a system client \"([^\"]*)\" has authenticated with the API$")
-    public void trustedClientWithPasswordHasAuthenticatedWithTheAPI(final String clientId) {
-        user.authenticateAsClient(LOCAL_ADMIN);
-    }
-
     @Given("^a trusted client that can maintain access roles has authenticated with the API$")
     public void aTrustedClientThatCanMaintainAccessRolesHasAuthenticatedWithTheAPI() {
         user.authenticateAsClient(ADMIN_TOKEN);
@@ -92,7 +87,7 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
 
     @Then("^\"([^\"]*)\" user locations are returned$")
     public void userLocationsAreReturned(final String expectedCount) {
-        user.verifyResourceRecordsReturned(Long.valueOf(expectedCount));
+        user.verifyResourceRecordsReturned(Long.parseLong(expectedCount));
     }
 
     @And("^user location agency ids are \"([^\"]*)\"$")

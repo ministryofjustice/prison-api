@@ -339,20 +339,6 @@ Feature: Booking Sentence Details
     When sentence details are requested by a POST request for offender Nos "A1234AK,A1234AE,A1234AJ,A1234AC"
     Then "4" offenders are returned
 
-  Scenario: Retrieve sentence details as a list using post request for empty list of offender Nos
-    When sentence details are requested by a POST request for offender Nos ""
-    Then bad request response is received from booking sentence API
-
-  Scenario: Retrieve sentence details as a list using post request for multiple booking ids
-      Note -11 = A1234AK; -5 = A1234AE, -16 not in caseload
-    When sentence details are requested by a POST request for booking ids "-11,-5,-16"
-    Then "2" offenders are returned
-
-  Scenario: Retrieve sentence details across caseloads as system user
-    Given a system client "batchadmin" has authenticated with the API
-    When sentence details are requested by a POST request for booking ids "-1,-16,-36"
-    Then "3" offenders are returned
-
   Scenario Outline: Retrieve sentence details multiple offender Nos
     When sentence details are requested for an offenders in logged in users caseloads with offender No "A1234AK,A1234AE,A1234AJ,A1234AC"
     Then "4" offenders are returned
