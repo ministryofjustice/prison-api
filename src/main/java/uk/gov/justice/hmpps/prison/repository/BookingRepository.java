@@ -654,7 +654,9 @@ public class BookingRepository extends RepositoryBase {
             additionSql.append("OB.ACTIVE_FLAG = :activeFlag AND OB.BOOKING_SEQ = :bookingSeq");
 
         }
-        if (filterByCaseload && !allowedCaseloadsOnly.isEmpty()) {
+        if (filterByCaseload) {
+            // if we are filtering by caseload but the user doesn't have any then shouldn't get any results
+            if (allowedCaseloadsOnly.isEmpty()) return Collections.emptyList();
             appendWhereOrAnd(additionSql);
             additionSql.append(InmateRepositorySql.CASELOAD_FILTER.getSql());
         }

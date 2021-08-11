@@ -46,6 +46,7 @@ import uk.gov.justice.hmpps.prison.repository.InmateRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderLanguage;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImageRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderLanguageRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
@@ -99,6 +100,7 @@ public class InmateService {
     private final OffenderLanguageRepository offenderLanguageRepository;
     private final OffenderRepository offenderRepository;
     private final ExternalMovementRepository externalMovementRepository;
+    private final OffenderImageRepository offenderImageRepository;
     private final TelemetryClient telemetryClient;
 
     private final String locationTypeGranularity;
@@ -117,7 +119,8 @@ public class InmateService {
                          final OffenderAssessmentService offenderAssessmentService,
                          final OffenderLanguageRepository offenderLanguageRepository,
                          final OffenderRepository offenderRepository,
-                         final ExternalMovementRepository externalMovementRepository) {
+                         final ExternalMovementRepository externalMovementRepository,
+                         final OffenderImageRepository offenderImageRepository) {
         this.repository = repository;
         this.caseLoadService = caseLoadService;
         this.inmateAlertService = inmateAlertService;
@@ -133,6 +136,7 @@ public class InmateService {
         this.offenderLanguageRepository = offenderLanguageRepository;
         this.offenderRepository = offenderRepository;
         this.externalMovementRepository = externalMovementRepository;
+        this.offenderImageRepository = offenderImageRepository;
     }
 
     public Page<OffenderBooking> findAllInmates(final InmateSearchCriteria criteria) {
@@ -473,7 +477,9 @@ public class InmateService {
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public ImageDetail getMainBookingImage(final Long bookingId) {
-        return repository.getMainBookingImage(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
+        return offenderImageRepository.findLatestByBookingId(bookingId)
+            .map(i -> i.transform())
+            .orElseThrow(EntityNotFoundException.withMessage(String.format("No Image found for booking Id %d", bookingId)));
     }
 
     @VerifyBookingAccess

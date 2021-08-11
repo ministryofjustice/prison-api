@@ -25,7 +25,7 @@ public class OffenderImageRepositoryTest {
         var images = repository.getImagesByOffenderNumber("A1234AA");
 
         assertThat(images).hasSize(1);
-        assertThat(images).extracting(OffenderImage::getOffenderImageId).containsOnly(-1L);
+        assertThat(images).extracting(OffenderImage::getId).containsOnly(-1L);
     }
 
     @Test

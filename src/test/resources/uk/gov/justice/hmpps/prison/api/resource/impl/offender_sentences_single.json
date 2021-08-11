@@ -1,0 +1,25 @@
+[{
+  "bookingId": -8,
+  "offenderNo": "A1234AH",
+  "firstName": "HARRY",
+  "lastName": "JONES",
+  "agencyLocationId": "LEI",
+  "sentenceDetail": {
+    "sentenceExpiryDate": "2018-05-31",
+    "automaticReleaseDate": "2018-02-28",
+    "postRecallReleaseDate": "2018-03-31",
+    "actualParoleDate": "2017-12-23",
+    "earlyTermDate": "2017-11-30",
+    "midTermDate": "2017-12-31",
+    "lateTermDate": "2018-01-31",
+    "bookingId": -8,
+    "sentenceStartDate": "2017-09-01",
+    "nonDtoReleaseDate": "2018-03-31",
+    "nonDtoReleaseDateType": "PRRD",
+    "releaseDate": "2017-12-23"
+  },
+  "dateOfBirth": "1986-06-01",
+  "agencyLocationDesc": "LEEDS",
+  "internalLocationDesc": "A-1-4",
+  "facialImageId": -8
+}]
