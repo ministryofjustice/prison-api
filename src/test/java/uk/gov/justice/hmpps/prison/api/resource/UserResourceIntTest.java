@@ -119,7 +119,7 @@ public class UserResourceIntTest extends ResourceTest {
         when(userRepository.findUsers(any(), any(), any(), isNull(), isNull(), any())).thenReturn(userDetails);
         final var responseEntity = testRestTemplate.exchange("/api/users?accessRole=&nameFilter=&caseload=&status=&activeCaseload=", HttpMethod.GET, requestEntity, String.class);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        verify(userRepository).findUsers(eq(""), any(NameFilter.class), eq(Status.ALL), isNull(), isNull(), any(PageRequest.class));
+        verify(userRepository).findUsers(eq(List.of()), any(NameFilter.class), eq(Status.ALL), isNull(), isNull(), any(PageRequest.class));
     }
 
     @Test
@@ -147,7 +147,7 @@ public class UserResourceIntTest extends ResourceTest {
         when(userRepository.findUsers(any(), any(), any(), anyString(), anyString(), any())).thenReturn(userDetails);
         final var responseEntity = testRestTemplate.exchange("/api/users?accessRole=SOME_ROLE&nameFilter=BOB&caseload=MDI&status=ACTIVE&activeCaseload=LEI", HttpMethod.GET, requestEntity, String.class);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        verify(userRepository).findUsers(eq("SOME_ROLE"), eq(new NameFilter("BOB")), eq(Status.ACTIVE), eq("MDI"), eq("LEI"), any(PageRequest.class));
+        verify(userRepository).findUsers(eq(List.of("SOME_ROLE")), eq(new NameFilter("BOB")), eq(Status.ACTIVE), eq("MDI"), eq("LEI"), any(PageRequest.class));
     }
 
     @Test

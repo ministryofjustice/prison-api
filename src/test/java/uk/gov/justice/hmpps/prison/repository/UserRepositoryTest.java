@@ -197,7 +197,7 @@ public class UserRepositoryTest {
     @Test
     public void testFindUsersByCaseloadAndNameFilterAndAccessRoleFilter() {
 
-        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", "OMIC_ADMIN", new NameFilter("User"), Status.ALL, null, new PageRequest());
+        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", List.of("OMIC_ADMIN"), new NameFilter("User"), Status.ALL, null, new PageRequest());
 
         assertThat(usersByCaseload.getItems()).extracting("username").contains("ITAG_USER");
     }
@@ -205,7 +205,7 @@ public class UserRepositoryTest {
     @Test
     public void testFindUsersByCaseloadAndAccessRoleFilter() {
 
-        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", "OMIC_ADMIN", new NameFilter("User Api"), Status.ALL, null, new PageRequest());
+        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", List.of("OMIC_ADMIN"), new NameFilter("User Api"), Status.ALL, null, new PageRequest());
 
         assertThat(usersByCaseload.getItems()).extracting(UserDetail::getUsername).contains("ITAG_USER");
     }
@@ -213,7 +213,7 @@ public class UserRepositoryTest {
     @Test
     public void testFindUsersByCaseloadAndAccessRoleFilterRoleNotAssigned() {
 
-        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", "ACCESS_ROLE_GENERAL", new NameFilter("User"), Status.ALL, null, new PageRequest());
+        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", List.of("ACCESS_ROLE_GENERAL"), new NameFilter("User"), Status.ALL, null, new PageRequest());
 
         assertThat(usersByCaseload.getItems()).isEmpty();
     }
@@ -221,7 +221,7 @@ public class UserRepositoryTest {
     @Test
     public void testFindUsersByCaseloadAndAccessRoleFilterRoleNotAnAccessRole() {
 
-        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", "WING_OFF", new NameFilter("User"), Status.ALL, null, new PageRequest());
+        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", List.of("WING_OFF"), new NameFilter("User"), Status.ALL, null, new PageRequest());
 
         assertThat(usersByCaseload.getItems()).isEmpty();
     }
@@ -229,7 +229,7 @@ public class UserRepositoryTest {
     @Test
     public void testFindUsersByCaseloadAndAccessRoleFilterNonExistantRole() {
 
-        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", "OMIC_ADMIN_DOESNT_EXIST", new NameFilter("User"), Status.ALL, null, new PageRequest());
+        final var usersByCaseload = userRepository.findUsersByCaseload("LEI", List.of("OMIC_ADMIN_DOESNT_EXIST"), new NameFilter("User"), Status.ALL, null, new PageRequest());
 
         assertThat(usersByCaseload.getItems()).isEmpty();
     }
@@ -273,7 +273,7 @@ public class UserRepositoryTest {
     @Test
     public void testFindLocalAdministratorUsersByCaseloadAndAccessRoleFilter() {
 
-        final var usersByCaseload = userRepository.getUsersAsLocalAdministrator("LAA_USER", "OMIC_ADMIN", new NameFilter("User"), Status.ALL, new PageRequest());
+        final var usersByCaseload = userRepository.getUsersAsLocalAdministrator("LAA_USER", List.of("OMIC_ADMIN"), new NameFilter("User"), Status.ALL, new PageRequest());
 
         assertThat(usersByCaseload.getItems()).extracting("username").contains("ITAG_USER");
     }

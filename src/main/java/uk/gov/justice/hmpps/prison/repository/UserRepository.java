@@ -22,8 +22,12 @@ import uk.gov.justice.hmpps.prison.service.filters.NameFilter;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.IntStream;
+
+import static java.lang.String.format;
 
 @Repository
 public class UserRepository extends RepositoryBase {
@@ -37,16 +41,16 @@ public class UserRepository extends RepositoryBase {
     private static final String ADMIN_ROLE_FUNCTION = "ADMIN";
 
     private final StandardBeanPropertyRowMapper<UserRole> USER_ROLE_MAPPER =
-            new StandardBeanPropertyRowMapper<>(UserRole.class);
+        new StandardBeanPropertyRowMapper<>(UserRole.class);
 
     private final StandardBeanPropertyRowMapper<AccessRole> ACCESS_ROLE_MAPPER =
-            new StandardBeanPropertyRowMapper<>(AccessRole.class);
+        new StandardBeanPropertyRowMapper<>(AccessRole.class);
 
     private final StandardBeanPropertyRowMapper<StaffUserRole> STAFF_USER_ROLE_MAPPER =
-            new StandardBeanPropertyRowMapper<>(StaffUserRole.class);
+        new StandardBeanPropertyRowMapper<>(StaffUserRole.class);
 
     private final StandardBeanPropertyRowMapper<UserDetail> USER_DETAIL_ROW_MAPPER =
-            new StandardBeanPropertyRowMapper<>(UserDetail.class);
+        new StandardBeanPropertyRowMapper<>(UserDetail.class);
 
 
     public Optional<UserDetail> findByUsername(final String username) {
@@ -54,9 +58,9 @@ public class UserRepository extends RepositoryBase {
         UserDetail userDetails;
         try {
             userDetails = jdbcTemplate.queryForObject(
-                    sql,
-                    createParams("username", username),
-                    USER_DETAIL_ROW_MAPPER);
+                sql,
+                createParams("username", username),
+                USER_DETAIL_ROW_MAPPER);
         } catch (final EmptyResultDataAccessException ex) {
             userDetails = null;
         }
@@ -72,8 +76,8 @@ public class UserRepository extends RepositoryBase {
             builder = builder.addQuery(query);
         }
         final var sql = builder
-                .addOrderBy(Order.ASC, "roleCode")
-                .build();
+            .addOrderBy(Order.ASC, "roleCode")
+            .build();
 
         return jdbcTemplate.query(sql, createParams("username", username), USER_ROLE_MAPPER);
     }
@@ -87,8 +91,8 @@ public class UserRepository extends RepositoryBase {
         final var builder = queryBuilderFactory.getQueryBuilder(query, ACCESS_ROLE_MAPPER);
 
         final var sql = builder
-                .addOrderBy(Order.ASC, "roleName")
-                .build();
+            .addOrderBy(Order.ASC, "roleName")
+            .build();
 
         return jdbcTemplate.query(sql, createParams("username", username, "caseloadId", caseload, "roleFunction", ADMIN_ROLE_FUNCTION), ACCESS_ROLE_MAPPER);
     }
@@ -111,9 +115,9 @@ public class UserRepository extends RepositoryBase {
 
         try {
             userDetail = jdbcTemplate.queryForObject(
-                    sql,
-                    createParams("staffId", staffId, "staffUserType", staffUserType),
-                    USER_DETAIL_ROW_MAPPER);
+                sql,
+                createParams("staffId", staffId, "staffUserType", staffUserType),
+                USER_DETAIL_ROW_MAPPER);
         } catch (final EmptyResultDataAccessException ex) {
             userDetail = null;
         }
@@ -127,12 +131,12 @@ public class UserRepository extends RepositoryBase {
         Validate.notBlank(username, "username is required.");
 
         final var count = jdbcTemplate.queryForObject(
-                UserRepositorySql.ROLE_ASSIGNED_COUNT.getSql(),
-                createParams(
-                        "caseloadId", caseload,
-                        "username", username,
-                        "roleId", roleId),
-                Long.class);
+            UserRepositorySql.ROLE_ASSIGNED_COUNT.getSql(),
+            createParams(
+                "caseloadId", caseload,
+                "username", username,
+                "roleId", roleId),
+            Long.class);
 
         return count != null && count > 0;
     }
@@ -143,9 +147,9 @@ public class UserRepository extends RepositoryBase {
         Validate.notBlank(username, "username is required.");
 
         final var count = jdbcTemplate.queryForObject(
-                UserRepositorySql.USER_ACCESSIBLE_CASELOAD_COUNT.getSql(),
-                createParams("caseloadId", caseload, "username", username),
-                Long.class);
+            UserRepositorySql.USER_ACCESSIBLE_CASELOAD_COUNT.getSql(),
+            createParams("caseloadId", caseload, "username", username),
+            Long.class);
 
         return count != null && count > 0;
     }
@@ -157,9 +161,9 @@ public class UserRepository extends RepositoryBase {
         Long roleId;
         try {
             roleId = jdbcTemplate.queryForObject(
-                    UserRepositorySql.GET_ROLE_ID_FOR_ROLE_CODE.getSql(),
-                    createParams("roleCode", roleCode),
-                    Long.class);
+                UserRepositorySql.GET_ROLE_ID_FOR_ROLE_CODE.getSql(),
+                createParams("roleCode", roleCode),
+                Long.class);
 
         } catch (final EmptyResultDataAccessException ex) {
             roleId = null;
@@ -174,9 +178,9 @@ public class UserRepository extends RepositoryBase {
         AccessRole role;
         try {
             role = jdbcTemplate.queryForObject(
-                    UserRepositorySql.GET_ROLE_BY_ROLE_CODE.getSql(),
-                    createParams("roleCode", roleCode),
-                    ACCESS_ROLE_MAPPER);
+                UserRepositorySql.GET_ROLE_BY_ROLE_CODE.getSql(),
+                createParams("roleCode", roleCode),
+                ACCESS_ROLE_MAPPER);
 
         } catch (final EmptyResultDataAccessException ex) {
             role = null;
@@ -185,14 +189,13 @@ public class UserRepository extends RepositoryBase {
     }
 
 
-
     public void addUserAssessibleCaseload(final String caseload, final String username) {
         Validate.notBlank(caseload, "caseload is required.");
         Validate.notBlank(username, "username is required.");
 
         jdbcTemplate.update(
-                UserRepositorySql.USER_ACCESSIBLE_CASELOAD_INSERT.getSql(),
-                createParams("caseloadId", caseload, "username", username, "startDate", DateTimeConverter.toDate(LocalDate.now())));
+            UserRepositorySql.USER_ACCESSIBLE_CASELOAD_INSERT.getSql(),
+            createParams("caseloadId", caseload, "username", username, "startDate", DateTimeConverter.toDate(LocalDate.now())));
     }
 
 
@@ -201,8 +204,8 @@ public class UserRepository extends RepositoryBase {
         Validate.notBlank(roleCode, "roleCode is required.");
 
         return jdbcTemplate.query(UserRepositorySql.FIND_ROLES_BY_CASELOAD_AND_ROLE.getSql(),
-                createParams("caseloadId", caseload, "roleCode", roleCode),
-                STAFF_USER_ROLE_MAPPER);
+            createParams("caseloadId", caseload, "roleCode", roleCode),
+            STAFF_USER_ROLE_MAPPER);
 
     }
 
@@ -214,8 +217,8 @@ public class UserRepository extends RepositoryBase {
         Validate.notNull(roleId, "roleId is required.");
 
         jdbcTemplate.update(
-                UserRepositorySql.INSERT_USER_ROLE.getSql(),
-                createParams("caseloadId", caseload, "username", username, "roleId", roleId));
+            UserRepositorySql.INSERT_USER_ROLE.getSql(),
+            createParams("caseloadId", caseload, "username", username, "roleId", roleId));
     }
 
 
@@ -226,8 +229,8 @@ public class UserRepository extends RepositoryBase {
         Validate.notNull(roleId, "roleId is required.");
 
         return jdbcTemplate.update(
-                UserRepositorySql.DELETE_USER_ROLE.getSql(),
-                createParams("caseloadId", caseload, "username", username, "roleId", roleId));
+            UserRepositorySql.DELETE_USER_ROLE.getSql(),
+            createParams("caseloadId", caseload, "username", username, "roleId", roleId));
     }
 
 
@@ -237,9 +240,9 @@ public class UserRepository extends RepositoryBase {
         final var sql = UserRepositorySql.FIND_ACTIVE_STAFF_USERS_WITH_ACCESSIBLE_CASELOAD.getSql();
 
         return jdbcTemplate.query(
-                sql,
-                createParams("caseloadId", caseloadId, "missingCaseloadId", missingCaseloadId),
-                USER_DETAIL_ROW_MAPPER);
+            sql,
+            createParams("caseloadId", caseloadId, "missingCaseloadId", missingCaseloadId),
+            USER_DETAIL_ROW_MAPPER);
     }
 
 
@@ -254,36 +257,52 @@ public class UserRepository extends RepositoryBase {
     }
 
 
-    public Page<UserDetail> findUsersByCaseload(final String caseload, final String accessRole, final NameFilter nameFilter, final Status status, final String activeCaseload, final PageRequest pageRequest) {
+    public Page<UserDetail> findUsersByCaseload(final String caseload, final List<String> accessRoles, final NameFilter nameFilter, final Status status, final String activeCaseload, final PageRequest pageRequest) {
         Validate.notBlank(caseload, "A caseload is required.");
         Validate.notNull(pageRequest, "Page request details are required.");
 
-        return getUsersByCaseload(UserRepositorySql.FIND_USERS_BY_CASELOAD, nameFilter, accessRole, status, pageRequest, caseload, activeCaseload, null);
+        return getUsersByCaseload(UserRepositorySql.FIND_USERS_BY_CASELOAD, nameFilter, accessRoles, status, pageRequest, caseload, activeCaseload, null);
     }
 
 
-    public Page<UserDetail> findUsers(final String accessRole, final NameFilter nameFilter, final Status status, final String caseload, final String activeCaseload, final PageRequest pageRequest) {
+    public Page<UserDetail> findUsers(final List<String> accessRoles, final NameFilter nameFilter, final Status status, final String caseload, final String activeCaseload, final PageRequest pageRequest) {
         Validate.notNull(pageRequest, "Page request details are required.");
 
         if (StringUtils.isNotBlank(caseload))
-            return findUsersByCaseload(caseload, accessRole, nameFilter, status, activeCaseload, pageRequest);
+            return findUsersByCaseload(caseload, accessRoles, nameFilter, status, activeCaseload, pageRequest);
 
-        return getUsersByCaseload(UserRepositorySql.FIND_USERS, nameFilter, accessRole, status, pageRequest, null, activeCaseload, null);
+        return getUsersByCaseload(UserRepositorySql.FIND_USERS, nameFilter, accessRoles, status, pageRequest, null, activeCaseload, null);
     }
 
 
-    public Page<UserDetail> getUsersAsLocalAdministrator(final String laaUsername, final String accessRole, final NameFilter nameFilter, final Status status, final PageRequest pageRequest) {
+    public Page<UserDetail> getUsersAsLocalAdministrator(final String laaUsername, final List<String> accessRoles, final NameFilter nameFilter, final Status status, final PageRequest pageRequest) {
         Validate.notBlank(laaUsername, "A username is required.");
         Validate.notNull(pageRequest, "Page request details are required.");
 
-        return getUsersByCaseload(UserRepositorySql.FIND_USERS_AVAILABLE_TO_LAA_USER, nameFilter, accessRole, status, pageRequest, null, null, laaUsername);
+        return getUsersByCaseload(UserRepositorySql.FIND_USERS_AVAILABLE_TO_LAA_USER, nameFilter, accessRoles, status, pageRequest, null, null, laaUsername);
     }
 
-    private Page<UserDetail> getUsersByCaseload(final UserRepositorySql query, final NameFilter nameFilter, final String accessRole, final Status status, final PageRequest pageRequest, final String caseload, final String activeCaseload, final String laaUsername) {
-        final var baseSql = applyAccessRoleQuery(applyNameFilterQuery(query.getSql(), nameFilter), accessRole);
+    private Page<UserDetail> getUsersByCaseload(final UserRepositorySql query, final NameFilter nameFilter, final List<String> accessRoles, final Status status, final PageRequest pageRequest, final String caseload, final String activeCaseload, final String laaUsername) {
 
+        final var baseSql = new StringBuilder();
+        final var paramRoleMap = new HashMap<String, String>();
 
-        final var builder = queryBuilderFactory.getQueryBuilder(baseSql, USER_DETAIL_ROW_MAPPER.getFieldMap());
+        if (accessRoles == null || accessRoles.isEmpty()) {
+            baseSql.append(applyNameFilterQuery(query.getSql(), nameFilter));
+        } else {
+            IntStream
+                .range(0, accessRoles.size())
+                .forEach(roleNumber -> {
+                    baseSql.append(applyNameFilterQuery(query.getSql(), nameFilter));
+                    baseSql.append(format(UserRepositorySql.APPLICATION_ROLE_CODE_FILTER_QUERY_TEMPLATE.getSql(), roleNumber));
+                    if (roleNumber < accessRoles.size() - 1) {
+                        baseSql.append(" INTERSECT ");
+                    }
+                    paramRoleMap.put(format("roleCode_%d", roleNumber), accessRoles.get(roleNumber));
+                });
+        }
+
+        final var builder = queryBuilderFactory.getQueryBuilder(baseSql.toString(), USER_DETAIL_ROW_MAPPER.getFieldMap());
         final var sql = builder
             .addRowCount()
             .addOrderBy(pageRequest)
@@ -292,21 +311,20 @@ public class UserRepository extends RepositoryBase {
 
         final var paRowMapper = new PageAwareRowMapper<>(USER_DETAIL_ROW_MAPPER);
 
-        final var users = jdbcTemplate.query(
-                sql,
-                createParamSource(pageRequest,
-                    "caseloadId", caseload,
-                    "activeCaseloadId", activeCaseload,
-                    "laaUsername", laaUsername,
-                    "activeFlag", "Y",
-                    "searchTerm", StringUtils.isNotBlank(nameFilter.getSearchTerm()) ? nameFilter.getSearchTerm() + "%" : null,
-                    "surname", StringUtils.isNotBlank(nameFilter.getSurname()) ? nameFilter.getSurname() + "%" : null,
-                    "firstName", StringUtils.isNotBlank(nameFilter.getFirstName()) ? nameFilter.getFirstName() + "%" : null,
-                    "apiCaseloadId", apiCaseloadId,
-                    "applicationType", applicationType,
-                    "roleCode", accessRole,
-                    "status", status == null ? Status.ALL : status.getSqlName()),
-            paRowMapper);
+        final var paramSource = createParamSource(pageRequest,
+            "caseloadId", caseload,
+            "activeCaseloadId", activeCaseload,
+            "laaUsername", laaUsername,
+            "activeFlag", "Y",
+            "searchTerm", StringUtils.isNotBlank(nameFilter.getSearchTerm()) ? nameFilter.getSearchTerm() + "%" : null,
+            "surname", StringUtils.isNotBlank(nameFilter.getSurname()) ? nameFilter.getSurname() + "%" : null,
+            "firstName", StringUtils.isNotBlank(nameFilter.getFirstName()) ? nameFilter.getFirstName() + "%" : null,
+            "apiCaseloadId", apiCaseloadId,
+            "applicationType", applicationType,
+            "status", status == null ? Status.ALL : status.getSqlName());
+
+        paramSource.addValues(paramRoleMap);
+        final var users = jdbcTemplate.query(sql, paramSource, paRowMapper);
 
         return new Page<>(users, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
     }
@@ -322,16 +340,5 @@ public class UserRepository extends RepositoryBase {
             }
         }
         return nameFilterQuery;
-    }
-
-    private String applyAccessRoleQuery(final String baseSql, final String accessRole) {
-        var resultSql = baseSql;
-
-        if (StringUtils.isNotBlank(accessRole)) {
-
-            resultSql += UserRepositorySql.APPLICATION_ROLE_CODE_FILTER_QUERY_TEMPLATE.getSql();
-        }
-
-        return resultSql;
     }
 }
