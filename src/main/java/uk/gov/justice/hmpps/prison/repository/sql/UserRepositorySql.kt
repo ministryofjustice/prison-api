@@ -255,7 +255,7 @@ enum class UserRepositorySql(val sql: String) {
                     INNER JOIN OMS_ROLES RL ON RL.ROLE_ID = UCR.ROLE_ID
       WHERE UAC.CASELOAD_ID = :apiCaseloadId
       AND RL.ROLE_TYPE =  :applicationType
-      AND RL.ROLE_CODE = :roleCode )
+      AND RL.ROLE_CODE = :roleCode_%d )
     """
   )
 }
