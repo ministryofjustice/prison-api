@@ -121,10 +121,11 @@ public class UserRepositoryTest {
     @Test
     public void testFindUsersMulitpleRoles() {
 
-        final var page = userRepository.findUsers(List.of("WING_OFF", "OMIC_ADMIN"), new NameFilter(null), Status.ALL, "LEI", null, new PageRequest("last_name", Order.ASC, 0L, 5L));
+        final var page = userRepository.findUsers(List.of("ACCESS_ROLE_ADMIN", "OMIC_ADMIN"), new NameFilter(null), Status.ALL, "LEI", null, new PageRequest("last_name", Order.ASC, 0L, 5L));
         final var items = page.getItems();
 
-        assertThat(items).isEmpty();
+        assertThat(items).extracting(UserDetail::getActiveCaseLoadId).contains("LEI");
+        assertThat(items).extracting(UserDetail::getUsername).contains("ITAG_USER");
     }
 
     @Test
