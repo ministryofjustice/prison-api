@@ -1,0 +1,14 @@
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: prison-api
+  description: Access to all NOMIS data via this API.
+  tags:
+    - java
+    - spring-boot
+spec:
+  type: openapi
+  lifecycle: live
+  owner: dps-tech-team
+  definition:
+     $text: https://api.prison.service.justice.gov.uk/api/swagger.json
