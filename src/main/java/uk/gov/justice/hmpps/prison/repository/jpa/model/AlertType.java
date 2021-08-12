@@ -1,11 +1,13 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import lombok.Builder;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
 @Entity
+@Builder
 @DiscriminatorValue(AlertType.ALERT_TYPE)
 @NoArgsConstructor
 public class AlertType extends ReferenceCode {
