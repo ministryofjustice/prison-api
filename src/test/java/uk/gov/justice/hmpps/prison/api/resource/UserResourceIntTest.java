@@ -151,6 +151,19 @@ public class UserResourceIntTest extends ResourceTest {
     }
 
     @Test
+    public void getUser_MultipleRoles() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisation(
+            "BOB",
+            List.of("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN"),
+            Map.of());
+        final var pageRequest = new PageRequest(null, Order.ASC, 0L, 20L);
+        final var userDetails = new Page<UserDetail>(List.of(), 0, pageRequest);
+        when(userRepository.findUsers(any(), any(), any(), anyString(), anyString(), any())).thenReturn(userDetails);
+        final var responseEntity = testRestTemplate.exchange("/api/users?accessRole=SOME_ROLE1&accessRole=SOME_ROLE2&nameFilter=BOB&caseload=MDI&status=ACTIVE&activeCaseload=LEI", HttpMethod.GET, requestEntity, String.class);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        verify(userRepository).findUsers(eq(List.of("SOME_ROLE1","SOME_ROLE2")), eq(new NameFilter("BOB")), eq(Status.ACTIVE), eq("MDI"), eq("LEI"), any(PageRequest.class));
+    }
+    @Test
     public void getStaffUsersForLocalAdministrator_statusUsesDefaultValueAllWhenNonSupplied() {
         final var requestEntity = createHttpEntityWithBearerAuthorisation(
             "BOB",
@@ -164,4 +177,17 @@ public class UserResourceIntTest extends ResourceTest {
         verify(userRepository).getUsersAsLocalAdministrator(eq("BOB"),eq(null), any(NameFilter.class), eq(Status.ALL), any(PageRequest.class));
     }
 
+    @Test
+    public void getStaffUsersForLocalAdministrator_MultipleRoles() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisation(
+            "BOB",
+            List.of("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN"),
+            Map.of());
+        final var pageRequest = new PageRequest(null, Order.ASC, 0L, 20L);
+        final var userDetails = new Page<UserDetail>(List.of(), 0, pageRequest);
+        when(userRepository.getUsersAsLocalAdministrator(any(), any(), any(), any(), any())).thenReturn(userDetails);
+        final var responseEntity = testRestTemplate.exchange("/api/users/local-administrator/available?accessRole=ROLE_CODE1&accessRole=ROLE_CODE2", HttpMethod.GET, requestEntity, String.class);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        verify(userRepository).getUsersAsLocalAdministrator(eq("BOB"),eq(List.of("ROLE_CODE1", "ROLE_CODE2")), any(NameFilter.class), eq(Status.ALL), any(PageRequest.class));
+    }
 }
