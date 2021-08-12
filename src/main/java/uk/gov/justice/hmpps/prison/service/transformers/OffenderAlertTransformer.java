@@ -8,11 +8,26 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Staff;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount;
 
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import static java.util.function.Predicate.not;
 
 public class OffenderAlertTransformer {
+
+    public static final Map<String, String> SORT_MAPPING = Map.of(
+        "alertId", "sequence",
+        "bookingId", "offenderBooking.bookingId",
+        "alertType", "alertType",
+        "alertCode", "alertCode",
+        "comment", "comment",
+        "dateCreated", "alertDate",
+        "dateExpires", "expiryDate",
+        "active", "status"
+    );
+
     public static Alert transformForOffender(final OffenderAlert offenderAlert) {
         return transform(offenderAlert)
             .toBuilder()
@@ -52,16 +67,16 @@ public class OffenderAlertTransformer {
         return Alert
             .builder()
             .alertId(offenderAlert.getSequence().longValue())
-            .alertCode(Optional.ofNullable(offenderAlert.getCode()).map(AlertCode::getCode).orElse(null))
-            .alertType(Optional.ofNullable(offenderAlert.getType()).map(AlertType::getCode).orElse(null))
+            .alertCode(offenderAlert.getAlertCode())
+            .alertType(offenderAlert.getAlertType())
             .alertCodeDescription(Optional
                 .ofNullable(offenderAlert.getCode())
                 .map(AlertCode::getDescription)
-                .orElse(null))
+                .orElse(offenderAlert.getAlertCode()))
             .alertTypeDescription(Optional
                 .ofNullable(offenderAlert.getType())
                 .map(AlertType::getDescription)
-                .orElse(null))
+                .orElse(offenderAlert.getAlertType()))
             .comment(offenderAlert.getComment())
             .expired(Optional.ofNullable(offenderAlert.getExpiryDate())
                 .filter(not(date -> date.isAfter(LocalDate.now())))
@@ -70,5 +85,19 @@ public class OffenderAlertTransformer {
             .dateCreated(offenderAlert.getAlertDate())
             .dateExpires(offenderAlert.getExpiryDate())
             .build();
+    }
+
+    public static String[] mapSortProperties(String sortProperties) {
+        return Optional.ofNullable(sortProperties)
+            .map(properties -> Arrays
+                .stream(properties.split(","))
+                .map(OffenderAlertTransformer::mapSortProperty)
+                .filter(not(Objects::isNull))
+                .toArray(String[]::new))
+            .orElse(new String[]{});
+    }
+
+    public static String mapSortProperty(String sortProperty) {
+        return SORT_MAPPING.get(sortProperty);
     }
 }
