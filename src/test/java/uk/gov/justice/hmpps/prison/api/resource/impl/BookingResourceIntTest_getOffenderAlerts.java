@@ -18,23 +18,83 @@ public class BookingResourceIntTest_getOffenderAlerts extends ResourceTest {
     offender A1179MT
     has 2 bookings; booking seq 1 -35  and booking seq 2 -56
     relevant data is as follows:
-        INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME, CREATE_USER_ID, CREATE_DATETIME) VALUES (DATE '2021-07-19', -56, -1035, 1, 'R', 'RSS', 'ACTIVE', 'N', '2021-09-01', 'Test alert for expiry', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0', 'ITAG_USER', TIMESTAMP '2021-08-19 01:02:03.4');
-        INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME, CREATE_USER_ID, CREATE_DATETIME) VALUES (DATE '2021-07-19', -56, -1035, 2, 'V', 'VOP', 'ACTIVE', 'N', '2021-09-02', 'Test alert for expiry', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0', 'ITAG_USER', TIMESTAMP '2021-08-19 01:02:03.4');
-        INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME, CREATE_USER_ID, CREATE_DATETIME) VALUES (DATE '2021-07-19', -56, -1035, 3, 'R', 'RSS', 'ACTIVE', 'N', '2021-09-03', 'Test alert for expiry', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0', 'ITAG_USER', TIMESTAMP '2021-08-19 01:02:03.4');
-        INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME, CREATE_USER_ID, CREATE_DATETIME) VALUES (DATE '2021-06-19', -56, -1035, 4, 'R', 'RSS', 'ACTIVE', 'N', '2021-09-03', 'Test alert for expiry', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0', 'ITAG_USER', TIMESTAMP '2021-08-19 01:02:03.4');
-        INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME, CREATE_USER_ID, CREATE_DATETIME) VALUES (DATE '2021-08-19', -56, -1035, 5, 'X', 'XTACT', 'ACTIVE', 'N', '2021-09-03', 'Test alert for expiry', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0', 'ITAG_USER', TIMESTAMP '2021-08-19 01:02:03.4');
+        INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME, MODIFY_USER_ID, CREATE_USER_ID, CREATE_DATETIME) VALUES (DATE '2021-07-19', -56, -1035, 1, 'R', 'RSS', 'ACTIVE', 'N', '2121-09-01', 'Test alert for expiry', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0', 'ITAG_USER','ITAG_USER', TIMESTAMP '2021-08-19 01:02:03.4');
+        INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME, CREATE_USER_ID, CREATE_DATETIME) VALUES (DATE '2021-07-19', -56, -1035, 2, 'V', 'VOP', 'ACTIVE', 'N', '2121-09-02', 'Test alert for expiry', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0', 'ITAG_USER', TIMESTAMP '2021-08-19 01:02:03.4');
+        INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME, CREATE_USER_ID, CREATE_DATETIME) VALUES (DATE '2021-07-19', -56, -1035, 3, 'R', 'RSS', 'ACTIVE', 'N', '2121-09-03', 'Test alert for expiry', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0', 'ITAG_USER', TIMESTAMP '2021-08-19 01:02:03.4');
+        INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME, CREATE_USER_ID, CREATE_DATETIME) VALUES (DATE '2021-06-19', -56, -1035, 4, 'R', 'RSS', 'ACTIVE', 'N', '2121-09-03', 'Test alert for expiry', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0', 'ITAG_USER', TIMESTAMP '2021-08-19 01:02:03.4');
+        INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME, CREATE_USER_ID, CREATE_DATETIME) VALUES (DATE '2021-08-19', -56, -1035, 5, 'X', 'XTACT', 'ACTIVE', 'N', '2121-09-03', 'Test alert for expiry', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0', 'ITAG_USER', TIMESTAMP '2021-08-19 01:02:03.4');
         INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME, CREATE_USER_ID, CREATE_DATETIME) VALUES (DATE '2021-07-19', -56, -1035, 6, 'R', 'RSS', 'ACTIVE', 'N', '2021-08-01', 'Test alert for expiry', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0', 'ITAG_USER', TIMESTAMP '2021-08-19 01:02:03.4');
         INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME, CREATE_USER_ID, CREATE_DATETIME) VALUES (DATE '2021-07-19', -56, -1035, 7, 'R', 'RSS', 'ACTIVE', 'N', '2021-08-02', 'Test alert for expiry', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0', 'ITAG_USER', TIMESTAMP '2021-08-19 01:02:03.4');
         INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME, CREATE_USER_ID, CREATE_DATETIME) VALUES (DATE '2021-07-19', -56, -1035, 8, 'R', 'RSS', 'ACTIVE', 'N', '2021-08-03', 'Test alert for expiry', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0', 'ITAG_USER', TIMESTAMP '2021-08-19 01:02:03.4');
         INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME, CREATE_USER_ID, CREATE_DATETIME) VALUES (DATE '2021-07-19', -56, -1035, 9, 'R', 'RSS', 'INACTIVE', 'N', '2021-08-04', 'Test alert for expiry', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0', 'ITAG_USER', TIMESTAMP '2021-08-19 01:02:03.4');
-        INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME, CREATE_USER_ID, CREATE_DATETIME) VALUES (DATE '2021-07-19', -56, -1035, 10, 'R', 'RSS', 'INACTIVE', 'N', '2021-10-03', 'Test alert for expiry', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0', 'ITAG_USER', TIMESTAMP '2021-08-19 01:02:03.4');
-        INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME, CREATE_USER_ID, CREATE_DATETIME) VALUES (DATE '2021-07-19', -56, -1035, 11, 'X', 'XCU', 'INACTIVE', 'N', '2021-10-02', 'Test alert for expiry', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0', 'ITAG_USER', TIMESTAMP '2021-08-19 01:02:03.4');
-        INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME, CREATE_USER_ID, CREATE_DATETIME) VALUES (DATE '2021-07-19', -56, -1035, 12, 'X', 'XCU', 'ACTIVE', 'N', '2021-10-01', 'Test alert for expiry', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0', 'ITAG_USER', TIMESTAMP '2021-08-19 01:02:03.4');
+        INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME, CREATE_USER_ID, CREATE_DATETIME) VALUES (DATE '2021-07-19', -56, -1035, 10, 'R', 'RSS', 'INACTIVE', 'N', '2121-10-03', 'Expired risk alert', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0', 'ITAG_USER', TIMESTAMP '2021-08-19 01:02:03.4');
+        INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME, CREATE_USER_ID, CREATE_DATETIME) VALUES (DATE '2021-07-19', -56, -1035, 11, 'X', 'XCU', 'INACTIVE', 'N', '2121-10-02', 'Test alert for expiry', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0', 'ITAG_USER', TIMESTAMP '2021-08-19 01:02:03.4');
+        INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME, CREATE_USER_ID, CREATE_DATETIME) VALUES (DATE '2021-07-19', -56, -1035, 12, 'X', 'XCU', 'ACTIVE', 'N', '2121-10-01', 'Test alert for expiry', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0', 'ITAG_USER', TIMESTAMP '2021-08-19 01:02:03.4');
     */
 
     @Nested
     @DisplayName("GET /api/bookings/{bookingId}/alert")
     class LegacyUnSafeEndpoint {
+        @Test
+        @DisplayName("returns partial alert data for each alert")
+        void returnsImportantAlertDataForEachAlert() {
+            final var response = testRestTemplate.exchange(
+                "/api/bookings/{bookingId}/alerts",
+                GET,
+                createEmptyHttpEntity(AuthToken.VIEW_PRISONER_DATA, Map.of()),
+                new ParameterizedTypeReference<String>() {
+                },
+                Map.of("bookingId", -56));
+
+            final var jsonContent = getBodyAsJsonContent(response);
+            assertThat(jsonContent).extractingJsonPathArrayValue("$").hasSize(10);
+
+            // not returned when looking up by bookingId
+            assertThat(jsonContent).extractingJsonPathNumberValue("[0].bookingId").isNull();
+            assertThat(jsonContent).extractingJsonPathStringValue("[0].offenderNo").isNull();
+
+            assertThat(jsonContent).extractingJsonPathNumberValue("[0].alertId").isEqualTo(10);
+            assertThat(jsonContent).extractingJsonPathStringValue("[0].alertType").isEqualTo("R");
+            assertThat(jsonContent).extractingJsonPathStringValue("[0].alertTypeDescription").isEqualTo("Risk");
+            assertThat(jsonContent).extractingJsonPathStringValue("[0].alertCode").isEqualTo("RSS");
+            assertThat(jsonContent).extractingJsonPathStringValue("[0].alertCodeDescription").isEqualTo("Risk to Staff - Custody");
+            assertThat(jsonContent).extractingJsonPathStringValue("[0].comment").isEqualTo("Expired risk alert");
+            assertThat(jsonContent).extractingJsonPathStringValue("[0].dateCreated").isEqualTo("2021-07-19");
+            assertThat(jsonContent).extractingJsonPathStringValue("[0].dateExpires").isEqualTo("2121-10-03");
+            assertThat(jsonContent).extractingJsonPathBooleanValue("[0].expired").isEqualTo(false);
+            assertThat(jsonContent).extractingJsonPathBooleanValue("[0].active").isEqualTo(false);
+            assertThat(jsonContent).extractingJsonPathStringValue("[0].addedByFirstName").isEqualTo("API");
+            assertThat(jsonContent).extractingJsonPathStringValue("[0].addedByLastName").isEqualTo("USER");
+            // not returned when nobody has ever updated this alert
+            assertThat(jsonContent).extractingJsonPathStringValue("[0].expiredByFirstName").isNull();
+            assertThat(jsonContent).extractingJsonPathStringValue("[0].expiredByLastName").isNull();
+        }
+
+        @Test
+        @DisplayName("expiredBy user is actually the last updated user and nothing to do with expiry")
+        void expiredByUserIsActuallyTheLastUpdatedUserAndNothingToDoWithExpiry() {
+            final var response = testRestTemplate.exchange(
+                "/api/bookings/{bookingId}/alerts",
+                GET,
+                createEmptyHttpEntity(AuthToken.VIEW_PRISONER_DATA, Map.of()),
+                new ParameterizedTypeReference<String>() {
+                },
+                Map.of("bookingId", -56));
+
+            final var jsonContent = getBodyAsJsonContent(response);
+            assertThat(jsonContent).extractingJsonPathArrayValue("$").hasSize(10);
+
+            assertThat(jsonContent).extractingJsonPathNumberValue("[7].alertId").isEqualTo(1);
+            assertThat(jsonContent).extractingJsonPathBooleanValue("[7].expired").isEqualTo(false);
+            assertThat(jsonContent).extractingJsonPathBooleanValue("[7].active").isEqualTo(true);
+            assertThat(jsonContent).extractingJsonPathStringValue("[7].expiredByFirstName").isEqualTo("API");
+            assertThat(jsonContent).extractingJsonPathStringValue("[7].expiredByLastName").isEqualTo("USER");
+
+            // not returned when nobody has ever updated this alert
+            assertThat(jsonContent).extractingJsonPathStringValue("[0].expiredByFirstName").isNull();
+            assertThat(jsonContent).extractingJsonPathStringValue("[0].expiredByLastName").isNull();
+        }
+
         @Test
         @DisplayName("will return a page of alerts sorted by DESC by dateExpires,dateCreated which is ALERT_DATE not CREATE_DATETIME with no filters or sorting")
         void willReturnAllActiveAlertsWhenNoFilter() {
@@ -49,28 +109,28 @@ public class BookingResourceIntTest_getOffenderAlerts extends ResourceTest {
             final var jsonContent = getBodyAsJsonContent(response);
             assertThat(jsonContent).extractingJsonPathArrayValue("$").hasSize(10);
 
-            assertThat(jsonContent).extractingJsonPathStringValue("[0].dateExpires").isEqualTo("2021-10-03");
+            assertThat(jsonContent).extractingJsonPathStringValue("[0].dateExpires").isEqualTo("2121-10-03");
             assertThat(jsonContent).extractingJsonPathStringValue("[0].dateCreated").isEqualTo("2021-07-19");
 
-            assertThat(jsonContent).extractingJsonPathStringValue("[1].dateExpires").isEqualTo("2021-10-02");
+            assertThat(jsonContent).extractingJsonPathStringValue("[1].dateExpires").isEqualTo("2121-10-02");
             assertThat(jsonContent).extractingJsonPathStringValue("[1].dateCreated").isEqualTo("2021-07-19");
 
-            assertThat(jsonContent).extractingJsonPathStringValue("[2].dateExpires").isEqualTo("2021-10-01");
+            assertThat(jsonContent).extractingJsonPathStringValue("[2].dateExpires").isEqualTo("2121-10-01");
             assertThat(jsonContent).extractingJsonPathStringValue("[2].dateCreated").isEqualTo("2021-07-19");
 
-            assertThat(jsonContent).extractingJsonPathStringValue("[3].dateExpires").isEqualTo("2021-09-03");
+            assertThat(jsonContent).extractingJsonPathStringValue("[3].dateExpires").isEqualTo("2121-09-03");
             assertThat(jsonContent).extractingJsonPathStringValue("[3].dateCreated").isEqualTo("2021-08-19");
 
-            assertThat(jsonContent).extractingJsonPathStringValue("[4].dateExpires").isEqualTo("2021-09-03");
+            assertThat(jsonContent).extractingJsonPathStringValue("[4].dateExpires").isEqualTo("2121-09-03");
             assertThat(jsonContent).extractingJsonPathStringValue("[4].dateCreated").isEqualTo("2021-07-19");
 
-            assertThat(jsonContent).extractingJsonPathStringValue("[5].dateExpires").isEqualTo("2021-09-03");
+            assertThat(jsonContent).extractingJsonPathStringValue("[5].dateExpires").isEqualTo("2121-09-03");
             assertThat(jsonContent).extractingJsonPathStringValue("[5].dateCreated").isEqualTo("2021-06-19");
 
-            assertThat(jsonContent).extractingJsonPathStringValue("[6].dateExpires").isEqualTo("2021-09-02");
+            assertThat(jsonContent).extractingJsonPathStringValue("[6].dateExpires").isEqualTo("2121-09-02");
             assertThat(jsonContent).extractingJsonPathStringValue("[6].dateCreated").isEqualTo("2021-07-19");
 
-            assertThat(jsonContent).extractingJsonPathStringValue("[7].dateExpires").isEqualTo("2021-09-01");
+            assertThat(jsonContent).extractingJsonPathStringValue("[7].dateExpires").isEqualTo("2121-09-01");
             assertThat(jsonContent).extractingJsonPathStringValue("[7].dateCreated").isEqualTo("2021-07-19");
 
             assertThat(jsonContent).extractingJsonPathStringValue("[8].dateExpires").isEqualTo("2021-08-04");
@@ -295,6 +355,67 @@ public class BookingResourceIntTest_getOffenderAlerts extends ResourceTest {
     @DisplayName("GET /api/bookings/{bookingId}/alert/v2")
     class NewUnSafeEndpoint {
         @Test
+        @DisplayName("returns partial alert data for each alert")
+        void returnsImportantAlertDataForEachAlert() {
+            final var response = testRestTemplate.exchange(
+                "/api/bookings/{bookingId}/alerts/v2",
+                GET,
+                createEmptyHttpEntity(AuthToken.VIEW_PRISONER_DATA, Map.of()),
+                new ParameterizedTypeReference<String>() {
+                },
+                Map.of("bookingId", -56));
+
+            final var jsonContent = getBodyAsJsonContent(response);
+            assertThat(jsonContent).extractingJsonPathArrayValue("content").hasSize(10);
+
+            // not returned when looking up by bookingId
+            assertThat(jsonContent).extractingJsonPathNumberValue("content[0].bookingId").isNull();
+            assertThat(jsonContent).extractingJsonPathStringValue("content[0].offenderNo").isNull();
+
+            assertThat(jsonContent).extractingJsonPathNumberValue("content[0].alertId").isEqualTo(10);
+            assertThat(jsonContent).extractingJsonPathStringValue("content[0].alertType").isEqualTo("R");
+            assertThat(jsonContent).extractingJsonPathStringValue("content[0].alertTypeDescription").isEqualTo("Risk");
+            assertThat(jsonContent).extractingJsonPathStringValue("content[0].alertCode").isEqualTo("RSS");
+            assertThat(jsonContent).extractingJsonPathStringValue("content[0].alertCodeDescription").isEqualTo("Risk to Staff - Custody");
+            assertThat(jsonContent).extractingJsonPathStringValue("content[0].comment").isEqualTo("Expired risk alert");
+            assertThat(jsonContent).extractingJsonPathStringValue("content[0].dateCreated").isEqualTo("2021-07-19");
+            assertThat(jsonContent).extractingJsonPathStringValue("content[0].dateExpires").isEqualTo("2121-10-03");
+            assertThat(jsonContent).extractingJsonPathBooleanValue("content[0].expired").isEqualTo(false);
+            assertThat(jsonContent).extractingJsonPathBooleanValue("content[0].active").isEqualTo(false);
+            assertThat(jsonContent).extractingJsonPathStringValue("content[0].addedByFirstName").isEqualTo("API");
+            assertThat(jsonContent).extractingJsonPathStringValue("content[0].addedByLastName").isEqualTo("USER");
+            // not returned when nobody has ever updated this alert
+            assertThat(jsonContent).extractingJsonPathStringValue("content[0].expiredByFirstName").isNull();
+            assertThat(jsonContent).extractingJsonPathStringValue("content[0].expiredByLastName").isNull();
+        }
+
+        @Test
+        @DisplayName("expiredBy user is actually the last updated user and nothing to do with expiry")
+        void expiredByUserIsActuallyTheLastUpdatedUserAndNothingToDoWithExpiry() {
+            final var response = testRestTemplate.exchange(
+                "/api/bookings/{bookingId}/alerts/v2",
+                GET,
+                createEmptyHttpEntity(AuthToken.VIEW_PRISONER_DATA, Map.of()),
+                new ParameterizedTypeReference<String>() {
+                },
+                Map.of("bookingId", -56));
+
+            final var jsonContent = getBodyAsJsonContent(response);
+            assertThat(jsonContent).extractingJsonPathArrayValue("content").hasSize(10);
+
+            assertThat(jsonContent).extractingJsonPathNumberValue("content[7].alertId").isEqualTo(1);
+            assertThat(jsonContent).extractingJsonPathBooleanValue("content[7].expired").isEqualTo(false);
+            assertThat(jsonContent).extractingJsonPathBooleanValue("content[7].active").isEqualTo(true);
+            assertThat(jsonContent).extractingJsonPathStringValue("content[7].expiredByFirstName").isEqualTo("API");
+            assertThat(jsonContent).extractingJsonPathStringValue("content[7].expiredByLastName").isEqualTo("USER");
+
+            // not returned when nobody has ever updated this alert
+            assertThat(jsonContent).extractingJsonPathStringValue("[0].expiredByFirstName").isNull();
+            assertThat(jsonContent).extractingJsonPathStringValue("[0].expiredByLastName").isNull();
+        }
+
+
+        @Test
         @DisplayName("will return a page of alerts sorted by DESC by dateExpires,dateCreated which is ALERT_DATE not CREATE_DATETIME with no filters or sorting")
         void willReturnAllActiveAlertsWhenNoFilter() {
             final var response = testRestTemplate.exchange(
@@ -308,28 +429,28 @@ public class BookingResourceIntTest_getOffenderAlerts extends ResourceTest {
             final var jsonContent = getBodyAsJsonContent(response);
             assertThat(jsonContent).extractingJsonPathArrayValue("content").hasSize(10);
 
-            assertThat(jsonContent).extractingJsonPathStringValue("content[0].dateExpires").isEqualTo("2021-10-03");
+            assertThat(jsonContent).extractingJsonPathStringValue("content[0].dateExpires").isEqualTo("2121-10-03");
             assertThat(jsonContent).extractingJsonPathStringValue("content[0].dateCreated").isEqualTo("2021-07-19");
 
-            assertThat(jsonContent).extractingJsonPathStringValue("content[1].dateExpires").isEqualTo("2021-10-02");
+            assertThat(jsonContent).extractingJsonPathStringValue("content[1].dateExpires").isEqualTo("2121-10-02");
             assertThat(jsonContent).extractingJsonPathStringValue("content[1].dateCreated").isEqualTo("2021-07-19");
 
-            assertThat(jsonContent).extractingJsonPathStringValue("content[2].dateExpires").isEqualTo("2021-10-01");
+            assertThat(jsonContent).extractingJsonPathStringValue("content[2].dateExpires").isEqualTo("2121-10-01");
             assertThat(jsonContent).extractingJsonPathStringValue("content[2].dateCreated").isEqualTo("2021-07-19");
 
-            assertThat(jsonContent).extractingJsonPathStringValue("content[3].dateExpires").isEqualTo("2021-09-03");
+            assertThat(jsonContent).extractingJsonPathStringValue("content[3].dateExpires").isEqualTo("2121-09-03");
             assertThat(jsonContent).extractingJsonPathStringValue("content[3].dateCreated").isEqualTo("2021-08-19");
 
-            assertThat(jsonContent).extractingJsonPathStringValue("content[4].dateExpires").isEqualTo("2021-09-03");
+            assertThat(jsonContent).extractingJsonPathStringValue("content[4].dateExpires").isEqualTo("2121-09-03");
             assertThat(jsonContent).extractingJsonPathStringValue("content[4].dateCreated").isEqualTo("2021-07-19");
 
-            assertThat(jsonContent).extractingJsonPathStringValue("content[5].dateExpires").isEqualTo("2021-09-03");
+            assertThat(jsonContent).extractingJsonPathStringValue("content[5].dateExpires").isEqualTo("2121-09-03");
             assertThat(jsonContent).extractingJsonPathStringValue("content[5].dateCreated").isEqualTo("2021-06-19");
 
-            assertThat(jsonContent).extractingJsonPathStringValue("content[6].dateExpires").isEqualTo("2021-09-02");
+            assertThat(jsonContent).extractingJsonPathStringValue("content[6].dateExpires").isEqualTo("2121-09-02");
             assertThat(jsonContent).extractingJsonPathStringValue("content[6].dateCreated").isEqualTo("2021-07-19");
 
-            assertThat(jsonContent).extractingJsonPathStringValue("content[7].dateExpires").isEqualTo("2021-09-01");
+            assertThat(jsonContent).extractingJsonPathStringValue("content[7].dateExpires").isEqualTo("2121-09-01");
             assertThat(jsonContent).extractingJsonPathStringValue("content[7].dateCreated").isEqualTo("2021-07-19");
 
             assertThat(jsonContent).extractingJsonPathStringValue("content[8].dateExpires").isEqualTo("2021-08-04");
