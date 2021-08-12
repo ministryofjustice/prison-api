@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 @Setter(AccessLevel.PROTECTED)
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-@SuperBuilder
+@SuperBuilder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 abstract class AuditableEntity implements Serializable {
