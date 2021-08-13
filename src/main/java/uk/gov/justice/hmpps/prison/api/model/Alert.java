@@ -71,7 +71,7 @@ public class Alert {
     @NotBlank
     private String comment;
 
-    @ApiModelProperty(required = true, value = "Date the alert was created", example = "2019-08-20", position = 9)
+    @ApiModelProperty(required = true, value = "Date of the alert, which might differ to the date it was created", example = "2019-08-20", position = 9)
     @JsonProperty("dateCreated")
     @NotNull
     private LocalDate dateCreated;
@@ -98,11 +98,11 @@ public class Alert {
     @JsonProperty("addedByLastName")
     private String addedByLastName;
 
-    @ApiModelProperty(value = "First name of the user who expired the alert", example = "John", position = 15)
+    @ApiModelProperty(value = "First name of the user who last modified the alert", example = "John", position = 15)
     @JsonProperty("expiredByFirstName")
     private String expiredByFirstName;
 
-    @ApiModelProperty(value = "Last name of the user who expired the alert", example = "Smith", position = 16)
+    @ApiModelProperty(value = "Last name of the user who last modified the alert", example = "Smith", position = 16)
     @JsonProperty("expiredByLastName")
     private String expiredByLastName;
 }

@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatus;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
 
 import java.util.Map;
@@ -40,6 +41,21 @@ public class OffenderResourceIntTest_getOffenderAlerts extends ResourceTest {
     @DisplayName("GET /api/offenders/{offenderNo}/alerts")
     class LegacyUnSafeEndpoint {
         @Test
+        @DisplayName("should have the correct role to access offender")
+        void shouldHaveTheCorrectRoleToAccessEndpoint() {
+            final var response = testRestTemplate.exchange(
+                "/api/offenders/{offenderNo}/alerts",
+                GET,
+                createEmptyHttpEntity(AuthToken.RENEGADE_USER),
+                new ParameterizedTypeReference<String>() {
+                },
+                "A1179MT");
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        }
+
+
+        @Test
         @DisplayName("will return all alerts for latest booking only when no filter")
         void willReturnAllActiveAlertsWhenNoFilter() {
             final var response = testRestTemplate.exchange(
@@ -69,6 +85,7 @@ public class OffenderResourceIntTest_getOffenderAlerts extends ResourceTest {
 
             assertThat(jsonContent).extractingJsonPathStringValue("[1].alertType").isEqualTo("X");
             assertThat(jsonContent).extractingJsonPathStringValue("[1].alertCode").isEqualTo("XTACT");
+            assertThat(jsonContent).extractingJsonPathStringValue("[1].alertCodeDescription").isEqualTo("XTACT");
             assertThat(jsonContent).extractingJsonPathNumberValue("[1].bookingId").isEqualTo(-35);
             assertThat(jsonContent).extractingJsonPathBooleanValue("[1].active").isEqualTo(true);
             assertThat(jsonContent).extractingJsonPathBooleanValue("[1].expired").isEqualTo(false);
@@ -158,7 +175,21 @@ public class OffenderResourceIntTest_getOffenderAlerts extends ResourceTest {
     }
     @Nested
     @DisplayName("GET /api/offenders/{offenderNo}/bookings/latest/alerts")
-    class NewUnSafeEndpoint {
+    class NewSafeEndpoint {
+
+        @Test
+        @DisplayName("should have the correct role to access offender")
+        void shouldHaveTheCorrectRoleToAccessEndpoint() {
+            final var response = testRestTemplate.exchange(
+                "/api/offenders/{offenderNo}/bookings/latest/alerts",
+                GET,
+                createEmptyHttpEntity(AuthToken.RENEGADE_USER),
+                new ParameterizedTypeReference<String>() {
+                },
+                "A1179MT");
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        }
         @Test
         @DisplayName("returns partial alert data for each alert")
         void returnsImportantAlertDataForEachAlert() {
@@ -227,6 +258,7 @@ public class OffenderResourceIntTest_getOffenderAlerts extends ResourceTest {
 
             assertThat(jsonContent).extractingJsonPathStringValue("[1].alertType").isEqualTo("X");
             assertThat(jsonContent).extractingJsonPathStringValue("[1].alertCode").isEqualTo("XTACT");
+            assertThat(jsonContent).extractingJsonPathStringValue("[1].alertCodeDescription").isEqualTo("XTACT");
             assertThat(jsonContent).extractingJsonPathNumberValue("[1].bookingId").isEqualTo(-35);
             assertThat(jsonContent).extractingJsonPathBooleanValue("[1].active").isEqualTo(true);
             assertThat(jsonContent).extractingJsonPathBooleanValue("[1].expired").isEqualTo(false);

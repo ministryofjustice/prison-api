@@ -3,6 +3,9 @@ package uk.gov.justice.hmpps.prison.service.transformers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import uk.gov.justice.hmpps.prison.api.model.Alert;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AlertCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AlertType;
@@ -15,8 +18,10 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.justice.hmpps.prison.service.transformers.OffenderAlertTransformer.mapSortProperties;
 import static uk.gov.justice.hmpps.prison.service.transformers.OffenderAlertTransformer.transformForBooking;
 import static uk.gov.justice.hmpps.prison.service.transformers.OffenderAlertTransformer.transformForOffender;
 
@@ -27,6 +32,7 @@ class OffenderAlertTransformerTest {
             .alertDate(LocalDate.parse("2020-01-30"))
             .offenderBooking(OffenderBooking.builder().offender(Offender.builder().nomsId("A1234JK").build()).build())
             .code(new AlertCode("RSS", "Risk to Staff - Custody"))
+            .alertCode("RSS")
             .comment("Do not trust this person")
             .createUser(StaffUserAccount
                 .builder()
@@ -41,6 +47,7 @@ class OffenderAlertTransformerTest {
                 .build())
             .sequence(3)
             .type(new AlertType("R", "Risk"))
+            .alertType("R")
             .status("ACTIVE")
             .createDatetime(LocalDateTime.now().minusYears(10))
             .createUserId("someuser")
@@ -58,6 +65,7 @@ class OffenderAlertTransformerTest {
                 .offender(Offender.builder().nomsId("A1234JK").build())
                 .build())
             .code(new AlertCode("RSS", "Risk to Staff - Custody"))
+            .alertCode("RSS")
             .comment("Do not trust this person")
             .createUser(StaffUserAccount
                 .builder()
@@ -72,6 +80,7 @@ class OffenderAlertTransformerTest {
                 .build())
             .sequence(3)
             .type(new AlertType("R", "Risk"))
+            .alertType("R")
             .status("ACTIVE")
             .createDatetime(LocalDateTime.now().minusYears(10))
             .createUserId("someuser")
@@ -102,12 +111,14 @@ class OffenderAlertTransformerTest {
                 .offender(Offender.builder().nomsId("A1234JK").build())
                 .build())
             .code(null)
+            .alertCode("RSS")
             .comment(null)
             .createUser(null)
             .expiryDate(null)
             .modifyUser(null)
             .sequence(3)
             .type(null)
+            .alertType("R")
             .status("BANANAS")
             .createDatetime(LocalDateTime.now().minusYears(10))
             .createUserId("someuser")
@@ -118,10 +129,10 @@ class OffenderAlertTransformerTest {
         final var alert = transformer.apply(entity);
 
         assertThat(alert.getAlertId()).isEqualTo(3);
-        assertThat(alert.getAlertCode()).isNull();
-        assertThat(alert.getAlertType()).isNull();
-        assertThat(alert.getAlertCodeDescription()).isNull();
-        assertThat(alert.getAlertTypeDescription()).isNull();
+        assertThat(alert.getAlertCode()).isEqualTo("RSS");
+        assertThat(alert.getAlertType()).isEqualTo("R");
+        assertThat(alert.getAlertCodeDescription()).isEqualTo("RSS");
+        assertThat(alert.getAlertTypeDescription()).isEqualTo("R");
         assertThat(alert.getComment()).isNull();
         assertThat(alert.isExpired()).isFalse();
         assertThat(alert.isActive()).isFalse();
@@ -376,6 +387,31 @@ class OffenderAlertTransformerTest {
                 .extracting(Alert::getExpiredByLastName)
                 .isEqualTo("MATES");
 
+        }
+    }
+
+    @Nested
+    class MapSortProperties {
+        @ParameterizedTest
+        @MethodSource("apiModelToEntityNames")
+        @DisplayName("will map known values to entity field names")
+        void willMapKnownValuesToEntityFieldNames(String apiName, String[] expectedEntityNames) {
+            assertThat(mapSortProperties(apiName)).containsExactly(expectedEntityNames);
+        }
+
+        private static Stream<Arguments> apiModelToEntityNames() {
+            return Stream.of(
+                Arguments.of("alertId", new String[]{"sequence"}),
+                Arguments.of("bookingId", new String[]{"offenderBooking.bookingId"}),
+                Arguments.of("alertType", new String[]{"alertType"}),
+                Arguments.of("alertCode", new String[]{"alertCode"}),
+                Arguments.of("dateCreated", new String[]{"alertDate"}),
+                Arguments.of("dateExpires", new String[]{"expiryDate"}),
+                Arguments.of("active", new String[]{"status"}),
+                Arguments.of("banana", new String[]{}),
+                Arguments.of("active,bookingId,dateCreated", new String[]{"status", "offenderBooking.bookingId", "alertDate"}),
+                Arguments.of("active,banana,dateCreated", new String[]{"status", "alertDate"})
+            );
         }
     }
 }

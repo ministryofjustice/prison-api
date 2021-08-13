@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,11 +17,14 @@ import uk.gov.justice.hmpps.prison.api.model.CreateAlert;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.repository.InmateAlertRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderAlertFilter;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderAlertRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.support.ReferenceDomain;
+import uk.gov.justice.hmpps.prison.service.transformers.OffenderAlertTransformer;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -33,20 +38,23 @@ import java.util.stream.Collectors;
 public class InmateAlertService {
 
     private final InmateAlertRepository inmateAlertRepository;
+    private final OffenderAlertRepository offenderAlertRepository;
     private final AuthenticationFacade authenticationFacade;
     private final TelemetryClient telemetryClient;
     private final ReferenceDomainService referenceDomainService;
-    private int maxBatchSize;
+    private final int maxBatchSize;
 
     @Autowired
     public InmateAlertService(
             final InmateAlertRepository inmateAlertRepository,
+            final OffenderAlertRepository offenderAlertRepository,
             final AuthenticationFacade authenticationFacade,
             final TelemetryClient telemetryClient,
             final ReferenceDomainService referenceDomainService,
             @Value("${batch.max.size:1000}") final int maxBatchSize) {
 
         this.inmateAlertRepository = inmateAlertRepository;
+        this.offenderAlertRepository = offenderAlertRepository;
         this.authenticationFacade = authenticationFacade;
         this.telemetryClient = telemetryClient;
         this.referenceDomainService = referenceDomainService;
@@ -100,6 +108,23 @@ public class InmateAlertService {
         final var alerts = inmateAlertRepository.getAlertsByOffenderNos(null, offenderNos, latestOnly, null, orderByField, order);
         alerts.forEach(alert -> alert.setExpired(isExpiredAlert(alert)));
         log.info("Returning {} matching Alerts for Offender Numbers {}", alerts.size(), offenderNos);
+        return alerts;
+    }
+
+    public List<Alert> getAlertsForLatestBookingForOffender(final String offenderNo, final String alertCodes, final String sortProperties, final Direction direction) {
+        final var filter = OffenderAlertFilter
+            .builder()
+            .offenderNo(offenderNo)
+            .latestBooking(true)
+            .alertCodes(alertCodes)
+            .build();
+
+        final var alerts = offenderAlertRepository
+            .findAll(filter, Sort.by(direction, OffenderAlertTransformer.mapSortProperties(sortProperties)))
+            .stream()
+            .map(OffenderAlertTransformer::transformForOffender)
+            .collect(Collectors.toList());
+        log.info("Returning {} matching Alerts for Offender Number {}", alerts.size(), offenderNo);
         return alerts;
     }
 

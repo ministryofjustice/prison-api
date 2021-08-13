@@ -48,7 +48,7 @@ public class OffenderAlert extends AuditableEntity {
     @Column(name = "ALERT_SEQ")
     private Integer sequence;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + AlertType.ALERT_TYPE + "'", referencedColumnName = "domain")),
@@ -56,13 +56,19 @@ public class OffenderAlert extends AuditableEntity {
     })
     private AlertType type;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @Column(name = "ALERT_TYPE", updatable = false, insertable = false)
+    private String alertType;
+
+    @ManyToOne
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + AlertCode.ALERT_CODE + "'", referencedColumnName = "domain")),
         @JoinColumnOrFormula(column = @JoinColumn(name = "ALERT_CODE", referencedColumnName = "code"))
     })
     private AlertCode code;
+
+    @Column(name = "ALERT_CODE", updatable = false, insertable = false)
+    private String alertCode;
 
     @Column(name = "ALERT_STATUS")
     private String status;
@@ -75,11 +81,13 @@ public class OffenderAlert extends AuditableEntity {
     private LocalDate expiryDate;
 
     @JoinColumn(name = "CREATE_USER_ID", updatable = false, insertable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
+    @NotFound(action = IGNORE)
     private StaffUserAccount createUser;
 
     @JoinColumn(name = "MODIFY_USER_ID", updatable = false, insertable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
+    @NotFound(action = IGNORE)
     private StaffUserAccount modifyUser;
 
     @NoArgsConstructor
