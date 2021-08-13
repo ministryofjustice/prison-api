@@ -72,36 +72,36 @@ public class UserServiceImplTest {
     public void testGetUsers() {
         final var pr = new PageRequest("lastName,firstName", Order.ASC, 0L, 10L);  //the default if non provided
         final var nameFilterDto = new NameFilter("A");
-        userService.getUsers("A", ROLE_CODE, Status.ALL, "CASE", "LOAD", null);
+        userService.getUsers("A", List.of(ROLE_CODE), Status.ALL, "CASE", "LOAD", null);
 
-        verify(userRepository).findUsers(eq(ROLE_CODE), refEq(nameFilterDto), eq(Status.ALL), eq("CASE"), eq("LOAD"), refEq(pr));
+        verify(userRepository).findUsers(eq(List.of(ROLE_CODE)), refEq(nameFilterDto), eq(Status.ALL), eq("CASE"), eq("LOAD"), refEq(pr));
     }
 
     @Test
     public void testGetUsersWithFullNameSearch() {
         final var pr = new PageRequest("lastName,firstName", Order.ASC, 0L, 10L);  //the default if non provided
         final var nameFilterDto = new NameFilter("Brown James");
-        userService.getUsers("Brown James", ROLE_CODE, Status.ALL, null, null, null);
+        userService.getUsers("Brown James", List.of(ROLE_CODE), Status.ALL, null, null, null);
 
-        verify(userRepository).findUsers(eq(ROLE_CODE), refEq(nameFilterDto), eq(Status.ALL), isNull(), isNull(), refEq(pr));
+        verify(userRepository).findUsers(eq(List.of(ROLE_CODE)), refEq(nameFilterDto), eq(Status.ALL), isNull(), isNull(), refEq(pr));
     }
 
     @Test
     public void testGetUsersFilterActive() {
         final var pr = new PageRequest("lastName,firstName", Order.ASC, 0L, 10L);  //the default if non provided
         final var nameFilterDto = new NameFilter("A");
-        userService.getUsers("A", ROLE_CODE, Status.ACTIVE, null, null, null);
+        userService.getUsers("A", List.of(ROLE_CODE), Status.ACTIVE, null, null, null);
 
-        verify(userRepository).findUsers(eq(ROLE_CODE), refEq(nameFilterDto), eq(Status.ACTIVE), isNull(), isNull(), refEq(pr));
+        verify(userRepository).findUsers(eq(List.of(ROLE_CODE)), refEq(nameFilterDto), eq(Status.ACTIVE), isNull(), isNull(), refEq(pr));
     }
 
     @Test
     public void testGetUsersFilterInactive() {
         final var pr = new PageRequest("lastName,firstName", Order.ASC, 0L, 10L);  //the default if non provided
         final var nameFilterDto = new NameFilter("A");
-        userService.getUsers("A", ROLE_CODE, Status.INACTIVE, null, null, null);
+        userService.getUsers("A", List.of(ROLE_CODE), Status.INACTIVE, null, null, null);
 
-        verify(userRepository).findUsers(eq(ROLE_CODE), refEq(nameFilterDto), eq(Status.INACTIVE), isNull(), isNull(), refEq(pr));
+        verify(userRepository).findUsers(eq(List.of(ROLE_CODE)), refEq(nameFilterDto), eq(Status.INACTIVE), isNull(), isNull(), refEq(pr));
     }
 
     @Test

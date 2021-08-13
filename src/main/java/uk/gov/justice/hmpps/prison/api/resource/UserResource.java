@@ -78,7 +78,7 @@ public class UserResource {
     @ApiOperation(value = "Get staff details for local administrator", notes = "Get user details for local administrator", nickname = "getStaffUsersForLocalAdministrator")
     @GetMapping("/local-administrator/available")
     public ResponseEntity<List<UserDetail>> getStaffUsersForLocalAdministrator(@RequestParam(value = "nameFilter", required = false) @ApiParam("Filter results by first name and/or username and/or last name of staff member.") final String nameFilter,
-                                                                               @RequestParam(value = "accessRole", required = false) @ApiParam("Filter results by access role") final String accessRole,
+                                                                               @RequestParam(value = "accessRole", required = false) @ApiParam("Filter results by access role") final List<String> accessRoles,
                                                                                @RequestParam(value = "status", required = false, defaultValue = "ALL") @ApiParam("Limit to active / inactive / show all users.") final Status status,
                                                                                @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @ApiParam(value = "Requested offset of first record in returned collection of caseload records.", defaultValue = "0") final Long pageOffset,
                                                                                @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @ApiParam(value = "Requested limit to number of caseload records returned.", defaultValue = "10") final Long pageLimit,
@@ -87,7 +87,7 @@ public class UserResource {
 
         final var pageRequest = new PageRequest(sortFields, sortOrder, pageOffset, pageLimit);
 
-        final var userDetails = userService.getUsersAsLocalAdministrator(authenticationFacade.getCurrentUsername(), nameFilter, accessRole, status, pageRequest);
+        final var userDetails = userService.getUsersAsLocalAdministrator(authenticationFacade.getCurrentUsername(), nameFilter, accessRoles, status, pageRequest);
 
         return ResponseEntity.ok()
                 .headers(userDetails.getPaginationHeaders())
@@ -114,7 +114,7 @@ public class UserResource {
     @ApiOperation(value = "Get user details.", notes = "Get user details.", nickname = "getUsers")
     @GetMapping
     public ResponseEntity<List<UserDetail>> getUsers(@RequestParam(value = "nameFilter", required = false) @ApiParam("Filter results by first name and/or username and/or last name of staff member.") final String nameFilter,
-                                                     @RequestParam(value = "accessRole", required = false) @ApiParam("Filter results by access role") final String accessRole,
+                                                     @RequestParam(value = "accessRole", required = false) @ApiParam("Filter results by access roles") final List<String> accessRoles,
                                                      @RequestParam(value = "status", required = false, defaultValue = "ALL") @ApiParam("Limit to active / inactive / show all users.") final Status status,
                                                      @RequestParam(value = "caseload", required = false) @ApiParam(value = "Filter results to include only those users that have access to the specified caseload (irrespective of whether it is currently active or not", example = "MDI") final String caseload,
                                                      @RequestParam(value = "activeCaseload", required = false) @ApiParam(value = "Filter results by user's currently active caseload i.e. the one they have currently selected.", example = "MDI") final String activeCaseload,
@@ -128,7 +128,7 @@ public class UserResource {
                                                          @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") final Order sortOrder) {
         final var pageRequest = new PageRequest(sortFields, sortOrder, pageOffset, pageLimit);
 
-        final var userDetails = userService.getUsers(nameFilter, accessRole, status,
+        final var userDetails = userService.getUsers(nameFilter, accessRoles, status,
             StringUtils.trimToNull(caseload), StringUtils.trimToNull(activeCaseload), pageRequest);
 
         return ResponseEntity.ok()
