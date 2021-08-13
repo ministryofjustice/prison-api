@@ -11,6 +11,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
@@ -348,39 +351,6 @@ public class InmateAlertServiceImplTest {
         @Captor
         private ArgumentCaptor<Sort> sortArgumentCaptor;
 
-        private OffenderAlert alertOfSequence(int sequence) {
-            return OffenderAlert
-                .builder()
-                .alertDate(LocalDate.parse("2020-01-30"))
-                .offenderBooking(OffenderBooking
-                    .builder()
-                    .offender(Offender.builder().nomsId("A1234JK").build())
-                    .build())
-                .code(new AlertCode("RSS", "Risk to Staff - Custody"))
-                .alertCode("RSS")
-                .comment("Do not trust this person")
-                .createUser(StaffUserAccount
-                    .builder()
-                    .username("someuser")
-                    .staff(Staff.builder().firstName("JANE").lastName("BUBBLES").build())
-                    .build())
-                .expiryDate(LocalDate.parse("2120-10-30"))
-                .modifyUser(StaffUserAccount
-                    .builder()
-                    .username("someotheruser")
-                    .staff(Staff.builder().firstName("JACK").lastName("MATES").build())
-                    .build())
-                .sequence(sequence)
-                .type(new AlertType("R", "Risk"))
-                .alertType("R")
-                .status("ACTIVE")
-                .createDatetime(LocalDateTime.now().minusYears(10))
-                .createUserId("someuser")
-                .modifyDatetime(LocalDateTime.now().minusYears(1))
-                .modifyUserId("someotheruser")
-                .build();
-        }
-
         @BeforeEach
         void setUp() {
             when(offenderAlertRepository.findAll(any(), any(Sort.class)))
@@ -437,6 +407,152 @@ public class InmateAlertServiceImplTest {
             assertThat(alerts).hasSize(2).extracting(Alert::getAlertId).containsExactly(1L, 2L);
 
         }
+    }
+
+    @Nested
+    class GetAlertsForBooking {
+        @Captor
+        private ArgumentCaptor<Specification<OffenderAlert>> specificationArgumentCaptor;
+
+        @Captor
+        private ArgumentCaptor<Pageable> pageableArgumentCaptor;
+
+
+        @BeforeEach
+        void setUp() {
+            when(offenderAlertRepository.findAll(any(), any(PageRequest.class)))
+                .thenAnswer(request -> new PageImpl(List.of(alertOfSequence(1), alertOfSequence(2)), request.getArgument(1), 2));
+        }
+
+        @Test
+        @DisplayName("will setup filter with bookingId and filter properties")
+        void willSetupFilterWithOffenderAndAlertCodes() {
+            service.getAlertsForBooking(99L,
+                LocalDate.parse("2020-01-01"),
+                LocalDate.parse("2021-12-31"),
+                "V",
+                "ACTIVE",
+                PageRequest.of(1, 10, Direction.ASC, "dateCreated"));
+
+            verify(offenderAlertRepository).findAll(specificationArgumentCaptor.capture(), pageableArgumentCaptor.capture());
+
+            assertThat(specificationArgumentCaptor.getValue()).isInstanceOf(OffenderAlertFilter.class);
+
+            final OffenderAlertFilter filter = (OffenderAlertFilter) specificationArgumentCaptor.getValue();
+            assertThat(filter.getBookingId()).isEqualTo(99L);
+            assertThat(filter.getFromAlertDate()).isEqualTo("2020-01-01");
+            assertThat(filter.getToAlertDate()).isEqualTo("2021-12-31");
+            assertThat(filter.getAlertTypes()).isEqualTo("V");
+            assertThat(filter.getStatus()).isEqualTo("ACTIVE");
+        }
+
+        @Test
+        @DisplayName("no parts of the filter are mandatory (other than bookingId)")
+        void noPartsOfTheFilterAreMandatory() {
+            service.getAlertsForBooking(99L,
+                null,
+                null,
+                null,
+                null,
+                PageRequest.of(1, 10, Direction.ASC, "dateCreated"));
+
+            verify(offenderAlertRepository).findAll(specificationArgumentCaptor.capture(), pageableArgumentCaptor.capture());
+
+            assertThat(specificationArgumentCaptor.getValue()).isInstanceOf(OffenderAlertFilter.class);
+
+            final OffenderAlertFilter filter = (OffenderAlertFilter) specificationArgumentCaptor.getValue();
+            assertThat(filter.getBookingId()).isEqualTo(99L);
+            assertThat(filter.getFromAlertDate()).isNull();
+            assertThat(filter.getToAlertDate()).isNull();
+            assertThat(filter.getAlertTypes()).isNull();
+            assertThat(filter.getStatus()).isNull();
+            assertThat(filter.getLatestBooking()).isNull();
+            assertThat(filter.getOffenderNo()).isNull();
+        }
+
+
+        @Test
+        @DisplayName("will map sort property names")
+        void willMapSortPropertyNames() {
+            service.getAlertsForBooking(99L,
+                LocalDate.parse("2020-01-01"),
+                LocalDate.parse("2021-12-31"),
+                "V",
+                "ACTIVE",
+                PageRequest.of(1, 10, Direction.ASC, "dateCreated", "active"));
+
+            verify(offenderAlertRepository).findAll(specificationArgumentCaptor.capture(), pageableArgumentCaptor.capture());
+
+            final var pageRequest = pageableArgumentCaptor.getValue();
+
+            assertThat(pageRequest.getSort().stream())
+                .extracting(Sort.Order::getProperty)
+                .containsExactly("alertDate", "status");
+        }
+
+        @Test
+        @DisplayName("will use sort direction for each property")
+        void willUseSortDirection() {
+            service.getAlertsForBooking(99L,
+                LocalDate.parse("2020-01-01"),
+                LocalDate.parse("2021-12-31"),
+                "V",
+                "ACTIVE",
+                PageRequest.of(1, 10, Direction.ASC, "dateCreated", "active"));
+            verify(offenderAlertRepository).findAll(specificationArgumentCaptor.capture(), pageableArgumentCaptor.capture());
+
+            final var pageRequest = pageableArgumentCaptor.getValue();
+
+            assertThat(pageRequest.getSort().stream())
+                .extracting(Sort.Order::getDirection)
+                .containsExactly(Direction.ASC, Direction.ASC);
+        }
+
+        @Test
+        @DisplayName("will transform results")
+        void willTransformResults() {
+            final var alerts = service.getAlertsForBooking(99L,
+                LocalDate.parse("2020-01-01"),
+                LocalDate.parse("2021-12-31"),
+                "V",
+                "ACTIVE",
+                PageRequest.of(1, 10, Direction.ASC, "dateCreated", "active"));
+
+            assertThat(alerts).hasSize(2).extracting(Alert::getAlertId).containsExactly(1L, 2L);
+        }
+    }
+
+    private OffenderAlert alertOfSequence(int sequence) {
+        return OffenderAlert
+            .builder()
+            .alertDate(LocalDate.parse("2020-01-30"))
+            .offenderBooking(OffenderBooking
+                .builder()
+                .offender(Offender.builder().nomsId("A1234JK").build())
+                .build())
+            .code(new AlertCode("RSS", "Risk to Staff - Custody"))
+            .alertCode("RSS")
+            .comment("Do not trust this person")
+            .createUser(StaffUserAccount
+                .builder()
+                .username("someuser")
+                .staff(Staff.builder().firstName("JANE").lastName("BUBBLES").build())
+                .build())
+            .expiryDate(LocalDate.parse("2120-10-30"))
+            .modifyUser(StaffUserAccount
+                .builder()
+                .username("someotheruser")
+                .staff(Staff.builder().firstName("JACK").lastName("MATES").build())
+                .build())
+            .sequence(sequence)
+            .type(new AlertType("R", "Risk"))
+            .alertType("R")
+            .status("ACTIVE")
+            .createDatetime(LocalDateTime.now().minusYears(10))
+            .createUserId("someuser")
+            .modifyDatetime(LocalDateTime.now().minusYears(1))
+            .modifyUserId("someotheruser")
+            .build();
     }
 
     private Page<Alert> createAlerts() {

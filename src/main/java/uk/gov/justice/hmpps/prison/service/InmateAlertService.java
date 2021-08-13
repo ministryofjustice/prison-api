@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,6 +33,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static uk.gov.justice.hmpps.prison.service.transformers.OffenderAlertTransformer.mapSortProperty;
 
 @Service
 @Transactional(readOnly = true)
@@ -126,6 +130,33 @@ public class InmateAlertService {
             .collect(Collectors.toList());
         log.info("Returning {} matching Alerts for Offender Number {}", alerts.size(), offenderNo);
         return alerts;
+    }
+
+    public org.springframework.data.domain.Page<Alert> getAlertsForBooking(final Long bookingId, final LocalDate fromAlertDate, final LocalDate toAlertDate, final String alertType, final String alertStatus, final Pageable pageable) {
+        final var filter = OffenderAlertFilter
+            .builder()
+            .bookingId(bookingId)
+            .fromAlertDate(fromAlertDate)
+            .toAlertDate(toAlertDate)
+            .alertTypes(alertType)
+            .status(alertStatus)
+            .build();
+
+        final var pageOfAlerts = offenderAlertRepository.findAll(
+            filter,
+            PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), mapAlertSortOrderProperties(pageable.getSort())));
+
+        log.info("Returning {} of {} matching Alerts starting at page {} for bookingId {}", pageOfAlerts.getNumberOfElements(), pageOfAlerts.getTotalElements(), pageOfAlerts.getNumber(), bookingId);
+        return pageOfAlerts.map(OffenderAlertTransformer::transformForBooking);
+    }
+
+    private Sort mapAlertSortOrderProperties(Sort sort) {
+        return Sort.by(sort
+            .stream()
+            .map(order -> Sort.Order
+                .by(mapSortProperty(order.getProperty()))
+                .with(order.getDirection()))
+            .collect(Collectors.toList()));
     }
 
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "CREATE_CATEGORISATION", "APPROVE_CATEGORISATION"})

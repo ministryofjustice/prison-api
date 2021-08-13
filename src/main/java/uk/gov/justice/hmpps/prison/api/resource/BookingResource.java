@@ -7,7 +7,6 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -107,14 +106,10 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
-import static java.util.function.Predicate.not;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static uk.gov.justice.hmpps.prison.util.ResourceUtils.nvl;
 
@@ -367,42 +362,16 @@ public class BookingResource {
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     @ApiOperation(value = "Offender alerts.", notes = "Offender alerts.", nickname = "getOffenderAlerts")
     @GetMapping("/{bookingId}/alerts/v2")
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public Page<Alert> getOffenderAlertsV2(
         @PathVariable("bookingId") @ApiParam(value = "The booking id of offender", required = true) final Long bookingId,
         @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam(value = "start alert date to search from", example = "2021-02-03") final LocalDate from,
         @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam(value = "end alert date to search up to (including this date)", example = "2021-02-04") final LocalDate to,
         @RequestParam(value = "alertType", required = false) @ApiParam(value = "Filter by alert type", example = "X") final String alertType,
         @RequestParam(value = "alertStatus", required = false) @ApiParam(value = "Filter by alert active status", example = "ACTIVE") final String alertStatus,
-        @PageableDefault(sort = {"dateExpires","dateCreated"}, direction = Sort.Direction.DESC) final Pageable pageRequest) {
+        @PageableDefault(sort = {"dateExpires","dateCreated"}, direction = Sort.Direction.DESC) final Pageable pageable) {
 
-        // marshall new parameters into to legacy style - prior to creating new service
-        final var sortProperties = pageRequest
-            .getSort()
-            .stream()
-            .map(Sort.Order::getProperty)
-            .collect(Collectors.joining(","));
-        final var sortOrder = pageRequest.getSort().stream().findFirst().orElseThrow().getDirection().toString();
-
-        var alertTypeQuery = Optional.ofNullable(alertType).filter(not(String::isBlank)).map("alertType:in:'%s'"::formatted);
-        var fromQuery = Optional.ofNullable(from).map("dateCreated:gteq:DATE'%s'"::formatted);
-        var toQuery = Optional.ofNullable(to).map("dateCreated:lteq:DATE'%s'"::formatted);
-        var activeQuery = Optional.ofNullable(alertStatus).filter(not(String::isBlank)).map("active:eq:'%s'"::formatted);
-
-        final var query = Stream.of(alertTypeQuery, fromQuery, toQuery, activeQuery)
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .collect(Collectors.joining(",and:"));
-
-
-        final var inmateAlerts = inmateAlertService.getInmateAlerts(
-            bookingId,
-            query,
-            sortProperties,
-            Order.valueOf(sortOrder),
-            nvl(pageRequest.getOffset(), 0L),
-            nvl(pageRequest.getPageSize(), 10));
-
-        return new PageImpl<>(inmateAlerts.getItems(), pageRequest, inmateAlerts.getTotalRecords());
+        return inmateAlertService.getAlertsForBooking(bookingId, from, to, alertType, alertStatus, pageable);
     }
 
     @ApiResponses({
