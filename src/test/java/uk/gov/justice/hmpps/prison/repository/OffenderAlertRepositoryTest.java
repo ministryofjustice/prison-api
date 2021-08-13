@@ -7,8 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AlertCode;
@@ -26,6 +28,9 @@ import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl;
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs;
 
+import java.time.LocalDate;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
@@ -35,7 +40,31 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @Import({AuthenticationFacade.class, AuditorAwareImpl.class, PersistenceConfigs.class})
 @WithMockUser
 @Slf4j
+@DisplayName("OffenderAlertRepository with OffenderAlertFilter")
 public class OffenderAlertRepositoryTest {
+    /*
+    data is as follows (see resources/db/migration/data/R__4_3__OFFENDER_ALERTS.sql)
+    offender A1179MT
+    has 2 bookings; booking seq 1 -35  and booking seq 2 -56
+    relevant data is as follows:
+        INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME, MODIFY_USER_ID, CREATE_USER_ID, CREATE_DATETIME) VALUES (DATE '2021-07-19', -56, -1035, 1, 'R', 'RSS', 'ACTIVE', 'N', '2121-09-01', 'Test alert for expiry', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0', 'ITAG_USER','ITAG_USER', TIMESTAMP '2021-08-19 01:02:03.4');
+        INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME, CREATE_USER_ID, CREATE_DATETIME) VALUES (DATE '2021-07-19', -56, -1035, 2, 'V', 'VOP', 'ACTIVE', 'N', '2121-09-02', 'Test alert for expiry', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0', 'ITAG_USER', TIMESTAMP '2021-08-19 01:02:03.4');
+        INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME, CREATE_USER_ID, CREATE_DATETIME) VALUES (DATE '2021-07-19', -56, -1035, 3, 'R', 'RSS', 'ACTIVE', 'N', '2121-09-03', 'Test alert for expiry', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0', 'ITAG_USER', TIMESTAMP '2021-08-19 01:02:03.4');
+        INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME, CREATE_USER_ID, CREATE_DATETIME) VALUES (DATE '2021-06-19', -56, -1035, 4, 'R', 'RSS', 'ACTIVE', 'N', '2121-09-03', 'Test alert for expiry', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0', 'ITAG_USER', TIMESTAMP '2021-08-19 01:02:03.4');
+        INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME, CREATE_USER_ID, CREATE_DATETIME) VALUES (DATE '2021-08-19', -56, -1035, 5, 'X', 'XTACT', 'ACTIVE', 'N', '2121-09-03', 'Test alert for expiry', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0', 'ITAG_USER', TIMESTAMP '2021-08-19 01:02:03.4');
+        INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME, CREATE_USER_ID, CREATE_DATETIME) VALUES (DATE '2021-07-19', -56, -1035, 6, 'R', 'RSS', 'ACTIVE', 'N', '2021-08-01', 'Test alert for expiry', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0', 'ITAG_USER', TIMESTAMP '2021-08-19 01:02:03.4');
+        INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME, CREATE_USER_ID, CREATE_DATETIME) VALUES (DATE '2021-07-19', -56, -1035, 7, 'R', 'RSS', 'ACTIVE', 'N', '2021-08-02', 'Test alert for expiry', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0', 'ITAG_USER', TIMESTAMP '2021-08-19 01:02:03.4');
+        INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME, CREATE_USER_ID, CREATE_DATETIME) VALUES (DATE '2021-07-19', -56, -1035, 8, 'R', 'RSS', 'ACTIVE', 'N', '2021-08-03', 'Test alert for expiry', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0', 'ITAG_USER', TIMESTAMP '2021-08-19 01:02:03.4');
+        INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME, CREATE_USER_ID, CREATE_DATETIME) VALUES (DATE '2021-07-19', -56, -1035, 9, 'R', 'RSS', 'INACTIVE', 'N', '2021-08-04', 'Test alert for expiry', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0', 'ITAG_USER', TIMESTAMP '2021-08-19 01:02:03.4');
+        INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME, CREATE_USER_ID, CREATE_DATETIME) VALUES (DATE '2021-07-19', -56, -1035, 10, 'R', 'RSS', 'INACTIVE', 'N', '2121-10-03', 'Expired risk alert', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0', 'ITAG_USER', TIMESTAMP '2021-08-19 01:02:03.4');
+        INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME, CREATE_USER_ID, CREATE_DATETIME) VALUES (DATE '2021-07-19', -56, -1035, 11, 'X', 'XCU', 'INACTIVE', 'N', '2121-10-02', 'Test alert for expiry', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0', 'ITAG_USER', TIMESTAMP '2021-08-19 01:02:03.4');
+        INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME, CREATE_USER_ID, CREATE_DATETIME) VALUES (DATE '2021-07-19', -56, -1035, 12, 'X', 'XCU', 'ACTIVE', 'N', '2121-10-01', 'Test alert for expiry', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0', 'ITAG_USER', TIMESTAMP '2021-08-19 01:02:03.4');
+
+        INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME) VALUES (DATE '2021-07-20', -35, -1035, 1, 'X', 'XTACT', 'ACTIVE', 'N', null, 'whatever', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0');
+        INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME) VALUES (DATE '2021-07-21', -35, -1035, 2, 'V', 'VOP', 'INACTIVE', 'N', '2021-08-01', '', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0');
+        INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME) VALUES (DATE '2021-07-22', -35, -1035, 3, 'X', 'XCU', 'ACTIVE', 'N', null, '', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0');
+    */
+
     @Autowired
     private OffenderAlertRepository repository;
 
@@ -185,8 +214,178 @@ public class OffenderAlertRepositoryTest {
     }
 
     @Test
-    @DisplayName("alert code description will be missing when reference data link missing")
-    void alertCodeDescriptionWillBeMissingWhenReferenceDataLinkMissing() {
+    @DisplayName("can filter by alert types")
+    void canFilterByAlertTypes() {
+        final var filter = OffenderAlertFilter
+            .builder()
+            .offenderNo("A1179MT")
+            .alertTypes("V")
+            .build();
+        final var alerts = repository.findAll(filter);
+
+        assertThat(alerts)
+            .hasSize(2)
+            .extracting(OffenderAlert::getType)
+            .extracting(AlertType::getCode)
+            .containsOnly("V");
+    }
+
+    @Test
+    @DisplayName("can filter by list of alert types")
+    void canFilterByListOfAlertTypes() {
+        final var filter = OffenderAlertFilter
+            .builder()
+            .offenderNo("A1179MT")
+            .alertTypes("V,X")
+            .build();
+        final var alerts = repository.findAll(filter);
+
+        assertThat(alerts)
+            .hasSize(7)
+            .extracting(OffenderAlert::getType)
+            .extracting(AlertType::getCode)
+            .allMatch(code -> List.of("V", "X").contains(code));
+    }
+
+    @Test
+    @DisplayName("can filter by bookingId")
+    void canFilterByBookingId() {
+        final var filterFor56 = OffenderAlertFilter
+            .builder()
+            .bookingId(-56L)
+            .build();
+        final var alertsFor56 = repository.findAll(filterFor56);
+
+        assertThat(alertsFor56)
+            .hasSize(12)
+            .extracting(OffenderAlert::getOffenderBooking)
+            .extracting(OffenderBooking::getBookingId)
+            .containsOnly(-56L);
+
+        final var filterFor35 = OffenderAlertFilter
+            .builder()
+            .bookingId(-35L)
+            .build();
+        final var alertsFor35 = repository.findAll(filterFor35);
+
+        assertThat(alertsFor35)
+            .hasSize(3)
+            .extracting(OffenderAlert::getOffenderBooking)
+            .extracting(OffenderBooking::getBookingId)
+            .containsOnly(-35L);
+    }
+
+    @Test
+    @DisplayName("can filter by status")
+    void canFilterByStatus() {
+        final var filterForActive = OffenderAlertFilter
+            .builder()
+            .offenderNo("A1179MT")
+            .status("ACTIVE")
+            .build();
+        final var alertsForActive = repository.findAll(filterForActive);
+
+        assertThat(alertsForActive)
+            .hasSize(11)
+            .extracting(OffenderAlert::getStatus)
+            .containsOnly("ACTIVE");
+
+        final var filterForInactive = OffenderAlertFilter
+            .builder()
+            .offenderNo("A1179MT")
+            .status("INACTIVE")
+            .build();
+        final var alertsForInactive = repository.findAll(filterForInactive);
+
+        assertThat(alertsForInactive)
+            .hasSize(4)
+            .extracting(OffenderAlert::getStatus)
+            .containsOnly("INACTIVE");
+    }
+
+    @Test
+    @DisplayName("can filter alerts after and including the alert date")
+    void canFilterAlertsAfterAndIncludingTheAlertDate() {
+        final var filter = OffenderAlertFilter
+            .builder()
+            .offenderNo("A1179MT")
+            .fromAlertDate(LocalDate.parse("2021-07-20"))
+            .build();
+        final var alerts = repository.findAll(filter);
+
+        assertThat(alerts)
+            .hasSize(4)
+            .extracting(OffenderAlert::getAlertDate)
+            .allMatch(date -> date.isAfter(LocalDate.parse("2021-07-19")))
+            .anyMatch(date -> date.isEqual(LocalDate.parse("2021-07-20")))
+        ;
+    }
+
+    @Test
+    @DisplayName("can filter alerts before and including the alert date")
+    void canFilterAlertsBeforeAndIncludingTheAlertDate() {
+        final var filter = OffenderAlertFilter
+            .builder()
+            .offenderNo("A1179MT")
+            .toAlertDate(LocalDate.parse("2021-07-19"))
+            .build();
+        final var alerts = repository.findAll(filter);
+
+        assertThat(alerts)
+            .hasSize(11)
+            .extracting(OffenderAlert::getAlertDate)
+            .allMatch(date -> date.isBefore(LocalDate.parse("2021-07-20")))
+            .anyMatch(date -> date.isEqual(LocalDate.parse("2021-07-19")))
+        ;
+    }
+
+    @Test
+    @DisplayName("can combine the to and from filter to give a date range")
+    void canCombineTheToAndFromFilterToGiveADateRange() {
+        final var filter = OffenderAlertFilter
+            .builder()
+            .offenderNo("A1179MT")
+            .toAlertDate(LocalDate.parse("2021-07-19"))
+            .fromAlertDate(LocalDate.parse("2021-07-19"))
+            .build();
+        final var alerts = repository.findAll(filter);
+
+        assertThat(alerts)
+            .hasSize(10)
+            .extracting(OffenderAlert::getAlertDate)
+            .allMatch(date -> date.isEqual(LocalDate.parse("2021-07-19")));
+    }
+
+
+    @Test
+    @DisplayName("can combine filters")
+    void canCombineFilters() {
+        final var filter = OffenderAlertFilter
+            .builder()
+            .offenderNo("A1179MT")
+            .toAlertDate(LocalDate.parse("2021-07-19"))
+            .fromAlertDate(LocalDate.parse("2021-07-19"))
+            .status("ACTIVE")
+            .alertCodes("XCU")
+            .bookingId(-56L)
+            .build();
+        final var alerts = repository.findAll(filter);
+
+        assertThat(alerts)
+            .hasSize(1);
+
+        final var alert = alerts.get(0);
+
+        assertThat(alert.getAlertDate()).isEqualTo("2021-07-19");
+        assertThat(alert.getStatus()).isEqualTo("ACTIVE");
+        assertThat(alert.getAlertCode()).isEqualTo("XCU");
+        assertThat(alert.getOffenderBooking().getBookingId()).isEqualTo(-56L);
+    }
+
+
+    @Test
+    @DisplayName("alert code reference data with description will be missing when reference data link missing")
+    void alertCodeReferenceWithDescriptionWillBeMissingWhenReferenceDataLinkMissing() {
         final var filter = OffenderAlertFilter
             .builder()
             .offenderNo("A1179MT")
@@ -240,4 +439,28 @@ public class OffenderAlertRepositoryTest {
         assertThat(alertsDescendingBySequence.get(14)).extracting(OffenderAlert::getSequence).isEqualTo(1);
 
     }
+
+    @Test
+    @DisplayName("can retrieve a page of results with sorting")
+    void canRetrieveAPageOfResults() {
+        final var filter = OffenderAlertFilter.builder().offenderNo("A1179MT").build();
+        final var pageRequest = PageRequest.of(0, 10, Sort.by(Order.asc("sequence"), Order.desc("offenderBooking.bookingId")));
+
+        final var pageOfAlerts = repository.findAll(filter, pageRequest);
+
+        assertThat(pageOfAlerts.getTotalElements()).isEqualTo(15);
+        assertThat(pageOfAlerts.getTotalPages()).isEqualTo(2);
+        assertThat(pageOfAlerts.getContent()).hasSize(10);
+
+        assertThat(pageOfAlerts.getContent().get(0))
+            .extracting(OffenderAlert::getOffenderBooking)
+            .extracting(OffenderBooking::getBookingId)
+            .isEqualTo(-35L);
+        assertThat(pageOfAlerts.getContent().get(1)).extracting(OffenderAlert::getSequence).isEqualTo(1);
+        assertThat(pageOfAlerts.getContent().get(1))
+            .extracting(OffenderAlert::getOffenderBooking)
+            .extracting(OffenderBooking::getBookingId)
+            .isEqualTo(-56L);
+    }
+
 }

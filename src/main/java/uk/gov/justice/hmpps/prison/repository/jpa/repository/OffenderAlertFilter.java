@@ -14,6 +14,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +27,12 @@ import java.util.Optional;
 public class OffenderAlertFilter implements Specification<OffenderAlert> {
     private String offenderNo;
     private String alertCodes;
+    private String alertTypes;
+    private String status;
     private Boolean latestBooking;
+    private Long bookingId;
+    private LocalDate fromAlertDate;
+    private LocalDate toAlertDate;
 
     @Override
     public Predicate toPredicate(@NotNull final Root<OffenderAlert> root, @NotNull final CriteriaQuery<?> query, @NotNull final CriteriaBuilder cb) {
@@ -45,12 +51,37 @@ public class OffenderAlertFilter implements Specification<OffenderAlert> {
             .filter(java.util.function.Predicate.not(List::isEmpty))
             .ifPresent(codes -> predicateBuilder.add(root.get("alertCode").in(codes)));
 
+        Optional
+            .of(asList(alertTypes))
+            .filter(java.util.function.Predicate.not(List::isEmpty))
+            .ifPresent(types -> predicateBuilder.add(root.get("alertType").in(types)));
+
         Optional.ofNullable(latestBooking)
             .filter(Boolean::booleanValue)
             .ifPresent(notUsed -> predicateBuilder.add(cb.equal(root
             .get("offenderBooking")
             .get("bookingSequence"), 1)));
 
+        Optional.ofNullable(bookingId)
+            .ifPresent(id -> predicateBuilder.add(cb.equal(root
+                .get("offenderBooking")
+                .get("bookingId"), id)));
+
+        Optional
+            .ofNullable(status)
+            .filter(java.util.function.Predicate.not(String::isBlank))
+            .ifPresent(status -> predicateBuilder.add(cb.equal(root
+                .get("status"), status)));
+
+        Optional
+            .ofNullable(fromAlertDate)
+            .ifPresent(date -> predicateBuilder.add(cb.greaterThanOrEqualTo(root
+                .get("alertDate"), date)));
+
+        Optional
+            .ofNullable(toAlertDate)
+            .ifPresent(date -> predicateBuilder.add(cb.lessThanOrEqualTo(root
+                .get("alertDate"), date)));
 
         final var predicates = predicateBuilder.build();
         return cb.and(predicates.toArray(new Predicate[0]));
