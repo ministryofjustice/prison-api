@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatus;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
 
 import java.util.Map;
@@ -35,6 +36,21 @@ public class BookingResourceIntTest_getOffenderAlerts extends ResourceTest {
     @Nested
     @DisplayName("GET /api/bookings/{bookingId}/alert")
     class LegacyUnSafeEndpoint {
+
+        @Test
+        @DisplayName("should have the correct role to access booking")
+        void shouldHaveTheCorrectRoleToAccessEndpoint() {
+            final var response = testRestTemplate.exchange(
+                "/api/bookings/{bookingId}/alerts",
+                GET,
+                createEmptyHttpEntity(AuthToken.RENEGADE_USER),
+                new ParameterizedTypeReference<String>() {
+                },
+                Map.of("bookingId", -56));
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        }
+
         @Test
         @DisplayName("returns partial alert data for each alert")
         void returnsImportantAlertDataForEachAlert() {
@@ -354,6 +370,21 @@ public class BookingResourceIntTest_getOffenderAlerts extends ResourceTest {
     @Nested
     @DisplayName("GET /api/bookings/{bookingId}/alert/v2")
     class NewUnSafeEndpoint {
+
+        @Test
+        @DisplayName("should have the correct role to access booking")
+        void shouldHaveTheCorrectRoleToAccessEndpoint() {
+            final var response = testRestTemplate.exchange(
+                "/api/bookings/{bookingId}/alerts/v2",
+                GET,
+                createEmptyHttpEntity(AuthToken.RENEGADE_USER),
+                new ParameterizedTypeReference<String>() {
+                },
+                Map.of("bookingId", -56));
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        }
+
         @Test
         @DisplayName("returns partial alert data for each alert")
         void returnsImportantAlertDataForEachAlert() {
