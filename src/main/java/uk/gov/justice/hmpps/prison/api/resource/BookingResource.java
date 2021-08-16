@@ -380,7 +380,7 @@ public class BookingResource {
         @RequestParam(value = "alertType", required = false) @ApiParam(value = "Filter by alert type", example = "X") final String alertType,
         @RequestParam(value = "alertStatus", required = false) @ApiParam(value = "Filter by alert active status", example = "ACTIVE") final String alertStatus,
         @ApiIgnore
-        @PageableDefault(sort = {"dateExpires", "dateCreated"}, direction = Sort.Direction.DESC) final PageRequest pageable) {
+        @PageableDefault(sort = {"dateExpires", "dateCreated"}, direction = Sort.Direction.DESC) final Pageable pageable) {
 
         return inmateAlertService.getAlertsForBooking(bookingId, from, to, alertType, alertStatus, pageable);
     }
