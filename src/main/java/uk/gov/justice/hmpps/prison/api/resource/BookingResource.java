@@ -1,6 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 import uk.gov.justice.hmpps.prison.api.model.Account;
 import uk.gov.justice.hmpps.prison.api.model.Alert;
 import uk.gov.justice.hmpps.prison.api.model.AlertChanges;
@@ -361,15 +364,23 @@ public class BookingResource {
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     @ApiOperation(value = "Offender alerts.", notes = "Offender alerts.", nickname = "getOffenderAlerts")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "page", dataType = "java.lang.Integer", paramType = "query",
+            value = "Results page you want to retrieve (0..N). Default 0, e.g. the first page", example = "0"),
+        @ApiImplicitParam(name = "size", dataType = "java.lang.Integer", paramType = "query",
+            value = "Number of records per page. Default 10"),
+        @ApiImplicitParam(name = "sort", dataType = "java.lang.String", paramType = "query", allowableValues = "alertId,bookingId,alertType,alertCode,comment,dateCreated,dateExpires,active,ASC,DESC",
+            value = "Sort as combined comma separated property and uppercase direction. Multiple sort params allowed to sort by multiple properties. Default to dateExpires,DESC and dateCreated,DESC")})
     @GetMapping("/{bookingId}/alerts/v2")
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public Page<Alert> getOffenderAlertsV2(
-        @PathVariable("bookingId") @ApiParam(value = "The booking id of offender", required = true) final Long bookingId,
+        @PathVariable("bookingId") @ApiParam(value = "The booking id for the booking", required = true) final Long bookingId,
         @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam(value = "start alert date to search from", example = "2021-02-03") final LocalDate from,
         @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam(value = "end alert date to search up to (including this date)", example = "2021-02-04") final LocalDate to,
         @RequestParam(value = "alertType", required = false) @ApiParam(value = "Filter by alert type", example = "X") final String alertType,
         @RequestParam(value = "alertStatus", required = false) @ApiParam(value = "Filter by alert active status", example = "ACTIVE") final String alertStatus,
-        @PageableDefault(sort = {"dateExpires","dateCreated"}, direction = Sort.Direction.DESC) final Pageable pageable) {
+        @ApiIgnore
+        @PageableDefault(sort = {"dateExpires", "dateCreated"}, direction = Sort.Direction.DESC) final PageRequest pageable) {
 
         return inmateAlertService.getAlertsForBooking(bookingId, from, to, alertType, alertStatus, pageable);
     }
