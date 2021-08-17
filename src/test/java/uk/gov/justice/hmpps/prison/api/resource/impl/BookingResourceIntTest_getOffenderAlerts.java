@@ -369,7 +369,7 @@ public class BookingResourceIntTest_getOffenderAlerts extends ResourceTest {
     }
     @Nested
     @DisplayName("GET /api/bookings/{bookingId}/alert/v2")
-    class NewUnSafeEndpoint {
+    class NewSafeEndpoint {
 
         @Test
         @DisplayName("should have the correct role to access booking")

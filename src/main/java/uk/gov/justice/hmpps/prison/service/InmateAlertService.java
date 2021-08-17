@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -123,6 +124,20 @@ public class InmateAlertService {
             .alertCodes(alertCodes)
             .build();
 
+        return getAlertsForOffender(offenderNo, sortProperties, direction, filter);
+    }
+
+    public List<Alert> getAlertsForAllBookingsForOffender(final String offenderNo, final String alertCodes, final String sortProperties, final Direction direction) {
+        final var filter = OffenderAlertFilter
+            .builder()
+            .offenderNo(offenderNo)
+            .alertCodes(alertCodes)
+            .build();
+
+        return getAlertsForOffender(offenderNo, sortProperties, direction, filter);
+    }
+
+    private List<Alert> getAlertsForOffender(String offenderNo, String sortProperties, Direction direction, OffenderAlertFilter filter) {
         final var alerts = offenderAlertRepository
             .findAll(filter, Sort.by(direction, OffenderAlertTransformer.mapSortProperties(sortProperties)))
             .stream()
