@@ -353,16 +353,35 @@ public class OffenderResource {
     @ApiOperation(value = "Return a list of alerts for latest booking for a given offender No.", notes = "System or cat tool access only")
     @GetMapping("/{offenderNo}/bookings/latest/alerts")
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "CREATE_CATEGORISATION", "APPROVE_CATEGORISATION"})
-    public List<Alert> getAlertsFotLatestBookingByOffenderNo(
+    public List<Alert> getAlertsForLatestBookingByOffenderNo(
         @PathVariable("offenderNo") @ApiParam(value = "Noms ID or Prisoner number", required = true, example = "A1234AA") @NotNull final String offenderNo,
         @RequestParam(value = "alertCodes", required = false) @ApiParam(value = "Comma separated list of alertCodes to filter by", example = "XA,RSS") final String alertCodes,
         @RequestParam(value = "sort", defaultValue = "alertType", required = false) @ApiParam(value = "Comma separated list of one or more Alert fields", allowableValues = "alertId, bookingId, alertType, alertCode, comment, dateCreated, dateExpires, active", defaultValue = "alertType") final String sort,
-        @RequestParam(value = "direction", defaultValue = "ASC", required = false) @ApiParam(value = "Sort order", defaultValue = "ASC", example = "DESC") final Direction direction) {
+        @RequestParam(value = "direction", defaultValue = "ASC", required = false) @ApiParam(value = "Sort order", defaultValue = "ASC", example = "DESC") final String direction) {
         return alertService.getAlertsForLatestBookingForOffender(
             offenderNo,
             alertCodes,
             sort,
-            direction);
+            Direction.fromString(direction));
+    }
+    @ApiResponses({
+        @ApiResponse(code = 200, message = "OK", response = Alert.class, responseContainer = "List"),
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Return a list of alerts for all booking for a given offender No.", notes = "System or cat tool access only")
+    @GetMapping("/{offenderNo}/alerts/v2")
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "CREATE_CATEGORISATION", "APPROVE_CATEGORISATION"})
+    public List<Alert> getAlertsForAllBookingByOffenderNo(
+        @PathVariable("offenderNo") @ApiParam(value = "Noms ID or Prisoner number", required = true, example = "A1234AA") @NotNull final String offenderNo,
+        @RequestParam(value = "alertCodes", required = false) @ApiParam(value = "Comma separated list of alertCodes to filter by", example = "XA,RSS") final String alertCodes,
+        @RequestParam(value = "sort", defaultValue = "alertType", required = false) @ApiParam(value = "Comma separated list of one or more Alert fields", allowableValues = "alertId, bookingId, alertType, alertCode, comment, dateCreated, dateExpires, active", defaultValue = "alertType") final String sort,
+        @RequestParam(value = "direction", defaultValue = "ASC", required = false) @ApiParam(value = "Sort order", defaultValue = "ASC", example = "DESC") final String direction) {
+        return alertService.getAlertsForAllBookingsForOffender(
+            offenderNo,
+            alertCodes,
+            sort,
+            Direction.fromString(direction));
     }
 
     @ApiResponses({

@@ -408,6 +408,71 @@ public class InmateAlertServiceImplTest {
 
         }
     }
+    @Nested
+    class GetAlertsForAllBookingsForOffender {
+        @Captor
+        private ArgumentCaptor<Specification<OffenderAlert>> specificationArgumentCaptor;
+
+        @Captor
+        private ArgumentCaptor<Sort> sortArgumentCaptor;
+
+        @BeforeEach
+        void setUp() {
+            when(offenderAlertRepository.findAll(any(), any(Sort.class)))
+                .thenReturn(List.of(alertOfSequence(1), alertOfSequence(2)));
+        }
+
+        @Test
+        @DisplayName("will setup filter with offender and alert codes")
+        void willSetupFilterWithOffenderAndAlertCodes() {
+            service.getAlertsForAllBookingsForOffender("A1179MT", "XCU,XTACT", "alertType,bookingId", Direction.DESC);
+
+            verify(offenderAlertRepository).findAll(specificationArgumentCaptor.capture(), sortArgumentCaptor.capture());
+
+            assertThat(specificationArgumentCaptor.getValue()).isInstanceOf(OffenderAlertFilter.class);
+            final OffenderAlertFilter filter = (OffenderAlertFilter) specificationArgumentCaptor.getValue();
+            assertThat(filter.getOffenderNo()).isEqualTo("A1179MT");
+            assertThat(filter.getAlertCodes()).isEqualTo("XCU,XTACT");
+            assertThat(filter.getLatestBooking()).isNull();
+        }
+
+        @Test
+        @DisplayName("will map sort property names")
+        void willMapSortPropertyNames() {
+            service.getAlertsForAllBookingsForOffender("A1179MT", "XCU,XTACT", "alertType,bookingId", Direction.DESC);
+
+            verify(offenderAlertRepository).findAll(specificationArgumentCaptor.capture(), sortArgumentCaptor.capture());
+
+            final var sort = sortArgumentCaptor.getValue();
+
+            assertThat(sort.stream())
+                .extracting(Sort.Order::getProperty)
+                .containsExactly("alertType", "offenderBooking.bookingId");
+        }
+
+        @Test
+        @DisplayName("will use sort direction for each property")
+        void willUseSortDirection() {
+            service.getAlertsForAllBookingsForOffender("A1179MT", "XCU,XTACT", "alertType,bookingId", Direction.DESC);
+
+            verify(offenderAlertRepository).findAll(specificationArgumentCaptor.capture(), sortArgumentCaptor.capture());
+
+            final var sort = sortArgumentCaptor.getValue();
+
+            assertThat(sort.stream())
+                .extracting(Sort.Order::getDirection)
+                .containsExactly(Direction.DESC, Direction.DESC);
+        }
+
+        @Test
+        @DisplayName("will transform results")
+        void willTransformResults() {
+            final var alerts = service.getAlertsForAllBookingsForOffender("A1179MT", "XCU,XTACT", "alertType,bookingId", Direction.DESC);
+
+            assertThat(alerts).hasSize(2).extracting(Alert::getAlertId).containsExactly(1L, 2L);
+
+        }
+    }
 
     @Nested
     class GetAlertsForBooking {
@@ -421,7 +486,7 @@ public class InmateAlertServiceImplTest {
         @BeforeEach
         void setUp() {
             when(offenderAlertRepository.findAll(any(), any(PageRequest.class)))
-                .thenAnswer(request -> new PageImpl(List.of(alertOfSequence(1), alertOfSequence(2)), request.getArgument(1), 2));
+                .thenAnswer(request -> new PageImpl<>(List.of(alertOfSequence(1), alertOfSequence(2)), request.getArgument(1), 2));
         }
 
         @Test
