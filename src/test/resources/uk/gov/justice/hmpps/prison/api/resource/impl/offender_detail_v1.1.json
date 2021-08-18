@@ -1,0 +1,137 @@
+{
+  "offenderNo": "A1234AB",
+  "bookingId": -2,
+  "bookingNo": "A00112",
+  "offenderId": -1002,
+  "rootOffenderId": -1002,
+  "firstName": "GILLIAN",
+  "middleName": "EVE",
+  "lastName": "ANDERSON",
+  "dateOfBirth": "1998-08-28",
+  "agencyId": "LEI",
+  "assignedLivingUnitId": -19,
+  "activeFlag": true,
+  "alertsCodes": [
+    "H",
+    "X"
+  ],
+  "activeAlertCount": 2,
+  "inactiveAlertCount": 0,
+  "alerts": [
+    {
+      "alertId": 1,
+      "alertType": "H",
+      "alertTypeDescription": "Self Harm",
+      "alertCode": "HA",
+      "alertCodeDescription": "ACCT Open (HMPS)",
+      "comment": "Alert Text 2",
+      "expired": false,
+      "active": true
+    },
+    {
+      "alertId": 2,
+      "alertType": "X",
+      "alertTypeDescription": "Security",
+      "alertCode": "XTACT",
+      "alertCodeDescription": "XTACT",
+      "comment": "Alert XTACT 2",
+      "expired": false,
+      "active": true
+    }
+  ],
+  "assignedLivingUnit": {
+    "agencyId": "LEI",
+    "locationId": -19,
+    "description": "H-1-5",
+    "agencyName": "Leeds"
+  },
+  "physicalAttributes": {
+    "gender": "Female",
+    "raceCode": "W2",
+    "ethnicity": "White: Irish",
+    "sexCode": "F"
+  },
+  "profileInformation": [
+    {
+      "type": "RELF",
+      "question": "Religion",
+      "resultValue": "Baptist"
+    },
+    {
+      "type": "SMOKE",
+      "question": "Is the Offender a smoker?",
+      "resultValue": "No"
+    },
+    {
+      "type": "NAT",
+      "question": "Nationality?",
+      "resultValue": "Israeli"
+    }
+  ],
+  "inOutStatus": "IN",
+  "identifiers": [],
+  "sentenceDetail": {
+    "sentenceExpiryDate": "2019-05-21",
+    "automaticReleaseDate": "2018-05-21",
+    "releaseOnTemporaryLicenceDate": "2018-02-25",
+    "bookingId": -2,
+    "sentenceStartDate": "2017-05-22",
+    "automaticReleaseOverrideDate": "2018-04-21",
+    "nonDtoReleaseDate": "2018-04-21",
+    "nonDtoReleaseDateType": "ARD",
+    "confirmedReleaseDate": "2018-04-19",
+    "releaseDate": "2018-04-19"
+  },
+  "sentenceTerms": [
+    {
+      "bookingId": -2,
+      "sentenceSequence": 2,
+      "termSequence": 1,
+      "sentenceType": "FTR_ORA",
+      "sentenceTypeDescription": "ORA 28 Day Fixed Term Recall",
+      "startDate": "2017-05-22",
+      "years": 2,
+      "lifeSentence": false,
+      "caseId": "-2",
+      "fineAmount": 120.0,
+      "sentenceTermCode": "IMP",
+      "lineSeq": 1,
+      "sentenceStartDate": "2017-07-05"
+    },
+    {
+      "bookingId": -2,
+      "sentenceSequence": 2,
+      "termSequence": 2,
+      "sentenceType": "FTR_ORA",
+      "sentenceTypeDescription": "ORA 28 Day Fixed Term Recall",
+      "startDate": "2017-06-22",
+      "weeks": 2,
+      "days": 3,
+      "lifeSentence": false,
+      "caseId": "-2",
+      "fineAmount": 120.0,
+      "sentenceTermCode": "IMP",
+      "lineSeq": 1,
+      "sentenceStartDate": "2017-07-05"
+    },
+    {
+      "bookingId": -2,
+      "sentenceSequence": 2,
+      "termSequence": 3,
+      "sentenceType": "FTR_ORA",
+      "sentenceTypeDescription": "ORA 28 Day Fixed Term Recall",
+      "startDate": "2017-07-22",
+      "years": 25,
+      "lifeSentence": true,
+      "caseId": "-2",
+      "fineAmount": 120.0,
+      "sentenceTermCode": "IMP",
+      "lineSeq": 1,
+      "sentenceStartDate": "2017-07-05"
+    }
+  ],
+  "status": "ACTIVE IN",
+  "lastMovementTypeCode": "ADM",
+  "lastMovementReasonCode": "24",
+  "legalStatus": "SENTENCED"
+}

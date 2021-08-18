@@ -158,6 +158,10 @@ public class OffenderBooking extends ExtendedAuditableEntity {
     @Default
     private List<OffenderImage> images = new ArrayList<>();
 
+    @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
+    @Default
+    private List<OffenderAlert> alerts = new ArrayList<>();
+
     @Column(name = "ROOT_OFFENDER_ID")
     private Long rootOffenderId;
 
@@ -495,5 +499,13 @@ public class OffenderBooking extends ExtendedAuditableEntity {
             .filter(i -> "FACE".equals(i.getViewType()))
             .filter(i -> "FRONT".equals(i.getOrientationType()))
             .max(Comparator.comparing(OffenderImage::getId));
+    }
+
+    public List<String> getAlertCodes() {
+        return alerts.stream().filter(OffenderAlert::isActive).map(OffenderAlert::getAlertType).collect(Collectors.toSet()).stream().toList();
+    }
+
+    public long getActiveAlertCount() {
+        return alerts.stream().filter(OffenderAlert::isActive).count();
     }
 }
