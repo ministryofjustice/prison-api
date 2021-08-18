@@ -40,13 +40,11 @@ public class OffenderProgramProfileRepositoryTest {
                     .offenderProgramReferenceId(-6L)
                     .programStatus("ALLOC")
                     .startDate(LocalDate.of(2016, 11, 9))
-                    .endDate(LocalDate.of(2021, 8, 8))
                     .courseActivity(CourseActivity.builder()
                         .activityId(-2L)
                         .description("Woodwork")
                         .code("WOOD")
                         .scheduleStartDate(LocalDate.of(2012, 2, 28))
-                        .scheduleEndDate(LocalDate.of(2021, 8, 9))
                         .build())
                     .build(),
                 OffenderProgramProfile.builder()
