@@ -8,9 +8,9 @@
   "middleName": "EVE",
   "lastName": "ANDERSON",
   "dateOfBirth": "1998-08-28",
+  "activeFlag": true,
   "agencyId": "LEI",
   "assignedLivingUnitId": -19,
-  "activeFlag": true,
   "alertsCodes": [
     "H",
     "X"
@@ -46,12 +46,17 @@
     "agencyName": "Leeds"
   },
   "physicalAttributes": {
+    "sexCode": "F",
     "gender": "Female",
     "raceCode": "W2",
-    "ethnicity": "White: Irish",
-    "sexCode": "F"
+    "ethnicity": "White: Irish"
   },
   "profileInformation": [
+    {
+      "type": "NAT",
+      "question": "Nationality?",
+      "resultValue": "Israeli"
+    },
     {
       "type": "RELF",
       "question": "Religion",
@@ -61,11 +66,6 @@
       "type": "SMOKE",
       "question": "Is the Offender a smoker?",
       "resultValue": "No"
-    },
-    {
-      "type": "NAT",
-      "question": "Nationality?",
-      "resultValue": "Israeli"
     }
   ],
   "inOutStatus": "IN",
@@ -131,7 +131,7 @@
     }
   ],
   "status": "ACTIVE IN",
+  "statusReason": "ADM-24",
   "lastMovementTypeCode": "ADM",
-  "lastMovementReasonCode": "24",
-  "legalStatus": "SENTENCED"
+  "lastMovementReasonCode": "24"
 }

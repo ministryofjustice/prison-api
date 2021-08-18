@@ -11,6 +11,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.ListIndexBase;
 import uk.gov.justice.hmpps.prison.api.model.LegalStatus;
+import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord.BookingAndSequence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail.PK;
@@ -40,6 +41,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @EqualsAndHashCode(of = "bookingId", callSuper = false)
 @Data
@@ -355,6 +358,16 @@ public class OffenderBooking extends ExtendedAuditableEntity {
             .flatMap(s -> s.getTerms().stream())
             .min(Comparator.comparing(SentenceTerm::getStartDate))
             .map(SentenceTerm::getStartDate);
+    }
+
+    public List<OffenderSentenceTerms> getActiveFilteredSentenceTerms(List<String> filterBySentenceTermCodes) {
+        final var sentenceTermCodes = (filterBySentenceTermCodes == null || filterBySentenceTermCodes.isEmpty()) ? List.of("IMP") : filterBySentenceTermCodes;
+        return getTerms()
+            .stream()
+            .filter(term -> "A".equals(term.getOffenderSentence().getStatus()))
+            .filter(term -> sentenceTermCodes.contains(term.getSentenceTermCode()))
+            .map(SentenceTerm::getSentenceSummary)
+            .collect(toList());
     }
 
     public Integer getAdditionalDaysAwarded() {

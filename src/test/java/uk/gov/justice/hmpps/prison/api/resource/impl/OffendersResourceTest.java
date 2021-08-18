@@ -148,7 +148,7 @@ public class OffendersResourceTest extends ResourceTest {
     }
 
     @Test
-    public void getFullOffenderInformationV1_1() {
+    public void compareV1AndV1_1VersionsOfGetOffender() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA);
 
         final var httpEntityV1 = createHttpEntity(token, null, Map.of("version", "1.0"));
