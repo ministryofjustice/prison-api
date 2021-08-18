@@ -58,6 +58,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocat
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPersonsRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitRepository;
@@ -99,6 +100,8 @@ public class BookingServiceTest {
     @Mock
     private OffenderBookingRepository offenderBookingRepository;
     @Mock
+    private OffenderRepository offenderRepository;
+    @Mock
     private VisitRepository visitRepository;
     @Mock
     private VisitorRepository visitorRepository;
@@ -131,6 +134,7 @@ public class BookingServiceTest {
                 bookingRepository,
                 inmateRepository,
                 offenderBookingRepository,
+                offenderRepository,
                 visitorRepository,
                 visitRepository,
                 null,

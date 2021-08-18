@@ -59,6 +59,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocat
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPersonsRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitRepository;
@@ -116,6 +117,7 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final InmateRepository inmateRepository;
     private final OffenderBookingRepository offenderBookingRepository;
+    private final OffenderRepository offenderRepository;
     private final VisitRepository visitRepository;
     private final VisitorRepository visitorRepository;
     private final SentenceRepository sentenceRepository;
@@ -136,6 +138,7 @@ public class BookingService {
     public BookingService(final BookingRepository bookingRepository,
                           final InmateRepository inmateRepository,
                           final OffenderBookingRepository offenderBookingRepository,
+                          final OffenderRepository offenderRepository,
                           final VisitorRepository visitorRepository,
                           final VisitRepository visitRepository,
                           final SentenceRepository sentenceRepository,
@@ -155,6 +158,7 @@ public class BookingService {
         this.bookingRepository = bookingRepository;
         this.inmateRepository = inmateRepository;
         this.offenderBookingRepository = offenderBookingRepository;
+        this.offenderRepository = offenderRepository;
         this.visitRepository = visitRepository;
         this.visitorRepository = visitorRepository;
         this.sentenceRepository = sentenceRepository;
@@ -981,7 +985,8 @@ public class BookingService {
     }
 
     public InmateDetail getOffender(final String offenderNo) {
-        return offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(offenderNo, 1)
-            .map(offenderTransformer::transform).orElseThrow(EntityNotFoundException.withId(offenderNo));
+        return  offenderRepository.findOffenderByNomsId(offenderNo)
+                .map(offenderTransformer::transform)
+                .orElseThrow(EntityNotFoundException.withId(offenderNo));
     }
 }

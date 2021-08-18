@@ -231,9 +231,9 @@ public class InmateService {
     }
 
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
-    public InmateDetail findOffender(final String offenderNo, final boolean extraInfo) {
+    public InmateDetail findOffender(final String offenderNo, final boolean extraInfo, final boolean csraSummary) {
         final var inmate = repository.findOffender(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
-        return getOffenderDetails(inmate, extraInfo, false);
+        return getOffenderDetails(inmate, extraInfo, csraSummary);
     }
 
     private InmateDetail getOffenderDetails(final InmateDetail inmate, final boolean extraInfo, final boolean csraSummary) {
