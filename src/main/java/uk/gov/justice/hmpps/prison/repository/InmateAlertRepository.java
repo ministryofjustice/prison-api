@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.repository;
 
 import com.google.common.collect.ImmutableMap;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
@@ -22,9 +23,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static java.util.function.Predicate.not;
+
 @Repository
+@Slf4j
 public class InmateAlertRepository extends RepositoryBase {
 
     private final Map<String, FieldMapper> alertMapping = new ImmutableMap.Builder<String, FieldMapper>()
@@ -65,6 +70,7 @@ public class InmateAlertRepository extends RepositoryBase {
 
 
     public Page<Alert> getAlerts(final long bookingId, final String query, final String orderByField, final Order order, final long offset, final long limit) {
+        checkQueryIsNotUsed(query);
         final var initialSql = InmateAlertRepositorySql.FIND_INMATE_ALERTS.getSql();
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, alertMapping);
 
@@ -109,6 +115,7 @@ public class InmateAlertRepository extends RepositoryBase {
 
 
     public List<Alert> getAlertsByOffenderNos(final String agencyId, final List<String> offenderNos, final boolean latestOnly, final String query, final String orderByField, final Order order) {
+        checkQueryIsNotUsed(query);
         final var basicSql = InmateAlertRepositorySql.FIND_INMATE_OFFENDERS_ALERTS.getSql();
         final var initialSql = latestOnly ? basicSql + " AND B.BOOKING_SEQ=1" : basicSql;
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, alertMapping);
@@ -234,4 +241,12 @@ public class InmateAlertRepository extends RepositoryBase {
 
         return alertSeq;
     }
+
+
+    private static void checkQueryIsNotUsed(String query) {
+        Optional.ofNullable(query)
+            .filter(not(String::isBlank))
+            .ifPresent(q -> log.warn("Alert repository has received a query parameter that might be vulnerable"));
+    }
+
 }
