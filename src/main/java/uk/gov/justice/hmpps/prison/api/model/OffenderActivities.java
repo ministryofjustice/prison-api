@@ -13,7 +13,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 
-@ApiModel(description = "Prisoner Movement")
+@ApiModel(description = "Information about an Offender's activities")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder(toBuilder = true)
 @Data
