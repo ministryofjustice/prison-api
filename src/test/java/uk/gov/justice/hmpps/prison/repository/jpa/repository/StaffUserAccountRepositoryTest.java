@@ -31,7 +31,9 @@ public class StaffUserAccountRepositoryTest {
     public void getUserDetails() {
         var user = repository.findById("ITAG_USER");
 
-        assertThat(user).get().usingRecursiveComparison().ignoringFields("staff.createUserId", "staff.createDatetime").isEqualTo(staffUserAccountRepositoryResponse());
+        assertThat(user).get().usingRecursiveComparison()
+            .ignoringFields("staff", "roles")
+            .isEqualTo(staffUserAccountRepositoryResponse());
     }
 
 

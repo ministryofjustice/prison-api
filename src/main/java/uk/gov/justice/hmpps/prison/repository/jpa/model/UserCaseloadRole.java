@@ -26,7 +26,7 @@ public class UserCaseloadRole implements Serializable {
     @EmbeddedId
     private UserCaseloadRoleIdentity id;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ROLE_ID", updatable = false, insertable = false)
     private Role role;
 }
