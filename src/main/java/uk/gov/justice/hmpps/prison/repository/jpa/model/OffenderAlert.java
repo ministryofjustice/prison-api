@@ -97,4 +97,8 @@ public class OffenderAlert extends AuditableEntity {
         private OffenderBooking offenderBooking;
         private Integer sequence;
     }
+
+    public boolean isActive() {
+        return "ACTIVE".equalsIgnoreCase(getStatus());
+    }
 }

@@ -11,6 +11,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.ListIndexBase;
 import uk.gov.justice.hmpps.prison.api.model.LegalStatus;
+import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord.BookingAndSequence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail.PK;
@@ -40,6 +41,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @EqualsAndHashCode(of = "bookingId", callSuper = false)
 @Data
@@ -157,6 +160,10 @@ public class OffenderBooking extends ExtendedAuditableEntity {
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     private List<OffenderImage> images = new ArrayList<>();
+
+    @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
+    @Default
+    private List<OffenderAlert> alerts = new ArrayList<>();
 
     @Column(name = "ROOT_OFFENDER_ID")
     private Long rootOffenderId;
@@ -353,6 +360,16 @@ public class OffenderBooking extends ExtendedAuditableEntity {
             .map(SentenceTerm::getStartDate);
     }
 
+    public List<OffenderSentenceTerms> getActiveFilteredSentenceTerms(List<String> filterBySentenceTermCodes) {
+        final var sentenceTermCodes = (filterBySentenceTermCodes == null || filterBySentenceTermCodes.isEmpty()) ? List.of("IMP") : filterBySentenceTermCodes;
+        return getTerms()
+            .stream()
+            .filter(term -> "A".equals(term.getOffenderSentence().getStatus()))
+            .filter(term -> sentenceTermCodes.contains(term.getSentenceTermCode()))
+            .map(SentenceTerm::getSentenceSummary)
+            .collect(toList());
+    }
+
     public Integer getAdditionalDaysAwarded() {
         final var adjustedDays = keyDateAdjustments.stream().filter(kda -> "ADA".equals(kda.getSentenceAdjustCode()) && kda.isActive()).mapToInt(KeyDateAdjustment::getAdjustDays).sum();
         return adjustedDays == 0 ? null : adjustedDays;
@@ -495,5 +512,13 @@ public class OffenderBooking extends ExtendedAuditableEntity {
             .filter(i -> "FACE".equals(i.getViewType()))
             .filter(i -> "FRONT".equals(i.getOrientationType()))
             .max(Comparator.comparing(OffenderImage::getId));
+    }
+
+    public List<String> getAlertCodes() {
+        return alerts.stream().filter(OffenderAlert::isActive).map(OffenderAlert::getAlertType).collect(Collectors.toSet()).stream().toList();
+    }
+
+    public long getActiveAlertCount() {
+        return alerts.stream().filter(OffenderAlert::isActive).count();
     }
 }

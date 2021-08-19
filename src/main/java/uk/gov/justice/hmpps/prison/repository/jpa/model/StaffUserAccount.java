@@ -30,7 +30,7 @@ public class StaffUserAccount {
     @Column(nullable = false)
     private String username;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "STAFF_ID")
     private Staff staff;
 
@@ -40,7 +40,7 @@ public class StaffUserAccount {
     @Column(name = "WORKING_CASELOAD_ID")
     private String activeCaseLoadId;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "USERNAME")
     private List<UserCaseloadRole> roles;
 
