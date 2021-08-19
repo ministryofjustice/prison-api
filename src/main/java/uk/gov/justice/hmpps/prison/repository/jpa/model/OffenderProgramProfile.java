@@ -24,9 +24,7 @@ public class OffenderProgramProfile extends ExtendedAuditableEntity {
     private OffenderBooking offenderBooking;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    // TODO - @NotFound(action = IGNORE)
     @JoinColumn(name = "CRS_ACTY_ID")
-    // TODO - @MapsId("bookingId")
     private CourseActivity courseActivity;
 
     @Column(name = "OFFENDER_START_DATE")
