@@ -27,8 +27,6 @@ public class OffenderActivitiesServiceTest {
     private static final String EXAMPLE_OFFENDER_NO = "A1234AA";
     private static final Long EXAMPLE_BOOKING_ID = -33L;
 
-    private final Random randomNumberGenerator = new Random();
-
     @Mock
     private OffenderProgramProfileRepository repository;
     @Mock
@@ -78,41 +76,31 @@ public class OffenderActivitiesServiceTest {
 
     @Test
     public void getCurrentWorkActivities_filtersOutInvalidOffenderProgramProfiles() {
-        final var programProfileWithNoStartDate =
-            programProfileBuilder()
-                .startDate(null)
-                .build();
-        final var programProfileWithStartDateTomorrow =
-            programProfileBuilder()
-                .startDate(LocalDate.now().plusDays(1))
-                .build();
-        final var programProfileWithEndDateToday =
-            programProfileBuilder()
-                .endDate(LocalDate.now())
-                .build();
-        final var programProfileWithValidStartAndEndDate =
-            programProfileBuilder()
-                .startDate(LocalDate.now())
-                .endDate(LocalDate.now().plusDays(1))
-                .build();
-        final var programProfileWithValidStartAndNoEndDate =
-            programProfileBuilder()
-                .startDate(LocalDate.now())
-                .build();
-        final var programProfileWithoutCourseActivity =
-            programProfile(null);
+        final var programProfileWithNoCourseActivity = OffenderProgramProfile.builder()
+            .offenderProgramReferenceId(-1L)
+            .programStatus("ALLOC")
+            .startDate(LocalDate.now().plusDays(1))
+            .courseActivity(null)
+            .build();
+        final var programProfileWithValidData = OffenderProgramProfile.builder()
+            .offenderProgramReferenceId(-1L)
+            .programStatus("ALLOC")
+            .startDate(LocalDate.now().minusDays(10))
+            .courseActivity(CourseActivity.builder()
+                .activityId(-2L)
+                .description("A description")
+                .code("VALID")
+                .scheduleStartDate(LocalDate.now().minusDays(10))
+                .build())
+            .build();
 
         when(bookingService.getLatestBookingByOffenderNo(EXAMPLE_OFFENDER_NO)).thenReturn(OffenderSummary.builder()
             .bookingId(EXAMPLE_BOOKING_ID)
             .build());
 
         when(repository.findByOffenderBooking_BookingIdAndProgramStatus(EXAMPLE_BOOKING_ID, "ALLOC")).thenReturn(List.of(
-            programProfileWithNoStartDate,
-            programProfileWithStartDateTomorrow,
-            programProfileWithEndDateToday,
-            programProfileWithValidStartAndEndDate,
-            programProfileWithValidStartAndNoEndDate,
-            programProfileWithoutCourseActivity
+            programProfileWithNoCourseActivity,
+            programProfileWithValidData
         ));
 
         final var workActivitiesApiObject = service.getCurrentWorkActivities(EXAMPLE_OFFENDER_NO);
@@ -122,84 +110,8 @@ public class OffenderActivitiesServiceTest {
             .bookingId(EXAMPLE_BOOKING_ID)
             .workActivities(List.of(
                 OffenderActivitySummary.builder()
-                    .description(programProfileWithValidStartAndEndDate.getCourseActivity().getDescription())
-                    .startDate(programProfileWithValidStartAndEndDate.getStartDate())
-                    .build(),
-                OffenderActivitySummary.builder()
-                    .description(programProfileWithValidStartAndNoEndDate.getCourseActivity().getDescription())
-                    .startDate(programProfileWithValidStartAndNoEndDate.getStartDate())
-                    .build()
-            ))
-            .build()
-        );
-    }
-
-    @Test
-    public void getCurrentWorkActivities_filtersOutInvalidCourseActivities() {
-        final var courseActivityWithNoStartDate =
-            courseActivityBuilder("NO START DATE")
-            .scheduleStartDate(null)
-            .build();
-        final var courseActivityWithStartDateToday =
-            courseActivityBuilder("START DATE TODAY")
-            .scheduleStartDate(LocalDate.now())
-            .build();
-        final var courseActivityWithStartDateAfterToday =
-            courseActivityBuilder("START DATE AFTER TODAY")
-            .scheduleStartDate(LocalDate.now().plusDays(1))
-            .build();
-        final var courseActivityWithNoEndDate =
-            courseActivityBuilder("NO END DATE")
-            .scheduleEndDate(null)
-            .build();
-        final var courseActivityWithEndDateAfterToday =
-            courseActivityBuilder("END DATE AFTER TODAY")
-            .scheduleEndDate(LocalDate.now().plusDays(1))
-            .build();
-        final var courseActivityWithEndDateToday =
-            courseActivityBuilder("END DATE TODAY")
-            .scheduleEndDate(LocalDate.now())
-            .build();
-        final var courseActivityWithNoCode =
-            courseActivityBuilder("NO CODE")
-            .code(null)
-            .build();
-        final var courseActivityWithEDUCode =
-            courseActivityBuilder("EDU CODE")
-            .code("EDUEXAMPLE")
-            .build();
-
-        when(bookingService.getLatestBookingByOffenderNo(EXAMPLE_OFFENDER_NO)).thenReturn(OffenderSummary.builder()
-            .bookingId(EXAMPLE_BOOKING_ID)
-            .build());
-
-        when(repository.findByOffenderBooking_BookingIdAndProgramStatus(EXAMPLE_BOOKING_ID, "ALLOC")).thenReturn(List.of(
-            programProfile(courseActivityWithNoStartDate),
-            programProfile(courseActivityWithStartDateToday),
-            programProfile(courseActivityWithStartDateAfterToday),
-            programProfile(courseActivityWithNoEndDate),
-            programProfile(courseActivityWithEndDateAfterToday),
-            programProfile(courseActivityWithEndDateToday),
-            programProfile(courseActivityWithNoCode),
-            programProfile(courseActivityWithEDUCode)
-        ));
-
-        final var workActivitiesApiObject = service.getCurrentWorkActivities(EXAMPLE_OFFENDER_NO);
-
-        assertThat(workActivitiesApiObject).usingRecursiveComparison()
-            .ignoringFields("workActivities.startDate")
-            .isEqualTo(OffenderActivities.builder()
-            .offenderNo(EXAMPLE_OFFENDER_NO)
-            .bookingId(EXAMPLE_BOOKING_ID)
-            .workActivities(List.of(
-                OffenderActivitySummary.builder()
-                    .description(courseActivityWithStartDateToday.getDescription())
-                    .build(),
-                OffenderActivitySummary.builder()
-                    .description(courseActivityWithNoEndDate.getDescription())
-                    .build(),
-                OffenderActivitySummary.builder()
-                    .description(courseActivityWithEndDateAfterToday.getDescription())
+                    .description(programProfileWithValidData.getCourseActivity().getDescription())
+                    .startDate(programProfileWithValidData.getStartDate())
                     .build()
             ))
             .build()
@@ -229,35 +141,5 @@ public class OffenderActivitiesServiceTest {
         when(bookingService.getLatestBookingByOffenderNo(EXAMPLE_OFFENDER_NO)).thenThrow(new EntityNotFoundException("Not found"));
 
         assertThatThrownBy(() -> service.getCurrentWorkActivities(EXAMPLE_OFFENDER_NO)).isInstanceOf(EntityNotFoundException.class);
-    }
-
-    private OffenderProgramProfileBuilder programProfileBuilder() {
-        return OffenderProgramProfile.builder()
-            .offenderProgramReferenceId(nextLong())
-            .programStatus("ALLOC")
-            .startDate(LocalDate.now().minusDays(10))
-            .courseActivity(courseActivityBuilder(String.format("A random desc %d", nextLong())).build());
-    }
-
-    private OffenderProgramProfile programProfile(final CourseActivity courseActivity) {
-        return OffenderProgramProfile.builder()
-            .offenderProgramReferenceId(nextLong())
-            .programStatus("ALLOC")
-            .startDate(LocalDate.now().minusDays(10))
-            .courseActivity(courseActivity)
-            .build();
-    }
-
-    private CourseActivityBuilder courseActivityBuilder(String description) {
-        return CourseActivity.builder()
-            .activityId(nextLong())
-            .description(description)
-            .code("VALID")
-            .scheduleStartDate(LocalDate.now().minusDays(10));
-
-    }
-
-    private long nextLong() {
-        return randomNumberGenerator.nextLong();
     }
 }

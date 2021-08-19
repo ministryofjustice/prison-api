@@ -35,4 +35,15 @@ public class OffenderProgramProfile extends ExtendedAuditableEntity {
 
     @Column(name = "OFFENDER_PROGRAM_STATUS")
     private String programStatus;
+
+    public boolean isCurrentWorkActivity() {
+        final var currentDate = LocalDate.now();
+        final var isCurrentProgramProfile = startDate != null && startDate.isBefore(currentDate.plusDays(1))
+            && (endDate == null || endDate.isAfter(currentDate));
+        final var isValidCurrentActivity = courseActivity != null &&
+            courseActivity.getScheduleStartDate() != null && courseActivity.getScheduleStartDate().isBefore(currentDate.plusDays(1))
+            && (courseActivity.getScheduleEndDate() == null || courseActivity.getScheduleEndDate().isAfter(currentDate))
+            && courseActivity.getCode() != null && !courseActivity.getCode().startsWith("EDU");
+        return isCurrentProgramProfile && isValidCurrentActivity;
+    }
 }
