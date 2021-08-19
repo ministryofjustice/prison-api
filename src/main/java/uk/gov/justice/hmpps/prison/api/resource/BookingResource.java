@@ -339,26 +339,6 @@ public class BookingResource {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "Offender alerts.", notes = "Offender alerts.", nickname = "getOffenderAlerts")
-    @GetMapping("/{bookingId}/alerts")
-    public ResponseEntity<List<Alert>> getOffenderAlerts(@PathVariable("bookingId") @ApiParam(value = "The booking id of offender", required = true) final Long bookingId, @RequestParam(value = "query", required = false) @ApiParam(value = "Search parameters with the format [connector]:&lt;fieldName&gt;:&lt;operator&gt;:&lt;value&gt;:[format],... <p>Connector operators - and, or <p>Supported Operators - eq, neq, gt, gteq, lt, lteq, like, in</p> <p>Supported Fields - alertType, alertCode, dateCreated, dateExpires</p> ", required = true) final String query, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @ApiParam(value = "Requested offset of first record in returned collection of alert records.", defaultValue = "0") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @ApiParam(value = "Requested limit to number of alert records returned.", defaultValue = "10") final Long pageLimit, @RequestHeader(value = "Sort-Fields", required = false) @ApiParam("Comma separated list of one or more of the following fields - <b>alertType, alertCode, dateCreated, dateExpires</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") final Order sortOrder) {
-        final var inmateAlerts = inmateAlertService.getInmateAlerts(
-                bookingId,
-                query,
-                sortFields,
-                sortOrder,
-                nvl(pageOffset, 0L),
-                nvl(pageLimit, 10L));
-
-        return ResponseEntity.ok()
-                .headers(inmateAlerts.getPaginationHeaders())
-                .body(inmateAlerts.getItems());
-    }
-
-    @ApiResponses({
         @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})

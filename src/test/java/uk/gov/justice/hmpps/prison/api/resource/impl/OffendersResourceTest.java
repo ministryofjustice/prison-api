@@ -86,7 +86,7 @@ public class OffendersResourceTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-            "/api/offenders/{nomsId}/alerts",
+            "/api/offenders/{nomsId}/alerts/v2",
             GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {
