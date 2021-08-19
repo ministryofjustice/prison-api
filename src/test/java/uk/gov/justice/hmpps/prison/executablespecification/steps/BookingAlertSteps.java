@@ -8,6 +8,7 @@ import uk.gov.justice.hmpps.prison.api.model.Alert;
 import uk.gov.justice.hmpps.prison.test.PrisonApiClientException;
 
 import java.util.List;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -15,8 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * BDD step implementations for Booking alias feature.
  */
 public class BookingAlertSteps extends CommonSteps {
-    private static final String API_REQUEST_BASE_URL = API_PREFIX + "bookings/{bookingId}/alerts";
-    private static final String API_REQUEST_OFFENDER_NO_BASE_URL = API_PREFIX + "bookings/offenderNo/{offenderNo}/alerts";
+    private static final String API_REQUEST_BASE_URL = API_PREFIX + "bookings/{bookingId}/alerts/v2";
     private static final String API_REQUEST_ALERT_URL = API_PREFIX + "bookings/{bookingId}/alerts/{alertId}";
     private static final String API_REQUEST_ALERT_POST_URL_AGENCY = API_PREFIX + "bookings/offenderNo/{agencyId}/alerts";
     private static final String API_REQUEST_ALERT_POST_URL = API_PREFIX + "bookings/offenderNo/alerts";
@@ -48,42 +48,20 @@ public class BookingAlertSteps extends CommonSteps {
                             API_REQUEST_BASE_URL,
                             HttpMethod.GET,
                             createEntity(),
-                            new ParameterizedTypeReference<List<Alert>>() {
+                            new ParameterizedTypeReference<RestResponsePage<Alert>>() {
                             },
                             bookingId);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-            alerts = response.getBody();
+            alerts = Objects.requireNonNull(response.getBody()).getContent();
 
-            buildResourceData(response);
+            buildResourceData(response.getBody());
         } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    private void doListApiCallForOffender(final String offenderNo) {
-        init();
-
-        try {
-            final var response =
-                    restTemplate.exchange(
-                            API_REQUEST_OFFENDER_NO_BASE_URL,
-                            HttpMethod.GET,
-                            createEntity(),
-                            new ParameterizedTypeReference<List<Alert>>() {
-                            },
-                            offenderNo);
-
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-            alerts = response.getBody();
-
-            buildResourceData(response);
-        } catch (final PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
 
     private void doSingleResultApiCall(final Long bookingId, final Long alertId) {
         init();
