@@ -54,11 +54,11 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderContactPerson;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.KeyDateValues;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPersonsRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitRepository;
@@ -116,6 +116,7 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final InmateRepository inmateRepository;
     private final OffenderBookingRepository offenderBookingRepository;
+    private final OffenderRepository offenderRepository;
     private final VisitRepository visitRepository;
     private final VisitorRepository visitorRepository;
     private final SentenceRepository sentenceRepository;
@@ -136,6 +137,7 @@ public class BookingService {
     public BookingService(final BookingRepository bookingRepository,
                           final InmateRepository inmateRepository,
                           final OffenderBookingRepository offenderBookingRepository,
+                          final OffenderRepository offenderRepository,
                           final VisitorRepository visitorRepository,
                           final VisitRepository visitRepository,
                           final SentenceRepository sentenceRepository,
@@ -155,6 +157,7 @@ public class BookingService {
         this.bookingRepository = bookingRepository;
         this.inmateRepository = inmateRepository;
         this.offenderBookingRepository = offenderBookingRepository;
+        this.offenderRepository = offenderRepository;
         this.visitRepository = visitRepository;
         this.visitorRepository = visitorRepository;
         this.sentenceRepository = sentenceRepository;
@@ -705,18 +708,8 @@ public class BookingService {
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<OffenderSentenceTerms> getOffenderSentenceTerms(final Long bookingId, final List<String> filterBySentenceTermCodes) {
-
-        final var sentenceTermCodes = (filterBySentenceTermCodes == null || filterBySentenceTermCodes.isEmpty()) ? List.of("IMP") : filterBySentenceTermCodes;
-
         final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
-
-        return offenderBooking.getTerms()
-            .stream()
-            .filter(term -> "A".equals(term.getOffenderSentence().getStatus()))
-            .filter(term -> sentenceTermCodes.contains(term.getSentenceTermCode()))
-            .map(SentenceTerm::getSentenceSummary)
-            .collect(toList());
-
+        return offenderBooking.getActiveFilteredSentenceTerms(filterBySentenceTermCodes);
     }
 
     public List<OffenderSentenceDetail> getOffenderSentencesSummary(final String agencyId, final List<String> offenderNos) {
@@ -981,7 +974,8 @@ public class BookingService {
     }
 
     public InmateDetail getOffender(final String offenderNo) {
-        return offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(offenderNo, 1)
-            .map(offenderTransformer::transform).orElseThrow(EntityNotFoundException.withId(offenderNo));
+        return  offenderRepository.findOffenderByNomsId(offenderNo)
+                .map(offenderTransformer::transform)
+                .orElseThrow(EntityNotFoundException.withId(offenderNo));
     }
 }

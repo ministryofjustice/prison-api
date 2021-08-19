@@ -500,7 +500,7 @@ public class InmateServiceImplTest {
         when(repository.getOffenderIdentifiersByOffenderId(anyLong())).thenReturn(List.of());
         when(externalMovementRepository.findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(any())).thenReturn(buildMovementReleased("REL",""));
 
-        final var inmateDetail = serviceToTest.findOffender("S1234AA", true);
+        final var inmateDetail = serviceToTest.findOffender("S1234AA", true, false);
 
         assertThat(inmateDetail.getLocationDescription()).isEqualTo("Outside - released from Leeds");
         assertThat(inmateDetail.getLatestLocationId()).isEqualTo("LEI");
@@ -519,7 +519,7 @@ public class InmateServiceImplTest {
         when(repository.getOffenderIdentifiersByOffenderId(anyLong())).thenReturn(List.of());
         when(externalMovementRepository.findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(any())).thenReturn(buildMovementTransferred("REL",""));
 
-        final var inmateDetail = serviceToTest.findOffender("S1234AA", true);
+        final var inmateDetail = serviceToTest.findOffender("S1234AA", true, false);
 
         assertThat(inmateDetail.getLocationDescription()).isEqualTo("Transfer");
         assertThat(inmateDetail.getLatestLocationId()).isEqualTo("LEI");
@@ -539,7 +539,7 @@ public class InmateServiceImplTest {
         when(repository.getOffenderIdentifiersByOffenderId(anyLong())).thenReturn(List.of());
         when(externalMovementRepository.findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(any())).thenReturn(buildMovementReleased("TAP","Temporary Absence"));
 
-        final var inmateDetail = serviceToTest.findOffender("S1234AA", true);
+        final var inmateDetail = serviceToTest.findOffender("S1234AA", true, false);
 
         assertThat(inmateDetail.getLocationDescription()).isEqualTo("Outside - Temporary Absence");
         assertThat(inmateDetail.getLatestLocationId()).isEqualTo("LEI");
@@ -558,7 +558,7 @@ public class InmateServiceImplTest {
         when(repository.findInmateAliases(anyLong(), anyString(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(repository.getOffenderIdentifiersByOffenderId(anyLong())).thenReturn(List.of());
 
-        final var inmateDetail = serviceToTest.findOffender("S1234AA", true);
+        final var inmateDetail = serviceToTest.findOffender("S1234AA", true, false);
 
         assertThat(inmateDetail.getLocationDescription()).isEqualTo("Outside");
         assertThat(inmateDetail.getLatestLocationId()).isEqualTo("OUT");
