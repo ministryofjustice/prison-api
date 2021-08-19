@@ -69,14 +69,12 @@ public class InmateAlertRepository extends RepositoryBase {
     }
 
 
-    public Page<Alert> getAlerts(final long bookingId, final String query, final String orderByField, final Order order, final long offset, final long limit) {
-        checkQueryIsNotUsed(query);
+    public Page<Alert> getAlerts(final long bookingId, final String orderByField, final Order order, final long offset, final long limit) {
         final var initialSql = InmateAlertRepositorySql.FIND_INMATE_ALERTS.getSql();
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, alertMapping);
 
         final var sql = builder
                 .addRowCount()
-                .addQuery(query)
                 .addOrderBy(order, orderByField)
                 .addPagination()
                 .build();
@@ -114,13 +112,11 @@ public class InmateAlertRepository extends RepositoryBase {
     }
 
 
-    public List<Alert> getAlertsByOffenderNos(final String agencyId, final List<String> offenderNos, final boolean latestOnly, final String query, final String orderByField, final Order order) {
-        checkQueryIsNotUsed(query);
+    public List<Alert> getAlertsByOffenderNos(final String agencyId, final List<String> offenderNos, final boolean latestOnly, final String orderByField, final Order order) {
         final var basicSql = InmateAlertRepositorySql.FIND_INMATE_OFFENDERS_ALERTS.getSql();
         final var initialSql = latestOnly ? basicSql + " AND B.BOOKING_SEQ=1" : basicSql;
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, alertMapping);
         final var sql = builder
-            .addQuery(query)
             .addOrderBy(order, orderByField)
             .build();
         final var alertMapper = Row2BeanRowMapper.makeMapping(Alert.class, alertMapping);

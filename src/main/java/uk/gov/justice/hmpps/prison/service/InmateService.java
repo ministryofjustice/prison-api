@@ -387,10 +387,10 @@ public class InmateService {
 
     private void setAlertsFields(final InmateDetail inmate) {
         final var bookingId = inmate.getBookingId();
-        final var inmateAlertPage = inmateAlertService.getInmateAlerts(bookingId, "", null, null, 0, 1000);
+        final var inmateAlertPage = inmateAlertService.getInmateAlerts(bookingId, "", null, 0, 1000);
         final var items = inmateAlertPage.getItems();
         if (inmateAlertPage.getTotalRecords() > inmateAlertPage.getPageLimit()) {
-            items.addAll(inmateAlertService.getInmateAlerts(bookingId, "", null, null, 1000, inmateAlertPage.getTotalRecords()).getItems());
+            items.addAll(inmateAlertService.getInmateAlerts(bookingId, "", null, 1000, inmateAlertPage.getTotalRecords()).getItems());
         }
         final Set<String> alertTypes = new HashSet<>();
         final var activeAlertCount = new AtomicInteger(0);

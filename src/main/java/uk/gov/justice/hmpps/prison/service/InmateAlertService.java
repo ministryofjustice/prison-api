@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -25,7 +24,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderAlertReposi
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
-import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.support.ReferenceDomain;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderAlertTransformer;
 
@@ -67,11 +65,11 @@ public class InmateAlertService {
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
-    public Page<Alert> getInmateAlerts(final Long bookingId, final String query, final String orderBy, final Order order, final long offset, final long limit) {
+    public Page<Alert> getInmateAlerts(final Long bookingId, final String orderBy, final Order order, final long offset, final long limit) {
         final var orderByBlank = StringUtils.isBlank(orderBy);
 
         final var alerts = inmateAlertRepository.getAlerts(//
-                bookingId, query, //
+                bookingId, //
                 orderByBlank ? "dateExpires,dateCreated" : orderBy, //
                 orderByBlank ? Order.DESC : order, //
                 offset, limit);
@@ -98,7 +96,7 @@ public class InmateAlertService {
 
         final var alerts = Lists.partition(offenderNos, maxBatchSize)
                 .stream()
-                .flatMap(offenderNosList -> inmateAlertRepository.getAlertsByOffenderNos(agencyId, offenderNosList, true, null, "bookingId,alertId", Order.ASC).stream())
+                .flatMap(offenderNosList -> inmateAlertRepository.getAlertsByOffenderNos(agencyId, offenderNosList, true, "bookingId,alertId", Order.ASC).stream())
                 .collect(Collectors.toList());
 
         alerts.forEach(alert -> alert.setExpired(isExpiredAlert(alert)));
@@ -110,7 +108,7 @@ public class InmateAlertService {
     @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH', 'VIEW_PRISONER_DATA','CREATE_CATEGORISATION','APPROVE_CATEGORISATION')")
     public List<Alert> getInmateAlertsByOffenderNos(final List<String> offenderNos, final boolean latestOnly, final String orderByField, final Order order) {
 
-        final var alerts = inmateAlertRepository.getAlertsByOffenderNos(null, offenderNos, latestOnly, null, orderByField, order);
+        final var alerts = inmateAlertRepository.getAlertsByOffenderNos(null, offenderNos, latestOnly,  orderByField, order);
         alerts.forEach(alert -> alert.setExpired(isExpiredAlert(alert)));
         log.info("Returning {} matching Alerts for Offender Numbers {}", alerts.size(), offenderNos);
         return alerts;
@@ -172,14 +170,6 @@ public class InmateAlertService {
                 .by(mapSortProperty(order.getProperty()))
                 .with(order.getDirection()))
             .collect(Collectors.toList()));
-    }
-
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "CREATE_CATEGORISATION", "APPROVE_CATEGORISATION"})
-    public List<Alert> getInmateAlertsByOffenderNos(final String offenderNo, final boolean latestOnly, final String query, final String orderByField, final Order order) {
-        final var alerts = inmateAlertRepository.getAlertsByOffenderNos(null, List.of(offenderNo), latestOnly, query, orderByField, order);
-        alerts.forEach(alert -> alert.setExpired(isExpiredAlert(alert)));
-        log.info("Returning {} matching Alerts for Offender Number {}", alerts.size(), offenderNo);
-        return alerts;
     }
 
     @PreAuthorize("hasAnyRole('SYSTEM_USER')")

@@ -93,9 +93,9 @@ public class InmateAlertServiceImplTest {
     public void testCorrectNumberAlertReturned() {
         final var alerts = createAlerts();
 
-        when(inmateAlertRepository.getAlerts(eq(-1L), any(), any(), any(), eq(0L), eq(10L))).thenReturn(alerts);
+        when(inmateAlertRepository.getAlerts(eq(-1L), any(), any(), eq(0L), eq(10L))).thenReturn(alerts);
 
-        final var returnedAlerts = service.getInmateAlerts(-1L, null, null, null, 0, 10);
+        final var returnedAlerts = service.getInmateAlerts(-1L, null, null, 0, 10);
 
         assertThat(returnedAlerts.getItems()).hasSize(alerts.getItems().size());
     }
@@ -104,9 +104,9 @@ public class InmateAlertServiceImplTest {
     public void testCorrectExpiredAlerts() {
         final var alerts = createAlerts();
 
-        when(inmateAlertRepository.getAlerts(eq(-1L), isNull(), any(), any(), eq(0L), eq(10L))).thenReturn(alerts);
+        when(inmateAlertRepository.getAlerts(eq(-1L), any(), any(), eq(0L), eq(10L))).thenReturn(alerts);
 
-        final var returnedAlerts = service.getInmateAlerts(-1L, null, null, null, 0, 10);
+        final var returnedAlerts = service.getInmateAlerts(-1L, null, null, 0, 10);
 
         assertThat(returnedAlerts.getItems()).extracting("expired").containsSequence(false, false, true, true, false);
     }
@@ -339,8 +339,8 @@ public class InmateAlertServiceImplTest {
 
         service.getInmateAlertsByOffenderNosAtAgency("MDI", offenders);
 
-        verify(inmateAlertRepository).getAlertsByOffenderNos("MDI", List.of("1","2","3","4","5","6","7","8","9","10"),true, null, "bookingId,alertId", Order.ASC);
-        verify(inmateAlertRepository).getAlertsByOffenderNos("MDI", List.of("11","12","13","14","15","16","17","18","19"),true, null, "bookingId,alertId", Order.ASC);
+        verify(inmateAlertRepository).getAlertsByOffenderNos("MDI", List.of("1","2","3","4","5","6","7","8","9","10"),true, "bookingId,alertId", Order.ASC);
+        verify(inmateAlertRepository).getAlertsByOffenderNos("MDI", List.of("11","12","13","14","15","16","17","18","19"),true, "bookingId,alertId", Order.ASC);
     }
 
     @Nested
