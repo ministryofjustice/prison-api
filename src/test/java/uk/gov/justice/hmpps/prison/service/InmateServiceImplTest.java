@@ -495,7 +495,7 @@ public class InmateServiceImplTest {
         when(repository.findPhysicalCharacteristics(anyLong())).thenReturn(List.of());
         when(repository.getProfileInformation(anyLong())).thenReturn(List.of());
         when(repository.findAssignedLivingUnit(anyLong(), any())).thenReturn(Optional.of(buildAssignedLivingUnit()));
-        when(inmateAlertService.getInmateAlerts(anyLong(), any(), any(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
+        when(inmateAlertService.getInmateAlerts(anyLong(), any(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(repository.findInmateAliases(anyLong(), anyString(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(repository.getOffenderIdentifiersByOffenderId(anyLong())).thenReturn(List.of());
         when(externalMovementRepository.findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(any())).thenReturn(buildMovementReleased("REL",""));
@@ -514,7 +514,7 @@ public class InmateServiceImplTest {
         when(repository.findPhysicalCharacteristics(anyLong())).thenReturn(List.of());
         when(repository.getProfileInformation(anyLong())).thenReturn(List.of());
         when(repository.findAssignedLivingUnit(anyLong(), any())).thenReturn(Optional.of(buildAssignedLivingUnitTransferred()));
-        when(inmateAlertService.getInmateAlerts(anyLong(), any(), any(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
+        when(inmateAlertService.getInmateAlerts(anyLong(), any(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(repository.findInmateAliases(anyLong(), anyString(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(repository.getOffenderIdentifiersByOffenderId(anyLong())).thenReturn(List.of());
         when(externalMovementRepository.findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(any())).thenReturn(buildMovementTransferred("REL",""));
@@ -534,7 +534,7 @@ public class InmateServiceImplTest {
         when(repository.findPhysicalCharacteristics(anyLong())).thenReturn(List.of());
         when(repository.getProfileInformation(anyLong())).thenReturn(List.of());
         when(repository.findAssignedLivingUnit(anyLong(), any())).thenReturn(Optional.of(buildAssignedLivingUnit()));
-        when(inmateAlertService.getInmateAlerts(anyLong(), any(), any(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
+        when(inmateAlertService.getInmateAlerts(anyLong(), any(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(repository.findInmateAliases(anyLong(), anyString(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(repository.getOffenderIdentifiersByOffenderId(anyLong())).thenReturn(List.of());
         when(externalMovementRepository.findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(any())).thenReturn(buildMovementReleased("TAP","Temporary Absence"));
@@ -554,7 +554,7 @@ public class InmateServiceImplTest {
         when(repository.findPhysicalCharacteristics(anyLong())).thenReturn(List.of());
         when(repository.getProfileInformation(anyLong())).thenReturn(List.of());
         when(repository.findAssignedLivingUnit(anyLong(), any())).thenReturn(Optional.of(buildAssignedLivingUnitForOutside()));
-        when(inmateAlertService.getInmateAlerts(anyLong(), any(), any(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
+        when(inmateAlertService.getInmateAlerts(anyLong(), any(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(repository.findInmateAliases(anyLong(), anyString(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(repository.getOffenderIdentifiersByOffenderId(anyLong())).thenReturn(List.of());
 
@@ -574,7 +574,7 @@ public class InmateServiceImplTest {
         when(repository.getProfileInformation(anyLong())).thenReturn(List.of());
         when(repository.findAssignedLivingUnit(anyLong(), any())).thenReturn(Optional.of(buildAssignedLivingUnit()));
         when(offenderAssessmentService.getCurrentCsraClassification("S1234AA")).thenReturn(new CurrentCsraAssessment("STANDARD", LocalDate.parse("2019-02-01")));
-        when(inmateAlertService.getInmateAlerts(anyLong(), any(), any(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
+        when(inmateAlertService.getInmateAlerts(anyLong(), any(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
 
         final var inmateDetail = serviceToTest.findInmate(-1L, false, true);
 
@@ -593,7 +593,7 @@ public class InmateServiceImplTest {
         when(repository.findPhysicalCharacteristics(anyLong())).thenReturn(List.of());
         when(repository.getProfileInformation(anyLong())).thenReturn(List.of());
         when(repository.findAssignedLivingUnit(anyLong(), any())).thenReturn(Optional.of(buildAssignedLivingUnit()));
-        when(inmateAlertService.getInmateAlerts(anyLong(), any(), any(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
+        when(inmateAlertService.getInmateAlerts(anyLong(), any(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(repository.getImprisonmentStatus(anyLong())).thenReturn(Optional.of(imprisonmentStatus));
         when(repository.findInmateAliases(anyLong(), anyString(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(bookingService.getBookingIEPSummary(anyLong(),anyBoolean())).thenReturn(PrivilegeSummary.builder().build());
