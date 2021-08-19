@@ -11,11 +11,11 @@ import uk.gov.justice.hmpps.prison.api.model.PhysicalAttributes;
 import uk.gov.justice.hmpps.prison.api.model.ProfileInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
 import java.time.Clock;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 import static uk.gov.justice.hmpps.prison.util.DateTimeConverter.getAge;
@@ -48,8 +48,12 @@ public class OffenderTransformer {
                 .description(latestBooking.getAssignedLivingUnit() != null ? RegExUtils.replaceFirst(latestBooking.getAssignedLivingUnit().getDescription(), "^[A-Z|a-z|0-9]+\\-", "") : null)
                 .locationId(latestBooking.getAssignedLivingUnit() != null ? latestBooking.getAssignedLivingUnit().getLocationId() : null)
                 .build())
+            .alerts(latestBooking.getAlerts().stream().map(OffenderAlertTransformer::transformForBooking).collect(Collectors.toList()))
+            .alertsCodes(latestBooking.getAlertCodes())
+            .activeAlertCount(latestBooking.getActiveAlertCount())
+            .inactiveAlertCount(latestBooking.getAlerts().size() - latestBooking.getActiveAlertCount())
             .assignedLivingUnitId(latestBooking.getAssignedLivingUnit() != null ? latestBooking.getAssignedLivingUnit().getLocationId() : null)
-            .sentenceTerms(latestBooking.getTerms().stream().map(SentenceTerm::getSentenceSummary).collect(Collectors.toList()))
+            .sentenceTerms(latestBooking.getActiveFilteredSentenceTerms(Collections.emptyList()))
             .sentenceDetail(latestBooking.getSentenceCalcDates())
             .profileInformation(latestBooking.getActiveProfileDetails().stream()
                 .filter(pd -> pd.getCode() != null)

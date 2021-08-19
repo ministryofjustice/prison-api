@@ -54,7 +54,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderContactPerson;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.KeyDateValues;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPersonsRepository;
@@ -709,18 +708,8 @@ public class BookingService {
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<OffenderSentenceTerms> getOffenderSentenceTerms(final Long bookingId, final List<String> filterBySentenceTermCodes) {
-
-        final var sentenceTermCodes = (filterBySentenceTermCodes == null || filterBySentenceTermCodes.isEmpty()) ? List.of("IMP") : filterBySentenceTermCodes;
-
         final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
-
-        return offenderBooking.getTerms()
-            .stream()
-            .filter(term -> "A".equals(term.getOffenderSentence().getStatus()))
-            .filter(term -> sentenceTermCodes.contains(term.getSentenceTermCode()))
-            .map(SentenceTerm::getSentenceSummary)
-            .collect(toList());
-
+        return offenderBooking.getActiveFilteredSentenceTerms(filterBySentenceTermCodes);
     }
 
     public List<OffenderSentenceDetail> getOffenderSentencesSummary(final String agencyId, final List<String> offenderNos) {

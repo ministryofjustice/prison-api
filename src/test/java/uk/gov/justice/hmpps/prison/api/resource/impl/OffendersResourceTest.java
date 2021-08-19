@@ -148,6 +148,35 @@ public class OffendersResourceTest extends ResourceTest {
     }
 
     @Test
+    public void compareV1AndV1_1VersionsOfGetOffender() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA);
+
+        final var httpEntityV1 = createHttpEntity(token, null, Map.of("version", "1.0"));
+
+        final var responseV1 = testRestTemplate.exchange(
+            "/api/offenders/{nomsId}",
+            GET,
+            httpEntityV1,
+            new ParameterizedTypeReference<String>() {
+            },
+            OFFENDER_NUMBER);
+
+        assertThatJsonFileAndStatus(responseV1, 200, "offender_detail_v1.1.json");
+
+        final var httpEntityV1_1 = createHttpEntity(token, null, Map.of("version", "1.1_beta"));
+
+        final var responseV1_1 = testRestTemplate.exchange(
+            "/api/offenders/{nomsId}",
+            GET,
+            httpEntityV1_1,
+            new ParameterizedTypeReference<String>() {
+            },
+            OFFENDER_NUMBER);
+
+        assertThatJsonFileAndStatus(responseV1_1, 200, "offender_detail_v1.1.json");
+    }
+
+    @Test
     public void testOffenderWithActiveRecallOffence() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA);
 
