@@ -30,5 +30,4 @@ public class OffenderActivities {
     @ApiModelProperty(value = "The current work activities")
     @NotNull
     private List<OffenderActivitySummary> workActivities;
-
 }
