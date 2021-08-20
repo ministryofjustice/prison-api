@@ -23,7 +23,7 @@ public class OffenderProgramProfile extends ExtendedAuditableEntity {
     @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
     private OffenderBooking offenderBooking;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "CRS_ACTY_ID")
     private CourseActivity courseActivity;
 
