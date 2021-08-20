@@ -36,7 +36,7 @@ public class OffenderProgramProfileRepositoryTest {
 
         activities.sort((o1, o2) -> (int) (o2.getOffenderProgramReferenceId() - o1.getOffenderProgramReferenceId()));
         assertThat(activities).usingElementComparatorIgnoringFields("offenderProgramReferenceId",
-                "offenderBooking", "agencyLocationId", "createUserId", "createDatetime")
+                "offenderBooking", "agencyLocation", "createUserId", "createDatetime")
             .isEqualTo(List.of(
                 OffenderProgramProfile.builder()
                     .offenderProgramReferenceId(-6L)
@@ -103,7 +103,7 @@ public class OffenderProgramProfileRepositoryTest {
             .collect(Collectors.toList());
 
         assertThat(activities).usingElementComparatorIgnoringFields("offenderProgramReferenceId",
-            "offenderBooking", "agencyLocationId", "createUserId", "createDatetime")
+            "offenderBooking", "agencyLocation", "createUserId", "createDatetime")
             .isEqualTo(List.of(
                 OffenderProgramProfile.builder()
                     .offenderProgramReferenceId(-6L)
@@ -175,7 +175,7 @@ public class OffenderProgramProfileRepositoryTest {
             .collect(Collectors.toList());
 
         assertThat(activities).usingElementComparatorIgnoringFields("offenderProgramReferenceId",
-            "offenderBooking", "agencyLocationId", "createUserId", "createDatetime")
+            "offenderBooking", "agencyLocation", "createUserId", "createDatetime")
             .isEqualTo(List.of(
                 OffenderProgramProfile.builder()
                     .offenderProgramReferenceId(-3101L)

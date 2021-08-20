@@ -51,6 +51,6 @@ public class OffenderProgramProfile extends ExtendedAuditableEntity {
     }
 
     public boolean isWorkActivity() {
-        return courseActivity.getCode() != null && !courseActivity.getCode().startsWith("EDU");
+        return courseActivity != null && courseActivity.getCode() != null && !courseActivity.getCode().startsWith("EDU");
     }
 }
