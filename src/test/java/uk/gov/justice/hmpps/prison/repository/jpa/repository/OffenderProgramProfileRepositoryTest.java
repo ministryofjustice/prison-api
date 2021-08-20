@@ -36,7 +36,7 @@ public class OffenderProgramProfileRepositoryTest {
 
         activities.sort((o1, o2) -> (int) (o2.getOffenderProgramReferenceId() - o1.getOffenderProgramReferenceId()));
         assertThat(activities).usingElementComparatorIgnoringFields("offenderProgramReferenceId",
-                "offenderBooking", "createUserId", "createDatetime")
+                "offenderBooking", "agencyLocationId", "createUserId", "createDatetime")
             .isEqualTo(List.of(
                 OffenderProgramProfile.builder()
                     .offenderProgramReferenceId(-6L)
@@ -84,6 +84,9 @@ public class OffenderProgramProfileRepositoryTest {
                     .build()
                 )
         );
+
+        final var locationIds = activities.stream().map(o -> o.getAgencyLocation().getId()).collect(Collectors.toSet());
+        assertThat(locationIds).containsExactly("LEI");
     }
 
     @Test
@@ -100,7 +103,7 @@ public class OffenderProgramProfileRepositoryTest {
             .collect(Collectors.toList());
 
         assertThat(activities).usingElementComparatorIgnoringFields("offenderProgramReferenceId",
-            "offenderBooking", "createUserId", "createDatetime")
+            "offenderBooking", "agencyLocationId", "createUserId", "createDatetime")
             .isEqualTo(List.of(
                 OffenderProgramProfile.builder()
                     .offenderProgramReferenceId(-6L)
@@ -160,6 +163,9 @@ public class OffenderProgramProfileRepositoryTest {
                     .build()
                 )
             );
+
+        final var locationIds = activities.stream().map(o -> o.getAgencyLocation().getId()).collect(Collectors.toSet());
+        assertThat(locationIds).containsExactly("LEI");
     }
 
     @Test
@@ -169,7 +175,7 @@ public class OffenderProgramProfileRepositoryTest {
             .collect(Collectors.toList());
 
         assertThat(activities).usingElementComparatorIgnoringFields("offenderProgramReferenceId",
-            "offenderBooking", "createUserId", "createDatetime")
+            "offenderBooking", "agencyLocationId", "createUserId", "createDatetime")
             .isEqualTo(List.of(
                 OffenderProgramProfile.builder()
                     .offenderProgramReferenceId(-3101L)

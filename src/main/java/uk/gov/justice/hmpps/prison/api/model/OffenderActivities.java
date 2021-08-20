@@ -24,9 +24,6 @@ public class OffenderActivities {
     @ApiModelProperty(required = true, value = "Display Prisoner Number (UK is NOMS ID)")
     private String offenderNo;
 
-    @NotNull
-    private Long bookingId;
-
     @ApiModelProperty(value = "The current work activities")
     @NotNull
     private List<OffenderActivitySummary> workActivities;

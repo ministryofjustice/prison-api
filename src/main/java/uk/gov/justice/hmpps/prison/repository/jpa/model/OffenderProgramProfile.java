@@ -27,6 +27,10 @@ public class OffenderProgramProfile extends ExtendedAuditableEntity {
     @JoinColumn(name = "CRS_ACTY_ID")
     private CourseActivity courseActivity;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "AGY_LOC_ID")
+    private AgencyLocation agencyLocation;
+
     @Column(name = "OFFENDER_START_DATE")
     private LocalDate startDate;
 
@@ -42,8 +46,11 @@ public class OffenderProgramProfile extends ExtendedAuditableEntity {
             && (endDate == null || endDate.isAfter(currentDate));
         final var isValidCurrentActivity = courseActivity != null &&
             courseActivity.getScheduleStartDate() != null && courseActivity.getScheduleStartDate().isBefore(currentDate.plusDays(1))
-            && (courseActivity.getScheduleEndDate() == null || courseActivity.getScheduleEndDate().isAfter(currentDate))
-            && courseActivity.getCode() != null && !courseActivity.getCode().startsWith("EDU");
-        return isCurrentProgramProfile && isValidCurrentActivity;
+            && (courseActivity.getScheduleEndDate() == null || courseActivity.getScheduleEndDate().isAfter(currentDate));
+        return isCurrentProgramProfile && isWorkActivity() && isValidCurrentActivity;
+    }
+
+    public boolean isWorkActivity() {
+        return courseActivity.getCode() != null && !courseActivity.getCode().startsWith("EDU");
     }
 }
