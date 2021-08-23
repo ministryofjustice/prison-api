@@ -20,6 +20,8 @@ import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
@@ -72,6 +74,7 @@ public class LocationService {
     }
 
     public Page<OffenderBooking> getInmatesFromLocation(final long locationId, final String username, final String query, final String orderByField, final Order order, final long offset, final long limit) {
+        Optional.ofNullable(query).filter(Predicate.not(String::isBlank)).ifPresent(q -> log.warn("Unsafe query parameter {} has been received", q));
         // validation check?
         locationRepository.findLocation(locationId, username);
 

@@ -24,6 +24,12 @@
       "agencyLocationId": "LEI",
       "description": "Substance misuse course",
       "startDate": "2016-11-09"
+    },
+    {
+      "bookingId": -3,
+      "agencyLocationId": "LEI",
+      "description": "Core classes",
+      "startDate": "2016-11-09"
     }
   ]
 }
