@@ -152,7 +152,7 @@ public class OffenderProgramProfileRepositoryTest {
                     .offenderProgramReferenceId(-14L)
                     .programStatus("END")
                     .startDate(LocalDate.of(2016, 11, 9))
-                    .endDate(LocalDate.of(2021, 8, 21))
+                    .endDate(LocalDate.now().plusDays(1))
                     .courseActivity(CourseActivity.builder()
                         .activityId(-4L)
                         .description("Core classes")

@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageImpl;
 import uk.gov.justice.hmpps.prison.api.model.OffenderActivities;
 import uk.gov.justice.hmpps.prison.api.model.OffenderActivitySummary;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
@@ -196,7 +195,7 @@ public class OffenderActivitiesServiceTest {
                     .build()
             );
             when(repository.findByNomisIdAndProgramStatusAndEndDateAfter(EXAMPLE_OFFENDER_NO, List.of("ALLOC", "END"), earliestEndDate))
-                .thenReturn(new PageImpl<>(returnedOffenderProgramProfiles));
+                .thenReturn(returnedOffenderProgramProfiles);
 
             final var workActivitiesApiObject = service.getStartedWorkActivities(EXAMPLE_OFFENDER_NO, earliestEndDate);
 
@@ -259,7 +258,7 @@ public class OffenderActivitiesServiceTest {
                 programProfileWithValidData
             );
             when(repository.findByNomisIdAndProgramStatusAndEndDateAfter(EXAMPLE_OFFENDER_NO, List.of("ALLOC", "END"), earliestEndDate))
-                .thenReturn(new PageImpl<>(returnedOffenderProgramProfiles));
+                .thenReturn(returnedOffenderProgramProfiles);
 
             final var workActivitiesApiObject = service.getStartedWorkActivities(EXAMPLE_OFFENDER_NO, earliestEndDate);
 
@@ -283,7 +282,7 @@ public class OffenderActivitiesServiceTest {
             final var earliestEndDate = LocalDate.of(2020, 1, 1);
 
             when(repository.findByNomisIdAndProgramStatusAndEndDateAfter(EXAMPLE_OFFENDER_NO, List.of("ALLOC", "END"), earliestEndDate))
-                .thenReturn(new PageImpl<>(List.of()));
+                .thenReturn(List.of());
 
             final var workActivitiesApiObject = service.getStartedWorkActivities(EXAMPLE_OFFENDER_NO, earliestEndDate);
 
