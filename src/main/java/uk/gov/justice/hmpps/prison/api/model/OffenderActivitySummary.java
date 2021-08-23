@@ -19,11 +19,22 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OffenderActivitySummary {
+    @NotNull
+    private Long bookingId;
+
+    @NotNull
+    @ApiModelProperty(value = "The id of the institution where this course was based", example = "MDI")
+    private String agencyLocationId;
+
     @NotBlank
     private String description;
 
     @NotNull
     @ApiModelProperty(value = "When the offender started this activity")
     private LocalDate startDate;
+
+    @NotNull
+    @ApiModelProperty(value = "When the offender stopped this activity")
+    private LocalDate endDate;
 
 }
