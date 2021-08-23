@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourseActivity;
@@ -98,7 +97,7 @@ public class OffenderProgramProfileRepositoryTest {
 
     @Test
     void findByNomisIdAndProgramStatusAndEndDateAfter() {
-        final var activities = repository.findByNomisIdAndProgramStatusAndEndDateAfter("A1234AC", List.of("ALLOC", "END"), LocalDate.of(2021, 1, 1), Pageable.ofSize(100)).stream()
+        final var activities = repository.findByNomisIdAndProgramStatusAndEndDateAfter("A1234AC", List.of("ALLOC", "END"), LocalDate.of(2021, 1, 1)).stream()
             .sorted((o1, o2) -> (int) (o2.getOffenderProgramReferenceId() - o1.getOffenderProgramReferenceId()))
             .collect(Collectors.toList());
 
@@ -170,7 +169,7 @@ public class OffenderProgramProfileRepositoryTest {
 
     @Test
     void findByNomisIdAndProgramStatusAndEndDateAfter_OnlyFiltersOutEarlierEndDates() {
-        final var activities = repository.findByNomisIdAndProgramStatusAndEndDateAfter("A1234AC", List.of("PLAN"), LocalDate.of(2021, 1, 1), Pageable.ofSize(100)).stream()
+        final var activities = repository.findByNomisIdAndProgramStatusAndEndDateAfter("A1234AC", List.of("PLAN"), LocalDate.of(2021, 1, 1)).stream()
             .sorted((o1, o2) -> (int) (o2.getOffenderProgramReferenceId() - o1.getOffenderProgramReferenceId()))
             .collect(Collectors.toList());
 
@@ -203,21 +202,8 @@ public class OffenderProgramProfileRepositoryTest {
     }
 
     @Test
-    void findByNomisIdAndProgramStatusAndEndDateAfter_Pagination() {
-        final var firstPageRequest = Pageable.ofSize(2);
-        final var activitiesFirstPage = repository.findByNomisIdAndProgramStatusAndEndDateAfter("A1234AC", List.of("ALLOC", "END"), LocalDate.of(2021, 1, 1), firstPageRequest).getContent();
-        final var activitiesSecondPage = repository.findByNomisIdAndProgramStatusAndEndDateAfter("A1234AC", List.of("ALLOC", "END"), LocalDate.of(2021, 1, 1), firstPageRequest.next()).getContent();
-
-        final var firstPageCourseIds = activitiesFirstPage.stream().map(o -> o.getCourseActivity().getActivityId()).collect(Collectors.toSet());
-        final var secondPageCourseIds = activitiesSecondPage.stream().map(o -> o.getCourseActivity().getActivityId()).collect(Collectors.toSet());
-
-        assertThat(secondPageCourseIds).isNotEmpty();
-        assertThat(firstPageCourseIds).doesNotContainAnyElementsOf(secondPageCourseIds);
-    }
-
-    @Test
     void findByNomisIdAndProgramStatusAndEndDateAfter_ReturnsNothing() {
-        final var activities = repository.findByNomisIdAndProgramStatusAndEndDateAfter("A1234AC", List.of("WAIT"), LocalDate.of(2020, 1, 1), Pageable.ofSize(1));
+        final var activities = repository.findByNomisIdAndProgramStatusAndEndDateAfter("A1234AC", List.of("WAIT"), LocalDate.of(2020, 1, 1));
 
         assertThat(activities).isEmpty();
     }

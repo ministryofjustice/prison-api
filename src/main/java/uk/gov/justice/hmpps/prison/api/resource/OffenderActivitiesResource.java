@@ -1,16 +1,11 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.v3.oas.annotations.Hidden;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,16 +44,9 @@ public class OffenderActivitiesResource {
     @ApiResponses({
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     @ApiOperation(value = "The work activities that this offender has been allocated to", notes = "This includes suspended activities", nickname = "getRecentStartedWorkActivities")
-    @ApiImplicitParams({
-        @ApiImplicitParam(name = "page", dataType = "java.lang.Integer", paramType = "query",
-            value = "Results page you want to retrieve (0..N). Default 0, e.g. the first page", example = "0"),
-        @ApiImplicitParam(name = "size", dataType = "java.lang.Integer", paramType = "query",
-            value = "Number of records per page. Default 10")
-    })
     @GetMapping("/{offenderNo}/work-history")
     public OffenderActivities getRecentStartedWorkActivities(@PathVariable("offenderNo") @ApiParam(value = "The offenderNo of the prisoner", required = true) final String offenderNo,
-            @RequestParam(value = "earliestEndDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam(value = "Only include activities that have not ended or have an end date after the given date", example = "1970-01-02") final LocalDate earliestEndDate,
-            @PageableDefault final Pageable pageable) {
-        return activitesService.getStartedWorkActivities(offenderNo, earliestEndDate, pageable);
+            @RequestParam(value = "earliestEndDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam(value = "Only include activities that have not ended or have an end date after the given date", example = "1970-01-02") final LocalDate earliestEndDate) {
+        return activitesService.getStartedWorkActivities(offenderNo, earliestEndDate);
     }
 }

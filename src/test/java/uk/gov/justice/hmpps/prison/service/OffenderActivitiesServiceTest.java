@@ -7,7 +7,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import uk.gov.justice.hmpps.prison.api.model.OffenderActivities;
 import uk.gov.justice.hmpps.prison.api.model.OffenderActivitySummary;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
@@ -175,7 +174,6 @@ public class OffenderActivitiesServiceTest {
         @Test
         public void returnsCorrectApiObject() {
             final var earliestEndDate = LocalDate.of(2020, 1, 1);
-            final var paginationRequest = Pageable.ofSize(10);
 
             final var returnedOffenderProgramProfiles = List.of(
                 OffenderProgramProfile.builder()
@@ -197,10 +195,10 @@ public class OffenderActivitiesServiceTest {
                         .build())
                     .build()
             );
-            when(repository.findByNomisIdAndProgramStatusAndEndDateAfter(EXAMPLE_OFFENDER_NO, List.of("ALLOC", "END"), earliestEndDate, paginationRequest))
+            when(repository.findByNomisIdAndProgramStatusAndEndDateAfter(EXAMPLE_OFFENDER_NO, List.of("ALLOC", "END"), earliestEndDate))
                 .thenReturn(new PageImpl<>(returnedOffenderProgramProfiles));
 
-            final var workActivitiesApiObject = service.getStartedWorkActivities(EXAMPLE_OFFENDER_NO, earliestEndDate, paginationRequest);
+            final var workActivitiesApiObject = service.getStartedWorkActivities(EXAMPLE_OFFENDER_NO, earliestEndDate);
 
             assertThat(workActivitiesApiObject).isEqualTo(OffenderActivities.builder()
                 .offenderNo(EXAMPLE_OFFENDER_NO)
@@ -220,7 +218,6 @@ public class OffenderActivitiesServiceTest {
         @Test
         public void filtersOutInvalidOffenderProgramProfiles() {
             final var earliestEndDate = LocalDate.of(2020, 1, 1);
-            final var paginationRequest = Pageable.ofSize(10);
 
             final var programProfileWithEducationCourseActivity = OffenderProgramProfile.builder()
                 .offenderBooking(OffenderBooking.builder()
@@ -261,10 +258,10 @@ public class OffenderActivitiesServiceTest {
                 programProfileWithEducationCourseActivity,
                 programProfileWithValidData
             );
-            when(repository.findByNomisIdAndProgramStatusAndEndDateAfter(EXAMPLE_OFFENDER_NO, List.of("ALLOC", "END"), earliestEndDate, paginationRequest))
+            when(repository.findByNomisIdAndProgramStatusAndEndDateAfter(EXAMPLE_OFFENDER_NO, List.of("ALLOC", "END"), earliestEndDate))
                 .thenReturn(new PageImpl<>(returnedOffenderProgramProfiles));
 
-            final var workActivitiesApiObject = service.getStartedWorkActivities(EXAMPLE_OFFENDER_NO, earliestEndDate, paginationRequest);
+            final var workActivitiesApiObject = service.getStartedWorkActivities(EXAMPLE_OFFENDER_NO, earliestEndDate);
 
             assertThat(workActivitiesApiObject).isEqualTo(OffenderActivities.builder()
                 .offenderNo(EXAMPLE_OFFENDER_NO)
@@ -284,12 +281,11 @@ public class OffenderActivitiesServiceTest {
         @Test
         public void handlesMinimalNonNullValues() {
             final var earliestEndDate = LocalDate.of(2020, 1, 1);
-            final var paginationRequest = Pageable.ofSize(10);
 
-            when(repository.findByNomisIdAndProgramStatusAndEndDateAfter(EXAMPLE_OFFENDER_NO, List.of("ALLOC", "END"), earliestEndDate, paginationRequest))
+            when(repository.findByNomisIdAndProgramStatusAndEndDateAfter(EXAMPLE_OFFENDER_NO, List.of("ALLOC", "END"), earliestEndDate))
                 .thenReturn(new PageImpl<>(List.of()));
 
-            final var workActivitiesApiObject = service.getStartedWorkActivities(EXAMPLE_OFFENDER_NO, earliestEndDate, paginationRequest);
+            final var workActivitiesApiObject = service.getStartedWorkActivities(EXAMPLE_OFFENDER_NO, earliestEndDate);
 
             assertThat(workActivitiesApiObject).isEqualTo(OffenderActivities.builder()
                 .offenderNo(EXAMPLE_OFFENDER_NO)

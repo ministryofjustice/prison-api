@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.service;
 
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.OffenderActivities;
@@ -33,8 +32,8 @@ public class OffenderActivitiesService {
             .build();
     }
 
-    public OffenderActivities getStartedWorkActivities(final String offenderNo, final LocalDate earliestEndDate, final Pageable pageable) {
-        final var startedActivities = offenderProgramProfileRepository.findByNomisIdAndProgramStatusAndEndDateAfter(offenderNo, List.of("ALLOC", "END"), earliestEndDate, pageable);
+    public OffenderActivities getStartedWorkActivities(final String offenderNo, final LocalDate earliestEndDate) {
+        final var startedActivities = offenderProgramProfileRepository.findByNomisIdAndProgramStatusAndEndDateAfter(offenderNo, List.of("ALLOC", "END"), earliestEndDate);
         final var startedWorkActivities =  startedActivities.stream().filter(OffenderProgramProfile::isWorkActivity).map(this::transform).collect(Collectors.toList());
         return OffenderActivities.builder()
             .offenderNo(offenderNo)

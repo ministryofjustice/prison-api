@@ -1,7 +1,6 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.repository;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramProfile;
@@ -21,5 +20,5 @@ public interface OffenderProgramProfileRepository extends CrudRepository<Offende
                AND (OPP.endDate >= :earliestEndDate OR OPP.endDate IS NULL)
         """
     )
-    Page<OffenderProgramProfile> findByNomisIdAndProgramStatusAndEndDateAfter(String nomsId, List<String> programStatuses, LocalDate earliestEndDate, Pageable pageable);
+    Page<OffenderProgramProfile> findByNomisIdAndProgramStatusAndEndDateAfter(String nomsId, List<String> programStatuses, LocalDate earliestEndDate);
 }

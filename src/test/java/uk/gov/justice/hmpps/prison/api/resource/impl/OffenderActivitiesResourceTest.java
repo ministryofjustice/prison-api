@@ -68,21 +68,6 @@ public class OffenderActivitiesResourceTest extends ResourceTest {
         }
 
         @Test
-        public void successfulRequest_paginates() {
-            final var entity = createHttpEntity(validToken(), null);
-
-            final var response = testRestTemplate.exchange(
-                "/api/offender-activities/A1234AC/work-history?earliestEndDate=2021-01-01&page=1&size=1",
-                HttpMethod.GET,
-                entity,
-                String.class);
-
-            final var jsonContent = getBodyAsJsonContent(response);
-            assertThat(jsonContent).extractingJsonPathArrayValue("$.workActivities").hasSize(1);
-            assertThat(jsonContent).extractingJsonPathStringValue("$.workActivities[0].description").isEqualTo("Weeding");
-        }
-
-        @Test
         public void badRequest_NoEndDateParameter() {
             final var entity = createHttpEntity(validToken(), null);
 
