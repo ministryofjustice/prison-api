@@ -33,6 +33,8 @@ public class WIPOffenderActivitiesService {
             .bookingId(attendance.getOffenderBookingId())
             .eventDate(attendance.getEventDate())
             .outcome(attendance.getEventOutcome())
+            .code(attendance.getCourseActivity().getCode())
+            .description(attendance.getCourseActivity().getDescription())
             .build();
     }
 }

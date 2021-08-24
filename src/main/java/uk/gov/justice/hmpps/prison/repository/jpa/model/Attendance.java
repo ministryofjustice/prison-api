@@ -35,7 +35,7 @@ public class Attendance extends ExtendedAuditableEntity {
     @JoinColumn(name = "OFF_PRGREF_ID", nullable = false)
     private OffenderProgramProfile offenderProgramProfile;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "CRS_ACTY_ID")
     private CourseActivity courseActivity;
 
