@@ -35,6 +35,7 @@ public class WIPOffenderActivitiesService {
             .outcome(attendance.getEventOutcome())
             .code(attendance.getCourseActivity().getCode())
             .description(attendance.getCourseActivity().getDescription())
+            // .slot(attendance.getCourseSchedule().getSlot())
             .build();
     }
 }

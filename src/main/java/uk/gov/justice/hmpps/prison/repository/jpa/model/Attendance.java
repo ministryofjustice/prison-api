@@ -39,6 +39,13 @@ public class Attendance extends ExtendedAuditableEntity {
     @JoinColumn(name = "CRS_ACTY_ID")
     private CourseActivity courseActivity;
 
+    // Very slow to get data from this table (5+ times) - even with EAGER
+    // Could try @Fetch(FetchMode.JOIN) to force it to use LEFT OUTER JOIN
+    // .. but that is probably very slow as well!
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "CRS_SCH_ID")
+    private CourseSchedule courseSchedule;
+
     // Prevents expensive join via OffenderProgramProfile table
     @Column(name = "OFFENDER_BOOK_ID")
     private Long offenderBookingId;
