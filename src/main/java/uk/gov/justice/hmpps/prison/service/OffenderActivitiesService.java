@@ -45,6 +45,7 @@ public class OffenderActivitiesService {
         return OffenderActivitySummary.builder()
             .bookingId(activity.getOffenderBooking().getBookingId())
             .agencyLocationId(activity.getAgencyLocation().getId())
+            .agencyLocationDescription(activity.getAgencyLocation().getDescription())
             .description(activity.getCourseActivity().getDescription())
             .startDate(activity.getStartDate())
             .endDate(activity.getEndDate())
