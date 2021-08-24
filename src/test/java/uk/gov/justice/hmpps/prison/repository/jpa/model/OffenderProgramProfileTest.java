@@ -1,23 +1,17 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import uk.gov.justice.hmpps.prison.api.model.OffenderActivities;
-import uk.gov.justice.hmpps.prison.api.model.OffenderActivitySummary;
-import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourseActivity.CourseActivityBuilder;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramProfile.OffenderProgramProfileBuilder;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Random;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
-import static org.mockito.Mockito.when;
 
 public class OffenderProgramProfileTest {
     private static final Random RANDOM_NUMBER_GENERATOR = new Random();
@@ -27,6 +21,13 @@ public class OffenderProgramProfileTest {
     void currentWorkActivity(final OffenderProgramProfile programProfile, final boolean expectedIsCurrentWorkActivityResult)
     {
         assertThat(programProfile.isCurrentWorkActivity()).isEqualTo(expectedIsCurrentWorkActivityResult);
+    }
+
+    @ParameterizedTest
+    @MethodSource("programProfilesWithExpectedIsWorkActivityResult")
+    void isWorkActivity(final OffenderProgramProfile programProfile, final boolean expectedIsWorkActivityResult)
+    {
+        assertThat(programProfile.isWorkActivity()).isEqualTo(expectedIsWorkActivityResult);
     }
 
     private static Stream<Arguments> programProfilesWithExpectedIsCurrentWorkActivityResult() {
@@ -101,6 +102,29 @@ public class OffenderProgramProfileTest {
             arguments(programProfile(courseActivityWithEndDateToday), false),
             arguments(programProfile(courseActivityWithNoCode), false),
             arguments(programProfile(courseActivityWithEDUCode), false)
+        );
+    }
+
+    private static Stream<Arguments> programProfilesWithExpectedIsWorkActivityResult() {
+        final var programProfileWithoutCourseActivity =
+            programProfile(null);
+        final var courseActivityWithNoCode =
+            courseActivityBuilder("NO CODE")
+                .code(null)
+                .build();
+        final var courseActivityWithEDUCode =
+            courseActivityBuilder("EDU CODE")
+                .code("EDUEXAMPLE")
+                .build();
+        final var courseActivityWithWorkCode =
+            courseActivityBuilder("IND_CODE")
+                .build();
+
+        return Stream.of(
+            arguments(programProfileWithoutCourseActivity, false),
+            arguments(programProfile(courseActivityWithNoCode), false),
+            arguments(programProfile(courseActivityWithEDUCode), false),
+            arguments(programProfile(courseActivityWithWorkCode), true)
         );
     }
 

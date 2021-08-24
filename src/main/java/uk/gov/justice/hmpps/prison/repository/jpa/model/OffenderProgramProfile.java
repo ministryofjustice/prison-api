@@ -42,12 +42,23 @@ public class OffenderProgramProfile extends ExtendedAuditableEntity {
 
     public boolean isCurrentWorkActivity() {
         final var currentDate = LocalDate.now();
-        final var isCurrentProgramProfile = startDate != null && startDate.isBefore(currentDate.plusDays(1))
-            && (endDate == null || endDate.isAfter(currentDate));
+        final var isCurrentProgramProfile = startAndEndDatesSpanDay(startDate, endDate, currentDate);
         final var isValidCurrentActivity = courseActivity != null &&
-            courseActivity.getScheduleStartDate() != null && courseActivity.getScheduleStartDate().isBefore(currentDate.plusDays(1))
-            && (courseActivity.getScheduleEndDate() == null || courseActivity.getScheduleEndDate().isAfter(currentDate));
+            startAndEndDatesSpanDay(courseActivity.getScheduleStartDate(), courseActivity.getScheduleEndDate(), currentDate);
         return isCurrentProgramProfile && isWorkActivity() && isValidCurrentActivity;
+    }
+
+    private boolean startAndEndDatesSpanDay(final LocalDate startDate, final LocalDate endDate, final LocalDate dateToCheck) {
+        return isDateBefore(startDate, dateToCheck.plusDays(1))
+            && isDateAfter(endDate, dateToCheck);
+    }
+
+    private boolean isDateBefore(final LocalDate date, final LocalDate comparedDate) {
+        return date != null && date.isBefore(comparedDate);
+    }
+
+    private boolean isDateAfter(final LocalDate date, final LocalDate comparedDate) {
+        return date == null || date.isAfter(comparedDate);
     }
 
     public boolean isWorkActivity() {
