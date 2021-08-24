@@ -21,7 +21,7 @@ import java.time.LocalDate;
 
 @Hidden // This is WIP
 @RestController
-@Api(tags = {"offender-relationships"})
+@Api(tags = {"offender-activities"})
 @Validated
 @RequestMapping("${api.base.path}/offender-activities")
 public class OffenderActivitiesResource {
