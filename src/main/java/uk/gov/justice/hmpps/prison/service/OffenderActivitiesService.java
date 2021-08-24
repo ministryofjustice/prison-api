@@ -6,6 +6,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderActivities;
 import uk.gov.justice.hmpps.prison.api.model.OffenderActivitySummary;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramProfile;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProgramProfileRepository;
+import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -45,7 +46,7 @@ public class OffenderActivitiesService {
         return OffenderActivitySummary.builder()
             .bookingId(activity.getOffenderBooking().getBookingId())
             .agencyLocationId(activity.getAgencyLocation().getId())
-            .agencyLocationDescription(activity.getAgencyLocation().getDescription())
+            .agencyLocationDescription(LocationProcessor.formatLocation(activity.getAgencyLocation().getDescription()))
             .description(activity.getCourseActivity().getDescription())
             .startDate(activity.getStartDate())
             .endDate(activity.getEndDate())

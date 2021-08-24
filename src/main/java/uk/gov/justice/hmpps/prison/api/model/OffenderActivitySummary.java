@@ -27,7 +27,7 @@ public class OffenderActivitySummary {
     private String agencyLocationId;
 
     @NotNull
-    @ApiModelProperty(value = "The description of the institution where this activity was based")
+    @ApiModelProperty(value = "The description of the institution where this activity was based", example = "Moorland (HMP & YOI)")
     private String agencyLocationDescription;
 
     @NotBlank
