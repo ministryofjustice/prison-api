@@ -1393,7 +1393,7 @@ public class InmateRepositoryTest {
                 .assignedLivingUnitId(-204L)
                 .build());
 
-        final var results = repository.findInmatesByLocation(-200L, "WING", "SYI", null, "lastName,firstName,offenderNo", Order.DESC, 0, 10);
+        final var results = repository.findInmatesByLocation(-200L, "WING", "SYI", "lastName,firstName,offenderNo", Order.DESC, 0, 10);
 
         assertThat(results.getItems()).hasSize(1);
         assertThat(results.getItems().get(0)).isEqualTo(expectedInfo.get(0));
@@ -1414,7 +1414,7 @@ public class InmateRepositoryTest {
                 .assignedLivingUnitId(-204L)
                 .build());
 
-        final var results = repository.findInmatesByLocation(-204L, "CELL", "SYI", null, "lastName,firstName,offenderNo", Order.DESC, 0, 10);
+        final var results = repository.findInmatesByLocation(-204L, "CELL", "SYI", "lastName,firstName,offenderNo", Order.DESC, 0, 10);
 
         assertThat(results.getItems()).hasSize(1);
         assertThat(results.getItems().get(0)).isEqualTo(expectedInfo.get(0));
