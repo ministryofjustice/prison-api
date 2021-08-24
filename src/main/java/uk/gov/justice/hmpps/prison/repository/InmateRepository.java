@@ -174,7 +174,6 @@ public class InmateRepository extends RepositoryBase {
     public Page<OffenderBooking> findInmatesByLocation(final Long locationId,
                                                        final String locationTypeRoot,
                                                        final String caseLoadId,
-                                                       final String query,
                                                        final String orderByField,
                                                        final Order order,
                                                        final long offset,
@@ -185,7 +184,6 @@ public class InmateRepository extends RepositoryBase {
 
         final var sql = builder
                 .addRowCount()
-                .addQuery(query)
                 .addOrderBy(order, orderByField)
                 .addPagination()
                 .build();
