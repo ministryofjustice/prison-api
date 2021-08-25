@@ -2,8 +2,12 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.ToString.Exclude;
+import org.hibernate.Hibernate;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -17,14 +21,17 @@ import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "STAFF_USER_ACCOUNTS")
-@Data()
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class StaffUserAccount {
+public class StaffUserAccount extends AuditableEntity {
 
     @Id
     @Column(nullable = false)
@@ -32,6 +39,7 @@ public class StaffUserAccount {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "STAFF_ID")
+    @Exclude
     private Staff staff;
 
     @Column(name = "STAFF_USER_TYPE", nullable = false)
@@ -42,9 +50,29 @@ public class StaffUserAccount {
 
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "USERNAME")
+    @Exclude
     private List<UserCaseloadRole> roles;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "USERNAME")
+    @Exclude
+    private List<UserCaseload> caseloads;
 
     @OneToOne(cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn
     private AccountDetail accountDetail;
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        final StaffUserAccount that = (StaffUserAccount) o;
+
+        return Objects.equals(username, that.username);
+    }
+
+    @Override
+    public int hashCode() {
+        return 1515427495;
+    }
 }

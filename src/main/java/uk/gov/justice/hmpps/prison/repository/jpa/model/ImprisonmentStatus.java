@@ -2,11 +2,12 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Hibernate;
 import uk.gov.justice.hmpps.prison.api.model.LegalStatus;
 
 import javax.persistence.Column;
@@ -15,14 +16,15 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
-@Data
+@Getter
+@Setter
+@RequiredArgsConstructor
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "IMPRISONMENT_STATUSES")
-@EqualsAndHashCode(of = { "id" }, callSuper = false)
 @ToString(of = { "id", "status", "description"})
 public class ImprisonmentStatus extends AuditableEntity {
 
@@ -119,5 +121,19 @@ public class ImprisonmentStatus extends AuditableEntity {
             return (legalStatusBand <= 8 || legalStatusBand == 11) ? "Convicted" : "Remand";
         }
         return null;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        final ImprisonmentStatus that = (ImprisonmentStatus) o;
+
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return 336819062;
     }
 }

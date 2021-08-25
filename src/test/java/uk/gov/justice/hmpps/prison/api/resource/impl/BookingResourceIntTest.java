@@ -61,6 +61,66 @@ public class BookingResourceIntTest extends ResourceTest {
     }
 
     @Test
+    public void testGetBookingsV2ByPrison() {
+        final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+            "/api/bookings/v2?prisonId={prisonId}&sort={sort}",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            Map.of("prisonId", "BXI", "sort", "bookingId,asc"));
+        assertThatJsonFileAndStatus(response, 200, "bxi_caseload_bookings.json");
+    }
+
+    @Test
+    public void testGetBookingsV2ByPrisonPaginated() {
+        final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+            "/api/bookings/v2?prisonId={prisonId}&page={pageNum}&size={pageSize}",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            Map.of("prisonId", "LEI", "pageNum", "2", "pageSize", "3"));
+        assertThatJsonFileAndStatus(response, 200, "lei_bookings.json");
+    }
+
+    @Test
+    public void testGetBookingsV2ByBookingId() {
+        final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+            "/api/bookings/v2?bookingId={bookingId1}&bookingId={bookingId2}&bookingId={bookingId3}",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            Map.of("bookingId1", "-1", "bookingId2", "-2", "bookingId3", "-3"));
+        assertThatJsonFileAndStatus(response, 200, "bookings_by_id.json");
+    }
+
+    @Test
+    public void testGetBookingsV2ByOffenderNo() {
+        final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+            "/api/bookings/v2?offenderNo={nomsId1}&offenderNo={nomsId2}",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            Map.of("nomsId1", "A1234AA", "nomsId2", "A1234AB"));
+        assertThatJsonFileAndStatus(response, 200, "bookings_by_nomsId.json");
+    }
+
+    @Test
     public void testThatUpdateAttendanceIsLockedDown_WhenPayRoleIsMissing() {
         final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
 

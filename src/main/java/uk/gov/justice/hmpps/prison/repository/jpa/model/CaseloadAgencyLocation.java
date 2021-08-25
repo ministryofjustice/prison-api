@@ -8,41 +8,43 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
 import org.hibernate.Hibernate;
-import org.hibernate.annotations.Where;
 
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
-@Table(name = "USER_CASELOAD_ROLES")
+@Table(name = "CASELOAD_AGENCY_LOCATIONS")
 @Getter
 @Setter
 @ToString
 @RequiredArgsConstructor
-@Builder
 @AllArgsConstructor
-@Where(clause = "caseload_id='NWEB'")
-public class UserCaseloadRole implements Serializable {
+@Builder
+public class CaseloadAgencyLocation extends AuditableEntity {
 
     @EmbeddedId
-    private UserCaseloadRoleIdentity id;
+    private AgencyLocationCaseloadId id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ROLE_ID", updatable = false, insertable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "CASELOAD_ID", updatable = false, insertable = false)
     @Exclude
-    private Role role;
+    private Caseload caseload;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "AGY_LOC_ID", updatable = false, insertable = false)
+    @Exclude
+    private AgencyLocation agencyLocation;
 
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        final UserCaseloadRole that = (UserCaseloadRole) o;
+        final CaseloadAgencyLocation that = (CaseloadAgencyLocation) o;
 
         return Objects.equals(id, that.id);
     }

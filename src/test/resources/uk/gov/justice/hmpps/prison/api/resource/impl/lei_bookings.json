@@ -1,0 +1,69 @@
+{
+  "content": [
+    {
+      "bookingId": -27,
+      "bookingNo": "Z00027",
+      "offenderNo": "A9876EC",
+      "firstName": "ERIC",
+      "lastName": "CLAPTON",
+      "dateOfBirth": "1945-03-30",
+      "age": 74,
+      "agencyId": "LEI",
+      "assignedLivingUnitId": -14,
+      "imprisonmentStatus": "TRL",
+      "legalStatus": "REMAND",
+      "convictedStatus": "Remand"
+    },
+    {
+      "bookingId": -24,
+      "bookingNo": "Z00024",
+      "offenderNo": "Z0024ZZ",
+      "firstName": "LUCIUS",
+      "lastName": "FOX",
+      "dateOfBirth": "1958-01-01",
+      "age": 62,
+      "agencyId": "LEI",
+      "assignedLivingUnitId": -14,
+      "facialImageId": -24,
+      "imprisonmentStatus": "TRL",
+      "legalStatus": "REMAND",
+      "convictedStatus": "Remand"
+    },
+    {
+      "bookingId": -32,
+      "bookingNo": "Z00032",
+      "offenderNo": "A1176RS",
+      "firstName": "FRED",
+      "lastName": "JAMES",
+      "dateOfBirth": "1945-01-09",
+      "age": 74,
+      "agencyId": "LEI",
+      "assignedLivingUnitId": -14
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "unsorted": false,
+      "sorted": true,
+      "empty": false
+    },
+    "offset": 6,
+    "pageNumber": 2,
+    "pageSize": 3,
+    "paged": true,
+    "unpaged": false
+  },
+  "last": false,
+  "totalPages": 9,
+  "totalElements": 27,
+  "size": 3,
+  "number": 2,
+  "sort": {
+    "unsorted": false,
+    "sorted": true,
+    "empty": false
+  },
+  "first": false,
+  "numberOfElements": 3,
+  "empty": false
+}

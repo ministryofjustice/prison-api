@@ -8,7 +8,9 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetailDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
+import uk.gov.justice.hmpps.prison.api.model.PrisonerBookingSummary;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeDetail;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
 import uk.gov.justice.hmpps.prison.api.model.PropertyContainer;
@@ -47,7 +50,9 @@ import uk.gov.justice.hmpps.prison.repository.BookingRepository;
 import uk.gov.justice.hmpps.prison.repository.InmateRepository;
 import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq;
 import uk.gov.justice.hmpps.prison.repository.SentenceRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Caseload;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.KeyDateAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderContactPerson;
@@ -55,11 +60,13 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.KeyDateValues;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPersonsRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitorRepository;
@@ -68,6 +75,7 @@ import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 import uk.gov.justice.hmpps.prison.service.transformers.CourtCaseTransformer;
+import uk.gov.justice.hmpps.prison.service.transformers.OffenderBookingTransformer;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
 import uk.gov.justice.hmpps.prison.service.transformers.PropertyContainerTransformer;
 import uk.gov.justice.hmpps.prison.service.validation.AttendanceTypesValid;
@@ -128,8 +136,9 @@ public class BookingService {
     private final OffenderSentenceAdjustmentRepository offenderSentenceAdjustmentRepository;
     private final OffenderKeyDateAdjustmentRepository offenderKeyDateAdjustmentRepository;
     private final OffenderContactPersonsRepository offenderContactPersonsRepository;
+    private final StaffUserAccountRepository staffUserAccountRepository;
+    private final OffenderBookingTransformer offenderBookingTransformer;
     private final OffenderTransformer offenderTransformer;
-    private final AuthenticationFacade securityUtils;
     private final AuthenticationFacade authenticationFacade;
     private final String defaultIepLevel;
     private final int maxBatchSize;
@@ -149,9 +158,10 @@ public class BookingService {
                           final OffenderSentenceAdjustmentRepository offenderSentenceAdjustmentRepository,
                           final OffenderKeyDateAdjustmentRepository offenderKeyDateAdjustmentRepository,
                           final OffenderContactPersonsRepository offenderContactPersonsRepository,
-                          final AuthenticationFacade securityUtils,
-                          final AuthenticationFacade authenticationFacade,
+                          final StaffUserAccountRepository staffUserAccountRepository,
+                          final OffenderBookingTransformer offenderBookingTransformer,
                           final OffenderTransformer offenderTransformer,
+                          final AuthenticationFacade authenticationFacade,
                           @Value("${api.bookings.iepLevel.default:Unknown}") final String defaultIepLevel,
                           @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.bookingRepository = bookingRepository;
@@ -169,9 +179,10 @@ public class BookingService {
         this.offenderSentenceAdjustmentRepository = offenderSentenceAdjustmentRepository;
         this.offenderKeyDateAdjustmentRepository = offenderKeyDateAdjustmentRepository;
         this.offenderContactPersonsRepository = offenderContactPersonsRepository;
-        this.securityUtils = securityUtils;
-        this.authenticationFacade = authenticationFacade;
+        this.staffUserAccountRepository = staffUserAccountRepository;
+        this.offenderBookingTransformer = offenderBookingTransformer;
         this.offenderTransformer = offenderTransformer;
+        this.authenticationFacade = authenticationFacade;
         this.defaultIepLevel = defaultIepLevel;
         this.maxBatchSize = maxBatchSize;
     }
@@ -937,7 +948,7 @@ public class BookingService {
     }
 
     private boolean isAllowedToViewAllPrisonerData(final String[] overrideRoles) {
-        return securityUtils.isOverrideRole(overrideRoles);
+        return authenticationFacade.isOverrideRole(overrideRoles);
     }
 
     private boolean isViewInactiveBookings() {
@@ -945,7 +956,7 @@ public class BookingService {
     }
 
     private boolean isOverrideRole(final String otherRole) {
-        return securityUtils.isOverrideRole(otherRole, "SYSTEM_USER");
+        return authenticationFacade.isOverrideRole(otherRole, "SYSTEM_USER");
     }
 
     private static String quotedAndPipeDelimited(final Stream<String> values) {
@@ -978,4 +989,45 @@ public class BookingService {
                 .map(offenderTransformer::transform)
                 .orElseThrow(EntityNotFoundException.withId(offenderNo));
     }
+
+
+    public Page<PrisonerBookingSummary> getPrisonerBookingSummary(final String prisonId,
+                                                                  final List<Long> bookingIds,
+                                                                  final List<String> offenderNos,
+                                                                  final Pageable pageable) {
+
+        if (Optional.ofNullable(prisonId).isEmpty() && Optional.ofNullable(bookingIds).isEmpty() && Optional.ofNullable(offenderNos).isEmpty()) {
+            throw new BadRequestException("At least one attribute of a prisonId, bookingId or offenderNo must be specified");
+        }
+
+        final var viewAllPrisoners = authenticationFacade.isOverrideRole("SYSTEM_USER", "VIEW_PRISONER_DATA");
+
+        final var filter = OffenderBookingFilter
+            .builder()
+            .bookingIds(bookingIds)
+            .offenderNos(offenderNos)
+            .prisonId(prisonId)
+            .bookingSequence(1)
+            .active(true)
+            .caseloadIds(viewAllPrisoners ? null : staffUserAccountRepository.getCaseloadsForUser(authenticationFacade.getCurrentUsername(), ActiveFlag.Y, "INST").stream().map(Caseload::getId).toList())
+            .build();
+
+        final var paging = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), mapBookingSortOrderProperties(pageable.getSort()));
+
+        final var pageOfBookings= offenderBookingRepository.findAll(filter, paging);
+
+        log.info("Returning {} of {} matching Bookings starting at page {}", pageOfBookings.getNumberOfElements(), pageOfBookings.getTotalElements(), pageOfBookings.getNumber());
+        return pageOfBookings.map(offenderBookingTransformer::transform);
+
+    }
+
+    private Sort mapBookingSortOrderProperties(Sort sort) {
+        return Sort.by(sort
+            .stream()
+            .map(order -> Sort.Order
+                .by(OffenderBookingTransformer.mapSortProperty(order.getProperty()))
+                .with(order.getDirection()))
+            .collect(Collectors.toList()));
+    }
+
 }

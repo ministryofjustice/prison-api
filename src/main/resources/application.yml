@@ -30,8 +30,9 @@ spring:
     properties:
       hibernate:
         jdbc:
-          batch_size: 30
-          fetch_size: 100
+          batch_size: 25
+          fetch_size: 25
+          batch_fetch_style: PADDED
 
   jackson:
     date-format: "yyyy-MM-dd HH:mm:ss"

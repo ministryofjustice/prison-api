@@ -2,9 +2,12 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.ToString.Exclude;
+import org.hibernate.Hibernate;
 import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
 
 import javax.persistence.Column;
@@ -17,13 +20,15 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
-@Data
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@EqualsAndHashCode(of = { "id" }, callSuper = false)
 @Table(name = "OFFENDER_IMAGES")
 public class OffenderImage extends AuditableEntity {
     @Id
@@ -32,6 +37,7 @@ public class OffenderImage extends AuditableEntity {
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
+    @Exclude
     private OffenderBooking offenderBooking;
 
     @Column(name = "CAPTURE_DATETIME")
@@ -60,9 +66,11 @@ public class OffenderImage extends AuditableEntity {
     private ActiveFlag activeFlag;
 
     @Column(name = "FULL_SIZE_IMAGE")
+    @Exclude
     private byte[] fullSizeImage;
 
     @Column(name = "THUMBNAIL_IMAGE")
+    @Exclude
     private byte[] thumbnailImage;
 
     public ImageDetail transform() {
@@ -74,5 +82,19 @@ public class OffenderImage extends AuditableEntity {
             .imageType(getImageType())
             .objectId(getImageObjectId())
             .build();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        final OffenderImage that = (OffenderImage) o;
+
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return 1017477117;
     }
 }

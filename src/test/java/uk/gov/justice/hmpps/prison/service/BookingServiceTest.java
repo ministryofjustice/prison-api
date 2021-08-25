@@ -60,11 +60,13 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPers
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitorRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.support.PayableAttendanceOutcomeDto;
+import uk.gov.justice.hmpps.prison.service.transformers.OffenderBookingTransformer;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
 
 import java.time.LocalDate;
@@ -118,11 +120,15 @@ public class BookingServiceTest {
     @Mock
     private OffenderContactPersonsRepository offenderContactPersonsRepository;
     @Mock
+    private StaffUserAccountRepository staffUserAccountRepository;
+    @Mock
     private AuthenticationFacade securityUtils;
     @Mock
     private AuthenticationFacade authenticationFacade;
     @Mock
     private OffenderTransformer offenderTransformer;
+    @Mock
+    private OffenderBookingTransformer offenderBookingTransformer;
     @Mock
     private CaseloadToAgencyMappingService caseloadToAgencyMappingService;
 
@@ -146,8 +152,10 @@ public class BookingServiceTest {
                 offenderSentenceAdjustmentRepository,
                 offenderKeyDateAdjustmentRepository,
                 offenderContactPersonsRepository,
-                securityUtils, authenticationFacade,
+                staffUserAccountRepository,
+                offenderBookingTransformer,
                 offenderTransformer,
+                authenticationFacade,
                 "1",
                 10);
     }

@@ -23,10 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static java.util.function.Predicate.not;
 
 @Repository
 @Slf4j
@@ -238,11 +235,5 @@ public class InmateAlertRepository extends RepositoryBase {
         return alertSeq;
     }
 
-
-    private static void checkQueryIsNotUsed(String query) {
-        Optional.ofNullable(query)
-            .filter(not(String::isBlank))
-            .ifPresent(q -> log.warn("Alert repository has received a query parameter that might be vulnerable"));
-    }
 
 }
