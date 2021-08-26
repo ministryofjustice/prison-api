@@ -389,3 +389,11 @@ Feature: Booking Sentence Details
   Scenario: Retrieve sentence details for offenders who are candidates for Home Detention Curfew.
     When sentence details are requested for offenders who are candidates for Home Detention Curfew
     Then some offender sentence details are returned
+
+  Scenario Outline: Retrieve sentence and offence details for a booking
+    When sentences and offences are requested for booking id "<bookingId>"
+    Then "1" sentences are returned
+    Then the key values for record "0" are correct in the sentence and offence details "<sentenceSequence>" sentenced date: "<sentencedDate>" offence date: "<offenceDate>" years: "<years>"
+    Examples:
+      | bookingId | sentenceSequence | sentencedDate | offenceDate | years |
+      | -20       | 1                | 2017-06-21    | 2015-01-04  | 3     |

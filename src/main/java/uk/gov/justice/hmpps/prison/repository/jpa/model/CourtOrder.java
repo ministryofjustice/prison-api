@@ -5,12 +5,14 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import java.time.LocalDate;
 
 /**
  * This represents the outcomes of offences in after going to court and linked to a {@link CourtEvent} by the id.
@@ -23,6 +25,7 @@ import javax.persistence.Table;
 public class CourtOrder extends AuditableEntity {
 
     @Id
+    @Column(name = "ORDER_ID")
     private Long id;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
@@ -36,4 +39,6 @@ public class CourtOrder extends AuditableEntity {
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "ISSUING_AGY_LOC_ID", nullable = false)
     private AgencyLocation issuingCourt;
+
+    private LocalDate courtDate;
 }

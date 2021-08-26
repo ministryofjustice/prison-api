@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,20 +15,45 @@ import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
+import javax.persistence.NamedSubgraph;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of = { "offenderBooking", "sequence" }, callSuper = false)
+@EqualsAndHashCode(of = {"offenderBooking", "sequence"}, callSuper = false)
 @Table(name = "OFFENDER_SENTENCES")
 @IdClass(OffenderSentence.PK.class)
+@NamedEntityGraph(name = "sentence-entity-graph",
+    attributeNodes = {
+        @NamedAttributeNode(value = "offenderSentenceCharges", subgraph = "offender-sentence-charge-subgraph"),
+        @NamedAttributeNode("calculationType"),
+        @NamedAttributeNode("courtOrder"),
+    },
+    subgraphs = {
+        @NamedSubgraph(
+            name = "offender-sentence-charge-subgraph",
+            attributeNodes = {
+                @NamedAttributeNode(value = "offenderCharge", subgraph = "offender-charge-subgraph")
+            }
+        ),
+        @NamedSubgraph(
+            name = "offender-charge-subgraph",
+            attributeNodes = {
+                @NamedAttributeNode("offence")
+            }
+        )
+    }
+)
 public class OffenderSentence extends AuditableEntity {
 
     @NoArgsConstructor
@@ -63,20 +89,23 @@ public class OffenderSentence extends AuditableEntity {
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumns({
-        @JoinColumn(name="SENTENCE_CALC_TYPE", referencedColumnName="SENTENCE_CALC_TYPE"),
-        @JoinColumn(name="SENTENCE_CATEGORY", referencedColumnName="SENTENCE_CATEGORY")
+        @JoinColumn(name = "SENTENCE_CALC_TYPE", referencedColumnName = "SENTENCE_CALC_TYPE"),
+        @JoinColumn(name = "SENTENCE_CATEGORY", referencedColumnName = "SENTENCE_CATEGORY")
     })
     private SentenceCalcType calculationType;
 
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumns({
-        @JoinColumn(name="OFFENDER_BOOK_ID", referencedColumnName="OFFENDER_BOOK_ID"),
-        @JoinColumn(name="SENTENCE_SEQ", referencedColumnName="SENTENCE_SEQ")
+        @JoinColumn(name = "OFFENDER_BOOK_ID", referencedColumnName = "OFFENDER_BOOK_ID"),
+        @JoinColumn(name = "SENTENCE_SEQ", referencedColumnName = "SENTENCE_SEQ")
     })
     private List<SentenceTerm> terms;
 
     @Column(name = "START_DATE")
     private LocalDate sentenceStartDate;
+
+    @Column(name = "END_DATE")
+    private LocalDate sentenceEndDate;
 
     @Column(name = "FINE_AMOUNT")
     private Double fineAmount;
@@ -84,5 +113,32 @@ public class OffenderSentence extends AuditableEntity {
     @Column(name = "LINE_SEQ")
     private Long lineSequence;
 
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumns({
+        @JoinColumn(name = "OFFENDER_BOOK_ID", referencedColumnName = "OFFENDER_BOOK_ID"),
+        @JoinColumn(name = "SENTENCE_SEQ", referencedColumnName = "SENTENCE_SEQ")
+    })
+    private List<OffenderSentenceCharge> offenderSentenceCharges;
 
+    public OffenderSentenceAndOffences getSentenceAndOffenceDetail() {
+        return OffenderSentenceAndOffences.builder()
+            .bookingId(offenderBooking.getBookingId())
+            .sentenceSequence(sequence)
+            .consecutiveToSequence(consecutiveToSentenceSequence)
+            .sentenceStatus(status)
+            .sentenceCategory(calculationType.getCategory())
+            .sentenceCalculationType(calculationType.getCalculationType())
+            .sentenceTypeDescription(calculationType.getDescription())
+            .sentenceDate(courtOrder.getCourtDate())
+            .years(terms.stream().mapToInt(val -> val.getYears() == null ? 0 : val.getYears()).sum())
+            .months(terms.stream().mapToInt(val -> val.getMonths() == null ? 0 : val.getMonths()).sum())
+            .weeks(terms.stream().mapToInt(val -> val.getWeeks() == null ? 0 : val.getWeeks()).sum())
+            .days(terms.stream().mapToInt(val -> val.getDays() == null ? 0 : val.getDays()).sum())
+            .offences(offenderSentenceCharges
+                .stream()
+                .map(i -> i.getOffenderCharge())
+                .map(OffenderCharge::getOffenceDetail)
+                .collect(Collectors.toList()))
+            .build();
+    }
 }

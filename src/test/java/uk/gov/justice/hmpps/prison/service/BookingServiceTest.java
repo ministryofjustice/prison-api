@@ -60,6 +60,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPers
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitorRepository;
@@ -124,6 +125,8 @@ public class BookingServiceTest {
     @Mock
     private OffenderTransformer offenderTransformer;
     @Mock
+    private OffenderSentenceRepository offenderSentenceRepository;
+    @Mock
     private CaseloadToAgencyMappingService caseloadToAgencyMappingService;
 
     private BookingService bookingService;
@@ -131,27 +134,27 @@ public class BookingServiceTest {
     @BeforeEach
     public void init() {
         bookingService = new BookingService(
-                bookingRepository,
-                inmateRepository,
-                offenderBookingRepository,
-                offenderRepository,
-                visitorRepository,
-                visitRepository,
-                null,
-                agencyService,
-                null,
-                referenceDomainService,
-                caseloadToAgencyMappingService,
-                agencyInternalLocationRepository,
-                offenderSentenceAdjustmentRepository,
-                offenderKeyDateAdjustmentRepository,
-                offenderContactPersonsRepository,
-                securityUtils, authenticationFacade,
-                offenderTransformer,
-                "1",
-                10);
+            bookingRepository,
+            inmateRepository,
+            offenderBookingRepository,
+            offenderRepository,
+            visitorRepository,
+            visitRepository,
+            null,
+            agencyService,
+            null,
+            referenceDomainService,
+            caseloadToAgencyMappingService,
+            agencyInternalLocationRepository,
+            offenderSentenceAdjustmentRepository,
+            offenderKeyDateAdjustmentRepository,
+            offenderContactPersonsRepository,
+            securityUtils, authenticationFacade,
+            offenderTransformer,
+            offenderSentenceRepository,
+            "1",
+            10);
     }
-
 
     @Test
     public void testVerifyCanAccessLatestBooking() {

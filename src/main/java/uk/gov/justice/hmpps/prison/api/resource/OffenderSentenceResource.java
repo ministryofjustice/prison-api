@@ -24,6 +24,7 @@ import uk.gov.justice.hmpps.prison.api.model.ApprovalStatus;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.HdcChecks;
 import uk.gov.justice.hmpps.prison.api.model.HomeDetentionCurfew;
+import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceCalc;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
@@ -169,6 +170,15 @@ public class OffenderSentenceResource {
     @GetMapping("/booking/{bookingId}/sentenceTerms")
     public List<OffenderSentenceTerms> getOffenderSentenceTerms(@PathVariable("bookingId") @ApiParam(value = "The required booking id (mandatory)", required = true) final Long bookingId, @RequestParam(value = "filterBySentenceTermCodes", required = false) final List<String> filterBySentenceTermCodes) {
         return bookingService.getOffenderSentenceTerms(bookingId, filterBySentenceTermCodes);
+    }
+
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Sentence and offence details for a prisoner.", response = OffenderSentenceAndOffences.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List")})
+    @ApiOperation(value = "Sentence and offence details  for a prisoner", nickname = "getSentenceAndOffenceDetails")
+    @GetMapping("/booking/{bookingId}/sentences-and-offences")
+    public List<OffenderSentenceAndOffences> getSentenceAndOffenceDetails(@PathVariable("bookingId") @ApiParam(value = "The required booking id (mandatory)", required = true) final Long bookingId, @RequestParam(value = "filterBySentenceTermCodes", required = false) final List<String> filterBySentenceTermCodes) {
+        return bookingService.getSentenceAndOffenceDetails(bookingId);
     }
 
     private void validateOffenderList(final List<?> offenderList) {
