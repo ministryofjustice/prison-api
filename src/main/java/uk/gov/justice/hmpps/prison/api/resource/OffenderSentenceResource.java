@@ -177,7 +177,7 @@ public class OffenderSentenceResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List")})
     @ApiOperation(value = "Sentence and offence details  for a prisoner", nickname = "getSentenceAndOffenceDetails")
     @GetMapping("/booking/{bookingId}/sentences-and-offences")
-    public List<OffenderSentenceAndOffences> getSentenceAndOffenceDetails(@PathVariable("bookingId") @ApiParam(value = "The required booking id (mandatory)", required = true) final Long bookingId, @RequestParam(value = "filterBySentenceTermCodes", required = false) final List<String> filterBySentenceTermCodes) {
+    public List<OffenderSentenceAndOffences> getSentenceAndOffenceDetails(@PathVariable("bookingId") @ApiParam(value = "The required booking id (mandatory)", required = true) final Long bookingId) {
         return bookingService.getSentenceAndOffenceDetails(bookingId);
     }
 
