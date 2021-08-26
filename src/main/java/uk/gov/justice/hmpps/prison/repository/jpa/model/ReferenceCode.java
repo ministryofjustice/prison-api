@@ -62,14 +62,14 @@ public abstract class ReferenceCode implements Serializable {
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         final ReferenceCode that = (ReferenceCode) o;
 
-        if (!Objects.equals(domain, that.domain)) return false;
-        return Objects.equals(code, that.code);
+        if (!Objects.equals(getDomain(), that.getDomain())) return false;
+        return Objects.equals(getCode(), that.getCode());
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hashCode(domain);
-        result = 31 * result + (Objects.hashCode(code));
+        int result = Objects.hashCode(getDomain());
+        result = 31 * result + (Objects.hashCode(getCode()));
         return result;
     }
 }

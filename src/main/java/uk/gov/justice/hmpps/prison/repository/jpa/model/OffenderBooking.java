@@ -337,11 +337,11 @@ public class OffenderBooking extends ExtendedAuditableEntity {
      * parole date or the home detention curfew actual date.
      * <p>
      * 3. If there is no confirmed release date, actual parole date or home detention curfew actual date for the
-     * offender, the release date is the later of the nonDtoReleaseDate or midTermDate value (if either or both
+     * offender, the release date is the latter of the nonDtoReleaseDate or midTermDate value (if either or both
      * are present).
      *
-     * @param keyDateValues     a set of key date values used to determine the Non deterministic release date
-     * @param nonDtoReleaseDate derived Non deterministic release date information
+     * @param keyDateValues     a set of key date values used to determine the non-deterministic release date
+     * @param nonDtoReleaseDate derived non-deterministic release date information
      * @return releaseDate
      */
     private static LocalDate deriveOffenderReleaseDate(final KeyDateValues keyDateValues, final NonDtoReleaseDate nonDtoReleaseDate) {
@@ -552,7 +552,7 @@ public class OffenderBooking extends ExtendedAuditableEntity {
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         final OffenderBooking that = (OffenderBooking) o;
 
-        return Objects.equals(bookingId, that.bookingId);
+        return Objects.equals(getBookingId(), that.getBookingId());
     }
 
     @Override

@@ -90,7 +90,7 @@ public class OffenderImage extends AuditableEntity {
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         final OffenderImage that = (OffenderImage) o;
 
-        return Objects.equals(id, that.id);
+        return Objects.equals(getId(), that.getId());
     }
 
     @Override

@@ -87,7 +87,7 @@ public class ReleaseDetail extends AuditableEntity {
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         final ReleaseDetail that = (ReleaseDetail) o;
 
-        return Objects.equals(id, that.id);
+        return Objects.equals(getId(), that.getId());
     }
 
     @Override

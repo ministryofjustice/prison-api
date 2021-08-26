@@ -53,7 +53,7 @@ public class Caseload extends AuditableEntity {
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         final Caseload caseload = (Caseload) o;
 
-        return Objects.equals(id, caseload.id);
+        return Objects.equals(getId(), caseload.getId());
     }
 
     @Override

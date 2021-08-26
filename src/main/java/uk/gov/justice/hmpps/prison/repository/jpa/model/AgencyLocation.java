@@ -3,10 +3,9 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString.Exclude;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
@@ -33,13 +32,13 @@ import java.util.Objects;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType.AGY_LOC_TYPE;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.CourtType.JURISDICTION;
 
-@Getter
-@Setter
-@RequiredArgsConstructor
-@AllArgsConstructor
+@Data
 @Entity
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "AGENCY_LOCATIONS")
+@ToString(of = {"id", "description"})
 public class AgencyLocation extends ExtendedAuditableEntity {
 
     public static final String IN = "IN";
@@ -58,7 +57,6 @@ public class AgencyLocation extends ExtendedAuditableEntity {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + AGY_LOC_TYPE + "'", referencedColumnName = "domain")),
         @JoinColumnOrFormula(column = @JoinColumn(name = "AGENCY_LOCATION_TYPE", referencedColumnName = "code", nullable = false))
     })
-    @Exclude
     private AgencyLocationType type;
 
     @Column(name = "ACTIVE_FLAG")
@@ -70,12 +68,10 @@ public class AgencyLocation extends ExtendedAuditableEntity {
 
     @OneToMany(mappedBy = "agencyLocId", cascade = CascadeType.ALL)
     @Default
-    @Exclude
     private List<AgencyLocationEstablishment> establishmentTypes = new ArrayList<>();
 
     @OneToMany(mappedBy = "agencyLocation", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @Default
-    @Exclude
     private List<CaseloadAgencyLocation> caseloadAgencyLocations = new ArrayList<>();
 
     @Column(name = "DEACTIVATION_DATE")
@@ -86,25 +82,21 @@ public class AgencyLocation extends ExtendedAuditableEntity {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + JURISDICTION + "'", referencedColumnName = "domain")),
         @JoinColumnOrFormula(column = @JoinColumn(name = "JURISDICTION_CODE", referencedColumnName = "code", nullable = false))
     })
-    @Exclude
     private CourtType courtType;
 
     @OneToMany(mappedBy = "agency", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @Where(clause = "OWNER_CLASS = '"+AgencyAddress.ADDR_TYPE+"'")
     @Default
-    @Exclude
     private List<AgencyAddress> addresses = new ArrayList<>();
 
     @OneToMany(mappedBy = "agency", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @Where(clause = "OWNER_CLASS = '"+AgencyPhone.PHONE_TYPE+"'")
     @Default
-    @Exclude
     private List<AgencyPhone> phones = new ArrayList<>();
 
     @OneToMany(mappedBy = "agency", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @Where(clause = "OWNER_CLASS = '"+AgencyInternetAddress.TYPE+"'")
     @Default
-    @Exclude
     private List<AgencyInternetAddress> internetAddresses = new ArrayList<>();
 
     public void removeAddress(final AgencyAddress address) {
@@ -135,7 +127,7 @@ public class AgencyLocation extends ExtendedAuditableEntity {
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         final AgencyLocation that = (AgencyLocation) o;
 
-        return Objects.equals(id, that.id);
+        return Objects.equals(getId(), that.getId());
     }
 
     @Override

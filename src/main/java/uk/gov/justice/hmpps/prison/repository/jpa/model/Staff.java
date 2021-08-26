@@ -2,22 +2,24 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.Hibernate;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.Objects;
 
-@EqualsAndHashCode(of = "staffId", callSuper = false)
 @Entity
 @Table(name = "STAFF_MEMBERS")
-@Data
+@Getter
+@Setter
+@RequiredArgsConstructor
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
 @ToString
 public class Staff extends AuditableEntity {
@@ -38,5 +40,19 @@ public class Staff extends AuditableEntity {
 
     public String getFullName() {
         return lastName + ", " + firstName;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        final Staff staff = (Staff) o;
+
+        return Objects.equals(getStaffId(), staff.getStaffId());
+    }
+
+    @Override
+    public int hashCode() {
+        return 479966412;
     }
 }

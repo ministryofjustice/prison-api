@@ -68,7 +68,7 @@ public class StaffUserAccount extends AuditableEntity {
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         final StaffUserAccount that = (StaffUserAccount) o;
 
-        return Objects.equals(username, that.username);
+        return Objects.equals(getUsername(), that.getUsername());
     }
 
     @Override

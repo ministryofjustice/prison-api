@@ -129,7 +129,7 @@ public class ImprisonmentStatus extends AuditableEntity {
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         final ImprisonmentStatus that = (ImprisonmentStatus) o;
 
-        return Objects.equals(id, that.id);
+        return Objects.equals(getId(), that.getId());
     }
 
     @Override

@@ -34,14 +34,14 @@ public class UserCaseloadId implements Serializable {
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         final UserCaseloadId that = (UserCaseloadId) o;
 
-        if (!Objects.equals(username, that.username)) return false;
-        return Objects.equals(caseload, that.caseload);
+        if (!Objects.equals(getUsername(), that.getUsername())) return false;
+        return Objects.equals(getCaseload(), that.getCaseload());
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hashCode(username);
-        result = 31 * result + (Objects.hashCode(caseload));
+        int result = Objects.hashCode(getUsername());
+        result = 31 * result + (Objects.hashCode(getCaseload()));
         return result;
     }
 }

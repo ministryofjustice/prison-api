@@ -255,6 +255,9 @@ public class Offender extends ExtendedAuditableEntity {
                     .map(MovementDate::getDateOutOfPrison).orElse(null));
             }
         );
+
+        // sort bookings by entry date
+        summary.setPrisonPeriod(summary.getPrisonPeriod().stream().sorted(Comparator.comparing(PrisonPeriod::getEntryDate)).toList());
         return summary;
     }
 
@@ -320,7 +323,7 @@ public class Offender extends ExtendedAuditableEntity {
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         final Offender offender = (Offender) o;
 
-        return Objects.equals(id, offender.id);
+        return Objects.equals(getId(), offender.getId());
     }
 
     @Override

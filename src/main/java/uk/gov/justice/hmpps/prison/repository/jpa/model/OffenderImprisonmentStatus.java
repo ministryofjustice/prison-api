@@ -99,14 +99,14 @@ public class OffenderImprisonmentStatus extends AuditableEntity {
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         final OffenderImprisonmentStatus that = (OffenderImprisonmentStatus) o;
 
-        if (!Objects.equals(offenderBooking, that.offenderBooking)) return false;
-        return Objects.equals(imprisonStatusSeq, that.imprisonStatusSeq);
+        if (!Objects.equals(getOffenderBooking(), that.getOffenderBooking())) return false;
+        return Objects.equals(getImprisonStatusSeq(), that.getImprisonStatusSeq());
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hashCode(offenderBooking);
-        result = 31 * result + (Objects.hashCode(imprisonStatusSeq));
+        int result = Objects.hashCode(getOffenderBooking());
+        result = 31 * result + (Objects.hashCode(getImprisonStatusSeq()));
         return result;
     }
 }
