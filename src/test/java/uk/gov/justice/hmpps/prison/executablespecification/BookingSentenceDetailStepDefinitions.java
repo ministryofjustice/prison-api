@@ -264,7 +264,7 @@ public class BookingSentenceDetailStepDefinitions extends AbstractStepDefinition
     }
 
     @Then("^the key values for record \"([^\"]*)\" are correct in the sentence and offence details \"([^\"]*)\" sentenced date: \"([^\"]*)\" offence date: \"([^\"]*)\" years: \"([^\"]*)\"$")
-    public void sentenceSequenceIs(final int index, final int sentenceSequence, final String sentencedDate, final String offenceDate, final int years) {
+    public void sentenceDetailsAre(final int index, final int sentenceSequence, final String sentencedDate, final String offenceDate, final int years) {
         bookingSentenceDetail.verifySentenceDetails(index, sentenceSequence, sentencedDate, offenceDate, years);
     }
 }
