@@ -20,7 +20,6 @@ import java.time.LocalDate;
 @EqualsAndHashCode
 @Data
 public class OffenderOffence {
-    // TODO add swagger annotations
     private Long offenderChargeId;
     private LocalDate offenceDate;
     private String offenceCode;

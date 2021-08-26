@@ -21,25 +21,42 @@ import java.util.List;
 @EqualsAndHashCode
 @Data
 public class OffenderSentenceAndOffences {
-    @ApiModelProperty(value = "bookingId")
+    @ApiModelProperty(value = "The bookingId this sentence and offence(s) relates to")
     private Long bookingId;
 
-    @ApiModelProperty(value = "Sentence sequence")
+    @ApiModelProperty(value = "Sentence sequence - a number representing the order")
     private Integer sentenceSequence;
 
-    @ApiModelProperty(value = "Consecutive to sequence")
+    @ApiModelProperty(value = "This sentence is consecutive to this sequence (if populated)")
     private Integer consecutiveToSequence;
 
-    // TODO add swagger annotations
+    @ApiModelProperty(value = "This sentence status: A = Active I = Inactive")
     private String sentenceStatus;
+
+    @ApiModelProperty(value = "The sentence category e.g. 2003 or Licence")
     private String sentenceCategory;
+
+    @ApiModelProperty(value = "The sentence calculation type e.g. R or ADIMP_ORA")
     private String sentenceCalculationType;
+
+    @ApiModelProperty(value = "The sentence type description e.g. Standard Determinate Sentence")
     private String sentenceTypeDescription;
+
+    @ApiModelProperty(value = "This sentenced date for this sentence (aka court date)")
     private LocalDate sentenceDate;
+
+    @ApiModelProperty(value = "The sentence duration im years")
     private Integer years;
+
+    @ApiModelProperty(value = "The sentence duration im months")
     private Integer months;
+
+    @ApiModelProperty(value = "The sentence duration im weeks")
     private Integer weeks;
+
+    @ApiModelProperty(value = "The sentence duration im days")
     private Integer days;
 
+    @ApiModelProperty(value = "The offences related to this sentence (will usually only have one offence per sentence)")
     private List<OffenderOffence> offences;
 }

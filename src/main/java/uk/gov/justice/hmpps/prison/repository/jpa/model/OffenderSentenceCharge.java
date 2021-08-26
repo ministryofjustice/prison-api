@@ -1,18 +1,27 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
-import lombok.*;
-import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import java.io.Serializable;
-import java.time.LocalDate;
 
 @Getter
 @Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of = { "offenderBooking", "sequence", "termSequence" }, callSuper = false)
+@EqualsAndHashCode(of = { "offenderBooking", "sentenceSequence", "offenderCharge" }, callSuper = false)
 @Table(name = "OFFENDER_SENTENCE_CHARGES")
 @IdClass(OffenderSentenceCharge.PK.class)
 public class OffenderSentenceCharge extends AuditableEntity {

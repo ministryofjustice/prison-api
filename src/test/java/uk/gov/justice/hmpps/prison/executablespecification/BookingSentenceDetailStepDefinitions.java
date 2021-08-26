@@ -252,19 +252,4 @@ public class BookingSentenceDetailStepDefinitions extends AbstractStepDefinition
     public void sentenceTermsAreReturnedAsFollows(final DataTable table) {
         bookingSentenceDetail.verifySentenceTerms(table.asList(OffenderSentenceTerms.class));
     }
-
-    @When("^sentences and offences are requested for booking id \"([^\"]*)\"$")
-    public void sentencesAndOffencesAreRequested(final String bookingId) {
-        bookingSentenceDetail.requestSentencesAndOffences(bookingId);
-    }
-
-    @Then("^\"([0-9-]+)\" sentences are returned")
-    public void sentencesAndOffencesAreReturned(final int total) {
-        bookingSentenceDetail.verifySentencesAndOffences(total);
-    }
-
-    @Then("^the key values for record \"([^\"]*)\" are correct in the sentence and offence details \"([^\"]*)\" sentenced date: \"([^\"]*)\" offence date: \"([^\"]*)\" years: \"([^\"]*)\"$")
-    public void sentenceDetailsAre(final int index, final int sentenceSequence, final String sentencedDate, final String offenceDate, final int years) {
-        bookingSentenceDetail.verifySentenceDetails(index, sentenceSequence, sentencedDate, offenceDate, years);
-    }
 }

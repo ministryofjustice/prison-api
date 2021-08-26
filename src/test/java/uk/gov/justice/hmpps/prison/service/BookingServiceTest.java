@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import com.ibm.icu.util.IslamicCalendar.CalculationType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,9 @@ import uk.gov.justice.hmpps.prison.api.model.IepLevelAndComment;
 import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecord;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
+import uk.gov.justice.hmpps.prison.api.model.OffenceDetail;
+import uk.gov.justice.hmpps.prison.api.model.OffenderOffence;
+import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeDetail;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
@@ -36,21 +40,28 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtOrder;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.DisciplinaryAction;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.KeyDateAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LegalCaseType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryBranch;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryDischarge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryRank;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Offence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderContactPerson;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPropertyContainer;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentenceCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.PropertyContainer;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.RelationshipType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceAdjustment;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalcType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitorInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.WarZone;
@@ -1172,6 +1183,96 @@ public class BookingServiceTest {
         when(caseloadToAgencyMappingService.agenciesForUsersWorkingCaseload(any())).thenReturn(List.of());
         assertThatThrownBy(() -> bookingService.getOffenderSentencesSummary(null, List.of()))
                 .isInstanceOf(HttpClientErrorException.class).hasMessage("400 Request must be restricted to either a caseload, agency or list of offenders");
+    }
+
+    @Test
+    void getSentenceAndOffenceDetails_withMinimalData() {
+        final var bookingId = -1L;
+        when(offenderSentenceRepository.findByOffenderBooking_BookingId(bookingId))
+            .thenReturn(
+                List.of(OffenderSentence.builder()
+                        .offenderBooking(OffenderBooking.builder().bookingId(-99L).build())
+                        .calculationType(SentenceCalcType.builder().build()
+                    ).build()
+                )
+            );
+
+        final var sentencesAndOffences = bookingService.getSentenceAndOffenceDetails(bookingId);
+
+        assertThat(sentencesAndOffences).containsExactly(
+            OffenderSentenceAndOffences.builder()
+                .bookingId(-99L)
+                .days(0)
+                .weeks(0)
+                .months(0)
+                .years(0)
+                .build()
+        );
+    }
+
+    @Test
+    void getSentenceAndOffenceDetails_withFullData() {
+        final var bookingId = -1L;
+        when(offenderSentenceRepository.findByOffenderBooking_BookingId(bookingId))
+            .thenReturn(
+                List.of(OffenderSentence.builder()
+                        .offenderBooking(OffenderBooking.builder().bookingId(-98L).build())
+                        .sequence(2)
+                        .consecutiveToSentenceSequence(1)
+                        .status("A")
+                        .calculationType(
+                            SentenceCalcType.builder()
+                                .category("CAT")
+                                .calculationType("CALC")
+                                .description("Calc description")
+                                .build()
+                            )
+                        .courtOrder(
+                            CourtOrder.builder()
+                                .courtDate(LocalDate.of(2021,1,1))
+                                .build()
+                            )
+                        .terms(List.of(
+                            SentenceTerm.builder()
+                                .years(3)
+                                .build()
+                        ))
+                        .offenderSentenceCharges(List.of(
+                            OffenderSentenceCharge.builder()
+                                .offenderCharge(OffenderCharge.builder()
+                                    .dateOfOffence(LocalDate.of(2021, 1, 2))
+                                    .offence(Offence.builder().build())
+                                    .build()
+                                )
+                                .build()
+                        ))
+                        .build()
+                    )
+                );
+
+        final var sentencesAndOffences = bookingService.getSentenceAndOffenceDetails(bookingId);
+
+        assertThat(sentencesAndOffences).containsExactly(
+            OffenderSentenceAndOffences.builder()
+                .bookingId(-98L)
+                .sentenceSequence(2)
+                .consecutiveToSequence(1)
+                .sentenceStatus("A")
+                .sentenceCategory("CAT")
+                .sentenceCalculationType("CALC")
+                .sentenceTypeDescription("Calc description")
+                .sentenceDate(LocalDate.of(2021,1,1))
+                .days(0)
+                .weeks(0)
+                .months(0)
+                .years(3)
+                .offences(List.of(
+                    OffenderOffence.builder()
+                        .offenceDate(LocalDate.of(2021, 1, 2))
+                        .build()
+                ))
+                .build()
+        );
     }
 
     @Nested

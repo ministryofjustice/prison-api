@@ -7,7 +7,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
@@ -32,7 +31,6 @@ public class BookingSentenceDetailSteps extends CommonSteps {
     private static final String OFFENDER_BOOKING_SENTENCE_DETAIL_API_URL = OFFENDER_SENTENCE_DETAIL_API_URL + "/bookings";
     private static final String HOME_DETENTION_CURFEW_CANDIDATES = OFFENDER_SENTENCE_DETAIL_API_URL + "/home-detention-curfew-candidates?minimumChecksPassedDateForAssessedCurfews={iso8601Date}";
     private static final String BOOKING_SENTENCE_TERMS_API_URL = OFFENDER_SENTENCE_DETAIL_API_URL + "/booking/{bookingId}/sentenceTerms";
-    private static final String BOOKING_SENTENCES_AND_OFFENCES_API_URL = OFFENDER_SENTENCE_DETAIL_API_URL + "/booking/{bookingId}/sentences-and-offences";
 
     private static final ParameterizedTypeReference<List<OffenderSentenceDetail>> LIST_OF_OFFENDER_SENTENCE_DETAIL_TYPE = new ParameterizedTypeReference<>() {
     };
@@ -40,7 +38,6 @@ public class BookingSentenceDetailSteps extends CommonSteps {
     private SentenceCalcDates sentenceDetail;
     private OffenderSentenceTerms offenderSentenceTerms;
     private List<OffenderSentenceTerms> offenderSentenceTermsList;
-    private List<OffenderSentenceAndOffences> offenderSentencesAndOffences;
     private List<OffenderSentenceDetail> offenderSentenceDetails;
 
     @Step("Get booking sentence detail")
@@ -284,22 +281,6 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         }
     }
 
-    private void dispatchSentencesAndOffences(final String bookingId) {
-        init();
-
-        try {
-            final String url = BOOKING_SENTENCES_AND_OFFENCES_API_URL;
-            final ResponseEntity<List<OffenderSentenceAndOffences>> response;
-            response = restTemplate.exchange(url, HttpMethod.GET, createEntity(),
-                    new ParameterizedTypeReference<List<OffenderSentenceAndOffences>>() {
-                    }, bookingId);
-
-            offenderSentencesAndOffences = response.getBody();
-        } catch (final PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
-
     private void dispatchOffenderSentences(final String offenderNos, final String agencyId) {
         init();
 
@@ -372,10 +353,6 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         dispatchSentenceTerms(bookingId);
     }
 
-    public void requestSentencesAndOffences(final String bookingId) {
-        dispatchSentencesAndOffences(bookingId);
-    }
-
     @Deprecated
     public void verifySentenceTermsOld() {
         assertThat(offenderSentenceTerms).isEqualTo(new OffenderSentenceTerms(
@@ -384,17 +361,5 @@ public class BookingSentenceDetailSteps extends CommonSteps {
 
     public void verifySentenceTerms(List<OffenderSentenceTerms> expected) {
         assertThat(offenderSentenceTermsList).asList().containsAll(expected);
-    }
-
-    public void verifySentencesAndOffences(int size) {
-        assertThat(offenderSentencesAndOffences).hasSize(size);
-    }
-
-    public void verifySentenceDetails(int listIndex, int sentenceSequence, String sentencedDate, String offenceDate, int years) {
-        OffenderSentenceAndOffences sentenceAndOffences = offenderSentencesAndOffences.get(listIndex);
-        assertThat(sentenceAndOffences.getSentenceSequence()).isEqualTo(sentenceSequence);
-        verifyLocalDate(sentenceAndOffences.getSentenceDate(), sentencedDate);
-        verifyLocalDate(sentenceAndOffences.getOffences().get(listIndex).getOffenceDate(), offenceDate);
-        assertThat(sentenceAndOffences.getYears()).isEqualTo(years);
     }
 }

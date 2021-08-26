@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:hsqldb:file:~/moj/dbs/nomis-db;sql.syntax_ora=true;get_column_name=false;shutdown=false;sql.nulls_first=false;sql.nulls_order=false
+    url: jdbc:hsqldb:mem:nomis-db;sql.syntax_ora=true;get_column_name=false;shutdown=false;sql.nulls_first=false;sql.nulls_order=false
     username: sa
-    password: changeme
+    password:
 
     hikari:
       maximum-pool-size: 2
