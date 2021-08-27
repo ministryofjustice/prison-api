@@ -12,13 +12,11 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.util.List;
 
-@SuppressWarnings("unused")
 @ApiModel(description = "Offender sentence and offence details")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
 @Data
 public class OffenderSentenceAndOffences {
     @ApiModelProperty(value = "The bookingId this sentence and offence(s) relates to")
