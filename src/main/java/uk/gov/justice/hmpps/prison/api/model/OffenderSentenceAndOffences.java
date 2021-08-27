@@ -40,7 +40,7 @@ public class OffenderSentenceAndOffences {
     @ApiModelProperty(value = "The sentence type description e.g. Standard Determinate Sentence")
     private String sentenceTypeDescription;
 
-    @ApiModelProperty(value = "This sentenced date for this sentence (aka court date)")
+    @ApiModelProperty(value = "The sentenced date for this sentence (aka court date)")
     private LocalDate sentenceDate;
 
     @ApiModelProperty(value = "The sentence duration im years")
@@ -52,7 +52,7 @@ public class OffenderSentenceAndOffences {
     @ApiModelProperty(value = "The sentence duration im weeks")
     private Integer weeks;
 
-    @ApiModelProperty(value = "The sentence duration im days")
+    @ApiModelProperty(value = "The sentence duration in days")
     private Integer days;
 
     @ApiModelProperty(value = "The offences related to this sentence (will usually only have one offence per sentence)")
