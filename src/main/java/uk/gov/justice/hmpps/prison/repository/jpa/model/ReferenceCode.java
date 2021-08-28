@@ -1,11 +1,13 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.Hibernate;
 
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
@@ -14,15 +16,16 @@ import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.Inheritance;
 import java.io.Serializable;
+import java.util.Objects;
 
-@Data
-@NoArgsConstructor
+@Getter
+@Setter
+@RequiredArgsConstructor
 @AllArgsConstructor
 @Entity(name = "REFERENCE_CODES")
 @DiscriminatorColumn(name = "domain")
 @Inheritance
 @IdClass(ReferenceCode.Pk.class)
-@EqualsAndHashCode(of = {"domain", "code"})
 @ToString(of = {"domain", "code", "description"})
 public abstract class ReferenceCode implements Serializable {
 
@@ -51,5 +54,22 @@ public abstract class ReferenceCode implements Serializable {
 
     public static String getCodeOrNull(final ReferenceCode referenceCode) {
         return referenceCode != null ? referenceCode.getCode() : null;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        final ReferenceCode that = (ReferenceCode) o;
+
+        if (!Objects.equals(getDomain(), that.getDomain())) return false;
+        return Objects.equals(getCode(), that.getCode());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hashCode(getDomain());
+        result = 31 * result + (Objects.hashCode(getCode()));
+        return result;
     }
 }

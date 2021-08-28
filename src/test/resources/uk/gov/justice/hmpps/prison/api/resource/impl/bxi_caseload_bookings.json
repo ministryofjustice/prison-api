@@ -1,0 +1,39 @@
+{
+  "content": [
+    {
+      "bookingId": -36,
+      "bookingNo": "Z00036",
+      "offenderNo": "A1180MA",
+      "firstName": "MICHAEL",
+      "lastName": "ATHERTON",
+      "dateOfBirth": "1968-03-23",
+      "age": 51,
+      "agencyId": "BXI"
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "unsorted": false,
+      "sorted": true,
+      "empty": false
+    },
+    "offset": 0,
+    "pageNumber": 0,
+    "pageSize": 10,
+    "paged": true,
+    "unpaged": false
+  },
+  "last": true,
+  "totalPages": 1,
+  "totalElements": 1,
+  "size": 10,
+  "number": 0,
+  "sort": {
+    "unsorted": false,
+    "sorted": true,
+    "empty": false
+  },
+  "first": true,
+  "numberOfElements": 1,
+  "empty": false
+}

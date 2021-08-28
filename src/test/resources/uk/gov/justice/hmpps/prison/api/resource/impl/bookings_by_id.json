@@ -1,0 +1,77 @@
+{
+  "content": [
+    {
+      "bookingId": -1,
+      "bookingNo": "A00111",
+      "offenderNo": "A1234AA",
+      "firstName": "ARTHUR",
+      "middleName": "BORIS",
+      "lastName": "ANDERSON",
+      "dateOfBirth": "1969-12-30",
+      "age": 50,
+      "agencyId": "LEI",
+      "assignedLivingUnitId": -3,
+      "facialImageId": -1,
+      "imprisonmentStatus": "SENT",
+      "legalStatus": "SENTENCED",
+      "convictedStatus": "Convicted"
+    },
+    {
+      "bookingId": -2,
+      "bookingNo": "A00112",
+      "offenderNo": "A1234AB",
+      "firstName": "GILLIAN",
+      "middleName": "EVE",
+      "lastName": "ANDERSON",
+      "dateOfBirth": "1998-08-28",
+      "age": 21,
+      "agencyId": "LEI",
+      "assignedLivingUnitId": -19,
+      "facialImageId": -2,
+      "imprisonmentStatus": "SENT",
+      "legalStatus": "SENTENCED",
+      "convictedStatus": "Convicted"
+    },
+    {
+      "bookingId": -3,
+      "bookingNo": "A00113",
+      "offenderNo": "A1234AC",
+      "firstName": "NORMAN",
+      "middleName": "JOHN",
+      "lastName": "BATES",
+      "dateOfBirth": "1999-10-27",
+      "age": 20,
+      "agencyId": "LEI",
+      "assignedLivingUnitId": -3,
+      "facialImageId": -3,
+      "imprisonmentStatus": "SENT",
+      "legalStatus": "SENTENCED",
+      "convictedStatus": "Convicted"
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "unsorted": false,
+      "sorted": true,
+      "empty": false
+    },
+    "offset": 0,
+    "pageNumber": 0,
+    "pageSize": 10,
+    "paged": true,
+    "unpaged": false
+  },
+  "last": true,
+  "totalPages": 1,
+  "totalElements": 3,
+  "size": 10,
+  "number": 0,
+  "sort": {
+    "unsorted": false,
+    "sorted": true,
+    "empty": false
+  },
+  "first": true,
+  "numberOfElements": 3,
+  "empty": false
+}

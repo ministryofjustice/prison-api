@@ -60,11 +60,13 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPers
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitorRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.support.PayableAttendanceOutcomeDto;
+import uk.gov.justice.hmpps.prison.service.transformers.OffenderBookingTransformer;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
 
 import java.time.LocalDate;
@@ -118,13 +120,17 @@ public class BookingServiceTest {
     @Mock
     private OffenderContactPersonsRepository offenderContactPersonsRepository;
     @Mock
-    private AuthenticationFacade securityUtils;
+    private StaffUserAccountRepository staffUserAccountRepository;
     @Mock
     private AuthenticationFacade authenticationFacade;
     @Mock
     private OffenderTransformer offenderTransformer;
     @Mock
+    private OffenderBookingTransformer offenderBookingTransformer;
+    @Mock
     private CaseloadToAgencyMappingService caseloadToAgencyMappingService;
+    @Mock
+    private CaseLoadService caseLoadService;
 
     private BookingService bookingService;
 
@@ -139,15 +145,17 @@ public class BookingServiceTest {
                 visitRepository,
                 null,
                 agencyService,
-                null,
+                caseLoadService,
                 referenceDomainService,
                 caseloadToAgencyMappingService,
                 agencyInternalLocationRepository,
                 offenderSentenceAdjustmentRepository,
                 offenderKeyDateAdjustmentRepository,
                 offenderContactPersonsRepository,
-                securityUtils, authenticationFacade,
+                staffUserAccountRepository,
+                offenderBookingTransformer,
                 offenderTransformer,
+                authenticationFacade,
                 "1",
                 10);
     }
@@ -197,13 +205,13 @@ public class BookingServiceTest {
 
     @Test
     public void verifyCanViewSensitiveBookingInfo_systemUser() {
-        when(securityUtils.isOverrideRole(any())).thenReturn(true);
+        when(authenticationFacade.isOverrideRole(any())).thenReturn(true);
 
         when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(new OffenderBookingIdSeq("off-1", -1L, 1)));
 
         bookingService.getOffenderIdentifiers("off-1", new String [] {"SYSTEM_USER", "GLOBAL_SEARCH"});
 
-        verify(securityUtils).isOverrideRole(
+        verify(authenticationFacade).isOverrideRole(
                 "SYSTEM_USER", "GLOBAL_SEARCH"
         );
     }
@@ -323,14 +331,14 @@ public class BookingServiceTest {
 
     @Test
     public void getBookingIEPSummary_multipleBooking_globalSearchUser() {
-        when(securityUtils.isOverrideRole(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(true);
+        when(authenticationFacade.isOverrideRole(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(true);
         when(bookingRepository.getBookingIEPDetailsByBookingIds(anyList())).thenReturn(Map.of(-5L, List.of(PrivilegeDetail.builder().iepDate(LocalDate.now()).build())));
         assertThat(bookingService.getBookingIEPSummary(List.of(-1L, -2L), false)).containsKeys(-5L);
     }
 
     @Test
     public void getBookingIEPSummary_multipleBooking_withDetail_systemUser() {
-        when(securityUtils.isOverrideRole()).thenReturn(true);
+        when(authenticationFacade.isOverrideRole()).thenReturn(true);
         when(bookingRepository.getBookingIEPDetailsByBookingIds(anyList())).thenReturn(Map.of(-5L, List.of(PrivilegeDetail.builder().iepDate(LocalDate.now()).build())));
         assertThat(bookingService.getBookingIEPSummary(List.of(-1L, -2L), true)).containsKeys(-5L);
     }
@@ -1165,7 +1173,7 @@ public class BookingServiceTest {
 
     @Test
     public void getOffenderSentenceSummaries_forOveriddenRole() {
-        when(securityUtils.isOverrideRole(any())).thenReturn(true);
+        when(authenticationFacade.isOverrideRole(any())).thenReturn(true);
         when(caseloadToAgencyMappingService.agenciesForUsersWorkingCaseload(any())).thenReturn(List.of());
         assertThatThrownBy(() -> bookingService.getOffenderSentencesSummary(null, List.of()))
                 .isInstanceOf(HttpClientErrorException.class).hasMessage("400 Request must be restricted to either a caseload, agency or list of offenders");
