@@ -4,9 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.Hibernate;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
@@ -27,6 +27,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType.AGY_LOC_TYPE;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.CourtType.JURISDICTION;
@@ -36,7 +37,6 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.CourtType.JURISDI
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of = "id", callSuper = false)
 @Table(name = "AGENCY_LOCATIONS")
 @ToString(of = {"id", "description"})
 public class AgencyLocation extends ExtendedAuditableEntity {
@@ -48,6 +48,7 @@ public class AgencyLocation extends ExtendedAuditableEntity {
     @Id
     @Column(name = "AGY_LOC_ID")
     private String id;
+
     @Column(name = "DESCRIPTION")
     private String description;
 
@@ -61,11 +62,17 @@ public class AgencyLocation extends ExtendedAuditableEntity {
     @Column(name = "ACTIVE_FLAG")
     @Enumerated(EnumType.STRING)
     private ActiveFlag activeFlag;
+
     @Column(name = "LONG_DESCRIPTION")
     private String longDescription;
+
     @OneToMany(mappedBy = "agencyLocId", cascade = CascadeType.ALL)
-    @Builder.Default
+    @Default
     private List<AgencyLocationEstablishment> establishmentTypes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "agencyLocation", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @Default
+    private List<CaseloadAgencyLocation> caseloadAgencyLocations = new ArrayList<>();
 
     @Column(name = "DEACTIVATION_DATE")
     private LocalDate deactivationDate;
@@ -79,12 +86,12 @@ public class AgencyLocation extends ExtendedAuditableEntity {
 
     @OneToMany(mappedBy = "agency", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @Where(clause = "OWNER_CLASS = '"+AgencyAddress.ADDR_TYPE+"'")
-    @Builder.Default
+    @Default
     private List<AgencyAddress> addresses = new ArrayList<>();
 
     @OneToMany(mappedBy = "agency", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @Where(clause = "OWNER_CLASS = '"+AgencyPhone.PHONE_TYPE+"'")
-    @Builder.Default
+    @Default
     private List<AgencyPhone> phones = new ArrayList<>();
 
     @OneToMany(mappedBy = "agency", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
@@ -112,5 +119,19 @@ public class AgencyLocation extends ExtendedAuditableEntity {
 
     public boolean isHospital() {
         return getType().isHospital();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        final AgencyLocation that = (AgencyLocation) o;
+
+        return Objects.equals(getId(), that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return 104675102;
     }
 }

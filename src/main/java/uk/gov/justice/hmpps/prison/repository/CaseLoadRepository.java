@@ -42,6 +42,12 @@ public class CaseLoadRepository extends RepositoryBase {
         return jdbcTemplate.query(sql, createParams("username", username, "type", "INST"), CASELOAD_ROW_MAPPER);
     }
 
+    public List<CaseLoad> getAllCaseLoadsByUsername(final String username) {
+        final var initialSql = CaseLoadRepositorySql.FIND_CASE_LOADS_BY_USERNAME.getSql();
+        final var sql = queryBuilderFactory.getQueryBuilder(initialSql, CASELOAD_ROW_MAPPER).build();
+        return jdbcTemplate.query(sql, createParams("username", username), CASELOAD_ROW_MAPPER);
+    }
+
     public List<CaseLoad> getCaseLoadsByStaffId(final Long staffId) {
         return jdbcTemplate.query(CaseLoadRepositorySql.FIND_CASE_LOADS_BY_STAFF_ID.getSql(),
                 createParams("staffId", staffId,
@@ -50,11 +56,7 @@ public class CaseLoadRepository extends RepositoryBase {
                 CASELOAD_ROW_MAPPER);
     }
 
-    public List<CaseLoad> getAllCaseLoadsByUsername(final String username) {
-        final var initialSql = CaseLoadRepositorySql.FIND_CASE_LOADS_BY_USERNAME.getSql();
-        final var sql = queryBuilderFactory.getQueryBuilder(initialSql, CASELOAD_ROW_MAPPER).build();
-        return jdbcTemplate.query(sql, createParams("username", username), CASELOAD_ROW_MAPPER);
-    }
+
 
     public Optional<CaseLoad> getWorkingCaseLoadByUsername(final String username) {
         final var sql = CaseLoadRepositorySql.FIND_ACTIVE_CASE_LOAD_BY_USERNAME.getSql();

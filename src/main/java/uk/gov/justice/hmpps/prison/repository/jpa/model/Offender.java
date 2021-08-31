@@ -3,10 +3,13 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString.Exclude;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Hibernate;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
@@ -33,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -44,12 +48,12 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.Title.TITLE;
 
 @AllArgsConstructor
 @Builder
-@Data
-@EqualsAndHashCode(of = "id", callSuper = false)
-@NoArgsConstructor
+@Getter
+@Setter
+@RequiredArgsConstructor
 @Entity
 @Table(name = "OFFENDERS")
-@ToString(of = {"nomsId", "firstName", "lastName", "birthDate", "id", "rootOffenderId"})
+@BatchSize(size = 25)
 public class Offender extends ExtendedAuditableEntity {
 
     @SequenceGenerator(name = "OFFENDER_ID", sequenceName = "OFFENDER_ID", allocationSize = 1)
@@ -93,14 +97,17 @@ public class Offender extends ExtendedAuditableEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ROOT_OFFENDER_ID", updatable = false, insertable = false)
+    @Exclude
     private Offender rootOffender;
 
     @OneToMany(mappedBy = "offender", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Default
+    @Exclude
     private List<OffenderBooking> bookings = new ArrayList<>();
 
     @OneToMany(mappedBy = "offender", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Default
+    @Exclude
     private List<OffenderIdentifier> identifiers = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -108,6 +115,7 @@ public class Offender extends ExtendedAuditableEntity {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + SEX + "'", referencedColumnName = "domain")),
             @JoinColumnOrFormula(column = @JoinColumn(name = "SEX_CODE", referencedColumnName = "code", nullable = false))
     })
+    @Exclude
     private Gender gender;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -115,6 +123,7 @@ public class Offender extends ExtendedAuditableEntity {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + ETHNICITY + "'", referencedColumnName = "domain")),
         @JoinColumnOrFormula(column = @JoinColumn(name = "RACE_CODE", referencedColumnName = "code"))
     })
+    @Exclude
     private Ethnicity ethnicity;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -122,6 +131,7 @@ public class Offender extends ExtendedAuditableEntity {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + TITLE + "'", referencedColumnName = "domain")),
         @JoinColumnOrFormula(column = @JoinColumn(name = "TITLE", referencedColumnName = "code"))
     })
+    @Exclude
     private Title title;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -129,6 +139,7 @@ public class Offender extends ExtendedAuditableEntity {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + SUFFIX + "'", referencedColumnName = "domain")),
         @JoinColumnOrFormula(column = @JoinColumn(name = "SUFFIX", referencedColumnName = "code"))
     })
+    @Exclude
     private Suffix suffix;
 
     @Column(name = "CREATE_DATE", nullable = false)
@@ -147,6 +158,7 @@ public class Offender extends ExtendedAuditableEntity {
     @OneToMany(mappedBy = "offender", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Where(clause = "OWNER_CLASS = '"+OffenderAddress.ADDR_TYPE+"'")
     @Default
+    @Exclude
     private List<OffenderAddress> addresses = new ArrayList<>();
 
     public Optional<OffenderIdentifier> getLatestIdentifierOfType(final String type) {
@@ -243,6 +255,9 @@ public class Offender extends ExtendedAuditableEntity {
                     .map(MovementDate::getDateOutOfPrison).orElse(null));
             }
         );
+
+        // sort bookings by entry date
+        summary.setPrisonPeriod(summary.getPrisonPeriod().stream().sorted(Comparator.comparing(PrisonPeriod::getEntryDate)).toList());
         return summary;
     }
 
@@ -299,4 +314,20 @@ public class Offender extends ExtendedAuditableEntity {
         md.setInwardType(m.getMovementType().getCode());
     }
 
+    public String getMiddleNames() {
+        return StringUtils.trimToNull(StringUtils.trimToEmpty(middleName) + " " + StringUtils.trimToEmpty(middleName2));
+    }
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        final Offender offender = (Offender) o;
+
+        return Objects.equals(getId(), offender.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return 784301137;
+    }
 }
