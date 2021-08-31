@@ -1,9 +1,13 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
+import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences;
+import uk.gov.justice.hmpps.prison.api.model.v1.Offender;
 
 import java.util.List;
 import java.util.Map;
@@ -251,5 +255,18 @@ public class OffenderSentenceResourceImplIntTest extends ResourceTest {
         assertThatJsonAndStatus(responseEntity, 400, """
                     {"status":400,"userMessage":"List of Offender Ids must be provided","developerMessage":"400 List of Offender Ids must be provided"}
             """);
+    }
+
+    @Test
+    public void getOffenderSentencesWithOffenceInformation() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("RO_USER", List.of("ROLE_VIEW_PRISONER_DATA"), Map.of());
+
+        final var response = testRestTemplate.exchange("/api/offender-sentences/booking/-20/sentences-and-offences",
+            HttpMethod.GET,
+            requestEntity,
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThatJsonFileAndStatus(response, HttpStatus.OK.value(), "sentences-and-offences-details.json");
     }
 }

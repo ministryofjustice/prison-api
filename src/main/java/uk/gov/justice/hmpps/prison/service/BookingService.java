@@ -27,6 +27,7 @@ import uk.gov.justice.hmpps.prison.api.model.MilitaryRecord;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
 import uk.gov.justice.hmpps.prison.api.model.OffenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenceHistoryDetail;
+import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceCalculation;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetailDto;
@@ -56,6 +57,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Caseload;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.KeyDateAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderContactPerson;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.KeyDateValues;
@@ -67,6 +69,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdju
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitorRepository;
@@ -138,6 +141,7 @@ public class BookingService {
     private final OffenderContactPersonsRepository offenderContactPersonsRepository;
     private final StaffUserAccountRepository staffUserAccountRepository;
     private final OffenderBookingTransformer offenderBookingTransformer;
+    private final OffenderSentenceRepository offenderSentenceRepository;
     private final OffenderTransformer offenderTransformer;
     private final AuthenticationFacade authenticationFacade;
     private final String defaultIepLevel;
@@ -162,6 +166,7 @@ public class BookingService {
                           final OffenderBookingTransformer offenderBookingTransformer,
                           final OffenderTransformer offenderTransformer,
                           final AuthenticationFacade authenticationFacade,
+                          final OffenderSentenceRepository offenderSentenceRepository,
                           @Value("${api.bookings.iepLevel.default:Unknown}") final String defaultIepLevel,
                           @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.bookingRepository = bookingRepository;
@@ -183,6 +188,7 @@ public class BookingService {
         this.offenderBookingTransformer = offenderBookingTransformer;
         this.offenderTransformer = offenderTransformer;
         this.authenticationFacade = authenticationFacade;
+        this.offenderSentenceRepository = offenderSentenceRepository;
         this.defaultIepLevel = defaultIepLevel;
         this.maxBatchSize = maxBatchSize;
     }
@@ -811,6 +817,12 @@ public class BookingService {
         updateLivingUnit(offenderBooking, location);
     }
 
+    public List<OffenderSentenceAndOffences> getSentenceAndOffenceDetails(final Long bookingId) {
+        final var offenderSentences = offenderSentenceRepository.findByOffenderBooking_BookingId(bookingId);
+        return offenderSentences.stream()
+            .map(OffenderSentence::getSentenceAndOffenceDetail)
+            .collect(toList());
+    }
 
     private void updateLivingUnit(final OffenderBooking offenderBooking, final AgencyInternalLocation location) {
         validateUpdateLivingUnit(offenderBooking, location);
