@@ -68,6 +68,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPers
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitRepository;
@@ -140,6 +141,7 @@ public class BookingService {
     private final OffenderContactPersonsRepository offenderContactPersonsRepository;
     private final StaffUserAccountRepository staffUserAccountRepository;
     private final OffenderBookingTransformer offenderBookingTransformer;
+    private final OffenderSentenceRepository offenderSentenceRepository;
     private final OffenderTransformer offenderTransformer;
     private final AuthenticationFacade authenticationFacade;
     private final String defaultIepLevel;
@@ -164,6 +166,7 @@ public class BookingService {
                           final OffenderBookingTransformer offenderBookingTransformer,
                           final OffenderTransformer offenderTransformer,
                           final AuthenticationFacade authenticationFacade,
+                          final OffenderSentenceRepository offenderSentenceRepository,
                           @Value("${api.bookings.iepLevel.default:Unknown}") final String defaultIepLevel,
                           @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.bookingRepository = bookingRepository;
@@ -185,6 +188,7 @@ public class BookingService {
         this.offenderBookingTransformer = offenderBookingTransformer;
         this.offenderTransformer = offenderTransformer;
         this.authenticationFacade = authenticationFacade;
+        this.offenderSentenceRepository = offenderSentenceRepository;
         this.defaultIepLevel = defaultIepLevel;
         this.maxBatchSize = maxBatchSize;
     }
