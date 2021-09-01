@@ -12,7 +12,8 @@
       "assignedLivingUnitId": -14,
       "imprisonmentStatus": "TRL",
       "legalStatus": "REMAND",
-      "convictedStatus": "Remand"
+      "convictedStatus": "Remand",
+      "iepLevel": "Standard"
     },
     {
       "bookingId": -24,
@@ -27,7 +28,8 @@
       "facialImageId": -24,
       "imprisonmentStatus": "TRL",
       "legalStatus": "REMAND",
-      "convictedStatus": "Remand"
+      "convictedStatus": "Remand",
+      "iepLevel": "Standard"
     },
     {
       "bookingId": -32,
@@ -38,13 +40,14 @@
       "dateOfBirth": "1945-01-09",
       "age": 74,
       "agencyId": "LEI",
-      "assignedLivingUnitId": -14
+      "assignedLivingUnitId": -14,
+      "iepLevel": "Enhanced"
     }
   ],
   "pageable": {
     "sort": {
-      "unsorted": false,
       "sorted": true,
+      "unsorted": false,
       "empty": false
     },
     "offset": 6,
@@ -54,13 +57,13 @@
     "unpaged": false
   },
   "last": false,
-  "totalPages": 9,
   "totalElements": 27,
+  "totalPages": 9,
   "size": 3,
   "number": 2,
   "sort": {
-    "unsorted": false,
     "sorted": true,
+    "unsorted": false,
     "empty": false
   },
   "first": false,

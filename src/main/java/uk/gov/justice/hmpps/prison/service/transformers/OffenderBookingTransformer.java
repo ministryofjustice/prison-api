@@ -28,8 +28,8 @@ public class OffenderBookingTransformer {
         "dateOfBirth", "offender.birthDate"
     );
 
-    public PrisonerBookingSummary transform(final OffenderBooking offenderBooking) {
-        return PrisonerBookingSummary.builder()
+    public PrisonerBookingSummary transform(final OffenderBooking offenderBooking, final boolean iepLevel, final boolean legalInfo, final boolean imageId) {
+        final var bookingSummaryBuilder = PrisonerBookingSummary.builder()
             .bookingId(offenderBooking.getBookingId())
             .bookingNo(offenderBooking.getBookNumber())
             .offenderNo(offenderBooking.getOffender().getNomsId())
@@ -39,12 +39,28 @@ public class OffenderBookingTransformer {
             .firstName(offenderBooking.getOffender().getFirstName())
             .middleName(offenderBooking.getOffender().getMiddleNames())
             .agencyId(offenderBooking.getLocation().getId())
-            .assignedLivingUnitId(offenderBooking.getAssignedLivingUnit() != null ? offenderBooking.getAssignedLivingUnit().getLocationId() : null)
-            .convictedStatus(offenderBooking.getActiveImprisonmentStatus().map(imp -> imp.getImprisonmentStatus().getConvictedStatus()).orElse(null))
-            .legalStatus(offenderBooking.getActiveImprisonmentStatus().map(imp -> imp.getImprisonmentStatus().getLegalStatus()).orElse(null))
-            .imprisonmentStatus(offenderBooking.getActiveImprisonmentStatus().map(imp -> imp.getImprisonmentStatus().getStatus()).orElse(null))
-            .facialImageId(offenderBooking.getLatestFaceImage().map(OffenderImage::getId).orElse(null))
-            .build();
+            .assignedLivingUnitId(offenderBooking.getAssignedLivingUnit() != null ? offenderBooking.getAssignedLivingUnit().getLocationId() : null);
+
+        if (legalInfo) {
+            offenderBooking.getActiveImprisonmentStatus().ifPresent(imp -> {
+                final var imprisonmentStatus = imp.getImprisonmentStatus();
+                bookingSummaryBuilder
+                    .convictedStatus(imprisonmentStatus.getConvictedStatus())
+                    .legalStatus(imprisonmentStatus.getLegalStatus())
+                    .imprisonmentStatus(imprisonmentStatus.getStatus());
+            });
+
+        }
+        if (imageId) {
+            bookingSummaryBuilder
+                .facialImageId(offenderBooking.getLatestFaceImage().map(OffenderImage::getId).orElse(null));
+        }
+
+        if (iepLevel) {
+            bookingSummaryBuilder
+                .iepLevel(offenderBooking.getLatestIepLevel().map(iep -> iep.getIepLevel().getDescription()).orElse(null));
+        }
+        return bookingSummaryBuilder.build();
     }
 
     public static String mapSortProperty(String sortProperty) {

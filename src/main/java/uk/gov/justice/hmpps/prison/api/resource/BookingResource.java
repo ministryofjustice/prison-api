@@ -200,10 +200,13 @@ public class BookingResource {
         @RequestParam(value = "prisonId", required = false) @ApiParam(value = "Filter by prison Id", example = "MDI") final String prisonId,
         @RequestParam(value = "bookingId", required = false) @ApiParam("Filter by a list of booking ids") final List<Long> bookingIds,
         @RequestParam(value = "offenderNo", required = false) @ApiParam("Filter by a list of offender numbers") final List<String> offenderNos,
+        @RequestParam(value = "iepLevel", defaultValue = "false", required = false) @ApiParam(value = "Return IEP level data", defaultValue = "false") final boolean iepLevel,
+        @RequestParam(value = "legalInfo", defaultValue = "false", required = false) @ApiParam(value = "Return additional legal information (imprisonmentStatus, legalStatus, convictedStatus)", defaultValue = "false") final boolean legalInfo,
+        @RequestParam(value = "image", defaultValue = "false", required = false) @ApiParam(value = "Return facial ID for latest prisoner image", defaultValue = "false") final boolean imageId,
         @ApiIgnore
         @PageableDefault(sort = {"lastName","firstName","offenderNo"}, direction = Direction.ASC) final Pageable pageable) {
 
-        return bookingService.getPrisonerBookingSummary(prisonId, bookingIds, offenderNos, pageable);
+        return bookingService.getPrisonerBookingSummary(prisonId, bookingIds, offenderNos, iepLevel, legalInfo, imageId, pageable);
     }
 
     @ApiResponses({

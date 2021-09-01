@@ -336,7 +336,7 @@ public class BookingService {
                         .iepDate(currentDetail.getIepDate())
                         .iepTime(currentDetail.getIepTime())
                         .iepLevel(currentDetail.getIepLevel())
-                        .daysSinceReview(Long.valueOf(daysSinceReview).intValue())
+                        .daysSinceReview(daysSinceReview)
                         .iepDetails(withDetails ? iepDetails : Collections.emptyList())
                         .build());
             });
@@ -994,6 +994,7 @@ public class BookingService {
     public Page<PrisonerBookingSummary> getPrisonerBookingSummary(final String prisonId,
                                                                   final List<Long> bookingIds,
                                                                   final List<String> offenderNos,
+                                                                  final boolean iepLevel, final boolean legalInfo, final boolean imageId,
                                                                   final Pageable pageable) {
 
         if (Optional.ofNullable(prisonId).isEmpty() && Optional.ofNullable(bookingIds).isEmpty() && Optional.ofNullable(offenderNos).isEmpty()) {
@@ -1017,7 +1018,7 @@ public class BookingService {
         final var pageOfBookings= offenderBookingRepository.findAll(filter, paging);
 
         log.info("Returning {} of {} matching Bookings starting at page {}", pageOfBookings.getNumberOfElements(), pageOfBookings.getTotalElements(), pageOfBookings.getNumber());
-        return pageOfBookings.map(offenderBookingTransformer::transform);
+        return pageOfBookings.map(ob -> offenderBookingTransformer.transform(ob, iepLevel, legalInfo, imageId));
 
     }
 

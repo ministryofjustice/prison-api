@@ -14,7 +14,8 @@
       "facialImageId": -1,
       "imprisonmentStatus": "SENT",
       "legalStatus": "SENTENCED",
-      "convictedStatus": "Convicted"
+      "convictedStatus": "Convicted",
+      "iepLevel": "Standard"
     },
     {
       "bookingId": -2,
@@ -30,13 +31,14 @@
       "facialImageId": -2,
       "imprisonmentStatus": "SENT",
       "legalStatus": "SENTENCED",
-      "convictedStatus": "Convicted"
+      "convictedStatus": "Convicted",
+      "iepLevel": "Basic"
     }
   ],
   "pageable": {
     "sort": {
-      "unsorted": false,
       "sorted": true,
+      "unsorted": false,
       "empty": false
     },
     "offset": 0,
@@ -46,13 +48,13 @@
     "unpaged": false
   },
   "last": true,
-  "totalPages": 1,
   "totalElements": 2,
+  "totalPages": 1,
   "size": 10,
   "number": 0,
   "sort": {
-    "unsorted": false,
     "sorted": true,
+    "unsorted": false,
     "empty": false
   },
   "first": true,
