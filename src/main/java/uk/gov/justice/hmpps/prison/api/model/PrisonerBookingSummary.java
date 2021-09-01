@@ -69,4 +69,7 @@ public class PrisonerBookingSummary implements Serializable {
 
     @ApiModelProperty(value = "Convicted Status", name = "convictedStatus", position = 14, example = "Convicted", allowableValues = "Convicted,Remand")
     private String convictedStatus;
+
+    @ApiModelProperty(value = "IEP level of the prisoner", position = 15, example = "Basic")
+    private String iepLevel;
 }

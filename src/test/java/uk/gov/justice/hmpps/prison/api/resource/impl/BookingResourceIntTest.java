@@ -66,12 +66,12 @@ public class BookingResourceIntTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-            "/api/bookings/v2?prisonId={prisonId}&sort={sort}",
+            "/api/bookings/v2?prisonId={prisonId}&sort={sort}&image={imageRequired}&iepLevel={iepLevel}&legalInfo={legalInfo}",
             HttpMethod.GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {
             },
-            Map.of("prisonId", "BXI", "sort", "bookingId,asc"));
+            Map.of("prisonId", "BXI", "sort", "bookingId,asc", "imageRequired", "true", "iepLevel", "false", "legalInfo", "true"));
         assertThatJsonFileAndStatus(response, 200, "bxi_caseload_bookings.json");
     }
 
@@ -81,12 +81,12 @@ public class BookingResourceIntTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-            "/api/bookings/v2?prisonId={prisonId}&page={pageNum}&size={pageSize}",
+            "/api/bookings/v2?prisonId={prisonId}&page={pageNum}&size={pageSize}&image={imageRequired}&iepLevel={iepLevel}&legalInfo={legalInfo}",
             HttpMethod.GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {
             },
-            Map.of("prisonId", "LEI", "pageNum", "2", "pageSize", "3"));
+            Map.of("prisonId", "LEI", "pageNum", "2", "pageSize", "3", "imageRequired", "true", "iepLevel", "true", "legalInfo", "true"));
         assertThatJsonFileAndStatus(response, 200, "lei_bookings.json");
     }
 
@@ -96,12 +96,12 @@ public class BookingResourceIntTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-            "/api/bookings/v2?bookingId={bookingId1}&bookingId={bookingId2}&bookingId={bookingId3}",
+            "/api/bookings/v2?bookingId={bookingId1}&bookingId={bookingId2}&bookingId={bookingId3}&image={imageRequired}&iepLevel={iepLevel}&legalInfo={legalInfo}",
             HttpMethod.GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {
             },
-            Map.of("bookingId1", "-1", "bookingId2", "-2", "bookingId3", "-3"));
+            Map.of("bookingId1", "-1", "bookingId2", "-2", "bookingId3", "-3", "imageRequired", "true", "iepLevel", "false", "legalInfo", "true"));
         assertThatJsonFileAndStatus(response, 200, "bookings_by_id.json");
     }
 
@@ -111,12 +111,12 @@ public class BookingResourceIntTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-            "/api/bookings/v2?offenderNo={nomsId1}&offenderNo={nomsId2}",
+            "/api/bookings/v2?offenderNo={nomsId1}&offenderNo={nomsId2}&image={imageRequired}&iepLevel={iepLevel}&legalInfo={legalInfo}",
             HttpMethod.GET,
             httpEntity,
             new ParameterizedTypeReference<String>() {
             },
-            Map.of("nomsId1", "A1234AA", "nomsId2", "A1234AB"));
+            Map.of("nomsId1", "A1234AA", "nomsId2", "A1234AB", "imageRequired", "true", "iepLevel", "true", "legalInfo", "true"));
         assertThatJsonFileAndStatus(response, 200, "bookings_by_nomsId.json");
     }
 

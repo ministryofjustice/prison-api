@@ -20,7 +20,6 @@ import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOut;
 import uk.gov.justice.hmpps.prison.repository.BookingRepository;
 import uk.gov.justice.hmpps.prison.repository.FinanceRepository;
 import uk.gov.justice.hmpps.prison.repository.InmateRepository;
-import uk.gov.justice.hmpps.prison.repository.UserRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
@@ -45,7 +44,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepos
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CopyTableRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.IepLevelRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.IepPrisonMapRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ImprisonmentStatusRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.MovementTypeAndReasonRespository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
@@ -100,12 +99,11 @@ public class PrisonerReleaseAndTransferService {
     private final OffenderSentenceAdjustmentRepository offenderSentenceAdjustmentRepository;
     private final OffenderKeyDateAdjustmentRepository offenderKeyDateAdjustmentRepository;
     private final OffenderCaseNoteRepository caseNoteRepository;
-    private final UserRepository userRepository;
     private final AuthenticationFacade authenticationFacade;
     private final OffenderNoPayPeriodRepository offenderNoPayPeriodRepository;
     private final OffenderPayStatusRepository offenderPayStatusRepository;
     private final BookingRepository bookingRepository;
-    private final IepLevelRepository iepLevelRepository;
+    private final IepPrisonMapRepository iepPrisonMapRepository;
     private final FinanceRepository financeRepository;
     private final ImprisonmentStatusRepository imprisonmentStatusRepository;
     private final ReferenceCodeRepository<CaseNoteType> caseNoteTypeReferenceCodeRepository;
@@ -311,7 +309,7 @@ public class PrisonerReleaseAndTransferService {
         }
 
         // Create IEP levels
-        iepLevelRepository.findByAgencyLocationIdAndDefaultFlag(prisonToRecallTo.getId(), "Y")
+        iepPrisonMapRepository.findByAgencyLocation_IdAndDefaultFlag(prisonToRecallTo.getId(), "Y")
             .stream().findFirst().ifPresentOrElse(
             iepLevel -> bookingRepository.addIepLevel(booking.getBookingId(), authenticationFacade.getCurrentUsername(),
                 IepLevelAndComment.builder().iepLevel(iepLevel.getIepLevel()).comment(format("Admission to %s", prisonToRecallTo.getDescription())).build(), receiveTime, prisonToRecallTo.getId()),
@@ -442,7 +440,7 @@ public class PrisonerReleaseAndTransferService {
         }
 
         // Create IEP levels
-        iepLevelRepository.findByAgencyLocationIdAndDefaultFlag(receivedPrison.getId(), "Y")
+        iepPrisonMapRepository.findByAgencyLocation_IdAndDefaultFlag(receivedPrison.getId(), "Y")
             .stream().findFirst().ifPresentOrElse(
             iepLevel -> bookingRepository.addIepLevel(booking.getBookingId(), currentUsername,
                 IepLevelAndComment.builder().iepLevel(iepLevel.getIepLevel()).comment(format("Admission to %s", receivedPrison.getDescription())).build(), receiveTime, receivedPrison.getId()),
@@ -531,7 +529,7 @@ public class PrisonerReleaseAndTransferService {
         }
 
         // Create IEP levels
-        iepLevelRepository.findByAgencyLocationIdAndDefaultFlag(booking.getLocation().getId(), "Y")
+        iepPrisonMapRepository.findByAgencyLocation_IdAndDefaultFlag(booking.getLocation().getId(), "Y")
             .stream().findFirst().ifPresentOrElse(
             iepLevel -> bookingRepository.addIepLevel(booking.getBookingId(), authenticationFacade.getCurrentUsername(),
                 IepLevelAndComment.builder().iepLevel(iepLevel.getIepLevel()).comment(format("Admission to %s", latestExternalMovement.getToAgency().getDescription())).build(), receiveTime, latestExternalMovement.getToAgency().getId()),
