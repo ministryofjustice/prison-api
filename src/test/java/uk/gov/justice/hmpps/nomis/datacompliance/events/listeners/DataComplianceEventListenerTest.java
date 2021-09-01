@@ -16,6 +16,7 @@ import org.springframework.messaging.MessageHeaders;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.listeners.dto.OffenderRestrictionRequest;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.DataComplianceReferralService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.DataDuplicateService;
+import uk.gov.justice.hmpps.nomis.datacompliance.service.DeceasedOffenderDeletionService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.FreeTextSearchService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDeletionService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderRestrictionService;
@@ -51,6 +52,9 @@ class DataComplianceEventListenerTest {
     @Mock
     private OffenderRestrictionService offenderRestrictionService;
 
+    @Mock
+    private DeceasedOffenderDeletionService deceasedOffenderDeletionService;
+
     private DataComplianceEventListener listener;
 
     @BeforeEach
@@ -61,7 +65,8 @@ class DataComplianceEventListenerTest {
                 offenderDeletionService,
                 freeTextSearchService,
                 offenderRestrictionService,
-                MAPPER);
+                MAPPER,
+                deceasedOffenderDeletionService);
     }
 
     @Test
@@ -435,6 +440,44 @@ class DataComplianceEventListenerTest {
                 Map.of("eventType", "DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED")))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessageContaining("No referral ID specified in request");
+
+        verifyNoInteractions(offenderDeletionService);
+    }
+
+    @Test
+    void handleDeceasedOffenderDeletion() {
+
+        handleMessage(
+            "{" +
+                "\"batchId\":987," +
+                "\"limit\":10" +
+                "}",
+            Map.of("eventType", "DATA_COMPLIANCE_DECEASED-OFFENDER-DELETION-REQUEST"));
+
+        verify(deceasedOffenderDeletionService).deleteDeceasedOffenders(987L, PageRequest.of(0, 10));
+    }
+
+    @Test
+    void handleDeceasedOffenderDeletionWithNoLimit() {
+
+        handleMessage(
+            "{" +
+                "\"batchId\":987" +
+                "}",
+            Map.of("eventType", "DATA_COMPLIANCE_DECEASED-OFFENDER-DELETION-REQUEST"));
+
+        verify(deceasedOffenderDeletionService).deleteDeceasedOffenders(987L, Pageable.unpaged());
+    }
+
+    @Test
+    void handleDeceasedOffenderDeletionIfBatchIdIsNull() {
+
+        assertThatThrownBy(() -> handleMessage("{" +
+                "\"limit\":10" +
+                "}",
+                Map.of("eventType", "DATA_COMPLIANCE_DECEASED-OFFENDER-DELETION-REQUEST")))
+            .isInstanceOf(NullPointerException.class)
+            .hasMessageContaining("No batch ID specified in the request");
 
         verifyNoInteractions(offenderDeletionService);
     }

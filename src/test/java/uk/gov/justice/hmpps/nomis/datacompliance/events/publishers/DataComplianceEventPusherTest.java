@@ -11,6 +11,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.DataDuplicateResult;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.DeceasedOffenderDeletionResult;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.DeceasedOffenderDeletionResult.DeceasedOffender;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.FreeTextSearchResult;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderDeletionComplete;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderPendingDeletion;
@@ -20,6 +22,7 @@ import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.OffenderP
 import uk.gov.justice.hmpps.nomis.datacompliance.events.publishers.dto.ProvisionalDeletionReferralResult;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -210,6 +213,46 @@ class DataComplianceEventPusherTest {
                 .isEqualTo("{\"offenderIdDisplay\":\"offender1\",\"retentionCheckId\":123,\"matchingTables\":[\"table1\"]}");
         assertThat(request.getValue().getMessageAttributes().get("eventType").getStringValue())
                 .isEqualTo("DATA_COMPLIANCE_FREE-TEXT-MORATORIUM-RESULT");
+    }
+
+    @Test
+    void sendDeceasedOffenderDeletionResult() {
+
+        final var request = ArgumentCaptor.forClass(SendMessageRequest.class);
+
+        when(client.sendMessage(request.capture()))
+            .thenReturn(new SendMessageResult().withMessageId("message1"));
+
+        eventPusher.send(new DeceasedOffenderDeletionResult( 12345L, List.of(
+            DeceasedOffender.builder()
+                .offenderIdDisplay("A1234AA")
+                .firstName("Bob")
+                .middleName("Middle")
+                .lastName("Jones")
+                .agencyLocationId("LEI")
+                .birthDate(LocalDate.of(1990, 1, 2))
+                .deceasedDate(LocalDate.of(2020, 8,18))
+                .deletionDateTime(LocalDateTime.of(2021,8, 18 , 12, 56 ,31))
+                .offenderAlias(DeceasedOffenderDeletionResult.OffenderAlias.builder().offenderId(123L).offenderBookId(321L).build())
+                .build())));
+
+        assertThat(request.getValue().getQueueUrl()).isEqualTo("queue.url");
+        assertThat(request.getValue().getMessageBody()).isEqualTo(
+            "{\"batchId\":12345," +
+                "\"deceasedOffenders\":[" +
+                "{\"offenderIdDisplay\":\"A1234AA\"," +
+                "\"firstName\":\"Bob\"," +
+                "\"middleName\":\"Middle\"," +
+                "\"lastName\":\"Jones\"," +
+                "\"birthDate\":\"1990-01-02\"," +
+                "\"deceasedDate\":\"2020-08-18\"," +
+                "\"deletionDateTime\":\"2021-08-18 12:56:31\"," +
+                "\"agencyLocationId\":\"LEI\"," +
+                "\"offenderAliases\":" +
+                "[{\"offenderId\":123,\"offenderBookIds\":[321]}]}]}");
+
+        assertThat(request.getValue().getMessageAttributes().get("eventType").getStringValue())
+            .isEqualTo("DATA_COMPLIANCE_DECEASED-OFFENDER-DELETION-RESULT");
     }
 
     @Test

@@ -36,15 +36,15 @@ public class OffenderDeletionRepositoryTest {
 
     @Test
     @Transactional
-    public void deleteOffender() {
+    public void cleanseOffenderDataToBaseRecord() {
 
         assertOffenderDataExists();
 
-        assertThat(repository.cleanseOffenderData("A1234AA"))
+        assertThat(repository.cleanseOffenderDataExcludingBaseRecord("A1234AA"))
                 .containsExactly(-1001L);
 
         assertBaseRecordExists();
-        assertOffenderDataDeleted();
+        assertNonBaseRecordOffenderDataDeleted();
 
         // GL_TRANSACTIONS should still have the anonymised data:
         assertThat(jdbcTemplate.queryForList(
@@ -55,17 +55,48 @@ public class OffenderDeletionRepositoryTest {
 
     @Test
     @Transactional
-    public void deleteUnknownOffenderThrows() {
-        assertThatThrownBy(() -> repository.cleanseOffenderData("unknown"))
+    public void cleanseOffenderDataUsingUnknownOffenderThrows() {
+        assertThatThrownBy(() -> repository.cleanseOffenderDataExcludingBaseRecord("unknown"))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("Resource with id [unknown] not found.");
+    }
+
+
+    @Test
+    @Transactional
+    public void deleteAllOffenderDataIncludingBaseRecord() {
+
+        assertOffenderDataExists();
+
+        assertThat(repository.deleteAllOffenderDataIncludingBaseRecord("A1234AA"))
+            .containsExactly(-1001L);
+
+        assertAllOffenderDataDeleted();
+
+        // GL_TRANSACTIONS should still have the anonymised data:
+        assertThat(jdbcTemplate.queryForList(
+            "SELECT txn_id FROM gl_transactions WHERE txn_id = 301826802 and gl_entry_seq = 1",
+            String.class))
+            .isNotEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void deleteAllOffenderDataUsingUnknownOffenderThrows() {
+        assertThatThrownBy(() -> repository.deleteAllOffenderDataIncludingBaseRecord("unknown"))
+            .isInstanceOf(EntityNotFoundException.class)
+            .hasMessage("Resource with id [unknown] not found.");
     }
 
     private void assertOffenderDataExists() {
         checkAllTables(new Condition<>(list -> !list.isEmpty(), "Entry Found"));
     }
 
-    private void assertOffenderDataDeleted() {
+    private void assertAllOffenderDataDeleted() {
+        checkAllTables(new Condition<>(List::isEmpty, "Entry Not Found"));
+    }
+
+    private void assertNonBaseRecordOffenderDataDeleted() {
         checkNonBaseRecordTables(new Condition<>(List::isEmpty, "Entry Not Found"));
     }
 
