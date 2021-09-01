@@ -9,7 +9,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import uk.gov.justice.hmpps.prison.api.model.IepLevelAndComment;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.RequestForNewBooking;
 import uk.gov.justice.hmpps.prison.api.model.RequestToDischargePrisoner;
@@ -311,8 +310,10 @@ public class PrisonerReleaseAndTransferService {
         // Create IEP levels
         iepPrisonMapRepository.findByAgencyLocation_IdAndDefaultFlag(prisonToRecallTo.getId(), "Y")
             .stream().findFirst().ifPresentOrElse(
-            iepLevel -> bookingRepository.addIepLevel(booking.getBookingId(), authenticationFacade.getCurrentUsername(),
-                IepLevelAndComment.builder().iepLevel(iepLevel.getIepLevel()).comment(format("Admission to %s", prisonToRecallTo.getDescription())).build(), receiveTime, prisonToRecallTo.getId()),
+            iepLevel -> {
+                final var staff = staffUserAccountRepository.findById(authenticationFacade.getCurrentUsername()).orElseThrow(EntityNotFoundException.withId(authenticationFacade.getCurrentUsername()));
+                booking.addIepLevel(iepLevel.getIepLevel(), format("Admission to %s", prisonToRecallTo.getDescription()), receiveTime, staff);
+            },
             () -> { throw new BadRequestException("No default IEP level found"); } );
 
         //clear off old status
@@ -442,8 +443,10 @@ public class PrisonerReleaseAndTransferService {
         // Create IEP levels
         iepPrisonMapRepository.findByAgencyLocation_IdAndDefaultFlag(receivedPrison.getId(), "Y")
             .stream().findFirst().ifPresentOrElse(
-            iepLevel -> bookingRepository.addIepLevel(booking.getBookingId(), currentUsername,
-                IepLevelAndComment.builder().iepLevel(iepLevel.getIepLevel()).comment(format("Admission to %s", receivedPrison.getDescription())).build(), receiveTime, receivedPrison.getId()),
+            iepLevel -> {
+                final var staff = staffUserAccountRepository.findById(authenticationFacade.getCurrentUsername()).orElseThrow(EntityNotFoundException.withId(authenticationFacade.getCurrentUsername()));
+                booking.addIepLevel(iepLevel.getIepLevel(), format("Admission to %s", receivedPrison.getDescription()), receiveTime, staff);
+                },
             () -> { throw new BadRequestException("No default IEP level found"); } );
 
         setupBookingAccount(booking, fromLocation, receivedPrison, receiveTime, movementReason, imprisonmentStatus);
@@ -531,8 +534,10 @@ public class PrisonerReleaseAndTransferService {
         // Create IEP levels
         iepPrisonMapRepository.findByAgencyLocation_IdAndDefaultFlag(booking.getLocation().getId(), "Y")
             .stream().findFirst().ifPresentOrElse(
-            iepLevel -> bookingRepository.addIepLevel(booking.getBookingId(), authenticationFacade.getCurrentUsername(),
-                IepLevelAndComment.builder().iepLevel(iepLevel.getIepLevel()).comment(format("Admission to %s", latestExternalMovement.getToAgency().getDescription())).build(), receiveTime, latestExternalMovement.getToAgency().getId()),
+            iepLevel -> {
+                final var staff = staffUserAccountRepository.findById(authenticationFacade.getCurrentUsername()).orElseThrow(EntityNotFoundException.withId(authenticationFacade.getCurrentUsername()));
+                booking.addIepLevel(iepLevel.getIepLevel(), format("Admission to %s", latestExternalMovement.getToAgency().getDescription()), receiveTime, staff);
+            },
             () -> { throw new BadRequestException("No default IEP level found"); } );
 
         // create Admission case note

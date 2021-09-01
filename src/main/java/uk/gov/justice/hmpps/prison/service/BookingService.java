@@ -54,6 +54,7 @@ import uk.gov.justice.hmpps.prison.repository.SentenceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Caseload;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.IepPrisonMap.PK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.KeyDateAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderContactPerson;
@@ -62,6 +63,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.KeyDateValues;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.IepPrisonMapRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPersonsRepository;
@@ -142,6 +144,7 @@ public class BookingService {
     private final StaffUserAccountRepository staffUserAccountRepository;
     private final OffenderBookingTransformer offenderBookingTransformer;
     private final OffenderSentenceRepository offenderSentenceRepository;
+    private final IepPrisonMapRepository iepPrisonMapRepository;
     private final OffenderTransformer offenderTransformer;
     private final AuthenticationFacade authenticationFacade;
     private final String defaultIepLevel;
@@ -167,6 +170,7 @@ public class BookingService {
                           final OffenderTransformer offenderTransformer,
                           final AuthenticationFacade authenticationFacade,
                           final OffenderSentenceRepository offenderSentenceRepository,
+                          final IepPrisonMapRepository iepPrisonMapRepository,
                           @Value("${api.bookings.iepLevel.default:Unknown}") final String defaultIepLevel,
                           @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.bookingRepository = bookingRepository;
@@ -189,6 +193,7 @@ public class BookingService {
         this.offenderTransformer = offenderTransformer;
         this.authenticationFacade = authenticationFacade;
         this.offenderSentenceRepository = offenderSentenceRepository;
+        this.iepPrisonMapRepository = iepPrisonMapRepository;
         this.defaultIepLevel = defaultIepLevel;
         this.maxBatchSize = maxBatchSize;
     }
@@ -304,20 +309,15 @@ public class BookingService {
     @Transactional
     public void addIepLevel(final Long bookingId, final String username, @Valid final IepLevelAndComment iepLevel) {
 
-        if (!referenceDomainService.isReferenceCodeActive(IEP_LEVEL_DOMAIN, iepLevel.getIepLevel())) {
-            throw new IllegalArgumentException(format("IEP Level '%1$s' is not a valid NOMIS value.", iepLevel.getIepLevel()));
-        }
+        final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
 
-        if (!activeIepLevelForAgencySelectedByBooking(bookingId, iepLevel.getIepLevel())) {
-            throw new IllegalArgumentException(format("IEP Level '%1$s' is not active for this booking's agency: Booking Id %2$d.", iepLevel.getIepLevel(), bookingId));
-        }
+        final var iep = iepPrisonMapRepository.findById(new PK(iepLevel.getIepLevel(), offenderBooking.getLocation())).orElseThrow(
+            EntityNotFoundException.withMessage(format("IEP Level '%1$s' is not active for this booking's agency: Booking Id %2$d.", iepLevel.getIepLevel(), bookingId))
+        );
 
-        bookingRepository.addIepLevel(bookingId, username, iepLevel, LocalDateTime.now(), bookingRepository.getBookingAgency(bookingId).orElseThrow(EntityNotFoundException.withMessage("Booking has no agency")));
-    }
+        final var staff = staffUserAccountRepository.findById(username).orElseThrow(EntityNotFoundException.withId(username));
 
-    private boolean activeIepLevelForAgencySelectedByBooking(final long bookingId, final String iepLevel) {
-        final var iepLevels = bookingRepository.getIepLevelsForAgencySelectedByBooking(bookingId);
-        return iepLevels.contains(iepLevel);
+        offenderBooking.addIepLevel(iep.getIepLevel(), iepLevel.getComment(), LocalDateTime.now(), staff);
     }
 
     public Map<Long, PrivilegeSummary> getBookingIEPSummary(final List<Long> bookingIds, final boolean withDetails) {

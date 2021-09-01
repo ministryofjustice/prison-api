@@ -62,9 +62,14 @@ public class OffenderIepLevel extends ExtendedAuditableEntity {
     private LocalDateTime iepDateTime;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "AGY_LOC_ID", nullable = false)
+    @Exclude
+    private AgencyLocation agencyLocation;
+
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumns({
-        @JoinColumn(name="IEP_LEVEL", referencedColumnName="IEP_LEVEL"),
-        @JoinColumn(name="AGY_LOC_ID", referencedColumnName="AGY_LOC_ID")
+        @JoinColumn(name="IEP_LEVEL", referencedColumnName="IEP_LEVEL", updatable = false, insertable = false),
+        @JoinColumn(name="AGY_LOC_ID", referencedColumnName="AGY_LOC_ID", updatable = false, insertable = false)
     })
     @Exclude
     private IepPrisonMap iepPrisonMap;
@@ -72,7 +77,7 @@ public class OffenderIepLevel extends ExtendedAuditableEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumnsOrFormulas(value = {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + IepLevel.IEP_LEVEL + "'", referencedColumnName = "domain")),
-        @JoinColumnOrFormula(column = @JoinColumn(name = "IEP_LEVEL", referencedColumnName = "code", insertable = false, updatable = false))
+        @JoinColumnOrFormula(column = @JoinColumn(name = "IEP_LEVEL", referencedColumnName = "code"))
     })
     @Exclude
     private IepLevel iepLevel;

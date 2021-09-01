@@ -10,6 +10,9 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.JoinColumnOrFormula;
+import org.hibernate.annotations.JoinColumnsOrFormulas;
+import org.hibernate.annotations.JoinFormula;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -37,19 +40,28 @@ public class IepPrisonMap extends AuditableEntity  {
     @AllArgsConstructor
     @EqualsAndHashCode
     public static class PK implements Serializable {
-        private String iepLevel;
+        private String id;
         private AgencyLocation agencyLocation;
     }
 
     @Id
     @Column(name = "IEP_LEVEL", nullable = false)
-    private String iepLevel;
+    private String id;
 
     @Id
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "AGY_LOC_ID", nullable = false)
     @Exclude
     private AgencyLocation agencyLocation;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumnsOrFormulas(value = {
+        @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + IepLevel.IEP_LEVEL + "'", referencedColumnName = "domain")),
+        @JoinColumnOrFormula(column = @JoinColumn(name = "IEP_LEVEL", referencedColumnName = "code", updatable = false, insertable = false))
+    })
+    @Exclude
+    private IepLevel iepLevel;
 
     @Column(name = "ACTIVE_FLAG", nullable = false)
     private String activeFlag;
