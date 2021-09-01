@@ -69,7 +69,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdju
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitorRepository;
@@ -141,7 +140,6 @@ public class BookingService {
     private final OffenderContactPersonsRepository offenderContactPersonsRepository;
     private final StaffUserAccountRepository staffUserAccountRepository;
     private final OffenderBookingTransformer offenderBookingTransformer;
-    private final OffenderSentenceRepository offenderSentenceRepository;
     private final OffenderTransformer offenderTransformer;
     private final AuthenticationFacade authenticationFacade;
     private final String defaultIepLevel;
@@ -166,7 +164,6 @@ public class BookingService {
                           final OffenderBookingTransformer offenderBookingTransformer,
                           final OffenderTransformer offenderTransformer,
                           final AuthenticationFacade authenticationFacade,
-                          final OffenderSentenceRepository offenderSentenceRepository,
                           @Value("${api.bookings.iepLevel.default:Unknown}") final String defaultIepLevel,
                           @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.bookingRepository = bookingRepository;
@@ -188,7 +185,6 @@ public class BookingService {
         this.offenderBookingTransformer = offenderBookingTransformer;
         this.offenderTransformer = offenderTransformer;
         this.authenticationFacade = authenticationFacade;
-        this.offenderSentenceRepository = offenderSentenceRepository;
         this.defaultIepLevel = defaultIepLevel;
         this.maxBatchSize = maxBatchSize;
     }
@@ -342,7 +338,7 @@ public class BookingService {
                         .iepDate(currentDetail.getIepDate())
                         .iepTime(currentDetail.getIepTime())
                         .iepLevel(currentDetail.getIepLevel())
-                        .daysSinceReview(Long.valueOf(daysSinceReview).intValue())
+                        .daysSinceReview(daysSinceReview)
                         .iepDetails(withDetails ? iepDetails : Collections.emptyList())
                         .build());
             });
@@ -1006,6 +1002,7 @@ public class BookingService {
     public Page<PrisonerBookingSummary> getPrisonerBookingSummary(final String prisonId,
                                                                   final List<Long> bookingIds,
                                                                   final List<String> offenderNos,
+                                                                  final boolean iepLevel, final boolean legalInfo, final boolean imageId,
                                                                   final Pageable pageable) {
 
         if (Optional.ofNullable(prisonId).isEmpty() && Optional.ofNullable(bookingIds).isEmpty() && Optional.ofNullable(offenderNos).isEmpty()) {
@@ -1029,7 +1026,7 @@ public class BookingService {
         final var pageOfBookings= offenderBookingRepository.findAll(filter, paging);
 
         log.info("Returning {} of {} matching Bookings starting at page {}", pageOfBookings.getNumberOfElements(), pageOfBookings.getTotalElements(), pageOfBookings.getNumber());
-        return pageOfBookings.map(offenderBookingTransformer::transform);
+        return pageOfBookings.map(ob -> offenderBookingTransformer.transform(ob, iepLevel, legalInfo, imageId));
 
     }
 

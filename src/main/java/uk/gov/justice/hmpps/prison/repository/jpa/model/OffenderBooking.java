@@ -13,6 +13,7 @@ import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.ListIndexBase;
 import uk.gov.justice.hmpps.prison.api.model.LegalStatus;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
+import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord.BookingAndSequence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail.PK;
@@ -37,12 +38,15 @@ import javax.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static java.time.LocalDate.now;
+import static java.time.temporal.ChronoUnit.DAYS;
 import static java.util.stream.Collectors.toList;
 
 @Getter
@@ -188,6 +192,11 @@ public class OffenderBooking extends ExtendedAuditableEntity {
     @Default
     @Exclude
     private List<OffenderAlert> alerts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
+    @Default
+    @Exclude
+    private List<OffenderIepLevel> iepLevels = new ArrayList<>();
 
     @Column(name = "ROOT_OFFENDER_ID")
     private Long rootOffenderId;
@@ -536,6 +545,23 @@ public class OffenderBooking extends ExtendedAuditableEntity {
             .filter(i -> "FACE".equals(i.getViewType()))
             .filter(i -> "FRONT".equals(i.getOrientationType()))
             .max(Comparator.comparing(OffenderImage::getId));
+    }
+
+    public Optional<OffenderIepLevel> getLatestIepLevel() {
+        return iepLevels.stream()
+            .max(Comparator.comparing(OffenderIepLevel::getIepDate).thenComparing(OffenderIepLevel::getSequence));
+    }
+
+    public Optional<PrivilegeSummary> getIepSummary(boolean withDetails) {
+        return getLatestIepLevel().map(iep -> PrivilegeSummary.builder()
+            .bookingId(getBookingId())
+            .iepDate(iep.getIepDate())
+            .iepTime(iep.getIepDateTime())
+            .iepLevel(iep.getIepLevel().getDescription())
+            .daysSinceReview(DAYS.between(iep.getIepDate(), now()))
+            .iepDetails(withDetails ? iepLevels.stream().sorted(Comparator.comparing(OffenderIepLevel::getIepDate).thenComparing(OffenderIepLevel::getSequence))
+                .map(OffenderIepLevel::getIepSummary).toList() : Collections.emptyList())
+            .build());
     }
 
     public List<String> getAlertCodes() {

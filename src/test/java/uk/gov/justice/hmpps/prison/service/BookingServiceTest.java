@@ -69,7 +69,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPers
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitRepository;
@@ -138,6 +137,8 @@ public class BookingServiceTest {
     @Mock
     private OffenderBookingTransformer offenderBookingTransformer;
     @Mock
+    private OffenderBookingTransformer offenderBookingTransformer;
+    @Mock
     private OffenderSentenceRepository offenderSentenceRepository;
     @Mock
     private CaseloadToAgencyMappingService caseloadToAgencyMappingService;
@@ -168,7 +169,6 @@ public class BookingServiceTest {
                 offenderBookingTransformer,
                 offenderTransformer,
                 authenticationFacade,
-                offenderSentenceRepository,
                 "1",
                 10);
     }

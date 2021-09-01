@@ -48,7 +48,7 @@ public class PrivilegeSummary {
 
     @ApiModelProperty(required = true, value = "The number of days since last review.", example = "35", position = 5)
     @NotNull
-    private Integer daysSinceReview;
+    private Long daysSinceReview;
 
     @ApiModelProperty(value = "All IEP detail entries for the offender (most recent first).", position = 6)
     private List<PrivilegeDetail> iepDetails;

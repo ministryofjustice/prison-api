@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -27,6 +28,7 @@ import javax.persistence.Table;
 @Entity
 @Data
 @Table(name = "AGENCY_INTERNAL_LOCATIONS")
+@BatchSize(size = 25)
 public class AgencyInternalLocation {
     @Id
     @Column(name = "INTERNAL_LOCATION_ID")
