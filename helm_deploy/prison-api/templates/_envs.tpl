@@ -10,6 +10,9 @@ env:
   - name: DATA_COMPLIANCE_DELETION_ENABLED
     value: "{{ .Values.env.DATA_COMPLIANCE_DELETION_ENABLED }}"
 
+  - name: DATA_COMPLIANCE_DECEASED_DELETION_ENABLED
+    value: "{{ .Values.env.DATA_COMPLIANCE_DECEASED_DELETION_ENABLED }}"
+
   - name: APPLICATION_INSIGHTS_IKEY
     valueFrom:
       secretKeyRef:

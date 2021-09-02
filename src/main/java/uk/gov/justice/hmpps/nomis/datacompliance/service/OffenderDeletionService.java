@@ -47,7 +47,7 @@ public class OffenderDeletionService {
 
         offenderDeletionRepository.setContext(AppModuleName.MERGE);
 
-        final var offenderIds = offenderDeletionRepository.cleanseOffenderData(grant.getOffenderNo());
+        final var offenderIds = offenderDeletionRepository.cleanseOffenderDataExcludingBaseRecord(grant.getOffenderNo());
 
         offenderDeletionRepository.setContext(AppModuleName.PRISON_API);
 
