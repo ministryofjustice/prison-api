@@ -11,6 +11,7 @@ import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.listeners.dto.AdHocReferralRequest;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.listeners.dto.DataDuplicateCheck;
+import uk.gov.justice.hmpps.nomis.datacompliance.events.listeners.dto.DeceasedOffenderDeletionRequest;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.listeners.dto.FreeTextCheck;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.listeners.dto.OffenderDeletionGranted;
 import uk.gov.justice.hmpps.nomis.datacompliance.events.listeners.dto.OffenderRestrictionRequest;
@@ -18,6 +19,7 @@ import uk.gov.justice.hmpps.nomis.datacompliance.events.listeners.dto.Provisiona
 import uk.gov.justice.hmpps.nomis.datacompliance.events.listeners.dto.ReferralRequest;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.DataComplianceReferralService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.DataDuplicateService;
+import uk.gov.justice.hmpps.nomis.datacompliance.service.DeceasedOffenderDeletionService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.FreeTextSearchService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDeletionService;
 import uk.gov.justice.hmpps.nomis.datacompliance.service.OffenderDeletionService.OffenderDeletionGrant;
@@ -48,6 +50,7 @@ public class DataComplianceEventListener {
     private static final String FREE_TEXT_MORATORIUM_CHECK = "DATA_COMPLIANCE_FREE-TEXT-MORATORIUM-CHECK";
     private static final String OFFENDER_RESTRICTION_CHECK = "DATA_COMPLIANCE_OFFENDER-RESTRICTION-CHECK";
     private static final String OFFENDER_DELETION_GRANTED = "DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED";
+    private static final String DECEASED_OFFENDER_DELETION_REQUEST = "DATA_COMPLIANCE_DECEASED-OFFENDER-DELETION-REQUEST";
 
     private final Map<String, MessageHandler> messageHandlers = Map.of(
             REFERRAL_REQUEST, this::handleReferralRequest,
@@ -57,7 +60,8 @@ public class DataComplianceEventListener {
             DATA_DUPLICATE_DB_CHECK, this::handleDuplicateDataCheck,
             FREE_TEXT_MORATORIUM_CHECK, this::handleFreeTextMoratoriumCheck,
             OFFENDER_RESTRICTION_CHECK, this::handleOffenderRestrictionCheck,
-            OFFENDER_DELETION_GRANTED, this::handleDeletionGranted);
+            OFFENDER_DELETION_GRANTED, this::handleDeletionGranted,
+            DECEASED_OFFENDER_DELETION_REQUEST, this::handleDeceasedOffenderDeletionRequest);
 
     private final DataComplianceReferralService dataComplianceReferralService;
     private final DataDuplicateService dataDuplicateService;
@@ -65,13 +69,15 @@ public class DataComplianceEventListener {
     private final FreeTextSearchService freeTextSearchService;
     private final OffenderRestrictionService offenderRestrictionService;
     private final ObjectMapper objectMapper;
+    private final DeceasedOffenderDeletionService deceasedOffenderDeletionService;
 
     public DataComplianceEventListener(final DataComplianceReferralService dataComplianceReferralService,
                                        final DataDuplicateService dataDuplicateService,
                                        final OffenderDeletionService offenderDeletionService,
                                        final FreeTextSearchService freeTextSearchService,
                                        final OffenderRestrictionService offenderRestrictionService,
-                                       final ObjectMapper objectMapper) {
+                                       final ObjectMapper objectMapper,
+                                       final DeceasedOffenderDeletionService deceasedOffenderDeletionService) {
 
         log.info("Configured to listen to data compliance events");
 
@@ -81,6 +87,7 @@ public class DataComplianceEventListener {
         this.freeTextSearchService = freeTextSearchService;
         this.offenderRestrictionService = offenderRestrictionService;
         this.objectMapper = objectMapper;
+        this.deceasedOffenderDeletionService = deceasedOffenderDeletionService;
     }
 
     @JmsListener(destination = "${data.compliance.request.sqs.queue.name}")
@@ -91,17 +98,6 @@ public class DataComplianceEventListener {
         log.debug("Handling incoming data compliance event of type: {}", eventType);
 
         messageHandlers.get(eventType).handle(message);
-    }
-
-    private String getEventType(final MessageHeaders messageHeaders) {
-
-        final var eventType = messageHeaders.get("eventType", String.class);
-
-        checkNotNull(eventType, "Message event type not found");
-        checkState(messageHandlers.containsKey(eventType),
-                "Unexpected message event type: '%s', expecting one of: %s", eventType, messageHandlers.keySet());
-
-        return eventType;
     }
 
     private void handleReferralRequest(final Message<String> message) {
@@ -156,6 +152,53 @@ public class DataComplianceEventListener {
         offenderRestrictionService.checkForOffenderRestrictions(event);
     }
 
+    private void handleDuplicateIdCheck(final Message<String> message) {
+        final var event = parseDataDuplicateEvent(message);
+        dataDuplicateService.checkForDuplicateIds(event.getOffenderIdDisplay(), event.getRetentionCheckId());
+    }
+
+    private void handleDuplicateDataCheck(final Message<String> message) {
+        final var event = parseDataDuplicateEvent(message);
+        dataDuplicateService.checkForDataDuplicates(event.getOffenderIdDisplay(), event.getRetentionCheckId());
+    }
+
+    private void handleDeletionGranted(final Message<String> message) {
+        final var event = parseEvent(message.getPayload(), OffenderDeletionGranted.class);
+
+        checkState(isNotEmpty(event.getOffenderIdDisplay()), "No offender specified in request: %s", message.getPayload());
+        checkNotNull(event.getReferralId(), "No referral ID specified in request: %s", message.getPayload());
+
+        offenderDeletionService.deleteOffender(OffenderDeletionGrant.builder()
+            .offenderNo(event.getOffenderIdDisplay())
+            .referralId(event.getReferralId())
+            .offenderIds(event.getOffenderIds())
+            .offenderBookIds(event.getOffenderBookIds())
+            .build());
+    }
+
+    private void handleDeceasedOffenderDeletionRequest(final Message<String> message) {
+        final var event = parseEvent(message.getPayload(), DeceasedOffenderDeletionRequest.class);
+
+        checkNotNull(event.getBatchId(), "No batch ID specified in the request: %s", message.getPayload());
+
+        final var pageRequest = Optional.ofNullable(event.getLimit())
+            .map(limit -> (Pageable) PageRequest.of(0, limit))
+            .orElse(unpaged());
+
+        deceasedOffenderDeletionService.deleteDeceasedOffenders(event.getBatchId(), pageRequest);
+    }
+
+    private String getEventType(final MessageHeaders messageHeaders) {
+
+        final var eventType = messageHeaders.get("eventType", String.class);
+
+        checkNotNull(eventType, "Message event type not found");
+        checkState(messageHandlers.containsKey(eventType),
+            "Unexpected message event type: '%s', expecting one of: %s", eventType, messageHandlers.keySet());
+
+        return eventType;
+    }
+
     private void validateFreeTextCheck(final FreeTextCheck event, final String payload) {
         checkState(isNotEmpty(event.getOffenderIdDisplay()), "No offender specified in request: %s", payload);
         checkNotNull(event.getRetentionCheckId(), "No retention check ID specified in request: %s", payload);
@@ -180,16 +223,6 @@ public class DataComplianceEventListener {
         }
     }
 
-    private void handleDuplicateIdCheck(final Message<String> message) {
-        final var event = parseDataDuplicateEvent(message);
-        dataDuplicateService.checkForDuplicateIds(event.getOffenderIdDisplay(), event.getRetentionCheckId());
-    }
-
-    private void handleDuplicateDataCheck(final Message<String> message) {
-        final var event = parseDataDuplicateEvent(message);
-        dataDuplicateService.checkForDataDuplicates(event.getOffenderIdDisplay(), event.getRetentionCheckId());
-    }
-
     private DataDuplicateCheck parseDataDuplicateEvent(final Message<String> message) {
         final var event = parseEvent(message.getPayload(), DataDuplicateCheck.class);
 
@@ -197,20 +230,6 @@ public class DataComplianceEventListener {
         checkNotNull(event.getRetentionCheckId(), "No retention check ID specified in request: %s", message.getPayload());
 
         return event;
-    }
-
-    private void handleDeletionGranted(final Message<String> message) {
-        final var event = parseEvent(message.getPayload(), OffenderDeletionGranted.class);
-
-        checkState(isNotEmpty(event.getOffenderIdDisplay()), "No offender specified in request: %s", message.getPayload());
-        checkNotNull(event.getReferralId(), "No referral ID specified in request: %s", message.getPayload());
-
-        offenderDeletionService.deleteOffender(OffenderDeletionGrant.builder()
-                .offenderNo(event.getOffenderIdDisplay())
-                .referralId(event.getReferralId())
-                .offenderIds(event.getOffenderIds())
-                .offenderBookIds(event.getOffenderBookIds())
-                .build());
     }
 
     private <T> T parseEvent(final String requestJson, final Class<T> eventType) {

@@ -52,7 +52,7 @@ public class OffenderDeletionServiceTest {
     public void setUp() {
 
         service = new OffenderDeletionService(
-                new DataComplianceProperties(true),
+                new DataComplianceProperties(true, false),
                 offenderAliasPendingDeletionRepository,
                 offenderDeletionRepository,
                 dataComplianceEventPusher,
@@ -64,7 +64,7 @@ public class OffenderDeletionServiceTest {
 
         mockOffenderIds();
 
-        when(offenderDeletionRepository.cleanseOffenderData(OFFENDER_NUMBER)).thenReturn(Set.of(OFFENDER_ID));
+        when(offenderDeletionRepository.cleanseOffenderDataExcludingBaseRecord(OFFENDER_NUMBER)).thenReturn(Set.of(OFFENDER_ID));
 
         service.deleteOffender(OffenderDeletionGrant.builder()
                 .offenderNo(OFFENDER_NUMBER)
@@ -120,7 +120,7 @@ public class OffenderDeletionServiceTest {
     void deleteOffenderThrowsIfDeletionNotEnabled() {
 
         service = new OffenderDeletionService(
-                new DataComplianceProperties(false),
+                new DataComplianceProperties(false, false),
                 offenderAliasPendingDeletionRepository,
                 offenderDeletionRepository,
                 dataComplianceEventPusher,
