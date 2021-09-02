@@ -12,6 +12,8 @@ import org.hibernate.Hibernate;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeDetail;
 
 import javax.persistence.Column;
@@ -72,7 +74,7 @@ public class OffenderIepLevel extends ExtendedAuditableEntity {
         @JoinColumn(name="AGY_LOC_ID", referencedColumnName="AGY_LOC_ID", updatable = false, insertable = false)
     })
     @Exclude
-    private IepPrisonMap iepPrisonMap;
+    private AvailablePrisonIepLevel availablePrisonIepLevel;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumnsOrFormulas(value = {
@@ -85,8 +87,9 @@ public class OffenderIepLevel extends ExtendedAuditableEntity {
     @Column(name = "COMMENT_TEXT")
     private String comment;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID", nullable = false)
+    @ManyToOne
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "USER_ID")
     @Exclude
     private StaffUserAccount staffUser;
 
@@ -96,7 +99,7 @@ public class OffenderIepLevel extends ExtendedAuditableEntity {
             .iepDate(getIepDate())
             .iepTime(getIepDateTime())
             .iepLevel(getIepLevel().getDescription())
-            .agencyId(getIepPrisonMap().getAgencyLocation().getId())
+            .agencyId(getAvailablePrisonIepLevel().getAgencyLocation().getId())
             .comments(getComment())
             .userId(getStaffUser().getUsername())
             .build();

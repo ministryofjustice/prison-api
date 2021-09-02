@@ -62,7 +62,7 @@ public class OffenderCourtCase extends AuditableEntity {
     @JoinColumn(name = "AGY_LOC_ID", nullable = false)
     private AgencyLocation agencyLocation;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + LEG_CASE_TYP + "'", referencedColumnName = "domain")),
@@ -74,7 +74,7 @@ public class OffenderCourtCase extends AuditableEntity {
 
     private String caseInfoNumber;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + CASE_STS + "'", referencedColumnName = "domain")),

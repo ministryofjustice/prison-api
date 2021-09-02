@@ -139,6 +139,7 @@ public class OffenderBooking extends ExtendedAuditableEntity {
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude
+    @BatchSize(size = 25)
     private List<ExternalMovement> externalMovements = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
@@ -160,6 +161,7 @@ public class OffenderBooking extends ExtendedAuditableEntity {
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude
+    @BatchSize(size = 25)
     private List<SentenceCalculation> sentenceCalculations = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
@@ -175,11 +177,13 @@ public class OffenderBooking extends ExtendedAuditableEntity {
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude
+    @BatchSize(size = 25)
     private List<SentenceTerm> terms = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude
+    @BatchSize(size = 25)
     private List<OffenderSentence> sentences = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
@@ -191,11 +195,13 @@ public class OffenderBooking extends ExtendedAuditableEntity {
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude
+    @BatchSize(size = 25)
     private List<OffenderAlert> alerts = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude
+    @BatchSize(size = 25)
     private List<OffenderIepLevel> iepLevels = new ArrayList<>();
 
     @Column(name = "ROOT_OFFENDER_ID")
@@ -276,7 +282,6 @@ public class OffenderBooking extends ExtendedAuditableEntity {
             .releaseDate();
     }
 
-    // TODO: Add all the other dates in!
     public SentenceCalcDates getSentenceCalcDates() {
         return getLatestCalculation().map(
             sc -> SentenceCalcDates.sentenceCalcDatesBuilder()
@@ -599,7 +604,7 @@ public class OffenderBooking extends ExtendedAuditableEntity {
 
     @Override
     public int hashCode() {
-        return 1583878767;
+        return Objects.hashCode(getBookingId());
     }
 
     @Override

@@ -92,6 +92,6 @@ public class ReleaseDetail extends AuditableEntity {
 
     @Override
     public int hashCode() {
-        return 1214075887;
+        return Objects.hashCode(getId());
     }
 }

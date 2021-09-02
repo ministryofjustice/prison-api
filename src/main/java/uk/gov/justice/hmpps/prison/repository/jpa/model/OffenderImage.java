@@ -95,6 +95,6 @@ public class OffenderImage extends AuditableEntity {
 
     @Override
     public int hashCode() {
-        return 1017477117;
+        return Objects.hashCode(getId());
     }
 }

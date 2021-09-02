@@ -10,6 +10,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
@@ -31,10 +32,11 @@ import java.util.Objects;
 @Builder
 @AllArgsConstructor
 @Entity
-@IdClass(IepPrisonMap.PK.class)
+@IdClass(AvailablePrisonIepLevel.PK.class)
 @Table(name = "IEP_LEVELS")
 @ToString
-public class IepPrisonMap extends AuditableEntity  {
+@BatchSize(size = 25)
+public class AvailablePrisonIepLevel extends AuditableEntity  {
 
     @NoArgsConstructor
     @AllArgsConstructor
@@ -76,10 +78,10 @@ public class IepPrisonMap extends AuditableEntity  {
     public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        final IepPrisonMap iepPrisonMap1 = (IepPrisonMap) o;
+        final AvailablePrisonIepLevel that = (AvailablePrisonIepLevel) o;
 
-        if (!Objects.equals(getIepLevel(), iepPrisonMap1.getIepLevel())) return false;
-        return Objects.equals(getAgencyLocation(), iepPrisonMap1.getAgencyLocation());
+        if (!Objects.equals(getIepLevel(), that.getIepLevel())) return false;
+        return Objects.equals(getAgencyLocation(), that.getAgencyLocation());
     }
 
     @Override

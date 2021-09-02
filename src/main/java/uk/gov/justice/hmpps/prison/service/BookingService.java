@@ -48,16 +48,16 @@ import uk.gov.justice.hmpps.prison.api.model.Visitor;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.repository.BookingRepository;
-import uk.gov.justice.hmpps.prison.repository.InmateRepository;
 import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq;
 import uk.gov.justice.hmpps.prison.repository.SentenceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AvailablePrisonIepLevel.PK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Caseload;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.IepPrisonMap.PK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.KeyDateAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderContactPerson;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImage;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceAdjustment;
@@ -121,13 +121,11 @@ import static uk.gov.justice.hmpps.prison.service.ContactService.EXTERNAL_REL;
 public class BookingService {
 
     private static final String AGENCY_LOCATION_ID_KEY = "agencyLocationId";
-    private static final String IEP_LEVEL_DOMAIN = "IEP_LEVEL";
     public static final String[] RESTRICTED_ALLOWED_ROLES = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "CREATE_CATEGORISATION", "APPROVE_CATEGORISATION"};
 
     private final Comparator<ScheduledEvent> startTimeComparator = Comparator.comparing(ScheduledEvent::getStartTime, nullsLast(naturalOrder()));
 
     private final BookingRepository bookingRepository;
-    private final InmateRepository inmateRepository;
     private final OffenderBookingRepository offenderBookingRepository;
     private final OffenderRepository offenderRepository;
     private final VisitRepository visitRepository;
@@ -135,7 +133,6 @@ public class BookingService {
     private final SentenceRepository sentenceRepository;
     private final AgencyService agencyService;
     private final CaseLoadService caseLoadService;
-    private final ReferenceDomainService referenceDomainService;
     private final CaseloadToAgencyMappingService caseloadToAgencyMappingService;
     private final AgencyInternalLocationRepository agencyInternalLocationRepository;
     private final OffenderSentenceAdjustmentRepository offenderSentenceAdjustmentRepository;
@@ -151,7 +148,6 @@ public class BookingService {
     private final int maxBatchSize;
 
     public BookingService(final BookingRepository bookingRepository,
-                          final InmateRepository inmateRepository,
                           final OffenderBookingRepository offenderBookingRepository,
                           final OffenderRepository offenderRepository,
                           final VisitorRepository visitorRepository,
@@ -159,7 +155,6 @@ public class BookingService {
                           final SentenceRepository sentenceRepository,
                           final AgencyService agencyService,
                           final CaseLoadService caseLoadService,
-                          final ReferenceDomainService referenceDomainService,
                           final CaseloadToAgencyMappingService caseloadToAgencyMappingService,
                           final AgencyInternalLocationRepository agencyInternalLocationRepository,
                           final OffenderSentenceAdjustmentRepository offenderSentenceAdjustmentRepository,
@@ -174,7 +169,6 @@ public class BookingService {
                           @Value("${api.bookings.iepLevel.default:Unknown}") final String defaultIepLevel,
                           @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.bookingRepository = bookingRepository;
-        this.inmateRepository = inmateRepository;
         this.offenderBookingRepository = offenderBookingRepository;
         this.offenderRepository = offenderRepository;
         this.visitRepository = visitRepository;
@@ -182,7 +176,6 @@ public class BookingService {
         this.sentenceRepository = sentenceRepository;
         this.agencyService = agencyService;
         this.caseLoadService = caseLoadService;
-        this.referenceDomainService = referenceDomainService;
         this.caseloadToAgencyMappingService = caseloadToAgencyMappingService;
         this.agencyInternalLocationRepository = agencyInternalLocationRepository;
         this.offenderSentenceAdjustmentRepository = offenderSentenceAdjustmentRepository;
@@ -390,11 +383,11 @@ public class BookingService {
         return bookingRepository.getBookingActivities(bookingId, fromDate, toDate, offset, limit, sortFields, sortOrder);
     }
 
-    private List<ScheduledEvent> getBookingActivities(final Collection<Long> bookingIds, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order) {
+    private List<ScheduledEvent> getBookingActivities(final Collection<Long> bookingIds, final LocalDate fromDate, final LocalDate toDate) {
         validateScheduledEventsRequest(fromDate, toDate);
 
-        final var sortFields = StringUtils.defaultString(orderByFields, "startTime");
-        final var sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
+        final var sortFields = StringUtils.defaultString(null, "startTime");
+        final var sortOrder = ObjectUtils.defaultIfNull(null, Order.ASC);
 
         return bookingRepository.getBookingActivities(bookingIds, fromDate, toDate, sortFields, sortOrder);
     }
@@ -533,11 +526,11 @@ public class BookingService {
         return bookingRepository.getBookingVisitBalances(bookingId);
     }
 
-    private List<ScheduledEvent> getBookingVisits(final Collection<Long> bookingIds, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order) {
+    private List<ScheduledEvent> getBookingVisits(final Collection<Long> bookingIds, final LocalDate fromDate, final LocalDate toDate) {
         validateScheduledEventsRequest(fromDate, toDate);
 
-        final var sortFields = StringUtils.defaultString(orderByFields, "startTime");
-        final var sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
+        final var sortFields = StringUtils.defaultString(null, "startTime");
+        final var sortOrder = ObjectUtils.defaultIfNull(null, Order.ASC);
 
         return bookingRepository.getBookingVisits(bookingIds, fromDate, toDate, sortFields, sortOrder);
     }
@@ -588,11 +581,11 @@ public class BookingService {
         return bookingRepository.getBookingAppointments(bookingId, fromDate, toDate, sortFields, sortOrder);
     }
 
-    private List<ScheduledEvent> getBookingAppointments(final Collection<Long> bookingIds, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order) {
+    private List<ScheduledEvent> getBookingAppointments(final Collection<Long> bookingIds, final LocalDate fromDate, final LocalDate toDate) {
         validateScheduledEventsRequest(fromDate, toDate);
 
-        final var sortFields = StringUtils.defaultString(orderByFields, "startTime");
-        final var sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
+        final var sortFields = StringUtils.defaultString(null, "startTime");
+        final var sortOrder = ObjectUtils.defaultIfNull(null, Order.ASC);
 
         return bookingRepository.getBookingAppointments(bookingIds, fromDate, toDate, sortFields, sortOrder);
     }
@@ -710,9 +703,9 @@ public class BookingService {
     }
 
     private List<ScheduledEvent> getEvents(final Collection<Long> bookingIds, final LocalDate from, final LocalDate to) {
-        final var activities = getBookingActivities(bookingIds, from, to, null, null);
-        final var visits = getBookingVisits(bookingIds, from, to, null, null);
-        final var appointments = getBookingAppointments(bookingIds, from, to, null, null);
+        final var activities = getBookingActivities(bookingIds, from, to);
+        final var visits = getBookingVisits(bookingIds, from, to);
+        final var appointments = getBookingAppointments(bookingIds, from, to);
 
         return Stream.of(activities, visits, appointments)
                 .flatMap(Collection::stream)
@@ -743,38 +736,49 @@ public class BookingService {
 
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public Optional<OffenderSentenceDetail> getOffenderSentenceDetail(final String offenderNo) {
-        final var offender = inmateRepository.findOffender(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
-        return getBookingSentencesSummary(List.of(offender.getBookingId()))
-                    .stream()
-                    .filter(s -> s.getBookingId().equals(offender.getBookingId()))
-                    .findFirst();
+        return offenderRepository.findOffenderByNomsId(offenderNo)
+            .map(offender -> offender.getLatestBooking().map(booking ->
+                OffenderSentenceDetail.offenderSentenceDetailBuilder()
+                    .offenderNo(offenderNo)
+                    .bookingId(booking.getBookingId())
+                    .firstName(offender.getFirstName())
+                    .lastName(offender.getLastName())
+                    .dateOfBirth(offender.getBirthDate())
+                    .facialImageId(booking.getLatestFaceImage().map(OffenderImage::getId).orElse(null))
+                    .agencyLocationDesc(booking.getLocation().getDescription())
+                    .agencyLocationId(booking.getLocation().getId())
+                    .internalLocationDesc(booking.getAssignedLivingUnit() != null ? LocationProcessor.stripAgencyId(booking.getAssignedLivingUnit().getDescription(), booking.getLocation().getId()) : null)
+                    .sentenceDetail(booking.getSentenceCalcDates())
+                    .build()
+            ))
+            .orElseThrow(EntityNotFoundException.withMessage(format("No prisoner found for prisoner number %s", offenderNo)));
+
     }
 
     @VerifyBookingAccess
     public MilitaryRecords getMilitaryRecords(final Long bookingId) {
         return offenderBookingRepository.findById(bookingId).map(b ->
                 new MilitaryRecords(b.getMilitaryRecords().stream().map(mr ->
-                        MilitaryRecord.builder()
-                                .warZoneCode(ReferenceCode.getCodeOrNull(mr.getWarZone()))
-                                .warZoneDescription(ReferenceCode.getDescriptionOrNull(mr.getWarZone()))
-                                .startDate(mr.getStartDate())
-                                .endDate(mr.getEndDate())
-                                .militaryDischargeCode(ReferenceCode.getCodeOrNull(mr.getMilitaryDischarge()))
-                                .militaryDischargeDescription(ReferenceCode.getDescriptionOrNull(mr.getMilitaryDischarge()))
-                                .militaryBranchCode(ReferenceCode.getCodeOrNull(mr.getMilitaryBranch()))
-                                .militaryBranchDescription(ReferenceCode.getDescriptionOrNull(mr.getMilitaryBranch()))
-                                .description(mr.getDescription())
-                                .unitNumber(mr.getUnitNumber())
-                                .enlistmentLocation(mr.getEnlistmentLocation())
-                                .dischargeLocation(mr.getDischargeLocation())
-                                .selectiveServicesFlag(mr.getSelectiveServicesFlag())
-                                .militaryRankCode(ReferenceCode.getCodeOrNull(mr.getMilitaryRank()))
-                                .militaryRankDescription(ReferenceCode.getDescriptionOrNull(mr.getMilitaryRank()))
-                                .serviceNumber(mr.getServiceNumber())
-                                .disciplinaryActionCode(ReferenceCode.getCodeOrNull(mr.getDisciplinaryAction()))
-                                .disciplinaryActionDescription(ReferenceCode.getDescriptionOrNull(mr.getDisciplinaryAction()))
-                                .build())
-                        .collect(Collectors.toUnmodifiableList())
+                    MilitaryRecord.builder()
+                        .warZoneCode(ReferenceCode.getCodeOrNull(mr.getWarZone()))
+                        .warZoneDescription(ReferenceCode.getDescriptionOrNull(mr.getWarZone()))
+                        .startDate(mr.getStartDate())
+                        .endDate(mr.getEndDate())
+                        .militaryDischargeCode(ReferenceCode.getCodeOrNull(mr.getMilitaryDischarge()))
+                        .militaryDischargeDescription(ReferenceCode.getDescriptionOrNull(mr.getMilitaryDischarge()))
+                        .militaryBranchCode(ReferenceCode.getCodeOrNull(mr.getMilitaryBranch()))
+                        .militaryBranchDescription(ReferenceCode.getDescriptionOrNull(mr.getMilitaryBranch()))
+                        .description(mr.getDescription())
+                        .unitNumber(mr.getUnitNumber())
+                        .enlistmentLocation(mr.getEnlistmentLocation())
+                        .dischargeLocation(mr.getDischargeLocation())
+                        .selectiveServicesFlag(mr.getSelectiveServicesFlag())
+                        .militaryRankCode(ReferenceCode.getCodeOrNull(mr.getMilitaryRank()))
+                        .militaryRankDescription(ReferenceCode.getDescriptionOrNull(mr.getMilitaryRank()))
+                        .serviceNumber(mr.getServiceNumber())
+                        .disciplinaryActionCode(ReferenceCode.getCodeOrNull(mr.getDisciplinaryAction()))
+                        .disciplinaryActionDescription(ReferenceCode.getDescriptionOrNull(mr.getDisciplinaryAction()))
+                        .build()).toList()
                 )).orElseThrow(EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId));
     }
 
@@ -964,11 +968,7 @@ public class BookingService {
     }
 
     private boolean isViewInactiveBookings() {
-        return isOverrideRole("INACTIVE_BOOKINGS");
-    }
-
-    private boolean isOverrideRole(final String otherRole) {
-        return authenticationFacade.isOverrideRole(otherRole, "SYSTEM_USER");
+        return authenticationFacade.isOverrideRole("INACTIVE_BOOKINGS", "SYSTEM_USER");
     }
 
     private static String quotedAndPipeDelimited(final Stream<String> values) {

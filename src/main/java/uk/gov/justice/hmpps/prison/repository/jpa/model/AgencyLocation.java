@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.BatchSize;
-import org.hibernate.Hibernate;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
@@ -135,6 +134,6 @@ public class AgencyLocation extends ExtendedAuditableEntity {
 
     @Override
     public int hashCode() {
-        return 104675102;
+        return Objects.hashCode(getId());
     }
 }

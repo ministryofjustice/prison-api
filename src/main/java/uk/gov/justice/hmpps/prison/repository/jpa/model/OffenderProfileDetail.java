@@ -44,7 +44,7 @@ public class OffenderProfileDetail extends AuditableEntity {
         @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
         private OffenderBooking offenderBooking;
 
-        @ManyToOne(optional = false, fetch = FetchType.EAGER)
+        @ManyToOne(optional = false)
         @NotFound(action = IGNORE)
         @JoinColumn(name = "PROFILE_TYPE", nullable = false)
         private ProfileType type;
@@ -53,7 +53,7 @@ public class OffenderProfileDetail extends AuditableEntity {
         private Integer sequence;
     }
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @ManyToOne(optional = false)
     @JoinColumns(value = {
         @JoinColumn(name = "PROFILE_CODE", referencedColumnName = "PROFILE_CODE", insertable = false, updatable = false),
         @JoinColumn(name = "PROFILE_TYPE", referencedColumnName = "PROFILE_TYPE", nullable = false, insertable = false, updatable = false)

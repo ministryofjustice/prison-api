@@ -53,7 +53,6 @@ public class AddressUsage extends AuditableEntity {
 
     @ManyToOne
     @NotFound(action = IGNORE)
-
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + ADDRESS_TYPE + "'", referencedColumnName = "domain")),
             @JoinColumnOrFormula(column = @JoinColumn(name = "ADDRESS_USAGE", referencedColumnName = "code"))

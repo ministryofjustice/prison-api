@@ -8,7 +8,7 @@ import javax.validation.Validator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class IepPrisonMapAndCommentTest {
+public class AvailablePrisonIepLevelAndCommentTest {
     private static Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
     @Test

@@ -14,7 +14,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.BookingActivity;
 import uk.gov.justice.hmpps.prison.api.model.CourtCase;
-import uk.gov.justice.hmpps.prison.api.model.IepLevelAndComment;
 import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecord;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
@@ -31,7 +30,6 @@ import uk.gov.justice.hmpps.prison.api.model.VisitWithVisitors;
 import uk.gov.justice.hmpps.prison.api.model.Visitor;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.repository.BookingRepository;
-import uk.gov.justice.hmpps.prison.repository.InmateRepository;
 import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
@@ -107,8 +105,6 @@ public class BookingServiceTest {
     @Mock
     private BookingRepository bookingRepository;
     @Mock
-    private InmateRepository inmateRepository;
-    @Mock
     private OffenderBookingRepository offenderBookingRepository;
     @Mock
     private OffenderRepository offenderRepository;
@@ -118,8 +114,6 @@ public class BookingServiceTest {
     private VisitorRepository visitorRepository;
     @Mock
     private AgencyService agencyService;
-    @Mock
-    private ReferenceDomainService referenceDomainService;
     @Mock
     private AgencyInternalLocationRepository agencyInternalLocationRepository;
     @Mock
@@ -151,7 +145,6 @@ public class BookingServiceTest {
     public void init() {
         bookingService = new BookingService(
                 bookingRepository,
-                inmateRepository,
                 offenderBookingRepository,
                 offenderRepository,
                 visitorRepository,
@@ -159,7 +152,6 @@ public class BookingServiceTest {
                 null,
                 agencyService,
                 caseLoadService,
-                referenceDomainService,
                 caseloadToAgencyMappingService,
                 agencyInternalLocationRepository,
                 offenderSentenceAdjustmentRepository,
@@ -259,17 +251,17 @@ public class BookingServiceTest {
 //        verify(bookingRepository).addIepLevel(eq(bookingId), eq("FRED"), eq(iepLevelAndComment), isA(LocalDateTime.class), eq("LEI"));
 //    }
 
-    @Test
-    public void givenInvalidIepLevel_whenIepLevelAdded() {
-        final var bookingId = 1L;
-
-        when(referenceDomainService.isReferenceCodeActive("IEP_LEVEL", "STD")).thenReturn(false);
-
-        final var iepLevelAndComment = IepLevelAndComment.builder().iepLevel("STD").comment("Comment").build();
-        assertThatThrownBy(() -> bookingService.addIepLevel(bookingId, "FRED", iepLevelAndComment))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("IEP Level 'STD' is not a valid NOMIS value.");
-    }
+//    @Test
+//    public void givenInvalidIepLevel_whenIepLevelAdded() {
+//        final var bookingId = 1L;
+//
+//        when(referenceDomainService.isReferenceCodeActive("IEP_LEVEL", "STD")).thenReturn(false);
+//
+//        final var iepLevelAndComment = IepLevelAndComment.builder().iepLevel("STD").comment("Comment").build();
+//        assertThatThrownBy(() -> bookingService.addIepLevel(bookingId, "FRED", iepLevelAndComment))
+//                .isInstanceOf(IllegalArgumentException.class)
+//                .hasMessage("IEP Level 'STD' is not a valid NOMIS value.");
+//    }
 
 //    @Test
 //    public void givenValidIepLevel_whenIepLevelNotValidForAgencyAssociatedWithBooking() {

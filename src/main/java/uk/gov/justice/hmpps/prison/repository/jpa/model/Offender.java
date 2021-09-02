@@ -328,6 +328,6 @@ public class Offender extends ExtendedAuditableEntity {
 
     @Override
     public int hashCode() {
-        return 784301137;
+        return Objects.hashCode(getId());
     }
 }
