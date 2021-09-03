@@ -63,7 +63,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.KeyDateValues;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.IepPrisonMapRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AvailablePrisonIepLevelRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPersonsRepository;
@@ -141,7 +141,7 @@ public class BookingService {
     private final StaffUserAccountRepository staffUserAccountRepository;
     private final OffenderBookingTransformer offenderBookingTransformer;
     private final OffenderSentenceRepository offenderSentenceRepository;
-    private final IepPrisonMapRepository iepPrisonMapRepository;
+    private final AvailablePrisonIepLevelRepository availablePrisonIepLevelRepository;
     private final OffenderTransformer offenderTransformer;
     private final AuthenticationFacade authenticationFacade;
     private final String defaultIepLevel;
@@ -165,7 +165,7 @@ public class BookingService {
                           final OffenderTransformer offenderTransformer,
                           final AuthenticationFacade authenticationFacade,
                           final OffenderSentenceRepository offenderSentenceRepository,
-                          final IepPrisonMapRepository iepPrisonMapRepository,
+                          final AvailablePrisonIepLevelRepository availablePrisonIepLevelRepository,
                           @Value("${api.bookings.iepLevel.default:Unknown}") final String defaultIepLevel,
                           @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.bookingRepository = bookingRepository;
@@ -186,7 +186,7 @@ public class BookingService {
         this.offenderTransformer = offenderTransformer;
         this.authenticationFacade = authenticationFacade;
         this.offenderSentenceRepository = offenderSentenceRepository;
-        this.iepPrisonMapRepository = iepPrisonMapRepository;
+        this.availablePrisonIepLevelRepository = availablePrisonIepLevelRepository;
         this.defaultIepLevel = defaultIepLevel;
         this.maxBatchSize = maxBatchSize;
     }
@@ -304,7 +304,7 @@ public class BookingService {
 
         final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
 
-        final var iep = iepPrisonMapRepository.findById(new PK(iepLevel.getIepLevel(), offenderBooking.getLocation())).orElseThrow(
+        final var iep = availablePrisonIepLevelRepository.findById(new PK(iepLevel.getIepLevel(), offenderBooking.getLocation())).orElseThrow(
             EntityNotFoundException.withMessage(format("IEP Level '%1$s' is not active for this booking's agency: Booking Id %2$d.", iepLevel.getIepLevel(), bookingId))
         );
 

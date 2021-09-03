@@ -39,10 +39,10 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AvailablePrisonIepLevelRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CopyTableRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.IepPrisonMapRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ImprisonmentStatusRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.MovementTypeAndReasonRespository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
@@ -101,7 +101,7 @@ public class PrisonerReleaseAndTransferService {
     private final OffenderNoPayPeriodRepository offenderNoPayPeriodRepository;
     private final OffenderPayStatusRepository offenderPayStatusRepository;
     private final BookingRepository bookingRepository;
-    private final IepPrisonMapRepository iepPrisonMapRepository;
+    private final AvailablePrisonIepLevelRepository availablePrisonIepLevelRepository;
     private final FinanceRepository financeRepository;
     private final ImprisonmentStatusRepository imprisonmentStatusRepository;
     private final ReferenceCodeRepository<CaseNoteType> caseNoteTypeReferenceCodeRepository;
@@ -307,7 +307,7 @@ public class PrisonerReleaseAndTransferService {
         }
 
         // Create IEP levels
-        iepPrisonMapRepository.findByAgencyLocation_IdAndDefaultFlag(prisonToRecallTo.getId(), "Y")
+        availablePrisonIepLevelRepository.findByAgencyLocation_IdAndDefaultFlag(prisonToRecallTo.getId(), "Y")
             .stream().findFirst().ifPresentOrElse(
             iepLevel -> {
                 final var staff = staffUserAccountRepository.findById(authenticationFacade.getCurrentUsername()).orElseThrow(EntityNotFoundException.withId(authenticationFacade.getCurrentUsername()));
@@ -437,7 +437,7 @@ public class PrisonerReleaseAndTransferService {
         }
 
         // Create IEP levels
-        iepPrisonMapRepository.findByAgencyLocation_IdAndDefaultFlag(receivedPrison.getId(), "Y")
+        availablePrisonIepLevelRepository.findByAgencyLocation_IdAndDefaultFlag(receivedPrison.getId(), "Y")
             .stream().findFirst().ifPresentOrElse(
             iepLevel -> {
                 final var staff = staffUserAccountRepository.findById(authenticationFacade.getCurrentUsername()).orElseThrow(EntityNotFoundException.withId(authenticationFacade.getCurrentUsername()));
@@ -528,7 +528,7 @@ public class PrisonerReleaseAndTransferService {
         }
 
         // Create IEP levels
-        iepPrisonMapRepository.findByAgencyLocation_IdAndDefaultFlag(booking.getLocation().getId(), "Y")
+        availablePrisonIepLevelRepository.findByAgencyLocation_IdAndDefaultFlag(booking.getLocation().getId(), "Y")
             .stream().findFirst().ifPresentOrElse(
             iepLevel -> {
                 final var staff = staffUserAccountRepository.findById(authenticationFacade.getCurrentUsername()).orElseThrow(EntityNotFoundException.withId(authenticationFacade.getCurrentUsername()));

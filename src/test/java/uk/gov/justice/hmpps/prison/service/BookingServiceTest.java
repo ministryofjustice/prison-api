@@ -14,6 +14,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.BookingActivity;
 import uk.gov.justice.hmpps.prison.api.model.CourtCase;
+import uk.gov.justice.hmpps.prison.api.model.IepLevelAndComment;
 import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecord;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
@@ -35,9 +36,12 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AvailablePrisonIepLevel;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AvailablePrisonIepLevel.PK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtOrder;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.DisciplinaryAction;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.IepLevel;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.KeyDateAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LegalCaseType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryBranch;
@@ -58,11 +62,12 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.RelationshipType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalcType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitorInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.WarZone;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.IepPrisonMapRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AvailablePrisonIepLevelRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPersonsRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
@@ -87,6 +92,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.nhaarman.mockitokotlin2.MatchersKt.eq;
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -131,7 +137,7 @@ public class BookingServiceTest {
     @Mock
     private OffenderBookingTransformer offenderBookingTransformer;
     @Mock
-    private IepPrisonMapRepository iepPrisonMapRepository;
+    private AvailablePrisonIepLevelRepository availablePrisonIepLevelRepository;
     @Mock
     private OffenderSentenceRepository offenderSentenceRepository;
     @Mock
@@ -162,7 +168,7 @@ public class BookingServiceTest {
                 offenderTransformer,
                 authenticationFacade,
                 offenderSentenceRepository,
-                iepPrisonMapRepository,
+            availablePrisonIepLevelRepository,
                 "1",
                 10);
     }
@@ -237,44 +243,33 @@ public class BookingServiceTest {
                 .isInstanceOf(EntityNotFoundException.class);
     }
 
-//    @Test
-//    public void givenValidBookingIdIepLevelAndComment_whenIepLevelAdded() {
-//        final var bookingId = 1L;
-//
-//        when(bookingRepository.getIepLevelsForAgencySelectedByBooking(bookingId)).thenReturn(Set.of("ENT", "BAS", "STD", "ENH"));
-//        when(bookingRepository.getBookingAgency(bookingId)).thenReturn(Optional.of("LEI"));
-//
-//        final var iepLevelAndComment = IepLevelAndComment.builder().iepLevel("STD").comment("Comment").build();
-//
-//        bookingService.addIepLevel(bookingId, "FRED", iepLevelAndComment);
-//
-//        verify(bookingRepository).addIepLevel(eq(bookingId), eq("FRED"), eq(iepLevelAndComment), isA(LocalDateTime.class), eq("LEI"));
-//    }
+    @Test
+    public void givenValidBookingIdIepLevelAndComment_whenIepLevelAdded() {
+        final var bookingId = 1L;
+        final var iepLevelAndComment = IepLevelAndComment.builder().iepLevel("STD").comment("Comment").build();
 
-//    @Test
-//    public void givenInvalidIepLevel_whenIepLevelAdded() {
-//        final var bookingId = 1L;
-//
-//        when(referenceDomainService.isReferenceCodeActive("IEP_LEVEL", "STD")).thenReturn(false);
-//
-//        final var iepLevelAndComment = IepLevelAndComment.builder().iepLevel("STD").comment("Comment").build();
-//        assertThatThrownBy(() -> bookingService.addIepLevel(bookingId, "FRED", iepLevelAndComment))
-//                .isInstanceOf(IllegalArgumentException.class)
-//                .hasMessage("IEP Level 'STD' is not a valid NOMIS value.");
-//    }
+        final var leedsPrison = AgencyLocation.builder().id("LEI").build();
+        when(offenderBookingRepository.findById(bookingId)).thenReturn(Optional.of(OffenderBooking.builder().bookingId(bookingId).location(leedsPrison).build()));
+        when(availablePrisonIepLevelRepository.findById(eq(new PK(iepLevelAndComment.getIepLevel(), leedsPrison)))).thenReturn(Optional.of(AvailablePrisonIepLevel.builder().iepLevel(new IepLevel("STD", "Standard")).agencyLocation(leedsPrison).build()));
+        when(staffUserAccountRepository.findById("FRED")).thenReturn(Optional.of(StaffUserAccount.builder().username("FRED").build()));
+        bookingService.addIepLevel(bookingId, "FRED", iepLevelAndComment);
 
-//    @Test
-//    public void givenValidIepLevel_whenIepLevelNotValidForAgencyAssociatedWithBooking() {
-//        final var bookingId = 1L;
-//
-//        when(referenceDomainService.isReferenceCodeActive("IEP_LEVEL", "STD")).thenReturn(true);
-//        when(bookingRepository.getIepLevelsForAgencySelectedByBooking(bookingId)).thenReturn(Set.of("ENT", "BAS", "ENH"));
-//
-//        final var iepLevelAndComment = IepLevelAndComment.builder().iepLevel("STD").comment("Comment").build();
-//        assertThatThrownBy(() -> bookingService.addIepLevel(bookingId, "FRED", iepLevelAndComment))
-//                .isInstanceOf(IllegalArgumentException.class)
-//                .hasMessage("IEP Level 'STD' is not active for this booking's agency: Booking Id 1.");
-//    }
+        verify(availablePrisonIepLevelRepository).findById(eq(new PK(iepLevelAndComment.getIepLevel(), leedsPrison)));
+    }
+
+    @Test
+    public void givenInvalidIepLevel_whenIepLevelAdded() {
+        final var bookingId = 1L;
+        final var iepLevelAndComment = IepLevelAndComment.builder().iepLevel("STD").comment("Comment").build();
+
+        final var leedsPrison = AgencyLocation.builder().id("LEI").build();
+        when(offenderBookingRepository.findById(bookingId)).thenReturn(Optional.of(OffenderBooking.builder().bookingId(bookingId).location(leedsPrison).build()));
+        when(availablePrisonIepLevelRepository.findById(eq(new PK(iepLevelAndComment.getIepLevel(), leedsPrison)))).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> bookingService.addIepLevel(bookingId, "FRED", iepLevelAndComment))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage("IEP Level 'STD' is not active for this booking's agency: Booking Id 1.");
+    }
 
     @Test
     public void testThatUpdateAttendanceIsCalledForEachBooking() {
