@@ -43,6 +43,6 @@ public class Role implements Serializable {
 
     @Override
     public int hashCode() {
-        return 1179619963;
+        return Objects.hashCode(getId());
     }
 }

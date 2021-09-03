@@ -134,6 +134,6 @@ public class ImprisonmentStatus extends AuditableEntity {
 
     @Override
     public int hashCode() {
-        return 336819062;
+        return Objects.hashCode(getId());
     }
 }

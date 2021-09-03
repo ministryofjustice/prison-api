@@ -8,6 +8,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -31,6 +32,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @Builder
 @AllArgsConstructor
+@BatchSize(size = 25)
 public class StaffUserAccount extends AuditableEntity {
 
     @Id
@@ -73,6 +75,6 @@ public class StaffUserAccount extends AuditableEntity {
 
     @Override
     public int hashCode() {
-        return 1515427495;
+        return Objects.hashCode(getUsername());
     }
 }

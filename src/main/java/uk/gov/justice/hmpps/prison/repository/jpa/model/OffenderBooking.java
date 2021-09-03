@@ -139,6 +139,7 @@ public class OffenderBooking extends ExtendedAuditableEntity {
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude
+    @BatchSize(size = 25)
     private List<ExternalMovement> externalMovements = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
@@ -160,6 +161,7 @@ public class OffenderBooking extends ExtendedAuditableEntity {
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude
+    @BatchSize(size = 25)
     private List<SentenceCalculation> sentenceCalculations = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
@@ -175,11 +177,13 @@ public class OffenderBooking extends ExtendedAuditableEntity {
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude
+    @BatchSize(size = 25)
     private List<SentenceTerm> terms = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude
+    @BatchSize(size = 25)
     private List<OffenderSentence> sentences = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
@@ -191,11 +195,13 @@ public class OffenderBooking extends ExtendedAuditableEntity {
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude
+    @BatchSize(size = 25)
     private List<OffenderAlert> alerts = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude
+    @BatchSize(size = 25)
     private List<OffenderIepLevel> iepLevels = new ArrayList<>();
 
     @Column(name = "ROOT_OFFENDER_ID")
@@ -276,7 +282,6 @@ public class OffenderBooking extends ExtendedAuditableEntity {
             .releaseDate();
     }
 
-    // TODO: Add all the other dates in!
     public SentenceCalcDates getSentenceCalcDates() {
         return getLatestCalculation().map(
             sc -> SentenceCalcDates.sentenceCalcDatesBuilder()
@@ -552,6 +557,22 @@ public class OffenderBooking extends ExtendedAuditableEntity {
             .max(Comparator.comparing(OffenderIepLevel::getIepDate).thenComparing(OffenderIepLevel::getSequence));
     }
 
+    public OffenderIepLevel addIepLevel(IepLevel iepLevel, String comment, final LocalDateTime iepDateTime, StaffUserAccount staff) {
+        final var now = LocalDateTime.now();
+        final var offenderIepLevel = OffenderIepLevel.builder()
+            .offenderBooking(this)
+            .sequence(getLatestIepLevel().map(s -> s.getSequence()+1).orElse(1L))
+            .iepLevel(iepLevel)
+            .comment(comment)
+            .iepDate(iepDateTime != null ? iepDateTime.toLocalDate() : now.toLocalDate())
+            .iepDateTime(iepDateTime != null ? iepDateTime : now)
+            .staffUser(staff)
+            .agencyLocation(getLocation())
+            .build();
+        iepLevels.add(offenderIepLevel);
+        return offenderIepLevel;
+    }
+
     public Optional<PrivilegeSummary> getIepSummary(boolean withDetails) {
         return getLatestIepLevel().map(iep -> PrivilegeSummary.builder()
             .bookingId(getBookingId())
@@ -559,8 +580,8 @@ public class OffenderBooking extends ExtendedAuditableEntity {
             .iepTime(iep.getIepDateTime())
             .iepLevel(iep.getIepLevel().getDescription())
             .daysSinceReview(DAYS.between(iep.getIepDate(), now()))
-            .iepDetails(withDetails ? iepLevels.stream().sorted(Comparator.comparing(OffenderIepLevel::getIepDate).thenComparing(OffenderIepLevel::getSequence))
-                .map(OffenderIepLevel::getIepSummary).toList() : Collections.emptyList())
+            .iepDetails(withDetails ? iepLevels.stream().sorted(Comparator.comparing(OffenderIepLevel::getIepDate).thenComparing(OffenderIepLevel::getSequence).reversed())
+                .map(OffenderIepLevel::getPrivilageDetail).toList() : Collections.emptyList())
             .build());
     }
 
@@ -583,7 +604,7 @@ public class OffenderBooking extends ExtendedAuditableEntity {
 
     @Override
     public int hashCode() {
-        return 1583878767;
+        return Objects.hashCode(getBookingId());
     }
 
     @Override

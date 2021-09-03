@@ -9,7 +9,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import uk.gov.justice.hmpps.prison.api.model.IepLevelAndComment;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.RequestForNewBooking;
 import uk.gov.justice.hmpps.prison.api.model.RequestToDischargePrisoner;
@@ -19,7 +18,6 @@ import uk.gov.justice.hmpps.prison.api.model.RequestToTransferIn;
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOut;
 import uk.gov.justice.hmpps.prison.repository.BookingRepository;
 import uk.gov.justice.hmpps.prison.repository.FinanceRepository;
-import uk.gov.justice.hmpps.prison.repository.InmateRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
@@ -41,10 +39,10 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AvailablePrisonIepLevelRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CopyTableRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.IepPrisonMapRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ImprisonmentStatusRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.MovementTypeAndReasonRespository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
@@ -103,7 +101,7 @@ public class PrisonerReleaseAndTransferService {
     private final OffenderNoPayPeriodRepository offenderNoPayPeriodRepository;
     private final OffenderPayStatusRepository offenderPayStatusRepository;
     private final BookingRepository bookingRepository;
-    private final IepPrisonMapRepository iepPrisonMapRepository;
+    private final AvailablePrisonIepLevelRepository availablePrisonIepLevelRepository;
     private final FinanceRepository financeRepository;
     private final ImprisonmentStatusRepository imprisonmentStatusRepository;
     private final ReferenceCodeRepository<CaseNoteType> caseNoteTypeReferenceCodeRepository;
@@ -114,7 +112,6 @@ public class PrisonerReleaseAndTransferService {
     private final GenerateNewBookingNo generateNewBookingNo;
     private final CopyTableRepository copyTableRepository;
     private final CopyBookData copyBookData;
-    private final InmateRepository inmateRepository;
     private final OffenderTransformer offenderTransformer;
     private final EntityManager entityManager;
 
@@ -164,8 +161,9 @@ public class PrisonerReleaseAndTransferService {
 
     @VerifyOffenderAccess(overrideRoles = {"RELEASE_PRISONER"})
     public InmateDetail dischargeToHospital(final String prisonerIdentifier, final RequestToDischargePrisoner requestToDischargePrisoner) {
-        final var prisoner =  inmateRepository.findOffender(prisonerIdentifier).orElseThrow(EntityNotFoundException.withMessage(format("No prisoner found for prisoner number %s", prisonerIdentifier)));
-        if (prisoner.getBookingId() == null) {
+        final var prisoner = offenderRepository.findOffenderByNomsId(prisonerIdentifier).orElseThrow(EntityNotFoundException.withMessage(format("No prisoner found for prisoner number %s", prisonerIdentifier)));
+
+        if (prisoner.getBookings().isEmpty()) {
             log.debug("Prisoner booking not yet created, need to create one");
             newBooking(prisonerIdentifier, RequestForNewBooking.builder()
                 .bookingInTime(requestToDischargePrisoner.getDischargeTime())
@@ -309,10 +307,12 @@ public class PrisonerReleaseAndTransferService {
         }
 
         // Create IEP levels
-        iepPrisonMapRepository.findByAgencyLocation_IdAndDefaultFlag(prisonToRecallTo.getId(), "Y")
+        availablePrisonIepLevelRepository.findByAgencyLocation_IdAndDefaultFlag(prisonToRecallTo.getId(), "Y")
             .stream().findFirst().ifPresentOrElse(
-            iepLevel -> bookingRepository.addIepLevel(booking.getBookingId(), authenticationFacade.getCurrentUsername(),
-                IepLevelAndComment.builder().iepLevel(iepLevel.getIepLevel()).comment(format("Admission to %s", prisonToRecallTo.getDescription())).build(), receiveTime, prisonToRecallTo.getId()),
+            iepLevel -> {
+                final var staff = staffUserAccountRepository.findById(authenticationFacade.getCurrentUsername()).orElseThrow(EntityNotFoundException.withId(authenticationFacade.getCurrentUsername()));
+                booking.addIepLevel(iepLevel.getIepLevel(), format("Admission to %s", prisonToRecallTo.getDescription()), receiveTime, staff);
+            },
             () -> { throw new BadRequestException("No default IEP level found"); } );
 
         //clear off old status
@@ -329,21 +329,20 @@ public class PrisonerReleaseAndTransferService {
 
     public InmateDetail newBooking(final String prisonerIdentifier, final RequestForNewBooking requestForNewBooking) {
 
-        final var offenderNonJpa = inmateRepository.findOffender(prisonerIdentifier).orElseThrow(EntityNotFoundException.withMessage(format("No prisoner found for id %s", prisonerIdentifier)));
+        final var offender = offenderRepository.findOffenderByNomsId(prisonerIdentifier).orElseThrow(EntityNotFoundException.withMessage(format("No prisoner found for prisoner number %s", prisonerIdentifier)));
 
-        final var previousBooking =  (offenderNonJpa.getBookingId() != null) ? getOffenderBooking(prisonerIdentifier) : null;
+        final var previousBooking = offender.getLatestBooking();
+        previousBooking
+            .ifPresent( booking -> {
+                if (!booking.getActiveFlag().equals("N")) {
+                    throw new BadRequestException("Prisoner is currently active");
+                }
 
-        final var offender = offenderRepository.findById(offenderNonJpa.getOffenderId()).orElseThrow(EntityNotFoundException.withMessage(format("No prisoner found for id %s", prisonerIdentifier)));
+                if (!booking.getInOutStatus().equals("OUT")) {
+                    throw new BadRequestException("Prisoner is not currently OUT");
+                }
+            });
 
-        if (previousBooking != null) {
-            if (!previousBooking.getActiveFlag().equals("N")) {
-                throw new BadRequestException("Prisoner is currently active");
-            }
-
-            if (!previousBooking.getInOutStatus().equals("OUT")) {
-                throw new BadRequestException("Prisoner is not currently OUT");
-            }
-        }
 
         // check from location
         final var fromLocation = getFromLocation(requestForNewBooking.getFromLocationId());
@@ -363,7 +362,7 @@ public class PrisonerReleaseAndTransferService {
 
         final var currentUsername = authenticationFacade.getCurrentUsername();
 
-        final var receiveTime = getAndCheckMovementTime(requestForNewBooking.getBookingInTime(), previousBooking != null ? previousBooking.getBookingId() : null);
+        final var receiveTime = getAndCheckMovementTime(requestForNewBooking.getBookingInTime(), previousBooking.map(OffenderBooking::getBookingId).orElse(null));
 
         final var bookNumber = env.acceptsProfiles(Profiles.of("nomis")) ? generateNewBookingNo.executeFunction(String.class) : getRandomNumberString() + "D"; // TODO replace PL/SQL SP
 
@@ -412,21 +411,19 @@ public class PrisonerReleaseAndTransferService {
             .offenderBooking(booking)
             .build());
 
-        if (previousBooking != null) {
-            copyTableRepository.findByOperationCodeAndMovementTypeAndActiveFlagAndExpiryDateIsNull("COP", ADM.getCode(), ActiveFlag.Y)
-                .stream().findFirst().ifPresent(
-                ct -> {
-                    if (env.acceptsProfiles(Profiles.of("nomis"))) {
-                        final var params = new MapSqlParameterSource()
-                            .addValue("p_move_type", ADM.getCode())
-                            .addValue("p_move_reason", movementReason.getCode())
-                            .addValue("p_old_book_id", previousBooking.getBookingId())
-                            .addValue("p_new_book_id", booking.getBookingId());
-                        copyBookData.execute(params);
-                    }
+        previousBooking.ifPresent(oldBooking -> copyTableRepository.findByOperationCodeAndMovementTypeAndActiveFlagAndExpiryDateIsNull("COP", ADM.getCode(), ActiveFlag.Y)
+            .stream().findFirst().ifPresent(
+            ct -> {
+                if (env.acceptsProfiles(Profiles.of("nomis"))) {
+                    final var params = new MapSqlParameterSource()
+                        .addValue("p_move_type", ADM.getCode())
+                        .addValue("p_move_reason", movementReason.getCode())
+                        .addValue("p_old_book_id", oldBooking.getBookingId())
+                        .addValue("p_new_book_id", booking.getBookingId());
+                    copyBookData.execute(params);
                 }
-            );
-        }
+            }
+        ));
 
         if (requestForNewBooking.isYouthOffender()) {
             // set youth status
@@ -440,10 +437,12 @@ public class PrisonerReleaseAndTransferService {
         }
 
         // Create IEP levels
-        iepPrisonMapRepository.findByAgencyLocation_IdAndDefaultFlag(receivedPrison.getId(), "Y")
+        availablePrisonIepLevelRepository.findByAgencyLocation_IdAndDefaultFlag(receivedPrison.getId(), "Y")
             .stream().findFirst().ifPresentOrElse(
-            iepLevel -> bookingRepository.addIepLevel(booking.getBookingId(), currentUsername,
-                IepLevelAndComment.builder().iepLevel(iepLevel.getIepLevel()).comment(format("Admission to %s", receivedPrison.getDescription())).build(), receiveTime, receivedPrison.getId()),
+            iepLevel -> {
+                final var staff = staffUserAccountRepository.findById(authenticationFacade.getCurrentUsername()).orElseThrow(EntityNotFoundException.withId(authenticationFacade.getCurrentUsername()));
+                booking.addIepLevel(iepLevel.getIepLevel(), format("Admission to %s", receivedPrison.getDescription()), receiveTime, staff);
+                },
             () -> { throw new BadRequestException("No default IEP level found"); } );
 
         setupBookingAccount(booking, fromLocation, receivedPrison, receiveTime, movementReason, imprisonmentStatus);
@@ -529,10 +528,12 @@ public class PrisonerReleaseAndTransferService {
         }
 
         // Create IEP levels
-        iepPrisonMapRepository.findByAgencyLocation_IdAndDefaultFlag(booking.getLocation().getId(), "Y")
+        availablePrisonIepLevelRepository.findByAgencyLocation_IdAndDefaultFlag(booking.getLocation().getId(), "Y")
             .stream().findFirst().ifPresentOrElse(
-            iepLevel -> bookingRepository.addIepLevel(booking.getBookingId(), authenticationFacade.getCurrentUsername(),
-                IepLevelAndComment.builder().iepLevel(iepLevel.getIepLevel()).comment(format("Admission to %s", latestExternalMovement.getToAgency().getDescription())).build(), receiveTime, latestExternalMovement.getToAgency().getId()),
+            iepLevel -> {
+                final var staff = staffUserAccountRepository.findById(authenticationFacade.getCurrentUsername()).orElseThrow(EntityNotFoundException.withId(authenticationFacade.getCurrentUsername()));
+                booking.addIepLevel(iepLevel.getIepLevel(), format("Admission to %s", latestExternalMovement.getToAgency().getDescription()), receiveTime, staff);
+            },
             () -> { throw new BadRequestException("No default IEP level found"); } );
 
         // create Admission case note

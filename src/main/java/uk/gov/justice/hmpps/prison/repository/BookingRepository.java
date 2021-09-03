@@ -15,7 +15,6 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
-import uk.gov.justice.hmpps.prison.api.model.IepLevelAndComment;
 import uk.gov.justice.hmpps.prison.api.model.NewAppointment;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceCalculation;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetailDto;
@@ -226,30 +225,6 @@ public class BookingRepository extends RepositoryBase {
                 PRIV_DETAIL_ROW_MAPPER);
 
         return privs.stream().collect(Collectors.groupingBy(PrivilegeDetail::getBookingId));
-    }
-
-    public void addIepLevel(Long bookingId, String username, IepLevelAndComment iepLevel, final LocalDateTime creationTime, final String agencyId) {
-
-        jdbcTemplate.update(
-                BookingRepositorySql.ADD_IEP_LEVEL.getSql(),
-                createParams(
-                        "bookingId", bookingId,
-                        "agencyId", agencyId,
-                        "userId", username,
-                        "date", DateTimeConverter.toDate(creationTime.toLocalDate()),
-                        "time", DateTimeConverter.toDate(creationTime),
-                        "iepLevel", iepLevel.getIepLevel(),
-                        "comment", iepLevel.getComment())
-        );
-    }
-
-    public Set<String> getIepLevelsForAgencySelectedByBooking(long bookingId) {
-        final List<String> iepLevels = jdbcTemplate.queryForList(
-                BookingRepositorySql.IEP_LEVELS_FOR_AGENCY_SELECTED_BY_BOOKING.getSql(),
-                Map.of("bookingId", bookingId),
-                String.class
-        );
-        return java.util.Set.copyOf(iepLevels);
     }
 
     /**

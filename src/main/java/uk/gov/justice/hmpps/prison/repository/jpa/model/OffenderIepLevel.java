@@ -12,6 +12,8 @@ import org.hibernate.Hibernate;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeDetail;
 
 import javax.persistence.Column;
@@ -62,17 +64,22 @@ public class OffenderIepLevel extends ExtendedAuditableEntity {
     private LocalDateTime iepDateTime;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "AGY_LOC_ID", nullable = false)
+    @Exclude
+    private AgencyLocation agencyLocation;
+
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumns({
-        @JoinColumn(name="IEP_LEVEL", referencedColumnName="IEP_LEVEL"),
-        @JoinColumn(name="AGY_LOC_ID", referencedColumnName="AGY_LOC_ID")
+        @JoinColumn(name="IEP_LEVEL", referencedColumnName="IEP_LEVEL", updatable = false, insertable = false),
+        @JoinColumn(name="AGY_LOC_ID", referencedColumnName="AGY_LOC_ID", updatable = false, insertable = false)
     })
     @Exclude
-    private IepPrisonMap iepPrisonMap;
+    private AvailablePrisonIepLevel availablePrisonIepLevel;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumnsOrFormulas(value = {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + IepLevel.IEP_LEVEL + "'", referencedColumnName = "domain")),
-        @JoinColumnOrFormula(column = @JoinColumn(name = "IEP_LEVEL", referencedColumnName = "code", insertable = false, updatable = false))
+        @JoinColumnOrFormula(column = @JoinColumn(name = "IEP_LEVEL", referencedColumnName = "code"))
     })
     @Exclude
     private IepLevel iepLevel;
@@ -80,20 +87,24 @@ public class OffenderIepLevel extends ExtendedAuditableEntity {
     @Column(name = "COMMENT_TEXT")
     private String comment;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID", nullable = false)
+    @ManyToOne
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "USER_ID")
     @Exclude
     private StaffUserAccount staffUser;
 
-    public PrivilegeDetail getIepSummary() {
+    @Column(name = "USER_ID", updatable = false, insertable = false)
+    private String username;
+
+    public PrivilegeDetail getPrivilageDetail() {
         return PrivilegeDetail.builder()
             .bookingId(getOffenderBooking().getBookingId())
             .iepDate(getIepDate())
             .iepTime(getIepDateTime())
             .iepLevel(getIepLevel().getDescription())
-            .agencyId(getIepPrisonMap().getAgencyLocation().getId())
+            .agencyId(getAvailablePrisonIepLevel().getAgencyLocation().getId())
             .comments(getComment())
-            .userId(getStaffUser().getUsername())
+            .userId(getStaffUser() != null ? getStaffUser().getUsername() : getUsername())
             .build();
     }
 

@@ -16,4 +16,8 @@ public class IepLevel extends ReferenceCode {
     public IepLevel(final String code, final String description) {
         super(IEP_LEVEL, code, description);
     }
+
+    public static Pk pk(final String code) {
+        return new Pk(IEP_LEVEL, code);
+    }
 }

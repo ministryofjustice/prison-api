@@ -53,6 +53,6 @@ public class Staff extends AuditableEntity {
 
     @Override
     public int hashCode() {
-        return 479966412;
+        return Objects.hashCode(getStaffId());
     }
 }

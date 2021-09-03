@@ -57,7 +57,7 @@ public class OffenderCaseNote extends AuditableEntity {
     @Column(name = "CONTACT_TIME")
     private LocalDateTime occurrenceDateTime;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + CaseNoteType.CASE_NOTE_TYPE + "'", referencedColumnName = "domain")),
@@ -65,7 +65,7 @@ public class OffenderCaseNote extends AuditableEntity {
     })
     private CaseNoteType type;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + CaseNoteSubType.CASE_NOTE_SUB_TYPE + "'", referencedColumnName = "domain")),

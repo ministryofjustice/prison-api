@@ -58,6 +58,6 @@ public class Caseload extends AuditableEntity {
 
     @Override
     public int hashCode() {
-        return 81710317;
+        return Objects.hashCode(getId());
     }
 }

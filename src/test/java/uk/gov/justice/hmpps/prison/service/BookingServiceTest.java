@@ -31,15 +31,17 @@ import uk.gov.justice.hmpps.prison.api.model.VisitWithVisitors;
 import uk.gov.justice.hmpps.prison.api.model.Visitor;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.repository.BookingRepository;
-import uk.gov.justice.hmpps.prison.repository.InmateRepository;
 import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AvailablePrisonIepLevel;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AvailablePrisonIepLevel.PK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtOrder;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.DisciplinaryAction;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.IepLevel;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.KeyDateAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LegalCaseType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryBranch;
@@ -60,10 +62,12 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.RelationshipType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalcType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitorInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.WarZone;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AvailablePrisonIepLevelRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPersonsRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
@@ -88,6 +92,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.nhaarman.mockitokotlin2.MatchersKt.eq;
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -95,8 +100,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -108,8 +111,6 @@ public class BookingServiceTest {
     @Mock
     private BookingRepository bookingRepository;
     @Mock
-    private InmateRepository inmateRepository;
-    @Mock
     private OffenderBookingRepository offenderBookingRepository;
     @Mock
     private OffenderRepository offenderRepository;
@@ -119,8 +120,6 @@ public class BookingServiceTest {
     private VisitorRepository visitorRepository;
     @Mock
     private AgencyService agencyService;
-    @Mock
-    private ReferenceDomainService referenceDomainService;
     @Mock
     private AgencyInternalLocationRepository agencyInternalLocationRepository;
     @Mock
@@ -138,6 +137,8 @@ public class BookingServiceTest {
     @Mock
     private OffenderBookingTransformer offenderBookingTransformer;
     @Mock
+    private AvailablePrisonIepLevelRepository availablePrisonIepLevelRepository;
+    @Mock
     private OffenderSentenceRepository offenderSentenceRepository;
     @Mock
     private CaseloadToAgencyMappingService caseloadToAgencyMappingService;
@@ -150,7 +151,6 @@ public class BookingServiceTest {
     public void init() {
         bookingService = new BookingService(
                 bookingRepository,
-                inmateRepository,
                 offenderBookingRepository,
                 offenderRepository,
                 visitorRepository,
@@ -158,7 +158,6 @@ public class BookingServiceTest {
                 null,
                 agencyService,
                 caseLoadService,
-                referenceDomainService,
                 caseloadToAgencyMappingService,
                 agencyInternalLocationRepository,
                 offenderSentenceAdjustmentRepository,
@@ -169,6 +168,7 @@ public class BookingServiceTest {
                 offenderTransformer,
                 authenticationFacade,
                 offenderSentenceRepository,
+            availablePrisonIepLevelRepository,
                 "1",
                 10);
     }
@@ -221,7 +221,7 @@ public class BookingServiceTest {
 
         when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(new OffenderBookingIdSeq("off-1", -1L, 1)));
 
-        bookingService.getOffenderIdentifiers("off-1", new String [] {"SYSTEM_USER", "GLOBAL_SEARCH"});
+        bookingService.getOffenderIdentifiers("off-1", "SYSTEM_USER", "GLOBAL_SEARCH");
 
         verify(authenticationFacade).isOverrideRole(
                 "SYSTEM_USER", "GLOBAL_SEARCH"
@@ -246,40 +246,28 @@ public class BookingServiceTest {
     @Test
     public void givenValidBookingIdIepLevelAndComment_whenIepLevelAdded() {
         final var bookingId = 1L;
-
-        when(referenceDomainService.isReferenceCodeActive("IEP_LEVEL", "STD")).thenReturn(true);
-        when(bookingRepository.getIepLevelsForAgencySelectedByBooking(bookingId)).thenReturn(Set.of("ENT", "BAS", "STD", "ENH"));
-        when(bookingRepository.getBookingAgency(bookingId)).thenReturn(Optional.of("LEI"));
-
         final var iepLevelAndComment = IepLevelAndComment.builder().iepLevel("STD").comment("Comment").build();
 
+        final var leedsPrison = AgencyLocation.builder().id("LEI").build();
+        when(offenderBookingRepository.findById(bookingId)).thenReturn(Optional.of(OffenderBooking.builder().bookingId(bookingId).location(leedsPrison).build()));
+        when(availablePrisonIepLevelRepository.findById(eq(new PK(iepLevelAndComment.getIepLevel(), leedsPrison)))).thenReturn(Optional.of(AvailablePrisonIepLevel.builder().iepLevel(new IepLevel("STD", "Standard")).agencyLocation(leedsPrison).build()));
+        when(staffUserAccountRepository.findById("FRED")).thenReturn(Optional.of(StaffUserAccount.builder().username("FRED").build()));
         bookingService.addIepLevel(bookingId, "FRED", iepLevelAndComment);
 
-        verify(bookingRepository).addIepLevel(eq(bookingId), eq("FRED"), eq(iepLevelAndComment), isA(LocalDateTime.class), eq("LEI"));
+        verify(availablePrisonIepLevelRepository).findById(eq(new PK(iepLevelAndComment.getIepLevel(), leedsPrison)));
     }
 
     @Test
     public void givenInvalidIepLevel_whenIepLevelAdded() {
         final var bookingId = 1L;
-
-        when(referenceDomainService.isReferenceCodeActive("IEP_LEVEL", "STD")).thenReturn(false);
-
         final var iepLevelAndComment = IepLevelAndComment.builder().iepLevel("STD").comment("Comment").build();
+
+        final var leedsPrison = AgencyLocation.builder().id("LEI").build();
+        when(offenderBookingRepository.findById(bookingId)).thenReturn(Optional.of(OffenderBooking.builder().bookingId(bookingId).location(leedsPrison).build()));
+        when(availablePrisonIepLevelRepository.findById(eq(new PK(iepLevelAndComment.getIepLevel(), leedsPrison)))).thenReturn(Optional.empty());
+
         assertThatThrownBy(() -> bookingService.addIepLevel(bookingId, "FRED", iepLevelAndComment))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("IEP Level 'STD' is not a valid NOMIS value.");
-    }
-
-    @Test
-    public void givenValidIepLevel_whenIepLevelNotValidForAgencyAssociatedWithBooking() {
-        final var bookingId = 1L;
-
-        when(referenceDomainService.isReferenceCodeActive("IEP_LEVEL", "STD")).thenReturn(true);
-        when(bookingRepository.getIepLevelsForAgencySelectedByBooking(bookingId)).thenReturn(Set.of("ENT", "BAS", "ENH"));
-
-        final var iepLevelAndComment = IepLevelAndComment.builder().iepLevel("STD").comment("Comment").build();
-        assertThatThrownBy(() -> bookingService.addIepLevel(bookingId, "FRED", iepLevelAndComment))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("IEP Level 'STD' is not active for this booking's agency: Booking Id 1.");
     }
 
@@ -1287,7 +1275,6 @@ public class BookingServiceTest {
         final Long SOME_BOOKING_ID = 1L;
         final Long BAD_BOOKING_ID = 2L;
         final Long OLD_LIVING_UNIT_ID = 11L;
-        final String OLD_LIVING_UNIT_DESC = "A-1";
         final Long NEW_LIVING_UNIT_ID = 12L;
         final String NEW_LIVING_UNIT_DESC = "Z-1";
         final String SOME_AGENCY_ID = "MDI";
@@ -1308,33 +1295,33 @@ public class BookingServiceTest {
 
         @Test
         void livingUnitNotFound_throws() {
-            when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
+            when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
             when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC))
                     .isInstanceOf(EntityNotFoundException.class)
-                    .hasMessageContaining(valueOf(NEW_LIVING_UNIT_DESC));
+                    .hasMessageContaining(NEW_LIVING_UNIT_DESC);
         }
 
         @Test
         void livingUnitNotCell_throws() {
             when(offenderBookingRepository.findById(SOME_BOOKING_ID))
-                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
             when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC))
                     .thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC, SOME_AGENCY_ID, "WING")));
 
             assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC))
                     .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining(valueOf(NEW_LIVING_UNIT_DESC))
+                    .hasMessageContaining(NEW_LIVING_UNIT_DESC)
                     .hasMessageContaining("WING");
         }
 
         @Test
         void differentAgency_throws() {
             when(offenderBookingRepository.findById(SOME_BOOKING_ID))
-                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
             when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC))
-                    .thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC, DIFFERENT_AGENCY_ID)));
+                    .thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, DIFFERENT_AGENCY_ID)));
 
             assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC))
                     .isInstanceOf(IllegalArgumentException.class)
@@ -1345,9 +1332,9 @@ public class BookingServiceTest {
         @Test
         void ok_updatesRepo() {
             when(offenderBookingRepository.findById(SOME_BOOKING_ID))
-                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
             when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC))
-                    .thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC, SOME_AGENCY_ID)));
+                    .thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, SOME_AGENCY_ID)));
 
             bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC);
 
@@ -1359,7 +1346,7 @@ public class BookingServiceTest {
         @Test
         void cellSwap() {
             when(offenderBookingRepository.findById(SOME_BOOKING_ID))
-                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
 
             final var cellSwapLocation = aCellSwapLocation();
 
@@ -1371,8 +1358,8 @@ public class BookingServiceTest {
             assertThat(updatedOffenderBooking.getValue().getAssignedLivingUnit().getLocationId()).isEqualTo(cellSwapLocation.getLocationId());
         }
 
-        private Optional<OffenderBooking> anOffenderBooking(final Long bookingId, final Long livingUnitId, final String agencyId) {
-            final var agencyLocation = AgencyLocation.builder().id(agencyId).build();
+        private Optional<OffenderBooking> anOffenderBooking(final Long bookingId, final Long livingUnitId) {
+            final var agencyLocation = AgencyLocation.builder().id("MDI").build();
             final var livingUnit = AgencyInternalLocation.builder().locationId(livingUnitId).build();
             final var offender = Offender.builder().nomsId("any noms id").build();
             return Optional.of(
@@ -1395,8 +1382,8 @@ public class BookingServiceTest {
                     .build();
         }
 
-        private AgencyInternalLocation aLocation(final Long locationId, final String locationDescription, final String agencyId) {
-            return aLocation(locationId, locationDescription, agencyId, "CELL");
+        private AgencyInternalLocation aLocation(final Long locationId, final String agencyId) {
+            return aLocation(locationId, "Z-1", agencyId, "CELL");
         }
 
         private AgencyInternalLocation aLocation(final Long locationId, final String locationDescription, final String agencyId, final String locationType) {
