@@ -93,6 +93,9 @@ public class OffenderIepLevel extends ExtendedAuditableEntity {
     @Exclude
     private StaffUserAccount staffUser;
 
+    @Column(name = "USER_ID", updatable = false, insertable = false)
+    private String username;
+
     public PrivilegeDetail getIepSummary() {
         return PrivilegeDetail.builder()
             .bookingId(getOffenderBooking().getBookingId())
@@ -101,7 +104,7 @@ public class OffenderIepLevel extends ExtendedAuditableEntity {
             .iepLevel(getIepLevel().getDescription())
             .agencyId(getAvailablePrisonIepLevel().getAgencyLocation().getId())
             .comments(getComment())
-            .userId(getStaffUser().getUsername())
+            .userId(getStaffUser() != null ? getStaffUser().getUsername() : getUsername())
             .build();
     }
 

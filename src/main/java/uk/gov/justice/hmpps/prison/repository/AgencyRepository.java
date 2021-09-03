@@ -9,7 +9,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
-import uk.gov.justice.hmpps.prison.api.model.IepLevel;
 import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
@@ -43,9 +42,6 @@ public class AgencyRepository extends RepositoryBase {
 
     private static final StandardBeanPropertyRowMapper<Location> LOCATION_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(Location.class);
-
-    private static final StandardBeanPropertyRowMapper<IepLevel> IEP_LEVEL_ROW_MAPPER =
-            new StandardBeanPropertyRowMapper<>(IepLevel.class);
 
     private static final StandardBeanPropertyRowMapper<OffenderIepReview> OFFENDER_IEP_REVIEW_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(OffenderIepReview.class);
@@ -159,22 +155,6 @@ public class AgencyRepository extends RepositoryBase {
                 createParams("agencyId", agencyId, "eventTypes", eventTypes),
                 LOCATION_ROW_MAPPER);
     }
-
-
-    public List<IepLevel> getAgencyIepLevels(final String agencyId) {
-        final var initialSql = AgencyRepositorySql.GET_AGENCY_IEP_LEVELS.getSql();
-
-
-        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, IEP_LEVEL_ROW_MAPPER);
-
-        final var sql = builder.build();
-
-        return jdbcTemplate.query(
-                sql,
-                createParams("agencyId", agencyId, "refCodeDomain", "IEP_LEVEL", "activeFlag", "Y"),
-                IEP_LEVEL_ROW_MAPPER);
-    }
-
 
     public List<Location> getAgencyLocationsBooked(final String agencyId, final LocalDate bookedOnDay, final TimeSlot bookedOnPeriod) {
         final var params = createParams("agencyId", agencyId);

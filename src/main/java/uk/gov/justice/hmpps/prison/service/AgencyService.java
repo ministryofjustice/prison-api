@@ -45,6 +45,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocat
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AvailablePrisonIepLevelRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.transform.LocationTransformer;
 import uk.gov.justice.hmpps.prison.repository.support.StatusFilter;
@@ -87,6 +88,7 @@ public class AgencyService {
 
     private final AuthenticationFacade authenticationFacade;
     private final AgencyRepository agencyRepository;
+    private final AvailablePrisonIepLevelRepository availablePrisonIepLevelRepository;
     private final AgencyLocationRepository agencyLocationRepository;
     private final ReferenceDomainService referenceDomainService;
     private final ReferenceCodeRepository<AgencyLocationType> agencyLocationTypeReferenceCodeRepository;
@@ -270,8 +272,15 @@ public class AgencyService {
         return processedLocations;
     }
 
-    public List<IepLevel> getAgencyIepLevels(final String agencyId) {
-        return agencyRepository.getAgencyIepLevels(agencyId);
+    public List<IepLevel> getAgencyIepLevels(final String prisonId) {
+        return availablePrisonIepLevelRepository.findByAgencyLocation_IdAndActiveFlag(prisonId, "Y")
+            .stream().map(
+                iep -> IepLevel.builder()
+                    .iepLevel(iep.getIepLevel().getCode())
+                    .iepDescription(iep.getIepLevel().getDescription())
+                    .build()
+        )
+        .collect(Collectors.toList());
     }
 
     public List<PrisonContactDetail> getPrisonContactDetail() {

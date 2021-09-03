@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface AvailablePrisonIepLevelRepository extends CrudRepository<AvailablePrisonIepLevel, AvailablePrisonIepLevel.PK> {
     List<AvailablePrisonIepLevel> findByAgencyLocation_IdAndDefaultFlag(String agencyLocationId, String defaultFlag );
+    List<AvailablePrisonIepLevel> findByAgencyLocation_IdAndActiveFlag(String agencyLocationId, String defaultFlag );
 }
