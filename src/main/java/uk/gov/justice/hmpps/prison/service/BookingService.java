@@ -292,7 +292,12 @@ public class BookingService {
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public PrivilegeSummary getBookingIEPSummary(final Long bookingId, final boolean withDetails) {
         final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
-        return offenderBooking.getIepSummary(withDetails).orElseThrow(EntityNotFoundException.withMessage(format("Not IEP found for booking %d", bookingId)));
+        return offenderBooking.getIepSummary(withDetails).orElse(
+            PrivilegeSummary.builder()
+                .bookingId(bookingId)
+                .iepLevel(defaultIepLevel)
+                .build()
+        );
     }
 
     @VerifyBookingAccess

@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -51,5 +53,6 @@ public class PrivilegeSummary {
     private Long daysSinceReview;
 
     @ApiModelProperty(value = "All IEP detail entries for the offender (most recent first).", position = 6)
-    private List<PrivilegeDetail> iepDetails;
+    @Default
+    private List<PrivilegeDetail> iepDetails = new ArrayList<>();
 }
