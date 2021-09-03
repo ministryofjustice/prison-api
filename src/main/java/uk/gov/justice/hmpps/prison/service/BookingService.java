@@ -289,13 +289,10 @@ public class BookingService {
         return SentenceCalcDates.sentenceCalcDatesBuilder().bookingId(bookingId).build();
     }
 
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public PrivilegeSummary getBookingIEPSummary(final Long bookingId, final boolean withDetails) {
-        final var bookingIEPSummary = getBookingIEPSummary(Collections.singletonList(bookingId), withDetails);
-        final var privilegeSummary = bookingIEPSummary.get(bookingId);
-        if (privilegeSummary == null) {
-            throw EntityNotFoundException.withId(bookingId);
-        }
-        return privilegeSummary;
+        final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
+        return offenderBooking.getIepSummary(withDetails).orElseThrow(EntityNotFoundException.withMessage(format("Not IEP found for booking %d", bookingId)));
     }
 
     @VerifyBookingAccess

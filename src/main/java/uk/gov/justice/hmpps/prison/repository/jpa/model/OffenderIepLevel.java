@@ -96,7 +96,7 @@ public class OffenderIepLevel extends ExtendedAuditableEntity {
     @Column(name = "USER_ID", updatable = false, insertable = false)
     private String username;
 
-    public PrivilegeDetail getIepSummary() {
+    public PrivilegeDetail getPrivilageDetail() {
         return PrivilegeDetail.builder()
             .bookingId(getOffenderBooking().getBookingId())
             .iepDate(getIepDate())

@@ -581,7 +581,7 @@ public class OffenderBooking extends ExtendedAuditableEntity {
             .iepLevel(iep.getIepLevel().getDescription())
             .daysSinceReview(DAYS.between(iep.getIepDate(), now()))
             .iepDetails(withDetails ? iepLevels.stream().sorted(Comparator.comparing(OffenderIepLevel::getIepDate).thenComparing(OffenderIepLevel::getSequence))
-                .map(OffenderIepLevel::getIepSummary).toList() : Collections.emptyList())
+                .map(OffenderIepLevel::getPrivilageDetail).toList() : Collections.emptyList())
             .build());
     }
 
