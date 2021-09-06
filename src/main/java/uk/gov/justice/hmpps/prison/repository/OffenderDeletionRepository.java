@@ -81,7 +81,7 @@ public class OffenderDeletionRepository extends RepositoryBase {
         log.debug("Deleting all non-base record offender booking data for offender ID: '{}'", offenderIds);
 
         if (!bookIds.isEmpty()) {
-            deleteOffenderBookingRelatedData(bookIds);
+            deleteNonBaseRecordOffenderBookingRelatedData(bookIds);
             executeNamedSqlWithOffenderIdsAndBookingIds(OffenderDeletionRepositorySql.OD_ANONYMISE_GL_TRANSACTIONS, offenderIds, bookIds);
             executeNamedSqlWithOffenderIdsAndBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_BELIEFS, offenderIds, bookIds);
         }
@@ -128,6 +128,11 @@ public class OffenderDeletionRepository extends RepositoryBase {
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_EXTERNAL_MOVEMENTS, bookIds);
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_BOOKING_DETAILS, bookIds);
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_ALERTS, bookIds);
+        deleteOffenderGangAffiliations(bookIds);
+        deleteOffenderNonAssociations(bookIds);
+        deleteOffenderSentCalculations(bookIds);
+        executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_ASSESSMENT_ITEMS, bookIds);
+        executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_ASSESSMENTS, bookIds);
 
         var bookingRowsDeleted = executeNamedSqlWithOffenderIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_BOOKINGS, offenderIds);
 
@@ -142,7 +147,7 @@ public class OffenderDeletionRepository extends RepositoryBase {
             Long.class));
     }
 
-    private void deleteOffenderBookingRelatedData(final Set<Long> bookIds) {
+    private void deleteNonBaseRecordOffenderBookingRelatedData(final Set<Long> bookIds) {
 
         log.debug("Deleting all offender booking data for book ID: '{}'", bookIds);
 
@@ -153,12 +158,9 @@ public class OffenderDeletionRepository extends RepositoryBase {
         deleteOffenderContactPersons(bookIds);
         deleteOffenderCSIPReports(bookIds);
         deleteOffenderCurfews(bookIds);
-        deleteOffenderGangAffiliations(bookIds);
         deleteOffenderHealthProblems(bookIds);
         deleteOffenderLIDSKeyDates(bookIds);
-        deleteOffenderNonAssociations(bookIds);
         deleteOffenderRehabDecisions(bookIds);
-        deleteOffenderSentCalculations(bookIds);
         deleteOffenderSubstanceUses(bookIds);
         deleteOffenderVisits(bookIds);
         deleteOffenderVisitBalances(bookIds);
@@ -168,8 +170,6 @@ public class OffenderDeletionRepository extends RepositoryBase {
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_BED_ASSIGNMENT_HISTORIES, bookIds);
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_CASE_ASSOCIATED_PERSONS, bookIds);
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_IWP_DOCUMENTS, bookIds);
-        executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_ASSESSMENT_ITEMS, bookIds);
-        executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_ASSESSMENTS, bookIds);
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_BOOKING_AGY_LOCS, bookIds);
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_BOOKING_EVENTS, bookIds);
         executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_CASE_ASSOCIATIONS, bookIds);
