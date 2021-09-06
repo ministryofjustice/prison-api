@@ -439,6 +439,14 @@ public class BookingResourceIntTest extends ResourceTest {
     }
 
     @Test
+    public void getFullOffenderInformation_byOffenderNoAlt() {
+        final var response = testRestTemplate.exchange("/api/offenders/{offenderNo}", GET,
+            createHttpEntity(AuthToken.NORMAL_USER, null),
+            String.class, "A1234AG");
+        assertThatJsonFileAndStatus(response, 200, "offender_extra_info.json");
+    }
+
+    @Test
     public void getFullOffenderInformationNoCSRA_byOffenderNo() {
         final var response = testRestTemplate.exchange("/api/bookings/offenderNo/{offenderNo}?extraInfo=true", GET,
                 createHttpEntity(AuthToken.NORMAL_USER, null),

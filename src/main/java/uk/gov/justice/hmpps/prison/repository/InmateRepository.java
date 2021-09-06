@@ -71,9 +71,9 @@ public class InmateRepository extends RepositoryBase {
     public final static String QUERY_OPERATOR_AND = "and:";
     public final static String QUERY_OPERATOR_OR = "or:";
 
-    private final static Set standardCategoryCodes = Set.of("B", "C", "D");
-    private final static Set validCategoryCodes = Set.of("B", "C", "D", "U");
-    private final static Set validAssessStatus = Set.of("A", "P");
+    private final static Set<String> standardCategoryCodes = Set.of("B", "C", "D");
+    private final static Set<String> validCategoryCodes = Set.of("B", "C", "D", "U");
+    private final static Set<String> validAssessStatus = Set.of("A", "P");
 
     private static final Map<String, FieldMapper> OFFENDER_BOOKING_MAPPING = new ImmutableMap.Builder<String, FieldMapper>()
             .put("OFFENDER_BOOK_ID", new FieldMapper("bookingId"))
@@ -656,28 +656,18 @@ public class InmateRepository extends RepositoryBase {
         return Optional.ofNullable(assignedLivingUnit);
     }
 
-
     public Optional<InmateDetail> findInmate(final Long bookingId) {
-        final var builder = queryBuilderFactory.getQueryBuilder(InmateRepositorySql.FIND_INMATE_DETAIL.getSql(), inmateDetailsMapping);
-        final var sql = builder.build();
-
-        final var inmateRowMapper = Row2BeanRowMapper.makeMapping(InmateDetail.class, inmateDetailsMapping);
-        InmateDetail inmate;
         try {
-            inmate = jdbcTemplate.queryForObject(
-                    sql,
-                    createParams("bookingId", bookingId),
-                    inmateRowMapper);
-            if (inmate != null) {
-                inmate.setAge(getAge(inmate.getDateOfBirth(), LocalDate.now(clock)));
-            }
-        } catch (final EmptyResultDataAccessException ex) {
-            inmate = null;
+            final var inmate = Optional.ofNullable(jdbcTemplate.queryForObject(
+                        InmateRepositorySql.FIND_INMATE_DETAIL.getSql(),
+                        createParams("bookingId", bookingId),
+                        new StandardBeanPropertyRowMapper<>(InmateDetail.class)));
+            inmate.ifPresent(o -> o.setAge(getAge(o.getDateOfBirth(), LocalDate.now(clock))));
+            return inmate;
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
         }
-
-        return Optional.ofNullable(inmate);
     }
-
 
     public Optional<InmateDetail> findOffender(final String offenderNo) {
         final var offender = jdbcTemplate.query(

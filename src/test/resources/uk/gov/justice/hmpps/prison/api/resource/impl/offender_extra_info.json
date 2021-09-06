@@ -154,6 +154,7 @@
   "status": "ACTIVE IN",
   "legalStatus": "IMMIGRATION_DETAINEE",
   "imprisonmentStatus": "DEPORT",
+  "receptionDate": "2021-09-06",
   "privilegeSummary": {
     "bookingId": -7,
     "iepLevel": "Standard",
