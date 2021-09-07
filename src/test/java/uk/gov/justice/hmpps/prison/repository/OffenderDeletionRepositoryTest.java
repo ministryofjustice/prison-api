@@ -45,12 +45,8 @@ public class OffenderDeletionRepositoryTest {
 
         assertBaseRecordExists();
         assertNonBaseRecordOffenderDataDeleted();
+        assertGlTransactionsAnonymised();
 
-        // GL_TRANSACTIONS should still have the anonymised data:
-        assertThat(jdbcTemplate.queryForList(
-                "SELECT txn_id FROM gl_transactions WHERE txn_id = 301826802 and gl_entry_seq = 1",
-                String.class))
-                .isNotEmpty();
     }
 
     @Test
@@ -72,12 +68,7 @@ public class OffenderDeletionRepositoryTest {
             .containsExactly(-1001L);
 
         assertAllOffenderDataDeleted();
-
-        // GL_TRANSACTIONS should still have the anonymised data:
-        assertThat(jdbcTemplate.queryForList(
-            "SELECT txn_id FROM gl_transactions WHERE txn_id = 301826802 and gl_entry_seq = 1",
-            String.class))
-            .isNotEmpty();
+        assertGlTransactionsAnonymised();
     }
 
     @Test
@@ -134,7 +125,6 @@ public class OffenderDeletionRepositoryTest {
         queryByOffenderBookId("INCIDENT_CASE_PARTIES").is(condition);
         queryByOffenderBookId("BED_ASSIGNMENT_HISTORIES").is(condition);
         queryByOffenderBookId("COURT_EVENTS").is(condition);
-        queryByOffenderBookId("OFFENDER_ASSESSMENTS").is(condition);
         queryByOffenderBookId("OFFENDER_CASE_NOTES").is(condition);
         queryByOffenderBookId("OFFENDER_CASES").is(condition);
         queryByOffenderBookId("OFFENDER_CONTACT_PERSONS").is(condition);
@@ -148,7 +138,6 @@ public class OffenderDeletionRepositoryTest {
         queryByOffenderBookId("OFFENDER_OIC_SANCTIONS").is(condition);
         queryByOffenderBookId("OFFENDER_PRG_OBLIGATIONS").is(condition);
         queryByOffenderBookId("OFFENDER_RELEASE_DETAILS").is(condition);
-        queryByOffenderBookId("OFFENDER_SENT_CALCULATIONS").is(condition);
         queryByOffenderBookId("OFFENDER_VISIT_VISITORS").is(condition);
         queryByOffenderBookId("OFFENDER_VISITS").is(condition);
         queryByOffenderBookId("OFFENDER_VISIT_BALANCES").is(condition);
@@ -167,17 +156,38 @@ public class OffenderDeletionRepositoryTest {
     }
 
     private void checkBaseRecord(final Condition<? super List<? extends String>> condition) {
+        //Identity
         queryByOffenderBookId("OFFENDER_IMAGES").is(condition);
-        queryByOffenderBookId("OFFENDER_IDENTIFYING_MARKS").is(condition);
-        queryByOffenderBookId("OFFENDER_ALERTS").is(condition);
-        queryByOffenderBookId("OFFENDER_EXTERNAL_MOVEMENTS").is(condition);
-        queryByOffenderBookId("OFFENDER_BOOKING_DETAILS").is(condition);
         queryByOffenderBookId( "OFFENDER_PHYSICAL_ATTRIBUTES").is(condition);
         queryByOffenderBookId( "OFFENDER_PROFILE_DETAILS").is(condition);
+        queryByOffenderBookId("OFFENDER_IDENTIFYING_MARKS").is(condition);
+
+        //Security
+        queryByOffenderBookId("OFFENDER_ALERTS").is(condition);
+        queryByOffenderBookId("OFFENDER_BOOKING_DETAILS").is(condition);
+        queryByOffenderBookId("OFFENDER_ASSESSMENTS").is(condition);
+        queryByOffenderBookId("OFFENDER_ASSESSMENT_ITEMS").is(condition);
+        queryByOffenderBookId("OFFENDER_GANG_AFFILIATIONS").is(condition);
+        queryByOffenderBookId("OFFENDER_GANG_EVIDENCES").is(condition);
+        queryByOffenderBookId("OFFENDER_GANG_INVESTS").is(condition);
+        queryByOffenderBookId("OFFENDER_NON_ASSOCIATIONS").is(condition);
+        queryByOffenderBookId("OFFENDER_NA_DETAILS").is(condition);
+
+        //Movements
+        queryByOffenderBookId("OFFENDER_EXTERNAL_MOVEMENTS").is(condition);
+        queryByOffenderBookId("OFFENDER_SENT_CALCULATIONS").is(condition);
+        queryByOffenderBookId("HDC_CALC_EXCLUSION_REASONS").is(condition);
 
         queryByOffenderId("OFFENDER_IDENTIFIERS").is(condition);
         queryByOffenderId("OFFENDER_BOOKINGS").is(condition);
         queryByOffenderId("OFFENDERS").is(condition);
+    }
+
+    private void assertGlTransactionsAnonymised() {
+        assertThat(jdbcTemplate.queryForList(
+            "SELECT txn_id FROM gl_transactions WHERE txn_id = 301826802 and gl_entry_seq = 1",
+            String.class))
+            .isNotEmpty();
     }
 
     private ListAssert<String> queryByAgencyIncidentId(final String tableName) {
