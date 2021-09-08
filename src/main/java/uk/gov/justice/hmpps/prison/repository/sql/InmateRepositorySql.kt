@@ -306,18 +306,6 @@ enum class InmateRepositorySql(val sql: String) {
     """
   ),
 
-  FIND_LANGUAGES_BY_BOOKING(
-    """
-        SELECT OL.LANGUAGE_TYPE AS TYPE,
-        OL.LANGUAGE_CODE AS CODE,
-        RC.DESCRIPTION
-        FROM OFFENDER_LANGUAGES OL JOIN
-                REFERENCE_CODES RC    ON OL.LANGUAGE_CODE = RC.CODE AND
-        RC.DOMAIN = 'LANG'
-        WHERE OL.OFFENDER_BOOK_ID = :bookingId
-    """
-  ),
-
   GET_OFFENDER_IDENTIFIERS_BY_BOOKING(
     """
         SELECT

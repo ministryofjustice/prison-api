@@ -25,7 +25,6 @@ import uk.gov.justice.hmpps.prison.api.model.CategoryRejectionDetail;
 import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
 import uk.gov.justice.hmpps.prison.api.model.InmateBasicDetails;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
-import uk.gov.justice.hmpps.prison.api.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCategorise;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifier;
 import uk.gov.justice.hmpps.prison.api.model.PersonalCareNeed;
@@ -41,9 +40,9 @@ import uk.gov.justice.hmpps.prison.api.support.AssessmentStatusType;
 import uk.gov.justice.hmpps.prison.api.support.CategoryInformationType;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
-import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.repository.InmateRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImage;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderLanguage;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImageRepository;
@@ -137,48 +136,6 @@ public class InmateService {
         this.offenderRepository = offenderRepository;
         this.externalMovementRepository = externalMovementRepository;
         this.offenderImageRepository = offenderImageRepository;
-    }
-
-    public Page<OffenderBooking> findAllInmates(final InmateSearchCriteria criteria) {
-
-        final var pageRequest = new PageRequest(StringUtils.isNotBlank(criteria.getPageRequest().getOrderBy()) ? criteria.getPageRequest().getOrderBy() : GlobalSearchService.DEFAULT_GLOBAL_SEARCH_OFFENDER_SORT,
-                criteria.getPageRequest().getOrder(), criteria.getPageRequest().getOffset(), criteria.getPageRequest().getLimit());
-
-        final var query = new StringBuilder(StringUtils.isNotBlank(criteria.getQuery()) ? criteria.getQuery() : "");
-
-        final var inBookingIds = generateIn(criteria.getBookingIds(), "bookingId", "");
-        query.append((query.length() == 0) ? inBookingIds : StringUtils.isNotEmpty(inBookingIds) ? ",and:" + inBookingIds : "");
-
-        final var inOffenderNos = generateIn(criteria.getOffenderNos(), "offenderNo", "'");
-        query.append((query.length() == 0) ? inOffenderNos : StringUtils.isNotEmpty(inOffenderNos) ? ",and:" + inOffenderNos : "");
-
-        final var bookings = repository.findAllInmates(
-                authenticationFacade.isOverrideRole() ? Collections.emptySet() : getUserCaseloadIds(criteria.getUsername()),
-                locationTypeGranularity,
-                query.toString(),
-                pageRequest);
-
-        if (criteria.isIepLevel()) {
-            final var bookingIds = bookings.getItems().stream().map(OffenderBooking::getBookingId).collect(Collectors.toList());
-            final var bookingIEPSummary = bookingService.getBookingIEPSummary(bookingIds, false);
-            bookings.getItems().forEach(booking -> booking.setIepLevel(bookingIEPSummary.get(booking.getBookingId()).getIepLevel()));
-        }
-        return bookings;
-    }
-
-    private String generateIn(final List<?> aList, final String field, final String wrappingText) {
-        final var newQuery = new StringBuilder();
-
-        if (!CollectionUtils.isEmpty(aList)) {
-            newQuery.append(field).append(":in:");
-            for (var i = 0; i < aList.size(); i++) {
-                if (i > 0) {
-                    newQuery.append("|");
-                }
-                newQuery.append(wrappingText).append(aList.get(i)).append(wrappingText);
-            }
-        }
-        return newQuery.toString();
     }
 
     public List<InmateDto> findInmatesByLocation(final String username, final String agencyId, final List<Long> locations) {
@@ -303,9 +260,7 @@ public class InmateService {
                                 inmate.setLocationDescription(calculateReleaseLocationDescription(lastMovement));
                             }
                         },
-                        () -> {
-                            inmate.setLocationDescription("Outside");
-                        }
+                        () -> inmate.setLocationDescription("Outside")
                     );
                 }
 
@@ -478,7 +433,7 @@ public class InmateService {
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public ImageDetail getMainBookingImage(final Long bookingId) {
         return offenderImageRepository.findLatestByBookingId(bookingId)
-            .map(i -> i.transform())
+            .map(OffenderImage::transform)
             .orElseThrow(EntityNotFoundException.withMessage(String.format("No Image found for booking Id %d", bookingId)));
     }
 
