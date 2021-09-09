@@ -74,25 +74,6 @@ public class InmateRepositoryTest {
     }
 
     @Test
-    public void testFindAllImates() {
-        final var pageRequest = new PageRequest("lastName, firstName");
-        final var caseloads = Set.of("LEI", "BXI");
-        final var foundInmates = repository.findAllInmates(caseloads, "WING", "", pageRequest);
-
-        assertThat(foundInmates.getItems()).isNotEmpty();
-    }
-
-    @Test
-    public void testFindSpecificInmatesAtLocation() {
-        final var pageRequest = new PageRequest("lastName, firstName");
-        final var caseloads = Set.of("LEI");
-        final var foundInmates = repository.findAllInmates(caseloads, "WING", "", pageRequest);
-
-        assertThat(foundInmates.getItems()).isNotEmpty();
-        assertThat(foundInmates.getItems()).extracting(OffenderBooking::getLastName).contains("FOX", "BATES");
-    }
-
-    @Test
     public void testSearchForOffenderBookings() {
         final var pageRequest = new PageRequest("lastName, firstName");
         final var caseloads = Set.of("LEI", "BXI");

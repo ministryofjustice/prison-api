@@ -12,7 +12,6 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingAliasSte
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingAssessmentSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingDetailSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingIEPSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingSearchSteps;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -27,7 +26,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 /**
  * BDD step definitions for the following Booking API endpoints:
  * <ul>
- *     <li>/booking</li>
  *     <li>/booking/{bookingId}</li>
  *     <li>/booking/{bookingId}/alerts</li>
  *     <li>/booking/{bookingId}/alerts/{alertId}</li>
@@ -40,8 +38,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
  * NB: Not all API endpoints have associated tests at this point in time.
  */
 public class BookingStepDefinitions extends AbstractStepDefinitions {
-    @Autowired
-    private BookingSearchSteps bookingSearch;
 
     @Autowired
     private BookingAliasSteps bookingAlias;
@@ -58,85 +54,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @Autowired
     private BookingAssessmentSteps bookingAssessment;
 
-    @When("^a booking search is made with full last \"([^\"]*)\" of existing offender$")
-    public void aBookingSearchIsMadeWithFullLastNameOfExistingOffender(final String fullLastName) {
-        bookingSearch.fullLastNameSearch(fullLastName);
-    }
-
-    @When("^a booking search is made with partial last \"([^\"]*)\" of existing offender$")
-    public void aBookingSearchIsMadeWithPartialLastNameOfExistingOffender(final String partialLastName) {
-        bookingSearch.partialLastNameSearch(partialLastName);
-    }
-
-    @When("^a booking search is made with full first \"([^\"]*)\" of existing offender$")
-    public void aBookingSearchIsMadeWithFullFirstNameOfExistingOffender(final String fullFirstName) {
-        bookingSearch.fullFirstNameSearch(fullFirstName);
-    }
-
-    @When("^a booking search is made with partial first \"([^\"]*)\" of existing offender$")
-    public void aBookingSearchIsMadeWithPartialFirstNameOfExistingOffender(final String partialFirstName) {
-        bookingSearch.partialFirstNameSearch(partialFirstName);
-    }
-
-    @And("^offender first names match \"([^\"]*)\"$")
-    public void offenderFirstNamesMatch(final String firstNames) {
-        bookingSearch.verifyFirstNames(firstNames);
-    }
-
-    @And("^offender middle names match \"([^\"]*)\"$")
-    public void offenderMiddleNamesMatch(final String middleNames) {
-        bookingSearch.verifyMiddleNames(middleNames);
-    }
-
-    @When("^a booking search is made without any criteria$")
-    public void aBookingSearchIsMadeWithoutAnyCriteria() {
-        bookingSearch.findAll();
-    }
-
-    @And("^offender last names match \"([^\"]*)\"$")
-    public void offenderLastNamesMatch(final String lastNames) {
-        bookingSearch.verifyLastNames(lastNames);
-    }
-
-    @And("^living unit descriptions match \"([^\"]*)\"$")
-    public void livingUnitDescriptionsMatch(final String livingUnits) {
-        bookingSearch.verifyLivingUnits(livingUnits);
-    }
-
-    @And("^image id match \"([^\"]*)\"$")
-    public void imageIdMatch(final String imageIds) {
-        bookingSearch.verifyImageIds(imageIds);
-    }
-
-    @And("^their dob match \"([^\"]*)\"$")
-    public void dateOfBirthMatch(final String dobs) {
-        bookingSearch.verifyDobs(dobs);
-    }
-
-    @When("^a booking search is made with \"([^\"]*)\" and \"([^\"]*)\" of existing offender$")
-    public void aBookingSearchIsMadeWithAndOfExistingOffender(final String firstName, final String lastName) {
-        bookingSearch.firstNameAndLastNameSearch(firstName, lastName);
-    }
-
-    @When("^a booking search is made with \"([^\"]*)\" or \"([^\"]*)\" of existing offender$")
-    public void aBookingSearchIsMadeWithOrOfExistingOffender(final String firstName, final String lastName) {
-        bookingSearch.firstNameOrLastNameSearch(firstName, lastName);
-    }
-
-    @Then("^\"([^\"]*)\" booking records are returned$")
-    public void bookingRecordsAreReturned(final String expectedCount) {
-        bookingSearch.verifyResourceRecordsReturned(Long.parseLong(expectedCount));
-    }
-
-    @Then("^some booking records are available$")
-    public void someBookingRecordsAreAvailable() {
-        bookingSearch.verifySomeResourceRecordsReturned();
-    }
-
-    @Then("^\"([^\"]*)\" total booking records are available$")
-    public void totalBookingRecordsAreAvailable(final String expectedCount) {
-        bookingSearch.verifyTotalResourceRecordsAvailable(Long.parseLong(expectedCount));
-    }
 
     @When("^aliases are requested for an offender booking \"([^\"]*)\"$")
     public void aliasesAreRequestedForAnOffenderBooking(final String bookingId) {
@@ -581,12 +498,12 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingAssessment.verifyCategorisedNotPresent(Long.parseLong(bookingId));
     }
 
-    @When("^a request is made for  \"([^\"]*)\"$")
+    @When("^a request is made for \"([^\"]*)\"$")
     public void aRequestIsMadeFor(final String offenders) {
         bookingDetail.findBookingDetails(List.of(offenders.split(",")));
     }
 
-    @When("^a request is made with booking Ids  \"([^\"]*)\" for prison \"([^\"]*)\"$")
+    @When("^a request is made with booking Ids \"([^\"]*)\" for prison \"([^\"]*)\"$")
     public void aRequestIsMadeForBookingIds(final String bookingsIds, final String agency) {
         bookingDetail.findInmateDetailsNyBookingIds(agency, Arrays.stream(bookingsIds.split(",")).map(Long::valueOf).collect(Collectors.toList()));
     }

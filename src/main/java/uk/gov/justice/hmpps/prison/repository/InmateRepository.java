@@ -219,39 +219,6 @@ public class InmateRepository extends RepositoryBase {
     }
 
 
-    public Page<OffenderBooking> findAllInmates(final Set<String> caseloads, final String locationTypeRoot, final String query, final PageRequest pageRequest) {
-        var initialSql = InmateRepositorySql.FIND_ALL_INMATES.getSql();
-        if (!caseloads.isEmpty()) {
-            initialSql += " AND " + InmateRepositorySql.CASELOAD_FILTER.getSql();
-        }
-        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_BOOKING_MAPPING);
-
-        final var sql = builder
-                .addRowCount()
-                .addQuery(query)
-                .addOrderBy(pageRequest.getOrder(), pageRequest.getOrderBy())
-                .addPagination()
-                .build();
-
-        final var assignedInmateRowMapper =
-            Row2BeanRowMapper.makeMapping(OffenderBooking.class, OFFENDER_BOOKING_MAPPING);
-
-        final var paRowMapper = new PageAwareRowMapper<>(assignedInmateRowMapper);
-
-        final var inmates = jdbcTemplate.query(
-                sql,
-                createParams("caseLoadId", caseloads,
-                        "locationTypeRoot", locationTypeRoot,
-                        "offset", pageRequest.getOffset(),
-                        "limit", pageRequest.getLimit()),
-                paRowMapper);
-
-        inmates.forEach(this::calcAdditionalInformation);
-
-        return new Page<>(inmates, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
-    }
-
-
     public Page<OffenderBooking> searchForOffenderBookings(final OffenderBookingSearchRequest request) {
         var initialSql = InmateRepositorySql.FIND_ALL_INMATES.getSql();
         initialSql += " AND " + InmateRepositorySql.LOCATION_FILTER_SQL.getSql();
@@ -621,7 +588,7 @@ public class InmateRepository extends RepositoryBase {
     private List<OffenderCategorise> getLatestOffenderCategorisations(final List<OffenderCategorise> individualCatList) {
         final var maxSeqOpt = individualCatList.stream().max(Comparator.comparing(OffenderCategorise::getAssessmentSeq));
         final var maxDateOpt = individualCatList.stream().max(Comparator.comparing(OffenderCategorise::getAssessmentDate));
-        if (maxDateOpt.isEmpty() || maxSeqOpt.isEmpty()) return individualCatList;
+        if (maxDateOpt.isEmpty()) return individualCatList;
 
         return individualCatList.stream()
                 .filter(oc -> oc.getAssessmentSeq() == null || (oc.getAssessmentSeq().equals(maxSeqOpt.get().getAssessmentSeq()) && oc.getAssessmentDate().equals(maxDateOpt.get().getAssessmentDate())))
@@ -957,7 +924,6 @@ public class InmateRepository extends RepositoryBase {
         final var likeTemplate = "%s:like:'%s%%'";
         final var eqTemplate = "%s:eq:'%s'";
         final var inTemplate = "%s:in:%s";
-        final var dateRangeTemplate = "(%s%s:gteq:'%s':'YYYY-MM-DD',and:%s:lteq:'%s':'YYYY-MM-DD')";
 
         final var nameMatchingTemplate = criteria.isPartialNameMatch() ? likeTemplate : eqTemplate;
         final var logicOperator = criteria.isAnyMatch() ? QUERY_OPERATOR_OR : QUERY_OPERATOR_AND;
@@ -982,7 +948,7 @@ public class InmateRepository extends RepositoryBase {
         appendPNCNumberCriteria(query, criteria.getPncNumber(), logicOperator);
         appendNonBlankCriteria(query, "croNumber", criteria.getCroNumber(), eqTemplate, logicOperator);
 
-        appendDateRangeCriteria(query, "dateOfBirth", criteria, dateRangeTemplate, logicOperator);
+        appendDateRangeCriteria(query, criteria, logicOperator);
 
         return StringUtils.trimToNull(query.toString());
     }
@@ -1025,16 +991,16 @@ public class InmateRepository extends RepositoryBase {
         }
     }
 
-    static void appendDateRangeCriteria(final StringBuilder query, final String criteriaName, final PrisonerDetailSearchCriteria criteria,
-                                        final String operatorTemplate, final String logicOperator) {
+    static void appendDateRangeCriteria(final StringBuilder query, final PrisonerDetailSearchCriteria criteria,
+                                        final String logicOperator) {
         final var calcDates = new CalcDateRanges(
                 criteria.getDob(), criteria.getDobFrom(), criteria.getDobTo(), criteria.getMaxYearsRange());
 
         if (calcDates.hasDateRange()) {
             final var dateRange = calcDates.getDateRange();
 
-            query.append(format(operatorTemplate, logicOperator, criteriaName,
-                    DateTimeFormatter.ISO_LOCAL_DATE.format(dateRange.getMinimum()), criteriaName,
+            query.append(format("(%s%s:gteq:'%s':'YYYY-MM-DD',and:%s:lteq:'%s':'YYYY-MM-DD')", logicOperator, "dateOfBirth",
+                    DateTimeFormatter.ISO_LOCAL_DATE.format(dateRange.getMinimum()), "dateOfBirth",
                     DateTimeFormatter.ISO_LOCAL_DATE.format(dateRange.getMaximum())));
         }
     }

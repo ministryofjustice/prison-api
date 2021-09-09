@@ -29,15 +29,13 @@ public class PrisonerRepository extends RepositoryBase {
             new StandardBeanPropertyRowMapper<>(OffenderNumber.class);
 
     enum ColumnMapper {
-        ORACLE_11(DatabaseDialect.ORACLE_11, ColumnMappings.getOracleColumnMappings()),
-        ORACLE_12(DatabaseDialect.ORACLE_12, ColumnMappings.getOracleColumnMappings()),
-        HSQLDB(DatabaseDialect.HSQLDB, ColumnMappings.getAnsiColumnMappings());
+        ORACLE_11(ColumnMappings.getOracleColumnMappings()),
+        ORACLE_12(ColumnMappings.getOracleColumnMappings()),
+        HSQLDB(ColumnMappings.getAnsiColumnMappings());
 
-        private final DatabaseDialect databaseDialect;
         private final Map<String, String> columnMappings;
 
-        ColumnMapper(final DatabaseDialect databaseDialect, final Map<String, String> columnMappings) {
-            this.databaseDialect = databaseDialect;
+        ColumnMapper(final Map<String, String> columnMappings) {
             this.columnMappings = columnMappings;
         }
 
@@ -49,14 +47,6 @@ public class PrisonerRepository extends RepositoryBase {
                 case HSQLDB -> HSQLDB.columnMappings;
                 default -> Collections.emptyMap();
             };
-        }
-
-        public DatabaseDialect getDatabaseDialect() {
-            return databaseDialect;
-        }
-
-        public Map<String, String> getColumnMappings() {
-            return columnMappings;
         }
     }
 
