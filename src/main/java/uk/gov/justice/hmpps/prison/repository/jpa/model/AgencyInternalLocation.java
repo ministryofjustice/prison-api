@@ -2,11 +2,12 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
+import lombok.ToString.Exclude;
+import org.hibernate.Hibernate;
 import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.Column;
@@ -18,15 +19,15 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import java.util.Objects;
 
 @Getter
 @ToString
-@EqualsAndHashCode
-@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Entity
-@Data
+@Setter
+@RequiredArgsConstructor
 @Table(name = "AGENCY_INTERNAL_LOCATIONS")
 @BatchSize(size = 25)
 public class AgencyInternalLocation {
@@ -53,6 +54,7 @@ public class AgencyInternalLocation {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PARENT_INTERNAL_LOCATION_ID")
+    @Exclude
     private AgencyInternalLocation parentLocation;
 
     @Column(name = "NO_OF_OCCUPANT")
@@ -116,5 +118,18 @@ public class AgencyInternalLocation {
     public Integer getActualCapacity(final boolean treatZeroOperationalCapacityAsNull) {
         final var useOperationalCapacity = operationalCapacity != null && !(treatZeroOperationalCapacityAsNull && operationalCapacity == 0);
         return useOperationalCapacity ? operationalCapacity : capacity;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        final AgencyInternalLocation that = (AgencyInternalLocation) o;
+        return Objects.equals(getLocationId(), that.getLocationId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getLocationId());
     }
 }

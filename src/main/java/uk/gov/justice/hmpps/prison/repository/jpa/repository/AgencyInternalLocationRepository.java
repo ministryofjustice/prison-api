@@ -20,4 +20,6 @@ public interface AgencyInternalLocationRepository extends CrudRepository<AgencyI
     Optional<AgencyInternalLocation> findOneByLocationId(final Long locationId);
 
     List<AgencyInternalLocation> findByLocationCodeAndAgencyId(final String locationCode, final String agencyId);
+
+    List<AgencyInternalLocation> findByAgencyIdAndLocationTypeAndActiveFlagAndParentLocationIsNull(final String agencyId, final String locationType, ActiveFlag activeFlag);
 }

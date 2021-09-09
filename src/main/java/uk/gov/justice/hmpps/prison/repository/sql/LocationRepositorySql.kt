@@ -35,22 +35,6 @@ enum class LocationRepositorySql(val sql: String) {
     """
   ),
 
-  FIND_LOCATIONS_BY_AGENCY_AND_TYPE(
-    """
-        SELECT A.INTERNAL_LOCATION_ID LOCATION_ID,
-        A.AGY_LOC_ID AGENCY_ID,
-        A.INTERNAL_LOCATION_TYPE LOCATION_TYPE,
-        A.DESCRIPTION,
-        A.USER_DESC USER_DESCRIPTION,
-        A.PARENT_INTERNAL_LOCATION_ID PARENT_LOCATION_ID,
-        A.NO_OF_OCCUPANT CURRENT_OCCUPANCY
-                FROM AGENCY_INTERNAL_LOCATIONS A
-        WHERE A.ACTIVE_FLAG = 'Y'
-        AND A.AGY_LOC_ID = :agencyId
-        AND A.INTERNAL_LOCATION_TYPE = :locationType
-    """
-  ),
-
   GET_LOCATION_GROUP_DATA(
     """
         SELECT AIL.INTERNAL_LOCATION_ID                        AS LOCATION_ID,

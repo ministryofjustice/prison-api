@@ -41,13 +41,6 @@ public class LocationRepositoryTest {
     }
 
     @Test
-    public void findLocationsByAgencyAndType() {
-        final var result = repository.findLocationsByAgencyAndType("LEI", "CELL", false);
-        assertThat(result).hasSize(32);
-        assertThat(result.get(0).getLocationPrefix()).isEqualTo("LEI-A-1-1");
-    }
-
-    @Test
     public void findLocationIdWithFilter() {
 
         val activeAgencyLocationId = -1L;

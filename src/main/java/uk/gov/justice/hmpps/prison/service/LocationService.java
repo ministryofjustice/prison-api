@@ -14,6 +14,9 @@ import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.repository.AgencyRepository;
 import uk.gov.justice.hmpps.prison.repository.InmateRepository;
 import uk.gov.justice.hmpps.prison.repository.LocationRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.transform.LocationTransformer;
 import uk.gov.justice.hmpps.prison.repository.support.StatusFilter;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
@@ -27,6 +30,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class LocationService {
     private final AgencyRepository agencyRepository;
+    private final AgencyInternalLocationRepository agencyInternalLocationRepository;
     private final LocationRepository locationRepository;
     private final InmateRepository inmateRepository;
     private final CaseLoadService caseLoadService;
@@ -34,11 +38,13 @@ public class LocationService {
 
     public LocationService(
             final AgencyRepository agencyRepository,
+            final AgencyInternalLocationRepository agencyInternalLocationRepository,
             final LocationRepository locationRepository,
             final InmateRepository inmateRepository,
             final CaseLoadService caseLoadService,
             @Value("${api.users.me.locations.locationType:WING}") final String locationTypeGranularity) {
         this.locationRepository = locationRepository;
+        this.agencyInternalLocationRepository = agencyInternalLocationRepository;
         this.inmateRepository = inmateRepository;
         this.caseLoadService = caseLoadService;
         this.agencyRepository = agencyRepository;
@@ -55,18 +61,15 @@ public class LocationService {
     }
 
     private List<Location> findLocationsFromAgencies(final String username) {
-        return agencyRepository.findAgenciesForCurrentCaseloadByUsername(username).stream().flatMap(agency -> {
+        return agencyRepository.findAgenciesForCurrentCaseloadByUsername(username).stream()
+            .flatMap(agency -> {
+                final var locations = new ArrayList<Location>();
+                locations.add(convertToLocation(agency));
 
-            final var locations = new ArrayList<Location>();
-            locations.add(convertToLocation(agency));
-
-            // Then retrieve all associated internal locations at configured level of granularity.
-            final var agencyLocations = locationRepository.findLocationsByAgencyAndType(
-                    agency.getAgencyId(), locationTypeGranularity, true);
-
-            agencyLocations.forEach(a -> a.setDescription(LocationProcessor.formatLocation(a.getDescription())));
-            locations.addAll(agencyLocations);
-            return locations.stream();
+                // Then retrieve all associated internal locations at configured level of granularity.
+                locations.addAll(agencyInternalLocationRepository.findByAgencyIdAndLocationTypeAndActiveFlagAndParentLocationIsNull(agency.getAgencyId(), locationTypeGranularity, ActiveFlag.Y)
+                        .stream().map(LocationTransformer::fromAgencyInternalLocation).collect(Collectors.toList()));
+                return locations.stream();
 
         }).collect(Collectors.toList());
     }
