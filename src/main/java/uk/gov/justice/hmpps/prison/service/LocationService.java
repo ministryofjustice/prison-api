@@ -22,6 +22,7 @@ import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -68,7 +69,7 @@ public class LocationService {
 
                 // Then retrieve all associated internal locations at configured level of granularity.
                 locations.addAll(agencyInternalLocationRepository.findByAgencyIdAndLocationTypeAndActiveFlagAndParentLocationIsNull(agency.getAgencyId(), locationTypeGranularity, ActiveFlag.Y)
-                        .stream().map(LocationTransformer::fromAgencyInternalLocation).collect(Collectors.toList()));
+                        .stream().map(LocationTransformer::fromAgencyInternalLocation).sorted(Comparator.comparing(Location::getDescription)).collect(Collectors.toList()));
                 return locations.stream();
 
         }).collect(Collectors.toList());
