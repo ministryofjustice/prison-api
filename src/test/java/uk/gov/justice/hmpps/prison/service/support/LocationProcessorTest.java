@@ -58,7 +58,7 @@ public class LocationProcessorTest {
     public void processLocationUserDescPreferred() {
         final var testLocation = buildTestLocation(TEST_LOCATION_USER_DESCRIPTION);
 
-        final var processedLocation = LocationProcessor.processLocation(testLocation, true);
+        final var processedLocation = LocationProcessor.processLocation(testLocation, true, false);
 
         assertThat(processedLocation.getAgencyId()).isEqualTo(TEST_AGENCY_ID);
         assertThat(processedLocation.getLocationId()).isEqualTo(TEST_LOCATION_ID);
@@ -72,7 +72,7 @@ public class LocationProcessorTest {
     public void processLocationUserDescPreferredButNull() {
         final var testLocation = buildTestLocation(null);
 
-        final var processedLocation = LocationProcessor.processLocation(testLocation, true);
+        final var processedLocation = LocationProcessor.processLocation(testLocation, true, false);
 
         assertThat(processedLocation.getAgencyId()).isEqualTo(TEST_AGENCY_ID);
         assertThat(processedLocation.getLocationId()).isEqualTo(TEST_LOCATION_ID);

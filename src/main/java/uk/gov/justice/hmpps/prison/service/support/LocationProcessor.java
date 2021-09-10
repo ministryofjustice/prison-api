@@ -64,7 +64,7 @@ public class LocationProcessor {
     public static List<Location> processLocations(final List<Location> locations, final boolean preferUserDescription) {
         Objects.requireNonNull(locations);
 
-        return locations.stream().map(loc -> processLocation(loc, preferUserDescription)).collect(Collectors.toList());
+        return locations.stream().map(loc -> processLocation(loc, preferUserDescription, false)).collect(Collectors.toList());
     }
 
     /**
@@ -79,7 +79,7 @@ public class LocationProcessor {
      * @throws {@code NullPointerException} if no location provided for processing.
      */
     public static Location processLocation(final Location location) {
-        return processLocation(location, false);
+        return processLocation(location, false, false);
     }
 
     /**
@@ -93,10 +93,10 @@ public class LocationProcessor {
      * @param preferUserDescription if {@code true}, the location's user description will be used as the location's
      *                              description if it is set. Stripping of agency id from location description will not
      *                              occur if this is {@code true} and user description has been set.
+     * @param formatDescription     if true the description will have formatting rules applied to it
      * @return new location representing processed input location.
-     * @throws {@code NullPointerException} if no location provided for processing.
      */
-    public static Location processLocation(final Location location, final boolean preferUserDescription) {
+    public static Location processLocation(final Location location, final boolean preferUserDescription, final boolean formatDescription) {
         Objects.requireNonNull(location);
 
         final var newLocationPrefix = StringUtils.defaultIfBlank(location.getLocationPrefix(), location.getDescription());
@@ -106,7 +106,7 @@ public class LocationProcessor {
         return Location.builder()
                 .agencyId(location.getAgencyId())
                 .currentOccupancy(location.getCurrentOccupancy())
-                .description(newDescription)
+                .description(formatDescription ? formatLocation(newDescription) : newDescription)
                 .locationId(location.getLocationId())
                 .locationPrefix(newLocationPrefix)
                 .locationType(location.getLocationType())

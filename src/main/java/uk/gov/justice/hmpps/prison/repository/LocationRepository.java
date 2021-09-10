@@ -28,7 +28,7 @@ public class LocationRepository extends RepositoryBase {
                     createParams("locationId", locationId, "activeFlag", filter.getActiveFlag()),
                     LOCATION_ROW_MAPPER);
 
-            return Optional.of(LocationProcessor.processLocation(rawLocation, true));
+            return Optional.of(LocationProcessor.processLocation(rawLocation, true, false));
         } catch (final EmptyResultDataAccessException e) {
             return Optional.empty();
         }
@@ -44,7 +44,7 @@ public class LocationRepository extends RepositoryBase {
                     createParams("locationId", locationId, "username", username),
                     LOCATION_ROW_MAPPER);
 
-            return Optional.of(LocationProcessor.processLocation(rawLocation, true));
+            return Optional.of(LocationProcessor.processLocation(rawLocation, true, false));
         } catch (final EmptyResultDataAccessException e) {
             return Optional.empty();
         }
