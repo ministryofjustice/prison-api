@@ -212,11 +212,11 @@ public class ReleaseAPrisonerIntegrationTest {
                 "bookingStatus",
                 "livingUnitMv",
                 "assignedLivingUnit",
-                "location",
                 "bookingEndDate",
+                "location",
                 "statusReason",
                 "commStatus")
-            .contains("OUT", "N", "C", null, null, agencyOutside, LocalDateTime.now(clock), "REL-CR", null);
+            .contains("OUT", "N", "C", null, null, LocalDateTime.now(clock), agencyOutside, "REL-CR", null);
     }
 
     private OffenderBooking getOffenderBooking(final String offenderNo, final Boolean activeFlag) {
