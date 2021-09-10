@@ -16,5 +16,5 @@ Feature: User Locations
 
     Examples:
       | token         | number | agency id                                   | description                               | prefix                                                            |
-      | NORMAL_USER   | 10     | LEI,LEI,LEI,LEI,LEI,LEI,LEI,LEI,LEI,LEI     | A,C,CSWAP,D,E,F,H,I,Leeds,S               | LEI,LEI-A,LEI-C,LEI-CSWAP,LEI-D,LEI-E,LEI-F,LEI-H,LEI-I,LEI-S     |
-      | API_TEST_USER | 11     | BXI,LEI,LEI,LEI,LEI,LEI,LEI,LEI,LEI,LEI,LEI | A,Brixton,C,CSWAP,D,E,F,H,I,Leeds,S       | BXI,LEI,LEI-A,LEI-C,LEI-CSWAP,LEI-D,LEI-E,LEI-F,LEI-H,LEI-I,LEI-S |
+      | NORMAL_USER   | 10     | LEI,LEI,LEI,LEI,LEI,LEI,LEI,LEI,LEI,LEI     | Block A,C,CSWAP,D,E,F,H,I,Leeds,S         | LEI,LEI-A,LEI-C,LEI-CSWAP,LEI-D,LEI-E,LEI-F,LEI-H,LEI-I,LEI-S     |
+      | API_TEST_USER | 11     | BXI,LEI,LEI,LEI,LEI,LEI,LEI,LEI,LEI,LEI,LEI | Block A,Brixton,C,CSWAP,D,E,F,H,I,Leeds,S | BXI,LEI,LEI-A,LEI-C,LEI-CSWAP,LEI-D,LEI-E,LEI-F,LEI-H,LEI-I,LEI-S |

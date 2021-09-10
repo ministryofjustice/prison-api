@@ -9,7 +9,6 @@ import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.CaseLoadService;
 import uk.gov.justice.hmpps.prison.service.CaseNoteService;
 import uk.gov.justice.hmpps.prison.service.LocationService;
-import uk.gov.justice.hmpps.prison.service.StaffService;
 import uk.gov.justice.hmpps.prison.service.UserService;
 
 import java.util.Collections;
@@ -28,8 +27,6 @@ public class UserResourceTest {
     @Mock
     private LocationService locationService;
     @Mock
-    private StaffService staffService;
-    @Mock
     private CaseLoadService caseLoadService;
     @Mock
     private CaseNoteService caseNoteService;
@@ -38,7 +35,7 @@ public class UserResourceTest {
 
     @BeforeEach
     public void setUp() {
-        userResource = new UserResource(authenticationFacade, locationService, userService, staffService,
+        userResource = new UserResource(authenticationFacade, locationService, userService,
             caseLoadService, caseNoteService);
     }
 
