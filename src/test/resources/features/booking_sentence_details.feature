@@ -188,7 +188,6 @@ Feature: Booking Sentence Details
       | -30       | 1.1     | 2007-10-16 | 2022-10-20 |     | 2021-02-28 | 2021-03-25 | 2021-04-28 |
       | -32       | 1.1     |            |            |     |            |            |            |
 
-@wip
   Scenario Outline: Retrieve sentence details for an offender, check other dates
     When sentence details are requested for an offender with booking id "<bookingId>" and version "<version>"
     Then sentence start date matches "<ssd>"

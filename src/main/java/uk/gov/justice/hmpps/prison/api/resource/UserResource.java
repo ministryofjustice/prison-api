@@ -37,7 +37,6 @@ import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.CaseLoadService;
 import uk.gov.justice.hmpps.prison.service.CaseNoteService;
 import uk.gov.justice.hmpps.prison.service.LocationService;
-import uk.gov.justice.hmpps.prison.service.StaffService;
 import uk.gov.justice.hmpps.prison.service.UserService;
 
 import javax.validation.constraints.NotEmpty;
@@ -52,20 +51,17 @@ public class UserResource {
     private final AuthenticationFacade authenticationFacade;
     private final UserService userService;
     private final LocationService locationService;
-    private final StaffService staffService;
     private final CaseLoadService caseLoadService;
     private final CaseNoteService caseNoteService;
 
     public UserResource(final AuthenticationFacade authenticationFacade,
                         final LocationService locationService,
                         final UserService userService,
-                        final StaffService staffService,
                         final CaseLoadService caseLoadService,
                         final CaseNoteService caseNoteService) {
         this.authenticationFacade = authenticationFacade;
         this.locationService = locationService;
         this.userService = userService;
-        this.staffService = staffService;
         this.caseLoadService = caseLoadService;
         this.caseNoteService = caseNoteService;
     }
