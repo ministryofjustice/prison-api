@@ -11,7 +11,7 @@ public class LocationTransformer {
     }
 
     public static Location fromAgencyInternalLocationPreferUserDesc(AgencyInternalLocation agencyInternalLocation) {
-        return LocationProcessor.processLocation(buildLocation(agencyInternalLocation), true);
+        return LocationProcessor.processLocation(buildLocation(agencyInternalLocation), true, true);
     }
 
     private static Location buildLocation(final AgencyInternalLocation agencyInternalLocation) {
