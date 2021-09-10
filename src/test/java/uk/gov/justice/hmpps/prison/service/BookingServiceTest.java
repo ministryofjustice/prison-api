@@ -18,6 +18,8 @@ import uk.gov.justice.hmpps.prison.api.model.IepLevelAndComment;
 import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecord;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
+import uk.gov.justice.hmpps.prison.api.model.OffenderOffence;
+import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeDetail;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
@@ -29,42 +31,56 @@ import uk.gov.justice.hmpps.prison.api.model.VisitWithVisitors;
 import uk.gov.justice.hmpps.prison.api.model.Visitor;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.repository.BookingRepository;
-import uk.gov.justice.hmpps.prison.repository.InmateRepository;
 import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AvailablePrisonIepLevel;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AvailablePrisonIepLevel.PK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtOrder;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.DisciplinaryAction;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.IepLevel;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.KeyDateAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LegalCaseType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryBranch;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryDischarge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryRank;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Offence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderContactPerson;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPropertyContainer;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentenceCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.PropertyContainer;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.RelationshipType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceAdjustment;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalcType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitorInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.WarZone;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AvailablePrisonIepLevelRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPersonsRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitorRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.support.PayableAttendanceOutcomeDto;
+import uk.gov.justice.hmpps.prison.service.transformers.OffenderBookingTransformer;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
 
 import java.time.LocalDate;
@@ -76,6 +92,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.nhaarman.mockitokotlin2.MatchersKt.eq;
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -83,8 +100,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -96,8 +111,6 @@ public class BookingServiceTest {
     @Mock
     private BookingRepository bookingRepository;
     @Mock
-    private InmateRepository inmateRepository;
-    @Mock
     private OffenderBookingRepository offenderBookingRepository;
     @Mock
     private OffenderRepository offenderRepository;
@@ -108,8 +121,6 @@ public class BookingServiceTest {
     @Mock
     private AgencyService agencyService;
     @Mock
-    private ReferenceDomainService referenceDomainService;
-    @Mock
     private AgencyInternalLocationRepository agencyInternalLocationRepository;
     @Mock
     private OffenderSentenceAdjustmentRepository offenderSentenceAdjustmentRepository;
@@ -118,13 +129,21 @@ public class BookingServiceTest {
     @Mock
     private OffenderContactPersonsRepository offenderContactPersonsRepository;
     @Mock
-    private AuthenticationFacade securityUtils;
+    private StaffUserAccountRepository staffUserAccountRepository;
     @Mock
     private AuthenticationFacade authenticationFacade;
     @Mock
     private OffenderTransformer offenderTransformer;
     @Mock
+    private OffenderBookingTransformer offenderBookingTransformer;
+    @Mock
+    private AvailablePrisonIepLevelRepository availablePrisonIepLevelRepository;
+    @Mock
+    private OffenderSentenceRepository offenderSentenceRepository;
+    @Mock
     private CaseloadToAgencyMappingService caseloadToAgencyMappingService;
+    @Mock
+    private CaseLoadService caseLoadService;
 
     private BookingService bookingService;
 
@@ -132,26 +151,27 @@ public class BookingServiceTest {
     public void init() {
         bookingService = new BookingService(
                 bookingRepository,
-                inmateRepository,
                 offenderBookingRepository,
                 offenderRepository,
                 visitorRepository,
                 visitRepository,
                 null,
                 agencyService,
-                null,
-                referenceDomainService,
+                caseLoadService,
                 caseloadToAgencyMappingService,
                 agencyInternalLocationRepository,
                 offenderSentenceAdjustmentRepository,
                 offenderKeyDateAdjustmentRepository,
                 offenderContactPersonsRepository,
-                securityUtils, authenticationFacade,
+                staffUserAccountRepository,
+                offenderBookingTransformer,
                 offenderTransformer,
+                authenticationFacade,
+                offenderSentenceRepository,
+            availablePrisonIepLevelRepository,
                 "1",
                 10);
     }
-
 
     @Test
     public void testVerifyCanAccessLatestBooking() {
@@ -197,13 +217,13 @@ public class BookingServiceTest {
 
     @Test
     public void verifyCanViewSensitiveBookingInfo_systemUser() {
-        when(securityUtils.isOverrideRole(any())).thenReturn(true);
+        when(authenticationFacade.isOverrideRole(any())).thenReturn(true);
 
         when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(new OffenderBookingIdSeq("off-1", -1L, 1)));
 
-        bookingService.getOffenderIdentifiers("off-1", new String [] {"SYSTEM_USER", "GLOBAL_SEARCH"});
+        bookingService.getOffenderIdentifiers("off-1", "SYSTEM_USER", "GLOBAL_SEARCH");
 
-        verify(securityUtils).isOverrideRole(
+        verify(authenticationFacade).isOverrideRole(
                 "SYSTEM_USER", "GLOBAL_SEARCH"
         );
     }
@@ -226,40 +246,28 @@ public class BookingServiceTest {
     @Test
     public void givenValidBookingIdIepLevelAndComment_whenIepLevelAdded() {
         final var bookingId = 1L;
-
-        when(referenceDomainService.isReferenceCodeActive("IEP_LEVEL", "STD")).thenReturn(true);
-        when(bookingRepository.getIepLevelsForAgencySelectedByBooking(bookingId)).thenReturn(Set.of("ENT", "BAS", "STD", "ENH"));
-        when(bookingRepository.getBookingAgency(bookingId)).thenReturn(Optional.of("LEI"));
-
         final var iepLevelAndComment = IepLevelAndComment.builder().iepLevel("STD").comment("Comment").build();
 
+        final var leedsPrison = AgencyLocation.builder().id("LEI").build();
+        when(offenderBookingRepository.findById(bookingId)).thenReturn(Optional.of(OffenderBooking.builder().bookingId(bookingId).location(leedsPrison).build()));
+        when(availablePrisonIepLevelRepository.findById(eq(new PK(iepLevelAndComment.getIepLevel(), leedsPrison)))).thenReturn(Optional.of(AvailablePrisonIepLevel.builder().iepLevel(new IepLevel("STD", "Standard")).agencyLocation(leedsPrison).build()));
+        when(staffUserAccountRepository.findById("FRED")).thenReturn(Optional.of(StaffUserAccount.builder().username("FRED").build()));
         bookingService.addIepLevel(bookingId, "FRED", iepLevelAndComment);
 
-        verify(bookingRepository).addIepLevel(eq(bookingId), eq("FRED"), eq(iepLevelAndComment), isA(LocalDateTime.class), eq("LEI"));
+        verify(availablePrisonIepLevelRepository).findById(eq(new PK(iepLevelAndComment.getIepLevel(), leedsPrison)));
     }
 
     @Test
     public void givenInvalidIepLevel_whenIepLevelAdded() {
         final var bookingId = 1L;
-
-        when(referenceDomainService.isReferenceCodeActive("IEP_LEVEL", "STD")).thenReturn(false);
-
         final var iepLevelAndComment = IepLevelAndComment.builder().iepLevel("STD").comment("Comment").build();
+
+        final var leedsPrison = AgencyLocation.builder().id("LEI").build();
+        when(offenderBookingRepository.findById(bookingId)).thenReturn(Optional.of(OffenderBooking.builder().bookingId(bookingId).location(leedsPrison).build()));
+        when(availablePrisonIepLevelRepository.findById(eq(new PK(iepLevelAndComment.getIepLevel(), leedsPrison)))).thenReturn(Optional.empty());
+
         assertThatThrownBy(() -> bookingService.addIepLevel(bookingId, "FRED", iepLevelAndComment))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("IEP Level 'STD' is not a valid NOMIS value.");
-    }
-
-    @Test
-    public void givenValidIepLevel_whenIepLevelNotValidForAgencyAssociatedWithBooking() {
-        final var bookingId = 1L;
-
-        when(referenceDomainService.isReferenceCodeActive("IEP_LEVEL", "STD")).thenReturn(true);
-        when(bookingRepository.getIepLevelsForAgencySelectedByBooking(bookingId)).thenReturn(Set.of("ENT", "BAS", "ENH"));
-
-        final var iepLevelAndComment = IepLevelAndComment.builder().iepLevel("STD").comment("Comment").build();
-        assertThatThrownBy(() -> bookingService.addIepLevel(bookingId, "FRED", iepLevelAndComment))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("IEP Level 'STD' is not active for this booking's agency: Booking Id 1.");
     }
 
@@ -323,14 +331,14 @@ public class BookingServiceTest {
 
     @Test
     public void getBookingIEPSummary_multipleBooking_globalSearchUser() {
-        when(securityUtils.isOverrideRole(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(true);
+        when(authenticationFacade.isOverrideRole(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(true);
         when(bookingRepository.getBookingIEPDetailsByBookingIds(anyList())).thenReturn(Map.of(-5L, List.of(PrivilegeDetail.builder().iepDate(LocalDate.now()).build())));
         assertThat(bookingService.getBookingIEPSummary(List.of(-1L, -2L), false)).containsKeys(-5L);
     }
 
     @Test
     public void getBookingIEPSummary_multipleBooking_withDetail_systemUser() {
-        when(securityUtils.isOverrideRole()).thenReturn(true);
+        when(authenticationFacade.isOverrideRole()).thenReturn(true);
         when(bookingRepository.getBookingIEPDetailsByBookingIds(anyList())).thenReturn(Map.of(-5L, List.of(PrivilegeDetail.builder().iepDate(LocalDate.now()).build())));
         assertThat(bookingService.getBookingIEPSummary(List.of(-1L, -2L), true)).containsKeys(-5L);
     }
@@ -1165,10 +1173,100 @@ public class BookingServiceTest {
 
     @Test
     public void getOffenderSentenceSummaries_forOveriddenRole() {
-        when(securityUtils.isOverrideRole(any())).thenReturn(true);
+        when(authenticationFacade.isOverrideRole(any())).thenReturn(true);
         when(caseloadToAgencyMappingService.agenciesForUsersWorkingCaseload(any())).thenReturn(List.of());
         assertThatThrownBy(() -> bookingService.getOffenderSentencesSummary(null, List.of()))
                 .isInstanceOf(HttpClientErrorException.class).hasMessage("400 Request must be restricted to either a caseload, agency or list of offenders");
+    }
+
+    @Test
+    void getSentenceAndOffenceDetails_withMinimalData() {
+        final var bookingId = -1L;
+        when(offenderSentenceRepository.findByOffenderBooking_BookingId(bookingId))
+            .thenReturn(
+                List.of(OffenderSentence.builder()
+                        .offenderBooking(OffenderBooking.builder().bookingId(-99L).build())
+                        .calculationType(SentenceCalcType.builder().build()
+                    ).build()
+                )
+            );
+
+        final var sentencesAndOffences = bookingService.getSentenceAndOffenceDetails(bookingId);
+
+        assertThat(sentencesAndOffences).containsExactly(
+            OffenderSentenceAndOffences.builder()
+                .bookingId(-99L)
+                .days(0)
+                .weeks(0)
+                .months(0)
+                .years(0)
+                .build()
+        );
+    }
+
+    @Test
+    void getSentenceAndOffenceDetails_withFullData() {
+        final var bookingId = -1L;
+        when(offenderSentenceRepository.findByOffenderBooking_BookingId(bookingId))
+            .thenReturn(
+                List.of(OffenderSentence.builder()
+                        .offenderBooking(OffenderBooking.builder().bookingId(-98L).build())
+                        .sequence(2)
+                        .consecutiveToSentenceSequence(1)
+                        .status("A")
+                        .calculationType(
+                            SentenceCalcType.builder()
+                                .category("CAT")
+                                .calculationType("CALC")
+                                .description("Calc description")
+                                .build()
+                            )
+                        .courtOrder(
+                            CourtOrder.builder()
+                                .courtDate(LocalDate.of(2021,1,1))
+                                .build()
+                            )
+                        .terms(List.of(
+                            SentenceTerm.builder()
+                                .years(3)
+                                .build()
+                        ))
+                        .offenderSentenceCharges(List.of(
+                            OffenderSentenceCharge.builder()
+                                .offenderCharge(OffenderCharge.builder()
+                                    .dateOfOffence(LocalDate.of(2021, 1, 2))
+                                    .offence(Offence.builder().build())
+                                    .build()
+                                )
+                                .build()
+                        ))
+                        .build()
+                    )
+                );
+
+        final var sentencesAndOffences = bookingService.getSentenceAndOffenceDetails(bookingId);
+
+        assertThat(sentencesAndOffences).containsExactly(
+            OffenderSentenceAndOffences.builder()
+                .bookingId(-98L)
+                .sentenceSequence(2)
+                .consecutiveToSequence(1)
+                .sentenceStatus("A")
+                .sentenceCategory("CAT")
+                .sentenceCalculationType("CALC")
+                .sentenceTypeDescription("Calc description")
+                .sentenceDate(LocalDate.of(2021,1,1))
+                .days(0)
+                .weeks(0)
+                .months(0)
+                .years(3)
+                .offences(List.of(
+                    OffenderOffence.builder()
+                        .offenceDate(LocalDate.of(2021, 1, 2))
+                        .build()
+                ))
+                .build()
+        );
     }
 
     @Nested
@@ -1177,7 +1275,6 @@ public class BookingServiceTest {
         final Long SOME_BOOKING_ID = 1L;
         final Long BAD_BOOKING_ID = 2L;
         final Long OLD_LIVING_UNIT_ID = 11L;
-        final String OLD_LIVING_UNIT_DESC = "A-1";
         final Long NEW_LIVING_UNIT_ID = 12L;
         final String NEW_LIVING_UNIT_DESC = "Z-1";
         final String SOME_AGENCY_ID = "MDI";
@@ -1198,33 +1295,33 @@ public class BookingServiceTest {
 
         @Test
         void livingUnitNotFound_throws() {
-            when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
+            when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
             when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC))
                     .isInstanceOf(EntityNotFoundException.class)
-                    .hasMessageContaining(valueOf(NEW_LIVING_UNIT_DESC));
+                    .hasMessageContaining(NEW_LIVING_UNIT_DESC);
         }
 
         @Test
         void livingUnitNotCell_throws() {
             when(offenderBookingRepository.findById(SOME_BOOKING_ID))
-                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
             when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC))
                     .thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC, SOME_AGENCY_ID, "WING")));
 
             assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC))
                     .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining(valueOf(NEW_LIVING_UNIT_DESC))
+                    .hasMessageContaining(NEW_LIVING_UNIT_DESC)
                     .hasMessageContaining("WING");
         }
 
         @Test
         void differentAgency_throws() {
             when(offenderBookingRepository.findById(SOME_BOOKING_ID))
-                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
             when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC))
-                    .thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC, DIFFERENT_AGENCY_ID)));
+                    .thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, DIFFERENT_AGENCY_ID)));
 
             assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC))
                     .isInstanceOf(IllegalArgumentException.class)
@@ -1235,9 +1332,9 @@ public class BookingServiceTest {
         @Test
         void ok_updatesRepo() {
             when(offenderBookingRepository.findById(SOME_BOOKING_ID))
-                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
             when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC))
-                    .thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC, SOME_AGENCY_ID)));
+                    .thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, SOME_AGENCY_ID)));
 
             bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC);
 
@@ -1249,7 +1346,7 @@ public class BookingServiceTest {
         @Test
         void cellSwap() {
             when(offenderBookingRepository.findById(SOME_BOOKING_ID))
-                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_AGENCY_ID));
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
 
             final var cellSwapLocation = aCellSwapLocation();
 
@@ -1261,8 +1358,8 @@ public class BookingServiceTest {
             assertThat(updatedOffenderBooking.getValue().getAssignedLivingUnit().getLocationId()).isEqualTo(cellSwapLocation.getLocationId());
         }
 
-        private Optional<OffenderBooking> anOffenderBooking(final Long bookingId, final Long livingUnitId, final String agencyId) {
-            final var agencyLocation = AgencyLocation.builder().id(agencyId).build();
+        private Optional<OffenderBooking> anOffenderBooking(final Long bookingId, final Long livingUnitId) {
+            final var agencyLocation = AgencyLocation.builder().id("MDI").build();
             final var livingUnit = AgencyInternalLocation.builder().locationId(livingUnitId).build();
             final var offender = Offender.builder().nomsId("any noms id").build();
             return Optional.of(
@@ -1285,8 +1382,8 @@ public class BookingServiceTest {
                     .build();
         }
 
-        private AgencyInternalLocation aLocation(final Long locationId, final String locationDescription, final String agencyId) {
-            return aLocation(locationId, locationDescription, agencyId, "CELL");
+        private AgencyInternalLocation aLocation(final Long locationId, final String agencyId) {
+            return aLocation(locationId, "Z-1", agencyId, "CELL");
         }
 
         private AgencyInternalLocation aLocation(final Long locationId, final String locationDescription, final String agencyId, final String locationType) {

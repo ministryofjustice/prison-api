@@ -71,7 +71,7 @@ public class LocationService {
         }).collect(Collectors.toList());
     }
 
-    public Page<OffenderBooking> getInmatesFromLocation(final long locationId, final String username, final String query, final String orderByField, final Order order, final long offset, final long limit) {
+    public Page<OffenderBooking> getInmatesFromLocation(final long locationId, final String username, final String orderByField, final Order order, final long offset, final long limit) {
         // validation check?
         locationRepository.findLocation(locationId, username);
 
@@ -81,7 +81,6 @@ public class LocationService {
                 locationId,
                 locationTypeGranularity,
                 getWorkingCaseLoad(username),
-                query,
                 colSort,
                 order,
                 offset,

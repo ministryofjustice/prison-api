@@ -3,9 +3,12 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString.Exclude;
+import org.hibernate.Hibernate;
 import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.Column;
@@ -19,16 +22,16 @@ import javax.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
-@Data
+@Getter
+@Setter
+@RequiredArgsConstructor
 @Entity
 @Table(name = "OFFENDER_IMPRISON_STATUSES")
 @Builder(toBuilder = true)
 @AllArgsConstructor
-@NoArgsConstructor
 @IdClass(OffenderImprisonmentStatus.PK.class)
-@EqualsAndHashCode(of = {"offenderBooking", "imprisonStatusSeq"}, callSuper = false)
-@ToString(of = {"imprisonmentStatus", "latestStatus", "imprisonStatusSeq", "effectiveDate", "expiryDate"})
 public class OffenderImprisonmentStatus extends AuditableEntity {
 
     @Data
@@ -42,14 +45,16 @@ public class OffenderImprisonmentStatus extends AuditableEntity {
     @Id
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
+    @Exclude
     private OffenderBooking offenderBooking;
 
     @Id
     @Column(name = "IMPRISON_STATUS_SEQ", nullable = false)
     private Long imprisonStatusSeq;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "IMPRISONMENT_STATUS", nullable = false, referencedColumnName = "IMPRISONMENT_STATUS")
+    @Exclude
     private ImprisonmentStatus imprisonmentStatus;
 
     @Column(name = "EFFECTIVE_DATE", nullable = false)
@@ -88,4 +93,20 @@ public class OffenderImprisonmentStatus extends AuditableEntity {
         setLatestStatus("N");
     }
 
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        final OffenderImprisonmentStatus that = (OffenderImprisonmentStatus) o;
+
+        if (!Objects.equals(getOffenderBooking(), that.getOffenderBooking())) return false;
+        return Objects.equals(getImprisonStatusSeq(), that.getImprisonStatusSeq());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hashCode(getOffenderBooking());
+        result = 31 * result + (Objects.hashCode(getImprisonStatusSeq()));
+        return result;
+    }
 }

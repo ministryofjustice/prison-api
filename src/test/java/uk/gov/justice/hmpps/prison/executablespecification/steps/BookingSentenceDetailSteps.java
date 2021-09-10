@@ -28,7 +28,6 @@ public class BookingSentenceDetailSteps extends CommonSteps {
     private static final String BOOKING_SENTENCE_DETAIL_API_URL = API_PREFIX + "bookings/{bookingId}/sentenceDetail";
 
     private static final String OFFENDER_SENTENCE_DETAIL_API_URL = API_PREFIX + "offender-sentences";
-    private static final String OFFENDER_BOOKING_SENTENCE_DETAIL_API_URL = OFFENDER_SENTENCE_DETAIL_API_URL + "/bookings";
     private static final String HOME_DETENTION_CURFEW_CANDIDATES = OFFENDER_SENTENCE_DETAIL_API_URL + "/home-detention-curfew-candidates?minimumChecksPassedDateForAssessedCurfews={iso8601Date}";
     private static final String BOOKING_SENTENCE_TERMS_API_URL = OFFENDER_SENTENCE_DETAIL_API_URL + "/booking/{bookingId}/sentenceTerms";
 
@@ -54,12 +53,6 @@ public class BookingSentenceDetailSteps extends CommonSteps {
     public void getOffenderSentenceDetailsUsingPostRequest(final String offenderNos) {
         final List<String> offenderList = StringUtils.isNotBlank(offenderNos) ? ImmutableList.copyOf(offenderNos.split(",")) : Collections.emptyList();
         dispatchOffenderSentencesForPostRequest(OFFENDER_SENTENCE_DETAIL_API_URL, offenderList);
-    }
-
-    @Step("Get offender sentence details by booking ids (using post request)")
-    public void getBookingSentenceDetailsUsingPostRequest(final String bookingIds) {
-        final List<String> list = StringUtils.isNotBlank(bookingIds) ? ImmutableList.copyOf(bookingIds.split(",")) : Collections.emptyList();
-        dispatchOffenderSentencesForPostRequest(OFFENDER_BOOKING_SENTENCE_DETAIL_API_URL, list);
     }
 
     @Step("Get offender sentence details")
@@ -268,11 +261,10 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         init();
 
         try {
-            final String url = BOOKING_SENTENCE_TERMS_API_URL;
             final ResponseEntity<List<OffenderSentenceTerms>> response;
-            response = restTemplate.exchange(url, HttpMethod.GET, createEntity(),
-                    new ParameterizedTypeReference<List<OffenderSentenceTerms>>() {
-                    }, bookingId);
+            response = restTemplate.exchange(BOOKING_SENTENCE_TERMS_API_URL, HttpMethod.GET, createEntity(),
+                new ParameterizedTypeReference<>() {
+                }, bookingId);
 
             offenderSentenceTermsList = response.getBody();
 

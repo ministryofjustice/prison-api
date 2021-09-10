@@ -1,20 +1,31 @@
 {
   "offenderNo": "A1234AC",
-  "bookingId": -3,
   "workActivities": [
     {
+      "bookingId": -3,
+      "agencyLocationId": "LEI",
+      "agencyLocationDescription": "Leeds",
       "description": "Woodwork",
       "startDate": "2016-11-09"
     },
     {
+      "bookingId": -3,
+      "agencyLocationId": "LEI",
+      "agencyLocationDescription": "Leeds",
       "description": "Weeding",
       "startDate": "2016-11-09"
     },
     {
+      "bookingId": -3,
+      "agencyLocationId": "LEI",
+      "agencyLocationDescription": "Leeds",
       "description": "Address Testing",
       "startDate": "2016-11-09"
     },
     {
+      "bookingId": -3,
+      "agencyLocationId": "LEI",
+      "agencyLocationDescription": "Leeds",
       "description": "Substance misuse course",
       "startDate": "2016-11-09"
     }

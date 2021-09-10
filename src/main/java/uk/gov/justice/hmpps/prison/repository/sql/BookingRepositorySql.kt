@@ -378,41 +378,6 @@ enum class BookingRepositorySql(val sql: String) {
     """
   ),
 
-  ADD_IEP_LEVEL(
-    """
-        INSERT INTO
-                OFFENDER_IEP_LEVELS(
-                        OFFENDER_BOOK_ID,
-                        AGY_LOC_ID,
-                        IEP_LEVEL_SEQ,
-                        IEP_LEVEL,
-                        COMMENT_TEXT,
-                        IEP_DATE,
-                        IEP_TIME,
-                        USER_ID)
-        VALUES (
-                :bookingId,
-                :agencyId,
-        (select NVL( MAX(IEP_LEVEL_SEQ), 0) + 1 from OFFENDER_IEP_LEVELS where OFFENDER_BOOK_ID = :bookingId),
-        :iepLevel,
-        :comment,
-        :date,
-        :time,
-        :userId
-        )
-    """
-  ),
-
-  IEP_LEVELS_FOR_AGENCY_SELECTED_BY_BOOKING(
-    """
-        SELECT IEP_LEVEL
-                FROM IEP_LEVELS IL
-        JOIN OFFENDER_BOOKINGS OB ON OB.AGY_LOC_ID = IL.AGY_LOC_ID
-        WHERE OB.OFFENDER_BOOK_ID = :bookingId
-        AND IL.ACTIVE_FLAG = 'Y'
-    """
-  ),
-
   CHECK_BOOKING_AGENCIES(
     """
         SELECT OFFENDER_BOOK_ID

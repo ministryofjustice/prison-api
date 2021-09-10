@@ -1,0 +1,43 @@
+[
+  {
+    "bookingId": -20,
+    "sentenceSequence": 1,
+    "sentenceStatus": "A",
+    "sentenceCategory": "LICENCE",
+    "sentenceCalculationType": "R",
+    "sentenceTypeDescription": "Prohibited Activity",
+    "sentenceDate": "2017-06-21",
+    "years": 6,
+    "months": 0,
+    "weeks": 0,
+    "days": 0,
+    "offences": [
+      {
+        "offenderChargeId": -10,
+        "offenceDate": "2015-01-04",
+        "offenceCode": "RC86355",
+        "offenceDescription": "Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury"
+      }
+    ]
+  },
+  {
+    "bookingId": -20,
+    "sentenceSequence": 2,
+    "sentenceStatus": "A",
+    "sentenceCategory": "1991",
+    "sentenceCalculationType": "R",
+    "sentenceTypeDescription": "Prohibited Activity 1991",
+    "sentenceDate": "2017-06-21",
+    "years": 5,
+    "months": 0,
+    "weeks": 0,
+    "days": 0,
+    "offences": [
+      {
+        "offenderChargeId": -9,
+        "offenceCode": "RC86355",
+        "offenceDescription": "Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury"
+      }
+    ]
+  }
+]

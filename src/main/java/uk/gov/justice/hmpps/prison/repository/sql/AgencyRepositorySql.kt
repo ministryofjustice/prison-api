@@ -198,17 +198,6 @@ enum class AgencyRepositorySql(val sql: String) {
     """
   ),
 
-  GET_AGENCY_IEP_LEVELS(
-    """
-        SELECT IEP_LEVEL,
-        RC.DESCRIPTION IEP_DESCRIPTION
-                FROM IEP_LEVELS IL
-        LEFT JOIN REFERENCE_CODES RC ON RC.CODE = IL.IEP_LEVEL AND RC.DOMAIN = :refCodeDomain
-        WHERE IL.AGY_LOC_ID = :agencyId
-        AND IL.ACTIVE_FLAG = :activeFlag
-    """
-  ),
-
   GET_AGENCY_IEP_REVIEW_INFORMATION(
     """
         SELECT OB.OFFENDER_BOOK_ID AS BOOKING_ID,

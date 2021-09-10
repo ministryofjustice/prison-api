@@ -71,9 +71,9 @@ public class InmateRepository extends RepositoryBase {
     public final static String QUERY_OPERATOR_AND = "and:";
     public final static String QUERY_OPERATOR_OR = "or:";
 
-    private final static Set standardCategoryCodes = Set.of("B", "C", "D");
-    private final static Set validCategoryCodes = Set.of("B", "C", "D", "U");
-    private final static Set validAssessStatus = Set.of("A", "P");
+    private final static Set<String> standardCategoryCodes = Set.of("B", "C", "D");
+    private final static Set<String> validCategoryCodes = Set.of("B", "C", "D", "U");
+    private final static Set<String> validAssessStatus = Set.of("A", "P");
 
     private static final Map<String, FieldMapper> OFFENDER_BOOKING_MAPPING = new ImmutableMap.Builder<String, FieldMapper>()
             .put("OFFENDER_BOOK_ID", new FieldMapper("bookingId"))
@@ -174,7 +174,6 @@ public class InmateRepository extends RepositoryBase {
     public Page<OffenderBooking> findInmatesByLocation(final Long locationId,
                                                        final String locationTypeRoot,
                                                        final String caseLoadId,
-                                                       final String query,
                                                        final String orderByField,
                                                        final Order order,
                                                        final long offset,
@@ -185,7 +184,6 @@ public class InmateRepository extends RepositoryBase {
 
         final var sql = builder
                 .addRowCount()
-                .addQuery(query)
                 .addOrderBy(order, orderByField)
                 .addPagination()
                 .build();
@@ -218,39 +216,6 @@ public class InmateRepository extends RepositoryBase {
     public List<InmateDto> findInmatesByLocation(final String agencyId, final List<Long> locations, final Set<String> caseLoadIds) {
         return jdbcTemplate.query(InmateRepositorySql.FIND_INMATES_OF_LOCATION_LIST.getSql(),
                 createParams("agencyId", agencyId, "locations", locations, "caseLoadIds", caseLoadIds), INMATE_MAPPER);
-    }
-
-
-    public Page<OffenderBooking> findAllInmates(final Set<String> caseloads, final String locationTypeRoot, final String query, final PageRequest pageRequest) {
-        var initialSql = InmateRepositorySql.FIND_ALL_INMATES.getSql();
-        if (!caseloads.isEmpty()) {
-            initialSql += " AND " + InmateRepositorySql.CASELOAD_FILTER.getSql();
-        }
-        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_BOOKING_MAPPING);
-
-        final var sql = builder
-                .addRowCount()
-                .addQuery(query)
-                .addOrderBy(pageRequest.getOrder(), pageRequest.getOrderBy())
-                .addPagination()
-                .build();
-
-        final var assignedInmateRowMapper =
-            Row2BeanRowMapper.makeMapping(OffenderBooking.class, OFFENDER_BOOKING_MAPPING);
-
-        final var paRowMapper = new PageAwareRowMapper<>(assignedInmateRowMapper);
-
-        final var inmates = jdbcTemplate.query(
-                sql,
-                createParams("caseLoadId", caseloads,
-                        "locationTypeRoot", locationTypeRoot,
-                        "offset", pageRequest.getOffset(),
-                        "limit", pageRequest.getLimit()),
-                paRowMapper);
-
-        inmates.forEach(this::calcAdditionalInformation);
-
-        return new Page<>(inmates, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
     }
 
 
@@ -623,7 +588,7 @@ public class InmateRepository extends RepositoryBase {
     private List<OffenderCategorise> getLatestOffenderCategorisations(final List<OffenderCategorise> individualCatList) {
         final var maxSeqOpt = individualCatList.stream().max(Comparator.comparing(OffenderCategorise::getAssessmentSeq));
         final var maxDateOpt = individualCatList.stream().max(Comparator.comparing(OffenderCategorise::getAssessmentDate));
-        if (maxDateOpt.isEmpty() || maxSeqOpt.isEmpty()) return individualCatList;
+        if (maxDateOpt.isEmpty()) return individualCatList;
 
         return individualCatList.stream()
                 .filter(oc -> oc.getAssessmentSeq() == null || (oc.getAssessmentSeq().equals(maxSeqOpt.get().getAssessmentSeq()) && oc.getAssessmentDate().equals(maxDateOpt.get().getAssessmentDate())))
@@ -658,28 +623,18 @@ public class InmateRepository extends RepositoryBase {
         return Optional.ofNullable(assignedLivingUnit);
     }
 
-
     public Optional<InmateDetail> findInmate(final Long bookingId) {
-        final var builder = queryBuilderFactory.getQueryBuilder(InmateRepositorySql.FIND_INMATE_DETAIL.getSql(), inmateDetailsMapping);
-        final var sql = builder.build();
-
-        final var inmateRowMapper = Row2BeanRowMapper.makeMapping(InmateDetail.class, inmateDetailsMapping);
-        InmateDetail inmate;
         try {
-            inmate = jdbcTemplate.queryForObject(
-                    sql,
-                    createParams("bookingId", bookingId),
-                    inmateRowMapper);
-            if (inmate != null) {
-                inmate.setAge(getAge(inmate.getDateOfBirth(), LocalDate.now(clock)));
-            }
-        } catch (final EmptyResultDataAccessException ex) {
-            inmate = null;
+            final var inmate = Optional.ofNullable(jdbcTemplate.queryForObject(
+                        InmateRepositorySql.FIND_INMATE_DETAIL.getSql(),
+                        createParams("bookingId", bookingId),
+                        new StandardBeanPropertyRowMapper<>(InmateDetail.class)));
+            inmate.ifPresent(o -> o.setAge(getAge(o.getDateOfBirth(), LocalDate.now(clock))));
+            return inmate;
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
         }
-
-        return Optional.ofNullable(inmate);
     }
-
 
     public Optional<InmateDetail> findOffender(final String offenderNo) {
         final var offender = jdbcTemplate.query(
@@ -969,7 +924,6 @@ public class InmateRepository extends RepositoryBase {
         final var likeTemplate = "%s:like:'%s%%'";
         final var eqTemplate = "%s:eq:'%s'";
         final var inTemplate = "%s:in:%s";
-        final var dateRangeTemplate = "(%s%s:gteq:'%s':'YYYY-MM-DD',and:%s:lteq:'%s':'YYYY-MM-DD')";
 
         final var nameMatchingTemplate = criteria.isPartialNameMatch() ? likeTemplate : eqTemplate;
         final var logicOperator = criteria.isAnyMatch() ? QUERY_OPERATOR_OR : QUERY_OPERATOR_AND;
@@ -994,7 +948,7 @@ public class InmateRepository extends RepositoryBase {
         appendPNCNumberCriteria(query, criteria.getPncNumber(), logicOperator);
         appendNonBlankCriteria(query, "croNumber", criteria.getCroNumber(), eqTemplate, logicOperator);
 
-        appendDateRangeCriteria(query, "dateOfBirth", criteria, dateRangeTemplate, logicOperator);
+        appendDateRangeCriteria(query, criteria, logicOperator);
 
         return StringUtils.trimToNull(query.toString());
     }
@@ -1037,16 +991,16 @@ public class InmateRepository extends RepositoryBase {
         }
     }
 
-    static void appendDateRangeCriteria(final StringBuilder query, final String criteriaName, final PrisonerDetailSearchCriteria criteria,
-                                        final String operatorTemplate, final String logicOperator) {
+    static void appendDateRangeCriteria(final StringBuilder query, final PrisonerDetailSearchCriteria criteria,
+                                        final String logicOperator) {
         final var calcDates = new CalcDateRanges(
                 criteria.getDob(), criteria.getDobFrom(), criteria.getDobTo(), criteria.getMaxYearsRange());
 
         if (calcDates.hasDateRange()) {
             final var dateRange = calcDates.getDateRange();
 
-            query.append(format(operatorTemplate, logicOperator, criteriaName,
-                    DateTimeFormatter.ISO_LOCAL_DATE.format(dateRange.getMinimum()), criteriaName,
+            query.append(format("(%s%s:gteq:'%s':'YYYY-MM-DD',and:%s:lteq:'%s':'YYYY-MM-DD')", logicOperator, "dateOfBirth",
+                    DateTimeFormatter.ISO_LOCAL_DATE.format(dateRange.getMinimum()), "dateOfBirth",
                     DateTimeFormatter.ISO_LOCAL_DATE.format(dateRange.getMaximum())));
         }
     }

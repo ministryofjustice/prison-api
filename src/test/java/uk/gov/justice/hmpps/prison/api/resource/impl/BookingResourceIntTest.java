@@ -61,6 +61,66 @@ public class BookingResourceIntTest extends ResourceTest {
     }
 
     @Test
+    public void testGetBookingsV2ByPrison() {
+        final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+            "/api/bookings/v2?prisonId={prisonId}&sort={sort}&image={imageRequired}&iepLevel={iepLevel}&legalInfo={legalInfo}",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            Map.of("prisonId", "BXI", "sort", "bookingId,asc", "imageRequired", "true", "iepLevel", "false", "legalInfo", "true"));
+        assertThatJsonFileAndStatus(response, 200, "bxi_caseload_bookings.json");
+    }
+
+    @Test
+    public void testGetBookingsV2ByPrisonPaginated() {
+        final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+            "/api/bookings/v2?prisonId={prisonId}&page={pageNum}&size={pageSize}&image={imageRequired}&iepLevel={iepLevel}&legalInfo={legalInfo}",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            Map.of("prisonId", "LEI", "pageNum", "2", "pageSize", "3", "imageRequired", "true", "iepLevel", "true", "legalInfo", "true"));
+        assertThatJsonFileAndStatus(response, 200, "lei_bookings.json");
+    }
+
+    @Test
+    public void testGetBookingsV2ByBookingId() {
+        final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+            "/api/bookings/v2?bookingId={bookingId1}&bookingId={bookingId2}&bookingId={bookingId3}&image={imageRequired}&iepLevel={iepLevel}&legalInfo={legalInfo}",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            Map.of("bookingId1", "-1", "bookingId2", "-2", "bookingId3", "-3", "imageRequired", "true", "iepLevel", "false", "legalInfo", "true"));
+        assertThatJsonFileAndStatus(response, 200, "bookings_by_id.json");
+    }
+
+    @Test
+    public void testGetBookingsV2ByOffenderNo() {
+        final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+            "/api/bookings/v2?offenderNo={nomsId1}&offenderNo={nomsId2}&image={imageRequired}&iepLevel={iepLevel}&legalInfo={legalInfo}",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            Map.of("nomsId1", "A1234AA", "nomsId2", "A1234AB", "imageRequired", "true", "iepLevel", "true", "legalInfo", "true"));
+        assertThatJsonFileAndStatus(response, 200, "bookings_by_nomsId.json");
+    }
+
+    @Test
     public void testThatUpdateAttendanceIsLockedDown_WhenPayRoleIsMissing() {
         final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
 
@@ -375,6 +435,14 @@ public class BookingResourceIntTest extends ResourceTest {
         final var response = testRestTemplate.exchange("/api/bookings/offenderNo/{offenderNo}?extraInfo=true", GET,
                 createHttpEntity(AuthToken.NORMAL_USER, null),
                 String.class, "A1234AG");
+        assertThatJsonFileAndStatus(response, 200, "offender_extra_info.json");
+    }
+
+    @Test
+    public void getFullOffenderInformation_byOffenderNoAlt() {
+        final var response = testRestTemplate.exchange("/api/offenders/{offenderNo}", GET,
+            createHttpEntity(AuthToken.NORMAL_USER, null),
+            String.class, "A1234AG");
         assertThatJsonFileAndStatus(response, 200, "offender_extra_info.json");
     }
 

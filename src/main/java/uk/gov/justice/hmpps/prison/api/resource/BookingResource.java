@@ -8,10 +8,12 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -55,7 +57,6 @@ import uk.gov.justice.hmpps.prison.api.model.NewAppointment;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.OffenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenceHistoryDetail;
-import uk.gov.justice.hmpps.prison.api.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifier;
 import uk.gov.justice.hmpps.prison.api.model.OffenderNonAssociationDetails;
 import uk.gov.justice.hmpps.prison.api.model.OffenderRelationship;
@@ -63,6 +64,7 @@ import uk.gov.justice.hmpps.prison.api.model.PersonalCareNeeds;
 import uk.gov.justice.hmpps.prison.api.model.PhysicalAttributes;
 import uk.gov.justice.hmpps.prison.api.model.PhysicalCharacteristic;
 import uk.gov.justice.hmpps.prison.api.model.PhysicalMark;
+import uk.gov.justice.hmpps.prison.api.model.PrisonerBookingSummary;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
 import uk.gov.justice.hmpps.prison.api.model.ProfileInformation;
 import uk.gov.justice.hmpps.prison.api.model.PropertyContainer;
@@ -97,7 +99,6 @@ import uk.gov.justice.hmpps.prison.service.FinanceService;
 import uk.gov.justice.hmpps.prison.service.ImageService;
 import uk.gov.justice.hmpps.prison.service.IncidentService;
 import uk.gov.justice.hmpps.prison.service.InmateAlertService;
-import uk.gov.justice.hmpps.prison.service.InmateSearchCriteria;
 import uk.gov.justice.hmpps.prison.service.InmateService;
 import uk.gov.justice.hmpps.prison.service.MovementsService;
 import uk.gov.justice.hmpps.prison.service.OffenderNonAssociationsService;
@@ -124,6 +125,7 @@ import static uk.gov.justice.hmpps.prison.util.ResourceUtils.nvl;
 @RequestMapping("${api.base.path}/bookings")
 @Validated
 @AllArgsConstructor
+@Slf4j
 public class BookingResource {
     private final AuthenticationFacade authenticationFacade;
     private final BookingService bookingService;
@@ -142,24 +144,29 @@ public class BookingResource {
     private final OffenderNonAssociationsService offenderNonAssociationsService;
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Summary information for all offenders accessible to current user."),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "Summary information for all offenders accessible to current user.", notes = "Summary information for all offenders accessible to current user.", nickname = "getOffenderBookings")
-    @GetMapping
-    public ResponseEntity<List<OffenderBooking>> getOffenderBookings(@RequestParam(value = "query", required = false) @ApiParam("Search parameters with the format [connector]:&lt;fieldName&gt;:&lt;operator&gt;:&lt;value&gt;:[format],... <p>Connector operators - and, or <p>Supported Operators - eq, neq, gt, gteq, lt, lteq, like, in</p> <p>Supported Fields - bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, assignedLivingUnitId, assignedOfficerUserId</p> ") final String query, @RequestParam(value = "bookingId", required = false) @ApiParam("The booking ids of offender") final List<Long> bookingId, @RequestParam(value = "offenderNo", required = false) @ApiParam("The required offender numbers") final List<String> offenderNo, @RequestParam(value = "iepLevel", defaultValue = "false", required = false) @ApiParam(value = "return IEP level data", defaultValue = "false") final boolean iepLevel, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @ApiParam(value = "Requested offset of first record in returned collection of booking records.", defaultValue = "0") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @ApiParam(value = "Requested limit to number of booking records returned.", defaultValue = "10") final Long pageLimit, @RequestHeader(value = "Sort-Fields", required = false) @ApiParam("Comma separated list of one or more of the following fields - <b>bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, assignedLivingUnitId</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") final Order sortOrder) {
-        final var allInmates = inmateService.findAllInmates(
-                InmateSearchCriteria.builder()
-                        .username(authenticationFacade.getCurrentUsername())
-                        .query(query)
-                        .iepLevel(iepLevel)
-                        .offenderNos(offenderNo)
-                        .bookingIds(bookingId)
-                        .pageRequest(new uk.gov.justice.hmpps.prison.api.support.PageRequest(sortFields, sortOrder, pageOffset, pageLimit))
-                        .build());
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    @ApiOperation(value = "Prisoners Booking Summary ", notes = "Returns data that is available to the users caseload privileges, at least one attribute of a prisonId, bookingId or offenderNo must be specified")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "page", dataType = "java.lang.Integer", paramType = "query",
+            value = "Results page you want to retrieve (0..N). Default 0, e.g. the first page", example = "0"),
+        @ApiImplicitParam(name = "size", dataType = "java.lang.Integer", paramType = "query",
+            value = "Number of records per page. Default 10"),
+        @ApiImplicitParam(name = "sort", dataType = "java.lang.String", paramType = "query", allowableValues = "lastName,firstName,offenderNo,bookingId,prisonId,ASC,DESC",
+            value = "Sort as combined comma separated property and uppercase direction. Multiple sort params allowed to sort by multiple properties. Default to lastName,firstName,offenderNo ASC")})
+    @GetMapping("/v2")
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
+    public Page<PrisonerBookingSummary> getPrisonerBookingsV2(
+        @RequestParam(value = "prisonId", required = false) @ApiParam(value = "Filter by prison Id", example = "MDI") final String prisonId,
+        @RequestParam(value = "bookingId", required = false) @ApiParam("Filter by a list of booking ids") final List<Long> bookingIds,
+        @RequestParam(value = "offenderNo", required = false) @ApiParam("Filter by a list of offender numbers") final List<String> offenderNos,
+        @RequestParam(value = "iepLevel", defaultValue = "false", required = false) @ApiParam(value = "Return IEP level data", defaultValue = "false") final boolean iepLevel,
+        @RequestParam(value = "legalInfo", defaultValue = "false", required = false) @ApiParam(value = "Return additional legal information (imprisonmentStatus, legalStatus, convictedStatus)", defaultValue = "false") final boolean legalInfo,
+        @RequestParam(value = "image", defaultValue = "false", required = false) @ApiParam(value = "Return facial ID for latest prisoner image", defaultValue = "false") final boolean imageId,
+        @ApiIgnore
+        @PageableDefault(sort = {"lastName","firstName","offenderNo"}, direction = Direction.ASC) final Pageable pageable) {
 
-        return ResponseEntity.ok()
-                .headers(allInmates.getPaginationHeaders())
-                .body(allInmates.getItems());
+        return bookingService.getPrisonerBookingSummary(prisonId, bookingIds, offenderNos, iepLevel, legalInfo, imageId, pageable);
     }
 
     @ApiResponses({

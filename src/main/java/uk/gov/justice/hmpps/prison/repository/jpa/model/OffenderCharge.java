@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import uk.gov.justice.hmpps.prison.api.model.OffenderOffence;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -98,5 +99,14 @@ public class OffenderCharge extends AuditableEntity {
 
     public boolean isActive() {
         return ACTIVE.equals(chargeStatus);
+    }
+
+    public OffenderOffence getOffenceDetail() {
+        return OffenderOffence.builder()
+            .offenderChargeId(id)
+            .offenceDate(dateOfOffence)
+            .offenceCode(offence.getCode())
+            .offenceDescription(offence.getDescription())
+            .build();
     }
 }

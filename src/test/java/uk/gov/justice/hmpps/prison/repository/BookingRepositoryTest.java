@@ -1,8 +1,6 @@
 package uk.gov.justice.hmpps.prison.repository;
 
-import lombok.val;
 import org.assertj.core.groups.Tuple;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +13,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import uk.gov.justice.hmpps.prison.api.model.IepLevelAndComment;
 import uk.gov.justice.hmpps.prison.api.model.NewAppointment;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeDetail;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
@@ -29,7 +26,6 @@ import uk.gov.justice.hmpps.prison.service.support.PayableAttendanceOutcomeDto;
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -38,7 +34,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -611,80 +606,5 @@ public class BookingRepositoryTest {
                                 .build()
 
                 );
-    }
-
-    @Test
-    public void givenExistingBooking_whenAddingMultipleIepLevel() {
-
-        final long bookingId = -54L;
-        final LocalDateTime before = LocalDateTime.of(2017, 9, 6, 0, 0);
-
-        assertThatOffenderIepLevelsForBookingAre(bookingId, Tuple.tuple(BigDecimal.valueOf(1L), Timestamp.valueOf("2017-09-06 00:00:00.000"), "LEI", "BAS", null, "ITAG_USER"));
-
-        repository.addIepLevel(-54L, "A_DUMMY_USER", new IepLevelAndComment("STD", "A comment"), LocalDateTime.now(), "BMI");
-
-        final Timestamp today = Timestamp.valueOf(LocalDate.now().atStartOfDay());
-
-        assertThatOffenderIepLevelsForBookingAre(bookingId,
-                Tuple.tuple(BigDecimal.valueOf(1L), Timestamp.valueOf("2017-09-06 00:00:00.000"), "LEI", "BAS", null, "ITAG_USER"),
-                Tuple.tuple(BigDecimal.valueOf(2L), today, "BMI", "STD", "A comment", "A_DUMMY_USER"));
-
-        repository.addIepLevel(-54L, "A_DIFFERENT_USER", new IepLevelAndComment("ENH", "Comment 2"), LocalDateTime.now(), "BMI");
-
-        assertThatOffenderIepLevelsForBookingAre(bookingId,
-                Tuple.tuple(BigDecimal.valueOf(1L), Timestamp.valueOf("2017-09-06 00:00:00.000"), "LEI", "BAS", null, "ITAG_USER"),
-                Tuple.tuple(BigDecimal.valueOf(2L), today, "BMI", "STD", "A comment", "A_DUMMY_USER"),
-                Tuple.tuple(BigDecimal.valueOf(3L), today, "BMI", "ENH", "Comment 2", "A_DIFFERENT_USER"));
-
-        final LocalDateTime after = LocalDateTime.now();
-
-        assertThatOffenderIepLevelTimesForBookingAreBetween(bookingId, before, after);
-    }
-
-    @Test
-    public void getIepLevelsForAgencySelectedWithABooking() {
-        final long bookingInBMI = -54L;
-        final long bookingInLEI = -1L;
-
-        assertThat(repository.getIepLevelsForAgencySelectedByBooking(bookingInBMI)).containsExactlyInAnyOrder("BAS", "STD", "ENH");
-        assertThat(repository.getIepLevelsForAgencySelectedByBooking(bookingInLEI)).containsExactlyInAnyOrder("BAS", "STD", "ENH", "ENT");
-    }
-
-    private void assertThatOffenderIepLevelTimesForBookingAreBetween(long bookingId, LocalDateTime before, LocalDateTime after) {
-        val levels = offenderIepLevelsForBooking(bookingId);
-
-        final Timestamp beforeTs = truncateNanos(before);
-        final Timestamp afterTs = truncateNanos(after);
-
-        assertThat(levels).noneMatch(iepLevel -> iepTime(iepLevel).before(beforeTs));
-        assertThat(levels).noneMatch(iepLevel -> iepTime(iepLevel).after(afterTs));
-
-    }
-
-    private static Timestamp iepTime(Map<String, Object> level) {
-        return (Timestamp) level.get("IEP_TIME");
-    }
-
-    private static Timestamp truncateNanos(LocalDateTime t) {
-        val ts = Timestamp.valueOf(t);
-        ts.setNanos(0);
-        return ts;
-    }
-
-    private void assertThatOffenderIepLevelsForBookingAre(long bookingId, Tuple... expected) {
-
-        assertThat(offenderIepLevelsForBooking(bookingId))
-                .extracting("IEP_LEVEL_SEQ", "IEP_DATE", "AGY_LOC_ID", "IEP_LEVEL", "COMMENT_TEXT", "USER_ID")
-                .containsExactly(expected);
-    }
-
-    @NotNull
-    private List<Map<String, Object>> offenderIepLevelsForBooking(long bookingId) {
-        return template.queryForList(
-                "SELECT IEP_LEVEL_SEQ, IEP_DATE, IEP_TIME, AGY_LOC_ID, IEP_LEVEL, COMMENT_TEXT, USER_ID " +
-                        "FROM OFFENDER_IEP_LEVELS " +
-                        "WHERE OFFENDER_BOOK_ID = :bookingId " +
-                        "ORDER BY IEP_LEVEL_SEQ",
-                Map.of("bookingId", bookingId));
     }
 }

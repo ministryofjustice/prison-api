@@ -74,25 +74,6 @@ public class InmateRepositoryTest {
     }
 
     @Test
-    public void testFindAllImates() {
-        final var pageRequest = new PageRequest("lastName, firstName");
-        final var caseloads = Set.of("LEI", "BXI");
-        final var foundInmates = repository.findAllInmates(caseloads, "WING", "", pageRequest);
-
-        assertThat(foundInmates.getItems()).isNotEmpty();
-    }
-
-    @Test
-    public void testFindSpecificInmatesAtLocation() {
-        final var pageRequest = new PageRequest("lastName, firstName");
-        final var caseloads = Set.of("LEI");
-        final var foundInmates = repository.findAllInmates(caseloads, "WING", "", pageRequest);
-
-        assertThat(foundInmates.getItems()).isNotEmpty();
-        assertThat(foundInmates.getItems()).extracting(OffenderBooking::getLastName).contains("FOX", "BATES");
-    }
-
-    @Test
     public void testSearchForOffenderBookings() {
         final var pageRequest = new PageRequest("lastName, firstName");
         final var caseloads = Set.of("LEI", "BXI");
@@ -1393,7 +1374,7 @@ public class InmateRepositoryTest {
                 .assignedLivingUnitId(-204L)
                 .build());
 
-        final var results = repository.findInmatesByLocation(-200L, "WING", "SYI", null, "lastName,firstName,offenderNo", Order.DESC, 0, 10);
+        final var results = repository.findInmatesByLocation(-200L, "WING", "SYI", "lastName,firstName,offenderNo", Order.DESC, 0, 10);
 
         assertThat(results.getItems()).hasSize(1);
         assertThat(results.getItems().get(0)).isEqualTo(expectedInfo.get(0));
@@ -1414,7 +1395,7 @@ public class InmateRepositoryTest {
                 .assignedLivingUnitId(-204L)
                 .build());
 
-        final var results = repository.findInmatesByLocation(-204L, "CELL", "SYI", null, "lastName,firstName,offenderNo", Order.DESC, 0, 10);
+        final var results = repository.findInmatesByLocation(-204L, "CELL", "SYI", "lastName,firstName,offenderNo", Order.DESC, 0, 10);
 
         assertThat(results.getItems()).hasSize(1);
         assertThat(results.getItems().get(0)).isEqualTo(expectedInfo.get(0));

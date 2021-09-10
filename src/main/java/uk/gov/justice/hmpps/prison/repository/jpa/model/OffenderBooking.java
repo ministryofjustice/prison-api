@@ -4,14 +4,16 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
+import lombok.ToString.Exclude;
+import org.hibernate.Hibernate;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.ListIndexBase;
 import uk.gov.justice.hmpps.prison.api.model.LegalStatus;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
+import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord.BookingAndSequence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail.PK;
@@ -36,22 +38,25 @@ import javax.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static java.time.LocalDate.now;
+import static java.time.temporal.ChronoUnit.DAYS;
 import static java.util.stream.Collectors.toList;
 
-@EqualsAndHashCode(of = "bookingId", callSuper = false)
-@Data
+@Getter
+@Setter
+@RequiredArgsConstructor
 @Builder(toBuilder = true)
-@NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "OFFENDER_BOOKINGS")
-@ToString(of = {"bookingId", "bookNumber", "bookingSequence", "activeFlag", "inOutStatus"})
+@BatchSize(size = 25)
 public class OffenderBooking extends ExtendedAuditableEntity {
 
     @SequenceGenerator(name = "OFFENDER_BOOK_ID", sequenceName = "OFFENDER_BOOK_ID", allocationSize = 1)
@@ -66,47 +71,56 @@ public class OffenderBooking extends ExtendedAuditableEntity {
     @Column(name = "BOOKING_TYPE")
     private String bookingType;
 
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "OFFENDER_ID", nullable = false)
+    @Exclude
+    private Offender offender;
+
     @OneToMany(mappedBy = "id.offenderBooking", cascade = CascadeType.ALL)
-    @Builder.Default
+    @Default
+    @Exclude
     private List<OffenderProfileDetail> profileDetails = new ArrayList<>();
 
     @OrderColumn(name = "MILITARY_SEQ")
     @ListIndexBase(1)
     @OneToMany(mappedBy = "bookingAndSequence.offenderBooking", cascade = CascadeType.ALL)
+    @Exclude
     private List<OffenderMilitaryRecord> militaryRecords;
 
     @OrderColumn(name = "CASE_SEQ")
     @ListIndexBase(1)
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
-    @Builder.Default
+    @Default
+    @Exclude
     private List<OffenderCourtCase> courtCases = new ArrayList<>();
 
     @ListIndexBase(1)
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
+    @Exclude
     private List<OffenderPropertyContainer> propertyContainers;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "AGY_LOC_ID", nullable = false)
+    @Exclude
     private AgencyLocation location;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CREATE_AGY_LOC_ID")
+    @Exclude
     private AgencyLocation createLocation;
 
     @Setter(AccessLevel.NONE)
     @Column(name = "BOOKING_SEQ", nullable = false)
     private Integer bookingSequence;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "OFFENDER_ID", nullable = false)
-    private Offender offender;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "LIVING_UNIT_ID")
+    @Exclude
     private AgencyInternalLocation assignedLivingUnit;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ASSIGNED_STAFF_ID")
+    @Exclude
     private Staff assignedStaff;
 
     @Column(name = "AGENCY_IML_ID")
@@ -119,51 +133,76 @@ public class OffenderBooking extends ExtendedAuditableEntity {
     @OrderBy("effectiveDate ASC")
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
+    @Exclude
     private List<OffenderNonAssociationDetail> nonAssociationDetails = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
+    @Exclude
+    @BatchSize(size = 25)
     private List<ExternalMovement> externalMovements = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
+    @Exclude
+    @BatchSize(size = 25)
     private List<OffenderImprisonmentStatus> imprisonmentStatuses = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
+    @Exclude
     private List<OffenderCaseNote> caseNotes = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
+    @Exclude
     private List<OffenderCharge> charges = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
+    @Exclude
+    @BatchSize(size = 25)
     private List<SentenceCalculation> sentenceCalculations = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
+    @Exclude
     private List<KeyDateAdjustment> keyDateAdjustments = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
+    @Exclude
     private List<SentenceAdjustment> sentenceAdjustments = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
+    @Exclude
+    @BatchSize(size = 25)
     private List<SentenceTerm> terms = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
+    @Exclude
+    @BatchSize(size = 25)
     private List<OffenderSentence> sentences = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
+    @Exclude
+    @BatchSize(size = 25)
     private List<OffenderImage> images = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
+    @Exclude
+    @BatchSize(size = 25)
     private List<OffenderAlert> alerts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
+    @Default
+    @Exclude
+    @BatchSize(size = 25)
+    private List<OffenderIepLevel> iepLevels = new ArrayList<>();
 
     @Column(name = "ROOT_OFFENDER_ID")
     private Long rootOffenderId;
@@ -243,7 +282,6 @@ public class OffenderBooking extends ExtendedAuditableEntity {
             .releaseDate();
     }
 
-    // TODO: Add all the other dates in!
     public SentenceCalcDates getSentenceCalcDates() {
         return getLatestCalculation().map(
             sc -> SentenceCalcDates.sentenceCalcDatesBuilder()
@@ -313,11 +351,11 @@ public class OffenderBooking extends ExtendedAuditableEntity {
      * parole date or the home detention curfew actual date.
      * <p>
      * 3. If there is no confirmed release date, actual parole date or home detention curfew actual date for the
-     * offender, the release date is the later of the nonDtoReleaseDate or midTermDate value (if either or both
+     * offender, the release date is the latter of the nonDtoReleaseDate or midTermDate value (if either or both
      * are present).
      *
-     * @param keyDateValues     a set of key date values used to determine the Non deterministic release date
-     * @param nonDtoReleaseDate derived Non deterministic release date information
+     * @param keyDateValues     a set of key date values used to determine the non-deterministic release date
+     * @param nonDtoReleaseDate derived non-deterministic release date information
      * @return releaseDate
      */
     private static LocalDate deriveOffenderReleaseDate(final KeyDateValues keyDateValues, final NonDtoReleaseDate nonDtoReleaseDate) {
@@ -514,11 +552,68 @@ public class OffenderBooking extends ExtendedAuditableEntity {
             .max(Comparator.comparing(OffenderImage::getId));
     }
 
+    public Optional<OffenderIepLevel> getLatestIepLevel() {
+        return iepLevels.stream()
+            .max(Comparator.comparing(OffenderIepLevel::getIepDate).thenComparing(OffenderIepLevel::getSequence));
+    }
+
+    public OffenderIepLevel addIepLevel(IepLevel iepLevel, String comment, final LocalDateTime iepDateTime, StaffUserAccount staff) {
+        final var now = LocalDateTime.now();
+        final var offenderIepLevel = OffenderIepLevel.builder()
+            .offenderBooking(this)
+            .sequence(getLatestIepLevel().map(s -> s.getSequence()+1).orElse(1L))
+            .iepLevel(iepLevel)
+            .comment(comment)
+            .iepDate(iepDateTime != null ? iepDateTime.toLocalDate() : now.toLocalDate())
+            .iepDateTime(iepDateTime != null ? iepDateTime : now)
+            .staffUser(staff)
+            .agencyLocation(getLocation())
+            .build();
+        iepLevels.add(offenderIepLevel);
+        return offenderIepLevel;
+    }
+
+    public Optional<PrivilegeSummary> getIepSummary(boolean withDetails) {
+        return getLatestIepLevel().map(iep -> PrivilegeSummary.builder()
+            .bookingId(getBookingId())
+            .iepDate(iep.getIepDate())
+            .iepTime(iep.getIepDateTime())
+            .iepLevel(iep.getIepLevel().getDescription())
+            .daysSinceReview(DAYS.between(iep.getIepDate(), now()))
+            .iepDetails(withDetails ? iepLevels.stream().sorted(Comparator.comparing(OffenderIepLevel::getIepDate).thenComparing(OffenderIepLevel::getSequence).reversed())
+                .map(OffenderIepLevel::getPrivilageDetail).toList() : Collections.emptyList())
+            .build());
+    }
+
     public List<String> getAlertCodes() {
         return alerts.stream().filter(OffenderAlert::isActive).map(OffenderAlert::getAlertType).collect(Collectors.toSet()).stream().toList();
     }
 
     public long getActiveAlertCount() {
         return alerts.stream().filter(OffenderAlert::isActive).count();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        final OffenderBooking that = (OffenderBooking) o;
+
+        return Objects.equals(getBookingId(), that.getBookingId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getBookingId());
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "(" +
+            "bookingId = " + bookingId + ", " +
+            "bookNumber = " + bookNumber + ", " +
+            "bookingSequence = " + bookingSequence + ", " +
+            "activeFlag = " + activeFlag + ", " +
+            "inOutStatus = " + inOutStatus + ")";
     }
 }
