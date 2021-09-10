@@ -50,6 +50,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCaseNoteRep
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderNoPayPeriodRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderPayStatusRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProgramProfileRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileCodeRepository;
@@ -113,6 +114,7 @@ public class PrisonerReleaseAndTransferService {
     private final CopyTableRepository copyTableRepository;
     private final CopyBookData copyBookData;
     private final OffenderTransformer offenderTransformer;
+    private final OffenderProgramProfileRepository offenderProgramProfileRepository;
     private final EntityManager entityManager;
 
     private final Environment env;
@@ -144,6 +146,8 @@ public class PrisonerReleaseAndTransferService {
         deactivateSentences(booking.getBookingId());
 
         updatePayPeriods(booking.getBookingId(), releaseDateTime.toLocalDate());
+
+        deactivateEvents(booking.getBookingId());
 
         // update the booking record
         booking.setInOutStatus("OUT");
@@ -752,6 +756,15 @@ public class PrisonerReleaseAndTransferService {
                 }
             });
     }
+
+    private void deactivateEvents(final Long bookingId) {
+        final var programProfiles = offenderProgramProfileRepository.findByOffenderBooking_BookingIdAndProgramStatus(bookingId, "ALLOC");
+
+        programProfiles.forEach(profile -> {
+            profile.setEndDate(LocalDate.now());
+        });
+    }
+
 
     public static String getRandomNumberString() {
         // It will generate 5 digit random Number.
