@@ -135,7 +135,7 @@ public class PrisonerReleaseAndTransferService {
         final var supportingPrison = requestToDischargePrisoner != null && requestToDischargePrisoner.getSupportingPrisonId() != null ? agencyLocationRepository.findById(requestToDischargePrisoner.getSupportingPrisonId()).orElseThrow(EntityNotFoundException.withMessage(format("No %s agency found", requestToDischargePrisoner.getSupportingPrisonId()))) : booking.getLocation();
         final var toLocation = agencyLocationRepository.findById(requestToReleasePrisoner.getToLocationCode()).orElseThrow(EntityNotFoundException.withMessage(format("No %s agency found", requestToReleasePrisoner.getToLocationCode())));
 
-        createOutMovement(booking, REL, movementReason, supportingPrison, toLocation, releaseDateTime, requestToReleasePrisoner.getCommentText(), null);
+        createOutMovement(booking, REL, movementReason, supportingPrison, toLocation, releaseDateTime, requestToReleasePrisoner.getCommentText(), null );
 
         // generate the release case note
         generateReleaseNote(booking, releaseDateTime, movementReason);
@@ -145,9 +145,9 @@ public class PrisonerReleaseAndTransferService {
 
         deactivateSentences(booking.getBookingId());
 
-        deactivateEvents(booking.getBookingId());
-
         updatePayPeriods(booking.getBookingId(), releaseDateTime.toLocalDate());
+
+        deactivateEvents(booking.getBookingId());
 
         // update the booking record
         booking.setInOutStatus("OUT");
@@ -163,21 +163,11 @@ public class PrisonerReleaseAndTransferService {
         return offenderTransformer.transform(booking);
     }
 
-    private void deactivateEvents(final Long bookingId) {
-        final var programProfiles = offenderProgramProfileRepository.findByOffenderBooking_BookingIdAndProgramStatus(bookingId, "ALLOC");
-
-        programProfiles.forEach(profile -> {
-            profile.setEndDate(LocalDate.now());
-        });
-    }
-
     @VerifyOffenderAccess(overrideRoles = {"RELEASE_PRISONER"})
     public InmateDetail dischargeToHospital(final String prisonerIdentifier, final RequestToDischargePrisoner requestToDischargePrisoner) {
         final var prisoner = offenderRepository.findOffenderByNomsId(prisonerIdentifier).orElseThrow(EntityNotFoundException.withMessage(format("No prisoner found for prisoner number %s", prisonerIdentifier)));
 
         if (prisoner.getBookings().isEmpty()) {
-        final var prisoner = inmateRepository.findOffender(prisonerIdentifier).orElseThrow(EntityNotFoundException.withMessage(format("No prisoner found for prisoner number %s", prisonerIdentifier)));
-        if (prisoner.getBookingId() == null) {
             log.debug("Prisoner booking not yet created, need to create one");
             newBooking(prisonerIdentifier, RequestForNewBooking.builder()
                 .bookingInTime(requestToDischargePrisoner.getDischargeTime())
@@ -202,7 +192,7 @@ public class PrisonerReleaseAndTransferService {
             lastMovement.setToAgency(toLocation);
             lastMovement.setCommentText(commentText);
             lastMovement.setFromAgency(agencyLocationRepository.findById(requestToDischargePrisoner.getSupportingPrisonId()).orElseThrow(EntityNotFoundException.withMessage(format("No %s agency found", requestToDischargePrisoner.getSupportingPrisonId()))));
-            offenderBooking.setStatusReason(REL.getCode() + "-" + DISCHARGE_TO_PSY_HOSPITAL.getCode());
+            offenderBooking.setStatusReason(REL.getCode()+"-"+DISCHARGE_TO_PSY_HOSPITAL.getCode());
         } else {
             releasePrisoner(prisonerIdentifier, RequestToReleasePrisoner.builder()
                 .commentText(commentText)
@@ -766,6 +756,15 @@ public class PrisonerReleaseAndTransferService {
                 }
             });
     }
+
+    private void deactivateEvents(final Long bookingId) {
+        final var programProfiles = offenderProgramProfileRepository.findByOffenderBooking_BookingIdAndProgramStatus(bookingId, "ALLOC");
+
+        programProfiles.forEach(profile -> {
+            profile.setEndDate(LocalDate.now());
+        });
+    }
+
 
     public static String getRandomNumberString() {
         // It will generate 5 digit random Number.
