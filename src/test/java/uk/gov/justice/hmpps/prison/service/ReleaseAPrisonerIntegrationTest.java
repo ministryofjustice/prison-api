@@ -106,7 +106,7 @@ public class ReleaseAPrisonerIntegrationTest {
     }
 
     @Test
-    public void disableAllBedAssignments() {
+    public void deactivateAllBedAssignments() {
         releasePrisoner(OFFENDER_NO);
 
         final var allActiveBedAssignments = bedAssignmentHistoriesRepository
