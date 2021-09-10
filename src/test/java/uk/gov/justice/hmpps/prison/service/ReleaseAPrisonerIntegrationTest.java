@@ -9,6 +9,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.hmpps.prison.api.model.RequestToReleasePrisoner;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCaseNote;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
@@ -22,6 +23,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdj
 
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -67,11 +69,16 @@ public class ReleaseAPrisonerIntegrationTest {
     @Autowired
     private EntityManager entityManager;
 
+    @Autowired
+    private Clock clock;
+
+    private final String OFFENDER_NO = "A1234AA";
+
     @Test
     public void deactivateAllActiveExternalMovements_IgnoringTheReleaseMovement() {
-        releasePrisoner("A1234AA");
+        releasePrisoner(OFFENDER_NO);
 
-        final var offenderBooking = getOffenderBooking(false);
+        final var offenderBooking = getOffenderBooking(OFFENDER_NO, false);
 
         final var activeExternalMovements =
             offenderBooking.getExternalMovements().stream().filter(externalMovement -> externalMovement.getActiveFlag().isActive()).count();
@@ -81,13 +88,13 @@ public class ReleaseAPrisonerIntegrationTest {
 
     @Test
     public void replenishSpaceInPreviousLivingUnit() {
-        final var offenderBooking = getOffenderBooking(true);
+        final var offenderBooking = getOffenderBooking(OFFENDER_NO, true);
         final var currentlyAssignedLivingUnit = offenderBooking.getAssignedLivingUnit();
         final var occupancyBeforeRelease = currentlyAssignedLivingUnit.getCurrentOccupancy();
         final var parentOccupancyBeforeRelease =
             Optional.ofNullable(currentlyAssignedLivingUnit.getParentLocation().getCurrentOccupancy()).orElse(0);
 
-        releasePrisoner("A1234AA");
+        releasePrisoner(OFFENDER_NO);
 
         final var assignedLivingUnit = agencyInternalLocationRepository
             .findById(currentlyAssignedLivingUnit.getLocationId())
@@ -100,7 +107,7 @@ public class ReleaseAPrisonerIntegrationTest {
 
     @Test
     public void disableAllBedAssignments() {
-        releasePrisoner("A1234AA");
+        releasePrisoner(OFFENDER_NO);
 
         final var allActiveBedAssignments = bedAssignmentHistoriesRepository
             .findAllByBedAssignmentHistoryPKOffenderBookingId(-1L)
@@ -112,7 +119,7 @@ public class ReleaseAPrisonerIntegrationTest {
 
     @Test
     public void deactivateSentenceAdjustments() {
-        releasePrisoner("A1234AA");
+        releasePrisoner(OFFENDER_NO);
 
         final var allActiveSentenceAdjustments = offenderSentenceAdjustmentRepository.findAllByOffenderBooking_BookingId(-1L)
             .stream().filter(sentenceAdjustment -> sentenceAdjustment.isActive())
@@ -123,7 +130,7 @@ public class ReleaseAPrisonerIntegrationTest {
 
     @Test
     public void deactivateAllProgramProfiles() {
-        releasePrisoner("A1234AA");
+        releasePrisoner(OFFENDER_NO);
 
         final var activeProgramProfiles =
             offenderProgramProfileRepository.findByOffenderBooking_BookingIdAndProgramStatus(-1L, "ALLOC")
@@ -135,7 +142,7 @@ public class ReleaseAPrisonerIntegrationTest {
 
     @Test
     public void deactivatePayStatus() {
-        releasePrisoner("A1234AA");
+        releasePrisoner(OFFENDER_NO);
 
         final var activePayStatues = offenderPayStatusRepository.findAllByBookingId(-1L)
             .stream().filter(offenderPayStatus -> offenderPayStatus.getEndDate() == null)
@@ -146,7 +153,7 @@ public class ReleaseAPrisonerIntegrationTest {
 
     @Test
     public void deactivateNoPayStatus() {
-        releasePrisoner("A1234AA");
+        releasePrisoner(OFFENDER_NO);
 
         final var activeNoPayStatues = offenderNoPayPeriodRepository.findAllByBookingId(-1L)
             .stream().filter(offenderNoPayPeriod -> offenderNoPayPeriod.getEndDate() == null)
@@ -157,10 +164,10 @@ public class ReleaseAPrisonerIntegrationTest {
 
     @Test
     public void createsASingleReleaseExternalMovement() {
-        releasePrisoner("A1234AA");
+        releasePrisoner(OFFENDER_NO);
 
         final var releaseExternalMovement =
-            getOffenderBooking(false).getExternalMovements().stream().filter(externalMovement -> externalMovement.getActiveFlag().isActive())
+            getOffenderBooking(OFFENDER_NO, false).getExternalMovements().stream().filter(externalMovement -> externalMovement.getActiveFlag().isActive())
                 .findFirst()
                 .orElseThrow();
 
@@ -175,7 +182,7 @@ public class ReleaseAPrisonerIntegrationTest {
 
     @Test
     public void createsAReleaseCaseNote() {
-        releasePrisoner("A1234AA");
+        releasePrisoner(OFFENDER_NO);
 
         final var casesNotes = (List<OffenderCaseNote>) offenderCaseNoteRepository.findAll();
 
@@ -191,13 +198,34 @@ public class ReleaseAPrisonerIntegrationTest {
         assertThat(releaseCaseNote.getSubType()).extracting("code", "domain").contains("RELEASE", "TASK_SUBTYPE");
     }
 
-    private OffenderBooking getOffenderBooking(final Boolean activeFlag) {
-        return offenderBookingRepository.findByOffenderNomsIdAndActiveFlag("A1234AA", activeFlag ? "Y" : "N").orElseThrow();
+    @Test
+    public void putsOffenderBookingInTheCorrectState() {
+        releasePrisoner(OFFENDER_NO);
+
+        final var offenderBooking = getOffenderBooking(OFFENDER_NO, false);
+
+        final var agencyOutside = AgencyLocation.builder().id("OUT").description("OUTSIDE").build();
+
+        assertThat(offenderBooking).extracting(
+                "inOutStatus",
+                "activeFlag",
+                "bookingStatus",
+                "livingUnitMv",
+                "assignedLivingUnit",
+                "location",
+                "bookingEndDate",
+                "statusReason",
+                "commStatus")
+            .contains("OUT", "N", "C", null, null, agencyOutside, LocalDateTime.now(clock), "REL-CR", null);
+    }
+
+    private OffenderBooking getOffenderBooking(final String offenderNo, final Boolean activeFlag) {
+        return offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(offenderNo, activeFlag ? "Y" : "N").orElseThrow();
     }
 
     private void releasePrisoner(final String offenderNo) {
         prisonerReleaseAndTransferService.releasePrisoner(offenderNo, RequestToReleasePrisoner.builder()
-                .releaseTime(LocalDateTime.now().minusDays(100))
+                .releaseTime(LocalDateTime.now(clock))
                 .toLocationCode("OUT")
                 .movementReasonCode("CR")
                 .build(),

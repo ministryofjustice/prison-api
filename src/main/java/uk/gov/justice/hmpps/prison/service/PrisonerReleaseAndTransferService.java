@@ -64,6 +64,7 @@ import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
 
 import javax.persistence.EntityManager;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Random;
@@ -115,6 +116,7 @@ public class PrisonerReleaseAndTransferService {
     private final CopyBookData copyBookData;
     private final OffenderTransformer offenderTransformer;
     private final OffenderProgramProfileRepository offenderProgramProfileRepository;
+    private final Clock clock;
     private final EntityManager entityManager;
 
     private final Environment env;
@@ -547,7 +549,7 @@ public class PrisonerReleaseAndTransferService {
      }
 
     private LocalDateTime getAndCheckMovementTime(final LocalDateTime movementTime, final Long bookingId) {
-        final var now = LocalDateTime.now();
+        final var now = LocalDateTime.now(clock);
         if (movementTime != null) {
             if (movementTime.isAfter(now)) {
                 throw new BadRequestException("Transfer cannot be done in the future");
