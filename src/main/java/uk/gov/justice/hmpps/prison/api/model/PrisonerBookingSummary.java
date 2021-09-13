@@ -72,4 +72,7 @@ public class PrisonerBookingSummary implements Serializable {
 
     @ApiModelProperty(value = "IEP level of the prisoner", position = 15, example = "Basic")
     private String iepLevel;
+
+    @ApiModelProperty(value = "Description of living unit (e.g. cell) that prisoner is assigned to.", position = 16, example = "MDI-1-1-3")
+    private String assignedLivingUnitDesc;
 }
