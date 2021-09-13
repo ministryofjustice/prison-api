@@ -39,7 +39,8 @@ public class OffenderBookingTransformer {
             .firstName(offenderBooking.getOffender().getFirstName())
             .middleName(offenderBooking.getOffender().getMiddleNames())
             .agencyId(offenderBooking.getLocation().getId())
-            .assignedLivingUnitId(offenderBooking.getAssignedLivingUnit() != null ? offenderBooking.getAssignedLivingUnit().getLocationId() : null);
+            .assignedLivingUnitId(offenderBooking.getAssignedLivingUnit() != null ? offenderBooking.getAssignedLivingUnit().getLocationId() : null)
+            .assignedLivingUnitDesc(offenderBooking.getAssignedLivingUnit() != null ? offenderBooking.getAssignedLivingUnit().getDescription() : null);
 
         if (legalInfo) {
             offenderBooking.getActiveImprisonmentStatus().ifPresent(imp -> {
