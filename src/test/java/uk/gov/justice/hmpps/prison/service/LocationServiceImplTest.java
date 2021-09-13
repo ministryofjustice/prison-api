@@ -10,13 +10,14 @@ import uk.gov.justice.hmpps.prison.api.model.CaseLoad;
 import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.repository.AgencyRepository;
 import uk.gov.justice.hmpps.prison.repository.LocationRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -26,27 +27,20 @@ import static org.mockito.Mockito.when;
  */
 @ExtendWith(MockitoExtension.class)
 class LocationServiceImplTest {
-
-    private static final Function<String, Predicate<Location>> filterFactory = (String s) -> (Location l) -> s.equals(l.getLocationPrefix());
-
     @Mock
     private LocationRepository locationRepository;
     @Mock
-    private AgencyRepository agencyRepository;
+    private AgencyInternalLocationRepository agencyInternalLocationRepository;
     @Mock
-    private LocationGroupService locationGroupService;
+    private AgencyRepository agencyRepository;
     @Mock
     private CaseLoadService caseLoadService;
 
     private LocationService locationService;
-    private final Location cell1 = Location.builder().locationPrefix("cell1").build();
-    private final Location cell2 = Location.builder().locationPrefix("cell2").build();
-    private final Location cell3 = Location.builder().locationPrefix("cell3").build();
-    private final Location cell4 = Location.builder().locationPrefix("cell4").build();
 
     @BeforeEach
     void init() {
-        locationService = new LocationService(agencyRepository, locationRepository, null, caseLoadService, "WING");
+        locationService = new LocationService(agencyRepository, agencyInternalLocationRepository, locationRepository, null, caseLoadService, "WING");
     }
 
     @Test
@@ -59,7 +53,7 @@ class LocationServiceImplTest {
         final List<Location> locations = new ArrayList<>();
         final var location = createTestLocation();
         locations.add(location);
-        when(locationRepository.findLocationsByAgencyAndType("LEI", "WING", true)).thenReturn(locations);
+        when(agencyInternalLocationRepository.findByAgencyIdAndLocationTypeAndActiveFlagAndParentLocationIsNull("LEI", "WING", ActiveFlag.Y)).thenReturn(List.of(createTestAgencyInternalLocation()));
         when(caseLoadService.getWorkingCaseLoadForUser("me")).thenReturn(Optional.of(CaseLoad.builder().caseLoadId("LEI").type("INST").build()));
         final var returnedLocations = locationService.getUserLocations("me");
 
@@ -97,8 +91,17 @@ class LocationServiceImplTest {
         location.setLocationId(1L);
         location.setAgencyId("LEI");
         location.setLocationType("WING");
-        location.setDescription("LEI-A");
+        location.setDescription("A");
 
         return location;
+    }
+
+    private static AgencyInternalLocation createTestAgencyInternalLocation() {
+        return AgencyInternalLocation.builder()
+            .locationId(1L)
+            .agencyId("LEI")
+            .locationType("WING")
+            .description("LEI-A")
+            .build();
     }
 }

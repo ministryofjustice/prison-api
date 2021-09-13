@@ -102,7 +102,7 @@ public class AdjudicationService {
     }
 
     private String getInteriorLocationDescription(final Location location) {
-        val processedLocation = LocationProcessor.processLocation(location, true);
+        val processedLocation = LocationProcessor.processLocation(location, true, false);
         return processedLocation.getDescription();
     }
 

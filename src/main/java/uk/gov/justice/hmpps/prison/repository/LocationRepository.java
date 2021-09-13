@@ -1,11 +1,9 @@
 package uk.gov.justice.hmpps.prison.repository;
 
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 import uk.gov.justice.hmpps.prison.api.model.Location;
-import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
 import uk.gov.justice.hmpps.prison.repository.sql.LocationRepositorySql;
 import uk.gov.justice.hmpps.prison.repository.support.StatusFilter;
@@ -30,7 +28,7 @@ public class LocationRepository extends RepositoryBase {
                     createParams("locationId", locationId, "activeFlag", filter.getActiveFlag()),
                     LOCATION_ROW_MAPPER);
 
-            return Optional.of(LocationProcessor.processLocation(rawLocation, true));
+            return Optional.of(LocationProcessor.processLocation(rawLocation, true, false));
         } catch (final EmptyResultDataAccessException e) {
             return Optional.empty();
         }
@@ -46,45 +44,11 @@ public class LocationRepository extends RepositoryBase {
                     createParams("locationId", locationId, "username", username),
                     LOCATION_ROW_MAPPER);
 
-            return Optional.of(LocationProcessor.processLocation(rawLocation, true));
+            return Optional.of(LocationProcessor.processLocation(rawLocation, true, false));
         } catch (final EmptyResultDataAccessException e) {
             return Optional.empty();
         }
     }
-
-    /**
-     * Return a List (a set represented by a list) of Location which match the search criteria
-     *
-     * @param agencyId         Location must be within the specified agency
-     * @param locationType     'WING', 'CELL' etc.
-     * @param noParentLocation if true exlude any Location that has a parent.
-     * @return The matching set of Location.  Note that:
-     * The locationPrefix is replaced by description if present and
-     * The description is replaced by userDescription if it exists otherwise the description has its agency prefix removed.
-     */
-
-    @Cacheable("findLocationsByAgencyAndType")
-    public List<Location> findLocationsByAgencyAndType(final String agencyId, final String locationType, final boolean noParentLocation) {
-        final var initialSql = LocationRepositorySql.FIND_LOCATIONS_BY_AGENCY_AND_TYPE.getSql();
-        var builder = queryBuilderFactory.getQueryBuilder(initialSql, LOCATION_ROW_MAPPER);
-
-        if (noParentLocation) {
-            builder = builder.addQuery("parentLocationId:is:null");
-        }
-        final var sql = builder
-                .addOrderBy(Order.ASC, "description")
-                .build();
-
-        final var rawLocations = jdbcTemplate.query(
-                sql,
-                createParams(
-                        "agencyId", agencyId,
-                        "locationType", locationType),
-                LOCATION_ROW_MAPPER);
-
-        return LocationProcessor.processLocations(rawLocations, true);
-    }
-
 
     public List<Location> getLocationGroupData(final String agencyId) {
         return jdbcTemplate.query(
@@ -92,7 +56,6 @@ public class LocationRepository extends RepositoryBase {
                 Map.of("agencyId", agencyId),
                 LOCATION_ROW_MAPPER);
     }
-
 
     public List<Location> getSubLocationGroupData(Set<Long> parentLocationIds) {
         if (CollectionUtils.isEmpty(parentLocationIds)) {
