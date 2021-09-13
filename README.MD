@@ -212,7 +212,7 @@ aws --endpoint-url=http://localhost:4576 sqs receive-message \
 
 #### Inactivity Alert
 
-There is an alert in Application Insights called `Elite2-api - Inactivity alert`. It fires if prison-api hasn't received and real requests in the last 10 minutes.
+There is an alert in Application Insights called `Elite2-api - Inactivity alert`. It fires if prison-api hasn't received any successful requests in the last 10 minutes.
 
 If the alert fires then look for any recent releases of prison-api that may have introduced a problem. If not then check in the `nomisapi-prod` Kubernetes cluster looking for any errors - look at events, ingresses, certificates etc. Finally it could be some kind of network issue - check for problems in Azure AKS.
 
