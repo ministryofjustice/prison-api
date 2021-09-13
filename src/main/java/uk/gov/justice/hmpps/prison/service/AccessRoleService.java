@@ -30,7 +30,7 @@ public class AccessRoleService {
     public void createAccessRole(@Valid final AccessRole accessRole) {
         if (accessRole.getParentRoleCode() != null) {
             final var roleOptional = accessRoleRepository.getAccessRole(accessRole.getParentRoleCode());
-            if (!roleOptional.isPresent()) {
+            if (roleOptional.isEmpty()) {
                 throw EntityNotFoundException.withMessage("Parent Access role with code [%s] not found", accessRole.getParentRoleCode());
             }
         }
@@ -44,7 +44,7 @@ public class AccessRoleService {
         if (accessRole.getRoleFunction() == null) accessRole.setRoleFunction("GENERAL");
 
         accessRoleRepository.createAccessRole(accessRole);
-        log.info("Created Access Role: {}", accessRole.toString());
+        log.info("Created Access Role: {}", accessRole);
     }
 
     @Transactional
@@ -60,7 +60,7 @@ public class AccessRoleService {
         if (accessRole.getRoleFunction() == null) accessRole.setRoleFunction(roleBeforeUpdate.getRoleFunction());
 
         accessRoleRepository.updateAccessRole(accessRole);
-        log.info("Updated Access Role from {} to {}", roleBeforeUpdate.toString(), accessRole.toString());
+        log.info("Updated Access Role from {} to {}", roleBeforeUpdate, accessRole);
     }
 
     public List<AccessRole> getAccessRoles(final boolean includeAdmin) {

@@ -23,6 +23,7 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "STAFF_USER_ACCOUNTS")
@@ -63,6 +64,10 @@ public class StaffUserAccount extends AuditableEntity {
     @OneToOne(cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn
     private AccountDetail accountDetail;
+
+    public List<UserCaseloadRole> getDpsRoles() {
+        return getRoles().stream().filter(r -> "NWEB".equals(r.getId().getCaseload())).collect(Collectors.toList());
+    }
 
     @Override
     public boolean equals(final Object o) {

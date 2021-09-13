@@ -3,7 +3,6 @@ package uk.gov.justice.hmpps.prison.service;
 import com.google.common.collect.Lists;
 import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
@@ -19,10 +18,13 @@ import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.api.support.Status;
 import uk.gov.justice.hmpps.prison.repository.UserRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRoleFilter;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRoleRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.filters.NameFilter;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -46,6 +48,7 @@ public class UserService {
             .build();
 
     private final CaseLoadService caseLoadService;
+    private final UserCaseloadRoleRepository userCaseloadRoleRepository;
     private final StaffService staffService;
     private final UserRepository userRepository;
     private final AuthenticationFacade securityUtils;
@@ -53,11 +56,18 @@ public class UserService {
     private final int maxBatchSize;
     private final TelemetryClient telemetryClient;
 
-    public UserService(final CaseLoadService caseLoadService, final StaffService staffService,
-                       final UserRepository userRepository, final AuthenticationFacade securityUtils, @Value("${application.caseload.id:NWEB}") final String apiCaseloadId, @Value("${batch.max.size:1000}") final int maxBatchSize, final TelemetryClient telemetryClient) {
+    public UserService(final CaseLoadService caseLoadService,
+                       final StaffService staffService,
+                       final UserRepository userRepository,
+                       final UserCaseloadRoleRepository userCaseloadRoleRepository,
+                       final AuthenticationFacade securityUtils,
+                       @Value("${application.caseload.id:NWEB}") final String apiCaseloadId,
+                       @Value("${batch.max.size:1000}") final int maxBatchSize,
+                       final TelemetryClient telemetryClient) {
         this.caseLoadService = caseLoadService;
         this.staffService = staffService;
         this.userRepository = userRepository;
+        this.userCaseloadRoleRepository = userCaseloadRoleRepository;
         this.securityUtils = securityUtils;
         this.apiCaseloadId = apiCaseloadId;
         this.maxBatchSize = maxBatchSize;
@@ -112,13 +122,11 @@ public class UserService {
     }
 
     public List<UserRole> getRolesByUsername(final String username, final boolean allRoles) {
-        final var query = allRoles ? null : format("caseloadId:eq:'%s',or:caseloadId:is:null", apiCaseloadId);
-        final var rolesByUsername = userRepository.findRolesByUsername(username, query);
-
-        if (!allRoles) {
-            rolesByUsername.forEach(role -> role.setRoleCode(RegExUtils.replaceFirst(role.getRoleCode(), apiCaseloadId + "_", "")));
-        }
-        return rolesByUsername;
+       return userCaseloadRoleRepository.findAll(
+            UserCaseloadRoleFilter.builder().username(username).caseload(allRoles ? null : apiCaseloadId).build())
+            .stream().map(r -> allRoles ? r.transform() : r.transformWithoutCaseload())
+            .sorted(Comparator.comparing(UserRole::getRoleCode))
+            .collect(Collectors.toList());
     }
 
     public UserDetail getUserByExternalIdentifier(final String idType, final String id, final boolean activeOnly) {
@@ -275,8 +283,22 @@ public class UserService {
             throw EntityNotFoundException.withMessage("Caseload with id [%s] not found", caseload);
         }
 
-        return userRepository
-                .findAccessRolesByUsernameAndCaseload(username, caseload, includeAdmin);
+        final var spec = UserCaseloadRoleFilter.builder()
+            .username(username)
+            .caseload(caseload)
+            .excludeRoleFunction(includeAdmin ? null: "ADMIN")
+            .build();
+
+        return userCaseloadRoleRepository.findAll(spec)
+            .stream().map( r -> AccessRole.builder()
+                .roleId(r.getId().getRoleId())
+                .roleCode(r.getRole().getCode())
+                .roleName(r.getRole().getName())
+                .roleFunction(r.getRole().getRoleFunction())
+                .parentRoleCode(r.getRole().getParentCode())
+                .build())
+            .sorted(Comparator.comparing(AccessRole::getRoleName))
+            .collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES_ADMIN')")

@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -23,6 +24,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @Builder
 @AllArgsConstructor
+@BatchSize(size = 25)
 public class Role implements Serializable {
 
     @Id()
@@ -31,6 +33,15 @@ public class Role implements Serializable {
 
     @Column(name = "ROLE_CODE", nullable = false, unique = true)
     private String code;
+
+    @Column(name = "ROLE_NAME", nullable = false)
+    private String name;
+
+    @Column(name = "PARENT_ROLE_CODE")
+    private String parentCode;
+
+    @Column(name = "ROLE_FUNCTION")
+    private String roleFunction;
 
     @Override
     public boolean equals(final Object o) {

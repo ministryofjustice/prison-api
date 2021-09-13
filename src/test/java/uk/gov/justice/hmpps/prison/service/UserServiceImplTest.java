@@ -16,6 +16,11 @@ import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.api.support.Status;
 import uk.gov.justice.hmpps.prison.repository.UserRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Role;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.UserCaseloadRole;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.UserCaseloadRoleIdentity;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRoleFilter;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRoleRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.filters.NameFilter;
 
@@ -53,6 +58,8 @@ public class UserServiceImplTest {
     @Mock
     private UserRepository userRepository;
     @Mock
+    private UserCaseloadRoleRepository userCaseloadRoleRepository;
+    @Mock
     private StaffService staffService;
     @Mock
     private CaseLoadService caseLoadService;
@@ -65,7 +72,7 @@ public class UserServiceImplTest {
 
     @BeforeEach
     public void init() {
-        userService = new UserService(caseLoadService, staffService, userRepository, securityUtils, API_CASELOAD_ID, 100, telemetryClient);
+        userService = new UserService(caseLoadService, staffService, userRepository, userCaseloadRoleRepository, securityUtils, API_CASELOAD_ID, 100, telemetryClient);
     }
 
     @Test
@@ -106,13 +113,18 @@ public class UserServiceImplTest {
 
     @Test
     public void testGetRolesByUserAndCaseload() {
-        final List<AccessRole> list = ImmutableList.of(AccessRole.builder().roleCode("TEST_CODE").roleName("Test Role").roleFunction("GENERAL").build());  //the default if non provided
+        final List<UserCaseloadRole> list = List.of(UserCaseloadRole.builder()
+            .id(UserCaseloadRoleIdentity.builder().caseload(LEEDS_CASELOAD_ID).username(USERNAME_GEN).build())
+            .role(Role.builder().roleFunction("GENERAL").code("TEST_CODE").name("Test Role").build())
+            .build());  //the default if none provided
+
         when(caseLoadService.getCaseLoad(Mockito.eq(LEEDS_CASELOAD_ID))).thenReturn(Optional.of(CaseLoad.builder().build()));
-        when(userRepository.findAccessRolesByUsernameAndCaseload(USERNAME_GEN, LEEDS_CASELOAD_ID, true)).thenReturn(list);
+        final var spec = UserCaseloadRoleFilter.builder().username(USERNAME_GEN).caseload(LEEDS_CASELOAD_ID).build();
+        when(userCaseloadRoleRepository.findAll(spec)).thenReturn(list);
 
         userService.getAccessRolesByUserAndCaseload(USERNAME_GEN, LEEDS_CASELOAD_ID, true);
 
-        verify(userRepository).findAccessRolesByUsernameAndCaseload(USERNAME_GEN, LEEDS_CASELOAD_ID, true);
+        verify(userCaseloadRoleRepository).findAll(spec);
     }
 
     @Test

@@ -11,7 +11,6 @@ import uk.gov.justice.hmpps.prison.api.model.AccessRole;
 import uk.gov.justice.hmpps.prison.api.model.StaffUserRole;
 import uk.gov.justice.hmpps.prison.api.model.UserDetail;
 import uk.gov.justice.hmpps.prison.api.model.UserRole;
-import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.api.support.Status;
@@ -66,37 +65,6 @@ public class UserRepository extends RepositoryBase {
         }
         return Optional.ofNullable(userDetails);
     }
-
-
-    @Cacheable("findRolesByUsername")
-    public List<UserRole> findRolesByUsername(final String username, final String query) {
-        var builder = queryBuilderFactory.getQueryBuilder(UserRepositorySql.FIND_ROLES_BY_USERNAME.getSql(), USER_ROLE_MAPPER);
-
-        if (StringUtils.isNotBlank(query)) {
-            builder = builder.addQuery(query);
-        }
-        final var sql = builder
-            .addOrderBy(Order.ASC, "roleCode")
-            .build();
-
-        return jdbcTemplate.query(sql, createParams("username", username), USER_ROLE_MAPPER);
-    }
-
-
-    public List<AccessRole> findAccessRolesByUsernameAndCaseload(final String username, final String caseload, final boolean includeAdmin) {
-        var query = UserRepositorySql.FIND_ACCESS_ROLES_BY_USERNAME_AND_CASELOAD.getSql();
-
-        if (!includeAdmin) query += UserRepositorySql.EXCLUDE_BY_ROLE_FUNCTION_CLAUSE.getSql();
-
-        final var builder = queryBuilderFactory.getQueryBuilder(query, ACCESS_ROLE_MAPPER);
-
-        final var sql = builder
-            .addOrderBy(Order.ASC, "roleName")
-            .build();
-
-        return jdbcTemplate.query(sql, createParams("username", username, "caseloadId", caseload, "roleFunction", ADMIN_ROLE_FUNCTION), ACCESS_ROLE_MAPPER);
-    }
-
 
     public void updateWorkingCaseLoad(final String username, final String caseLoadId) {
         final var sql = UserRepositorySql.UPDATE_STAFF_ACTIVE_CASE_LOAD.getSql();

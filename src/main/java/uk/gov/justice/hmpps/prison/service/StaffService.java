@@ -17,15 +17,18 @@ import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.repository.CaseLoadRepository;
 import uk.gov.justice.hmpps.prison.repository.StaffRepository;
 import uk.gov.justice.hmpps.prison.repository.UserRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.UserCaseloadRole;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRoleFilter;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRoleRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
 import uk.gov.justice.hmpps.prison.service.support.GetStaffRoleRequest;
 
 import javax.validation.constraints.NotNull;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static java.lang.String.format;
 import static uk.gov.justice.hmpps.prison.service.UserService.STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION;
 
 @Service
@@ -35,12 +38,15 @@ public class StaffService {
 
     private final StaffRepository staffRepository;
     private final UserRepository userRepository;
+    private final UserCaseloadRoleRepository userCaseloadRoleRepository;
     private final CaseLoadRepository caseLoadRepository;
 
-    public StaffService(final StaffRepository staffRepository, final UserRepository userRepository, CaseLoadRepository caseLoadRepository) {
+    public StaffService(final StaffRepository staffRepository, final UserRepository userRepository, CaseLoadRepository caseLoadRepository,
+                        final UserCaseloadRoleRepository userCaseloadRoleRepository) {
         this.staffRepository = staffRepository;
         this.userRepository = userRepository;
         this.caseLoadRepository = caseLoadRepository;
+        this.userCaseloadRoleRepository = userCaseloadRoleRepository;
     }
 
     public static boolean isStaffActive(final StaffDetail staffDetail) {
@@ -109,15 +115,25 @@ public class StaffService {
 
     public List<StaffUserRole> getStaffRoles(final Long staffId) {
         final var userDetail = userRepository.findByStaffIdAndStaffUserType(staffId, STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION).orElseThrow(EntityNotFoundException.withId(staffId));
-
-        return mapToStaffUserRole(staffId, userDetail.getUsername(), userRepository.findRolesByUsername(userDetail.getUsername(), null));
+        return  mapToStaffUserRole(staffId, userDetail.getUsername(), filterRoles(UserCaseloadRoleFilter.builder().username(userDetail.getUsername()).build()));
     }
 
     public List<StaffUserRole> getRolesByCaseload(final Long staffId, final String caseload) {
         final var userDetail = userRepository.findByStaffIdAndStaffUserType(staffId, STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION).orElseThrow(EntityNotFoundException.withId(staffId));
+        return  mapToStaffUserRole(staffId, userDetail.getUsername(), filterRoles(UserCaseloadRoleFilter.builder().username(userDetail.getUsername()).caseload(caseload).build()));
+    }
 
-        final var rolesByUsername = userRepository.findRolesByUsername(userDetail.getUsername(), format("caseloadId:eq:'%s',or:caseloadId:is:null", caseload));
-        return mapToStaffUserRole(staffId, userDetail.getUsername(), rolesByUsername);
+    private Optional<StaffUserRole> getRoleByCaseload(final Long staffId, final String username, final String caseload, final String roleCode) {
+        final var rolesByUsername = filterRoles(UserCaseloadRoleFilter.builder().username(username).caseload(caseload).roleCode(caseload + "_" + roleCode).build());
+        final var staffUserRoles = mapToStaffUserRole(staffId, username, rolesByUsername);
+        return Optional.ofNullable(staffUserRoles.isEmpty() ? null : staffUserRoles.get(0));
+    }
+
+    private List<UserRole> filterRoles(final UserCaseloadRoleFilter filter) {
+        return userCaseloadRoleRepository.findAll(filter)
+            .stream().map(UserCaseloadRole::transform)
+            .sorted(Comparator.comparing(UserRole::getRoleCode))
+            .collect(Collectors.toList());
     }
 
     private List<StaffUserRole> mapToStaffUserRole(final Long staffId, final String username, final List<UserRole> rolesByUsername) {
@@ -176,11 +192,4 @@ public class StaffService {
 
         return staffRepository.getAllRolesForAgency(staffId, agencyId);
     }
-
-    private Optional<StaffUserRole> getRoleByCaseload(final Long staffId, final String username, final String caseload, final String roleCode) {
-        final var rolesByUsername = userRepository.findRolesByUsername(username, format("roleCode:eq:'%s',and:caseloadId:eq:'%s'", caseload + "_" + roleCode, caseload));
-        final var staffUserRoles = mapToStaffUserRole(staffId, username, rolesByUsername);
-        return Optional.ofNullable(staffUserRoles.isEmpty() ? null : staffUserRoles.get(0));
-    }
-
 }
