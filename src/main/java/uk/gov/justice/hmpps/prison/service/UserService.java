@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -126,6 +127,24 @@ public class UserService {
             .stream().map(r -> allRoles ? r.transform() : r.transformWithoutCaseload())
             .sorted(Comparator.comparing(UserRole::getRoleCode))
             .collect(Collectors.toList());
+    }
+
+    public UserDetail getUserByExternalIdentifier(final String idType, final String id, final boolean activeOnly) {
+        final var staffDetail = staffService.getStaffDetailByPersonnelIdentifier(idType, id);
+
+        final Optional<UserDetail> userDetail;
+
+        if (activeOnly && !StaffService.isStaffActive(staffDetail)) {
+            log.info("Staff member found for external identifier with idType [{}] and id [{}] but not active.", idType, id);
+
+            userDetail = Optional.empty();
+        } else {
+            userDetail = userRepository.findByStaffIdAndStaffUserType(
+                    staffDetail.getStaffId(), STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION);
+        }
+
+        return userDetail.orElseThrow(EntityNotFoundException
+                .withMessage("User not found for external identifier with idType [{}] and id [{}].", idType, id));
     }
 
     public boolean isUserAssessibleCaseloadAvailable(final String caseload, final String username) {

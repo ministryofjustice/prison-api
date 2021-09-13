@@ -18,9 +18,6 @@ import uk.gov.justice.hmpps.prison.repository.CaseLoadRepository;
 import uk.gov.justice.hmpps.prison.repository.StaffRepository;
 import uk.gov.justice.hmpps.prison.repository.UserRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.UserCaseloadRole;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.UserCaseloadRoleIdentity;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.RoleRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRoleFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRoleRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
@@ -42,21 +39,14 @@ public class StaffService {
     private final StaffRepository staffRepository;
     private final UserRepository userRepository;
     private final UserCaseloadRoleRepository userCaseloadRoleRepository;
-    private final RoleRepository roleRepository;
-    private final StaffUserAccountRepository staffUserAccountRepository;
     private final CaseLoadRepository caseLoadRepository;
 
-    public StaffService(final StaffRepository staffRepository,
-                        final StaffUserAccountRepository staffUserAccountRepository,
-                        final UserRepository userRepository, CaseLoadRepository caseLoadRepository,
-                        final UserCaseloadRoleRepository userCaseloadRoleRepository,
-                        final RoleRepository roleRepository) {
+    public StaffService(final StaffRepository staffRepository, final UserRepository userRepository, CaseLoadRepository caseLoadRepository,
+                        final UserCaseloadRoleRepository userCaseloadRoleRepository) {
         this.staffRepository = staffRepository;
-        this.staffUserAccountRepository = staffUserAccountRepository;
         this.userRepository = userRepository;
         this.caseLoadRepository = caseLoadRepository;
         this.userCaseloadRoleRepository = userCaseloadRoleRepository;
-        this.roleRepository = roleRepository;
     }
 
     public static boolean isStaffActive(final StaffDetail staffDetail) {
@@ -124,17 +114,17 @@ public class StaffService {
     }
 
     public List<StaffUserRole> getStaffRoles(final Long staffId) {
-        final var userDetail = staffUserAccountRepository.findByTypeAndStaff_StaffId(STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION, staffId).orElseThrow(EntityNotFoundException.withId(staffId));
-        return mapToStaffUserRole(staffId, userDetail.getUsername(), filterRoles(UserCaseloadRoleFilter.builder().username(userDetail.getUsername()).build()));
+        final var userDetail = userRepository.findByStaffIdAndStaffUserType(staffId, STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION).orElseThrow(EntityNotFoundException.withId(staffId));
+        return  mapToStaffUserRole(staffId, userDetail.getUsername(), filterRoles(UserCaseloadRoleFilter.builder().username(userDetail.getUsername()).build()));
     }
 
     public List<StaffUserRole> getRolesByCaseload(final Long staffId, final String caseload) {
-        final var userDetail = staffUserAccountRepository.findByTypeAndStaff_StaffId(STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION, staffId).orElseThrow(EntityNotFoundException.withId(staffId));
-        return mapToStaffUserRole(staffId, userDetail.getUsername(), filterRoles(UserCaseloadRoleFilter.builder().username(userDetail.getUsername()).caseload(caseload).build()));
+        final var userDetail = userRepository.findByStaffIdAndStaffUserType(staffId, STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION).orElseThrow(EntityNotFoundException.withId(staffId));
+        return  mapToStaffUserRole(staffId, userDetail.getUsername(), filterRoles(UserCaseloadRoleFilter.builder().username(userDetail.getUsername()).caseload(caseload).build()));
     }
 
     private Optional<StaffUserRole> getRoleByCaseload(final Long staffId, final String username, final String caseload, final String roleCode) {
-        final var rolesByUsername = filterRoles(UserCaseloadRoleFilter.builder().username(username).caseload(caseload).roleCode(roleCode).build());
+        final var rolesByUsername = filterRoles(UserCaseloadRoleFilter.builder().username(username).caseload(caseload).roleCode(caseload + "_" + roleCode).build());
         final var staffUserRoles = mapToStaffUserRole(staffId, username, rolesByUsername);
         return Optional.ofNullable(staffUserRoles.isEmpty() ? null : staffUserRoles.get(0));
     }
@@ -147,11 +137,7 @@ public class StaffService {
     }
 
     private List<StaffUserRole> mapToStaffUserRole(final Long staffId, final String username, final List<UserRole> rolesByUsername) {
-        return rolesByUsername.stream().map(role -> transform(staffId, username, role)).collect(Collectors.toList());
-    }
-
-    private StaffUserRole transform(final Long staffId, final String username, final UserRole role) {
-        return StaffUserRole.builder()
+        return rolesByUsername.stream().map(role -> StaffUserRole.builder()
                 .roleId(role.getRoleId())
                 .caseloadId(role.getCaseloadId())
                 .parentRoleCode(role.getParentRoleCode())
@@ -159,7 +145,7 @@ public class StaffService {
                 .roleName(role.getRoleName())
                 .username(username)
                 .staffId(staffId)
-                .build();
+                .build()).collect(Collectors.toList());
     }
 
     public List<StaffUserRole> getAllStaffRolesForCaseload(final String caseload, final String roleCode) {
@@ -169,41 +155,35 @@ public class StaffService {
     @PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES')")
     @Transactional
     public StaffUserRole addStaffRole(final Long staffId, final String caseload, final String roleCode) {
-        final var userDetail = staffUserAccountRepository.findByTypeAndStaff_StaffId(STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION, staffId).orElseThrow(EntityNotFoundException.withId(staffId));
-        // check if role already exists
-        userDetail.findByCaseloadAndRoleCode(caseload, roleCode).ifPresent(r -> {
-            throw new EntityAlreadyExistsException(roleCode);
-        });
+        final var userDetail = userRepository.findByStaffIdAndStaffUserType(staffId, STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION).orElseThrow(EntityNotFoundException.withId(staffId));
 
-        final var username = userDetail.getUsername();
-        // ensure that user accessible caseload exists...
-        if (!userRepository.isUserAssessibleCaseloadAvailable(caseload, username)) {
-            userRepository.addUserAssessibleCaseload(caseload, username);
+        // check if role already exists
+        final var staffUserRole = getRoleByCaseload(staffId, userDetail.getUsername(), caseload, roleCode);
+
+        if (staffUserRole.isPresent()) {
+            throw new EntityAlreadyExistsException(roleCode);
         }
 
-        final var role = roleRepository.findByCode(roleCode).orElseThrow(EntityNotFoundException.withId(roleCode));
+        // ensure that user accessible caseload exists...
+        if (!userRepository.isUserAssessibleCaseloadAvailable(caseload, userDetail.getUsername())) {
+            userRepository.addUserAssessibleCaseload(caseload, userDetail.getUsername());
+        }
 
-        final var newRole = UserCaseloadRole.builder()
-            .id(UserCaseloadRoleIdentity.builder()
-                .caseload(caseload)
-                .roleId(role.getId())
-                .username(username)
-                .build())
-            .role(role)
-            .build();
-        userDetail.getRoles().add(newRole);
-
-        return transform(staffId, username, newRole.transform());
+        final var roleId = userRepository.getRoleIdForCode(roleCode).orElseThrow(EntityNotFoundException.withId(roleCode));
+        userRepository.addRole(userDetail.getUsername(), caseload, roleId);
+        return getRoleByCaseload(staffId, userDetail.getUsername(), caseload, roleCode).orElseThrow(EntityNotFoundException.withId(roleCode));
     }
 
     @PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES')")
     @Transactional
     public void removeStaffRole(final Long staffId, final String caseload, final String roleCode) {
-        final var userDetail = staffUserAccountRepository.findByTypeAndStaff_StaffId(STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION, staffId).orElseThrow(EntityNotFoundException.withId(staffId));
+        final var userDetail = userRepository.findByStaffIdAndStaffUserType(staffId, STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION).orElseThrow(EntityNotFoundException.withId(staffId));
 
         // check if role exists
-        final var userRole = userDetail.findByCaseloadAndRoleCode(caseload, roleCode).orElseThrow(EntityNotFoundException.withId(roleCode));
-        userCaseloadRoleRepository.deleteRole(userRole.getId().getUsername(), userRole.getId().getCaseload(), userRole.getId().getRoleId());
+        getRoleByCaseload(staffId, userDetail.getUsername(), caseload, roleCode).orElseThrow(EntityNotFoundException.withId(roleCode));
+
+        final var roleId = userRepository.getRoleIdForCode(roleCode).orElseThrow(EntityNotFoundException.withId(roleCode));
+        userRepository.removeRole(userDetail.getUsername(), caseload, roleId);
     }
 
     public List<StaffRole> getAllRolesForAgency(final Long staffId, final String agencyId) {
