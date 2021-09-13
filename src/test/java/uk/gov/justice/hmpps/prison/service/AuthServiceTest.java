@@ -10,6 +10,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Role;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Staff;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.UserCaseloadRole;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.UserCaseloadRoleIdentity;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 
 import java.util.List;
@@ -46,6 +47,7 @@ public class AuthServiceTest {
         return Optional.ofNullable(StaffUserAccount.builder()
                 .staff(new Staff())
                 .roles(List.of(UserCaseloadRole.builder()
+                        .id(UserCaseloadRoleIdentity.builder().caseload("NWEB").build())
                         .role(Role.builder().code("Role1").build())
                         .build()
                 ))
