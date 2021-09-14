@@ -42,4 +42,8 @@ public class OffenderActivitySummary {
     @ApiModelProperty(value = "When the offender stopped this activity")
     private LocalDate endDate;
 
+    @NotBlank
+    @ApiModelProperty(value = "Whether the offender is currently registered to do this activity")
+    private Boolean isCurrentActivity;
+
 }

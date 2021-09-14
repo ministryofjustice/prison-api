@@ -50,6 +50,7 @@ public class OffenderActivitiesService {
             .description(activity.getCourseActivity().getDescription())
             .startDate(activity.getStartDate())
             .endDate(activity.getEndDate())
+            .isCurrentActivity(activity.isCurrentActivity())
             .build();
     }
 }

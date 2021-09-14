@@ -41,11 +41,16 @@ public class OffenderProgramProfile extends ExtendedAuditableEntity {
     private String programStatus;
 
     public boolean isCurrentWorkActivity() {
+        return isCurrentActivity() && isWorkActivity();
+    }
+
+    public boolean isCurrentActivity() {
         final var currentDate = LocalDate.now();
-        final var isCurrentProgramProfile = startAndEndDatesSpanDay(startDate, endDate, currentDate);
-        final var isValidCurrentActivity = courseActivity != null &&
+        final var isCurrentProgramProfile = programStatus != null && programStatus.equals("ALLOC") &&
+            startAndEndDatesSpanDay(startDate, endDate, currentDate);
+        final var isCurrentCourseActivity = courseActivity != null &&
             startAndEndDatesSpanDay(courseActivity.getScheduleStartDate(), courseActivity.getScheduleEndDate(), currentDate);
-        return isCurrentProgramProfile && isWorkActivity() && isValidCurrentActivity;
+        return isCurrentProgramProfile && isCurrentCourseActivity;
     }
 
     private boolean startAndEndDatesSpanDay(final LocalDate startDate, final LocalDate endDate, final LocalDate dateToCheck) {
