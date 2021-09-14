@@ -8,6 +8,8 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.justice.hmpps.prison.api.model.StaffUserRole;
 
+import javax.persistence.EntityManager;
+
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 @ActiveProfiles("test")
@@ -16,6 +18,9 @@ public class AccessRoleMaintenanceIntTest {
 
     @Autowired
     private StaffService staffService;
+
+    @Autowired
+    private EntityManager entityManager;
 
     @Test
     @WithUserDetails("ITAG_USER")
