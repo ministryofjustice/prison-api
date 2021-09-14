@@ -11,7 +11,6 @@ import uk.gov.justice.hmpps.prison.repository.StaffRepository;
 import uk.gov.justice.hmpps.prison.repository.UserRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.RoleRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRoleRepository;
 
 import java.time.LocalDate;
@@ -53,16 +52,13 @@ public class StaffServiceImplTest {
     private UserCaseloadRoleRepository userCaseloadRoleRepository;
 
     @Mock
-    private UserCaseloadRepository userCaseloadRepository;
-
-    @Mock
     private RoleRepository roleRepository;
 
     private StaffService staffService;
 
     @BeforeEach
     public void init() {
-        staffService = new StaffService(staffRepository, staffUserAccountRepository, userRepository, caseLoadRepository, userCaseloadRoleRepository, roleRepository, userCaseloadRepository);
+        staffService = new StaffService(staffRepository, staffUserAccountRepository, userRepository, caseLoadRepository, userCaseloadRoleRepository, roleRepository);
     }
 
     @Test

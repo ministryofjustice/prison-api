@@ -18,19 +18,11 @@ import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.api.support.Status;
 import uk.gov.justice.hmpps.prison.repository.UserRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.UserCaseload;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.UserCaseloadId;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.UserCaseloadRole;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.UserCaseloadRoleIdentity;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.RoleRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRoleFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRoleRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.filters.NameFilter;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -56,9 +48,7 @@ public class UserService {
 
     private final CaseLoadService caseLoadService;
     private final UserCaseloadRoleRepository userCaseloadRoleRepository;
-    private final StaffUserAccountRepository staffUserAccountRepository;
-    private final UserCaseloadRepository userCaseloadRepository;
-    private final RoleRepository roleRepository;
+    private final StaffService staffService;
     private final UserRepository userRepository;
     private final AuthenticationFacade securityUtils;
     private final String apiCaseloadId;
@@ -66,21 +56,17 @@ public class UserService {
     private final TelemetryClient telemetryClient;
 
     public UserService(final CaseLoadService caseLoadService,
-                       final RoleRepository roleRepository,
+                       final StaffService staffService,
                        final UserRepository userRepository,
                        final UserCaseloadRoleRepository userCaseloadRoleRepository,
-                       final UserCaseloadRepository userCaseloadRepository,
-                       final StaffUserAccountRepository staffUserAccountRepository,
                        final AuthenticationFacade securityUtils,
                        @Value("${application.caseload.id:NWEB}") final String apiCaseloadId,
                        @Value("${batch.max.size:1000}") final int maxBatchSize,
                        final TelemetryClient telemetryClient) {
         this.caseLoadService = caseLoadService;
+        this.staffService = staffService;
         this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-        this.userCaseloadRepository = userCaseloadRepository;
         this.userCaseloadRoleRepository = userCaseloadRoleRepository;
-        this.staffUserAccountRepository = staffUserAccountRepository;
         this.securityUtils = securityUtils;
         this.apiCaseloadId = apiCaseloadId;
         this.maxBatchSize = maxBatchSize;
@@ -143,30 +129,30 @@ public class UserService {
     }
 
     public boolean isUserAssessibleCaseloadAvailable(final String caseload, final String username) {
-        return userCaseloadRepository.findById(UserCaseloadId.builder().caseload(caseload).username(username).build()).isPresent();
+        return userRepository.isUserAssessibleCaseloadAvailable(caseload, username);
     }
 
     @PreAuthorize("hasAnyRole('MAINTAIN_ACCESS_ROLES,MAINTAIN_ACCESS_ROLES_ADMIN')")
     @Transactional
     public void removeUsersAccessRoleForCaseload(final String username, final String caseload, final String roleCode) {
-        final var role = roleRepository.findByCode(roleCode).orElseThrow(EntityNotFoundException.withId(roleCode));
+        final var role = userRepository.getRoleByCode(roleCode).orElseThrow(EntityNotFoundException.withId(roleCode));
 
-        verifyMaintainRolesAdminAccess(role.getRoleFunction());
+        verifyMaintainRolesAdminAccess(role);
 
-        userCaseloadRoleRepository.findById(UserCaseloadRoleIdentity.builder()
-            .caseload(caseload).username(username).roleId(role.getId()).build())
-            .orElseThrow(EntityNotFoundException.withMessage("Role [%s] not assigned to user [%s] at caseload [%s]", roleCode, username, caseload));
-
-        userCaseloadRoleRepository.deleteRole(username, caseload, role.getId());
-        telemetryClient.trackEvent(
-                "PrisonUserRoleRemoveSuccess",
-                Map.of("username", username, "role", roleCode, "admin", securityUtils.getCurrentUsername()),
-                null);
-        log.info("Removed role '{}' from username '{}' at caseload '{}'", roleCode, username, caseload);
+        if (!userRepository.isRoleAssigned(username, caseload, role.getRoleId())) {
+            throw EntityNotFoundException.withMessage("Role [%s] not assigned to user [%s] at caseload [%s]", roleCode, username, caseload);
+        }
+        if (userRepository.removeRole(username, caseload, role.getRoleId()) > 0) {
+            telemetryClient.trackEvent(
+                    "PrisonUserRoleRemoveSuccess",
+                    Map.of("username", username, "role", roleCode, "admin", securityUtils.getCurrentUsername()),
+                    null);
+            log.info("Removed role '{}' from username '{}' at caseload '{}'", roleCode, username, caseload);
+        }
     }
 
-    private void verifyMaintainRolesAdminAccess(final String roleFunction) {
-        if (roleFunction.equals(ROLE_FUNCTION_ADMIN)) {
+    private void verifyMaintainRolesAdminAccess(final AccessRole role) {
+        if (role.getRoleFunction().equals(ROLE_FUNCTION_ADMIN)) {
             if (!securityUtils.isOverrideRole("MAINTAIN_ACCESS_ROLES_ADMIN")) {
                 throw new AccessDeniedException("Maintain roles Admin access required to perform this action");
             }
@@ -199,47 +185,30 @@ public class UserService {
     @Transactional
     public boolean addAccessRole(final String username, final String roleCode, final String caseloadId) {
 
-        final var role = roleRepository.findByCode(roleCode).orElseThrow(EntityNotFoundException.withId(roleCode));
+        final var role = userRepository.getRoleByCode(roleCode).orElseThrow(EntityNotFoundException.withId(roleCode));
 
-        verifyMaintainRolesAdminAccess(role.getRoleFunction());
+        verifyMaintainRolesAdminAccess(role);
 
-        if (userCaseloadRoleRepository.findById(UserCaseloadRoleIdentity.builder()
-            .caseload(caseloadId).username(username).roleId(role.getId()).build()).isPresent()) {
+        if (userRepository.isRoleAssigned(username, caseloadId, role.getRoleId())) {
             return false;
         }
 
-        final var userCaseload = userCaseloadRepository.findById(UserCaseloadId.builder().caseload(caseloadId).username(username).build());
-
-        if (userCaseload.isEmpty()) {
+        if (!userRepository.isUserAssessibleCaseloadAvailable(caseloadId, username)) {
             if (caseloadId.equals(apiCaseloadId)) {
                 // only for NWEB - ensure that user accessible caseload exists...
-                addDpsCaseloadToUser(username);
+                userRepository.addUserAssessibleCaseload(apiCaseloadId, username);
             } else {
                 throw EntityNotFoundException.withMessage("Caseload %s is not accessible for user %s", caseloadId, username);
             }
         }
 
-        final var user = staffUserAccountRepository.findById(username).orElseThrow(EntityNotFoundException.withId(username));
-        final var newRole = UserCaseloadRole.builder()
-            .id(UserCaseloadRoleIdentity.builder()
-                .caseload(caseloadId)
-                .roleId(role.getId())
-                .username(username)
-                .build())
-            .role(role)
-            .build();
-        user.getRoles().add(newRole);
-
+        userRepository.addRole(username, caseloadId, role.getRoleId());
         log.info("Assigned role '{}' to username '{}' at caseload '{}'", roleCode, username, caseloadId);
         telemetryClient.trackEvent(
                 "PrisonUserRoleAddSuccess",
                 Map.of("username", username, "role", roleCode, "admin", securityUtils.getCurrentUsername()),
                 null);
         return true;
-    }
-
-    private void addDpsCaseloadToUser(final String username) {
-        userCaseloadRepository.save(UserCaseload.builder().id(UserCaseloadId.builder().username(username).caseload(apiCaseloadId).build()).startDate(LocalDate.now()).build());
     }
 
 
@@ -253,7 +222,7 @@ public class UserService {
         users.forEach(user -> {
             final var username = user.getUsername();
             try {
-                addDpsCaseloadToUser(username);
+                userRepository.addUserAssessibleCaseload(apiCaseloadId, username);
                 caseloadsAdded.add(user);
             } catch (final Exception e) {
                 log.error("Failed to add {} caseload to user {}", apiCaseloadId, username);
@@ -298,7 +267,7 @@ public class UserService {
         final var spec = UserCaseloadRoleFilter.builder()
             .username(username)
             .caseload(caseload)
-            .excludeRoleFunction(includeAdmin ? null: ROLE_FUNCTION_ADMIN)
+            .excludeRoleFunction(includeAdmin ? null: "ADMIN")
             .build();
 
         return userCaseloadRoleRepository.findAll(spec)

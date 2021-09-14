@@ -17,20 +17,16 @@ import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.repository.CaseLoadRepository;
 import uk.gov.justice.hmpps.prison.repository.StaffRepository;
 import uk.gov.justice.hmpps.prison.repository.UserRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.UserCaseload;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.UserCaseloadId;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.UserCaseloadRole;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.UserCaseloadRoleIdentity;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.RoleRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRoleFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRoleRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
 import uk.gov.justice.hmpps.prison.service.support.GetStaffRoleRequest;
 
 import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -49,21 +45,18 @@ public class StaffService {
     private final RoleRepository roleRepository;
     private final StaffUserAccountRepository staffUserAccountRepository;
     private final CaseLoadRepository caseLoadRepository;
-    private final UserCaseloadRepository userCaseloadRepository;
 
     public StaffService(final StaffRepository staffRepository,
                         final StaffUserAccountRepository staffUserAccountRepository,
                         final UserRepository userRepository, CaseLoadRepository caseLoadRepository,
                         final UserCaseloadRoleRepository userCaseloadRoleRepository,
-                        final RoleRepository roleRepository,
-                        final UserCaseloadRepository userCaseloadRepository) {
+                        final RoleRepository roleRepository) {
         this.staffRepository = staffRepository;
         this.staffUserAccountRepository = staffUserAccountRepository;
         this.userRepository = userRepository;
         this.caseLoadRepository = caseLoadRepository;
         this.userCaseloadRoleRepository = userCaseloadRoleRepository;
         this.roleRepository = roleRepository;
-        this.userCaseloadRepository = userCaseloadRepository;
     }
 
     public static boolean isStaffActive(final StaffDetail staffDetail) {
@@ -184,10 +177,8 @@ public class StaffService {
 
         final var username = userDetail.getUsername();
         // ensure that user accessible caseload exists...
-
-        final var userCaseload = userCaseloadRepository.findById(UserCaseloadId.builder().caseload(caseload).username(username).build());
-        if (userCaseload.isEmpty()) {
-            userCaseloadRepository.save(UserCaseload.builder().id(UserCaseloadId.builder().username(username).caseload(caseload).build()).startDate(LocalDate.now()).build());
+        if (!userRepository.isUserAssessibleCaseloadAvailable(caseload, username)) {
+            userRepository.addUserAssessibleCaseload(caseload, username);
         }
 
         final var role = roleRepository.findByCode(roleCode).orElseThrow(EntityNotFoundException.withId(roleCode));
