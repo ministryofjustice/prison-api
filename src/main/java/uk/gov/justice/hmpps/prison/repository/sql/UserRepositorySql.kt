@@ -75,22 +75,6 @@ enum class UserRepositorySql(val sql: String) {
     """
   ),
 
-  ROLE_ASSIGNED_COUNT(
-    """
-        SELECT COUNT(*)
-        FROM USER_CASELOAD_ROLES
-                WHERE CASELOAD_ID = :caseloadId AND
-        USERNAME = :username AND
-        ROLE_ID = :roleId
-    """
-  ),
-
-  USER_ACCESSIBLE_CASELOAD_COUNT(
-    """
-        SELECT COUNT(*) FROM USER_ACCESSIBLE_CASELOADS WHERE CASELOAD_ID = :caseloadId AND USERNAME = :username
-    """
-  ),
-
   FIND_ACTIVE_STAFF_USERS_WITH_ACCESSIBLE_CASELOAD(
     """
         SELECT SM.STAFF_ID,
@@ -110,12 +94,6 @@ enum class UserRepositorySql(val sql: String) {
     """
   ),
 
-  USER_ACCESSIBLE_CASELOAD_INSERT(
-    """
-        INSERT INTO USER_ACCESSIBLE_CASELOADS (CASELOAD_ID, USERNAME, START_DATE) VALUES (:caseloadId, :username, :startDate)
-    """
-  ),
-
   FIND_ROLES_BY_CASELOAD_AND_ROLE(
     """
         SELECT RL.ROLE_ID,
@@ -130,38 +108,6 @@ enum class UserRepositorySql(val sql: String) {
                 INNER JOIN STAFF_USER_ACCOUNTS AUA ON AUA.USERNAME = CLR.USERNAME
                 WHERE RL.ROLE_CODE = :roleCode
         AND   CLR.CASELOAD_ID = :caseloadId
-    """
-  ),
-
-  GET_ROLE_ID_FOR_ROLE_CODE(
-    """
-        select ROLE_ID from OMS_ROLES WHERE ROLE_CODE = :roleCode
-    """
-  ),
-
-  GET_ROLE_BY_ROLE_CODE(
-    """
-        SELECT ROLE_ID,
-        ROLE_CODE,
-        ROLE_NAME,
-        PARENT_ROLE_CODE,
-        ROLE_FUNCTION
-        FROM OMS_ROLES
-                WHERE ROLE_CODE = :roleCode
-    """
-  ),
-
-  INSERT_USER_ROLE(
-    """
-        INSERT INTO USER_CASELOAD_ROLES (ROLE_ID, CASELOAD_ID, USERNAME)
-        VALUES (
-                :roleId, :caseloadId, :username)
-    """
-  ),
-
-  DELETE_USER_ROLE(
-    """
-        DELETE FROM USER_CASELOAD_ROLES WHERE CASELOAD_ID = :caseloadId AND USERNAME = :username AND ROLE_ID = :roleId
     """
   ),
 

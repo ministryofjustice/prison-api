@@ -9,12 +9,14 @@ import lombok.ToString;
 import lombok.ToString.Exclude;
 import org.hibernate.Hibernate;
 
+import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import java.time.LocalDate;
 import java.util.Objects;
 
 @Entity
@@ -34,6 +36,9 @@ public class UserCaseload extends AuditableEntity {
     @JoinColumn(name = "CASELOAD_ID", updatable = false, insertable = false)
     @Exclude
     private Caseload caseload;
+
+    @Column(name = "START_DATE")
+    private LocalDate startDate;
 
     @Override
     public boolean equals(final Object o) {

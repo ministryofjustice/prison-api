@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import uk.gov.justice.hmpps.prison.api.model.AccessRole;
 import uk.gov.justice.hmpps.prison.api.model.UserDetail;
 import uk.gov.justice.hmpps.prison.api.resource.impl.ResourceTest;
 import uk.gov.justice.hmpps.prison.api.support.Order;
@@ -16,7 +15,6 @@ import uk.gov.justice.hmpps.prison.service.filters.NameFilter;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -24,7 +22,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class UserResourceIntTest extends ResourceTest {
@@ -32,7 +29,7 @@ public class UserResourceIntTest extends ResourceTest {
     @MockBean
     private UserRepository userRepository;
 
-
+/*
     @Test
     public void addAccessRole() {
         final var requestEntity = createHttpEntityWithBearerAuthorisation("BOB", List.of("ROLE_MAINTAIN_ACCESS_ROLES"), null);
@@ -93,6 +90,7 @@ public class UserResourceIntTest extends ResourceTest {
 
         verifyNoInteractions(userRepository);
     }
+*/
 
     @Test
     public void getUser_statusUsesDefaultValueAllWhenNonSupplied() {
