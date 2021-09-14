@@ -47,32 +47,6 @@ enum class UserRepositorySql(val sql: String) {
     """
   ),
 
-  FIND_ROLES_BY_USERNAME(
-    """
-        SELECT RL.ROLE_ID,
-        CONCAT(CLR.CASELOAD_ID, CONCAT('_', REPLACE(RL.ROLE_CODE, '-', '_'))) ROLE_CODE,
-        ROLE_NAME,
-        PARENT_ROLE_CODE,
-        CLR.CASELOAD_ID
-        FROM USER_CASELOAD_ROLES CLR
-        INNER JOIN OMS_ROLES RL ON RL.ROLE_ID = CLR.ROLE_ID
-                WHERE USERNAME = :username
-    """
-  ),
-
-  FIND_ACCESS_ROLES_BY_USERNAME_AND_CASELOAD(
-    """
-        SELECT RL.ROLE_ID,
-        RL.ROLE_CODE,
-        ROLE_NAME,
-        PARENT_ROLE_CODE,
-        RL.ROLE_FUNCTION
-        FROM USER_CASELOAD_ROLES CLR
-        INNER JOIN OMS_ROLES RL ON RL.ROLE_ID = CLR.ROLE_ID
-                WHERE USERNAME = :username and CASELOAD_ID = :caseloadId
-    """
-  ),
-
   UPDATE_STAFF_ACTIVE_CASE_LOAD(
     """
         UPDATE STAFF_USER_ACCOUNTS
@@ -244,8 +218,6 @@ enum class UserRepositorySql(val sql: String) {
   NAME_FILTER_QUERY_TEMPLATE(" AND (FIRST_NAME LIKE :searchTerm OR LAST_NAME LIKE :searchTerm OR SUA.USERNAME LIKE :searchTerm)"),
 
   FULL_NAME_FILTER_QUERY_TEMPLATE(" AND ((FIRST_NAME LIKE :firstName AND LAST_NAME LIKE :surname) OR (LAST_NAME LIKE :firstName AND FIRST_NAME LIKE :surname))"),
-
-  EXCLUDE_BY_ROLE_FUNCTION_CLAUSE(" AND RL.ROLE_FUNCTION <> :roleFunction "),
 
   APPLICATION_ROLE_CODE_FILTER_QUERY_TEMPLATE(
     """ 

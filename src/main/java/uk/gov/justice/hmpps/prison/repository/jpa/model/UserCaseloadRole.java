@@ -8,13 +8,14 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
 import org.hibernate.Hibernate;
-import org.hibernate.annotations.Where;
+import uk.gov.justice.hmpps.prison.api.model.UserRole;
+import uk.gov.justice.hmpps.prison.api.model.UserRole.UserRoleBuilder;
 
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Objects;
@@ -27,16 +28,32 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @Builder
 @AllArgsConstructor
-@Where(clause = "caseload_id='NWEB'")
 public class UserCaseloadRole implements Serializable {
 
     @EmbeddedId
     private UserCaseloadRoleIdentity id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ROLE_ID", updatable = false, insertable = false)
     @Exclude
     private Role role;
+
+    public UserRole transformWithoutCaseload() {
+        return builderForUserRole().roleCode(getRole().getCode()).build();
+    }
+
+    public UserRole transform() {
+        return builderForUserRole().build();
+    }
+
+    private UserRoleBuilder builderForUserRole() {
+        return UserRole.builder()
+            .roleId(getId().getRoleId())
+            .roleCode(getId().getCaseload() + "_" + getRole().getCode())
+            .caseloadId(getId().getCaseload())
+            .roleName(getRole().getName())
+            .parentRoleCode(getRole().getParentCode());
+    }
 
     @Override
     public boolean equals(final Object o) {

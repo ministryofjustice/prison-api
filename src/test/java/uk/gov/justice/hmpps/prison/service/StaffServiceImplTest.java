@@ -9,6 +9,9 @@ import uk.gov.justice.hmpps.prison.api.model.StaffDetail;
 import uk.gov.justice.hmpps.prison.repository.CaseLoadRepository;
 import uk.gov.justice.hmpps.prison.repository.StaffRepository;
 import uk.gov.justice.hmpps.prison.repository.UserRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.RoleRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRoleRepository;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -29,12 +32,15 @@ public class StaffServiceImplTest {
     private static final Long ID_NONE = 9999L;
     private static final Long ID_BAD = 123L;
 
-    private List<String> multipleAddresses = List.of("test1@a.com", "test2@b.com", "test3@c.com");
-    private List<String> singleAddress = List.of("test1@a.com");
-    private List<String> emptyList = Collections.emptyList();
+    private final List<String> multipleAddresses = List.of("test1@a.com", "test2@b.com", "test3@c.com");
+    private final List<String> singleAddress = List.of("test1@a.com");
+    private final List<String> emptyList = Collections.emptyList();
 
     @Mock
     public StaffRepository staffRepository;
+
+    @Mock
+    public StaffUserAccountRepository staffUserAccountRepository;
 
     @Mock
     public CaseLoadRepository caseLoadRepository;
@@ -42,11 +48,17 @@ public class StaffServiceImplTest {
     @Mock
     public UserRepository userRepository;
 
+    @Mock
+    private UserCaseloadRoleRepository userCaseloadRoleRepository;
+
+    @Mock
+    private RoleRepository roleRepository;
+
     private StaffService staffService;
 
     @BeforeEach
     public void init() {
-        staffService = new StaffService(staffRepository, userRepository, caseLoadRepository);
+        staffService = new StaffService(staffRepository, staffUserAccountRepository, userRepository, caseLoadRepository, userCaseloadRoleRepository, roleRepository);
     }
 
     @Test

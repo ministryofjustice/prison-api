@@ -23,6 +23,8 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "STAFF_USER_ACCOUNTS")
@@ -39,8 +41,8 @@ public class StaffUserAccount extends AuditableEntity {
     @Column(nullable = false)
     private String username;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "STAFF_ID")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "STAFF_ID", nullable = false)
     @Exclude
     private Staff staff;
 
@@ -50,12 +52,12 @@ public class StaffUserAccount extends AuditableEntity {
     @Column(name = "WORKING_CASELOAD_ID")
     private String activeCaseLoadId;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "USERNAME")
     @Exclude
     private List<UserCaseloadRole> roles;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "USERNAME")
     @Exclude
     private List<UserCaseload> caseloads;
@@ -63,6 +65,17 @@ public class StaffUserAccount extends AuditableEntity {
     @OneToOne(cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn
     private AccountDetail accountDetail;
+
+    public List<UserCaseloadRole> getDpsRoles() {
+        return getRoles().stream().filter(r -> "NWEB".equals(r.getId().getCaseload())).collect(Collectors.toList());
+    }
+
+    public Optional<UserCaseloadRole> findByCaseloadAndRoleCode(final String caseload, final String roleCode) {
+        return getRoles().stream()
+            .filter(r -> r.getId().getCaseload().equals(caseload))
+            .filter(r -> r.getRole().getCode().equals(roleCode))
+            .findFirst();
+    }
 
     @Override
     public boolean equals(final Object o) {

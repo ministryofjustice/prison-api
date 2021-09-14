@@ -31,8 +31,10 @@ public class AuthService {
 
     private UserPersonDetails buildUserPersonDetails(final StaffUserAccount user) {
 
-        List<String> userCaseloadRoleList = user.getRoles().stream().map(userCaseloadRole ->
-                userCaseloadRole.getRole().getCode()).collect(Collectors.toList());
+        List<String> userCaseloadRoleList = user.getDpsRoles().stream()
+            .map(userCaseloadRole ->
+                userCaseloadRole.getRole().getCode())
+            .collect(Collectors.toList());
 
         return UserPersonDetails.builder()
                 .username(user.getUsername())

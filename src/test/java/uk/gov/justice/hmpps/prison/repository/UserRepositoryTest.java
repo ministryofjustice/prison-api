@@ -53,28 +53,6 @@ public class UserRepositoryTest {
 
 
     @Test
-    public void testFindRolesByUsername() {
-        final var roles = userRepository.findRolesByUsername("ITAG_USER", null);
-        assertThat(roles).isNotEmpty();
-        assertThat(roles).extracting("roleCode").contains("LEI_WING_OFF");
-    }
-
-
-    @Test
-    public void testFindRolesByUsernameAndCaseloadAdmin() {
-        final var roles = userRepository.findAccessRolesByUsernameAndCaseload("ITAG_USER", "NWEB", true);
-        assertThat(roles).isNotEmpty();
-        assertThat(roles).extracting("roleCode").contains("ACCESS_ROLE_ADMIN");
-    }
-
-    @Test
-    public void testFindRolesByUsernameAndCaseloadGeneral() {
-        final var roles = userRepository.findAccessRolesByUsernameAndCaseload("ITAG_USER", "NWEB", false);
-        assertThat(roles).isNotEmpty();
-        assertThat(roles).extracting("roleCode").doesNotContain("ACCESS_ROLE_ADMIN");
-    }
-
-    @Test
     public void testFindUserByStaffIdAndStaffUserTypeUnknownStaffId() {
         final var staffId = -99L;
 

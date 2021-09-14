@@ -24,7 +24,7 @@ import java.util.Objects;
 @ToString
 public class Staff extends AuditableEntity {
 
-    @Id()
+    @Id
     @Column(name = "STAFF_ID", nullable = false)
     private Long staffId;
 
@@ -36,7 +36,6 @@ public class Staff extends AuditableEntity {
 
     @Column(name = "STATUS")
     private String status;
-
 
     public String getFullName() {
         return lastName + ", " + firstName;

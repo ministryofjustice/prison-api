@@ -103,7 +103,7 @@ public class StaffRepository extends RepositoryBase {
                 .addPagination()
                 .build();
 
-        final var paRowMapper = new PageAwareRowMapper<StaffLocationRole>(STAFF_LOCATION_ROLE_ROW_MAPPER);
+        final var paRowMapper = new PageAwareRowMapper<>(STAFF_LOCATION_ROLE_ROW_MAPPER);
 
         final var staffDetails = jdbcTemplate.query(
                 sql,
