@@ -11,36 +11,81 @@ import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.api.support.Status;
 import uk.gov.justice.hmpps.prison.repository.UserRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Role;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.UserCaseload;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.UserCaseloadId;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.UserCaseloadRole;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.UserCaseloadRoleIdentity;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.RoleRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRoleRepository;
 import uk.gov.justice.hmpps.prison.service.filters.NameFilter;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class UserResourceIntTest extends ResourceTest {
 
+    public static final String USERNAME = "joe";
+    public static final String ROLE_FRED = "ROLE_FRED";
+    public static final String API_CASELOAD_ID = "NWEB";
+    public static final long ROLE_ID = 1L;
     @MockBean
     private UserRepository userRepository;
+    @MockBean
+    private UserCaseloadRoleRepository userCaseloadRoleRepository;
+    @MockBean
+    private StaffUserAccountRepository staffUserAccountRepository;
+    @MockBean
+    private UserCaseloadRepository userCaseloadRepository;
+    @MockBean
+    private RoleRepository roleRepository;
 
-/*
     @Test
     public void addAccessRole() {
         final var requestEntity = createHttpEntityWithBearerAuthorisation("BOB", List.of("ROLE_MAINTAIN_ACCESS_ROLES"), null);
-        final var role = AccessRole.builder().roleId(1L).roleFunction("GENERAL").build();
-        when(userRepository.getRoleByCode(anyString())).thenReturn(Optional.of(role));
 
-        final var responseEntity = testRestTemplate.exchange("/api/users/joe/access-role/ROLE_FRED", HttpMethod.PUT, requestEntity, String.class);
+        final var role = Role.builder().code(ROLE_FRED).id(ROLE_ID).roleFunction("GENERAL").build();
+        final var user = StaffUserAccount.builder().username(USERNAME).build();
+
+        when(roleRepository.findByCode(ROLE_FRED)).thenReturn(Optional.of(role));
+        when(userCaseloadRoleRepository.findById(UserCaseloadRoleIdentity.builder().caseload(API_CASELOAD_ID).username(USERNAME).roleId(ROLE_ID).build())).thenReturn(Optional.empty());
+        final var userCaseloadId = UserCaseloadId.builder().caseload(API_CASELOAD_ID).username(USERNAME).build();
+        when(userCaseloadRepository.findById(userCaseloadId)).thenReturn(Optional.of(UserCaseload.builder().id(userCaseloadId).build()));
+        when(staffUserAccountRepository.findById(USERNAME)).thenReturn(Optional.of(user));
+
+        final var responseEntity = testRestTemplate.exchange(format("/api/users/%s/access-role/%s", USERNAME, ROLE_FRED), HttpMethod.PUT, requestEntity, String.class);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
-        verify(userRepository).addRole("joe", "NWEB", 1L);
+        verify(userCaseloadRepository, never()).save(isA(UserCaseload.class));
+
+        assertThat(user.getRoles()).hasSize(1);
+
+        assertThat(user.getRoles().get(0)).isEqualTo(UserCaseloadRole.builder()
+            .id(UserCaseloadRoleIdentity.builder()
+                .caseload(API_CASELOAD_ID)
+                .roleId(ROLE_ID)
+                .username(USERNAME)
+                .build())
+            .role(role)
+            .build());
     }
+
 
     @Test
     public void addAccessRoles() {
@@ -48,15 +93,43 @@ public class UserResourceIntTest extends ResourceTest {
             "BOB",
             List.of("ROLE_MAINTAIN_ACCESS_ROLES"),
             "[\"ROLE_FRED\",\"ROLE_GEORGE\"]");
-        final var role = AccessRole.builder().roleId(1L).roleFunction("GENERAL").build();
-        final var role2 = AccessRole.builder().roleId(2L).roleFunction("GENERAL").build();
-        when(userRepository.getRoleByCode(anyString())).thenReturn(Optional.of(role)).thenReturn(Optional.of(role2));
 
-        final var responseEntity = testRestTemplate.exchange("/api/users/joe/access-role", HttpMethod.POST, requestEntity, String.class);
+        final var role1 = Role.builder().code(ROLE_FRED).id(ROLE_ID).roleFunction("GENERAL").build();
+        final var role2 = Role.builder().code("ROLE_GEORGE").id(2L).roleFunction("GENERAL").build();
+        final var user = StaffUserAccount.builder().username(USERNAME).build();
+
+        when(roleRepository.findByCode(ROLE_FRED)).thenReturn(Optional.of(role1));
+        when(roleRepository.findByCode("ROLE_GEORGE")).thenReturn(Optional.of(role2));
+
+        when(userCaseloadRoleRepository.findById(UserCaseloadRoleIdentity.builder().caseload(API_CASELOAD_ID).username(USERNAME).roleId(ROLE_ID).build())).thenReturn(Optional.empty());
+        when(userCaseloadRoleRepository.findById(UserCaseloadRoleIdentity.builder().caseload(API_CASELOAD_ID).username(USERNAME).roleId(2L).build())).thenReturn(Optional.empty());
+
+        final var userCaseloadId = UserCaseloadId.builder().caseload(API_CASELOAD_ID).username(USERNAME).build();
+        when(userCaseloadRepository.findById(userCaseloadId)).thenReturn(Optional.of(UserCaseload.builder().id(userCaseloadId).build()));
+        when(staffUserAccountRepository.findById(USERNAME)).thenReturn(Optional.of(user));
+
+        final var responseEntity = testRestTemplate.exchange(format("/api/users/%s/access-role", USERNAME), HttpMethod.POST, requestEntity, String.class);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        verify(userRepository).addRole("joe", "NWEB", 1L);
-        verify(userRepository).addRole("joe", "NWEB", 2L);
+        assertThat(user.getRoles()).hasSize(2);
+
+        assertThat(user.getRoles().get(0)).isEqualTo(UserCaseloadRole.builder()
+            .id(UserCaseloadRoleIdentity.builder()
+                .caseload(API_CASELOAD_ID)
+                .roleId(ROLE_ID)
+                .username(USERNAME)
+                .build())
+            .role(role1)
+            .build());
+
+        assertThat(user.getRoles().get(1)).isEqualTo(UserCaseloadRole.builder()
+            .id(UserCaseloadRoleIdentity.builder()
+                .caseload(API_CASELOAD_ID)
+                .roleId(2L)
+                .username(USERNAME)
+                .build())
+            .role(role2)
+            .build());
     }
 
     @Test
@@ -65,14 +138,11 @@ public class UserResourceIntTest extends ResourceTest {
             "BOB",
             List.of("ROLE_MAINTAIN_ACCESS_ROLES"),
             "[]");
-        final var role = AccessRole.builder().roleId(1L).roleFunction("GENERAL").build();
-        final var role2 = AccessRole.builder().roleId(2L).roleFunction("GENERAL").build();
-        when(userRepository.getRoleByCode(anyString())).thenReturn(Optional.of(role)).thenReturn(Optional.of(role2));
 
-        final var responseEntity = testRestTemplate.exchange("/api/users/joe/access-role", HttpMethod.POST, requestEntity, String.class);
+        final var responseEntity = testRestTemplate.exchange(format("/api/users/%s/access-role", USERNAME), HttpMethod.POST, requestEntity, String.class);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
 
-        verifyNoInteractions(userRepository);
+        verifyNoInteractions(roleRepository, staffUserAccountRepository, userCaseloadRepository, userCaseloadRoleRepository);
     }
 
     @Test
@@ -81,16 +151,13 @@ public class UserResourceIntTest extends ResourceTest {
             "BOB",
             List.of("ROLE_VIEWING"),
             "[\"ROLE_FRED\",\"ROLE_GEORGE\"]");
-        final var role = AccessRole.builder().roleId(1L).roleFunction("GENERAL").build();
-        final var role2 = AccessRole.builder().roleId(2L).roleFunction("GENERAL").build();
-        when(userRepository.getRoleByCode(anyString())).thenReturn(Optional.of(role)).thenReturn(Optional.of(role2));
 
-        final var responseEntity = testRestTemplate.exchange("/api/users/joe/access-role", HttpMethod.POST, requestEntity, String.class);
+        final var responseEntity = testRestTemplate.exchange(format("/api/users/%s/access-role", USERNAME), HttpMethod.POST, requestEntity, String.class);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
 
-        verifyNoInteractions(userRepository);
+        verifyNoInteractions(roleRepository, staffUserAccountRepository, userCaseloadRepository, userCaseloadRoleRepository);
     }
-*/
+
 
     @Test
     public void getUser_statusUsesDefaultValueAllWhenNonSupplied() {
