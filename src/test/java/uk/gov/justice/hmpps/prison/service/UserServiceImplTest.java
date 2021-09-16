@@ -9,7 +9,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.access.AccessDeniedException;
-import uk.gov.justice.hmpps.prison.api.model.AccessRole;
 import uk.gov.justice.hmpps.prison.api.model.CaseLoad;
 import uk.gov.justice.hmpps.prison.api.model.UserDetail;
 import uk.gov.justice.hmpps.prison.api.support.Order;
@@ -17,13 +16,20 @@ import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.api.support.Status;
 import uk.gov.justice.hmpps.prison.repository.UserRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Role;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.UserCaseload;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.UserCaseloadId;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.UserCaseloadRole;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.UserCaseloadRoleIdentity;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.RoleRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRoleFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRoleRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.filters.NameFilter;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -32,8 +38,7 @@ import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.anyList;
 import static org.mockito.Mockito.eq;
@@ -41,7 +46,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.refEq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
@@ -60,7 +64,11 @@ public class UserServiceImplTest {
     @Mock
     private UserCaseloadRoleRepository userCaseloadRoleRepository;
     @Mock
-    private StaffService staffService;
+    private StaffUserAccountRepository staffUserAccountRepository;
+    @Mock
+    private UserCaseloadRepository userCaseloadRepository;
+    @Mock
+    private RoleRepository roleRepository;
     @Mock
     private CaseLoadService caseLoadService;
     @Mock
@@ -72,7 +80,7 @@ public class UserServiceImplTest {
 
     @BeforeEach
     public void init() {
-        userService = new UserService(caseLoadService, staffService, userRepository, userCaseloadRoleRepository, securityUtils, API_CASELOAD_ID, 100, telemetryClient);
+        userService = new UserService(caseLoadService, roleRepository, userRepository, userCaseloadRoleRepository, userCaseloadRepository, staffUserAccountRepository, securityUtils, API_CASELOAD_ID, 100, telemetryClient);
     }
 
     @Test
@@ -138,27 +146,44 @@ public class UserServiceImplTest {
         assertThatThrownBy(() -> userService.getAccessRolesByUserAndCaseload("", LEEDS_CASELOAD_ID, false)).isInstanceOf(IllegalArgumentException.class);
     }
 
+
     @Test
     public void testAddAccessRoleForApiCaseloadWithUserAccessibleCaseloadEntry() {
-        final var role = AccessRole.builder().roleId(ROLE_ID).roleFunction("GENERAL").build();
-        when(userRepository.getRoleByCode(ROLE_CODE)).thenReturn(Optional.of(role));
-        when(userRepository.isRoleAssigned(USERNAME_GEN, API_CASELOAD_ID, ROLE_ID)).thenReturn(false);
+        final var role = Role.builder().code(ROLE_CODE).id(ROLE_ID).roleFunction("GENERAL").build();
+        final var user = StaffUserAccount.builder().username(USERNAME_GEN).build();
+
+        when(roleRepository.findByCode(ROLE_CODE)).thenReturn(Optional.of(role));
+        when(userCaseloadRoleRepository.findById(UserCaseloadRoleIdentity.builder().caseload(API_CASELOAD_ID).username(USERNAME_GEN).roleId(ROLE_ID).build())).thenReturn(Optional.empty());
+        when(userCaseloadRepository.findById(UserCaseloadId.builder().caseload(API_CASELOAD_ID).username(USERNAME_GEN).build())).thenReturn(Optional.empty());
+        when(staffUserAccountRepository.findById(USERNAME_GEN)).thenReturn(Optional.of(user));
         when(securityUtils.getCurrentUsername()).thenReturn("adminuser");
-        when(userRepository.isUserAssessibleCaseloadAvailable(API_CASELOAD_ID, USERNAME_GEN)).thenReturn(false);
 
         userService.addAccessRole(USERNAME_GEN, ROLE_CODE);
 
-        verify(userRepository).addUserAssessibleCaseload(API_CASELOAD_ID, USERNAME_GEN);
-        verify(userRepository).addRole(USERNAME_GEN, API_CASELOAD_ID, ROLE_ID);
+        verify(userCaseloadRepository).save(UserCaseload.builder().id(UserCaseloadId.builder().username(USERNAME_GEN).caseload(API_CASELOAD_ID).build()).startDate(LocalDate.now()).build());
+
+        assertThat(user.getRoles()).hasSize(1);
+
+        assertThat(user.getRoles().get(0)).isEqualTo(UserCaseloadRole.builder()
+            .id(UserCaseloadRoleIdentity.builder()
+                .caseload(API_CASELOAD_ID)
+                .roleId(ROLE_ID)
+                .username(USERNAME_GEN)
+                .build())
+            .role(role)
+            .build());
     }
 
     @Test
     public void testAddAccessRoleCreatesTelemetryEvent() {
-        final var role = AccessRole.builder().roleId(ROLE_ID).roleFunction("GENERAL").build();
-        when(userRepository.getRoleByCode(ROLE_CODE)).thenReturn(Optional.of(role));
-        when(userRepository.isRoleAssigned(USERNAME_GEN, API_CASELOAD_ID, ROLE_ID)).thenReturn(false);
+        final var role = Role.builder().code(ROLE_CODE).id(ROLE_ID).roleFunction("GENERAL").build();
+        final var user = StaffUserAccount.builder().username(USERNAME_GEN).build();
+
+        when(roleRepository.findByCode(ROLE_CODE)).thenReturn(Optional.of(role));
+        when(userCaseloadRoleRepository.findById(UserCaseloadRoleIdentity.builder().caseload(API_CASELOAD_ID).username(USERNAME_GEN).roleId(ROLE_ID).build())).thenReturn(Optional.empty());
+        when(userCaseloadRepository.findById(UserCaseloadId.builder().caseload(API_CASELOAD_ID).username(USERNAME_GEN).build())).thenReturn(Optional.empty());
+        when(staffUserAccountRepository.findById(USERNAME_GEN)).thenReturn(Optional.of(user));
         when(securityUtils.getCurrentUsername()).thenReturn("adminuser");
-        when(userRepository.isUserAssessibleCaseloadAvailable(API_CASELOAD_ID, USERNAME_GEN)).thenReturn(false);
 
         userService.addAccessRole(USERNAME_GEN, ROLE_CODE);
 
@@ -170,47 +195,77 @@ public class UserServiceImplTest {
 
     @Test
     public void testAddAccessRoleForApiCaseloadWithoutUserAccessibleCaseloadEntry() {
-        final var role = AccessRole.builder().roleId(ROLE_ID).roleFunction("GENERAL").build();
-        when(userRepository.getRoleByCode(ROLE_CODE)).thenReturn(Optional.of(role));
-        when(userRepository.isRoleAssigned(USERNAME_GEN, API_CASELOAD_ID, ROLE_ID)).thenReturn(false);
+        final var role = Role.builder().code(ROLE_CODE).id(ROLE_ID).roleFunction("GENERAL").build();
+        final var user = StaffUserAccount.builder().username(USERNAME_GEN).build();
+
+        when(roleRepository.findByCode(ROLE_CODE)).thenReturn(Optional.of(role));
+        when(userCaseloadRoleRepository.findById(UserCaseloadRoleIdentity.builder().caseload(API_CASELOAD_ID).username(USERNAME_GEN).roleId(ROLE_ID).build())).thenReturn(Optional.empty());
+        final var userCaseloadId = UserCaseloadId.builder().caseload(API_CASELOAD_ID).username(USERNAME_GEN).build();
+        when(userCaseloadRepository.findById(userCaseloadId)).thenReturn(Optional.of(UserCaseload.builder().id(userCaseloadId).build()));
+        when(staffUserAccountRepository.findById(USERNAME_GEN)).thenReturn(Optional.of(user));
         when(securityUtils.getCurrentUsername()).thenReturn("adminuser");
-        when(userRepository.isUserAssessibleCaseloadAvailable(API_CASELOAD_ID, USERNAME_GEN)).thenReturn(true);
 
         userService.addAccessRole(USERNAME_GEN, ROLE_CODE);
 
-        verify(userRepository).addRole(USERNAME_GEN, API_CASELOAD_ID, ROLE_ID);
+        assertThat(user.getRoles()).hasSize(1);
+
+        assertThat(user.getRoles().get(0)).isEqualTo(UserCaseloadRole.builder()
+            .id(UserCaseloadRoleIdentity.builder()
+                .caseload(API_CASELOAD_ID)
+                .roleId(ROLE_ID)
+                .username(USERNAME_GEN)
+                .build())
+            .role(role)
+            .build());
+
         verifyNoMoreInteractions(userRepository);
     }
 
     @Test
     public void testAddAccessRoleForCaseloadWithUserAccessibleCaseloadEntry() {
-        final var role = AccessRole.builder().roleId(ROLE_ID).roleFunction("GENERAL").build();
-        when(userRepository.getRoleByCode(ROLE_CODE)).thenReturn(Optional.of(role));
-        when(userRepository.isRoleAssigned(USERNAME_GEN, LEEDS_CASELOAD_ID, ROLE_ID)).thenReturn(false);
+        final var role = Role.builder().code(ROLE_CODE).id(ROLE_ID).roleFunction("GENERAL").build();
+        final var user = StaffUserAccount.builder().username(USERNAME_GEN).build();
+
+        when(roleRepository.findByCode(ROLE_CODE)).thenReturn(Optional.of(role));
+        when(userCaseloadRoleRepository.findById(UserCaseloadRoleIdentity.builder().caseload(LEEDS_CASELOAD_ID).username(USERNAME_GEN).roleId(ROLE_ID).build())).thenReturn(Optional.empty());
+        final var userCaseloadId = UserCaseloadId.builder().caseload(LEEDS_CASELOAD_ID).username(USERNAME_GEN).build();
+        when(userCaseloadRepository.findById(userCaseloadId)).thenReturn(Optional.of(UserCaseload.builder().id(userCaseloadId).build()));
+        when(staffUserAccountRepository.findById(USERNAME_GEN)).thenReturn(Optional.of(user));
         when(securityUtils.getCurrentUsername()).thenReturn("adminuser");
-        when(userRepository.isUserAssessibleCaseloadAvailable(LEEDS_CASELOAD_ID, USERNAME_GEN)).thenReturn(true);
 
         userService.addAccessRole(USERNAME_GEN, ROLE_CODE, LEEDS_CASELOAD_ID);
 
-        verify(userRepository, never()).addUserAssessibleCaseload(API_CASELOAD_ID, USERNAME_GEN);
-        verify(userRepository).addRole(USERNAME_GEN, LEEDS_CASELOAD_ID, ROLE_ID);
+        verify(userCaseloadRepository, never()).save(isA(UserCaseload.class));
+
+        assertThat(user.getRoles()).hasSize(1);
+
+        assertThat(user.getRoles().get(0)).isEqualTo(UserCaseloadRole.builder()
+            .id(UserCaseloadRoleIdentity.builder()
+                .caseload(LEEDS_CASELOAD_ID)
+                .roleId(ROLE_ID)
+                .username(USERNAME_GEN)
+                .build())
+            .role(role)
+            .build());
     }
 
     @Test
     public void testAddAccessRoleForCaseloadWithoutUserAccessibleCaseloadEntry() {
-        final var role = AccessRole.builder().roleId(ROLE_ID).roleFunction("GENERAL").build();
-        when(userRepository.getRoleByCode(ROLE_CODE)).thenReturn(Optional.of(role));
-        when(userRepository.isRoleAssigned(USERNAME_GEN, LEEDS_CASELOAD_ID, ROLE_ID)).thenReturn(false);
+        final var role = Role.builder().code(ROLE_CODE).id(ROLE_ID).roleFunction("GENERAL").build();
+        final var user = StaffUserAccount.builder().username(USERNAME_GEN).build();
 
-        when(userRepository.isUserAssessibleCaseloadAvailable(LEEDS_CASELOAD_ID, USERNAME_GEN)).thenReturn(false);
+        when(roleRepository.findByCode(ROLE_CODE)).thenReturn(Optional.of(role));
+        when(userCaseloadRoleRepository.findById(UserCaseloadRoleIdentity.builder().caseload(LEEDS_CASELOAD_ID).username(USERNAME_GEN).roleId(ROLE_ID).build())).thenReturn(Optional.empty());
+        final var userCaseloadId = UserCaseloadId.builder().caseload(LEEDS_CASELOAD_ID).username(USERNAME_GEN).build();
+        when(userCaseloadRepository.findById(userCaseloadId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.addAccessRole(USERNAME_GEN, ROLE_CODE, LEEDS_CASELOAD_ID)).isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test
     public void testAddAccessAccessRoleWithoutCorrectPrivileges() {
-        final var role = AccessRole.builder().roleId(ROLE_ID).roleFunction("ADMIN").build();
-        when(userRepository.getRoleByCode(ROLE_CODE)).thenReturn(Optional.of(role));
+        final var role = Role.builder().code(ROLE_CODE).id(ROLE_ID).roleFunction("ADMIN").build();
+        when(roleRepository.findByCode(ROLE_CODE)).thenReturn(Optional.of(role));
 
         assertThatThrownBy(() -> userService.addAccessRole(USERNAME_GEN, ROLE_CODE, LEEDS_CASELOAD_ID)).isInstanceOf(AccessDeniedException.class);
         verify(securityUtils).isOverrideRole("MAINTAIN_ACCESS_ROLES_ADMIN");
@@ -218,38 +273,31 @@ public class UserServiceImplTest {
 
     @Test
     public void testRemoveAccessRole() {
-        final var role = AccessRole.builder().roleId(ROLE_ID).roleFunction("GENERAL").build();
-        when(userRepository.getRoleByCode(ROLE_CODE)).thenReturn(Optional.of(role));
-        when(userRepository.isRoleAssigned(USERNAME_GEN, API_CASELOAD_ID, ROLE_ID)).thenReturn(true);
+        final var role = Role.builder().code(ROLE_CODE).id(ROLE_ID).roleFunction("GENERAL").build();
+
+        when(roleRepository.findByCode(ROLE_CODE)).thenReturn(Optional.of(role));
+        when(userCaseloadRoleRepository.findById(UserCaseloadRoleIdentity.builder().caseload(API_CASELOAD_ID).username(USERNAME_GEN).roleId(ROLE_ID).build())).thenReturn(Optional.of(UserCaseloadRole.builder().build()));
+        when(securityUtils.getCurrentUsername()).thenReturn("adminuser");
 
         userService.removeUsersAccessRoleForCaseload(USERNAME_GEN, API_CASELOAD_ID, ROLE_CODE);
 
-        verify(userRepository).removeRole(USERNAME_GEN, API_CASELOAD_ID, ROLE_ID);
+        verify(userCaseloadRoleRepository).deleteRole(USERNAME_GEN, API_CASELOAD_ID, ROLE_ID);
     }
 
     @Test
     public void testRemoveAccessRole_telemetryEvent() {
-        final var role = AccessRole.builder().roleId(ROLE_ID).roleFunction("GENERAL").build();
-        when(userRepository.getRoleByCode(ROLE_CODE)).thenReturn(Optional.of(role));
-        when(userRepository.isRoleAssigned(USERNAME_GEN, API_CASELOAD_ID, ROLE_ID)).thenReturn(true);
+        final var role = Role.builder().code(ROLE_CODE).id(ROLE_ID).roleFunction("GENERAL").build();
+
+        when(roleRepository.findByCode(ROLE_CODE)).thenReturn(Optional.of(role));
+        when(userCaseloadRoleRepository.findById(UserCaseloadRoleIdentity.builder().caseload(API_CASELOAD_ID).username(USERNAME_GEN).roleId(ROLE_ID).build())).thenReturn(Optional.of(UserCaseloadRole.builder().build()));
         when(securityUtils.getCurrentUsername()).thenReturn("adminuser");
-        when(userRepository.removeRole(anyString(), anyString(), anyLong())).thenReturn(1);
+
         userService.removeUsersAccessRoleForCaseload(USERNAME_GEN, API_CASELOAD_ID, ROLE_CODE);
 
         verify(telemetryClient).trackEvent(
                 "PrisonUserRoleRemoveSuccess",
                 Map.of("username", USERNAME_GEN, "role", ROLE_CODE, "admin", "adminuser"),
                 null);
-    }
-
-    @Test
-    public void testRemoveAccessRole_notelemetryEvent() {
-        final var role = AccessRole.builder().roleId(ROLE_ID).roleFunction("GENERAL").build();
-        when(userRepository.getRoleByCode(ROLE_CODE)).thenReturn(Optional.of(role));
-        when(userRepository.isRoleAssigned(USERNAME_GEN, API_CASELOAD_ID, ROLE_ID)).thenReturn(true);
-        userService.removeUsersAccessRoleForCaseload(USERNAME_GEN, API_CASELOAD_ID, ROLE_CODE);
-
-        verifyNoInteractions(telemetryClient);
     }
 
     @Test

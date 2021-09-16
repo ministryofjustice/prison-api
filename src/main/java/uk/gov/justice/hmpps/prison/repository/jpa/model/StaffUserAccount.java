@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -21,6 +22,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -55,12 +57,14 @@ public class StaffUserAccount extends AuditableEntity {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "USERNAME")
     @Exclude
-    private List<UserCaseloadRole> roles;
+    @Default
+    private List<UserCaseloadRole> roles = new ArrayList<>();
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "USERNAME")
     @Exclude
-    private List<UserCaseload> caseloads;
+    @Default
+    private List<UserCaseload> caseloads = new ArrayList<>();
 
     @OneToOne(cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn

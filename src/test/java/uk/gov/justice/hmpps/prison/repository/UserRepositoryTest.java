@@ -266,23 +266,6 @@ public class UserRepositoryTest {
         assertThat(usersByCaseload.getItems()).extracting("username").contains("ITAG_USER");
     }
 
-
-    @Test
-    public void testIsRoleAssigned() {
-
-        assertThat(userRepository.isRoleAssigned("ITAG_USER", "LEI", -2)).isTrue();
-        assertThat(userRepository.isRoleAssigned("ITAG_USERR", "LEI", -2)).isFalse();
-        assertThat(userRepository.isRoleAssigned("ITAG_USER", "XXX", -2)).isFalse();
-        assertThat(userRepository.isRoleAssigned("ITAG_USER", "LEI", -3)).isFalse();
-    }
-
-    @Test
-    public void testGetRoleByCode() {
-        final var roleOptional = userRepository.getRoleByCode("MAINTAIN_ACCESS_ROLES");
-        assertThat(roleOptional).isPresent();
-        assertThat(roleOptional.get().getRoleName()).isEqualTo("Maintain access roles");
-    }
-
     @Test
     public void testUpdateWorkingCaseLoad() {
         // STAFF_USER_ACCOUNTS for genUsername and admUsername have the same staff_id (-1).

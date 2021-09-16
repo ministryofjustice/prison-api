@@ -3,14 +3,11 @@ package uk.gov.justice.hmpps.prison.repository;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
-import uk.gov.justice.hmpps.prison.api.model.AccessRole;
 import uk.gov.justice.hmpps.prison.api.model.StaffUserRole;
 import uk.gov.justice.hmpps.prison.api.model.UserDetail;
-import uk.gov.justice.hmpps.prison.api.model.UserRole;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.api.support.Status;
@@ -18,9 +15,7 @@ import uk.gov.justice.hmpps.prison.repository.mapping.PageAwareRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
 import uk.gov.justice.hmpps.prison.repository.sql.UserRepositorySql;
 import uk.gov.justice.hmpps.prison.service.filters.NameFilter;
-import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -36,14 +31,6 @@ public class UserRepository extends RepositoryBase {
 
     @Value("${application.type:APP}")
     private String applicationType;
-
-    private static final String ADMIN_ROLE_FUNCTION = "ADMIN";
-
-    private final StandardBeanPropertyRowMapper<UserRole> USER_ROLE_MAPPER =
-        new StandardBeanPropertyRowMapper<>(UserRole.class);
-
-    private final StandardBeanPropertyRowMapper<AccessRole> ACCESS_ROLE_MAPPER =
-        new StandardBeanPropertyRowMapper<>(AccessRole.class);
 
     private final StandardBeanPropertyRowMapper<StaffUserRole> STAFF_USER_ROLE_MAPPER =
         new StandardBeanPropertyRowMapper<>(StaffUserRole.class);
@@ -93,80 +80,6 @@ public class UserRepository extends RepositoryBase {
         return Optional.ofNullable(userDetail);
     }
 
-
-    public boolean isRoleAssigned(final String username, final String caseload, final long roleId) {
-        Validate.notBlank(caseload, "caseload is required.");
-        Validate.notBlank(username, "username is required.");
-
-        final var count = jdbcTemplate.queryForObject(
-            UserRepositorySql.ROLE_ASSIGNED_COUNT.getSql(),
-            createParams(
-                "caseloadId", caseload,
-                "username", username,
-                "roleId", roleId),
-            Long.class);
-
-        return count != null && count > 0;
-    }
-
-
-    public boolean isUserAssessibleCaseloadAvailable(final String caseload, final String username) {
-        Validate.notBlank(caseload, "caseload is required.");
-        Validate.notBlank(username, "username is required.");
-
-        final var count = jdbcTemplate.queryForObject(
-            UserRepositorySql.USER_ACCESSIBLE_CASELOAD_COUNT.getSql(),
-            createParams("caseloadId", caseload, "username", username),
-            Long.class);
-
-        return count != null && count > 0;
-    }
-
-
-    public Optional<Long> getRoleIdForCode(final String roleCode) {
-        Validate.notBlank(roleCode, "roleCode is required.");
-
-        Long roleId;
-        try {
-            roleId = jdbcTemplate.queryForObject(
-                UserRepositorySql.GET_ROLE_ID_FOR_ROLE_CODE.getSql(),
-                createParams("roleCode", roleCode),
-                Long.class);
-
-        } catch (final EmptyResultDataAccessException ex) {
-            roleId = null;
-        }
-        return Optional.ofNullable(roleId);
-    }
-
-
-    public Optional<AccessRole> getRoleByCode(final String roleCode) {
-        Validate.notBlank(roleCode, "roleCode is required.");
-
-        AccessRole role;
-        try {
-            role = jdbcTemplate.queryForObject(
-                UserRepositorySql.GET_ROLE_BY_ROLE_CODE.getSql(),
-                createParams("roleCode", roleCode),
-                ACCESS_ROLE_MAPPER);
-
-        } catch (final EmptyResultDataAccessException ex) {
-            role = null;
-        }
-        return Optional.ofNullable(role);
-    }
-
-
-    public void addUserAssessibleCaseload(final String caseload, final String username) {
-        Validate.notBlank(caseload, "caseload is required.");
-        Validate.notBlank(username, "username is required.");
-
-        jdbcTemplate.update(
-            UserRepositorySql.USER_ACCESSIBLE_CASELOAD_INSERT.getSql(),
-            createParams("caseloadId", caseload, "username", username, "startDate", DateTimeConverter.toDate(LocalDate.now())));
-    }
-
-
     public List<StaffUserRole> getAllStaffRolesForCaseload(final String caseload, final String roleCode) {
         Validate.notBlank(caseload, "caseload is required.");
         Validate.notBlank(roleCode, "roleCode is required.");
@@ -176,31 +89,6 @@ public class UserRepository extends RepositoryBase {
             STAFF_USER_ROLE_MAPPER);
 
     }
-
-
-    @CacheEvict(value = "findRolesByUsername", allEntries = true)
-    public void addRole(final String username, final String caseload, final Long roleId) {
-        Validate.notBlank(caseload, "caseload is required.");
-        Validate.notBlank(username, "username is required.");
-        Validate.notNull(roleId, "roleId is required.");
-
-        jdbcTemplate.update(
-            UserRepositorySql.INSERT_USER_ROLE.getSql(),
-            createParams("caseloadId", caseload, "username", username, "roleId", roleId));
-    }
-
-
-    @CacheEvict(value = "findRolesByUsername", allEntries = true)
-    public int removeRole(final String username, final String caseload, final Long roleId) {
-        Validate.notBlank(caseload, "caseload is required.");
-        Validate.notBlank(username, "username is required.");
-        Validate.notNull(roleId, "roleId is required.");
-
-        return jdbcTemplate.update(
-            UserRepositorySql.DELETE_USER_ROLE.getSql(),
-            createParams("caseloadId", caseload, "username", username, "roleId", roleId));
-    }
-
 
     public List<UserDetail> findAllUsersWithCaseload(final String caseloadId, final String missingCaseloadId) {
         Validate.notBlank(caseloadId, "An caseload id is required.");
