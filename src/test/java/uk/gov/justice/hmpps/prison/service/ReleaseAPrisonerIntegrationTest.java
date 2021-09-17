@@ -11,7 +11,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.hmpps.prison.api.model.RequestToReleasePrisoner;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCaseNote;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
@@ -25,8 +24,6 @@ import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -179,25 +176,6 @@ public class ReleaseAPrisonerIntegrationTest {
             .extracting("domain", "code", "description")
             .contains("MOVE_TYPE", "REL", "Release");
     }
-
-    @Test
-    public void createsAReleaseCaseNote() {
-        releasePrisoner(OFFENDER_NO);
-
-        final var casesNotes = (List<OffenderCaseNote>) offenderCaseNoteRepository.findAll();
-
-        final var releaseCaseNote = casesNotes
-            .stream()
-            .filter(casesNote -> casesNote.getOffenderBooking().getBookingId().equals(-1L))
-            .sorted(Comparator.comparing(OffenderCaseNote::getCreateDatetime).reversed())
-            .findFirst()
-            .orElseThrow();
-
-        assertThat(releaseCaseNote.getCaseNoteText()).isEqualTo("Released from LEEDS for reason: Conditional Release (CJA91) -SH Term>1YR.");
-        assertThat(releaseCaseNote.getType()).extracting("code", "domain").contains("PRISON", "TASK_TYPE");
-        assertThat(releaseCaseNote.getSubType()).extracting("code", "domain").contains("RELEASE", "TASK_SUBTYPE");
-    }
-
     @Test
     public void putsOffenderBookingInTheCorrectState() {
         releasePrisoner(OFFENDER_NO);
