@@ -137,9 +137,6 @@ public class PrisonerReleaseAndTransferService {
 
         createOutMovement(booking, REL, movementReason, supportingPrison, toLocation, releaseDateTime, requestToReleasePrisoner.getCommentText(), null );
 
-        // generate the release case note
-        generateReleaseNote(booking, releaseDateTime, movementReason);
-
         // Update occupancy (recursively)
         updateBeds(booking, releaseDateTime);
 
