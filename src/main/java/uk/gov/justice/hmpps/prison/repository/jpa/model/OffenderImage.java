@@ -12,8 +12,6 @@ import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -62,8 +60,7 @@ public class OffenderImage extends AuditableEntity {
     private Long sequence;
 
     @Column(name = "ACTIVE_FLAG")
-    @Enumerated(EnumType.STRING)
-    private ActiveFlag activeFlag;
+    private String activeFlag;
 
     @Column(name = "FULL_SIZE_IMAGE")
     @Exclude

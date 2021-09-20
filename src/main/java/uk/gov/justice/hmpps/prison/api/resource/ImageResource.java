@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
+import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.ImageService;
 
 import java.util.List;
@@ -50,6 +51,7 @@ public class ImageResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation(value = "Image details related to offender.", nickname = "getImagesByOffender")
     @GetMapping("/offenders/{offenderNo}")
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     public List<ImageDetail> getImagesByOffender(@PathVariable("offenderNo") final String offenderNo) {
         return imageService.findOffenderImagesFor(offenderNo);
     }
