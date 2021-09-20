@@ -545,7 +545,7 @@ public class OffenderBooking extends ExtendedAuditableEntity {
 
     public Optional<OffenderImage> getLatestFaceImage() {
         return images.stream()
-            .filter(i -> i.getActiveFlag().isActive())
+            .filter(i -> "Y".equals(i.getActiveFlag()))
             .filter(i -> "OFF_BKG".equals(i.getImageType()))
             .filter(i -> "FACE".equals(i.getViewType()))
             .filter(i -> "FRONT".equals(i.getOrientationType()))
