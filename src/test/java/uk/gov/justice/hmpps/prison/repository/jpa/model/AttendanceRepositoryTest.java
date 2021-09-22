@@ -38,6 +38,6 @@ public class AttendanceRepositoryTest {
         System.out.println("\tId: " + activities.get(0).getEventId());
         System.out.println("\tProgProfId: " + activities.get(0).getOffenderProgramProfile().getOffenderProgramReferenceId());
         System.out.println("\tProgProfStart: " + activities.get(0).getOffenderProgramProfile().getStartDate());
-        System.out.println("\tSchSlot: " + activities.get(0).getCourseSchedule().getSlot());
+        // System.out.println("\tSchSlot: " + activities.get(0).getCourseSchedule().getSlot());
     }
 }
