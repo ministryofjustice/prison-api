@@ -36,4 +36,7 @@ public class OffenderAttendance {
 
     @ApiModelProperty(value = "The course description")
     private String description;
+
+    @ApiModelProperty(value = "The current status for the offender on this activity")
+    private String activityStatus;
 }
