@@ -7,7 +7,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Gender;
@@ -52,7 +51,7 @@ public class OffenderDamageObligationRepositoryTest {
             .id("LEI")
             .description("LEEDS")
             .type(AgencyLocationType.PRISON_TYPE)
-            .activeFlag(ActiveFlag.Y)
+            .active(true)
             .longDescription("HMP LEEDS")
             .build();
 

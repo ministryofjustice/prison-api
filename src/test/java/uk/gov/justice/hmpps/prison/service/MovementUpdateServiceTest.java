@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory;
@@ -148,7 +147,7 @@ class MovementUpdateServiceTest {
                                     .operationalCapacity(10)
                                     .capacity(10)
                                     .locationType("CELL")
-                                    .activeFlag(ActiveFlag.Y)
+                                    .active(true)
                                     .build()));
 
             assertThatThrownBy(() -> service.moveToCell(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC, SOME_REASON_CODE, SOME_TIME))
@@ -305,7 +304,7 @@ class MovementUpdateServiceTest {
         void noUpdateNeeded_returnsOriginalOffender() {
             final var offenderInCellSwap = OffenderBooking.builder()
                     .bookingId(SOME_BOOKING_ID)
-                    .activeFlag("Y")
+                    .active(true)
                     .location(AgencyLocation.builder().id("LEI").build())
                     .assignedLivingUnit(cellSwapLocation())
                     .build();
@@ -324,7 +323,7 @@ class MovementUpdateServiceTest {
         void noConfigured_cellSwapLocation() {
             final var offenderBooking = OffenderBooking.builder()
                     .bookingId(-1L)
-                    .activeFlag("Y")
+                    .active(true)
                     .location(AgencyLocation.builder().id("LEI").build())
                     .assignedLivingUnit(AgencyInternalLocation.builder().locationId(-1L).build())
                     .build();
@@ -366,7 +365,7 @@ class MovementUpdateServiceTest {
                 .locationId(CELL_SWAP_LOCATION_ID)
                 .locationCode(CELL_SWAP_LOCATION_CODE)
                 .description(CELL_SWAP_LOCATION_DESCRIPTION)
-                .activeFlag(ActiveFlag.Y)
+                .active(true)
                 .build();
     }
 
@@ -388,7 +387,7 @@ class MovementUpdateServiceTest {
                         .currentOccupancy(1)
                         .locationType("CELL")
                         .locationCode(locationCode)
-                        .activeFlag(ActiveFlag.Y)
+                        .active(true)
                         .build()
         );
     }

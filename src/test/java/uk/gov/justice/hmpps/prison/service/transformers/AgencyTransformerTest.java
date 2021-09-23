@@ -3,7 +3,6 @@ package uk.gov.justice.hmpps.prison.service.transformers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 
@@ -21,7 +20,7 @@ public class AgencyTransformerTest {
 
     @Test
     void transform_active_and_description_capitalisation() {
-        var agency = builder.activeFlag(ActiveFlag.Y).build();
+        var agency = builder.active(true).build();
 
         assertThat(transform(agency, false)).isEqualTo(
                 Agency.builder()
@@ -34,7 +33,7 @@ public class AgencyTransformerTest {
 
     @Test
     void transform_inactive() {
-        var agency = builder.activeFlag(ActiveFlag.N).build();
+        var agency = builder.active(false).build();
 
         assertThat(transform(agency, false)).isEqualTo(
                 Agency.builder()

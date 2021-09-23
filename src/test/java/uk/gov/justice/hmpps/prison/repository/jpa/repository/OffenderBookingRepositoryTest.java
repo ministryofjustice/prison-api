@@ -8,7 +8,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
@@ -167,7 +166,7 @@ public class OffenderBookingRepositoryTest {
                                 .id("COURT1")
                                 .description("Court 1")
                                 .type(AgencyLocationType.COURT_TYPE)
-                                .activeFlag(ActiveFlag.Y)
+                                .active(true)
                                 .build());
     }
 
@@ -214,25 +213,25 @@ public class OffenderBookingRepositoryTest {
     void getOffenderPropertyContainers() {
         final var parentParentLocation = AgencyInternalLocation.builder().locationId(-1L).locationType("WING").agencyId("LEI")
             .currentOccupancy(null).operationalCapacity(13).description("LEI-A").userDescription("Block A").capacity(14)
-            .certifiedFlag(ActiveFlag.Y).locationCode("A").activeFlag(ActiveFlag.Y).build();
+            .certifiedFlag(true).locationCode("A").active(true).build();
 
         final var parentLocation = AgencyInternalLocation.builder().locationId(-2L).locationType("LAND").agencyId("LEI").capacity(14)
             .currentOccupancy(null).operationalCapacity(13).description("LEI-A-1").parentLocation(parentParentLocation).userDescription("Landing A/1")
-            .certifiedFlag(ActiveFlag.Y).locationCode("1").activeFlag(ActiveFlag.Y).build();
+            .certifiedFlag(true).locationCode("1").active(true).build();
 
         assertThat(repository.findById(-1L).orElseThrow().getPropertyContainers()).flatExtracting(
                 OffenderPropertyContainer::getContainerId,
                 OffenderPropertyContainer::getSealMark,
                 OffenderPropertyContainer::getInternalLocation,
-                OffenderPropertyContainer::getActiveFlag,
+                OffenderPropertyContainer::isActive,
                 OffenderPropertyContainer::getContainerType)
                 .containsAnyOf(
                         -1L,
                         "TEST10",
                         AgencyInternalLocation.builder()
                                 .locationId(-10L)
-                                .activeFlag(ActiveFlag.Y)
-                                .certifiedFlag(ActiveFlag.Y)
+                                .active(true)
+                                .certifiedFlag(true)
                                 .locationType("CELL")
                                 .agencyId("LEI")
                                 .description("LEI-A-1-8")
@@ -250,15 +249,15 @@ public class OffenderBookingRepositoryTest {
     }
 
     @Test
-    void findByOffenderNomsIdAndActiveFlag() {
-        final var optionalOffenderBooking = repository.findByOffenderNomsIdAndActiveFlag("A1234AA", "Y");
+    void findByOffenderNomsIdAndActive() {
+        final var optionalOffenderBooking = repository.findByOffenderNomsIdAndActive("A1234AA", true);
         //noinspection unchecked
         assertThat(optionalOffenderBooking).get().extracting(OffenderBooking::getBookingId, OffenderBooking::getRootOffenderId).containsExactly(-1L, -1001L);
     }
 
     @Test
-    void findByOffenderNomsIdAndActiveFlagIsN() {
-        final var optionalOffenderBooking = repository.findByOffenderNomsIdAndActiveFlag("A1234AA", "N");
+    void findByOffenderNomsIdAndActiveIsN() {
+        final var optionalOffenderBooking = repository.findByOffenderNomsIdAndActive("A1234AA", false);
         assertThat(optionalOffenderBooking).isEmpty();
     }
 }

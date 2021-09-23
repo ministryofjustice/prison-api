@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,7 @@ import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -66,7 +68,9 @@ public class AvailablePrisonIepLevel extends AuditableEntity  {
     private IepLevel iepLevel;
 
     @Column(name = "ACTIVE_FLAG", nullable = false)
-    private String activeFlag;
+    @Type(type="yes_no")
+    @Default
+    private boolean active = true;
 
     @Column(name = "EXPIRY_DATE")
     private String expiryDate;

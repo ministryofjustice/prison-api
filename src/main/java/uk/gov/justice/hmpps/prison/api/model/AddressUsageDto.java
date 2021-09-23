@@ -21,6 +21,6 @@ public class AddressUsageDto {
     private String addressUsage;
     @ApiModelProperty(value = "The address usages description", example = "HDC Address", position = 3)
     private String addressUsageDescription;
-    @ApiModelProperty(value = "Active Flag", example = "Y", allowableValues = "Y,N", position = 4)
+    @ApiModelProperty(value = "Active Flag", example = "true", position = 4)
     private Boolean activeFlag;
 }

@@ -81,7 +81,7 @@ public class ReleaseAPrisonerIntegrationTest {
         final var offenderBooking = getOffenderBooking(OFFENDER_NO, false);
 
         final var activeExternalMovements =
-            offenderBooking.getExternalMovements().stream().filter(externalMovement -> externalMovement.getActiveFlag().isActive()).count();
+            offenderBooking.getExternalMovements().stream().filter(externalMovement -> externalMovement.isActive()).count();
 
         assertThat(activeExternalMovements).isOne();
     }
@@ -167,7 +167,7 @@ public class ReleaseAPrisonerIntegrationTest {
         releasePrisoner(OFFENDER_NO);
 
         final var releaseExternalMovement =
-            getOffenderBooking(OFFENDER_NO, false).getExternalMovements().stream().filter(externalMovement -> externalMovement.getActiveFlag().isActive())
+            getOffenderBooking(OFFENDER_NO, false).getExternalMovements().stream().filter(externalMovement -> externalMovement.isActive())
                 .findFirst()
                 .orElseThrow();
 
@@ -219,8 +219,8 @@ public class ReleaseAPrisonerIntegrationTest {
             .contains("OUT", "N", "C", null, null, LocalDateTime.now(clock), agencyOutside, "REL-CR", null);
     }
 
-    private OffenderBooking getOffenderBooking(final String offenderNo, final Boolean activeFlag) {
-        return offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(offenderNo, activeFlag ? "Y" : "N").orElseThrow();
+    private OffenderBooking getOffenderBooking(final String offenderNo, final Boolean active) {
+        return offenderBookingRepository.findByOffenderNomsIdAndActive(offenderNo, active).orElseThrow();
     }
 
     private void releasePrisoner(final String offenderNo) {

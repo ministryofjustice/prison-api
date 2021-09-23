@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.KeyDateAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 
@@ -30,7 +29,7 @@ public class KeyDateAdjustmentRepositoryTest {
                                     .builder()
                                     .id(-8L)
                                     .sentenceAdjustCode("ADA")
-                                    .activeFlag(ActiveFlag.Y)
+                                    .active(true)
                                 .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                                     .adjustDays(4)
                                     .build(),
@@ -38,7 +37,7 @@ public class KeyDateAdjustmentRepositoryTest {
                                     .builder()
                                     .id(-9L)
                                     .sentenceAdjustCode("ADA")
-                                    .activeFlag(ActiveFlag.N)
+                                    .active(false)
                                 .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                                     .adjustDays(9)
                                     .build(),
@@ -46,7 +45,7 @@ public class KeyDateAdjustmentRepositoryTest {
                                     .builder()
                                     .id(-10L)
                                     .sentenceAdjustCode("ADA")
-                                    .activeFlag(ActiveFlag.Y)
+                                    .active(true)
                                 .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                                     .adjustDays(13)
                                     .build(),
@@ -54,7 +53,7 @@ public class KeyDateAdjustmentRepositoryTest {
                                     .builder()
                                     .id(-11L)
                                     .sentenceAdjustCode("UAL")
-                                    .activeFlag(ActiveFlag.N)
+                                    .active(false)
                                 .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                                     .adjustDays(1)
                                     .build(),
@@ -62,7 +61,7 @@ public class KeyDateAdjustmentRepositoryTest {
                                     .builder()
                                     .id(-12L)
                                     .sentenceAdjustCode("RADA")
-                                    .activeFlag(ActiveFlag.Y)
+                                    .active(true)
                                 .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                                     .adjustDays(2)
                                     .build(),
@@ -70,7 +69,7 @@ public class KeyDateAdjustmentRepositoryTest {
                                     .builder()
                                     .id(-13L)
                                     .sentenceAdjustCode("UAL")
-                                    .activeFlag(ActiveFlag.Y)
+                                    .active(true)
                                 .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                                     .adjustDays(7)
                                     .build()

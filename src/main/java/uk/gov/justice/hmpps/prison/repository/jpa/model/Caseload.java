@@ -6,11 +6,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.time.LocalDate;
@@ -37,8 +36,8 @@ public class Caseload extends AuditableEntity {
     private String type;
 
     @Column(name = "ACTIVE_FLAG", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private ActiveFlag activeFlag;
+    @Type(type="yes_no")
+    private boolean active;
 
     @Column(name = "DEACTIVATION_DATE", nullable = false)
     private LocalDate deactivationDate;

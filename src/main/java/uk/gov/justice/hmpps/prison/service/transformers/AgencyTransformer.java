@@ -5,7 +5,6 @@ import uk.gov.justice.hmpps.prison.api.model.Agency.AgencyBuilder;
 import uk.gov.justice.hmpps.prison.api.model.Email;
 import uk.gov.justice.hmpps.prison.api.model.RequestToCreateAgency;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateAgency;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtType;
@@ -36,7 +35,7 @@ public class AgencyTransformer {
         return Agency.builder()
             .agencyId(agency.getId())
             .agencyType(agency.getType() != null ? agency.getType().getCode() : null)
-            .active(agency.getActiveFlag() != null && agency.getActiveFlag().isActive())
+            .active(agency.isActive())
             .description(skipFormatLocation ? agency.getDescription() : LocationProcessor.formatLocation(agency.getDescription()))
             .courtType(agency.getCourtType() != null ? agency.getCourtType().getCode() : null)
             .longDescription(agency.getLongDescription())
@@ -47,7 +46,7 @@ public class AgencyTransformer {
         return AgencyLocation.builder()
             .id(agency.getAgencyId())
             .type(type)
-            .activeFlag(agency.isActive() ? ActiveFlag.Y : ActiveFlag.N)
+            .active(agency.isActive())
             .description(agency.getDescription())
             .longDescription(agency.getLongDescription())
             .deactivationDate(agency.isActive() ? null : LocalDate.now())
@@ -56,7 +55,7 @@ public class AgencyTransformer {
     }
 
     public static AgencyLocation update(final AgencyLocation agencyLocation, final RequestToUpdateAgency agency, final AgencyLocationType type, final CourtType courtType) {
-        agencyLocation.setActiveFlag(agency.isActive() ? ActiveFlag.Y : ActiveFlag.N);
+        agencyLocation.setActive(agency.isActive());
         agencyLocation.setDescription(agency.getDescription());
         agencyLocation.setDeactivationDate(agency.isActive() ? null : LocalDate.now());
         agencyLocation.setType(type);

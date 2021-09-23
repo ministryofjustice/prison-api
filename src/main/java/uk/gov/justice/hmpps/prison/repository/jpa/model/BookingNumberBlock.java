@@ -6,11 +6,10 @@ import lombok.Builder.Default;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -40,12 +39,12 @@ public class BookingNumberBlock extends AuditableEntity {
     private Integer lastUsed;
 
     @Column(name = "ACTIVE_FLAG")
-    @Enumerated(EnumType.STRING)
-    private ActiveFlag activeFlag;
+    @Type(type="yes_no")
+    private boolean active;
 
     @Column(name = "USED_FLAG", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private ActiveFlag usedFlag;
+    @Type(type="yes_no")
+    private boolean usedFlag;
 
     @Column(name = "PREFIX_OR_SUFFIX", nullable = false)
     @Default

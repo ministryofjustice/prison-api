@@ -81,7 +81,7 @@ public class FinanceService {
     @PreAuthorize("hasAnyRole('SYSTEM_USER', 'NOMIS_API_V1')")
     public TransferTransactionDetail transferToSavings(final String prisonId, final String offenderNo, final TransferTransaction transferTransaction,
                                                        final String clientUniqueId) {
-        final var optionalOffenderBooking = offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(offenderNo, "Y");
+        final var optionalOffenderBooking = offenderBookingRepository.findByOffenderNomsIdAndActive(offenderNo, true);
         final var booking = optionalOffenderBooking.orElseThrow(EntityNotFoundException.withMessage("No active offender bookings found for offender number %s", offenderNo));
 
         final var subActTypeDr = SPENDS.code;

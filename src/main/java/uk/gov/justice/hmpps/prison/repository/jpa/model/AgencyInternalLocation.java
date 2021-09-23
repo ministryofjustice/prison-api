@@ -9,11 +9,10 @@ import lombok.ToString;
 import lombok.ToString.Exclude;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -36,12 +35,12 @@ public class AgencyInternalLocation {
     private Long locationId;
 
     @Column(name = "ACTIVE_FLAG")
-    @Enumerated(EnumType.STRING)
-    private ActiveFlag activeFlag;
+    @Type(type="yes_no")
+    private boolean active;
 
     @Column(name = "CERTIFIED_FLAG")
-    @Enumerated(EnumType.STRING)
-    private ActiveFlag certifiedFlag;
+    @Type(type="yes_no")
+    private boolean certifiedFlag;
 
     @Column(name = "INTERNAL_LOCATION_TYPE")
     private String locationType;
@@ -72,21 +71,13 @@ public class AgencyInternalLocation {
     @Column(name = "CAPACITY")
     private Integer capacity;
 
-    public boolean isActive() {
-        return activeFlag != null && activeFlag.isActive();
-    }
-
-    public boolean isCertified() {
-        return certifiedFlag != null && certifiedFlag.isActive();
-    }
-
     public boolean isCell() {
         return locationType != null && locationType.equals("CELL");
     }
 
     public boolean isCellSwap() {
-        return (certifiedFlag == null || !certifiedFlag.isActive()) &&
-                (activeFlag == null || activeFlag.isActive()) &&
+        return !isCertifiedFlag() &&
+                isActive() &&
                 parentLocation == null &&
                 locationCode != null &&
                 locationCode.equals("CSWAP");

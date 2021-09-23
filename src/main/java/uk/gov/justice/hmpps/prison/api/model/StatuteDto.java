@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 
 @ApiModel(description = "Statute")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -26,6 +25,6 @@ public class StatuteDto {
     private String legislatingBodyCode;
 
     @ApiModelProperty(required = true, value = "Active Y/N", example = "Y", position = 4)
-    private ActiveFlag activeFlag;
+    private String activeFlag;
 
 }

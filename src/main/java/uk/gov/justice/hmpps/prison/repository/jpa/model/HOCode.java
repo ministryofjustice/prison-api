@@ -6,11 +6,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.time.LocalDate;
@@ -33,8 +32,8 @@ public class HOCode extends ExtendedAuditableEntity{
     private String description;
 
     @Column(name = "ACTIVE_FLAG", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private ActiveFlag activeFlag;
+    @Type(type="yes_no")
+    private boolean active;
 
     @Column(name = "EXPIRY_DATE")
     private LocalDate expiryDate;

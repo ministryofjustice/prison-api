@@ -70,14 +70,14 @@ public class ReferenceDomainServiceImplTest {
     @Test
     public void testReferenceCodeIsActive() {
         when(repository.getReferenceCodeByDomainAndCode("HDC_APPROVE", "APPROVED", false))
-                .thenReturn(Optional.of(ReferenceCode.builder().activeFlag("Y").build()));
+                .thenReturn(Optional.of(ReferenceCode.builder().active(true).build()));
         assertThat(service.isReferenceCodeActive("HDC_APPROVE", "APPROVED")).isTrue();
     }
 
     @Test
     public void testReferenceCodeIsNotActive() {
         when(repository.getReferenceCodeByDomainAndCode("HDC_APPROVE", "DISABLED", false))
-                .thenReturn(Optional.of(ReferenceCode.builder().activeFlag("N").build()));
+                .thenReturn(Optional.of(ReferenceCode.builder().active(false).build()));
         assertThat(service.isReferenceCodeActive("HDC_APPROVE", "DISABLED")).isFalse();
     }
 

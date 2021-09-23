@@ -9,7 +9,6 @@ import uk.gov.justice.hmpps.prison.api.model.ReasonableAdjustment;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.repository.BookingRepository;
 import uk.gov.justice.hmpps.prison.repository.InmateRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
@@ -278,7 +277,7 @@ public class BookingResourceImplIntTest extends ResourceTest {
                         .beginDate(LocalDate.EPOCH)
                         .agencyLocation(AgencyLocation.builder()
                                 .id("MDI")
-                                .activeFlag(ActiveFlag.Y)
+                                .active(true)
                                 .type(AgencyLocationType.COURT_TYPE)
                                 .description("Moorland")
                                 .build())
@@ -295,7 +294,7 @@ public class BookingResourceImplIntTest extends ResourceTest {
                                         .description("Court 1")
                                         .type(AgencyLocationType.COURT_TYPE)
                                         .courtType(new CourtType("MC", "Mag Court"))
-                                        .activeFlag(ActiveFlag.Y)
+                                        .active(true)
                                         .build())
                                 .build()))
                         .build()))
@@ -317,7 +316,7 @@ public class BookingResourceImplIntTest extends ResourceTest {
                                 .beginDate(LocalDate.EPOCH)
                                 .agencyLocation(AgencyLocation.builder()
                                         .id("MDI")
-                                        .activeFlag(ActiveFlag.Y)
+                                        .active(true)
                                         .type(AgencyLocationType.COURT_TYPE)
                                         .description("Moorland")
                                         .build())
@@ -334,7 +333,7 @@ public class BookingResourceImplIntTest extends ResourceTest {
                                                 .description("Court 1")
                                                 .type(AgencyLocationType.COURT_TYPE)
                                                 .courtType(new CourtType("MC", "Mag Court"))
-                                                .activeFlag(ActiveFlag.Y)
+                                                .active(true)
                                                 .build())
                                         .build()))
                                 .build(),
@@ -344,7 +343,7 @@ public class BookingResourceImplIntTest extends ResourceTest {
                                 .beginDate(LocalDate.EPOCH)
                                 .agencyLocation(AgencyLocation.builder()
                                         .id("MDI")
-                                        .activeFlag(ActiveFlag.Y)
+                                        .active(true)
                                         .type(AgencyLocationType.COURT_TYPE)
                                         .description("Moorland")
                                         .build())
@@ -361,7 +360,7 @@ public class BookingResourceImplIntTest extends ResourceTest {
                                                 .description("Court 1")
                                                 .type(AgencyLocationType.COURT_TYPE)
                                                 .courtType(new CourtType("MC", "Mag Court"))
-                                                .activeFlag(ActiveFlag.Y)
+                                                .active(true)
                                                 .build())
                                         .build()))
                                 .build()))
@@ -377,21 +376,21 @@ public class BookingResourceImplIntTest extends ResourceTest {
     public void getPropertyContainers() {
         final var parentParentLocation = AgencyInternalLocation.builder().locationId(-1L).locationType("WING").agencyId("LEI")
             .currentOccupancy(null).operationalCapacity(13).description("LEI-A").userDescription("Block A").capacity(14)
-            .certifiedFlag(ActiveFlag.Y).locationCode("A").activeFlag(ActiveFlag.Y).build();
+            .certifiedFlag(true).locationCode("A").active(true).build();
 
         final var parentLocation = AgencyInternalLocation.builder().locationId(-2L).locationType("LAND").agencyId("LEI").capacity(14)
             .currentOccupancy(null).operationalCapacity(13).description("LEI-A-1").parentLocation(parentParentLocation).userDescription("Landing A/1")
-            .certifiedFlag(ActiveFlag.Y).locationCode("1").activeFlag(ActiveFlag.Y).build();
+            .certifiedFlag(true).locationCode("1").active(true).build();
 
         when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.of(
             OffenderBooking.builder()
                 .propertyContainers(List.of(
                     OffenderPropertyContainer.builder()
                         .containerId(-1L)
-                        .activeFlag("Y")
+                        .active(true)
                         .internalLocation(AgencyInternalLocation.builder()
                                 .locationId(-10L)
-                                .activeFlag(ActiveFlag.Y)
+                                .active(true)
                                 .locationType("CELL")
                                 .agencyId("LEI")
                                 .description("LEI-A-1-8")

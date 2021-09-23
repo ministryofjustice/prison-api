@@ -14,7 +14,6 @@ import uk.gov.justice.hmpps.prison.api.model.CaseNoteEvent;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageByBookingId;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteSubType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCaseNote;
@@ -228,7 +227,7 @@ public class CaseNoteRepositoryTest {
             .author(staffUserAccountRepository.findById("ITAG_USER").orElseThrow().getStaff())
             .occurrenceDateTime(newCaseNote.getOccurrenceDateTime())
             .occurrenceDate(newCaseNote.getOccurrenceDateTime().toLocalDate())
-            .amendmentFlag(ActiveFlag.N)
+            .amendmentFlag(false)
             .offenderBooking(offenderBookingRepository.findById(bookingId).orElseThrow())
             .build();
         final var id = offenderCaseNoteRepository.save(caseNote).getId();

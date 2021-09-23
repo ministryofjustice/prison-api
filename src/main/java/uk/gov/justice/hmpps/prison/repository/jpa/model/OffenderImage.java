@@ -8,6 +8,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.Type;
 import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
 
 import javax.persistence.Column;
@@ -60,7 +61,8 @@ public class OffenderImage extends AuditableEntity {
     private Long sequence;
 
     @Column(name = "ACTIVE_FLAG")
-    private String activeFlag;
+    @Type(type="yes_no")
+    private boolean active;
 
     @Column(name = "FULL_SIZE_IMAGE")
     @Exclude

@@ -31,12 +31,12 @@ public class OffenderBookingTest {
 
         @Test
         void isActive_is_not_active_when_active_flag_n() {
-            assertThat(OffenderBooking.builder().activeFlag("N").build().isActive()).isFalse();
+            assertThat(OffenderBooking.builder().active(false).build().isActive()).isFalse();
         }
 
         @Test
         void isActive_is_active_when_active_flag_y() {
-            assertThat(OffenderBooking.builder().activeFlag("Y").build().isActive()).isTrue();
+            assertThat(OffenderBooking.builder().active(true).build().isActive()).isTrue();
         }
 
         @Test

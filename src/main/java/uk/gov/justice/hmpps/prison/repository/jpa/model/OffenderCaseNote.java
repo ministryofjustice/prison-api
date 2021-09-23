@@ -10,12 +10,11 @@ import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.Type;
 import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -77,8 +76,8 @@ public class OffenderCaseNote extends AuditableEntity {
     private String caseNoteText;
 
     @Column(name = "AMENDMENT_FLAG")
-    @Enumerated(EnumType.STRING)
-    private ActiveFlag amendmentFlag;
+    @Type(type="yes_no")
+    private boolean amendmentFlag;
 
     @ManyToOne(optional = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "AGY_LOC_ID", nullable = true)

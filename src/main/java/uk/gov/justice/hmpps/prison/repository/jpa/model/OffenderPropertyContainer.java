@@ -9,6 +9,7 @@ import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -43,7 +44,8 @@ public class OffenderPropertyContainer {
     private AgencyInternalLocation internalLocation;
 
     @Column(name = "ACTIVE_FLAG")
-    private String activeFlag;
+    @Type(type="yes_no")
+    private boolean active;
 
     @Column(name = "SEAL_MARK")
     private String sealMark;
@@ -55,10 +57,7 @@ public class OffenderPropertyContainer {
             @JoinColumnOrFormula(column = @JoinColumn(name = "CONTAINER_CODE", referencedColumnName = "code"))
     })
     private PropertyContainer containerType;
-
-    public boolean isActive() {
-        return activeFlag != null && activeFlag.equals("Y");
-    }
+    
 
 
 }

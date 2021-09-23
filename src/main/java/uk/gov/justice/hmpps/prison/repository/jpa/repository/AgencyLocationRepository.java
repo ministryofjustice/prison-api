@@ -2,7 +2,6 @@ package uk.gov.justice.hmpps.prison.repository.jpa.repository;
 
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.CrudRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 
@@ -13,8 +12,8 @@ public interface AgencyLocationRepository extends CrudRepository<AgencyLocation,
 
     Optional<AgencyLocation> findByIdAndDeactivationDateIsNull(String id);
 
-    Optional<AgencyLocation> findByIdAndTypeAndActiveFlagAndDeactivationDateIsNull(String id, AgencyLocationType type, ActiveFlag activeFlag);
+    Optional<AgencyLocation> findByIdAndTypeAndActiveAndDeactivationDateIsNull(String id, AgencyLocationType type, boolean active);
 
-    List<AgencyLocation> findByTypeAndActiveFlagAndDeactivationDateIsNull(AgencyLocationType type, ActiveFlag activeFlag);
+    List<AgencyLocation> findByTypeAndActiveAndDeactivationDateIsNull(AgencyLocationType type, boolean active);
 
 }

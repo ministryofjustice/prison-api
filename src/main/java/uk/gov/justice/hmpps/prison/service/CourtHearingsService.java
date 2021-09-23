@@ -192,7 +192,7 @@ public class CourtHearingsService {
         final var agency = agencyLocationRepository.findById(courtLocation).orElseThrow(EntityNotFoundException.withMessage("Court with id %s not found.", courtLocation));
 
         checkArgument(agency.getType().getCode().equalsIgnoreCase("CRT"), "Supplied court location wih id %s is not a valid court location.", courtLocation);
-        checkArgument(agency.getActiveFlag().isActive(), "Supplied court location wih id %s is not active.", courtLocation);
+        checkArgument(agency.isActive(), "Supplied court location wih id %s is not active.", courtLocation);
 
         return agency;
     }

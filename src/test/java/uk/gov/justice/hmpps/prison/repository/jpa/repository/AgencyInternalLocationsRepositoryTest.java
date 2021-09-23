@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,28 +20,28 @@ public class AgencyInternalLocationsRepositoryTest {
     private AgencyInternalLocationRepository repository;
 
     @Test
-    public void findLocationsByAgencyIdAndLocationTypeAndActiveFlag_returnsAllLocations() {
-        final var locations = repository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActiveFlag("SYI", "CELL", ActiveFlag.Y);
+    public void findLocationsByAgencyIdAndLocationTypeAndActive_returnsAllLocations() {
+        final var locations = repository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive("SYI", "CELL", true);
 
         assertThat(locations).extracting("locationId").containsExactlyInAnyOrder(-202L, -204L, -207L);
     }
 
     @Test
-    public void findLocationsByAgencyIdAndLocationTypeAndActiveFlag_hydratesReturnObject() {
+    public void findLocationsByAgencyIdAndLocationTypeAndActive_hydratesReturnObject() {
 
         final var parentParentLocation = AgencyInternalLocation.builder().locationId(-205L).locationType("WING").agencyId("SYI")
             .currentOccupancy(20).operationalCapacity(20).description("SYI-H").capacity(null)
-            .certifiedFlag(ActiveFlag.Y).locationCode("H").activeFlag(ActiveFlag.Y).build();
+            .certifiedFlag(true).locationCode("H").active(true).build();
 
         final var parentLocation = AgencyInternalLocation.builder().locationId(-206L).locationType("LAND").agencyId("SYI").capacity(null)
             .currentOccupancy(20).operationalCapacity(20).description("SYI-H-1").parentLocation(parentParentLocation).userDescription("Landing H/1")
-            .certifiedFlag(ActiveFlag.Y).locationCode("1").activeFlag(ActiveFlag.Y).build();
+            .certifiedFlag(true).locationCode("1").active(true).build();
 
         final var expected = AgencyInternalLocation.builder().locationId(-207L).locationType("CELL").agencyId("SYI")
                 .currentOccupancy(1).operationalCapacity(1).description("SYI-H-1-1").parentLocation(parentLocation).userDescription("Cell H/1-1")
-                .certifiedFlag(ActiveFlag.Y).locationCode("1").activeFlag(ActiveFlag.Y).build();
+                .certifiedFlag(true).locationCode("1").active(true).build();
 
-        final var locations = repository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActiveFlag("SYI", "CELL", ActiveFlag.Y);
+        final var locations = repository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive("SYI", "CELL", true);
 
         final var actual = locations.stream().filter(l -> l.getLocationId().equals(expected.getLocationId())).findFirst().get();
         assertThat(actual).isEqualTo(expected);

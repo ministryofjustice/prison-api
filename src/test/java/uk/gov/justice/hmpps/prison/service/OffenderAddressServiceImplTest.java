@@ -52,7 +52,7 @@ public class OffenderAddressServiceImplTest {
         final var offender = Offender.builder().rootOffenderId(1L).build();
         offender.setRootOffender(offender);
         final var offenderBooking = OffenderBooking.builder().offender(offender).build();
-        when(offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(any(), any())).thenReturn(Optional.of(offenderBooking));
+        when(offenderBookingRepository.findByOffenderNomsIdAndActive(any(), any())).thenReturn(Optional.of(offenderBooking));
         offenderBooking.getOffender().setAddresses(List.of(
                 OffenderAddress.builder()
                         .addressId(-15L)
@@ -86,8 +86,8 @@ public class OffenderAddressServiceImplTest {
                             .extNo(null)
                             .build()))
                         .addressUsages(List.of(
-                                AddressUsage.builder().activeFlag("Y").addressUsage("HDC").addressUsageType(new AddressUsageType("HDC", "HDC address")).build(),
-                                AddressUsage.builder().activeFlag("Y").addressUsage("HDC").build()
+                                AddressUsage.builder().active(true).addressUsage("HDC").addressUsageType(new AddressUsageType("HDC", "HDC address")).build(),
+                                AddressUsage.builder().active(true).addressUsage("HDC").build()
                         ))
                         .build(),
             OffenderAddress.builder()
@@ -113,7 +113,7 @@ public class OffenderAddressServiceImplTest {
 
         List<AddressDto> results = offenderAddressService.getAddressesByOffenderNo(offenderNo);
 
-        verify(offenderBookingRepository).findByOffenderNomsIdAndActiveFlag(offenderNo, "Y");
+        verify(offenderBookingRepository).findByOffenderNomsIdAndActive(offenderNo, true);
 
         assertThat(results).isEqualTo(List.of(
                 AddressDto.builder()
@@ -181,7 +181,7 @@ public class OffenderAddressServiceImplTest {
 
     @Test
     public void testThatExceptionIsThrown_WhenNoActiveOffenderBookingsAreFound() {
-        when(offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(any(), any()))
+        when(offenderBookingRepository.findByOffenderNomsIdAndActive(any(), any()))
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> {

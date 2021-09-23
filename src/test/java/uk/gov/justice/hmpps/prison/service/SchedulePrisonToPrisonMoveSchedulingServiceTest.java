@@ -7,7 +7,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.SchedulePrisonToPrisonMove;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledPrisonToPrisonMove;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EscortAgencyType;
@@ -45,21 +44,21 @@ class SchedulePrisonToPrisonMoveSchedulingServiceTest {
     private static final String FROM_PRISON = "A";
 
     private static final AgencyLocation FROM_PRISON_AGENCY = AgencyLocation
-            .builder().id(FROM_PRISON).description("Prison A description").activeFlag(ActiveFlag.Y).build();
+            .builder().id(FROM_PRISON).description("Prison A description").active(true).build();
 
     private static final String TO_PRISON = "B";
 
     private static final AgencyLocation TO_PRISON_AGENCY = AgencyLocation
-            .builder().id(TO_PRISON).description("Prison A description").activeFlag(ActiveFlag.Y).type(new AgencyLocationType("INST")).build();
+            .builder().id(TO_PRISON).description("Prison A description").active(true).type(new AgencyLocationType("INST")).build();
 
     private static final String PRISON_ESCORT_CUSTODY_SERVICES = "PECS";
 
     private static final OffenderBooking ACTIVE_BOOKING = OffenderBooking
             .builder()
-            .activeFlag("Y")
+            .active(true)
             .bookingId(OFFENDER_BOOKING_ID)
             .location(AgencyLocation.builder()
-                    .activeFlag(ActiveFlag.Y)
+                    .active(true)
                     .id(FROM_PRISON)
                     .description("Prison A description")
                     .build())
@@ -70,10 +69,10 @@ class SchedulePrisonToPrisonMoveSchedulingServiceTest {
 
     private static final OffenderBooking INACTIVE_BOOKING = OffenderBooking
             .builder()
-            .activeFlag("N")
+            .active(false)
             .bookingId(OFFENDER_BOOKING_ID)
             .location(AgencyLocation.builder()
-                    .activeFlag(ActiveFlag.Y)
+                    .active(true)
                     .id(FROM_PRISON)
                     .description("Prison A description")
                     .build())
@@ -231,7 +230,7 @@ class SchedulePrisonToPrisonMoveSchedulingServiceTest {
     private void givenAnInActiveBooking() {
         when(offenderBookingRepository.findById(OFFENDER_BOOKING_ID)).thenReturn(Optional.of(OffenderBooking
                 .builder()
-                .activeFlag("N")
+                .active(false)
                 .bookingId(OFFENDER_BOOKING_ID)
                 .build()));
     }
@@ -460,19 +459,19 @@ class SchedulePrisonToPrisonMoveSchedulingServiceTest {
 
     private void andToPrisonNotActive() {
         when(agencyLocationRepository.findById(TO_PRISON)).thenReturn(Optional.of(AgencyLocation.builder()
-                .activeFlag(ActiveFlag.Y)
+                .active(true)
                 .id(TO_PRISON)
                 .description("Prison B description")
-                .activeFlag(ActiveFlag.N)
+                .active(false)
                 .build()));
     }
 
     private void andToPrisonIsNotPrison() {
         when(agencyLocationRepository.findById(TO_PRISON)).thenReturn(Optional.of(AgencyLocation.builder()
-                .activeFlag(ActiveFlag.Y)
+                .active(true)
                 .id(TO_PRISON)
                 .description("Prison B description")
-                .activeFlag(ActiveFlag.Y)
+                .active(true)
                 .type(AgencyLocationType.COURT_TYPE)
                 .build()));
     }

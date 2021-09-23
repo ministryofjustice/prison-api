@@ -7,7 +7,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.CourtHearing;
 import uk.gov.justice.hmpps.prison.api.model.PrisonToCourtHearing;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus;
@@ -55,7 +54,7 @@ public class CourtHearingsServiceTest {
             .build();
 
     private static final AgencyLocation COURT_LOCATION = AgencyLocation.builder()
-            .activeFlag(ActiveFlag.Y)
+            .active(true)
             .description("Agency Description")
             .id("COURT")
             .type(AgencyLocationType.COURT_TYPE)
@@ -168,7 +167,7 @@ public class CourtHearingsServiceTest {
     private void givenValidBookingLocationsAndCases(final OffenderCourtCase... cases) {
         offenderBooking = OffenderBooking
                 .builder()
-                .activeFlag("Y")
+                .active(true)
                 .bookingId(OFFENDER_BOOKING_ID)
                 .location(fromPrison)
                 .courtCases(List.of(cases))
@@ -223,7 +222,7 @@ public class CourtHearingsServiceTest {
     private void givenNoActiveBooking() {
         offenderBooking = OffenderBooking
                 .builder()
-                .activeFlag("N")
+                .active(false)
                 .bookingId(OFFENDER_BOOKING_ID)
                 .location(fromPrison)
                 .build();
@@ -243,7 +242,7 @@ public class CourtHearingsServiceTest {
     private void givenNoMatchingCourtCaseForActiveBooking() {
         offenderBooking = OffenderBooking
                 .builder()
-                .activeFlag("Y")
+                .active(true)
                 .bookingId(OFFENDER_BOOKING_ID)
                 .location(fromPrison)
                 .build();
@@ -263,7 +262,7 @@ public class CourtHearingsServiceTest {
     private void givenNoActiveCourtCase() {
         offenderBooking = OffenderBooking
                 .builder()
-                .activeFlag("Y")
+                .active(true)
                 .bookingId(OFFENDER_BOOKING_ID)
                 .location(fromPrison)
                 .courtCases(List.of(OffenderCourtCase.builder()
@@ -296,7 +295,7 @@ public class CourtHearingsServiceTest {
     private void givenPrisonNotFound() {
         offenderBooking = OffenderBooking
                 .builder()
-                .activeFlag("Y")
+                .active(true)
                 .bookingId(OFFENDER_BOOKING_ID)
                 .location(fromPrison)
                 .courtCases(List.of(ACTIVE_COURT_CASE))
@@ -327,7 +326,7 @@ public class CourtHearingsServiceTest {
     private void givenCourtNotFound() {
         offenderBooking = OffenderBooking
                 .builder()
-                .activeFlag("Y")
+                .active(true)
                 .bookingId(OFFENDER_BOOKING_ID)
                 .location(fromPrison)
                 .courtCases(List.of(ACTIVE_COURT_CASE))
@@ -359,7 +358,7 @@ public class CourtHearingsServiceTest {
     private void givenProvidedCourtIsNotActive() {
         offenderBooking = OffenderBooking
                 .builder()
-                .activeFlag("Y")
+                .active(true)
                 .bookingId(OFFENDER_BOOKING_ID)
                 .location(fromPrison)
                 .courtCases(List.of(ACTIVE_COURT_CASE))
@@ -368,7 +367,7 @@ public class CourtHearingsServiceTest {
         when(offenderBookingRepository.findById(offenderBooking.getBookingId())).thenReturn(Optional.of(offenderBooking));
         when(agencyLocationRepository.findById("PRISON")).thenReturn(Optional.of(fromPrison));
         when(agencyLocationRepository.findById("COURT")).thenReturn(Optional.of(AgencyLocation.builder()
-                .activeFlag(ActiveFlag.N)
+                .active(false)
                 .description("Agency Description")
                 .id("COURT")
                 .type(AgencyLocationType.COURT_TYPE)
@@ -396,7 +395,7 @@ public class CourtHearingsServiceTest {
     private void givenProvidedCourtLocationIsNotACourt() {
         offenderBooking = OffenderBooking
                 .builder()
-                .activeFlag("Y")
+                .active(true)
                 .bookingId(OFFENDER_BOOKING_ID)
                 .location(fromPrison)
                 .courtCases(List.of(ACTIVE_COURT_CASE))
@@ -420,7 +419,7 @@ public class CourtHearingsServiceTest {
     private void givenPrisonDoesNotMatchTheBooking() {
         offenderBooking = OffenderBooking
                 .builder()
-                .activeFlag("Y")
+                .active(true)
                 .bookingId(OFFENDER_BOOKING_ID)
                 .location(COURT_LOCATION)
                 .courtCases(List.of(ACTIVE_COURT_CASE))

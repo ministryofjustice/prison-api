@@ -27,7 +27,6 @@ import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import uk.gov.justice.hmpps.prison.repository.AgencyRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressPhone;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyAddress;
@@ -107,7 +106,7 @@ public class AgencyService {
         final var criteria = AgencyLocationFilter.builder()
                 .id(agencyId)
                 .type(agencyType)
-                .activeFlag(filter == ACTIVE_ONLY ? ActiveFlag.Y : filter == INACTIVE_ONLY ? ActiveFlag.N : null)
+                .active(filter == ACTIVE_ONLY ? true : filter == INACTIVE_ONLY ? false : null)
                 .build();
 
         return agencyLocationRepository.findAll(criteria)
@@ -159,7 +158,7 @@ public class AgencyService {
     public List<Agency> getAgenciesByType(final String agencyType, final boolean activeOnly, List<String> courtTypes, final boolean withAddresses, final boolean skipFormatLocation) {
 
         final var filter = AgencyLocationFilter.builder()
-                .activeFlag(activeOnly ? ActiveFlag.Y : null)
+                .active(activeOnly ? true : null)
                 .type(agencyType)
                 .courtTypes(courtTypes)
                 .build();
@@ -234,7 +233,7 @@ public class AgencyService {
 
     @VerifyAgencyAccess
     public List<Location> getAgencyLocationsByType(final String agencyId, final String type) {
-        final var agencyInternalLocations = agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActiveFlag(agencyId, type, ActiveFlag.Y);
+        final var agencyInternalLocations = agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive(agencyId, type, true);
 
         if (agencyInternalLocations.size() == 0) {
             throw EntityNotFoundException.withMessage(format("Locations of type %s in agency %s not found", type, agencyId));
@@ -286,7 +285,7 @@ public class AgencyService {
     public List<PrisonContactDetail> getPrisonContactDetail() {
 
         final var agencyLocationType = agencyLocationTypeReferenceCodeRepository.findById(AgencyLocationType.INST).orElseThrow(EntityNotFoundException.withMessage(format("Agency Location Type of %s not Found", AgencyLocationType.INST.getCode())));
-        final var prisons = agencyLocationRepository.findByTypeAndActiveFlagAndDeactivationDateIsNull(agencyLocationType, ActiveFlag.Y);
+        final var prisons = agencyLocationRepository.findByTypeAndActiveAndDeactivationDateIsNull(agencyLocationType, true);
 
         return
             removeBlankAddresses(prisons.stream()
@@ -330,7 +329,7 @@ public class AgencyService {
     public PrisonContactDetail getPrisonContactDetail(final String agencyId) {
         final var agencyLocationType = agencyLocationTypeReferenceCodeRepository.findById(AgencyLocationType.INST)
             .orElseThrow(EntityNotFoundException.withMessage(format("Agency Location Type of %s not Found", AgencyLocationType.INST.getCode())));
-        final var prisonContactDetailList = removeBlankAddresses(List.of(getPrisonContactDetail(agencyLocationRepository.findByIdAndTypeAndActiveFlagAndDeactivationDateIsNull(agencyId, agencyLocationType, ActiveFlag.Y)
+        final var prisonContactDetailList = removeBlankAddresses(List.of(getPrisonContactDetail(agencyLocationRepository.findByIdAndTypeAndActiveAndDeactivationDateIsNull(agencyId, agencyLocationType, true)
             .orElseThrow(EntityNotFoundException.withMessage(format("Contact details not found for Prison %s", agencyId))))));
 
         if (prisonContactDetailList.isEmpty()) {
@@ -361,7 +360,7 @@ public class AgencyService {
     }
 
     public List<OffenderCell> getCellsWithCapacityInAgency(@NotNull final String agencyId, final String attribute) {
-        final var cells = agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActiveFlag(agencyId, "CELL", ActiveFlag.Y);
+        final var cells = agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive(agencyId, "CELL", true);
         return cells.stream()
                 .filter((l) -> l.isActiveCellWithSpace(true))
                 .map(cell -> transform(cell, true))

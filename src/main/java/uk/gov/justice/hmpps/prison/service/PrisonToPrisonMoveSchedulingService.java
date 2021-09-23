@@ -119,7 +119,7 @@ public class PrisonToPrisonMoveSchedulingService {
     private AgencyLocation getActive(final String prison) {
         final var agency = agencyLocationRepository.findById(prison).orElseThrow(() -> EntityNotFoundException.withMessage("Prison with id %s not found.", prison));
 
-        checkArgument(agency.getActiveFlag().isActive(), "Prison with id %s not active.", prison);
+        checkArgument(agency.isActive(), "Prison with id %s not active.", prison);
 
         checkArgument(agency.getType().getCode().equals("INST"), "Prison to prison move to prison is not a prison.");
 

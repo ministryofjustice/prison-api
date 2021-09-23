@@ -9,11 +9,10 @@ import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -78,8 +77,8 @@ public class ReleaseDetail extends AuditableEntity {
     private LocalDate dtoMidTermDate;
 
     @Column(name = "VERIFIED_FLAG")
-    @Enumerated(EnumType.STRING)
-    private ActiveFlag verified;
+    @Type(type="yes_no")
+    private boolean verified;
 
     @Override
     public boolean equals(final Object o) {

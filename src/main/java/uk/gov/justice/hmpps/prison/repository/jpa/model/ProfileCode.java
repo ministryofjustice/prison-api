@@ -7,13 +7,12 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -52,14 +51,14 @@ public class ProfileCode extends AuditableEntity {
     private String description;
 
     @Column(name = "UPDATE_ALLOWED_FLAG", nullable = false)
-    @Enumerated(EnumType.STRING)
     @Default
-    private ActiveFlag updateAllowed = ActiveFlag.Y;
+    @Type(type="yes_no")
+    private boolean updateAllowed = true;
 
     @Column(name = "ACTIVE_FLAG", nullable = false)
-    @Enumerated(EnumType.STRING)
+    @Type(type="yes_no")
     @Default
-    private ActiveFlag activeFlag = ActiveFlag.Y;
+    private boolean active = true;
 
     @Column(name = "EXPIRY_DATE")
     private LocalDate endDate;

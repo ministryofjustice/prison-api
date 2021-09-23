@@ -50,7 +50,6 @@ import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.repository.BookingRepository;
 import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq;
 import uk.gov.justice.hmpps.prison.repository.SentenceRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AvailablePrisonIepLevel.PK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Caseload;
@@ -1024,7 +1023,7 @@ public class BookingService {
             .prisonId(prisonId)
             .bookingSequence(1)
             .active(true)
-            .caseloadIds(viewAllPrisoners ? null : staffUserAccountRepository.getCaseloadsForUser(authenticationFacade.getCurrentUsername(), ActiveFlag.Y, "INST").stream().map(Caseload::getId).toList())
+            .caseloadIds(viewAllPrisoners ? null : staffUserAccountRepository.getCaseloadsForUser(authenticationFacade.getCurrentUsername(), true, "INST").stream().map(Caseload::getId).toList())
             .build();
 
         final var paging = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), mapBookingSortOrderProperties(pageable.getSort()));

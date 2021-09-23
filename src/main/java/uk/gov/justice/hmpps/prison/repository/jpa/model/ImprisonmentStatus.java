@@ -2,12 +2,14 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.Type;
 import uk.gov.justice.hmpps.prison.api.model.LegalStatus;
 
 import javax.persistence.Column;
@@ -48,14 +50,12 @@ public class ImprisonmentStatus extends AuditableEntity {
     private String sequence;
 
     @Column(name = "ACTIVE_FLAG", nullable = false)
-    private String activeFlag;
+    @Type(type="yes_no")
+    @Default
+    private boolean active = true;
 
     @Column(name = "EXPIRY_DATE")
     private LocalDate expiryDate;
-
-    public boolean isActive() {
-        return "Y".equals(activeFlag);
-    }
 
     private final static List<String> RECALL_STATUS_CODES = List.of("14FTR_ORA","14FTRHDC_ORA","CUR_ORA","FTR/08","FTR_HDC","FTR_HDC_ORA","FTR_ORA","FTR_SCH15","FTRSCH15_ORA","HDR_ORA","LR","LR_ALP","LR_ALP_LASPO","LR_DLP","LR_DPP","LR_EPP","LR_ES","LR_HDC","LR_IPP","LR_LASPO_AR","LR_LASPO_DR","LR_LIFE","LR_MLP","LR_ORA","LR_SEC236A","LR_SEC91_ORA","LR_YOI","LR_YOI_ORA");
 

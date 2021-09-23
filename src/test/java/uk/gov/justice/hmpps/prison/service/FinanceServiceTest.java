@@ -38,9 +38,9 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.justice.hmpps.prison.util.MoneySupport.toMoneyScale;
-import static uk.gov.justice.hmpps.prison.util.MoneySupport.toMoney;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation.Status.ACTIVE;
+import static uk.gov.justice.hmpps.prison.util.MoneySupport.toMoney;
+import static uk.gov.justice.hmpps.prison.util.MoneySupport.toMoneyScale;
 
 @ExtendWith(MockitoExtension.class)
 class FinanceServiceTest {
@@ -84,7 +84,7 @@ class FinanceServiceTest {
 
         final var offenderBooking = createOffenderBooking();
         offenderBooking.getLocation().setId("WRONG_PRISON");
-        when(offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(anyString(), anyString())).thenReturn(
+        when(offenderBookingRepository.findByOffenderNomsIdAndActive(anyString(), any())).thenReturn(
                 Optional.of(offenderBooking));
 
         when(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND"))).thenReturn(
@@ -98,7 +98,7 @@ class FinanceServiceTest {
     void testTransfer_offenderTrustAccountNotFound() {
         final var transaction = createTransferTransaction();
 
-        when(offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(anyString(), anyString())).thenReturn(
+        when(offenderBookingRepository.findByOffenderNomsIdAndActive(anyString(), any())).thenReturn(
                 Optional.of(createOffenderBooking()));
 
         when(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND"))).thenReturn(
@@ -112,7 +112,7 @@ class FinanceServiceTest {
     void testTransfer_offenderTrustAccountClosed() {
         final var transaction = createTransferTransaction();
 
-        when(offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(anyString(), anyString())).thenReturn(
+        when(offenderBookingRepository.findByOffenderNomsIdAndActive(anyString(), any())).thenReturn(
                 Optional.of(createOffenderBooking()));
 
         when(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND"))).thenReturn(
@@ -129,7 +129,7 @@ class FinanceServiceTest {
     void testTransfer_offenderSubAccountNotFound() {
         final var transaction = createTransferTransaction();
 
-        when(offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(anyString(), anyString())).thenReturn(
+        when(offenderBookingRepository.findByOffenderNomsIdAndActive(anyString(), any())).thenReturn(
                 Optional.of(createOffenderBooking()));
 
         when(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND"))).thenReturn(
@@ -146,7 +146,7 @@ class FinanceServiceTest {
     void testTransfer_offenderSubAccountBalanceNotEnough() {
         final var transaction = createTransferTransaction();
 
-        when(offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(anyString(), anyString())).thenReturn(
+        when(offenderBookingRepository.findByOffenderNomsIdAndActive(anyString(), any())).thenReturn(
                 Optional.of(createOffenderBooking()));
 
         when(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND"))).thenReturn(
@@ -165,7 +165,7 @@ class FinanceServiceTest {
     void testTransfer() {
         final var transaction = createTransferTransaction();
 
-        when(offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(anyString(), anyString())).thenReturn(
+        when(offenderBookingRepository.findByOffenderNomsIdAndActive(anyString(), any())).thenReturn(
                 Optional.of(createOffenderBooking()));
 
         when(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND"))).thenReturn(
@@ -190,7 +190,7 @@ class FinanceServiceTest {
     void testTransfer_setClientUniqueRef() {
         final var transaction = createTransferTransaction();
 
-        when(offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(anyString(), anyString())).thenReturn(
+        when(offenderBookingRepository.findByOffenderNomsIdAndActive(anyString(), any())).thenReturn(
                 Optional.of(createOffenderBooking()));
 
         when(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND"))).thenReturn(
@@ -219,7 +219,7 @@ class FinanceServiceTest {
     void testTransfer_verifyCalls() {
         final var transaction = createTransferTransaction();
 
-        when(offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(anyString(), anyString())).thenReturn(
+        when(offenderBookingRepository.findByOffenderNomsIdAndActive(anyString(), any())).thenReturn(
                 Optional.of(createOffenderBooking()));
 
         when(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND"))).thenReturn(
@@ -236,7 +236,7 @@ class FinanceServiceTest {
 
         financeService.transferToSavings("LEI", "AA2134", transaction, "1234");
 
-        verify(offenderBookingRepository).findByOffenderNomsIdAndActiveFlag("AA2134", "Y");
+        verify(offenderBookingRepository).findByOffenderNomsIdAndActive("AA2134", true);
         verify(accountCodeRepository).findByCaseLoadTypeAndSubAccountType("INST", "SPND");
 
         verify(offenderTrustAccountRepository).findById(new OffenderTrustAccount.Pk("LEI", 12L));
