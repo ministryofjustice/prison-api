@@ -24,8 +24,7 @@ import java.util.List;
 public class AgencyLocationFilter implements Specification<AgencyLocation> {
     private String id;
 
-    @Builder.Default
-    private final Boolean active = true;
+    private Boolean active;
 
     private String type;
 

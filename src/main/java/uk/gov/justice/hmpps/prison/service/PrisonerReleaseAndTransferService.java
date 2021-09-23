@@ -171,7 +171,7 @@ public class PrisonerReleaseAndTransferService {
                 .fromLocationId(requestToDischargePrisoner.getFromLocationId())
                 .prisonId(requestToDischargePrisoner.getSupportingPrisonId())
                 .movementReasonCode(movementReasonRepository.findById(AWAIT_REMOVAL_TO_PSY_HOSPITAL).orElseThrow(EntityNotFoundException.withMessage(format("Movement Reason %s not found", AWAIT_REMOVAL_TO_PSY_HOSPITAL))).getCode()) // Awaiting Removal to Psychiatric Hospital TODO: config?
-                .imprisonmentStatus(imprisonmentStatusRepository.findByStatusAndActiveFlag(PSY_HOSP_FROM_PRISON, "Y").orElseThrow(EntityNotFoundException.withMessage(format("No imprisonment status %s found", PSY_HOSP_FROM_PRISON))).getStatus()) // Psychiatric Hospital from Prison (RX) TODO: config?
+                .imprisonmentStatus(imprisonmentStatusRepository.findByStatusAndActive(PSY_HOSP_FROM_PRISON, true).orElseThrow(EntityNotFoundException.withMessage(format("No imprisonment status %s found", PSY_HOSP_FROM_PRISON))).getStatus()) // Psychiatric Hospital from Prison (RX) TODO: config?
                 .build());
         }
 
@@ -254,7 +254,7 @@ public class PrisonerReleaseAndTransferService {
         final var fromLocation = getFromLocation(requestToRecall.getFromLocationId());
 
         // check imprisonment status
-        final var imprisonmentStatus = imprisonmentStatusRepository.findByStatusAndActiveFlag(requestToRecall.getImprisonmentStatus(), "Y").orElseThrow(EntityNotFoundException.withMessage(format("No imprisonment status %s found", requestToRecall.getImprisonmentStatus())));
+        final var imprisonmentStatus = imprisonmentStatusRepository.findByStatusAndActive(requestToRecall.getImprisonmentStatus(), true).orElseThrow(EntityNotFoundException.withMessage(format("No imprisonment status %s found", requestToRecall.getImprisonmentStatus())));
 
         // check prison id
         final var agencyLocationType = agencyLocationTypeRepository.findById(AgencyLocationType.INST).orElseThrow(EntityNotFoundException.withMessage(format("Agency Location Type of %s not Found", AgencyLocationType.INST.getCode())));
@@ -308,7 +308,7 @@ public class PrisonerReleaseAndTransferService {
         }
 
         // Create IEP levels
-        availablePrisonIepLevelRepository.findByAgencyLocation_IdAndDefaultFlag(prisonToRecallTo.getId(), "Y")
+        availablePrisonIepLevelRepository.findByAgencyLocation_IdAndDefaultIep(prisonToRecallTo.getId(), true)
             .stream().findFirst().ifPresentOrElse(
             iepLevel -> {
                 final var staff = staffUserAccountRepository.findById(authenticationFacade.getCurrentUsername()).orElseThrow(EntityNotFoundException.withId(authenticationFacade.getCurrentUsername()));
@@ -349,7 +349,7 @@ public class PrisonerReleaseAndTransferService {
         final var fromLocation = getFromLocation(requestForNewBooking.getFromLocationId());
 
         // check imprisonment status
-        final var imprisonmentStatus = imprisonmentStatusRepository.findByStatusAndActiveFlag(requestForNewBooking.getImprisonmentStatus(), "Y").orElseThrow(EntityNotFoundException.withMessage(format("No imprisonment status %s found", requestForNewBooking.getImprisonmentStatus())));
+        final var imprisonmentStatus = imprisonmentStatusRepository.findByStatusAndActive(requestForNewBooking.getImprisonmentStatus(), true).orElseThrow(EntityNotFoundException.withMessage(format("No imprisonment status %s found", requestForNewBooking.getImprisonmentStatus())));
 
         // check prison id
         final var receivedPrison = agencyLocationRepository.findByIdAndTypeAndActiveAndDeactivationDateIsNull(requestForNewBooking.getPrisonId(), agencyLocationTypeRepository.findById(AgencyLocationType.INST).orElseThrow(EntityNotFoundException.withMessage("Not Found")), true).orElseThrow(EntityNotFoundException.withMessage(format("%s prison not found", requestForNewBooking.getPrisonId())));
@@ -438,7 +438,7 @@ public class PrisonerReleaseAndTransferService {
         }
 
         // Create IEP levels
-        availablePrisonIepLevelRepository.findByAgencyLocation_IdAndDefaultFlag(receivedPrison.getId(), "Y")
+        availablePrisonIepLevelRepository.findByAgencyLocation_IdAndDefaultIep(receivedPrison.getId(), true)
             .stream().findFirst().ifPresentOrElse(
             iepLevel -> {
                 final var staff = staffUserAccountRepository.findById(authenticationFacade.getCurrentUsername()).orElseThrow(EntityNotFoundException.withId(authenticationFacade.getCurrentUsername()));
@@ -529,7 +529,7 @@ public class PrisonerReleaseAndTransferService {
         }
 
         // Create IEP levels
-        availablePrisonIepLevelRepository.findByAgencyLocation_IdAndDefaultFlag(booking.getLocation().getId(), "Y")
+        availablePrisonIepLevelRepository.findByAgencyLocation_IdAndDefaultIep(booking.getLocation().getId(), true)
             .stream().findFirst().ifPresentOrElse(
             iepLevel -> {
                 final var staff = staffUserAccountRepository.findById(authenticationFacade.getCurrentUsername()).orElseThrow(EntityNotFoundException.withId(authenticationFacade.getCurrentUsername()));

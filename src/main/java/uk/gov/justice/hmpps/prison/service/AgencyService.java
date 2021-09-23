@@ -67,7 +67,6 @@ import java.util.stream.Collectors;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 import static uk.gov.justice.hmpps.prison.repository.support.StatusFilter.ACTIVE_ONLY;
-import static uk.gov.justice.hmpps.prison.repository.support.StatusFilter.INACTIVE_ONLY;
 import static uk.gov.justice.hmpps.prison.web.config.CacheConfig.GET_AGENCY_LOCATIONS_BOOKED;
 
 /**
@@ -102,11 +101,11 @@ public class AgencyService {
     private final ReferenceCodeRepository<County> countyReferenceCodeRepository;
     private final ReferenceCodeRepository<Country> countryReferenceCodeRepository;
 
-    public Agency getAgency(final String agencyId, final StatusFilter filter, final String agencyType, final boolean withAddresses, final boolean skipFormatLocation) {
+    public Agency getAgency(final String agencyId, @NotNull final StatusFilter filter, final String agencyType, final boolean withAddresses, final boolean skipFormatLocation) {
         final var criteria = AgencyLocationFilter.builder()
                 .id(agencyId)
                 .type(agencyType)
-                .active(filter == ACTIVE_ONLY ? true : filter == INACTIVE_ONLY ? false : null)
+                .active(filter.getActive())
                 .build();
 
         return agencyLocationRepository.findAll(criteria)
@@ -272,7 +271,7 @@ public class AgencyService {
     }
 
     public List<IepLevel> getAgencyIepLevels(final String prisonId) {
-        return availablePrisonIepLevelRepository.findByAgencyLocation_IdAndActiveFlag(prisonId, "Y")
+        return availablePrisonIepLevelRepository.findByAgencyLocation_IdAndActive(prisonId, true)
             .stream().map(
                 iep -> IepLevel.builder()
                     .iepLevel(iep.getIepLevel().getCode())

@@ -76,7 +76,8 @@ public class AvailablePrisonIepLevel extends AuditableEntity  {
     private String expiryDate;
 
     @Column(name = "DEFAULT_FLAG", nullable = false)
-    private String defaultFlag;
+    @Type(type="yes_no")
+    private boolean defaultIep;
 
     @Override
     public boolean equals(final Object o) {
