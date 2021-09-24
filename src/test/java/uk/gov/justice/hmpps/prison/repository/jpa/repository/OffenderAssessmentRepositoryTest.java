@@ -149,7 +149,7 @@ public class OffenderAssessmentRepositoryTest {
         assertThat(assessment.getCalculatedClassification().getCode()).isEqualTo("STANDARD");
         assertThat(assessment.getOverridingClassification().getCode()).isEqualTo("HI");
         assertThat(assessment.getReviewedClassification().getCode()).isEqualTo("HI");
-        assertThat(assessment.getAssessmentDate()).isEqualTo(LocalDate.parse("2019-01-02"));
+        assertThat(assessment.getAssessmentDate()).isEqualTo(LocalDate.parse("2019-01-04"));
         assertThat(assessment.getAssessmentCreateLocation().getId()).isEqualTo("LEI");
         assertThat(assessment.getAssessmentComment()).isEqualTo("A Comment");
         assertThat(assessment.getAssessCommittee().getCode()).isEqualTo("RECP");

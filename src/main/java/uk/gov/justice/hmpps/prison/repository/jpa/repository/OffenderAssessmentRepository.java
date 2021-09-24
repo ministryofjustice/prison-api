@@ -15,7 +15,7 @@ public interface OffenderAssessmentRepository extends CrudRepository<OffenderAss
         INNER JOIN oa.offenderBooking booking INNER JOIN booking.offender offender 
         INNER JOIN oa.assessmentType assessment
         WHERE offender.nomsId = :offenderNo AND assessment.cellSharingAlertFlag = 'Y'
-        ORDER BY oa.assessmentDate DESC
+        ORDER BY oa.assessmentDate DESC, oa.assessmentSeq DESC
         """)
     List<OffenderAssessment> findByCsraAssessmentAndByOffenderNo_OrderByLatestFirst(String offenderNo);
 
@@ -24,7 +24,7 @@ public interface OffenderAssessmentRepository extends CrudRepository<OffenderAss
         INNER JOIN oa.offenderBooking booking INNER JOIN booking.offender offender 
         INNER JOIN oa.assessmentType assessment
         WHERE offender.nomsId IN (:offenderNos) AND assessment.cellSharingAlertFlag = 'Y'
-        ORDER BY oa.assessmentDate DESC
+        ORDER BY oa.assessmentDate DESC, oa.assessmentSeq DESC
         """)
     List<OffenderAssessment> findByCsraAssessmentAndByOffenderNos_OrderByLatestFirst(List<String> offenderNos);
 }
