@@ -11,4 +11,8 @@ public enum StatusFilter {
     StatusFilter(final Boolean active) {
         this.active = active;
     }
+
+    public String getActiveYesNo() {
+       return active != null ? (active ? "Y" : "N") : null;
+    }
 }

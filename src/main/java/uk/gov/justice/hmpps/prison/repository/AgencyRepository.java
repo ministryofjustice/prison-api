@@ -126,7 +126,7 @@ public class AgencyRepository extends RepositoryBase {
         try {
             agency = jdbcTemplate.queryForObject(sql,
                     createParams("agencyId", agencyId,
-                            "activeFlag", filter.getActive() != null ? (filter.getActive() ? "Y" : "N") : null,
+                            "activeFlag", filter.getActiveYesNo(),
                             "agencyType", agencyType),
                     AGENCY_ROW_MAPPER);
         } catch (final EmptyResultDataAccessException ex) {

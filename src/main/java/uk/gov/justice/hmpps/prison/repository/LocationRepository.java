@@ -25,7 +25,7 @@ public class LocationRepository extends RepositoryBase {
         try {
             final var rawLocation = jdbcTemplate.queryForObject(
                     sql,
-                    createParams("locationId", locationId, "activeFlag", filter.getActiveFlag()),
+                    createParams("locationId", locationId, "activeFlag", filter.getActiveYesNo()),
                     LOCATION_ROW_MAPPER);
 
             return Optional.of(LocationProcessor.processLocation(rawLocation, true, false));
