@@ -50,6 +50,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -477,7 +478,7 @@ public class MovementsServiceImplTest {
     @Test
     public void getOffenderIn_verifyRetrieval() {
 
-        when(externalMovementRepository.findMovements(any(), any(), any(), any(), any(), any()))
+        when(externalMovementRepository.findMovements(any(), anyBoolean(), any(), any(), any(), any()))
             .thenReturn(
                 new PageImpl<>(Collections.singletonList(ExternalMovement.builder()
                     .movementTime(LocalDateTime.of(2020, 1, 30, 12, 30))
