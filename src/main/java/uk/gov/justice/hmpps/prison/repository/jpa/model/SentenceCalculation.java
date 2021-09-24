@@ -6,12 +6,11 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Type;
 import uk.gov.justice.hmpps.prison.service.support.NonDtoReleaseDate;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -69,8 +68,8 @@ public class SentenceCalculation extends AuditableEntity {
     private String judiciallyImposedSentenceLength;
 
     @Column(name = "HDC_ELIGIBLE_WF")
-    @Enumerated(EnumType.STRING)
-    private ActiveFlag hdcEligible;
+    @Type(type="yes_no")
+    private boolean hdcEligible;
 
     @Column(name = "HDCED_CALCULATED_DATE")
     private LocalDate hdcedCalculatedDate;

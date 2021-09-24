@@ -17,8 +17,8 @@ public class AgencyInternalLocationTest {
     public void testCellCswap_isTrue() {
         final var location = AgencyInternalLocation
                 .builder()
-                .activeFlag(ActiveFlag.Y)
-                .certifiedFlag(ActiveFlag.N)
+                .active(true)
+                .certifiedFlag(false)
                 .parentLocation(null)
                 .locationCode("CSWAP")
                 .build();
@@ -39,7 +39,7 @@ public class AgencyInternalLocationTest {
     @Test
     public void testHasSpace_IgnoreZeroOperationalCapacity(){
         final var location = AgencyInternalLocation.builder()
-                .activeFlag(ActiveFlag.Y)
+                .active(true)
                 .locationType("CELL")
                 .operationalCapacity(0)
                 .capacity(10)
@@ -52,7 +52,7 @@ public class AgencyInternalLocationTest {
     @Test
     public void testHasSpace_UseZeroOperationalCapacity(){
         final var location = AgencyInternalLocation.builder()
-            .activeFlag(ActiveFlag.Y)
+            .active(true)
             .locationType("CELL")
             .operationalCapacity(0)
             .capacity(10)
@@ -65,7 +65,7 @@ public class AgencyInternalLocationTest {
     @Test
     public void testHasSpace_NotFull(){
         final var location = AgencyInternalLocation.builder()
-                .activeFlag(ActiveFlag.Y)
+                .active(true)
                 .locationType("CELL")
                 .capacity(100)
                 .currentOccupancy(50)
@@ -78,7 +78,7 @@ public class AgencyInternalLocationTest {
     @Test
     public void testHasSpace_Full(){
         final var location = AgencyInternalLocation.builder()
-                .activeFlag(ActiveFlag.Y)
+                .active(true)
                 .locationType("CELL")
                 .capacity(100)
                 .currentOccupancy(100)
@@ -90,7 +90,7 @@ public class AgencyInternalLocationTest {
     @Test
     public void testCapacity_IgnoreZeroOperationalCapacity(){
         final var location = AgencyInternalLocation.builder()
-            .activeFlag(ActiveFlag.Y)
+            .active(true)
             .locationType("CELL")
             .operationalCapacity(0)
             .capacity(10)
@@ -103,7 +103,7 @@ public class AgencyInternalLocationTest {
     @Test
     public void testCapacity_UseZeroOperationalCapacity(){
         final var location = AgencyInternalLocation.builder()
-            .activeFlag(ActiveFlag.Y)
+            .active(true)
             .locationType("CELL")
             .operationalCapacity(0)
             .capacity(10)

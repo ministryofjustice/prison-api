@@ -22,7 +22,6 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderOutTodayDto;
 import uk.gov.justice.hmpps.prison.api.model.ReleaseEvent;
 import uk.gov.justice.hmpps.prison.api.model.TransferEvent;
 import uk.gov.justice.hmpps.prison.repository.MovementsRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.City;
@@ -51,6 +50,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -478,7 +478,7 @@ public class MovementsServiceImplTest {
     @Test
     public void getOffenderIn_verifyRetrieval() {
 
-        when(externalMovementRepository.findMovements(any(), any(), any(), any(), any(), any()))
+        when(externalMovementRepository.findMovements(any(), anyBoolean(), any(), any(), any(), any()))
             .thenReturn(
                 new PageImpl<>(Collections.singletonList(ExternalMovement.builder()
                     .movementTime(LocalDateTime.of(2020, 1, 30, 12, 30))
@@ -493,7 +493,7 @@ public class MovementsServiceImplTest {
                             .birthDate(LocalDate.of(2001, 1, 2))
                             .build())
                         .build())
-                    .activeFlag(ActiveFlag.Y)
+                    .active(true)
                     .fromCity(new City("CIT-1", "City 1"))
                     .toCity(new City("CIT-2", "City 2"))
                     .toAgency(AgencyLocation.builder()
@@ -533,7 +533,7 @@ public class MovementsServiceImplTest {
 
         verify(externalMovementRepository).findMovements(
             "LEI",
-            ActiveFlag.Y,
+            true,
             MovementDirection.IN,
             LocalDateTime.of(2020, 1, 2, 1, 2),
             LocalDateTime.of(2020, 2, 2, 1, 2),
@@ -553,7 +553,7 @@ public class MovementsServiceImplTest {
 
         final OffenderBooking OFFENDER_BOOKING = OffenderBooking.builder()
             .bookingId(1L)
-            .activeFlag("N")
+            .active(false)
             .offender(Offender.builder()
                 .nomsId("A12345")
                 .firstName("Bob")
@@ -646,7 +646,7 @@ public class MovementsServiceImplTest {
                 when(offenderBookingRepository.findById(anyLong()))
                     .thenReturn(Optional.of(OFFENDER_BOOKING
                         .toBuilder()
-                        .activeFlag(ActiveFlag.Y.toString())
+                        .active(true)
                         .bookingStatus("ACTIVE IN")
                         .build()));
 

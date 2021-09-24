@@ -37,7 +37,7 @@ public class OffenderBookingFilter implements Specification<OffenderBooking> {
 
         Optional.ofNullable(active)
             .ifPresent(activeBooking -> predicateBuilder.add(cb.equal(root
-                .get("activeFlag"), activeBooking ? "Y" : "N")));
+                .get("active"), activeBooking)));
 
         Optional.ofNullable(bookingSequence)
             .ifPresent(seq -> predicateBuilder.add(cb.equal(root

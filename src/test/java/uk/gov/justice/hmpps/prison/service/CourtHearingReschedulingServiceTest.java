@@ -6,7 +6,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.CourtHearing;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent;
@@ -51,7 +50,7 @@ public class CourtHearingReschedulingServiceTest {
                     .id("ABC")
                     .description("Description")
                     .type(AgencyLocationType.COURT_TYPE)
-                    .activeFlag(ActiveFlag.Y)
+                    .active(true)
                     .build())
             .eventDate(LocalDate.now(clock))
             .startTime(LocalDateTime.now(clock).plusMinutes(1))
@@ -70,7 +69,7 @@ public class CourtHearingReschedulingServiceTest {
                     .id("ABC")
                     .description("Description")
                     .type(AgencyLocationType.COURT_TYPE)
-                    .activeFlag(ActiveFlag.Y)
+                    .active(true)
                     .build())
             .eventDate(LocalDate.now(clock))
             .startTime(LocalDateTime.now(clock).minusMinutes(1))
@@ -87,7 +86,7 @@ public class CourtHearingReschedulingServiceTest {
                     .id("ABC")
                     .description("Description")
                     .type(AgencyLocationType.COURT_TYPE)
-                    .activeFlag(ActiveFlag.Y)
+                    .active(true)
                     .build())
             .eventDate(LocalDate.now(clock))
             .startTime(LocalDateTime.now(clock))

@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceAdjustment;
 
@@ -30,42 +29,42 @@ public class SentenceAdjustmentRepositoryTest {
                             .id(-8L)
                             .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                             .sentenceAdjustCode("RSR")
-                            .activeFlag(ActiveFlag.Y)
+                            .active(true)
                             .adjustDays(4)
                             .build(),
                     SentenceAdjustment.builder()
                             .id(-9L)
                         .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                             .sentenceAdjustCode("RST")
-                            .activeFlag(ActiveFlag.N)
+                            .active(false)
                             .adjustDays(4)
                             .build(),
                     SentenceAdjustment.builder()
                             .id(-10L)
                         .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                             .sentenceAdjustCode("RX")
-                            .activeFlag(ActiveFlag.Y)
+                            .active(true)
                             .adjustDays(4)
                             .build(),
                     SentenceAdjustment.builder()
                             .id(-11L)
                         .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                             .sentenceAdjustCode("S240A")
-                            .activeFlag(ActiveFlag.N)
+                            .active(false)
                             .adjustDays(4)
                             .build(),
                     SentenceAdjustment.builder()
                             .id(-12L)
                         .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                             .sentenceAdjustCode("UR")
-                            .activeFlag(ActiveFlag.Y)
+                            .active(true)
                             .adjustDays(4)
                             .build(),
                     SentenceAdjustment.builder()
                             .id(-13L)
                         .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                             .sentenceAdjustCode("RX")
-                            .activeFlag(ActiveFlag.Y)
+                            .active(true)
                             .adjustDays(4)
                             .build()
                 );

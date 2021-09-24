@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory;
@@ -114,7 +113,7 @@ class MovementUpdateServiceTest {
             when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), eq(false)))
                     .thenReturn(Optional.of(mock(ReferenceCode.class)));
             when(offenderBookingRepository.findById(SOME_BOOKING_ID))
-                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, SOME_AGENCY_ID, OLD_LIVING_UNIT_ID, OLD_LIVING_UNIT_DESC, "N"));
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, SOME_AGENCY_ID, OLD_LIVING_UNIT_ID, OLD_LIVING_UNIT_DESC, false));
 
             assertThatThrownBy(() -> service.moveToCell(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC, SOME_REASON_CODE, SOME_TIME))
                     .hasMessage(format("Offender booking with id %s is not active.", SOME_BOOKING_ID));
@@ -137,8 +136,8 @@ class MovementUpdateServiceTest {
             when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), eq(false)))
                     .thenReturn(Optional.of(mock(ReferenceCode.class)));
             when(offenderBookingRepository.findById(anyLong()))
-                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, SOME_AGENCY_ID, OLD_LIVING_UNIT_ID, OLD_LIVING_UNIT_DESC, "Y"))
-                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, SOME_AGENCY_ID, NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC, "Y"));
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, SOME_AGENCY_ID, OLD_LIVING_UNIT_ID, OLD_LIVING_UNIT_DESC, true))
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, SOME_AGENCY_ID, NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC, true));
             when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC))
                     .thenReturn(Optional.of(
                             AgencyInternalLocation.builder()
@@ -148,7 +147,7 @@ class MovementUpdateServiceTest {
                                     .operationalCapacity(10)
                                     .capacity(10)
                                     .locationType("CELL")
-                                    .activeFlag(ActiveFlag.Y)
+                                    .active(true)
                                     .build()));
 
             assertThatThrownBy(() -> service.moveToCell(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC, SOME_REASON_CODE, SOME_TIME))
@@ -220,8 +219,8 @@ class MovementUpdateServiceTest {
             when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), eq(false)))
                     .thenReturn(Optional.of(mock(ReferenceCode.class)));
             when(offenderBookingRepository.findById(anyLong()))
-                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, SOME_AGENCY_ID, OLD_LIVING_UNIT_ID, OLD_LIVING_UNIT_DESC, "Y"))
-                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, SOME_AGENCY_ID, NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC, "Y"));
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, SOME_AGENCY_ID, OLD_LIVING_UNIT_ID, OLD_LIVING_UNIT_DESC, true))
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, SOME_AGENCY_ID, NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC, true));
             when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC))
                     .thenReturn(aLocation(NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC));
         }
@@ -230,7 +229,7 @@ class MovementUpdateServiceTest {
             when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), eq(false)))
                     .thenReturn(Optional.of(mock(ReferenceCode.class)));
             when(offenderBookingRepository.findById(SOME_BOOKING_ID))
-                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, SOME_AGENCY_ID, OLD_LIVING_UNIT_ID, OLD_LIVING_UNIT_DESC, "Y"));
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, SOME_AGENCY_ID, OLD_LIVING_UNIT_ID, OLD_LIVING_UNIT_DESC, true));
             when(agencyInternalLocationRepository.findOneByDescription(OLD_LIVING_UNIT_DESC))
                     .thenReturn(aLocation(OLD_LIVING_UNIT_ID, OLD_LIVING_UNIT_DESC));
         }
@@ -245,8 +244,8 @@ class MovementUpdateServiceTest {
             final var cellSwapLocation = cellSwapLocation();
 
             when(offenderBookingRepository.findById(SOME_BOOKING_ID))
-                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, "LEI", 1L, "LEI-123", "Y"))
-                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, "LEI", CELL_SWAP_LOCATION_ID, CELL_SWAP_LOCATION_DESCRIPTION, "Y"));
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, "LEI", 1L, "LEI-123", true))
+                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, "LEI", CELL_SWAP_LOCATION_ID, CELL_SWAP_LOCATION_DESCRIPTION, true));
 
             when(agencyInternalLocationRepository.findByLocationCodeAndAgencyId(CELL_SWAP_LOCATION_CODE, "LEI")).thenReturn(List.of(cellSwapLocation));
 
@@ -260,7 +259,7 @@ class MovementUpdateServiceTest {
 
         @Test
         void writesToBedAssignmentHistories() {
-            when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, "LEI", 1L, "LEI-123", "Y"));
+            when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, "LEI", 1L, "LEI-123", true));
             when(agencyInternalLocationRepository.findByLocationCodeAndAgencyId("CSWAP", "LEI")).thenReturn(List.of(cellSwapLocation()));
 
             service.moveToCellSwap(SOME_BOOKING_ID, SOME_REASON_CODE, SOME_TIME);
@@ -271,7 +270,7 @@ class MovementUpdateServiceTest {
 
         @Test
         void missingReasonCode_defaultsToADM() {
-            when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, "LEI", 1L, "LEI-123", "Y"));
+            when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, "LEI", 1L, "LEI-123", true));
             when(agencyInternalLocationRepository.findByLocationCodeAndAgencyId("CSWAP", "LEI")).thenReturn(List.of(cellSwapLocation()));
 
             service.moveToCellSwap(SOME_BOOKING_ID, null, SOME_TIME);
@@ -281,7 +280,7 @@ class MovementUpdateServiceTest {
 
         @Test
         void missingDateTime_defaultsToNow() {
-            when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, "LEI", 1L, "LEI-123", "Y"));
+            when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, "LEI", 1L, "LEI-123", true));
             when(agencyInternalLocationRepository.findByLocationCodeAndAgencyId("CSWAP", "LEI")).thenReturn(List.of(cellSwapLocation()));
 
             service.moveToCellSwap(SOME_BOOKING_ID, SOME_REASON_CODE, null);
@@ -292,7 +291,7 @@ class MovementUpdateServiceTest {
         @Test
         void checkIfDefaultReasonCode_isValid() {
 
-            when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, "LEI", 1L, "LEI-123", "Y"));
+            when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, "LEI", 1L, "LEI-123", true));
             when(agencyInternalLocationRepository.findByLocationCodeAndAgencyId("CSWAP", "LEI")).thenReturn(List.of(cellSwapLocation()));
 
             service.moveToCellSwap(SOME_BOOKING_ID, null, SOME_TIME);
@@ -305,7 +304,7 @@ class MovementUpdateServiceTest {
         void noUpdateNeeded_returnsOriginalOffender() {
             final var offenderInCellSwap = OffenderBooking.builder()
                     .bookingId(SOME_BOOKING_ID)
-                    .activeFlag("Y")
+                    .active(true)
                     .location(AgencyLocation.builder().id("LEI").build())
                     .assignedLivingUnit(cellSwapLocation())
                     .build();
@@ -324,7 +323,7 @@ class MovementUpdateServiceTest {
         void noConfigured_cellSwapLocation() {
             final var offenderBooking = OffenderBooking.builder()
                     .bookingId(-1L)
-                    .activeFlag("Y")
+                    .active(true)
                     .location(AgencyLocation.builder().id("LEI").build())
                     .assignedLivingUnit(AgencyInternalLocation.builder().locationId(-1L).build())
                     .build();
@@ -339,7 +338,7 @@ class MovementUpdateServiceTest {
 
         @Test
         void moreThanOne_cellSwapConfigured() {
-            when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, "LEI", 1L, "LEI-123", "Y"));
+            when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, "LEI", 1L, "LEI-123", true));
             when(agencyInternalLocationRepository.findByLocationCodeAndAgencyId("CSWAP", "LEI"))
                     .thenReturn(List.of(cellSwapLocation(), cellSwapLocation()));
 
@@ -366,14 +365,14 @@ class MovementUpdateServiceTest {
                 .locationId(CELL_SWAP_LOCATION_ID)
                 .locationCode(CELL_SWAP_LOCATION_CODE)
                 .description(CELL_SWAP_LOCATION_DESCRIPTION)
-                .activeFlag(ActiveFlag.Y)
+                .active(true)
                 .build();
     }
 
-    private Optional<OffenderBooking> anOffenderBooking(final Long bookingId, final String agency, final Long livingUnitId, final String livingUnitDesc, final String activeFlag) {
+    private Optional<OffenderBooking> anOffenderBooking(final Long bookingId, final String agency, final Long livingUnitId, final String livingUnitDesc, final boolean active) {
         final var livingUnit = AgencyInternalLocation.builder().locationId(livingUnitId).description(livingUnitDesc).build();
         return Optional.of(uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking.builder()
-                .activeFlag(activeFlag)
+                .active(active)
                 .bookingId(bookingId)
                 .location(AgencyLocation.builder().id(agency).build())
                 .assignedLivingUnit(livingUnit)
@@ -388,7 +387,7 @@ class MovementUpdateServiceTest {
                         .currentOccupancy(1)
                         .locationType("CELL")
                         .locationCode(locationCode)
-                        .activeFlag(ActiveFlag.Y)
+                        .active(true)
                         .build()
         );
     }

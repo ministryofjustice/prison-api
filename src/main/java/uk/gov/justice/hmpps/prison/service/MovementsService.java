@@ -31,7 +31,6 @@ import uk.gov.justice.hmpps.prison.api.model.RollCount;
 import uk.gov.justice.hmpps.prison.api.model.TransferEvent;
 import uk.gov.justice.hmpps.prison.api.model.TransferSummary;
 import uk.gov.justice.hmpps.prison.repository.MovementsRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.City;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement;
@@ -369,7 +368,6 @@ public class MovementsService {
             .movementDirection(createExternalMovement.getDirectionCode())
             .movementType(movementType)
             .movementReason(movementReason)
-            .activeFlag(ActiveFlag.Y)
             .build();
 
         offenderBooking.addExternalMovement(externalMovement);
@@ -404,7 +402,7 @@ public class MovementsService {
     public Page<OffenderIn> getOffendersIn(final String agencyId, final LocalDateTime fromDate, final LocalDateTime toDate, final Pageable pageable, final boolean allMovements) {
         final var page = allMovements
             ? externalMovementRepository.findAllMovements(agencyId, MovementDirection.IN, fromDate, toDate, pageable)
-            : externalMovementRepository.findMovements(agencyId, ActiveFlag.Y, MovementDirection.IN, fromDate, toDate, pageable);
+            : externalMovementRepository.findMovements(agencyId, true, MovementDirection.IN, fromDate, toDate, pageable);
         final var movements = page.getContent().stream().map(this::transform).collect(toList());
         return new PageImpl<OffenderIn>(movements, pageable, page.getTotalElements());
     }

@@ -6,11 +6,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -42,11 +41,6 @@ public class KeyDateAdjustment extends AuditableEntity {
     private OffenderBooking offenderBooking;
 
     @Column(name = "ACTIVE_FLAG")
-    @Enumerated(EnumType.STRING)
-    private ActiveFlag activeFlag;
-
-
-    public boolean isActive() {
-        return activeFlag != null && activeFlag.isActive();
-    }
+    @Type(type = "yes_no")
+    private boolean active;
 }

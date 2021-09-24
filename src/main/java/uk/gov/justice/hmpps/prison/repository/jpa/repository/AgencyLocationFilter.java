@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.jpa.domain.Specification;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -25,8 +24,7 @@ import java.util.List;
 public class AgencyLocationFilter implements Specification<AgencyLocation> {
     private String id;
 
-    @Builder.Default
-    private final ActiveFlag activeFlag = ActiveFlag.Y;
+    private Boolean active;
 
     private String type;
 
@@ -42,8 +40,8 @@ public class AgencyLocationFilter implements Specification<AgencyLocation> {
             predicateBuilder.add(cb.equal(root.get("id"), id));
         }
 
-        if (activeFlag != null) {
-            predicateBuilder.add(cb.equal(root.get("activeFlag"), activeFlag));
+        if (active != null) {
+            predicateBuilder.add(cb.equal(root.get("active"), active));
         }
 
         if (StringUtils.isNotBlank(type)) {

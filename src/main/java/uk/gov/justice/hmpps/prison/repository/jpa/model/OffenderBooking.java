@@ -11,6 +11,7 @@ import lombok.ToString.Exclude;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.ListIndexBase;
+import org.hibernate.annotations.Type;
 import uk.gov.justice.hmpps.prison.api.model.LegalStatus;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
@@ -128,7 +129,8 @@ public class OffenderBooking extends ExtendedAuditableEntity {
 
     @Column(name = "ACTIVE_FLAG", nullable = false)
     @Default
-    private String activeFlag = "N";
+    @Type(type="yes_no")
+    private boolean active = false;
 
     @OrderBy("effectiveDate ASC")
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
@@ -441,10 +443,6 @@ public class OffenderBooking extends ExtendedAuditableEntity {
         return courtCases == null ? Optional.empty() : courtCases.stream().filter(Objects::nonNull).filter(cc -> cc.getId().equals(courtCaseId)).findFirst();
     }
 
-    public boolean isActive() {
-        return activeFlag != null && activeFlag.equals("Y");
-    }
-
     public List<OffenderCourtCase> getActiveCourtCases() {
         return courtCases.stream().filter(offenderCourtCase -> offenderCourtCase != null && offenderCourtCase.isActive()).toList();
     }
@@ -457,7 +455,7 @@ public class OffenderBooking extends ExtendedAuditableEntity {
         return profileDetails.stream()
             .filter(pd -> {
                 final var profileType = pd.getId().getType();
-                return profileType.getCategory().equals("PI") && (profileType.getActiveFlag().isActive() || profileType.getType().equals("RELF"));
+                return profileType.getCategory().equals("PI") && (profileType.isActive() || profileType.getType().equals("RELF"));
             })
             .collect(
                 Collectors.groupingBy(pd -> pd.getId().getType())
@@ -524,7 +522,7 @@ public class OffenderBooking extends ExtendedAuditableEntity {
     }
 
     public void setPreviousMovementsToInactive() {
-        externalMovements.stream().filter(m -> m.getActiveFlag().isActive()).forEach(m -> m.setActiveFlag(ActiveFlag.N));
+        externalMovements.stream().filter(ExternalMovement::isActive).forEach(m -> m.setActive(false));
     }
 
     public void setPreviousImprisonmentStatusToInactive(final LocalDateTime expiryTime) {
@@ -545,7 +543,7 @@ public class OffenderBooking extends ExtendedAuditableEntity {
 
     public Optional<OffenderImage> getLatestFaceImage() {
         return images.stream()
-            .filter(i -> "Y".equals(i.getActiveFlag()))
+            .filter(OffenderImage::isActive)
             .filter(i -> "OFF_BKG".equals(i.getImageType()))
             .filter(i -> "FACE".equals(i.getViewType()))
             .filter(i -> "FRONT".equals(i.getOrientationType()))
@@ -613,7 +611,7 @@ public class OffenderBooking extends ExtendedAuditableEntity {
             "bookingId = " + bookingId + ", " +
             "bookNumber = " + bookNumber + ", " +
             "bookingSequence = " + bookingSequence + ", " +
-            "activeFlag = " + activeFlag + ", " +
+            "active = " + active + ", " +
             "inOutStatus = " + inOutStatus + ")";
     }
 }

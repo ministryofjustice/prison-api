@@ -7,11 +7,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.time.LocalDate;
@@ -37,22 +36,22 @@ public class ProfileType extends AuditableEntity {
     private String description;
 
     @Column(name = "MANDATORY_FLAG", nullable = false)
-    @Enumerated(EnumType.STRING)
     @Default
-    private ActiveFlag mandatory = ActiveFlag.Y;
+    @Type(type="yes_no")
+    private boolean mandatory = true;
 
     @Column(name = "UPDATED_ALLOWED_FLAG", nullable = false)
-    @Enumerated(EnumType.STRING)
     @Default
-    private ActiveFlag updateAllowed = ActiveFlag.Y;
+    @Type(type="yes_no")
+    private boolean updateAllowed = true;
 
     @Column(name = "CODE_VALUE_TYPE", nullable = false)
     private String codeValueType;
 
     @Column(name = "ACTIVE_FLAG", nullable = false)
-    @Enumerated(EnumType.STRING)
+    @Type(type="yes_no")
     @Default
-    private ActiveFlag activeFlag = ActiveFlag.Y;
+    private boolean active = true;
 
     @Column(name = "EXPIRY_DATE")
     private LocalDate endDate;

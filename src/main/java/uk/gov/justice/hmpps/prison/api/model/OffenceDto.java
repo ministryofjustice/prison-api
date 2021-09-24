@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offence;
 
 import javax.validation.constraints.NotBlank;
@@ -40,7 +39,7 @@ public class OffenceDto {
     private String severityRanking;
 
     @ApiModelProperty(required = true, value = "Active Y/N", example = "Y", position = 6)
-    private ActiveFlag activeFlag;
+    private String activeFlag;
 
     @ApiModelProperty(value = "Sequence", example = "1", position = 7)
     private Integer listSequence;
@@ -49,25 +48,25 @@ public class OffenceDto {
     private LocalDate expiryDate;
 
 
-    public static final OffenceDto transform(final Offence offence) {
+    public static OffenceDto transform(final Offence offence) {
         return OffenceDto.builder()
             .code(offence.getCode())
             .statuteCode(offence.getStatute() != null ? StatuteDto.builder()
                 .code(offence.getStatute().getCode())
                 .description(offence.getStatute().getDescription())
                 .legislatingBodyCode(offence.getStatute().getLegislatingBodyCode())
-                .activeFlag(offence.getStatute().getActiveFlag())
+                .activeFlag(offence.getStatute().isActive() ? "Y" : "N")
                 .build() : null)
             .hoCode(offence.getHoCode() != null ? HOCodeDto.builder()
                 .code(offence.getHoCode().getCode())
                 .description(offence.getHoCode().getDescription())
-                .activeFlag(offence.getHoCode().getActiveFlag())
+                .activeFlag(offence.getHoCode().isActive() ? "Y" : "N")
                 .expiryDate(offence.getHoCode().getExpiryDate())
                 .build() : null)
             .description(offence.getDescription())
             .listSequence(offence.getListSequence())
             .severityRanking(offence.getSeverityRanking())
-            .activeFlag(offence.getActiveFlag())
+            .activeFlag(offence.isActive() ? "Y" : "N")
             .expiryDate(offence.getExpiryDate())
             .build();
     }

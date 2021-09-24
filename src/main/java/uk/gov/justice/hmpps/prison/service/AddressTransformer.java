@@ -45,7 +45,7 @@ public class AddressTransformer {
                         .map(addressUsage ->
                                 AddressUsageDto.builder()
                                         .addressId(address.getAddressId())
-                                        .activeFlag("Y".equalsIgnoreCase(addressUsage.getActiveFlag()))
+                                        .activeFlag(addressUsage.isActive())
                                         .addressUsage(addressUsage.getAddressUsage())
                                         .addressUsageDescription(addressUsage.getAddressUsageType() == null ? null : addressUsage.getAddressUsageType().getDescription())
                                         .build()).collect(Collectors.toList()))

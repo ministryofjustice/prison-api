@@ -5,11 +5,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.Table;
@@ -50,8 +49,8 @@ public class CopyTable extends AuditableEntity {
     private String tableName;
 
     @Column(name = "ACTIVE_FLAG", nullable = false)
-    @Enumerated(value = EnumType.STRING)
-    private ActiveFlag activeFlag;
+    @Type(type="yes_no")
+    private boolean active;
 
     @Column(name = "EXPIRY_DATE")
     private LocalDate expiryDate;

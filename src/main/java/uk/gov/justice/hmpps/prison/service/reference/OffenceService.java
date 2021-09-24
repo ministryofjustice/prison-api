@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.OffenceDto;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.HOCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Statute;
@@ -25,7 +24,7 @@ public class OffenceService {
     private final OffenceRepository repository;
 
     public Page<OffenceDto> getOffences(final boolean activeOnly, Pageable pageable) {
-        return convertToPaginatedDto(activeOnly ? repository.findAllByActiveFlag(ActiveFlag.Y, pageable)
+        return convertToPaginatedDto(activeOnly ? repository.findAllByActive(true, pageable)
             : repository.findAll(pageable), pageable);
     }
 

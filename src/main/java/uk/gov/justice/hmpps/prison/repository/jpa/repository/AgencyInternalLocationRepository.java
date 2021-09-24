@@ -1,7 +1,6 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.repository;
 
 import org.springframework.data.repository.CrudRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 
 import java.util.List;
@@ -9,7 +8,7 @@ import java.util.Optional;
 
 public interface AgencyInternalLocationRepository extends CrudRepository<AgencyInternalLocation, Long> {
 
-    List<AgencyInternalLocation> findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActiveFlag(final String agencyId, final String locationType, final ActiveFlag activeFlag);
+    List<AgencyInternalLocation> findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive(final String agencyId, final String locationType, final boolean active);
 
     List<AgencyInternalLocation> findAgencyInternalLocationsByAgencyIdAndLocationType(final String agencyId, final String locationType);
 
@@ -21,5 +20,5 @@ public interface AgencyInternalLocationRepository extends CrudRepository<AgencyI
 
     List<AgencyInternalLocation> findByLocationCodeAndAgencyId(final String locationCode, final String agencyId);
 
-    List<AgencyInternalLocation> findByAgencyIdAndLocationTypeAndActiveFlagAndParentLocationIsNull(final String agencyId, final String locationType, ActiveFlag activeFlag);
+    List<AgencyInternalLocation> findByAgencyIdAndLocationTypeAndActiveAndParentLocationIsNull(final String agencyId, final String locationType, boolean active);
 }

@@ -36,7 +36,7 @@ public class OffenderTransformer {
         final var offenderBuilder = buildOffender(latestBooking.getOffender());
 
         return offenderBuilder
-            .activeFlag(latestBooking.getActiveFlag().equalsIgnoreCase("Y"))
+            .activeFlag(latestBooking.isActive())
             .inOutStatus(latestBooking.getInOutStatus())
             .statusReason(latestBooking.getStatusReason())
             .agencyId(latestBooking.getLocation().getId())

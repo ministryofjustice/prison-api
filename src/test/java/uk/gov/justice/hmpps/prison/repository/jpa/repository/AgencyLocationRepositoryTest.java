@@ -7,7 +7,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationEstablishment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
@@ -41,7 +40,7 @@ public class AgencyLocationRepositoryTest {
     @Test
     public void findAgenciesWithInactiveFlag_returnsAllInactiveAgencies() {
         final var expected = AgencyLocationFilter.builder()
-                .activeFlag(ActiveFlag.N)
+                .active(false)
                 .build();
 
         final var agencies = repository.findAll(expected);
@@ -62,7 +61,7 @@ public class AgencyLocationRepositoryTest {
     public void findAgenciesByAgencyNotActive_returnsNoAgency() {
         final var expected = AgencyLocationFilter.builder()
                 .id("LEI")
-                .activeFlag(ActiveFlag.N)
+                .active(false)
                 .build();
 
         final var agencies = repository.findAll(expected);
@@ -72,7 +71,7 @@ public class AgencyLocationRepositoryTest {
     @Test
     public void findAgenciesIncludingOUTandTRN_returnsAll() {
         final var expected = AgencyLocationFilter.builder()
-                .activeFlag(ActiveFlag.Y)
+                .active(true)
                 .excludedAgencies(null)
                 .build();
 
@@ -85,7 +84,7 @@ public class AgencyLocationRepositoryTest {
         final var newAgency = AgencyLocation.builder()
                 .id("TEST")
                 .description("A Test Agency")
-                .activeFlag(ActiveFlag.Y)
+                .active(true)
                 .type(AgencyLocationType.PRISON_TYPE)
                 .establishmentTypes(List.of(AgencyLocationEstablishment.builder()
                         .agencyLocId("AgencyRepositoryTestTEST")

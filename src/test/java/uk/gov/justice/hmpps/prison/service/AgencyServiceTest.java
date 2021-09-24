@@ -14,7 +14,6 @@ import uk.gov.justice.hmpps.prison.api.model.PrisonContactDetail;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.api.model.Telephone;
 import uk.gov.justice.hmpps.prison.repository.AgencyRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocationProfile;
@@ -116,17 +115,17 @@ public class AgencyServiceTest {
 
     @Test
     public void shouldCallRepositoryForAgencyLocationsByType() {
-        when(agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActiveFlag("SOME AGENCY", "SOME TYPE", ActiveFlag.Y))
+        when(agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive("SOME AGENCY", "SOME TYPE", true))
                 .thenReturn(List.of(AgencyInternalLocation.builder().locationId(1L).build()));
 
         service.getAgencyLocationsByType("SOME AGENCY", "SOME TYPE");
 
-        verify(agencyInternalLocationRepository).findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActiveFlag("SOME AGENCY", "SOME TYPE", ActiveFlag.Y);
+        verify(agencyInternalLocationRepository).findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive("SOME AGENCY", "SOME TYPE", true);
     }
 
     @Test
     public void shouldReturnLocationsForAgencyLocationsByType() {
-        when(agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActiveFlag("ANY AGENCY", "ANY TYPE", ActiveFlag.Y))
+        when(agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive("ANY AGENCY", "ANY TYPE", true))
                 .thenReturn(List.of(AgencyInternalLocation.builder().locationId(1L).build()));
 
         final var locations = service.getAgencyLocationsByType("ANY AGENCY", "ANY TYPE");
@@ -136,7 +135,7 @@ public class AgencyServiceTest {
 
     @Test
     public void shouldThrowNotFoundIfNoAgencyLocationsByType() {
-        when(agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActiveFlag("ANY AGENCY", "ANY TYPE", ActiveFlag.Y))
+        when(agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive("ANY AGENCY", "ANY TYPE", true))
                 .thenReturn(emptyList());
 
         assertThatThrownBy(() -> service.getAgencyLocationsByType("ANY AGENCY", "ANY TYPE")).isInstanceOf(EntityNotFoundException.class);
@@ -144,10 +143,10 @@ public class AgencyServiceTest {
 
     @Test
     public void shouldReturnAllActiveCellsWithSpaceForAgency() {
-        when(agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActiveFlag("LEI", "CELL", ActiveFlag.Y)).thenReturn(List.of(
-                AgencyInternalLocation.builder().locationId(-1L).locationType("CELL").operationalCapacity(2).currentOccupancy(1).activeFlag(ActiveFlag.Y).build(),
-                AgencyInternalLocation.builder().locationId(-2L).locationType("CELL").operationalCapacity(2).currentOccupancy(1).activeFlag(ActiveFlag.Y).build(),
-                AgencyInternalLocation.builder().locationId(-3L).locationType("CELL").operationalCapacity(2).currentOccupancy(2).activeFlag(ActiveFlag.Y).build()
+        when(agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive("LEI", "CELL", true)).thenReturn(List.of(
+                AgencyInternalLocation.builder().locationId(-1L).locationType("CELL").operationalCapacity(2).currentOccupancy(1).active(true).build(),
+                AgencyInternalLocation.builder().locationId(-2L).locationType("CELL").operationalCapacity(2).currentOccupancy(1).active(true).build(),
+                AgencyInternalLocation.builder().locationId(-3L).locationType("CELL").operationalCapacity(2).currentOccupancy(2).active(true).build()
         ));
         when(agencyInternalLocationProfileRepository.findAllByLocationId(anyLong())).thenReturn(buildAgencyInternalLocationProfiles());
 
@@ -157,10 +156,10 @@ public class AgencyServiceTest {
 
     @Test
     public void shouldReturnAllActiveCellsWithSpaceForAgencyWithAttribute() {
-        when(agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActiveFlag("LEI", "CELL", ActiveFlag.Y)).thenReturn(List.of(
-                AgencyInternalLocation.builder().locationId(-1L).locationType("CELL").operationalCapacity(2).currentOccupancy(1).activeFlag(ActiveFlag.Y).build(),
-                AgencyInternalLocation.builder().locationId(-2L).locationType("CELL").capacity(2).currentOccupancy(1).activeFlag(ActiveFlag.Y).build(),
-                AgencyInternalLocation.builder().locationId(-3L).locationType("CELL").operationalCapacity(2).currentOccupancy(2).activeFlag(ActiveFlag.Y).build()
+        when(agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive("LEI", "CELL", true)).thenReturn(List.of(
+                AgencyInternalLocation.builder().locationId(-1L).locationType("CELL").operationalCapacity(2).currentOccupancy(1).active(true).build(),
+                AgencyInternalLocation.builder().locationId(-2L).locationType("CELL").capacity(2).currentOccupancy(1).active(true).build(),
+                AgencyInternalLocation.builder().locationId(-3L).locationType("CELL").operationalCapacity(2).currentOccupancy(2).active(true).build()
         ));
 
         when(agencyInternalLocationProfileRepository.findAllByLocationId(-1L)).thenReturn(buildAgencyInternalLocationProfiles());
@@ -172,9 +171,9 @@ public class AgencyServiceTest {
 
     @Test
     public void shouldReturnAllActiveCellsWithIgnoringZeroOperationalCapacityForAgencyWithAttribute() {
-        when(agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActiveFlag("LEI", "CELL", ActiveFlag.Y)).thenReturn(List.of(
-            AgencyInternalLocation.builder().locationId(-1L).locationType("CELL").operationalCapacity(0).capacity(3).currentOccupancy(2).activeFlag(ActiveFlag.Y).build(),
-            AgencyInternalLocation.builder().locationId(-2L).locationType("CELL").operationalCapacity(0).capacity(2).currentOccupancy(2).activeFlag(ActiveFlag.Y).build()
+        when(agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive("LEI", "CELL", true)).thenReturn(List.of(
+            AgencyInternalLocation.builder().locationId(-1L).locationType("CELL").operationalCapacity(0).capacity(3).currentOccupancy(2).active(true).build(),
+            AgencyInternalLocation.builder().locationId(-2L).locationType("CELL").operationalCapacity(0).capacity(2).currentOccupancy(2).active(true).build()
         ));
 
         when(agencyInternalLocationProfileRepository.findAllByLocationId(-1L)).thenReturn(buildAgencyInternalLocationProfiles());
@@ -193,7 +192,7 @@ public class AgencyServiceTest {
                         .userDescription("LEI-1-1-01")
                         .operationalCapacity(2)
                         .currentOccupancy(1)
-                        .activeFlag(ActiveFlag.Y)
+                        .active(true)
                         .build()));
         when(agencyInternalLocationProfileRepository.findAllByLocationId(anyLong())).thenReturn(buildAgencyInternalLocationProfiles());
 

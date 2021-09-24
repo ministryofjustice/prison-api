@@ -22,7 +22,6 @@ import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageByBookingId;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.CaseNoteRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteSubType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCaseNote;
@@ -131,7 +130,7 @@ public class CaseNoteService {
             .author(userDetail.getStaff())
             .occurrenceDateTime(occurrenceTime)
             .occurrenceDate(occurrenceTime.toLocalDate())
-            .amendmentFlag(ActiveFlag.N)
+            .amendmentFlag(false)
             .offenderBooking(booking)
             .build();
 

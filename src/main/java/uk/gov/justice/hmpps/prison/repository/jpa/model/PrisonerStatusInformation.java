@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import lombok.Getter;
 import org.hibernate.annotations.Subselect;
+import org.hibernate.annotations.Type;
 import org.springframework.data.annotation.Immutable;
 
 import javax.persistence.Entity;
@@ -25,7 +26,7 @@ import java.time.LocalDate;
                 "       AIL.DESCRIPTION                                                                           CELL_LOCATION, " +
                 "       OB.BOOKING_BEGIN_DATE                                                                     BOOKING_BEGIN_DATE, " +
                 "       dt_admission.admission_date                                                               ADMISSION_DATE, " +
-                "       OB.ACTIVE_FLAG                                                                            ACTIVE_FLAG, " +
+                "       OB.ACTIVE_FLAG                                                                            ACTIVE, " +
                 "       OB.in_out_status                                                                          IN_OUT_STATUS, " +
                 "       IST.BAND_CODE                                                                             BAND_CODE, " +
                 "       OIS.IMPRISONMENT_STATUS                                                                   IMPRISONMENT_STATUS " +
@@ -70,7 +71,8 @@ public class PrisonerStatusInformation {
     private String cellLocation;
     private LocalDate bookingBeginDate;
     private LocalDate admissionDate;
-    private String activeFlag;
+    @Type(type="yes_no")
+    private boolean active;
     private String inOutStatus;
     private String bandCode;
     private String imprisonmentStatus;

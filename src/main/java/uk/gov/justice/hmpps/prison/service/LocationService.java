@@ -14,7 +14,6 @@ import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.repository.AgencyRepository;
 import uk.gov.justice.hmpps.prison.repository.InmateRepository;
 import uk.gov.justice.hmpps.prison.repository.LocationRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.transform.LocationTransformer;
 import uk.gov.justice.hmpps.prison.repository.support.StatusFilter;
@@ -68,7 +67,7 @@ public class LocationService {
                 locations.add(convertToLocation(agency));
 
                 // Then retrieve all associated internal locations at configured level of granularity.
-                locations.addAll(agencyInternalLocationRepository.findByAgencyIdAndLocationTypeAndActiveFlagAndParentLocationIsNull(agency.getAgencyId(), locationTypeGranularity, ActiveFlag.Y)
+                locations.addAll(agencyInternalLocationRepository.findByAgencyIdAndLocationTypeAndActiveAndParentLocationIsNull(agency.getAgencyId(), locationTypeGranularity, true)
                         .stream().map(LocationTransformer::fromAgencyInternalLocationPreferUserDesc).sorted(Comparator.comparing(Location::getDescription)).collect(Collectors.toList()));
                 return locations.stream();
 

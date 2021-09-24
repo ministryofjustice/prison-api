@@ -5,7 +5,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection;
 
@@ -17,14 +16,14 @@ public interface ExternalMovementRepository extends PagingAndSortingRepository<E
 
     @Query("select m from ExternalMovement m " +
             "where m.toAgency.id = :agencyId " +
-            "and m.activeFlag = :activeFlag " +
+            "and m.active = :active " +
             "and m.movementDirection = :direction " +
             "and m.movementTime > :start " +
             "and (:end is null or m.movementTime < :end)"
     )
     Page<ExternalMovement> findMovements(
             @Param("agencyId") String agencyId,
-            @Param("activeFlag") ActiveFlag activeFlag,
+            @Param("active") boolean active,
             @Param("direction") MovementDirection direction,
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end,
@@ -44,7 +43,7 @@ public interface ExternalMovementRepository extends PagingAndSortingRepository<E
         Pageable pageable);
 
 
-    List<ExternalMovement> findAllByOffenderBooking_BookingIdAndActiveFlag(Long bookingId, ActiveFlag activeFlag);
+    List<ExternalMovement> findAllByOffenderBooking_BookingIdAndActive(Long bookingId, boolean active);
 
     Optional<ExternalMovement> findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(Long bookingId);
 }

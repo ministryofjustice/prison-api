@@ -86,7 +86,7 @@ public class PrisonerInformationService {
                 .admissionDate(entity.getAdmissionDate())
                 .bookingBeginDate(entity.getBookingBeginDate())
                 .englishSpeaking("Y".equals(entity.getEnglishSpeakingFlag()))
-                .communityStatus(format("%s %s", "Y".equals(entity.getActiveFlag()) ? "ACTIVE" : "INACTIVE", entity.getInOutStatus()))
+                .communityStatus(format("%s %s", entity.isActive() ? "ACTIVE" : "INACTIVE", entity.getInOutStatus()))
                 .build();
         prisonerInformation.setLegalStatus(ImprisonmentStatus.calcLegalStatus(entity.getBandCode(), entity.getImprisonmentStatus()));
         prisonerInformation.deriveUnitCodes(entity.getCellLocation());

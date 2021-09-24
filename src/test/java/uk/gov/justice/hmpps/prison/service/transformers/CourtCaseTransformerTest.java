@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.CourtCase;
 import uk.gov.justice.hmpps.prison.api.model.CourtHearing;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus;
@@ -36,14 +35,14 @@ public class CourtCaseTransformerTest {
                 .bookingId(-1L)
                 .location(AgencyLocation.builder()
                         .id("LEI")
-                        .activeFlag(ActiveFlag.Y)
+                        .active(true)
                         .type(new AgencyLocationType("INST"))
                         .description("Leeds")
                         .build()).build();
 
         courtLocation = AgencyLocation.builder()
                 .id("MDI")
-                .activeFlag(ActiveFlag.Y)
+                .active(true)
                 .type(AgencyLocationType.COURT_TYPE)
                 .description("Moorland")
                 .build();

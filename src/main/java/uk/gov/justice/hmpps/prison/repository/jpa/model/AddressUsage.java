@@ -9,6 +9,7 @@ import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -49,7 +50,9 @@ public class AddressUsage extends AuditableEntity {
     @Id
     private String addressUsage;
 
-    private String activeFlag;
+    @Column(name = "ACTIVE_FLAG")
+    @Type(type="yes_no")
+    private boolean active;
 
     @ManyToOne
     @NotFound(action = IGNORE)

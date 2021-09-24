@@ -10,7 +10,7 @@ import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.NotFound;
-
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,12 +19,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-
 import java.time.LocalDateTime;
 
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
-import static uk.gov.justice.hmpps.prison.repository.jpa.model.RelationshipType.RELATIONSHIP;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.ContactType.CONTACTS;
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.RelationshipType.RELATIONSHIP;
 
 @Getter
 @Entity
@@ -66,7 +65,8 @@ public class OffenderContactPerson extends AuditableEntity {
     private ContactType contactType;
 
     @Column(name = "ACTIVE_FLAG")
-    private String activeFlag;
+    @Type(type="yes_no")
+    private boolean active;
 
     @Column(name = "NEXT_OF_KIN_FLAG")
     private String nextOfKinFlag;
@@ -82,10 +82,6 @@ public class OffenderContactPerson extends AuditableEntity {
 
     @Column(name = "CREATE_DATETIME", insertable = false, updatable = false)
     private LocalDateTime createDateTime;
-
-    public boolean isActive() {
-        return ACTIVE.equals(activeFlag);
-    }
 
     public LocalDateTime lastUpdatedDateTime() {
         return modifyDateTime != null ? modifyDateTime : createDateTime;

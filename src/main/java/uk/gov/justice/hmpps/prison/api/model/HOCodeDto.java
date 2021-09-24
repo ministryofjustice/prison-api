@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 
 import java.time.LocalDate;
 
@@ -26,7 +25,7 @@ public class HOCodeDto {
     private String description;
 
     @ApiModelProperty(required = true, value = "Active Y/N", example = "Y", position = 3)
-    private ActiveFlag activeFlag;
+    private String activeFlag;
 
     @ApiModelProperty(value = "Expiry Date", example = "2021-01-05", position = 4)
     private LocalDate expiryDate;

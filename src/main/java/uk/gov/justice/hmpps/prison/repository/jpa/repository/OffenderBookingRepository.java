@@ -9,6 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface OffenderBookingRepository extends PagingAndSortingRepository<OffenderBooking, Long>, JpaSpecificationExecutor<OffenderBooking> {
-    Optional<OffenderBooking> findByOffenderNomsIdAndActiveFlag(String nomsId, String activeFlag);
+    Optional<OffenderBooking> findByOffenderNomsIdAndActive(String nomsId, boolean active);
     Optional<OffenderBooking> findByOffenderNomsIdAndBookingSequence(String nomsId, Integer bookingSequence);
 }

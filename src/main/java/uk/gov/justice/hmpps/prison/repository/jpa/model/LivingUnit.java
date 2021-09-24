@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -9,6 +10,7 @@ import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -89,7 +91,9 @@ public class LivingUnit {
     private HousingUnitTypeReferenceCode housingUnitTypeReferenceCode;
 
     @Column(name = "ACTIVE_FLAG", nullable = false)
-    private String activeFlag;
+    @Type(type="yes_no")
+    @Default
+    private boolean active = true;
 
     @Column(name = "CAPACITY")
     private Integer capacity;
@@ -119,10 +123,6 @@ public class LivingUnit {
 
     @Column(name = "NO_OF_OCCUPANT")
     private Integer noOfOccupants;
-
-    public boolean isActive() {
-        return "Y".equals(activeFlag);
-    }
 
     public boolean isActiveCell() {
         return isActive() && "CELL".equals(livingUnitType);

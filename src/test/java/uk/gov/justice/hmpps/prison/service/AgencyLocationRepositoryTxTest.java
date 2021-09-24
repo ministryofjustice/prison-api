@@ -9,7 +9,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
@@ -34,7 +33,7 @@ public class AgencyLocationRepositoryTxTest {
         final var newAgency = AgencyLocation.builder()
                 .id(TEST_AGY_ID)
                 .description("A Test Agency")
-                .activeFlag(ActiveFlag.Y)
+                .active(true)
                 .type(agencyLocationTypeReferenceCode.findById(AgencyLocationType.CRT).orElseThrow())
                 .build();
 

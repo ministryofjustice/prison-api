@@ -32,7 +32,6 @@ import uk.gov.justice.hmpps.prison.api.model.Visitor;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.repository.BookingRepository;
 import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ActiveFlag;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
@@ -971,7 +970,7 @@ public class BookingServiceTest {
         return OffenderCourtCase.builder().beginDate(LocalDate.EPOCH)
                 .agencyLocation(AgencyLocation.builder()
                         .id("agency_id")
-                        .activeFlag(ActiveFlag.Y)
+                        .active(true)
                         .type(AgencyLocationType.COURT_TYPE)
                         .description("The agency description")
                         .build())
@@ -982,8 +981,8 @@ public class BookingServiceTest {
 
     @Test
     void getOffenderPropertyContainers() {
-        final var activePropertyContainer = containerWithDefaults().containerId(-1L).activeFlag("Y").build();
-        final var inactivePropertyContainer = containerWithDefaults().containerId(-2L).activeFlag("N").build();
+        final var activePropertyContainer = containerWithDefaults().containerId(-1L).active(true).build();
+        final var inactivePropertyContainer = containerWithDefaults().containerId(-2L).active(false).build();
 
         when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.of(OffenderBooking.builder()
                 .propertyContainers(List.of(activePropertyContainer, inactivePropertyContainer))
@@ -1003,7 +1002,7 @@ public class BookingServiceTest {
 
     @Test
     void getOffenderPropertyContainers_missingLocation() {
-        final var activePropertyContainer = containerWithDefaults().containerId(-1L).internalLocation(null).activeFlag("Y").build();
+        final var activePropertyContainer = containerWithDefaults().containerId(-1L).internalLocation(null).active(true).build();
 
         when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.of(OffenderBooking.builder()
                 .propertyContainers(List.of(activePropertyContainer))
@@ -1022,7 +1021,7 @@ public class BookingServiceTest {
         return OffenderPropertyContainer.builder()
                 .sealMark("TEST1")
                 .internalLocation(AgencyInternalLocation.builder()
-                        .activeFlag(ActiveFlag.Y)
+                        .active(true)
                         .locationId(10L)
                         .build())
                 .containerType(new PropertyContainer("BULK", "Bulk"));
@@ -1035,42 +1034,42 @@ public class BookingServiceTest {
                         .id(-8L)
                     .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                         .sentenceAdjustCode("RSR")
-                        .activeFlag(ActiveFlag.Y)
+                        .active(true)
                         .adjustDays(4)
                         .build(),
                 SentenceAdjustment.builder()
                         .id(-9L)
                     .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                         .sentenceAdjustCode("RST")
-                        .activeFlag(ActiveFlag.N)
+                        .active(false)
                         .adjustDays(4)
                         .build(),
                 SentenceAdjustment.builder()
                         .id(-10L)
                     .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                         .sentenceAdjustCode("RX")
-                        .activeFlag(ActiveFlag.Y)
+                        .active(true)
                         .adjustDays(4)
                         .build(),
                 SentenceAdjustment.builder()
                         .id(-11L)
                     .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                         .sentenceAdjustCode("S240A")
-                        .activeFlag(ActiveFlag.N)
+                        .active(false)
                         .adjustDays(4)
                         .build(),
                 SentenceAdjustment.builder()
                         .id(-12L)
                     .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                         .sentenceAdjustCode("UR")
-                        .activeFlag(ActiveFlag.Y)
+                        .active(true)
                         .adjustDays(4)
                         .build(),
                 SentenceAdjustment.builder()
                         .id(-13L)
                     .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                         .sentenceAdjustCode("RX")
-                        .activeFlag(ActiveFlag.Y)
+                        .active(true)
                         .adjustDays(4)
                         .build()
         );
@@ -1080,7 +1079,7 @@ public class BookingServiceTest {
                         .builder()
                         .id(-8L)
                         .sentenceAdjustCode("ADA")
-                        .activeFlag(ActiveFlag.Y)
+                        .active(true)
                     .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                         .adjustDays(4)
                         .build(),
@@ -1088,7 +1087,7 @@ public class BookingServiceTest {
                         .builder()
                         .id(-9L)
                         .sentenceAdjustCode("ADA")
-                        .activeFlag(ActiveFlag.N)
+                        .active(false)
                     .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                         .adjustDays(9)
                         .build(),
@@ -1096,7 +1095,7 @@ public class BookingServiceTest {
                         .builder()
                         .id(-10L)
                         .sentenceAdjustCode("ADA")
-                        .activeFlag(ActiveFlag.Y)
+                        .active(true)
                     .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                         .adjustDays(13)
                         .build(),
@@ -1104,7 +1103,7 @@ public class BookingServiceTest {
                         .builder()
                         .id(-11L)
                         .sentenceAdjustCode("UAL")
-                        .activeFlag(ActiveFlag.N)
+                        .active(false)
                     .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                         .adjustDays(1)
                         .build(),
@@ -1112,7 +1111,7 @@ public class BookingServiceTest {
                         .builder()
                         .id(-12L)
                         .sentenceAdjustCode("RADA")
-                        .activeFlag(ActiveFlag.Y)
+                        .active(true)
                     .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                         .adjustDays(2)
                         .build(),
@@ -1120,7 +1119,7 @@ public class BookingServiceTest {
                         .builder()
                         .id(-13L)
                         .sentenceAdjustCode("UAL")
-                        .activeFlag(ActiveFlag.Y)
+                        .active(true)
                     .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
                         .adjustDays(7)
                         .build()
@@ -1375,8 +1374,8 @@ public class BookingServiceTest {
             return AgencyInternalLocation.builder()
                     .locationId(-99L)
                     .locationCode("CSWAP")
-                    .certifiedFlag(ActiveFlag.N)
-                    .activeFlag(ActiveFlag.Y)
+                    .certifiedFlag(false)
+                    .active(true)
                     .agencyId("MDI")
                     .description("CSWAP-MDI")
                     .build();

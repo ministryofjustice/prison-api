@@ -4,11 +4,15 @@ import lombok.Getter;
 
 @Getter
 public enum StatusFilter {
-    ALL(null), ACTIVE_ONLY("Y"), INACTIVE_ONLY("N");
+    ALL(null), ACTIVE_ONLY(true), INACTIVE_ONLY(false);
 
-    private String activeFlag;
+    private final Boolean active;
 
-    StatusFilter(final String activeFlag) {
-        this.activeFlag = activeFlag;
+    StatusFilter(final Boolean active) {
+        this.active = active;
+    }
+
+    public String getActiveYesNo() {
+       return active != null ? (active ? "Y" : "N") : null;
     }
 }

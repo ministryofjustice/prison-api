@@ -81,8 +81,8 @@ public class PersonServiceTest {
                     .build())
             )
             .addressUsages(List.of(
-                AddressUsage.builder().activeFlag("Y").addressUsage("HDC").addressUsageType(new AddressUsageType("HDC", "HDC address")).build(),
-                AddressUsage.builder().activeFlag("Y").addressUsage("HDC").build()
+                AddressUsage.builder().active(true).addressUsage("HDC").addressUsageType(new AddressUsageType("HDC", "HDC address")).build(),
+                AddressUsage.builder().active(true).addressUsage("HDC").build()
             ))
             .endDate(null)
                     .build(),

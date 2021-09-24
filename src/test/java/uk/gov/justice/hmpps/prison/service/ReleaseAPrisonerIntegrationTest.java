@@ -10,8 +10,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.hmpps.prison.api.model.RequestToReleasePrisoner;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCaseNote;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
@@ -81,7 +83,7 @@ public class ReleaseAPrisonerIntegrationTest {
         final var offenderBooking = getOffenderBooking(OFFENDER_NO, false);
 
         final var activeExternalMovements =
-            offenderBooking.getExternalMovements().stream().filter(externalMovement -> externalMovement.getActiveFlag().isActive()).count();
+            offenderBooking.getExternalMovements().stream().filter(ExternalMovement::isActive).count();
 
         assertThat(activeExternalMovements).isOne();
     }
@@ -122,7 +124,7 @@ public class ReleaseAPrisonerIntegrationTest {
         releasePrisoner(OFFENDER_NO);
 
         final var allActiveSentenceAdjustments = offenderSentenceAdjustmentRepository.findAllByOffenderBooking_BookingId(-1L)
-            .stream().filter(sentenceAdjustment -> sentenceAdjustment.isActive())
+            .stream().filter(SentenceAdjustment::isActive)
             .count();
 
         assertThat(allActiveSentenceAdjustments).isZero();
@@ -167,7 +169,7 @@ public class ReleaseAPrisonerIntegrationTest {
         releasePrisoner(OFFENDER_NO);
 
         final var releaseExternalMovement =
-            getOffenderBooking(OFFENDER_NO, false).getExternalMovements().stream().filter(externalMovement -> externalMovement.getActiveFlag().isActive())
+            getOffenderBooking(OFFENDER_NO, false).getExternalMovements().stream().filter(ExternalMovement::isActive)
                 .findFirst()
                 .orElseThrow();
 
@@ -188,9 +190,7 @@ public class ReleaseAPrisonerIntegrationTest {
 
         final var releaseCaseNote = casesNotes
             .stream()
-            .filter(casesNote -> casesNote.getOffenderBooking().getBookingId().equals(-1L))
-            .sorted(Comparator.comparing(OffenderCaseNote::getCreateDatetime).reversed())
-            .findFirst()
+            .filter(casesNote -> casesNote.getOffenderBooking().getBookingId().equals(-1L)).max(Comparator.comparing(OffenderCaseNote::getCreateDatetime))
             .orElseThrow();
 
         assertThat(releaseCaseNote.getCaseNoteText()).isEqualTo("Released from LEEDS for reason: Conditional Release (CJA91) -SH Term>1YR.");
@@ -208,7 +208,7 @@ public class ReleaseAPrisonerIntegrationTest {
 
         assertThat(offenderBooking).extracting(
                 "inOutStatus",
-                "activeFlag",
+                "active",
                 "bookingStatus",
                 "livingUnitMv",
                 "assignedLivingUnit",
@@ -216,11 +216,11 @@ public class ReleaseAPrisonerIntegrationTest {
                 "location",
                 "statusReason",
                 "commStatus")
-            .contains("OUT", "N", "C", null, null, LocalDateTime.now(clock), agencyOutside, "REL-CR", null);
+            .contains("OUT", false, "C", null, null, LocalDateTime.now(clock), agencyOutside, "REL-CR", null);
     }
 
-    private OffenderBooking getOffenderBooking(final String offenderNo, final Boolean activeFlag) {
-        return offenderBookingRepository.findByOffenderNomsIdAndActiveFlag(offenderNo, activeFlag ? "Y" : "N").orElseThrow();
+    private OffenderBooking getOffenderBooking(final String offenderNo, final Boolean active) {
+        return offenderBookingRepository.findByOffenderNomsIdAndActive(offenderNo, active).orElseThrow();
     }
 
     private void releasePrisoner(final String offenderNo) {

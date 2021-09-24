@@ -2,16 +2,17 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -77,8 +78,10 @@ public class ExternalMovement extends AuditableEntity {
     @JoinColumn(name = "TO_AGY_LOC_ID")
     private AgencyLocation toAgency;
 
-    @Enumerated(EnumType.STRING)
-    private ActiveFlag activeFlag;
+    @Column(name = "ACTIVE_FLAG")
+    @Type(type="yes_no")
+    @Default
+    private boolean active = true;
 
     @Column(name = "ESCORT_TEXT")
     private String escortText;
