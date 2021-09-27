@@ -71,13 +71,13 @@ public class OffenderAssessmentService {
     @Transactional(readOnly = true)
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<AssessmentSummary> getOffenderAssessments(final String offenderNo) {
-        final var assessments = repository.findByCsraAssessmentAndByOffenderNo_OrderByLatestFirst(offenderNo);
+        final var assessments = repository.findByCsraAssessmentAndByOffenderNos_OrderByLatestFirst(List.of(offenderNo));
 
         return assessments.stream().map(this::getAssessmentSummary).collect(toList());
     }
 
     public CurrentCsraAssessment getCurrentCsraClassification(final String offenderNo) {
-        final var assessments = repository.findByCsraAssessmentAndByOffenderNo_OrderByLatestFirst(offenderNo);
+        final var assessments = repository.findByCsraAssessmentAndByOffenderNos_OrderByLatestFirst(List.of(offenderNo));
 
         return calculateCurrentCsraClassification(assessments);
     }
@@ -126,7 +126,6 @@ public class OffenderAssessmentService {
 
     @Transactional(readOnly = true)
     public List<AssessmentClassification> getOffendersAssessmentRatings(final List<String> offenderNos) {
-        final var classifications = new ArrayList<AssessmentClassification>();
         final var batch = Lists.partition(new ArrayList<>(offenderNos), maxBatchSize);
         return batch.stream().flatMap(offenderNosBatch ->
             getOffendersCurrentAssessmentRating(offenderNosBatch).stream()

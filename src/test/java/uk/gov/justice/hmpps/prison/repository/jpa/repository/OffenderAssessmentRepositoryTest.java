@@ -95,40 +95,6 @@ public class OffenderAssessmentRepositoryTest {
     }
 
     @Test
-    void getAssessmentaByCsraAssessmentAndOffenderNo() {
-        final var assessments = repository.findByCsraAssessmentAndByOffenderNo_OrderByLatestFirst("A1183JE");
-
-        assertThat(assessments).usingRecursiveComparison()
-            .ignoringFields("assessmentDate", "assessmentComment", "nextReviewDate", "assessCommittee", "assessStatus", "assessmentCreateLocation", "assessmentItems", "assessmentType",
-                "calculatedClassification", "creationUser", "evaluationDate", "modifyUserId", "offenderBooking",
-                "overrideReason", "overridingClassification", "reviewCommittee", "reviewCommitteeComment",
-                "reviewedClassification", "createDatetime", "createUserId")
-            .isEqualTo(List.of(
-                OffenderAssessment.builder()
-                    .bookingId(-57L)
-                    .assessmentSeq(1)
-                    .build(),
-                OffenderAssessment.builder()
-                    .bookingId(-43L)
-                    .assessmentSeq(2)
-                    .build(),
-                OffenderAssessment.builder()
-                    .bookingId(-43L)
-                    .assessmentSeq(1)
-                    .build()
-            ));
-
-        assertCsraAssessment_Booking43_AssessmentSeq2(assessments.get(1));
-    }
-
-    @Test
-    void getAssessmentaByCsraAssessmentAndOffenderNo_ReturnsNothing() {
-        final var assessments = repository.findByCsraAssessmentAndByOffenderNo_OrderByLatestFirst("A1183JC");
-
-        assertThat(assessments).isEmpty();
-    }
-
-    @Test
     void getAssessmentaByCsraAssessmentAndOffenderNos() {
         final var assessments = repository.findByCsraAssessmentAndByOffenderNos_OrderByLatestFirst(List.of("A1183JE", "A1184MA", "A1184JR"));
 
@@ -140,6 +106,13 @@ public class OffenderAssessmentRepositoryTest {
             );
 
         assertCsraAssessment_Booking43_AssessmentSeq2(assessments.get(2));
+    }
+
+    @Test
+    void getAssessmentaByCsraAssessmentAndOffenderNos_ReturnsNothing() {
+        final var assessments = repository.findByCsraAssessmentAndByOffenderNos_OrderByLatestFirst(List.of("A1183JC"));
+
+        assertThat(assessments).isEmpty();
     }
 
     private void assertCsraAssessment_Booking43_AssessmentSeq2(final OffenderAssessment assessment) {
