@@ -169,7 +169,7 @@ enum class UserRepositorySql(val sql: String) {
     """ 
         AND SUA.username in  (select SUA_INNER.USERNAME FROM STAFF_USER_ACCOUNTS SUA_INNER
                     INNER JOIN USER_ACCESSIBLE_CASELOADS UAC ON SUA_INNER.USERNAME = UAC.USERNAME
-                    INNER JOIN User_caseload_roles UCR ON UCR.USERNAME = SUA_INNER.username
+                    INNER JOIN User_caseload_roles UCR ON UCR.USERNAME = SUA_INNER.username and and UCR.CASELOAD_ID = UAC.CASELOAD_ID
                     INNER JOIN OMS_ROLES RL ON RL.ROLE_ID = UCR.ROLE_ID
       WHERE UAC.CASELOAD_ID = :apiCaseloadId
       AND RL.ROLE_TYPE =  :applicationType
