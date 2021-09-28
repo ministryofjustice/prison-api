@@ -5,6 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.OffenderActivities;
 import uk.gov.justice.hmpps.prison.api.model.OffenderActivitySummary;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramProfile;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProgramProfileRepository;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
@@ -50,6 +51,9 @@ public class OffenderActivitiesService {
             .description(activity.getCourseActivity().getDescription())
             .startDate(activity.getStartDate())
             .endDate(activity.getEndDate())
+            .endReasonCode(ReferenceCode.getCodeOrNull(activity.getEndReason()))
+            .endReasonDescription(ReferenceCode.getDescriptionOrNull(activity.getEndReason()))
+            .endCommentText(activity.getEndCommentText())
             .isCurrentActivity(activity.isCurrentActivity())
             .build();
     }

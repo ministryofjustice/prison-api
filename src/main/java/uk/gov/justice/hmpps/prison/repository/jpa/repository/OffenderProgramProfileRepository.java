@@ -14,7 +14,7 @@ public interface OffenderProgramProfileRepository extends CrudRepository<Offende
         value = """
             SELECT OPP
             FROM OffenderProgramProfile OPP
-            WHERE OPP.offenderBooking.offender.nomsId = :nomsId 
+            WHERE OPP.offenderBooking.offender.nomsId = :nomsId
                AND OPP.programStatus IN :programStatuses
                AND (OPP.endDate >= :earliestEndDate OR OPP.endDate IS NULL)
         """

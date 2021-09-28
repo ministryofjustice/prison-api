@@ -31,6 +31,9 @@
       "agencyLocationDescription": "Leeds",
       "description": "Substance misuse course",
       "startDate": "2016-11-09",
+      "endReasonCode":"SECDEC",
+      "endReasonDescription":"Security",
+      "endCommentText":"Offender End Comment Text 3",
       "isCurrentActivity": true
     },
     {
@@ -39,6 +42,9 @@
       "agencyLocationDescription": "Leeds",
       "description": "Core classes",
       "startDate": "2016-11-09",
+      "endDate": "2021-09-29",
+      "endReasonCode":"TRF",
+      "endReasonDescription":"Transferred Out",
       "isCurrentActivity": false
     }
   ]
