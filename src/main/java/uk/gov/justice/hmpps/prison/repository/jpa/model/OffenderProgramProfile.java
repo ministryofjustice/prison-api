@@ -1,12 +1,29 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import org.hibernate.annotations.JoinColumnOrFormula;
+import org.hibernate.annotations.JoinColumnsOrFormulas;
+import org.hibernate.annotations.JoinFormula;
+import org.hibernate.annotations.NotFound;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import java.time.LocalDate;
 
+import static org.hibernate.annotations.NotFoundAction.IGNORE;
+
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper = false)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -39,6 +56,17 @@ public class OffenderProgramProfile extends ExtendedAuditableEntity {
 
     @Column(name = "OFFENDER_PROGRAM_STATUS")
     private String programStatus;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotFound(action = IGNORE)
+    @JoinColumnsOrFormulas(value = {
+        @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + OffenderProgramEndReason.DOMAIN + "'", referencedColumnName = "domain")),
+        @JoinColumnOrFormula(column = @JoinColumn(name = "OFFENDER_END_REASON", referencedColumnName = "code"))
+    })
+    private OffenderProgramEndReason endReason;
+
+    @Column(name = "OFFENDER_END_COMMENT_TEXT")
+    private String endCommentText;
 
     public boolean isCurrentWorkActivity() {
         return isCurrentActivity() && isWorkActivity();

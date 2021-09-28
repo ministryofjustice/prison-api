@@ -12,6 +12,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourseActivity;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramEndReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramProfile;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProgramProfileRepository;
 
@@ -195,6 +196,8 @@ public class OffenderActivitiesServiceTest {
                     .code("WOOD")
                     .scheduleStartDate(LocalDate.of(2012, 2, 28))
                     .build())
+                .endReason(new OffenderProgramEndReason("end code 1", "end description 1"))
+                .endCommentText("end comment 1")
                 .build();
             final var endedWorkActivity = OffenderProgramProfile.builder()
                 .offenderBooking(OffenderBooking.builder()
@@ -214,6 +217,8 @@ public class OffenderActivitiesServiceTest {
                     .code("WOOD")
                     .scheduleStartDate(LocalDate.of(2012, 2, 28))
                     .build())
+                .endReason(new OffenderProgramEndReason("end code 2", "end description 2"))
+                .endCommentText("end comment 2")
                 .build();
 
             final var returnedOffenderProgramProfiles = List.of(
@@ -233,6 +238,9 @@ public class OffenderActivitiesServiceTest {
                         .agencyLocationDescription("Moorland (HMP & YOI)")
                         .description("Woodwork AM")
                         .startDate(LocalDate.of(2016, 11, 9))
+                        .endReasonCode("end code 1")
+                        .endReasonDescription("end description 1")
+                        .endCommentText("end comment 1")
                         .isCurrentActivity(true)
                         .build(),
                     OffenderActivitySummary.builder()
@@ -242,6 +250,9 @@ public class OffenderActivitiesServiceTest {
                         .description("Woodwork PM")
                         .startDate(LocalDate.of(2016, 11, 9))
                         .endDate(LocalDate.of(2021, 1, 1))
+                        .endReasonCode("end code 2")
+                        .endReasonDescription("end description 2")
+                        .endCommentText("end comment 2")
                         .isCurrentActivity(false)
                         .build()
                 ))
