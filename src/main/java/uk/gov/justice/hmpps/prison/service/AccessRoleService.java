@@ -26,7 +26,7 @@ public class AccessRoleService {
     }
 
     @Transactional
-    @PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES')")
+    @PreAuthorize("hasAnyRole('MAINTAIN_ACCESS_ROLES','ROLES_ADMIN')")
     public void createAccessRole(@Valid final AccessRole accessRole) {
         if (accessRole.getParentRoleCode() != null) {
             final var roleOptional = accessRoleRepository.getAccessRole(accessRole.getParentRoleCode());
@@ -48,7 +48,7 @@ public class AccessRoleService {
     }
 
     @Transactional
-    @PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES')")
+    @PreAuthorize("hasAnyRole('MAINTAIN_ACCESS_ROLES','ROLES_ADMIN')")
     public void updateAccessRole(@Valid final AccessRole accessRole) {
 
         final var roleOptional = accessRoleRepository.getAccessRole(accessRole.getRoleCode());
