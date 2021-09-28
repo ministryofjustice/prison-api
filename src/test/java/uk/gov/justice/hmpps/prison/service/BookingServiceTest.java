@@ -1234,6 +1234,7 @@ public class BookingServiceTest {
                             OffenderSentenceCharge.builder()
                                 .offenderCharge(OffenderCharge.builder()
                                     .dateOfOffence(LocalDate.of(2021, 1, 2))
+                                    .endDate(LocalDate.of(2021, 1, 25))
                                     .offence(Offence.builder().build())
                                     .build()
                                 )
@@ -1261,7 +1262,8 @@ public class BookingServiceTest {
                 .years(3)
                 .offences(List.of(
                     OffenderOffence.builder()
-                        .offenceDate(LocalDate.of(2021, 1, 2))
+                        .offenceStartDate(LocalDate.of(2021, 1, 2))
+                        .offenceEndDate(LocalDate.of(2021, 1, 25))
                         .build()
                 ))
                 .build()

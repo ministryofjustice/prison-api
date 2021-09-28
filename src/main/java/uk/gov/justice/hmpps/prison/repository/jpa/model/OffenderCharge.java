@@ -104,7 +104,8 @@ public class OffenderCharge extends AuditableEntity {
     public OffenderOffence getOffenceDetail() {
         return OffenderOffence.builder()
             .offenderChargeId(id)
-            .offenceDate(dateOfOffence)
+            .offenceStartDate(dateOfOffence)
+            .offenceEndDate(endDate)
             .offenceCode(offence.getCode())
             .offenceDescription(offence.getDescription())
             .build();

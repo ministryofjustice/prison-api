@@ -17,7 +17,8 @@ import java.time.LocalDate;
 @Data
 public class OffenderOffence {
     private Long offenderChargeId;
-    private LocalDate offenceDate;
+    private LocalDate offenceStartDate;
+    private LocalDate offenceEndDate;
     private String offenceCode;
     private String offenceDescription;
 }
