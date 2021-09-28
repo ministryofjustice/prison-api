@@ -22,7 +22,7 @@ import java.time.LocalDate;
 public class CourseActivity extends AuditableEntity {
     @Id
     @Column(name = "CRS_ACTY_ID")
-    private double activityId;
+    private Long activityId;
 
     @Column(name = "DESCRIPTION")
     private String description;

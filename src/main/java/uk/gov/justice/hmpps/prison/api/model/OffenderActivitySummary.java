@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
 @ApiModel(description = "Offender activity")
@@ -41,6 +42,16 @@ public class OffenderActivitySummary {
     @NotNull
     @ApiModelProperty(value = "When the offender stopped this activity")
     private LocalDate endDate;
+
+    @ApiModelProperty(value = "End reason code")
+    private String endReasonCode;
+
+    @ApiModelProperty(value = "End reason description")
+    private String endReasonDescription;
+
+    @ApiModelProperty(value = "End comment")
+    @Size(max = 240, message = "End comment text must be a maximum of 240 characters")
+    private String endCommentText;
 
     @NotBlank
     @ApiModelProperty(value = "Whether the offender is currently registered to do this activity")

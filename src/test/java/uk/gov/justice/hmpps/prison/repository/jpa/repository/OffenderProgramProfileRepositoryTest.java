@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourseActivity;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramEndReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramProfile;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl;
@@ -80,6 +81,8 @@ public class OffenderProgramProfileRepositoryTest {
                         .code("SUBS")
                         .scheduleStartDate(LocalDate.of(2011, 1, 4))
                         .build())
+                    .endReason(new OffenderProgramEndReason("SECDEC", "Security"))
+                    .endCommentText("Offender End Comment Text 3")
                     .build()
                 )
         );
@@ -147,6 +150,8 @@ public class OffenderProgramProfileRepositoryTest {
                         .code("SUBS")
                         .scheduleStartDate(LocalDate.of(2011, 1, 4))
                         .build())
+                    .endReason(new OffenderProgramEndReason("SECDEC", "Security"))
+                    .endCommentText("Offender End Comment Text 3")
                     .build(),
                 OffenderProgramProfile.builder()
                     .offenderProgramReferenceId(-14L)
@@ -159,6 +164,7 @@ public class OffenderProgramProfileRepositoryTest {
                         .code("CORE")
                         .scheduleStartDate(LocalDate.of(2009, 7, 4))
                         .build())
+                    .endReason(new OffenderProgramEndReason("TRF", "Transferred Out"))
                     .build()
                 )
             );
