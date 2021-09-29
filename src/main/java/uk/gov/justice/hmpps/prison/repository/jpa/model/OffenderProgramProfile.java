@@ -68,9 +68,9 @@ public class OffenderProgramProfile extends ExtendedAuditableEntity {
     @Column(name = "OFFENDER_END_COMMENT_TEXT")
     private String endCommentText;
 
-    public boolean isCurrentWorkActivity() {
-        return isCurrentActivity() && isWorkActivity();
-    }
+//    public boolean isCurrentWorkActivity() {
+//        return isCurrentActivity() && isWorkActivity();
+//    }
 
     public boolean isCurrentActivity() {
         final var currentDate = LocalDate.now();
@@ -94,7 +94,7 @@ public class OffenderProgramProfile extends ExtendedAuditableEntity {
         return date == null || date.isAfter(comparedDate);
     }
 
-    public boolean isWorkActivity() {
-        return courseActivity != null && courseActivity.getCode() != null && !courseActivity.getCode().startsWith("EDU");
-    }
+//    public boolean isWorkActivity() {
+//        return courseActivity != null && courseActivity.getCode() != null && !courseActivity.getCode().startsWith("EDU");
+//    }
 }

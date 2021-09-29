@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourseActivity;
@@ -100,12 +102,17 @@ public class OffenderProgramProfileRepositoryTest {
 
     @Test
     void findByNomisIdAndProgramStatusAndEndDateAfter() {
-        final var activities = repository.findByNomisIdAndProgramStatusAndEndDateAfter("A1234AC", List.of("ALLOC", "END"), LocalDate.of(2021, 1, 1)).stream()
+        final var activities = repository.findByNomisIdAndProgramStatusAndEndDateAfter(
+                "A1234AC",
+                List.of("ALLOC", "END"),
+                LocalDate.of(2021, 1, 1),
+                PageRequest.of(0, 10))
+            .stream()
             .sorted((o1, o2) -> (int) (o2.getOffenderProgramReferenceId() - o1.getOffenderProgramReferenceId()))
             .collect(Collectors.toList());
 
         assertThat(activities).usingElementComparatorIgnoringFields("offenderProgramReferenceId",
-            "offenderBooking", "agencyLocation", "createUserId", "createDatetime")
+                "offenderBooking", "agencyLocation", "createUserId", "createDatetime")
             .isEqualTo(List.of(
                 OffenderProgramProfile.builder()
                     .offenderProgramReferenceId(-6L)
@@ -175,7 +182,12 @@ public class OffenderProgramProfileRepositoryTest {
 
     @Test
     void findByNomisIdAndProgramStatusAndEndDateAfter_OnlyFiltersOutEarlierEndDates() {
-        final var activities = repository.findByNomisIdAndProgramStatusAndEndDateAfter("A1234AC", List.of("PLAN"), LocalDate.of(2021, 1, 1)).stream()
+        final var activities = repository.findByNomisIdAndProgramStatusAndEndDateAfter(
+                "A1234AC",
+                List.of("PLAN"),
+                LocalDate.of(2021, 1, 1),
+                PageRequest.of(0, 10))
+            .stream()
             .sorted((o1, o2) -> (int) (o2.getOffenderProgramReferenceId() - o1.getOffenderProgramReferenceId()))
             .collect(Collectors.toList());
 
@@ -209,7 +221,8 @@ public class OffenderProgramProfileRepositoryTest {
 
     @Test
     void findByNomisIdAndProgramStatusAndEndDateAfter_ReturnsNothing() {
-        final var activities = repository.findByNomisIdAndProgramStatusAndEndDateAfter("A1234AC", List.of("WAIT"), LocalDate.of(2020, 1, 1));
+        final var activities = repository.findByNomisIdAndProgramStatusAndEndDateAfter(
+            "A1234AC", List.of("WAIT"), LocalDate.of(2020, 1, 1), Pageable.unpaged());
 
         assertThat(activities).isEmpty();
     }

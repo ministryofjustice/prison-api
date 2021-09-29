@@ -1,5 +1,7 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.OffenderActivities;
@@ -24,23 +26,10 @@ public class OffenderActivitiesService {
         this.bookingService = bookingService;
     }
 
-    public OffenderActivities getCurrentWorkActivities(final String offenderNo) {
-        final var currentBookingId = bookingService.getLatestBookingByOffenderNo(offenderNo).getBookingId();
-        final var allAllocatedActivities = offenderProgramProfileRepository.findByOffenderBooking_BookingIdAndProgramStatus(currentBookingId, "ALLOC");
-        final var workActivities =  allAllocatedActivities.stream().filter(OffenderProgramProfile::isCurrentWorkActivity).map(this::transform).collect(Collectors.toList());
-        return OffenderActivities.builder()
-            .offenderNo(offenderNo)
-            .workActivities(workActivities)
-            .build();
-    }
-
-    public OffenderActivities getStartedWorkActivities(final String offenderNo, final LocalDate earliestEndDate) {
-        final var startedActivities = offenderProgramProfileRepository.findByNomisIdAndProgramStatusAndEndDateAfter(offenderNo, List.of("ALLOC", "END"), earliestEndDate);
-        final var startedWorkActivities =  startedActivities.stream().filter(OffenderProgramProfile::isWorkActivity).map(this::transform).collect(Collectors.toList());
-        return OffenderActivities.builder()
-            .offenderNo(offenderNo)
-            .workActivities(startedWorkActivities)
-            .build();
+    public Page<OffenderActivitySummary> getStartedActivities(final String offenderNo, final LocalDate earliestEndDate, final PageRequest pageRequest) {
+        final var startedActivities = offenderProgramProfileRepository.findByNomisIdAndProgramStatusAndEndDateAfter(offenderNo, List.of("ALLOC", "END"), earliestEndDate,
+            pageRequest);
+        return startedActivities.map(this::transform);
     }
 
     private OffenderActivitySummary transform(final OffenderProgramProfile activity) {
