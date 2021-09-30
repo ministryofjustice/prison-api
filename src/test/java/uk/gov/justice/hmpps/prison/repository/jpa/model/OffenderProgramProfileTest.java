@@ -18,17 +18,9 @@ public class OffenderProgramProfileTest {
 
     @ParameterizedTest
     @MethodSource("programProfilesWithExpectedIsCurrentActivityAndIsCurrentWorkActivityResult")
-    void currentWorkActivity(final OffenderProgramProfile programProfile, final boolean expectedIsCurrentActivityResult, final boolean expectedIsCurrentWorkActivityResult)
+    void currentWorkActivity(final OffenderProgramProfile programProfile, final boolean expectedIsCurrentActivityResult)
     {
         assertThat(programProfile.isCurrentActivity()).isEqualTo(expectedIsCurrentActivityResult);
-        assertThat(programProfile.isCurrentWorkActivity()).isEqualTo(expectedIsCurrentWorkActivityResult);
-    }
-
-    @ParameterizedTest
-    @MethodSource("programProfilesWithExpectedIsWorkActivityResult")
-    void isWorkActivity(final OffenderProgramProfile programProfile, final boolean expectedIsWorkActivityResult)
-    {
-        assertThat(programProfile.isWorkActivity()).isEqualTo(expectedIsWorkActivityResult);
     }
 
     private static Stream<Arguments> programProfilesWithExpectedIsCurrentActivityAndIsCurrentWorkActivityResult() {
@@ -95,44 +87,21 @@ public class OffenderProgramProfileTest {
                 .build();
 
         return Stream.of(
-            arguments(programProfileWithNoStartDate, false, false),
-            arguments(programProfileWithStartDateTomorrow, false, false),
-            arguments(programProfileWithEndDateToday, false, false),
-            arguments(programProfileWithValidStartAndEndDate, true, true),
-            arguments(programProfileWithValidStartAndNoEndDate, true, true),
-            arguments(programProfileWithValidStartAndEndDateButHasEndStatus, false, false),
-            arguments(programProfileWithoutCourseActivity, false, false),
-            arguments(programProfile(courseActivityWithNoStartDate), false, false),
-            arguments(programProfile(courseActivityWithStartDateToday), true, true),
-            arguments(programProfile(courseActivityWithStartDateAfterToday), false, false),
-            arguments(programProfile(courseActivityWithNoEndDate), true, true),
-            arguments(programProfile(courseActivityWithEndDateAfterToday), true, true),
-            arguments(programProfile(courseActivityWithEndDateToday), false, false),
-            arguments(programProfile(courseActivityWithNoCode), true, false),
-            arguments(programProfile(courseActivityWithEDUCode), true, false)
-        );
-    }
-
-    private static Stream<Arguments> programProfilesWithExpectedIsWorkActivityResult() {
-        final var programProfileWithoutCourseActivity =
-            programProfile(null);
-        final var courseActivityWithNoCode =
-            courseActivityBuilder("NO CODE")
-                .code(null)
-                .build();
-        final var courseActivityWithEDUCode =
-            courseActivityBuilder("EDU CODE")
-                .code("EDUEXAMPLE")
-                .build();
-        final var courseActivityWithWorkCode =
-            courseActivityBuilder("IND_CODE")
-                .build();
-
-        return Stream.of(
+            arguments(programProfileWithNoStartDate, false),
+            arguments(programProfileWithStartDateTomorrow, false),
+            arguments(programProfileWithEndDateToday, false),
+            arguments(programProfileWithValidStartAndEndDate, true),
+            arguments(programProfileWithValidStartAndNoEndDate, true),
+            arguments(programProfileWithValidStartAndEndDateButHasEndStatus, false),
             arguments(programProfileWithoutCourseActivity, false),
-            arguments(programProfile(courseActivityWithNoCode), false),
-            arguments(programProfile(courseActivityWithEDUCode), false),
-            arguments(programProfile(courseActivityWithWorkCode), true)
+            arguments(programProfile(courseActivityWithNoStartDate), false),
+            arguments(programProfile(courseActivityWithStartDateToday), true),
+            arguments(programProfile(courseActivityWithStartDateAfterToday), false),
+            arguments(programProfile(courseActivityWithNoEndDate), true),
+            arguments(programProfile(courseActivityWithEndDateAfterToday), true),
+            arguments(programProfile(courseActivityWithEndDateToday), false),
+            arguments(programProfile(courseActivityWithNoCode), true),
+            arguments(programProfile(courseActivityWithEDUCode), true)
         );
     }
 
@@ -153,7 +122,7 @@ public class OffenderProgramProfileTest {
             .build();
     }
 
-    private static CourseActivityBuilder courseActivityBuilder(String description) {
+    private static CourseActivityBuilder courseActivityBuilder(final String description) {
         return CourseActivity.builder()
             .activityId(nextLong())
             .description(description)

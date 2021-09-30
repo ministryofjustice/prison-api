@@ -19,43 +19,13 @@ public class OffenderActivitiesResourceTest extends ResourceTest {
     JdbcTemplate jdbcTemplate;
 
     @Nested
-    class GetCurrentWork {
+    class GetActivitiesHistory {
         @Test
         public void successfulRequest_returnsCorrectData() {
             final var entity = createHttpEntity(validToken(), null);
 
             final var response = testRestTemplate.exchange(
-                "/api/offender-activities/A1234AC/current-work",
-                HttpMethod.GET,
-                entity,
-                String.class);
-
-            assertThatJsonFileAndStatus(response, HttpStatus.OK.value(), "offender-activities-current-work.json");
-        }
-
-        @Test
-        public void badRequest_InvalidOffenderNos() {
-            final var entity = createHttpEntity(validToken(), null);
-
-            final var response = testRestTemplate.exchange(
-                "/api/offender-activities/1234/current-work",
-                HttpMethod.GET,
-                entity,
-                String.class);
-
-            assertThatStatus(response, HttpStatus.NOT_FOUND.value());
-            assertThatJson(response.getBody()).node("userMessage").asString().contains("Resource with id [1234] not found.");
-        }
-    }
-
-    @Nested
-    class GetWorkHistory {
-        @Test
-        public void successfulRequest_returnsCorrectData() {
-            final var entity = createHttpEntity(validToken(), null);
-
-            final var response = testRestTemplate.exchange(
-                "/api/offender-activities/A1234AC/work-history?earliestEndDate=2021-01-01",
+                "/api/offender-activities/A1234AC/activities-history?earliestEndDate=2021-01-01",
                 HttpMethod.GET,
                 entity,
                 String.class);
@@ -64,7 +34,7 @@ public class OffenderActivitiesResourceTest extends ResourceTest {
             // Check end date separately as it uses sysdate
             final var jsonContent = getBodyAsJsonContent(response);
             final var expectedDate = LocalDate.now().plusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
-            assertThat(jsonContent).extractingJsonPathStringValue("$.workActivities[4].endDate").isEqualTo(expectedDate);
+            assertThat(jsonContent).extractingJsonPathStringValue("$.content[4].endDate").isEqualTo(expectedDate);
         }
 
         @Test
@@ -72,13 +42,31 @@ public class OffenderActivitiesResourceTest extends ResourceTest {
             final var entity = createHttpEntity(validToken(), null);
 
             final var response = testRestTemplate.exchange(
-                "/api/offender-activities/1234/work-history",
+                "/api/offender-activities/1234/activities-history",
                 HttpMethod.GET,
                 entity,
                 String.class);
 
             assertThatStatus(response, HttpStatus.BAD_REQUEST.value());
             assertThatJson(response.getBody()).node("userMessage").asString().contains("Required request parameter 'earliestEndDate' for method parameter type LocalDate is not present");
+        }
+
+        @Test
+        public void successfulRequest_page() {
+            final var entity = createHttpEntity(validToken(), null);
+
+            final var response = testRestTemplate.exchange(
+                "/api/offender-activities/A1234AC/activities-history?earliestEndDate=2021-01-01&page=1&size=2",
+                HttpMethod.GET,
+                entity,
+                String.class);
+
+            final var jsonContent = getBodyAsJsonContent(response);
+            assertThat(jsonContent).extractingJsonPathArrayValue("$.content").hasSize(2);
+            assertThat(jsonContent).extractingJsonPathStringValue("$.content[0].description").isEqualTo("Address Testing");
+            assertThat(jsonContent).extractingJsonPathStringValue("$.content[1].description").isEqualTo("Substance misuse course");
+            assertThat(jsonContent).extractingJsonPathNumberValue("$.totalPages").isEqualTo(3);
+            assertThat(jsonContent).extractingJsonPathNumberValue("$.totalElements").isEqualTo(5);
         }
     }
 }

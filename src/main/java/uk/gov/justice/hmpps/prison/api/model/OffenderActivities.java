@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Page;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -26,5 +27,5 @@ public class OffenderActivities {
 
     @ApiModelProperty(value = "The current work activities")
     @NotNull
-    private List<OffenderActivitySummary> workActivities;
+    private Page<OffenderActivitySummary> workActivities;
 }
