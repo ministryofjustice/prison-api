@@ -61,8 +61,6 @@ public class OffenderActivitiesResourceTest extends ResourceTest {
                 entity,
                 String.class);
 
-            // assertThatJsonFileAndStatus(response, HttpStatus.OK.value(), "offender-activities-work-history.json");
-            // Check end date separately as it uses sysdate
             final var jsonContent = getBodyAsJsonContent(response);
             assertThat(jsonContent).extractingJsonPathArrayValue("$.content").hasSize(2);
             assertThat(jsonContent).extractingJsonPathStringValue("$.content[0].description").isEqualTo("Address Testing");
