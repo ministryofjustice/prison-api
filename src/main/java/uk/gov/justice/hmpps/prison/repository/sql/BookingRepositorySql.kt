@@ -89,6 +89,8 @@ enum class BookingRepositorySql(val sql: String) {
         O.LAST_NAME,
         O.BIRTH_DATE                                   DATE_OF_BIRTH,
         OB.agy_loc_id                                  agency_location_id,
+        CASE WHEN(OB.ACTIVE_FLAG = 'Y' AND OB.BOOKING_SEQ = 1) 
+        THEN 1 ELSE 0 END                              most_recent_active_booking,
         AL.description                                 agency_location_desc,
         AIL.DESCRIPTION                                internal_location_desc,
         (

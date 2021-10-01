@@ -36,6 +36,10 @@ public class OffenderSentenceDetailDto {
     @NotNull
     private Long bookingId;
 
+    @ApiModelProperty(required = true, value = "Is this the most recent active booking", example = "true")
+    @NotNull
+    private Boolean mostRecentActiveBooking;
+
     @ApiModelProperty(value = "Sentence start date.", example = "2019-04-02")
     private LocalDate sentenceStartDate;
 
