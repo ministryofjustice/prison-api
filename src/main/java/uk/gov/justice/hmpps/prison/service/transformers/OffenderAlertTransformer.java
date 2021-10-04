@@ -29,7 +29,7 @@ public class OffenderAlertTransformer {
     );
 
     public static Alert transformForOffender(final OffenderAlert offenderAlert) {
-        return transform(offenderAlert)
+        return transformForBooking(offenderAlert)
             .toBuilder()
             .offenderNo(offenderAlert.getOffenderBooking().getOffender().getNomsId())
             .bookingId(offenderAlert.getOffenderBooking()

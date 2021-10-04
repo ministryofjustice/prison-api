@@ -229,20 +229,20 @@ class OffenderAlertTransformerTest {
         }
 
         @Test
-        @DisplayName("detailed information about who last updated or created the event is not copied")
-        void detailedInformationAboutWhoLastUpdatedOrCreatedTheEventIsNotCopied() {
+        @DisplayName("detailed information about who last updated or created the event is copied")
+        void detailedInformationAboutWhoLastUpdatedOrCreatedTheEventIsCopied() {
             assertThat(transformForOffender(anAlert()))
                 .extracting(Alert::getAddedByFirstName)
-                .isNull();
+                .isEqualTo("JANE");
             assertThat(transformForOffender(anAlert()))
                 .extracting(Alert::getAddedByLastName)
-                .isNull();
+                .isEqualTo("BUBBLES");
             assertThat(transformForOffender(anAlert()))
                 .extracting(Alert::getExpiredByFirstName)
-                .isNull();
+                .isEqualTo("JACK");
             assertThat(transformForOffender(anAlert()))
                 .extracting(Alert::getExpiredByLastName)
-                .isNull();
+                .isEqualTo("MATES");
         }
 
 
