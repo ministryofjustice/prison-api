@@ -143,6 +143,7 @@ public class BookingRepository extends RepositoryBase {
         builderMap.put("DATE_OF_BIRTH", new FieldMapper("dateOfBirth", DateTimeConverter::toISO8601LocalDate));
         builderMap.put("AGENCY_LOCATION_ID", new FieldMapper("agencyLocationId"));
         builderMap.put("AGENCY_LOCATION_DESC", new FieldMapper("agencyLocationDesc"));
+        builderMap.put("MOST_RECENT_ACTIVE_BOOKING", new FieldMapper("mostRecentActiveBooking"));
         builderMap.put("INTERNAL_LOCATION_DESC", new FieldMapper("internalLocationDesc"));
         builderMap.put("FACIAL_IMAGE_ID", new FieldMapper("facialImageId"));
         builderMap.put("CONFIRMED_RELEASE_DATE", new FieldMapper("confirmedReleaseDate", DateTimeConverter::toISO8601LocalDate));

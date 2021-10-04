@@ -20,6 +20,8 @@ import uk.gov.justice.hmpps.prison.api.model.MilitaryRecord;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOffence;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences;
+import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
+import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetailDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeDetail;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
@@ -96,6 +98,7 @@ import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -1145,6 +1148,63 @@ public class BookingServiceTest {
                         .build());
     }
 
+
+    @Test
+    void getOffenderSentenceDetail_most_recent_active_booking() {
+        final var offender =
+            Offender.builder().bookings(
+                List.of(
+                    OffenderBooking.builder()
+                        .bookingSequence(2)
+                        .active(false)
+                        .location(AgencyLocation.builder()
+                            .description("Agency Description 2 An Inactive Booking")
+                            .build())
+                        .build(),
+                    OffenderBooking.builder()
+                        .bookingSequence(1)
+                        .active(true)
+                        .location(AgencyLocation.builder()
+                            .description("Agency Description 1 An Active Booking")
+                            .build())
+                        .build()))
+                .build();
+
+        when(offenderRepository.findOffenderByNomsId("NomsId")).thenReturn(Optional.of(offender));
+        Optional<OffenderSentenceDetail> offenderSentenceDetail = bookingService.getOffenderSentenceDetail("NomsId");
+
+        assertThat(offenderSentenceDetail)
+            .isNotEmpty()
+            .map(OffenderSentenceDetail::getMostRecentActiveBooking)
+            .hasValue(true);
+
+        assertThat(offenderSentenceDetail)
+            .map(OffenderSentenceDetail::getAgencyLocationDesc)
+            .hasValue("Agency Description 1 An Active Booking");
+    }
+
+    @Test
+    void getOffenderSentencesSummary_most_recent_active_booking() {
+        final var OffenderSentenceDetailDtos
+            = List.of(
+                OffenderSentenceDetailDto.builder()
+                    .bookingId(1l)
+                    .mostRecentActiveBooking(true)
+                    .build(),
+            OffenderSentenceDetailDto.builder()
+                .bookingId(2l)
+                .mostRecentActiveBooking(false)
+                .build());
+
+        when(bookingRepository.getOffenderSentenceSummary(any(), any(), anyBoolean(), anyBoolean())).thenReturn(OffenderSentenceDetailDtos);
+        List<OffenderSentenceDetail> offenderSentenceDetails = bookingService.getOffenderSentencesSummary(null, List.of("NomsId"));
+
+        assertThat(offenderSentenceDetails).hasSize(2);
+        assertThat(offenderSentenceDetails.get(0)).extracting(OffenderSentenceDetail::getBookingId).isEqualTo(1l);
+        assertThat(offenderSentenceDetails.get(0)).extracting(OffenderSentenceDetail::getMostRecentActiveBooking).isEqualTo(true);
+        assertThat(offenderSentenceDetails.get(1)).extracting(OffenderSentenceDetail::getBookingId).isEqualTo(2l);
+        assertThat(offenderSentenceDetails.get(1)).extracting(OffenderSentenceDetail::getMostRecentActiveBooking).isEqualTo(false);
+    }
 
     @Test
     void getOffenderCourtCases_errors_for_unknown_booking() {

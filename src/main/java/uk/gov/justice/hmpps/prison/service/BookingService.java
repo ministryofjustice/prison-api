@@ -741,6 +741,7 @@ public class BookingService {
             .map(offender -> offender.getLatestBooking().map(booking ->
                 OffenderSentenceDetail.offenderSentenceDetailBuilder()
                     .offenderNo(offenderNo)
+                    .mostRecentActiveBooking(booking.isActive())
                     .bookingId(booking.getBookingId())
                     .firstName(offender.getFirstName())
                     .lastName(offender.getLastName())
@@ -875,6 +876,7 @@ public class BookingService {
     private OffenderSentenceDetail mapper(final OffenderSentenceDetailDto os) {
         return OffenderSentenceDetail.offenderSentenceDetailBuilder()
                 .bookingId(os.getBookingId())
+                .mostRecentActiveBooking(os.getMostRecentActiveBooking())
                 .offenderNo(os.getOffenderNo())
                 .firstName(os.getFirstName())
                 .lastName(os.getLastName())

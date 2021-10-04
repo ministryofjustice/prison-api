@@ -42,6 +42,10 @@ public class OffenderSentenceCalc<S extends BaseSentenceCalcDates> {
     @NotBlank
     private String agencyLocationId;
 
+    @ApiModelProperty(required = true, value = "Is this the most recent active booking", position = 5, example = "true")
+    @NotNull
+    private Boolean mostRecentActiveBooking;
+
     @ApiModelProperty(value = "Offender Sentence Detail Information", position = 10)
     private S sentenceDetail;
 

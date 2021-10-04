@@ -4,6 +4,7 @@
   "firstName": "HARRY",
   "lastName": "JONES",
   "agencyLocationId": "LEI",
+  "mostRecentActiveBooking": true,
   "sentenceDetail": {
     "sentenceExpiryDate": "2018-05-31",
     "automaticReleaseDate": "2018-02-28",
@@ -28,6 +29,7 @@
   "firstName": "NEIL",
   "lastName": "BRADLEY",
   "agencyLocationId": "LEI",
+  "mostRecentActiveBooking": true,
   "sentenceDetail": {
     "sentenceExpiryDate": "2023-08-07",
     "nonParoleDate": "2017-12-31",
@@ -48,6 +50,7 @@
   "firstName": "GILES",
   "lastName": "SMITH",
   "agencyLocationId": "LEI",
+  "mostRecentActiveBooking": true,
   "sentenceDetail": {
     "sentenceExpiryDate": "2018-05-31",
     "automaticReleaseDate": "2018-02-28",
@@ -73,6 +76,7 @@
   "firstName": "CHESTER",
   "lastName": "THOMPSON",
   "agencyLocationId": "LEI",
+  "mostRecentActiveBooking": true,
   "sentenceDetail": {
     "sentenceExpiryDate": "2018-05-31",
     "conditionalReleaseDate": "2018-01-31",
@@ -99,6 +103,7 @@
   "firstName": "MICHEAL",
   "lastName": "PETERS",
   "agencyLocationId": "LEI",
+  "mostRecentActiveBooking": true,
   "sentenceDetail": {
     "bookingId": -17,
     "sentenceStartDate": "2015-05-05",
@@ -115,6 +120,7 @@
   "firstName": "DANIEL",
   "lastName": "SMITH",
   "agencyLocationId": "LEI",
+  "mostRecentActiveBooking": true,
   "sentenceDetail": {
     "sentenceExpiryDate": "2018-05-31",
     "conditionalReleaseDate": "2018-01-31",
@@ -136,6 +142,7 @@
   "firstName": "NORMAN",
   "lastName": "BATES",
   "agencyLocationId": "LEI",
+  "mostRecentActiveBooking": true,
   "sentenceDetail": {
     "sentenceExpiryDate": "2020-03-15",
     "earlyTermDate": "2017-09-15",
@@ -155,6 +162,7 @@
   "firstName": "DANIEL",
   "lastName": "SMELLEY",
   "agencyLocationId": "LEI",
+  "mostRecentActiveBooking": true,
   "sentenceDetail": {
     "sentenceExpiryDate": "2018-05-31",
     "postRecallReleaseDate": "2018-03-31",
@@ -174,6 +182,7 @@
   "firstName": "DARIUS",
   "lastName": "SMITH",
   "agencyLocationId": "LEI",
+  "mostRecentActiveBooking": true,
   "sentenceDetail": {
     "sentenceExpiryDate": "2018-05-31",
     "nonParoleDate": "2017-12-31",
@@ -194,6 +203,7 @@
   "firstName": "GILLIAN",
   "lastName": "ANDERSON",
   "agencyLocationId": "LEI",
+  "mostRecentActiveBooking": true,
   "sentenceDetail": {
     "sentenceExpiryDate": "2019-05-21",
     "automaticReleaseDate": "2018-05-21",
@@ -216,6 +226,7 @@
   "firstName": "ARTHUR",
   "lastName": "ANDERSON",
   "agencyLocationId": "LEI",
+  "mostRecentActiveBooking": true,
   "sentenceDetail": {
     "sentenceExpiryDate": "2020-03-24",
     "conditionalReleaseDate": "2019-03-24",
@@ -238,6 +249,7 @@
   "firstName": "ANTHONY",
   "lastName": "ANDREWS",
   "agencyLocationId": "LEI",
+  "mostRecentActiveBooking": true,
   "sentenceDetail": {
     "sentenceExpiryDate": "2018-05-31",
     "automaticReleaseDate": "2018-02-28",
@@ -263,6 +275,7 @@
   "firstName": "NICK",
   "lastName": "TALBOT",
   "agencyLocationId": "LEI",
+  "mostRecentActiveBooking": true,
   "sentenceDetail": {
     "homeDetentionCurfewActualDate": "2019-09-19",
     "bookingId": -18,
@@ -279,6 +292,7 @@
   "firstName": "NEIL",
   "lastName": "SARLY",
   "agencyLocationId": "LEI",
+  "mostRecentActiveBooking": true,
   "sentenceDetail": {
     "sentenceExpiryDate": "2022-10-20",
     "licenceExpiryDate": "2021-09-24",
@@ -300,6 +314,7 @@
   "firstName": "CHARLES",
   "lastName": "CHAPLIN",
   "agencyLocationId": "LEI",
+  "mostRecentActiveBooking": true,
   "sentenceDetail": {
     "sentenceExpiryDate": "2022-10-20",
     "automaticReleaseDate": "2021-05-06",
@@ -323,6 +338,7 @@
   "firstName": "LUCIUS",
   "lastName": "FOX",
   "agencyLocationId": "LEI",
+  "mostRecentActiveBooking": true,
   "sentenceDetail": {
     "actualParoleDate": "2022-06-06",
     "bookingId": -24,
@@ -340,6 +356,7 @@
   "firstName": "MATTHEW",
   "lastName": "SMITH",
   "agencyLocationId": "LEI",
+  "mostRecentActiveBooking": true,
   "sentenceDetail": {
     "actualParoleDate": "2019-09-08",
     "earlyTermDate": "2023-09-08",
@@ -360,6 +377,7 @@
   "firstName": "DONALD",
   "lastName": "MATTHEWS",
   "agencyLocationId": "LEI",
+  "mostRecentActiveBooking": true,
   "sentenceDetail": {
     "sentenceExpiryDate": "2023-08-07",
     "conditionalReleaseDate": "2023-02-07",
@@ -387,6 +405,7 @@
   "firstName": "RODERICK",
   "lastName": "STEWART",
   "agencyLocationId": "LEI",
+  "mostRecentActiveBooking": true,
   "sentenceDetail": {
     "tariffDate": "2031-03-08",
     "bookingId": -28,
@@ -401,6 +420,7 @@
   "firstName": "ERIC",
   "lastName": "CLAPTON",
   "agencyLocationId": "LEI",
+  "mostRecentActiveBooking": true,
   "sentenceDetail": {
     "tariffDate": "2029-09-08",
     "bookingId": -27,
@@ -415,6 +435,7 @@
   "firstName": "FRED",
   "lastName": "QUIMBY",
   "agencyLocationId": "LEI",
+  "mostRecentActiveBooking": true,
   "sentenceDetail": {
     "bookingId": -34
   },
@@ -427,6 +448,7 @@
   "firstName": "HAROLD",
   "lastName": "LLOYD",
   "agencyLocationId": "LEI",
+  "mostRecentActiveBooking": true,
   "sentenceDetail": {
     "bookingId": -33
   },
@@ -439,6 +461,7 @@
   "firstName": "FRED",
   "lastName": "JAMES",
   "agencyLocationId": "LEI",
+  "mostRecentActiveBooking": true,
   "sentenceDetail": {
     "bookingId": -32
   },
@@ -451,6 +474,7 @@
   "firstName": "HARRY",
   "lastName": "SARLY",
   "agencyLocationId": "LEI",
+  "mostRecentActiveBooking": true,
   "sentenceDetail": {
     "bookingId": -31
   },
@@ -463,6 +487,7 @@
   "firstName": "STEPHEN",
   "lastName": "STRUDWICK",
   "agencyLocationId": "LEI",
+  "mostRecentActiveBooking": true,
   "sentenceDetail": {
     "bookingId": -19
   },
@@ -477,6 +502,7 @@
   "firstName": "CIPTEMINTAS",
   "lastName": "TRAVAR",
   "agencyLocationId": "LEI",
+  "mostRecentActiveBooking": true,
   "sentenceDetail": {
     "bookingId": 16048
   },
@@ -489,6 +515,7 @@
   "firstName": "TEST",
   "lastName": "RELEASE",
   "agencyLocationId": "LEI",
+  "mostRecentActiveBooking": true,
   "sentenceDetail": {
     "bookingId": -58
   },
