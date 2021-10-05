@@ -1,19 +1,19 @@
-package uk.gov.justice.hmpps.prison.repository.jpa.model;
+package uk.gov.justice.hmpps.prison.repository.jpa.repository;
 
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.AttendanceRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -30,14 +30,14 @@ public class AttendanceRepositoryTest {
 
     @Test
     void getActivitiesByBookingIdAndProgramStatus() {
-        final var activities = repository.findByBookingIdsAndEventDate(List.of(-3L), LocalDate.of(2010, 1, 1), LocalDate.now());
+        final var activities = repository.findByEventDateBetween("A1234AC", LocalDate.of(2010, 1, 1),
+            LocalDate.now(), PageRequest.of(1, 4, Direction.ASC, "eventId"));
 
-        activities.sort((o1, o2) -> (int) (o2.getEventId() - o1.getEventId()));
-        System.out.println("SIZE: " + activities.size());
-        System.out.println("First Object: " + activities.get(0).getEventId());
-        System.out.println("\tId: " + activities.get(0).getEventId());
-        System.out.println("\tProgProfId: " + activities.get(0).getOffenderProgramProfile().getOffenderProgramReferenceId());
-        System.out.println("\tProgProfStart: " + activities.get(0).getOffenderProgramProfile().getStartDate());
-        // System.out.println("\tSchSlot: " + activities.get(0).getCourseSchedule().getSlot());
+        assertThat(activities.getTotalElements()).isEqualTo(7);
+        assertThat(activities.getContent()).asList().extracting("eventId", "eventDate", "eventOutcome").containsExactly(
+            Tuple.tuple(-3L, LocalDate.of(2017, 9, 13), null),
+            Tuple.tuple(-2L, LocalDate.of(2017, 9, 12), null),
+            Tuple.tuple(-1L, LocalDate.of(2017, 9, 11), "ACCABS")
+        );
     }
 }

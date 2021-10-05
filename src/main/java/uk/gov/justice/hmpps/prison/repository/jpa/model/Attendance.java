@@ -15,10 +15,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper = false)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,33 +30,21 @@ public class Attendance extends ExtendedAuditableEntity {
     @Column(name = "EVENT_ID")
     private Long eventId;
 
+    // TODO not sure yet which columns we mignt need
+//    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+//    @JoinColumn(name = "OFF_PRGREF_ID", nullable = false)
+//    private OffenderProgramProfile offenderProgramProfile;
+
+//    @ManyToOne(fetch = FetchType.EAGER)
+//    @JoinColumn(name = "CRS_ACTY_ID")
+//    private CourseActivity courseActivity;
+
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "OFF_PRGREF_ID", nullable = false)
-    private OffenderProgramProfile offenderProgramProfile;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "CRS_ACTY_ID")
-    private CourseActivity courseActivity;
-
-    // Very slow to get data from this table (5+ times) - even with EAGER
-    // Could try @Fetch(FetchMode.JOIN) to force it to use LEFT OUTER JOIN
-    // .. but that is probably very slow as well!
-    //@ManyToOne(fetch = FetchType.EAGER)
-    //@JoinColumn(name = "CRS_SCH_ID")
-    //private CourseSchedule courseSchedule;
-
-    // Prevents expensive join via OffenderProgramProfile table
-    @Column(name = "OFFENDER_BOOK_ID")
-    private Long offenderBookingId;
+    @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
+    private OffenderBooking offenderBooking;
 
     @Column(name = "EVENT_DATE")
     private LocalDate eventDate;
-
-    @Column(name = "START_TIME")
-    private LocalDateTime startTime;
-
-    @Column(name = "END_TIME")
-    private LocalDateTime endTime;
 
     @Column(name = "EVENT_OUTCOME")
     private String eventOutcome;

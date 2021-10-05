@@ -1,38 +1,44 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uk.gov.justice.hmpps.prison.api.model.OffenderActivities;
 import uk.gov.justice.hmpps.prison.api.model.OffenderActivitySummary;
+import uk.gov.justice.hmpps.prison.api.model.OffenderAttendance;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Attendance;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramProfile;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AttendanceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProgramProfileRepository;
+import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
 public class OffenderActivitiesService {
     private final OffenderProgramProfileRepository offenderProgramProfileRepository;
-    private final BookingService bookingService;
+    private final AttendanceRepository attendanceRepository;
 
-    public OffenderActivitiesService(final OffenderProgramProfileRepository offenderProgramProfileRepository, final BookingService bookingService) {
+    public OffenderActivitiesService(final OffenderProgramProfileRepository offenderProgramProfileRepository, final AttendanceRepository attendanceRepository) {
         this.offenderProgramProfileRepository = offenderProgramProfileRepository;
-        this.bookingService = bookingService;
+        this.attendanceRepository = attendanceRepository;
     }
 
-    public Page<OffenderActivitySummary> getStartedActivities(final String offenderNo, final LocalDate earliestEndDate, final PageRequest pageRequest) {
-        final var startedActivities = offenderProgramProfileRepository.findByNomisIdAndProgramStatusAndEndDateAfter(offenderNo, List.of("ALLOC", "END"), earliestEndDate,
-            pageRequest);
-        return startedActivities.map(this::transform);
+    @PreAuthorize("hasRole('SYSTEM_USER')")
+    public Page<OffenderActivitySummary> getStartedActivities(final String offenderNo, final LocalDate earliestEndDate, final Pageable pageable) {
+        final var startedActivities = offenderProgramProfileRepository.findByNomisIdAndProgramStatusAndEndDateAfter(
+            offenderNo, List.of("ALLOC", "END"),
+            earliestEndDate,
+            pageable);
+        return startedActivities.map(this::transformActivity);
     }
 
-    private OffenderActivitySummary transform(final OffenderProgramProfile activity) {
+    private OffenderActivitySummary transformActivity(final OffenderProgramProfile activity) {
         return OffenderActivitySummary.builder()
             .bookingId(activity.getOffenderBooking().getBookingId())
             .agencyLocationId(activity.getAgencyLocation().getId())
@@ -44,6 +50,19 @@ public class OffenderActivitiesService {
             .endReasonDescription(ReferenceCode.getDescriptionOrNull(activity.getEndReason()))
             .endCommentText(activity.getEndCommentText())
             .isCurrentActivity(activity.isCurrentActivity())
+            .build();
+    }
+
+    @PreAuthorize("hasRole('SYSTEM_USER')")
+    public Page<OffenderAttendance> getHistoricalAttendancies(final String offenderNo, final LocalDate earliestDate, final LocalDate latestDate, final Pageable pageable) {
+        // final var relevantBookingIds = bookingRepository.findByDates(offenderNo, earliestActivityDate.atStartOfDay(), latestActivityDate.plusDays(1).atStartOfDay()).stream().map(o -> o.getBookingId()).collect(Collectors.toList());
+        return attendanceRepository.findByEventDateBetween(offenderNo, earliestDate, latestDate, pageable).map(this::transformAttendance);
+    }
+
+    private OffenderAttendance transformAttendance(final Attendance attendance) {
+        return OffenderAttendance.builder()
+            .eventDate(attendance.getEventDate())
+            .outcome(attendance.getEventOutcome())
             .build();
     }
 }
