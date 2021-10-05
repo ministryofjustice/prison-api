@@ -37,7 +37,7 @@ public class AttendanceRepositoryTest {
         assertThat(activities.getContent()).asList().extracting("eventId", "eventDate", "eventOutcome").containsExactly(
             Tuple.tuple(-13L, LocalDate.of(2017, 9, 13), "UNACAB"),
             Tuple.tuple(-12L, LocalDate.now(), null),
-            Tuple.tuple(-11L, LocalDate.now(), "ACCABS")
+            Tuple.tuple(-11L, LocalDate.now(), null)
         );
     }
 }
