@@ -30,14 +30,14 @@ public class AttendanceRepositoryTest {
 
     @Test
     void getActivitiesByBookingIdAndProgramStatus() {
-        final var activities = repository.findByEventDateBetween("A1234AC", LocalDate.of(2010, 1, 1),
+        final var activities = repository.findByEventDateBetween("A1234AB", LocalDate.of(2010, 1, 1),
             LocalDate.now(), PageRequest.of(1, 4, Direction.ASC, "eventId"));
 
         assertThat(activities.getTotalElements()).isEqualTo(7);
         assertThat(activities.getContent()).asList().extracting("eventId", "eventDate", "eventOutcome").containsExactly(
-            Tuple.tuple(-3L, LocalDate.of(2017, 9, 13), null),
-            Tuple.tuple(-2L, LocalDate.of(2017, 9, 12), null),
-            Tuple.tuple(-1L, LocalDate.of(2017, 9, 11), "ACCABS")
+            Tuple.tuple(-13L, LocalDate.of(2017, 9, 13), "UNACAB"),
+            Tuple.tuple(-12L, LocalDate.now(), null),
+            Tuple.tuple(-11L, LocalDate.now(), "ACCABS")
         );
     }
 }

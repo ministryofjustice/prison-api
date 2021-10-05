@@ -89,9 +89,10 @@ public class OffenderActivitiesResourceTest extends ResourceTest {
         @Test
         public void successfulRequest_returnsCorrectData() {
             final var entity = createHttpEntity(validToken(List.of("ROLE_SYSTEM_USER")), null);
+            final var today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
 
             final var response = testRestTemplate.exchange(
-                "/api/offender-activities/A1234AC/attendance-history?fromDate=2017-01-01&toDate=2021-01-01&size=3&sort=eventId,desc",
+                "/api/offender-activities/A1234AB/attendance-history?fromDate=2017-01-01&toDate=" + today + "&page=1&size=2&sort=eventId,desc",
                 HttpMethod.GET,
                 entity,
                 String.class);
