@@ -1,0 +1,14 @@
+[
+    {
+      "bookingId": -3,
+      "agencyLocationId": "LEI",
+      "description": "Woodwork",
+      "startDate": "2016-11-09"
+    },
+    {
+      "bookingId": -3,
+      "agencyLocationId": "LEI",
+      "description": "Weeding",
+      "startDate": "2016-11-09"
+    }
+]
