@@ -39,12 +39,12 @@ services:
       - NN_ENDPOINT_URL=http://localhost:3000/
       - MAINTAIN_ROLES_ENABLED=true
 
-  prisonstaffhub:
-    image: quay.io/hmpps/prisonstaffhub:latest
+  digital-prison-services:
+    image: quay.io/hmpps/digital-prison-services:latest
     depends_on:
       - oauth-server
       - prison-api
-    container_name: prisonstaffhub
+    container_name: digital-prison-services
     ports:
       - "3002:3000"
     healthcheck:
