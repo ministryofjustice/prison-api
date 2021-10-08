@@ -72,7 +72,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdj
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitorRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
@@ -127,7 +127,7 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final OffenderBookingRepository offenderBookingRepository;
     private final OffenderRepository offenderRepository;
-    private final VisitRepository visitRepository;
+    private final VisitInformationRepository visitInformationRepository;
     private final VisitorRepository visitorRepository;
     private final SentenceRepository sentenceRepository;
     private final AgencyService agencyService;
@@ -150,7 +150,7 @@ public class BookingService {
                           final OffenderBookingRepository offenderBookingRepository,
                           final OffenderRepository offenderRepository,
                           final VisitorRepository visitorRepository,
-                          final VisitRepository visitRepository,
+                          final VisitInformationRepository visitInformationRepository,
                           final SentenceRepository sentenceRepository,
                           final AgencyService agencyService,
                           final CaseLoadService caseLoadService,
@@ -170,7 +170,7 @@ public class BookingService {
         this.bookingRepository = bookingRepository;
         this.offenderBookingRepository = offenderBookingRepository;
         this.offenderRepository = offenderRepository;
-        this.visitRepository = visitRepository;
+        this.visitInformationRepository = visitInformationRepository;
         this.visitorRepository = visitorRepository;
         this.sentenceRepository = sentenceRepository;
         this.agencyService = agencyService;
@@ -461,7 +461,7 @@ public class BookingService {
     @VerifyBookingAccess
     public Page<VisitWithVisitors> getBookingVisitsWithVisitor(final VisitInformationFilter filter, final Pageable pageable) {
         checkState(filter.getBookingId() != null, "BookingId required");
-        final var visits = visitRepository.findAll(filter, pageable);
+        final var visits = visitInformationRepository.findAll(filter, pageable);
 
         final var visitsWithVisitors = visits.getContent().stream()
                 .map(visitInformation -> {

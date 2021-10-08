@@ -77,7 +77,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdj
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitorRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.support.PayableAttendanceOutcomeDto;
@@ -117,7 +117,7 @@ public class BookingServiceTest {
     @Mock
     private OffenderRepository offenderRepository;
     @Mock
-    private VisitRepository visitRepository;
+    private VisitInformationRepository visitInformationRepository;
     @Mock
     private VisitorRepository visitorRepository;
     @Mock
@@ -156,7 +156,7 @@ public class BookingServiceTest {
                 offenderBookingRepository,
                 offenderRepository,
                 visitorRepository,
-                visitRepository,
+                visitInformationRepository,
                 null,
                 agencyService,
                 caseLoadService,
@@ -508,7 +508,7 @@ public class BookingServiceTest {
                         .id(-3L)
                         .build()
         ));
-        when(visitRepository.findAll(VisitInformationFilter.builder().bookingId(-1L).build(), pageable))
+        when(visitInformationRepository.findAll(VisitInformationFilter.builder().bookingId(-1L).build(), pageable))
                 .thenReturn(page);
 
         when(visitorRepository.findAllByVisitId(anyLong())).thenReturn(List.of(
@@ -636,7 +636,7 @@ public class BookingServiceTest {
                         .id(-3L)
                         .build()
         ));
-        when(visitRepository.findAll(VisitInformationFilter.builder()
+        when(visitInformationRepository.findAll(VisitInformationFilter.builder()
                 .bookingId(-1L)
                 .fromDate(LocalDate.of(2019, 10, 10))
                 .toDate(LocalDate.of(2019, 10, 12))
@@ -771,7 +771,7 @@ public class BookingServiceTest {
                 .build());
 
         var page = new PageImpl<>(visits);
-        when(visitRepository.findAll(VisitInformationFilter.builder().bookingId(-1L).build(), pageable))
+        when(visitInformationRepository.findAll(VisitInformationFilter.builder().bookingId(-1L).build(), pageable))
                 .thenReturn(page);
 
         when(visitorRepository.findAllByVisitId(anyLong())).thenReturn(List.of());
@@ -835,7 +835,7 @@ public class BookingServiceTest {
                         .id(-2L)
                         .build()
         ));
-        when(visitRepository.findAll(VisitInformationFilter.builder().bookingId(-1L).build(), pageable))
+        when(visitInformationRepository.findAll(VisitInformationFilter.builder().bookingId(-1L).build(), pageable))
                 .thenReturn(page);
 
         when(visitorRepository.findAllByVisitId(anyLong())).thenReturn(List.of(

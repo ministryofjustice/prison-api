@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitInformation;
 
 @Repository
-public interface VisitRepository extends PagingAndSortingRepository<VisitInformation, String>, JpaSpecificationExecutor<VisitInformation> {
+public interface VisitInformationRepository extends PagingAndSortingRepository<VisitInformation, String>, JpaSpecificationExecutor<VisitInformation> {
 }

@@ -27,7 +27,7 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 public class VisitInformationRepositoryTest {
 
     @Autowired
-    private VisitRepository repository;
+    private VisitInformationRepository repository;
 
     @Test
     public void findAll() {
