@@ -1,10 +1,17 @@
 FROM openjdk:16-slim AS builder
 
+ARG BUILD_NUMBER
+ENV BUILD_NUMBER ${BUILD_NUMBER:-1_0_0}
+
 WORKDIR /app
 ADD . .
 RUN ./gradlew assemble -Dorg.gradle.daemon=false
 
 FROM openjdk:16-slim
+LABEL maintainer="HMPPS Digital Studio <info@digital.justice.gov.uk>"
+
+ARG BUILD_NUMBER
+ENV BUILD_NUMBER ${BUILD_NUMBER:-1_0_0}
 
 RUN apt-get update && \
     apt-get -y upgrade && \
@@ -12,15 +19,6 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 ENV TZ=Europe/London
-ENV SPRING_DATASOURCE_PASSWORD=r9KDvw37g13
-ENV SPRING_REPLICA_DATASOURCE_PASSWORD=r9KDvw37g13
-ENV SPRING_REPLICA_DATASOURCE_URL=jdbc:oracle:thin:@localhost:1521:CNOMT3
-ENV SPRING_REPLICA_DATASOURCE_USERNAME=api_proxy_user_ro
-ENV SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE=2
-ENV SPRING_REPLICA_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE=5
-ENV SERVER_PORT=8080
-ENV SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=https://sign-in-dev.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json
-
 RUN ln -snf "/usr/share/zoneinfo/$TZ" /etc/localtime && echo "$TZ" > /etc/timezone
 
 RUN addgroup --gid 2000 --system appgroup && \
