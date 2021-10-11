@@ -1,7 +1,9 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import com.google.common.collect.ImmutableList;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,6 +46,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,6 +55,7 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -323,158 +327,6 @@ public class MovementsServiceImplTest {
         verify(movementsRepository).getMovementsByOffenders(List.of("offender2"), Collections.emptyList(), true, false);
     }
 
-
-    @Test
-    public void testMovementsForAgenciesBetweenTwoTimes() {
-
-        final var listOfMovements = List.of(
-            MovementSummary.builder().offenderNo("1111").movementType("TRN").movementTime(LocalDateTime.now()).fromAgency("LEI").fromAgencyDescription("Leicester").toAgency("MDI").toAgencyDescription("Midlands").movementReason("Court").build(),
-            MovementSummary.builder().offenderNo("2222").movementType("TRN").movementTime(LocalDateTime.now()).fromAgency("MDI").fromAgencyDescription("Midlands").toAgency("LEI").toAgencyDescription("Leicester").movementReason("Transfer").build(),
-            MovementSummary.builder().offenderNo("4333").movementType("TRN").movementTime(LocalDateTime.now()).fromAgency("MDI").fromAgencyDescription("Midlands").toAgency("HOW").toAgencyDescription("Howden").movementReason("Transfer").build()
-        );
-
-        final var listOfCourtEvents = List.of(
-            CourtEvent.builder().offenderNo("5555").eventType("CRT").startTime(LocalDateTime.now()).build()
-        );
-
-        final var listOfReleaseEvents = List.of(
-            ReleaseEvent.builder().offenderNo("6666").movementTypeCode("REL").createDateTime(LocalDateTime.now()).build()
-        );
-
-        final var listOfTransferEvents = List.of(
-            TransferEvent.builder().offenderNo("7777").eventClass("TRN").createDateTime(LocalDateTime.now()).build()
-        );
-
-        final var from = LocalDateTime.parse("2019-05-01T11:00:00");
-        final var to = LocalDateTime.parse("2019-05-01T17:00:00");
-        final var agencyList = List.of("LEI", "MDI");
-
-        when(movementsRepository.getCompletedMovementsForAgencies(agencyList, from, to)).thenReturn(listOfMovements);
-        when(movementsRepository.getCourtEvents(agencyList, from, to)).thenReturn(listOfCourtEvents);
-        when(movementsRepository.getOffenderReleases(agencyList, from, to)).thenReturn(listOfReleaseEvents);
-        when(movementsRepository.getOffenderTransfers(agencyList, from, to)).thenReturn(listOfTransferEvents);
-
-        final var courtEvents = true;
-        final var releaseEvents = true;
-        final var transferEvents = true;
-        final var movements = true;
-
-        final var transferSummary = movementsService.getTransferMovementsForAgencies(agencyList, from, to, courtEvents, releaseEvents, transferEvents, movements);
-
-        assertThat(transferSummary).isNotNull();
-
-        assertThat(transferSummary.getCourtEvents()).containsAll(listOfCourtEvents);
-        assertThat(transferSummary.getReleaseEvents()).containsAll(listOfReleaseEvents);
-        assertThat(transferSummary.getTransferEvents()).containsAll(listOfTransferEvents);
-        assertThat(transferSummary.getMovements()).containsAll(listOfMovements);
-
-        verify(movementsRepository).getCompletedMovementsForAgencies(agencyList, from, to);
-        verify(movementsRepository).getCourtEvents(agencyList, from, to);
-        verify(movementsRepository).getOffenderReleases(agencyList, from, to);
-        verify(movementsRepository).getOffenderTransfers(agencyList, from, to);
-
-        verifyNoMoreInteractions(movementsRepository);
-    }
-
-    @Test
-    public void testMovementsForAgenciesNoAgencyCodes() {
-
-        // No agency identifiers provided
-        final var from = LocalDateTime.parse("2019-05-01T11:00:00");
-        final var to = LocalDateTime.parse("2019-05-01T17:00:00");
-        final var agencyList = Collections.<String>emptyList();
-
-        final var courtEvents = true;
-        final var releaseEvents = true;
-        final var transferEvents = true;
-        final var movements = true;
-
-        assertThatThrownBy(() ->
-            movementsService.getTransferMovementsForAgencies(agencyList, from, to, courtEvents, releaseEvents, transferEvents, movements)
-        ).isInstanceOf(HttpClientErrorException.class).hasMessageContaining("No agency location identifiers were supplied");
-
-        verifyNoMoreInteractions(movementsRepository);
-    }
-
-    @Test
-    public void testAgencyEventsInvalidDateRange() {
-
-        // From time is AFTER the to time
-        final var from = LocalDateTime.parse("2019-05-01T17:00:00");
-        final var to = LocalDateTime.parse("2019-05-01T11:00:00");
-        final var agencyList = List.of("LEI", "MDI");
-
-        final var courtEvents = true;
-        final var releaseEvents = true;
-        final var transferEvents = true;
-        final var movements = true;
-
-        assertThatThrownBy(() ->
-            movementsService.getTransferMovementsForAgencies(agencyList, from, to, courtEvents, releaseEvents, transferEvents, movements)
-        ).isInstanceOf(HttpClientErrorException.class).hasMessageContaining("The supplied fromDateTime parameter is after the toDateTime value");
-
-        verifyNoMoreInteractions(movementsRepository);
-    }
-
-    @Test
-    public void testAgencyEventsNoQueryParameters() {
-
-        // Valid date range
-        final var from = LocalDateTime.parse("2019-05-01T11:00:00");
-        final var to = LocalDateTime.parse("2019-05-01T17:00:00");
-        final var agencyList = List.of("LEI", "MDI");
-
-        // All false - no data is being requested
-        final var courtEvents = false;
-        final var releaseEvents = false;
-        final var transferEvents = false;
-        final var movements = false;
-
-        assertThatThrownBy(() ->
-            movementsService.getTransferMovementsForAgencies(agencyList, from, to, courtEvents, releaseEvents, transferEvents, movements)
-        ).isInstanceOf(HttpClientErrorException.class).hasMessageContaining("At least one query parameter must be true [courtEvents|releaseEvents|transferEvents|movements]");
-
-        verifyNoMoreInteractions(movementsRepository);
-    }
-
-    @Test
-    public void testAgencyEventsCombinationQuery() {
-
-        final var listOfCourtEvents = List.of(
-            CourtEvent.builder().offenderNo("5555").eventType("CRT").startTime(LocalDateTime.now()).build()
-        );
-
-        final var listOfTransferEvents = List.of(
-            TransferEvent.builder().offenderNo("7777").eventClass("TRN").createDateTime(LocalDateTime.now()).build()
-        );
-
-        final var from = LocalDateTime.parse("2019-05-01T11:00:00");
-        final var to = LocalDateTime.parse("2019-05-01T17:00:00");
-        final var agencyList = List.of("LEI", "MDI");
-
-        final var courtEvents = true;
-        final var releaseEvents = false;
-        final var transferEvents = true;
-        final var movements = false;
-
-        when(movementsRepository.getCourtEvents(agencyList, from, to)).thenReturn(listOfCourtEvents);
-        when(movementsRepository.getOffenderTransfers(agencyList, from, to)).thenReturn(listOfTransferEvents);
-
-        final var transferSummary = movementsService.getTransferMovementsForAgencies(agencyList, from, to, courtEvents, releaseEvents, transferEvents, movements);
-
-        assertThat(transferSummary).isNotNull();
-
-        assertThat(transferSummary.getCourtEvents()).containsAll(listOfCourtEvents);
-        assertThat(transferSummary.getReleaseEvents()).isNullOrEmpty();
-        assertThat(transferSummary.getTransferEvents()).containsAll(listOfTransferEvents);
-        assertThat(transferSummary.getMovements()).isNullOrEmpty();
-
-        verify(movementsRepository).getCourtEvents(agencyList, from, to);
-        verify(movementsRepository).getOffenderTransfers(agencyList, from, to);
-
-        verifyNoMoreInteractions(movementsRepository);
-    }
-
     @Test
     public void getOffenderIn_verifyRetrieval() {
 
@@ -706,4 +558,359 @@ public class MovementsServiceImplTest {
             }
         }
     }
+
+    @Nested
+    public class GetTransferMovementsForAgencies {
+
+        @Test
+        public void testScheduledEventsAreReturnedCorrectly() {
+
+            final var from = LocalDateTime.parse("2019-05-01T11:00:00");
+            final var to = LocalDateTime.parse("2019-05-01T17:00:00");
+            final var agencyList = List.of("LEI", "MDI");
+            final var now = LocalDate.now().atStartOfDay();
+
+            final var listOfMovements = List.of(
+                MovementSummary.builder().offenderNo("1111").movementType("TRN").movementTime(now).fromAgency("LEI").fromAgencyDescription("Leeds (HMP)").toAgency("MDI").toAgencyDescription("MOORLAND (HMP)").movementReason("Court").build(),
+                MovementSummary.builder().offenderNo("2222").movementType("TRN").movementTime(now).fromAgency("MDI").fromAgencyDescription("Moorland (HMP)").toAgency("LEI").toAgencyDescription("Leeds (HMP)").movementReason("Transfer").build(),
+                MovementSummary.builder().offenderNo("4333").movementType("TRN").movementTime(now).fromAgency("MD").fromAgencyDescription("MIDLANDS (HMP)").toAgency("HOW").toAgencyDescription("Howden").movementReason("Transfer").build()
+            );
+
+            final var listOfCourtEvents = List.of(
+                CourtEvent.builder().offenderNo("5555").eventType("CRT").startTime(now).fromAgency("LEI").fromAgencyDescription("LEEDS (HMP)").toAgency("MDI").toAgencyDescription("MOORLAND (HMP)").build()
+            );
+
+            final var listOfReleaseEvents = List.of(
+                ReleaseEvent.builder().offenderNo("6666").movementTypeCode("REL").createDateTime(now).fromAgency("LEI").fromAgencyDescription("LEEDS (HMP)").build()
+            );
+
+
+            when(movementsRepository.getCompletedMovementsForAgencies(agencyList, from, to)).thenReturn(listOfMovements);
+            when(movementsRepository.getCourtEvents(agencyList, from, to)).thenReturn(listOfCourtEvents);
+            when(movementsRepository.getOffenderReleases(agencyList, from, to)).thenReturn(listOfReleaseEvents);
+
+            final var courtEvents = true;
+            final var releaseEvents = true;
+            final var transferEvents = false;
+            final var movements = true;
+
+            final var transferSummary = movementsService.getTransferMovementsForAgencies(agencyList, from, to, courtEvents, releaseEvents, transferEvents, movements);
+
+            assertThat(transferSummary).isNotNull();
+
+            assertThat(transferSummary.getCourtEvents())
+                .extracting("offenderNo", "eventType", "startTime", "fromAgency", "fromAgencyDescription", "toAgency", "toAgencyDescription")
+                .contains(Tuple.tuple("5555", "CRT", now, "LEI", "Leeds (HMP)", "MDI", "Moorland (HMP)"));
+
+
+            assertThat(transferSummary.getReleaseEvents())
+                .extracting("offenderNo", "movementTypeCode", "createDateTime", "fromAgency", "fromAgencyDescription")
+                .contains(Tuple.tuple("6666", "REL", now, "LEI", "Leeds (HMP)"));
+
+            assertThat(transferSummary.getMovements())
+                .extracting("offenderNo", "movementType", "movementTime", "fromAgency", "fromAgencyDescription", "toAgency", "toAgencyDescription", "movementReason")
+                .containsExactlyInAnyOrder(
+                    Tuple.tuple("1111", "TRN", now, "LEI", "Leeds (HMP)", "MDI", "Moorland (HMP)", "Court"),
+                    Tuple.tuple("2222", "TRN", now, "MDI", "Moorland (HMP)", "LEI", "Leeds (HMP)", "Transfer"),
+                    Tuple.tuple("4333", "TRN", now, "MD", "Midlands (HMP)", "HOW", "Howden", "Transfer")
+                );
+
+            verify(movementsRepository).getCompletedMovementsForAgencies(agencyList, from, to);
+            verify(movementsRepository).getCourtEvents(agencyList, from, to);
+            verify(movementsRepository).getOffenderReleases(agencyList, from, to);
+
+            verifyNoMoreInteractions(movementsRepository);
+        }
+
+        @Test
+        public void testAgencyEventsCombinationQuery() {
+
+            final var from = LocalDateTime.parse("2019-05-01T11:00:00");
+            final var to = LocalDateTime.parse("2019-05-01T17:00:00");
+            final var agencyList = List.of("LEI", "MDI");
+
+            final var listOfCourtEvents = List.of(
+                CourtEvent.builder().offenderNo("5555").eventType("CRT").startTime(LocalDateTime.now()).build()
+            );
+
+            final var listOfTransferEvents = List.of(
+                TransferEvent.builder().offenderNo("7777").fromAgency("MDI").startTime(from).endTime(to).eventClass("EXT_MOV").eventStatus("SCH").createDateTime(LocalDateTime.now()).build()
+            );
+
+
+            final var courtEvents = true;
+            final var releaseEvents = false;
+            final var transferEvents = true;
+            final var movements = false;
+
+            when(movementsRepository.getCourtEvents(agencyList, from, to)).thenReturn(listOfCourtEvents);
+            when(movementsRepository.getIndividualSchedules(from.toLocalDate())).thenReturn(listOfTransferEvents);
+
+            final var transferSummary = movementsService.getTransferMovementsForAgencies(agencyList, from, to, courtEvents, releaseEvents, transferEvents, movements);
+
+            assertThat(transferSummary).isNotNull();
+
+            assertThat(transferSummary.getCourtEvents()).containsAll(listOfCourtEvents);
+            assertThat(transferSummary.getReleaseEvents()).isNullOrEmpty();
+            assertThat(transferSummary.getTransferEvents()).containsAll(listOfTransferEvents);
+            assertThat(transferSummary.getMovements()).isNullOrEmpty();
+
+            verify(movementsRepository).getCourtEvents(agencyList, from, to);
+            verify(movementsRepository).getIndividualSchedules(from.toLocalDate());
+
+            verifyNoMoreInteractions(movementsRepository);
+        }
+
+        @Test
+        public void testAgencyEventsNoQueryParameters() {
+
+            // Valid date range
+            final var from = LocalDateTime.parse("2019-05-01T11:00:00");
+            final var to = LocalDateTime.parse("2019-05-01T17:00:00");
+            final var agencyList = List.of("LEI", "MDI");
+
+            // All false - no data is being requested
+            final var courtEvents = false;
+            final var releaseEvents = false;
+            final var transferEvents = false;
+            final var movements = false;
+
+            assertThatThrownBy(() ->
+                movementsService.getTransferMovementsForAgencies(agencyList, from, to, courtEvents, releaseEvents, transferEvents, movements)
+            ).isInstanceOf(HttpClientErrorException.class).hasMessageContaining("At least one query parameter must be true [courtEvents|releaseEvents|transferEvents|movements]");
+
+            verifyNoMoreInteractions(movementsRepository);
+        }
+
+        @Nested
+        public class ParameterChecks {
+            @Test
+            public void invalidDateRange() {
+                // From time is AFTER the to time
+                final var from = LocalDateTime.parse("2019-05-01T17:00:00");
+                final var to = LocalDateTime.parse("2019-05-01T11:00:00");
+                final var agencyList = List.of("LEI", "MDI");
+
+                final var courtEvents = true;
+                final var releaseEvents = true;
+                final var transferEvents = true;
+                final var movements = true;
+
+                assertThatThrownBy(() ->
+                    movementsService.getTransferMovementsForAgencies(agencyList, from, to, courtEvents, releaseEvents, transferEvents, movements)
+                ).isInstanceOf(HttpClientErrorException.class).hasMessageContaining("The supplied fromDateTime parameter is after the toDateTime value");
+
+                verifyNoMoreInteractions(movementsRepository);
+            }
+
+            @Test
+            public void dateRangeIsGreaterThan24Hours() {
+                final var from = LocalDateTime.now();
+                final var to = LocalDateTime.now().plusDays(1);
+
+                final var agencyList = List.of("LEI");
+                final var courtEvents = true;
+                final var releaseEvents = true;
+                final var transferEvents = true;
+                final var movements = true;
+
+                assertThatThrownBy(() ->
+                    movementsService.getTransferMovementsForAgencies(agencyList, from, to, courtEvents, releaseEvents, transferEvents, movements)
+                ).isInstanceOf(HttpClientErrorException.class).hasMessageContaining("400 The supplied time period is more than 24 hours - limit to 24 hours maximum");
+
+                verifyNoMoreInteractions(movementsRepository);
+            }
+
+            @Test
+            public void noAgencyCodes() {
+                // No agency identifiers provided
+                final var from = LocalDateTime.parse("2019-05-01T11:00:00");
+                final var to = LocalDateTime.parse("2019-05-01T17:00:00");
+                final var agencyList = Collections.<String>emptyList();
+
+                final var courtEvents = true;
+                final var releaseEvents = true;
+                final var transferEvents = true;
+                final var movements = true;
+
+                assertThatThrownBy(() ->
+                    movementsService.getTransferMovementsForAgencies(agencyList, from, to, courtEvents, releaseEvents, transferEvents, movements)
+                ).isInstanceOf(HttpClientErrorException.class).hasMessageContaining("No agency location identifiers were supplied");
+
+                verifyNoMoreInteractions(movementsRepository);
+            }
+
+            @Test
+            public void atLeastOneIsTrue() {
+                final var from = LocalDateTime.parse("2019-05-01T11:00:00");
+                final var to = LocalDateTime.parse("2019-05-01T17:00:00");
+                final var agencyList = List.of("LEI");
+
+                assertThatThrownBy(() ->
+                    movementsService.getTransferMovementsForAgencies(agencyList, from, to, false, false, false, false)
+                ).isInstanceOf(HttpClientErrorException.class)
+                    .hasMessageContaining("400 At least one query parameter must be true [courtEvents|releaseEvents|transferEvents|movements]");
+
+                verifyNoMoreInteractions(movementsRepository);
+            }
+        }
+
+        @Nested
+        public class GetTransfers {
+            @Test
+            @DisplayName("makes two calls to get transfers by date, one call for each date when the fromDateTime and toDateTime span across different days")
+            public void makesTwoCallsToTheRepository() {
+                final var todayAtMidnight = LocalDate.now().atTime(LocalTime.MIDNIGHT);
+                final var tomorrowMorning = LocalDate.now().plusDays(1).atStartOfDay();
+
+                movementsService.getTransferMovementsForAgencies(
+                    List.of("LEI"),
+                    todayAtMidnight,
+                    tomorrowMorning,
+                    false, false, true, false
+                );
+
+                verify(movementsRepository).getIndividualSchedules(todayAtMidnight.toLocalDate());
+                verify(movementsRepository).getIndividualSchedules(tomorrowMorning.toLocalDate());
+            }
+
+            @Test
+            public void makesASingleCallToTheRepository() {
+                movementsService.getTransferMovementsForAgencies(
+                    List.of("LEI"),
+                    LocalDateTime.now(),
+                    LocalDateTime.now(),
+                    false, false, true, false
+                );
+
+                verify(movementsRepository, times(1)).getIndividualSchedules(any());
+                verify(movementsRepository).getIndividualSchedules(LocalDate.now());
+            }
+
+            @Test
+            public void returnSchedulesThatAreTransfersAnd_notDeleted() {
+                final var startDateTime = LocalDateTime.now();
+                final var endDateTime = LocalDateTime.now();
+
+                when(movementsRepository.getIndividualSchedules(any())).thenReturn(List.of(
+                    makeTransfer("A12345", "SCH", "LEI", "MDI", startDateTime, endDateTime),
+                    makeTransfer("A12346", "DEL", "MDI", "LEI", startDateTime, endDateTime),
+                    makeInternalMovement("A12347")
+                ));
+
+                final var transfers = movementsService.getTransferMovementsForAgencies(
+                    List.of("LEI", "MDI"),
+                    startDateTime,
+                    endDateTime,
+                    false, false, true, false
+                );
+
+                assertThat(transfers.getTransferEvents()).hasSize(1);
+                assertThat(transfers.getTransferEvents())
+                    .extracting("offenderNo", "fromAgency", "toAgency")
+                    .contains(Tuple.tuple("A12345", "LEI", "MDI"));
+            }
+
+            @Test
+            public void returnScheduledTransfers_forGivenAgencies() {
+                final var startDateTime = LocalDateTime.now();
+                final var endDateTime = LocalDateTime.now();
+
+                when(movementsRepository.getIndividualSchedules(any())).thenReturn(List.of(
+                    makeTransfer("A12345", "SCH", "LEI", "MDI", startDateTime, endDateTime),
+                    makeTransfer("A12346", "SCH", "WFI", "WX", startDateTime, endDateTime),
+                    makeInternalMovement("A12347")
+                ));
+
+                final var transfers = movementsService.getTransferMovementsForAgencies(
+                    List.of("WX"),
+                    startDateTime,
+                    endDateTime,
+                    false, false, true, false
+                );
+
+                assertThat(transfers.getTransferEvents()).hasSize(1);
+                assertThat(transfers.getTransferEvents())
+                    .extracting("offenderNo", "fromAgency", "toAgency")
+                    .contains(Tuple.tuple("A12346", "WFI", "WX"));
+            }
+
+            @Test
+            public void returnScheduledTransfer_forTheTimePeriod() {
+                final var startDateTime = LocalDateTime.now();
+                final var endDateTime = LocalDateTime.now().plusMinutes(5);
+
+                when(movementsRepository.getIndividualSchedules(any())).thenReturn(List.of(
+                    makeTransfer("A12345", "SCH", "LEI", "MDI", startDateTime, endDateTime),
+                    makeTransfer("A12346", "SCH", "WFI", "WX", startDateTime.plusMinutes(6), endDateTime.plusHours(8)),
+                    makeInternalMovement("A12347")
+                ));
+
+                final var transfers = movementsService.getTransferMovementsForAgencies(
+                    List.of("WX", "LEI"),
+                    startDateTime,
+                    endDateTime,
+                    false, false, true, false
+                );
+
+                assertThat(transfers.getTransferEvents()).hasSize(1);
+                assertThat(transfers.getTransferEvents())
+                    .extracting("offenderNo", "fromAgency", "toAgency")
+                    .contains(Tuple.tuple("A12345", "LEI", "MDI"));
+            }
+
+            @Test
+            public void returnScheduledTransfers_agencyDescriptionsFormattedCorrectly() {
+                final var startDateTime = LocalDateTime.now();
+                final var endDateTime = LocalDateTime.now();
+
+                when(movementsRepository.getIndividualSchedules(any())).thenReturn(List.of(
+                    makeTransfer("A12345", "SCH", "LEI", "MDI", startDateTime, endDateTime),
+                    makeInternalMovement("A12347")
+                ));
+
+                final var transfers = movementsService.getTransferMovementsForAgencies(
+                    List.of("WX", "LEI"),
+                    startDateTime,
+                    endDateTime,
+                    false, false, true, false
+                );
+
+                assertThat(transfers.getTransferEvents()).hasSize(1);
+                assertThat(transfers.getTransferEvents())
+                    .extracting("offenderNo", "fromAgency", "fromAgencyDescription", "toAgency", "toAgencyDescription")
+                    .contains(Tuple.tuple("A12345", "LEI", "Leeds (HMP)", "MDI", "Moorland (HMP & YOI)"));
+            }
+
+            private TransferEvent makeTransfer(final String offenderNo, final String eventStatus, final String fromAgencyId,
+                                               final String toAgencyId, final LocalDateTime startDateTime, final LocalDateTime endDateTime) {
+
+                final var agencyDescriptionMap = Map.of("LEI", "LEEDS (HMP)", "MDI", "MOORLAND (HMP & YOI)");
+
+                return TransferEvent.builder()
+                    .offenderNo(offenderNo)
+                    .eventType("TRN")
+                    .eventSubType("NOTR")
+                    .eventClass("EXT_MOV")
+                    .toAgency(toAgencyId)
+                    .toAgencyDescription(agencyDescriptionMap.get(toAgencyId))
+                    .fromAgency(fromAgencyId)
+                    .fromAgencyDescription(agencyDescriptionMap.get(fromAgencyId))
+                    .eventStatus(eventStatus)
+                    .startTime(startDateTime)
+                    .endTime(endDateTime)
+                    .build();
+            }
+
+            private TransferEvent makeInternalMovement(final String offenderNo) {
+                return TransferEvent.builder()
+                    .offenderNo(offenderNo)
+                    .eventType("MOV")
+                    .eventClass("INT_MOV")
+                    .eventStatus("SCH")
+                    .build();
+            }
+        }
+    }
+
 }
