@@ -1,0 +1,25 @@
+{
+  "courtEvents": [],
+  "transferEvents": [],
+  "releaseEvents": [
+    {
+      "offenderNo": "A1178RS",
+      "createDateTime": "2020-01-01T11:00:00",
+      "eventId": 9,
+      "fromAgency": "LEI",
+      "fromAgencyDescription": "Leeds",
+      "releaseDate": "2020-01-01",
+      "approvedReleaseDate": null,
+      "eventClass": "EXT_MOV",
+      "eventStatus": "SCH",
+      "movementTypeCode": "REL",
+      "movementTypeDescription": "Release",
+      "movementReasonCode": "DD",
+      "movementReasonDescription": "Discharged End of Sentence and Deported",
+      "commentText": "Some Comment Text",
+      "bookingActiveFlag": true,
+      "bookingInOutStatus": "IN"
+    }
+  ],
+  "movements": []
+}

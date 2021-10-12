@@ -1,10 +1,14 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
+import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -24,12 +28,12 @@ public class MovementResourceTest extends ResourceTest {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
 
         final var response = testRestTemplate.exchange(
-                "/api/movements?fromDateTime={fromDateTime}",
-                HttpMethod.GET,
-                createHttpEntity(token, null),
-                new ParameterizedTypeReference<String>() {
-                },
-                LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+            "/api/movements?fromDateTime={fromDateTime}",
+            HttpMethod.GET,
+            createHttpEntity(token, null),
+            new ParameterizedTypeReference<String>() {
+            },
+            LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
         );
 
         assertThatStatus(response, 403);
@@ -40,12 +44,12 @@ public class MovementResourceTest extends ResourceTest {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.GLOBAL_SEARCH);
 
         final var response = testRestTemplate.exchange(
-                "/api/movements?fromDateTime={fromDateTime}",
-                HttpMethod.GET,
-                createHttpEntity(token, null),
-                new ParameterizedTypeReference<String>() {
-                },
-                LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+            "/api/movements?fromDateTime={fromDateTime}",
+            HttpMethod.GET,
+            createHttpEntity(token, null),
+            new ParameterizedTypeReference<String>() {
+            },
+            LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
         );
 
         assertThatStatus(response, 200);
@@ -80,8 +84,8 @@ public class MovementResourceTest extends ResourceTest {
             createHttpEntity(token, null),
             new ParameterizedTypeReference<String>() {
             },
-            LocalDateTime.of(2018,4, 25,0,0,0).truncatedTo(ChronoUnit.DAYS).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
-            LocalDate.of(2018,5, 1).format(DateTimeFormatter.ISO_LOCAL_DATE)
+            LocalDateTime.of(2018, 4, 25, 0, 0, 0).truncatedTo(ChronoUnit.DAYS).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+            LocalDate.of(2018, 5, 1).format(DateTimeFormatter.ISO_LOCAL_DATE)
         );
 
         assertThatStatus(response, 200);
@@ -93,11 +97,11 @@ public class MovementResourceTest extends ResourceTest {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
 
         final var response = testRestTemplate.exchange(
-                "/api/movements/rollcount/{agencyId}/movements",
-                HttpMethod.GET,
-                createHttpEntity(token, null),
-                new ParameterizedTypeReference<String>() {
-                }, "LEI"
+            "/api/movements/rollcount/{agencyId}/movements",
+            HttpMethod.GET,
+            createHttpEntity(token, null),
+            new ParameterizedTypeReference<String>() {
+            }, "LEI"
         );
 
         assertThatStatus(response, 200);
@@ -109,11 +113,11 @@ public class MovementResourceTest extends ResourceTest {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
 
         final var response = testRestTemplate.exchange(
-                "/api/movements/{agencyId}/enroute",
-                HttpMethod.GET,
-                createHttpEntity(token, null),
-                new ParameterizedTypeReference<String>() {
-                }, "LEI"
+            "/api/movements/{agencyId}/enroute",
+            HttpMethod.GET,
+            createHttpEntity(token, null),
+            new ParameterizedTypeReference<String>() {
+            }, "LEI"
         );
 
         assertThatStatus(response, 200);
@@ -125,11 +129,11 @@ public class MovementResourceTest extends ResourceTest {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
 
         final var response = testRestTemplate.exchange(
-                "/api/movements/rollcount/{agencyId}/enroute",
-                HttpMethod.GET,
-                createHttpEntity(token, null),
-                new ParameterizedTypeReference<String>() {
-                }, "LEI"
+            "/api/movements/rollcount/{agencyId}/enroute",
+            HttpMethod.GET,
+            createHttpEntity(token, null),
+            new ParameterizedTypeReference<String>() {
+            }, "LEI"
 
         );
 
@@ -142,11 +146,11 @@ public class MovementResourceTest extends ResourceTest {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
 
         final var response = testRestTemplate.exchange(
-                "/api/movements/{agencyId}/in?fromDateTime={fromDateTime}",
-                HttpMethod.GET,
-                createHttpEntity(token, null),
-                new ParameterizedTypeReference<String>() {
-                }, "LEI", LocalDateTime.of(2019, 1, 1, 0, 1)
+            "/api/movements/{agencyId}/in?fromDateTime={fromDateTime}",
+            HttpMethod.GET,
+            createHttpEntity(token, null),
+            new ParameterizedTypeReference<String>() {
+            }, "LEI", LocalDateTime.of(2019, 1, 1, 0, 1)
         );
 
         assertThatStatus(response, HttpStatus.OK.value());
@@ -174,18 +178,18 @@ public class MovementResourceTest extends ResourceTest {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
 
         final var response = testRestTemplate.exchange(
-                "/api/movements/{agencyId}/in?fromDateTime={fromDateTime}",
-                HttpMethod.GET,
-                createHttpEntity(token, null, of("Page-Offset", "1", "Page-Limit", "1")),
-                new ParameterizedTypeReference<String>() {
-                }, "LEI", LocalDateTime.of(2019, 1, 1, 0, 1)
+            "/api/movements/{agencyId}/in?fromDateTime={fromDateTime}",
+            HttpMethod.GET,
+            createHttpEntity(token, null, of("Page-Offset", "1", "Page-Limit", "1")),
+            new ParameterizedTypeReference<String>() {
+            }, "LEI", LocalDateTime.of(2019, 1, 1, 0, 1)
         );
 
         assertThatStatus(response, HttpStatus.OK.value());
         assertThat(response.getHeaders().toSingleValueMap()).contains(
-                entry("Page-Limit", "1"),
-                entry("Page-Offset", "1"),
-                entry("Total-Records", "2"));
+            entry("Page-Limit", "1"),
+            entry("Page-Offset", "1"),
+            entry("Total-Records", "2"));
 
         assertThat(getBodyAsJsonContent(response)).isStrictlyEqualToJson("movements_paged.json");
     }
@@ -195,13 +199,13 @@ public class MovementResourceTest extends ResourceTest {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
 
         final var response = testRestTemplate.exchange(
-                "/api/movements/{agencyId}/in?fromDateTime={fromDateTime}&toDateTime={toDateTime}",
-                HttpMethod.GET,
-                createHttpEntity(token, null),
-                new ParameterizedTypeReference<String>() {
-                }, "LEI",
-                LocalDateTime.of(2019, 4, 1, 0, 1),
-                LocalDateTime.of(2019, 6, 1, 0, 1)
+            "/api/movements/{agencyId}/in?fromDateTime={fromDateTime}&toDateTime={toDateTime}",
+            HttpMethod.GET,
+            createHttpEntity(token, null),
+            new ParameterizedTypeReference<String>() {
+            }, "LEI",
+            LocalDateTime.of(2019, 4, 1, 0, 1),
+            LocalDateTime.of(2019, 6, 1, 0, 1)
         );
 
         assertThatStatus(response, HttpStatus.OK.value());
@@ -213,11 +217,11 @@ public class MovementResourceTest extends ResourceTest {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_USER_READ_WRITE);
 
         final var response = testRestTemplate.exchange(
-                "/api/movements/upcomingCourtAppearances",
-                HttpMethod.GET,
-                createHttpEntity(token, null),
-                new ParameterizedTypeReference<String>() {
-                }
+            "/api/movements/upcomingCourtAppearances",
+            HttpMethod.GET,
+            createHttpEntity(token, null),
+            new ParameterizedTypeReference<String>() {
+            }
         );
 
         assertThatStatus(response, HttpStatus.OK.value());
@@ -265,5 +269,57 @@ public class MovementResourceTest extends ResourceTest {
 
         assertThatStatus(noCourtMovementsOnDayResponse, HttpStatus.OK.value());
         assertThat(noCourtMovementsOnDayResponse.getBody()).isEqualTo("[]");
+    }
+
+    @Nested
+    public class ScheduledMovements {
+        @Test
+        public void getCourtEvents() {
+            final var response = getScheduledMovements(true, false, false);
+
+            assertThatStatus(response, HttpStatus.OK.value());
+
+            assertThat(getBodyAsJsonContent(response)).isStrictlyEqualToJson("get_court_events.json");
+        }
+
+        @Test
+        public void getReleaseEvents() {
+            final var response = getScheduledMovements(false, true, false);
+
+            assertThatStatus(response, HttpStatus.OK.value());
+
+            assertThat(getBodyAsJsonContent(response)).isStrictlyEqualToJson("get_release_events.json");
+        }
+
+        @Test
+        public void getTransferEvents() {
+            final var response = getScheduledMovements(false, false, true);
+
+            assertThatStatus(response, HttpStatus.OK.value());
+
+            assertThat(getBodyAsJsonContent(response)).isStrictlyEqualToJson("get_transfer_events.json");
+        }
+
+        private ResponseEntity<String> getScheduledMovements(final Boolean courtEvents, final Boolean releaseEvents, final Boolean transferEvents) {
+            final String token = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH);
+            final LocalDateTime fromDateTime = LocalDate.of(2020, 1, 1).atTime(9, 0);
+            final LocalDateTime toDateTime = LocalDate.of(2020, 1, 1).atTime(12, 0);
+
+            return testRestTemplate.exchange(
+                UriComponentsBuilder
+                    .fromPath("/api/movements/transfers")
+                    .queryParam("agencyId", "LEI")
+                    .queryParam("fromDateTime", fromDateTime)
+                    .queryParam("toDateTime", toDateTime)
+                    .queryParam("courtEvents", courtEvents)
+                    .queryParam("releaseEvents", releaseEvents)
+                    .queryParam("transferEvents", transferEvents)
+                    .build()
+                    .toUriString(),
+                HttpMethod.GET,
+                createHttpEntity(token, null),
+                new ParameterizedTypeReference<>() {
+                });
+        }
     }
 }
