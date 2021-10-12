@@ -3,12 +3,12 @@
   "transferEvents": [],
   "releaseEvents": [
     {
-      "offenderNo": "A1178RS",
+      "offenderNo": "A1234AA",
       "createDateTime": "2020-01-01T11:00:00",
-      "eventId": 9,
+      "eventId": 1,
       "fromAgency": "LEI",
       "fromAgencyDescription": "Leeds",
-      "releaseDate": "2020-01-01",
+      "releaseDate": "2018-04-23",
       "approvedReleaseDate": null,
       "eventClass": "EXT_MOV",
       "eventStatus": "SCH",

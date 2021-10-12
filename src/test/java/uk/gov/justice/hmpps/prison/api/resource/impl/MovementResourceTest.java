@@ -284,7 +284,10 @@ public class MovementResourceTest extends ResourceTest {
 
         @Test
         public void getReleaseEvents() {
-            final var response = getScheduledMovements(false, true, false);
+            final var fromDateTime = LocalDate.of(2018, 4, 23).atStartOfDay();
+            final var toDateTime = LocalDate.of(2018, 4, 23).atTime(20, 10);
+
+            final var response = getScheduledMovements(false, true, false, fromDateTime, toDateTime);
 
             assertThatStatus(response, HttpStatus.OK.value());
 
@@ -301,9 +304,15 @@ public class MovementResourceTest extends ResourceTest {
         }
 
         private ResponseEntity<String> getScheduledMovements(final Boolean courtEvents, final Boolean releaseEvents, final Boolean transferEvents) {
-            final String token = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH);
             final LocalDateTime fromDateTime = LocalDate.of(2020, 1, 1).atTime(9, 0);
             final LocalDateTime toDateTime = LocalDate.of(2020, 1, 1).atTime(12, 0);
+
+            return getScheduledMovements(courtEvents, releaseEvents, transferEvents, fromDateTime, toDateTime);
+        }
+
+        private ResponseEntity<String> getScheduledMovements(
+            final Boolean courtEvents, final Boolean releaseEvents, final Boolean transferEvents, final LocalDateTime fromDateTime, final LocalDateTime toDateTime) {
+            final String token = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH);
 
             return testRestTemplate.exchange(
                 UriComponentsBuilder
