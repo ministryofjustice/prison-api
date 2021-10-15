@@ -1,20 +1,13 @@
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+---
+# Per environment values which override defaults in prison-api/values.yaml
+generic-service:
+  replicaCount: 2
 
-replicaCount: 2
-
-image:
-  repository: quay.io/hmpps/prison-api
-  tag: latest
-  pullPolicy: IfNotPresent
-  port: 8080
-
-env:
-  JAVA_OPTS: "-Xmx1024m"
-  DATA_COMPLIANCE_DELETION_ENABLED: true
-  DATA_COMPLIANCE_DECEASED_DELETION_ENABLED: true
-  SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: "https://sign-in-dev.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json"
-  SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: 5
-  SPRING_REPLICA_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: 20
-  SMOKE_TEST_AWARE: true
-  APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.dev.json
+  env:
+    DATA_COMPLIANCE_DELETION_ENABLED: true
+    DATA_COMPLIANCE_DECEASED_DELETION_ENABLED: true
+    SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: "https://sign-in-dev.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json"
+    SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: 5
+    SPRING_REPLICA_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: 20
+    SMOKE_TEST_AWARE: true
+    APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.dev.json
