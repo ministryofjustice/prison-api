@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationActionCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationIncidentType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationParties;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
@@ -26,10 +27,10 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @AutoConfigureTestDatabase(replace = NONE)
 @Import({AuthenticationFacade.class, AuditorAwareImpl.class})
 @WithMockUser
-public class AdjudicationsRepositoryTest {
+public class AdjudicationRepositoryTest {
 
     @Autowired
-    private AdjudicationsRepository repository;
+    private AdjudicationRepository repository;
 
     @Autowired
     private AgencyLocationRepository agencyLocationRepository;
@@ -45,6 +46,9 @@ public class AdjudicationsRepositoryTest {
 
     @Autowired
     private ReferenceCodeRepository<AdjudicationIncidentType> incidentTypeRepository;
+
+    @Autowired
+    private ReferenceCodeRepository<AdjudicationActionCode> actionCodeRepository;
 
     @Test
     void saveAdjudication() {
@@ -71,9 +75,10 @@ public class AdjudicationsRepositoryTest {
         final var staff = staffUserAccountRepository.findById("PPL_USER");
         final var offenderBooking = bookingRepository.findById(-6L);
         final var incidentType = incidentTypeRepository.findById(AdjudicationIncidentType.GOVERNORS_REPORT);
+        final var actionCode = actionCodeRepository.findById(AdjudicationActionCode.PLACED_ON_REPORT);
         final var adjudicationToCreate = Adjudication.builder()
-            .incidentDate(currentDate)
-            .incidentTime(currentDateAndTime)
+            .incidentDate(currentDate.minusDays(1))
+            .incidentTime(currentDateAndTime.minusDays(1))
             .reportDate(currentDate)
             .reportTime(currentDateAndTime)
             .agencyLocation(agencyLocation.get())
@@ -89,6 +94,7 @@ public class AdjudicationsRepositoryTest {
             .id(new AdjudicationParties.PK(adjudicationToCreate, 1L))
             .incidentId(incidentNumber1)
             .incidentRole("S")
+            .actionCode(actionCode.get())
             .offenderBooking(offenderBooking.get())
             .build();
         final var incidentNumber2 = repository.getNextIncidentId();
@@ -96,6 +102,7 @@ public class AdjudicationsRepositoryTest {
             .id(new AdjudicationParties.PK(adjudicationToCreate, 2L))
             .incidentId(incidentNumber2)
             .incidentRole("S")
+            .partyAddedDate(currentDate.plusDays(1))
             .offenderBooking(offenderBooking.get())
             .build();
         adjudicationToCreate.setParties(List.of(adjudicationParty1, adjudicationParty2));

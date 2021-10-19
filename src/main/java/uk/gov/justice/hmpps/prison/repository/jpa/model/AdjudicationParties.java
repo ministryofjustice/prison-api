@@ -6,6 +6,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.JoinColumnOrFormula;
+import org.hibernate.annotations.JoinColumnsOrFormulas;
+import org.hibernate.annotations.JoinFormula;
+import org.hibernate.annotations.NotFound;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -17,6 +21,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
 import javax.persistence.Table;
 import java.io.Serializable;
+import java.time.LocalDate;
+
+import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
 @Data
 @EqualsAndHashCode(callSuper=false)
@@ -52,10 +59,23 @@ public class AdjudicationParties extends ExtendedAuditableEntity {
     @Column(name = "INCIDENT_ROLE")
     private String incidentRole;
 
+    @Column(name = "PARTY_ADDED_DATE", nullable = false)
+    private LocalDate partyAddedDate;
+
+    @ManyToOne
+    @NotFound(action = IGNORE)
+    @JoinColumnsOrFormulas(value = {
+        @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + AdjudicationIncidentType.TYPE + "'", referencedColumnName = "domain")),
+        @JoinColumnOrFormula(column = @JoinColumn(name = "ACTION_CODE", referencedColumnName = "code"))
+    })
+    private AdjudicationActionCode actionCode;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "OFFENDER_BOOK_ID")
-    @MapsId("bookingId")
+    //@MapsId("bookingId")
     private OffenderBooking offenderBooking;
+    //@Column(name = "OFFENDER_BOOK_ID")
+    //private Long offenderBookId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "STAFF_ID")
