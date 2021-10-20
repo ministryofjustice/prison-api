@@ -2,10 +2,12 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.ToString.Exclude;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
@@ -18,8 +20,11 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.ContactType.CONTACTS;
@@ -32,7 +37,7 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.RelationshipType.
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @Table(name = "OFFENDER_CONTACT_PERSONS")
-@ToString(exclude = {"offenderBooking"})
+@ToString
 public class OffenderContactPerson extends AuditableEntity {
 
     private static final String ACTIVE = "Y";
@@ -43,10 +48,16 @@ public class OffenderContactPerson extends AuditableEntity {
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
+    @Exclude
     private OffenderBooking offenderBooking;
 
     @Column(name = "PERSON_ID", nullable = false)
     private Long personId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PERSON_ID", updatable = false, insertable = false)
+    @Exclude
+    private Person person;
 
     @ManyToOne
     @NotFound(action = IGNORE)
@@ -64,15 +75,34 @@ public class OffenderContactPerson extends AuditableEntity {
     })
     private ContactType contactType;
 
+
+    @OneToMany
+    @JoinColumn(name = "OFFENDER_CONTACT_PERSON_ID", referencedColumnName = "OFFENDER_CONTACT_PERSON_ID")
+    @Exclude
+    @Default
+    private List<VisitorRestriction> visitorRestrictions = new ArrayList<>();
+
+    @OneToMany
+    @JoinColumn(name = "PERSON_ID", referencedColumnName = "PERSON_ID")
+    @Exclude
+    @Default
+    private List<GlobalVisitorRestriction> globalVisitorRestrictions = new ArrayList<>();
+
     @Column(name = "ACTIVE_FLAG")
     @Type(type="yes_no")
     private boolean active;
 
     @Column(name = "NEXT_OF_KIN_FLAG")
-    private String nextOfKinFlag;
+    @Type(type="yes_no")
+    private boolean nextOfKin;
 
     @Column(name = "EMERGENCY_CONTACT_FLAG")
-    private String emergencyContactFlag;
+    @Type(type="yes_no")
+    private boolean emergencyContact;
+
+    @Column(name = "APPROVED_VISITOR_FLAG")
+    @Type(type="yes_no")
+    private boolean approvedVisitor;
 
     @Column(name = "COMMENT_TEXT")
     private String comment;

@@ -33,6 +33,7 @@ import uk.gov.justice.hmpps.prison.api.model.IncidentCase;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
+import uk.gov.justice.hmpps.prison.api.model.OffenderContacts;
 import uk.gov.justice.hmpps.prison.api.model.OffenderDamageObligationResponse;
 import uk.gov.justice.hmpps.prison.api.model.OffenderNumber;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
@@ -540,5 +541,20 @@ public class OffenderResource {
             // rethrow against the offender number rather than the booking id
             throw EntityNotFoundException.withId(offenderNo);
         }
+    }
+
+    @ApiResponses({
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    @ApiOperation(value = "Offender Contacts", notes = "Active Contacts including restrictions, using latest offender booking", nickname = "getOffenderContacts")
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "OFFENDER_CONTACTS"})
+    @GetMapping("/{offenderNo}/contacts")
+    public OffenderContacts getOffenderContacts(
+            @ApiParam(name = "offenderNo", value = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo", required = true) @NotNull final String offenderNo,
+            @ApiParam(name = "approvedVisitorsOnly", value = "return only contacts approved for visits", required = false, defaultValue = "false") @RequestParam(value = "approvedVisitorsOnly", required = false, defaultValue = "false") final boolean approvedVisitors
+    ) {
+        final var booking = bookingService.getLatestBookingByOffenderNo(offenderNo);
+        return bookingService.getOffenderContacts(booking.getBookingId(), approvedVisitors);
     }
 }
