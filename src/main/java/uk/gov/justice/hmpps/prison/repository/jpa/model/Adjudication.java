@@ -49,7 +49,7 @@ public class Adjudication extends ExtendedAuditableEntity {
 
     @OneToMany(mappedBy = "id.adjudication", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @Default
-    private List<AdjudicationParties> parties = new ArrayList<>();
+    private List<AdjudicationParty> parties = new ArrayList<>();
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "REPORTED_STAFF_ID", nullable = false)

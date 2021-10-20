@@ -18,7 +18,6 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.MapsId;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -33,7 +32,7 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @Entity
 @Table(name = "AGENCY_INCIDENT_PARTIES")
 @ToString(of = {"id"})
-public class AdjudicationParties extends ExtendedAuditableEntity {
+public class AdjudicationParty extends ExtendedAuditableEntity {
 
     @EmbeddedId
     private PK id;
@@ -72,10 +71,7 @@ public class AdjudicationParties extends ExtendedAuditableEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "OFFENDER_BOOK_ID")
-    //@MapsId("bookingId")
     private OffenderBooking offenderBooking;
-    //@Column(name = "OFFENDER_BOOK_ID")
-    //private Long offenderBookId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "STAFF_ID")

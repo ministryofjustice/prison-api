@@ -10,7 +10,7 @@ import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationActionCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationIncidentType;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationParties;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationParty;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
@@ -90,8 +90,8 @@ public class AdjudicationsService {
             .staffReporterId(reporter.get().getStaff())
             .build();
         final var incidentNumber = adjudicationsRepository.getNextIncidentId();
-        final var offenderAdjudicationEntry = AdjudicationParties.builder()
-            .id(new AdjudicationParties.PK(adjudicationToCreate, 1L))
+        final var offenderAdjudicationEntry = AdjudicationParty.builder()
+            .id(new AdjudicationParty.PK(adjudicationToCreate, 1L))
             .incidentId(incidentNumber)
             .incidentRole(INCIDENT_ROLE_OFFENDER)
             .partyAddedDate(currentDateTime.toLocalDate())

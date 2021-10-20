@@ -10,14 +10,12 @@ import org.springframework.test.context.ActiveProfiles;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationActionCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationIncidentType;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationParties;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationParty;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.StreamSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -51,63 +49,67 @@ public class AdjudicationRepositoryTest {
     private ReferenceCodeRepository<AdjudicationActionCode> actionCodeRepository;
 
     @Test
-    void saveAdjudication() {
-        saveAdjudication(-32L);
-        saveAdjudication(-14L);
+    void adjudicationCreated() {
+        final var adjudicationToCreate = makeAdjudicationObject();
 
-        final var allAdjudications = repository.findAll();
+        final var savedAdjudication = repository.save(adjudicationToCreate);
 
-        final var firstLocation = StreamSupport.stream(allAdjudications.spliterator(), false).filter(i -> i.getInternalLocation().getLocationId().equals(-32L)).findFirst();
-        repository.delete(firstLocation.get());
+        final var storedAdjudication = repository.findById(savedAdjudication.getAgencyIncidentId());
 
-        saveAdjudication(-33L);
+        assertThat(storedAdjudication.get()).usingRecursiveComparison().ignoringFields("agencyIncidentId").isEqualTo(adjudicationToCreate);
 
-        final var allAdjudicationsNow = repository.findAll();
-
-        assertThat(allAdjudicationsNow).hasSize(10);
+        // Revert the save
+        repository.delete(storedAdjudication.get());
     }
 
-    private void saveAdjudication(final Long internalLocationId) {
-        final var currentDate = LocalDate.now();
-        final var currentDateAndTime = LocalDateTime.now();
-        final var agencyLocation = agencyLocationRepository.findById("LEI");
+    private Adjudication makeAdjudicationObject() {
+        final var reportedDateAndTime = LocalDateTime.now();
+        final var incidentDateAndTime = reportedDateAndTime.minusDays(2);
+        final var partyAddedDateAndTime = reportedDateAndTime.minusDays(1);
+
+        final var offenderBookingId = -6L;
+        final var agencyId = "LEI";
+        final var internalLocationId = -14L;
+        final var reporterUsername = "PPL_USER";
+        final var incidentDetails = "A detail";
+        final var incidentStatus = "ACTIVE";
+        final var lockFlag = "Y";
+        final var incidentRole = "S";
+        final var incidentType = AdjudicationIncidentType.GOVERNORS_REPORT;
+        final var actionCode = AdjudicationActionCode.PLACED_ON_REPORT;
+
+        final var agencyLocation = agencyLocationRepository.findById(agencyId);
         final var agencyInternalLocation = agencyInternalLocationRepository.findById(internalLocationId);
-        final var staff = staffUserAccountRepository.findById("PPL_USER");
-        final var offenderBooking = bookingRepository.findById(-6L);
-        final var incidentType = incidentTypeRepository.findById(AdjudicationIncidentType.GOVERNORS_REPORT);
-        final var actionCode = actionCodeRepository.findById(AdjudicationActionCode.PLACED_ON_REPORT);
+        final var reporter = staffUserAccountRepository.findById(reporterUsername);
+        final var offenderBooking = bookingRepository.findById(offenderBookingId);
+        final var incidentTypeRef = incidentTypeRepository.findById(incidentType);
+        final var actionCodeRef = actionCodeRepository.findById(actionCode);
+        final var incidentNumber = repository.getNextIncidentId();
+
         final var adjudicationToCreate = Adjudication.builder()
-            .incidentDate(currentDate.minusDays(1))
-            .incidentTime(currentDateAndTime.minusDays(1))
-            .reportDate(currentDate)
-            .reportTime(currentDateAndTime)
+            .incidentDate(incidentDateAndTime.toLocalDate())
+            .incidentTime(incidentDateAndTime)
+            .reportDate(reportedDateAndTime.toLocalDate())
+            .reportTime(reportedDateAndTime)
             .agencyLocation(agencyLocation.get())
             .internalLocation(agencyInternalLocation.get())
-            .incidentDetails("A comment")
-            .incidentStatus("ACTIVE")
-            .incidentType(incidentType.get())
-            .lockFlag("Y")
-            .staffReporterId(staff.get().getStaff())
+            .incidentDetails(incidentDetails)
+            .incidentStatus(incidentStatus)
+            .incidentType(incidentTypeRef.get())
+            .lockFlag(lockFlag)
+            .staffReporterId(reporter.get().getStaff())
             .build();
-        final var incidentNumber1 = repository.getNextIncidentId();
-        final var adjudicationParty1 = AdjudicationParties.builder()
-            .id(new AdjudicationParties.PK(adjudicationToCreate, 1L))
-            .incidentId(incidentNumber1)
-            .incidentRole("S")
-            .actionCode(actionCode.get())
+        final var adjudicationParty = AdjudicationParty.builder()
+            .id(new AdjudicationParty.PK(adjudicationToCreate, 1L))
+            .incidentId(incidentNumber)
+            .incidentRole(incidentRole)
+            .partyAddedDate(partyAddedDateAndTime.toLocalDate())
             .offenderBooking(offenderBooking.get())
+            .actionCode(actionCodeRef.get())
             .build();
-        final var incidentNumber2 = repository.getNextIncidentId();
-        final var adjudicationParty2 = AdjudicationParties.builder()
-            .id(new AdjudicationParties.PK(adjudicationToCreate, 2L))
-            .incidentId(incidentNumber2)
-            .incidentRole("S")
-            .partyAddedDate(currentDate.plusDays(1))
-            .offenderBooking(offenderBooking.get())
-            .build();
-        adjudicationToCreate.setParties(List.of(adjudicationParty1, adjudicationParty2));
+        adjudicationToCreate.setParties(List.of(adjudicationParty));
 
-        repository.save(adjudicationToCreate);
+        return adjudicationToCreate;
     }
 }
 
