@@ -32,7 +32,7 @@ public class OffenderContact {
     @ApiModelProperty(value = "Middle Names", example = "Mark")
     private String middleName;
 
-    @ApiModelProperty(value = "date of birth")
+    @ApiModelProperty(value = "date of birth", example = "1980-01-01")
     private LocalDate dateOfBirth;
 
     @ApiModelProperty(required = true, value = "Contact type", example = "O")
