@@ -546,6 +546,25 @@ public class InmateServiceImplTest {
     }
 
     @Test
+    public void getOffenderDetails_WhenMissingReleaseAgency() {
+        when(repository.findOffender(any())).thenReturn(Optional.of(buildInmateDetail()));
+        when(offenderLanguageRepository.findByOffenderBookId(anyLong())).thenReturn(List.of());
+        when(repository.findPhysicalAttributes(anyLong())).thenReturn(Optional.of(buildPhysicalAttributes()));
+        when(repository.findPhysicalCharacteristics(anyLong())).thenReturn(List.of());
+        when(repository.getProfileInformation(anyLong())).thenReturn(List.of());
+        when(repository.findAssignedLivingUnit(anyLong(), any())).thenReturn(Optional.of(buildAssignedLivingUnit()));
+        when(inmateAlertService.getInmateAlerts(anyLong(), any(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
+        when(repository.findInmateAliases(anyLong(), anyString(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
+        when(repository.getOffenderIdentifiersByOffenderId(anyLong())).thenReturn(List.of());
+        when(externalMovementRepository.findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(any())).thenReturn(buildMovementReleasedWithNullFromAgency("TAP","Temporary Absence"));
+
+        final var inmateDetail = serviceToTest.findOffender("S1234AA", true, false);
+
+        assertThat(inmateDetail.getLocationDescription()).isEqualTo("Outside");
+        assertThat(inmateDetail.getLatestLocationId()).isEqualTo("MDI");
+    }
+
+    @Test
     public void getOffenderDetails_LocationDescriptionAndIdPrisonerNoMovementDetailsFound() {
 
         when(repository.findOffender(any())).thenReturn(Optional.of(buildInmateDetail()));
@@ -680,6 +699,19 @@ public class InmateServiceImplTest {
                 .movementReason(new MovementReason(MovementReason.DISCHARGE_TO_PSY_HOSPITAL.getCode(), "to hospital"))
                 .build());
     }
+
+    private Optional<ExternalMovement> buildMovementReleasedWithNullFromAgency(String movementType, String movementTypeDescription) {
+        final var now = LocalDateTime.now();
+        return Optional.of(ExternalMovement.builder()
+            .movementDate(now.toLocalDate())
+            .movementTime(now)
+            .toAgency(AgencyLocation.builder().id("OUT").description("Outside").type(AgencyLocationType.PRISON_TYPE).build())
+            .movementDirection(MovementDirection.OUT)
+            .movementType(new MovementType(movementType, movementTypeDescription))
+            .movementReason(new MovementReason(MovementReason.DISCHARGE_TO_PSY_HOSPITAL.getCode(), "to hospital"))
+            .build());
+    }
+
     private Optional<ExternalMovement> buildMovementTransferred(String movementType, String movementTypeDescription) {
         final var now = LocalDateTime.now();
         return Optional.of(ExternalMovement.builder()
