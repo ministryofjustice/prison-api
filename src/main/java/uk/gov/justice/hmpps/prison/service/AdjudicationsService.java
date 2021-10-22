@@ -107,7 +107,7 @@ public class AdjudicationsService {
         return transformToDto(createdAdjudication);
     }
 
-    private void trackAdjudicationCreated(Adjudication createdAdjudication) {
+    private void trackAdjudicationCreated(final Adjudication createdAdjudication) {
         final Map<String, String> logMap = new HashMap<>();
         logMap.put("reporterUsername", authenticationFacade.getCurrentUsername());
         logMap.put("offenderNo", createdAdjudication.getOffenderParty()

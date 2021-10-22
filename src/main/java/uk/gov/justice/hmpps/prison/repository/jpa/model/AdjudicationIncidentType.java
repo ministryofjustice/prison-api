@@ -23,5 +23,5 @@ public class AdjudicationIncidentType extends ReferenceCode {
         return new Pk(TYPE, code);
     }
 
-    public static AdjudicationIncidentType of(Pk pk) { return new AdjudicationIncidentType(pk.getCode(), pk.getDomain()); }
+    public static AdjudicationIncidentType of(final Pk pk) { return new AdjudicationIncidentType(pk.getCode(), pk.getDomain()); }
 }

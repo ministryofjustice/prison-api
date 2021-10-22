@@ -23,5 +23,5 @@ public class AdjudicationActionCode extends ReferenceCode {
         return new Pk(TYPE, code);
     }
 
-    public static AdjudicationActionCode of(Pk pk) { return new AdjudicationActionCode(pk.getCode(), pk.getDomain()); }
+    public static AdjudicationActionCode of(final Pk pk) { return new AdjudicationActionCode(pk.getCode(), pk.getDomain()); }
 }

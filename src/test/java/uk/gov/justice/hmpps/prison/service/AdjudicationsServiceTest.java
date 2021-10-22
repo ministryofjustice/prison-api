@@ -195,7 +195,7 @@ public class AdjudicationsServiceTest {
         verifyNoMoreInteractions(telemetryClient);
     }
 
-    private static <T> T assertArgThat(Consumer<T> assertions) {
+    private static <T> T assertArgThat(final Consumer<T> assertions) {
         return MockitoHamcrest.argThat(new AssertionMatcher<>() {
             @Override
             public void assertion(T actual) throws AssertionError {
@@ -204,7 +204,7 @@ public class AdjudicationsServiceTest {
         });
     }
 
-    private Adjudication getExpectedAdjudication(MockProvider mockProvider, NewAdjudication newAdjudication) {
+    private Adjudication getExpectedAdjudication(final MockProvider mockProvider, final NewAdjudication newAdjudication) {
         return Adjudication.builder()
             .incidentDate(newAdjudication.getIncidentTime().toLocalDate())
             .incidentTime(newAdjudication.getIncidentTime())
@@ -220,7 +220,7 @@ public class AdjudicationsServiceTest {
             .build();
     }
 
-    private AdjudicationParty addExpectedAdjudicationParty(MockProvider mockProvider, Adjudication expectedAdjudication) {
+    private AdjudicationParty addExpectedAdjudicationParty(final MockProvider mockProvider, final Adjudication expectedAdjudication) {
         final var expectedOffenderParty = AdjudicationParty.builder()
             .id(new AdjudicationParty.PK(expectedAdjudication, 1L))
             .incidentId(EXAMPLE_INCIDENT_ID)
