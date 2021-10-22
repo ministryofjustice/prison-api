@@ -28,6 +28,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
@@ -41,6 +42,10 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @ToString(of = {"agencyIncidentId"})
 public class Adjudication extends ExtendedAuditableEntity {
 
+    public static final String INCIDENT_ROLE_OFFENDER = "S";
+    public static final String INCIDENT_STATUS_ACTIVE = "ACTIVE";
+    public static final String LOCK_FLAG_UNLOCKED = "N";
+
     @Id
     @Column(name = "AGENCY_INCIDENT_ID")
     @SequenceGenerator(name = "AGENCY_INCIDENT_ID", sequenceName = "AGENCY_INCIDENT_ID", allocationSize = 1)
@@ -53,7 +58,7 @@ public class Adjudication extends ExtendedAuditableEntity {
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "REPORTED_STAFF_ID", nullable = false)
-    private Staff staffReporterId;
+    private Staff staffReporter;
 
     @Column(name = "INCIDENT_DATE", nullable = false)
     private LocalDate incidentDate;
@@ -91,4 +96,9 @@ public class Adjudication extends ExtendedAuditableEntity {
 
     @Column(name = "LOCK_FLAG", nullable = false)
     private String lockFlag;
+
+    public Optional<AdjudicationParty> getOffenderParty() {
+        return parties.stream().filter(p -> INCIDENT_ROLE_OFFENDER.equals(p.getIncidentRole())).findFirst();
+
+    }
 }

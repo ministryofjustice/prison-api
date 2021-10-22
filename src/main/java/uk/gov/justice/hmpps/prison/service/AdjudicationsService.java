@@ -1,17 +1,22 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import com.microsoft.applicationinsights.TelemetryClient;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
-import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationActionCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationIncidentType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationParty;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
@@ -23,15 +28,18 @@ import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
+@Validated
+@Transactional(readOnly = true)
 @Slf4j
+@RequiredArgsConstructor
 public class AdjudicationsService {
-
-    public static final String INCIDENT_ROLE_OFFENDER = "S";
-
     private final AdjudicationRepository adjudicationsRepository;
     private final StaffUserAccountRepository staffUserAccountRepository;
     private final OffenderBookingRepository bookingRepository;
@@ -40,116 +48,84 @@ public class AdjudicationsService {
     private final AgencyLocationRepository agencyLocationRepository;
     private final AgencyInternalLocationRepository internalLocationRepository;
     private final AuthenticationFacade authenticationFacade;
+    private final TelemetryClient telemetryClient;
+    private final Clock clock;
 
-    public AdjudicationsService(final AdjudicationRepository adjudicationsRepository,
-                                final StaffUserAccountRepository staffUserAccountRepository,
-                                final OffenderBookingRepository bookingRepository,
-                                final ReferenceCodeRepository<AdjudicationIncidentType> incidentTypeRepository,
-                                final ReferenceCodeRepository<AdjudicationActionCode> actionCodeRepository,
-                                final AgencyLocationRepository agencyLocationRepository,
-                                final AgencyInternalLocationRepository internalLocationRepository,
-                                final AuthenticationFacade authenticationFacade) {
-        this.adjudicationsRepository = adjudicationsRepository;
-        this.staffUserAccountRepository = staffUserAccountRepository;
-        this.bookingRepository = bookingRepository;
-        this.incidentTypeRepository = incidentTypeRepository;
-        this.actionCodeRepository = actionCodeRepository;
-        this.agencyLocationRepository = agencyLocationRepository;
-        this.internalLocationRepository = internalLocationRepository;
-        this.authenticationFacade = authenticationFacade;
-    }
-
-    @PreAuthorize("hasRole('SYSTEM_USER')")
-    @VerifyBookingAccess
-    @HasWriteScope
     @Transactional
+    @VerifyBookingAccess
+    @PreAuthorize("hasRole('SYSTEM_USER')")
+    @HasWriteScope
     public AdjudicationDetail createAdjudication(@NotNull final Long bookingId, @NotNull @Valid final NewAdjudication adjudication) {
         final var reporterName = authenticationFacade.getCurrentUsername();
-        final var reporter = staffUserAccountRepository.findById(reporterName);
-
-        final var offenderBookingEntry = bookingRepository.findById(bookingId);
-        final var currentDateTime = LocalDateTime.now();
+        final var currentDateTime = LocalDateTime.now(clock);
         final var incidentDateTime = adjudication.getIncidentTime();
-        final var incidentType = incidentTypeRepository.findById(AdjudicationIncidentType.GOVERNORS_REPORT);
-        final var actionCode = actionCodeRepository.findById(AdjudicationActionCode.PLACED_ON_REPORT);
 
-        final var incidentInternalLocationDetails = internalLocationRepository.findOneByLocationId(adjudication.getIncidentLocationId());
-        final var agencyDetails = agencyLocationRepository.findById(incidentInternalLocationDetails.get().getAgencyId());
+        final var reporter = staffUserAccountRepository.findById(reporterName)
+            .orElseThrow(() -> new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
+
+        final var offenderBookingEntry = bookingRepository.findById(bookingId)
+            .orElseThrow(() -> new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
+        final var incidentType = incidentTypeRepository.findById(AdjudicationIncidentType.GOVERNORS_REPORT)
+            .orElseThrow(() -> new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
+        final var actionCode = actionCodeRepository.findById(AdjudicationActionCode.PLACED_ON_REPORT)
+            .orElseThrow(() -> new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
+
+        final var incidentInternalLocationDetails = internalLocationRepository.findOneByLocationId(adjudication.getIncidentLocationId())
+            .orElseThrow(() -> new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Location does not exist or is not in your caseload."));
+        final var agencyDetails = agencyLocationRepository.findById(incidentInternalLocationDetails.getAgencyId())
+            .orElseThrow(() -> new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
 
         final var adjudicationToCreate = Adjudication.builder()
             .incidentDate(incidentDateTime.toLocalDate())
             .incidentTime(incidentDateTime)
             .reportDate(currentDateTime.toLocalDate())
             .reportTime(currentDateTime)
-            .agencyLocation(agencyDetails.get())
-            .internalLocation(incidentInternalLocationDetails.get())
+            .agencyLocation(agencyDetails)
+            .internalLocation(incidentInternalLocationDetails)
             .incidentDetails(adjudication.getStatement())
-            .incidentStatus("ACTIVE")
-            .incidentType(incidentType.get())
-            .lockFlag("N")
-            .staffReporterId(reporter.get().getStaff())
+            .incidentStatus(Adjudication.INCIDENT_STATUS_ACTIVE)
+            .incidentType(incidentType)
+            .lockFlag(Adjudication.LOCK_FLAG_UNLOCKED)
+            .staffReporter(reporter.getStaff())
             .build();
         final var incidentNumber = adjudicationsRepository.getNextIncidentId();
         final var offenderAdjudicationEntry = AdjudicationParty.builder()
             .id(new AdjudicationParty.PK(adjudicationToCreate, 1L))
             .incidentId(incidentNumber)
-            .incidentRole(INCIDENT_ROLE_OFFENDER)
+            .incidentRole(Adjudication.INCIDENT_ROLE_OFFENDER)
             .partyAddedDate(currentDateTime.toLocalDate())
-            .actionCode(actionCode.get())
-            .offenderBooking(offenderBookingEntry.get())
+            .actionCode(actionCode)
+            .offenderBooking(offenderBookingEntry)
             .build();
 
         adjudicationToCreate.setParties(List.of(offenderAdjudicationEntry));
 
-        return transformToDto(adjudicationsRepository.save(adjudicationToCreate), reporter.get());
+        final var createdAdjudication = adjudicationsRepository.save(adjudicationToCreate);
 
-        /*
-        assertReporterId();
-        assertDateAndTimeNotNull();
-        assertLocationId();
-        assertStatementLessThan4000();
-        assertAllBookingIdsInCaseload(appointments.getAppointments(), agencyId);
+        trackAdjudicationCreated(createdAdjudication);
 
-        final var defaults = appointments.getAppointmentDefaults();
-
-        final var agencyId = findLocationInUserLocations(defaults.getLocationId())
-            .orElseThrow(() -> new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Location does not exist or is not in your caseload."))
-            .getAgencyId();
-
-        final var createdAppointments = appointmentsWithRepeats.stream().map(a -> {
-                final var appointmentId = bookingRepository.createAppointment(a, defaults, agencyId);
-
-                return CreatedAppointmentDetails.builder()
-                    .appointmentEventId(appointmentId)
-                    .bookingId(a.getBookingId())
-                    .startTime(a.getStartTime())
-                    .endTime(a.getEndTime())
-                    .appointmentType(defaults.getAppointmentType())
-                    .locationId(defaults.getLocationId())
-                    .build();
-            }
-        ).collect(java.util.stream.Collectors.toList());
-
-        trackAppointmentsCreated(createdAppointments.size(), defaults);
-
-        return createdAppointments;
-        */
+        return transformToDto(createdAdjudication);
     }
 
-    private AdjudicationDetail transformToDto(Adjudication adjudication, StaffUserAccount reporterAccount) {
+    private void trackAdjudicationCreated(Adjudication createdAdjudication) {
+        final Map<String, String> logMap = new HashMap<>();
+        logMap.put("reporterUsername", authenticationFacade.getCurrentUsername());
+        logMap.put("offenderNo", createdAdjudication.getOffenderParty()
+            .map(o -> o.getOffenderBooking().getOffender().getNomsId()).orElse(""));
+        logMap.put("incidentTime", createdAdjudication.getIncidentTime().toString());
+        logMap.put("incidentLocation", createdAdjudication.getInternalLocation().getDescription());
+
+        telemetryClient.trackEvent("AdjudicationCreated", logMap, null);
+    }
+
+    private AdjudicationDetail transformToDto(final Adjudication adjudication) {
+        final var offenderPartyDetails = adjudication.getOffenderParty();
         return AdjudicationDetail.builder()
-            // TODO - need logic to extract this
-            .adjudicationNumber(adjudication.getParties().get(0).getIncidentId())
+            .adjudicationNumber(offenderPartyDetails.map(AdjudicationParty::getIncidentId).orElse(null))
+            .bookingId(offenderPartyDetails.map(p -> p.getOffenderBooking().getBookingId()).orElse(null))
             .incidentTime(adjudication.getIncidentTime())
-            .agencyId(adjudication.getAgencyLocation().getId())
-            .internalLocationId(adjudication.getInternalLocation().getLocationId())
-            .incidentDetails(adjudication.getIncidentDetails())
-            // TODO Check
-            .reportNumber(adjudication.getAgencyIncidentId())
-            .reportType(adjudication.getIncidentType().getCode())
-            .reporterFirstName(reporterAccount.getStaff().getFirstName())
-            .reporterLastName(reporterAccount.getStaff().getLastName())
-            .reportTime(adjudication.getReportTime())
+            .incidentLocationId(adjudication.getInternalLocation().getLocationId())
+            .statement(adjudication.getIncidentDetails())
             .build();
     }
 }

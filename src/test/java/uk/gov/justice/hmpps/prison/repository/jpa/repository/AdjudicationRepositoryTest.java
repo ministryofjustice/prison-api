@@ -97,7 +97,7 @@ public class AdjudicationRepositoryTest {
             .incidentStatus(incidentStatus)
             .incidentType(incidentTypeRef.get())
             .lockFlag(lockFlag)
-            .staffReporterId(reporter.get().getStaff())
+            .staffReporter(reporter.get().getStaff())
             .build();
         final var adjudicationParty = AdjudicationParty.builder()
             .id(new AdjudicationParty.PK(adjudicationToCreate, 1L))
