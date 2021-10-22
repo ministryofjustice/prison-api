@@ -2,16 +2,12 @@ package uk.gov.justice.hmpps.prison.api.resource.impl;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
-import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl;
 
 import java.util.List;
 import java.util.Map;
 
-@Import({AuthenticationFacade.class, AuditorAwareImpl.class})
 public class AdjudicationsResourceTest extends ResourceTest  {
 
     @Nested
