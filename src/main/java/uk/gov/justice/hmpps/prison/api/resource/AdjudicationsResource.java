@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -20,6 +21,7 @@ import uk.gov.justice.hmpps.prison.service.AdjudicationsService;
 
 import javax.validation.Valid;
 
+@Hidden
 @RestController
 @Api(tags = {"adjudications"})
 @Validated
@@ -33,7 +35,8 @@ public class AdjudicationsResource {
 
     @ApiResponses({
         @ApiResponse(code = 201, message = "Created"),
-        @ApiResponse(code = 400, message = "Invalid request - e.g. because no incident statement was provided.", response = ErrorResponse.class)
+        @ApiResponse(code = 400, message = "Invalid request - e.g. because no incident statement was provided.", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "No match was found for the provided booking id.", response = ErrorResponse.class)
     })
     @ApiOperation(value = "Record an adjudication.", notes = "Requires SYSTEM access")
     @PostMapping("/adjudication")
