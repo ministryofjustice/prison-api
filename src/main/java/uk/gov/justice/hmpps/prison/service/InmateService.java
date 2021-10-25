@@ -253,15 +253,17 @@ public class InmateService {
                 inmate.setRecall(RecallCalc.calculate(bookingId, inmate.getLegalStatus(), offenceHistory, sentenceTerms));
 
                 if (!"IN".equals(inmate.getInOutStatus())) {
-                    externalMovementRepository.findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(inmate.getBookingId()).ifPresentOrElse(
-                        lastMovement -> {
-                            inmate.setLatestLocationId(lastMovement.getFromAgency().getId());
-                            if (REL.getCode().equals(inmate.getLastMovementTypeCode())) {
-                                inmate.setLocationDescription(calculateReleaseLocationDescription(lastMovement));
-                            }
-                        },
-                        () -> inmate.setLocationDescription("Outside")
-                    );
+                    externalMovementRepository.findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(inmate.getBookingId())
+                        .filter(externalMovement -> externalMovement.getFromAgency() != null)
+                        .ifPresentOrElse(
+                            lastMovement -> {
+                                inmate.setLatestLocationId(lastMovement.getFromAgency().getId());
+                                if (REL.getCode().equals(inmate.getLastMovementTypeCode())) {
+                                    inmate.setLocationDescription(calculateReleaseLocationDescription(lastMovement));
+                                }
+                            },
+                            () -> inmate.setLocationDescription("Outside")
+                        );
                 }
 
                 if (inmate.getLocationDescription() ==  null) {

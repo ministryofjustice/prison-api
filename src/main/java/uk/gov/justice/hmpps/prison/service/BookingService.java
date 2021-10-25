@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -21,12 +22,15 @@ import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.BookingActivity;
 import uk.gov.justice.hmpps.prison.api.model.CourtCase;
+import uk.gov.justice.hmpps.prison.api.model.Email;
 import uk.gov.justice.hmpps.prison.api.model.IepLevelAndComment;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecord;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
 import uk.gov.justice.hmpps.prison.api.model.OffenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenceHistoryDetail;
+import uk.gov.justice.hmpps.prison.api.model.OffenderContact;
+import uk.gov.justice.hmpps.prison.api.model.OffenderContacts;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceCalculation;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
@@ -45,6 +49,7 @@ import uk.gov.justice.hmpps.prison.api.model.VisitBalances;
 import uk.gov.justice.hmpps.prison.api.model.VisitDetails;
 import uk.gov.justice.hmpps.prison.api.model.VisitWithVisitors;
 import uk.gov.justice.hmpps.prison.api.model.Visitor;
+import uk.gov.justice.hmpps.prison.api.model.VisitorRestriction;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.repository.BookingRepository;
@@ -53,6 +58,7 @@ import uk.gov.justice.hmpps.prison.repository.SentenceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AvailablePrisonIepLevel.PK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Caseload;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.GlobalVisitorRestriction;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.KeyDateAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderContactPerson;
@@ -829,6 +835,58 @@ public class BookingService {
             .map(OffenderSentence::getSentenceAndOffenceDetail)
             .collect(toList());
     }
+
+    public OffenderContacts getOffenderContacts(final Long bookingId, boolean approvedVisitorOnly) {
+        return new OffenderContacts(offenderContactPersonsRepository.findAllByOffenderBooking_BookingIdAndActiveTrueOrderByIdDesc(bookingId).stream()
+                .filter(contact -> contact.getPerson() != null)
+                .filter(contact -> !approvedVisitorOnly || contact.isApprovedVisitor())
+                .map(oc ->
+                        OffenderContact.builder()
+                                .relationshipCode(ReferenceCode.getCodeOrNull(oc.getRelationshipType()))
+                                .relationshipDescription(ReferenceCode.getDescriptionOrNull(oc.getRelationshipType()))
+                                .contactType(ReferenceCode.getCodeOrNull(oc.getContactType()))
+                                .contactTypeDescription(ReferenceCode.getDescriptionOrNull(oc.getContactType()))
+                                .commentText(oc.getComment())
+                                .firstName(WordUtils.capitalizeFully(oc.getPerson().getFirstName()))
+                                .lastName(WordUtils.capitalizeFully(oc.getPerson().getLastName()))
+                                .dateOfBirth(oc.getPerson().getBirthDate())
+                                .emergencyContact(oc.isEmergencyContact())
+                                .nextOfKin(oc.isNextOfKin())
+                                .approvedVisitor(oc.isApprovedVisitor())
+                                .personId(oc.getPersonId())
+                                .bookingId(oc.getOffenderBooking().getBookingId())
+                                .emails(oc.getPerson().getEmails().stream().map(email ->
+                                        Email.builder().email(email.getInternetAddress()).build()).collect(toList()))
+                                .middleName(WordUtils.capitalizeFully(oc.getPerson().getMiddleName()))
+                                .restrictions(mergeGlobalAndStandardRestrictions(oc))
+                                .build()).toList());
+    }
+
+    private List<VisitorRestriction> mergeGlobalAndStandardRestrictions(OffenderContactPerson ocp) {
+        final var globalRestrictions = ocp.getGlobalVisitorRestrictions().stream().filter(GlobalVisitorRestriction::isActive).map(restriction -> VisitorRestriction.builder()
+                .restrictionId(restriction.getId())
+                .comment(restriction.getCommentText())
+                .expiryDate(restriction.getExpiryDate())
+                .startDate(restriction.getStartDate())
+                .globalRestriction(true)
+                .restrictionType(ReferenceCode.getCodeOrNull(restriction.getVisitRestrictionType()))
+                .restrictionTypeDescription(ReferenceCode.getDescriptionOrNull(restriction.getVisitRestrictionType())).build()).toList();
+
+        final var restrictions = ocp.getVisitorRestrictions().stream()
+                .filter(uk.gov.justice.hmpps.prison.repository.jpa.model.VisitorRestriction::isActive).map(restriction -> VisitorRestriction.builder()
+                        .restrictionId(restriction.getId())
+                        .comment(restriction.getCommentText())
+                        .expiryDate(restriction.getExpiryDate())
+                        .startDate(restriction.getStartDate())
+                        .globalRestriction(false)
+                        .restrictionType(ReferenceCode.getCodeOrNull(restriction.getVisitRestrictionType()))
+                        .restrictionTypeDescription(ReferenceCode.getDescriptionOrNull(restriction.getVisitRestrictionType())).build()).toList();
+
+        return Stream.of(globalRestrictions, restrictions)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+    }
+
 
     private void updateLivingUnit(final OffenderBooking offenderBooking, final AgencyInternalLocation location) {
         validateUpdateLivingUnit(offenderBooking, location);
