@@ -5,7 +5,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -52,11 +51,10 @@ public class AccessRoleResource {
             @ApiResponse(code = 403, message = "Forbidden - user not authorised to create an access role.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Parent access role not found.", response = ErrorResponse.class),
             @ApiResponse(code = 409, message = "A role already exists with the provided role code.", response = ErrorResponse.class)})
-    @ApiOperation(value = "Create new access role.", notes = "Create new access role.", nickname = "createAccessRole")
+    @ApiOperation(value = "Create new access role.", notes = "Create new access role.", nickname = "createAccessRole", hidden = true)
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     @ProxyUser
-    @Hidden
     public ResponseEntity<Void> createAccessRole(@RequestBody @ApiParam(required = true) final AccessRole newAccessRole) {
         accessRoleService.createAccessRole(newAccessRole);
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -67,10 +65,9 @@ public class AccessRoleResource {
             @ApiResponse(code = 400, message = "Invalid request - e.g. role code not provided.", response = ErrorResponse.class),
             @ApiResponse(code = 403, message = "Forbidden - user not authorised to update an access role.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Access role not found.", response = ErrorResponse.class)})
-    @ApiOperation(value = "Update the access role.", notes = "Update the access role.", nickname = "updateAccessRole")
+    @ApiOperation(value = "Update the access role.", notes = "Update the access role.", nickname = "updateAccessRole", hidden = true)
     @PutMapping
     @ProxyUser
-    @Hidden
     public ResponseEntity<Void>  updateAccessRole(@RequestBody @ApiParam(required = true) final AccessRole accessRole) {
         accessRoleService.updateAccessRole(accessRole);
         return ResponseEntity.ok().build();

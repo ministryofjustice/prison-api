@@ -5,7 +5,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.springframework.data.domain.Page;
@@ -422,11 +421,10 @@ public class OffenderResource {
     @ApiResponses({
         @ApiResponse(code = 201, message = "The Case Note has been recorded. The updated object is returned including the status.", response = CaseNote.class),
         @ApiResponse(code = 409, message = "The case note has already been recorded under the booking. The current unmodified object (including status) is returned.", response = ErrorResponse.class)})
-    @ApiOperation(value = "Create case note for offender.", notes = "Create case note for offender. Will attach to the latest booking", nickname = "createOffenderCaseNote")
+    @ApiOperation(value = "Create case note for offender.", notes = "Create case note for offender. Will attach to the latest booking", nickname = "createOffenderCaseNote", hidden = true)
     @PostMapping("/{offenderNo}/case-notes")
     @HasWriteScope
     @ProxyUser
-    @Hidden
     public CaseNote createOffenderCaseNote(@PathVariable("offenderNo") @ApiParam(value = "The offenderNo of offender", required = true, example = "A1234AA") final String offenderNo, @RequestBody @ApiParam(value = "", required = true) final NewCaseNote body) {
         try {
             return caseNoteService.createCaseNote(offenderNo, body, authenticationFacade.getCurrentUsername());
@@ -441,11 +439,10 @@ public class OffenderResource {
         @ApiResponse(code = 403, message = "Forbidden - user not authorised to amend case note.", response = ErrorResponse.class),
         @ApiResponse(code = 404, message = "Resource not found - offender or case note does not exist or is not accessible to user.", response = ErrorResponse.class),
         @ApiResponse(code = 500, message = "Internal server error.", response = ErrorResponse.class)})
-    @ApiOperation(value = "Amend offender case note.", notes = "Amend offender case note.", nickname = "updateOffenderCaseNote")
+    @ApiOperation(value = "Amend offender case note.", notes = "Amend offender case note.", nickname = "updateOffenderCaseNote", hidden = true)
     @PutMapping("/{offenderNo}/case-notes/{caseNoteId}")
     @HasWriteScope
     @ProxyUser
-    @Hidden
     public CaseNote updateOffenderCaseNote(@PathVariable("offenderNo") @ApiParam(value = "Noms ID or Prisoner number (also called offenderNo)", required = true, example = "A1234AA") final String offenderNo, @PathVariable("caseNoteId") @ApiParam(value = "The case note id", required = true, example = "1212134") final Long caseNoteId, @RequestBody @ApiParam(value = "", required = true) final UpdateCaseNote body) {
         try {
             return caseNoteService.updateCaseNote(offenderNo, caseNoteId, authenticationFacade.getCurrentUsername(), body.getText());

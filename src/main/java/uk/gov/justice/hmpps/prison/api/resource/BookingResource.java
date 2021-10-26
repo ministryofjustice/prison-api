@@ -7,7 +7,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -557,12 +556,11 @@ public class BookingResource {
     @ApiResponses({
             @ApiResponse(code = 201, message = "The Case Note has been recorded. The updated object is returned including the status.", response = CaseNote.class),
             @ApiResponse(code = 409, message = "The case note has already been recorded under the booking. The current unmodified object (including status) is returned.", response = ErrorResponse.class)})
-    @ApiOperation(value = "Create case note for offender.", notes = "Create case note for offender.", nickname = "createBookingCaseNote")
+    @ApiOperation(value = "Create case note for offender.", notes = "Create case note for offender.", nickname = "createBookingCaseNote", hidden = true)
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{bookingId}/caseNotes")
     @HasWriteScope
     @ProxyUser
-    @Hidden
     public CaseNote createBookingCaseNote(@PathVariable("bookingId") @ApiParam(value = "The booking id of offender", required = true) final Long bookingId, @RequestBody @ApiParam(required = true) final NewCaseNote body) {
         return caseNoteService.createCaseNote(bookingId, body, authenticationFacade.getCurrentUsername());
     }
@@ -570,12 +568,11 @@ public class BookingResource {
     @ApiResponses({
             @ApiResponse(code = 201, message = "The Case Note has been recorded. The updated object is returned including the status.", response = CaseNote.class),
             @ApiResponse(code = 409, message = "The case note has already been recorded under the booking. The current unmodified object (including status) is returned.", response = ErrorResponse.class)})
-    @ApiOperation(value = "Create case note for offender.", notes = "Create case note for offender.", nickname = "createOffenderCaseNote")
+    @ApiOperation(value = "Create case note for offender.", notes = "Create case note for offender.", nickname = "createOffenderCaseNote", hidden = true)
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/offenderNo/{offenderNo}/caseNotes")
     @HasWriteScope
     @ProxyUser
-    @Hidden
     public CaseNote createOffenderCaseNote(@PathVariable("offenderNo") @ApiParam(value = "The offenderNo of offender", required = true) final String offenderNo, @RequestBody @ApiParam(required = true) final NewCaseNote body) {
         return caseNoteService.createCaseNote(offenderNo, body, authenticationFacade.getCurrentUsername());
     }
@@ -586,12 +583,11 @@ public class BookingResource {
             @ApiResponse(code = 403, message = "Forbidden - user not authorised to amend case note.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Resource not found - booking or case note does not exist or is not accessible to user.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Internal server error.", response = ErrorResponse.class)})
-    @ApiOperation(value = "Amend offender case note.", notes = "Amend offender case note.", nickname = "updateOffenderCaseNote")
+    @ApiOperation(value = "Amend offender case note.", notes = "Amend offender case note.", nickname = "updateOffenderCaseNote", hidden = true)
     @ResponseStatus(HttpStatus.CREATED)
     @PutMapping("/{bookingId}/caseNotes/{caseNoteId}")
     @HasWriteScope
     @ProxyUser
-    @Hidden
     public CaseNote updateOffenderCaseNote(@PathVariable("bookingId") @ApiParam(value = "The booking id of offender", required = true, example = "1231212") final Long bookingId, @PathVariable("caseNoteId") @ApiParam(value = "The case note id", required = true, example = "1212134") final Long caseNoteId, @RequestBody @ApiParam(required = true) final UpdateCaseNote body) {
         return caseNoteService.updateCaseNote(
                 bookingId, caseNoteId, authenticationFacade.getCurrentUsername(), body.getText());
