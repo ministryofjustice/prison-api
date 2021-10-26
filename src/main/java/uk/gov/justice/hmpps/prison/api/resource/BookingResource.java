@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -561,6 +562,7 @@ public class BookingResource {
     @PostMapping("/{bookingId}/caseNotes")
     @HasWriteScope
     @ProxyUser
+    @Hidden
     public CaseNote createBookingCaseNote(@PathVariable("bookingId") @ApiParam(value = "The booking id of offender", required = true) final Long bookingId, @RequestBody @ApiParam(required = true) final NewCaseNote body) {
         return caseNoteService.createCaseNote(bookingId, body, authenticationFacade.getCurrentUsername());
     }
@@ -573,6 +575,7 @@ public class BookingResource {
     @PostMapping("/offenderNo/{offenderNo}/caseNotes")
     @HasWriteScope
     @ProxyUser
+    @Hidden
     public CaseNote createOffenderCaseNote(@PathVariable("offenderNo") @ApiParam(value = "The offenderNo of offender", required = true) final String offenderNo, @RequestBody @ApiParam(required = true) final NewCaseNote body) {
         return caseNoteService.createCaseNote(offenderNo, body, authenticationFacade.getCurrentUsername());
     }
@@ -588,6 +591,7 @@ public class BookingResource {
     @PutMapping("/{bookingId}/caseNotes/{caseNoteId}")
     @HasWriteScope
     @ProxyUser
+    @Hidden
     public CaseNote updateOffenderCaseNote(@PathVariable("bookingId") @ApiParam(value = "The booking id of offender", required = true, example = "1231212") final Long bookingId, @PathVariable("caseNoteId") @ApiParam(value = "The case note id", required = true, example = "1212134") final Long caseNoteId, @RequestBody @ApiParam(required = true) final UpdateCaseNote body) {
         return caseNoteService.updateCaseNote(
                 bookingId, caseNoteId, authenticationFacade.getCurrentUsername(), body.getText());

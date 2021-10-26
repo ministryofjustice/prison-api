@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -55,6 +56,7 @@ public class AccessRoleResource {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     @ProxyUser
+    @Hidden
     public ResponseEntity<Void> createAccessRole(@RequestBody @ApiParam(required = true) final AccessRole newAccessRole) {
         accessRoleService.createAccessRole(newAccessRole);
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -68,6 +70,7 @@ public class AccessRoleResource {
     @ApiOperation(value = "Update the access role.", notes = "Update the access role.", nickname = "updateAccessRole")
     @PutMapping
     @ProxyUser
+    @Hidden
     public ResponseEntity<Void>  updateAccessRole(@RequestBody @ApiParam(required = true) final AccessRole accessRole) {
         accessRoleService.updateAccessRole(accessRole);
         return ResponseEntity.ok().build();

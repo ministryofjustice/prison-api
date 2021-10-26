@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.springframework.data.domain.Page;
@@ -425,6 +426,7 @@ public class OffenderResource {
     @PostMapping("/{offenderNo}/case-notes")
     @HasWriteScope
     @ProxyUser
+    @Hidden
     public CaseNote createOffenderCaseNote(@PathVariable("offenderNo") @ApiParam(value = "The offenderNo of offender", required = true, example = "A1234AA") final String offenderNo, @RequestBody @ApiParam(value = "", required = true) final NewCaseNote body) {
         try {
             return caseNoteService.createCaseNote(offenderNo, body, authenticationFacade.getCurrentUsername());
@@ -443,6 +445,7 @@ public class OffenderResource {
     @PutMapping("/{offenderNo}/case-notes/{caseNoteId}")
     @HasWriteScope
     @ProxyUser
+    @Hidden
     public CaseNote updateOffenderCaseNote(@PathVariable("offenderNo") @ApiParam(value = "Noms ID or Prisoner number (also called offenderNo)", required = true, example = "A1234AA") final String offenderNo, @PathVariable("caseNoteId") @ApiParam(value = "The case note id", required = true, example = "1212134") final Long caseNoteId, @RequestBody @ApiParam(value = "", required = true) final UpdateCaseNote body) {
         try {
             return caseNoteService.updateCaseNote(offenderNo, caseNoteId, authenticationFacade.getCurrentUsername(), body.getText());

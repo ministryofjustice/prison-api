@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Hidden;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -97,6 +98,7 @@ public class UserResource {
     @ApiOperation(value = "Remove the given access role from the user.", notes = "Remove the given access role from the user.", nickname = "removeUsersAccessRoleForCaseload")
     @DeleteMapping("/{username}/caseload/{caseload}/access-role/{roleCode}")
     @ProxyUser
+    @Hidden
     public ResponseEntity<Void> removeUsersAccessRoleForCaseload(@PathVariable("username") @ApiParam(value = "The username of the user.", required = true) final String username, @PathVariable("caseload") @ApiParam(value = "Caseload Id", required = true) final String caseload, @PathVariable("roleCode") @ApiParam(value = "access role code", required = true) final String roleCode) {
         userService.removeUsersAccessRoleForCaseload(username, caseload, roleCode);
         return ResponseEntity.ok().build();
@@ -141,6 +143,7 @@ public class UserResource {
     @ApiOperation(value = "Add the given access role to the user.", notes = "Add the given access role to the user.", nickname = "addAccessRole")
     @PutMapping("/{username}/access-role/{roleCode}")
     @ProxyUser
+    @Hidden
     public ResponseEntity<Void> addAccessRole(@PathVariable("username") @ApiParam(value = "The username of the user.", required = true) final String username, @PathVariable("roleCode") @ApiParam(value = "access role code", required = true) final String roleCode) {
         final var added = userService.addAccessRole(username, roleCode);
         return added ? ResponseEntity.status(HttpStatus.CREATED).build() : ResponseEntity.ok().build();
@@ -154,6 +157,7 @@ public class UserResource {
     @ApiOperation(value = "Add the given access roles to the user.", nickname = "addAccessRoles")
     @PostMapping("/{username}/access-role")
     @ProxyUser
+    @Hidden
     public void addAccessRoles(@PathVariable @ApiParam(value = "The username of the user.", required = true) final String username,
                                @RequestBody @NotEmpty final List<String> roles) {
         roles.forEach(r -> userService.addAccessRole(username, r));
@@ -167,6 +171,7 @@ public class UserResource {
     @ApiOperation(value = "Add the given access role to the user and caseload.", notes = "Add the given access role to the user and caseload.", nickname = "addAccessRoleByCaseload")
     @PutMapping("/{username}/caseload/{caseload}/access-role/{roleCode}")
     @ProxyUser
+    @Hidden
     public ResponseEntity<Void> addAccessRoleByCaseload(@PathVariable("username") @ApiParam(value = "The username of the user.", required = true) final String username, @PathVariable("caseload") @ApiParam(value = "Caseload Id", required = true) final String caseload, @PathVariable("roleCode") @ApiParam(value = "access role code", required = true) final String roleCode) {
         final var added = userService.addAccessRole(username, roleCode, caseload);
         return added ? ResponseEntity.status(HttpStatus.CREATED).build() : ResponseEntity.ok().build();

@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -165,6 +166,7 @@ public class StaffResource {
     @ApiOperation(value = "add access role to staff user for API caseload", notes = "add access role to staff user for API caseload", nickname = "addStaffAccessRoleForApiCaseload")
     @PostMapping("/{staffId}/access-roles")
     @ProxyUser
+    @Hidden
     public StaffUserRole addStaffAccessRoleForApiCaseload(@PathVariable("staffId") @ApiParam(value = "The staff id of the staff user.", required = true) final Long staffId, @RequestBody @ApiParam(value = "new access role code required", required = true) final String body) {
         return staffService.addStaffRole(staffId, apiCaseloadId, body);
     }
@@ -175,6 +177,7 @@ public class StaffResource {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{staffId}/access-roles/caseload/{caseload}")
     @ProxyUser
+    @Hidden
     public StaffUserRole addStaffAccessRole(@PathVariable("staffId") @ApiParam(value = "The staff id of the staff member.", required = true) final Long staffId, @PathVariable("caseload") @ApiParam(value = "Caseload Id", required = true) final String caseload, @RequestBody @ApiParam(value = "new access role code required", required = true) final String body) {
         return staffService.addStaffRole(staffId, caseload, body);
     }
@@ -184,6 +187,7 @@ public class StaffResource {
     @ApiOperation(value = "remove access roles from user and specific caseload", notes = "remove access roles from user and specific caseload", nickname = "removeStaffAccessRole")
     @DeleteMapping("/{staffId}/access-roles/caseload/{caseload}/access-role/{roleCode}")
     @ProxyUser
+    @Hidden
     public ResponseEntity<Void> removeStaffAccessRole(@PathVariable("staffId") @ApiParam(value = "The staff id of the staff member.", required = true) final Long staffId, @PathVariable("caseload") @ApiParam(value = "Caseload Id", required = true) final String caseload, @PathVariable("roleCode") @ApiParam(value = "access role code", required = true) final String roleCode) {
         staffService.removeStaffRole(staffId, caseload, roleCode);
         return ResponseEntity.ok().build();
