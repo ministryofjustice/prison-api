@@ -22,7 +22,7 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "HO_CODES")
 @ToString
-public class HOCode extends ExtendedAuditableEntity{
+public class HOCode extends AuditableEntity{
 
     @Id
     @Column(name = "HO_CODE", nullable = false)

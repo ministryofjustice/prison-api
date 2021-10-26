@@ -32,7 +32,7 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @Entity
 @Table(name = "AGENCY_INCIDENT_PARTIES")
 @ToString(of = {"id"})
-public class AdjudicationParty extends ExtendedAuditableEntity {
+public class AdjudicationParty extends AuditableEntity {
 
     @EmbeddedId
     private PK id;

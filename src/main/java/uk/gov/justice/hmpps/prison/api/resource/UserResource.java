@@ -94,7 +94,7 @@ public class UserResource {
             @ApiResponse(code = 200, message = "User role has been removed"),
             @ApiResponse(code = 404, message = "The role is not recognised or user does not have role on caseload"),
             @ApiResponse(code = 403, message = "The current user doesn't have permission to maintain user roles")})
-    @ApiOperation(value = "Remove the given access role from the user.", notes = "Remove the given access role from the user.", nickname = "removeUsersAccessRoleForCaseload")
+    @ApiOperation(value = "Remove the given access role from the user.", notes = "Remove the given access role from the user.", nickname = "removeUsersAccessRoleForCaseload", hidden = true)
     @DeleteMapping("/{username}/caseload/{caseload}/access-role/{roleCode}")
     @ProxyUser
     public ResponseEntity<Void> removeUsersAccessRoleForCaseload(@PathVariable("username") @ApiParam(value = "The username of the user.", required = true) final String username, @PathVariable("caseload") @ApiParam(value = "Caseload Id", required = true) final String caseload, @PathVariable("roleCode") @ApiParam(value = "access role code", required = true) final String roleCode) {
@@ -138,7 +138,7 @@ public class UserResource {
             @ApiResponse(code = 404, message = "The role is not recognised or user cannot access caseload"),
             @ApiResponse(code = 403, message = "The current user doesn't have permission to maintain user roles"),
     })
-    @ApiOperation(value = "Add the given access role to the user.", notes = "Add the given access role to the user.", nickname = "addAccessRole")
+    @ApiOperation(value = "Add the given access role to the user.", notes = "Add the given access role to the user.", nickname = "addAccessRole", hidden = true)
     @PutMapping("/{username}/access-role/{roleCode}")
     @ProxyUser
     public ResponseEntity<Void> addAccessRole(@PathVariable("username") @ApiParam(value = "The username of the user.", required = true) final String username, @PathVariable("roleCode") @ApiParam(value = "access role code", required = true) final String roleCode) {
@@ -151,7 +151,7 @@ public class UserResource {
             @ApiResponse(code = 404, message = "The role(s) is not recognised or user cannot access caseload"),
             @ApiResponse(code = 403, message = "The current user doesn't have permission to maintain user roles"),
     })
-    @ApiOperation(value = "Add the given access roles to the user.", nickname = "addAccessRoles")
+    @ApiOperation(value = "Add the given access roles to the user.", nickname = "addAccessRoles", hidden = true)
     @PostMapping("/{username}/access-role")
     @ProxyUser
     public void addAccessRoles(@PathVariable @ApiParam(value = "The username of the user.", required = true) final String username,
@@ -164,7 +164,7 @@ public class UserResource {
             @ApiResponse(code = 201, message = "Role has been successfully added to user"),
             @ApiResponse(code = 404, message = "The role is not recognised or user cannot access caseload"),
             @ApiResponse(code = 403, message = "The current user doesn't have permission to maintain user roles")})
-    @ApiOperation(value = "Add the given access role to the user and caseload.", notes = "Add the given access role to the user and caseload.", nickname = "addAccessRoleByCaseload")
+    @ApiOperation(value = "Add the given access role to the user and caseload.", notes = "Add the given access role to the user and caseload.", nickname = "addAccessRoleByCaseload", hidden = true)
     @PutMapping("/{username}/caseload/{caseload}/access-role/{roleCode}")
     @ProxyUser
     public ResponseEntity<Void> addAccessRoleByCaseload(@PathVariable("username") @ApiParam(value = "The username of the user.", required = true) final String username, @PathVariable("caseload") @ApiParam(value = "Caseload Id", required = true) final String caseload, @PathVariable("roleCode") @ApiParam(value = "access role code", required = true) final String roleCode) {

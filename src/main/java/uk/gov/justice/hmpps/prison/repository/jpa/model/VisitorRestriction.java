@@ -32,7 +32,7 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.VisitRestrictionT
 @RequiredArgsConstructor
 @Entity
 @Table(name = "OFFENDER_PERSON_RESTRICTS")
-public class VisitorRestriction extends ExtendedAuditableEntity {
+public class VisitorRestriction extends AuditableEntity {
 
 
     @Id

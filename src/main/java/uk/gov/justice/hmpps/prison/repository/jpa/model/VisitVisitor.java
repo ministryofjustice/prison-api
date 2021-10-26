@@ -35,7 +35,7 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.VisitOutcomeReaso
 @RequiredArgsConstructor
 @Entity
 @Table(name = "OFFENDER_VISIT_VISITORS")
-public class VisitVisitor extends ExtendedAuditableEntity {
+public class VisitVisitor extends AuditableEntity {
 
     @SequenceGenerator(name = "OFFENDER_VISIT_VISITOR_ID", sequenceName = "OFFENDER_VISIT_VISITOR_ID", allocationSize = 1)
     @GeneratedValue(generator = "OFFENDER_VISIT_VISITOR_ID")

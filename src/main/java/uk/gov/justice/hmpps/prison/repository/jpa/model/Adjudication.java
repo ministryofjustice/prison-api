@@ -40,7 +40,7 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @Entity
 @Table(name = "AGENCY_INCIDENTS")
 @ToString(of = {"agencyIncidentId"})
-public class Adjudication extends ExtendedAuditableEntity {
+public class Adjudication extends AuditableEntity {
 
     public static final String INCIDENT_ROLE_OFFENDER = "S";
     public static final String INCIDENT_ROLE_OTHER = "OTH";
