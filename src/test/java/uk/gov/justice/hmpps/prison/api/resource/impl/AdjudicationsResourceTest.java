@@ -8,6 +8,10 @@ import org.springframework.http.HttpMethod;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
+
 public class AdjudicationsResourceTest extends ResourceTest  {
 
     @Nested
@@ -68,6 +72,42 @@ public class AdjudicationsResourceTest extends ResourceTest  {
             final var response = testRestTemplate.exchange(
                 "/api/adjudications/adjudication",
                 HttpMethod.POST,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                });
+
+            assertThatStatus(response, 404);
+        }
+    }
+
+    @Nested
+    public class GetAdjudication {
+
+        @Test
+        public void returnsExpectedValue() {
+            final var token = validToken(List.of("ROLE_SYSTEM_USER"));
+
+            final var httpEntity = createHttpEntity(token, null);
+
+            final var response = testRestTemplate.exchange(
+                "/api/adjudications/adjudication/-5",
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                });
+
+            assertThatJsonFileAndStatus(response, 200, "adjudication_by_number.json");
+        }
+
+        @Test
+        public void returns404IfInvalidRequest() {
+            final var token = validToken(List.of("ROLE_SYSTEM_USER"));
+
+            final var httpEntity = createHttpEntity(token, null);
+
+            final var response = testRestTemplate.exchange(
+                "/api/adjudications/adjudication/-199",
+                HttpMethod.GET,
                 httpEntity,
                 new ParameterizedTypeReference<String>() {
                 });
