@@ -38,7 +38,7 @@ import java.util.Objects;
 @Entity
 @ToString
 @IdClass(OffenderIepLevel.PK.class)
-public class OffenderIepLevel extends ExtendedAuditableEntity {
+public class OffenderIepLevel extends AuditableEntity {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor

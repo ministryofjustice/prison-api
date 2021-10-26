@@ -20,7 +20,7 @@ import java.sql.Timestamp;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class OffenderEvent extends ExtendedAuditableEntity {
+public class OffenderEvent extends AuditableEntity {
 
     @Id
     @Column(name = "API_EVENT_ID")

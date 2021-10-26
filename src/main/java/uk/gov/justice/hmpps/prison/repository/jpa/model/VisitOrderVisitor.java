@@ -26,7 +26,7 @@ import java.util.Objects;
 @Entity
 @ToString
 @Table(name = "OFFENDER_VO_VISITORS")
-public class VisitOrderVisitor extends ExtendedAuditableEntity {
+public class VisitOrderVisitor extends AuditableEntity {
 
     @Id
     @Column(name = "OFFENDER_VO_VISITOR_ID", nullable = false)

@@ -22,7 +22,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "STATUTES")
 @ToString
-public class Statute extends ExtendedAuditableEntity{
+public class Statute extends AuditableEntity{
 
     @Id
     @Column(name = "STATUTE_CODE", nullable = false)

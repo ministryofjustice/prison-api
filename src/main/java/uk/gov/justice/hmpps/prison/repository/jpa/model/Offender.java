@@ -54,7 +54,7 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.Title.TITLE;
 @Entity
 @Table(name = "OFFENDERS")
 @BatchSize(size = 25)
-public class Offender extends ExtendedAuditableEntity {
+public class Offender extends AuditableEntity {
 
     @SequenceGenerator(name = "OFFENDER_ID", sequenceName = "OFFENDER_ID", allocationSize = 1)
     @GeneratedValue(generator = "OFFENDER_ID")

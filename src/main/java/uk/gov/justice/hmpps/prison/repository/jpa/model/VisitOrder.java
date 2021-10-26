@@ -37,7 +37,7 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.VisitStatus.VISIT
 @RequiredArgsConstructor
 @Entity
 @Table(name = "OFFENDER_VISIT_ORDERS")
-public class VisitOrder extends ExtendedAuditableEntity {
+public class VisitOrder extends AuditableEntity {
 
     @Id
     @Column(name = "OFFENDER_VISIT_ORDER_ID", nullable = false)

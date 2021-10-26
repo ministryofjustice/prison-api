@@ -39,7 +39,7 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @IdClass(OffenderAssessment.Pk.class)
 @Table(name = "OFFENDER_ASSESSMENTS")
 @ToString(of = {"bookingId", "assessmentSeq"})
-public class OffenderAssessment extends ExtendedAuditableEntity {
+public class OffenderAssessment extends AuditableEntity {
 
     @Id
     @Column(name = "OFFENDER_BOOK_ID")
