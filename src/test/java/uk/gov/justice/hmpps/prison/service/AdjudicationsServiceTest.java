@@ -139,6 +139,7 @@ public class AdjudicationsServiceTest {
                 .adjudicationNumber(EXAMPLE_ADJUDICATION_NUMBER)
                 .incidentTime(newAdjudication.getIncidentTime())
                 .statement(newAdjudication.getStatement())
+                .reporterStaffId(mockDataProvider.reporter.getStaff().getStaffId())
                 .bookingId(mockDataProvider.booking.getBookingId())
                 .incidentLocationId(mockDataProvider.internalLocation.getLocationId())
                 .build();
@@ -231,6 +232,7 @@ public class AdjudicationsServiceTest {
                 .adjudicationNumber(EXAMPLE_ADJUDICATION_NUMBER)
                 .incidentTime(foundAdjudication.getIncidentTime())
                 .statement(foundAdjudication.getIncidentDetails())
+                .reporterStaffId(mockDataProvider.reporter.getStaff().getStaffId())
                 .bookingId(mockDataProvider.booking.getBookingId())
                 .incidentLocationId(mockDataProvider.internalLocation.getLocationId())
                 .build();

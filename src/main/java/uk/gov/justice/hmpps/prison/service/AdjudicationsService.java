@@ -140,6 +140,7 @@ public class AdjudicationsService {
         final var offenderPartyDetails = adjudication.getOffenderParty();
         return AdjudicationDetail.builder()
             .adjudicationNumber(offenderPartyDetails.map(AdjudicationParty::getAdjudicationNumber).orElse(null))
+            .reporterStaffId(adjudication.getStaffReporter().getStaffId())
             .bookingId(offenderPartyDetails.map(p -> p.getOffenderBooking().getBookingId()).orElse(null))
             .incidentTime(adjudication.getIncidentTime())
             .incidentLocationId(adjudication.getInternalLocation().getLocationId())

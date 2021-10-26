@@ -1,5 +1,6 @@
 {
   "bookingId": -5,
+  "reporterStaffId": -2,
   "incidentTime": "2021-01-04T10:12:44",
   "incidentLocationId": -31,
   "statement": "Example statement"
