@@ -53,7 +53,7 @@ public class AdjudicationParty extends ExtendedAuditableEntity {
     }
 
     @Column(name = "OIC_INCIDENT_ID")
-    private Long incidentId;
+    private Long adjudicationNumber;
 
     @Column(name = "INCIDENT_ROLE")
     private String incidentRole;
@@ -64,7 +64,7 @@ public class AdjudicationParty extends ExtendedAuditableEntity {
     @ManyToOne
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
-        @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + AdjudicationIncidentType.TYPE + "'", referencedColumnName = "domain")),
+        @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + AdjudicationActionCode.TYPE + "'", referencedColumnName = "domain")),
         @JoinColumnOrFormula(column = @JoinColumn(name = "ACTION_CODE", referencedColumnName = "code"))
     })
     private AdjudicationActionCode actionCode;
