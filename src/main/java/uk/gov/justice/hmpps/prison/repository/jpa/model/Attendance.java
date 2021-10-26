@@ -24,7 +24,7 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "OFFENDER_COURSE_ATTENDANCES")
 @ToString(of = {"eventId", "offenderBookingId"})
-public class Attendance extends ExtendedAuditableEntity {
+public class Attendance extends AuditableEntity {
 
     @Id
     @Column(name = "EVENT_ID")

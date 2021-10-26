@@ -58,7 +58,7 @@ import static java.util.stream.Collectors.toList;
 @Entity
 @Table(name = "OFFENDER_BOOKINGS")
 @BatchSize(size = 25)
-public class OffenderBooking extends ExtendedAuditableEntity {
+public class OffenderBooking extends AuditableEntity {
 
     @SequenceGenerator(name = "OFFENDER_BOOK_ID", sequenceName = "OFFENDER_BOOK_ID", allocationSize = 1)
     @GeneratedValue(generator = "OFFENDER_BOOK_ID")

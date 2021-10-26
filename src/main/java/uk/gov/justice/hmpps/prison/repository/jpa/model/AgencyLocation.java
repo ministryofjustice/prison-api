@@ -40,7 +40,7 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.CourtType.JURISDI
 @Table(name = "AGENCY_LOCATIONS")
 @ToString(of = {"id", "description"})
 @BatchSize(size = 25)
-public class AgencyLocation extends ExtendedAuditableEntity {
+public class AgencyLocation extends AuditableEntity {
 
     public static final String IN = "IN";
     public static final String OUT = "OUT";

@@ -30,7 +30,7 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @Entity
 @Table(name = "OFFENDER_PROGRAM_PROFILES")
 @ToString(of = {"offenderProgramReferenceId"})
-public class OffenderProgramProfile extends ExtendedAuditableEntity {
+public class OffenderProgramProfile extends AuditableEntity {
 
     @Id
     @Column(name = "OFF_PRGREF_ID")

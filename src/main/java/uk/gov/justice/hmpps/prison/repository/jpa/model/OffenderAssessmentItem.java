@@ -13,12 +13,9 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.io.Serializable;
-import java.time.LocalDate;
-import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper=false)
@@ -29,7 +26,7 @@ import java.util.List;
 @IdClass(OffenderAssessmentItem.Pk.class)
 @Table(name = "OFFENDER_ASSESSMENT_ITEMS")
 @ToString(of = {"bookingId", "assessmentSeq", "itemSeq"})
-public class OffenderAssessmentItem extends ExtendedAuditableEntity {
+public class OffenderAssessmentItem extends AuditableEntity {
 
     @Id
     @Column(name = "OFFENDER_BOOK_ID")

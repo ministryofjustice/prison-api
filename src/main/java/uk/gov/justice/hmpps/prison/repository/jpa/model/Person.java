@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(callSuper = false)
 @Table(name = "PERSONS")
 @ToString(of = {"id"})
-public class Person extends ExtendedAuditableEntity {
+public class Person extends AuditableEntity {
 
     @Id
     @Column(name = "PERSON_ID")

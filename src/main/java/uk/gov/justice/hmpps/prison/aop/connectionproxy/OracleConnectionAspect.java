@@ -14,6 +14,7 @@ import java.util.Properties;
 import static java.lang.String.format;
 import static uk.gov.justice.hmpps.prison.security.AuthSource.NOMIS;
 import static uk.gov.justice.hmpps.prison.util.MdcUtility.IP_ADDRESS;
+import static uk.gov.justice.hmpps.prison.util.MdcUtility.PROXY_USER;
 import static uk.gov.justice.hmpps.prison.util.MdcUtility.REQUEST_URI;
 import static uk.gov.justice.hmpps.prison.util.MdcUtility.USER_ID_HEADER;
 
@@ -39,8 +40,15 @@ public class OracleConnectionAspect extends AbstractConnectionAspect {
     protected Connection openProxySessionIfIdentifiedAuthentication(final Connection pooledConnection) throws SQLException {
         final var proxyUserAuthSource = authenticationFacade.getProxyUserAuthenticationSource();
         if (proxyUserAuthSource == NOMIS ) {
-            log.trace("Configuring Oracle Proxy Session for Nomis user {}", pooledConnection);
+            log.trace("Configuring Oracle Proxy Session for NOMIS user {}", pooledConnection);
             return openAndConfigureProxySessionForConnection(pooledConnection);
+        } else if (StringUtils.isNotBlank(MDC.get(PROXY_USER))) {
+            // If proxy user is set - try to set the context - allow it to fail and carry on
+            try {
+                setContext(pooledConnection);
+            } catch (SQLException e) {
+                log.warn("Failed to set context for proxy user {}", MDC.get(PROXY_USER));
+            }
         }
 
         setDefaultSchema(pooledConnection);
@@ -60,10 +68,9 @@ public class OracleConnectionAspect extends AbstractConnectionAspect {
         return wrappedConnection;
     }
 
-    private Connection configureConnection(final Connection pooledConnection) throws SQLException {
+    private void configureConnection(final Connection pooledConnection) throws SQLException {
         setDefaultSchema(pooledConnection);
         setContext(pooledConnection);
-        return pooledConnection;
     }
 
     private OracleConnection openProxySessionForCurrentUsername(final Connection pooledConnection) throws SQLException {
@@ -94,11 +101,14 @@ public class OracleConnectionAspect extends AbstractConnectionAspect {
     }
 
     private void setContext(final Connection conn) throws SQLException {
-        final var sql = format("BEGIN \n" +
-                "nomis_context.set_context('AUDIT_MODULE_NAME','%s'); \n" +
-                "nomis_context.set_client_nomis_context('%s', '%s', '%s', '%s'); \n" +
-                "END;",
+        final var sql = format("""
+                BEGIN
+                nomis_context.set_context('AUDIT_MODULE_NAME','%s');
+                nomis_context.set_context('AUDIT_USER_ID', '%s');
+                nomis_context.set_client_nomis_context('%s', '%s', '%s', '%s');
+                END;""",
                 AppModuleName.PRISON_API,
+                MDC.get(USER_ID_HEADER),
                 MDC.get(USER_ID_HEADER),
                 MDC.get(IP_ADDRESS),
                 "API",
