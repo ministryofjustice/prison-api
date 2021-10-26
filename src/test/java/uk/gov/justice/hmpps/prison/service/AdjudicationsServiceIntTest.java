@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,48 +21,63 @@ public class AdjudicationsServiceIntTest {
     @Autowired
     private AdjudicationsService service;
 
-    @Test
-    @WithMockUser(username = "ITAG_USER", roles = {"SYSTEM_USER"})
-    public void createAdjudication_maximumTextSizeExceeded() {
-        final var adjudicationWithLargeStatementSize = defaultAdjudicationBuilder()
-            .statement(generateMessageWith4001Chars())
-            .build();
+    @Nested
+    public class CreateAdjudication {
 
-        assertThatThrownBy(() -> service.createAdjudication(adjudicationWithLargeStatementSize.getBookingId(), adjudicationWithLargeStatementSize))
-            .isInstanceOf(ConstraintViolationException.class)
-            .hasMessageContaining("Length exceeds the maximum size allowed");
-    }
+        @Test
+        @WithMockUser(username = "ITAG_USER", roles = {"SYSTEM_USER"})
+        public void maximumTextSizeExceeded() {
+            final var adjudicationWithLargeStatementSize = defaultAdjudicationBuilder()
+                .statement(generateMessageWith4001Chars())
+                .build();
 
-    @Test
-    @WithMockUser(username = "ITAG_USER", roles = {"SYSTEM_USER"})
-    public void createAdjudication_maximumTextSizeExceededDueToUtf8() {
-        final var adjudicationWithLargeStatementSize = defaultAdjudicationBuilder()
-            .statement(generateMessageWith4000CharsAndUtf8Chars())
-            .build();
+            assertThatThrownBy(() -> service.createAdjudication(adjudicationWithLargeStatementSize.getBookingId(), adjudicationWithLargeStatementSize))
+                .isInstanceOf(ConstraintViolationException.class)
+                .hasMessageContaining("Length exceeds the maximum size allowed");
+        }
 
-        assertThatThrownBy(() -> service.createAdjudication(adjudicationWithLargeStatementSize.getBookingId(), adjudicationWithLargeStatementSize))
-            .isInstanceOf(ConstraintViolationException.class)
-            .hasMessageContaining("Length exceeds the maximum size allowed");
-    }
+        @Test
+        @WithMockUser(username = "ITAG_USER", roles = {"SYSTEM_USER"})
+        public void maximumTextSizeExceededDueToUtf8() {
+            final var adjudicationWithLargeStatementSize = defaultAdjudicationBuilder()
+                .statement(generateMessageWith4000CharsAndUtf8Chars())
+                .build();
 
-    @Test
-    @WithMockUser(username = "ITAG_USER", roles = {"SYSTEM_USER"})
-    public void createAdjudication_invalidBooking() {
-        final var adjudicationWithLargeStatementSize = defaultAdjudicationBuilder()
-            .statement(generateMessageWith4000CharsAndUtf8Chars())
-            .build();
+            assertThatThrownBy(() -> service.createAdjudication(adjudicationWithLargeStatementSize.getBookingId(), adjudicationWithLargeStatementSize))
+                .isInstanceOf(ConstraintViolationException.class)
+                .hasMessageContaining("Length exceeds the maximum size allowed");
+        }
 
-        assertThatThrownBy(() -> service.createAdjudication(500L, adjudicationWithLargeStatementSize))
-            .isInstanceOf(EntityNotFoundException.class)
-            .hasMessageContaining("Offender booking with id 500 not found.");
-    }
+        @Test
+        @WithMockUser(username = "ITAG_USER", roles = {"SYSTEM_USER"})
+        public void invalidBooking() {
+            final var adjudicationWithLargeStatementSize = defaultAdjudicationBuilder()
+                .statement(generateMessageWith4000CharsAndUtf8Chars())
+                .build();
 
-    @Test
-    @WithMockUser(username = "ITAG_USER", roles = {"SOME_ROLE"})
-    public void createAdjudication_wrongRole() {
-        assertThatThrownBy(() -> service.createAdjudication(1L, defaultAdjudicationBuilder().build()))
+            assertThatThrownBy(() -> service.createAdjudication(500L, adjudicationWithLargeStatementSize))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Offender booking with id 500 not found.");
+        }
+
+        @Test
+        @WithMockUser(username = "ITAG_USER", roles = {"SOME_ROLE"})
+        public void wrongRole() {
+            assertThatThrownBy(() -> service.createAdjudication(1L, defaultAdjudicationBuilder().build()))
                 .hasMessage("Access is denied");
+        }
     }
+
+    @Nested
+    public class GetAdjudication {
+        @Test
+        @WithMockUser(username = "ITAG_USER", roles = {"SOME_ROLE"})
+        public void wrongRole() {
+            assertThatThrownBy(() -> service.getAdjudication(1L))
+                .hasMessage("Access is denied");
+        }
+    }
+
 
     private NewAdjudicationBuilder defaultAdjudicationBuilder() {
         return NewAdjudication.builder()
