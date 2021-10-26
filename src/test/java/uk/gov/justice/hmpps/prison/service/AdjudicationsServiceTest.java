@@ -3,12 +3,12 @@ package uk.gov.justice.hmpps.prison.service;
 import com.microsoft.applicationinsights.TelemetryClient;
 import org.assertj.core.matcher.AssertionMatcher;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.hamcrest.MockitoHamcrest;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication;
@@ -48,7 +48,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class AdjudicationsServiceTest {
     private static final String EXAMPLE_NOMS_ID = "A1234BB";
-    private static final Long EXAMPLE_INCIDENT_ID = 3L;
+    private static final Long EXAMPLE_ADJUDICATION_NUMBER = 3L;
     private static final String EXAMPLE_CURRENT_USERNAME = "USER_1";
     private static final String EXAMPLE_REPORTER_FIRST_NAME = "JANE";
     private static final String EXAMPLE_REPORTER_LAST_NAME = "SMITH";
@@ -96,103 +96,179 @@ public class AdjudicationsServiceTest {
             clock);
     }
 
-    @Test
-    public void createAdjudication_makesCallToRepositoryWithCorrectData() {
-        final var mockProvider = new MockProvider();
+    @Nested
+    public class CreateAdjudication {
 
-        mockProvider.setupMocks();
+        @Test
+        public void makesCallToRepositoryWithCorrectData() {
+            final var mockDataProvider = new MockDataProvider();
 
-        final var newAdjudication = generateNewAdjudicationRequest(
-            mockProvider.booking.getBookingId(),
-            mockProvider.internalLocation.getLocationId());
+            mockDataProvider.setupMocks();
 
-        final Adjudication expectedAdjudication = getExpectedAdjudication(mockProvider, newAdjudication);
-        final AdjudicationParty expectedOffenderParty = addExpectedAdjudicationParty(mockProvider, expectedAdjudication);
+            final var newAdjudication = generateNewAdjudicationRequest(
+                mockDataProvider.booking.getBookingId(),
+                mockDataProvider.internalLocation.getLocationId());
 
-        when(adjudicationsRepository.save(any())).thenReturn(expectedAdjudication);
+            final Adjudication expectedAdjudication = getExampleAdjudication(mockDataProvider, newAdjudication);
+            final AdjudicationParty expectedOffenderParty = addExampleAdjudicationParty(mockDataProvider, expectedAdjudication);
 
-        service.createAdjudication(newAdjudication.getBookingId(), newAdjudication);
+            when(adjudicationsRepository.save(any())).thenReturn(expectedAdjudication);
 
-        verify(adjudicationsRepository).save(assertArgThat(actualAdjudication -> {
-                assertThat(actualAdjudication).usingRecursiveComparison().ignoringFields("parties")
-                    .isEqualTo(expectedAdjudication);
-                assertThat(actualAdjudication.getParties()).hasSize(1)
-                    .contains(expectedOffenderParty);
-            }
-        ));
+            service.createAdjudication(newAdjudication.getBookingId(), newAdjudication);
+
+            verify(adjudicationsRepository).save(assertArgThat(actualAdjudication -> {
+                    assertThat(actualAdjudication).usingRecursiveComparison().ignoringFields("parties")
+                        .isEqualTo(expectedAdjudication);
+                    assertThat(actualAdjudication.getParties()).hasSize(1)
+                        .contains(expectedOffenderParty);
+                }
+            ));
+        }
+
+        @Test
+        public void returnsCorrectData() {
+            final var mockDataProvider = new MockDataProvider();
+
+            mockDataProvider.setupMocks();
+
+            final var newAdjudication = generateNewAdjudicationRequest(
+                mockDataProvider.booking.getBookingId(),
+                mockDataProvider.internalLocation.getLocationId());
+
+            final var expectedReturnedAdjudication = AdjudicationDetail.builder()
+                .adjudicationNumber(EXAMPLE_ADJUDICATION_NUMBER)
+                .incidentTime(newAdjudication.getIncidentTime())
+                .statement(newAdjudication.getStatement())
+                .reporterStaffId(mockDataProvider.reporter.getStaff().getStaffId())
+                .bookingId(mockDataProvider.booking.getBookingId())
+                .incidentLocationId(mockDataProvider.internalLocation.getLocationId())
+                .build();
+
+            final Adjudication expectedAdjudication = getExampleAdjudication(mockDataProvider, newAdjudication);
+            addExampleAdjudicationParty(mockDataProvider, expectedAdjudication);
+
+            when(adjudicationsRepository.save(any())).thenReturn(expectedAdjudication);
+
+            final var returnedAdjudication = service.createAdjudication(newAdjudication.getBookingId(), newAdjudication);
+
+            assertThat(returnedAdjudication).isEqualTo(expectedReturnedAdjudication);
+        }
+
+        @Test
+        public void sendsTelemetryMessage() {
+            final var mockDataProvider = new MockDataProvider();
+
+            mockDataProvider.setupMocks();
+
+            final var newAdjudication = generateNewAdjudicationRequest(
+                mockDataProvider.booking.getBookingId(),
+                mockDataProvider.internalLocation.getLocationId());
+
+            final Adjudication expectedAdjudication = getExampleAdjudication(mockDataProvider, newAdjudication);
+            addExampleAdjudicationParty(mockDataProvider, expectedAdjudication);
+
+            when(adjudicationsRepository.save(any())).thenReturn(expectedAdjudication);
+
+            service.createAdjudication(newAdjudication.getBookingId(), newAdjudication);
+
+            verify(telemetryClient).trackEvent("AdjudicationCreated",
+                Map.of(
+                    "reporterUsername", mockDataProvider.getReporterUsername(),
+                    "offenderNo", mockDataProvider.getOffenderNo(),
+                    "incidentTime", EXAMPLE_INCIDENT_TIME.toString(),
+                    "incidentLocation", mockDataProvider.getIncidentLocation()
+                ),
+                null);
+        }
+
+        @Test
+        public void withInvalidLocationIdThrowsInvalidRequestException() {
+            final var mockDataProvider = new MockDataProvider();
+
+            mockDataProvider.setupMocksWithInvalidLocation();
+
+            final var newAdjudication = generateNewAdjudicationRequest(
+                mockDataProvider.booking.getBookingId(),
+                mockDataProvider.internalLocation.getLocationId());
+
+            assertThatThrownBy(() ->
+                service.createAdjudication(newAdjudication.getBookingId(), newAdjudication))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Location with id 456 does not exist or is not in your caseload");
+
+            verifyNoMoreInteractions(telemetryClient);
+        }
     }
 
-    @Test
-    public void createAdjudication_returnsCorrectData() {
-        final var mockProvider = new MockProvider();
+    @Nested
+    public class GetAdjudication {
 
-        mockProvider.setupMocks();
+        @Test
+        public void makesCallToRepositoryWithCorrectData() {
+            final var adjudicationNumber = 22L;
 
-        final var newAdjudication = generateNewAdjudicationRequest(
-            mockProvider.booking.getBookingId(),
-            mockProvider.internalLocation.getLocationId());
+            final var mockDataProvider = new MockDataProvider();
 
-        final var expectedReturnedAdjudication = AdjudicationDetail.builder()
-            .adjudicationNumber(EXAMPLE_INCIDENT_ID)
-            .incidentTime(newAdjudication.getIncidentTime())
-            .statement(newAdjudication.getStatement())
-            .bookingId(mockProvider.booking.getBookingId())
-            .incidentLocationId(mockProvider.internalLocation.getLocationId())
-            .build();
+            final Adjudication foundAdjudication = generateExampleAdjudication(mockDataProvider, adjudicationNumber);
 
-        final Adjudication expectedAdjudication = getExpectedAdjudication(mockProvider, newAdjudication);
-        addExpectedAdjudicationParty(mockProvider, expectedAdjudication);
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(any())).thenReturn(
+                Optional.of(foundAdjudication));
 
-        when(adjudicationsRepository.save(any())).thenReturn(expectedAdjudication);
+            service.getAdjudication(adjudicationNumber);
 
-        final var returnedAdjudication = service.createAdjudication(newAdjudication.getBookingId(), newAdjudication);
+            verify(adjudicationsRepository).findByParties_AdjudicationNumber(adjudicationNumber);
+        }
 
-        assertThat(returnedAdjudication).isEqualTo(expectedReturnedAdjudication);
-    }
+        @Test
+        public void returnsCorrectData() {
+            final var mockDataProvider = new MockDataProvider();
 
-    @Test
-    public void createAdjudication_sendsTelemetryMessage() {
-        final var mockProvider = new MockProvider();
+            final Adjudication foundAdjudication = generateExampleAdjudication(mockDataProvider);
 
-        mockProvider.setupMocks();
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(any())).thenReturn(
+                Optional.of(foundAdjudication));
 
-        final var newAdjudication = generateNewAdjudicationRequest(
-            mockProvider.booking.getBookingId(),
-            mockProvider.internalLocation.getLocationId());
+            final var expectedReturnedAdjudication = AdjudicationDetail.builder()
+                .adjudicationNumber(EXAMPLE_ADJUDICATION_NUMBER)
+                .incidentTime(foundAdjudication.getIncidentTime())
+                .statement(foundAdjudication.getIncidentDetails())
+                .reporterStaffId(mockDataProvider.reporter.getStaff().getStaffId())
+                .bookingId(mockDataProvider.booking.getBookingId())
+                .incidentLocationId(mockDataProvider.internalLocation.getLocationId())
+                .build();
 
-        final Adjudication expectedAdjudication = getExpectedAdjudication(mockProvider, newAdjudication);
-        addExpectedAdjudicationParty(mockProvider, expectedAdjudication);
+            final var returnedAdjudication = service.getAdjudication(EXAMPLE_ADJUDICATION_NUMBER);
 
-        when(adjudicationsRepository.save(any())).thenReturn(expectedAdjudication);
+            assertThat(returnedAdjudication).isEqualTo(expectedReturnedAdjudication);
+        }
 
-        service.createAdjudication(newAdjudication.getBookingId(), newAdjudication);
+        @Test
+        public void withAdjudicationNumberForPartyThatIsNotOffenderThrowsEntityNotFoundException() {
+            final var adjudicationNumberForNonOffenderParty = 99L;
 
-        verify(telemetryClient).trackEvent("AdjudicationCreated",
-            Map.of(
-                "reporterUsername", mockProvider.getReporterUsername(),
-                "offenderNo", mockProvider.getOffenderNo(),
-                "incidentTime", EXAMPLE_INCIDENT_TIME.toString(),
-                "incidentLocation", mockProvider.getIncidentLocation()
-            ),
-            null);
-    }
+            final var mockDataProvider = new MockDataProvider();
 
-    @Test
-    public void createAdjudication_withInvalidLocationIdThrowsInvalidRequestException() {
-        final var mockProvider = new MockProvider();
+            final Adjudication foundAdjudication = generateExampleAdjudicationWithAdditionalParty(mockDataProvider, adjudicationNumberForNonOffenderParty);
 
-        mockProvider.setupMocksWithInvalidLocation();
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(any())).thenReturn(
+                Optional.of(foundAdjudication));
 
-        final var newAdjudication = generateNewAdjudicationRequest(
-            mockProvider.booking.getBookingId(),
-            mockProvider.internalLocation.getLocationId());
+            assertThatThrownBy(() ->
+                service.getAdjudication(adjudicationNumberForNonOffenderParty))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Adjudication for offender not found with the number 99");
+        }
 
-        assertThatThrownBy(() ->
-            service.createAdjudication(newAdjudication.getBookingId(), newAdjudication))
-            .isInstanceOf(HttpClientErrorException.class)
-            .hasMessageContaining("400 Location does not exist or is not in your caseload.");
+        @Test
+        public void withInvalidAdjudicationNumberThrowsEntityNotFoundException() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(any())).thenReturn(
+                Optional.empty());
 
-        verifyNoMoreInteractions(telemetryClient);
+            assertThatThrownBy(() ->
+                service.getAdjudication(1L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Adjudication not found with the number 1");
+        }
     }
 
     private static <T> T assertArgThat(final Consumer<T> assertions) {
@@ -204,30 +280,62 @@ public class AdjudicationsServiceTest {
         });
     }
 
-    private Adjudication getExpectedAdjudication(final MockProvider mockProvider, final NewAdjudication newAdjudication) {
+    private Adjudication generateExampleAdjudication(final MockDataProvider mockDataProvider) {
+        return generateExampleAdjudication(mockDataProvider, EXAMPLE_ADJUDICATION_NUMBER);
+    }
+
+    private Adjudication generateExampleAdjudication(final MockDataProvider mockDataProvider, final long adjudicationNumber) {
+        final var newAdjudication = generateNewAdjudicationRequest(
+            mockDataProvider.booking.getBookingId(),
+            mockDataProvider.internalLocation.getLocationId());
+
+        final var adjudication = getExampleAdjudication(mockDataProvider, newAdjudication);
+        addExampleAdjudicationParty(mockDataProvider, adjudication, adjudicationNumber, Adjudication.INCIDENT_ROLE_OFFENDER);
+
+        return adjudication;
+    }
+
+    private Adjudication generateExampleAdjudicationWithAdditionalParty(final MockDataProvider mockDataProvider, final long additionalPartyAdjudicationNumber) {
+        final var newAdjudication = generateNewAdjudicationRequest(
+            mockDataProvider.booking.getBookingId(),
+            mockDataProvider.internalLocation.getLocationId());
+
+        final var adjudication = getExampleAdjudication(mockDataProvider, newAdjudication);
+        addExampleAdjudicationParty(mockDataProvider, adjudication, EXAMPLE_ADJUDICATION_NUMBER, Adjudication.INCIDENT_ROLE_OFFENDER);
+        addExampleAdjudicationParty(mockDataProvider, adjudication, additionalPartyAdjudicationNumber, Adjudication.INCIDENT_ROLE_OTHER);
+
+        return adjudication;
+    }
+
+    private Adjudication getExampleAdjudication(final MockDataProvider mockDataProvider, final NewAdjudication newAdjudication) {
         return Adjudication.builder()
             .incidentDate(newAdjudication.getIncidentTime().toLocalDate())
             .incidentTime(newAdjudication.getIncidentTime())
             .incidentDetails(newAdjudication.getStatement())
             .reportDate(now.toLocalDate())
             .reportTime(now)
-            .agencyLocation(mockProvider.agencyDetails)
-            .internalLocation(mockProvider.internalLocation)
+            .agencyLocation(mockDataProvider.agencyDetails)
+            .internalLocation(mockDataProvider.internalLocation)
             .incidentStatus(Adjudication.INCIDENT_STATUS_ACTIVE)
-            .incidentType(mockProvider.incidentType)
+            .incidentType(mockDataProvider.incidentType)
             .lockFlag(Adjudication.LOCK_FLAG_UNLOCKED)
-            .staffReporter(mockProvider.reporter.getStaff())
+            .staffReporter(mockDataProvider.reporter.getStaff())
             .build();
     }
 
-    private AdjudicationParty addExpectedAdjudicationParty(final MockProvider mockProvider, final Adjudication expectedAdjudication) {
+    private AdjudicationParty addExampleAdjudicationParty(final MockDataProvider mockDataProvider, final Adjudication expectedAdjudication) {
+        return addExampleAdjudicationParty(mockDataProvider, expectedAdjudication, EXAMPLE_ADJUDICATION_NUMBER, Adjudication.INCIDENT_ROLE_OFFENDER);
+    }
+
+    private AdjudicationParty addExampleAdjudicationParty(final MockDataProvider mockDataProvider, final Adjudication expectedAdjudication,
+                                                          final long adjudicationNumber, final String incidentRole) {
         final var expectedOffenderParty = AdjudicationParty.builder()
             .id(new AdjudicationParty.PK(expectedAdjudication, 1L))
-            .incidentId(EXAMPLE_INCIDENT_ID)
-            .incidentRole(Adjudication.INCIDENT_ROLE_OFFENDER)
+            .adjudicationNumber(adjudicationNumber)
+            .incidentRole(incidentRole)
             .partyAddedDate(now.toLocalDate())
-            .actionCode(mockProvider.actionCode)
-            .offenderBooking(mockProvider.booking)
+            .actionCode(mockDataProvider.actionCode)
+            .offenderBooking(mockDataProvider.booking)
             .build();
         expectedAdjudication.setParties(List.of(expectedOffenderParty));
         return expectedOffenderParty;
@@ -242,7 +350,7 @@ public class AdjudicationsServiceTest {
             .build();
     }
 
-    private class MockProvider {
+    private class MockDataProvider {
         private final StaffUserAccount reporter;
         private final OffenderBooking booking;
         private final AgencyInternalLocation internalLocation;
@@ -250,7 +358,7 @@ public class AdjudicationsServiceTest {
         private final AdjudicationIncidentType incidentType;
         private final AdjudicationActionCode actionCode;
 
-        private MockProvider() {
+        private MockDataProvider() {
             reporter = generateReporter();
             booking = generateOffenderBooking();
             internalLocation = generateInternalLocation();
@@ -276,7 +384,7 @@ public class AdjudicationsServiceTest {
             if (validLocation) {
                 when(internalLocationRepository.findOneByLocationId(internalLocation.getLocationId())).thenReturn(Optional.of(internalLocation));
                 when(agencyLocationRepository.findById(agencyDetails.getId())).thenReturn(Optional.of(agencyDetails));
-                when(adjudicationsRepository.getNextIncidentId()).thenReturn(EXAMPLE_INCIDENT_ID);
+                when(adjudicationsRepository.getNextAdjudicationNumber()).thenReturn(EXAMPLE_ADJUDICATION_NUMBER);
             } else {
                 when(internalLocationRepository.findOneByLocationId(internalLocation.getLocationId())).thenReturn(Optional.empty());
             }

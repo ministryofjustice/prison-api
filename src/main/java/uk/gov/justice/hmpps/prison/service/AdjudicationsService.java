@@ -3,13 +3,10 @@ package uk.gov.justice.hmpps.prison.service;
 import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
@@ -33,6 +30,9 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import static java.lang.String.format;
 
 @Service
 @Validated
@@ -61,19 +61,19 @@ public class AdjudicationsService {
         final var incidentDateTime = adjudication.getIncidentTime();
 
         final var reporter = staffUserAccountRepository.findById(reporterName)
-            .orElseThrow(() -> new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
+            .orElseThrow(() -> new RuntimeException(format("User not found %s", reporterName)));
 
         final var offenderBookingEntry = bookingRepository.findById(bookingId)
-            .orElseThrow(() -> new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
+            .orElseThrow(() -> new RuntimeException(format("Booking not found %d", bookingId)));
         final var incidentType = incidentTypeRepository.findById(AdjudicationIncidentType.GOVERNORS_REPORT)
-            .orElseThrow(() -> new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
+            .orElseThrow(() -> new RuntimeException("Incident type not available"));
         final var actionCode = actionCodeRepository.findById(AdjudicationActionCode.PLACED_ON_REPORT)
-            .orElseThrow(() -> new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
+            .orElseThrow(() -> new RuntimeException("Action code not available"));
 
         final var incidentInternalLocationDetails = internalLocationRepository.findOneByLocationId(adjudication.getIncidentLocationId())
-            .orElseThrow(() -> new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Location does not exist or is not in your caseload."));
+            .orElseThrow(EntityNotFoundException.withMessage(format("Location with id %d does not exist or is not in your caseload", adjudication.getIncidentLocationId())));
         final var agencyDetails = agencyLocationRepository.findById(incidentInternalLocationDetails.getAgencyId())
-            .orElseThrow(() -> new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
+            .orElseThrow(() -> new RuntimeException(format("Agency not found %s", incidentInternalLocationDetails.getAgencyId())));
 
         final var adjudicationToCreate = Adjudication.builder()
             .incidentDate(incidentDateTime.toLocalDate())
@@ -88,10 +88,10 @@ public class AdjudicationsService {
             .lockFlag(Adjudication.LOCK_FLAG_UNLOCKED)
             .staffReporter(reporter.getStaff())
             .build();
-        final var incidentNumber = adjudicationsRepository.getNextIncidentId();
+        final var adjudicationNumber = adjudicationsRepository.getNextAdjudicationNumber();
         final var offenderAdjudicationEntry = AdjudicationParty.builder()
             .id(new AdjudicationParty.PK(adjudicationToCreate, 1L))
-            .incidentId(incidentNumber)
+            .adjudicationNumber(adjudicationNumber)
             .incidentRole(Adjudication.INCIDENT_ROLE_OFFENDER)
             .partyAddedDate(currentDateTime.toLocalDate())
             .actionCode(actionCode)
@@ -105,6 +105,24 @@ public class AdjudicationsService {
         trackAdjudicationCreated(createdAdjudication);
 
         return transformToDto(createdAdjudication);
+    }
+
+    @PreAuthorize("hasRole('SYSTEM_USER')")
+    public AdjudicationDetail getAdjudication(@NotNull final Long adjudicationNumber) {
+        final var requestedAdjudication = adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber)
+            .orElseThrow(EntityNotFoundException.withMessage(format("Adjudication not found with the number %d", adjudicationNumber)));
+        final var adjudicationWithOnlyRelevantParty = removeUnrelatedParties(requestedAdjudication, adjudicationNumber);
+        if (adjudicationWithOnlyRelevantParty.getOffenderParty().isEmpty()) {
+            throw EntityNotFoundException.withMessage(format("Adjudication for offender not found with the number %d", adjudicationNumber));
+        }
+        return transformToDto(adjudicationWithOnlyRelevantParty);
+    }
+
+    private Adjudication removeUnrelatedParties(final Adjudication requestedAdjudication, final long adjudicationNumber) {
+        final var relevantParties = requestedAdjudication.getParties().stream()
+            .filter(p -> p.getAdjudicationNumber().equals(adjudicationNumber)).collect(Collectors.toList());
+        requestedAdjudication.setParties(relevantParties);
+        return requestedAdjudication;
     }
 
     private void trackAdjudicationCreated(final Adjudication createdAdjudication) {
@@ -121,7 +139,8 @@ public class AdjudicationsService {
     private AdjudicationDetail transformToDto(final Adjudication adjudication) {
         final var offenderPartyDetails = adjudication.getOffenderParty();
         return AdjudicationDetail.builder()
-            .adjudicationNumber(offenderPartyDetails.map(AdjudicationParty::getIncidentId).orElse(null))
+            .adjudicationNumber(offenderPartyDetails.map(AdjudicationParty::getAdjudicationNumber).orElse(null))
+            .reporterStaffId(adjudication.getStaffReporter().getStaffId())
             .bookingId(offenderPartyDetails.map(p -> p.getOffenderBooking().getBookingId()).orElse(null))
             .incidentTime(adjudication.getIncidentTime())
             .incidentLocationId(adjudication.getInternalLocation().getLocationId())

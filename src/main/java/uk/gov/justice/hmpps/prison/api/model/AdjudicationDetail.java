@@ -22,19 +22,23 @@ public class AdjudicationDetail {
     @NotNull
     private Long adjudicationNumber;
 
-    @ApiModelProperty(value = "Booking number", position = 2, example = "123456")
+    @ApiModelProperty(value = "The staff id of the reporter", position = 2, example = "123456")
+    @NotNull
+    private Long reporterStaffId;
+
+    @ApiModelProperty(value = "Booking number", position = 3, example = "123456")
     @NotNull
     private Long bookingId;
 
-    @ApiModelProperty(value = "When the incident took place", position = 3, example = "15-06-2020T09:03:11")
+    @ApiModelProperty(value = "When the incident took place", position = 4, example = "15-06-2020T09:03:11")
     @NotNull
     private LocalDateTime incidentTime;
 
-    @ApiModelProperty(value = "The id to indicate where the incident took place", notes = "This will be an agency's internal location id", position = 4)
+    @ApiModelProperty(value = "The id to indicate where the incident took place", notes = "This will be an agency's internal location id", position = 5)
     @NotNull
     private Long incidentLocationId;
 
-    @ApiModelProperty(value = "The adjudication statement", position = 5, example = "The offence involved ...")
+    @ApiModelProperty(value = "The adjudication statement", position = 6, example = "The offence involved ...")
     @NotNull
     private String statement;
 }

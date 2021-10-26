@@ -43,6 +43,7 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 public class Adjudication extends AuditableEntity {
 
     public static final String INCIDENT_ROLE_OFFENDER = "S";
+    public static final String INCIDENT_ROLE_OTHER = "OTH";
     public static final String INCIDENT_STATUS_ACTIVE = "ACTIVE";
     public static final String LOCK_FLAG_UNLOCKED = "N";
 

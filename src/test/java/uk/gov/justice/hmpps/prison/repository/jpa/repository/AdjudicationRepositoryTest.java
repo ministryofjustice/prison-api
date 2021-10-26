@@ -62,6 +62,56 @@ public class AdjudicationRepositoryTest {
         repository.delete(storedAdjudication.get());
     }
 
+    @Test
+    void adjudicationSearchByNumber() {
+        final var adjudicationNumber = -5L;
+        final var storedAdjudication = repository.findByParties_AdjudicationNumber(adjudicationNumber);
+
+        final var incidentDateAndTime = LocalDateTime.of(1999, 5, 25, 0, 0);
+        final var reportDate = LocalDateTime.of(1999, 5, 25, 0, 0);
+        final var reportTime = LocalDateTime.of(2019, 1, 25, 0, 2);
+        final var partyAddedTime = LocalDateTime.of(2005, 11, 15, 0, 0);
+        final var incidentType = AdjudicationIncidentType.MISCELLANEOUS;
+        final var actionCode = AdjudicationActionCode.PLACED_ON_REPORT;
+        final var expectedAdjudication = Adjudication.builder()
+            .agencyIncidentId(-2L)
+            .incidentDate(incidentDateAndTime.toLocalDate())
+            .incidentTime(incidentDateAndTime)
+            .reportDate(reportDate.toLocalDate())
+            .reportTime(reportTime)
+            .agencyLocation(agencyLocationRepository.findById("LEI").get())
+            .internalLocation(agencyInternalLocationRepository.findById(-2L).get())
+            .incidentDetails("mKSouDOCmKSouDO")
+            .incidentStatus("ACTIVE")
+            .incidentType(incidentTypeRepository.findById(incidentType).get())
+            .lockFlag("N")
+            .staffReporter(staffUserAccountRepository.findById("JBRIEN").get().getStaff())
+            .build();
+        final var adjudicationParty1 = AdjudicationParty.builder()
+            .id(new AdjudicationParty.PK(expectedAdjudication, 1L))
+            .adjudicationNumber(adjudicationNumber)
+            .incidentRole("S")
+            .partyAddedDate(partyAddedTime.toLocalDate())
+            .offenderBooking(bookingRepository.findById(-49L).get()) // -51L
+            .actionCode(actionCodeRepository.findById(actionCode).get()) // ??
+            .build();
+        final var adjudicationParty2 = AdjudicationParty.builder()
+            .id(new AdjudicationParty.PK(expectedAdjudication, 2L))
+            .adjudicationNumber(-6L)
+            .incidentRole("V")
+            .partyAddedDate(partyAddedTime.toLocalDate())
+            .offenderBooking(bookingRepository.findById(-51L).get())
+            .actionCode(actionCodeRepository.findById(actionCode).get()) // ??
+            .build();
+
+        assertThat(storedAdjudication.get()).usingRecursiveComparison()
+            .ignoringFields("createDatetime", "createUserId", "modifyDatetime", "modifyUserId", "parties")
+            .isEqualTo(expectedAdjudication);
+        assertThat(storedAdjudication.get().getParties()).usingRecursiveComparison()
+            .ignoringFields("id", "createDatetime", "createUserId", "modifyDatetime", "modifyUserId")
+            .isEqualTo(List.of(adjudicationParty1, adjudicationParty2));
+    }
+
     private Adjudication makeAdjudicationObject() {
         final var reportedDateAndTime = LocalDateTime.now();
         final var incidentDateAndTime = reportedDateAndTime.minusDays(2);
@@ -84,7 +134,7 @@ public class AdjudicationRepositoryTest {
         final var offenderBooking = bookingRepository.findById(offenderBookingId);
         final var incidentTypeRef = incidentTypeRepository.findById(incidentType);
         final var actionCodeRef = actionCodeRepository.findById(actionCode);
-        final var incidentNumber = repository.getNextIncidentId();
+        final var adjudicationNumber = repository.getNextAdjudicationNumber();
 
         final var adjudicationToCreate = Adjudication.builder()
             .incidentDate(incidentDateAndTime.toLocalDate())
@@ -101,7 +151,7 @@ public class AdjudicationRepositoryTest {
             .build();
         final var adjudicationParty = AdjudicationParty.builder()
             .id(new AdjudicationParty.PK(adjudicationToCreate, 1L))
-            .incidentId(incidentNumber)
+            .adjudicationNumber(adjudicationNumber)
             .incidentRole(incidentRole)
             .partyAddedDate(partyAddedDateAndTime.toLocalDate())
             .offenderBooking(offenderBooking.get())

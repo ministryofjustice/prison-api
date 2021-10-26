@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,5 +48,18 @@ public class AdjudicationsResource {
         return ResponseEntity
             .status(HttpStatus.CREATED)
             .body(savedAdjudication);
+    }
+
+    @ApiResponses({
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+    })
+    @ApiOperation(value = "Get details of an existing adjudication.", notes = "Requires SYSTEM access")
+    @GetMapping("/adjudication/{adjudicationNumber}")
+    public AdjudicationDetail getAdjudication(
+        @PathVariable("adjudicationNumber")
+        @ApiParam(value = "The adjudication number", required = true)
+        final Long adjudicationNumber
+    ) {
+        return adjudicationsService.getAdjudication(adjudicationNumber);
     }
 }
