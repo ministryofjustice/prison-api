@@ -19,7 +19,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
 
         @Test
         public void returnsExpectedValue() {
-            final var token = validToken(List.of("ROLE_MAINTAIN_AJUDICATION"));
+            final var token = validToken(List.of("ROLE_MAINTAIN_ADJUDICATIONS"));
             final var body = Map.of(
                 "bookingId", -5L,
                 "incidentTime", "2021-01-04T10:12:44",
@@ -40,7 +40,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
 
         @Test
         public void returns400IfInvalidRequest() {
-            final var token = validToken(List.of("ROLE_MAINTAIN_AJUDICATION"));
+            final var token = validToken(List.of("ROLE_MAINTAIN_ADJUDICATIONS"));
             final var body = Map.of(
                 "bookingId", -5L,
                 "incidentLocationId", -31L,
@@ -60,7 +60,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
 
         @Test
         public void returns404IfInvalidBooking() {
-            final var token = validToken(List.of("ROLE_MAINTAIN_AJUDICATION"));
+            final var token = validToken(List.of("ROLE_MAINTAIN_ADJUDICATIONS"));
             final var body = Map.of(
                 "bookingId", 2000L,
                 "incidentTime", "2021-01-04T10:12:44",
@@ -106,7 +106,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
 
         @Test
         public void returnsExpectedValue() {
-            final var token = validToken(List.of("ROLE_MAINTAIN_AJUDICATION"));
+            final var token = validToken(List.of("ROLE_MAINTAIN_ADJUDICATIONS"));
 
             final var httpEntity = createHttpEntity(token, null);
 
@@ -122,7 +122,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
 
         @Test
         public void returns404IfInvalidRequest() {
-            final var token = validToken(List.of("ROLE_MAINTAIN_AJUDICATION"));
+            final var token = validToken(List.of("ROLE_MAINTAIN_ADJUDICATIONS"));
 
             final var httpEntity = createHttpEntity(token, null);
 
