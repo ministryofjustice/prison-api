@@ -44,7 +44,7 @@ public class AdjudicationsResource {
     @ApiOperation(value = "Record an adjudication.", notes = "Requires SYSTEM access")
     @PostMapping("/adjudication")
     @ProxyUser
-    @PreAuthorize("hasRole('MAINTAIN_AJUDICATION') and hasAuthority('SCOPE_write')")
+    @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS') and hasAuthority('SCOPE_write')")
     public ResponseEntity<AdjudicationDetail> createAdjudication(@Valid @RequestBody @ApiParam(value = "Adjudication details to save", required = true) final NewAdjudication adjudicationDetails) {
         final var savedAdjudication = adjudicationsService.createAdjudication(adjudicationDetails.getBookingId(), adjudicationDetails);
         return ResponseEntity
@@ -57,7 +57,7 @@ public class AdjudicationsResource {
     })
     @ApiOperation(value = "Get details of an existing adjudication.", notes = "Requires SYSTEM access")
     @GetMapping("/adjudication/{adjudicationNumber}")
-    @PreAuthorize("hasRole('MAINTAIN_AJUDICATION')")
+    @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS')")
     public AdjudicationDetail getAdjudication(
         @PathVariable("adjudicationNumber")
         @ApiParam(value = "The adjudication number", required = true)
