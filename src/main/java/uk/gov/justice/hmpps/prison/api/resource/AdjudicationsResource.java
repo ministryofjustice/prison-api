@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiResponses;
 import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,6 +44,7 @@ public class AdjudicationsResource {
     @ApiOperation(value = "Record an adjudication.", notes = "Requires SYSTEM access")
     @PostMapping("/adjudication")
     @ProxyUser
+    @PreAuthorize("hasRole('MAINTAIN_AJUDICATION') and hasAuthority('SCOPE_write')")
     public ResponseEntity<AdjudicationDetail> createAdjudication(@Valid @RequestBody @ApiParam(value = "Adjudication details to save", required = true) final NewAdjudication adjudicationDetails) {
         final var savedAdjudication = adjudicationsService.createAdjudication(adjudicationDetails.getBookingId(), adjudicationDetails);
         return ResponseEntity
@@ -55,6 +57,7 @@ public class AdjudicationsResource {
     })
     @ApiOperation(value = "Get details of an existing adjudication.", notes = "Requires SYSTEM access")
     @GetMapping("/adjudication/{adjudicationNumber}")
+    @PreAuthorize("hasRole('MAINTAIN_AJUDICATION')")
     public AdjudicationDetail getAdjudication(
         @PathVariable("adjudicationNumber")
         @ApiParam(value = "The adjudication number", required = true)

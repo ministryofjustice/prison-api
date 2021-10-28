@@ -53,8 +53,6 @@ public class AdjudicationsService {
 
     @Transactional
     @VerifyBookingAccess
-    @PreAuthorize("hasRole('SYSTEM_USER')")
-    @HasWriteScope
     public AdjudicationDetail createAdjudication(@NotNull final Long bookingId, @NotNull @Valid final NewAdjudication adjudication) {
         final var reporterName = authenticationFacade.getCurrentUsername();
         final var currentDateTime = LocalDateTime.now(clock);
@@ -107,7 +105,6 @@ public class AdjudicationsService {
         return transformToDto(createdAdjudication);
     }
 
-    @PreAuthorize("hasRole('SYSTEM_USER')")
     public AdjudicationDetail getAdjudication(@NotNull final Long adjudicationNumber) {
         final var requestedAdjudication = adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber)
             .orElseThrow(EntityNotFoundException.withMessage(format("Adjudication not found with the number %d", adjudicationNumber)));
