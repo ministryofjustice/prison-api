@@ -243,23 +243,6 @@ public class AdjudicationsServiceTest {
         }
 
         @Test
-        public void withAdjudicationNumberForPartyThatIsNotOffenderThrowsEntityNotFoundException() {
-            final var adjudicationNumberForNonOffenderParty = 99L;
-
-            final var mockDataProvider = new MockDataProvider();
-
-            final Adjudication foundAdjudication = generateExampleAdjudicationWithAdditionalParty(mockDataProvider, adjudicationNumberForNonOffenderParty);
-
-            when(adjudicationsRepository.findByParties_AdjudicationNumber(any())).thenReturn(
-                Optional.of(foundAdjudication));
-
-            assertThatThrownBy(() ->
-                service.getAdjudication(adjudicationNumberForNonOffenderParty))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("Adjudication for offender not found with the number 99");
-        }
-
-        @Test
         public void withInvalidAdjudicationNumberThrowsEntityNotFoundException() {
             when(adjudicationsRepository.findByParties_AdjudicationNumber(any())).thenReturn(
                 Optional.empty());
