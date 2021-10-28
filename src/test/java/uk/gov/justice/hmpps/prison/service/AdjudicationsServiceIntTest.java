@@ -25,7 +25,7 @@ public class AdjudicationsServiceIntTest {
     public class CreateAdjudication {
 
         @Test
-        @WithMockUser(username = "ITAG_USER", roles = {"SYSTEM_USER"})
+        @WithMockUser(username = "ITAG_USER")
         public void maximumTextSizeExceeded() {
             final var adjudicationWithLargeStatementSize = defaultAdjudicationBuilder()
                 .statement(generateMessageWith4001Chars())
@@ -37,7 +37,7 @@ public class AdjudicationsServiceIntTest {
         }
 
         @Test
-        @WithMockUser(username = "ITAG_USER", roles = {"SYSTEM_USER"})
+        @WithMockUser(username = "ITAG_USER")
         public void maximumTextSizeExceededDueToUtf8() {
             final var adjudicationWithLargeStatementSize = defaultAdjudicationBuilder()
                 .statement(generateMessageWith4000CharsAndUtf8Chars())
@@ -49,7 +49,7 @@ public class AdjudicationsServiceIntTest {
         }
 
         @Test
-        @WithMockUser(username = "ITAG_USER", roles = {"SYSTEM_USER"})
+        @WithMockUser(username = "ITAG_USER")
         public void invalidBooking() {
             final var adjudicationWithLargeStatementSize = defaultAdjudicationBuilder()
                 .statement(generateMessageWith4000CharsAndUtf8Chars())
@@ -58,23 +58,6 @@ public class AdjudicationsServiceIntTest {
             assertThatThrownBy(() -> service.createAdjudication(500L, adjudicationWithLargeStatementSize))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Offender booking with id 500 not found.");
-        }
-
-        @Test
-        @WithMockUser(username = "ITAG_USER", roles = {"SOME_ROLE"})
-        public void wrongRole() {
-            assertThatThrownBy(() -> service.createAdjudication(1L, defaultAdjudicationBuilder().build()))
-                .hasMessage("Access is denied");
-        }
-    }
-
-    @Nested
-    public class GetAdjudication {
-        @Test
-        @WithMockUser(username = "ITAG_USER", roles = {"SOME_ROLE"})
-        public void wrongRole() {
-            assertThatThrownBy(() -> service.getAdjudication(1L))
-                .hasMessage("Access is denied");
         }
     }
 

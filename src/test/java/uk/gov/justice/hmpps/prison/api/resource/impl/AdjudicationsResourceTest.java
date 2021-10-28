@@ -19,7 +19,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
 
         @Test
         public void returnsExpectedValue() {
-            final var token = validToken(List.of("ROLE_SYSTEM_USER"));
+            final var token = validToken(List.of("ROLE_MAINTAIN_AJUDICATION"));
             final var body = Map.of(
                 "bookingId", -5L,
                 "incidentTime", "2021-01-04T10:12:44",
@@ -40,7 +40,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
 
         @Test
         public void returns400IfInvalidRequest() {
-            final var token = validToken(List.of("ROLE_SYSTEM_USER"));
+            final var token = validToken(List.of("ROLE_MAINTAIN_AJUDICATION"));
             final var body = Map.of(
                 "bookingId", -5L,
                 "incidentLocationId", -31L,
@@ -60,7 +60,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
 
         @Test
         public void returns404IfInvalidBooking() {
-            final var token = validToken(List.of("ROLE_SYSTEM_USER"));
+            final var token = validToken(List.of("ROLE_MAINTAIN_AJUDICATION"));
             final var body = Map.of(
                 "bookingId", 2000L,
                 "incidentTime", "2021-01-04T10:12:44",
@@ -78,6 +78,27 @@ public class AdjudicationsResourceTest extends ResourceTest  {
 
             assertThatStatus(response, 404);
         }
+
+        @Test
+        public void returns403IfInvalidRole() {
+            final var token = validToken(List.of("ROLE_SYSTEM_USER"));
+            final var body = Map.of(
+                "bookingId", 2000L,
+                "incidentTime", "2021-01-04T10:12:44",
+                "incidentLocationId", -31L,
+                "statement", "Example statement");
+
+            final var httpEntity = createHttpEntity(token, body);
+
+            final var response = testRestTemplate.exchange(
+                "/api/adjudications/adjudication",
+                HttpMethod.POST,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                });
+
+            assertThatStatus(response, 403);
+        }
     }
 
     @Nested
@@ -85,7 +106,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
 
         @Test
         public void returnsExpectedValue() {
-            final var token = validToken(List.of("ROLE_SYSTEM_USER"));
+            final var token = validToken(List.of("ROLE_MAINTAIN_AJUDICATION"));
 
             final var httpEntity = createHttpEntity(token, null);
 
@@ -101,7 +122,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
 
         @Test
         public void returns404IfInvalidRequest() {
-            final var token = validToken(List.of("ROLE_SYSTEM_USER"));
+            final var token = validToken(List.of("ROLE_MAINTAIN_AJUDICATION"));
 
             final var httpEntity = createHttpEntity(token, null);
 
@@ -113,6 +134,22 @@ public class AdjudicationsResourceTest extends ResourceTest  {
                 });
 
             assertThatStatus(response, 404);
+        }
+
+        @Test
+        public void returns403IfInvalidRole() {
+            final var token = validToken(List.of("ROLE_SYSTEM_USER"));
+
+            final var httpEntity = createHttpEntity(token, null);
+
+            final var response = testRestTemplate.exchange(
+                "/api/adjudications/adjudication/-199",
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                });
+
+            assertThatStatus(response, 403);
         }
     }
 }
