@@ -111,18 +111,7 @@ public class AdjudicationsService {
     public AdjudicationDetail getAdjudication(@NotNull final Long adjudicationNumber) {
         final var requestedAdjudication = adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber)
             .orElseThrow(EntityNotFoundException.withMessage(format("Adjudication not found with the number %d", adjudicationNumber)));
-        final var adjudicationWithOnlyRelevantParty = removeUnrelatedParties(requestedAdjudication, adjudicationNumber);
-        if (adjudicationWithOnlyRelevantParty.getOffenderParty().isEmpty()) {
-            throw EntityNotFoundException.withMessage(format("Adjudication for offender not found with the number %d", adjudicationNumber));
-        }
-        return transformToDto(adjudicationWithOnlyRelevantParty);
-    }
-
-    private Adjudication removeUnrelatedParties(final Adjudication requestedAdjudication, final long adjudicationNumber) {
-        final var relevantParties = requestedAdjudication.getParties().stream()
-            .filter(p -> p.getAdjudicationNumber().equals(adjudicationNumber)).collect(Collectors.toList());
-        requestedAdjudication.setParties(relevantParties);
-        return requestedAdjudication;
+        return transformToDto(requestedAdjudication);
     }
 
     private void trackAdjudicationCreated(final Adjudication createdAdjudication) {
