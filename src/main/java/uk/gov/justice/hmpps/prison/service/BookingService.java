@@ -833,6 +833,7 @@ public class BookingService {
         final var offenderSentences = offenderSentenceRepository.findByOffenderBooking_BookingId(bookingId);
         return offenderSentences.stream()
             .map(OffenderSentence::getSentenceAndOffenceDetail)
+            .filter(sentence -> sentence.getSentenceCalculationType() == null || !sentence.getSentenceCalculationType().startsWith("AGG"))
             .collect(toList());
     }
 

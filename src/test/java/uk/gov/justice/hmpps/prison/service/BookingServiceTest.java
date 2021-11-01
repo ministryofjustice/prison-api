@@ -1264,6 +1264,45 @@ public class BookingServiceTest {
     }
 
     @Test
+    void getSentenceAndOffenceDetails_withAggregateSentenceTypes() {
+        final var bookingId = -1L;
+        when(offenderSentenceRepository.findByOffenderBooking_BookingId(bookingId))
+            .thenReturn(
+                List.of(
+                    OffenderSentence.builder()
+                        .offenderBooking(OffenderBooking.builder().bookingId(-99L).build())
+                        .calculationType(SentenceCalcType.builder().calculationType("AGG_IND_ORA").build())
+                        .build(),
+                    OffenderSentence.builder()
+                        .offenderBooking(OffenderBooking.builder().bookingId(-99L).build())
+                        .calculationType(SentenceCalcType.builder().calculationType("AGG_CUR_ORA").build())
+                        .build(),
+                    OffenderSentence.builder()
+                        .offenderBooking(OffenderBooking.builder().bookingId(-99L).build())
+                        .calculationType(SentenceCalcType.builder().calculationType("AGG_LR_ORA").build())
+                        .build(),
+                    OffenderSentence.builder()
+                        .offenderBooking(OffenderBooking.builder().bookingId(-99L).build())
+                        .calculationType(SentenceCalcType.builder().build())
+                        .build()
+                )
+            );
+
+        final var sentencesAndOffences = bookingService.getSentenceAndOffenceDetails(bookingId);
+
+        assertThat(sentencesAndOffences).containsExactly(
+            OffenderSentenceAndOffences.builder()
+                .bookingId(-99L)
+                .days(0)
+                .weeks(0)
+                .months(0)
+                .years(0)
+                .build()
+        );
+        assertThat(sentencesAndOffences).size().isEqualTo(1);
+    }
+
+    @Test
     void getSentenceAndOffenceDetails_withFullData() {
         final var bookingId = -1L;
         when(offenderSentenceRepository.findByOffenderBooking_BookingId(bookingId))
