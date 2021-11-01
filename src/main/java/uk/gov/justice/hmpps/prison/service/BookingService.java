@@ -830,10 +830,9 @@ public class BookingService {
     }
 
     public List<OffenderSentenceAndOffences> getSentenceAndOffenceDetails(final Long bookingId) {
-        final var offenderSentences = offenderSentenceRepository.findByOffenderBooking_BookingId(bookingId);
+        final var offenderSentences = offenderSentenceRepository.findByOffenderBooking_BookingId_AndCalculationType_CalculationTypeNotLike(bookingId, "AGG%");
         return offenderSentences.stream()
             .map(OffenderSentence::getSentenceAndOffenceDetail)
-            .filter(sentence -> sentence.getSentenceCalculationType() == null || !sentence.getSentenceCalculationType().startsWith("AGG"))
             .collect(toList());
     }
 
