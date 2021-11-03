@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 @Getter
 @Entity
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = {"offenderBooking", "sequence"}, callSuper = false)

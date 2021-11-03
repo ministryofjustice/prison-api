@@ -13,9 +13,11 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -31,7 +33,15 @@ import java.util.Optional;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @Table(name = "OFFENDER_SENT_CALCULATIONS")
+@IdClass(SentenceCalculation.PK.class)
 public class SentenceCalculation extends AuditableEntity {
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @EqualsAndHashCode
+    public static class PK implements Serializable {
+        private Long id;
+    }
 
     @Id
     @Column(name = "OFFENDER_SENT_CALCULATION_ID")
