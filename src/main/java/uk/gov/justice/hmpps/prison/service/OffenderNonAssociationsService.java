@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.text.WordUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -23,7 +24,7 @@ public class OffenderNonAssociationsService {
     private final OffenderBookingRepository bookingRepository;
 
     @VerifyBookingAccess
-    public OffenderNonAssociationDetails retrieve(final long bookingId) {
+    public OffenderNonAssociationDetails retrieve(final Long bookingId) {
         log.debug("Fetching non-associations for booking id '{}'", bookingId);
 
         final var booking = bookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId));
@@ -37,8 +38,8 @@ public class OffenderNonAssociationsService {
 
         return OffenderNonAssociationDetails.builder()
                 .offenderNo(booking.getOffender().getNomsId())
-                .firstName(booking.getOffender().getFirstName())
-                .lastName(booking.getOffender().getLastName())
+                .firstName(WordUtils.capitalizeFully(booking.getOffender().getFirstName()))
+                .lastName(WordUtils.capitalizeFully(booking.getOffender().getLastName()))
                 .agencyDescription(booking.getLocation().getDescription())
                 .assignedLivingUnitId(booking.getAssignedLivingUnit().getLocationId())
                 .assignedLivingUnitDescription(booking.getAssignedLivingUnit().getDescription())
@@ -58,8 +59,8 @@ public class OffenderNonAssociationsService {
                 .typeDescription(detail.getNonAssociationType().getDescription())
                 .offenderNonAssociation(OffenderNonAssociation.builder()
                         .offenderNo(detail.getNonAssociation().getNsOffender().getNomsId())
-                        .firstName(detail.getNonAssociation().getNsOffender().getFirstName())
-                        .lastName(detail.getNonAssociation().getNsOffender().getLastName())
+                        .firstName(WordUtils.capitalizeFully(detail.getNonAssociation().getNsOffender().getFirstName()))
+                        .lastName(WordUtils.capitalizeFully(detail.getNonAssociation().getNsOffender().getLastName()))
                         .reasonCode(detail.getNonAssociation().getRecipNonAssociationReason().getCode())
                         .reasonDescription(detail.getNonAssociation().getRecipNonAssociationReason().getDescription())
                         .agencyDescription(detail.getNonAssociation().getNsAgencyDescription().orElse(null))
