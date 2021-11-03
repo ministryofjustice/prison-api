@@ -6,8 +6,6 @@ import org.springframework.http.HttpMethod;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
 
-import java.util.Objects;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class OffenderResourceImplIntTest_getNonAssociationDetails extends ResourceTest {
@@ -27,14 +25,14 @@ public class OffenderResourceImplIntTest_getNonAssociationDetails extends Resour
 
         final var json = getBodyAsJsonContent(response);
         assertThat(json).extractingJsonPathStringValue("offenderNo").isEqualTo("A1234AA");
-        assertThat(json).extractingJsonPathStringValue("firstName").isEqualTo("ARTHUR");
-        assertThat(json).extractingJsonPathStringValue("lastName").isEqualTo("ANDERSON");
+        assertThat(json).extractingJsonPathStringValue("firstName").isEqualTo("Arthur");
+        assertThat(json).extractingJsonPathStringValue("lastName").isEqualTo("Anderson");
         assertThat(json).extractingJsonPathArrayValue("nonAssociations").hasSize(2);
         assertThat(json).extractingJsonPathStringValue("nonAssociations[0].reasonCode").isEqualTo("VIC");
         assertThat(json).extractingJsonPathStringValue("nonAssociations[0].offenderNonAssociation.offenderNo").isEqualTo("A1234AB");
-        assertThat(json).extractingJsonPathStringValue("nonAssociations[0].offenderNonAssociation.firstName").isEqualTo("GILLIAN");
+        assertThat(json).extractingJsonPathStringValue("nonAssociations[0].offenderNonAssociation.firstName").isEqualTo("Gillian");
         assertThat(json).extractingJsonPathStringValue("nonAssociations[1].offenderNonAssociation.offenderNo").isEqualTo("A1234AC");
-        assertThat(json).extractingJsonPathStringValue("nonAssociations[1].offenderNonAssociation.firstName").isEqualTo("NORMAN");
+        assertThat(json).extractingJsonPathStringValue("nonAssociations[1].offenderNonAssociation.firstName").isEqualTo("Norman");
     }
 
 
@@ -60,7 +58,8 @@ public class OffenderResourceImplIntTest_getNonAssociationDetails extends Resour
 
     @Test
     public void shouldReturn404IfNotAuthorised() {
-        final var token = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH);
+
+        final var token = authTokenHelper.getToken(AuthToken.UNAUTHORISED_USER);
 
         final var request = createHttpEntity(token, null);
 
@@ -70,6 +69,11 @@ public class OffenderResourceImplIntTest_getNonAssociationDetails extends Resour
                 request,
                 ErrorResponse.class);
 
-        assertThat(Objects.requireNonNull(response.getBody()).getStatus()).isEqualTo(404);
+        assertThat(response.getBody()).isEqualTo(
+                ErrorResponse.builder()
+                        .status(404)
+                        .userMessage("Resource with id [A1234AA] not found.")
+                        .developerMessage("Resource with id [A1234AA] not found.")
+                        .build());
     }
 }

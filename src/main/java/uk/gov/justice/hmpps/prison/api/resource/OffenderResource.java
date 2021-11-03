@@ -570,6 +570,11 @@ public class OffenderResource {
     public OffenderNonAssociationDetails getNonAssociationDetails(
             @ApiParam(name = "offenderNo", value = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo", required = true) @NotNull final String offenderNo) {
         final var booking = bookingService.getLatestBookingByOffenderNo(offenderNo);
-        return offenderNonAssociationsService.retrieve(booking.getBookingId());
+        try {
+            return offenderNonAssociationsService.retrieve(booking.getBookingId());
+        } catch (EntityNotFoundException e) {
+            // rethrow against the offender number rather than the booking id
+            throw EntityNotFoundException.withId(offenderNo);
+        }
     }
 }
