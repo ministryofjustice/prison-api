@@ -35,6 +35,7 @@ import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.OffenderContacts;
 import uk.gov.justice.hmpps.prison.api.model.OffenderDamageObligationResponse;
+import uk.gov.justice.hmpps.prison.api.model.OffenderNonAssociationDetails;
 import uk.gov.justice.hmpps.prison.api.model.OffenderNumber;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
@@ -70,6 +71,7 @@ import uk.gov.justice.hmpps.prison.service.InmateService;
 import uk.gov.justice.hmpps.prison.service.MovementsService;
 import uk.gov.justice.hmpps.prison.service.OffenderAddressService;
 import uk.gov.justice.hmpps.prison.service.OffenderDamageObligationService;
+import uk.gov.justice.hmpps.prison.service.OffenderNonAssociationsService;
 import uk.gov.justice.hmpps.prison.service.OffenderTransactionHistoryService;
 import uk.gov.justice.hmpps.prison.service.PrisonerCreationService;
 import uk.gov.justice.hmpps.prison.service.PrisonerReleaseAndTransferService;
@@ -105,6 +107,7 @@ public class OffenderResource {
     private final OffenderDamageObligationService offenderDamageObligationService;
     private final OffenderTransactionHistoryService offenderTransactionHistoryService;
     private final MovementsService movementsService;
+    private final OffenderNonAssociationsService offenderNonAssociationsService;
 
     @ApiResponses({
         @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
@@ -556,5 +559,22 @@ public class OffenderResource {
     ) {
         final var booking = bookingService.getLatestBookingByOffenderNo(offenderNo);
         return bookingService.getOffenderContacts(booking.getBookingId(), approvedVisitors);
+    }
+
+    @ApiResponses({
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Gets the offender non-association details for a given offender using the latest booking", notes = "Get offender non-association details by offender No", nickname = "getNonAssociationDetails")
+    @GetMapping("/{offenderNo}/non-association-details")
+    public OffenderNonAssociationDetails getNonAssociationDetails(
+            @ApiParam(name = "offenderNo", value = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo", required = true) @NotNull final String offenderNo) {
+        final var booking = bookingService.getLatestBookingByOffenderNo(offenderNo);
+        try {
+            return offenderNonAssociationsService.retrieve(booking.getBookingId());
+        } catch (EntityNotFoundException e) {
+            // rethrow against the offender number rather than the booking id
+            throw EntityNotFoundException.withId(offenderNo);
+        }
     }
 }
