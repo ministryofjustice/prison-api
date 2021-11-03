@@ -1241,7 +1241,7 @@ public class BookingServiceTest {
     @Test
     void getSentenceAndOffenceDetails_withMinimalData() {
         final var bookingId = -1L;
-        when(offenderSentenceRepository.findByOffenderBooking_BookingId(bookingId))
+        when(offenderSentenceRepository.findByOffenderBooking_BookingId_AndCalculationType_CalculationTypeNotLike(bookingId, "AGG%"))
             .thenReturn(
                 List.of(OffenderSentence.builder()
                         .offenderBooking(OffenderBooking.builder().bookingId(-99L).build())
@@ -1266,7 +1266,7 @@ public class BookingServiceTest {
     @Test
     void getSentenceAndOffenceDetails_withFullData() {
         final var bookingId = -1L;
-        when(offenderSentenceRepository.findByOffenderBooking_BookingId(bookingId))
+        when(offenderSentenceRepository.findByOffenderBooking_BookingId_AndCalculationType_CalculationTypeNotLike(bookingId, "AGG%"))
             .thenReturn(
                 List.of(OffenderSentence.builder()
                         .offenderBooking(OffenderBooking.builder().bookingId(-98L).build())
