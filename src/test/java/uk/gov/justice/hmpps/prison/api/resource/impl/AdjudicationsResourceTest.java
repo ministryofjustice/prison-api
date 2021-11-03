@@ -8,10 +8,6 @@ import org.springframework.http.HttpMethod;
 import java.util.List;
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.OK;
-
 public class AdjudicationsResourceTest extends ResourceTest  {
 
     @Nested
@@ -21,7 +17,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         public void returnsExpectedValue() {
             final var token = validToken(List.of("ROLE_MAINTAIN_ADJUDICATIONS"));
             final var body = Map.of(
-                "bookingId", -5L,
+                "offenderNo", "A1234AE",
                 "incidentTime", "2021-01-04T10:12:44",
                 "incidentLocationId", -31L,
                 "statement", "Example statement");
@@ -62,7 +58,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         public void returns404IfInvalidBooking() {
             final var token = validToken(List.of("ROLE_MAINTAIN_ADJUDICATIONS"));
             final var body = Map.of(
-                "bookingId", 2000L,
+                "offenderNo", "Z1234ZZ",
                 "incidentTime", "2021-01-04T10:12:44",
                 "incidentLocationId", -31L,
                 "statement", "Example statement");
@@ -83,7 +79,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         public void returns403IfInvalidRole() {
             final var token = validToken(List.of("ROLE_SYSTEM_USER"));
             final var body = Map.of(
-                "bookingId", 2000L,
+                "offenderNo", "Z1234ZZ",
                 "incidentTime", "2021-01-04T10:12:44",
                 "incidentLocationId", -31L,
                 "statement", "Example statement");

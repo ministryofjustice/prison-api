@@ -46,7 +46,7 @@ public class AdjudicationsResource {
     @ProxyUser
     @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS') and hasAuthority('SCOPE_write')")
     public ResponseEntity<AdjudicationDetail> createAdjudication(@Valid @RequestBody @ApiParam(value = "Adjudication details to save", required = true) final NewAdjudication adjudicationDetails) {
-        final var savedAdjudication = adjudicationsService.createAdjudication(adjudicationDetails.getBookingId(), adjudicationDetails);
+        final var savedAdjudication = adjudicationsService.createAdjudication(adjudicationDetails.getOffenderNo(), adjudicationDetails);
         return ResponseEntity
             .status(HttpStatus.CREATED)
             .body(savedAdjudication);

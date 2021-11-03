@@ -11,7 +11,6 @@ import uk.gov.justice.hmpps.prison.service.validation.MaximumTextSize;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
@@ -23,9 +22,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class NewAdjudication {
 
-    @ApiModelProperty(required = true, value = "Booking number", position = 1, example = "123456")
-    @NotNull
-    private Long bookingId;
+    @ApiModelProperty(required = true, value = "Offender number (NOMS ID)", example = "G3878UK")
+    @NotBlank
+    private String offenderNo;
 
     @ApiModelProperty(required = true, value = "When the incident took place", position = 2, example = "15-06-2020T09:03:11")
     @NotNull
