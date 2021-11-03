@@ -9,5 +9,5 @@ import java.util.List;
 
 public interface OffenderSentenceRepository extends CrudRepository<OffenderSentence, PK> {
     @EntityGraph(value = "sentence-entity-graph")
-    List<OffenderSentence> findByOffenderBooking_BookingId(Long bookingId);
+    List<OffenderSentence> findByOffenderBooking_BookingId_AndCalculationType_CalculationTypeNotLike(Long bookingId, String calculationType);
 }
