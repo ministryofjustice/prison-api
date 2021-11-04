@@ -51,15 +51,11 @@ public class OffenderNonAssociationsServiceTest {
             .build();
 
 
-    private final OffenderBooking.OffenderBookingBuilder victimWithoutOptionalsBuilder = OffenderBooking.builder()
+    private final OffenderBooking.OffenderBookingBuilder victimBookingWithoutOptionalsBuilder = OffenderBooking.builder()
             .bookingId(1L)
             .offender(victim)
             .location(AgencyLocation.builder()
                     .description("Pentonville")
-                    .build())
-            .assignedLivingUnit(AgencyInternalLocation.builder()
-                    .locationId(200L)
-                    .description("cell 1")
                     .build());
 
     @Mock
@@ -169,7 +165,7 @@ public class OffenderNonAssociationsServiceTest {
 
     @Test
     void retrieve_handles_missing_optionals() {
-        victimsBooking = victimsBookingBuilder
+        victimsBooking = victimBookingWithoutOptionalsBuilder
                 .nonAssociationDetails(List.of(
                         uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderNonAssociationDetail.builder()
                                 .offender(victim)
@@ -192,8 +188,6 @@ public class OffenderNonAssociationsServiceTest {
                                         .build())
                                 .build()))
                 .build();
-
-        victimsBooking = victimsBookingBuilder.assignedLivingUnit(null).build();
 
         when(bookingRepository.findById(victimsBooking.getBookingId())).thenReturn(Optional.of(victimsBooking));
 
