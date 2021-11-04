@@ -8,10 +8,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.OffenderNonAssociation;
 import uk.gov.justice.hmpps.prison.api.model.OffenderNonAssociationDetails;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.NonAssociationReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderNonAssociationDetail;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,8 +44,8 @@ public class OffenderNonAssociationsService {
                 .firstName(WordUtils.capitalizeFully(booking.getOffender().getFirstName()))
                 .lastName(WordUtils.capitalizeFully(booking.getOffender().getLastName()))
                 .agencyDescription(booking.getLocation().getDescription())
-                .assignedLivingUnitId(booking.getAssignedLivingUnit().getLocationId())
-                .assignedLivingUnitDescription(booking.getAssignedLivingUnit().getDescription())
+                .assignedLivingUnitId(Optional.ofNullable(booking.getAssignedLivingUnit()).map(AgencyInternalLocation::getLocationId).orElse(null))
+                .assignedLivingUnitDescription(Optional.ofNullable(booking.getAssignedLivingUnit()).map(AgencyInternalLocation::getDescription).orElse(null))
                 .nonAssociations(nonAssociations)
                 .build();
     }
@@ -61,8 +64,8 @@ public class OffenderNonAssociationsService {
                         .offenderNo(detail.getNonAssociation().getNsOffender().getNomsId())
                         .firstName(WordUtils.capitalizeFully(detail.getNonAssociation().getNsOffender().getFirstName()))
                         .lastName(WordUtils.capitalizeFully(detail.getNonAssociation().getNsOffender().getLastName()))
-                        .reasonCode(detail.getNonAssociation().getRecipNonAssociationReason().getCode())
-                        .reasonDescription(detail.getNonAssociation().getRecipNonAssociationReason().getDescription())
+                        .reasonCode(Optional.ofNullable(detail.getNonAssociation().getRecipNonAssociationReason()).map(NonAssociationReason::getCode).orElse(null))
+                        .reasonDescription(Optional.ofNullable(detail.getNonAssociation().getRecipNonAssociationReason()).map(NonAssociationReason::getDescription).orElse(null))
                         .agencyDescription(detail.getNonAssociation().getNsAgencyDescription().orElse(null))
                         .assignedLivingUnitDescription(detail.getNonAssociation().getNsAssignedLivingUnitDescription().orElse(null))
                         .assignedLivingUnitId(detail.getNonAssociation().getNsAssignedLivingUnitId().orElse(null))
