@@ -12,10 +12,12 @@ import uk.gov.justice.hmpps.prison.service.support.NonDtoReleaseDate;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -33,18 +35,12 @@ import java.util.Optional;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @Table(name = "OFFENDER_SENT_CALCULATIONS")
-@IdClass(SentenceCalculation.PK.class)
 public class SentenceCalculation extends AuditableEntity {
-
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @EqualsAndHashCode
-    public static class PK implements Serializable {
-        private Long id;
-    }
 
     @Id
     @Column(name = "OFFENDER_SENT_CALCULATION_ID")
+    @SequenceGenerator(name = "OFFENDER_SENT_CALCULATION_ID", sequenceName = "OFFENDER_SENT_CALCULATION_ID", allocationSize = 1)
+    @GeneratedValue(generator = "OFFENDER_SENT_CALCULATION_ID")
     private Long id;
 
     @Setter

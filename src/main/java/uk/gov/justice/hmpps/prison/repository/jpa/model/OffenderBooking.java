@@ -249,6 +249,11 @@ public class OffenderBooking extends AuditableEntity {
     @PrimaryKeyJoinColumn
     private ReleaseDetail releaseDetail;
 
+    public void addSentenceCalculation(final SentenceCalculation sc) {
+        sentenceCalculations.add(sc);
+        sc.setOffenderBooking(this);
+    }
+
     public Optional<SentenceCalculation> getLatestCalculation() {
         return sentenceCalculations.stream().max(Comparator.comparing(SentenceCalculation::getId));
     }
