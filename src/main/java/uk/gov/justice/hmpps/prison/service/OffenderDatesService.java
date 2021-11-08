@@ -13,6 +13,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 
 import java.time.Clock;
 import java.time.LocalDate;
@@ -25,6 +26,7 @@ public class OffenderDatesService {
 
     private final OffenderSentenceRepository offenderSentenceRepository;
     private final OffenderBookingRepository offenderBookingRepository;
+    private final ReferenceCodeRepository<CalcReasonType> calcReasonTypeReferenceCodeRepository;
     private final Clock clock;
 
     @Transactional
@@ -34,7 +36,7 @@ public class OffenderDatesService {
         final var sentenceCalculation =
             SentenceCalculation.builder()
                 .offenderBooking(offenderBooking)
-                .calcReasonType(new CalcReasonType("ADJUST", "Adjust Sentence"))
+                .calcReasonType(calcReasonTypeReferenceCodeRepository.findById(CalcReasonType.pk("OVERRIDE")).orElseThrow(EntityNotFoundException.withId("OVERRIDE")))
                 .calculationDate(LocalDate.now(clock)) // the payload will potentially include it?
                 // do we need
                 // STAFF_ID

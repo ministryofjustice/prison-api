@@ -14,4 +14,8 @@ public class CalcReasonType extends ReferenceCode {
     public CalcReasonType(final String code, final String description) {
         super(CALC_REASON_TYPE, code, description);
     }
+
+    public static ReferenceCode.Pk pk(final String code) {
+        return new ReferenceCode.Pk(CALC_REASON_TYPE, code);
+    }
 }

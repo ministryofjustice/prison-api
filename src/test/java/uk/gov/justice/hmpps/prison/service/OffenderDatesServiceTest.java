@@ -12,6 +12,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -33,6 +34,8 @@ public class OffenderDatesServiceTest {
     private OffenderSentenceRepository offenderSentenceRepository;
     @Mock
     private OffenderBookingRepository offenderBookingRepository;
+    @Mock
+    private ReferenceCodeRepository<CalcReasonType> calcReasonTypeReferenceCodeRepository;
 
     private final Clock clock  = Clock.fixed(Instant.now(), ZoneId.systemDefault());
 
@@ -40,7 +43,7 @@ public class OffenderDatesServiceTest {
 
     @BeforeEach
     public void setUp() {
-        service = new OffenderDatesService(offenderSentenceRepository, offenderBookingRepository, clock);
+        service = new OffenderDatesService(offenderSentenceRepository, offenderBookingRepository, calcReasonTypeReferenceCodeRepository, clock);
     }
 
     @Test
@@ -49,6 +52,8 @@ public class OffenderDatesServiceTest {
         final var bookingId = 1L;
         OffenderBooking offenderBooking = OffenderBooking.builder().bookingId(bookingId).build();
         when(offenderBookingRepository.findById(bookingId)).thenReturn(Optional.of(offenderBooking));
+        when(calcReasonTypeReferenceCodeRepository.findById(CalcReasonType.pk("OVERRIDE")))
+            .thenReturn(Optional.of(new CalcReasonType("OVERRIDE", "Override")));
         RequestToUpdateOffenderDates payload =
             RequestToUpdateOffenderDates.builder()
                 .keyDates(createOffenderKeyDates(NOV_11_2021, NOV_11_2021, NOV_11_2021))
@@ -60,7 +65,7 @@ public class OffenderDatesServiceTest {
         // Then
         SentenceCalculation expected = SentenceCalculation.builder()
             .offenderBooking(offenderBooking)
-            .calcReasonType(new CalcReasonType("ADJUST", "Adjust Sentence"))
+            .calcReasonType(new CalcReasonType("OVERRIDE", "Override"))
             .calculationDate(LocalDate.now(clock))
             .crdCalculatedDate(payload.getKeyDates().getConditionalReleaseDate())
             .ledCalculatedDate(payload.getKeyDates().getLicenceExpiryDate())
