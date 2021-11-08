@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.OffenderKeyDates;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateOffenderDates;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CalcReasonType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation;
@@ -33,7 +34,7 @@ public class OffenderDatesService {
         final var sentenceCalculation =
             SentenceCalculation.builder()
                 .offenderBooking(offenderBooking)
-                .reasonCode("NEW") // is this an enum in NOMIS?
+                .calcReasonType(new CalcReasonType("ADJUST", "Adjust Sentence"))
                 .calculationDate(LocalDate.now(clock)) // the payload will potentially include it?
                 // do we need
                 // STAFF_ID

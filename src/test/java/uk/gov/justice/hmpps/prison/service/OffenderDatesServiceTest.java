@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.OffenderKeyDates;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateOffenderDates;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CalcReasonType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
@@ -59,7 +60,7 @@ public class OffenderDatesServiceTest {
         // Then
         SentenceCalculation expected = SentenceCalculation.builder()
             .offenderBooking(offenderBooking)
-            .reasonCode("NEW")
+            .calcReasonType(new CalcReasonType("ADJUST", "Adjust Sentence"))
             .calculationDate(LocalDate.now(clock))
             .crdCalculatedDate(payload.getKeyDates().getConditionalReleaseDate())
             .ledCalculatedDate(payload.getKeyDates().getLicenceExpiryDate())
