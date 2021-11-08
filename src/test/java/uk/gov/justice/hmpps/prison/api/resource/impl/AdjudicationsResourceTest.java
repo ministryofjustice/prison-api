@@ -148,4 +148,37 @@ public class AdjudicationsResourceTest extends ResourceTest  {
             assertThatStatus(response, 403);
         }
     }
+
+    @Nested
+    public class GetAdjudications {
+        @Test
+        public void returnsExpectedValue() {
+            final var token = validToken(List.of("ROLE_MAINTAIN_ADJUDICATIONS"));
+            final var httpEntity = createHttpEntity(token, List.of(-5, -200));
+
+            final var response = testRestTemplate.exchange(
+                "/api/adjudications",
+                HttpMethod.POST,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                });
+
+            assertThatJsonFileAndStatus(response, 200, "adjudications_by_numbers.json");
+        }
+
+        @Test
+        public void returns403IfInvalidRole() {
+            final var token = validToken(List.of("ROLE_SYSTEM_USER"));
+            final var httpEntity = createHttpEntity(token, List.of(-5, -200));
+
+            final var response = testRestTemplate.exchange(
+                "/api/adjudications",
+                HttpMethod.POST,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                });
+
+            assertThatStatus(response, 403);
+        }
+    }
 }

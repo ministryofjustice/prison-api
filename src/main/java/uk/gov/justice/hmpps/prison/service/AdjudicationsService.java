@@ -1,8 +1,10 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import com.google.common.collect.Lists;
 import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -28,6 +30,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -47,6 +50,8 @@ public class AdjudicationsService {
     private final AuthenticationFacade authenticationFacade;
     private final TelemetryClient telemetryClient;
     private final Clock clock;
+    @Value("${batch.max.size:1000}")
+    private final int batchSize;
 
     @Transactional
     @VerifyOffenderAccess
@@ -106,6 +111,13 @@ public class AdjudicationsService {
         final var requestedAdjudication = adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber)
             .orElseThrow(EntityNotFoundException.withMessage(format("Adjudication not found with the number %d", adjudicationNumber)));
         return transformToDto(requestedAdjudication);
+    }
+
+    public List<AdjudicationDetail> getAdjudications(final List<Long> adjudicationNumbers) {
+        return Lists.partition(adjudicationNumbers, batchSize).stream().flatMap(
+                numbers -> adjudicationsRepository.findByParties_AdjudicationNumberIn(numbers).stream()
+            ).map(this::transformToDto)
+            .collect(Collectors.toList());
     }
 
     private void trackAdjudicationCreated(final Adjudication createdAdjudication) {

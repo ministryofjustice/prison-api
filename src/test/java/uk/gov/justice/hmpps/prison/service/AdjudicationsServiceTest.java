@@ -32,6 +32,7 @@ import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -56,6 +57,7 @@ public class AdjudicationsServiceTest {
     private static final String EXAMPLE_AGENCY_ID = "LEI";
     private static final String EXAMPLE_STATEMENT = "Example statement";
     private static final LocalDateTime EXAMPLE_INCIDENT_TIME = LocalDateTime.of(2020, 1, 1, 2, 3, 4);
+    private final int BATCH_SIZE = 1;
 
     @Mock
     private AdjudicationRepository adjudicationsRepository;
@@ -93,7 +95,8 @@ public class AdjudicationsServiceTest {
             internalLocationRepository,
             authenticationFacade,
             telemetryClient,
-            clock);
+            clock,
+            BATCH_SIZE);
     }
 
     @Nested
@@ -253,6 +256,53 @@ public class AdjudicationsServiceTest {
                 service.getAdjudication(1L))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Adjudication not found with the number 1");
+        }
+    }
+
+    @Nested
+    public class GetAdjudications {
+        @Test
+        public void makesCallToRepositoryWithCorrectData_inBatchesOfOne() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumberIn(any())).thenReturn(Collections.emptyList());
+
+            service.getAdjudications(List.of(1L, 2L, 3L));
+
+            verify(adjudicationsRepository).findByParties_AdjudicationNumberIn(List.of(1L));
+            verify(adjudicationsRepository).findByParties_AdjudicationNumberIn(List.of(2L));
+            verify(adjudicationsRepository).findByParties_AdjudicationNumberIn(List.of(3L));
+        }
+
+
+        @Test
+        public void returnsCorrectData() {
+            final var mockDataProvider = new MockDataProvider();
+            final var foundAdjudication1 = generateExampleAdjudication(mockDataProvider, 1);
+            final var foundAdjudication2 = generateExampleAdjudication(mockDataProvider, 2);
+
+            final var expectedReturnedAdjudication = AdjudicationDetail.builder()
+                .reporterStaffId(mockDataProvider.reporter.getStaff().getStaffId())
+                .bookingId(mockDataProvider.booking.getBookingId())
+                .offenderNo(mockDataProvider.booking.getOffender().getNomsId())
+                .incidentLocationId(mockDataProvider.internalLocation.getLocationId())
+                .build();
+
+            when(adjudicationsRepository.findByParties_AdjudicationNumberIn(any()))
+                .thenReturn(List.of(foundAdjudication1, foundAdjudication2));
+
+            final var returnedAdjudications = service.getAdjudications(List.of(EXAMPLE_ADJUDICATION_NUMBER));
+
+            assertThat(returnedAdjudications).containsExactlyInAnyOrder(
+                expectedReturnedAdjudication.toBuilder()
+                    .adjudicationNumber(foundAdjudication1.getOffenderParty().get().getAdjudicationNumber())
+                    .incidentTime(foundAdjudication1.getIncidentTime())
+                    .statement(foundAdjudication1.getIncidentDetails())
+                    .build(),
+                expectedReturnedAdjudication.toBuilder()
+                    .adjudicationNumber(foundAdjudication2.getOffenderParty().get().getAdjudicationNumber())
+                    .incidentTime(foundAdjudication2.getIncidentTime())
+                    .statement(foundAdjudication2.getIncidentDetails())
+                    .build()
+            );
         }
     }
 
