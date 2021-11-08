@@ -1,8 +1,9 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import com.google.common.collect.Lists;
 import com.microsoft.applicationinsights.TelemetryClient;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -28,6 +29,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -35,7 +37,6 @@ import static java.lang.String.format;
 @Validated
 @Transactional(readOnly = true)
 @Slf4j
-@RequiredArgsConstructor
 public class AdjudicationsService {
     private final AdjudicationRepository adjudicationsRepository;
     private final StaffUserAccountRepository staffUserAccountRepository;
@@ -47,6 +48,33 @@ public class AdjudicationsService {
     private final AuthenticationFacade authenticationFacade;
     private final TelemetryClient telemetryClient;
     private final Clock clock;
+    @Value("${batch.max.size:1000}")
+    private final int batchSize;
+
+    public AdjudicationsService(
+        final AdjudicationRepository adjudicationsRepository,
+        final StaffUserAccountRepository staffUserAccountRepository,
+        final OffenderBookingRepository bookingRepository,
+        final ReferenceCodeRepository<AdjudicationIncidentType> incidentTypeRepository,
+        final ReferenceCodeRepository<AdjudicationActionCode> actionCodeRepository,
+        final AgencyLocationRepository agencyLocationRepository,
+        final AgencyInternalLocationRepository internalLocationRepository,
+        final AuthenticationFacade authenticationFacade,
+        final TelemetryClient telemetryClient,
+        final Clock clock,
+        @Value("${batch.max.size:1000}") final int batchSize) {
+        this.adjudicationsRepository = adjudicationsRepository;
+        this.staffUserAccountRepository = staffUserAccountRepository;
+        this.bookingRepository = bookingRepository;
+        this.incidentTypeRepository = incidentTypeRepository;
+        this.actionCodeRepository = actionCodeRepository;
+        this.agencyLocationRepository = agencyLocationRepository;
+        this.internalLocationRepository = internalLocationRepository;
+        this.authenticationFacade = authenticationFacade;
+        this.telemetryClient = telemetryClient;
+        this.clock = clock;
+        this.batchSize = batchSize;
+    }
 
     @Transactional
     @VerifyOffenderAccess
@@ -106,6 +134,13 @@ public class AdjudicationsService {
         final var requestedAdjudication = adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber)
             .orElseThrow(EntityNotFoundException.withMessage(format("Adjudication not found with the number %d", adjudicationNumber)));
         return transformToDto(requestedAdjudication);
+    }
+
+    public List<AdjudicationDetail> getAdjudications(final List<Long> adjudicationNumbers) {
+        return Lists.partition(adjudicationNumbers, batchSize).stream().flatMap(
+                numbers -> adjudicationsRepository.findByParties_AdjudicationNumberIn(numbers).stream()
+            ).map(this::transformToDto)
+            .collect(Collectors.toList());
     }
 
     private void trackAdjudicationCreated(final Adjudication createdAdjudication) {

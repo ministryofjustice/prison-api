@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Builder
+@Builder(toBuilder = true)
 public class AdjudicationDetail {
     @ApiModelProperty(value = "Adjudication number", position = 1, example = "123")
     @NotNull

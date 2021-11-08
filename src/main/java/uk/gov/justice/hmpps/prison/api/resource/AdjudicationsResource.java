@@ -23,6 +23,7 @@ import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.service.AdjudicationsService;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @Hidden
 @RestController
@@ -41,7 +42,7 @@ public class AdjudicationsResource {
         @ApiResponse(code = 400, message = "Invalid request - e.g. because no incident statement was provided.", response = ErrorResponse.class),
         @ApiResponse(code = 404, message = "No match was found for the provided booking id.", response = ErrorResponse.class)
     })
-    @ApiOperation(value = "Record an adjudication.", notes = "Requires SYSTEM access")
+    @ApiOperation(value = "Record an adjudication.", notes = "Requires MAINTAIN_ADJUDICATIONS access and write scope")
     @PostMapping("/adjudication")
     @ProxyUser
     @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS') and hasAuthority('SCOPE_write')")
@@ -55,14 +56,20 @@ public class AdjudicationsResource {
     @ApiResponses({
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
     })
-    @ApiOperation(value = "Get details of an existing adjudication.", notes = "Requires SYSTEM access")
+    @ApiOperation(value = "Get details of an existing adjudication.", notes = "Requires MAINTAIN_ADJUDICATIONS access and write scope")
     @GetMapping("/adjudication/{adjudicationNumber}")
     @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS')")
     public AdjudicationDetail getAdjudication(
         @PathVariable("adjudicationNumber")
-        @ApiParam(value = "The adjudication number", required = true)
-        final Long adjudicationNumber
+        @ApiParam(value = "The adjudication number", required = true) final Long adjudicationNumber
     ) {
         return adjudicationsService.getAdjudication(adjudicationNumber);
+    }
+
+    @ApiOperation(value = "Gets a list of adjudication details for a list of adjudication numbers", notes = "Requires MAINTAIN_ADJUDICATIONS access")
+    @PostMapping
+    @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS')")
+    public List<AdjudicationDetail> getAdjudications(@ApiParam(value = "The adjudication numbers", required = true, example = "[1,2,3]") @RequestBody final List<Long> adjudicationNumbers) {
+        return adjudicationsService.getAdjudications(adjudicationNumbers);
     }
 }
