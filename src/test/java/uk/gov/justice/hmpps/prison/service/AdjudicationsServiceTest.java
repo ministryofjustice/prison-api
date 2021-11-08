@@ -57,7 +57,7 @@ public class AdjudicationsServiceTest {
     private static final String EXAMPLE_AGENCY_ID = "LEI";
     private static final String EXAMPLE_STATEMENT = "Example statement";
     private static final LocalDateTime EXAMPLE_INCIDENT_TIME = LocalDateTime.of(2020, 1, 1, 2, 3, 4);
-    private final int BATCH_SIZE = 1;
+    private Integer BATCH_SIZE = 1;
 
     @Mock
     private AdjudicationRepository adjudicationsRepository;

@@ -66,13 +66,10 @@ public class AdjudicationsResource {
         return adjudicationsService.getAdjudication(adjudicationNumber);
     }
 
-    @ApiResponses({
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-    })
-    @ApiOperation(value = "Get details of an existing adjudication.", notes = "Requires MAINTAIN_ADJUDICATIONS access")
+    @ApiOperation(value = "Gets a list of adjudication details for a list of adjudication numbers", notes = "Requires MAINTAIN_ADJUDICATIONS access")
     @PostMapping
     @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS')")
-    public List<AdjudicationDetail> getAdjudications(@ApiParam(value = "The adjudication number", required = true) @RequestBody final List<Long> adjudicationNumbers) {
+    public List<AdjudicationDetail> getAdjudications(@ApiParam(value = "The adjudication numbers", required = true, example = "[1,2,3]") @RequestBody final List<Long> adjudicationNumbers) {
         return adjudicationsService.getAdjudications(adjudicationNumbers);
     }
 }
