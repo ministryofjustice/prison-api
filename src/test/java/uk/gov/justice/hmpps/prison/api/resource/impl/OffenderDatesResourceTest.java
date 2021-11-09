@@ -1,7 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
@@ -16,6 +15,7 @@ import java.time.LocalDate;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpMethod.GET;
 
 public class OffenderDatesResourceTest extends ResourceTest {
 
@@ -39,6 +39,7 @@ public class OffenderDatesResourceTest extends ResourceTest {
         final var token = authTokenHelper.getToken(AuthToken.CRD_USER);
         final var body = RequestToUpdateOffenderDates.builder()
             .keyDates(OffenderDatesServiceTest.createOffenderKeyDates(NOV_11_2021, NOV_11_2021, NOV_11_2021))
+            .submissionUser("staff")
             .build();
         final var request = createHttpEntity(token, body);
 
@@ -52,7 +53,17 @@ public class OffenderDatesResourceTest extends ResourceTest {
             Map.of("bookingId", BOOKING_ID));
 
         // Then
-        assertThatJsonFileAndStatus(responseEntity, 201, "offenderkeydatesupdated.json");
+        assertThatJsonFileAndStatus(responseEntity, 201, "offender-key-dates-updated.json");
+
+        final var offenderSentenceResponse = testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/sentences",
+            GET,
+            createHttpEntity(token, null),
+            new ParameterizedTypeReference<String>() {
+            },
+            "A1234AB");
+
+        assertThatJsonFileAndStatus(offenderSentenceResponse, 200, "sentence-after-offender-key-dates-update.json");
     }
 
     @Test

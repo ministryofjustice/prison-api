@@ -1,22 +1,22 @@
 package uk.gov.justice.hmpps.prison.service;
 
-import com.google.common.base.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uk.gov.justice.hmpps.prison.api.model.OffenderKeyDates;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateOffenderDates;
+import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CalcReasonType;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Staff;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 
 import java.time.Clock;
 import java.time.LocalDate;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -24,42 +24,31 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class OffenderDatesService {
 
-    private final OffenderSentenceRepository offenderSentenceRepository;
     private final OffenderBookingRepository offenderBookingRepository;
+    private final StaffUserAccountRepository staffUserAccountRepository;
     private final ReferenceCodeRepository<CalcReasonType> calcReasonTypeReferenceCodeRepository;
     private final Clock clock;
 
     @Transactional
-    public OffenderKeyDates updateOffenderKeyDates(Long bookingId, RequestToUpdateOffenderDates requestToUpdateOffenderDates) {
+    public SentenceCalcDates updateOffenderKeyDates(Long bookingId, RequestToUpdateOffenderDates requestToUpdateOffenderDates) {
         final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
-        // should we do any validation here of the payload compared with the existing dates we store for a sentence
+
+        final var staff = requestToUpdateOffenderDates.getSubmissionUser() != null && staffUserAccountRepository.findById(requestToUpdateOffenderDates.getSubmissionUser()).map(StaffUserAccount::getStaff).isPresent()
+            ? staffUserAccountRepository.findById(requestToUpdateOffenderDates.getSubmissionUser()).map(StaffUserAccount::getStaff).get()
+            : null;
+
         final var sentenceCalculation =
             SentenceCalculation.builder()
                 .offenderBooking(offenderBooking)
-                .calcReasonType(calcReasonTypeReferenceCodeRepository.findById(CalcReasonType.pk("OVERRIDE")).orElseThrow(EntityNotFoundException.withId("OVERRIDE")))
-                .calculationDate(LocalDate.now(clock)) // the payload will potentially include it?
-                // do we need
-                // STAFF_ID
+                .calcReasonType(calcReasonTypeReferenceCodeRepository.findById(CalcReasonType.pk("OVERRIDE")).orElseThrow(EntityNotFoundException.withId("OVERRIDE"))) // Confirm this with CRD team
+                .calculationDate(LocalDate.now(clock))
+                .comments("Calculated externally")
+                .staff(staff)
                 .crdCalculatedDate(requestToUpdateOffenderDates.getKeyDates().getConditionalReleaseDate())
                 .ledCalculatedDate(requestToUpdateOffenderDates.getKeyDates().getLicenceExpiryDate())
                 .sedCalculatedDate(requestToUpdateOffenderDates.getKeyDates().getSentenceExpiryDate())
                 .build();
         offenderBooking.addSentenceCalculation(sentenceCalculation);
-        return requestToUpdateOffenderDates.getKeyDates();
-    }
-
-    // may not be required but leaving here until we have confirmation
-    private void updateOffenderSentences(Long bookingId, RequestToUpdateOffenderDates requestToUpdateOffenderDates) {
-        OffenderBooking offenderBooking = OffenderBooking.builder().bookingId(bookingId).build();
-        requestToUpdateOffenderDates.getSentenceDates().forEach(sentenceToUpdate -> {
-            var pk = new OffenderSentence.PK(offenderBooking, sentenceToUpdate.getSentenceSequence());
-            var existingOffenderSentence = offenderSentenceRepository.findById(pk).orElseThrow();
-            var updatedOffenderSentenceBuilder =
-                existingOffenderSentence.toBuilder();
-            OffenderKeyDates sentenceOffenderKeyDates = sentenceToUpdate.getOffenderKeyDates();
-            Optional<LocalDate> conditionalReleaseDate = Optional.fromNullable(sentenceOffenderKeyDates.getConditionalReleaseDate());
-            Optional<LocalDate> licenceExpiryDate = Optional.fromNullable(sentenceOffenderKeyDates.getLicenceExpiryDate());
-            Optional<LocalDate> sentenceExpiryDate = Optional.fromNullable(sentenceOffenderKeyDates.getSentenceExpiryDate());
-        });
+        return offenderBooking.getSentenceCalcDates(Optional.of(sentenceCalculation));
     }
 }

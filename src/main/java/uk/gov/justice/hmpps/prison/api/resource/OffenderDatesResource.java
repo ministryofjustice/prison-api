@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
-import uk.gov.justice.hmpps.prison.api.model.OffenderKeyDates;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateOffenderDates;
+import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.service.OffenderDatesService;
 
@@ -33,7 +33,7 @@ public class OffenderDatesResource {
     private final OffenderDatesService offenderDatesService;
 
     @ApiResponses({
-        @ApiResponse(code = 201, message = "Offender key dates calculation created", response = OffenderKeyDates.class),
+        @ApiResponse(code = 201, message = "Offender key dates calculation created", response = SentenceCalcDates.class),
         @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
         @ApiResponse(code = 403, message = "Forbidden - user not authorised to update a agency location", response = ErrorResponse.class),
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
@@ -43,7 +43,7 @@ public class OffenderDatesResource {
     @PostMapping("/{bookingId}")
     @PreAuthorize("hasRole('MAINTAIN_OFFENDER_DATES') and hasAuthority('SCOPE_write')")
     @ProxyUser
-    public ResponseEntity<OffenderKeyDates> updateOffenderKeyDates(@PathVariable("bookingId") @ApiParam(value = "The booking id of offender", required = true) final Long bookingId,
+    public ResponseEntity<SentenceCalcDates> updateOffenderKeyDates(@PathVariable("bookingId") @ApiParam(value = "The booking id of offender", required = true) final Long bookingId,
                                                                    @RequestBody final RequestToUpdateOffenderDates requestToUpdateOffenderDates) {
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(offenderDatesService.updateOffenderKeyDates(bookingId, requestToUpdateOffenderDates));

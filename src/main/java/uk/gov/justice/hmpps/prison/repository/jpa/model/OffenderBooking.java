@@ -258,81 +258,89 @@ public class OffenderBooking extends AuditableEntity {
         return sentenceCalculations.stream().max(Comparator.comparing(SentenceCalculation::getId));
     }
 
-    public LocalDate getReleaseDate() {
-        return getLatestCalculation().map(
-            sc -> deriveKeyDates(new KeyDateValues(
-                sc.getArdCalculatedDate(),
-                sc.getArdOverridedDate(),
-                sc.getCrdCalculatedDate(),
-                sc.getCrdOverridedDate(),
-                sc.getNpdCalculatedDate(),
-                sc.getNpdOverridedDate(),
-                sc.getPrrdCalculatedDate(),
-                sc.getPrrdOverridedDate(),
-                sc.getActualParoleDate(),
-                sc.getHomeDetentionCurfewActualDate(),
-                sc.getMidTermDate(),
-                getConfirmedReleaseDate().orElse(null)))
-        ).orElse(deriveKeyDates(new KeyDateValues(
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            getConfirmedReleaseDate().orElse(null))))
+    public LocalDate getReleaseDate(Optional<SentenceCalculation> sentenceCalculation) {
+        return sentenceCalculation.map(
+                sc -> deriveKeyDates(new KeyDateValues(
+                    sc.getArdCalculatedDate(),
+                    sc.getArdOverridedDate(),
+                    sc.getCrdCalculatedDate(),
+                    sc.getCrdOverridedDate(),
+                    sc.getNpdCalculatedDate(),
+                    sc.getNpdOverridedDate(),
+                    sc.getPrrdCalculatedDate(),
+                    sc.getPrrdOverridedDate(),
+                    sc.getActualParoleDate(),
+                    sc.getHomeDetentionCurfewActualDate(),
+                    sc.getMidTermDate(),
+                    getConfirmedReleaseDate().orElse(null)))
+            ).orElse(deriveKeyDates(new KeyDateValues(
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                getConfirmedReleaseDate().orElse(null))))
             .releaseDate();
     }
 
-    public SentenceCalcDates getSentenceCalcDates() {
-        return getLatestCalculation().map(
-            sc -> SentenceCalcDates.sentenceCalcDatesBuilder()
-                .bookingId(getBookingId())
-                .sentenceStartDate(getSentenceStartDate().orElse(null))
-                .effectiveSentenceEndDate(sc.getEffectiveSentenceEndDate())
-                .additionalDaysAwarded(getAdditionalDaysAwarded())
-                .automaticReleaseDate(sc.getArdCalculatedDate())
-                .automaticReleaseOverrideDate(sc.getArdOverridedDate())
-                .conditionalReleaseDate(sc.getCrdCalculatedDate())
-                .conditionalReleaseOverrideDate(sc.getCrdOverridedDate())
-                .sentenceExpiryDate(sc.getSentenceExpiryDate())
-                .postRecallReleaseDate(sc.getPrrdCalculatedDate())
-                .postRecallReleaseOverrideDate(sc.getPrrdOverridedDate())
-                .licenceExpiryDate(sc.getLicenceExpiryDate())
-                .homeDetentionCurfewEligibilityDate(sc.getHomeDetentionCurfewEligibilityDate())
-                .paroleEligibilityDate(sc.getParoleEligibilityDate())
-                .homeDetentionCurfewActualDate(sc.getHomeDetentionCurfewActualDate())
-                .actualParoleDate(sc.getActualParoleDate())
-                .releaseOnTemporaryLicenceDate(sc.getRotlOverridedDate())
-                .earlyRemovalSchemeEligibilityDate(sc.getErsedOverridedDate())
-                .tariffEarlyRemovalSchemeEligibilityDate(sc.getTersedOverridedDate())
-                .earlyTermDate(sc.getEarlyTermDate())
-                .midTermDate(sc.getMidTermDate())
-                .lateTermDate(sc.getLateTermDate())
-                .topupSupervisionExpiryDate(sc.getTopupSupervisionExpiryDate())
-                .tariffDate(sc.getTariffDate())
-                .dtoPostRecallReleaseDate(sc.getDprrdCalculatedDate())
-                .dtoPostRecallReleaseDateOverride(sc.getDprrdOverridedDate())
-                .nonParoleDate(sc.getNpdCalculatedDate())
-                .nonParoleOverrideDate(sc.getNpdOverridedDate())
-                .nonDtoReleaseDate(sc.getNonDtoReleaseDate())
-                .nonDtoReleaseDateType(sc.getNonDtoReleaseDateType())
-                .releaseDate(getReleaseDate())
-                .confirmedReleaseDate(getConfirmedReleaseDate().orElse(null))
-                .build())
+    public LocalDate getReleaseDate() {
+        return getReleaseDate(getLatestCalculation());
+    }
+
+    public SentenceCalcDates getSentenceCalcDates(Optional<SentenceCalculation> sentenceCalculation) {
+        return sentenceCalculation.map(
+                sc -> SentenceCalcDates.sentenceCalcDatesBuilder()
+                    .bookingId(getBookingId())
+                    .sentenceStartDate(getSentenceStartDate().orElse(null))
+                    .effectiveSentenceEndDate(sc.getEffectiveSentenceEndDate())
+                    .additionalDaysAwarded(getAdditionalDaysAwarded())
+                    .automaticReleaseDate(sc.getArdCalculatedDate())
+                    .automaticReleaseOverrideDate(sc.getArdOverridedDate())
+                    .conditionalReleaseDate(sc.getCrdCalculatedDate())
+                    .conditionalReleaseOverrideDate(sc.getCrdOverridedDate())
+                    .sentenceExpiryDate(sc.getSentenceExpiryDate())
+                    .postRecallReleaseDate(sc.getPrrdCalculatedDate())
+                    .postRecallReleaseOverrideDate(sc.getPrrdOverridedDate())
+                    .licenceExpiryDate(sc.getLicenceExpiryDate())
+                    .homeDetentionCurfewEligibilityDate(sc.getHomeDetentionCurfewEligibilityDate())
+                    .paroleEligibilityDate(sc.getParoleEligibilityDate())
+                    .homeDetentionCurfewActualDate(sc.getHomeDetentionCurfewActualDate())
+                    .actualParoleDate(sc.getActualParoleDate())
+                    .releaseOnTemporaryLicenceDate(sc.getRotlOverridedDate())
+                    .earlyRemovalSchemeEligibilityDate(sc.getErsedOverridedDate())
+                    .tariffEarlyRemovalSchemeEligibilityDate(sc.getTersedOverridedDate())
+                    .earlyTermDate(sc.getEarlyTermDate())
+                    .midTermDate(sc.getMidTermDate())
+                    .lateTermDate(sc.getLateTermDate())
+                    .topupSupervisionExpiryDate(sc.getTopupSupervisionExpiryDate())
+                    .tariffDate(sc.getTariffDate())
+                    .dtoPostRecallReleaseDate(sc.getDprrdCalculatedDate())
+                    .dtoPostRecallReleaseDateOverride(sc.getDprrdOverridedDate())
+                    .nonParoleDate(sc.getNpdCalculatedDate())
+                    .nonParoleOverrideDate(sc.getNpdOverridedDate())
+                    .nonDtoReleaseDate(sc.getNonDtoReleaseDate())
+                    .nonDtoReleaseDateType(sc.getNonDtoReleaseDateType())
+                    .releaseDate(getReleaseDate(sentenceCalculation))
+                    .confirmedReleaseDate(getConfirmedReleaseDate().orElse(null))
+                    .build())
             .orElse(
                 SentenceCalcDates.sentenceCalcDatesBuilder()
                     .bookingId(getBookingId())
                     .sentenceStartDate(getSentenceStartDate().orElse(null))
                     .additionalDaysAwarded(getAdditionalDaysAwarded())
-                    .releaseDate(getReleaseDate())
+                    .releaseDate(getReleaseDate(sentenceCalculation))
                     .confirmedReleaseDate(getConfirmedReleaseDate().orElse(null))
                     .build());
+    }
+
+    public SentenceCalcDates getSentenceCalcDates() {
+        return getSentenceCalcDates(getLatestCalculation());
     }
 
     public record DerivedKeyDates(NonDtoReleaseDate nonDtoReleaseDate, LocalDate releaseDate) {

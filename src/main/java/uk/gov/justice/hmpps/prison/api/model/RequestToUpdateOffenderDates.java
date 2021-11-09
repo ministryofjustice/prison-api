@@ -18,6 +18,9 @@ import java.util.List;
 @Data
 public class RequestToUpdateOffenderDates {
 
+    @ApiModelProperty(required = true, value = "Username who used CRD service to submit calculated dates.")
+    private String submissionUser;
+
     @ApiModelProperty(required = true, value = "Dates to be updated for the offender's sentences.")
     private List<SentenceDates> sentenceDates;
 

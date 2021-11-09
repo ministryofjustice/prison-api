@@ -10,9 +10,11 @@ import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateOffenderDates;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CalcReasonType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Staff;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -31,9 +33,9 @@ public class OffenderDatesServiceTest {
     private static final LocalDate NOV_11_2021 = LocalDate.of(2021, 11, 8);
 
     @Mock
-    private OffenderSentenceRepository offenderSentenceRepository;
-    @Mock
     private OffenderBookingRepository offenderBookingRepository;
+    @Mock
+    private StaffUserAccountRepository staffUserAccountRepository;
     @Mock
     private ReferenceCodeRepository<CalcReasonType> calcReasonTypeReferenceCodeRepository;
 
@@ -43,30 +45,35 @@ public class OffenderDatesServiceTest {
 
     @BeforeEach
     public void setUp() {
-        service = new OffenderDatesService(offenderSentenceRepository, offenderBookingRepository, calcReasonTypeReferenceCodeRepository, clock);
+        service = new OffenderDatesService(offenderBookingRepository, staffUserAccountRepository, calcReasonTypeReferenceCodeRepository, clock);
     }
 
     @Test
     void updateOffenderDates_happy_path() {
         // Given
         final var bookingId = 1L;
-        OffenderBooking offenderBooking = OffenderBooking.builder().bookingId(bookingId).build();
+        final var offenderBooking = OffenderBooking.builder().bookingId(bookingId).build();
         when(offenderBookingRepository.findById(bookingId)).thenReturn(Optional.of(offenderBooking));
         when(calcReasonTypeReferenceCodeRepository.findById(CalcReasonType.pk("OVERRIDE")))
             .thenReturn(Optional.of(new CalcReasonType("OVERRIDE", "Override")));
-        RequestToUpdateOffenderDates payload =
-            RequestToUpdateOffenderDates.builder()
+        final var staff = Staff.builder().staffId(2L).firstName("Other").lastName("Staff").build();
+        when(staffUserAccountRepository.findById("staff"))
+            .thenReturn(Optional.of(StaffUserAccount.builder().username("staff").staff(staff).build()));
+        final var payload = RequestToUpdateOffenderDates.builder()
                 .keyDates(createOffenderKeyDates(NOV_11_2021, NOV_11_2021, NOV_11_2021))
+                .submissionUser("staff")
                 .build();
 
         // When
         service.updateOffenderKeyDates(bookingId, payload);
 
         // Then
-        SentenceCalculation expected = SentenceCalculation.builder()
+        final var expected = SentenceCalculation.builder()
             .offenderBooking(offenderBooking)
             .calcReasonType(new CalcReasonType("OVERRIDE", "Override"))
             .calculationDate(LocalDate.now(clock))
+            .comments("Calculated externally")
+            .staff(staff)
             .crdCalculatedDate(payload.getKeyDates().getConditionalReleaseDate())
             .ledCalculatedDate(payload.getKeyDates().getLicenceExpiryDate())
             .sedCalculatedDate(payload.getKeyDates().getSentenceExpiryDate())
