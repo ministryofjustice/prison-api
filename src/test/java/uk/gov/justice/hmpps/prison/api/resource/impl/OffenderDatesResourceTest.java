@@ -1,9 +1,12 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.jdbc.core.JdbcTemplate;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateOffenderDates;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
@@ -14,13 +17,21 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// Make these tests transactional because inserting into the database broke other tests, such as OffendersResourceTest
-// because they depend on seed data from R__4_19__OFFENDER_SENT_CALCULATIONS.sql
-@Transactional
 public class OffenderDatesResourceTest extends ResourceTest {
 
     private static final long BOOKING_ID = -2;
     private static final LocalDate NOV_11_2021 = LocalDate.of(2021, 11, 8);
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @AfterEach
+    public void tearDown() {
+        // Restore db change as cannot rollback server transaction in client
+        // Inserting into the database broke other tests, such as OffendersResourceTest
+        // because they depend on seed data from R__4_19__OFFENDER_SENT_CALCULATIONS.sql
+        jdbcTemplate.update("DELETE FROM OFFENDER_SENT_CALCULATIONS WHERE OFFENDER_BOOK_ID = -2 AND CALC_REASON_CODE = 'OVERRIDE'");
+    }
 
     @Test
     public void testCanUpdateOffenderDates() {
