@@ -1,15 +1,14 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import com.google.common.collect.Lists;
 import com.microsoft.applicationinsights.TelemetryClient;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
-import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationActionCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationIncidentType;
@@ -21,7 +20,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepo
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
-import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
+import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -38,7 +37,6 @@ import static java.lang.String.format;
 @Validated
 @Transactional(readOnly = true)
 @Slf4j
-@RequiredArgsConstructor
 public class AdjudicationsService {
     private final AdjudicationRepository adjudicationsRepository;
     private final StaffUserAccountRepository staffUserAccountRepository;
@@ -50,10 +48,37 @@ public class AdjudicationsService {
     private final AuthenticationFacade authenticationFacade;
     private final TelemetryClient telemetryClient;
     private final Clock clock;
+    @Value("${batch.max.size:1000}")
+    private final int batchSize;
+
+    public AdjudicationsService(
+        final AdjudicationRepository adjudicationsRepository,
+        final StaffUserAccountRepository staffUserAccountRepository,
+        final OffenderBookingRepository bookingRepository,
+        final ReferenceCodeRepository<AdjudicationIncidentType> incidentTypeRepository,
+        final ReferenceCodeRepository<AdjudicationActionCode> actionCodeRepository,
+        final AgencyLocationRepository agencyLocationRepository,
+        final AgencyInternalLocationRepository internalLocationRepository,
+        final AuthenticationFacade authenticationFacade,
+        final TelemetryClient telemetryClient,
+        final Clock clock,
+        @Value("${batch.max.size:1000}") final int batchSize) {
+        this.adjudicationsRepository = adjudicationsRepository;
+        this.staffUserAccountRepository = staffUserAccountRepository;
+        this.bookingRepository = bookingRepository;
+        this.incidentTypeRepository = incidentTypeRepository;
+        this.actionCodeRepository = actionCodeRepository;
+        this.agencyLocationRepository = agencyLocationRepository;
+        this.internalLocationRepository = internalLocationRepository;
+        this.authenticationFacade = authenticationFacade;
+        this.telemetryClient = telemetryClient;
+        this.clock = clock;
+        this.batchSize = batchSize;
+    }
 
     @Transactional
-    @VerifyBookingAccess
-    public AdjudicationDetail createAdjudication(@NotNull final Long bookingId, @NotNull @Valid final NewAdjudication adjudication) {
+    @VerifyOffenderAccess
+    public AdjudicationDetail createAdjudication(@NotNull final String offenderNo, @NotNull @Valid final NewAdjudication adjudication) {
         final var reporterName = authenticationFacade.getCurrentUsername();
         final var currentDateTime = LocalDateTime.now(clock);
         final var incidentDateTime = adjudication.getIncidentTime();
@@ -61,8 +86,8 @@ public class AdjudicationsService {
         final var reporter = staffUserAccountRepository.findById(reporterName)
             .orElseThrow(() -> new RuntimeException(format("User not found %s", reporterName)));
 
-        final var offenderBookingEntry = bookingRepository.findById(bookingId)
-            .orElseThrow(() -> new RuntimeException(format("Booking not found %d", bookingId)));
+        final var offenderBookingEntry = bookingRepository.findByOffenderNomsIdAndBookingSequence(offenderNo, 1)
+            .orElseThrow(() -> new RuntimeException(format("Could not find a current booking for Offender No %s", offenderNo)));
         final var incidentType = incidentTypeRepository.findById(AdjudicationIncidentType.GOVERNORS_REPORT)
             .orElseThrow(() -> new RuntimeException("Incident type not available"));
         final var actionCode = actionCodeRepository.findById(AdjudicationActionCode.PLACED_ON_REPORT)
@@ -111,6 +136,13 @@ public class AdjudicationsService {
         return transformToDto(requestedAdjudication);
     }
 
+    public List<AdjudicationDetail> getAdjudications(final List<Long> adjudicationNumbers) {
+        return Lists.partition(adjudicationNumbers, batchSize).stream().flatMap(
+                numbers -> adjudicationsRepository.findByParties_AdjudicationNumberIn(numbers).stream()
+            ).map(this::transformToDto)
+            .collect(Collectors.toList());
+    }
+
     private void trackAdjudicationCreated(final Adjudication createdAdjudication) {
         final Map<String, String> logMap = new HashMap<>();
         logMap.put("reporterUsername", authenticationFacade.getCurrentUsername());
@@ -124,10 +156,13 @@ public class AdjudicationsService {
 
     private AdjudicationDetail transformToDto(final Adjudication adjudication) {
         final var offenderPartyDetails = adjudication.getOffenderParty();
+        final var bookingId = offenderPartyDetails.map(p -> p.getOffenderBooking().getBookingId()).orElse(null);
+        final var offenderNo = offenderPartyDetails.map(p -> p.getOffenderBooking().getOffender().getNomsId()).orElse(null);
         return AdjudicationDetail.builder()
             .adjudicationNumber(offenderPartyDetails.map(AdjudicationParty::getAdjudicationNumber).orElse(null))
             .reporterStaffId(adjudication.getStaffReporter().getStaffId())
-            .bookingId(offenderPartyDetails.map(p -> p.getOffenderBooking().getBookingId()).orElse(null))
+            .bookingId(bookingId)
+            .offenderNo(offenderNo)
             .incidentTime(adjudication.getIncidentTime())
             .incidentLocationId(adjudication.getInternalLocation().getLocationId())
             .statement(adjudication.getIncidentDetails())

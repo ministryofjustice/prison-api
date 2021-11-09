@@ -1,7 +1,7 @@
 {
   "offenderNo": "A1234AA",
-  "firstName": "ARTHUR",
-  "lastName": "ANDERSON",
+  "firstName": "Arthur",
+  "lastName": "Anderson",
   "agencyDescription": "LEEDS",
   "assignedLivingUnitDescription": "LEI-A-1-1",
   "nonAssociations": [
@@ -15,8 +15,8 @@
       "comments": "Some Comment Text",
       "offenderNonAssociation": {
         "offenderNo": "A1234AB",
-        "firstName": "GILLIAN",
-        "lastName": "ANDERSON",
+        "firstName": "Gillian",
+        "lastName": "Anderson",
         "reasonCode": "PER",
         "reasonDescription": "Perpetrator",
         "agencyDescription": "LEEDS",
@@ -34,8 +34,8 @@
       "comments": "Some Comment Text",
       "offenderNonAssociation": {
         "offenderNo": "A1234AC",
-        "firstName": "NORMAN",
-        "lastName": "BATES",
+        "firstName": "Norman",
+        "lastName": "Bates",
         "reasonCode": "RIV",
         "reasonDescription": "Rival Gang",
         "agencyDescription": "LEEDS",

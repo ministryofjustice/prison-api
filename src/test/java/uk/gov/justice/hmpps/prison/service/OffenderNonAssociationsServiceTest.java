@@ -50,6 +50,14 @@ public class OffenderNonAssociationsServiceTest {
             .lastName("Bloggs")
             .build();
 
+
+    private final OffenderBooking.OffenderBookingBuilder victimBookingWithoutOptionalsBuilder = OffenderBooking.builder()
+            .bookingId(1L)
+            .offender(victim)
+            .location(AgencyLocation.builder()
+                    .description("Pentonville")
+                    .build());
+
     @Mock
     private OffenderBookingRepository bookingRepository;
 
@@ -153,5 +161,64 @@ public class OffenderNonAssociationsServiceTest {
         assertThatThrownBy(() -> service.retrieve(99L))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("Offender booking with id %d not found.", 99L);
+    }
+
+    @Test
+    void retrieve_handles_missing_optionals() {
+        victimsBooking = victimBookingWithoutOptionalsBuilder
+                .nonAssociationDetails(List.of(
+                        uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderNonAssociationDetail.builder()
+                                .offender(victim)
+                                .nsOffender(perpetrator)
+                                .offenderBooking(victimsBooking)
+                                .effectiveDate(LocalDateTime.of(2020, 7, 3, 12, 0, 0))
+                                .expiryDate(LocalDateTime.of(2020, 12, 3, 12, 0, 0))
+                                .comments("do not let these offenders share the same location")
+                                .authorizedBy("the boss")
+                                .nonAssociationReason(new NonAssociationReason("VIC", "Victim"))
+                                .nonAssociationType(new NonAssociationType("WING", "Do Not Locate on Same Wing"))
+                                .nonAssociation(uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderNonAssociation.builder()
+                                        .offender(victim)
+                                        .nsOffender(perpetrator)
+                                        .nsOffenderBooking(OffenderBooking.builder()
+                                                .location(AgencyLocation.builder()
+                                                        .description("Moorland")
+                                                        .build())
+                                                .build())
+                                        .build())
+                                .build()))
+                .build();
+
+        when(bookingRepository.findById(victimsBooking.getBookingId())).thenReturn(Optional.of(victimsBooking));
+
+        assertThat(service.retrieve(1L)).isEqualTo(OffenderNonAssociationDetails.builder()
+                .offenderNo("ABC")
+                .firstName("Fred")
+                .lastName("Bloggs")
+                .agencyDescription("Pentonville")
+                .assignedLivingUnitDescription(null)
+                .assignedLivingUnitId(null)
+                .nonAssociations(List.of(
+                        OffenderNonAssociationDetail.builder()
+                                .effectiveDate(LocalDateTime.of(2020, 7, 3, 12, 0, 0))
+                                .expiryDate(LocalDateTime.of(2020, 12, 3, 12, 0, 0))
+                                .reasonCode("VIC")
+                                .reasonDescription("Victim")
+                                .typeCode("WING")
+                                .typeDescription("Do Not Locate on Same Wing")
+                                .comments("do not let these offenders share the same location")
+                                .authorisedBy("the boss")
+                                .offenderNonAssociation(OffenderNonAssociation.builder()
+                                        .offenderNo(perpetrator.getNomsId())
+                                        .firstName(perpetrator.getFirstName())
+                                        .lastName(perpetrator.getLastName())
+                                        .reasonCode(null)
+                                        .reasonDescription(null)
+                                        .agencyDescription("Moorland")
+                                        .assignedLivingUnitDescription(null)
+                                        .assignedLivingUnitId(null)
+                                        .build())
+                                .build()))
+                .build());
     }
 }

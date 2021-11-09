@@ -32,22 +32,22 @@ class OffenderRestrictionsRepositoryTest {
 
     @Test
     void findOffenderRestrictions() {
-        final List<OffenderRestrictions> restriction = repository.findOffenderRestrictions(of(-1L), of("RESTRICTION"), ".*Text.*");
+        final List<OffenderRestrictions> restriction = repository.findOffenderRestrictions(of(-1L), of("RESTRICTED"), ".*Text.*");
 
         assertThat(restriction).extracting(OffenderRestrictions::getOffenderRestrictionId).containsOnly(-1L);
         assertThat(restriction).extracting(OffenderRestrictions::getOffenderBookId).containsOnly(-1L);
-        assertThat(restriction).extracting(OffenderRestrictions::getRestrictionType).containsOnly("RESTRICTION");
+        assertThat(restriction).extracting(OffenderRestrictions::getRestrictionType).containsOnly("RESTRICTED");
         assertThat(restriction).extracting(OffenderRestrictions::getCommentText).containsOnly("Some Comment Text");
     }
 
 
     @Test
     void findOffenderRestrictionsRestrictionCodeMatchesAndRegexDoesNotMatch() {
-        final List<OffenderRestrictions> restriction = repository.findOffenderRestrictions(of(-1L), of("RESTRICTION"), ".*NoMatchRegex.*");
+        final List<OffenderRestrictions> restriction = repository.findOffenderRestrictions(of(-1L), of("RESTRICTED"), ".*NoMatchRegex.*");
 
         assertThat(restriction).extracting(OffenderRestrictions::getOffenderRestrictionId).containsOnly(-1L);
         assertThat(restriction).extracting(OffenderRestrictions::getOffenderBookId).containsOnly(-1L);
-        assertThat(restriction).extracting(OffenderRestrictions::getRestrictionType).containsOnly("RESTRICTION");
+        assertThat(restriction).extracting(OffenderRestrictions::getRestrictionType).containsOnly("RESTRICTED");
         assertThat(restriction).extracting(OffenderRestrictions::getCommentText).containsOnly("Some Comment Text");
     }
 
@@ -57,7 +57,7 @@ class OffenderRestrictionsRepositoryTest {
 
         assertThat(restriction).extracting(OffenderRestrictions::getOffenderRestrictionId).containsOnly(-1L);
         assertThat(restriction).extracting(OffenderRestrictions::getOffenderBookId).containsOnly(-1L);
-        assertThat(restriction).extracting(OffenderRestrictions::getRestrictionType).containsOnly("RESTRICTION");
+        assertThat(restriction).extracting(OffenderRestrictions::getRestrictionType).containsOnly("RESTRICTED");
         assertThat(restriction).extracting(OffenderRestrictions::getCommentText).containsOnly("Some Comment Text");
     }
 
@@ -68,7 +68,7 @@ class OffenderRestrictionsRepositoryTest {
 
     @Test
     void findOffenderRestrictionsReturnsEmptyWhenInvalidBookingId() {
-        assertThat(repository.findOffenderRestrictions(of(-100L), of("RESTRICTION"), ".*Text.*")).isEmpty();
+        assertThat(repository.findOffenderRestrictions(of(-100L), of("RESTRICTED"), ".*Text.*")).isEmpty();
     }
 
 

@@ -31,7 +31,7 @@ public class AdjudicationsServiceIntTest {
                 .statement(generateMessageWith4001Chars())
                 .build();
 
-            assertThatThrownBy(() -> service.createAdjudication(adjudicationWithLargeStatementSize.getBookingId(), adjudicationWithLargeStatementSize))
+            assertThatThrownBy(() -> service.createAdjudication(adjudicationWithLargeStatementSize.getOffenderNo(), adjudicationWithLargeStatementSize))
                 .isInstanceOf(ConstraintViolationException.class)
                 .hasMessageContaining("Length exceeds the maximum size allowed");
         }
@@ -43,28 +43,28 @@ public class AdjudicationsServiceIntTest {
                 .statement(generateMessageWith4000CharsAndUtf8Chars())
                 .build();
 
-            assertThatThrownBy(() -> service.createAdjudication(adjudicationWithLargeStatementSize.getBookingId(), adjudicationWithLargeStatementSize))
+            assertThatThrownBy(() -> service.createAdjudication(adjudicationWithLargeStatementSize.getOffenderNo(), adjudicationWithLargeStatementSize))
                 .isInstanceOf(ConstraintViolationException.class)
                 .hasMessageContaining("Length exceeds the maximum size allowed");
         }
 
         @Test
         @WithMockUser(username = "ITAG_USER")
-        public void invalidBooking() {
-            final var adjudicationWithLargeStatementSize = defaultAdjudicationBuilder()
-                .statement(generateMessageWith4000CharsAndUtf8Chars())
+        public void invalidOffenderNo() {
+            final var adjudication = defaultAdjudicationBuilder()
+                .statement("A statement")
                 .build();
 
-            assertThatThrownBy(() -> service.createAdjudication(500L, adjudicationWithLargeStatementSize))
+            assertThatThrownBy(() -> service.createAdjudication("Z1234ZZ", adjudication))
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("Offender booking with id 500 not found.");
+                .hasMessageContaining("Resource with id [Z1234ZZ] not found.");
         }
     }
 
 
     private NewAdjudicationBuilder defaultAdjudicationBuilder() {
         return NewAdjudication.builder()
-            .bookingId(-4L)
+            .offenderNo("A1234AD")
             .incidentTime(LocalDateTime.now())
             .incidentLocationId(2L)
             .statement("A statement");

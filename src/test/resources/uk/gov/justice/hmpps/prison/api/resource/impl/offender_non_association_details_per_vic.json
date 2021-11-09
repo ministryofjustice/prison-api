@@ -1,7 +1,7 @@
 {
   "offenderNo" : "A1234AB",
-  "firstName" : "GILLIAN",
-  "lastName" : "ANDERSON",
+  "firstName" : "Gillian",
+  "lastName" : "Anderson",
   "agencyDescription" : "LEEDS",
   "assignedLivingUnitDescription" : "LEI-H-1-5",
   "nonAssociations": [
@@ -15,8 +15,8 @@
       "comments" : "Some Comment Text",
       "offenderNonAssociation" : {
         "offenderNo" : "A1234AA",
-        "firstName" : "ARTHUR",
-        "lastName" : "ANDERSON",
+        "firstName" : "Arthur",
+        "lastName" : "Anderson",
         "reasonCode" : "VIC",
         "reasonDescription" : "Victim",
         "agencyDescription" : "LEEDS",

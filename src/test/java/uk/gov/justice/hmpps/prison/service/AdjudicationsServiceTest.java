@@ -32,6 +32,7 @@ import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -56,6 +57,7 @@ public class AdjudicationsServiceTest {
     private static final String EXAMPLE_AGENCY_ID = "LEI";
     private static final String EXAMPLE_STATEMENT = "Example statement";
     private static final LocalDateTime EXAMPLE_INCIDENT_TIME = LocalDateTime.of(2020, 1, 1, 2, 3, 4);
+    private Integer BATCH_SIZE = 1;
 
     @Mock
     private AdjudicationRepository adjudicationsRepository;
@@ -93,7 +95,8 @@ public class AdjudicationsServiceTest {
             internalLocationRepository,
             authenticationFacade,
             telemetryClient,
-            clock);
+            clock,
+            BATCH_SIZE);
     }
 
     @Nested
@@ -106,7 +109,7 @@ public class AdjudicationsServiceTest {
             mockDataProvider.setupMocks();
 
             final var newAdjudication = generateNewAdjudicationRequest(
-                mockDataProvider.booking.getBookingId(),
+                mockDataProvider.booking.getOffender().getNomsId(),
                 mockDataProvider.internalLocation.getLocationId());
 
             final Adjudication expectedAdjudication = getExampleAdjudication(mockDataProvider, newAdjudication);
@@ -114,7 +117,7 @@ public class AdjudicationsServiceTest {
 
             when(adjudicationsRepository.save(any())).thenReturn(expectedAdjudication);
 
-            service.createAdjudication(newAdjudication.getBookingId(), newAdjudication);
+            service.createAdjudication(newAdjudication.getOffenderNo(), newAdjudication);
 
             verify(adjudicationsRepository).save(assertArgThat(actualAdjudication -> {
                     assertThat(actualAdjudication).usingRecursiveComparison().ignoringFields("parties")
@@ -132,7 +135,7 @@ public class AdjudicationsServiceTest {
             mockDataProvider.setupMocks();
 
             final var newAdjudication = generateNewAdjudicationRequest(
-                mockDataProvider.booking.getBookingId(),
+                mockDataProvider.booking.getOffender().getNomsId(),
                 mockDataProvider.internalLocation.getLocationId());
 
             final var expectedReturnedAdjudication = AdjudicationDetail.builder()
@@ -141,6 +144,7 @@ public class AdjudicationsServiceTest {
                 .statement(newAdjudication.getStatement())
                 .reporterStaffId(mockDataProvider.reporter.getStaff().getStaffId())
                 .bookingId(mockDataProvider.booking.getBookingId())
+                .offenderNo(mockDataProvider.booking.getOffender().getNomsId())
                 .incidentLocationId(mockDataProvider.internalLocation.getLocationId())
                 .build();
 
@@ -149,7 +153,7 @@ public class AdjudicationsServiceTest {
 
             when(adjudicationsRepository.save(any())).thenReturn(expectedAdjudication);
 
-            final var returnedAdjudication = service.createAdjudication(newAdjudication.getBookingId(), newAdjudication);
+            final var returnedAdjudication = service.createAdjudication(newAdjudication.getOffenderNo(), newAdjudication);
 
             assertThat(returnedAdjudication).isEqualTo(expectedReturnedAdjudication);
         }
@@ -161,7 +165,7 @@ public class AdjudicationsServiceTest {
             mockDataProvider.setupMocks();
 
             final var newAdjudication = generateNewAdjudicationRequest(
-                mockDataProvider.booking.getBookingId(),
+                mockDataProvider.booking.getOffender().getNomsId(),
                 mockDataProvider.internalLocation.getLocationId());
 
             final Adjudication expectedAdjudication = getExampleAdjudication(mockDataProvider, newAdjudication);
@@ -169,7 +173,7 @@ public class AdjudicationsServiceTest {
 
             when(adjudicationsRepository.save(any())).thenReturn(expectedAdjudication);
 
-            service.createAdjudication(newAdjudication.getBookingId(), newAdjudication);
+            service.createAdjudication(newAdjudication.getOffenderNo(), newAdjudication);
 
             verify(telemetryClient).trackEvent("AdjudicationCreated",
                 Map.of(
@@ -188,11 +192,11 @@ public class AdjudicationsServiceTest {
             mockDataProvider.setupMocksWithInvalidLocation();
 
             final var newAdjudication = generateNewAdjudicationRequest(
-                mockDataProvider.booking.getBookingId(),
+                mockDataProvider.booking.getOffender().getNomsId(),
                 mockDataProvider.internalLocation.getLocationId());
 
             assertThatThrownBy(() ->
-                service.createAdjudication(newAdjudication.getBookingId(), newAdjudication))
+                service.createAdjudication(newAdjudication.getOffenderNo(), newAdjudication))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Location with id 456 does not exist or is not in your caseload");
 
@@ -234,6 +238,7 @@ public class AdjudicationsServiceTest {
                 .statement(foundAdjudication.getIncidentDetails())
                 .reporterStaffId(mockDataProvider.reporter.getStaff().getStaffId())
                 .bookingId(mockDataProvider.booking.getBookingId())
+                .offenderNo(mockDataProvider.booking.getOffender().getNomsId())
                 .incidentLocationId(mockDataProvider.internalLocation.getLocationId())
                 .build();
 
@@ -254,6 +259,53 @@ public class AdjudicationsServiceTest {
         }
     }
 
+    @Nested
+    public class GetAdjudications {
+        @Test
+        public void makesCallToRepositoryWithCorrectData_inBatchesOfOne() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumberIn(any())).thenReturn(Collections.emptyList());
+
+            service.getAdjudications(List.of(1L, 2L, 3L));
+
+            verify(adjudicationsRepository).findByParties_AdjudicationNumberIn(List.of(1L));
+            verify(adjudicationsRepository).findByParties_AdjudicationNumberIn(List.of(2L));
+            verify(adjudicationsRepository).findByParties_AdjudicationNumberIn(List.of(3L));
+        }
+
+
+        @Test
+        public void returnsCorrectData() {
+            final var mockDataProvider = new MockDataProvider();
+            final var foundAdjudication1 = generateExampleAdjudication(mockDataProvider, 1);
+            final var foundAdjudication2 = generateExampleAdjudication(mockDataProvider, 2);
+
+            final var expectedReturnedAdjudication = AdjudicationDetail.builder()
+                .reporterStaffId(mockDataProvider.reporter.getStaff().getStaffId())
+                .bookingId(mockDataProvider.booking.getBookingId())
+                .offenderNo(mockDataProvider.booking.getOffender().getNomsId())
+                .incidentLocationId(mockDataProvider.internalLocation.getLocationId())
+                .build();
+
+            when(adjudicationsRepository.findByParties_AdjudicationNumberIn(any()))
+                .thenReturn(List.of(foundAdjudication1, foundAdjudication2));
+
+            final var returnedAdjudications = service.getAdjudications(List.of(EXAMPLE_ADJUDICATION_NUMBER));
+
+            assertThat(returnedAdjudications).containsExactlyInAnyOrder(
+                expectedReturnedAdjudication.toBuilder()
+                    .adjudicationNumber(foundAdjudication1.getOffenderParty().get().getAdjudicationNumber())
+                    .incidentTime(foundAdjudication1.getIncidentTime())
+                    .statement(foundAdjudication1.getIncidentDetails())
+                    .build(),
+                expectedReturnedAdjudication.toBuilder()
+                    .adjudicationNumber(foundAdjudication2.getOffenderParty().get().getAdjudicationNumber())
+                    .incidentTime(foundAdjudication2.getIncidentTime())
+                    .statement(foundAdjudication2.getIncidentDetails())
+                    .build()
+            );
+        }
+    }
+
     private static <T> T assertArgThat(final Consumer<T> assertions) {
         return MockitoHamcrest.argThat(new AssertionMatcher<>() {
             @Override
@@ -269,23 +321,11 @@ public class AdjudicationsServiceTest {
 
     private Adjudication generateExampleAdjudication(final MockDataProvider mockDataProvider, final long adjudicationNumber) {
         final var newAdjudication = generateNewAdjudicationRequest(
-            mockDataProvider.booking.getBookingId(),
+            mockDataProvider.booking.getOffender().getNomsId(),
             mockDataProvider.internalLocation.getLocationId());
 
         final var adjudication = getExampleAdjudication(mockDataProvider, newAdjudication);
         addExampleAdjudicationParty(mockDataProvider, adjudication, adjudicationNumber, Adjudication.INCIDENT_ROLE_OFFENDER);
-
-        return adjudication;
-    }
-
-    private Adjudication generateExampleAdjudicationWithAdditionalParty(final MockDataProvider mockDataProvider, final long additionalPartyAdjudicationNumber) {
-        final var newAdjudication = generateNewAdjudicationRequest(
-            mockDataProvider.booking.getBookingId(),
-            mockDataProvider.internalLocation.getLocationId());
-
-        final var adjudication = getExampleAdjudication(mockDataProvider, newAdjudication);
-        addExampleAdjudicationParty(mockDataProvider, adjudication, EXAMPLE_ADJUDICATION_NUMBER, Adjudication.INCIDENT_ROLE_OFFENDER);
-        addExampleAdjudicationParty(mockDataProvider, adjudication, additionalPartyAdjudicationNumber, Adjudication.INCIDENT_ROLE_OTHER);
 
         return adjudication;
     }
@@ -324,9 +364,9 @@ public class AdjudicationsServiceTest {
         return expectedOffenderParty;
     }
 
-    private NewAdjudication generateNewAdjudicationRequest(final Long bookingId, final Long internalLocationId) {
+    private NewAdjudication generateNewAdjudicationRequest(final String offenderNo, final Long internalLocationId) {
         return NewAdjudication.builder()
-            .bookingId(bookingId)
+            .offenderNo(offenderNo)
             .incidentTime(EXAMPLE_INCIDENT_TIME)
             .incidentLocationId(internalLocationId)
             .statement(EXAMPLE_STATEMENT)
@@ -363,7 +403,7 @@ public class AdjudicationsServiceTest {
             when(actionCodeRepository.findById(AdjudicationActionCode.PLACED_ON_REPORT)).thenReturn(Optional.of(actionCode));
             when(authenticationFacade.getCurrentUsername()).thenReturn(EXAMPLE_CURRENT_USERNAME);
             when(staffUserAccountRepository.findById(EXAMPLE_CURRENT_USERNAME)).thenReturn(Optional.of(reporter));
-            when(bookingRepository.findById(booking.getBookingId())).thenReturn(Optional.of(booking));
+            when(bookingRepository.findByOffenderNomsIdAndBookingSequence(booking.getOffender().getNomsId(), 1)).thenReturn(Optional.of(booking));
             if (validLocation) {
                 when(internalLocationRepository.findOneByLocationId(internalLocation.getLocationId())).thenReturn(Optional.of(internalLocation));
                 when(agencyLocationRepository.findById(agencyDetails.getId())).thenReturn(Optional.of(agencyDetails));

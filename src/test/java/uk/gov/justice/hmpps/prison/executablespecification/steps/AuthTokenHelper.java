@@ -46,6 +46,7 @@ public class AuthTokenHelper {
         SMOKE_TEST,
         REF_DATA_MAINTAINER,
         REF_DATA_MAINTAINER_NO_WRITE,
+        UNAUTHORISED_USER,
         CRD_USER
     }
 
@@ -78,6 +79,7 @@ public class AuthTokenHelper {
         tokens.put(String.valueOf(AuthToken.SMOKE_TEST), createSmokeTestUser());
         tokens.put(String.valueOf(AuthToken.REF_DATA_MAINTAINER), createRefDataMaintainerUser(true));
         tokens.put(String.valueOf(AuthToken.REF_DATA_MAINTAINER_NO_WRITE), createRefDataMaintainerUser(false));
+        tokens.put(String.valueOf(AuthToken.UNAUTHORISED_USER), createUnauthorisedUser());
         tokens.put(String.valueOf(AuthToken.CRD_USER), maintainOffenderDates());
     }
 
@@ -348,6 +350,15 @@ public class AuthTokenHelper {
                         .scope(List.of("read", "write"))
                         .roles(List.of("ROLE_SMOKE_TEST"))
                     .expiryTime(Duration.ofDays(365 * 10))
+                        .build()
+        );
+    }
+
+    private String createUnauthorisedUser() {
+        return jwtAuthenticationHelper.createJwt(
+                JwtParameters.builder()
+                        .username("UNAUTHORISED_USER")
+                        .expiryTime(Duration.ofDays(365 * 10))
                         .build()
         );
     }
