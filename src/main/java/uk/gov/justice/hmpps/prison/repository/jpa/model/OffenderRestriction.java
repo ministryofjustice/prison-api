@@ -31,24 +31,15 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.VisitRestrictionT
 @Setter
 @RequiredArgsConstructor
 @Entity
-@Table(name = "OFFENDER_PERSON_RESTRICTS")
-public class VisitorRestriction extends AuditableEntity {
-
+@Table(name = "OFFENDER_RESTRICTIONS")
+public class OffenderRestriction extends AuditableEntity {
 
     @Id
-    @Column(name = "OFFENDER_PERSON_RESTRICT_ID", nullable = false)
+    @Column(name = "OFFENDER_RESTRICTION_ID", nullable = false)
     private Long id;
 
-    @Column(name = "OFFENDER_CONTACT_PERSON_ID", nullable = false)
-    private Long offenderContactPersonId;
-
-    private String commentText;
-
-    @Column(name = "RESTRICTION_EFFECTIVE_DATE", nullable = false)
-    private LocalDate startDate;
-
-    @Column(name = "RESTRICTION_EXPIRY_DATE")
-    private LocalDate expiryDate;
+    @Column(name = "OFFENDER_BOOK_ID", nullable = false)
+    private Long offenderBookingId;
 
     @ManyToOne
     @NotFound(action = IGNORE)
@@ -58,6 +49,17 @@ public class VisitorRestriction extends AuditableEntity {
     })
     private VisitRestrictionType visitRestrictionType;
 
+    @Column(name = "RESTRICTION_TYPE", updatable = false, insertable = false)
+    private String restrictionType;
+
+    @Column(name = "COMMENT_TEXT")
+    private String commentText;
+
+    @Column(name = "EFFECTIVE_DATE", nullable = false)
+    private LocalDate startDate;
+
+    @Column(name = "EXPIRY_DATE")
+    private LocalDate expiryDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
@@ -67,7 +69,7 @@ public class VisitorRestriction extends AuditableEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
-    @JoinColumn(name = "AUTHORIZED_STAFF_ID")
+    @JoinColumn(name = "AUTHORISED_STAFF_ID")
     @Exclude
     private Staff authorisedStaffId;
 
@@ -79,7 +81,7 @@ public class VisitorRestriction extends AuditableEntity {
     public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        final VisitorRestriction restriction = (VisitorRestriction) o;
+        final OffenderRestriction restriction = (OffenderRestriction) o;
 
         return Objects.equals(getId(), restriction.getId());
     }
@@ -88,5 +90,4 @@ public class VisitorRestriction extends AuditableEntity {
     public int hashCode() {
         return Objects.hashCode(getId());
     }
-
 }

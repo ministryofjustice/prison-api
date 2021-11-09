@@ -31,6 +31,8 @@ import uk.gov.justice.hmpps.prison.api.model.OffenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenceHistoryDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderContact;
 import uk.gov.justice.hmpps.prison.api.model.OffenderContacts;
+import uk.gov.justice.hmpps.prison.api.model.OffenderRestriction;
+import uk.gov.justice.hmpps.prison.api.model.OffenderRestrictions;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceCalculation;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
@@ -74,6 +76,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepo
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPersonsRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRestrictionRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
@@ -143,6 +146,7 @@ public class BookingService {
     private final OffenderSentenceAdjustmentRepository offenderSentenceAdjustmentRepository;
     private final OffenderKeyDateAdjustmentRepository offenderKeyDateAdjustmentRepository;
     private final OffenderContactPersonsRepository offenderContactPersonsRepository;
+    private final OffenderRestrictionRepository offenderRestrictionRepository;
     private final StaffUserAccountRepository staffUserAccountRepository;
     private final OffenderBookingTransformer offenderBookingTransformer;
     private final OffenderSentenceRepository offenderSentenceRepository;
@@ -171,6 +175,7 @@ public class BookingService {
                           final AuthenticationFacade authenticationFacade,
                           final OffenderSentenceRepository offenderSentenceRepository,
                           final AvailablePrisonIepLevelRepository availablePrisonIepLevelRepository,
+                          final OffenderRestrictionRepository offenderRestrictionRepository,
                           @Value("${api.bookings.iepLevel.default:Unknown}") final String defaultIepLevel,
                           @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.bookingRepository = bookingRepository;
@@ -192,6 +197,7 @@ public class BookingService {
         this.authenticationFacade = authenticationFacade;
         this.offenderSentenceRepository = offenderSentenceRepository;
         this.availablePrisonIepLevelRepository = availablePrisonIepLevelRepository;
+        this.offenderRestrictionRepository = offenderRestrictionRepository;
         this.defaultIepLevel = defaultIepLevel;
         this.maxBatchSize = maxBatchSize;
     }
@@ -859,6 +865,21 @@ public class BookingService {
                                         Email.builder().email(email.getInternetAddress()).build()).collect(toList()))
                                 .middleName(WordUtils.capitalizeFully(oc.getPerson().getMiddleName()))
                                 .restrictions(mergeGlobalAndStandardRestrictions(oc))
+                                .build()).toList());
+    }
+
+    public OffenderRestrictions getOffenderRestrictions(final Long bookingId, boolean activeRestrictionsOnly) {
+        return new OffenderRestrictions(bookingId, offenderRestrictionRepository.findByOffenderBookingIdOrderByStartDateDesc(bookingId).stream()
+                .filter(restriction -> !activeRestrictionsOnly || restriction.isActive())
+                .map(or ->
+                        OffenderRestriction.builder()
+                                .restrictionId(or.getId())
+                                .restrictionType(ReferenceCode.getCodeOrNull(or.getVisitRestrictionType()))
+                                .restrictionTypeDescription(ReferenceCode.getDescriptionOrNull(or.getVisitRestrictionType()))
+                                .comment(or.getCommentText())
+                                .startDate(or.getStartDate())
+                                .expiryDate(or.getExpiryDate())
+                                .active(or.isActive())
                                 .build()).toList());
     }
 

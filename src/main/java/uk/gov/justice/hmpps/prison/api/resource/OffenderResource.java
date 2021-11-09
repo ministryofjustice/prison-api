@@ -37,6 +37,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderContacts;
 import uk.gov.justice.hmpps.prison.api.model.OffenderDamageObligationResponse;
 import uk.gov.justice.hmpps.prison.api.model.OffenderNonAssociationDetails;
 import uk.gov.justice.hmpps.prison.api.model.OffenderNumber;
+import uk.gov.justice.hmpps.prison.api.model.OffenderRestrictions;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerIdentifier;
@@ -576,5 +577,20 @@ public class OffenderResource {
             // rethrow against the offender number rather than the booking id
             throw EntityNotFoundException.withId(offenderNo);
         }
+    }
+
+    @ApiResponses({
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Gets the offender visit restrictions for a given offender using the latest booking", notes = "Get offender visit restrictions by offender No", nickname = "getOffenderRestrictions")
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER"})
+    @GetMapping("/{offenderNo}/offender-restrictions")
+    public OffenderRestrictions getVisitRestrictions(
+            @ApiParam(name = "offenderNo", value = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo", required = true) @NotNull final String offenderNo,
+            @ApiParam(name = "activeRestrictionsOnly", value = "return only restriction that are active (derived from startDate and expiryDate)", required = false, defaultValue = "true") @RequestParam(value = "activeRestrictionsOnly", required = false, defaultValue = "true") final boolean activeRestrictionsOnly)
+    {
+        final var booking = bookingService.getLatestBookingByOffenderNo(offenderNo);
+        return bookingService.getOffenderRestrictions(booking.getBookingId(),activeRestrictionsOnly );
     }
 }
