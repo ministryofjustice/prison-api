@@ -8,7 +8,6 @@ import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateOffenderDates;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CalcReasonType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.Staff;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;

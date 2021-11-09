@@ -8,8 +8,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @ApiModel(description = "Update Offender Dates Request")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
@@ -20,9 +18,6 @@ public class RequestToUpdateOffenderDates {
 
     @ApiModelProperty(required = true, value = "Username who used CRD service to submit calculated dates.")
     private String submissionUser;
-
-    @ApiModelProperty(required = true, value = "Dates to be updated for the offender's sentences.")
-    private List<SentenceDates> sentenceDates;
 
     @ApiModelProperty(required = true, value = "Key dates to be updated for the offender.")
     private OffenderKeyDates keyDates;

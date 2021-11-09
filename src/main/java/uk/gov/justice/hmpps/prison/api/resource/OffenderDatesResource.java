@@ -44,7 +44,7 @@ public class OffenderDatesResource {
     @PreAuthorize("hasRole('MAINTAIN_OFFENDER_DATES') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public ResponseEntity<SentenceCalcDates> updateOffenderKeyDates(@PathVariable("bookingId") @ApiParam(value = "The booking id of offender", required = true) final Long bookingId,
-                                                                   @RequestBody final RequestToUpdateOffenderDates requestToUpdateOffenderDates) {
+                                                                    @RequestBody final RequestToUpdateOffenderDates requestToUpdateOffenderDates) {
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(offenderDatesService.updateOffenderKeyDates(bookingId, requestToUpdateOffenderDates));
     }
