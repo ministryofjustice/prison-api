@@ -46,7 +46,8 @@ public class AuthTokenHelper {
         SMOKE_TEST,
         REF_DATA_MAINTAINER,
         REF_DATA_MAINTAINER_NO_WRITE,
-        UNAUTHORISED_USER
+        UNAUTHORISED_USER,
+        CRD_USER
     }
 
 
@@ -79,6 +80,7 @@ public class AuthTokenHelper {
         tokens.put(String.valueOf(AuthToken.REF_DATA_MAINTAINER), createRefDataMaintainerUser(true));
         tokens.put(String.valueOf(AuthToken.REF_DATA_MAINTAINER_NO_WRITE), createRefDataMaintainerUser(false));
         tokens.put(String.valueOf(AuthToken.UNAUTHORISED_USER), createUnauthorisedUser());
+        tokens.put(String.valueOf(AuthToken.CRD_USER), createReleaseDatesCalculatorUser());
     }
 
     public String getToken() {
@@ -367,6 +369,17 @@ public class AuthTokenHelper {
                 .username("ITAG_USER")
                 .scope(allowWriteScope ? List.of("read", "write") : List.of("read"))
                 .roles(List.of("ROLE_MAINTAIN_REF_DATA"))
+                .expiryTime(Duration.ofDays(365 * 10))
+                .build()
+        );
+    }
+
+    private String createReleaseDatesCalculatorUser() {
+        return jwtAuthenticationHelper.createJwt(
+            JwtParameters.builder()
+                .username("ITAG_USER") // use ITAG_USER to avoid the pain of creating a new username in the test DB
+                .scope(List.of("read", "write"))
+                .roles(List.of("ROLE_RELEASE_DATES_CALCULATOR"))
                 .expiryTime(Duration.ofDays(365 * 10))
                 .build()
         );

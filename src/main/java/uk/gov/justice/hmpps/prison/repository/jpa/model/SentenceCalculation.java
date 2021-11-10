@@ -6,15 +6,21 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JoinColumnOrFormula;
+import org.hibernate.annotations.JoinColumnsOrFormulas;
+import org.hibernate.annotations.JoinFormula;
+import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.Type;
 import uk.gov.justice.hmpps.prison.service.support.NonDtoReleaseDate;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -23,6 +29,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
+import static org.hibernate.annotations.NotFoundAction.IGNORE;
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.CalcReasonType.CALC_REASON_TYPE;
 
 @Getter
 @Entity
@@ -35,6 +44,8 @@ public class SentenceCalculation extends AuditableEntity {
 
     @Id
     @Column(name = "OFFENDER_SENT_CALCULATION_ID")
+    @SequenceGenerator(name = "OFFENDER_SENT_CALCULATION_ID", sequenceName = "OFFENDER_SENT_CALCULATION_ID", allocationSize = 1)
+    @GeneratedValue(generator = "OFFENDER_SENT_CALCULATION_ID")
     private Long id;
 
     @Setter
@@ -52,8 +63,12 @@ public class SentenceCalculation extends AuditableEntity {
     @JoinColumn(name = "STAFF_ID")
     private Staff staff;
 
-    @Column(name = "CALC_REASON_CODE")
-    private String reasonCode;
+    @ManyToOne
+    @JoinColumnsOrFormulas(value = {
+        @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + CALC_REASON_TYPE + "'", referencedColumnName = "domain")),
+        @JoinColumnOrFormula(column = @JoinColumn(name = "CALC_REASON_CODE", referencedColumnName = "code"))
+    })
+    private CalcReasonType calcReasonType;
 
     @Column(name = "EFFECTIVE_SENTENCE_END_DATE")
     private LocalDate effectiveSentenceEndDate;
