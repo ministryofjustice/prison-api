@@ -35,13 +35,13 @@ public class OffenderDatesResource {
     @ApiResponses({
         @ApiResponse(code = 201, message = "Offender key dates calculation created", response = SentenceCalcDates.class),
         @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden - user not authorised to update a agency location", response = ErrorResponse.class),
+        @ApiResponse(code = 403, message = "Forbidden - user not authorised to update an offender's dates", response = ErrorResponse.class),
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)
     })
-    @ApiOperation(value = "Update the key dates for an offender.", notes = "Requires MAINTAIN_OFFENDER_DATES")
+    @ApiOperation(value = "Update the key dates for an offender.", notes = "Requires RELEASE_DATES_CALCULATOR")
     @PostMapping("/{bookingId}")
-    @PreAuthorize("hasRole('MAINTAIN_OFFENDER_DATES') and hasAuthority('SCOPE_write')")
+    @PreAuthorize("hasRole('RELEASE_DATES_CALCULATOR') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public ResponseEntity<SentenceCalcDates> updateOffenderKeyDates(@PathVariable("bookingId") @ApiParam(value = "The booking id of offender", required = true) final Long bookingId,
                                                                     @RequestBody final RequestToUpdateOffenderDates requestToUpdateOffenderDates) {

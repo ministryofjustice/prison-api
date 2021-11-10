@@ -21,6 +21,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -54,14 +55,16 @@ public class OffenderDatesServiceTest {
         final var bookingId = 1L;
         final var offenderBooking = OffenderBooking.builder().bookingId(bookingId).build();
         when(offenderBookingRepository.findById(bookingId)).thenReturn(Optional.of(offenderBooking));
-        when(calcReasonTypeReferenceCodeRepository.findById(CalcReasonType.pk("OVERRIDE")))
-            .thenReturn(Optional.of(new CalcReasonType("OVERRIDE", "Override")));
+        when(calcReasonTypeReferenceCodeRepository.findById(CalcReasonType.pk("UPDATE")))
+            .thenReturn(Optional.of(new CalcReasonType("UPDATE", "Modify Sentence")));
         final var staff = Staff.builder().staffId(2L).firstName("Other").lastName("Staff").build();
         when(staffUserAccountRepository.findById("staff"))
             .thenReturn(Optional.of(StaffUserAccount.builder().username("staff").staff(staff).build()));
+        final var calculationUuid = UUID.randomUUID();
         final var payload = RequestToUpdateOffenderDates.builder()
                 .keyDates(createOffenderKeyDates(NOV_11_2021, NOV_11_2021, NOV_11_2021))
                 .submissionUser("staff")
+                .calculationUuid(calculationUuid)
                 .build();
 
         // When
@@ -70,9 +73,9 @@ public class OffenderDatesServiceTest {
         // Then
         final var expected = SentenceCalculation.builder()
             .offenderBooking(offenderBooking)
-            .calcReasonType(new CalcReasonType("OVERRIDE", "Override"))
+            .calcReasonType(new CalcReasonType("UPDATE", "Modify Sentence"))
             .calculationDate(LocalDate.now(clock))
-            .comments("Calculated externally")
+            .comments("CRD calculation ID: " + calculationUuid)
             .staff(staff)
             .crdCalculatedDate(payload.getKeyDates().getConditionalReleaseDate())
             .ledCalculatedDate(payload.getKeyDates().getLicenceExpiryDate())
@@ -86,7 +89,7 @@ public class OffenderDatesServiceTest {
     }
 
     @Test
-    void updateOffenderDates_errors_for_unknown_booking() {
+    void updateOffenderDates_exception_for_unknown_booking() {
         // Given
         when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.empty());
 
@@ -94,6 +97,46 @@ public class OffenderDatesServiceTest {
         assertThatThrownBy(() -> service.updateOffenderKeyDates(-1L, RequestToUpdateOffenderDates.builder().build()))
             .isInstanceOf(EntityNotFoundException.class)
             .hasMessage("Resource with id [-1] not found.");
+    }
+
+    // this shouldn't happen because UPDATE record exists in the NOMIS DB see the following SQL:
+    //    SELECT * FROM reference_codes WHERE DOMAIN = 'CALC_REASON' AND CODE = 'UPDATE')
+    // but thought was good to cover the case
+    @Test
+    void updateOffenderDates_exception_for_unknown_calc_reason() {
+        // Given
+        final var bookingId = 1L;
+        final var offenderBooking = OffenderBooking.builder().bookingId(bookingId).build();
+        when(offenderBookingRepository.findById(bookingId)).thenReturn(Optional.of(offenderBooking));
+        final var staff = Staff.builder().staffId(2L).firstName("Other").lastName("Staff").build();
+        when(staffUserAccountRepository.findById("staff"))
+            .thenReturn(Optional.of(StaffUserAccount.builder().username("staff").staff(staff).build()));
+        final var payload = RequestToUpdateOffenderDates.builder()
+            .keyDates(createOffenderKeyDates(NOV_11_2021, NOV_11_2021, NOV_11_2021))
+            .submissionUser("staff")
+            .build();
+        when(calcReasonTypeReferenceCodeRepository.findById(CalcReasonType.pk("UPDATE")))
+            .thenReturn(Optional.empty());
+
+        // Then
+        assertThatThrownBy(() -> service.updateOffenderKeyDates(bookingId, payload))
+            .isInstanceOf(EntityNotFoundException.class)
+            .hasMessage("Resource with id [UPDATE] not found.");
+    }
+
+    @Test
+    void updateOffenderDates_exception_for_unknown_staff() {
+        // Given
+        final var bookingId = 1L;
+        final var offenderBooking = OffenderBooking.builder().bookingId(bookingId).build();
+        when(offenderBookingRepository.findById(bookingId)).thenReturn(Optional.of(offenderBooking));
+        final var staff = "staff";
+        when(staffUserAccountRepository.findById(staff)).thenReturn(Optional.empty());
+
+        // Then
+        assertThatThrownBy(() -> service.updateOffenderKeyDates(bookingId, RequestToUpdateOffenderDates.builder().submissionUser(staff).build()))
+            .isInstanceOf(EntityNotFoundException.class)
+            .hasMessage("Resource with id [staff] not found.");
     }
 
     public static OffenderKeyDates createOffenderKeyDates(LocalDate conditionalReleaseDate, LocalDate licenceExpiryDate, LocalDate sentenceExpiryDate) {

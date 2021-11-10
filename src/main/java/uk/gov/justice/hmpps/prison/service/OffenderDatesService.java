@@ -32,16 +32,19 @@ public class OffenderDatesService {
     public SentenceCalcDates updateOffenderKeyDates(Long bookingId, RequestToUpdateOffenderDates requestToUpdateOffenderDates) {
         final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
 
-        final var staff = requestToUpdateOffenderDates.getSubmissionUser() != null && staffUserAccountRepository.findById(requestToUpdateOffenderDates.getSubmissionUser()).map(StaffUserAccount::getStaff).isPresent()
-            ? staffUserAccountRepository.findById(requestToUpdateOffenderDates.getSubmissionUser()).map(StaffUserAccount::getStaff).get()
-            : null;
+        final var calcReasonCode = "UPDATE";
+        final var calcReason = calcReasonTypeReferenceCodeRepository.findById(CalcReasonType.pk(calcReasonCode))
+            .orElseThrow(EntityNotFoundException.withId(calcReasonCode));
+
+        final var staff = staffUserAccountRepository.findById(requestToUpdateOffenderDates.getSubmissionUser()).map(StaffUserAccount::getStaff)
+            .orElseThrow(EntityNotFoundException.withId(requestToUpdateOffenderDates.getSubmissionUser()));
 
         final var sentenceCalculation =
             SentenceCalculation.builder()
                 .offenderBooking(offenderBooking)
-                .calcReasonType(calcReasonTypeReferenceCodeRepository.findById(CalcReasonType.pk("OVERRIDE")).orElseThrow(EntityNotFoundException.withId("OVERRIDE"))) // Confirm this with CRD team
+                .calcReasonType(calcReason)
                 .calculationDate(LocalDate.now(clock))
-                .comments("Calculated externally") // Confirm this with CRD team 
+                .comments("CRD calculation ID: " + requestToUpdateOffenderDates.getCalculationUuid())
                 .staff(staff)
                 .crdCalculatedDate(requestToUpdateOffenderDates.getKeyDates().getConditionalReleaseDate())
                 .ledCalculatedDate(requestToUpdateOffenderDates.getKeyDates().getLicenceExpiryDate())

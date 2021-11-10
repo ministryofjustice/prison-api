@@ -13,6 +13,7 @@ import uk.gov.justice.hmpps.prison.service.OffenderDatesServiceTest;
 
 import java.time.LocalDate;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpMethod.GET;
@@ -40,6 +41,7 @@ public class OffenderDatesResourceTest extends ResourceTest {
         final var body = RequestToUpdateOffenderDates.builder()
             .keyDates(OffenderDatesServiceTest.createOffenderKeyDates(NOV_11_2021, NOV_11_2021, NOV_11_2021))
             .submissionUser("ITAG_USER")
+            .calculationUuid(UUID.randomUUID())
             .build();
         final var request = createHttpEntity(token, body);
 
@@ -87,6 +89,34 @@ public class OffenderDatesResourceTest extends ResourceTest {
                 .status(404)
                 .userMessage("Resource with id [0] not found.")
                 .developerMessage("Resource with id [0] not found.")
+                .build());
+    }
+
+    @Test
+    public void testCantUpdateOffenderDatesWithInvalidStaff() {
+        // Given
+        final var token = authTokenHelper.getToken(AuthToken.CRD_USER);
+        final var body = RequestToUpdateOffenderDates.builder()
+            .keyDates(OffenderDatesServiceTest.createOffenderKeyDates(NOV_11_2021, NOV_11_2021, NOV_11_2021))
+            .submissionUser("fake user")
+            .calculationUuid(UUID.randomUUID())
+            .build();
+        final var request = createHttpEntity(token, body);
+
+        // When
+        final var response = testRestTemplate.exchange(
+            "/api/offender-dates/{bookingId}",
+            HttpMethod.POST,
+            request,
+            ErrorResponse.class,
+            Map.of("bookingId", BOOKING_ID));
+
+        // Then
+        assertThat(response.getBody()).isEqualTo(
+            ErrorResponse.builder()
+                .status(404)
+                .userMessage("Resource with id [fake user] not found.")
+                .developerMessage("Resource with id [fake user] not found.")
                 .build());
     }
 

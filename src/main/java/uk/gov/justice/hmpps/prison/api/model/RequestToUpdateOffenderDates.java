@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @ApiModel(description = "Update Offender Dates Request")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
@@ -15,6 +17,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class RequestToUpdateOffenderDates {
+
+    @ApiModelProperty(required = true, value = "UUID of the calculation performed by CRD.")
+    private UUID calculationUuid;
 
     @ApiModelProperty(required = true, value = "DPS/NOMIS user who submitted the calculated dates.")
     private String submissionUser;
