@@ -109,8 +109,6 @@ public class OffenderDatesServiceTest {
         final var offenderBooking = OffenderBooking.builder().bookingId(bookingId).build();
         when(offenderBookingRepository.findById(bookingId)).thenReturn(Optional.of(offenderBooking));
         final var staff = Staff.builder().staffId(2L).firstName("Other").lastName("Staff").build();
-        when(staffUserAccountRepository.findById("staff"))
-            .thenReturn(Optional.of(StaffUserAccount.builder().username("staff").staff(staff).build()));
         final var payload = RequestToUpdateOffenderDates.builder()
             .keyDates(createOffenderKeyDates(NOV_11_2021, NOV_11_2021, NOV_11_2021))
             .submissionUser("staff")
@@ -130,6 +128,8 @@ public class OffenderDatesServiceTest {
         final var bookingId = 1L;
         final var offenderBooking = OffenderBooking.builder().bookingId(bookingId).build();
         when(offenderBookingRepository.findById(bookingId)).thenReturn(Optional.of(offenderBooking));
+        when(calcReasonTypeReferenceCodeRepository.findById(CalcReasonType.pk("UPDATE")))
+            .thenReturn(Optional.of(new CalcReasonType("UPDATE", "Modify Sentence")));
         final var staff = "staff";
         when(staffUserAccountRepository.findById(staff)).thenReturn(Optional.empty());
 
