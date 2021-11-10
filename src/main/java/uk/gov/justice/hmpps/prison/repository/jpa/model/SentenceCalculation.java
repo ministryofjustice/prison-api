@@ -64,7 +64,6 @@ public class SentenceCalculation extends AuditableEntity {
     private Staff staff;
 
     @ManyToOne
-    @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + CALC_REASON_TYPE + "'", referencedColumnName = "domain")),
         @JoinColumnOrFormula(column = @JoinColumn(name = "CALC_REASON_CODE", referencedColumnName = "code"))

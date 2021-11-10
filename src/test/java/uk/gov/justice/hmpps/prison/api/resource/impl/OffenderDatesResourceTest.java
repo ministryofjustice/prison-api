@@ -39,7 +39,7 @@ public class OffenderDatesResourceTest extends ResourceTest {
         final var token = authTokenHelper.getToken(AuthToken.CRD_USER);
         final var body = RequestToUpdateOffenderDates.builder()
             .keyDates(OffenderDatesServiceTest.createOffenderKeyDates(NOV_11_2021, NOV_11_2021, NOV_11_2021))
-            .submissionUser("staff")
+            .submissionUser("ITAG_USER")
             .build();
         final var request = createHttpEntity(token, body);
 

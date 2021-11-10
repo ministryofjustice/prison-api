@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class RequestToUpdateOffenderDates {
 
-    @ApiModelProperty(required = true, value = "Username who used CRD service to submit calculated dates.")
+    @ApiModelProperty(required = true, value = "DPS/NOMIS user who submitted the calculated dates.")
     private String submissionUser;
 
     @ApiModelProperty(required = true, value = "Key dates to be updated for the offender.")

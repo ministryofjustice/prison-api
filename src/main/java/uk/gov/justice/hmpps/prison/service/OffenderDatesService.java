@@ -41,7 +41,7 @@ public class OffenderDatesService {
                 .offenderBooking(offenderBooking)
                 .calcReasonType(calcReasonTypeReferenceCodeRepository.findById(CalcReasonType.pk("OVERRIDE")).orElseThrow(EntityNotFoundException.withId("OVERRIDE"))) // Confirm this with CRD team
                 .calculationDate(LocalDate.now(clock))
-                .comments("Calculated externally")
+                .comments("Calculated externally") // Confirm this with CRD team 
                 .staff(staff)
                 .crdCalculatedDate(requestToUpdateOffenderDates.getKeyDates().getConditionalReleaseDate())
                 .ledCalculatedDate(requestToUpdateOffenderDates.getKeyDates().getLicenceExpiryDate())
