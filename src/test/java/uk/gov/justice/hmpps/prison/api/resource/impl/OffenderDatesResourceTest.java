@@ -31,7 +31,7 @@ public class OffenderDatesResourceTest extends ResourceTest {
         // Restore db change as cannot rollback server transaction in client
         // Inserting into the database broke other tests, such as OffendersResourceTest
         // because they depend on seed data from R__4_19__OFFENDER_SENT_CALCULATIONS.sql
-        jdbcTemplate.update("DELETE FROM OFFENDER_SENT_CALCULATIONS WHERE OFFENDER_BOOK_ID = -2 AND CALC_REASON_CODE = 'OVERRIDE'");
+        jdbcTemplate.update("DELETE FROM OFFENDER_SENT_CALCULATIONS WHERE OFFENDER_BOOK_ID = -2 AND COMMENT_TEXT LIKE 'CRD calculation %'");
     }
 
     @Test
