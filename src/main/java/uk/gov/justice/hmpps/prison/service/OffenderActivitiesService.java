@@ -29,7 +29,6 @@ public class OffenderActivitiesService {
         this.attendanceRepository = attendanceRepository;
     }
 
-    @PreAuthorize("hasRole('SYSTEM_USER')")
     public Page<OffenderActivitySummary> getStartedActivities(final String offenderNo, final LocalDate earliestEndDate, final Pageable pageable) {
         final var startedActivities = offenderProgramProfileRepository.findByNomisIdAndProgramStatusAndEndDateAfter(
             offenderNo, List.of("ALLOC", "END"),
@@ -53,9 +52,7 @@ public class OffenderActivitiesService {
             .build();
     }
 
-    @PreAuthorize("hasRole('SYSTEM_USER')")
     public Page<OffenderAttendance> getHistoricalAttendancies(final String offenderNo, final LocalDate earliestDate, final LocalDate latestDate, final Pageable pageable) {
-        // final var relevantBookingIds = bookingRepository.findByDates(offenderNo, earliestActivityDate.atStartOfDay(), latestActivityDate.plusDays(1).atStartOfDay()).stream().map(o -> o.getBookingId()).collect(Collectors.toList());
         return attendanceRepository.findByEventDateBetween(offenderNo, earliestDate, latestDate, pageable).map(this::transformAttendance);
     }
 
