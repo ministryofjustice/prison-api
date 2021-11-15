@@ -6,6 +6,10 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.v3.oas.annotations.Hidden;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
+import uk.gov.justice.hmpps.prison.api.model.AdjudicationSearchRequest;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
@@ -71,5 +76,13 @@ public class AdjudicationsResource {
     @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS')")
     public List<AdjudicationDetail> getAdjudications(@ApiParam(value = "The adjudication numbers", required = true, example = "[1,2,3]") @RequestBody final List<Long> adjudicationNumbers) {
         return adjudicationsService.getAdjudications(adjudicationNumbers);
+    }
+
+    @ApiOperation(value = "Search of adjudications", notes = "Requires MAINTAIN_ADJUDICATIONS access")
+    @PostMapping("/search")
+    @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS')")
+    public Page<AdjudicationDetail> getAdjudications(@ApiParam(value = "The adjudication search request", required = true) @RequestBody final AdjudicationSearchRequest searchRequest,
+                                                     @PageableDefault(sort = {"incidentDate", "incidentTime"}, direction = Sort.Direction.DESC, size = 20) final Pageable pageable) {
+        return adjudicationsService.getAdjudications(searchRequest, pageable);
     }
 }

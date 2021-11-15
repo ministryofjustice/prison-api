@@ -4,10 +4,13 @@ import com.google.common.collect.Lists;
 import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
+import uk.gov.justice.hmpps.prison.api.model.AdjudicationSearchRequest;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationActionCode;
@@ -141,6 +144,11 @@ public class AdjudicationsService {
                 numbers -> adjudicationsRepository.findByParties_AdjudicationNumberIn(numbers).stream()
             ).map(this::transformToDto)
             .collect(Collectors.toList());
+    }
+
+    public Page<AdjudicationDetail> getAdjudications(final AdjudicationSearchRequest searchRequest, Pageable page) {
+        return adjudicationsRepository.search(searchRequest.getAdjudicationMaskIds(), searchRequest.getAgencyLocationId(), page)
+            .map(this::transformToDto);
     }
 
     private void trackAdjudicationCreated(final Adjudication createdAdjudication) {

@@ -1,7 +1,10 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication;
 
 import java.util.List;
@@ -15,4 +18,7 @@ public interface AdjudicationRepository extends CrudRepository<Adjudication, Lon
 
     Optional<Adjudication> findByParties_AdjudicationNumber(final Long adjudicationNumber);
     List<Adjudication> findByParties_AdjudicationNumberIn(final List<Long> adjudicationNumbers);
+
+    @Query("SELECT DISTINCT a FROM Adjudication a JOIN a.parties p WHERE (:agencyLocationId IS null Or a.agencyLocation.id = :agencyLocationId) AND (p.adjudicationNumber IN :adjudicationNumbers)")
+    Page<Adjudication> search(final List<Long> adjudicationNumbers, final String agencyLocationId, Pageable pageable);
 }
