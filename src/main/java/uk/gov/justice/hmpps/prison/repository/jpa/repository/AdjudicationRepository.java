@@ -18,6 +18,12 @@ public interface AdjudicationRepository extends CrudRepository<Adjudication, Lon
     Optional<Adjudication> findByParties_AdjudicationNumber(final Long adjudicationNumber);
     List<Adjudication> findByParties_AdjudicationNumberIn(final List<Long> adjudicationNumbers);
 
-    @Query("SELECT DISTINCT a FROM Adjudication a JOIN a.parties p WHERE (:agencyLocationId IS null Or a.agencyLocation.id = :agencyLocationId) AND (p.adjudicationNumber IN :adjudicationNumbers)")
+    @Query("""
+           SELECT DISTINCT a 
+             FROM Adjudication a 
+             JOIN a.parties p 
+           WHERE (:agencyLocationId IS null Or a.agencyLocation.id = :agencyLocationId) 
+             AND (p.adjudicationNumber IN :adjudicationNumbers)
+             """)
     Page<Adjudication> search(final List<Long> adjudicationNumbers, final String agencyLocationId, Pageable pageable);
 }

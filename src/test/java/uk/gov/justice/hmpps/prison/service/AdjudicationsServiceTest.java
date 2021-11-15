@@ -216,7 +216,13 @@ public class AdjudicationsServiceTest {
         public void makesCallToRepositoryWithCorrectData() {
             when(adjudicationsRepository.search(any(), any(), any())).thenReturn(Page.empty());
 
-            service.search(AdjudicationSearchRequest.builder().adjudicationIdsMask(Arrays.asList(1L)).agencyLocationId("LEI").build(), Pageable.ofSize(20));
+            service.search(
+                AdjudicationSearchRequest.builder()
+                .adjudicationIdsMask(Arrays.asList(1L))
+                .agencyLocationId("LEI")
+                .build(),
+                Pageable.ofSize(20)
+            );
 
             verify(adjudicationsRepository).search(Arrays.asList(1L), "LEI", Pageable.ofSize(20));
         }
@@ -237,7 +243,13 @@ public class AdjudicationsServiceTest {
             when(adjudicationsRepository.search(any(), any(), any()))
                 .thenReturn(new PageImpl(List.of(foundAdjudication1, foundAdjudication2), Pageable.ofSize(20), 2));
 
-            final var returnedAdjudications = service.search(AdjudicationSearchRequest.builder().adjudicationIdsMask(Arrays.asList(1L)).agencyLocationId("LEI").build(), Pageable.ofSize(20));
+            final var returnedAdjudications
+                = service.search(
+                    AdjudicationSearchRequest.builder()
+                        .adjudicationIdsMask(Arrays.asList(1L))
+                        .agencyLocationId("LEI")
+                        .build(),
+                Pageable.ofSize(20));
 
             assertThat(returnedAdjudications.getContent()).containsExactlyInAnyOrder(
                 expectedReturnedAdjudication.toBuilder()
