@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
-import uk.gov.justice.hmpps.prison.api.model.AdjudicationSearchRequest;
 
 import java.util.List;
 import java.util.Map;
