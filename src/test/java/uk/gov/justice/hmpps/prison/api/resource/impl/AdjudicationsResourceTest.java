@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
+import uk.gov.justice.hmpps.prison.api.model.AdjudicationSearchRequest;
 
 import java.util.List;
 import java.util.Map;
@@ -173,6 +174,41 @@ public class AdjudicationsResourceTest extends ResourceTest  {
 
             final var response = testRestTemplate.exchange(
                 "/api/adjudications",
+                HttpMethod.POST,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                });
+
+            assertThatStatus(response, 403);
+        }
+    }
+
+    @Nested
+    public class SearchAdjudications {
+        @Test
+        public void returnsExpectedValue() {
+            final var token = validToken(List.of("ROLE_MAINTAIN_ADJUDICATIONS"));
+            final var body = Map.of(
+                "agencyLocationId", "LEI",
+                "adjudicationIdsMask", List.of(-5, -3001));
+            final var httpEntity = createHttpEntity(token, body);
+            final var response = testRestTemplate.exchange(
+                "/api/adjudications/search",
+                HttpMethod.POST,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                });
+
+            assertThatJsonFileAndStatus(response, 200, "adjudications_by_search.json");
+        }
+
+        @Test
+        public void returns403IfInvalidRole() {
+            final var token = validToken(List.of("ROLE_SYSTEM_USER"));
+            final var httpEntity = createHttpEntity(token, null);
+
+            final var response = testRestTemplate.exchange(
+                "/api/adjudications/search",
                 HttpMethod.POST,
                 httpEntity,
                 new ParameterizedTypeReference<String>() {

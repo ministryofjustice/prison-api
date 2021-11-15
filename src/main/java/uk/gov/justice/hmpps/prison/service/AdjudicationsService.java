@@ -146,8 +146,8 @@ public class AdjudicationsService {
             .collect(Collectors.toList());
     }
 
-    public Page<AdjudicationDetail> getAdjudications(final AdjudicationSearchRequest searchRequest, Pageable page) {
-        return adjudicationsRepository.search(searchRequest.getAdjudicationMaskIds(), searchRequest.getAgencyLocationId(), page)
+    public Page<AdjudicationDetail> search(final AdjudicationSearchRequest searchRequest, Pageable page) {
+        return adjudicationsRepository.search(searchRequest.getAdjudicationIdsMask(), searchRequest.getAgencyLocationId(), page)
             .map(this::transformToDto);
     }
 

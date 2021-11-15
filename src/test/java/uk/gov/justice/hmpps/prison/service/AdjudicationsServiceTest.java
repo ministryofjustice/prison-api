@@ -9,7 +9,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.hamcrest.MockitoHamcrest;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
+import uk.gov.justice.hmpps.prison.api.model.AdjudicationSearchRequest;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationActionCode;
@@ -32,6 +36,7 @@ import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -201,6 +206,51 @@ public class AdjudicationsServiceTest {
                 .hasMessageContaining("Location with id 456 does not exist or is not in your caseload");
 
             verifyNoMoreInteractions(telemetryClient);
+        }
+    }
+
+
+    @Nested
+    public class SearchAdjudications {
+        @Test
+        public void makesCallToRepositoryWithCorrectData() {
+            when(adjudicationsRepository.search(any(), any(), any())).thenReturn(Page.empty());
+
+            service.search(AdjudicationSearchRequest.builder().adjudicationIdsMask(Arrays.asList(1L)).agencyLocationId("LEI").build(), Pageable.ofSize(20));
+
+            verify(adjudicationsRepository).search(Arrays.asList(1L), "LEI", Pageable.ofSize(20));
+        }
+
+        @Test
+        public void returnsCorrectData() {
+            final var mockDataProvider = new MockDataProvider();
+            final var foundAdjudication1 = generateExampleAdjudication(mockDataProvider, 1);
+            final var foundAdjudication2 = generateExampleAdjudication(mockDataProvider, 2);
+
+            final var expectedReturnedAdjudication = AdjudicationDetail.builder()
+                .reporterStaffId(mockDataProvider.reporter.getStaff().getStaffId())
+                .bookingId(mockDataProvider.booking.getBookingId())
+                .offenderNo(mockDataProvider.booking.getOffender().getNomsId())
+                .incidentLocationId(mockDataProvider.internalLocation.getLocationId())
+                .build();
+
+            when(adjudicationsRepository.search(any(), any(), any()))
+                .thenReturn(new PageImpl(List.of(foundAdjudication1, foundAdjudication2), Pageable.ofSize(20), 2));
+
+            final var returnedAdjudications = service.search(AdjudicationSearchRequest.builder().adjudicationIdsMask(Arrays.asList(1L)).agencyLocationId("LEI").build(), Pageable.ofSize(20));
+
+            assertThat(returnedAdjudications.getContent()).containsExactlyInAnyOrder(
+                expectedReturnedAdjudication.toBuilder()
+                    .adjudicationNumber(foundAdjudication1.getOffenderParty().get().getAdjudicationNumber())
+                    .incidentTime(foundAdjudication1.getIncidentTime())
+                    .statement(foundAdjudication1.getIncidentDetails())
+                    .build(),
+                expectedReturnedAdjudication.toBuilder()
+                    .adjudicationNumber(foundAdjudication2.getOffenderParty().get().getAdjudicationNumber())
+                    .incidentTime(foundAdjudication2.getIncidentTime())
+                    .statement(foundAdjudication2.getIncidentDetails())
+                    .build()
+            );
         }
     }
 

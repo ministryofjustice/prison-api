@@ -19,7 +19,7 @@ import java.util.List;
 public class AdjudicationSearchRequest {
 
     @ApiModelProperty(required = true, value = "The list of adjudications ids that mask the results", example = "[1,2,3]")
-    private List<Long> adjudicationMaskIds;
+    private List<Long> adjudicationIdsMask;
 
     @ApiModelProperty(value = "Agency Id", example = "MDI", position = 2)
     @NotNull

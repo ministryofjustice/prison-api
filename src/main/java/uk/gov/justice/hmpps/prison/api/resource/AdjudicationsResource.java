@@ -91,9 +91,9 @@ public class AdjudicationsResource {
             value = "Sort as combined comma separated property and uppercase direction. Multiple sort params allowed to sort by multiple properties. Default to incidentDate,incidentTime ASC")})
     @PostMapping("/search")
     @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS')")
-    public Page<AdjudicationDetail> getAdjudications(@ApiParam(value = "The adjudication search request", required = true) @RequestBody final AdjudicationSearchRequest searchRequest,
-                                                     @PageableDefault(sort = {"incidentDate", "incidentTime"}, direction = Sort.Direction.DESC, size = 20)
-                                                     @ApiIgnore final Pageable pageable) {
-        return adjudicationsService.getAdjudications(searchRequest, pageable);
+    public Page<AdjudicationDetail> search(@ApiParam(value = "The adjudication search request", required = true) @RequestBody final AdjudicationSearchRequest searchRequest,
+                                           @PageableDefault(sort = {"incidentDate", "incidentTime"}, direction = Sort.Direction.DESC, size = 20)
+                                           @ApiIgnore final Pageable pageable) {
+        return adjudicationsService.search(searchRequest, pageable);
     }
 }
