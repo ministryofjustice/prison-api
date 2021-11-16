@@ -1,11 +1,17 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.v3.oas.annotations.Hidden;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,7 +22,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
+import uk.gov.justice.hmpps.prison.api.model.AdjudicationSearchRequest;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
@@ -71,5 +79,21 @@ public class AdjudicationsResource {
     @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS')")
     public List<AdjudicationDetail> getAdjudications(@ApiParam(value = "The adjudication numbers", required = true, example = "[1,2,3]") @RequestBody final List<Long> adjudicationNumbers) {
         return adjudicationsService.getAdjudications(adjudicationNumbers);
+    }
+
+    @ApiOperation(value = "Search of adjudications", notes = "Requires MAINTAIN_ADJUDICATIONS access")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "page", dataType = "java.lang.Integer", paramType = "query",
+            value = "Results page you want to retrieve (0..N). Default 0, e.g. the first page", example = "0"),
+        @ApiImplicitParam(name = "size", dataType = "java.lang.Integer", paramType = "query",
+            value = "Number of records per page. Default 20"),
+        @ApiImplicitParam(name = "sort", dataType = "java.lang.String", paramType = "query",
+            value = "Sort as combined comma separated property and uppercase direction. Multiple sort params allowed to sort by multiple properties. Default to incidentDate,incidentTime ASC")})
+    @PostMapping("/search")
+    @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS')")
+    public Page<AdjudicationDetail> search(@ApiParam(value = "The adjudication search request", required = true) @RequestBody final AdjudicationSearchRequest searchRequest,
+                                           @ApiIgnore
+                                           @PageableDefault(sort = {"incidentDate", "incidentTime"}, direction = Sort.Direction.DESC, size = 20) final Pageable pageable) {
+        return adjudicationsService.search(searchRequest, pageable);
     }
 }
