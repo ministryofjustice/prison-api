@@ -30,6 +30,6 @@ public class OffenderKeyDates {
     @ApiModelProperty(required = true, value = "Effective sentence end date.", example = "2020-02-03")
     private LocalDate effectiveSentenceEndDate;
 
-    @ApiModelProperty(required = true, value = "Sentence length.", example = "11/00/00")
+    @ApiModelProperty(required = true, value = "Sentence length in the format 00 years/00 months/00 days.", example = "11/00/00")
     private String sentenceLength;
 }
