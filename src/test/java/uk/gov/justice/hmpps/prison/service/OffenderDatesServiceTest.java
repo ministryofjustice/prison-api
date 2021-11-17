@@ -19,6 +19,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRep
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Optional;
 import java.util.UUID;
@@ -58,11 +59,11 @@ public class OffenderDatesServiceTest {
         when(calcReasonTypeReferenceCodeRepository.findById(CalcReasonType.pk("UPDATE")))
             .thenReturn(Optional.of(new CalcReasonType("UPDATE", "Modify Sentence")));
         final var staff = Staff.builder().staffId(2L).firstName("Other").lastName("Staff").build();
-        when(staffUserAccountRepository.findById("staff"))
-            .thenReturn(Optional.of(StaffUserAccount.builder().username("staff").staff(staff).build()));
+        final var staffUserAccount = StaffUserAccount.builder().username("staff").staff(staff).build();
+        when(staffUserAccountRepository.findById("staff")).thenReturn(Optional.of(staffUserAccount));
         final var calculationUuid = UUID.randomUUID();
         final var payload = RequestToUpdateOffenderDates.builder()
-                .keyDates(createOffenderKeyDates(NOV_11_2021, NOV_11_2021, NOV_11_2021))
+                .keyDates(createOffenderKeyDates())
                 .submissionUser("staff")
                 .calculationUuid(calculationUuid)
                 .build();
@@ -74,9 +75,11 @@ public class OffenderDatesServiceTest {
         final var expected = SentenceCalculation.builder()
             .offenderBooking(offenderBooking)
             .calcReasonType(new CalcReasonType("UPDATE", "Modify Sentence"))
-            .calculationDate(LocalDate.now(clock))
+            .calculationDate(LocalDateTime.now(clock))
             .comments("CRD calculation ID: " + calculationUuid)
             .staff(staff)
+            .recordedDateTime(LocalDateTime.now(clock))
+            .recordedUser(staffUserAccount)
             .crdCalculatedDate(payload.getKeyDates().getConditionalReleaseDate())
             .ledCalculatedDate(payload.getKeyDates().getLicenceExpiryDate())
             .sedCalculatedDate(payload.getKeyDates().getSentenceExpiryDate())
@@ -110,7 +113,7 @@ public class OffenderDatesServiceTest {
         when(offenderBookingRepository.findById(bookingId)).thenReturn(Optional.of(offenderBooking));
         final var staff = Staff.builder().staffId(2L).firstName("Other").lastName("Staff").build();
         final var payload = RequestToUpdateOffenderDates.builder()
-            .keyDates(createOffenderKeyDates(NOV_11_2021, NOV_11_2021, NOV_11_2021))
+            .keyDates(createOffenderKeyDates())
             .submissionUser("staff")
             .build();
         when(calcReasonTypeReferenceCodeRepository.findById(CalcReasonType.pk("UPDATE")))
@@ -137,6 +140,14 @@ public class OffenderDatesServiceTest {
         assertThatThrownBy(() -> service.updateOffenderKeyDates(bookingId, RequestToUpdateOffenderDates.builder().submissionUser(staff).build()))
             .isInstanceOf(EntityNotFoundException.class)
             .hasMessage("Resource with id [staff] not found.");
+    }
+
+    public static OffenderKeyDates createOffenderKeyDates() {
+        return OffenderKeyDates.builder()
+            .conditionalReleaseDate(NOV_11_2021)
+            .licenceExpiryDate(NOV_11_2021)
+            .sentenceExpiryDate(NOV_11_2021)
+            .build();
     }
 
     public static OffenderKeyDates createOffenderKeyDates(LocalDate conditionalReleaseDate, LocalDate licenceExpiryDate, LocalDate sentenceExpiryDate) {

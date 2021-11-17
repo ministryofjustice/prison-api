@@ -1,10 +1,10 @@
 {
-  "sentenceExpiryDate": "2021-11-08",
-  "conditionalReleaseDate": "2021-11-08",
-  "licenceExpiryDate": "2021-11-08",
+  "sentenceExpiryDate": "2021-11-03",
+  "conditionalReleaseDate": "2021-11-01",
+  "licenceExpiryDate": "2021-11-02",
   "bookingId": -2,
   "sentenceStartDate": "2017-05-22",
-  "nonDtoReleaseDate": "2021-11-08",
+  "nonDtoReleaseDate": "2021-11-01",
   "nonDtoReleaseDateType": "CRD",
   "confirmedReleaseDate": "2018-04-19",
   "releaseDate": "2018-04-19"

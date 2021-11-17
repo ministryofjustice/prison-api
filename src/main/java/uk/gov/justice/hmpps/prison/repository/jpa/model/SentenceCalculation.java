@@ -54,7 +54,7 @@ public class SentenceCalculation extends AuditableEntity {
     private OffenderBooking offenderBooking;
 
     @Column(name = "CALCULATION_DATE")
-    private LocalDate calculationDate;
+    private LocalDateTime calculationDate;
 
     @Column(name = "COMMENT_TEXT")
     private String comments;
