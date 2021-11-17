@@ -21,7 +21,6 @@ import static org.springframework.http.HttpMethod.GET;
 public class OffenderDatesResourceTest extends ResourceTest {
 
     private static final long BOOKING_ID = -2;
-    private static final LocalDate NOV_11_2021 = LocalDate.of(2021, 11, 8);
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -39,7 +38,12 @@ public class OffenderDatesResourceTest extends ResourceTest {
         // Given
         final var token = authTokenHelper.getToken(AuthToken.CRD_USER);
         final var body = RequestToUpdateOffenderDates.builder()
-            .keyDates(OffenderDatesServiceTest.createOffenderKeyDates(NOV_11_2021, NOV_11_2021, NOV_11_2021))
+            .keyDates(OffenderDatesServiceTest.createOffenderKeyDates(
+                LocalDate.of(2021, 11, 1),
+                LocalDate.of(2021, 11, 2),
+                LocalDate.of(2021, 11, 3),
+                LocalDate.of(2021, 11, 4),
+                "11/00/00"))
             .submissionUser("ITAG_USER")
             .calculationUuid(UUID.randomUUID())
             .build();
@@ -97,7 +101,7 @@ public class OffenderDatesResourceTest extends ResourceTest {
         // Given
         final var token = authTokenHelper.getToken(AuthToken.CRD_USER);
         final var body = RequestToUpdateOffenderDates.builder()
-            .keyDates(OffenderDatesServiceTest.createOffenderKeyDates(NOV_11_2021, NOV_11_2021, NOV_11_2021))
+            .keyDates(OffenderDatesServiceTest.createOffenderKeyDates())
             .submissionUser("fake user")
             .calculationUuid(UUID.randomUUID())
             .build();
