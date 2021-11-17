@@ -31,7 +31,9 @@ public class OffenderDatesService {
     public SentenceCalcDates updateOffenderKeyDates(Long bookingId, RequestToUpdateOffenderDates requestToUpdateOffenderDates) {
         final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
 
-        final var calculationDate = LocalDateTime.now(clock);
+        final var calculationDate = requestToUpdateOffenderDates.getCalculationDateTime() != null
+            ? requestToUpdateOffenderDates.getCalculationDateTime()
+            : LocalDateTime.now(clock);
 
         final var calcReasonCode = "UPDATE";
         final var calcReason = calcReasonTypeReferenceCodeRepository.findById(CalcReasonType.pk(calcReasonCode))
@@ -52,6 +54,9 @@ public class OffenderDatesService {
                 .crdCalculatedDate(requestToUpdateOffenderDates.getKeyDates().getConditionalReleaseDate())
                 .ledCalculatedDate(requestToUpdateOffenderDates.getKeyDates().getLicenceExpiryDate())
                 .sedCalculatedDate(requestToUpdateOffenderDates.getKeyDates().getSentenceExpiryDate())
+                .effectiveSentenceEndDate(requestToUpdateOffenderDates.getKeyDates().getEffectiveSentenceEndDate())
+                .effectiveSentenceLength(requestToUpdateOffenderDates.getKeyDates().getSentenceLength())
+                .judiciallyImposedSentenceLength(requestToUpdateOffenderDates.getKeyDates().getSentenceLength())
                 .build();
         offenderBooking.addSentenceCalculation(sentenceCalculation);
         return offenderBooking.getSentenceCalcDates(Optional.of(sentenceCalculation));

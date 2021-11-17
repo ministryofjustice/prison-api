@@ -41,7 +41,9 @@ public class OffenderDatesResourceTest extends ResourceTest {
             .keyDates(OffenderDatesServiceTest.createOffenderKeyDates(
                 LocalDate.of(2021, 11, 1),
                 LocalDate.of(2021, 11, 2),
-                LocalDate.of(2021, 11, 3)))
+                LocalDate.of(2021, 11, 3),
+                LocalDate.of(2021, 11, 4),
+                "11/00/00"))
             .submissionUser("ITAG_USER")
             .calculationUuid(UUID.randomUUID())
             .build();

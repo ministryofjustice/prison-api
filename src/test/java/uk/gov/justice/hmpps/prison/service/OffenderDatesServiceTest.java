@@ -62,11 +62,13 @@ public class OffenderDatesServiceTest {
         final var staffUserAccount = StaffUserAccount.builder().username("staff").staff(staff).build();
         when(staffUserAccountRepository.findById("staff")).thenReturn(Optional.of(staffUserAccount));
         final var calculationUuid = UUID.randomUUID();
+        final var calculationDateTime = LocalDateTime.of(2021, 11, 17, 11, 0);
         final var payload = RequestToUpdateOffenderDates.builder()
-                .keyDates(createOffenderKeyDates())
-                .submissionUser("staff")
-                .calculationUuid(calculationUuid)
-                .build();
+            .keyDates(createOffenderKeyDates())
+            .submissionUser("staff")
+            .calculationDateTime(calculationDateTime)
+            .calculationUuid(calculationUuid)
+            .build();
 
         // When
         service.updateOffenderKeyDates(bookingId, payload);
@@ -75,20 +77,51 @@ public class OffenderDatesServiceTest {
         final var expected = SentenceCalculation.builder()
             .offenderBooking(offenderBooking)
             .calcReasonType(new CalcReasonType("UPDATE", "Modify Sentence"))
-            .calculationDate(LocalDateTime.now(clock))
+            .calculationDate(calculationDateTime)
             .comments("CRD calculation ID: " + calculationUuid)
             .staff(staff)
-            .recordedDateTime(LocalDateTime.now(clock))
+            .recordedDateTime(calculationDateTime)
             .recordedUser(staffUserAccount)
             .crdCalculatedDate(payload.getKeyDates().getConditionalReleaseDate())
             .ledCalculatedDate(payload.getKeyDates().getLicenceExpiryDate())
             .sedCalculatedDate(payload.getKeyDates().getSentenceExpiryDate())
+            .effectiveSentenceEndDate(payload.getKeyDates().getEffectiveSentenceEndDate())
+            .effectiveSentenceLength(payload.getKeyDates().getSentenceLength())
+            .judiciallyImposedSentenceLength(payload.getKeyDates().getSentenceLength())
             .build();
 
         assertThat(offenderBooking.getSentenceCalculations()).containsOnly(
             expected
         );
         assertEquals(Optional.of(expected), offenderBooking.getLatestCalculation());
+    }
+
+    @Test
+    void updateOffenderDates_happy_path_default_calculation_date() {
+        // Given
+        final var bookingId = 1L;
+        final var offenderBooking = OffenderBooking.builder().bookingId(bookingId).build();
+        when(offenderBookingRepository.findById(bookingId)).thenReturn(Optional.of(offenderBooking));
+        when(calcReasonTypeReferenceCodeRepository.findById(CalcReasonType.pk("UPDATE")))
+            .thenReturn(Optional.of(new CalcReasonType("UPDATE", "Modify Sentence")));
+        final var staff = Staff.builder().staffId(2L).firstName("Other").lastName("Staff").build();
+        final var staffUserAccount = StaffUserAccount.builder().username("staff").staff(staff).build();
+        when(staffUserAccountRepository.findById("staff")).thenReturn(Optional.of(staffUserAccount));
+        final var calculationUuid = UUID.randomUUID();
+        final var payload = RequestToUpdateOffenderDates.builder()
+            .keyDates(createOffenderKeyDates())
+            .submissionUser("staff")
+            .calculationUuid(calculationUuid)
+            .build();
+
+        // When
+        service.updateOffenderKeyDates(bookingId, payload);
+
+        // Then
+        final var defaultedCalculationDate = LocalDateTime.now(clock);
+        final var latestCalculation = offenderBooking.getLatestCalculation().get();
+        assertEquals(defaultedCalculationDate, latestCalculation.getCalculationDate());
+        assertEquals(defaultedCalculationDate, latestCalculation.getRecordedDateTime());
     }
 
     @Test
@@ -143,18 +176,20 @@ public class OffenderDatesServiceTest {
     }
 
     public static OffenderKeyDates createOffenderKeyDates() {
-        return OffenderKeyDates.builder()
-            .conditionalReleaseDate(NOV_11_2021)
-            .licenceExpiryDate(NOV_11_2021)
-            .sentenceExpiryDate(NOV_11_2021)
-            .build();
+        return createOffenderKeyDates(NOV_11_2021, NOV_11_2021, NOV_11_2021, NOV_11_2021, "11/00/00");
     }
 
-    public static OffenderKeyDates createOffenderKeyDates(LocalDate conditionalReleaseDate, LocalDate licenceExpiryDate, LocalDate sentenceExpiryDate) {
+    public static OffenderKeyDates createOffenderKeyDates(LocalDate conditionalReleaseDate,
+                                                          LocalDate licenceExpiryDate,
+                                                          LocalDate sentenceExpiryDate,
+                                                          LocalDate effectiveSentenceEndDate,
+                                                          String sentenceLength) {
         return OffenderKeyDates.builder()
             .conditionalReleaseDate(conditionalReleaseDate)
             .licenceExpiryDate(licenceExpiryDate)
             .sentenceExpiryDate(sentenceExpiryDate)
+            .effectiveSentenceEndDate(effectiveSentenceEndDate)
+            .sentenceLength(sentenceLength)
             .build();
     }
 }
