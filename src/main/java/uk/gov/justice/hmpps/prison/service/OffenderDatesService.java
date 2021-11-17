@@ -42,6 +42,8 @@ public class OffenderDatesService {
         final var staffUserAccount = staffUserAccountRepository.findById(requestToUpdateOffenderDates.getSubmissionUser())
             .orElseThrow(EntityNotFoundException.withId(requestToUpdateOffenderDates.getSubmissionUser()));
 
+        final var keyDatesFromPayload = requestToUpdateOffenderDates.getKeyDates();
+
         final var sentenceCalculation =
             SentenceCalculation.builder()
                 .offenderBooking(offenderBooking)
@@ -51,12 +53,22 @@ public class OffenderDatesService {
                 .staff(staffUserAccount.getStaff())
                 .recordedUser(staffUserAccount)
                 .recordedDateTime(calculationDate)
-                .crdCalculatedDate(requestToUpdateOffenderDates.getKeyDates().getConditionalReleaseDate())
-                .ledCalculatedDate(requestToUpdateOffenderDates.getKeyDates().getLicenceExpiryDate())
-                .sedCalculatedDate(requestToUpdateOffenderDates.getKeyDates().getSentenceExpiryDate())
-                .effectiveSentenceEndDate(requestToUpdateOffenderDates.getKeyDates().getEffectiveSentenceEndDate())
-                .effectiveSentenceLength(requestToUpdateOffenderDates.getKeyDates().getSentenceLength())
-                .judiciallyImposedSentenceLength(requestToUpdateOffenderDates.getKeyDates().getSentenceLength())
+                .hdcedCalculatedDate(keyDatesFromPayload.getHomeDetentionCurfewEligibilityDate())
+                .etdCalculatedDate(keyDatesFromPayload.getEarlyTermDate())
+                .mtdCalculatedDate(keyDatesFromPayload.getMidTermDate())
+                .ltdCalculatedDate(keyDatesFromPayload.getLateTermDate())
+                .dprrdCalculatedDate(keyDatesFromPayload.getDtoPostRecallReleaseDate())
+                .ardCalculatedDate(keyDatesFromPayload.getAutomaticReleaseDate())
+                .crdCalculatedDate(keyDatesFromPayload.getConditionalReleaseDate())
+                .pedCalculatedDate(keyDatesFromPayload.getParoleEligibilityDate())
+                .npdCalculatedDate(keyDatesFromPayload.getNonParoleDate())
+                .ledCalculatedDate(keyDatesFromPayload.getLicenceExpiryDate())
+                .prrdCalculatedDate(keyDatesFromPayload.getPostRecallReleaseDate())
+                .sedCalculatedDate(keyDatesFromPayload.getSentenceExpiryDate())
+                .tusedCalculatedDate(keyDatesFromPayload.getTopupSupervisionExpiryDate())
+                .effectiveSentenceEndDate(keyDatesFromPayload.getEffectiveSentenceEndDate())
+                .effectiveSentenceLength(keyDatesFromPayload.getSentenceLength())
+                .judiciallyImposedSentenceLength(keyDatesFromPayload.getSentenceLength())
                 .build();
         offenderBooking.addSentenceCalculation(sentenceCalculation);
         return offenderBooking.getSentenceCalcDates(Optional.of(sentenceCalculation));

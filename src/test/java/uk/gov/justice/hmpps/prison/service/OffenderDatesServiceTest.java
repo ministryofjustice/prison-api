@@ -69,6 +69,7 @@ public class OffenderDatesServiceTest {
             .calculationDateTime(calculationDateTime)
             .calculationUuid(calculationUuid)
             .build();
+        final var keyDates = payload.getKeyDates();
 
         // When
         service.updateOffenderKeyDates(bookingId, payload);
@@ -82,12 +83,22 @@ public class OffenderDatesServiceTest {
             .staff(staff)
             .recordedDateTime(calculationDateTime)
             .recordedUser(staffUserAccount)
-            .crdCalculatedDate(payload.getKeyDates().getConditionalReleaseDate())
-            .ledCalculatedDate(payload.getKeyDates().getLicenceExpiryDate())
-            .sedCalculatedDate(payload.getKeyDates().getSentenceExpiryDate())
-            .effectiveSentenceEndDate(payload.getKeyDates().getEffectiveSentenceEndDate())
-            .effectiveSentenceLength(payload.getKeyDates().getSentenceLength())
-            .judiciallyImposedSentenceLength(payload.getKeyDates().getSentenceLength())
+            .hdcedCalculatedDate(keyDates.getHomeDetentionCurfewEligibilityDate())
+            .etdCalculatedDate(keyDates.getEarlyTermDate())
+            .mtdCalculatedDate(keyDates.getMidTermDate())
+            .ltdCalculatedDate(keyDates.getLateTermDate())
+            .dprrdCalculatedDate(keyDates.getDtoPostRecallReleaseDate())
+            .ardCalculatedDate(keyDates.getAutomaticReleaseDate())
+            .crdCalculatedDate(keyDates.getConditionalReleaseDate())
+            .pedCalculatedDate(keyDates.getParoleEligibilityDate())
+            .npdCalculatedDate(keyDates.getNonParoleDate())
+            .ledCalculatedDate(keyDates.getLicenceExpiryDate())
+            .prrdCalculatedDate(keyDates.getPostRecallReleaseDate())
+            .sedCalculatedDate(keyDates.getSentenceExpiryDate())
+            .tusedCalculatedDate(keyDates.getTopupSupervisionExpiryDate())
+            .effectiveSentenceEndDate(keyDates.getEffectiveSentenceEndDate())
+            .effectiveSentenceLength(keyDates.getSentenceLength())
+            .judiciallyImposedSentenceLength(keyDates.getSentenceLength())
             .build();
 
         assertThat(offenderBooking.getSentenceCalculations()).containsOnly(
@@ -176,18 +187,43 @@ public class OffenderDatesServiceTest {
     }
 
     public static OffenderKeyDates createOffenderKeyDates() {
-        return createOffenderKeyDates(NOV_11_2021, NOV_11_2021, NOV_11_2021, NOV_11_2021, "11/00/00");
+        return createOffenderKeyDates(
+            NOV_11_2021, NOV_11_2021, NOV_11_2021,
+            NOV_11_2021, NOV_11_2021, NOV_11_2021,
+            NOV_11_2021, NOV_11_2021, NOV_11_2021,
+            NOV_11_2021, NOV_11_2021, NOV_11_2021,
+            NOV_11_2021, NOV_11_2021, "11/00/00");
     }
 
-    public static OffenderKeyDates createOffenderKeyDates(LocalDate conditionalReleaseDate,
+    public static OffenderKeyDates createOffenderKeyDates(LocalDate homeDetentionCurfewEligibilityDate,
+                                                          LocalDate earlyTermDate,
+                                                          LocalDate midTermDate,
+                                                          LocalDate lateTermDate,
+                                                          LocalDate dtoPostRecallReleaseDate,
+                                                          LocalDate automaticReleaseDate,
+                                                          LocalDate conditionalReleaseDate,
+                                                          LocalDate paroleEligibilityDate,
+                                                          LocalDate nonParoleDate,
                                                           LocalDate licenceExpiryDate,
+                                                          LocalDate postRecallReleaseDate,
                                                           LocalDate sentenceExpiryDate,
+                                                          LocalDate topupSupervisionExpiryDate,
                                                           LocalDate effectiveSentenceEndDate,
                                                           String sentenceLength) {
         return OffenderKeyDates.builder()
+            .homeDetentionCurfewEligibilityDate(homeDetentionCurfewEligibilityDate)
+            .earlyTermDate(earlyTermDate)
+            .midTermDate(midTermDate)
+            .lateTermDate(lateTermDate)
+            .dtoPostRecallReleaseDate(dtoPostRecallReleaseDate)
+            .automaticReleaseDate(automaticReleaseDate)
             .conditionalReleaseDate(conditionalReleaseDate)
+            .paroleEligibilityDate(paroleEligibilityDate)
+            .nonParoleDate(nonParoleDate)
             .licenceExpiryDate(licenceExpiryDate)
+            .postRecallReleaseDate(postRecallReleaseDate)
             .sentenceExpiryDate(sentenceExpiryDate)
+            .topupSupervisionExpiryDate(topupSupervisionExpiryDate)
             .effectiveSentenceEndDate(effectiveSentenceEndDate)
             .sentenceLength(sentenceLength)
             .build();
