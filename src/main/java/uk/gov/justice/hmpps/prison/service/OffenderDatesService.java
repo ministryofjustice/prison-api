@@ -75,7 +75,12 @@ public class OffenderDatesService {
                 .build();
         offenderBooking.addSentenceCalculation(sentenceCalculation);
 
-        telemetryClient.trackEvent("OffenderKeyDatesUpdated", ImmutableMap.of("bookingId", bookingId.toString(), "calculationUuid", requestToUpdateOffenderDates.getCalculationUuid().toString()), null);
+        telemetryClient.trackEvent("OffenderKeyDatesUpdated",
+            ImmutableMap.of(
+                "bookingId", bookingId.toString(),
+                "calculationUuid", requestToUpdateOffenderDates.getCalculationUuid().toString(),
+                "submissionUser", requestToUpdateOffenderDates.getSubmissionUser()
+            ), null);
 
         return offenderBooking.getSentenceCalcDates(Optional.of(sentenceCalculation));
     }
