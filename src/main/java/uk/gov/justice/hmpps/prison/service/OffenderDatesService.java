@@ -1,5 +1,7 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import com.google.common.collect.ImmutableMap;
+import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,7 @@ public class OffenderDatesService {
     private final OffenderBookingRepository offenderBookingRepository;
     private final StaffUserAccountRepository staffUserAccountRepository;
     private final ReferenceCodeRepository<CalcReasonType> calcReasonTypeReferenceCodeRepository;
+    private final TelemetryClient telemetryClient;
     private final Clock clock;
 
     @Transactional
@@ -71,6 +74,9 @@ public class OffenderDatesService {
                 .judiciallyImposedSentenceLength(keyDatesFromPayload.getSentenceLength())
                 .build();
         offenderBooking.addSentenceCalculation(sentenceCalculation);
+
+        telemetryClient.trackEvent("OffenderKeyDatesUpdated", ImmutableMap.of("bookingId", bookingId.toString(), "calculationUuid", requestToUpdateOffenderDates.getCalculationUuid().toString()), null);
+
         return offenderBooking.getSentenceCalcDates(Optional.of(sentenceCalculation));
     }
 }
