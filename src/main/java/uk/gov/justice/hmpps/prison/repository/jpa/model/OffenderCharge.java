@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.BatchSize;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOffence;
 
 import javax.persistence.Column;
@@ -27,6 +28,7 @@ import java.time.LocalDate;
 @EqualsAndHashCode(of = { "id" }, callSuper = false)
 @Table(name = "OFFENDER_CHARGES")
 @ToString(exclude = {"offenderBooking", "offenderCourtCase"})
+@BatchSize(size = 25)
 public class OffenderCharge extends AuditableEntity {
 
     private static final String ACTIVE = "A";
@@ -48,6 +50,7 @@ public class OffenderCharge extends AuditableEntity {
         @JoinColumn(name="OFFENCE_CODE", referencedColumnName="OFFENCE_CODE"),
         @JoinColumn(name="STATUTE_CODE", referencedColumnName="STATUTE_CODE")
     })
+    @BatchSize(size = 25)
     private Offence offence;
 
     @Column(name = "NO_OF_OFFENCES")

@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences;
 
 import javax.persistence.Column;
@@ -92,6 +93,7 @@ public class OffenderSentence extends AuditableEntity {
         @JoinColumn(name = "SENTENCE_CALC_TYPE", referencedColumnName = "SENTENCE_CALC_TYPE"),
         @JoinColumn(name = "SENTENCE_CATEGORY", referencedColumnName = "SENTENCE_CATEGORY")
     })
+    @BatchSize(size = 25)
     private SentenceCalcType calculationType;
 
     @OneToMany(fetch = FetchType.LAZY)
@@ -99,6 +101,7 @@ public class OffenderSentence extends AuditableEntity {
         @JoinColumn(name = "OFFENDER_BOOK_ID", referencedColumnName = "OFFENDER_BOOK_ID"),
         @JoinColumn(name = "SENTENCE_SEQ", referencedColumnName = "SENTENCE_SEQ")
     })
+    @BatchSize(size = 25)
     private List<SentenceTerm> terms;
 
     @Column(name = "START_DATE")
@@ -118,6 +121,7 @@ public class OffenderSentence extends AuditableEntity {
         @JoinColumn(name = "OFFENDER_BOOK_ID", referencedColumnName = "OFFENDER_BOOK_ID"),
         @JoinColumn(name = "SENTENCE_SEQ", referencedColumnName = "SENTENCE_SEQ")
     })
+    @BatchSize(size = 25)
     private List<OffenderSentenceCharge> offenderSentenceCharges;
 
     public OffenderSentenceAndOffences getSentenceAndOffenceDetail() {
@@ -136,7 +140,7 @@ public class OffenderSentence extends AuditableEntity {
             .days(terms == null ? 0 : terms.stream().mapToInt(val -> val.getDays() == null ? 0 : val.getDays()).sum())
             .offences(offenderSentenceCharges == null ? null : offenderSentenceCharges
                 .stream()
-                .map(i -> i.getOffenderCharge())
+                .map(OffenderSentenceCharge::getOffenderCharge)
                 .map(OffenderCharge::getOffenceDetail)
                 .collect(Collectors.toList()))
             .build();

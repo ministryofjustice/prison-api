@@ -103,6 +103,7 @@ public class Offender extends AuditableEntity {
     @OneToMany(mappedBy = "offender", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Default
     @Exclude
+    @BatchSize(size = 25)
     private List<OffenderBooking> bookings = new ArrayList<>();
 
     @OneToMany(mappedBy = "offender", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
