@@ -71,10 +71,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocat
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AvailablePrisonIepLevelRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPersonsRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRestrictionRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
@@ -125,10 +123,7 @@ public class BookingServiceTest {
     private AgencyService agencyService;
     @Mock
     private AgencyInternalLocationRepository agencyInternalLocationRepository;
-    @Mock
-    private OffenderSentenceAdjustmentRepository offenderSentenceAdjustmentRepository;
-    @Mock
-    private OffenderKeyDateAdjustmentRepository offenderKeyDateAdjustmentRepository;
+
     @Mock
     private OffenderContactPersonsRepository offenderContactPersonsRepository;
     @Mock
@@ -165,8 +160,6 @@ public class BookingServiceTest {
                 caseLoadService,
                 caseloadToAgencyMappingService,
                 agencyInternalLocationRepository,
-                offenderSentenceAdjustmentRepository,
-                offenderKeyDateAdjustmentRepository,
                 offenderContactPersonsRepository,
                 staffUserAccountRepository,
                 offenderBookingTransformer,
@@ -1132,21 +1125,20 @@ public class BookingServiceTest {
                         .build()
         );
 
-        when(offenderKeyDateAdjustmentRepository.findAllByOffenderBooking_BookingId(-6L)).thenReturn(offenderKeyDateAdjustments);
-        when(offenderSentenceAdjustmentRepository.findAllByOffenderBooking_BookingId(-6L)).thenReturn(offenderSentenceAdjustments);
+        when(offenderBookingRepository.findById(-6L)).thenReturn(
+            Optional.of(OffenderBooking.builder()
+                .keyDateAdjustments(offenderKeyDateAdjustments)
+                .sentenceAdjustments(offenderSentenceAdjustments)
+            .build()));
 
         final SentenceAdjustmentDetail sentenceAdjustmentDetail = bookingService.getBookingSentenceAdjustments(-6L);
 
         assertThat(sentenceAdjustmentDetail).isEqualTo(
                 SentenceAdjustmentDetail.builder()
                         .additionalDaysAwarded(17)
-                        .lawfullyAtLarge(0)
-                        .specialRemission(0)
-                        .recallSentenceTaggedBail(0)
                         .unlawfullyAtLarge(7)
                         .restoredAdditionalDaysAwarded(2)
                         .recallSentenceRemand(4)
-                        .taggedBail(0)
                         .remand(8)
                         .unusedRemand(4)
                         .build());
@@ -1192,11 +1184,11 @@ public class BookingServiceTest {
         final var OffenderSentenceDetailDtos
             = List.of(
                 OffenderSentenceDetailDto.builder()
-                    .bookingId(1l)
+                    .bookingId(1L)
                     .mostRecentActiveBooking(true)
                     .build(),
             OffenderSentenceDetailDto.builder()
-                .bookingId(2l)
+                .bookingId(2L)
                 .mostRecentActiveBooking(false)
                 .build());
 
@@ -1204,9 +1196,9 @@ public class BookingServiceTest {
         List<OffenderSentenceDetail> offenderSentenceDetails = bookingService.getOffenderSentencesSummary(null, List.of("NomsId"));
 
         assertThat(offenderSentenceDetails).hasSize(2);
-        assertThat(offenderSentenceDetails.get(0)).extracting(OffenderSentenceDetail::getBookingId).isEqualTo(1l);
+        assertThat(offenderSentenceDetails.get(0)).extracting(OffenderSentenceDetail::getBookingId).isEqualTo(1L);
         assertThat(offenderSentenceDetails.get(0)).extracting(OffenderSentenceDetail::getMostRecentActiveBooking).isEqualTo(true);
-        assertThat(offenderSentenceDetails.get(1)).extracting(OffenderSentenceDetail::getBookingId).isEqualTo(2l);
+        assertThat(offenderSentenceDetails.get(1)).extracting(OffenderSentenceDetail::getBookingId).isEqualTo(2L);
         assertThat(offenderSentenceDetails.get(1)).extracting(OffenderSentenceDetail::getMostRecentActiveBooking).isEqualTo(false);
     }
 
@@ -1373,7 +1365,7 @@ public class BookingServiceTest {
             when(offenderBookingRepository.findById(SOME_BOOKING_ID))
                     .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
             when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC))
-                    .thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC, SOME_AGENCY_ID, "WING")));
+                    .thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, SOME_AGENCY_ID, "WING")));
 
             assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC))
                     .isInstanceOf(IllegalArgumentException.class)
@@ -1448,13 +1440,13 @@ public class BookingServiceTest {
         }
 
         private AgencyInternalLocation aLocation(final Long locationId, final String agencyId) {
-            return aLocation(locationId, "Z-1", agencyId, "CELL");
+            return aLocation(locationId, agencyId, "CELL");
         }
 
-        private AgencyInternalLocation aLocation(final Long locationId, final String locationDescription, final String agencyId, final String locationType) {
+        private AgencyInternalLocation aLocation(final Long locationId, final String agencyId, final String locationType) {
             return AgencyInternalLocation.builder()
                     .locationId(locationId)
-                    .description(locationDescription)
+                    .description("Z-1")
                     .agencyId(agencyId)
                     .locationType(locationType)
                     .build();
