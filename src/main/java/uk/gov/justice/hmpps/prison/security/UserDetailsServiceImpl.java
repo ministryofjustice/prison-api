@@ -47,7 +47,7 @@ public class UserDetailsServiceImpl implements UserDetailsService, Authenticatio
         final var userDetail = userService.getUserByUsername(username);
         final var roles = userService.getRolesByUsername(username, false);
 
-        if (nomisProfile && !userService.isUserAssessibleCaseloadAvailable(apiCaseloadId, username)) {
+        if (nomisProfile && !userService.isUserAccessibleCaseloadAvailable(apiCaseloadId, username)) {
             throw new InsufficientAuthenticationException(format("User does not have access to caseload %s", apiCaseloadId));
         }
 

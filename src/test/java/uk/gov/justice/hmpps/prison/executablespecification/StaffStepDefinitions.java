@@ -47,11 +47,6 @@ public class StaffStepDefinitions extends AbstractStepDefinitions {
         staff.verifyResourceNotFound();
     }
 
-    @When("^request is submitted for staff members having position \"([^\"]*)\" and role \"([^\"]*)\" in agency \"([^\"]*)\"$")
-    public void requestIsSubmittedForStaffMembersHavingPositionAndRoleInAgency(final String position, final String role, final String agencyId) {
-        staff.findStaffByAgencyPositionRole(agencyId, position, role, null, null, null);
-    }
-
     @When("^request is submitted for staff members having role \"([^\"]*)\" in agency \"([^\"]*)\"$")
     public void requestIsSubmittedForStaffMembersHavingRoleInAgency(final String role, final String agencyId) {
         staff.findStaffByAgencyRole(agencyId, role, null, null);
@@ -62,19 +57,9 @@ public class StaffStepDefinitions extends AbstractStepDefinitions {
         staff.findStaffByAgencyRole(agencyId, role, nameFilter, staffId);
     }
 
-    @When("^request is submitted for staff members having position \"([^\"]*)\" and role \"([^\"]*)\" in agency \"([^\"]*)\" with name filter \"([^\"]*)\" and staff id filter \"([^\"]*)\"$")
-    public void requestIsSubmittedForStaffMembersHavingPositionAndRoleInAgencyWithNameFilter(final String position, final String role, final String agencyId, final String nameFilter, final Long staffId) {
-        staff.findStaffByAgencyPositionRole(agencyId, position, role, nameFilter, staffId, null);
-    }
-
-    @When("^request is submitted for staff members having position \"([^\"]*)\" and role \"([^\"]*)\" in agency \"([^\"]*)\" with name filter \"([^\"]*)\" and staff id filter \"([^\"]*)\" and include inactive staff members$")
-    public void requestIsSubmittedForStaffMembersHavingPositionAndRoleInAgencyWithNameFilterIncludingInactive(final String position, final String role, final String agencyId, final String nameFilter, final Long staffId) {
-        staff.findStaffByAgencyPositionRole(agencyId, position, role, nameFilter, staffId, Boolean.FALSE);
-    }
-
     @Then("^\"([^\"]*)\" staff detail records are returned$")
     public void staffDetailRecordsAreReturned(final String expectedCount) {
-        staff.verifyResourceRecordsReturned(Long.valueOf(expectedCount));
+        staff.verifyResourceRecordsReturned(Long.parseLong(expectedCount));
     }
 
     @And("^staff ids match \"([^\"]*)\"$")

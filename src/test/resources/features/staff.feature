@@ -50,16 +50,6 @@ Feature: Staff Details and Roles
       | SYI    | KW   | 1     | -9            |
       | WAI    | OS   | 0     |               |
 
-  Scenario Outline: Find all staff members having specified position and role at an agency
-    When request is submitted for staff members having position "<position>" and role "<role>" in agency "<agency>"
-    Then "<count>" staff detail records are returned
-    And staff ids match "<staff id list>"
-
-    Examples:
-      | agency | position | role | count | staff id list |
-      | LEI    | PRO      | KW   | 1     | -1            |
-      | BXI    | PRO      | KW   | 1     | -2            |
-
   Scenario Outline: Search for staff members having specified role at an agency
     When request is submitted for staff members having role "<role>" in agency "<agency>" with name filter "<name filter>" and staff id filter "<staff id>"
     Then "<count>" staff detail records are returned
@@ -74,32 +64,6 @@ Feature: Staff Details and Roles
       | LEI    | KW   | Uses        |          | 0     |               |
       | LEI    | KW   |             | -1       | 1     | -1            |
       | LEI    | KW   |             | -999     | 0     |               |
-
-  Scenario Outline: Search for staff members having specified position and role at an agency
-    When request is submitted for staff members having position "<position>" and role "<role>" in agency "<agency>" with name filter "<name filter>" and staff id filter "<staff id>"
-    Then "<count>" staff detail records are returned
-    And staff ids match "<staff id list>"
-    #staff -10 is inactive
-
-    Examples:
-      | agency | position | role | name filter | staff id | count | staff id list |
-      | SYI    | AO       | KW   |             |          | 1     | -9            |
-      | WAI    | PRO      | OS   | Ronald      |          | 0     |               |
-      | LEI    | PRO      | KW   | USE         |          | 1     | -1            |
-      | LEI    | AO       | KW   | user        |          | 1     | -4            |
-      | LEI    | AO       | KW   | Uses        |          | 0     |               |
-      | LEI    | AO       | KW   |             | -999     | 0     |               |
-
-  Scenario Outline: Search for 'Active Only' staff members having specified position and role at an agency
-    When request is submitted for staff members having position "<position>" and role "<role>" in agency "<agency>" with name filter "<name filter>" and staff id filter "<staff id>" and include inactive staff members
-    Then "<count>" staff detail records are returned
-    And staff ids match "<staff id list>"
-    #staff - -10 is inactive
-
-    Examples:
-      | agency | position | role | name filter | staff id | count | staff id list |
-      | BXI    | AO       | KW   | Api         |          | 1     | -2            |
-      | SYI    | AO       | KW   |             |          | 1     | -9            |
 
   Scenario Outline: List all active job roles for staff member at an agency
       When request is submitted using "<staffId>" and "<agencyId>"
