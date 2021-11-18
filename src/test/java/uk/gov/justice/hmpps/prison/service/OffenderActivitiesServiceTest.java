@@ -146,14 +146,44 @@ public class OffenderActivitiesServiceTest {
             final var earliestDate = LocalDate.of(2020, 1, 1);
             final var latestDate = LocalDate.of(2021, 2, 2);
 
-            final var offenderBooking1 = OffenderBooking.builder().bookingId(100L).active(true).location(AgencyLocation.builder().id("LEI").build()).build();
-            final var offenderBooking2 = OffenderBooking.builder().bookingId(200L).active(true).location(AgencyLocation.builder().id("LEI").build()).build();
+            final var offenderBooking1 = OffenderBooking.
+                builder()
+                .bookingId(100L)
+                .active(true)
+                .location(AgencyLocation.builder()
+                    .id("LEI")
+                    .build())
+                .build();
+            final var offenderBooking2 = OffenderBooking
+                .builder()
+                .bookingId(200L)
+                .active(true)
+                .location(AgencyLocation.builder()
+                    .id("LEI")
+                    .build())
+                .build();
 
-            final var courseActivity1 = CourseActivity.builder().activityId(1L).description("Test Description 1").build();
-            final var courseActivity2 = CourseActivity.builder().activityId(2L).description("Test Description 2").build();
+            final var courseActivity1 = CourseActivity
+                .builder()
+                .activityId(1L)
+                .description("Test Description 1")
+                .build();
+            final var courseActivity2 = CourseActivity
+                .builder()
+                .activityId(2L)
+                .description("Test Description 2")
+                .build();
 
-            final var programService1 = ProgramService.builder().programId(1L).activity("Test Activity 1").build();
-            final var programService2 = ProgramService.builder().programId(2L).activity("Test Activity 2").build();
+            final var programService1 = ProgramService
+                .builder()
+                .programId(1L)
+                .activity("Test Activity 1")
+                .build();
+            final var programService2 = ProgramService
+                .builder()
+                .programId(2L)
+                .activity("Test Activity 2")
+                .build();
 
             when(attendanceRepository.findByEventDateBetween(EXAMPLE_OFFENDER_NO, earliestDate, latestDate, PAGE_REQUEST))
                 .thenReturn(new PageImpl<>(List.of(
