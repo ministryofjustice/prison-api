@@ -27,43 +27,6 @@ Feature: User Details and Roles
       | API_TEST_USER       | KW_ADMIN,OMIC_ADMIN  |
       | NO_CASELOAD_USER    | VIEW_PRISONER_DATA,LICENCE_RO |
 
-  Scenario: A trusted client can make api-role assignments to users.
-    Given a trusted client that can maintain access roles has authenticated with the API
-    When the client assigns api-role "KW_ADMIN" to user "API_TEST_USER"
-    Then user "API_TEST_USER" has been assigned api-role "KW_ADMIN"
-
-  Scenario: A trusted client can make the same api-role assignments to a user more than once
-    Given a trusted client that can maintain access roles has authenticated with the API
-    And the client assigns api-role "KW_ADMIN" to user "API_TEST_USER"
-    When the client assigns api-role "KW_ADMIN" to user "API_TEST_USER"
-    Then user "API_TEST_USER" has been assigned api-role "KW_ADMIN"
-
-  Scenario: A trusted client can make access role assignments to users.
-    Given a trusted client that can maintain access roles has authenticated with the API
-    When the client assigns access role "ACCESS_ROLE_GENERAL" to user "JBRIEN" for caseload "LEI"
-    Then user "JBRIEN" has been assigned access role "ACCESS_ROLE_GENERAL" for caseload "LEI"
-
-  Scenario: A client without Admin priviledges cannot make ADMIN access role assignments to users.
-    Given a user has a token name of "LOCAL_ADMIN"
-    When the client assigns access role "ACCESS_ROLE_ADMIN" to user "JBRIEN" for caseload "LEI"
-    Then the request requiring admin privileges is rejected
-
-  Scenario: A trusted client is prevented from assigning an access role for a user without caseload access.
-    Given a user has a token name of "ADMIN_TOKEN"
-    When the client assigns access role "ACCESS_ROLE_GENERAL" to user "JBRIEN" for caseload "MDI"
-    Then resource not found response is received from users API
-
-  Scenario: A trusted client can remove a role assignment
-    Given a user has a token name of "ADMIN_TOKEN"
-    And the client assigns api-role "KW_ADMIN" to user "API_TEST_USER"
-    When the client removes role "KW_ADMIN" from user "API_TEST_USER" at caseload "NWEB"
-    Then user "API_TEST_USER" does not have role "KW_ADMIN" at caseload "NWEB"
-
-  Scenario: A list of staff users by caseload can be retrieved
-    Given a user has a token name of "ADMIN_TOKEN"
-    When a request for users with caseload "LEI" is made
-    Then a list of users is returned with usernames "PRISON_API_USER,ITAG_USER,JBRIEN,NONWEB,RENEGADE,CA_USER,DM_USER,IEP_USER,PPL_USER,UOF_REVIEWER_USER,UOF_COORDINATOR_USER,RCTL_USER,POM_USER,PF_RO_USER,SOC_PRISON_LOCAL,PRISON_COLLATOR_LOCAL,PRISON_ANALYST_LOCAL"
-
   Scenario: A list of staff users by usernames can be retrieved
     Given a user has a token name of "ADMIN_TOKEN"
     When a request for users with usernames "JBRIEN,RENEGADE" is made
@@ -84,7 +47,3 @@ Feature: User Details and Roles
     When a request for users by local administrator with namefilter "User" and role "" is made
     Then a list of users is returned with usernames ""
 
-  Scenario: A list of staff roles for a user and caseload can be retrieved
-    Given a user has authenticated with the API
-    When a request for roles for user "ITAG_USER" with caseload "NWEB" is made
-    Then a list of roles is returned with role codes "KW_ADMIN,OMIC_ADMIN,MAINTAIN_ACCESS_ROLES_ADMIN,MAINTAIN_ACCESS_ROLES"

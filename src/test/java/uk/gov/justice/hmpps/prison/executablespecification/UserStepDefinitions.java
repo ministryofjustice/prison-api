@@ -13,7 +13,6 @@ import java.util.Arrays;
 import static uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.ADMIN_TOKEN;
 import static uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.CATEGORISATION_CREATE;
 import static uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.GLOBAL_SEARCH;
-import static uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.LOCAL_ADMIN;
 import static uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.NORMAL_USER;
 import static uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.PAY;
 import static uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA;
@@ -140,36 +139,6 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
         user.verifyCaseNoteTypesHaveSubTypes();
     }
 
-    @When("^the client assigns api-role \"([^\"]*)\" to user \"([^\"]*)\"$")
-    public void theClientAssignsApiRoleToUser(final String role, final String username) {
-        user.assignApiRoleToUser(role, username);
-    }
-
-    @When("^the client assigns access role \"([^\"]*)\" to user \"([^\"]*)\" for caseload \"([^\"]*)\"$")
-    public void theClientAssignsApiRoleToUserForCaseload(final String role, final String username, final String caseload) {
-        user.assignAccessRoleToUser(role, username, caseload);
-    }
-
-    @Then("^user \"([^\"]*)\" has been assigned api-role \"([^\"]*)\"$")
-    public void userHasBeenAssignedApiRole(final String username, final String role) {
-        user.verifyApiRoleAssignment(username, role);
-    }
-
-    @Then("^user \"([^\"]*)\" has been assigned access role \"([^\"]*)\" for caseload \"([^\"]*)\"$")
-    public void userHasBeenAssignedAccessRole(final String username, final String role, final String caseload) {
-        user.verifyAccessRoleAssignment(username, role, caseload);
-    }
-
-    @When("^the client removes role \"([^\"]*)\" from user \"([^\"]*)\" at caseload \"([^\"]*)\"$")
-    public void theClientRemovesRoleFromUserAtCaseload(final String role, final String username, final String caseload) {
-        user.removeRole(role, username, caseload);
-    }
-
-    @Then("^user \"([^\"]*)\" does not have role \"([^\"]*)\" at caseload \"([^\"]*)\"$")
-    public void userDoesNotHaveRoleAtCaseload(final String username, final String role, final String caseload) {
-        user.userDoesNotHaveRoleAtCaseload(username, role, caseload);
-    }
-
     @When("^a request for users with usernames \"([^\"]*)\" is made$")
     public void aRequestForUsersByusernamesIsMade(final String usernames) {
         user.getUsers(Arrays.asList(usernames.split(",")));
@@ -193,11 +162,6 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
     @When("^a request for users by local administrator with namefilter \"([^\"]*)\" and role \"([^\"]*)\" is made$")
     public void aRequestForLocalAdminUsersWithCaseloadAndNamefilterAndRoleIsMade(final String nameFilter, final String roleCode) {
         user.getUsersByLaa(roleCode, nameFilter);
-    }
-
-    @When("^a request for roles for user \"([^\"]*)\" with caseload \"([^\"]*)\" is made$")
-    public void aRequestForRolesForUserWithCaseloadIsMade(final String username, final String caseload) {
-        user.getRolesByUserAndCaseload(username, caseload);
     }
 
     @Then("^the request requiring admin privileges is rejected$")

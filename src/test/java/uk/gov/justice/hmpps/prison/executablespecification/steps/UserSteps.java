@@ -13,7 +13,6 @@ import uk.gov.justice.hmpps.prison.api.model.UserRole;
 import uk.gov.justice.hmpps.prison.test.PrisonApiClientException;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,12 +24,8 @@ public class UserSteps extends CommonSteps {
     private static final String API_USERS_ME_LOCATIONS_REQUEST_URL = API_USERS_ME_REQUEST_URL + "/locations";
     private static final String API_USERS_ME_ROLES_REQUEST_URL = API_USERS_ME_REQUEST_URL + "/roles";
     private static final String API_USERS_ME_CASE_NOTE_TYPES_REQUEST_URL = API_USERS_ME_REQUEST_URL + "/caseNoteTypes";
-    private static final String API_ASSIGN_API_ROLE_TO_USER = API_PREFIX + "/users/{username}/access-role/{roleCode}";
-    private static final String API_ASSIGN_ACCESS_ROLE_TO_USER_FOR_CASELOAD = API_PREFIX + "/users/{username}/caseload/{caseload}/access-role/{roleCode}";
-    private static final String API_REMOVE_ROLE_FROM_USER_AT_CASELOAD = API_PREFIX + "/users/{username}/caseload/{caseload}/access-role/{roleCode}";
     private static final String API_USERS_LIST = API_PREFIX + "/users/list";
     private static final String API_LOCAL_ADMINISTRATOR_USERS = API_PREFIX + "/users/local-administrator/available";
-    private static final String API_ROLES_BY_USERS_AT_CASELOAD = API_PREFIX + "/users/{username}/access-roles/caseload/{caseload}";
 
     private List<Location> userLocations;
     private List<UserRole> userRoles;
@@ -89,41 +84,11 @@ public class UserSteps extends CommonSteps {
     }
 
     public void getUsersByLaa(final String roleCode, final String nameFilter) {
-        dispatchUsersByCaseloadRequest(null, roleCode, nameFilter);
+        dispatchUsersByCaseloadRequest(roleCode, nameFilter);
     }
 
     public void getUsers(final List<String> usernames) {
         dispatchPostUsersRequest(usernames);
-    }
-
-    public void getRolesByUserAndCaseload(final String username, final String caseload) {
-        dispatchRolesByUserAndCaseloadRequest(username, caseload);
-    }
-
-    public void assignApiRoleToUser(final String role, final String username) {
-        dispatchAssignApiRoleToUser(role, username);
-    }
-
-    public void assignAccessRoleToUser(final String role, final String username, final String caseloadId) {
-        dispatchAssignAccessRoleToUserForCaseload(role, username, caseloadId);
-    }
-
-    public void removeRole(final String role, final String username, final String caseload) {
-        dispatchRemoveRoleFromUserAtCaseload(role, username, caseload);
-    }
-
-    public void verifyApiRoleAssignment(final String username, final String role) {
-        verifyAccessRoleAssignment(username, role, "NWEB");
-    }
-
-    public void verifyAccessRoleAssignment(final String username, final String role, final String caseload) {
-        dispatchRolesByUserAndCaseloadRequest(username, caseload);
-        assertThat(role).isIn(userRoles.stream().map(UserRole::getRoleCode).collect(Collectors.toList()));
-    }
-
-    public void userDoesNotHaveRoleAtCaseload(final String username, final String role, final String caseload) {
-        dispatchRolesByUserAndCaseloadRequest(username, caseload);
-        assertThat(role).isNotIn(userRoles.stream().map(UserRole::getRoleCode).collect(Collectors.toList()));
     }
 
     public void verifyUserList(final String expectedUsernames) {
@@ -134,50 +99,7 @@ public class UserSteps extends CommonSteps {
         assertThat(userRoles).extracting("roleCode").isSubsetOf(csv2list(expectedRoleCodes));
     }
 
-    private void dispatchRemoveRoleFromUserAtCaseload(final String role, final String username, final String caseload) {
-        init();
-
-        restTemplate.exchange(
-                API_REMOVE_ROLE_FROM_USER_AT_CASELOAD,
-                HttpMethod.DELETE,
-                createEntity(),
-                Object.class,
-                username,
-                caseload,
-                role);
-    }
-
-
-    private void dispatchAssignApiRoleToUser(final String role, final String username) {
-        init();
-
-        restTemplate.exchange(
-                API_ASSIGN_API_ROLE_TO_USER,
-                HttpMethod.PUT,
-                createEntity(),
-                Object.class,
-                username,
-                role);
-    }
-
-    private void dispatchAssignAccessRoleToUserForCaseload(final String role, final String username, final String caseloadId) {
-        init();
-        try {
-
-            restTemplate.exchange(
-                    API_ASSIGN_ACCESS_ROLE_TO_USER_FOR_CASELOAD,
-                    HttpMethod.PUT,
-                    createEntity(),
-                    Object.class,
-                    username,
-                    caseloadId,
-                    role);
-        } catch (final PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
-
-    private void dispatchUsersByCaseloadRequest(final String caseload, final String role, final String nameFilter) {
+    private void dispatchUsersByCaseloadRequest(final String role, final String nameFilter) {
         init();
         var url = API_LOCAL_ADMINISTRATOR_USERS;
 
@@ -194,8 +116,7 @@ public class UserSteps extends CommonSteps {
                 HttpMethod.GET,
                 createEntity(null, addPaginationHeaders()),
                 new ParameterizedTypeReference<List<UserDetail>>() {
-                },
-                caseload);
+                });
 
         userDetails = response.getBody();
     }
@@ -211,21 +132,6 @@ public class UserSteps extends CommonSteps {
                 });
 
         userDetails = response.getBody();
-    }
-
-    private void dispatchRolesByUserAndCaseloadRequest(final String username, final String caseload) {
-        init();
-
-        final var response = restTemplate.exchange(
-                API_ROLES_BY_USERS_AT_CASELOAD,
-                HttpMethod.GET,
-                createEntity(),
-                new ParameterizedTypeReference<List<UserRole>>() {
-                },
-                username,
-                caseload);
-
-        userRoles = response.getBody();
     }
 
     private void dispatchUserRolesRequest(final boolean allRoles) {

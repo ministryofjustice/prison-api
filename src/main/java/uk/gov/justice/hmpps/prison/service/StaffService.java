@@ -33,7 +33,6 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static uk.gov.justice.hmpps.prison.service.UserService.STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION;
@@ -105,15 +104,6 @@ public class StaffService {
         }
     }
 
-    public StaffDetail getStaffDetailByPersonnelIdentifier(final String idType, final String id) {
-        Validate.notBlank(idType, "An id type is required.");
-        Validate.notBlank(id, "An id is required.");
-
-        return staffRepository.findStaffByPersonnelIdentifier(idType, id)
-                .orElseThrow(EntityNotFoundException.withMessage(
-                        "Staff member not found for external identifier with idType [{}] and id [{}].", idType, id));
-    }
-
     @VerifyAgencyAccess
     public Page<StaffLocationRole> getStaffByAgencyPositionRole(final GetStaffRoleRequest request, final PageRequest pageRequest) {
         Validate.notNull(request, "Staff role request details are required.");
@@ -138,12 +128,6 @@ public class StaffService {
     public List<StaffUserRole> getRolesByCaseload(final Long staffId, final String caseload) {
         final var userDetail = staffUserAccountRepository.findByTypeAndStaff_StaffId(STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION, staffId).orElseThrow(EntityNotFoundException.withId(staffId));
         return mapToStaffUserRole(staffId, userDetail.getUsername(), filterRoles(UserCaseloadRoleFilter.builder().username(userDetail.getUsername()).caseload(caseload).build()));
-    }
-
-    private Optional<StaffUserRole> getRoleByCaseload(final Long staffId, final String username, final String caseload, final String roleCode) {
-        final var rolesByUsername = filterRoles(UserCaseloadRoleFilter.builder().username(username).caseload(caseload).roleCode(roleCode).build());
-        final var staffUserRoles = mapToStaffUserRole(staffId, username, rolesByUsername);
-        return Optional.ofNullable(staffUserRoles.isEmpty() ? null : staffUserRoles.get(0));
     }
 
     private List<UserRole> filterRoles(final UserCaseloadRoleFilter filter) {
