@@ -10,12 +10,14 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import uk.gov.justice.hmpps.prison.api.model.OffenderActivitySummary;
 import uk.gov.justice.hmpps.prison.api.model.OffenderAttendance;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Attendance;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourseActivity;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramEndReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramProfile;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ProgramService;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AttendanceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProgramProfileRepository;
 
@@ -144,17 +146,26 @@ public class OffenderActivitiesServiceTest {
             final var earliestDate = LocalDate.of(2020, 1, 1);
             final var latestDate = LocalDate.of(2021, 2, 2);
 
+            final var offenderBooking1 = OffenderBooking.builder().bookingId(100L).active(true).location(AgencyLocation.builder().id("LEI").build()).build();
+            final var offenderBooking2 = OffenderBooking.builder().bookingId(200L).active(true).location(AgencyLocation.builder().id("LEI").build()).build();
+
+            final var courseActivity1 = CourseActivity.builder().activityId(1L).description("Test Description 1").build();
+            final var courseActivity2 = CourseActivity.builder().activityId(2L).description("Test Description 2").build();
+
+            final var programService1 = ProgramService.builder().programId(1L).activity("Test Activity 1").build();
+            final var programService2 = ProgramService.builder().programId(2L).activity("Test Activity 2").build();
+
             when(attendanceRepository.findByEventDateBetween(EXAMPLE_OFFENDER_NO, earliestDate, latestDate, PAGE_REQUEST))
                 .thenReturn(new PageImpl<>(List.of(
-                    new Attendance(1111L, null, earliestDate, "outcome1"),
-                    new Attendance(2222L, null, latestDate, "outcome2")
+                    new Attendance(1111L, courseActivity1, offenderBooking1, programService1, earliestDate, "outcome1"),
+                    new Attendance(2222L, courseActivity2, offenderBooking2, programService2, latestDate, "outcome2")
                 )));
 
             final var result = service.getHistoricalAttendancies(EXAMPLE_OFFENDER_NO, earliestDate, latestDate, PAGE_REQUEST);
 
             assertThat(result.getContent()).isEqualTo(List.of(
-                OffenderAttendance.builder().eventDate(earliestDate).outcome("outcome1").build(),
-                OffenderAttendance.builder().eventDate(latestDate).outcome("outcome2").build()
+                OffenderAttendance.builder().eventDate(earliestDate).outcome("outcome1").activity("Test Activity 1").description("Test Description 1").build(),
+                OffenderAttendance.builder().eventDate(latestDate).outcome("outcome2").activity("Test Activity 2").description("Test Description 2").build()
             ));
         }
     }
