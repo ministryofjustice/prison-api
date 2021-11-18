@@ -8,7 +8,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import uk.gov.justice.hmpps.prison.api.support.Order;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AccessRoleSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AddIepLevelSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AdjudicationSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AgencySteps;
@@ -62,11 +61,6 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 abstract class AbstractStepDefinitions {
     @TestConfiguration
     static class Config {
-
-        @Bean
-        public AccessRoleSteps accessRoleSteps() {
-            return new AccessRoleSteps();
-        }
 
         @Bean
         public AuthTokenHelper auth(final JwtAuthenticationHelper jwtAuthenticationHelper) {
