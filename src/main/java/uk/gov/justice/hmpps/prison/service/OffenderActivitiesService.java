@@ -60,6 +60,8 @@ public class OffenderActivitiesService {
         return OffenderAttendance.builder()
             .eventDate(attendance.getEventDate())
             .outcome(attendance.getEventOutcome())
+            .description(attendance.getCourseActivity().getDescription())
+            .activity(attendance.getProgramService().getActivity())
             .build();
     }
 }
