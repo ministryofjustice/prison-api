@@ -23,7 +23,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Entity
 @Table(name = "OFFENDER_COURSE_ATTENDANCES")
-@ToString(of = {"eventId"})
+@ToString(of = {"eventId", "offenderBookingId"})
 public class Attendance extends AuditableEntity {
 
     @Id
