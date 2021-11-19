@@ -1275,6 +1275,7 @@ public class BookingServiceTest {
                 List.of(OffenderSentence.builder()
                         .offenderBooking(OffenderBooking.builder().bookingId(-98L).build())
                         .sequence(2)
+                        .lineSequence(5L)
                         .consecutiveToSentenceSequence(1)
                         .status("A")
                         .calculationType(
@@ -1304,6 +1305,9 @@ public class BookingServiceTest {
                                 )
                                 .build()
                         ))
+                        .courtCase(
+                            OffenderCourtCase.builder().caseSeq(10L).build()
+                        )
                         .build()
                     )
                 );
@@ -1314,6 +1318,8 @@ public class BookingServiceTest {
             OffenderSentenceAndOffences.builder()
                 .bookingId(-98L)
                 .sentenceSequence(2)
+                .lineSequence(5L)
+                .caseSequence(10L)
                 .consecutiveToSequence(1)
                 .sentenceStatus("A")
                 .sentenceCategory("CAT")
