@@ -22,11 +22,17 @@ public class OffenderSentenceAndOffences {
     @ApiModelProperty(value = "The bookingId this sentence and offence(s) relates to")
     private Long bookingId;
 
-    @ApiModelProperty(value = "Sentence sequence - a number representing the order")
+    @ApiModelProperty(value = "Sentence sequence - a unique identifier a sentence on a booking")
     private Integer sentenceSequence;
 
     @ApiModelProperty(value = "This sentence is consecutive to this sequence (if populated)")
     private Integer consecutiveToSequence;
+
+    @ApiModelProperty(value = "Sentence line sequence - a number representing the order")
+    private Long lineSequence;
+
+    @ApiModelProperty(value = "Case sequence - a number representing the order of the case this sentence belongs to")
+    private Long caseSequence;
 
     @ApiModelProperty(value = "This sentence status: A = Active I = Inactive")
     private String sentenceStatus;

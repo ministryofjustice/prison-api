@@ -2,6 +2,8 @@
   {
     "bookingId": -20,
     "sentenceSequence": 1,
+    "lineSequence": 1,
+    "caseSequence": 1,
     "sentenceStatus": "A",
     "sentenceCategory": "LICENCE",
     "sentenceCalculationType": "R",
@@ -24,6 +26,8 @@
   {
     "bookingId": -20,
     "sentenceSequence": 2,
+    "lineSequence": 2,
+    "caseSequence": 1,
     "sentenceStatus": "A",
     "sentenceCategory": "1991",
     "sentenceCalculationType": "R",
