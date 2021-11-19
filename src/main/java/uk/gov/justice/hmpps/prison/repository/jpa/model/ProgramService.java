@@ -30,4 +30,16 @@ public class ProgramService {
     @Column(name = "DESCRIPTION")
     @ApiModelProperty(value = "Activity name")
     private String activity;
+
+    @Column(name = "PROGRAM_CATEGORY")
+    @ApiModelProperty(value = "Program category")
+    private String programCategory;
+
+    @Column(name = "PROGRAM_CODE")
+    @ApiModelProperty(value = "Program code")
+    private String programCode;
+
+    @Column(name = "ACTIVE_FLAG")
+    @ApiModelProperty(value = "Active flag")
+    private String activeFlag = "Y";
 }

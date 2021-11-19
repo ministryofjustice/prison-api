@@ -61,7 +61,7 @@ public class OffenderActivitiesService {
             .eventDate(attendance.getEventDate())
             .outcome(attendance.getEventOutcome())
             .description(attendance.getCourseActivity().getDescription())
-            .activity(attendance.getProgramService().getActivity())
+            .activity(attendance.getProgramService() == null? null : attendance.getProgramService().getActivity())
             .build();
     }
 }
