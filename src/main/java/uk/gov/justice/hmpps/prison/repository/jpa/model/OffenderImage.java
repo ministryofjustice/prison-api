@@ -1,5 +1,8 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.Lob;
+import javax.persistence.SequenceGenerator;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,6 +35,8 @@ import java.util.Objects;
 public class OffenderImage extends AuditableEntity {
     @Id
     @Column(name = "OFFENDER_IMAGE_ID")
+    @SequenceGenerator(name = "OFFENDER_IMAGE_ID", sequenceName = "OFFENDER_IMAGE_ID", allocationSize = 1)
+    @GeneratedValue(generator = "OFFENDER_IMAGE_ID")
     private Long id;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
@@ -64,11 +69,13 @@ public class OffenderImage extends AuditableEntity {
     @Type(type="yes_no")
     private boolean active;
 
+    @Lob
     @Column(name = "FULL_SIZE_IMAGE")
     @Exclude
     private byte[] fullSizeImage;
 
-    @Column(name = "THUMBNAIL_IMAGE")
+    @Lob
+    @Column(name = "THUMBNAIL_IMAGE", columnDefinition = "BLOB")
     @Exclude
     private byte[] thumbnailImage;
 

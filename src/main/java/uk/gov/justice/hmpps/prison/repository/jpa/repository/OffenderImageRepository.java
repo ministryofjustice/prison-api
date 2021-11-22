@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.repository;
 
-
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
