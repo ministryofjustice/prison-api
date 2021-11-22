@@ -78,7 +78,7 @@ public class ImageResource {
         @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @ApiOperation(value = "EXPERIMENTAL: Upload a new image for an offender.", notes = "Image data is base64-encoded JPEG content.", nickname = "putImage")
+    @ApiOperation(value = "Upload a new image for an offender.", notes = "Image data is base64-encoded JPEG content.", nickname = "putImage", hidden = true)
     @PutMapping("/offender/{offenderNo}")
     public ImageDetail putImage(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offender number relating to this image.", required = true) final String offenderNo,

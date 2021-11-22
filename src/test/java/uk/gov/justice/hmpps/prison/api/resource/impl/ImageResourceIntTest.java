@@ -83,7 +83,7 @@ public class ImageResourceIntTest extends ResourceTest {
 
     @Test
     public void putImageReturnsNotFoundForInvalidOffender() {
-        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_SYSTEM_USER"), imageData);
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_CVL_ADMIN"), imageData);
         final var responseEntity = testRestTemplate.exchange(
             "/api/images/offender/A9999XX",
             HttpMethod.PUT,
@@ -95,7 +95,7 @@ public class ImageResourceIntTest extends ResourceTest {
 
     @Test
     public void putImageUploadsThumbnailByDefault() {
-        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_SYSTEM_USER"), imageData);
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_CVL_ADMIN"), imageData);
         final var responseEntity = testRestTemplate.exchange(
             "/api/images/offender/A1234AI",
             HttpMethod.PUT,
@@ -113,7 +113,7 @@ public class ImageResourceIntTest extends ResourceTest {
 
     @Test
     public void putImageUploadsFullSizeImage() {
-        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_SYSTEM_USER"), imageData);
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_CVL_ADMIN"), imageData);
         final var responseEntity = testRestTemplate.exchange(
             "/api/images/offender/A1234AI?fullSizeImage=true",
             HttpMethod.PUT,

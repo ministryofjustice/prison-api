@@ -50,7 +50,7 @@ public class ImageService {
             .map(i -> fullSizeImage ? i.getFullSizeImage() : i.getThumbnailImage());
     }
 
-    @PreAuthorize("hasRole('SYSTEM_USER')")
+    @PreAuthorize("hasRole('CVL_ADMIN')")
     @HasWriteScope
     @Transactional
     public ImageDetail putImageForOffender(final String offenderNumber, final boolean fullSizeImage,  final String imageData) {
