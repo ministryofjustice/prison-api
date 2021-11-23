@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.repository;
 
 
+import java.util.List;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,30 +30,24 @@ import java.util.Map;
 import java.util.OptionalLong;
 import java.util.Set;
 
+import org.assertj.core.groups.Tuple;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @ActiveProfiles("test")
-
 @JdbcTest
 @AutoConfigureTestDatabase(replace = NONE)
 @ContextConfiguration(classes = PersistenceConfigs.class)
-
 public class OffenderCurfewRepositoryTest {
     private static final String STATUS_TRACKING_CODE_REFUSED = "REFUSED";
     private static final String STATUS_TRACKING_CODE_MANUAL_FAIL = "MAN_CK_FAIL";
     private static final Set<String> TRACKING_CODES_TO_MATCH = Set.of(STATUS_TRACKING_CODE_REFUSED, STATUS_TRACKING_CODE_MANUAL_FAIL);
-
     private static final long BOOKING_1_ID = -46;
-    private static final long BOOKIUNG_1_CURFEW_ID = 43L;
-
+    private static final long BOOKING_1_CURFEW_ID = 43L;
     private static final long BOOKING_WITHOUT_CURFEW_ID = -15L;
-
     private static final long UNKNOWN_BOOKING_ID = 99999L;
-
     private static final long BOOKING_2_ID = -52L;
-
 
     private static final Set<OffenderCurfew> CURFEWS_LEI = new HashSet<>(Arrays.asList(
             offenderCurfew(1, -1, "2018-01-01", null, null),
@@ -76,7 +71,7 @@ public class OffenderCurfewRepositoryTest {
             offenderCurfew(19, -7, "2018-02-01", null, null)));
 
     private static final Set<OffenderCurfew> CURFEWS_BXI = Collections.singleton(
-            offenderCurfew(30, -36, "2018-01-01", null, null)
+        offenderCurfew(30, -36, "2018-01-01", null, null)
     );
 
     @Autowired
@@ -122,7 +117,7 @@ public class OffenderCurfewRepositoryTest {
     @Test
     public void shouldFindCurfewForBookingThatHasCurfew() {
         val hdcOptional = repository.getLatestHomeDetentionCurfew(BOOKING_1_ID, TRACKING_CODES_TO_MATCH);
-        assertThat(hdcOptional).contains(HomeDetentionCurfew.builder().id(BOOKIUNG_1_CURFEW_ID).build());
+        assertThat(hdcOptional).contains(HomeDetentionCurfew.builder().id(BOOKING_1_CURFEW_ID).build());
     }
 
     @Test
@@ -318,6 +313,30 @@ public class OffenderCurfewRepositoryTest {
 
         assertThat(repository.getLatestHomeDetentionCurfew(BOOKING_2_ID, TRACKING_CODES_TO_MATCH))
                 .contains(HomeDetentionCurfew.builder().id(curfewId).refusedReason("YYY").build());
+    }
+
+    @Test
+    public void getBatchOfCurfews_shouldReturnAnEmptyList() {
+        val listOfBookingIds = List.of(1L, 2L);
+        assertThat(repository.getBatchLatestHomeDetentionCurfew(listOfBookingIds, TRACKING_CODES_TO_MATCH))
+            .isEmpty();
+    }
+
+    @Test
+    public void getBatchOfCurfews_shouldRetrieveLatestStatusForMatchingBookingIds() {
+        val listOfBookingIds = List.of(-1L);
+
+        val curfewId1 = createNewCurfewForBookingId(-1L);
+        val trackingId1 = repository.createHdcStatusTracking(curfewId1, STATUS_TRACKING_CODE_REFUSED);
+        repository.createHdcStatusReason(trackingId1, "CHECKING");
+
+        val curfewId2 = createNewCurfewForBookingId(-1L);
+        val trackingId2 = repository.createHdcStatusTracking(curfewId2, STATUS_TRACKING_CODE_REFUSED);
+        repository.createHdcStatusReason(trackingId2, "UNDER_14DAYS");
+
+        // Should only retrieve the latest curfew status for a bookingId
+        assertThat(repository.getBatchLatestHomeDetentionCurfew(listOfBookingIds, TRACKING_CODES_TO_MATCH))
+            .extracting("id", "refusedReason").containsOnly(Tuple.tuple(curfewId2, "UNDER_14DAYS"));
     }
 
     @Test

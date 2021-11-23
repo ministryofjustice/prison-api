@@ -92,15 +92,36 @@ enum class OffenderCurfewRepositorySql(val sql: String) {
                         OC.DECISION_DATE       AS APPROVAL_STATUS_DATE,
                         OC.PASSED_FLAG         AS PASSED,
                         OC.ASSESSMENT_DATE     AS CHECKS_PASSED_DATE
-                                FROM OFFENDER_CURFEWS OC
-                                LEFT JOIN HDC_STATUS_TRACKINGS HST ON HST.OFFENDER_CURFEW_ID = OC.OFFENDER_CURFEW_ID AND
-                                HST.STATUS_CODE IN ( :statusTrackingCodes )
-                                LEFT JOIN HDC_STATUS_REASONS HSR   ON HST.HDC_STATUS_TRACKING_ID = HSR.HDC_STATUS_TRACKING_ID
-                                WHERE OFFENDER_BOOK_ID = :bookingId
-                                ORDER BY OC.CREATE_DATETIME DESC,
-                        HST.HDC_STATUS_TRACKING_ID DESC,
-                        HSR.HDC_STATUS_REASON_ID DESC
+                        FROM OFFENDER_CURFEWS OC
+                        LEFT JOIN HDC_STATUS_TRACKINGS HST ON HST.OFFENDER_CURFEW_ID = OC.OFFENDER_CURFEW_ID AND
+                                  HST.STATUS_CODE IN ( :statusTrackingCodes )
+                        LEFT JOIN HDC_STATUS_REASONS HSR   ON HST.HDC_STATUS_TRACKING_ID = HSR.HDC_STATUS_TRACKING_ID
+                        WHERE OFFENDER_BOOK_ID = :bookingId
+                        ORDER BY OC.CREATE_DATETIME DESC, HST.HDC_STATUS_TRACKING_ID DESC, HSR.HDC_STATUS_REASON_ID DESC
                 ) WHERE ROWNUM = 1
+    """
+  ),
+
+  LATEST_BATCH_HOME_DETENTION_CURFEW(
+    """
+        WITH temp_batch_curfews AS (
+          SELECT offender_book_id, max(offender_curfew_id) as offender_curfew_id
+          FROM offender_curfews
+          WHERE offender_book_id in (:bookingIds)
+          GROUP BY offender_book_id
+          ORDER BY offender_book_id
+        ) 
+        SELECT oc.offender_curfew_id AS id,
+          oc.approval_status     AS approval_status,
+          hsr.status_reason_code AS refused_reason,
+          oc.decision_date       AS approval_status_date,
+          oc.passed_flag         AS passed,
+          oc.assessment_date     AS checks_passed_date,
+          oc.offender_book_id    AS booking_id
+          FROM temp_batch_curfews tbc, offender_curfews oc
+          LEFT JOIN hdc_status_trackings hst ON hst.offender_curfew_id = oc.offender_curfew_id AND hst.status_code IN ( :statusTrackingCodes )
+          LEFT JOIN hdc_status_reasons hsr ON hst.hdc_status_tracking_id = hsr.hdc_status_tracking_id
+          WHERE oc.offender_book_id = tbc.offender_book_id AND oc.offender_curfew_id = tbc.offender_curfew_id
     """
   ),
 
