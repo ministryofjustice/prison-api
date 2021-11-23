@@ -5,6 +5,7 @@
       "reporterStaffId":-12,
       "bookingId":-50,
       "offenderNo":"A1181GG",
+      "agencyId": "LEI",
       "incidentTime":"1999-06-25T00:00:00",
       "incidentLocationId":-41,
       "statement":"Some Comment Text"
@@ -14,6 +15,7 @@
       "reporterStaffId":-12,
       "bookingId":-49,
       "offenderNo":"A1181GG",
+      "agencyId": "LEI",
       "incidentTime":"1999-05-25T00:00:00",
       "incidentLocationId":-2,
       "statement":"mKSouDOCmKSouDO"
