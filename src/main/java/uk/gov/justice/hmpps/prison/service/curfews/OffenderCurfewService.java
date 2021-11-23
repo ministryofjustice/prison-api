@@ -130,6 +130,11 @@ public class OffenderCurfewService {
                 .orElseThrow(() -> new EntityNotFoundException("No 'latest' Home Detention Curfew found for bookingId " + bookingId));
     }
 
+    @PreAuthorize("hasRole('SYSTEM_USER')")
+    public List<HomeDetentionCurfew> getBatchLatestHomeDetentionCurfew(final List<Long> bookingIds) {
+        return offenderCurfewRepository.getBatchLatestHomeDetentionCurfew(bookingIds, StatusTrackingCodes.REFUSED_REASON_CODES);
+    }
+
     @Transactional
     @HasWriteScope
     @PreAuthorize("hasRole('SYSTEM_USER')")
