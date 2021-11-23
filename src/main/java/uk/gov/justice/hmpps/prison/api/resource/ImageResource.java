@@ -76,13 +76,13 @@ public class ImageResource {
     @ApiResponses({
         @ApiResponse(code = 200, message = "OK", response = ImageDetail.class),
         @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "The offender number could not be found or has no bookings.", response = ErrorResponse.class),
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @ApiOperation(value = "Upload a new image for an offender.", notes = "Image data is base64-encoded JPEG content.", nickname = "putImage", hidden = true)
+    @ApiOperation(value = "Upload a new image for an offender.", notes = "Image data is base64-encoded JPEG content. Requires ROLE_SYSTEM_USER.", nickname = "putImage", hidden = true)
     @PutMapping("/offender/{offenderNo}")
     public ImageDetail putImage(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offender number relating to this image.", required = true) final String offenderNo,
-        @RequestParam(value = "fullSizeImage", defaultValue = "false") @ApiParam(value = "Upload a full size image", defaultValue = "false") final boolean fullSizeImage,
+        @RequestParam(value = "fullSizeImage", defaultValue = "false") @ApiParam(value = "Set to true if this is a full size image", defaultValue = "false") final boolean fullSizeImage,
         @RequestBody @ApiParam(value = "The base64-encoded string of the JPEG image data.", required = true) final String imageData
     ) {
         return imageService.putImageForOffender(offenderNo, fullSizeImage, imageData);

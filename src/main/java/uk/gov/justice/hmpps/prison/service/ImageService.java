@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import java.time.LocalDateTime;
+import java.util.Base64;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -50,7 +51,7 @@ public class ImageService {
             .map(i -> fullSizeImage ? i.getFullSizeImage() : i.getThumbnailImage());
     }
 
-    @PreAuthorize("hasRole('CVL_ADMIN')")
+    @PreAuthorize("hasRole('SYSTEM_USER')")
     @HasWriteScope
     @Transactional
     public ImageDetail putImageForOffender(final String offenderNumber, final boolean fullSizeImage,  final String imageData) {
@@ -60,10 +61,10 @@ public class ImageService {
             throw EntityNotFoundException.withId(offenderNumber);
         }
 
-        // Check that there is a booking present - disallow when not present
+        // Check that there is a booking present and disallow when not present. Must there be a booking?
         var latestBooking = offenderList.get(0).getLatestBooking();
         if (latestBooking.isEmpty()) {
-            throw EntityNotFoundException.withId(offenderNumber);
+            throw EntityNotFoundException.withMessage("There are no bookings for {}", offenderNumber);
         }
 
         // Uses the sequence OFFENDER_IMAGE_ID to get the next value for the ID
@@ -76,8 +77,8 @@ public class ImageService {
             .active(true)
             .sourceCode("GEN")
             .offenderBooking(latestBooking.get())
-            .thumbnailImage(fullSizeImage ? new byte[]{} : imageData.getBytes())
-            .fullSizeImage(fullSizeImage ? imageData.getBytes() : new byte[]{})
+            .thumbnailImage(fullSizeImage ? null : Base64.getDecoder().decode(imageData))
+            .fullSizeImage(fullSizeImage ? Base64.getDecoder().decode(imageData) : null)
             .build();
 
         final OffenderImage savedImage = offenderImageRepository.save(newImage);

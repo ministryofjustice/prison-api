@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import java.util.Base64;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -7,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImage;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImageRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
@@ -92,5 +94,59 @@ public class ImageServiceImplTest {
         when(offenderImageRepository.findLatestByOffenderNumber("A1234AA")).thenReturn(Optional.of(OffenderImage.builder().id(-1L).fullSizeImage(data).build()));
 
         assertThat(service.getImageContent("A1234AA", true)).get().isEqualTo(data);
+    }
+
+    @Test
+    public void putImageForOffenderNotFound() {
+
+        final String imageData = "R0lGODlhAQABAIAAAAAAAAAAACH5BAAAAAAALAAAAAABAAEAAAICTAEAOw==";
+
+        when(offenderRepository.findByNomsId(OFFENDER_NUMBER)).thenReturn(List.of());
+
+        assertThatThrownBy(() -> service.putImageForOffender(OFFENDER_NUMBER, false, imageData))
+            .isInstanceOf(EntityNotFoundException.class);
+    }
+
+    @Test
+    public void putImageForOffenderWithNoBooking() {
+
+        final String imageData = "R0lGODlhAQABAIAAAAAAAAAAACH5BAAAAAAALAAAAAABAAEAAAICTAEAOw==";
+
+        when(offenderRepository.findByNomsId(OFFENDER_NUMBER)).thenReturn(List.of(Offender.builder().id(1L).build()));
+
+        assertThatThrownBy(() -> service.putImageForOffender(OFFENDER_NUMBER, false, imageData))
+            .isInstanceOf(EntityNotFoundException.class)
+            .hasMessage("There are no bookings for {}", OFFENDER_NUMBER);
+    }
+
+    @Test
+    public void putImageForOffenderOk() {
+
+        final boolean fullSizeImage = false;
+        final String imageData = "R0lGODlhAQABAIAAAAAAAAAAACH5BAAAAAAALAAAAAABAAEAAAICTAEAOw==";
+
+        Offender offenderAndBooking = Offender.builder().id(1L).bookings(
+            List.of(OffenderBooking.builder().bookingId(1L).bookingSequence(1).build())
+        ).build();
+
+        var newImage = OffenderImage
+            .builder()
+            .captureDateTime(LocalDateTime.now())
+            .orientationType("FRONT")
+            .viewType("FACE")
+            .imageType("OFF_BKG")
+            .active(true)
+            .sourceCode("GEN")
+            .offenderBooking(offenderAndBooking.getLatestBooking().isPresent() ? offenderAndBooking.getLatestBooking().get() : null)
+            .thumbnailImage(Base64.getDecoder().decode(imageData))
+            .fullSizeImage(null)
+            .build();
+
+        when(offenderRepository.findByNomsId(OFFENDER_NUMBER)).thenReturn(List.of(offenderAndBooking));
+        when(offenderImageRepository.save(newImage)).thenReturn(newImage);
+
+        ImageDetail savedImage = service.putImageForOffender(OFFENDER_NUMBER, fullSizeImage, imageData);
+
+        assertThat(savedImage).isEqualTo(newImage.transform());
     }
 }

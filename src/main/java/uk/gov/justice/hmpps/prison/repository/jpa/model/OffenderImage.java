@@ -70,7 +70,7 @@ public class OffenderImage extends AuditableEntity {
     private boolean active;
 
     @Lob
-    @Column(name = "FULL_SIZE_IMAGE")
+    @Column(name = "FULL_SIZE_IMAGE", columnDefinition = "BLOB")
     @Exclude
     private byte[] fullSizeImage;
 
