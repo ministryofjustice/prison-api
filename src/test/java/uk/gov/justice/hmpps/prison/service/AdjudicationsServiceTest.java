@@ -150,6 +150,7 @@ public class AdjudicationsServiceTest {
                 .reporterStaffId(mockDataProvider.reporter.getStaff().getStaffId())
                 .bookingId(mockDataProvider.booking.getBookingId())
                 .offenderNo(mockDataProvider.booking.getOffender().getNomsId())
+                .agencyId(mockDataProvider.agencyDetails.getId())
                 .incidentLocationId(mockDataProvider.internalLocation.getLocationId())
                 .build();
 
@@ -254,11 +255,13 @@ public class AdjudicationsServiceTest {
             assertThat(returnedAdjudications.getContent()).containsExactlyInAnyOrder(
                 expectedReturnedAdjudication.toBuilder()
                     .adjudicationNumber(foundAdjudication1.getOffenderParty().get().getAdjudicationNumber())
+                    .agencyId(foundAdjudication1.getAgencyLocation().getId())
                     .incidentTime(foundAdjudication1.getIncidentTime())
                     .statement(foundAdjudication1.getIncidentDetails())
                     .build(),
                 expectedReturnedAdjudication.toBuilder()
                     .adjudicationNumber(foundAdjudication2.getOffenderParty().get().getAdjudicationNumber())
+                    .agencyId(foundAdjudication2.getAgencyLocation().getId())
                     .incidentTime(foundAdjudication2.getIncidentTime())
                     .statement(foundAdjudication2.getIncidentDetails())
                     .build()
@@ -301,6 +304,7 @@ public class AdjudicationsServiceTest {
                 .reporterStaffId(mockDataProvider.reporter.getStaff().getStaffId())
                 .bookingId(mockDataProvider.booking.getBookingId())
                 .offenderNo(mockDataProvider.booking.getOffender().getNomsId())
+                .agencyId(mockDataProvider.agencyDetails.getId())
                 .incidentLocationId(mockDataProvider.internalLocation.getLocationId())
                 .build();
 
@@ -345,6 +349,7 @@ public class AdjudicationsServiceTest {
                 .reporterStaffId(mockDataProvider.reporter.getStaff().getStaffId())
                 .bookingId(mockDataProvider.booking.getBookingId())
                 .offenderNo(mockDataProvider.booking.getOffender().getNomsId())
+                .agencyId(mockDataProvider.agencyDetails.getId())
                 .incidentLocationId(mockDataProvider.internalLocation.getLocationId())
                 .build();
 

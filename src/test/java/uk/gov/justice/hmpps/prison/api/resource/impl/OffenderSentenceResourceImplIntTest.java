@@ -6,11 +6,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
-import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences;
-import uk.gov.justice.hmpps.prison.api.model.v1.Offender;
 
 import java.util.List;
 import java.util.Map;
+import uk.gov.justice.hmpps.prison.api.model.HomeDetentionCurfew;
 
 import static java.net.HttpURLConnection.HTTP_OK;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -268,5 +267,29 @@ public class OffenderSentenceResourceImplIntTest extends ResourceTest {
             });
 
         assertThatJsonFileAndStatus(response, HttpStatus.OK.value(), "sentences-and-offences-details.json");
+    }
+
+    @Test
+    public void postHdcLatestStatus_success_multiple() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody(
+            "RO_USER",
+            List.of("ROLE_SYSTEM_USER"),
+            List.of(-1L, -2L, -3L)
+        );
+
+        var responseType = new ParameterizedTypeReference<List<HomeDetentionCurfew>>() {};
+
+        final var responseEntity = testRestTemplate
+            .exchange(
+                "/api/offender-sentences/home-detention-curfews/latest",
+                HttpMethod.POST,
+                requestEntity,
+                responseType
+            );
+
+        assertThatStatus(responseEntity, 200);
+        assertThat(responseEntity.getBody()).isNotEmpty();
+        assertThat(responseEntity.getBody()).hasSize(3);
+        assertThat(responseEntity.getBody()).extracting("bookingId").containsOnly(-1L, -2L, -3L);
     }
 }
