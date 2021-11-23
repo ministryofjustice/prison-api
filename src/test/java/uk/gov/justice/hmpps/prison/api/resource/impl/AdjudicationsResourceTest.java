@@ -2,8 +2,10 @@ package uk.gov.justice.hmpps.prison.api.resource.impl;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationRepository;
 
 import java.util.List;
 import java.util.Map;
@@ -18,6 +20,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
             final var token = validToken(List.of("ROLE_MAINTAIN_ADJUDICATIONS"));
             final var body = Map.of(
                 "offenderNo", "A1234AE",
+                "agencyId", "MDI",
                 "incidentTime", "2021-01-04T10:12:44",
                 "incidentLocationId", -31L,
                 "statement", "Example statement");
