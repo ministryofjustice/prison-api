@@ -62,6 +62,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
             final var token = validToken(List.of("ROLE_MAINTAIN_ADJUDICATIONS"));
             final var body = Map.of(
                 "offenderNo", "Z1234ZZ",
+                "agencyId", "MDI",
                 "incidentTime", "2021-01-04T10:12:44",
                 "incidentLocationId", -31L,
                 "statement", "Example statement");
@@ -83,6 +84,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
             final var token = validToken(List.of("ROLE_SYSTEM_USER"));
             final var body = Map.of(
                 "offenderNo", "Z1234ZZ",
+                "agencyId", "MDI",
                 "incidentTime", "2021-01-04T10:12:44",
                 "incidentLocationId", -31L,
                 "statement", "Example statement");

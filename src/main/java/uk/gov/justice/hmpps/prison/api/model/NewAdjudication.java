@@ -30,7 +30,8 @@ public class NewAdjudication {
     @NotNull
     private LocalDateTime incidentTime;
 
-    @ApiModelProperty(required = false, value = "The id of the agency related to this incident", notes = "If omitted then it will use the agency related to the incidentLocationId that is provided", example = "MDI", position = 3)
+    @ApiModelProperty(required = true, value = "The id of the agency related to this incident", notes = "If omitted then it will use the agency related to the incidentLocationId that is provided", example = "MDI", position = 3)
+    @NotNull
     private String agencyId;
 
     @ApiModelProperty(required = true, value = "The id to indicate where the incident took place", notes = "This will be an agency's internal location id", position = 4)
