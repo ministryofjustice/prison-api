@@ -34,6 +34,10 @@ public class AdjudicationDetail {
     @NotNull
     private String offenderNo;
 
+    @ApiModelProperty(value = "The id of the agency related to this incident", example = "MDI")
+    @NotNull
+    private String agencyId;
+
     @ApiModelProperty(value = "When the incident took place", position = 4, example = "15-06-2020T09:03:11")
     @NotNull
     private LocalDateTime incidentTime;

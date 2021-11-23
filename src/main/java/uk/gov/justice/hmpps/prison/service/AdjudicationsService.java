@@ -98,8 +98,13 @@ public class AdjudicationsService {
 
         final var incidentInternalLocationDetails = internalLocationRepository.findOneByLocationId(adjudication.getIncidentLocationId())
             .orElseThrow(EntityNotFoundException.withMessage(format("Location with id %d does not exist or is not in your caseload", adjudication.getIncidentLocationId())));
-        final var agencyDetails = agencyLocationRepository.findById(incidentInternalLocationDetails.getAgencyId())
-            .orElseThrow(() -> new RuntimeException(format("Agency not found %s", incidentInternalLocationDetails.getAgencyId())));
+
+        var agencyId = incidentInternalLocationDetails.getAgencyId();
+        if (adjudication.getAgencyId() != null) {
+            agencyId = adjudication.getAgencyId();
+        }
+        final var agencyDetails = agencyLocationRepository.findById(agencyId)
+            .orElseThrow(EntityNotFoundException.withMessage(format("Agency with id %s does not exist", agencyId)));
 
         final var adjudicationToCreate = Adjudication.builder()
             .incidentDate(incidentDateTime.toLocalDate())
@@ -171,6 +176,7 @@ public class AdjudicationsService {
             .reporterStaffId(adjudication.getStaffReporter().getStaffId())
             .bookingId(bookingId)
             .offenderNo(offenderNo)
+            .agencyId(adjudication.getAgencyLocation().getId())
             .incidentTime(adjudication.getIncidentTime())
             .incidentLocationId(adjudication.getInternalLocation().getLocationId())
             .statement(adjudication.getIncidentDetails())
