@@ -90,6 +90,17 @@ public class OffenderSentenceResource {
     }
 
     @ApiResponses({
+        @ApiResponse(code = 200, message = "List of HDC status information", response = HomeDetentionCurfew.class, responseContainer = "List"),
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+    })
+    @ApiOperation("Retrieve the latest Home Detention Curfew status for a list of offender booking identifiers")
+    @PostMapping("/home-detention-curfews/latest")
+    public List<HomeDetentionCurfew> getBatchLatestHomeDetentionCurfew(@RequestBody @ApiParam(value = "A list of booking ids", required = true) final List<Long> bookingIds) {
+        validateBookingIdList(bookingIds);
+        return offenderCurfewService.getBatchLatestHomeDetentionCurfew(bookingIds);
+    }
+
+    @ApiResponses({
             @ApiResponse(code = 204, message = "The checks passed flag was set"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
@@ -184,6 +195,12 @@ public class OffenderSentenceResource {
     private void validateOffenderList(final List<?> offenderList) {
         if (CollectionUtils.isEmpty(offenderList)) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "List of Offender Ids must be provided");
+        }
+    }
+
+    private void validateBookingIdList(final List<Long> bookingIdList) {
+        if (CollectionUtils.isEmpty(bookingIdList)) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "List of Booking Ids must be provided");
         }
     }
 }
