@@ -99,10 +99,7 @@ public class AdjudicationsService {
         final var incidentInternalLocationDetails = internalLocationRepository.findOneByLocationId(adjudication.getIncidentLocationId())
             .orElseThrow(EntityNotFoundException.withMessage(format("Location with id %d does not exist or is not in your caseload", adjudication.getIncidentLocationId())));
 
-        var agencyId = incidentInternalLocationDetails.getAgencyId();
-        if (adjudication.getAgencyId() != null) {
-            agencyId = adjudication.getAgencyId();
-        }
+        final var agencyId = adjudication.getAgencyId();
         final var agencyDetails = agencyLocationRepository.findById(agencyId)
             .orElseThrow(EntityNotFoundException.withMessage(format("Agency with id %s does not exist", agencyId)));
 

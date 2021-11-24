@@ -192,6 +192,24 @@ public class AdjudicationsServiceTest {
         }
 
         @Test
+        public void withInvalidAgencyIdThrowsInvalidRequestException() {
+            final var mockDataProvider = new MockDataProvider();
+
+            mockDataProvider.setupMocksWithInvalidAgency();
+
+            final var newAdjudication = generateNewAdjudicationRequest(
+                mockDataProvider.booking.getOffender().getNomsId(),
+                mockDataProvider.internalLocation.getLocationId());
+
+            assertThatThrownBy(() ->
+                service.createAdjudication(newAdjudication.getOffenderNo(), newAdjudication))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Agency with id LEI does not exist");
+
+            verifyNoMoreInteractions(telemetryClient);
+        }
+
+        @Test
         public void withInvalidLocationIdThrowsInvalidRequestException() {
             final var mockDataProvider = new MockDataProvider();
 
@@ -434,6 +452,7 @@ public class AdjudicationsServiceTest {
     private NewAdjudication generateNewAdjudicationRequest(final String offenderNo, final Long internalLocationId) {
         return NewAdjudication.builder()
             .offenderNo(offenderNo)
+            .agencyId(EXAMPLE_AGENCY_ID)
             .incidentTime(EXAMPLE_INCIDENT_TIME)
             .incidentLocationId(internalLocationId)
             .statement(EXAMPLE_STATEMENT)
@@ -458,25 +477,34 @@ public class AdjudicationsServiceTest {
         }
 
         public void setupMocks() {
-            setupMocksInternal(true);
+            setupMocksInternal(true, true);
+        }
+
+        public void setupMocksWithInvalidAgency() {
+            setupMocksInternal(false, true);
         }
 
         public void setupMocksWithInvalidLocation() {
-            setupMocksInternal(false);
+            setupMocksInternal(true, false);
         }
 
-        private void setupMocksInternal(final boolean validLocation) {
+        private void setupMocksInternal(final boolean validAgency, final boolean validLocation) {
             when(incidentTypeRepository.findById(AdjudicationIncidentType.GOVERNORS_REPORT)).thenReturn(Optional.of(incidentType));
             when(actionCodeRepository.findById(AdjudicationActionCode.PLACED_ON_REPORT)).thenReturn(Optional.of(actionCode));
             when(authenticationFacade.getCurrentUsername()).thenReturn(EXAMPLE_CURRENT_USERNAME);
             when(staffUserAccountRepository.findById(EXAMPLE_CURRENT_USERNAME)).thenReturn(Optional.of(reporter));
             when(bookingRepository.findByOffenderNomsIdAndBookingSequence(booking.getOffender().getNomsId(), 1)).thenReturn(Optional.of(booking));
-            if (validLocation) {
+            if (validAgency && validLocation) {
                 when(internalLocationRepository.findOneByLocationId(internalLocation.getLocationId())).thenReturn(Optional.of(internalLocation));
                 when(agencyLocationRepository.findById(agencyDetails.getId())).thenReturn(Optional.of(agencyDetails));
                 when(adjudicationsRepository.getNextAdjudicationNumber()).thenReturn(EXAMPLE_ADJUDICATION_NUMBER);
             } else {
-                when(internalLocationRepository.findOneByLocationId(internalLocation.getLocationId())).thenReturn(Optional.empty());
+                if (!validLocation) {
+                    when(internalLocationRepository.findOneByLocationId(internalLocation.getLocationId())).thenReturn(Optional.empty());
+                } else {
+                    when(internalLocationRepository.findOneByLocationId(internalLocation.getLocationId())).thenReturn(Optional.of(internalLocation));
+                    when(agencyLocationRepository.findById(agencyDetails.getId())).thenReturn(Optional.empty());
+                }
             }
         }
 
