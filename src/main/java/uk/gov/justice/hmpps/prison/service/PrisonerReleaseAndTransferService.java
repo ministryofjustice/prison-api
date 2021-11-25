@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
+import uk.gov.justice.hmpps.prison.api.model.RequestForCourtReturn;
 import uk.gov.justice.hmpps.prison.api.model.RequestForNewBooking;
 import uk.gov.justice.hmpps.prison.api.model.RequestToDischargePrisoner;
 import uk.gov.justice.hmpps.prison.api.model.RequestToRecall;
@@ -132,7 +133,7 @@ public class PrisonerReleaseAndTransferService {
         final var supportingPrison = requestToDischargePrisoner != null && requestToDischargePrisoner.getSupportingPrisonId() != null ? agencyLocationRepository.findById(requestToDischargePrisoner.getSupportingPrisonId()).orElseThrow(EntityNotFoundException.withMessage(format("No %s agency found", requestToDischargePrisoner.getSupportingPrisonId()))) : booking.getLocation();
         final var toLocation = agencyLocationRepository.findById(requestToReleasePrisoner.getToLocationCode()).orElseThrow(EntityNotFoundException.withMessage(format("No %s agency found", requestToReleasePrisoner.getToLocationCode())));
 
-        createOutMovement(booking, REL, movementReason, supportingPrison, toLocation, releaseDateTime, requestToReleasePrisoner.getCommentText(), null );
+        createOutMovement(booking, REL, movementReason, supportingPrison, toLocation, releaseDateTime, requestToReleasePrisoner.getCommentText(), null);
 
         // generate the release case note
         generateReleaseNote(booking, releaseDateTime, movementReason);
@@ -189,7 +190,7 @@ public class PrisonerReleaseAndTransferService {
             lastMovement.setToAgency(toLocation);
             lastMovement.setCommentText(commentText);
             lastMovement.setFromAgency(agencyLocationRepository.findById(requestToDischargePrisoner.getSupportingPrisonId()).orElseThrow(EntityNotFoundException.withMessage(format("No %s agency found", requestToDischargePrisoner.getSupportingPrisonId()))));
-            offenderBooking.setStatusReason(REL.getCode()+"-"+DISCHARGE_TO_PSY_HOSPITAL.getCode());
+            offenderBooking.setStatusReason(REL.getCode() + "-" + DISCHARGE_TO_PSY_HOSPITAL.getCode());
         } else {
             releasePrisoner(prisonerIdentifier, RequestToReleasePrisoner.builder()
                 .commentText(commentText)
@@ -310,11 +311,13 @@ public class PrisonerReleaseAndTransferService {
         // Create IEP levels
         availablePrisonIepLevelRepository.findByAgencyLocation_IdAndDefaultIep(prisonToRecallTo.getId(), true)
             .stream().findFirst().ifPresentOrElse(
-            iepLevel -> {
-                final var staff = staffUserAccountRepository.findById(authenticationFacade.getCurrentUsername()).orElseThrow(EntityNotFoundException.withId(authenticationFacade.getCurrentUsername()));
-                booking.addIepLevel(iepLevel.getIepLevel(), format("Admission to %s", prisonToRecallTo.getDescription()), receiveTime, staff);
-            },
-            () -> { throw new BadRequestException("No default IEP level found"); } );
+                iepLevel -> {
+                    final var staff = staffUserAccountRepository.findById(authenticationFacade.getCurrentUsername()).orElseThrow(EntityNotFoundException.withId(authenticationFacade.getCurrentUsername()));
+                    booking.addIepLevel(iepLevel.getIepLevel(), format("Admission to %s", prisonToRecallTo.getDescription()), receiveTime, staff);
+                },
+                () -> {
+                    throw new BadRequestException("No default IEP level found");
+                });
 
         //clear off old status
         setupBookingAccount(booking, fromLocation, prisonToRecallTo, receiveTime, movementReason, imprisonmentStatus);
@@ -334,7 +337,7 @@ public class PrisonerReleaseAndTransferService {
 
         final var previousBooking = offender.getLatestBooking();
         previousBooking
-            .ifPresent( booking -> {
+            .ifPresent(booking -> {
                 if (booking.isActive()) {
                     throw new BadRequestException("Prisoner is currently active");
                 }
@@ -414,17 +417,17 @@ public class PrisonerReleaseAndTransferService {
 
         previousBooking.ifPresent(oldBooking -> copyTableRepository.findByOperationCodeAndMovementTypeAndActiveAndExpiryDateIsNull("COP", ADM.getCode(), true)
             .stream().findFirst().ifPresent(
-            ct -> {
-                if (env.acceptsProfiles(Profiles.of("nomis"))) {
-                    final var params = new MapSqlParameterSource()
-                        .addValue("p_move_type", ADM.getCode())
-                        .addValue("p_move_reason", movementReason.getCode())
-                        .addValue("p_old_book_id", oldBooking.getBookingId())
-                        .addValue("p_new_book_id", booking.getBookingId());
-                    copyBookData.execute(params);
+                ct -> {
+                    if (env.acceptsProfiles(Profiles.of("nomis"))) {
+                        final var params = new MapSqlParameterSource()
+                            .addValue("p_move_type", ADM.getCode())
+                            .addValue("p_move_reason", movementReason.getCode())
+                            .addValue("p_old_book_id", oldBooking.getBookingId())
+                            .addValue("p_new_book_id", booking.getBookingId());
+                        copyBookData.execute(params);
+                    }
                 }
-            }
-        ));
+            ));
 
         if (requestForNewBooking.isYouthOffender()) {
             // set youth status
@@ -440,11 +443,13 @@ public class PrisonerReleaseAndTransferService {
         // Create IEP levels
         availablePrisonIepLevelRepository.findByAgencyLocation_IdAndDefaultIep(receivedPrison.getId(), true)
             .stream().findFirst().ifPresentOrElse(
-            iepLevel -> {
-                final var staff = staffUserAccountRepository.findById(authenticationFacade.getCurrentUsername()).orElseThrow(EntityNotFoundException.withId(authenticationFacade.getCurrentUsername()));
-                booking.addIepLevel(iepLevel.getIepLevel(), format("Admission to %s", receivedPrison.getDescription()), receiveTime, staff);
+                iepLevel -> {
+                    final var staff = staffUserAccountRepository.findById(authenticationFacade.getCurrentUsername()).orElseThrow(EntityNotFoundException.withId(authenticationFacade.getCurrentUsername()));
+                    booking.addIepLevel(iepLevel.getIepLevel(), format("Admission to %s", receivedPrison.getDescription()), receiveTime, staff);
                 },
-            () -> { throw new BadRequestException("No default IEP level found"); } );
+                () -> {
+                    throw new BadRequestException("No default IEP level found");
+                });
 
         setupBookingAccount(booking, fromLocation, receivedPrison, receiveTime, movementReason, imprisonmentStatus);
 
@@ -475,7 +480,7 @@ public class PrisonerReleaseAndTransferService {
         if (!booking.getInOutStatus().equals("TRN")) {
             throw new BadRequestException("Prisoner is not currently being transferred");
         }
-        final var latestExternalMovement = booking.getLastMovement().map( lm -> {
+        final var latestExternalMovement = booking.getLastMovement().map(lm -> {
             if (!lm.getMovementType().getCode().equals(TRN.getCode())) {
                 throw new BadRequestException("Latest movement not a transfer");
             }
@@ -531,17 +536,19 @@ public class PrisonerReleaseAndTransferService {
         // Create IEP levels
         availablePrisonIepLevelRepository.findByAgencyLocation_IdAndDefaultIep(booking.getLocation().getId(), true)
             .stream().findFirst().ifPresentOrElse(
-            iepLevel -> {
-                final var staff = staffUserAccountRepository.findById(authenticationFacade.getCurrentUsername()).orElseThrow(EntityNotFoundException.withId(authenticationFacade.getCurrentUsername()));
-                booking.addIepLevel(iepLevel.getIepLevel(), format("Admission to %s", latestExternalMovement.getToAgency().getDescription()), receiveTime, staff);
-            },
-            () -> { throw new BadRequestException("No default IEP level found"); } );
+                iepLevel -> {
+                    final var staff = staffUserAccountRepository.findById(authenticationFacade.getCurrentUsername()).orElseThrow(EntityNotFoundException.withId(authenticationFacade.getCurrentUsername()));
+                    booking.addIepLevel(iepLevel.getIepLevel(), format("Admission to %s", latestExternalMovement.getToAgency().getDescription()), receiveTime, staff);
+                },
+                () -> {
+                    throw new BadRequestException("No default IEP level found");
+                });
 
         // create Admission case note
         generateAdmissionNote(booking, latestExternalMovement.getFromAgency(), latestExternalMovement.getToAgency(), receiveTime, movementReason);
 
         return offenderTransformer.transform(booking);
-     }
+    }
 
     private LocalDateTime getAndCheckMovementTime(final LocalDateTime movementTime, final Long bookingId) {
         final var now = LocalDateTime.now();
@@ -771,4 +778,33 @@ public class PrisonerReleaseAndTransferService {
         return format("%05d", number);
     }
 
+    public InmateDetail courtReturn(String offenderNo, RequestForCourtReturn requestForCourtReturn) {
+/*UPDATE OFFENDER_BOOKINGS SET IN_OUT_STATUS and AGENCY_IML_ID = NULL - OffenderBookingRepository,
+   but see/use PrisonerReleaseAndTransferService.getOffenderBooking()
+   */
+        OffenderBooking offenderBooking = this.getOffenderBooking(offenderNo);
+        offenderBooking.setInOutStatus("??");
+
+        offenderBookingRepository.save(offenderBooking);
+
+/*
+UPDATE OFFENDER_EXTERNAL_MOVEMENTS SET ACTIVE_FLAG = 'N' - Repository exists,
+   but see/use PrisonerReleaseAndTransferService.deactivatePreviousMovements()
+*/
+        this.deactivatePreviousMovements(offenderBooking);
+ /*
+INSERT INTO OFFENDER_EXTERNAL_MOVEMENTS - Repository exists, but see/use
+  PrisonerReleaseAndTransferService.createInMovement()
+ */
+        final var movementReason = movementReasonRepository.findById(MovementReason.pk(requestForCourtReturn.getMovementReasonCode())).orElseThrow(EntityNotFoundException.withMessage(format("No movement reason %s found", requestForCourtReturn.getMovementReasonCode())));
+        final var prisonToRecallTo = agencyLocationRepository.findByIdAndTypeAndActiveAndDeactivationDateIsNull(requestForCourtReturn.getPrisonId(), agencyLocationType, true).orElseThrow(EntityNotFoundException.withMessage(format("%s prison not found", requestForCourtReturn.getPrisonId())));
+        this.createInMovement(offenderBooking, movementReason, this.getFromLocation(requestForCourtReturn.getAgencyId()),prisonToRecallTo,requestForCourtReturn.getDateTime(),requestForCourtReturn.getCommentText() );
+    /*
+-- conditional if court event exist
+ UPDATE COURT_EVENTS SET EVENT_STATUS = 'COMP' - Repository exists
+ */
+     
+
+        return new InmateDetail();
+    }
 }

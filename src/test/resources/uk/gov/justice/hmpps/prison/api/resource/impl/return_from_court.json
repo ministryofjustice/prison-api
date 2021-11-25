@@ -1,0 +1,29 @@
+{
+  "offenderNo": "A1180HI",
+  "bookingId": -52,
+  "bookingNo": "Z00048",
+  "offenderId": -1050,
+  "rootOffenderId": -1050,
+  "firstName": "DEREK",
+  "lastName": "DIGGLE",
+  "dateOfBirth": "1982-01-02",
+  "activeFlag": true,
+  "agencyId": "MDI",
+  "assignedLivingUnitId": -162,
+  "assignedLivingUnit": {
+    "agencyId": "MDI",
+    "locationId": -162,
+    "description": "1-3-022",
+    "agencyName": "Moorland"
+  },
+  "physicalAttributes": {
+    "gender": "Male",
+    "raceCode": "M2",
+    "ethnicity": "Mixed: White and Black African",
+    "sexCode": "M"
+  },
+  "inOutStatus": "IN",
+  "status": "ACTIVE IN",
+  "lastMovementTypeCode": "ADM",
+  "lastMovementReasonCode": "INT"
+}
