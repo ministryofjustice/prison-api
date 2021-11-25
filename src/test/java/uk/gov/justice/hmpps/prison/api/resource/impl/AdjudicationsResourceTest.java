@@ -109,7 +109,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
             final var body = Map.of(
                 "incidentTime", "2021-01-04T10:12:44",
                 "incidentLocationId", -31L,
-                "statement", "Adjusted statement");
+                "statement", "Some Adjusted Comment Text"); // Note that the "Text" is used in free text searches
 
             final var httpEntity = createHttpEntity(token, body);
 
