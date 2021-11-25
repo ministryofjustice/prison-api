@@ -114,7 +114,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
             final var httpEntity = createHttpEntity(token, body);
 
             final var response = testRestTemplate.exchange(
-                "/api/adjudications/adjudication/-5",
+                "/api/adjudications/adjudication/-7",
                 HttpMethod.PUT,
                 httpEntity,
                 new ParameterizedTypeReference<String>() {
