@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationSearchRequest;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
+import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationActionCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationIncidentType;
@@ -47,6 +48,7 @@ import static java.time.Instant.ofEpochMilli;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -186,7 +188,8 @@ public class AdjudicationsServiceTest {
                     "reporterUsername", mockDataProvider.getReporterUsername(),
                     "offenderNo", mockDataProvider.getOffenderNo(),
                     "incidentTime", EXAMPLE_INCIDENT_TIME.toString(),
-                    "incidentLocation", mockDataProvider.getIncidentLocation()
+                    "incidentLocation", mockDataProvider.getIncidentLocation(),
+                    "statementSize", "" + mockDataProvider.getStatement().length()
                 ),
                 null);
         }
@@ -228,6 +231,116 @@ public class AdjudicationsServiceTest {
         }
     }
 
+    @Nested
+    public class ModifyAdjudication {
+        private Adjudication existingSavedAdjudication;
+        private Adjudication savedAdjudication;
+        private Long updateNumber;
+        private UpdateAdjudication updateRequest;
+        private LocalDateTime updatedIncidentTime;
+        private String updatedStatement;
+        private AgencyInternalLocation updatedInternalLocation;
+
+        @BeforeEach
+        public void setup() {
+            updateNumber = 123L;
+            existingSavedAdjudication = generateExampleAdjudication(new MockDataProvider(), updateNumber);
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(updateNumber)).thenReturn(Optional.of(existingSavedAdjudication));
+
+            updatedIncidentTime = LocalDateTime.of(2020, 1, 1, 2, 3, 5);
+            updatedStatement = "New statement";
+            updatedInternalLocation = AgencyInternalLocation.builder()
+                .locationId(11L)
+                .description("Basketball")
+                .build();
+            lenient().when(internalLocationRepository.findOneByLocationId(updatedInternalLocation.getLocationId())).thenReturn(Optional.of(updatedInternalLocation));
+
+            updateRequest = UpdateAdjudication.builder()
+                .incidentTime(updatedIncidentTime)
+                .incidentLocationId(updatedInternalLocation.getLocationId())
+                .statement(updatedStatement)
+                .build();
+
+            savedAdjudication = existingSavedAdjudication.toBuilder()
+                .incidentTime(updatedIncidentTime)
+                .internalLocation(updatedInternalLocation)
+                .incidentDetails(updatedStatement)
+                .build();
+
+            lenient().when(adjudicationsRepository.save(any())).thenReturn(savedAdjudication);
+        }
+
+        @Test
+        public void makesCallToRepositoryWithCorrectData() {
+            service.updateAdjudication(updateNumber, updateRequest);
+
+            verify(adjudicationsRepository).save(assertArgThat(actualAdjudication -> {
+                    assertThat(actualAdjudication).usingRecursiveComparison().ignoringFields("parties")
+                        .isEqualTo(savedAdjudication);
+                }
+            ));
+        }
+
+        @Test
+        public void returnsCorrectData() {
+            service.updateAdjudication(updateNumber, updateRequest);
+
+            final var expectedParty = existingSavedAdjudication.getOffenderParty().get();
+
+            final var expectedReturnedAdjudication = AdjudicationDetail.builder()
+                .adjudicationNumber(updateNumber)
+                .incidentTime(updateRequest.getIncidentTime())
+                .statement(updateRequest.getStatement())
+                .incidentLocationId(updateRequest.getIncidentLocationId())
+                .reporterStaffId(existingSavedAdjudication.getStaffReporter().getStaffId())
+                .bookingId(expectedParty.getOffenderBooking().getBookingId())
+                .offenderNo(expectedParty.getOffenderBooking().getOffender().getNomsId())
+                .agencyId(existingSavedAdjudication.getAgencyLocation().getId())
+                .build();
+
+            final var returnedAdjudication = service.updateAdjudication(updateNumber, updateRequest);
+
+            assertThat(returnedAdjudication).isEqualTo(expectedReturnedAdjudication);
+        }
+
+        @Test
+        public void sendsTelemetryMessage() {
+            service.updateAdjudication(updateNumber, updateRequest);
+
+            verify(telemetryClient).trackEvent("AdjudicationUpdated",
+                Map.of(
+                    "adjudicationNumber", "" + updateNumber,
+                    "incidentTime", updatedIncidentTime.toString(),
+                    "incidentLocation", updatedInternalLocation.getDescription(),
+                    "statementSize", "" + updatedStatement.length()
+                ),
+                null);
+        }
+
+        @Test
+        public void withInvalidAdjudicationNumberThrowsEntityNotFoundException() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(updateNumber)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() ->
+                service.updateAdjudication(updateNumber, updateRequest))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining(String.format("Adjudication with number %d does not exist", updateNumber));
+
+            verifyNoMoreInteractions(telemetryClient);
+        }
+
+        @Test
+        public void withInvalidLocationIdThrowsEntityNotFoundException() {
+            when(internalLocationRepository.findOneByLocationId(updatedInternalLocation.getLocationId())).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() ->
+                service.updateAdjudication(updateNumber, updateRequest))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining(String.format("Location with id %d does not exist or is not in your caseload", updatedInternalLocation.getLocationId()));
+
+            verifyNoMoreInteractions(telemetryClient);
+        }
+    }
 
     @Nested
     public class SearchAdjudications {
@@ -552,6 +665,10 @@ public class AdjudicationsServiceTest {
 
         public String getIncidentLocation() {
             return EXAMPLE_LOCATION_DESCRIPTION;
+        }
+
+        public String getStatement() {
+            return EXAMPLE_STATEMENT;
         }
     }
 }

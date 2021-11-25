@@ -34,7 +34,7 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
 @Data
 @EqualsAndHashCode(callSuper=false)
-@Builder
+@Builder(toBuilder=true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity

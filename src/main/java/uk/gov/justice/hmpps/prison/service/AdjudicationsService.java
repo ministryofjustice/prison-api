@@ -12,6 +12,7 @@ import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationSearchRequest;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
+import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationActionCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationIncidentType;
@@ -135,6 +136,26 @@ public class AdjudicationsService {
         return transformToDto(createdAdjudication);
     }
 
+    @Transactional
+    public AdjudicationDetail updateAdjudication(Long adjudicationNumber, UpdateAdjudication adjudication) {
+        final var adjudicationToUpdate = adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber)
+            .orElseThrow(EntityNotFoundException.withMessage(format("Adjudication with number %s does not exist", adjudicationNumber)));
+
+        final var incidentInternalLocationDetails = internalLocationRepository.findOneByLocationId(adjudication.getIncidentLocationId())
+            .orElseThrow(EntityNotFoundException.withMessage(format("Location with id %d does not exist or is not in your caseload", adjudication.getIncidentLocationId())));
+
+        adjudicationToUpdate.setIncidentDate(adjudication.getIncidentTime().toLocalDate());
+        adjudicationToUpdate.setIncidentTime(adjudication.getIncidentTime());
+        adjudicationToUpdate.setInternalLocation(incidentInternalLocationDetails);
+        adjudicationToUpdate.setIncidentDetails(adjudication.getStatement());
+
+        final var updatedAdjudication = adjudicationsRepository.save(adjudicationToUpdate);
+
+        trackAdjudicationUpdated(adjudicationNumber, updatedAdjudication);
+
+        return transformToDto(updatedAdjudication);
+    }
+
     public AdjudicationDetail getAdjudication(@NotNull final Long adjudicationNumber) {
         final var requestedAdjudication = adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber)
             .orElseThrow(EntityNotFoundException.withMessage(format("Adjudication not found with the number %d", adjudicationNumber)));
@@ -158,10 +179,21 @@ public class AdjudicationsService {
         logMap.put("reporterUsername", authenticationFacade.getCurrentUsername());
         logMap.put("offenderNo", createdAdjudication.getOffenderParty()
             .map(o -> o.getOffenderBooking().getOffender().getNomsId()).orElse(""));
-        logMap.put("incidentTime", createdAdjudication.getIncidentTime().toString());
-        logMap.put("incidentLocation", createdAdjudication.getInternalLocation().getDescription());
+        trackAdjudicationDetails("AdjudicationCreated", createdAdjudication, logMap);
+    }
 
-        telemetryClient.trackEvent("AdjudicationCreated", logMap, null);
+    private void trackAdjudicationUpdated(final Long adjudicationNumber, final Adjudication updatedAdjudication) {
+        final Map<String, String> logMap = new HashMap<>();
+        logMap.put("adjudicationNumber", "" + adjudicationNumber);
+        trackAdjudicationDetails("AdjudicationUpdated", updatedAdjudication, logMap);
+    }
+
+    private void trackAdjudicationDetails(final String eventName, final Adjudication adjudication, final Map<String, String> propertyMap) {
+        propertyMap.put("incidentTime", adjudication.getIncidentTime().toString());
+        propertyMap.put("incidentLocation", adjudication.getInternalLocation().getDescription());
+        propertyMap.put("statementSize", "" + adjudication.getIncidentDetails().length());
+
+        telemetryClient.trackEvent(eventName, propertyMap, null);
     }
 
     private AdjudicationDetail transformToDto(final Adjudication adjudication) {
