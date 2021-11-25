@@ -91,7 +91,7 @@ public class OffenderActivitiesResourceTest extends ResourceTest {
             eventDate = LocalDate.of(2017,9,14).format(DateTimeFormatter.ISO_LOCAL_DATE);
             assertThatJson(response.getBody()).node("content[1].eventDate").isEqualTo(eventDate);
             assertThatJson(response.getBody()).node("content[1].description").asString().contains("Woodwork");
-            assertThatJson(response.getBody()).node("content[1].outcome").asString().contains("ACCABS:");
+            assertThatJson(response.getBody()).node("content[1].outcome").asString().contains("ACCABS");
 
             assertThatJsonFileAndStatus(response, HttpStatus.OK.value(), "offender-attendence-history.json");
         }
