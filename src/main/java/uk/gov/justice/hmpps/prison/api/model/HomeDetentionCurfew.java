@@ -38,4 +38,7 @@ public class HomeDetentionCurfew {
 
     @ApiModelProperty(required = true, value = "Approval status date. ISO-8601 format. YYYY-MM-DD", example = "2018-12-31")
     LocalDate approvalStatusDate;
+
+    @ApiModelProperty(value = "Offender booking ID", example = "123")
+    private Long bookingId;
 }
