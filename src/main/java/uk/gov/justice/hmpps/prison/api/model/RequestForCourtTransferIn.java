@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @ToString
-public class RequestForCourtReturn {
+public class RequestForCourtTransferIn {
 
     @ApiModelProperty(required = true, value = "Agency identifier", example = "MDI", position = 1)
     @Length(max = 20, min = 2, message = "Agency identifier cannot be less then 2 and more than 20 characters")

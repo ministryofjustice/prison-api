@@ -43,7 +43,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerIdentifier;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerInPrisonSummary;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
-import uk.gov.justice.hmpps.prison.api.model.RequestForCourtReturn;
+import uk.gov.justice.hmpps.prison.api.model.RequestForCourtTransferIn;
 import uk.gov.justice.hmpps.prison.api.model.RequestForNewBooking;
 import uk.gov.justice.hmpps.prison.api.model.RequestToCreate;
 import uk.gov.justice.hmpps.prison.api.model.RequestToDischargePrisoner;
@@ -248,13 +248,13 @@ public class OffenderResource {
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation("Transfer a prisoner into a prison from court. Must be an out prisoner in currently in transfer status, requires the TRANSFER_PRISONER role")
-    @PutMapping("/{offenderNo}/court-return")
+    @PutMapping("/{offenderNo}/court-transfer-in")
     @PreAuthorize("hasRole('TRANSFER_PRISONER') and hasAuthority('SCOPE_write')")
     @ProxyUser
-    public InmateDetail courtReturn(
+    public InmateDetail courtTransferIn(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
-        @RequestBody @NotNull @Valid final RequestForCourtReturn requestForCourtReturn) {
-        return prisonerReleaseAndTransferService.courtReturn(offenderNo, requestForCourtReturn);
+        @RequestBody @NotNull @Valid final RequestForCourtTransferIn requestForCourtTransferIn) {
+        return prisonerReleaseAndTransferService.courtTransferIn(offenderNo, requestForCourtTransferIn);
     }
 
     @ApiResponses({

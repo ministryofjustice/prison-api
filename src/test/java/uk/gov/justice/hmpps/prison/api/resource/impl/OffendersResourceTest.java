@@ -905,7 +905,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         final var transferInResponse =  testRestTemplate.exchange(
             "/api/offenders/{nomsId}/court-return",
-            POST,
+            PUT,
             courtReturnEntity,
             new ParameterizedTypeReference<String>() {
             },

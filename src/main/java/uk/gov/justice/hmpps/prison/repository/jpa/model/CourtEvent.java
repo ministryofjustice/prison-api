@@ -45,13 +45,13 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason.RE
 @Getter
 @Entity
 @EntityListeners({
-        CourtEvent.OnCreate.class,
-        CourtEvent.OnDelete.class
+    CourtEvent.OnCreate.class,
+    CourtEvent.OnDelete.class
 })
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of = { "id" }, callSuper = false)
+@EqualsAndHashCode(of = {"id"}, callSuper = false)
 @Table(name = "COURT_EVENTS")
 @ToString(exclude = {"offenderBooking", "offenderCourtCase"})
 @Slf4j
@@ -80,16 +80,16 @@ public class CourtEvent extends AuditableEntity {
     @ManyToOne
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
-            @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + REASON + "'", referencedColumnName = "domain")),
-            @JoinColumnOrFormula(column = @JoinColumn(name = "COURT_EVENT_TYPE", referencedColumnName = "code"))
+        @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + REASON + "'", referencedColumnName = "domain")),
+        @JoinColumnOrFormula(column = @JoinColumn(name = "COURT_EVENT_TYPE", referencedColumnName = "code"))
     })
     private MovementReason courtEventType;
 
     @ManyToOne
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
-            @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + EVENT_STS + "'", referencedColumnName = "domain")),
-            @JoinColumnOrFormula(column = @JoinColumn(name = "EVENT_STATUS", referencedColumnName = "code"))
+        @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + EVENT_STS + "'", referencedColumnName = "domain")),
+        @JoinColumnOrFormula(column = @JoinColumn(name = "EVENT_STATUS", referencedColumnName = "code"))
     })
     private EventStatus eventStatus;
 
@@ -130,6 +130,10 @@ public class CourtEvent extends AuditableEntity {
         this.startTime = dateTime;
     }
 
+    public void setEventStatus(EventStatus eventStatus) {
+        this.eventStatus = eventStatus;
+    }
+
     private void add(final CourtEventCharge charge) {
         charges.add(charge);
     }
@@ -141,17 +145,17 @@ public class CourtEvent extends AuditableEntity {
         @PrePersist
         void applyActiveCourtCaseChargesFor(final CourtEvent event) {
             event.getOffenderCourtCase().ifPresent(courtCase -> {
-                        courtCase.getCharges(OffenderCharge::isActive).forEach(charge ->
-                                event.add(CourtEventCharge.builder()
-                                        .offenderCharge(charge)
-                                        .courtEvent(event)
-                                        .build())
-                        );
+                    courtCase.getCharges(OffenderCharge::isActive).forEach(charge ->
+                        event.add(CourtEventCharge.builder()
+                            .offenderCharge(charge)
+                            .courtEvent(event)
+                            .build())
+                    );
 
-                        if (!event.getCharges().isEmpty()) {
-                            log.debug("Carried over '{}' active charge(s) for court case '{}' to court event '{}'", event.getCharges().size(), courtCase.getId(), event.getId());
-                        }
+                    if (!event.getCharges().isEmpty()) {
+                        log.debug("Carried over '{}' active charge(s) for court case '{}' to court event '{}'", event.getCharges().size(), courtCase.getId(), event.getId());
                     }
+                }
             );
         }
     }

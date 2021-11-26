@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
-import uk.gov.justice.hmpps.prison.api.model.RequestForCourtReturn;
+import uk.gov.justice.hmpps.prison.api.model.RequestForCourtTransferIn;
 import uk.gov.justice.hmpps.prison.api.model.RequestForNewBooking;
 import uk.gov.justice.hmpps.prison.api.model.RequestToDischargePrisoner;
 import uk.gov.justice.hmpps.prison.api.model.RequestToRecall;
@@ -25,6 +25,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory.BedAssignmentHistoryPK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteSubType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ImprisonmentStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection;
@@ -41,6 +42,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepos
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AvailablePrisonIepLevelRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CopyTableRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ImprisonmentStatusRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.MovementTypeAndReasonRespository;
@@ -72,6 +74,7 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason.AWAIT_REMOVAL_TO_PSY_HOSPITAL;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason.DISCHARGE_TO_PSY_HOSPITAL;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.ADM;
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.CRT;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.REL;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.TRN;
 
@@ -107,6 +110,7 @@ public class PrisonerReleaseAndTransferService {
     private final ReferenceCodeRepository<CaseNoteSubType> caseNoteSubTypeReferenceCodeRepository;
     private final ProfileCodeRepository profileCodeRepository;
     private final ProfileTypeRepository profileTypeRepository;
+    private final ReferenceCodeRepository<AgencyLocationType> agencyLocationTypeReferenceCodeRepository;
     private final StaffUserAccountRepository staffUserAccountRepository;
     private final GenerateNewBookingNo generateNewBookingNo;
     private final CopyTableRepository copyTableRepository;
@@ -114,6 +118,8 @@ public class PrisonerReleaseAndTransferService {
     private final OffenderTransformer offenderTransformer;
     private final OffenderProgramProfileRepository offenderProgramProfileRepository;
     private final EntityManager entityManager;
+    private final CourtEventRepository courtEventRepository;
+    private final ReferenceCodeRepository<EventStatus> eventStatusRepository;
 
     private final Environment env;
 
@@ -778,33 +784,47 @@ public class PrisonerReleaseAndTransferService {
         return format("%05d", number);
     }
 
-    public InmateDetail courtReturn(String offenderNo, RequestForCourtReturn requestForCourtReturn) {
-/*UPDATE OFFENDER_BOOKINGS SET IN_OUT_STATUS and AGENCY_IML_ID = NULL - OffenderBookingRepository,
-   but see/use PrisonerReleaseAndTransferService.getOffenderBooking()
-   */
-        OffenderBooking offenderBooking = this.getOffenderBooking(offenderNo);
-        offenderBooking.setInOutStatus("??");
+    public InmateDetail courtTransferIn(String offenderNo, RequestForCourtTransferIn requestForCourtTransferIn) {
 
-        offenderBookingRepository.save(offenderBooking);
+        final OffenderBooking offenderBooking = this.getOffenderBooking(offenderNo);
+        if (!offenderBooking.getInOutStatus().equals("OUT")) {
+            throw new BadRequestException("Prisoner is not currently out");
+        }
+        final var latestExternalMovement = offenderBooking.getLastMovement().map(lm -> {
+            if (!lm.getMovementType().getCode().equals(CRT.getCode())) {
+                throw new BadRequestException("Latest movement not a court movement");
+            }
 
-/*
-UPDATE OFFENDER_EXTERNAL_MOVEMENTS SET ACTIVE_FLAG = 'N' - Repository exists,
-   but see/use PrisonerReleaseAndTransferService.deactivatePreviousMovements()
-*/
-        this.deactivatePreviousMovements(offenderBooking);
- /*
-INSERT INTO OFFENDER_EXTERNAL_MOVEMENTS - Repository exists, but see/use
-  PrisonerReleaseAndTransferService.createInMovement()
- */
-        final var movementReason = movementReasonRepository.findById(MovementReason.pk(requestForCourtReturn.getMovementReasonCode())).orElseThrow(EntityNotFoundException.withMessage(format("No movement reason %s found", requestForCourtReturn.getMovementReasonCode())));
-        final var prisonToRecallTo = agencyLocationRepository.findByIdAndTypeAndActiveAndDeactivationDateIsNull(requestForCourtReturn.getPrisonId(), agencyLocationType, true).orElseThrow(EntityNotFoundException.withMessage(format("%s prison not found", requestForCourtReturn.getPrisonId())));
-        this.createInMovement(offenderBooking, movementReason, this.getFromLocation(requestForCourtReturn.getAgencyId()),prisonToRecallTo,requestForCourtReturn.getDateTime(),requestForCourtReturn.getCommentText() );
-    /*
--- conditional if court event exist
- UPDATE COURT_EVENTS SET EVENT_STATUS = 'COMP' - Repository exists
- */
-     
+            if (!lm.isActive()) {
+                throw new BadRequestException("Court transfer not active");
+            }
+            return lm;
+        }).orElseThrow(EntityNotFoundException.withMessage("No movements found"));
 
-        return new InmateDetail();
+        if (!requestForCourtTransferIn.getAgencyId().equals(latestExternalMovement.getToAgency().getId())) {
+            throw new BadRequestException("Prisoner is not returning to the same prison");
+        }
+
+        offenderBooking.setInOutStatus(IN.name());
+        offenderBooking.setLivingUnitMv(null);
+
+        deactivatePreviousMovements(offenderBooking);
+
+        String movementReasonCode = requestForCourtTransferIn.getMovementReasonCode();
+        MovementReason movementReason;
+
+        if (movementReasonCode == null) {
+            movementReason = latestExternalMovement.getMovementReason();
+        } else {
+            movementReason = movementReasonRepository.findById(MovementReason.pk(requestForCourtTransferIn.getMovementReasonCode())).orElseThrow(EntityNotFoundException.withMessage(format("No movement reason %s found", requestForCourtTransferIn.getMovementReasonCode())));
+        }
+
+        LocalDateTime movementTime = getAndCheckMovementTime(requestForCourtTransferIn.getDateTime(), offenderBooking.getBookingId());
+        createInMovement(offenderBooking, movementReason, latestExternalMovement.getToAgency(), latestExternalMovement.getFromAgency(), movementTime, requestForCourtTransferIn.getCommentText());
+
+        courtEventRepository
+            .findByOffenderBooking_BookingIdAndId(offenderBooking.getBookingId(), latestExternalMovement.getEventId())
+            .ifPresent(c -> c.setEventStatus(eventStatusRepository.findById(EventStatus.COMPLETED).orElseThrow()));
+        return offenderTransformer.transform(offenderBooking);
     }
 }
