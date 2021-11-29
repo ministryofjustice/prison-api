@@ -101,28 +101,29 @@ public class ImageServiceImplTest {
 
         final String imageData = "R0lGODlhAQABAIAAAAAAAAAAACH5BAAAAAAALAAAAAABAAEAAAICTAEAOw==";
 
-        when(offenderRepository.findByNomsId(OFFENDER_NUMBER)).thenReturn(List.of());
+        when(offenderRepository.findOffenderByNomsId(OFFENDER_NUMBER)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> service.putImageForOffender(OFFENDER_NUMBER, false, imageData))
-            .isInstanceOf(EntityNotFoundException.class);
+        assertThatThrownBy(() -> service.putImageForOffender(OFFENDER_NUMBER, imageData))
+            .isInstanceOf(EntityNotFoundException.class)
+            .hasMessage("No prisoner found for prisoner number %s", OFFENDER_NUMBER);
     }
 
     @Test
     public void putImageForOffenderWithNoBooking() {
 
         final String imageData = "R0lGODlhAQABAIAAAAAAAAAAACH5BAAAAAAALAAAAAABAAEAAAICTAEAOw==";
+        Offender offenderAndBooking = Offender.builder().id(1L).build();
 
-        when(offenderRepository.findByNomsId(OFFENDER_NUMBER)).thenReturn(List.of(Offender.builder().id(1L).build()));
+        when(offenderRepository.findOffenderByNomsId(OFFENDER_NUMBER)).thenReturn(Optional.of(offenderAndBooking));
 
-        assertThatThrownBy(() -> service.putImageForOffender(OFFENDER_NUMBER, false, imageData))
+        assertThatThrownBy(() -> service.putImageForOffender(OFFENDER_NUMBER, imageData))
             .isInstanceOf(EntityNotFoundException.class)
-            .hasMessage("There are no bookings for {}", OFFENDER_NUMBER);
+            .hasMessage("There are no bookings for %s", OFFENDER_NUMBER);
     }
 
     @Test
     public void putImageForOffenderOk() {
 
-        final boolean fullSizeImage = false;
         final String imageData = "R0lGODlhAQABAIAAAAAAAAAAACH5BAAAAAAALAAAAAABAAEAAAICTAEAOw==";
 
         Offender offenderAndBooking = Offender.builder().id(1L).bookings(
@@ -139,13 +140,61 @@ public class ImageServiceImplTest {
             .sourceCode("GEN")
             .offenderBooking(offenderAndBooking.getLatestBooking().isPresent() ? offenderAndBooking.getLatestBooking().get() : null)
             .thumbnailImage(Base64.getDecoder().decode(imageData))
-            .fullSizeImage(null)
+            .fullSizeImage(Base64.getDecoder().decode(imageData))
             .build();
 
-        when(offenderRepository.findByNomsId(OFFENDER_NUMBER)).thenReturn(List.of(offenderAndBooking));
+
+        when(offenderRepository.findOffenderByNomsId(OFFENDER_NUMBER)).thenReturn(Optional.of(offenderAndBooking));
+        when(offenderImageRepository.findLatestByBookingId(1L)).thenReturn(Optional.empty());
         when(offenderImageRepository.save(newImage)).thenReturn(newImage);
 
-        ImageDetail savedImage = service.putImageForOffender(OFFENDER_NUMBER, fullSizeImage, imageData);
+        ImageDetail savedImage = service.putImageForOffender(OFFENDER_NUMBER, imageData);
+
+        assertThat(savedImage).isEqualTo(newImage.transform());
+    }
+
+    @Test
+    public void putImageUpdatesPreviousToInactive() {
+
+        final String imageData = "R0lGODlhAQABAIAAAAAAAAAAACH5BAAAAAAALAAAAAABAAEAAAICTAEAOw==";
+
+        Offender offenderAndBooking = Offender.builder().id(1L).bookings(
+            List.of(OffenderBooking.builder().bookingId(1L).bookingSequence(1).build())
+        ).build();
+
+        var prevImage = OffenderImage
+            .builder()
+            .captureDateTime(LocalDateTime.now())
+            .orientationType("FRONT")
+            .viewType("FACE")
+            .imageType("OFF_BKG")
+            .active(false)
+            .sourceCode("GEN")
+            .offenderBooking(offenderAndBooking.getLatestBooking().isPresent() ? offenderAndBooking.getLatestBooking().get() : null)
+            .thumbnailImage(Base64.getDecoder().decode(imageData))
+            .fullSizeImage(Base64.getDecoder().decode(imageData))
+            .build();
+
+        var newImage = OffenderImage
+            .builder()
+            .captureDateTime(LocalDateTime.now())
+            .orientationType("FRONT")
+            .viewType("FACE")
+            .imageType("OFF_BKG")
+            .active(true)
+            .sourceCode("GEN")
+            .offenderBooking(offenderAndBooking.getLatestBooking().isPresent() ? offenderAndBooking.getLatestBooking().get() : null)
+            .thumbnailImage(Base64.getDecoder().decode(imageData))
+            .fullSizeImage(Base64.getDecoder().decode(imageData))
+            .build();
+
+
+        when(offenderRepository.findOffenderByNomsId(OFFENDER_NUMBER)).thenReturn(Optional.of(offenderAndBooking));
+        when(offenderImageRepository.findLatestByBookingId(1L)).thenReturn(Optional.of(prevImage));
+        when(offenderImageRepository.save(prevImage)).thenReturn(prevImage);
+        when(offenderImageRepository.save(newImage)).thenReturn(newImage);
+
+        ImageDetail savedImage = service.putImageForOffender(OFFENDER_NUMBER, imageData);
 
         assertThat(savedImage).isEqualTo(newImage.transform());
     }

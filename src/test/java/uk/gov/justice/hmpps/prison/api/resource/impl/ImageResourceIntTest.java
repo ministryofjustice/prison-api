@@ -83,7 +83,7 @@ public class ImageResourceIntTest extends ResourceTest {
 
     @Test
     public void putImageReturnsNotFoundForInvalidOffender() {
-        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_SYSTEM_USER"), imageData);
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_IMAGE_UPLOAD"), imageData);
         final var responseEntity = testRestTemplate.exchange(
             "/api/images/offender/A9999XX",
             HttpMethod.PUT,
@@ -94,28 +94,10 @@ public class ImageResourceIntTest extends ResourceTest {
     }
 
     @Test
-    public void putImageUploadsThumbnailByDefault() {
-        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_SYSTEM_USER"), imageData);
+    public void putImageUploadsAndStoresScaledImages() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_IMAGE_UPLOAD"), imageData);
         final var responseEntity = testRestTemplate.exchange(
             "/api/images/offender/A1234AI",
-            HttpMethod.PUT,
-            requestEntity,
-            ImageDetail.class);
-
-        assertThatStatus(responseEntity, 200);
-        assertThat(responseEntity.getBody()).isInstanceOf(ImageDetail.class);
-        final var imageDetail = responseEntity.getBody();
-        assertThat(imageDetail).isNotNull();
-        assertThat(imageDetail.getImageId()).isGreaterThan(0);
-        assertThat(imageDetail.getCaptureDate()).isAfter(LocalDate.now().minusDays(1));
-        assertThat(imageDetail.getImageType()).isEqualTo("OFF_BKG");
-    }
-
-    @Test
-    public void putImageUploadsFullSizeImage() {
-        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_SYSTEM_USER"), imageData);
-        final var responseEntity = testRestTemplate.exchange(
-            "/api/images/offender/A1234AI?fullSizeImage=true",
             HttpMethod.PUT,
             requestEntity,
             ImageDetail.class);

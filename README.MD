@@ -220,7 +220,7 @@ If the alert fires then look for any recent releases of prison-api that may have
 ### Offender images
 
 * Offender images can be set using the endpoint PUT /api/images//offender/{offenderNo}
-* This requires a token with the role ROLE_SYSTEM_USER
+* This requires a token with the role ROLE_IMAGE_UPLOAD
 * The body of the request should be a base64-encoded JPEG file
 * The optional query parameter ?fullSizeImage=true can be used if this is a full-sized image.
 * The default assumes this is a thumbnail-sized facial image.
