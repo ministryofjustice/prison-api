@@ -2,16 +2,18 @@ package uk.gov.justice.hmpps.prison.repository.jpa.repository;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-public interface OffenderRepository extends CrudRepository<Offender, Long> {
+@Repository
+public interface OffenderRepository extends JpaRepository<Offender, Long> {
     List<Offender> findByNomsId(String nomsId);
     List<Offender> findByLastNameAndFirstNameAndBirthDate(final String lastName, final String firstName, final LocalDate dob);
 

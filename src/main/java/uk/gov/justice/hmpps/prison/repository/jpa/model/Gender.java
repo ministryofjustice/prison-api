@@ -18,4 +18,9 @@ public class Gender extends ReferenceCode {
     public Gender(final String code, final String description) {
         super(SEX, code, description);
     }
+
+    public static Pk pk(final String code) {
+        return new Pk(SEX, code);
+    }
+
 }

@@ -1,12 +1,14 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.repository;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface AgencyInternalLocationRepository extends CrudRepository<AgencyInternalLocation, Long> {
+@Repository
+public interface AgencyInternalLocationRepository extends JpaRepository<AgencyInternalLocation, Long> {
 
     List<AgencyInternalLocation> findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive(final String agencyId, final String locationType, final boolean active);
 

@@ -3,9 +3,11 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,8 +15,11 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This represents the outcomes of offences in after going to court and linked to a {@link CourtEvent} by the id.
@@ -39,6 +44,11 @@ public class CourtOrder extends AuditableEntity {
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "CASE_ID", nullable = false)
     private OffenderCourtCase courtCase;
+
+    @OneToMany(mappedBy = "courtOrder")
+    @Default
+    @BatchSize(size = 25)
+    private final List<OffenderSentence> sentences = new ArrayList<>();
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "ISSUING_AGY_LOC_ID", nullable = false)

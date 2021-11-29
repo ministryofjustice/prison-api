@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
@@ -23,6 +24,7 @@ import java.time.LocalDate;
 @EqualsAndHashCode( callSuper = false)
 @Table(name = "SENTENCE_CALC_TYPES")
 @IdClass(SentenceCalcType.PK.class)
+@BatchSize(size = 25)
 public class SentenceCalcType extends AuditableEntity {
 
     @NoArgsConstructor

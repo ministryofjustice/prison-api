@@ -50,6 +50,7 @@ import uk.gov.justice.hmpps.prison.api.model.RequestToRecall;
 import uk.gov.justice.hmpps.prison.api.model.RequestToReleasePrisoner;
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferIn;
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOut;
+import uk.gov.justice.hmpps.prison.api.model.SentenceSummary;
 import uk.gov.justice.hmpps.prison.api.model.UpdateCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSearchResponse;
@@ -462,6 +463,16 @@ public class OffenderResource {
     public OffenderSentenceDetail getOffenderSentenceDetail(@PathVariable("offenderNo") @ApiParam(value = "Noms ID or Prisoner number (also called offenderNo)", required = true) final String offenderNo) {
         return bookingService.getOffenderSentenceDetail(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
     }
+
+    @ApiResponses({
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Offender Sentence Details", notes = "Retrieve an single offender sentence details")
+    @GetMapping("/{offenderNo}/booking/latest/sentence-summary")
+    public SentenceSummary getLatestSentenceSummary(@PathVariable("offenderNo") @ApiParam(value = "Noms ID or Prisoner number (also called offenderNo)", required = true) final String offenderNo) {
+        return bookingService.getSentenceSummary(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
+    }
+
 
     @ApiResponses({
         @ApiResponse(code = 200, message = "OK", response = OffenderNumber.class, responseContainer = "List"),
