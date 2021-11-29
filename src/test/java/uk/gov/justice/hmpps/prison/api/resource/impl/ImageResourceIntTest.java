@@ -1,15 +1,17 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
+import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-
 import java.util.List;
 import java.util.Map;
+import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ImageResourceIntTest extends ResourceTest {
+    private final String imageData = "R0lGODlhAQABAIAAAAAAAAAAACH5BAAAAAAALAAAAAABAAEAAAICTAEAOw==";
 
     @Test
     public void getImagesByOffender() {
@@ -64,5 +66,48 @@ public class ImageResourceIntTest extends ResourceTest {
         final var responseEntity = testRestTemplate.exchange("/api/images/9999/data", HttpMethod.GET, requestEntity, String.class);
 
         assertThatStatus(responseEntity, 404);
+    }
+
+    @Test
+    public void putImageReturnsForbiddenForIncorrectRoles() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("WRONG_ROLE"), imageData);
+        final var responseEntity = testRestTemplate.exchange(
+            "/api/images/offender/A1234AA",
+            HttpMethod.PUT,
+            requestEntity,
+            ImageDetail.class
+        );
+
+        assertThatStatus(responseEntity, 403);
+    }
+
+    @Test
+    public void putImageReturnsNotFoundForInvalidOffender() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_IMAGE_UPLOAD"), imageData);
+        final var responseEntity = testRestTemplate.exchange(
+            "/api/images/offender/A9999XX",
+            HttpMethod.PUT,
+            requestEntity,
+            ImageDetail.class);
+
+        assertThatStatus(responseEntity, 404);
+    }
+
+    @Test
+    public void putImageUploadsAndStoresScaledImages() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_IMAGE_UPLOAD"), imageData);
+        final var responseEntity = testRestTemplate.exchange(
+            "/api/images/offender/A1234AI",
+            HttpMethod.PUT,
+            requestEntity,
+            ImageDetail.class);
+
+        assertThatStatus(responseEntity, 200);
+        assertThat(responseEntity.getBody()).isInstanceOf(ImageDetail.class);
+        final var imageDetail = responseEntity.getBody();
+        assertThat(imageDetail).isNotNull();
+        assertThat(imageDetail.getImageId()).isGreaterThan(0);
+        assertThat(imageDetail.getCaptureDate()).isAfter(LocalDate.now().minusDays(1));
+        assertThat(imageDetail.getImageType()).isEqualTo("OFF_BKG");
     }
 }
