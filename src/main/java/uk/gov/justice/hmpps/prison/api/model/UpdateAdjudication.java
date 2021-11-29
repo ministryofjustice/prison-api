@@ -9,30 +9,21 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import uk.gov.justice.hmpps.prison.service.validation.MaximumTextSize;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
-@ApiModel(description = "Creation details for a new adjudication")
+@ApiModel(description = "Update details for an existing adjudication")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class NewAdjudication {
-
-    @ApiModelProperty(required = true, value = "Offender number (NOMS ID)", example = "G3878UK")
-    @NotBlank
-    private String offenderNo;
+public class UpdateAdjudication {
 
     @ApiModelProperty(required = true, value = "When the incident took place", position = 2, example = "15-06-2020T09:03:11")
     @NotNull
     private LocalDateTime incidentTime;
-
-    @ApiModelProperty(required = true, value = "The id of the agency related to this incident", notes = "If omitted then it will use the agency related to the incidentLocationId that is provided", example = "MDI", position = 3)
-    @NotNull
-    private String agencyId;
 
     @ApiModelProperty(required = true, value = "The id to indicate where the incident took place", notes = "This will be an agency's internal location id", position = 4)
     @NotNull
