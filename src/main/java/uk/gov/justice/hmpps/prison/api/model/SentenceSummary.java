@@ -57,6 +57,9 @@ public class SentenceSummary {
 
         private List<CourtSentences> courtSentences;
 
+        @ApiModelProperty(value = "Licence sentences")
+        private List<SentencesOffencesTerms> licenceSentences;
+
         private SentenceCalcDates keyDates;
 
         private SentenceAdjustmentDetail sentenceAdjustments;
@@ -74,6 +77,7 @@ public class SentenceSummary {
                     .filter(order -> order.getCourtCase() != null && !order.getSentences().isEmpty())
                     .sorted(Comparator.comparing(order -> order.getCourtCase().getCaseSeq()))
                     .map(CourtSentences::transform).toList())
+                .licenceSentences(booking.getLicenceSentences().stream().map(SentencesOffencesTerms::transform).toList())
                 .build();
         }
     }

@@ -47,7 +47,7 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.Suffix.SUFFIX;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.Title.TITLE;
 
 @AllArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 @Getter
 @Setter
 @RequiredArgsConstructor
@@ -100,7 +100,7 @@ public class Offender extends AuditableEntity {
     @Exclude
     private Offender rootOffender;
 
-    @OneToMany(mappedBy = "offender", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "offender", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @Default
     @Exclude
     @BatchSize(size = 25)
@@ -111,7 +111,7 @@ public class Offender extends AuditableEntity {
     @Exclude
     private List<OffenderIdentifier> identifiers = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.REFRESH, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REMOVE})
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + SEX + "'", referencedColumnName = "domain")),
             @JoinColumnOrFormula(column = @JoinColumn(name = "SEX_CODE", referencedColumnName = "code", nullable = false))
@@ -145,7 +145,8 @@ public class Offender extends AuditableEntity {
 
     @Column(name = "CREATE_DATE", nullable = false)
     @CreatedDate
-    private LocalDate createDate;
+    @Default
+    private LocalDate createDate = LocalDate.now();
 
     @Column(name = "LAST_NAME_KEY", nullable = false)
     private String lastNameKey;

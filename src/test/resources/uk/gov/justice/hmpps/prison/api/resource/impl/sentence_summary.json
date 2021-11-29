@@ -1,0 +1,125 @@
+{
+  "prisonerNumber": "Z0020ZZ",
+  "latestPrisonTerm": {
+    "bookNumber": "Z00020",
+    "bookingId": -20,
+    "courtSentences": [
+      {
+        "id": -20,
+        "caseSeq": 1,
+        "beginDate": "2017-08-31",
+        "court": {
+          "agencyId": "COURT1",
+          "description": "Court 1",
+          "agencyType": "CRT",
+          "active": true,
+          "courtType": "MC"
+        },
+        "caseType": "Adult",
+        "caseStatus": "ACTIVE",
+        "sentences": [
+          {
+            "sentenceSequence": 1,
+            "sentenceStatus": "A",
+            "sentenceCategory": "LICENCE",
+            "sentenceCalculationType": "R",
+            "sentenceTypeDescription": "Prohibited Activity",
+            "sentenceStartDate": "2017-07-05",
+            "sentenceEndDate": "2017-11-04",
+            "lineSeq": 1,
+            "offences": [
+              {
+                "offenderChargeId": -10,
+                "offenceStartDate": "2015-01-04",
+                "offenceEndDate": "2015-01-25",
+                "offenceCode": "RC86355",
+                "offenceDescription": "Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury"
+              }
+            ],
+            "terms": [
+              {
+                "termSequence": 1,
+                "sentenceTermCode": "IMP",
+                "startDate": "2017-03-25",
+                "years": 3,
+                "lifeSentence": false
+              },
+              {
+                "termSequence": 2,
+                "sentenceTermCode": "IMP",
+                "startDate": "2017-03-25",
+                "years": 3,
+                "lifeSentence": false
+              }
+            ]
+          },
+          {
+            "sentenceSequence": 2,
+            "sentenceStatus": "A",
+            "sentenceCategory": "1991",
+            "sentenceCalculationType": "R",
+            "sentenceTypeDescription": "Prohibited Activity 1991",
+            "sentenceStartDate": "2017-07-05",
+            "sentenceEndDate": "2017-11-04",
+            "lineSeq": 2,
+            "offences": [
+              {
+                "offenderChargeId": -9,
+                "offenceCode": "RC86355",
+                "offenceDescription": "Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury"
+              }
+            ],
+            "terms": [
+              {
+                "termSequence": 2,
+                "sentenceTermCode": "IMP",
+                "startDate": "2017-03-25",
+                "years": 5,
+                "lifeSentence": false
+              }
+            ]
+          },
+          {
+            "sentenceSequence": 3,
+            "sentenceStatus": "A",
+            "sentenceCategory": "1991",
+            "sentenceCalculationType": "AGG_IND_ORA",
+            "sentenceTypeDescription": "Aggregate Record for Determinate ORA sentences",
+            "sentenceStartDate": "2017-07-05",
+            "sentenceEndDate": "2017-11-04",
+            "lineSeq": 1,
+            "offences": [
+              {
+                "offenderChargeId": -8,
+                "offenceCode": "RC86360",
+                "offenceDescription": "Cause another to use a vehicle where the seat belt is not securely fastened to the anchorage point."
+              }
+            ],
+            "terms": []
+          }
+        ],
+        "issuingCourt": {
+          "agencyId": "COURT1",
+          "description": "Court 1",
+          "agencyType": "CRT",
+          "active": true,
+          "courtType": "MC"
+        },
+        "issuingCourtDate": "2017-06-21"
+      }
+    ],
+    "licenceSentences": [],
+    "keyDates": {
+      "sentenceExpiryDate": "2020-03-24",
+      "conditionalReleaseDate": "2019-03-24",
+      "actualParoleDate": "2018-09-27",
+      "bookingId": -20,
+      "sentenceStartDate": "2017-03-25",
+      "nonDtoReleaseDate": "2019-03-24",
+      "nonDtoReleaseDateType": "CRD",
+      "releaseDate": "2018-09-27"
+    },
+    "sentenceAdjustments": {}
+  },
+  "previousPrisonTerms": []
+}

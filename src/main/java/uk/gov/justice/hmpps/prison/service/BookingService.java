@@ -800,6 +800,7 @@ public class BookingService {
         updateLivingUnit(offenderBooking, location);
     }
 
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     public List<OffenderSentenceAndOffences> getSentenceAndOffenceDetails(final Long bookingId) {
         final var offenderSentences = offenderSentenceRepository.findByOffenderBooking_BookingId_AndCalculationType_CalculationTypeNotLike(bookingId, "AGG%");
         return offenderSentences.stream()
@@ -807,14 +808,15 @@ public class BookingService {
             .collect(toList());
     }
 
-    public Optional<SentenceSummary> getSentenceSummary(final String prisonerIdentifier) {
-        final var offender = offenderRepository.findOffenderByNomsId(prisonerIdentifier)
-            .orElseThrow(EntityNotFoundException.withMessage(format("No prisoner found for prisoner number %s", prisonerIdentifier)));
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
+    public Optional<SentenceSummary> getSentenceSummary(final String offenderNo) {
+        final var offender = offenderRepository.findOffenderByNomsId(offenderNo)
+            .orElseThrow(EntityNotFoundException.withMessage(format("No prisoner found for prisoner number %s", offenderNo)));
 
         return offender.getLatestBooking()
                 .map(latestBooking ->
                         SentenceSummary.builder()
-                            .prisonerNumber(prisonerIdentifier)
+                            .prisonerNumber(offenderNo)
                             .latestPrisonTerm(PrisonTerm.transform(latestBooking))
                             .previousPrisonTerms(offender.getBookings().stream()
                                 .filter(b -> !b.getBookingId().equals(latestBooking.getBookingId()) && !b.getCourtOrders().isEmpty())
@@ -824,6 +826,7 @@ public class BookingService {
             );
     }
 
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     public OffenderContacts getOffenderContacts(final Long bookingId, boolean approvedVisitorOnly) {
         return new OffenderContacts(offenderContactPersonsRepository.findAllByOffenderBooking_BookingIdAndActiveTrueOrderByIdDesc(bookingId).stream()
                 .filter(contact -> contact.getPerson() != null)
@@ -850,6 +853,7 @@ public class BookingService {
                                 .build()).toList());
     }
 
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     public OffenderRestrictions getOffenderRestrictions(final Long bookingId, boolean activeRestrictionsOnly) {
         return new OffenderRestrictions(bookingId, offenderRestrictionRepository.findByOffenderBookingIdOrderByStartDateDesc(bookingId).stream()
                 .filter(restriction -> !activeRestrictionsOnly || restriction.isActive())
@@ -1060,6 +1064,7 @@ public class BookingService {
         return AGENCY_LOCATION_ID_KEY + ":eq:'" + agencyId + "'";
     }
 
+    @VerifyOffenderAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
     public InmateDetail getOffender(final String offenderNo) {
         return  offenderRepository.findOffenderByNomsId(offenderNo)
                 .map(offenderTransformer::transform)

@@ -481,10 +481,9 @@ public class OffenderBooking extends AuditableEntity {
             .collect(Collectors.toList());
     }
 
-    public int incBookingSequence() {
+    public void incBookingSequence() {
         if (bookingSequence == null) bookingSequence = 0;
         bookingSequence = bookingSequence + 1;
-        return bookingSequence;
     }
 
     public ExternalMovement addExternalMovement(final ExternalMovement externalMovement) {
@@ -606,6 +605,12 @@ public class OffenderBooking extends AuditableEntity {
         return alerts.stream().filter(OffenderAlert::isActive).count();
     }
 
+    public List<OffenderSentence> getLicenceSentences() {
+        return sentences.stream()
+            .filter(s -> s.getCourtCase() == null)
+            .filter(s -> "LICENCE".equals(s.getCalculationType().getCategory()))
+            .toList();
+    }
     public SentenceAdjustmentDetail getSentenceAdjustmentDetail() {
 
         return SentenceAdjustmentDetail.builder()

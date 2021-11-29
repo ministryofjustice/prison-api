@@ -13,7 +13,6 @@ import uk.gov.justice.hmpps.prison.api.model.RequestToCreate;
 import uk.gov.justice.hmpps.prison.repository.PrisonerRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Ethnicity;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Gender;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.NomsIdSequence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Suffix;
@@ -106,7 +105,7 @@ public class PrisonerCreationService {
             .suffix(suffix)
             .ethnicity(ethnicity)
             .createDate(now)
-            .nomsId(getNextPrisonerIdentifier().getId())
+            .nomsId(prisonerRepository.getNextPrisonerIdentifier().getId())
             .idSourceCode("SEQ")
             .nameSequence("1234")
             .caseloadType("INST")
@@ -130,19 +129,6 @@ public class PrisonerCreationService {
     }
 
     public PrisonerIdentifier getNextPrisonerIdentifier() {
-        var retries = 0;
-        var updated = false;
-        NomsIdSequence nextSequence;
-        NomsIdSequence currentSequence;
-        do {
-            currentSequence = prisonerRepository.getNomsIdSequence();
-            nextSequence = currentSequence.next();
-            updated = prisonerRepository.updateNomsIdSequence(nextSequence, currentSequence) > 0;
-        } while (!updated && retries++ < 10);
-
-        if (!updated) {
-            throw new RuntimeException("Prisoner Identifier cannot be generated, please try again");
-        }
-        return PrisonerIdentifier.builder().id(currentSequence.getPrisonerIdentifier()).build();
+       return prisonerRepository.getNextPrisonerIdentifier();
     }
 }

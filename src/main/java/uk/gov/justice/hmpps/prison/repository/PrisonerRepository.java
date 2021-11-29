@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.api.model.OffenderNumber;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerDetail;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerDetailSearchCriteria;
+import uk.gov.justice.hmpps.prison.api.model.PrisonerIdentifier;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.NomsIdSequence;
@@ -103,6 +104,22 @@ public class PrisonerRepository extends RepositoryBase {
                 Long.class));
     }
 
+    public PrisonerIdentifier getNextPrisonerIdentifier() {
+        var retries = 0;
+        var updated = false;
+        NomsIdSequence nextSequence;
+        NomsIdSequence currentSequence;
+        do {
+            currentSequence = getNomsIdSequence();
+            nextSequence = currentSequence.next();
+            updated = updateNomsIdSequence(nextSequence, currentSequence) > 0;
+        } while (!updated && retries++ < 10);
+
+        if (!updated) {
+            throw new RuntimeException("Prisoner Identifier cannot be generated, please try again");
+        }
+        return PrisonerIdentifier.builder().id(currentSequence.getPrisonerIdentifier()).build();
+    }
 
     public NomsIdSequence getNomsIdSequence() {
         final var query = jdbcTemplate.query("SELECT CURRENT_PREFIX, PREFIX_ALPHA_SEQ, SUFFIX_ALPHA_SEQ, CURRENT_SUFFIX, NOMS_ID FROM NOMS_ID_SEQUENCE", Map.of(), (rs, rowNum) -> NomsIdSequence.builder()
