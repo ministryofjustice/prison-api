@@ -827,9 +827,9 @@ public class PrisonerReleaseAndTransferService {
 
         courtEvent.ifPresent(c -> c.setEventStatus(eventStatusRepository.findById(EventStatus.COMPLETED).orElseThrow()));
 
-
+        Long eventId = courtEvent.isPresent() ? courtEvent.get().getParentCourtEventId() : null;
         LocalDateTime movementTime = getAndCheckMovementTime(requestForCourtTransferIn.getDateTime(), offenderBooking.getBookingId());
-        createInMovement(offenderBooking, movementReason, latestExternalMovement.getToAgency(), latestExternalMovement.getFromAgency(), movementTime, null, requestForCourtTransferIn.getCommentText());
+        createInMovement(offenderBooking, movementReason, latestExternalMovement.getToAgency(), latestExternalMovement.getFromAgency(), movementTime, eventId, requestForCourtTransferIn.getCommentText());
 
         return offenderTransformer.transform(offenderBooking);
     }
