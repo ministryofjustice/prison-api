@@ -102,4 +102,8 @@ public class Adjudication extends AuditableEntity {
         return parties.stream().filter(p -> INCIDENT_ROLE_OFFENDER.equals(p.getIncidentRole())).findFirst();
 
     }
+
+    public String getCreatedByUserId() {
+        return this.getCreateUserId();
+    }
 }
