@@ -826,7 +826,6 @@ public class BookingService {
             );
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     public OffenderContacts getOffenderContacts(final Long bookingId, boolean approvedVisitorOnly) {
         return new OffenderContacts(offenderContactPersonsRepository.findAllByOffenderBooking_BookingIdAndActiveTrueOrderByIdDesc(bookingId).stream()
                 .filter(contact -> contact.getPerson() != null)
@@ -853,7 +852,6 @@ public class BookingService {
                                 .build()).toList());
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     public OffenderRestrictions getOffenderRestrictions(final Long bookingId, boolean activeRestrictionsOnly) {
         return new OffenderRestrictions(bookingId, offenderRestrictionRepository.findByOffenderBookingIdOrderByStartDateDesc(bookingId).stream()
                 .filter(restriction -> !activeRestrictionsOnly || restriction.isActive())
