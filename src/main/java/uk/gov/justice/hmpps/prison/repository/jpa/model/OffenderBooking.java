@@ -12,6 +12,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.ListIndexBase;
 import org.hibernate.annotations.Type;
+import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
 import uk.gov.justice.hmpps.prison.api.model.LegalStatus;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
@@ -561,6 +562,12 @@ public class OffenderBooking extends AuditableEntity {
             .filter(i -> "FACE".equals(i.getViewType()))
             .filter(i -> "FRONT".equals(i.getOrientationType()))
             .max(Comparator.comparing(OffenderImage::getId));
+    }
+
+    public ImageDetail addImage(OffenderImage image) {
+        getImages().add(image);
+        image.setOffenderBooking(this);
+        return image.transform();
     }
 
     public Optional<OffenderIepLevel> getLatestIepLevel() {

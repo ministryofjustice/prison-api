@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.repository;
 
-
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -17,7 +16,7 @@ public interface OffenderImageRepository extends CrudRepository<OffenderImage, L
     List<OffenderImage> getImagesByOffenderNumber(@Param("offenderNumber") final String offenderNumber);
 
     @Query(value = "select oi from OffenderImage oi where oi.id = (SELECT max(i.id) FROM OffenderImage i join i.offenderBooking ob join ob.offender o where o.nomsId = :offenderNumber " +
-        "and i.viewType = 'FACE' and i.orientationType = 'FRONT' and i.imageType = 'OFF_BKG' and i.active = true)")
+        "and ob.bookingSequence = 1 and i.viewType = 'FACE' and i.orientationType = 'FRONT' and i.imageType = 'OFF_BKG' and i.active = true)")
     Optional<OffenderImage> findLatestByOffenderNumber(@Param("offenderNumber") final String offenderNumber);
 
     @Query(value = "select oi from OffenderImage oi where oi.id = (SELECT max(i.id) FROM OffenderImage i where i.offenderBooking.bookingId = :bookingId " +
