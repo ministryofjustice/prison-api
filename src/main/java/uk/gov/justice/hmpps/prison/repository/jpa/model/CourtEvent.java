@@ -114,6 +114,9 @@ public class CourtEvent extends AuditableEntity {
     @Column(name = "HOLD_FLAG", length = 1)
     private String holdFlag;
 
+    @Column(name = "PARENT_EVENT_ID")
+    private Long parentCourtEventId;
+
     @OneToMany(mappedBy = "eventAndCharge.courtEvent", cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
     private final List<CourtEventCharge> charges = new ArrayList<>();
 
