@@ -209,6 +209,7 @@ public class AdjudicationsService {
             .incidentTime(adjudication.getIncidentTime())
             .incidentLocationId(adjudication.getInternalLocation().getLocationId())
             .statement(adjudication.getIncidentDetails())
+            .createdByUserId(adjudication.getCreatedByUserId())
             .build();
     }
 }

@@ -8,10 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateOffenderDates;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.CalcReasonType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 
 import java.time.Clock;
@@ -26,7 +24,6 @@ public class OffenderDatesService {
 
     private final OffenderBookingRepository offenderBookingRepository;
     private final StaffUserAccountRepository staffUserAccountRepository;
-    private final ReferenceCodeRepository<CalcReasonType> calcReasonTypeReferenceCodeRepository;
     private final TelemetryClient telemetryClient;
     private final Clock clock;
 
@@ -38,10 +35,6 @@ public class OffenderDatesService {
             ? requestToUpdateOffenderDates.getCalculationDateTime()
             : LocalDateTime.now(clock);
 
-        final var calcReasonCode = "UPDATE";
-        final var calcReason = calcReasonTypeReferenceCodeRepository.findById(CalcReasonType.pk(calcReasonCode))
-            .orElseThrow(EntityNotFoundException.withId(calcReasonCode));
-
         final var staffUserAccount = staffUserAccountRepository.findById(requestToUpdateOffenderDates.getSubmissionUser())
             .orElseThrow(EntityNotFoundException.withId(requestToUpdateOffenderDates.getSubmissionUser()));
 
@@ -50,7 +43,7 @@ public class OffenderDatesService {
         final var sentenceCalculation =
             SentenceCalculation.builder()
                 .offenderBooking(offenderBooking)
-                .calcReasonType(calcReason)
+                .reasonCode("UPDATE")
                 .calculationDate(calculationDate)
                 .comments("CRD calculation ID: " + requestToUpdateOffenderDates.getCalculationUuid())
                 .staff(staffUserAccount.getStaff())

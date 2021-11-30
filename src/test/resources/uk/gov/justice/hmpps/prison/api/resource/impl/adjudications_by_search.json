@@ -8,7 +8,8 @@
       "agencyId": "LEI",
       "incidentTime":"1999-06-25T00:00:00",
       "incidentLocationId":-41,
-      "statement":"Some Comment Text"
+      "statement":"Some Comment Text",
+      "createdByUserId": "XTAG"
     },
     {
       "adjudicationNumber":-5,
@@ -18,7 +19,8 @@
       "agencyId": "LEI",
       "incidentTime":"1999-05-25T00:00:00",
       "incidentLocationId":-2,
-      "statement":"mKSouDOCmKSouDO"
+      "statement":"mKSouDOCmKSouDO",
+      "createdByUserId": "XTAG"
     }
   ],
   "pageable":{
