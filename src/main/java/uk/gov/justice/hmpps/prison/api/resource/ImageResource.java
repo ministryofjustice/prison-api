@@ -6,23 +6,27 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import javax.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
+import uk.gov.justice.hmpps.prison.service.BadRequestException;
 import uk.gov.justice.hmpps.prison.service.ImageService;
 
+import javax.validation.constraints.Pattern;
+import java.io.IOException;
 import java.util.List;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -77,12 +81,16 @@ public class ImageResource {
         @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
         @ApiResponse(code = 404, message = "The offender number could not be found or has no bookings.", response = ErrorResponse.class),
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @ApiOperation(value = "Upload a new image for an offender.", notes = "Image data is base64-encoded JPEG content. Requires ROLE_IMAGE_UPLOAD.", nickname = "putImage", hidden = true)
-    @PutMapping("/offender/{offenderNo}")
-    public ImageDetail putImage(
+    @ApiOperation(value = "Upload a new image for a prisoner.", notes = "Requires ROLE_IMAGE_UPLOAD.")
+    @PutMapping(value = "/offenders/{offenderNo}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ImageDetail putImageMultiPart(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offender number relating to this image.", required = true) final String offenderNo,
-        @RequestBody @ApiParam(value = "The base64-encoded string of the (full-sized) JPEG image data.", required = true) final String imageData
-    ) {
-        return imageService.putImageForOffender(offenderNo, imageData);
+        @RequestPart MultipartFile imageData
+    )  {
+        try {
+            return imageService.putImageForOffender(offenderNo, imageData.getBytes());
+        } catch (IOException e) {
+            throw new BadRequestException("Image Data cannot be processed");
+        }
     }
 }

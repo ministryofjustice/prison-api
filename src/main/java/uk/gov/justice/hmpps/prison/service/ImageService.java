@@ -1,15 +1,5 @@
 package uk.gov.justice.hmpps.prison.service;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.time.LocalDateTime;
-import java.util.Base64;
-import javax.imageio.ImageIO;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,9 +10,18 @@ import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImage;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImageRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
@@ -61,10 +60,9 @@ public class ImageService {
     }
 
     @PreAuthorize("hasRole('IMAGE_UPLOAD')")
-    @VerifyOffenderAccess(overrideRoles = {"IMAGE_UPLOAD"})
     @HasWriteScope
     @Transactional
-    public ImageDetail putImageForOffender(final String offenderNumber, final String imageData) {
+    public ImageDetail putImageForOffender(final String offenderNumber, final byte[] receivedImage) {
         // Uses a 4:3 aspect ratio - will distort square photos! Compact cameras and phones use 4:3 for portrait.
         final int fullWidth = 427, fullHeight = 570;
         final int thumbWidth = 150, thumbHeight = 200;
@@ -88,7 +86,6 @@ public class ImageService {
         }
 
         try {
-          byte[] receivedImage = Base64.getDecoder().decode(imageData);
           var fullImage = scaleImage(fullWidth, fullHeight, receivedImage);
           var thumbImage = scaleImage(thumbWidth, thumbHeight, receivedImage);
 

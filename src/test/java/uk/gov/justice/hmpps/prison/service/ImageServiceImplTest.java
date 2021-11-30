@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.service;
 
-import java.util.Base64;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +13,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImageReposi
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -103,7 +103,7 @@ public class ImageServiceImplTest {
 
         when(offenderRepository.findOffenderByNomsId(OFFENDER_NUMBER)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> service.putImageForOffender(OFFENDER_NUMBER, imageData))
+        assertThatThrownBy(() -> service.putImageForOffender(OFFENDER_NUMBER, Base64.getDecoder().decode(imageData)))
             .isInstanceOf(EntityNotFoundException.class)
             .hasMessage("No prisoner found for prisoner number %s", OFFENDER_NUMBER);
     }
@@ -116,7 +116,7 @@ public class ImageServiceImplTest {
 
         when(offenderRepository.findOffenderByNomsId(OFFENDER_NUMBER)).thenReturn(Optional.of(offenderAndBooking));
 
-        assertThatThrownBy(() -> service.putImageForOffender(OFFENDER_NUMBER, imageData))
+        assertThatThrownBy(() -> service.putImageForOffender(OFFENDER_NUMBER, Base64.getDecoder().decode(imageData)))
             .isInstanceOf(EntityNotFoundException.class)
             .hasMessage("There are no bookings for %s", OFFENDER_NUMBER);
     }
@@ -148,7 +148,7 @@ public class ImageServiceImplTest {
         when(offenderImageRepository.findLatestByBookingId(1L)).thenReturn(Optional.empty());
         when(offenderImageRepository.save(newImage)).thenReturn(newImage);
 
-        ImageDetail savedImage = service.putImageForOffender(OFFENDER_NUMBER, imageData);
+        ImageDetail savedImage = service.putImageForOffender(OFFENDER_NUMBER, Base64.getDecoder().decode(imageData));
 
         assertThat(savedImage).isEqualTo(newImage.transform());
     }
@@ -194,7 +194,7 @@ public class ImageServiceImplTest {
         when(offenderImageRepository.save(prevImage)).thenReturn(prevImage);
         when(offenderImageRepository.save(newImage)).thenReturn(newImage);
 
-        ImageDetail savedImage = service.putImageForOffender(OFFENDER_NUMBER, imageData);
+        ImageDetail savedImage = service.putImageForOffender(OFFENDER_NUMBER, Base64.getDecoder().decode(imageData));
 
         assertThat(savedImage).isEqualTo(newImage.transform());
     }
