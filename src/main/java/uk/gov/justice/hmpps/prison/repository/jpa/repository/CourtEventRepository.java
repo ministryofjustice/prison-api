@@ -29,6 +29,6 @@ public interface CourtEventRepository extends CrudRepository<CourtEvent, Long>, 
             "where ce.startTime >= :cutoffDate")
     List<Map> getCourtEventsUpcoming(@Param("cutoffDate") LocalDateTime cutoff);
 
-    Optional<CourtEvent> finOneByParentCourtEventId(Long parentCourtEventId);
+    Optional<CourtEvent> findOneByParentCourtEventId(Long parentCourtEventId);
 
 }

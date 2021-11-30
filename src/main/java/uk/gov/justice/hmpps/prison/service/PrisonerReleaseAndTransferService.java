@@ -823,7 +823,7 @@ public class PrisonerReleaseAndTransferService {
         }
 
         Optional<CourtEvent> courtEvent = courtEventRepository
-            .finOneByParentCourtEventId(latestExternalMovement.getEventId());
+            .findOneByParentCourtEventId(latestExternalMovement.getEventId());
 
         courtEvent.ifPresent(c -> c.setEventStatus(eventStatusRepository.findById(EventStatus.COMPLETED).orElseThrow()));
 

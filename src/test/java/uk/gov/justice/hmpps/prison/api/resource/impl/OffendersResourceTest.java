@@ -887,7 +887,7 @@ public class OffendersResourceTest extends ResourceTest {
     }
 
     @Test
-    public void testReturnFromCourt() {
+    public void testCourtTransferIn() {
         final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
 
         final var now = LocalDateTime.now();
@@ -904,7 +904,7 @@ public class OffendersResourceTest extends ResourceTest {
         final var courtReturnEntity = createHttpEntity(token, courtReturnRequest);
 
         final var transferInResponse =  testRestTemplate.exchange(
-            "/api/offenders/{nomsId}/court-return",
+            "/api/offenders/{nomsId}/court-transfer-in",
             PUT,
             courtReturnEntity,
             new ParameterizedTypeReference<String>() {
