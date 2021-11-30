@@ -6,6 +6,7 @@
     "agencyId": "LEI",
     "incidentTime": "1999-05-25T00:00:00",
     "incidentLocationId": -2,
-    "statement": "mKSouDOCmKSouDO"
+    "statement": "mKSouDOCmKSouDO",
+    "createdByUserId": "XTAG"
   }
 ]
