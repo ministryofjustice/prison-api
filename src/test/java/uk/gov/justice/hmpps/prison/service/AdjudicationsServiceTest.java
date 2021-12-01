@@ -348,65 +348,6 @@ public class AdjudicationsServiceTest {
     }
 
     @Nested
-    public class SearchAdjudications {
-        @Test
-        public void makesCallToRepositoryWithCorrectData() {
-            when(adjudicationsRepository.search(any(), any(), any())).thenReturn(Page.empty());
-
-            service.search(
-                AdjudicationSearchRequest.builder()
-                .adjudicationIdsMask(Arrays.asList(1L))
-                .agencyLocationId("LEI")
-                .build(),
-                Pageable.ofSize(20)
-            );
-
-            verify(adjudicationsRepository).search(Arrays.asList(1L), "LEI", Pageable.ofSize(20));
-        }
-
-        @Test
-        public void returnsCorrectData() {
-            final var mockDataProvider = new MockDataProvider();
-            final var foundAdjudication1 = generateExampleAdjudication(mockDataProvider, 1);
-            final var foundAdjudication2 = generateExampleAdjudication(mockDataProvider, 2);
-
-            final var expectedReturnedAdjudication = AdjudicationDetail.builder()
-                .reporterStaffId(mockDataProvider.reporter.getStaff().getStaffId())
-                .bookingId(mockDataProvider.booking.getBookingId())
-                .offenderNo(mockDataProvider.booking.getOffender().getNomsId())
-                .incidentLocationId(mockDataProvider.internalLocation.getLocationId())
-                .createdByUserId(EXAMPLE_CREATOR_ID)
-                .build();
-
-            when(adjudicationsRepository.search(any(), any(), any()))
-                .thenReturn(new PageImpl(List.of(foundAdjudication1, foundAdjudication2), Pageable.ofSize(20), 2));
-
-            final var returnedAdjudications
-                = service.search(
-                    AdjudicationSearchRequest.builder()
-                        .adjudicationIdsMask(Arrays.asList(1L))
-                        .agencyLocationId("LEI")
-                        .build(),
-                Pageable.ofSize(20));
-
-            assertThat(returnedAdjudications.getContent()).containsExactlyInAnyOrder(
-                expectedReturnedAdjudication.toBuilder()
-                    .adjudicationNumber(foundAdjudication1.getOffenderParty().get().getAdjudicationNumber())
-                    .agencyId(foundAdjudication1.getAgencyLocation().getId())
-                    .incidentTime(foundAdjudication1.getIncidentTime())
-                    .statement(foundAdjudication1.getIncidentDetails())
-                    .build(),
-                expectedReturnedAdjudication.toBuilder()
-                    .adjudicationNumber(foundAdjudication2.getOffenderParty().get().getAdjudicationNumber())
-                    .agencyId(foundAdjudication2.getAgencyLocation().getId())
-                    .incidentTime(foundAdjudication2.getIncidentTime())
-                    .statement(foundAdjudication2.getIncidentDetails())
-                    .build()
-            );
-        }
-    }
-
-    @Nested
     public class GetAdjudication {
 
         @Test
