@@ -18,10 +18,38 @@ VALUES (2554472, null, 'SEQ', 'AIMONIS', null, 'EF''LIAICO', 'URUA', TO_DATE('19
         '10.102.1.69', 'unknown', null);
 
 INSERT INTO AGENCY_LOCATIONS (AGY_LOC_ID, DESCRIPTION, AGENCY_LOCATION_TYPE, ACTIVE_FLAG)
-VALUES ('NMI', 'NOTTINGHAM (HMP)', 'INST', 'Y');
+VALUES ('NMI', 'NOTTINGHAM (HMP)', 'INST', 'Y'),('DRBYCC', 'Derby Crown Court', 'CRT', 'Y');
 
-INSERT INTO AGENCY_LOCATIONS (AGY_LOC_ID, DESCRIPTION, AGENCY_LOCATION_TYPE, ACTIVE_FLAG)
-VALUES ('DRBYCC', 'Derby Crown Court', 'CRT', 'Y');
+
+
+INSERT INTO AGENCY_INTERNAL_LOCATIONS (INTERNAL_LOCATION_ID, INTERNAL_LOCATION_CODE, AGY_LOC_ID,
+                                                 INTERNAL_LOCATION_TYPE, DESCRIPTION, SECURITY_LEVEL_CODE, CAPACITY,
+                                                 CREATE_USER_ID, PARENT_INTERNAL_LOCATION_ID, ACTIVE_FLAG, LIST_SEQ,
+                                                 CREATE_DATETIME, MODIFY_DATETIME, MODIFY_USER_ID, CNA_NO,
+                                                 CERTIFIED_FLAG, DEACTIVATE_DATE, REACTIVATE_DATE,
+                                                 DEACTIVATE_REASON_CODE, COMMENT_TEXT, USER_DESC, ACA_CAP_RATING,
+                                                 UNIT_TYPE, OPERATION_CAPACITY, NO_OF_OCCUPANT, TRACKING_FLAG,
+                                                 AUDIT_TIMESTAMP, AUDIT_USER_ID, AUDIT_MODULE_NAME,
+                                                 AUDIT_CLIENT_USER_ID, AUDIT_CLIENT_IP_ADDRESS,
+                                                 AUDIT_CLIENT_WORKSTATION_NAME, AUDIT_ADDITIONAL_INFO)
+VALUES (106221, 'F', 'NMI', 'WING', 'NMI-F', null, 116, 'OMS_OWNER', null, 'Y', 10,
+        TO_DATE('2009-12-10', 'YYYY-MM-DD'),
+        TO_DATE('2021-11-19', 'YYYY-MM-DD'), 'API_PROXY_USER', 78, 'Y', null,
+        null, null, null, null, null, 'NA', 102, 93, 'N',
+        TO_DATE('2021-11-19', 'YYYY-MM-DD'), 'GCHEEMA_GEN', 'PRISON_API',
+        'GCHEEMA_GEN', '35.177.252.54', 'API', 'PUT /api/bookings/1182239/living-unit/NMI-F-1-001'),
+       (106249, '2', 'NMI', 'LAND', 'NMI-F-2', null, 40, 'OMS_OWNER', 106221, 'Y', 2,
+        TO_DATE('2009-12-10', 'YYYY-MM-DD'),
+        TO_DATE('2017-05-09', 'YYYY-MM-DD'), 'OMS_OWNER', 26, 'Y', null, null,
+        null, null, null, null, 'NA', null, 34, 'N',
+        TO_DATE('2017-05-09', 'YYYY-MM-DD'), 'OMS_OWNER',
+        'sqlplus@DAPDL0001 (TNS V1-V3)', 'oracle', null, 'pts/6', null),
+       (106258, '009', 'NMI', 'CELL', 'NMI-F-2-009', null, 2, 'OMS_OWNER', 106249, 'Y', 9,
+        TO_DATE('2009-12-10', 'YYYY-MM-DD'),
+        TO_DATE('2017-05-09', 'YYYY-MM-DD'), 'OMS_OWNER', 1, 'Y', null, null,
+        null, null, null, null, 'NA', null, 2, 'N',
+        TO_DATE('2017-05-09', 'YYYY-MM-DD'), 'OMS_OWNER',
+        'sqlplus@DAPDL0001 (TNS V1-V3)', 'oracle', null, 'pts/6', null);
 
 INSERT INTO MOVEMENT_REASONS (MOVEMENT_TYPE, MOVEMENT_REASON_CODE, DESCRIPTION, OPEN_CONTACT_FLAG,
                                         CLOSE_CONTACT_FLAG, ACTIVE_FLAG, LIST_SEQ, UPDATE_ALLOWED_FLAG, EXPIRY_DATE,
@@ -78,24 +106,34 @@ VALUES (1176156, 1, TO_DATE('2017-04-01', 'YYYY-MM-DD'),
         TO_DATE('2017-02-17', 'YYYY-MM-DD'), 'QQM25S',
         TO_DATE('2021-11-30', 'YYYY-MM-DD'), 'MNAWROCKI_GEN', null, null, null,
         null, null, null, TO_DATE('2021-11-30', 'YYYY-MM-DD'), 'MNAWROCKI_GEN',
-        'OCUCANTR', 'mnawrocki', '10.102.1.72', 'MGPRW4RI2SN0001', null, null, null);
-
-INSERT INTO OFFENDER_EXTERNAL_MOVEMENTS (OFFENDER_BOOK_ID, MOVEMENT_SEQ, MOVEMENT_DATE, MOVEMENT_TIME,
-                                         INTERNAL_SCHEDULE_TYPE, INTERNAL_SCHEDULE_REASON_CODE, MOVEMENT_TYPE,
-                                         MOVEMENT_REASON_CODE, DIRECTION_CODE, ARREST_AGENCY_LOC_ID,
-                                         TO_PROV_STAT_CODE, ESCORT_CODE, FROM_AGY_LOC_ID, TO_AGY_LOC_ID,
-                                         ACTIVE_FLAG, ESCORT_TEXT, COMMENT_TEXT, REPORTING_DATE, TO_CITY,
-                                         FROM_CITY, REPORTING_TIME, CREATE_DATETIME, CREATE_USER_ID,
-                                         MODIFY_DATETIME, MODIFY_USER_ID, EVENT_ID, PARENT_EVENT_ID,
-                                         TO_COUNTRY_CODE, OJ_LOCATION_CODE, APPLICATION_DATE,
-                                         APPLICATION_TIME, AUDIT_TIMESTAMP, AUDIT_USER_ID, AUDIT_MODULE_NAME,
-                                         AUDIT_CLIENT_USER_ID, AUDIT_CLIENT_IP_ADDRESS,
-                                         AUDIT_CLIENT_WORKSTATION_NAME, AUDIT_ADDITIONAL_INFO, TO_ADDRESS_ID,
-                                         FROM_ADDRESS_ID)
-VALUES (1176156, 2, TO_DATE('2021-11-30', 'YYYY-MM-DD'),
+        'OCUCANTR', 'mnawrocki', '10.102.1.72', 'MGPRW4RI2SN0001', null, null, null),
+       (1176156, 2, TO_DATE('2021-11-30', 'YYYY-MM-DD'),
         TO_DATE('2021-11-30', 'YYYY-MM-DD'), null, null, 'CRT', '19', 'OUT', null, null, null,
         'NMI', 'ABDRCT', 'Y', null, null, null, null, null, null,
         TO_DATE('2021-11-30', 'YYYY-MM-DD'), 'MNAWROCKI_GEN', null, null,
         455654697, null, null, null, null, null,
         TO_DATE('2021-11-30', 'YYYY-MM-DD'), 'MNAWROCKI_GEN', 'OCUCANTR',
         'mnawrocki', '10.102.1.72', 'MGPRW4RI2SN0001', null, null, null);
+
+
+INSERT INTO COURT_EVENTS (EVENT_ID, CASE_ID, OFFENDER_BOOK_ID, EVENT_DATE, START_TIME, END_TIME,
+                                    COURT_EVENT_TYPE, JUDGE_NAME, EVENT_STATUS, PARENT_EVENT_ID, AGY_LOC_ID,
+                                    OUTCOME_REASON_CODE, COMMENT_TEXT, CREATE_DATETIME, CREATE_USER_ID, MODIFY_DATETIME,
+                                    MODIFY_USER_ID, EVENT_OUTCOME, NEXT_EVENT_REQUEST_FLAG, ORDER_REQUESTED_FLAG,
+                                    RESULT_CODE, NEXT_EVENT_DATE, NEXT_EVENT_START_TIME, OUTCOME_DATE, AUDIT_TIMESTAMP,
+                                    AUDIT_USER_ID, AUDIT_MODULE_NAME, AUDIT_CLIENT_USER_ID, AUDIT_CLIENT_IP_ADDRESS,
+                                    AUDIT_CLIENT_WORKSTATION_NAME, AUDIT_ADDITIONAL_INFO, OFFENDER_PROCEEDING_ID,
+                                    DIRECTION_CODE, HOLD_FLAG)
+VALUES (455654697, null, 1176156, TO_DATE('2021-11-30', 'YYYY-MM-DD'),
+        TO_DATE('2021-11-30', 'YYYY-MM-DD'), null, '19', null, 'COMP', null, 'ABDRCT', null, null,
+        TO_DATE('2021-11-30', 'YYYY-MM-DD'), 'MNAWROCKI_GEN',
+        TO_DATE('2021-11-30', 'YYYY-MM-DD'), 'MNAWROCKI_GEN', null, 'N', 'N',
+        null, null, null, null, TO_DATE('2021-11-30', 'YYYY-MM-DD'),
+        'MNAWROCKI_GEN', 'OCUCANTR', 'mnawrocki', '10.102.1.72', 'MGPRW4RI2SN0001', null, null, 'OUT', 'N'),
+
+        (455654698, null, 1176156, TO_DATE('2021-11-30', 'YYYY-MM-DD'),
+        TO_DATE('2021-11-30', 'YYYY-MM-DD'), null, '19', null, 'EXP', 455654697, 'NMI', null, null,
+         TO_DATE('2021-11-30', 'YYYY-MM-DD'), 'MNAWROCKI_GEN',
+         TO_DATE('2021-12-01', 'YYYY-MM-DD'), 'OMS_OWNER', null, 'N', 'N', null,
+        null, null, null, TO_DATE('2021-12-01', 'YYYY-MM-DD'), 'OMS_OWNER',
+        'FLUSH_SCHEDULES', 'oracle', null, 'UNKNOWN', null, null, 'IN', 'N');
