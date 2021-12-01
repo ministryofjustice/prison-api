@@ -137,7 +137,7 @@ public class AdjudicationsService {
     }
 
     @Transactional
-    public AdjudicationDetail updateAdjudication(Long adjudicationNumber, UpdateAdjudication adjudication) {
+    public AdjudicationDetail updateAdjudication(@NotNull Long adjudicationNumber, @NotNull @Valid UpdateAdjudication adjudication) {
         final var adjudicationToUpdate = adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber)
             .orElseThrow(EntityNotFoundException.withMessage(format("Adjudication with number %s does not exist", adjudicationNumber)));
 
@@ -167,11 +167,6 @@ public class AdjudicationsService {
                 numbers -> adjudicationsRepository.findByParties_AdjudicationNumberIn(numbers).stream()
             ).map(this::transformToDto)
             .collect(Collectors.toList());
-    }
-
-    public Page<AdjudicationDetail> search(final AdjudicationSearchRequest searchRequest, Pageable page) {
-        return adjudicationsRepository.search(searchRequest.getAdjudicationIdsMask(), searchRequest.getAgencyLocationId(), page)
-            .map(this::transformToDto);
     }
 
     private void trackAdjudicationCreated(final Adjudication createdAdjudication) {
