@@ -12,6 +12,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImage;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImageRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 
+import java.io.ByteArrayInputStream;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
@@ -26,6 +27,8 @@ public class ImageServiceImplTest {
 
     private static final LocalDateTime DATETIME = LocalDateTime.now();
     private static final String OFFENDER_NUMBER = "A1234AA";
+
+    private final byte[] imageData = Base64.getDecoder().decode("R0lGODlhAQABAIAAAAAAAAAAACH5BAAAAAAALAAAAAABAAEAAAICTAEAOw==");
 
     @Mock
     private OffenderImageRepository offenderImageRepository;
@@ -99,11 +102,9 @@ public class ImageServiceImplTest {
     @Test
     public void putImageForOffenderNotFound() {
 
-        final String imageData = "R0lGODlhAQABAIAAAAAAAAAAACH5BAAAAAAALAAAAAABAAEAAAICTAEAOw==";
-
         when(offenderRepository.findOffenderByNomsId(OFFENDER_NUMBER)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> service.putImageForOffender(OFFENDER_NUMBER, Base64.getDecoder().decode(imageData)))
+        assertThatThrownBy(() -> service.putImageForOffender(OFFENDER_NUMBER, new ByteArrayInputStream(imageData)))
             .isInstanceOf(EntityNotFoundException.class)
             .hasMessage("No prisoner found for prisoner number %s", OFFENDER_NUMBER);
     }
@@ -111,20 +112,17 @@ public class ImageServiceImplTest {
     @Test
     public void putImageForOffenderWithNoBooking() {
 
-        final String imageData = "R0lGODlhAQABAIAAAAAAAAAAACH5BAAAAAAALAAAAAABAAEAAAICTAEAOw==";
         Offender offenderAndBooking = Offender.builder().id(1L).build();
 
         when(offenderRepository.findOffenderByNomsId(OFFENDER_NUMBER)).thenReturn(Optional.of(offenderAndBooking));
 
-        assertThatThrownBy(() -> service.putImageForOffender(OFFENDER_NUMBER, Base64.getDecoder().decode(imageData)))
+        assertThatThrownBy(() -> service.putImageForOffender(OFFENDER_NUMBER, new ByteArrayInputStream(imageData)))
             .isInstanceOf(EntityNotFoundException.class)
             .hasMessage("There are no bookings for %s", OFFENDER_NUMBER);
     }
 
     @Test
     public void putImageForOffenderOk() {
-
-        final String imageData = "R0lGODlhAQABAIAAAAAAAAAAACH5BAAAAAAALAAAAAABAAEAAAICTAEAOw==";
 
         Offender offenderAndBooking = Offender.builder().id(1L).bookings(
             List.of(OffenderBooking.builder().bookingId(1L).bookingSequence(1).build())
@@ -139,8 +137,8 @@ public class ImageServiceImplTest {
             .active(true)
             .sourceCode("GEN")
             .offenderBooking(offenderAndBooking.getLatestBooking().isPresent() ? offenderAndBooking.getLatestBooking().get() : null)
-            .thumbnailImage(Base64.getDecoder().decode(imageData))
-            .fullSizeImage(Base64.getDecoder().decode(imageData))
+            .thumbnailImage(imageData)
+            .fullSizeImage(imageData)
             .build();
 
 
@@ -148,15 +146,13 @@ public class ImageServiceImplTest {
         when(offenderImageRepository.findLatestByBookingId(1L)).thenReturn(Optional.empty());
         when(offenderImageRepository.save(newImage)).thenReturn(newImage);
 
-        ImageDetail savedImage = service.putImageForOffender(OFFENDER_NUMBER, Base64.getDecoder().decode(imageData));
+        ImageDetail savedImage = service.putImageForOffender(OFFENDER_NUMBER, new ByteArrayInputStream(imageData));
 
         assertThat(savedImage).isEqualTo(newImage.transform());
     }
 
     @Test
     public void putImageUpdatesPreviousToInactive() {
-
-        final String imageData = "R0lGODlhAQABAIAAAAAAAAAAACH5BAAAAAAALAAAAAABAAEAAAICTAEAOw==";
 
         Offender offenderAndBooking = Offender.builder().id(1L).bookings(
             List.of(OffenderBooking.builder().bookingId(1L).bookingSequence(1).build())
@@ -171,8 +167,8 @@ public class ImageServiceImplTest {
             .active(false)
             .sourceCode("GEN")
             .offenderBooking(offenderAndBooking.getLatestBooking().isPresent() ? offenderAndBooking.getLatestBooking().get() : null)
-            .thumbnailImage(Base64.getDecoder().decode(imageData))
-            .fullSizeImage(Base64.getDecoder().decode(imageData))
+            .thumbnailImage(imageData)
+            .fullSizeImage(imageData)
             .build();
 
         var newImage = OffenderImage
@@ -184,8 +180,8 @@ public class ImageServiceImplTest {
             .active(true)
             .sourceCode("GEN")
             .offenderBooking(offenderAndBooking.getLatestBooking().isPresent() ? offenderAndBooking.getLatestBooking().get() : null)
-            .thumbnailImage(Base64.getDecoder().decode(imageData))
-            .fullSizeImage(Base64.getDecoder().decode(imageData))
+            .thumbnailImage(imageData)
+            .fullSizeImage(imageData)
             .build();
 
 
@@ -194,7 +190,7 @@ public class ImageServiceImplTest {
         when(offenderImageRepository.save(prevImage)).thenReturn(prevImage);
         when(offenderImageRepository.save(newImage)).thenReturn(newImage);
 
-        ImageDetail savedImage = service.putImageForOffender(OFFENDER_NUMBER, Base64.getDecoder().decode(imageData));
+        ImageDetail savedImage = service.putImageForOffender(OFFENDER_NUMBER, new ByteArrayInputStream(imageData));
 
         assertThat(savedImage).isEqualTo(newImage.transform());
     }

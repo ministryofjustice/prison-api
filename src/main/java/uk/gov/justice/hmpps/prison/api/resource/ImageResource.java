@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -79,16 +79,17 @@ public class ImageResource {
 
     @ApiResponses({
         @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 403, message = "IMAGE_UPLOAD role required to access endpoint", response = ErrorResponse.class),
         @ApiResponse(code = 404, message = "The offender number could not be found or has no bookings.", response = ErrorResponse.class),
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @ApiOperation(value = "Upload a new image for a prisoner.", notes = "Requires ROLE_IMAGE_UPLOAD.")
-    @PutMapping(value = "/offenders/{offenderNo}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ApiOperation(value = "DEV USE ONLY *** Upload a new image for a prisoner.", notes = "Requires ROLE_IMAGE_UPLOAD.")
+    @PostMapping(value = "/offenders/{offenderNo}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ImageDetail putImageMultiPart(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offender number relating to this image.", required = true) final String offenderNo,
-        @RequestPart MultipartFile imageData
+        @ApiParam(value = "The image as a file to upload", required = true) @RequestPart("file") MultipartFile file
     )  {
         try {
-            return imageService.putImageForOffender(offenderNo, imageData.getBytes());
+            return imageService.putImageForOffender(offenderNo, file.getInputStream());
         } catch (IOException e) {
             throw new BadRequestException("Image Data cannot be processed");
         }

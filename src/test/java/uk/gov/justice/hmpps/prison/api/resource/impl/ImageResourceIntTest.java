@@ -1,17 +1,24 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
-import java.time.LocalDate;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.util.LinkedMultiValueMap;
+import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
+
+import java.io.File;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ImageResourceIntTest extends ResourceTest {
-    private final String imageData = "R0lGODlhAQABAIAAAAAAAAAAACH5BAAAAAAALAAAAAABAAEAAAICTAEAOw==";
 
     @Test
     public void getImagesByOffender() {
@@ -70,10 +77,10 @@ public class ImageResourceIntTest extends ResourceTest {
 
     @Test
     public void putImageReturnsForbiddenForIncorrectRoles() {
-        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("WRONG_ROLE"), imageData);
+        final var requestEntity = generateMultiPartFormRequest(List.of("WRONG_ROLE"));
         final var responseEntity = testRestTemplate.exchange(
-            "/api/images/offender/A1234AA",
-            HttpMethod.PUT,
+            "/api/images/offenders/A1234AA",
+            HttpMethod.POST,
             requestEntity,
             ImageDetail.class
         );
@@ -83,10 +90,10 @@ public class ImageResourceIntTest extends ResourceTest {
 
     @Test
     public void putImageReturnsNotFoundForInvalidOffender() {
-        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_IMAGE_UPLOAD"), imageData);
+        final var requestEntity = generateMultiPartFormRequest(List.of("ROLE_IMAGE_UPLOAD"));
         final var responseEntity = testRestTemplate.exchange(
-            "/api/images/offender/A9999XX",
-            HttpMethod.PUT,
+            "/api/images/offenders/A9999XX",
+            HttpMethod.POST,
             requestEntity,
             ImageDetail.class);
 
@@ -95,10 +102,9 @@ public class ImageResourceIntTest extends ResourceTest {
 
     @Test
     public void putImageUploadsAndStoresScaledImages() {
-        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_IMAGE_UPLOAD"), imageData);
-        final var responseEntity = testRestTemplate.exchange(
-            "/api/images/offender/A1234AI",
-            HttpMethod.PUT,
+        final var requestEntity = generateMultiPartFormRequest(List.of("ROLE_IMAGE_UPLOAD"));
+        final var responseEntity = testRestTemplate.postForEntity(
+            "/api/images/offenders/A1234AI",
             requestEntity,
             ImageDetail.class);
 
@@ -109,5 +115,21 @@ public class ImageResourceIntTest extends ResourceTest {
         assertThat(imageDetail.getImageId()).isGreaterThan(0);
         assertThat(imageDetail.getCaptureDate()).isAfter(LocalDate.now().minusDays(1));
         assertThat(imageDetail.getImageType()).isEqualTo("OFF_BKG");
+    }
+
+    @NotNull
+    private HttpEntity<LinkedMultiValueMap<String, Object>> generateMultiPartFormRequest(final List<String> roles)  {
+
+        File file = new File(Objects.requireNonNull(getClass().getResource("/images/image.jpg")).getFile());
+        LinkedMultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
+        parts.add("file", new FileSystemResource(file));
+
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.MULTIPART_FORM_DATA);
+        final var jwt = createJwt("ITAG_USER", roles);
+        httpHeaders.add("Authorization", "Bearer " + jwt);
+
+        return new HttpEntity<LinkedMultiValueMap<String, Object>>(parts, httpHeaders);
+
     }
 }

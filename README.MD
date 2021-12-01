@@ -236,8 +236,8 @@ If the alert fires then look for any recent releases of prison-api that may have
 
 ```
   # PUT an image for an offender
-  curl -X PUT "https://<URL to prison API host>/api/images/offenders/{prisonerNumber}" \
+  curl -X POST "https://<URL to prison API host>/api/images/offenders/{prisonerNumber}" \
      -H "Authorization: $AUTH_TOKEN" \
-     -F imageData="@./image.jpg" | jq
+     -F file="@./image.jpg" | jq
 ```
 
