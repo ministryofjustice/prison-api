@@ -34,7 +34,7 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
 @Data
 @EqualsAndHashCode(callSuper=false)
-@Builder
+@Builder(toBuilder=true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -101,5 +101,9 @@ public class Adjudication extends AuditableEntity {
     public Optional<AdjudicationParty> getOffenderParty() {
         return parties.stream().filter(p -> INCIDENT_ROLE_OFFENDER.equals(p.getIncidentRole())).findFirst();
 
+    }
+
+    public String getCreatedByUserId() {
+        return this.getCreateUserId();
     }
 }

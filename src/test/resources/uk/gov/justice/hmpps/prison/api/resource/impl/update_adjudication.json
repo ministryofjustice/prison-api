@@ -1,0 +1,10 @@
+{
+  "bookingId": -1,
+  "offenderNo": "A1234AA",
+  "reporterStaffId": -12,
+  "agencyId": "MDI",
+  "incidentTime": "2021-01-04T10:12:44",
+  "incidentLocationId": -31,
+  "statement": "Some Adjusted Comment Text",
+  "createdByUserId": "XTAG"
+}

@@ -9,13 +9,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.OffenderKeyDates;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateOffenderDates;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.CalcReasonType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Staff;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 
 import java.time.Clock;
@@ -42,8 +40,6 @@ public class OffenderDatesServiceTest {
     @Mock
     private StaffUserAccountRepository staffUserAccountRepository;
     @Mock
-    private ReferenceCodeRepository<CalcReasonType> calcReasonTypeReferenceCodeRepository;
-    @Mock
     private TelemetryClient telemetryClient;
 
     private final Clock clock  = Clock.fixed(Instant.now(), ZoneId.systemDefault());
@@ -52,7 +48,7 @@ public class OffenderDatesServiceTest {
 
     @BeforeEach
     public void setUp() {
-        service = new OffenderDatesService(offenderBookingRepository, staffUserAccountRepository, calcReasonTypeReferenceCodeRepository, telemetryClient, clock);
+        service = new OffenderDatesService(offenderBookingRepository, staffUserAccountRepository, telemetryClient, clock);
     }
 
     @Test
@@ -61,8 +57,6 @@ public class OffenderDatesServiceTest {
         final Long bookingId = 1L;
         final var offenderBooking = OffenderBooking.builder().bookingId(bookingId).build();
         when(offenderBookingRepository.findById(bookingId)).thenReturn(Optional.of(offenderBooking));
-        when(calcReasonTypeReferenceCodeRepository.findById(CalcReasonType.pk("UPDATE")))
-            .thenReturn(Optional.of(new CalcReasonType("UPDATE", "Modify Sentence")));
         final var submissionUser = "staff";
         final var staff = Staff.builder().staffId(2L).firstName("Other").lastName("Staff").build();
         final var staffUserAccount = StaffUserAccount.builder().username(submissionUser).staff(staff).build();
@@ -83,7 +77,7 @@ public class OffenderDatesServiceTest {
         // Then
         final var expected = SentenceCalculation.builder()
             .offenderBooking(offenderBooking)
-            .calcReasonType(new CalcReasonType("UPDATE", "Modify Sentence"))
+            .reasonCode("UPDATE")
             .calculationDate(calculationDateTime)
             .comments("CRD calculation ID: " + calculationUuid)
             .staff(staff)
@@ -125,8 +119,6 @@ public class OffenderDatesServiceTest {
         final var bookingId = 1L;
         final var offenderBooking = OffenderBooking.builder().bookingId(bookingId).build();
         when(offenderBookingRepository.findById(bookingId)).thenReturn(Optional.of(offenderBooking));
-        when(calcReasonTypeReferenceCodeRepository.findById(CalcReasonType.pk("UPDATE")))
-            .thenReturn(Optional.of(new CalcReasonType("UPDATE", "Modify Sentence")));
         final var staff = Staff.builder().staffId(2L).firstName("Other").lastName("Staff").build();
         final var staffUserAccount = StaffUserAccount.builder().username("staff").staff(staff).build();
         when(staffUserAccountRepository.findById("staff")).thenReturn(Optional.of(staffUserAccount));
@@ -158,37 +150,12 @@ public class OffenderDatesServiceTest {
             .hasMessage("Resource with id [-1] not found.");
     }
 
-    // this shouldn't happen because UPDATE record exists in the NOMIS DB see the following SQL:
-    //    SELECT * FROM reference_codes WHERE DOMAIN = 'CALC_REASON' AND CODE = 'UPDATE')
-    // but thought was good to cover the case
-    @Test
-    void updateOffenderDates_exception_for_unknown_calc_reason() {
-        // Given
-        final var bookingId = 1L;
-        final var offenderBooking = OffenderBooking.builder().bookingId(bookingId).build();
-        when(offenderBookingRepository.findById(bookingId)).thenReturn(Optional.of(offenderBooking));
-        final var staff = Staff.builder().staffId(2L).firstName("Other").lastName("Staff").build();
-        final var payload = RequestToUpdateOffenderDates.builder()
-            .keyDates(createOffenderKeyDates())
-            .submissionUser("staff")
-            .build();
-        when(calcReasonTypeReferenceCodeRepository.findById(CalcReasonType.pk("UPDATE")))
-            .thenReturn(Optional.empty());
-
-        // Then
-        assertThatThrownBy(() -> service.updateOffenderKeyDates(bookingId, payload))
-            .isInstanceOf(EntityNotFoundException.class)
-            .hasMessage("Resource with id [UPDATE] not found.");
-    }
-
     @Test
     void updateOffenderDates_exception_for_unknown_staff() {
         // Given
         final var bookingId = 1L;
         final var offenderBooking = OffenderBooking.builder().bookingId(bookingId).build();
         when(offenderBookingRepository.findById(bookingId)).thenReturn(Optional.of(offenderBooking));
-        when(calcReasonTypeReferenceCodeRepository.findById(CalcReasonType.pk("UPDATE")))
-            .thenReturn(Optional.of(new CalcReasonType("UPDATE", "Modify Sentence")));
         final var staff = "staff";
         when(staffUserAccountRepository.findById(staff)).thenReturn(Optional.empty());
 

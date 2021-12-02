@@ -46,6 +46,8 @@ import uk.gov.justice.hmpps.prison.api.model.PropertyContainer;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentDetail;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
+import uk.gov.justice.hmpps.prison.api.model.SentenceSummary;
+import uk.gov.justice.hmpps.prison.api.model.SentenceSummary.PrisonTerm;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
 import uk.gov.justice.hmpps.prison.api.model.VisitBalances;
 import uk.gov.justice.hmpps.prison.api.model.VisitDetails;
@@ -61,23 +63,19 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AvailablePrisonIepLevel.PK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Caseload;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.GlobalVisitorRestriction;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.KeyDateAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderContactPerson;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImage;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.KeyDateValues;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AvailablePrisonIepLevelRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPersonsRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRestrictionRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
@@ -114,6 +112,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.time.LocalDate.now;
 import static java.time.temporal.ChronoUnit.DAYS;
+import static java.util.Comparator.comparing;
 import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsLast;
 import static java.util.stream.Collectors.toList;
@@ -143,8 +142,6 @@ public class BookingService {
     private final CaseLoadService caseLoadService;
     private final CaseloadToAgencyMappingService caseloadToAgencyMappingService;
     private final AgencyInternalLocationRepository agencyInternalLocationRepository;
-    private final OffenderSentenceAdjustmentRepository offenderSentenceAdjustmentRepository;
-    private final OffenderKeyDateAdjustmentRepository offenderKeyDateAdjustmentRepository;
     private final OffenderContactPersonsRepository offenderContactPersonsRepository;
     private final OffenderRestrictionRepository offenderRestrictionRepository;
     private final StaffUserAccountRepository staffUserAccountRepository;
@@ -166,8 +163,6 @@ public class BookingService {
                           final CaseLoadService caseLoadService,
                           final CaseloadToAgencyMappingService caseloadToAgencyMappingService,
                           final AgencyInternalLocationRepository agencyInternalLocationRepository,
-                          final OffenderSentenceAdjustmentRepository offenderSentenceAdjustmentRepository,
-                          final OffenderKeyDateAdjustmentRepository offenderKeyDateAdjustmentRepository,
                           final OffenderContactPersonsRepository offenderContactPersonsRepository,
                           final StaffUserAccountRepository staffUserAccountRepository,
                           final OffenderBookingTransformer offenderBookingTransformer,
@@ -188,8 +183,6 @@ public class BookingService {
         this.caseLoadService = caseLoadService;
         this.caseloadToAgencyMappingService = caseloadToAgencyMappingService;
         this.agencyInternalLocationRepository = agencyInternalLocationRepository;
-        this.offenderSentenceAdjustmentRepository = offenderSentenceAdjustmentRepository;
-        this.offenderKeyDateAdjustmentRepository = offenderKeyDateAdjustmentRepository;
         this.offenderContactPersonsRepository = offenderContactPersonsRepository;
         this.staffUserAccountRepository = staffUserAccountRepository;
         this.offenderBookingTransformer = offenderBookingTransformer;
@@ -216,7 +209,7 @@ public class BookingService {
     /**
      * Version 1.1 of sentence calculation dates, uses JPA entity model to derive data
      * @param bookingId prisoner booking Id
-     * @return latest sentence calcultions
+     * @return latest sentence calculations
      */
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     public SentenceCalcDates getBookingSentenceCalcDatesV1_1(final Long bookingId) {
@@ -257,38 +250,10 @@ public class BookingService {
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public SentenceAdjustmentDetail getBookingSentenceAdjustments(final Long bookingId) {
-
-        final var activeSentenceAdjustments = offenderSentenceAdjustmentRepository.findAllByOffenderBooking_BookingId(bookingId).stream().filter(SentenceAdjustment::isActive).collect(toList());
-        final var keyDateAdjustments = offenderKeyDateAdjustmentRepository.findAllByOffenderBooking_BookingId(bookingId).stream().filter(KeyDateAdjustment::isActive).collect(toList());
-
-        return SentenceAdjustmentDetail.builder()
-                .additionalDaysAwarded(getDaysForKeyDateAdjustmentsCode(keyDateAdjustments, "ADA"))
-                .lawfullyAtLarge(getDaysForKeyDateAdjustmentsCode(keyDateAdjustments, "LAL"))
-                .unlawfullyAtLarge(getDaysForKeyDateAdjustmentsCode(keyDateAdjustments, "UAL"))
-                .restoredAdditionalDaysAwarded(getDaysForKeyDateAdjustmentsCode(keyDateAdjustments, "RADA"))
-                .specialRemission(getDaysForKeyDateAdjustmentsCode(keyDateAdjustments, "SREM"))
-                .recallSentenceRemand(getDaysForSentenceAdjustmentsCode(activeSentenceAdjustments, "RSR"))
-                .recallSentenceTaggedBail(getDaysForSentenceAdjustmentsCode(activeSentenceAdjustments, "RST"))
-                .remand(getDaysForSentenceAdjustmentsCode(activeSentenceAdjustments, "RX"))
-                .taggedBail(getDaysForSentenceAdjustmentsCode(activeSentenceAdjustments, "S240A"))
-                .unusedRemand(getDaysForSentenceAdjustmentsCode(activeSentenceAdjustments, "UR"))
-                .build();
+        return offenderBookingRepository.findById(bookingId)
+            .map(OffenderBooking::getSentenceAdjustmentDetail)
+            .orElseThrow(EntityNotFoundException.withId(bookingId));
     }
-
-    private Integer getDaysForSentenceAdjustmentsCode(final List<SentenceAdjustment> adjustmentsList, final String code) {
-        return adjustmentsList
-                .stream()
-                .filter(adj -> code.equals(adj.getSentenceAdjustCode()))
-                .mapToInt(SentenceAdjustment::getAdjustDays).sum();
-    }
-
-    private Integer getDaysForKeyDateAdjustmentsCode(final List<KeyDateAdjustment> adjustmentsList, final String code) {
-        return adjustmentsList
-                .stream()
-                .filter(adj -> code.equals(adj.getSentenceAdjustCode()))
-                .mapToInt(KeyDateAdjustment::getAdjustDays).sum();
-    }
-
 
     private SentenceCalcDates getSentenceCalcDates(final Long bookingId) {
         final var optSentenceCalcDates = bookingRepository.getBookingSentenceCalcDates(bookingId);
@@ -835,11 +800,30 @@ public class BookingService {
         updateLivingUnit(offenderBooking, location);
     }
 
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     public List<OffenderSentenceAndOffences> getSentenceAndOffenceDetails(final Long bookingId) {
         final var offenderSentences = offenderSentenceRepository.findByOffenderBooking_BookingId_AndCalculationType_CalculationTypeNotLike(bookingId, "AGG%");
         return offenderSentences.stream()
             .map(OffenderSentence::getSentenceAndOffenceDetail)
             .collect(toList());
+    }
+
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
+    public Optional<SentenceSummary> getSentenceSummary(final String offenderNo) {
+        final var offender = offenderRepository.findOffenderByNomsId(offenderNo)
+            .orElseThrow(EntityNotFoundException.withMessage(format("No prisoner found for prisoner number %s", offenderNo)));
+
+        return offender.getLatestBooking()
+                .map(latestBooking ->
+                        SentenceSummary.builder()
+                            .prisonerNumber(offenderNo)
+                            .latestPrisonTerm(PrisonTerm.transform(latestBooking))
+                            .previousPrisonTerms(offender.getBookings().stream()
+                                .filter(b -> !b.getBookingId().equals(latestBooking.getBookingId()) && !b.getCourtOrders().isEmpty())
+                                .sorted(comparing(OffenderBooking::getBookingBeginDate).reversed())
+                                .map(PrisonTerm::transform).toList())
+                        .build()
+            );
     }
 
     public OffenderContacts getOffenderContacts(final Long bookingId, boolean approvedVisitorOnly) {
@@ -1078,6 +1062,7 @@ public class BookingService {
         return AGENCY_LOCATION_ID_KEY + ":eq:'" + agencyId + "'";
     }
 
+    @VerifyOffenderAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
     public InmateDetail getOffender(final String offenderNo) {
         return  offenderRepository.findOffenderByNomsId(offenderNo)
                 .map(offenderTransformer::transform)

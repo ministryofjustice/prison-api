@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.Set;
@@ -181,6 +182,18 @@ public class OffenderCurfewRepository extends RepositoryBase {
                         "statusTrackingCodes", statusTrackingCodesToMatch),
                 HOME_DETENTION_CURFEW_ROW_MAPPER);
         return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
+    }
+
+
+    public List<HomeDetentionCurfew> getBatchLatestHomeDetentionCurfew(List<Long> bookingIds, Set<String> statusTrackingCodesToMatch) {
+        val results = jdbcTemplate.query(
+                OffenderCurfewRepositorySql.LATEST_BATCH_HOME_DETENTION_CURFEW.getSql(),
+                createParams(
+                  "bookingIds", bookingIds,
+                  "statusTrackingCodes", statusTrackingCodesToMatch),
+                  HOME_DETENTION_CURFEW_ROW_MAPPER
+                );
+        return results;
     }
 
 

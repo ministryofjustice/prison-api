@@ -49,4 +49,7 @@ public class AdjudicationDetail {
     @ApiModelProperty(value = "The adjudication statement", position = 6, example = "The offence involved ...")
     @NotNull
     private String statement;
+
+    @ApiModelProperty(value = "The id of the user the created the adjudication", position = 10, example = "ASMITH")
+    private String createdByUserId;
 }

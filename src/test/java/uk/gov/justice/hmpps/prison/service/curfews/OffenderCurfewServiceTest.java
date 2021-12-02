@@ -9,6 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.ApprovalStatus;
 import uk.gov.justice.hmpps.prison.api.model.BaseSentenceCalcDates;
+import uk.gov.justice.hmpps.prison.api.model.HomeDetentionCurfew;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceCalc;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceCalculation;
 import uk.gov.justice.hmpps.prison.repository.OffenderCurfewRepository;
@@ -270,6 +271,34 @@ public class OffenderCurfewServiceTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Refused reason code 'XXX' is not a valid NOMIS value.");
     }
+
+    @Test
+    public void getBatchLatestHdcStatusByBookingIds() {
+        val bookingIds = List.of(1L, 2L, 3L, 4L);
+        when(offenderCurfewRepository.getBatchLatestHomeDetentionCurfew(bookingIds, StatusTrackingCodes.REFUSED_REASON_CODES))
+            .thenReturn(List.of(
+                  HomeDetentionCurfew.builder().id(1L).passed(true).approvalStatus("REJECTED").build(),
+                  HomeDetentionCurfew.builder().id(2L).passed(false).build(),
+                  HomeDetentionCurfew.builder().id(3L).build()
+                )
+            );
+
+        final var curfews = offenderCurfewService.getBatchLatestHomeDetentionCurfew(bookingIds);
+
+        assertThat(curfews.stream().map(HomeDetentionCurfew::getId).collect(Collectors.toList()))
+            .containsExactly(1L, 2L, 3L);
+    }
+
+    @Test
+    public void getBatchLatestHdcStatusByBookingIdsEmpty() {
+        val bookingIds = List.of(1L, 2L, 3L, 4L);
+        when(offenderCurfewRepository.getBatchLatestHomeDetentionCurfew(bookingIds, StatusTrackingCodes.REFUSED_REASON_CODES))
+            .thenReturn(List.of());
+        final var curfews = offenderCurfewService.getBatchLatestHomeDetentionCurfew(bookingIds);
+        assertThat(curfews.stream().map(HomeDetentionCurfew::getId).collect(Collectors.toList()))
+            .hasSize(0);
+    }
+
 
     private List<OffenderSentenceCalculation> offenderSentenceCalculations() {
 
