@@ -70,6 +70,9 @@ public class ExternalMovement extends AuditableEntity {
     @Column(name = "EVENT_ID")
     private Long eventId;
 
+    @Column(name = "PARENT_EVENT_ID")
+    private Long parentEventId;
+
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "ARREST_AGENCY_LOC_ID")
     private AgencyLocation arrestAgencyLocation;

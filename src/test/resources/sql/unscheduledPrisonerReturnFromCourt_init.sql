@@ -111,29 +111,6 @@ VALUES (1176156, 1, TO_DATE('2017-04-01', 'YYYY-MM-DD'),
         TO_DATE('2021-11-30', 'YYYY-MM-DD'), null, null, 'CRT', '19', 'OUT', null, null, null,
         'NMI', 'ABDRCT', 'Y', null, null, null, null, null, null,
         TO_DATE('2021-11-30', 'YYYY-MM-DD'), 'MNAWROCKI_GEN', null, null,
-        455654697, null, null, null, null, null,
+        null, null, null, null, null, null,
         TO_DATE('2021-11-30', 'YYYY-MM-DD'), 'MNAWROCKI_GEN', 'OCUCANTR',
         'mnawrocki', '10.102.1.72', 'MGPRW4RI2SN0001', null, null, null);
-
-
-INSERT INTO COURT_EVENTS (EVENT_ID, CASE_ID, OFFENDER_BOOK_ID, EVENT_DATE, START_TIME, END_TIME,
-                                    COURT_EVENT_TYPE, JUDGE_NAME, EVENT_STATUS, PARENT_EVENT_ID, AGY_LOC_ID,
-                                    OUTCOME_REASON_CODE, COMMENT_TEXT, CREATE_DATETIME, CREATE_USER_ID, MODIFY_DATETIME,
-                                    MODIFY_USER_ID, EVENT_OUTCOME, NEXT_EVENT_REQUEST_FLAG, ORDER_REQUESTED_FLAG,
-                                    RESULT_CODE, NEXT_EVENT_DATE, NEXT_EVENT_START_TIME, OUTCOME_DATE, AUDIT_TIMESTAMP,
-                                    AUDIT_USER_ID, AUDIT_MODULE_NAME, AUDIT_CLIENT_USER_ID, AUDIT_CLIENT_IP_ADDRESS,
-                                    AUDIT_CLIENT_WORKSTATION_NAME, AUDIT_ADDITIONAL_INFO, OFFENDER_PROCEEDING_ID,
-                                    DIRECTION_CODE, HOLD_FLAG)
-VALUES (455654697, null, 1176156, TO_DATE('2021-11-30', 'YYYY-MM-DD'),
-        TO_DATE('2021-11-30', 'YYYY-MM-DD'), null, '19', null, 'COMP', null, 'ABDRCT', null, null,
-        TO_DATE('2021-11-30', 'YYYY-MM-DD'), 'MNAWROCKI_GEN',
-        TO_DATE('2021-11-30', 'YYYY-MM-DD'), 'MNAWROCKI_GEN', null, 'N', 'N',
-        null, null, null, null, TO_DATE('2021-11-30', 'YYYY-MM-DD'),
-        'MNAWROCKI_GEN', 'OCUCANTR', 'mnawrocki', '10.102.1.72', 'MGPRW4RI2SN0001', null, null, 'OUT', 'N'),
-
-        (455654698, null, 1176156, TO_DATE('2021-11-30', 'YYYY-MM-DD'),
-        TO_DATE('2021-11-30', 'YYYY-MM-DD'), null, '19', null, 'EXP', 455654697, 'NMI', null, null,
-         TO_DATE('2021-11-30', 'YYYY-MM-DD'), 'MNAWROCKI_GEN',
-         TO_DATE('2021-12-01', 'YYYY-MM-DD'), 'OMS_OWNER', null, 'N', 'N', null,
-        null, null, null, TO_DATE('2021-12-01', 'YYYY-MM-DD'), 'OMS_OWNER',
-        'FLUSH_SCHEDULES', 'oracle', null, 'UNKNOWN', null, null, 'IN', 'N');

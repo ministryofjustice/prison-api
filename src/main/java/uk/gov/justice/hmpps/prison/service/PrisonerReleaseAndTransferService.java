@@ -822,14 +822,27 @@ public class PrisonerReleaseAndTransferService {
             movementReason = movementReasonRepository.findById(MovementReason.pk(requestForCourtTransferIn.getMovementReasonCode())).orElseThrow(EntityNotFoundException.withMessage(format("No movement reason %s found", requestForCourtTransferIn.getMovementReasonCode())));
         }
 
-        Optional<CourtEvent> courtEvent = courtEventRepository
+        Optional<CourtEvent> inwardCourtEvent = courtEventRepository
             .findOneByParentCourtEventId(latestExternalMovement.getEventId());
 
-        courtEvent.ifPresent(c -> c.setEventStatus(eventStatusRepository.findById(EventStatus.COMPLETED).orElseThrow()));
+        inwardCourtEvent.ifPresent(c -> c.setEventStatus(eventStatusRepository.findById(EventStatus.COMPLETED).orElseThrow()));
 
-        Long eventId = courtEvent.isPresent() ? courtEvent.get().getParentCourtEventId() : null;
+        Long inwardEventId = inwardCourtEvent.isPresent() ? inwardCourtEvent.get().getId() : null;
+        Long outwardEventId = inwardCourtEvent.isPresent() ? inwardCourtEvent.get().getParentCourtEventId() : null;
         LocalDateTime movementTime = getAndCheckMovementTime(requestForCourtTransferIn.getDateTime(), offenderBooking.getBookingId());
-        createInMovement(offenderBooking, movementReason, latestExternalMovement.getToAgency(), latestExternalMovement.getFromAgency(), movementTime, eventId, requestForCourtTransferIn.getCommentText());
+        offenderBooking.addExternalMovement(ExternalMovement.builder()
+            .movementDate(movementTime.toLocalDate())
+            .movementTime(movementTime)
+            .movementType(movementTypeRepository.findById(CRT).orElseThrow(EntityNotFoundException.withMessage(format("No %s movement type found", MovementType.CRT))))
+            .movementReason(movementReason)
+            .movementDirection(MovementDirection.IN)
+            .fromAgency(latestExternalMovement.getToAgency())
+            .toAgency(latestExternalMovement.getFromAgency())
+            .active(true)
+            .eventId(inwardEventId)
+            .parentEventId(outwardEventId)
+            .commentText(requestForCourtTransferIn.getCommentText())
+            .build());
 
         return offenderTransformer.transform(offenderBooking);
     }
