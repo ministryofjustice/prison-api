@@ -23,6 +23,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 import static java.lang.String.format;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpMethod.PUT;
 
 @ContextConfiguration(classes = OffendersResourceCourtTransfersTest.TestClock.class)
@@ -41,8 +42,6 @@ public class OffendersResourceCourtTransfersTest extends ResourceTest {
     @MockBean
     PrisonerReleaseAndTransferService prisonerReleaseAndTransferService;
 
-    private final String OFFENDER_NUMBER = "A1234AB";
-
     @Test
     public void updateCourtTransferInTest() {
         final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
@@ -53,10 +52,10 @@ public class OffendersResourceCourtTransfersTest extends ResourceTest {
             "commentText", "admitted",
             "dateTime", now.minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
         );
-        InmateDetail inmateDetail = Mockito.mock(InmateDetail.class);
+        InmateDetail inmateDetail = new InmateDetail();
 
-        Mockito.when(prisonerReleaseAndTransferService.courtTransferIn(Mockito.eq(prisonerNo), Mockito.any(RequestForCourtTransferIn.class))).thenReturn(inmateDetail);
-
+        Mockito.when(prisonerReleaseAndTransferService.courtTransferIn(Mockito.eq(prisonerNo), Mockito.any(RequestForCourtTransferIn.class)))
+            .thenReturn(inmateDetail);
 
         final var courtReturnEntity = createHttpEntity(token, courtReturnRequest);
 
@@ -68,9 +67,10 @@ public class OffendersResourceCourtTransfersTest extends ResourceTest {
             },
             prisonerNo
         );
+        assertThat(transferInResponse.getStatusCodeValue()).isEqualTo(200);
 
-        assertThatStatus(transferInResponse, 200);
     }
+
     @Test
     public void updateCourtTransferInWhenInputDataCorruptedTest() {
         final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
@@ -81,7 +81,6 @@ public class OffendersResourceCourtTransfersTest extends ResourceTest {
             "commentText", "admitted",
             "dateTime", now.minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
         );
-        InmateDetail inmateDetail = Mockito.mock(InmateDetail.class);
 
         Mockito.when(prisonerReleaseAndTransferService.courtTransferIn(Mockito.eq(prisonerNo), Mockito.any(RequestForCourtTransferIn.class)))
             .thenThrow(new BadRequestException("Latest movement not a court movement"));
@@ -97,8 +96,9 @@ public class OffendersResourceCourtTransfersTest extends ResourceTest {
             prisonerNo
         );
 
-        assertThatStatus(transferInResponse, 400);
+        assertThat(transferInResponse.getStatusCodeValue()).isEqualTo(400);
     }
+
     @Test
     public void testCourtTransferInWhenPrisonerNotFound() {
         final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
@@ -109,7 +109,6 @@ public class OffendersResourceCourtTransfersTest extends ResourceTest {
             "commentText", "admitted",
             "dateTime", now.minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
         );
-        InmateDetail inmateDetail = Mockito.mock(InmateDetail.class);
 
         Mockito.when(prisonerReleaseAndTransferService.courtTransferIn(Mockito.eq(prisonerNo), Mockito.any(RequestForCourtTransferIn.class)))
             .thenThrow(EntityNotFoundException.withMessage(format("No bookings found for prisoner number %s", prisonerNo)));
@@ -125,6 +124,6 @@ public class OffendersResourceCourtTransfersTest extends ResourceTest {
             prisonerNo
         );
 
-        assertThatStatus(transferInResponse, 404);
+        assertThat(transferInResponse.getStatusCodeValue()).isEqualTo(404);
     }
 }
