@@ -48,5 +48,10 @@ public class AttendanceRepositoryTest {
             Tuple.tuple(-12L, LocalDate.now(), null, -3L, "Substance misuse course", "SUBS", LocalDate.of(2011, 01, 04), LocalDate.of(2012, 01, 8), -2L, null),
             Tuple.tuple(-11L, LocalDate.now(), null, -2L, "Woodwork", "WOOD", LocalDate.of(2012, 02, 28), LocalDate.of(2012, 03, 01), -2L, null)
         );
+        assertThat(activities.getContent()).asList().extracting("eventId", "eventDate", "eventOutcome", "courseActivity.description").contains(
+            Tuple.tuple(-13L, LocalDate.of(2017, 9, 13), "UNACAB", "Woodwork"));
+        assertThat(activities.getContent()).asList().extracting("eventId", "eventDate", "eventOutcome", "courseActivity.description", "programService").contains(
+            Tuple.tuple(-12L, LocalDate.now(), null, "Woodwork", null)
+        );
     }
 }
