@@ -887,36 +887,6 @@ public class OffendersResourceTest extends ResourceTest {
     }
 
     @Test
-    public void testCourtTransferIn() {
-        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
-
-        final var now = LocalDateTime.now();
-
-        final var prisonerNo = "A1180HI";
-
-
-        final var courtReturnRequest = Map.of("agencyId","MDI",
-            "movementReasonCode","CA",
-            "commentText", "admitted",
-            "dateTime", now.minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-            );
-
-        final var courtReturnEntity = createHttpEntity(token, courtReturnRequest);
-
-        final var transferInResponse =  testRestTemplate.exchange(
-            "/api/offenders/{nomsId}/court-transfer-in",
-            PUT,
-            courtReturnEntity,
-            new ParameterizedTypeReference<String>() {
-            },
-            prisonerNo
-        );
-
-        assertThatJsonFileAndStatus(transferInResponse, 200, "return_from_court.json");
-    }
-
-
-    @Test
     public void testCannotTransferAPrisonerIntoLocationAtCapacity() {
         final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
 

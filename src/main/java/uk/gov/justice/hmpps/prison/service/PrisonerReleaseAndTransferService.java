@@ -822,27 +822,42 @@ public class PrisonerReleaseAndTransferService {
             movementReason = movementReasonRepository.findById(MovementReason.pk(requestForCourtTransferIn.getMovementReasonCode())).orElseThrow(EntityNotFoundException.withMessage(format("No movement reason %s found", requestForCourtTransferIn.getMovementReasonCode())));
         }
 
-        Optional<CourtEvent> inwardCourtEvent = courtEventRepository
-            .findOneByParentCourtEventId(latestExternalMovement.getEventId());
-
-        inwardCourtEvent.ifPresent(c -> c.setEventStatus(eventStatusRepository.findById(EventStatus.COMPLETED).orElseThrow()));
-
-        Long inwardEventId = inwardCourtEvent.isPresent() ? inwardCourtEvent.get().getId() : null;
-        Long outwardEventId = inwardCourtEvent.isPresent() ? inwardCourtEvent.get().getParentCourtEventId() : null;
         LocalDateTime movementTime = getAndCheckMovementTime(requestForCourtTransferIn.getDateTime(), offenderBooking.getBookingId());
-        offenderBooking.addExternalMovement(ExternalMovement.builder()
-            .movementDate(movementTime.toLocalDate())
-            .movementTime(movementTime)
-            .movementType(movementTypeRepository.findById(CRT).orElseThrow(EntityNotFoundException.withMessage(format("No %s movement type found", MovementType.CRT))))
-            .movementReason(movementReason)
-            .movementDirection(MovementDirection.IN)
-            .fromAgency(latestExternalMovement.getToAgency())
-            .toAgency(latestExternalMovement.getFromAgency())
-            .active(true)
-            .eventId(inwardEventId)
-            .parentEventId(outwardEventId)
-            .commentText(requestForCourtTransferIn.getCommentText())
-            .build());
+
+        if (latestExternalMovement.getEventId() != null) {
+            Optional<CourtEvent> inwardCourtEvent = courtEventRepository
+                .findOneByParentCourtEventId(latestExternalMovement.getEventId());
+
+            inwardCourtEvent.ifPresent(c -> c.setEventStatus(eventStatusRepository.findById(EventStatus.COMPLETED).orElseThrow()));
+            Long inwardEventId = inwardCourtEvent.isPresent() ? inwardCourtEvent.get().getId() : null;
+            Long outwardEventId = inwardCourtEvent.isPresent() ? inwardCourtEvent.get().getParentCourtEventId() : null;
+            offenderBooking.addExternalMovement(ExternalMovement.builder()
+                .movementDate(movementTime.toLocalDate())
+                .movementTime(movementTime)
+                .movementType(movementTypeRepository.findById(CRT).orElseThrow(EntityNotFoundException.withMessage(format("No %s movement type found", MovementType.CRT))))
+                .movementReason(movementReason)
+                .movementDirection(MovementDirection.IN)
+                .fromAgency(latestExternalMovement.getToAgency())
+                .toAgency(latestExternalMovement.getFromAgency())
+                .active(true)
+                .eventId(inwardEventId)
+                .parentEventId(outwardEventId)
+                .commentText(requestForCourtTransferIn.getCommentText())
+                .build());
+        } else {
+            offenderBooking.addExternalMovement(ExternalMovement.builder()
+                .movementDate(movementTime.toLocalDate())
+                .movementTime(movementTime)
+                .movementType(movementTypeRepository.findById(CRT).orElseThrow(EntityNotFoundException.withMessage(format("No %s movement type found", MovementType.CRT))))
+                .movementReason(movementReason)
+                .movementDirection(MovementDirection.IN)
+                .fromAgency(latestExternalMovement.getToAgency())
+                .toAgency(latestExternalMovement.getFromAgency())
+                .active(true)
+                .commentText(requestForCourtTransferIn.getCommentText())
+                .build());
+        }
+
 
         return offenderTransformer.transform(offenderBooking);
     }
