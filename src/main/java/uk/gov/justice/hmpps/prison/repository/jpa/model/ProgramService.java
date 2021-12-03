@@ -20,7 +20,6 @@ import javax.persistence.Table;
 @AllArgsConstructor
 @Entity
 @Table(name = "PROGRAM_SERVICES")
-@ToString(of = {"programId"})
 public class ProgramService {
 
     @Id

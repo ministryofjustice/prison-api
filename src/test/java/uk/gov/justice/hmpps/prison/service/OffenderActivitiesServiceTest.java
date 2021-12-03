@@ -165,24 +165,28 @@ public class OffenderActivitiesServiceTest {
 
             final var courseActivity1 = CourseActivity
                 .builder()
-                .activityId(1L)
+                .activityId(-1L)
+                .code("CC1")
                 .description("Test Description 1")
+                .scheduleStartDate(LocalDate.of(2012, 2, 20))
                 .build();
             final var courseActivity2 = CourseActivity
                 .builder()
-                .activityId(2L)
+                .activityId(-2L)
+                .code("WOOD")
                 .description("Test Description 2")
+                .scheduleStartDate(LocalDate.of(2012, 2, 28))
                 .build();
 
             final var programService1 = ProgramService
                 .builder()
                 .programId(1L)
-                .activity("Test Activity 1")
+                .activity("Woodwork")
                 .build();
             final var programService2 = ProgramService
                 .builder()
                 .programId(2L)
-                .activity("Test Activity 2")
+                .activity("Substance misuse course")
                 .build();
 
             when(attendanceRepository.findByEventDateBetween(EXAMPLE_OFFENDER_NO, earliestDate, latestDate, PAGE_REQUEST))
@@ -194,8 +198,24 @@ public class OffenderActivitiesServiceTest {
             final var result = service.getHistoricalAttendancies(EXAMPLE_OFFENDER_NO, earliestDate, latestDate, PAGE_REQUEST);
 
             assertThat(result.getContent()).isEqualTo(List.of(
-                OffenderAttendance.builder().eventDate(earliestDate).outcome("outcome1").activity("Test Activity 1").description("Test Description 1").build(),
-                OffenderAttendance.builder().eventDate(latestDate).outcome("outcome2").activity("Test Activity 2").description("Test Description 2").build()
+                OffenderAttendance
+                    .builder()
+                        .eventDate(earliestDate)
+                        .outcome("outcome1")
+                        .activity(programService1.getActivity())
+                        .description(courseActivity1.getDescription())
+                        .code(courseActivity1.getCode())
+                        .bookingId(offenderBooking1.getBookingId())
+                    .build(),
+                OffenderAttendance
+                    .builder()
+                        .eventDate(latestDate)
+                        .outcome("outcome2")
+                        .activity(programService2.getActivity())
+                        .description(courseActivity2.getDescription())
+                        .code(courseActivity2.getCode())
+                        .bookingId(offenderBooking2.getBookingId())
+                    .build()
             ));
         }
     }

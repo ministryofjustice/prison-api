@@ -62,6 +62,8 @@ public class OffenderActivitiesService {
             .outcome(attendance.getEventOutcome())
             .description(attendance.getCourseActivity().getDescription())
             .activity(attendance.getProgramService() == null? null : attendance.getProgramService().getActivity())
+            .code(attendance.getCourseActivity().getCode())
+            .bookingId(attendance.getOffenderBooking().getBookingId())
             .build();
     }
 }
