@@ -102,8 +102,8 @@ public class ReleaseAPrisonerIntegrationTest {
             .findById(currentlyAssignedLivingUnit.getLocationId())
             .orElseThrow();
 
-        assertThat(assignedLivingUnit.getCurrentOccupancy()).isGreaterThan(occupancyBeforeRelease);
-        assertThat(assignedLivingUnit.getParentLocation().getCurrentOccupancy()).isGreaterThan(parentOccupancyBeforeRelease);
+        assertThat(assignedLivingUnit.getCurrentOccupancy()).isLessThan(occupancyBeforeRelease);
+        assertThat(assignedLivingUnit.getParentLocation().getCurrentOccupancy()).isLessThan(parentOccupancyBeforeRelease);
 
     }
 

@@ -690,18 +690,18 @@ public class PrisonerReleaseAndTransferService {
         caseNoteRepository.save(newCaseNote);
     }
 
-    private void incrementCurrentOccupancy(final AgencyInternalLocation assignedLivingUnit) {
+    private void decrementCurrentOccupancy(final AgencyInternalLocation assignedLivingUnit) {
         if (assignedLivingUnit != null) {
-            assignedLivingUnit.incrementCurrentOccupancy();
+            assignedLivingUnit.decrementCurrentOccupancy();
             agencyInternalLocationRepository.save(assignedLivingUnit);
-            incrementCurrentOccupancy(assignedLivingUnit.getParentLocation());
+            decrementCurrentOccupancy(assignedLivingUnit.getParentLocation());
         }
     }
 
 
     private void updateBeds(final OffenderBooking booking, final LocalDateTime releaseDateTime) {
         // Update occupancy (recursively)
-        incrementCurrentOccupancy(booking.getAssignedLivingUnit());
+        decrementCurrentOccupancy(booking.getAssignedLivingUnit());
 
         // Update Bed Assignment
         bedAssignmentHistoriesRepository.findByBedAssignmentHistoryPKOffenderBookingIdAndBedAssignmentHistoryPKSequence(booking.getBookingId(),
