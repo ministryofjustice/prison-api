@@ -65,7 +65,7 @@ public class PrisonerReleaseAndTransferServiceTest {
 
         List<Map<String, Object>> nextExternalMovements = jdbcTemplate.queryForList("select * from OFFENDER_EXTERNAL_MOVEMENTS where OFFENDER_BOOK_ID=1176156 and MOVEMENT_SEQ=3");
         assertThat(nextExternalMovements.get(0).get("ACTIVE_FLAG").toString()).isEqualTo("Y");
-        assertThat(nextExternalMovements.get(0).get("TO_AGY_LOC_ID").toString()).isEqualTo("NMI");
+        assertThat(nextExternalMovements.get(0).get("TO_AGY_LOC_ID").toString()).isEqualTo("BXI");
         assertThat(nextExternalMovements.get(0).get("FROM_AGY_LOC_ID").toString()).isEqualTo("ABDRCT");
         assertThat(nextExternalMovements.get(0).get("PARENT_EVENT_ID").toString()).isEqualTo("455654697");
         assertThat(nextExternalMovements.get(0).get("EVENT_ID").toString()).isEqualTo("455654698");
@@ -97,7 +97,7 @@ public class PrisonerReleaseAndTransferServiceTest {
 
         List<Map<String, Object>> nextExternalMovements = jdbcTemplate.queryForList("select * from OFFENDER_EXTERNAL_MOVEMENTS where OFFENDER_BOOK_ID=1176156 and MOVEMENT_SEQ=3");
         assertThat(nextExternalMovements.get(0).get("ACTIVE_FLAG").toString()).isEqualTo("Y");
-        assertThat(nextExternalMovements.get(0).get("TO_AGY_LOC_ID").toString()).isEqualTo("NMI");
+        assertThat(nextExternalMovements.get(0).get("TO_AGY_LOC_ID").toString()).isEqualTo("BXI");
         assertThat(nextExternalMovements.get(0).get("FROM_AGY_LOC_ID").toString()).isEqualTo("ABDRCT");
         assertThat(nextExternalMovements.get(0).get("PARENT_EVENT_ID")).isEqualTo(null);
         assertThat(nextExternalMovements.get(0).get("EVENT_ID")).isEqualTo(null);
