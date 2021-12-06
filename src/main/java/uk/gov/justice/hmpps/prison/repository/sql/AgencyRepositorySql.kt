@@ -203,9 +203,12 @@ enum class AgencyRepositorySql(val sql: String) {
         SELECT OB.OFFENDER_BOOK_ID AS BOOKING_ID,
         COALESCE (POS_NEG_IEPS.POSITIVE_IEPS, 0) AS POSITIVE_IEPS,
         COALESCE (POS_NEG_IEPS.NEGATIVE_IEPS, 0) AS NEGATIVE_IEPS,
+        COALESCE (POS_NEG_IEPS.POSITIVE_IEPS_ALL, 0) AS POSITIVE_IEPS_ALL,
+        COALESCE (POS_NEG_IEPS.NEGATIVE_IEPS_ALL, 0) AS NEGATIVE_IEPS_ALL,
         COALESCE (PROVEN_ADJUDICATIONS.PROVEN_ADJUDICATIONS, 0) AS PROVEN_ADJUDICATIONS,
         IEP_DETAILS.IEP_TIME AS LAST_REVIEW_TIME,
         IEP_DETAILS.IEP_LEVEL AS CURRENT_LEVEL,
+        IEP_DETAILS.PREVIOUS_IEP_LEVEL_TIME AS PREVIOUS_LEVEL_REVIEW_DATE,
         OFFENDER_DETAILS.FIRST_NAME,
         OFFENDER_DETAILS.MIDDLE_NAME,
         OFFENDER_DETAILS.LAST_NAME,
@@ -214,19 +217,33 @@ enum class AgencyRepositorySql(val sql: String) {
         FROM OFFENDER_BOOKINGS OB
         LEFT OUTER JOIN ( SELECT OIL.OFFENDER_BOOK_ID,
                 OIL.IEP_TIME AS IEP_TIME,
-                COALESCE(RC.DESCRIPTION, OIL.IEP_LEVEL) AS IEP_LEVEL
+                COALESCE(RC.DESCRIPTION, OIL.IEP_LEVEL) AS IEP_LEVEL,
+                GROUPED_BY_PREVIOUS_LEVEL_TIME.IEP_TIME AS PREVIOUS_IEP_LEVEL_TIME
                         FROM OFFENDER_IEP_LEVELS OIL
                         LEFT OUTER JOIN OFFENDER_BOOKINGS OB ON OIL.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID
-                        LEFT JOIN REFERENCE_CODES RC ON RC.CODE = OIL.IEP_LEVEL AND RC.DOMAIN = 'IEP_LEVEL',
-                (
+                        LEFT JOIN REFERENCE_CODES RC ON RC.CODE = OIL.IEP_LEVEL AND RC.DOMAIN = 'IEP_LEVEL'
+                        LEFT OUTER JOIN
+                               (  SELECT OIL.IEP_TIME,
+                                         OIL.OFFENDER_BOOK_ID,
+                                         OIL.IEP_LEVEL,
+                                         COUNT(OIL.IEP_TIME) AS IEP_RANK
+                                  FROM OFFENDER_IEP_LEVELS OIL
+                                  JOIN (SELECT OIL1.OFFENDER_BOOK_ID,
+                                               OIL1.IEP_LEVEL,
+                                               OIL1.IEP_TIME AS IEP_TIME
+                                        FROM OFFENDER_IEP_LEVELS OIL1) OIL2 ON OIL2.OFFENDER_BOOK_ID = OIL.OFFENDER_BOOK_ID AND OIL2.IEP_TIME >= OIL.IEP_TIME
+                                  GROUP BY OIL.OFFENDER_BOOK_ID, OIL.IEP_TIME, OIL.IEP_LEVEL
+                                  ORDER BY COUNT(OIL.IEP_TIME) 
+                                ) GROUPED_BY_PREVIOUS_LEVEL_TIME ON GROUPED_BY_PREVIOUS_LEVEL_TIME.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID AND GROUPED_BY_PREVIOUS_LEVEL_TIME.IEP_RANK = 2,
+                       (
                         SELECT OIL.OFFENDER_BOOK_ID,
-                MAX(IEP_TIME) AS MAX_TIME
+                               MAX(IEP_TIME) AS MAX_TIME
                         FROM OFFENDER_IEP_LEVELS OIL
-                        GROUP BY OIL.OFFENDER_BOOK_ID ) GROUPED_BY_TIME
+                        GROUP BY OIL.OFFENDER_BOOK_ID ) GROUPED_BY_TIME                                                     
                 WHERE OB.AGY_LOC_ID = :agencyId
         AND OB.BOOKING_SEQ = :bookingSeq
         AND OIL.IEP_TIME = GROUPED_BY_TIME.MAX_TIME
-                AND OIL.OFFENDER_BOOK_ID = GROUPED_BY_TIME.OFFENDER_BOOK_ID
+                AND OIL.OFFENDER_BOOK_ID = GROUPED_BY_TIME.OFFENDER_BOOK_ID               
         ) IEP_DETAILS ON OB.OFFENDER_BOOK_ID = IEP_DETAILS.OFFENDER_BOOK_ID
         LEFT OUTER JOIN (SELECT OCN.OFFENDER_BOOK_ID,
                 SUM(CASE WHEN OCN.CASE_NOTE_TYPE = 'POS'
@@ -236,7 +253,13 @@ enum class AgencyRepositorySql(val sql: String) {
                 SUM(CASE WHEN OCN.CASE_NOTE_TYPE = 'NEG'
                         AND OCN.CASE_NOTE_SUB_TYPE = 'IEP_WARN'
                         AND TRUNC(OCN.CREATE_DATETIME) > TO_DATE(:threeMonthsAgo, 'YYYY-MM-DD')
-                        THEN 1 ELSE 0 END) AS NEGATIVE_IEPS
+                        THEN 1 ELSE 0 END) AS NEGATIVE_IEPS,
+                SUM(CASE WHEN OCN.CASE_NOTE_TYPE = 'POS'
+                        AND TRUNC(OCN.CREATE_DATETIME) > TO_DATE(:threeMonthsAgo, 'YYYY-MM-DD')
+                        THEN 1 ELSE 0 END) AS POSITIVE_IEPS_ALL,
+                SUM(CASE WHEN OCN.CASE_NOTE_TYPE = 'NEG'
+                        AND TRUNC(OCN.CREATE_DATETIME) > TO_DATE(:threeMonthsAgo, 'YYYY-MM-DD')
+                        THEN 1 ELSE 0 END) AS NEGATIVE_IEPS_ALL        
                         FROM OFFENDER_CASE_NOTES OCN
                         LEFT OUTER JOIN OFFENDER_BOOKINGS OB ON OCN.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID
                         WHERE OB.AGY_LOC_ID = :agencyId
