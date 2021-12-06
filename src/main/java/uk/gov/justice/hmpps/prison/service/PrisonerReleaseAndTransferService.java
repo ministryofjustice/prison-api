@@ -25,7 +25,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory.BedAssignmentHistoryPK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteSubType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteType;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ImprisonmentStatus;
@@ -68,7 +67,6 @@ import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
 import javax.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.Random;
 
 import static java.lang.String.format;
@@ -293,7 +291,7 @@ public class PrisonerReleaseAndTransferService {
         deactivatePreviousMovements(booking);
 
         // Generate the external movement in
-        createInMovement(booking, movementReason, fromLocation, prisonToRecallTo, receiveTime, null, "Recall");
+        createInMovement(booking, movementReason, fromLocation, prisonToRecallTo, receiveTime, "Recall");
         booking.setStatusReason(ADM.getCode() + "-" + movementReason.getCode());
 
         //Create Bed History
@@ -411,7 +409,7 @@ public class PrisonerReleaseAndTransferService {
         deactivatePreviousMovements(booking);
 
         // Generate the external movement in
-        createInMovement(booking, movementReason, fromLocation, receivedPrison, receiveTime, null, "New Booking");
+        createInMovement(booking, movementReason, fromLocation, receivedPrison, receiveTime, "New Booking");
 
         //Create Bed History
         bedAssignmentHistoriesRepository.save(BedAssignmentHistory.builder()
@@ -522,7 +520,7 @@ public class PrisonerReleaseAndTransferService {
         // set previous active movements to false
         deactivatePreviousMovements(booking);
 
-        createInMovement(booking, movementReason, latestExternalMovement.getFromAgency(), latestExternalMovement.getToAgency(), receiveTime, null, requestToTransferIn.getCommentText());
+        createInMovement(booking, movementReason, latestExternalMovement.getFromAgency(), latestExternalMovement.getToAgency(), receiveTime, requestToTransferIn.getCommentText());
         booking.setStatusReason(ADM.getCode() + "-" + movementReason.getCode());
 
         //Create Bed History
@@ -608,7 +606,7 @@ public class PrisonerReleaseAndTransferService {
             .build());
     }
 
-    private void createInMovement(final OffenderBooking booking, final MovementReason movementReason, final AgencyLocation fromLocation, final AgencyLocation toLocation, final LocalDateTime movementTime, final Long eventId, final String commentText) {
+    private void createInMovement(final OffenderBooking booking, final MovementReason movementReason, final AgencyLocation fromLocation, final AgencyLocation toLocation, final LocalDateTime movementTime, final String commentText) {
         booking.addExternalMovement(ExternalMovement.builder()
             .movementDate(movementTime.toLocalDate())
             .movementTime(movementTime)
@@ -618,7 +616,6 @@ public class PrisonerReleaseAndTransferService {
             .fromAgency(fromLocation)
             .toAgency(toLocation)
             .active(true)
-            .eventId(eventId)
             .commentText(commentText)
             .build());
     }
@@ -787,7 +784,7 @@ public class PrisonerReleaseAndTransferService {
         return format("%05d", number);
     }
 
-    public InmateDetail courtTransferIn(String offenderNo, RequestForCourtTransferIn requestForCourtTransferIn) {
+    public InmateDetail courtTransferIn(final String offenderNo, final RequestForCourtTransferIn requestForCourtTransferIn) {
 
         final OffenderBooking offenderBooking = this.getOffenderBooking(offenderNo);
         if (!offenderBooking.getInOutStatus().equals("OUT")) {
@@ -813,52 +810,46 @@ public class PrisonerReleaseAndTransferService {
 
         deactivatePreviousMovements(offenderBooking);
 
-        String movementReasonCode = requestForCourtTransferIn.getMovementReasonCode();
-        MovementReason movementReason;
+        final MovementReason movementReason = getMovementReason(requestForCourtTransferIn.getMovementReasonCode(), latestExternalMovement.getMovementReason());
 
-        if (movementReasonCode == null) {
-            movementReason = latestExternalMovement.getMovementReason();
+        final LocalDateTime movementTime = getAndCheckMovementTime(requestForCourtTransferIn.getDateTime(), offenderBooking.getBookingId());
+
+        final ExternalMovement.ExternalMovementBuilder builder = ExternalMovement.builder()
+            .movementDate(movementTime.toLocalDate())
+            .movementTime(movementTime)
+            .movementType(movementTypeRepository.findById(CRT).orElseThrow(EntityNotFoundException.withMessage(format("No %s movement type found", MovementType.CRT))))
+            .movementReason(movementReason)
+            .movementDirection(MovementDirection.IN)
+            .fromAgency(latestExternalMovement.getToAgency())
+            .toAgency(latestExternalMovement.getFromAgency())
+            .active(true)
+            .commentText(requestForCourtTransferIn.getCommentText());
+
+        if (latestExternalMovement.getEventId() == null) {
+            offenderBooking.addExternalMovement(builder.build());
         } else {
-            movementReason = movementReasonRepository.findById(MovementReason.pk(requestForCourtTransferIn.getMovementReasonCode())).orElseThrow(EntityNotFoundException.withMessage(format("No movement reason %s found", requestForCourtTransferIn.getMovementReasonCode())));
+            courtEventRepository
+                .findOneByParentCourtEventId(latestExternalMovement.getEventId())
+                .ifPresentOrElse(
+                    courtEvent -> {
+                        courtEvent.setEventStatus(eventStatusRepository.findById(EventStatus.COMPLETED).orElseThrow());
+
+                        offenderBooking.addExternalMovement(
+                            builder
+                                .eventId(courtEvent.getId())
+                                .parentEventId(courtEvent.getParentCourtEventId())
+                                .build());
+                    },
+                    () -> offenderBooking.addExternalMovement(builder.build())
+                );
+
         }
-
-        LocalDateTime movementTime = getAndCheckMovementTime(requestForCourtTransferIn.getDateTime(), offenderBooking.getBookingId());
-
-        if (latestExternalMovement.getEventId() != null) {
-            Optional<CourtEvent> inwardCourtEvent = courtEventRepository
-                .findOneByParentCourtEventId(latestExternalMovement.getEventId());
-
-            inwardCourtEvent.ifPresent(c -> c.setEventStatus(eventStatusRepository.findById(EventStatus.COMPLETED).orElseThrow()));
-            Long inwardEventId = inwardCourtEvent.isPresent() ? inwardCourtEvent.get().getId() : null;
-            Long outwardEventId = inwardCourtEvent.isPresent() ? inwardCourtEvent.get().getParentCourtEventId() : null;
-            offenderBooking.addExternalMovement(ExternalMovement.builder()
-                .movementDate(movementTime.toLocalDate())
-                .movementTime(movementTime)
-                .movementType(movementTypeRepository.findById(CRT).orElseThrow(EntityNotFoundException.withMessage(format("No %s movement type found", MovementType.CRT))))
-                .movementReason(movementReason)
-                .movementDirection(MovementDirection.IN)
-                .fromAgency(latestExternalMovement.getToAgency())
-                .toAgency(latestExternalMovement.getFromAgency())
-                .active(true)
-                .eventId(inwardEventId)
-                .parentEventId(outwardEventId)
-                .commentText(requestForCourtTransferIn.getCommentText())
-                .build());
-        } else {
-            offenderBooking.addExternalMovement(ExternalMovement.builder()
-                .movementDate(movementTime.toLocalDate())
-                .movementTime(movementTime)
-                .movementType(movementTypeRepository.findById(CRT).orElseThrow(EntityNotFoundException.withMessage(format("No %s movement type found", MovementType.CRT))))
-                .movementReason(movementReason)
-                .movementDirection(MovementDirection.IN)
-                .fromAgency(latestExternalMovement.getToAgency())
-                .toAgency(latestExternalMovement.getFromAgency())
-                .active(true)
-                .commentText(requestForCourtTransferIn.getCommentText())
-                .build());
-        }
-
 
         return offenderTransformer.transform(offenderBooking);
+    }
+
+    private MovementReason getMovementReason(final String movementReasonCode, final MovementReason defaultMovementReason) {
+        if (movementReasonCode == null) return defaultMovementReason;
+        return movementReasonRepository.findById(MovementReason.pk(movementReasonCode)).orElseThrow(EntityNotFoundException.withMessage(format("No movement reason %s found", movementReasonCode)));
     }
 }
