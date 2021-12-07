@@ -16,12 +16,14 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentenceCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.NonDtoReleaseDateType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm;
 import uk.gov.justice.hmpps.prison.service.transformers.AgencyTransformer;
 
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @ApiModel(description = "Sentence Summary")
@@ -60,19 +62,16 @@ public class SentenceSummary {
         @ApiModelProperty(value = "Licence sentences")
         private List<SentencesOffencesTerms> licenceSentences;
 
-        private SentenceCalcDates keyDates;
+        private KeyDates keyDates;
 
         private SentenceAdjustmentDetail sentenceAdjustments;
-
-        private String effectiveSentenceLength;
 
         public static PrisonTerm transform(final OffenderBooking booking) {
             return PrisonTerm.builder()
                 .bookNumber(booking.getBookNumber())
                 .bookingId(booking.getBookingId())
-                .keyDates(booking.getSentenceCalcDates())
+                .keyDates(KeyDates.transform(booking, booking.getLatestCalculation()))
                 .sentenceAdjustments(booking.getSentenceAdjustmentDetail())
-                .effectiveSentenceLength(booking.getLatestCalculation().map(SentenceCalculation::getEffectiveSentenceLength).orElse(null))
                 .courtSentences(booking.getCourtOrders().stream()
                     .filter(order -> order.getCourtCase() != null && !order.getSentences().isEmpty())
                     .sorted(Comparator.comparing(order -> order.getCourtCase().getCaseSeq()))
@@ -177,10 +176,10 @@ public class SentenceSummary {
         @ApiModelProperty(value = "The sentence end date for this sentence")
         private LocalDate sentenceEndDate;
 
-        @ApiModelProperty(required = true, value = "Fine amount.", position = 14)
+        @ApiModelProperty(required = true, value = "Fine amount.")
         private Double fineAmount;
 
-        @ApiModelProperty(required = true, value = "Sentence line number", position = 16, example = "1")
+        @ApiModelProperty(required = true, value = "Sentence line number", example = "1")
         private Long lineSeq;
 
         @ApiModelProperty(value = "The offences related to this sentence (will usually only have one offence per sentence)")
@@ -200,6 +199,7 @@ public class SentenceSummary {
                 .sentenceStartDate(sentence.getSentenceStartDate())
                 .sentenceEndDate(sentence.getSentenceEndDate())
                 .lineSeq(sentence.getLineSequence())
+                .fineAmount(sentence.getFineAmount())
                 .terms(sentence.getTerms().stream().map(Terms::transform).toList())
                 .offences(sentence.getOffenderSentenceCharges() == null ? null : sentence.getOffenderSentenceCharges()
                     .stream()
@@ -219,37 +219,37 @@ public class SentenceSummary {
     @Data
     public static class Terms {
 
-        @ApiModelProperty(required = true, value = "Sentence term number within sentence.", position = 3, example = "1")
+        @ApiModelProperty(required = true, value = "Sentence term number within sentence.", example = "1")
         private Integer termSequence;
 
-        @ApiModelProperty(value = "Sentence number which this sentence follows if consecutive, otherwise concurrent.", position = 4, example = "2")
+        @ApiModelProperty(value = "Sentence number which this sentence follows if consecutive, otherwise concurrent.", example = "2")
         private Integer consecutiveTo;
 
-        @ApiModelProperty(value = "Sentence type, using reference data from table SENTENCE_CALC_TYPES.", position = 5, example = "2")
+        @ApiModelProperty(value = "Sentence type, using reference data from table SENTENCE_CALC_TYPES.", example = "2")
         private String sentenceType;
 
-        @ApiModelProperty(required = true, value = "Sentence term code.", position = 15, example = "IMP")
+        @ApiModelProperty(required = true, value = "Sentence term code.", example = "IMP")
         private String sentenceTermCode;
 
-        @ApiModelProperty(value = "Sentence type description.", position = 6, example = "2")
+        @ApiModelProperty(value = "Sentence type description.", example = "2")
         private String sentenceTypeDescription;
 
-        @ApiModelProperty(required = true, value = "Start date of sentence term.", position = 7, example = "2018-12-31")
+        @ApiModelProperty(required = true, value = "Start date of sentence term.", example = "2018-12-31")
         private LocalDate startDate;
 
-        @ApiModelProperty(value = "Sentence length years.", position = 8)
+        @ApiModelProperty(value = "Sentence length years.")
         private Integer years;
 
-        @ApiModelProperty(value = "Sentence length months.", position = 9)
+        @ApiModelProperty(value = "Sentence length months.")
         private Integer months;
 
-        @ApiModelProperty(value = "Sentence length weeks.", position = 10)
+        @ApiModelProperty(value = "Sentence length weeks.")
         private Integer weeks;
 
-        @ApiModelProperty(value = "Sentence length days.", position = 11)
+        @ApiModelProperty(value = "Sentence length days.")
         private Integer days;
 
-        @ApiModelProperty(required = true, value = "Whether this is a life sentence.", position = 12)
+        @ApiModelProperty(required = true, value = "Whether this is a life sentence.")
         private Boolean lifeSentence;
 
 
@@ -266,4 +266,124 @@ public class SentenceSummary {
                 .build();
         }
     }
+    @ApiModel(description = "Key Dates")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Data
+    public static class KeyDates {
+
+        @ApiModelProperty(value = "Sentence start date.", example = "2010-02-03", required = true)
+        private LocalDate sentenceStartDate;
+        @ApiModelProperty(value = "Effective sentence end date", example = "2020-02-03")
+        private LocalDate effectiveSentenceEndDate;
+        @ApiModelProperty(value = "ADA - days added to sentence term due to adjustments.", example = "5")
+        private Integer additionalDaysAwarded;
+
+
+        @ApiModelProperty(value = "Release date for non-DTO sentence (if applicable). This will be based on one of ARD, CRD, NPD or PRRD.", example = "2020-04-01")
+        private LocalDate nonDtoReleaseDate;
+        @ApiModelProperty(value = "Indicates which type of non-DTO release date is the effective release date. One of 'ARD', 'CRD', 'NPD' or 'PRRD'.", example = "CRD", allowableValues = "ARD,CRD,NPD,PRRD", required = true)
+        private NonDtoReleaseDateType nonDtoReleaseDateType;
+        @ApiModelProperty(value = "Confirmed release date for offender.", example = "2020-04-20")
+        private LocalDate confirmedReleaseDate;
+        @ApiModelProperty(value = "Confirmed, actual, approved, provisional or calculated release date for offender, according to offender release date algorithm." +
+            "<h3>Algorithm</h3><ul><li>If there is a confirmed release date, the offender release date is the confirmed release date.</li><li>If there is no confirmed release date for the offender, the offender release date is either the actual parole date or the home detention curfew actual date.</li><li>If there is no confirmed release date, actual parole date or home detention curfew actual date for the offender, the release date is the later of the nonDtoReleaseDate or midTermDate value (if either or both are present)</li></ul>", example = "2020-04-01")
+        private LocalDate releaseDate;
+        
+        @ApiModelProperty(value = "SED - date on which sentence expires.", example = "2020-02-03")
+        private LocalDate sentenceExpiryDate;
+        @ApiModelProperty(value = "ARD - calculated automatic (unconditional) release date for offender.", example = "2020-02-03")
+        private LocalDate automaticReleaseDate;
+        @ApiModelProperty(value = "CRD - calculated conditional release date for offender.", example = "2020-02-03")
+        private LocalDate conditionalReleaseDate;
+        @ApiModelProperty(value = "NPD - calculated non-parole date for offender (relating to the 1991 act).", example = "2020-02-03")
+        private LocalDate nonParoleDate;
+        @ApiModelProperty(value = "PRRD - calculated post-recall release date for offender.", example = "2020-02-03")
+        private LocalDate postRecallReleaseDate;
+        @ApiModelProperty(value = "LED - date on which offender licence expires.", example = "2020-02-03")
+        private LocalDate licenceExpiryDate;
+        @ApiModelProperty(value = "HDCED - date on which offender will be eligible for home detention curfew.", example = "2020-02-03")
+        private LocalDate homeDetentionCurfewEligibilityDate;
+        @ApiModelProperty(value = "PED - date on which offender is eligible for parole.", example = "2020-02-03")
+        private LocalDate paroleEligibilityDate;
+        @ApiModelProperty(value = "HDCAD - the offender's actual home detention curfew date.", example = "2020-02-03")
+        private LocalDate homeDetentionCurfewActualDate;
+        @ApiModelProperty(value = "APD - the offender's actual parole date.", example = "2020-02-03")
+        private LocalDate actualParoleDate;
+        @ApiModelProperty(value = "ROTL - the date on which offender will be released on temporary licence.", example = "2020-02-03")
+        private LocalDate releaseOnTemporaryLicenceDate;
+        @ApiModelProperty(value = "ERSED - the date on which offender will be eligible for early removal (under the Early Removal Scheme for foreign nationals).", example = "2020-02-03")
+        private LocalDate earlyRemovalSchemeEligibilityDate;
+        @ApiModelProperty(value = "ETD - early term date for offender.", example = "2020-02-03")
+        private LocalDate earlyTermDate;
+        @ApiModelProperty(value = "MTD - mid term date for offender.", example = "2020-02-03")
+        private LocalDate midTermDate;
+        @ApiModelProperty(value = "LTD - late term date for offender.", example = "2020-02-03")
+        private LocalDate lateTermDate;
+        @ApiModelProperty(value = "TUSED - top-up supervision expiry date for offender.", example = "2020-02-03")
+        private LocalDate topupSupervisionExpiryDate;
+        @ApiModelProperty(value = "Date on which minimum term is reached for parole (indeterminate/life sentences).", example = "2020-02-03")
+        private LocalDate tariffDate;
+        @ApiModelProperty(value = "DPRRD - Detention training order post recall release date", example = "2020-02-03")
+        private LocalDate dtoPostRecallReleaseDate;
+        @ApiModelProperty(value = "TERSED - Tariff early removal scheme eligibility date", example = "2020-02-03")
+        private LocalDate tariffEarlyRemovalSchemeEligibilityDate;
+
+        @ApiModelProperty(value = "Top-up supervision start date for offender - calculated as licence end date + 1 day or releaseDate if licence end date not set.", example = "2019-04-01")
+        public LocalDate getTopupSupervisionStartDate() {
+            if (getTopupSupervisionExpiryDate() == null) return null;
+            if (getLicenceExpiryDate() != null) return getLicenceExpiryDate().plusDays(1);
+            return getConditionalReleaseDate();
+        }
+
+        @ApiModelProperty(value = "Offender's home detention curfew end date - calculated as one day before the releaseDate.", example = "2019-04-01")
+        public LocalDate getHomeDetentionCurfewEndDate() {
+            if (getHomeDetentionCurfewActualDate() == null) return null;
+            final var calcConditionalReleaseDate = getConditionalReleaseDate();
+            return calcConditionalReleaseDate == null ? null : calcConditionalReleaseDate.minusDays(1);
+        }
+
+        public static KeyDates transform(final OffenderBooking booking, final Optional<SentenceCalculation> sentenceCalculation) {
+                return sentenceCalculation.map(
+                        sc -> KeyDates.builder()
+                            .sentenceStartDate(booking.getSentenceStartDate().orElse(null))
+                            .effectiveSentenceEndDate(sc.getEffectiveSentenceEndDate())
+                            .additionalDaysAwarded(booking.getAdditionalDaysAwarded())
+                            .automaticReleaseDate(sc.getAutomaticReleaseDate())
+                            .conditionalReleaseDate(sc.getConditionalReleaseDate())
+                            .sentenceExpiryDate(sc.getSentenceExpiryDate())
+                            .postRecallReleaseDate(sc.getPostRecallReleaseDate())
+                            .licenceExpiryDate(sc.getLicenceExpiryDate())
+                            .homeDetentionCurfewEligibilityDate(sc.getHomeDetentionCurfewEligibilityDate())
+                            .paroleEligibilityDate(sc.getParoleEligibilityDate())
+                            .homeDetentionCurfewActualDate(sc.getHomeDetentionCurfewActualDate())
+                            .actualParoleDate(sc.getActualParoleDate())
+                            .releaseOnTemporaryLicenceDate(sc.getRotlOverridedDate())
+                            .earlyRemovalSchemeEligibilityDate(sc.getErsedOverridedDate())
+                            .tariffEarlyRemovalSchemeEligibilityDate(sc.getTersedOverridedDate())
+                            .earlyTermDate(sc.getEarlyTermDate())
+                            .midTermDate(sc.getMidTermDate())
+                            .lateTermDate(sc.getLateTermDate())
+                            .topupSupervisionExpiryDate(sc.getTopupSupervisionExpiryDate())
+                            .tariffDate(sc.getTariffDate())
+                            .dtoPostRecallReleaseDate(sc.getDtoPostRecallReleaseDate())
+                            .nonParoleDate(sc.getNonParoleDate())
+                            .nonDtoReleaseDate(sc.getNonDtoReleaseDate())
+                            .nonDtoReleaseDateType(sc.getNonDtoReleaseDateType())
+                            .releaseDate(booking.getReleaseDate(sentenceCalculation))
+                            .confirmedReleaseDate(booking.getConfirmedReleaseDate().orElse(null))
+                            .build())
+                    .orElse(
+                        KeyDates.builder()
+                            .sentenceStartDate(booking.getSentenceStartDate().orElse(null))
+                            .additionalDaysAwarded(booking.getAdditionalDaysAwarded())
+                            .releaseDate(booking.getReleaseDate(sentenceCalculation))
+                            .confirmedReleaseDate(booking.getConfirmedReleaseDate().orElse(null))
+                            .build());
+            }
+
+    }
+
 }

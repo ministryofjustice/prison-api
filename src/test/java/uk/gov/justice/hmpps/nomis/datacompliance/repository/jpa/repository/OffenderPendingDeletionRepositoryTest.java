@@ -5,11 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
-import uk.gov.justice.hmpps.nomis.datacompliance.repository.jpa.model.OffenderPendingDeletion;
 import uk.gov.justice.hmpps.prison.PrisonApiServer;
 import uk.gov.justice.hmpps.prison.RepositoryConfiguration;
 
@@ -31,30 +29,6 @@ class OffenderPendingDeletionRepositoryTest {
 
     @Autowired
     private OffenderPendingDeletionRepository repository;
-
-    @Test
-    void getOffendersDueForDeletionWithPaging() {
-
-        var offenders = repository.getOffendersDueForDeletionBetween(
-                DELETION_DUE_DATE,
-                DELETION_DUE_DATE.plusDays(1),
-                PAGE_REQUEST);
-
-        assertThat(offenders).hasSize(1);
-        assertThat(offenders).extracting(OffenderPendingDeletion::getOffenderNumber).containsOnly("Z0020ZZ");
-    }
-
-    @Test
-    void getOffendersDueForDeletionUnpaged() {
-
-        var offenders = repository.getOffendersDueForDeletionBetween(
-                DELETION_DUE_DATE,
-                DELETION_DUE_DATE.plusDays(1),
-                Pageable.unpaged());
-
-        assertThat(offenders).hasSize(1);
-        assertThat(offenders).extracting(OffenderPendingDeletion::getOffenderNumber).containsOnly("Z0020ZZ");
-    }
 
     @Test
     void getOffendersDueForDeletionUsesToDateExclusively() {
@@ -103,15 +77,6 @@ class OffenderPendingDeletionRepositoryTest {
                 DELETION_DUE_DATE,
                 DELETION_DUE_DATE.plusDays(1),
                 PAGE_REQUEST)).isEmpty();
-    }
-
-    @Test
-    void findOffenderPendingDeletion() {
-
-        var offenders = repository.findOffenderPendingDeletion("Z0020ZZ", DELETION_DUE_DATE.plusDays(1));
-
-        assertThat(offenders).isPresent();
-        assertThat(offenders.get().getOffenderNumber()).isEqualTo("Z0020ZZ");
     }
 
     @Test
