@@ -66,6 +66,13 @@ public class ExternalMovement extends AuditableEntity {
     @Column(name = "MOVEMENT_TIME")
     private LocalDateTime movementTime;
 
+    //It will be COURT_EVENTS ID or OFFENDER_IND_SCHEDULES ID
+    @Column(name = "EVENT_ID")
+    private Long eventId;
+
+    @Column(name = "PARENT_EVENT_ID")
+    private Long parentEventId;
+
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "ARREST_AGENCY_LOC_ID")
     private AgencyLocation arrestAgencyLocation;
