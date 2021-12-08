@@ -801,7 +801,7 @@ public class PrisonerReleaseAndTransferService {
             return lm;
         }).orElseThrow(EntityNotFoundException.withMessage("No movements found"));
 
-        if (!requestForCourtTransferIn.getAgencyId().equals(latestExternalMovement.getToAgency().getId())) {
+        if (!requestForCourtTransferIn.getAgencyId().equals(latestExternalMovement.getFromAgency().getId())) {
             throw new BadRequestException("Prisoner is not returning to the same prison");
         }
 
