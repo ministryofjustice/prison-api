@@ -34,10 +34,18 @@ public class AttendanceRepositoryTest {
             LocalDate.now(), PageRequest.of(1, 4, Direction.ASC, "eventId"));
 
         assertThat(activities.getTotalElements()).isEqualTo(7);
-        assertThat(activities.getContent()).asList().extracting("eventId", "eventDate", "eventOutcome").containsExactly(
-            Tuple.tuple(-13L, LocalDate.of(2017, 9, 13), "UNACAB"),
-            Tuple.tuple(-12L, LocalDate.now(), null),
-            Tuple.tuple(-11L, LocalDate.now(), null)
+        assertThat(activities.getContent()).asList().extracting("eventId",
+            "eventDate",
+            "eventOutcome",
+            "courseActivity.activityId",
+            "courseActivity.description",
+            "courseActivity.code",
+            "courseActivity.scheduleStartDate",
+            "offenderBooking.bookingId",
+            "programService.programId").contains(
+            Tuple.tuple(-13L, LocalDate.of(2017, 9, 13), "UNACAB", -1L, "Chapel Cleaner", "CC1", LocalDate.of(2016, 8, 8), -2L, null),
+            Tuple.tuple(-12L, LocalDate.now(), null, -3L, "Substance misuse course", "SUBS", LocalDate.of(2011, 01, 04), -2L, null),
+            Tuple.tuple(-11L, LocalDate.now(), null, -2L, "Woodwork", "WOOD", LocalDate.of(2012, 02, 28), -2L, null)
         );
     }
 }
