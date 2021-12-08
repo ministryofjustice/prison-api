@@ -52,7 +52,7 @@ public class PrisonerReleaseAndTransferServiceTest {
         config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
     public void scheduledPrisonerReturnFromCourt() {
         RequestForCourtTransferIn requestForCourtTransferIn = new RequestForCourtTransferIn();
-        requestForCourtTransferIn.setAgencyId("ABDRCT");
+        requestForCourtTransferIn.setAgencyId("BXI");
         InmateDetail inmateDetail = prisonerReleaseAndTransferService.courtTransferIn(OFFENDER_NO, requestForCourtTransferIn);
         TestTransaction.flagForCommit();
         TestTransaction.end();
@@ -84,7 +84,7 @@ public class PrisonerReleaseAndTransferServiceTest {
         config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
     public void unscheduledPrisonerReturnFromCourt() {
         RequestForCourtTransferIn requestForCourtTransferIn = new RequestForCourtTransferIn();
-        requestForCourtTransferIn.setAgencyId("ABDRCT");
+        requestForCourtTransferIn.setAgencyId("BXI");
         InmateDetail inmateDetail = prisonerReleaseAndTransferService.courtTransferIn(OFFENDER_NO, requestForCourtTransferIn);
         TestTransaction.flagForCommit();
         TestTransaction.end();
