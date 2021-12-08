@@ -9,14 +9,13 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Attendance;
 import java.time.LocalDate;
 
 public interface AttendanceRepository extends CrudRepository<Attendance, Long> {
-    @Query(
-        value = """
-            SELECT ATT
-            FROM Attendance ATT
-                INNER JOIN ATT.offenderBooking booking
-                INNER JOIN booking.offender offender
-            WHERE offender.nomsId = :nomsId
-                AND ATT.eventDate between :earliestDate and :latestDate"""
-    )
-    Page<Attendance> findByEventDateBetween(final String nomsId, final LocalDate earliestDate, final LocalDate latestDate, final Pageable pageable);
+    @Query(value = """
+        SELECT attendance
+        FROM Attendance attendance
+            INNER JOIN attendance.offenderBooking booking
+            INNER JOIN booking.offender offender
+        WHERE offender.nomsId = :nomsId
+            AND attendance.eventDate between :earliestDate and :latestDate
+            AND (:outcome is null OR attendance.eventOutcome = :outcome)""")
+    Page<Attendance> findByEventDateBetweenAndOutcome(final String nomsId, final LocalDate earliestDate, final LocalDate latestDate, final String outcome, final Pageable pageable);
 }

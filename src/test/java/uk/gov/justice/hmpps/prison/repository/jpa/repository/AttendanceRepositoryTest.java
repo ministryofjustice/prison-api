@@ -29,9 +29,9 @@ public class AttendanceRepositoryTest {
     private AttendanceRepository repository;
 
     @Test
-    void getActivitiesByBookingIdAndProgramStatus() {
-        final var activities = repository.findByEventDateBetween("A1234AB", LocalDate.of(2010, 1, 1),
-            LocalDate.now(), PageRequest.of(1, 4, Direction.ASC, "eventId"));
+    void getAttendanceByDate() {
+        final var activities = repository.findByEventDateBetweenAndOutcome("A1234AB", LocalDate.of(2010, 1, 1),
+            LocalDate.now(), null, PageRequest.of(1, 4, Direction.ASC, "eventId"));
 
         assertThat(activities.getTotalElements()).isEqualTo(7);
         assertThat(activities.getContent()).asList().extracting("eventId",
@@ -42,10 +42,31 @@ public class AttendanceRepositoryTest {
             "courseActivity.code",
             "courseActivity.scheduleStartDate",
             "offenderBooking.bookingId",
-            "programService.programId").contains(
-            Tuple.tuple(-13L, LocalDate.of(2017, 9, 13), "UNACAB", -1L, "Chapel Cleaner", "CC1", LocalDate.of(2016, 8, 8), -2L, null),
-            Tuple.tuple(-12L, LocalDate.now(), null, -3L, "Substance misuse course", "SUBS", LocalDate.of(2011, 01, 04), -2L, null),
-            Tuple.tuple(-11L, LocalDate.now(), null, -2L, "Woodwork", "WOOD", LocalDate.of(2012, 02, 28), -2L, null)
+            "programService.activity",
+            "comment").contains(
+            Tuple.tuple(-13L, LocalDate.of(2017, 9, 13), "UNACAB", -1L, "Chapel Cleaner", "CC1", LocalDate.of(2016, 8, 8), -2L, null, null),
+            Tuple.tuple(-12L, LocalDate.now(), null, -3L, "Substance misuse course", "SUBS", LocalDate.of(2011, 01, 04), -2L, null, "Comment 12"),
+            Tuple.tuple(-11L, LocalDate.now(), null, -2L, "Woodwork", "WOOD", LocalDate.of(2012, 02, 28), -2L, "Test Prog 2", null)
+        );
+    }
+
+    @Test
+    void getAttendanceByDateAndOutcome() {
+        final var activities = repository.findByEventDateBetweenAndOutcome("A1234AB", LocalDate.of(2010, 1, 1),
+            LocalDate.now(), "UNACAB", PageRequest.of(0, 4, Direction.ASC, "eventId"));
+
+        assertThat(activities.getTotalElements()).isEqualTo(1);
+        assertThat(activities.getContent()).asList().extracting("eventId",
+            "eventDate",
+            "eventOutcome",
+            "courseActivity.activityId",
+            "courseActivity.description",
+            "courseActivity.code",
+            "courseActivity.scheduleStartDate",
+            "offenderBooking.bookingId",
+            "programService.activity",
+            "comment").contains(
+            Tuple.tuple(-13L, LocalDate.of(2017, 9, 13), "UNACAB", -1L, "Chapel Cleaner", "CC1", LocalDate.of(2016, 8, 8), -2L, null, null)
         );
     }
 }

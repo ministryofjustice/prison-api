@@ -15,11 +15,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class OffenderActivitiesResourceTest extends ResourceTest {
 
+    final String today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+
     @Autowired
     JdbcTemplate jdbcTemplate;
 
     @Nested
-    class GetActivitiesHistory {
+    class GetActivitiesHistoryTest {
         @Test
         public void successfulRequest_returnsCorrectData() {
             final var entity = createHttpEntity(validToken(), null);
@@ -71,11 +73,23 @@ public class OffenderActivitiesResourceTest extends ResourceTest {
     }
 
     @Nested
-    class GetHistoricalAttendances {
+    class GetHistoricalAttendancesTest {
         @Test
-        public void successfulRequest_returnsCorrectData() {
+        public void successfulRequest_returnsCorrectDataPage_0() {
             final var entity = createHttpEntity(validToken(), null);
-            final var today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+
+            final var response = testRestTemplate.exchange(
+                "/api/offender-activities/A1234AB/attendance-history?fromDate=2017-01-01&toDate=" + today + "&page=0&size=2&sort=eventId,desc",
+                HttpMethod.GET,
+                entity,
+                String.class);
+
+            assertThatJsonFileAndStatus(response, HttpStatus.OK.value(), "offender-attendence-history-0.json");
+        }
+
+        @Test
+        public void successfulRequest_returnsCorrectDataPage_1() {
+            final var entity = createHttpEntity(validToken(), null);
 
             final var response = testRestTemplate.exchange(
                 "/api/offender-activities/A1234AB/attendance-history?fromDate=2017-01-01&toDate=" + today + "&page=1&size=2&sort=eventId,desc",
@@ -83,17 +97,24 @@ public class OffenderActivitiesResourceTest extends ResourceTest {
                 entity,
                 String.class);
 
-            var eventDate = LocalDate.of(2017,9,13).format(DateTimeFormatter.ISO_LOCAL_DATE);
-            assertThatJson(response.getBody()).node("content[0].eventDate").isEqualTo(eventDate);
-            assertThatJson(response.getBody()).node("content[0].description").asString().contains("Chapel Cleaner");
-            assertThatJson(response.getBody()).node("content[0].outcome").asString().contains("UNACAB");
+            assertThatJsonFileAndStatus(response, HttpStatus.OK.value(), "offender-attendence-history-1.json");
+        }
 
-            eventDate = LocalDate.of(2017,9,14).format(DateTimeFormatter.ISO_LOCAL_DATE);
-            assertThatJson(response.getBody()).node("content[1].eventDate").isEqualTo(eventDate);
-            assertThatJson(response.getBody()).node("content[1].description").asString().contains("Woodwork");
-            assertThatJson(response.getBody()).node("content[1].outcome").asString().contains("ACCABS");
+        @Test
+        public void successfulRequest_returnsCorrectData_Outcome() {
+            final var entity = createHttpEntity(validToken(), null);
 
-            assertThatJsonFileAndStatus(response, HttpStatus.OK.value(), "offender-attendence-history.json");
+            final var response = testRestTemplate.exchange(
+                "/api/offender-activities/A1234AB/attendance-history?fromDate=2017-01-01&toDate=" + today + "&outcome=UNACAB&page=0&size=10&sort=eventId,desc",
+                HttpMethod.GET,
+                entity,
+                String.class);
+
+            assertThatStatus(response, HttpStatus.OK.value());
+            final var jsonContent = getBodyAsJsonContent(response);
+            assertThat(jsonContent).extractingJsonPathArrayValue("$.content").hasSize(1);
+            assertThat(jsonContent).extractingJsonPathStringValue("$.content[0].eventDate").isEqualTo("2017-09-13");
+            assertThat(jsonContent).extractingJsonPathStringValue("$.content[0].outcome").isEqualTo("UNACAB");
         }
 
         @Test

@@ -28,7 +28,7 @@ public class OffenderAttendance {
     @ApiModelProperty(value = "The date of this activity")
     private LocalDate eventDate;
 
-    @ApiModelProperty(value = "Whether the offender attended", example = "ATT, CANC, ACCAB, UNACAB")
+    @ApiModelProperty(value = "Whether the offender attended", allowableValues = "ABS,ACCAB,ATT,CANC,NREQ,SUS,UNACAB,REST")
     private String outcome;
 
     @ApiModelProperty(value = "The course code")
@@ -42,4 +42,7 @@ public class OffenderAttendance {
 
     @ApiModelProperty(value = "Activity name")
     private String activity;
+
+    @ApiModelProperty(value = "Attendance comment")
+    private String comment;
 }

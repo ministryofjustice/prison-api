@@ -47,4 +47,7 @@ public class Attendance extends AuditableEntity {
 
     @Column(name = "EVENT_OUTCOME")
     private String eventOutcome;
+
+    @Column(name = "COMMENT_TEXT")
+    private String comment;
 }

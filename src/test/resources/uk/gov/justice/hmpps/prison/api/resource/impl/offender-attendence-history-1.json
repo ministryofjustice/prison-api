@@ -1,12 +1,18 @@
 {
   "content": [
     {
+      "bookingId": -2,
       "eventDate": "2017-09-13",
-      "outcome": "UNACAB"
+      "outcome": "UNACAB",
+      "code": "CC1",
+      "description": "Chapel Cleaner"
     },
     {
+      "bookingId": -2,
       "eventDate": "2017-09-14",
-      "outcome": "ACCABS"
+      "outcome": "ACCABS",
+      "code": "WOOD",
+      "description": "Woodwork"
     }
   ],
   "pageable": {
