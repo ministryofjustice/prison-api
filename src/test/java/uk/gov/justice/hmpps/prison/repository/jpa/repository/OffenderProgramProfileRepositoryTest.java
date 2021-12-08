@@ -48,6 +48,7 @@ public class OffenderProgramProfileRepositoryTest {
                         .activityId(-2L)
                         .description("Woodwork")
                         .code("WOOD")
+                        .prisonId("LEI")
                         .scheduleStartDate(LocalDate.of(2012, 2, 28))
                         .build())
                     .build(),
@@ -59,6 +60,7 @@ public class OffenderProgramProfileRepositoryTest {
                         .activityId(-5L)
                         .description("Weeding")
                         .code("FG1")
+                        .prisonId("LEI")
                         .scheduleStartDate(LocalDate.of(2009, 7, 4))
                         .build())
                     .build(),
@@ -70,6 +72,7 @@ public class OffenderProgramProfileRepositoryTest {
                         .activityId(-6L)
                         .description("Address Testing")
                         .code("ABS")
+                        .prisonId("LEI")
                         .scheduleStartDate(LocalDate.of(2009, 7, 4))
                         .build())
                     .build(),
@@ -81,6 +84,7 @@ public class OffenderProgramProfileRepositoryTest {
                         .activityId(-3L)
                         .description("Substance misuse course")
                         .code("SUBS")
+                        .prisonId("LEI")
                         .scheduleStartDate(LocalDate.of(2011, 1, 4))
                         .build())
                     .endReason(new OffenderProgramEndReason("SECDEC", "Security"))
@@ -122,6 +126,7 @@ public class OffenderProgramProfileRepositoryTest {
                         .activityId(-2L)
                         .description("Woodwork")
                         .code("WOOD")
+                        .prisonId("LEI")
                         .scheduleStartDate(LocalDate.of(2012, 2, 28))
                         .build())
                     .build(),
@@ -133,6 +138,7 @@ public class OffenderProgramProfileRepositoryTest {
                         .activityId(-5L)
                         .description("Weeding")
                         .code("FG1")
+                        .prisonId("LEI")
                         .scheduleStartDate(LocalDate.of(2009, 7, 4))
                         .build())
                     .build(),
@@ -144,6 +150,7 @@ public class OffenderProgramProfileRepositoryTest {
                         .activityId(-6L)
                         .description("Address Testing")
                         .code("ABS")
+                        .prisonId("LEI")
                         .scheduleStartDate(LocalDate.of(2009, 7, 4))
                         .build())
                     .build(),
@@ -155,6 +162,7 @@ public class OffenderProgramProfileRepositoryTest {
                         .activityId(-3L)
                         .description("Substance misuse course")
                         .code("SUBS")
+                        .prisonId("LEI")
                         .scheduleStartDate(LocalDate.of(2011, 1, 4))
                         .build())
                     .endReason(new OffenderProgramEndReason("SECDEC", "Security"))
@@ -169,6 +177,7 @@ public class OffenderProgramProfileRepositoryTest {
                         .activityId(-4L)
                         .description("Core classes")
                         .code("CORE")
+                        .prisonId("LEI")
                         .scheduleStartDate(LocalDate.of(2009, 7, 4))
                         .build())
                     .endReason(new OffenderProgramEndReason("TRF", "Transferred Out"))
@@ -201,6 +210,7 @@ public class OffenderProgramProfileRepositoryTest {
                         .activityId(-1L)
                         .description("Chapel Cleaner")
                         .code("CC1")
+                        .prisonId("LEI")
                         .scheduleStartDate(LocalDate.of(2016, 8, 8))
                         .build())
                     .build(),
@@ -212,6 +222,7 @@ public class OffenderProgramProfileRepositoryTest {
                         .activityId(-3001L)
                         .description("Gym session 1")
                         .code("ABS")
+                        .prisonId("BXI")
                         .scheduleStartDate(LocalDate.of(2009, 7, 4))
                         .build())
                     .build()
