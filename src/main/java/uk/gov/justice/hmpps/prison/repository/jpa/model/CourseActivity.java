@@ -24,6 +24,9 @@ public class CourseActivity extends AuditableEntity {
     @Column(name = "CRS_ACTY_ID")
     private Long activityId;
 
+    @Column(name = "AGY_LOC_ID")
+    private String prisonId;
+
     @Column(name = "DESCRIPTION")
     private String description;
 

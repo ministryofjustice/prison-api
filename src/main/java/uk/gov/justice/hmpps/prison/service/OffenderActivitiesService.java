@@ -52,8 +52,9 @@ public class OffenderActivitiesService {
             .build();
     }
 
-    public Page<OffenderAttendance> getHistoricalAttendancies(final String offenderNo, final LocalDate earliestDate, final LocalDate latestDate, final Pageable pageable) {
-        return attendanceRepository.findByEventDateBetween(offenderNo, earliestDate, latestDate, pageable).map(this::transformAttendance);
+    public Page<OffenderAttendance> getHistoricalAttendancies(final String offenderNo, final LocalDate earliestDate, final LocalDate latestDate,
+                                                              final String outcome, final Pageable pageable) {
+        return attendanceRepository.findByEventDateBetweenAndOutcome(offenderNo, earliestDate, latestDate, outcome, pageable).map(this::transformAttendance);
     }
 
     private OffenderAttendance transformAttendance(final Attendance attendance) {
@@ -61,9 +62,11 @@ public class OffenderActivitiesService {
             .eventDate(attendance.getEventDate())
             .outcome(attendance.getEventOutcome())
             .description(attendance.getCourseActivity().getDescription())
+            .prisonId(attendance.getCourseActivity().getPrisonId())
             .activity(attendance.getProgramService() == null? null : attendance.getProgramService().getActivity())
             .code(attendance.getCourseActivity().getCode())
             .bookingId(attendance.getOffenderBooking().getBookingId())
+            .comment(attendance.getComment())
             .build();
     }
 }

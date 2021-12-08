@@ -36,7 +36,7 @@ public class OffenderActivitiesResource {
 
     @ApiResponses({
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "The activities that this offender has been allocated to. Requires SYSTEM_USER role", notes = "This includes suspended activities", nickname = "getRecentStartedActivities")
+    @ApiOperation(value = "The activities that this offender has been allocated to.", notes = "This includes suspended activities", nickname = "getRecentStartedActivities")
     @GetMapping("/{offenderNo}/activities-history")
     public Page<OffenderActivitySummary> getRecentStartedActivities(@PathVariable("offenderNo") @ApiParam(value = "The offenderNo of the prisoner", required = true) final String offenderNo,
                                                                     @RequestParam(value = "earliestEndDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam(value = "Only include activities that have not ended or have an end date after the given date", example = "1970-01-02") final LocalDate earliestEndDate,
@@ -47,13 +47,14 @@ public class OffenderActivitiesResource {
 
     @ApiResponses({
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "The activities that this offender attended over a time period. Requires SYSTEM_USER role", nickname = "getHistoricalAttendances")
+    @ApiOperation(value = "The activities that this offender attended over a time period.", nickname = "getHistoricalAttendances")
     @GetMapping("/{offenderNo}/attendance-history")
     public Page<OffenderAttendance> getHistoricalAttendances(@PathVariable("offenderNo") @ApiParam(value = "The offenderNo of the prisoner", required = true) final String offenderNo,
                                                              @RequestParam(value = "fromDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam(value = "Only include attendences on or after this date", example = "2021-01-02", required = true) final LocalDate earliestActivityDate,
                                                              @RequestParam(value = "toDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam(value = "Only include attendences on or before this date", example = "2021-05-27", required = true) final LocalDate latestActivityDate,
+                                                             @RequestParam(value = "outcome", required = false) @ApiParam(value = "Only include attendences which have this outcome (default all)", allowableValues = "ABS,ACCAB,ATT,CANC,NREQ,SUS,UNACAB,REST") final String outcome,
                                                              @PageableDefault(page = 0, size = 20) final Pageable pageable
     ) {
-        return activitiesService.getHistoricalAttendancies(offenderNo, earliestActivityDate, latestActivityDate, pageable);
+        return activitiesService.getHistoricalAttendancies(offenderNo, earliestActivityDate, latestActivityDate, outcome, pageable);
     }
 }
