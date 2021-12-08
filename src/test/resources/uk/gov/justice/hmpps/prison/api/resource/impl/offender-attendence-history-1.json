@@ -5,14 +5,16 @@
       "eventDate": "2017-09-13",
       "outcome": "UNACAB",
       "code": "CC1",
-      "description": "Chapel Cleaner"
+      "description": "Chapel Cleaner",
+      "prisonId": "LEI"
     },
     {
       "bookingId": -2,
       "eventDate": "2017-09-14",
       "outcome": "ACCABS",
       "code": "WOOD",
-      "description": "Woodwork"
+      "description": "Woodwork",
+      "prisonId": "LEI"
     }
   ],
   "pageable": {

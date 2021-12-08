@@ -5,14 +5,16 @@
       "eventDate": "2021-12-08",
       "code": "WOOD",
       "description": "Woodwork",
-      "activity": "Test Prog 2"
+      "activity": "Test Prog 2",
+      "prisonId": "LEI"
     },
     {
       "bookingId": -2,
       "eventDate": "2021-12-08",
       "code": "SUBS",
       "description": "Substance misuse course",
-      "comment": "Comment 12"
+      "comment": "Comment 12",
+      "prisonId": "LEI"
     }
   ],
   "pageable": {

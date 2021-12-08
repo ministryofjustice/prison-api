@@ -40,13 +40,14 @@ public class AttendanceRepositoryTest {
             "courseActivity.activityId",
             "courseActivity.description",
             "courseActivity.code",
+            "courseActivity.prisonId",
             "courseActivity.scheduleStartDate",
             "offenderBooking.bookingId",
             "programService.activity",
             "comment").contains(
-            Tuple.tuple(-13L, LocalDate.of(2017, 9, 13), "UNACAB", -1L, "Chapel Cleaner", "CC1", LocalDate.of(2016, 8, 8), -2L, null, null),
-            Tuple.tuple(-12L, LocalDate.now(), null, -3L, "Substance misuse course", "SUBS", LocalDate.of(2011, 01, 04), -2L, null, "Comment 12"),
-            Tuple.tuple(-11L, LocalDate.now(), null, -2L, "Woodwork", "WOOD", LocalDate.of(2012, 02, 28), -2L, "Test Prog 2", null)
+            Tuple.tuple(-13L, LocalDate.of(2017, 9, 13), "UNACAB", -1L, "Chapel Cleaner", "CC1", "LEI", LocalDate.of(2016, 8, 8), -2L, null, null),
+            Tuple.tuple(-12L, LocalDate.now(), null, -3L, "Substance misuse course", "SUBS", "LEI", LocalDate.of(2011, 01, 04), -2L, null, "Comment 12"),
+            Tuple.tuple(-11L, LocalDate.now(), null, -2L, "Woodwork", "WOOD", "LEI", LocalDate.of(2012, 02, 28), -2L, "Test Prog 2", null)
         );
     }
 
@@ -62,11 +63,12 @@ public class AttendanceRepositoryTest {
             "courseActivity.activityId",
             "courseActivity.description",
             "courseActivity.code",
+            "courseActivity.prisonId",
             "courseActivity.scheduleStartDate",
             "offenderBooking.bookingId",
             "programService.activity",
             "comment").contains(
-            Tuple.tuple(-13L, LocalDate.of(2017, 9, 13), "UNACAB", -1L, "Chapel Cleaner", "CC1", LocalDate.of(2016, 8, 8), -2L, null, null)
+            Tuple.tuple(-13L, LocalDate.of(2017, 9, 13), "UNACAB", -1L, "Chapel Cleaner", "CC1", "LEI", LocalDate.of(2016, 8, 8), -2L, null, null)
         );
     }
 }

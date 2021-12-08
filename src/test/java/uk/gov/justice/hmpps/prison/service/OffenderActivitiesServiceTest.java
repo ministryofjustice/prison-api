@@ -10,7 +10,13 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import uk.gov.justice.hmpps.prison.api.model.OffenderActivitySummary;
 import uk.gov.justice.hmpps.prison.api.model.OffenderAttendance;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.*;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Attendance;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CourseActivity;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramEndReason;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramProfile;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ProgramService;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AttendanceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProgramProfileRepository;
 
@@ -143,17 +149,13 @@ public class OffenderActivitiesServiceTest {
                 builder()
                 .bookingId(100L)
                 .active(true)
-                .location(AgencyLocation.builder()
-                    .id("LEI")
-                    .build())
+                .location(AgencyLocation.builder().id("LEI").build())
                 .build();
             final var offenderBooking2 = OffenderBooking
                 .builder()
                 .bookingId(200L)
                 .active(true)
-                .location(AgencyLocation.builder()
-                    .id("LEI")
-                    .build())
+                .location(AgencyLocation.builder().id("LEI").build())
                 .build();
 
             final var courseActivity1 = CourseActivity
@@ -162,6 +164,7 @@ public class OffenderActivitiesServiceTest {
                 .code("CC1")
                 .description("Test Description 1")
                 .scheduleStartDate(LocalDate.of(2012, 2, 20))
+                .prisonId("MDI")
                 .build();
             final var courseActivity2 = CourseActivity
                 .builder()
@@ -169,6 +172,7 @@ public class OffenderActivitiesServiceTest {
                 .code("WOOD")
                 .description("Test Description 2")
                 .scheduleStartDate(LocalDate.of(2012, 2, 28))
+                .prisonId("WWI")
                 .build();
 
             final var programService1 = ProgramService
@@ -198,6 +202,7 @@ public class OffenderActivitiesServiceTest {
                     .activity(programService1.getActivity())
                     .description(courseActivity1.getDescription())
                     .code(courseActivity1.getCode())
+                    .prisonId("MDI")
                     .bookingId(offenderBooking1.getBookingId())
                     .comment("comment1")
                     .build(),
@@ -208,6 +213,7 @@ public class OffenderActivitiesServiceTest {
                     .activity(programService2.getActivity())
                     .description(courseActivity2.getDescription())
                     .code(courseActivity2.getCode())
+                    .prisonId("WWI")
                     .bookingId(offenderBooking2.getBookingId())
                     .comment("comment2")
                     .build()
