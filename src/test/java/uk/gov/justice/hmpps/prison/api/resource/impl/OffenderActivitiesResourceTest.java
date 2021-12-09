@@ -84,7 +84,53 @@ public class OffenderActivitiesResourceTest extends ResourceTest {
                 entity,
                 String.class);
 
-            assertThatJsonFileAndStatus(response, HttpStatus.OK.value(), "offender-attendence-history-0.json");
+            // Use string rather than file as it needs to contain todays date
+            assertThatJsonFileAndStatus(response, HttpStatus.OK.value(), """
+                {
+                "content": [
+                  {
+                    "bookingId": -2,
+                    "eventDate": "%s",
+                    "code": "WOOD",
+                    "description": "Woodwork",
+                    "activity": "Test Prog 2",
+                    "prisonId": "LEI"
+                  },
+                  {
+                    "bookingId": -2,
+                    "eventDate": "%s",
+                    "code": "SUBS",
+                    "description": "Substance misuse course",
+                    "comment": "Comment 12",
+                    "prisonId": "LEI"
+                  }
+                ],
+                "pageable": {
+                  "sort": {
+                    "empty": false,
+                    "sorted": true,
+                    "unsorted": false
+                  },
+                  "offset": 0,
+                  "pageNumber": 0,
+                  "pageSize": 2,
+                  "unpaged": false,
+                  "paged": true
+                },
+                "last": false,
+                "totalPages": 4,
+                "totalElements": 7,
+                "size": 2,
+                "number": 0,
+                "sort": {
+                  "empty": false,
+                  "sorted": true,
+                  "unsorted": false
+                },
+                "first": true,
+                "numberOfElements": 2,
+                "empty": false
+              }""".formatted(today, today));
         }
 
         @Test
@@ -97,7 +143,52 @@ public class OffenderActivitiesResourceTest extends ResourceTest {
                 entity,
                 String.class);
 
-            assertThatJsonFileAndStatus(response, HttpStatus.OK.value(), "offender-attendence-history-1.json");
+            assertThatJsonFileAndStatus(response, HttpStatus.OK.value(), """
+                {
+                  "content": [
+                    {
+                      "bookingId": -2,
+                      "eventDate": "2017-09-13",
+                      "outcome": "UNACAB",
+                      "code": "CC1",
+                      "description": "Chapel Cleaner",
+                      "prisonId": "LEI"
+                    },
+                    {
+                      "bookingId": -2,
+                      "eventDate": "2017-09-14",
+                      "outcome": "ACCABS",
+                      "code": "WOOD",
+                      "description": "Woodwork",
+                      "prisonId": "LEI"
+                    }
+                  ],
+                  "pageable": {
+                    "sort": {
+                      "empty": false,
+                      "sorted": true,
+                      "unsorted": false
+                    },
+                    "offset": 2,
+                    "pageNumber": 1,
+                    "pageSize": 2,
+                    "paged": true,
+                    "unpaged": false
+                  },
+                  "last": false,
+                  "totalElements": 7,
+                  "totalPages": 4,
+                  "size": 2,
+                  "number": 1,
+                  "sort": {
+                    "empty": false,
+                    "sorted": true,
+                    "unsorted": false
+                  },
+                  "first": false,
+                  "numberOfElements": 2,
+                  "empty": false
+                }""");
         }
 
         @Test
