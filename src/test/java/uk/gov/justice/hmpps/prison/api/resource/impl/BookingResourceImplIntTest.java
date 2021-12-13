@@ -201,6 +201,20 @@ public class BookingResourceImplIntTest extends ResourceTest {
     }
 
     @Test
+    public void getVisitBalances_no_iep_adjustments() {
+        final var offenderNo = "A1234AB";
+
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
+
+        final var response = testRestTemplate.exchange("/api/bookings/offenderNo/" + offenderNo + "/visit/balances", HttpMethod.GET, requestEntity, String.class);
+
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.remainingVo").isEqualTo(10);
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.remainingPvo").isEqualTo(1);
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathValue("$.latestPrivilegeIepAdjustmentDate").isNull();
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathValue("$.latestIepAdjustmentDate").isNull();
+    }
+
+    @Test
     public void getVisitBalances_invalidBookingId() {
 
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());

@@ -366,7 +366,7 @@ public class BookingServiceTest {
     @Test
     public void getBookingVisitBalances() {
         final var bookingId = -1L;
-        when(bookingRepository.getBookingVisitBalances(bookingId)).thenReturn(Optional.of(new VisitBalances(25, 2)));
+        when(bookingRepository.getBookingVisitBalances(bookingId)).thenReturn(Optional.of(new VisitBalances(25, 2, LocalDate.now(), LocalDate.now())));
 
         bookingService.getBookingVisitBalances(bookingId);
 

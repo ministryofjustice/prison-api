@@ -168,7 +168,7 @@ public class BookingRepositoryTest {
     public void findBalancesForVisitOrdersAndPrivilageVisitOrders() {
         final var visitBalances = repository.getBookingVisitBalances(-1L);
 
-        assertThat(visitBalances).get().isEqualToIgnoringGivenFields(new VisitBalances(25, 2));
+        assertThat(visitBalances).get().isEqualToIgnoringGivenFields(new VisitBalances(25, 2, LocalDate.now(), LocalDate.now()));
     }
 
     @Test
