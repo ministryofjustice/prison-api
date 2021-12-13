@@ -398,7 +398,7 @@ public class BookingRepository extends RepositoryBase {
 
     public Optional<VisitBalances> getBookingVisitBalances(final Long bookingId) {
         Objects.requireNonNull(bookingId, "bookingIds is a required parameter");
-        final var sql = BookingRepositorySql.FIND_REMAINING_VO_PVO.getSql();
+        final var sql = BookingRepositorySql.FIND_VO_PVO_BALANCE_DETAILS.getSql();
 
         VisitBalances visitBalances;
         try {

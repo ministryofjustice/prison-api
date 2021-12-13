@@ -680,11 +680,19 @@ enum class BookingRepositorySql(val sql: String) {
     """
   ),
 
-  FIND_REMAINING_VO_PVO(
+  FIND_VO_PVO_BALANCE_DETAILS(
     """
-        SELECT ovb.remaining_vo, ovb.remaining_pvo
-        FROM offender_visit_balances ovb
-        WHERE ovb.offender_book_id = :bookingId
+        SELECT OVB.REMAINING_VO, 
+        OVB.REMAINING_PVO,
+        (SELECT MAX(ADJUST_DATE) FROM OFFENDER_VISIT_BALANCE_ADJS 
+          WHERE OFFENDER_BOOK_ID = :bookingId 
+          AND ADJUST_REASON_CODE = 'IEP') AS LATEST_IEP_ADJUSTMENT_DATE, 
+        (SELECT MAX(ADJUST_DATE) FROM OFFENDER_VISIT_BALANCE_ADJS
+          WHERE OFFENDER_BOOK_ID = :bookingId 
+          AND ADJUST_REASON_CODE = 'PVO_IEP') AS LATEST_PRIVILEGE_IEP_ADJUSTMENT_DATE
+         
+        FROM OFFENDER_VISIT_BALANCES OVB
+        WHERE OVB.OFFENDER_BOOK_ID = :bookingId
     """
   ),
 
