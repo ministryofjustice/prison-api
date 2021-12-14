@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
@@ -28,6 +29,7 @@ import java.time.LocalDate;
 @Table(name = "OFFENCES")
 @ToString
 @IdClass(Offence.PK.class)
+@BatchSize(size = 25)
 public class Offence {
 
     @NoArgsConstructor

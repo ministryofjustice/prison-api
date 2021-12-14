@@ -9,21 +9,22 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class OffenderActivitiesResourceTest extends ResourceTest {
 
+    final String today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+
     @Autowired
     JdbcTemplate jdbcTemplate;
 
     @Nested
-    class GetActivitiesHistory {
+    class GetActivitiesHistoryTest {
         @Test
         public void successfulRequest_returnsCorrectData() {
-            final var entity = createHttpEntity(validToken(List.of("ROLE_SYSTEM_USER")), null);
+            final var entity = createHttpEntity(validToken(), null);
 
             final var response = testRestTemplate.exchange(
                 "/api/offender-activities/A1234AC/activities-history?earliestEndDate=2021-01-01",
@@ -40,7 +41,7 @@ public class OffenderActivitiesResourceTest extends ResourceTest {
 
         @Test
         public void badRequest_NoEndDateParameter() {
-            final var entity = createHttpEntity(validToken(List.of("ROLE_SYSTEM_USER")), null);
+            final var entity = createHttpEntity(validToken(), null);
 
             final var response = testRestTemplate.exchange(
                 "/api/offender-activities/1234/activities-history",
@@ -54,7 +55,7 @@ public class OffenderActivitiesResourceTest extends ResourceTest {
 
         @Test
         public void successfulRequest_page() {
-            final var entity = createHttpEntity(validToken(List.of("ROLE_SYSTEM_USER")), null);
+            final var entity = createHttpEntity(validToken(), null);
 
             final var response = testRestTemplate.exchange(
                 "/api/offender-activities/A1234AC/activities-history?earliestEndDate=2021-01-01&page=1&size=2",
@@ -69,27 +70,72 @@ public class OffenderActivitiesResourceTest extends ResourceTest {
             assertThat(jsonContent).extractingJsonPathNumberValue("$.totalPages").isEqualTo(3);
             assertThat(jsonContent).extractingJsonPathNumberValue("$.totalElements").isEqualTo(5);
         }
+    }
 
+    @Nested
+    class GetHistoricalAttendancesTest {
         @Test
-        public void noRole() {
-            final var entity = createHttpEntity(validToken(List.of()), null);
+        public void successfulRequest_returnsCorrectDataPage_0() {
+            final var entity = createHttpEntity(validToken(), null);
 
             final var response = testRestTemplate.exchange(
-                "/api/offender-activities/1234/activities-history?earliestEndDate=2021-01-01",
+                "/api/offender-activities/A1234AB/attendance-history?fromDate=2017-01-01&toDate=" + today + "&page=0&size=2&sort=eventId,desc",
                 HttpMethod.GET,
                 entity,
                 String.class);
 
-            assertThatStatus(response, HttpStatus.FORBIDDEN.value());
+            // Use string rather than file as it needs to contain todays date
+            assertThatJsonFileAndStatus(response, HttpStatus.OK.value(), """
+                {
+                "content": [
+                  {
+                    "bookingId": -2,
+                    "eventDate": "%s",
+                    "code": "WOOD",
+                    "description": "Woodwork",
+                    "activity": "Test Prog 2",
+                    "prisonId": "LEI"
+                  },
+                  {
+                    "bookingId": -2,
+                    "eventDate": "%s",
+                    "code": "SUBS",
+                    "description": "Substance misuse course",
+                    "comment": "Comment 12",
+                    "prisonId": "LEI"
+                  }
+                ],
+                "pageable": {
+                  "sort": {
+                    "empty": false,
+                    "sorted": true,
+                    "unsorted": false
+                  },
+                  "offset": 0,
+                  "pageNumber": 0,
+                  "pageSize": 2,
+                  "unpaged": false,
+                  "paged": true
+                },
+                "last": false,
+                "totalPages": 4,
+                "totalElements": 7,
+                "size": 2,
+                "number": 0,
+                "sort": {
+                  "empty": false,
+                  "sorted": true,
+                  "unsorted": false
+                },
+                "first": true,
+                "numberOfElements": 2,
+                "empty": false
+              }""".formatted(today, today));
         }
-    }
 
-    @Nested
-    class GetHistoricalAttendances {
         @Test
-        public void successfulRequest_returnsCorrectData() {
-            final var entity = createHttpEntity(validToken(List.of("ROLE_SYSTEM_USER")), null);
-            final var today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+        public void successfulRequest_returnsCorrectDataPage_1() {
+            final var entity = createHttpEntity(validToken(), null);
 
             final var response = testRestTemplate.exchange(
                 "/api/offender-activities/A1234AB/attendance-history?fromDate=2017-01-01&toDate=" + today + "&page=1&size=2&sort=eventId,desc",
@@ -97,12 +143,74 @@ public class OffenderActivitiesResourceTest extends ResourceTest {
                 entity,
                 String.class);
 
-            assertThatJsonFileAndStatus(response, HttpStatus.OK.value(), "offender-attendence-history.json");
+            assertThatJsonFileAndStatus(response, HttpStatus.OK.value(), """
+                {
+                  "content": [
+                    {
+                      "bookingId": -2,
+                      "eventDate": "2017-09-13",
+                      "outcome": "UNACAB",
+                      "code": "CC1",
+                      "description": "Chapel Cleaner",
+                      "prisonId": "LEI"
+                    },
+                    {
+                      "bookingId": -2,
+                      "eventDate": "2017-09-14",
+                      "outcome": "ACCABS",
+                      "code": "WOOD",
+                      "description": "Woodwork",
+                      "prisonId": "LEI"
+                    }
+                  ],
+                  "pageable": {
+                    "sort": {
+                      "empty": false,
+                      "sorted": true,
+                      "unsorted": false
+                    },
+                    "offset": 2,
+                    "pageNumber": 1,
+                    "pageSize": 2,
+                    "paged": true,
+                    "unpaged": false
+                  },
+                  "last": false,
+                  "totalElements": 7,
+                  "totalPages": 4,
+                  "size": 2,
+                  "number": 1,
+                  "sort": {
+                    "empty": false,
+                    "sorted": true,
+                    "unsorted": false
+                  },
+                  "first": false,
+                  "numberOfElements": 2,
+                  "empty": false
+                }""");
+        }
+
+        @Test
+        public void successfulRequest_returnsCorrectData_Outcome() {
+            final var entity = createHttpEntity(validToken(), null);
+
+            final var response = testRestTemplate.exchange(
+                "/api/offender-activities/A1234AB/attendance-history?fromDate=2017-01-01&toDate=" + today + "&outcome=UNACAB&page=0&size=10&sort=eventId,desc",
+                HttpMethod.GET,
+                entity,
+                String.class);
+
+            assertThatStatus(response, HttpStatus.OK.value());
+            final var jsonContent = getBodyAsJsonContent(response);
+            assertThat(jsonContent).extractingJsonPathArrayValue("$.content").hasSize(1);
+            assertThat(jsonContent).extractingJsonPathStringValue("$.content[0].eventDate").isEqualTo("2017-09-13");
+            assertThat(jsonContent).extractingJsonPathStringValue("$.content[0].outcome").isEqualTo("UNACAB");
         }
 
         @Test
         public void badRequest_NoFromDateParameter() {
-            final var entity = createHttpEntity(validToken(List.of("ROLE_SYSTEM_USER")), null);
+            final var entity = createHttpEntity(validToken(), null);
 
             final var response = testRestTemplate.exchange(
                 "/api/offender-activities/1234/attendance-history?toDate=2017-01-01",
@@ -116,7 +224,7 @@ public class OffenderActivitiesResourceTest extends ResourceTest {
 
         @Test
         public void badRequest_NoToDateParameter() {
-            final var entity = createHttpEntity(validToken(List.of("ROLE_SYSTEM_USER")), null);
+            final var entity = createHttpEntity(validToken(), null);
 
             final var response = testRestTemplate.exchange(
                 "/api/offender-activities/1234/attendance-history?fromDate=2017-01-01",
@@ -126,19 +234,6 @@ public class OffenderActivitiesResourceTest extends ResourceTest {
 
             assertThatStatus(response, HttpStatus.BAD_REQUEST.value());
             assertThatJson(response.getBody()).node("userMessage").asString().isEqualTo("Required request parameter 'toDate' for method parameter type LocalDate is not present");
-        }
-
-        @Test
-        public void noRole() {
-            final var entity = createHttpEntity(validToken(List.of()), null);
-
-            final var response = testRestTemplate.exchange(
-                "/api/offender-activities/1234/attendance-history?fromDate=2017-01-01&toDate=2017-01-02",
-                HttpMethod.GET,
-                entity,
-                String.class);
-
-            assertThatStatus(response, HttpStatus.FORBIDDEN.value());
         }
     }
 }

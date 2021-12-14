@@ -9,7 +9,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -234,7 +234,7 @@ public class OffenderAssessmentResource {
 
         final AssessmentStatusType enumType;
         try {
-            enumType = StringUtils.isEmpty(status) ? null : AssessmentStatusType.valueOf(status);
+            enumType =  ObjectUtils.isEmpty(status) ? null : AssessmentStatusType.valueOf(status);
         } catch (final IllegalArgumentException e) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Assessment status type is invalid: " + status);
         }

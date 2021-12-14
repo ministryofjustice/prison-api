@@ -21,12 +21,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class StaffSteps extends CommonSteps {
     private static final String API_STAFF_DETAIL_REQUEST_URL = API_PREFIX + "staff/{staffId}";
-    private static final String API_STAFF_BY_AGENCY_POSITION_ROLE_REQUEST_URL = API_PREFIX + "staff/roles/{agencyId}/position/{position}/role/{role}";
     private static final String API_STAFF_BY_AGENCY_ROLE_REQUEST_URL = API_PREFIX + "staff/roles/{agencyId}/role/{role}";
     private static final String API_STAFF_ROLES = API_PREFIX + "staff/{staffId}/{agencyId}/roles";
     private static final String QUERY_PARAM_NAME_FILTER = "nameFilter";
     private static final String QUERY_PARAM_STAFF_ID_FILTER = "staffId";
-    private static final String QUERY_PARAM_ACTIVE_ONLY_FILTER = "activeOnly";
     private static final String API_STAFF_EMAILS_URL = API_PREFIX + "staff/{staffId}/emails";
 
     private StaffDetail staffDetail;
@@ -66,23 +64,6 @@ public class StaffSteps extends CommonSteps {
         } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
-    }
-
-    @Step("Find staff members having position and role in agency")
-    public void findStaffByAgencyPositionRole(final String agencyId, final String position, final String role, final String nameFilter, final Long staffId, final Boolean activeOnly) {
-        var builder = UriComponentsBuilder.fromUriString(API_STAFF_BY_AGENCY_POSITION_ROLE_REQUEST_URL);
-
-        if (StringUtils.isNotBlank(nameFilter)) {
-            builder = builder.queryParam(QUERY_PARAM_NAME_FILTER, nameFilter);
-        }
-        if (staffId != null) {
-            builder = builder.queryParam(QUERY_PARAM_STAFF_ID_FILTER, staffId);
-        }
-        if (activeOnly != null) {
-            builder = builder.queryParam(QUERY_PARAM_ACTIVE_ONLY_FILTER, activeOnly);
-        }
-
-        dispatchStaffByAgencyPositionRoleRequest(builder.buildAndExpand(agencyId, position, role).toUri());
     }
 
     @Step("Find staff members having role in agency")
@@ -172,7 +153,7 @@ public class StaffSteps extends CommonSteps {
                             uri,
                             HttpMethod.GET,
                             createEntity(),
-                            new ParameterizedTypeReference<List<StaffLocationRole>>() {
+                            new ParameterizedTypeReference<>() {
                             });
 
             staffDetails = response.getBody();
@@ -204,7 +185,7 @@ public class StaffSteps extends CommonSteps {
         } catch (final PrisonApiClientException ex) {
             // This will produce an ErrorResponse body
             setErrorResponse(ex.getErrorResponse());
-            emailResponseCode = ex.getErrorResponse().getStatus().intValue();
+            emailResponseCode = ex.getErrorResponse().getStatus();
         }
     }
 

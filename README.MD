@@ -212,7 +212,32 @@ aws --endpoint-url=http://localhost:4576 sqs receive-message \
 
 #### Inactivity Alert
 
-There is an alert in Application Insights called `Elite2-api - Inactivity alert`. It fires if prison-api hasn't received any successful requests in the last 10 minutes.
+There is an alert in Application Insights called `prison-api - Inactivity alert`. It fires if prison-api hasn't received any successful requests in the last 10 minutes.
 
 If the alert fires then look for any recent releases of prison-api that may have introduced a problem. If not then check in the `nomisapi-prod` Kubernetes cluster looking for any errors - look at events, ingresses, certificates etc. Finally it could be some kind of network issue - check for problems in Azure AKS.
+
+
+### Offender images
+
+* Offender images can be set using the endpoint PUT /api/images/offenders/{offenderNo}
+* This requires a token with the role ROLE_IMAGE_UPLOAD
+* The service scales the image into two, one thumbnail and one full-sized.
+* The service assumes a 4:3 aspect ratio, and also looks ok for 16:9, but square images will distort slightly.
+* Compact digital cameras and phones use 4:3 generally, and others 16:9.
+* Max size is 1048576 bytes (can be configured)
+* If no booking is found for the offender this will fail with a 404 and appropriate message.
+* The previously active image will be set to inactive.
+
+#### Uploading an image
+
+* Generated, generic images can be found here: https://generated.photos/faces/natural/adult/male (square), or here https://thispersondoesnotexist.com/ (4:3)
+* Save the JPEG image as a file locally.
+* Using curl (the process of obtaining a token with appropriate role - ROLE_IMAGE_UPLOAD - is left out here):
+
+```
+  # PUT an image for an offender
+  curl -X POST "https://<URL to prison API host>/api/images/offenders/{prisonerNumber}" \
+     -H "Authorization: $AUTH_TOKEN" \
+     -F file="@./image.jpg" | jq
+```
 

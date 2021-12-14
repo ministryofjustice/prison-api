@@ -103,7 +103,6 @@ public class PrisonerRepository extends RepositoryBase {
                 Long.class));
     }
 
-
     public NomsIdSequence getNomsIdSequence() {
         final var query = jdbcTemplate.query("SELECT CURRENT_PREFIX, PREFIX_ALPHA_SEQ, SUFFIX_ALPHA_SEQ, CURRENT_SUFFIX, NOMS_ID FROM NOMS_ID_SEQUENCE", Map.of(), (rs, rowNum) -> NomsIdSequence.builder()
                 .currentPrefix(rs.getString("CURRENT_PREFIX"))
@@ -115,7 +114,6 @@ public class PrisonerRepository extends RepositoryBase {
         // get the first row
         return query.get(0);
     }
-
 
     public int updateNomsIdSequence(final NomsIdSequence newSequence, final NomsIdSequence currentSequence) {
         return jdbcTemplate.update("UPDATE NOMS_ID_SEQUENCE " +

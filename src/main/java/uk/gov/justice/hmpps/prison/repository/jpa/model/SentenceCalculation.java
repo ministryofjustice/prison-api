@@ -12,9 +12,11 @@ import uk.gov.justice.hmpps.prison.service.support.NonDtoReleaseDate;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -35,6 +37,8 @@ public class SentenceCalculation extends AuditableEntity {
 
     @Id
     @Column(name = "OFFENDER_SENT_CALCULATION_ID")
+    @SequenceGenerator(name = "OFFENDER_SENT_CALCULATION_ID", sequenceName = "OFFENDER_SENT_CALCULATION_ID", allocationSize = 1)
+    @GeneratedValue(generator = "OFFENDER_SENT_CALCULATION_ID")
     private Long id;
 
     @Setter
@@ -43,7 +47,7 @@ public class SentenceCalculation extends AuditableEntity {
     private OffenderBooking offenderBooking;
 
     @Column(name = "CALCULATION_DATE")
-    private LocalDate calculationDate;
+    private LocalDateTime calculationDate;
 
     @Column(name = "COMMENT_TEXT")
     private String comments;

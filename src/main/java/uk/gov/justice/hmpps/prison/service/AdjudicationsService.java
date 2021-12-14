@@ -1,15 +1,18 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import com.google.common.collect.Lists;
 import com.microsoft.applicationinsights.TelemetryClient;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
+import uk.gov.justice.hmpps.prison.api.model.AdjudicationSearchRequest;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
-import uk.gov.justice.hmpps.prison.core.HasWriteScope;
+import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationActionCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationIncidentType;
@@ -21,7 +24,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepo
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
-import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
+import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -38,7 +41,6 @@ import static java.lang.String.format;
 @Validated
 @Transactional(readOnly = true)
 @Slf4j
-@RequiredArgsConstructor
 public class AdjudicationsService {
     private final AdjudicationRepository adjudicationsRepository;
     private final StaffUserAccountRepository staffUserAccountRepository;
@@ -50,10 +52,37 @@ public class AdjudicationsService {
     private final AuthenticationFacade authenticationFacade;
     private final TelemetryClient telemetryClient;
     private final Clock clock;
+    @Value("${batch.max.size:1000}")
+    private final int batchSize;
+
+    public AdjudicationsService(
+        final AdjudicationRepository adjudicationsRepository,
+        final StaffUserAccountRepository staffUserAccountRepository,
+        final OffenderBookingRepository bookingRepository,
+        final ReferenceCodeRepository<AdjudicationIncidentType> incidentTypeRepository,
+        final ReferenceCodeRepository<AdjudicationActionCode> actionCodeRepository,
+        final AgencyLocationRepository agencyLocationRepository,
+        final AgencyInternalLocationRepository internalLocationRepository,
+        final AuthenticationFacade authenticationFacade,
+        final TelemetryClient telemetryClient,
+        final Clock clock,
+        @Value("${batch.max.size:1000}") final int batchSize) {
+        this.adjudicationsRepository = adjudicationsRepository;
+        this.staffUserAccountRepository = staffUserAccountRepository;
+        this.bookingRepository = bookingRepository;
+        this.incidentTypeRepository = incidentTypeRepository;
+        this.actionCodeRepository = actionCodeRepository;
+        this.agencyLocationRepository = agencyLocationRepository;
+        this.internalLocationRepository = internalLocationRepository;
+        this.authenticationFacade = authenticationFacade;
+        this.telemetryClient = telemetryClient;
+        this.clock = clock;
+        this.batchSize = batchSize;
+    }
 
     @Transactional
-    @VerifyBookingAccess
-    public AdjudicationDetail createAdjudication(@NotNull final Long bookingId, @NotNull @Valid final NewAdjudication adjudication) {
+    @VerifyOffenderAccess
+    public AdjudicationDetail createAdjudication(@NotNull final String offenderNo, @NotNull @Valid final NewAdjudication adjudication) {
         final var reporterName = authenticationFacade.getCurrentUsername();
         final var currentDateTime = LocalDateTime.now(clock);
         final var incidentDateTime = adjudication.getIncidentTime();
@@ -61,8 +90,8 @@ public class AdjudicationsService {
         final var reporter = staffUserAccountRepository.findById(reporterName)
             .orElseThrow(() -> new RuntimeException(format("User not found %s", reporterName)));
 
-        final var offenderBookingEntry = bookingRepository.findById(bookingId)
-            .orElseThrow(() -> new RuntimeException(format("Booking not found %d", bookingId)));
+        final var offenderBookingEntry = bookingRepository.findByOffenderNomsIdAndBookingSequence(offenderNo, 1)
+            .orElseThrow(() -> new RuntimeException(format("Could not find a current booking for Offender No %s", offenderNo)));
         final var incidentType = incidentTypeRepository.findById(AdjudicationIncidentType.GOVERNORS_REPORT)
             .orElseThrow(() -> new RuntimeException("Incident type not available"));
         final var actionCode = actionCodeRepository.findById(AdjudicationActionCode.PLACED_ON_REPORT)
@@ -70,8 +99,10 @@ public class AdjudicationsService {
 
         final var incidentInternalLocationDetails = internalLocationRepository.findOneByLocationId(adjudication.getIncidentLocationId())
             .orElseThrow(EntityNotFoundException.withMessage(format("Location with id %d does not exist or is not in your caseload", adjudication.getIncidentLocationId())));
-        final var agencyDetails = agencyLocationRepository.findById(incidentInternalLocationDetails.getAgencyId())
-            .orElseThrow(() -> new RuntimeException(format("Agency not found %s", incidentInternalLocationDetails.getAgencyId())));
+
+        final var agencyId = adjudication.getAgencyId();
+        final var agencyDetails = agencyLocationRepository.findById(agencyId)
+            .orElseThrow(EntityNotFoundException.withMessage(format("Agency with id %s does not exist", agencyId)));
 
         final var adjudicationToCreate = Adjudication.builder()
             .incidentDate(incidentDateTime.toLocalDate())
@@ -105,10 +136,37 @@ public class AdjudicationsService {
         return transformToDto(createdAdjudication);
     }
 
+    @Transactional
+    public AdjudicationDetail updateAdjudication(@NotNull Long adjudicationNumber, @NotNull @Valid UpdateAdjudication adjudication) {
+        final var adjudicationToUpdate = adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber)
+            .orElseThrow(EntityNotFoundException.withMessage(format("Adjudication with number %s does not exist", adjudicationNumber)));
+
+        final var incidentInternalLocationDetails = internalLocationRepository.findOneByLocationId(adjudication.getIncidentLocationId())
+            .orElseThrow(EntityNotFoundException.withMessage(format("Location with id %d does not exist or is not in your caseload", adjudication.getIncidentLocationId())));
+
+        adjudicationToUpdate.setIncidentDate(adjudication.getIncidentTime().toLocalDate());
+        adjudicationToUpdate.setIncidentTime(adjudication.getIncidentTime());
+        adjudicationToUpdate.setInternalLocation(incidentInternalLocationDetails);
+        adjudicationToUpdate.setIncidentDetails(adjudication.getStatement());
+
+        final var updatedAdjudication = adjudicationsRepository.save(adjudicationToUpdate);
+
+        trackAdjudicationUpdated(adjudicationNumber, updatedAdjudication);
+
+        return transformToDto(updatedAdjudication);
+    }
+
     public AdjudicationDetail getAdjudication(@NotNull final Long adjudicationNumber) {
         final var requestedAdjudication = adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber)
             .orElseThrow(EntityNotFoundException.withMessage(format("Adjudication not found with the number %d", adjudicationNumber)));
         return transformToDto(requestedAdjudication);
+    }
+
+    public List<AdjudicationDetail> getAdjudications(final List<Long> adjudicationNumbers) {
+        return Lists.partition(adjudicationNumbers, batchSize).stream().flatMap(
+                numbers -> adjudicationsRepository.findByParties_AdjudicationNumberIn(numbers).stream()
+            ).map(this::transformToDto)
+            .collect(Collectors.toList());
     }
 
     private void trackAdjudicationCreated(final Adjudication createdAdjudication) {
@@ -116,21 +174,37 @@ public class AdjudicationsService {
         logMap.put("reporterUsername", authenticationFacade.getCurrentUsername());
         logMap.put("offenderNo", createdAdjudication.getOffenderParty()
             .map(o -> o.getOffenderBooking().getOffender().getNomsId()).orElse(""));
-        logMap.put("incidentTime", createdAdjudication.getIncidentTime().toString());
-        logMap.put("incidentLocation", createdAdjudication.getInternalLocation().getDescription());
+        trackAdjudicationDetails("AdjudicationCreated", createdAdjudication, logMap);
+    }
 
-        telemetryClient.trackEvent("AdjudicationCreated", logMap, null);
+    private void trackAdjudicationUpdated(final Long adjudicationNumber, final Adjudication updatedAdjudication) {
+        final Map<String, String> logMap = new HashMap<>();
+        logMap.put("adjudicationNumber", "" + adjudicationNumber);
+        trackAdjudicationDetails("AdjudicationUpdated", updatedAdjudication, logMap);
+    }
+
+    private void trackAdjudicationDetails(final String eventName, final Adjudication adjudication, final Map<String, String> propertyMap) {
+        propertyMap.put("incidentTime", adjudication.getIncidentTime().toString());
+        propertyMap.put("incidentLocation", adjudication.getInternalLocation().getDescription());
+        propertyMap.put("statementSize", "" + adjudication.getIncidentDetails().length());
+
+        telemetryClient.trackEvent(eventName, propertyMap, null);
     }
 
     private AdjudicationDetail transformToDto(final Adjudication adjudication) {
         final var offenderPartyDetails = adjudication.getOffenderParty();
+        final var bookingId = offenderPartyDetails.map(p -> p.getOffenderBooking().getBookingId()).orElse(null);
+        final var offenderNo = offenderPartyDetails.map(p -> p.getOffenderBooking().getOffender().getNomsId()).orElse(null);
         return AdjudicationDetail.builder()
             .adjudicationNumber(offenderPartyDetails.map(AdjudicationParty::getAdjudicationNumber).orElse(null))
             .reporterStaffId(adjudication.getStaffReporter().getStaffId())
-            .bookingId(offenderPartyDetails.map(p -> p.getOffenderBooking().getBookingId()).orElse(null))
+            .bookingId(bookingId)
+            .offenderNo(offenderNo)
+            .agencyId(adjudication.getAgencyLocation().getId())
             .incidentTime(adjudication.getIncidentTime())
             .incidentLocationId(adjudication.getInternalLocation().getLocationId())
             .statement(adjudication.getIncidentDetails())
+            .createdByUserId(adjudication.getCreatedByUserId())
             .build();
     }
 }

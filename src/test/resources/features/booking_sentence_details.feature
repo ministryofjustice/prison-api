@@ -60,8 +60,8 @@ Feature: Booking Sentence Details
 
   Examples:
     | bookingId | version | ssd        | ard        | ardOverride | crd        | crdOverride | npd        | npdOverride | prrd       | prrdOverride | nonDtoReleaseDate | nonDtoReleaseDateType |
-    | -20       | 1.0     | 2017-03-25 |            |             | 2019-03-24 |             |            |             |            |              | 2019-03-24        | CRD                   |
-    | -20       | 1.1     | 2017-03-25 |            |             | 2019-03-24 |             |            |             |            |              | 2019-03-24        | CRD                   |
+    | -20       | 1.0     | 2017-03-25 |            |             | 2019-03-24 | 2019-03-25  |            |             |            |              | 2019-03-25        | CRD                   |
+    | -20       | 1.1     | 2017-03-25 |            |             | 2019-03-24 | 2019-03-25  |            |             |            |              | 2019-03-25        | CRD                   |
 
   Scenario Outline: Sentence details are requested for booking that is inactive
     When a user has a token name of "INACTIVE_BOOKING_USER"
@@ -80,8 +80,8 @@ Feature: Booking Sentence Details
 
     Examples:
       | bookingId | version | ssd        | ard        | ardOverride | crd        | crdOverride | npd        | npdOverride | prrd       | prrdOverride | nonDtoReleaseDate | nonDtoReleaseDateType |
-      | -20       | 1.0     | 2017-03-25 |            |             | 2019-03-24 |             |            |             |            |              | 2019-03-24        | CRD                   |
-      | -20       | 1.1     | 2017-03-25 |            |             | 2019-03-24 |             |            |             |            |              | 2019-03-24        | CRD                   |
+      | -20       | 1.0     | 2017-03-25 |            |             | 2019-03-24 | 2019-03-25  |            |             |            |              | 2019-03-25        | CRD                   |
+      | -20       | 1.1     | 2017-03-25 |            |             | 2019-03-24 | 2019-03-25  |            |             |            |              | 2019-03-25        | CRD                   |
 
   Scenario Outline: Retrieve sentence details for an offender, check non-DTO sentence details only
     When sentence details are requested for an offender with booking id "<bookingId>" and version "<version>"

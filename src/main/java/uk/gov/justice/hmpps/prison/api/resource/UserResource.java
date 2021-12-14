@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.justice.hmpps.prison.api.model.AccessRole;
 import uk.gov.justice.hmpps.prison.api.model.CaseLoad;
 import uk.gov.justice.hmpps.prison.api.model.CaseloadUpdate;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
@@ -39,7 +37,6 @@ import uk.gov.justice.hmpps.prison.service.CaseNoteService;
 import uk.gov.justice.hmpps.prison.service.LocationService;
 import uk.gov.justice.hmpps.prison.service.UserService;
 
-import javax.validation.constraints.NotEmpty;
 import java.util.List;
 import java.util.Set;
 
@@ -91,18 +88,6 @@ public class UserResource {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "User role has been removed"),
-            @ApiResponse(code = 404, message = "The role is not recognised or user does not have role on caseload"),
-            @ApiResponse(code = 403, message = "The current user doesn't have permission to maintain user roles")})
-    @ApiOperation(value = "Remove the given access role from the user.", notes = "Remove the given access role from the user.", nickname = "removeUsersAccessRoleForCaseload", hidden = true)
-    @DeleteMapping("/{username}/caseload/{caseload}/access-role/{roleCode}")
-    @ProxyUser
-    public ResponseEntity<Void> removeUsersAccessRoleForCaseload(@PathVariable("username") @ApiParam(value = "The username of the user.", required = true) final String username, @PathVariable("caseload") @ApiParam(value = "Caseload Id", required = true) final String caseload, @PathVariable("roleCode") @ApiParam(value = "access role code", required = true) final String roleCode) {
-        userService.removeUsersAccessRoleForCaseload(username, caseload, roleCode);
-        return ResponseEntity.ok().build();
-    }
-
-    @ApiResponses({
         @ApiResponse(code = 200, message = "OK", response = UserDetail.class, responseContainer = "List"),
         @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
@@ -130,46 +115,6 @@ public class UserResource {
         return ResponseEntity.ok()
             .headers(userDetails.getPaginationHeaders())
             .body(userDetails.getItems());
-    }
-
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "User already has role"),
-            @ApiResponse(code = 201, message = "Role has been successfully added to user"),
-            @ApiResponse(code = 404, message = "The role is not recognised or user cannot access caseload"),
-            @ApiResponse(code = 403, message = "The current user doesn't have permission to maintain user roles"),
-    })
-    @ApiOperation(value = "Add the given access role to the user.", notes = "Add the given access role to the user.", nickname = "addAccessRole", hidden = true)
-    @PutMapping("/{username}/access-role/{roleCode}")
-    @ProxyUser
-    public ResponseEntity<Void> addAccessRole(@PathVariable("username") @ApiParam(value = "The username of the user.", required = true) final String username, @PathVariable("roleCode") @ApiParam(value = "access role code", required = true) final String roleCode) {
-        final var added = userService.addAccessRole(username, roleCode);
-        return added ? ResponseEntity.status(HttpStatus.CREATED).build() : ResponseEntity.ok().build();
-    }
-
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "Roles have been added or user already had the role(s)"),
-            @ApiResponse(code = 404, message = "The role(s) is not recognised or user cannot access caseload"),
-            @ApiResponse(code = 403, message = "The current user doesn't have permission to maintain user roles"),
-    })
-    @ApiOperation(value = "Add the given access roles to the user.", nickname = "addAccessRoles", hidden = true)
-    @PostMapping("/{username}/access-role")
-    @ProxyUser
-    public void addAccessRoles(@PathVariable @ApiParam(value = "The username of the user.", required = true) final String username,
-                               @RequestBody @NotEmpty final List<String> roles) {
-        roles.forEach(r -> userService.addAccessRole(username, r));
-    }
-
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "User already has role"),
-            @ApiResponse(code = 201, message = "Role has been successfully added to user"),
-            @ApiResponse(code = 404, message = "The role is not recognised or user cannot access caseload"),
-            @ApiResponse(code = 403, message = "The current user doesn't have permission to maintain user roles")})
-    @ApiOperation(value = "Add the given access role to the user and caseload.", notes = "Add the given access role to the user and caseload.", nickname = "addAccessRoleByCaseload", hidden = true)
-    @PutMapping("/{username}/caseload/{caseload}/access-role/{roleCode}")
-    @ProxyUser
-    public ResponseEntity<Void> addAccessRoleByCaseload(@PathVariable("username") @ApiParam(value = "The username of the user.", required = true) final String username, @PathVariable("caseload") @ApiParam(value = "Caseload Id", required = true) final String caseload, @PathVariable("roleCode") @ApiParam(value = "access role code", required = true) final String roleCode) {
-        final var added = userService.addAccessRole(username, roleCode, caseload);
-        return added ? ResponseEntity.status(HttpStatus.CREATED).build() : ResponseEntity.ok().build();
     }
 
     @ApiResponses({
@@ -268,17 +213,6 @@ public class UserResource {
     @PostMapping("/list")
     public List<UserDetail> getUserDetailsList(@RequestBody @ApiParam(value = "The required usernames (mandatory)", required = true) final Set<String> usernames) {
         return userService.getUserListByUsernames(usernames);
-    }
-
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = AccessRole.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "List of roles for the given user and caseload", notes = "List of roles for the given user and caseload", nickname = "getRolesForUserAndCaseload")
-    @GetMapping("/{username}/access-roles/caseload/{caseload}")
-    public List<AccessRole> getRolesForUserAndCaseload(@PathVariable("username") @ApiParam(value = "user account to filter by", required = true) final String username, @PathVariable("caseload") @ApiParam(value = "Caseload Id", required = true) final String caseload, @RequestParam(value = "includeAdmin", defaultValue = "false", required = false) @ApiParam(value = "Include admin roles", required = true, defaultValue = "false") final boolean includeAdmin) {
-        return userService.getAccessRolesByUserAndCaseload(username, caseload, includeAdmin);
     }
 
     @ApiResponses({

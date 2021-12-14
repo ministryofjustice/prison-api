@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @ApiModel(description = "Balances of visit orders and privilege visit orders")
 @Builder
 @AllArgsConstructor
@@ -19,4 +21,10 @@ public class VisitBalances {
 
     @ApiModelProperty(required = true, value = "Balance of privilege visit orders remaining")
     public Integer remainingPvo;
+
+    @ApiModelProperty(value = "Date of last IEP adjustment for Visit orders")
+    private LocalDate latestIepAdjustDate;
+
+    @ApiModelProperty(value = "Date of last IEP adjustment for Privilege Visit orders")
+    private LocalDate latestPrivIepAdjustDate;
 }

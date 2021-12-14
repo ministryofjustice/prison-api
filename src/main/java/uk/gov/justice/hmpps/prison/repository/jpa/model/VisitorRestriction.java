@@ -79,9 +79,9 @@ public class VisitorRestriction extends AuditableEntity {
     public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        final VisitorRestriction restiction = (VisitorRestriction) o;
+        final VisitorRestriction restriction = (VisitorRestriction) o;
 
-        return Objects.equals(getId(), restiction.getId());
+        return Objects.equals(getId(), restriction.getId());
     }
 
     @Override

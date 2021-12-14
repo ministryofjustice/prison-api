@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication.NewAdjudicationBuilder;
+import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication;
+import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication.UpdateAdjudicationBuilder;
 
 import javax.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
@@ -31,7 +34,7 @@ public class AdjudicationsServiceIntTest {
                 .statement(generateMessageWith4001Chars())
                 .build();
 
-            assertThatThrownBy(() -> service.createAdjudication(adjudicationWithLargeStatementSize.getBookingId(), adjudicationWithLargeStatementSize))
+            assertThatThrownBy(() -> service.createAdjudication(adjudicationWithLargeStatementSize.getOffenderNo(), adjudicationWithLargeStatementSize))
                 .isInstanceOf(ConstraintViolationException.class)
                 .hasMessageContaining("Length exceeds the maximum size allowed");
         }
@@ -43,31 +46,67 @@ public class AdjudicationsServiceIntTest {
                 .statement(generateMessageWith4000CharsAndUtf8Chars())
                 .build();
 
-            assertThatThrownBy(() -> service.createAdjudication(adjudicationWithLargeStatementSize.getBookingId(), adjudicationWithLargeStatementSize))
+            assertThatThrownBy(() -> service.createAdjudication(adjudicationWithLargeStatementSize.getOffenderNo(), adjudicationWithLargeStatementSize))
                 .isInstanceOf(ConstraintViolationException.class)
                 .hasMessageContaining("Length exceeds the maximum size allowed");
         }
 
         @Test
         @WithMockUser(username = "ITAG_USER")
-        public void invalidBooking() {
+        public void invalidOffenderNo() {
+            final var adjudication = defaultAdjudicationBuilder()
+                .statement("A statement")
+                .build();
+
+            assertThatThrownBy(() -> service.createAdjudication("Z1234ZZ", adjudication))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Resource with id [Z1234ZZ] not found.");
+        }
+
+        private NewAdjudicationBuilder defaultAdjudicationBuilder() {
+            return NewAdjudication.builder()
+                .offenderNo("A1234AD")
+                .incidentTime(LocalDateTime.now())
+                .incidentLocationId(2L)
+                .statement("A statement");
+        }
+    }
+
+    @Nested
+    public class ModifyAdjudication {
+
+        private final Long EXAMPLE_ADJUDICATION_NUMBER = 123L;
+
+        @Test
+        @WithMockUser(username = "ITAG_USER")
+        public void maximumTextSizeExceeded() {
+            final var adjudicationWithLargeStatementSize = defaultAdjudicationBuilder()
+                .statement(generateMessageWith4001Chars())
+                .build();
+
+            assertThatThrownBy(() -> service.updateAdjudication(EXAMPLE_ADJUDICATION_NUMBER, adjudicationWithLargeStatementSize))
+                .isInstanceOf(ConstraintViolationException.class)
+                .hasMessageContaining("Length exceeds the maximum size allowed");
+        }
+
+        @Test
+        @WithMockUser(username = "ITAG_USER")
+        public void maximumTextSizeExceededDueToUtf8() {
             final var adjudicationWithLargeStatementSize = defaultAdjudicationBuilder()
                 .statement(generateMessageWith4000CharsAndUtf8Chars())
                 .build();
 
-            assertThatThrownBy(() -> service.createAdjudication(500L, adjudicationWithLargeStatementSize))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("Offender booking with id 500 not found.");
+            assertThatThrownBy(() -> service.updateAdjudication(EXAMPLE_ADJUDICATION_NUMBER, adjudicationWithLargeStatementSize))
+                .isInstanceOf(ConstraintViolationException.class)
+                .hasMessageContaining("Length exceeds the maximum size allowed");
         }
-    }
 
-
-    private NewAdjudicationBuilder defaultAdjudicationBuilder() {
-        return NewAdjudication.builder()
-            .bookingId(-4L)
-            .incidentTime(LocalDateTime.now())
-            .incidentLocationId(2L)
-            .statement("A statement");
+        private UpdateAdjudicationBuilder defaultAdjudicationBuilder() {
+            return UpdateAdjudication.builder()
+                .incidentTime(LocalDateTime.now())
+                .incidentLocationId(2L)
+                .statement("A statement");
+        }
     }
 
     private String generateMessageWith4001Chars() {

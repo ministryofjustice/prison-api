@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Builder
+@Builder(toBuilder = true)
 public class AdjudicationDetail {
     @ApiModelProperty(value = "Adjudication number", position = 1, example = "123")
     @NotNull
@@ -30,6 +30,14 @@ public class AdjudicationDetail {
     @NotNull
     private Long bookingId;
 
+    @ApiModelProperty(value = "Offender number (NOMS ID)", example = "G3878UK")
+    @NotNull
+    private String offenderNo;
+
+    @ApiModelProperty(value = "The id of the agency related to this incident", example = "MDI")
+    @NotNull
+    private String agencyId;
+
     @ApiModelProperty(value = "When the incident took place", position = 4, example = "15-06-2020T09:03:11")
     @NotNull
     private LocalDateTime incidentTime;
@@ -41,4 +49,7 @@ public class AdjudicationDetail {
     @ApiModelProperty(value = "The adjudication statement", position = 6, example = "The offence involved ...")
     @NotNull
     private String statement;
+
+    @ApiModelProperty(value = "The id of the user the created the adjudication", position = 10, example = "ASMITH")
+    private String createdByUserId;
 }

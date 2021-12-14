@@ -16,6 +16,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.CourseActivity;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramEndReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramProfile;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ProgramService;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AttendanceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProgramProfileRepository;
 
@@ -44,7 +45,7 @@ public class OffenderActivitiesServiceTest {
     }
 
     @Nested
-    class GetStartedWorkActivities {
+    class GetStartedWorkActivitiesTest {
         @Test
         public void returnsCorrectApiObject() {
             final var earliestEndDate = LocalDate.of(2020, 1, 1);
@@ -138,23 +139,84 @@ public class OffenderActivitiesServiceTest {
     }
 
     @Nested
-    class GetHistoricalAttendancies {
+    class GetHistoricalAttendanciesTest {
         @Test
         public void returnsCorrectApiObject() {
             final var earliestDate = LocalDate.of(2020, 1, 1);
             final var latestDate = LocalDate.of(2021, 2, 2);
 
-            when(attendanceRepository.findByEventDateBetween(EXAMPLE_OFFENDER_NO, earliestDate, latestDate, PAGE_REQUEST))
+            final var offenderBooking1 = OffenderBooking.
+                builder()
+                .bookingId(100L)
+                .active(true)
+                .location(AgencyLocation.builder().id("LEI").build())
+                .build();
+            final var offenderBooking2 = OffenderBooking
+                .builder()
+                .bookingId(200L)
+                .active(true)
+                .location(AgencyLocation.builder().id("LEI").build())
+                .build();
+
+            final var courseActivity1 = CourseActivity
+                .builder()
+                .activityId(-1L)
+                .code("CC1")
+                .description("Test Description 1")
+                .scheduleStartDate(LocalDate.of(2012, 2, 20))
+                .prisonId("MDI")
+                .build();
+            final var courseActivity2 = CourseActivity
+                .builder()
+                .activityId(-2L)
+                .code("WOOD")
+                .description("Test Description 2")
+                .scheduleStartDate(LocalDate.of(2012, 2, 28))
+                .prisonId("WWI")
+                .build();
+
+            final var programService1 = ProgramService
+                .builder()
+                .programId(1L)
+                .activity("Woodwork")
+                .build();
+            final var programService2 = ProgramService
+                .builder()
+                .programId(2L)
+                .activity("Substance misuse course")
+                .build();
+
+            when(attendanceRepository.findByEventDateBetweenAndOutcome(EXAMPLE_OFFENDER_NO, earliestDate, latestDate, null, PAGE_REQUEST))
                 .thenReturn(new PageImpl<>(List.of(
-                    new Attendance(1111L, null, earliestDate, "outcome1"),
-                    new Attendance(2222L, null, latestDate, "outcome2")
+                    new Attendance(1111L, courseActivity1, offenderBooking1, programService1, earliestDate, "outcome1", "comment1"),
+                    new Attendance(2222L, courseActivity2, offenderBooking2, programService2, latestDate, "outcome2", "comment2")
                 )));
 
-            final var result = service.getHistoricalAttendancies(EXAMPLE_OFFENDER_NO, earliestDate, latestDate, PAGE_REQUEST);
+            final var result = service.getHistoricalAttendancies(EXAMPLE_OFFENDER_NO, earliestDate, latestDate, null, PAGE_REQUEST);
 
             assertThat(result.getContent()).isEqualTo(List.of(
-                OffenderAttendance.builder().eventDate(earliestDate).outcome("outcome1").build(),
-                OffenderAttendance.builder().eventDate(latestDate).outcome("outcome2").build()
+                OffenderAttendance
+                    .builder()
+                    .eventDate(earliestDate)
+                    .outcome("outcome1")
+                    .activity(programService1.getActivity())
+                    .description(courseActivity1.getDescription())
+                    .code(courseActivity1.getCode())
+                    .prisonId("MDI")
+                    .bookingId(offenderBooking1.getBookingId())
+                    .comment("comment1")
+                    .build(),
+                OffenderAttendance
+                    .builder()
+                    .eventDate(latestDate)
+                    .outcome("outcome2")
+                    .activity(programService2.getActivity())
+                    .description(courseActivity2.getDescription())
+                    .code(courseActivity2.getCode())
+                    .prisonId("WWI")
+                    .bookingId(offenderBooking2.getBookingId())
+                    .comment("comment2")
+                    .build()
             ));
         }
     }
