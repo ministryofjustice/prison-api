@@ -1,6 +1,6 @@
 package uk.gov.justice.hmpps.prison.service;
 
-import com.amazonaws.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.CellMoveResult;
@@ -99,7 +99,7 @@ public class MovementUpdateService {
 
     private void validateMoveToCell(final String reasonCode, final LocalDateTime dateTime) {
         checkReasonCode(reasonCode);
-        checkArgument(!StringUtils.isNullOrEmpty(reasonCode), "Reason code is mandatory");
+        checkArgument(!StringUtils.isEmpty(reasonCode), "Reason code is mandatory");
         checkDate(dateTime);
     }
 
