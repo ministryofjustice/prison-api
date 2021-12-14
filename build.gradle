@@ -1,5 +1,5 @@
 plugins {
-    id("uk.gov.justice.hmpps.gradle-spring-boot") version "3.3.14"
+    id("uk.gov.justice.hmpps.gradle-spring-boot") version "3.3.15"
 }
 
 group 'uk.gov.justice.hmpps.prison'
@@ -71,10 +71,10 @@ dependencies {
     testImplementation 'com.tngtech.java:junit-dataprovider:1.13.1'
     testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.28.0'
 
-    testImplementation 'net.serenity-bdd:serenity-core:2.1.8'
-    testImplementation 'net.serenity-bdd:serenity-junit:2.1.8'
-    testImplementation 'net.serenity-bdd:serenity-spring:2.1.8'
-    testImplementation 'net.serenity-bdd:serenity-cucumber:1.9.51'
+    testImplementation 'net.serenity-bdd:serenity-core:3.1.5'
+    testImplementation 'net.serenity-bdd:serenity-junit:3.1.5'
+    testImplementation 'net.serenity-bdd:serenity-spring:3.1.5'
+    testImplementation 'net.serenity-bdd:serenity-cucumber:3.1.5'
     testImplementation 'org.slf4j:slf4j-api:1.7.32'
     testImplementation 'com.github.tomakehurst:wiremock-standalone:2.27.2'
     testImplementation 'io.jsonwebtoken:jjwt:0.9.1'
