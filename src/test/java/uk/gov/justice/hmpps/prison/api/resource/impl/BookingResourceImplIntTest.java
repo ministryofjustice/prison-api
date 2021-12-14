@@ -210,8 +210,8 @@ public class BookingResourceImplIntTest extends ResourceTest {
 
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.remainingVo").isEqualTo(10);
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.remainingPvo").isEqualTo(1);
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathValue("$.latestPrivilegeIepAdjustmentDate").isNull();
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathValue("$.latestIepAdjustmentDate").isNull();
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathValue("$.latestPrivIepAdjustDate").isNull();
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathValue("$.latestIepAdjustDate").isNull();
     }
 
     @Test
