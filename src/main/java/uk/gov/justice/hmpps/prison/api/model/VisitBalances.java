@@ -23,8 +23,8 @@ public class VisitBalances {
     public Integer remainingPvo;
 
     @ApiModelProperty(value = "Date of last IEP adjustment for Visit orders")
-    private LocalDate latestIepAdjustmentDate;
+    private LocalDate latestIepAdjustDate;
 
     @ApiModelProperty(value = "Date of last IEP adjustment for Privilege Visit orders")
-    private LocalDate latestPrivilegeIepAdjustmentDate;
+    private LocalDate latestPrivIepAdjustDate;
 }
