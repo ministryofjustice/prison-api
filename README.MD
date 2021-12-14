@@ -162,40 +162,6 @@ To run all feature tests in IntelliJ, avoiding known @wip or @broken tests, add 
 |api.db.target   | nomis                         | 
 |cucumber.options| --tags 'not(@wip or @broken)' |
 
-### Running with Data Compliance Queues
-
-Prison API is currently being used to retrieve data from the NOMIS database for assessing
-an offender's eligibility of deletion under data compliance law.
-
-A suite of services can be started with docker-compose that will also attach Prison API to
-a couple of queues used to communicate deletions and deletion referrals.
-
-To do this, simply run:
-
-```bash
-TMPDIR=/private$TMPDIR docker-compose -f docker-compose-data-compliance.yml up
-```
-
-#### To publish to the data compliance request queue:
-(Warning, if configured, this will prompt Prison-api to delete the Offender provided)
-
-The `referralId` should match an existing referral in the `OFFENDER_DELETION_REFERRAL` table
-in the Data Compliance database.
-
-```bash
-
-aws --endpoint-url=http://localhost:4576 sqs send-message \
-    --queue-url http://localstack:4576/queue/data_compliance_request_queue \
-    --message-body '{"offenderIdDisplay":"A1234AA","referralId":123}' \
-    --message-attributes "eventType={StringValue=DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED,DataType=String}"
-```
-
-#### To read off the data compliance response queue: 
-```bash
-aws --endpoint-url=http://localhost:4576 sqs receive-message \
-    --queue-url http://localhost:4576/queue/data_compliance_response_queue
-```
-
 ### Authorize with Swagger UI ###
 * Without correct authorisation calling endpoints will return http 401 - Unauthorized
 * Obtain a correct JWT Token from 'Auth' service

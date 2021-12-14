@@ -2,6 +2,4 @@
 # Per environment values which override defaults in prison-api/values.yaml
 generic-service:
   env:
-    DATA_COMPLIANCE_DELETION_ENABLED: true
-    DATA_COMPLIANCE_DECEASED_DELETION_ENABLED: true
     SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: "https://sign-in-preprod.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json"
