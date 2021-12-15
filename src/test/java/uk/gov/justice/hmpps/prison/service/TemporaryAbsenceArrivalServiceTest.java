@@ -44,13 +44,13 @@ public class TemporaryAbsenceArrivalServiceTest {
     private static String OFFENDER_NO = "G6942UN";
 
     @Test
-    @Sql(scripts = {"/sql/scheduledTemporaryAbsenceArrival_init.sql"},
+    @Sql(scripts = {"/sql/scheduledPrisonerReturnFromTemporaryAbsence_init.sql"},
         executionPhase = ExecutionPhase.BEFORE_TEST_METHOD,
         config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
-    @Sql(scripts = {"/sql/scheduledTemporaryAbsenceArrival_clean.sql"},
+    @Sql(scripts = {"/sql/scheduledPrisonerReturnFromTemporaryAbsence_clean.sql"},
         executionPhase = ExecutionPhase.AFTER_TEST_METHOD,
         config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
-    public void scheduledTemporaryAbsenceArrival() {
+    public void scheduledPrisonerReturnFromTemporaryAbsence() {
         RequestForTemporaryAbsenceArrival requestForTemporaryAbsenceArrival = new RequestForTemporaryAbsenceArrival();
         requestForTemporaryAbsenceArrival.setAgencyId("BXI");
         InmateDetail inmateDetail = prisonerReleaseAndTransferService.temporaryAbsenceArrival(OFFENDER_NO, requestForTemporaryAbsenceArrival);
@@ -76,13 +76,13 @@ public class TemporaryAbsenceArrivalServiceTest {
     }
 
     @Test
-    @Sql(scripts = {"/sql/unscheduledTemporaryAbsenceArrival_init.sql"},
+    @Sql(scripts = {"/sql/unscheduledPrisonerReturnFromTemporaryAbsence_init.sql"},
         executionPhase = ExecutionPhase.BEFORE_TEST_METHOD,
         config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
-    @Sql(scripts = {"/sql/unscheduledTemporaryAbsenceArrival_clean.sql"},
+    @Sql(scripts = {"/sql/unscheduledPrisonerReturnFromTemporaryAbsence_clean.sql"},
         executionPhase = ExecutionPhase.AFTER_TEST_METHOD,
         config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
-    public void unscheduledTemporaryAbsenceArrival() {
+    public void unscheduledPrisonerReturnFromTemporaryAbsence() {
         RequestForTemporaryAbsenceArrival requestForTemporaryAbsenceArrival = new RequestForTemporaryAbsenceArrival();
         requestForTemporaryAbsenceArrival.setAgencyId("BXI");
         InmateDetail inmateDetail = prisonerReleaseAndTransferService.temporaryAbsenceArrival(OFFENDER_NO, requestForTemporaryAbsenceArrival);

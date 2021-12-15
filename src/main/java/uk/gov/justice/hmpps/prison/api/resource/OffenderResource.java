@@ -264,7 +264,7 @@ public class OffenderResource {
         @ApiResponse(code = 403, message = "Forbidden - user not authorised to transfer a prisoner", response = ErrorResponse.class),
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @ApiOperation("Transfer a prisoner into a prison from court. Must be an out prisoner in currently in transfer status, requires the TRANSFER_PRISONER role")
+    @ApiOperation("Transfer a prisoner into a prison from temporary absence. Must be an out prisoner in currently in transfer status, requires the TRANSFER_PRISONER role")
     @PutMapping("/{offenderNo}/temporary-absence-arrival")
     @PreAuthorize("hasRole('TRANSFER_PRISONER') and hasAuthority('SCOPE_write')")
     @ProxyUser
@@ -273,7 +273,6 @@ public class OffenderResource {
         @RequestBody @NotNull @Valid final RequestForTemporaryAbsenceArrival requestForTemporaryAbsenceArrival) {
         return prisonerReleaseAndTransferService.temporaryAbsenceArrival(offenderNo, requestForTemporaryAbsenceArrival);
     }
-
 
     @ApiResponses({
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
@@ -365,7 +364,6 @@ public class OffenderResource {
         return adjudicationService.findAdjudication(offenderNo, adjudicationNo);
     }
 
-
     @ApiResponses({
         @ApiResponse(code = 200, message = "OK", response = Alert.class, responseContainer = "List"),
         @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
@@ -385,6 +383,7 @@ public class OffenderResource {
             sort,
             Direction.fromString(direction));
     }
+
     @ApiResponses({
         @ApiResponse(code = 200, message = "OK", response = Alert.class, responseContainer = "List"),
         @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
@@ -505,7 +504,6 @@ public class OffenderResource {
     public SentenceSummary getLatestSentenceSummary(@PathVariable("offenderNo") @ApiParam(value = "Noms ID or Prisoner number (also called offenderNo)", required = true) final String offenderNo) {
         return bookingService.getSentenceSummary(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
     }
-
 
     @ApiResponses({
         @ApiResponse(code = 200, message = "OK", response = OffenderNumber.class, responseContainer = "List"),
