@@ -61,8 +61,8 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
         final var bookingId = Long.valueOf(caseNoteData.get("bookingId"));
 
         final var newCaseNote =
-                buildNewCaseNote(caseNoteData.get("type"),
-                        caseNoteData.get("subType"),
+                buildNewCaseNote(StringUtils.defaultString(caseNoteData.get("type")),
+                        StringUtils.defaultString(caseNoteData.get("subType")),
                         caseNoteData.get("text"),
                         caseNoteData.get("occurrenceDateTime"));
 
