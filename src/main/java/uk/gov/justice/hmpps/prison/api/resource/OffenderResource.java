@@ -45,6 +45,7 @@ import uk.gov.justice.hmpps.prison.api.model.PrisonerInPrisonSummary;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
 import uk.gov.justice.hmpps.prison.api.model.RequestForCourtTransferIn;
 import uk.gov.justice.hmpps.prison.api.model.RequestForNewBooking;
+import uk.gov.justice.hmpps.prison.api.model.RequestForTemporaryAbsenceArrival;
 import uk.gov.justice.hmpps.prison.api.model.RequestToCreate;
 import uk.gov.justice.hmpps.prison.api.model.RequestToDischargePrisoner;
 import uk.gov.justice.hmpps.prison.api.model.RequestToRecall;
@@ -257,6 +258,22 @@ public class OffenderResource {
         @RequestBody @NotNull @Valid final RequestForCourtTransferIn requestForCourtTransferIn) {
         return prisonerReleaseAndTransferService.courtTransferIn(offenderNo, requestForCourtTransferIn);
     }
+
+    @ApiResponses({
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 403, message = "Forbidden - user not authorised to transfer a prisoner", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation("Transfer a prisoner into a prison from court. Must be an out prisoner in currently in transfer status, requires the TRANSFER_PRISONER role")
+    @PutMapping("/{offenderNo}/temporary-absence-arrival")
+    @PreAuthorize("hasRole('TRANSFER_PRISONER') and hasAuthority('SCOPE_write')")
+    @ProxyUser
+    public InmateDetail temporaryAbsenceArrival(
+        @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @ApiParam(value = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
+        @RequestBody @NotNull @Valid final RequestForTemporaryAbsenceArrival requestForTemporaryAbsenceArrival) {
+        return prisonerReleaseAndTransferService.temporaryAbsenceArrival(offenderNo, requestForTemporaryAbsenceArrival);
+    }
+
 
     @ApiResponses({
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
