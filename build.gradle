@@ -95,8 +95,7 @@ task testWithSchemaNomis(type: Test) {
     def nomisEnvVars = ['api.db.target'   : 'nomis',
                         'cucumber.options': "--tags 'not (@wip or @broken)'"]
 
-    exclude '**/persistence/*'
-    exclude '**/*IntTest*'
+    include '**/executablespecification/*'
     environment nomisEnvVars
     useJUnitPlatform()
     minHeapSize = "128m"
@@ -108,8 +107,7 @@ task testWithSchemaNomisOracle(type: Test) {
     def nomisEnvVars = ['api.db.target'   : 'nomis', 'api.db.dialect': 'oracle',
                         'cucumber.options': "--tags 'not (@wip or @broken)'"]
 
-    exclude '**/persistence/*'
-    exclude '**/*IntTest*'
+    include '**/executablespecification/*'
     environment nomisEnvVars
     useJUnitPlatform()
     jvmArgs = ["--illegal-access=permit"]
