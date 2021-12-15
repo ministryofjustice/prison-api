@@ -4,6 +4,7 @@ import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.justice.hmpps.prison.api.model.Movement;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIn;
@@ -14,6 +15,7 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.MovementsSteps;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MovementsStepDefinitions extends AbstractStepDefinitions {
 
@@ -100,7 +102,12 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
     @Then("^information about 'offenders in' is returned as follows:$")
     public void informationAboutOffendersInIsReturnedAsFollows(final DataTable table) {
         final List<OffenderIn> offendersIn = table.asList(OffenderIn.class);
-        movementsSteps.verifyOffendersIn(offendersIn);
+        movementsSteps.verifyOffendersIn(offendersIn.stream()
+            .map(offender -> offender.toBuilder()
+                .middleName(StringUtils.defaultString(offender.getMiddleName()))
+                .location(StringUtils.defaultString(offender.getLocation()))
+                .build()).collect(Collectors.toList())
+        );
     }
 
     @When("^a request is made to retrieve the 'offenders out' for agency \"([^\"]*)\" for \"([^\"]*)\"$")
