@@ -26,20 +26,11 @@ public class OffenderIepReview {
     @ApiModelProperty(value = "Number for case notes of type NEG and subtype IEP_WARN", required = true, example = "3")
     private int negativeIeps;
 
-    @ApiModelProperty(value = "Number for case notes of type POS", required = true, example = "3")
-    private int positiveIepsAll;
-
-    @ApiModelProperty(value = "Number for case notes of type NEG", required = true, example = "3")
-    private int negativeIepsAll;
-
     @ApiModelProperty(value = "Number of proven adjudications", required = true, example = "3")
     private int provenAdjudications;
 
     @ApiModelProperty(value = "Date of last IEP review", example = "2017-03-17T08:02:00")
     private LocalDateTime lastReviewTime;
-
-    @ApiModelProperty(value = "Date of last IEP review when on previous level", example = "2017-03-17T08:02:00")
-    private LocalDateTime previousLevelReviewDate;
 
     @ApiModelProperty(value = "The current IEP level for offender", example = "Basic")
     private String currentLevel;
