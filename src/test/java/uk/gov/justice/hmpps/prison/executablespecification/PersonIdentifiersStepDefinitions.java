@@ -9,6 +9,7 @@ import uk.gov.justice.hmpps.prison.api.model.PersonIdentifier;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.OffenderIdentifierSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.PersonIdentifierSteps;
 
+import java.util.Collections;
 import java.util.List;
 
 public class PersonIdentifiersStepDefinitions extends AbstractStepDefinitions {
@@ -24,6 +25,10 @@ public class PersonIdentifiersStepDefinitions extends AbstractStepDefinitions {
         personIdentifierSteps.requestPersonIdentifiers(personId);
     }
 
+    @Then("^there are no returned identifiers")
+    public void noReturnedIdentifiers() throws Throwable {
+        personIdentifierSteps.verifyPersonIdentifiers(Collections.emptyList());
+    }
     @Then("^the returned identifiers are:$")
     public void reasonCodesAreReturnedAsFollows(final DataTable table) throws Throwable {
         final List<PersonIdentifier> expected = table.asList(PersonIdentifier.class);

@@ -60,7 +60,7 @@ Feature: Movement
     When a request is made to retrieve the 'offenders in' for agency "LEI" on date "2017-10-12"
     Then information about 'offenders in' is returned as follows:
     | offenderNo | bookingId | dateOfBirth | firstName | middleName | lastName | fromAgencyDescription | toAgencyDescription | fromAgencyId | toAgencyId   |  movementTime | movementDateTime  | location    |
-    | A6676RS    |       -29 | 1945-01-10  | Neil      |            | Bradley  | Birmingham            | Leeds               | BMI          | LEI          | 10:45         |  2017-10-12 10:45 | Landing H/1 |
+    | A6676RS    |       -29 | 1945-01-10  | Neil      |            | Bradley  | Birmingham            | Leeds               | BMI          | LEI          | 10:45         |  2017-10-12T10:45 | Landing H/1 |
 
 
 Scenario: Get brief information about offenders 'in today' specifically dealing with temporary absences
@@ -68,7 +68,7 @@ Scenario: Get brief information about offenders 'in today' specifically dealing 
     When a request is made to retrieve the 'offenders in' for agency "LEI" on date "2018-01-01"
     Then information about 'offenders in' is returned as follows:
       | offenderNo | bookingId | dateOfBirth | firstName |  lastName | middleName |  toAgencyDescription  | toAgencyId |  movementTime   |   movementDateTime  | location    | fromCity |
-      | A1181FF    |       -47 | 1980-01-02  | Janis     | Drp       |            | Leeds                 | LEI        | 00:00           |   2018-01-01 00:00 |             | Wadhurst |
+      | A1181FF    |       -47 | 1980-01-02  | Janis     | Drp       |            | Leeds                 | LEI        | 00:00           |   2018-01-01T00:00 |             | Wadhurst |
 
   Scenario Outline: Get brief information about most recent movements, specifically dealing with temporary absences
     Given a user has a token name of "VIEW_PRISONER_DATA"
@@ -103,8 +103,8 @@ Scenario: Get brief information about offenders 'in today' specifically dealing 
     When a request is made to retrieve the 'offenders in' for agency "MDI" on date "2000-08-16"
     Then information about 'offenders in' is returned as follows:
       | offenderNo | bookingId | dateOfBirth | firstName | middleName | lastName | fromAgencyDescription | toAgencyDescription | fromAgencyId   | toAgencyId    |  movementTime | movementDateTime  |location    |
-      | A1181FF    |       -47 | 1980-01-02  | Janis     |            | Drp      | Outside               | Moorland            | OUT            | MDI           | 00:00         | 2000-08-16 00:00  |            |
-      | A1181FF    |       -47 | 1980-01-02  | Janis     |            | Drp      | Court 1               | Moorland            | COURT1         | MDI           | 00:00         | 2000-08-16 00:00  |            |
+      | A1181FF    |       -47 | 1980-01-02  | Janis     |            | Drp      | Outside               | Moorland            | OUT            | MDI           | 00:00         | 2000-08-16T00:00  |            |
+      | A1181FF    |       -47 | 1980-01-02  | Janis     |            | Drp      | Court 1               | Moorland            | COURT1         | MDI           | 00:00         | 2000-08-16T00:00  |            |
 
     When a request is made to retrieve the 'offenders out' for agency "MDI" for "2000-08-16"
     Then the following rows should be returned:
@@ -115,7 +115,7 @@ Scenario: Get brief information about offenders 'in today' specifically dealing 
     When a request is made to retrieve the 'offenders in' for agency "LEI" on date "2000-08-16"
     Then information about 'offenders in' is returned as follows:
       | offenderNo | bookingId | dateOfBirth | firstName | middleName | lastName | fromAgencyDescription   | toAgencyDescription | fromAgencyId   | toAgencyId   |  movementTime | movementDateTime     | location    |
-      | A1181FF    |       -47 | 1980-01-02  | Janis     |            | Drp      | Moorland                | Leeds               | MDI            | LEI          | 00:00         |   2000-08-16 00:00   |             |
+      | A1181FF    |       -47 | 1980-01-02  | Janis     |            | Drp      | Moorland                | Leeds               | MDI            | LEI          | 00:00         |   2000-08-16T00:00   |             |
 
   Scenario Outline: Get the details of the external movements between two times for a list of agencies
 

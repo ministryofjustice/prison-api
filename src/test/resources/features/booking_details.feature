@@ -280,7 +280,7 @@ Feature: Booking Details
     Then "2" row of physical characteristics is returned
 
   Scenario: Request for basic inmate details by bookingIds
-    When a request is made with booking Ids  "-3,-4" for prison "LEI"
+    When a request is made with booking Ids "-3,-4" for prison "LEI"
     Then "2" rows of basic inmate details are returned
 
   Scenario: Request for image metadata
@@ -300,7 +300,7 @@ Feature: Booking Details
     Then image bytes are returned
 
     Scenario Outline: Request offender basic details by offender numbers
-      When a request is made for  "A1234AE,A1234AB"
+      When a request is made for "A1234AE,A1234AB"
       Then data is returned that includes "<firstName>" "<lastName>" "<middleName>" "<offenderNo>" "<bookingId>" "<agencyId>"
 
       Examples:

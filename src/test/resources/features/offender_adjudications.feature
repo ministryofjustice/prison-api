@@ -8,8 +8,8 @@ Feature: Offenders Adjudications
     When I view the adjudications of offender with offender display number of "A1181HH"
     Then the adjudication results are:
       | adjudicationNumber | reportDate       | agencyId | offenceCodes | findings      |
-      | -7                 | 2019-08-25 00:03 | MDI      | 51:2D,51:2D  | PROVED,PROVED |
-      | -2                 | 2017-02-23 00:01 | LEI      | 51:2C        | NOT_PROVED    |
+      | -7                 | 2019-08-25T00:03 | MDI      | 51:2D,51:2D  | PROVED,PROVED |
+      | -2                 | 2017-02-23T00:01 | LEI      | 51:2C        | NOT_PROVED    |
     And the associated offences for this offender are: "51:2C,51:2D"
     And the associated agencies for this offender are: "LEI,MDI"
 

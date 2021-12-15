@@ -1,7 +1,9 @@
 package uk.gov.justice.hmpps.prison.executablespecification.steps;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -132,9 +134,10 @@ public class OffenderAdjudicationSteps extends CommonSteps {
         return adjudication.getAdjudicationCharges().stream().map(extractor).collect(joining(","));
     }
 
-
     @Data
     @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class AdjudicationRow {
         private long adjudicationNumber;
         private LocalDateTime reportDate;
