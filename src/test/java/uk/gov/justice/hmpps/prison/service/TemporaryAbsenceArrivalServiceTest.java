@@ -44,16 +44,16 @@ public class TemporaryAbsenceArrivalServiceTest {
     private static String OFFENDER_NO = "G6942UN";
 
     @Test
-    @Sql(scripts = {"/sql/temporaryAbsenceArrival_init.sql"},
+    @Sql(scripts = {"/sql/scheduledTemporaryAbsenceArrival_init.sql"},
         executionPhase = ExecutionPhase.BEFORE_TEST_METHOD,
         config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
-    @Sql(scripts = {"/sql/temporaryAbsenceArrival_clean.sql"},
+    @Sql(scripts = {"/sql/scheduledTemporaryAbsenceArrival_clean.sql"},
         executionPhase = ExecutionPhase.AFTER_TEST_METHOD,
         config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
-    public void temporaryAbsenceArrival() {
-        RequestForTemporaryAbsenceArrival requestForCourtTransferIn = new RequestForTemporaryAbsenceArrival();
-        requestForCourtTransferIn.setAgencyId("BXI");
-        InmateDetail inmateDetail = prisonerReleaseAndTransferService.temporaryAbsenceArrival(OFFENDER_NO, requestForCourtTransferIn);
+    public void scheduledTemporaryAbsenceArrival() {
+        RequestForTemporaryAbsenceArrival requestForTemporaryAbsenceArrival = new RequestForTemporaryAbsenceArrival();
+        requestForTemporaryAbsenceArrival.setAgencyId("BXI");
+        InmateDetail inmateDetail = prisonerReleaseAndTransferService.temporaryAbsenceArrival(OFFENDER_NO, requestForTemporaryAbsenceArrival);
         TestTransaction.flagForCommit();
         TestTransaction.end();
         List<Map<String, Object>> offenderBookings = jdbcTemplate.queryForList("select * from OFFENDER_BOOKINGS where OFFENDER_BOOK_ID=1176156");
@@ -73,6 +73,35 @@ public class TemporaryAbsenceArrivalServiceTest {
         List<Map<String, Object>> courtEvents = jdbcTemplate.queryForList("select * from OFFENDER_IND_SCHEDULES where EVENT_ID=456944515");
         assertThat(courtEvents.get(0).get("PARENT_EVENT_ID").toString()).isEqualTo("456944514");
         assertThat(courtEvents.get(0).get("EVENT_STATUS").toString()).isEqualTo("COMP");
+    }
+
+    @Test
+    @Sql(scripts = {"/sql/unscheduledTemporaryAbsenceArrival_init.sql"},
+        executionPhase = ExecutionPhase.BEFORE_TEST_METHOD,
+        config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
+    @Sql(scripts = {"/sql/unscheduledTemporaryAbsenceArrival_clean.sql"},
+        executionPhase = ExecutionPhase.AFTER_TEST_METHOD,
+        config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
+    public void unscheduledTemporaryAbsenceArrival() {
+        RequestForTemporaryAbsenceArrival requestForTemporaryAbsenceArrival = new RequestForTemporaryAbsenceArrival();
+        requestForTemporaryAbsenceArrival.setAgencyId("BXI");
+        InmateDetail inmateDetail = prisonerReleaseAndTransferService.temporaryAbsenceArrival(OFFENDER_NO, requestForTemporaryAbsenceArrival);
+        TestTransaction.flagForCommit();
+        TestTransaction.end();
+        List<Map<String, Object>> offenderBookings = jdbcTemplate.queryForList("select * from OFFENDER_BOOKINGS where OFFENDER_BOOK_ID=1176156");
+
+        assertThat(offenderBookings.get(0).get("IN_OUT_STATUS").toString()).isEqualTo("IN");
+        assertThat(offenderBookings.get(0).get("AGENCY_IML_ID")).isEqualTo(null);
+        List<Map<String, Object>> externalMovements = jdbcTemplate.queryForList("select * from OFFENDER_EXTERNAL_MOVEMENTS where OFFENDER_BOOK_ID=1176156 and MOVEMENT_SEQ=2");
+        assertThat(externalMovements.get(0).get("ACTIVE_FLAG").toString()).isEqualTo("N");
+
+        List<Map<String, Object>> nextExternalMovements = jdbcTemplate.queryForList("select * from OFFENDER_EXTERNAL_MOVEMENTS where OFFENDER_BOOK_ID=1176156 and MOVEMENT_SEQ=3");
+        assertThat(nextExternalMovements.get(0).get("ACTIVE_FLAG").toString()).isEqualTo("Y");
+        assertThat(nextExternalMovements.get(0).get("TO_AGY_LOC_ID").toString()).isEqualTo("BXI");
+        assertThat(nextExternalMovements.get(0).get("FROM_AGY_LOC_ID").toString()).isEqualTo("ABDRCT");
+        assertThat(nextExternalMovements.get(0).get("PARENT_EVENT_ID")).isEqualTo(null);
+        assertThat(nextExternalMovements.get(0).get("EVENT_ID")).isEqualTo(null);
+
     }
 
 }
