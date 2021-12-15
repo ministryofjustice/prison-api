@@ -889,6 +889,7 @@ public class PrisonerReleaseAndTransferService {
             .movementReason(movementReason)
             .movementDirection(MovementDirection.IN)
             .fromAgency(latestExternalMovement.getToAgency())
+            .fromCity(latestExternalMovement.getToCity())
             .toAgency(latestExternalMovement.getFromAgency())
             .active(true)
             .commentText(requestForTemporaryAbsenceArrival.getCommentText());
