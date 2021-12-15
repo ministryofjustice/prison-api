@@ -1,9 +1,9 @@
 package uk.gov.justice.hmpps.prison.executablespecification;
 
-import cucumber.api.DataTable;
-import cucumber.api.java.en.And;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
+import io.cucumber.datatable.DataTable;
+import io.cucumber.java.en.And;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.justice.hmpps.prison.api.model.Movement;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIn;
@@ -99,7 +99,7 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
 
     @Then("^information about 'offenders in' is returned as follows:$")
     public void informationAboutOffendersInIsReturnedAsFollows(final DataTable table) {
-        final var offendersIn = table.asList(OffenderIn.class);
+        final List<OffenderIn> offendersIn = table.asList(OffenderIn.class);
         movementsSteps.verifyOffendersIn(offendersIn);
     }
 
@@ -115,13 +115,13 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
 
     @Then("^information about 'offenders in reception' is returned as follows:$")
     public void informationAboutOffendersInReceptionIsReturnedAsFollows(final DataTable table) {
-        final var offendersInReception = table.asList(OffenderInReception.class);
+        final List<OffenderInReception> offendersInReception = table.asList(OffenderInReception.class);
         movementsSteps.verifyOffendersInReception(offendersInReception);
     }
 
     @Then("^information about 'recent movements' is returned as follows:$")
     public void informationAboutRecentMovementsIsReturnedAsFollows(final DataTable table) {
-        final var recentMovements = table.asList(Movement.class);
+        final List<Movement> recentMovements = table.asList(Movement.class);
         movementsSteps.verifyMovements(recentMovements);
     }
 

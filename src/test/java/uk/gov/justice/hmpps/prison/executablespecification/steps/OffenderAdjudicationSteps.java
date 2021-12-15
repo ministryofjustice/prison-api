@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.executablespecification.steps;
 
-import cucumber.api.Format;
 import lombok.Builder;
 import lombok.Data;
 import net.thucydides.core.annotations.Step;
@@ -96,16 +95,16 @@ public class OffenderAdjudicationSteps extends CommonSteps {
     }
 
 
-    public void verifyAdjudications(@Format("yyyy-MM-dd HH:mm") final List<AdjudicationRow> expected) {
+    public void verifyAdjudications(final List<AdjudicationRow> expected) {
         final var found = adjudications.stream()
-                .map(adj -> AdjudicationRow.builder().
-                        adjudicationNumber(adj.getAdjudicationNumber()).
-                        reportDate(adj.getReportTime()).
-                        agencyId(adj.getAgencyId()).
-                        offenceCodes(commaSeparated(adj, AdjudicationCharge::getOffenceCode)).
-                        findings(commaSeparated(adj, AdjudicationCharge::getFindingCode))
-                        .build())
-                .collect(toList());
+            .map(adj -> AdjudicationRow.builder().
+                adjudicationNumber(adj.getAdjudicationNumber()).
+                reportDate(adj.getReportTime()).
+                agencyId(adj.getAgencyId()).
+                offenceCodes(commaSeparated(adj, AdjudicationCharge::getOffenceCode)).
+                findings(commaSeparated(adj, AdjudicationCharge::getFindingCode))
+                .build())
+            .collect(toList());
 
         assertThat(found).containsExactlyElementsOf(expected);
     }

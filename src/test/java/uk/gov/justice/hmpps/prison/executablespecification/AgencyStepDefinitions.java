@@ -1,15 +1,17 @@
 package uk.gov.justice.hmpps.prison.executablespecification;
 
-import cucumber.api.DataTable;
-import cucumber.api.java.en.And;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
+import io.cucumber.datatable.DataTable;
+import io.cucumber.java.en.And;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.IepLevel;
 import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AgencySteps;
+
+import java.util.List;
 
 /**
  * BDD step definitions for endpoints:
@@ -36,7 +38,7 @@ public class AgencyStepDefinitions extends AbstractStepDefinitions {
 
     @Then("^the returned agencies are as follows:$")
     public void agenciesAreReturnedAsFollows(final DataTable table) throws Throwable {
-        final var expected = table.asList(Agency.class);
+        final List<Agency> expected = table.asList(Agency.class);
         agencySteps.verifyAgencyList(expected);
     }
 
@@ -97,7 +99,7 @@ public class AgencyStepDefinitions extends AbstractStepDefinitions {
 
     @Then("^the returned agency locations are as follows:$")
     public void locationCodesAreReturnedAsFollows(final DataTable table) throws Throwable {
-        final var expected = table.asList(Location.class);
+        final List<Location> expected = table.asList(Location.class);
         agencySteps.verifyLocationList(expected);
     }
 
@@ -123,7 +125,7 @@ public class AgencyStepDefinitions extends AbstractStepDefinitions {
 
     @Then("^the returned IEP levels are as follows:$")
     public void IepLevelsAreReturnedAsFollows(final DataTable table) throws Throwable {
-        final var expected = table.asList(IepLevel.class);
+        final List<IepLevel> expected = table.asList(IepLevel.class);
         agencySteps.verifyIepLevelsList(expected);
     }
 }

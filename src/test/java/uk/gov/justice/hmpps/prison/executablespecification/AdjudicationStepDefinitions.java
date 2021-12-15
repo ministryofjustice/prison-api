@@ -1,8 +1,7 @@
 package uk.gov.justice.hmpps.prison.executablespecification;
 
-import cucumber.api.Format;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.Award;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AdjudicationSteps;
@@ -55,7 +54,7 @@ public class AdjudicationStepDefinitions extends AbstractStepDefinitions {
     }
 
     @Then("^the award result list is as follows:$")
-    public void awardResultListIsAsFollows(@Format("yyyy-MM-dd") final List<Award> list) throws Throwable {
+    public void awardResultListIsAsFollows(final List<Award> list) throws Throwable {
         adjudicationSteps.verifyAwards(list);
     }
 

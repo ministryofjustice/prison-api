@@ -6,7 +6,6 @@ Feature: Person Identifiers
   Scenario: Retrieve identifiers for a personId that does not exist
     When the identifiers for a person represented by "1000" are requested
     Then the returned identifiers are:
-    | identifierType | identifierValue |
 
   Scenario: Retrieve the identifiers for a personId having multiple identifiers
     When the identifiers for a person represented by "-1" are requested
