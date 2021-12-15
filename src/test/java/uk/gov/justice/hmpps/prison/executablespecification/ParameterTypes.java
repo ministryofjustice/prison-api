@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.executablespecification;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.cucumber.java.DefaultDataTableCellTransformer;
 import io.cucumber.java.DefaultDataTableEntryTransformer;
 import io.cucumber.java.DefaultParameterTransformer;
@@ -14,6 +15,7 @@ public class ParameterTypes {
 
     public ParameterTypes() {
         objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+        objectMapper.registerModule(new JavaTimeModule());
     }
 
     @DefaultParameterTransformer
