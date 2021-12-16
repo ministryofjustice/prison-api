@@ -72,6 +72,9 @@ public class OffenderIndividualSchedule extends AuditableEntity {
     @Column(name = "EVENT_SUB_TYPE", nullable = false)
     private String eventSubType;
 
+    @Column(name = "PARENT_EVENT_ID")
+    private Long parentEventId;
+
     @ManyToOne
     @NotFound(action = EXCEPTION)
     @JoinColumnsOrFormulas(value = {
