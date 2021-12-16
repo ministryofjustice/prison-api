@@ -1,8 +1,8 @@
 package uk.gov.justice.hmpps.prison.executablespecification;
 
-import cucumber.api.java.en.And;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
+import io.cucumber.java.en.And;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentDefaults;
@@ -36,7 +36,7 @@ public class BulkAppointmentsStepDefinitions extends AbstractStepDefinitions {
                 .appointmentType(defaults.get("appointmentType"))
                 .startTime(asLocalDateTime(defaults.get("startTime")))
                 .comment(defaults.get("comment"));
-        if (!StringUtils.isBlank(defaults.get("endTime"))) {
+        if (StringUtils.isNotBlank(defaults.get("endTime"))) {
             builder.endTime(asLocalDateTime(defaults.get("endTime")));
         }
         bulkAppointmentSteps.appointmentDefaults(builder.build());
@@ -120,8 +120,8 @@ public class BulkAppointmentsStepDefinitions extends AbstractStepDefinitions {
 
     private static Map<String, String> replaceRelativeTimes(Map<String, String> map) {
         final var result = new HashMap<>(map);
-        result.computeIfPresent("startTime", BulkAppointmentsStepDefinitions::asDateTimeString);
-        result.computeIfPresent("endTime", BulkAppointmentsStepDefinitions::asDateTimeString);
+        result.compute("startTime", BulkAppointmentsStepDefinitions::asDateTimeString);
+        result.compute("endTime", BulkAppointmentsStepDefinitions::asDateTimeString);
         return result;
     }
 

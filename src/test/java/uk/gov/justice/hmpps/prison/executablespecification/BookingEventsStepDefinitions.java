@@ -1,11 +1,13 @@
 package uk.gov.justice.hmpps.prison.executablespecification;
 
-import cucumber.api.DataTable;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
+import io.cucumber.datatable.DataTable;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingEventSteps;
+
+import java.util.List;
 
 /**
  * BDD step definitions for finance endpoints:
@@ -45,7 +47,7 @@ public class BookingEventsStepDefinitions extends AbstractStepDefinitions {
 
     @Then("^events are returned as follows:$")
     public void eventsAreReturnedAsFollows(final DataTable table) throws Throwable {
-        final var expected = table.asList(ScheduledEvent.class);
+        final List<ScheduledEvent> expected = table.asList(ScheduledEvent.class);
         eventsSteps.verifyEvents(expected);
     }
 }

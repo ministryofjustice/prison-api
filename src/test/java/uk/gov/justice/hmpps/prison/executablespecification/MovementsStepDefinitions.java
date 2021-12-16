@@ -1,9 +1,10 @@
 package uk.gov.justice.hmpps.prison.executablespecification;
 
-import cucumber.api.DataTable;
-import cucumber.api.java.en.And;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
+import io.cucumber.datatable.DataTable;
+import io.cucumber.java.en.And;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.justice.hmpps.prison.api.model.Movement;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIn;
@@ -14,6 +15,7 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.MovementsSteps;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MovementsStepDefinitions extends AbstractStepDefinitions {
 
@@ -99,8 +101,13 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
 
     @Then("^information about 'offenders in' is returned as follows:$")
     public void informationAboutOffendersInIsReturnedAsFollows(final DataTable table) {
-        final var offendersIn = table.asList(OffenderIn.class);
-        movementsSteps.verifyOffendersIn(offendersIn);
+        final List<OffenderIn> offendersIn = table.asList(OffenderIn.class);
+        movementsSteps.verifyOffendersIn(offendersIn.stream()
+            .map(offender -> offender.toBuilder()
+                .middleName(StringUtils.defaultString(offender.getMiddleName()))
+                .location(StringUtils.defaultString(offender.getLocation()))
+                .build()).collect(Collectors.toList())
+        );
     }
 
     @When("^a request is made to retrieve the 'offenders out' for agency \"([^\"]*)\" for \"([^\"]*)\"$")
@@ -115,13 +122,13 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
 
     @Then("^information about 'offenders in reception' is returned as follows:$")
     public void informationAboutOffendersInReceptionIsReturnedAsFollows(final DataTable table) {
-        final var offendersInReception = table.asList(OffenderInReception.class);
+        final List<OffenderInReception> offendersInReception = table.asList(OffenderInReception.class);
         movementsSteps.verifyOffendersInReception(offendersInReception);
     }
 
     @Then("^information about 'recent movements' is returned as follows:$")
     public void informationAboutRecentMovementsIsReturnedAsFollows(final DataTable table) {
-        final var recentMovements = table.asList(Movement.class);
+        final List<Movement> recentMovements = table.asList(Movement.class);
         movementsSteps.verifyMovements(recentMovements);
     }
 

@@ -1,9 +1,9 @@
 package uk.gov.justice.hmpps.prison.executablespecification;
 
-import cucumber.api.DataTable;
-import cucumber.api.java.en.And;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
+import io.cucumber.datatable.DataTable;
+import io.cucumber.java.en.And;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.justice.hmpps.prison.api.model.CaseNote;
@@ -13,6 +13,8 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.CaseNoteSteps;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
 import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -54,13 +56,13 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
 
     @When("^a case note is created for booking:$")
     public void aCaseNoteIsCreatedForBooking(final DataTable rawData) throws Throwable {
-        final var caseNoteData = rawData.asMap(String.class, String.class);
+        final Map<String, String> caseNoteData = rawData.asMap(String.class, String.class);
 
         final var bookingId = Long.valueOf(caseNoteData.get("bookingId"));
 
         final var newCaseNote =
-                buildNewCaseNote(caseNoteData.get("type"),
-                        caseNoteData.get("subType"),
+                buildNewCaseNote(StringUtils.defaultString(caseNoteData.get("type")),
+                        StringUtils.defaultString(caseNoteData.get("subType")),
                         caseNoteData.get("text"),
                         caseNoteData.get("occurrenceDateTime"));
 
@@ -69,7 +71,7 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
 
     @When("^attempt is made to create case note for booking:$")
     public void attemptIsMadeToCreateCaseNoteForBooking(final DataTable rawData) throws Throwable {
-        final var caseNoteData = rawData.asMap(String.class, String.class);
+        final Map<String, String> caseNoteData = rawData.asMap(String.class, String.class);
 
         final var bookingId = Long.valueOf(caseNoteData.get("bookingId"));
 
@@ -90,7 +92,7 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
 
     @Then("case note validation errors are:")
     public void caseNoteValidationErrorsAre(final DataTable rawData) {
-        final var errors = rawData.asList(String.class);
+        final List<String> errors = rawData.transpose().asList(String.class);
         caseNote.verifyBadRequest(errors);
     }
 

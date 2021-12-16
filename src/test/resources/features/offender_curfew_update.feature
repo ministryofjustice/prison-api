@@ -12,7 +12,6 @@ Feature: Updating Offender Curfew state
       | SYSTEM_USER_READ_WRITE | -35       | false        | 2018-01-31       | 204        |
       | SYSTEM_USER_READ_WRITE | -35       |              | 2018-01-31       | 400        |
       | SYSTEM_USER_READ_WRITE | -35       | true         |                  | 400        |
-      | SYSTEM_USER_READ_WRITE | -35       | x            | 2018-01-31       | 400        |
       | SYSTEM_USER_READ_WRITE | -35       | true         | xxxxxxxxxx       | 400        |
       | SYSTEM_USER_READ_WRITE | 99999     | true         | 2018-01-31       | 404        |
       | PRISON_API_USER        | -35       | true         | 2018-01-31       | 403        |

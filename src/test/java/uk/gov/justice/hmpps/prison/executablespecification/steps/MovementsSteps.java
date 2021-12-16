@@ -290,7 +290,7 @@ public class MovementsSteps extends CommonSteps {
     }
 
     public void verifyOffendersIn(final List<OffenderIn> expectedOffendersIn) {
-        assertThat(offendersIn).containsOnlyElementsOf(expectedOffendersIn);
+        assertThat(offendersIn).containsExactlyInAnyOrderElementsOf(expectedOffendersIn);
     }
 
     public void getOffendersInReception(final String agencyId) {

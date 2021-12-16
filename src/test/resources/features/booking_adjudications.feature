@@ -62,4 +62,4 @@ Feature: Booking Adjudications
 
   Scenario: Offender does not exist or different caseload
     When adjudication summary with booking id -16 is requested
-    Then resource not found response is received from adjudication details API
+    Then resource not found response is received from adjudication summary API

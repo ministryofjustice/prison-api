@@ -8,8 +8,8 @@ Feature: Offenders Adjudications
     When I view the adjudications of offender with offender display number of "A1181HH"
     Then the adjudication results are:
       | adjudicationNumber | reportDate       | agencyId | offenceCodes | findings      |
-      | -7                 | 2019-08-25 00:03 | MDI      | 51:2D,51:2D  | PROVED,PROVED |
-      | -2                 | 2017-02-23 00:01 | LEI      | 51:2C        | NOT_PROVED    |
+      | -7                 | 2019-08-25T00:03 | MDI      | 51:2D,51:2D  | PROVED,PROVED |
+      | -2                 | 2017-02-23T00:01 | LEI      | 51:2C        | NOT_PROVED    |
     And the associated offences for this offender are: "51:2C,51:2D"
     And the associated agencies for this offender are: "LEI,MDI"
 
@@ -18,9 +18,9 @@ Feature: Offenders Adjudications
     When I view the adjudications of offender with offender display number of "A1181GG"
     Then the adjudication results are:
       | adjudicationNumber | reportDate       | agencyId | offenceCodes | findings       |
-      | -3002              | 2019-10-25 00:05 | BXI      | 51:8D        | null           |
-      | -3001              | 2019-09-25 00:04 | LEI      | 51:8D        | null           |
-      | -3                 | 2019-08-25 00:03 | MDI      | 51:2D        | PROVED         |
+      | -3002              | 2019-10-25T00:05 | BXI      | 51:8D        | null           |
+      | -3001              | 2019-09-25T00:04 | LEI      | 51:8D        | null           |
+      | -3                 | 2019-08-25T00:03 | MDI      | 51:2D        | PROVED         |
     And the associated offences for this offender are: "51:2D, 51:8D"
     And the associated agencies for this offender are: "MDI, LEI, BXI"
 
@@ -29,7 +29,7 @@ Feature: Offenders Adjudications
     When I view the adjudications of offender with offender display number of "A1181GG" at "LEI" with charge of type: "86"
     Then the adjudication results are:
       | adjudicationNumber | reportDate       | agencyId | offenceCodes | findings      |
-      | -3001              | 2019-09-25 00:04 | LEI      | 51:8D        | null          |
+      | -3001              | 2019-09-25T00:04 | LEI      | 51:8D        | null          |
     And the associated offences for this offender are: "51:2D, 51:8D"
     And the associated agencies for this offender are: "MDI, LEI, BXI"
 

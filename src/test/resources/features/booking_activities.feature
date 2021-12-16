@@ -122,6 +122,8 @@ Feature: Booking Activities
     Then bad request response, with "Invalid date range: toDate is before fromDate." message, is received from booking activities API
 
 # Pay is Nomis-only for now due to the "offender id to booking id mapping sql" using nomis-specific booking_seq column
+  # step not implemented so marked as broken
+  @broken
   Scenario: Pay an activity and reject double payment
         Offender id A1234AC has 2 activities scheduled on 2017-09-12 PM with eventId -6 and -7
     When a request is made to update attendance for offender id "A1234AC" and activity "-6" with outcome "ATT", performance "STANDARD" and comment "blah"

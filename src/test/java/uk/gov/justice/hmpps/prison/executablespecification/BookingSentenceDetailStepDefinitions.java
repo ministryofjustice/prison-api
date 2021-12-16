@@ -1,11 +1,9 @@
 package uk.gov.justice.hmpps.prison.executablespecification;
 
-import cucumber.api.DataTable;
-import cucumber.api.java.en.And;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
+import io.cucumber.java.en.And;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
-import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingSentenceDetailSteps;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -236,20 +234,5 @@ public class BookingSentenceDetailStepDefinitions extends AbstractStepDefinition
     @When("^sentence details are requested for offenders who are candidates for Home Detention Curfew$")
     public void sentenceDetailsAreRequestedForHomeDetentionCurfewCandidates() {
         bookingSentenceDetail.requestSentenceDetailsForHomeDetentionCurfewCandidates();
-    }
-
-    @When("^sentence terms are requested for booking id \"([^\"]*)\"$")
-    public void sentenceTermsAreRequested(final String bookingId) {
-        bookingSentenceDetail.requestSentenceTerms(bookingId);
-    }
-
-    @Then("^correct sentence terms data is returned$")
-    public void verifySentenceTermsOld() {
-        bookingSentenceDetail.verifySentenceTermsOld();
-    }
-
-    @Then("^correct sentence terms data is returned as follows:$")
-    public void sentenceTermsAreReturnedAsFollows(final DataTable table) {
-        bookingSentenceDetail.verifySentenceTerms(table.asList(OffenderSentenceTerms.class));
     }
 }

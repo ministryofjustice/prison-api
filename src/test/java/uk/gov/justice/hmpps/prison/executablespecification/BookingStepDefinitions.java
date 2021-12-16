@@ -1,9 +1,9 @@
 package uk.gov.justice.hmpps.prison.executablespecification;
 
-import cucumber.api.DataTable;
-import cucumber.api.java.en.And;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
+import io.cucumber.java.DataTableType;
+import io.cucumber.java.en.And;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.justice.hmpps.prison.api.model.Alert;
@@ -19,6 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -248,8 +249,7 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     }
 
     @Then("^alert details are returned as follows:$")
-    public void alertsAreReturnedAsFollows(final DataTable table) {
-        final var expected = table.asList(Alert.class);
+    public void alertsAreReturnedAsFollows(final List<Alert> expected) {
         bookingAlerts.verifyAlerts(expected);
     }
 
@@ -531,5 +531,29 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @Then("^\"([^\"]*)\" rows of basic inmate details are returned$")
     public void rowsOfBasicInmateDetailsAreReturned(final String count) {
         bookingDetail.verifyOffendersBasicCount(Integer.parseInt(count));
+    }
+
+    @DataTableType
+    public Alert alertEntry(Map<String, String> entry) {
+        return Alert.builder()
+            .offenderNo(entry.get("offenderNo"))
+            .bookingId(Long.valueOf(entry.get("bookingId")))
+            .alertId(Long.valueOf(entry.get("alertId")))
+            .alertType(entry.get("alertType"))
+            .alertTypeDescription(entry.get("alertTypeDescription"))
+            .alertCode(entry.get("alertCode"))
+            .alertCodeDescription(entry.get("alertCodeDescription"))
+            .comment(entry.get("comment"))
+            .dateCreated(convertTodayAndParse(entry.get("dateCreated")))
+            .dateExpires(convertTodayAndParse(entry.get("dateExpires")))
+            .expired(Boolean.parseBoolean(entry.get("expired")))
+            .active(Boolean.parseBoolean(entry.get("active")))
+            .build();
+    }
+
+    private LocalDate convertTodayAndParse(final String dateCreated) {
+        if (StringUtils.isBlank(dateCreated)) return null;
+        if (dateCreated.equals("today")) return LocalDate.now();
+        return LocalDate.parse(dateCreated);
     }
 }

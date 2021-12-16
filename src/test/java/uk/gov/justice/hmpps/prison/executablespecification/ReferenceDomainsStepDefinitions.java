@@ -1,12 +1,14 @@
 package uk.gov.justice.hmpps.prison.executablespecification;
 
-import cucumber.api.DataTable;
-import cucumber.api.java.en.And;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
+import io.cucumber.datatable.DataTable;
+import io.cucumber.java.en.And;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.ReferenceDomainsSteps;
+
+import java.util.List;
 
 /**
  * BDD step definitions for reference domains endpoints:
@@ -200,7 +202,7 @@ public class ReferenceDomainsStepDefinitions extends AbstractStepDefinitions {
 
     @Then("^the returned reason codes are as follows:$")
     public void reasonCodesAreReturnedAsFollows(final DataTable table) throws Throwable {
-        final var expected = table.asList(ReferenceCode.class);
+        final List<ReferenceCode> expected = table.asList(ReferenceCode.class);
         referenceDomains.verifyReasonCodes(expected);
     }
 }
