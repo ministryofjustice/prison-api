@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.repository;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,4 +25,8 @@ public interface OffenderRepository extends JpaRepository<Offender, Long> {
     default Optional<Offender> findOffenderByNomsId(String nomsId){
         return findOffendersByNomsId(nomsId, PageRequest.of(0,1)).stream().findFirst();
     };
+
+    @Query(value =
+        "select o from Offender o join o.bookings ob join ob.images oi WHERE oi.captureDateTime > :start")
+    Page<Offender> getOffendersWithImagesCapturedAfter(@Param("start") LocalDateTime start, Pageable pageable);
 }
