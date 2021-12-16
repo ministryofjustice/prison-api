@@ -1,9 +1,0 @@
--- Mapping the Oracle UTL_MATCH.JARO_WINKLER_SIMILARITY function to a stubbed value:
-CREATE SCHEMA UTL_MATCH;
-CREATE FUNCTION UTL_MATCH.JARO_WINKLER_SIMILARITY (source_string VARCHAR(255), comparison_string VARCHAR(255))
-RETURNS INTEGER
-RETURN (CASE WHEN source_string = comparison_string THEN 100 else 0 END);
-
-CREATE FUNCTION UTL_MATCH.JARO_WINKLER_SIMILARITY (source_date TIMESTAMP, comparison_date TIMESTAMP)
-RETURNS INTEGER
-RETURN (CASE WHEN source_date = comparison_date THEN 100 else 0 END);
