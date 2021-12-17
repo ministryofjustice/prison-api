@@ -18,12 +18,14 @@ import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.StaffDetail;
 import uk.gov.justice.hmpps.prison.api.model.StaffLocationRole;
 import uk.gov.justice.hmpps.prison.api.model.StaffRole;
+import uk.gov.justice.hmpps.prison.api.model.StaffUserRole;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.service.StaffService;
 import uk.gov.justice.hmpps.prison.service.support.GetStaffRoleRequest;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @Api(tags = {"staff"})
@@ -103,4 +105,14 @@ public class StaffResource {
         return staffService.getAllRolesForAgency(staffId, agencyId);
     }
 
+    @ApiResponses({
+        @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "List"),
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    @ApiOperation(value = "List of users who have the named role at the named caseload", notes = "List of users who have the named role at the named caseload", nickname = "getAllUsersHavingRoleAtCaseload")
+    @GetMapping("/access-roles/caseload/{caseload}/access-role/{roleCode}")
+    public List<String> getAllUsersHavingRoleAtCaseload(@PathVariable("caseload") @ApiParam(value = "Caseload Id", required = true) final String caseload, @PathVariable("roleCode") @ApiParam(value = "access role code", required = true) final String roleCode) {
+        return staffService.getAllStaffRolesForCaseload(caseload, roleCode).stream().map(StaffUserRole::getUsername).collect(Collectors.toList());
+    }
 }
