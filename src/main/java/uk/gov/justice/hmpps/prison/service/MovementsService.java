@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.client.HttpClientErrorException;
+import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.CourtEvent;
 import uk.gov.justice.hmpps.prison.api.model.CourtEventBasic;
 import uk.gov.justice.hmpps.prison.api.model.CreateExternalMovement;
@@ -25,6 +26,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderInReception;
 import uk.gov.justice.hmpps.prison.api.model.OffenderMovement;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOut;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOutTodayDto;
+import uk.gov.justice.hmpps.prison.api.model.OutOnTemporaryAbsenceSummary;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerInPrisonSummary;
 import uk.gov.justice.hmpps.prison.api.model.ReleaseEvent;
 import uk.gov.justice.hmpps.prison.api.model.RollCount;
@@ -37,6 +39,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository;
@@ -407,7 +411,7 @@ public class MovementsService {
         return transformToOffenderMovement(externalMovement);
     }
 
-    private OffenderMovement transformToOffenderMovement(final ExternalMovement externalMovement) {
+    private static OffenderMovement transformToOffenderMovement(final ExternalMovement externalMovement) {
         return OffenderMovement
             .builder()
             .offenderNo(externalMovement.getOffenderBooking().getOffender().getNomsId())
@@ -436,7 +440,36 @@ public class MovementsService {
             ? externalMovementRepository.findAllMovements(agencyId, MovementDirection.IN, fromDate, toDate, pageable)
             : externalMovementRepository.findMovements(agencyId, true, MovementDirection.IN, fromDate, toDate, pageable);
         final var movements = page.getContent().stream().map(this::transform).collect(toList());
-        return new PageImpl<OffenderIn>(movements, pageable, page.getTotalElements());
+        return new PageImpl<>(movements, pageable, page.getTotalElements());
+    }
+
+    public List<OutOnTemporaryAbsenceSummary> getOffendersOutOnTemporaryAbsence(final String agencyId) {
+        return
+            externalMovementRepository.findCurrentTemporaryAbsencesForPrison(
+                agencyId,
+                movementTypeRepository.findById(MovementType.TAP).orElseThrow())
+                .stream().map(MovementsService::transformToOutOnTemporaryAbsenceSummary).collect(toList());
+    }
+
+    private static OutOnTemporaryAbsenceSummary transformToOutOnTemporaryAbsenceSummary(final ExternalMovement movement) {
+        final Offender offender = movement.getOffenderBooking().getOffender();
+        final AgencyLocation toAgency = movement.getToAgency();
+        final City toCity = movement.getToCity();
+
+        return OutOnTemporaryAbsenceSummary
+            .builder()
+            .offenderNo(offender.getNomsId())
+            .firstName(offender.getFirstName())
+            .lastName(offender.getLastName())
+            .dateOfBirth(offender.getBirthDate())
+            .movementTime(movement.getMovementTime())
+            .toAgency(toAgency == null ? null: toAgency.getId())
+            .toAgencyDescription(toAgency == null ? null: toAgency.getDescription())
+            .toCity(toCity == null ? null: toCity.getDescription())
+            .movementReason(movement.getMovementReason().getDescription())
+            .movementReasonCode(movement.getMovementReason().getCode())
+            .commentText(movement.getCommentText())
+            .build();
     }
 
     private OffenderIn transform(ExternalMovement m) {

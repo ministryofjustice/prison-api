@@ -5,9 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @DataJpaTest
@@ -22,10 +24,15 @@ public class ExternalMovementRepositoryTest {
     public ReferenceCodeRepository<MovementType> movementTypeRepository;
 
     @Test
-    public void testThatItDoesntBlowUp() {
+    public void queryShouldReturnExpectedResult() {
         final var temporaryAbsenceMovementType = movementTypeRepository.findById(MovementType.TAP).orElseThrow();
+
         final var absences = externalMovementRepository.findCurrentTemporaryAbsencesForPrison("LEI", temporaryAbsenceMovementType);
         assertThat(absences).hasSize(1);
-        assertThat(absences).extracting("offenderBooking.bookingId").containsExactly(-25L);
+        assertThat(absences).extracting(
+            "offenderBooking.bookingId",
+            "movementDirection",
+            "movementType.code"
+        ).containsExactly(tuple(-25L, MovementDirection.OUT, "TAP"));
     }
 }
