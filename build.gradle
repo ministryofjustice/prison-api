@@ -81,6 +81,7 @@ dependencies {
     testImplementation 'io.swagger.parser.v3:swagger-parser:2.0.29'
 
     testCompileOnly 'org.projectlombok:lombok:1.18.22'
+  testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
 }
 
 task testIntegration(type: Test) {
@@ -117,6 +118,6 @@ test.dependsOn testIntegration, testWithSchemaNomis
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
     kotlinOptions {
-        jvmTarget = "16"
+        jvmTarget = "17"
     }
 }
