@@ -214,8 +214,11 @@ public class OffenderBooking extends AuditableEntity {
     @BatchSize(size = 25)
     private List<OffenderIepLevel> iepLevels = new ArrayList<>();
 
-    @Column(name = "ROOT_OFFENDER_ID")
-    private Long rootOffenderId;
+
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "ROOT_OFFENDER_ID", nullable = false)
+    @Exclude
+    private Offender rootOffender;
 
     @Column(name = "BOOKING_STATUS")
     private String bookingStatus;
