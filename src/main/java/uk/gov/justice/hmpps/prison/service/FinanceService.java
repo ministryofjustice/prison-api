@@ -94,9 +94,9 @@ public class FinanceService {
 
         final var transferDate = new Date();
 
-        financeRepository.insertIntoOffenderTrans(prisonId, booking.getRootOffenderId(), booking.getBookingId(), "DR", subActTypeDr,
+        financeRepository.insertIntoOffenderTrans(prisonId, booking.getRootOffender().getId(), booking.getBookingId(), "DR", subActTypeDr,
                 transactionNumber, 1, transferTransaction.getAmountInPounds(), transferTransaction.getDescription(), transferDate);
-        financeRepository.insertIntoOffenderTrans(prisonId, booking.getRootOffenderId(), booking.getBookingId(), "CR", subActTypeCr,
+        financeRepository.insertIntoOffenderTrans(prisonId, booking.getRootOffender().getId(), booking.getBookingId(), "CR", subActTypeCr,
                 transactionNumber, 2, transferTransaction.getAmountInPounds(), transferTransaction.getDescription(), transferDate);
 
         final var offenderTransaction = offenderTransactionRepository.findById(new Pk(transactionNumber, 1L)).orElseThrow();
@@ -107,7 +107,7 @@ public class FinanceService {
         // client unique ref is unique on the table, so can only mark one of the transactions with the unique ref.
         offenderTransaction2.setTransactionReferenceNumber(transferTransaction.getClientTransactionId());
 
-        financeRepository.processGlTransNew(prisonId, booking.getRootOffenderId(), booking.getBookingId(), subActTypeDr, subActTypeCr,
+        financeRepository.processGlTransNew(prisonId, booking.getRootOffender().getId(), booking.getBookingId(), subActTypeDr, subActTypeCr,
                 transactionNumber, 1, transferTransaction.getAmountInPounds(), transferTransaction.getDescription(), transferDate);
 
         return TransferTransactionDetail.builder()
@@ -121,7 +121,7 @@ public class FinanceService {
             throw EntityNotFoundException.withMessage("Offender %s found at prison %s instead of %s", offenderNo, booking.getLocation().getId(), prisonId);
         }
 
-        final var optionalOffenderTrustAccount = offenderTrustAccountRepository.findById(new OffenderTrustAccount.Pk(prisonId, booking.getRootOffenderId()));
+        final var optionalOffenderTrustAccount = offenderTrustAccountRepository.findById(new OffenderTrustAccount.Pk(prisonId, booking.getRootOffender().getId()));
 
         if (optionalOffenderTrustAccount.isEmpty()) {
             throw new ValidationException("Offender trust account not found");
@@ -130,7 +130,7 @@ public class FinanceService {
             throw new ValidationException("Offender trust account closed");
         }
 
-        final var optionalOffenderSubAccount = offenderSubAccountRepository.findById(new OffenderSubAccount.Pk(prisonId, booking.getRootOffenderId(), subActTypeDr));
+        final var optionalOffenderSubAccount = offenderSubAccountRepository.findById(new OffenderSubAccount.Pk(prisonId, booking.getRootOffender().getId(), subActTypeDr));
         if (optionalOffenderSubAccount.isEmpty()) {
             throw new ValidationException("Offender sub account not found");
         }

@@ -14,6 +14,7 @@ import uk.gov.justice.hmpps.prison.repository.BookingRepository;
 import uk.gov.justice.hmpps.prison.repository.FinanceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AccountCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSubAccount;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransaction;
@@ -62,7 +63,7 @@ class FinanceServiceTest {
     @Mock
     private OffenderDamageObligationService offenderDamageObligationService;
 
-    private Currency currency = Currency.builder().code("GBP").build();
+    private final Currency currency = Currency.builder().code("GBP").build();
 
     private FinanceService financeService;
 
@@ -252,7 +253,7 @@ class FinanceServiceTest {
     private OffenderBooking createOffenderBooking() {
         return OffenderBooking.builder()
                 .bookingId(1L)
-                .rootOffenderId(12L)
+                .rootOffender(Offender.builder().id(12L).build())
                 .location(AgencyLocation.builder().id("LEI").build())
                 .build();
     }
@@ -355,9 +356,7 @@ class FinanceServiceTest {
         when(bookingRepository.getLatestBookingByBookingId(bookingId))
             .thenReturn(Optional.empty());
 
-        Throwable exception = assertThrows(EntityNotFoundException.class, () -> {
-            financeService.getBalances(bookingId);
-        });
+        Throwable exception = assertThrows(EntityNotFoundException.class, () -> financeService.getBalances(bookingId));
 
         assertThat(exception.getMessage()).isEqualTo("Booking not found for id: -1");
     }
