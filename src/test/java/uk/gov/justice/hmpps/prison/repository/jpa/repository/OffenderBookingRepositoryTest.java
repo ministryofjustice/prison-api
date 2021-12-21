@@ -215,7 +215,7 @@ public class OffenderBookingRepositoryTest {
             .currentOccupancy(null).operationalCapacity(13).description("LEI-A").userDescription("Block A").capacity(14)
             .certifiedFlag(true).locationCode("A").active(true).build();
 
-        final var parentLocation = AgencyInternalLocation.builder().locationId(-2L).locationType("LAND").agencyId("LEI").capacity(14)
+        AgencyInternalLocation.builder().locationId(-2L).locationType("LAND").agencyId("LEI").capacity(14)
             .currentOccupancy(null).operationalCapacity(13).description("LEI-A-1").parentLocation(parentParentLocation).userDescription("Landing A/1")
             .certifiedFlag(true).locationCode("1").active(true).build();
 
@@ -252,7 +252,7 @@ public class OffenderBookingRepositoryTest {
     void findByOffenderNomsIdAndActive() {
         final var optionalOffenderBooking = repository.findByOffenderNomsIdAndActive("A1234AA", true);
         //noinspection unchecked
-        assertThat(optionalOffenderBooking).get().extracting(OffenderBooking::getBookingId, OffenderBooking::getRootOffenderId).containsExactly(-1L, -1001L);
+        assertThat(optionalOffenderBooking).get().extracting(OffenderBooking::getBookingId, o -> o.getRootOffender().getId()).containsExactly(-1L, -1001L);
     }
 
     @Test

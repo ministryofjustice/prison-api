@@ -819,7 +819,7 @@ public class BookingService {
                             .prisonerNumber(offenderNo)
                             .latestPrisonTerm(PrisonTerm.transform(latestBooking))
                             .previousPrisonTerms(offender.getBookings().stream()
-                                .filter(b -> !b.getBookingId().equals(latestBooking.getBookingId()) && !b.getCourtOrders().isEmpty())
+                                .filter(b -> !b.getBookingId().equals(latestBooking.getBookingId()) && !b.getSentences().isEmpty())
                                 .sorted(comparing(OffenderBooking::getBookingBeginDate).reversed())
                                 .map(PrisonTerm::transform).toList())
                         .build()

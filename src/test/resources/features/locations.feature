@@ -25,10 +25,6 @@ Feature: Locations
     When a request is made to retrieve location with locationId of "-9999"
     Then resource not found response is received from locations API
 
-  Scenario: Request for list/group that does not exist
-    When a request is made at agency "RNI" to retrieve the list named "nonexistant"
-    Then resource not found response is received from locations API
-
   Scenario Outline: Retrieve a list of inmates at a specific agency location
     When a request is made at agency "<agencyCode>" to retrieve a list of inmates
     Then there are "<countInmates>" offenders returned
