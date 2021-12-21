@@ -81,7 +81,6 @@ dependencies {
     testImplementation 'io.swagger.parser.v3:swagger-parser:2.0.20' // Keep this at 2.0.20 as advised here: https://github.com/ministryofjustice/prison-api/pull/748#discussion_r512664711
 
     testCompileOnly 'org.projectlombok:lombok:1.18.22'
-    testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
 }
 
 task testIntegration(type: Test) {
