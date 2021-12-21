@@ -68,23 +68,10 @@ public class LocationsSteps extends CommonSteps {
         }
     }
 
-    private void dispatchGroupCall(final String url, final String agencyId, final String name) {
-        init();
-
-        try {
-            final var response = restTemplate.exchange(url, HttpMethod.GET, createEntity(null, null),
-                    new ParameterizedTypeReference<List<Location>>() {
-                    }, agencyId, name);
-            locationList = response.getBody();
-        } catch (final PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
-
-    private void dispatchGroupsCall(final String url, final String agencyId) {
+    private void dispatchGroupsCall(final String agencyId) {
         init();
         try {
-            final var response = restTemplate.exchange(url, HttpMethod.GET, createEntity(null, null),
+            final var response = restTemplate.exchange(LocationsSteps.GROUPS_API_URL, HttpMethod.GET, createEntity(null, null),
                     new ParameterizedTypeReference<List<LocationGroup>>() {
                     }, agencyId);
             groupList = response.getBody();
@@ -103,32 +90,14 @@ public class LocationsSteps extends CommonSteps {
         bookingList = null;
     }
 
-    public void findList(final String agencyId, final String name) {
-        dispatchGroupCall(GROUP_API_URL, agencyId, name);
-    }
-
     public void verifyLocationList(final String expectedList) {
         assertThat(locationList).asList().extracting("locationPrefix")
-                .containsExactly((Object[]) commaDelimitedListToStringArray(expectedList));
+                .containsExactly(commaDelimitedListToStringArray(expectedList));
     }
 
     public void verifyLocationIdList(final String expectedList) {
         // Careful here - this does not check order, we are relying on verifyLocationList() for that
         verifyLongValues(locationList, Location::getLocationId, expectedList);
-    }
-
-    public void aRequestIsMadeToRetrieveAllGroups(final String agencyId) {
-        dispatchGroupsCall(GROUPS_API_URL, agencyId);
-    }
-
-    public void groupsAre(final String expectedList) {
-        final var actual = groupList
-                .stream()
-                .flatMap(group -> Stream.concat(
-                        Stream.of(group.getName()),
-                        group.getChildren().stream().map(subGroup -> group.getName() + '_' + subGroup.getName())))
-                .collect(Collectors.toList());
-        assertThat(actual).asList().containsExactly((Object[]) commaDelimitedListToStringArray(expectedList));
     }
 
     public void retrieveListOfInmates(final String agency) {

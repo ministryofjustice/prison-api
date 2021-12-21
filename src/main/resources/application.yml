@@ -37,6 +37,10 @@ spring:
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: false
 
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
 logging:
   level:
     org.springframework.security: INFO
