@@ -128,7 +128,7 @@ public class UserService {
         userCaseloadRepository.save(UserCaseload.builder().id(UserCaseloadId.builder().username(username).caseload(apiCaseloadId).build()).startDate(LocalDate.now()).build());
     }
 
-    @PreAuthorize("hasAnyRole('MAINTAIN_ACCESS_ROLES,MAINTAIN_ACCESS_ROLES_ADMIN')")
+    @PreAuthorize("hasAnyRole('MAINTAIN_ACCESS_ROLES','MAINTAIN_ACCESS_ROLES_ADMIN')")
     @Transactional
     public CaseloadUpdate addDefaultCaseloadForPrison(final String caseloadId) {
         final var users = userRepository.findAllUsersWithCaseload(caseloadId, apiCaseloadId);

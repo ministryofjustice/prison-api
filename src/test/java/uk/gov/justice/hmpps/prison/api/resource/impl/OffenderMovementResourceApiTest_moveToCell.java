@@ -102,14 +102,6 @@ public class OffenderMovementResourceApiTest_moveToCell extends ResourceTest {
     }
 
     @Test
-    public void bookingId_missing_notFound() {
-        final var response = testRestTemplate.exchange("/api/bookings//living-unit/LEI-A-1-1?reasonCode=ADM&dateTime=2020-03-24T13:24:35", PUT, anEntity(), String.class);
-
-        assertThat(response.getStatusCode()).isEqualTo(NOT_FOUND);
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.status").isEqualTo(404);
-    }
-
-    @Test
     public void livingUnitId_notFound() {
         final var livingUnitNotFoundError = "Living unit with id Z-1 not found.";
         when(movementUpdateService.moveToCell(anyLong(), anyString(), anyString(), any(LocalDateTime.class)))
@@ -133,14 +125,6 @@ public class OffenderMovementResourceApiTest_moveToCell extends ResourceTest {
         assertThat(response.getStatusCode()).isEqualTo(BAD_REQUEST);
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.status").isEqualTo(400);
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.userMessage").isEqualTo(livingUnitNotFoundError);
-    }
-
-    @Test
-    public void livingUnitId_missing_notFound() {
-        final var response = testRestTemplate.exchange("/api/bookings/1/living-unit/?reasonCode=ADM&dateTime=2020-03-24T13:24:35", PUT, anEntity(), String.class);
-
-        assertThat(response.getStatusCode()).isEqualTo(NOT_FOUND);
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.status").isEqualTo(404);
     }
 
     @Test
