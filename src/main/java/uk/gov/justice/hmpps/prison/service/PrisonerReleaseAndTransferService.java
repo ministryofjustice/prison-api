@@ -314,7 +314,7 @@ public class PrisonerReleaseAndTransferService {
 
         if (env.acceptsProfiles(Profiles.of("nomis"))) { // check is running on a real NOMIS db
             // Create Trust Account
-            financeRepository.createTrustAccount(prisonToRecallTo.getId(), booking.getBookingId(), booking.getRootOffenderId(), fromLocation.getId(),
+            financeRepository.createTrustAccount(prisonToRecallTo.getId(), booking.getBookingId(), booking.getRootOffender().getId(), fromLocation.getId(),
                 movementReason.getCode(), null, null, prisonToRecallTo.getId());
         }
 
@@ -397,7 +397,7 @@ public class PrisonerReleaseAndTransferService {
                 .assignedStaff(staffUserAccountRepository.findById(currentUsername).orElseThrow(EntityNotFoundException.withMessage(format("No Staff found for username %s", currentUsername))).getStaff())
                 .createLocation(receivedPrison)
                 .bookingType("INST")
-                .rootOffenderId(offender.getRootOffenderId())
+                .rootOffender(offender.getRootOffender())
                 .admissionReason("NCO")
                 .bookingSequence(1)
                 .statusReason(ADM.getCode() + "-" + requestForNewBooking.getMovementReasonCode())
@@ -446,7 +446,7 @@ public class PrisonerReleaseAndTransferService {
 
         if (env.acceptsProfiles(Profiles.of("nomis"))) { // check is running on a real NOMIS db
             // Create Trust Account
-            financeRepository.createTrustAccount(receivedPrison.getId(), booking.getBookingId(), booking.getRootOffenderId(), fromLocation.getId(),
+            financeRepository.createTrustAccount(receivedPrison.getId(), booking.getBookingId(), booking.getRootOffender().getId(), fromLocation.getId(),
                 movementReason.getCode(), null, null, receivedPrison.getId());
         }
 
@@ -539,7 +539,7 @@ public class PrisonerReleaseAndTransferService {
 
         if (env.acceptsProfiles(Profiles.of("nomis"))) { // check is running on a real NOMIS db
             // Create Trust Account
-            financeRepository.createTrustAccount(latestExternalMovement.getToAgency().getId(), booking.getBookingId(), booking.getRootOffenderId(), latestExternalMovement.getFromAgency().getId(),
+            financeRepository.createTrustAccount(latestExternalMovement.getToAgency().getId(), booking.getBookingId(), booking.getRootOffender().getId(), latestExternalMovement.getFromAgency().getId(),
                 movementReason.getCode(), null, null, latestExternalMovement.getToAgency().getId());
         }
 

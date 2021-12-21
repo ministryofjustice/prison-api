@@ -100,7 +100,7 @@ public class Offender extends AuditableEntity {
     @Exclude
     private Offender rootOffender;
 
-    @OneToMany(mappedBy = "offender", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(mappedBy = "rootOffender", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @Default
     @Exclude
     @BatchSize(size = 25)
