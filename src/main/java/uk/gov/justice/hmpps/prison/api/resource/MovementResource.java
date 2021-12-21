@@ -30,6 +30,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderInReception;
 import uk.gov.justice.hmpps.prison.api.model.OffenderMovement;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOut;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOutTodayDto;
+import uk.gov.justice.hmpps.prison.api.model.OutOnTemporaryAbsenceSummary;
 import uk.gov.justice.hmpps.prison.api.model.RollCount;
 import uk.gov.justice.hmpps.prison.api.model.TransferSummary;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
@@ -203,6 +204,21 @@ public class MovementResource {
                                         @RequestParam(value = "transferEvents", required = false, defaultValue = "false") @ApiParam(value = "Set to true to include planned transfer/appointment events", required = false, defaultValue = "false") final boolean transferEvents, @RequestParam(value = "movements", required = false, defaultValue = "false") @ApiParam(value = "Set to true to include confirmed movements", required = false, defaultValue = "false") final boolean movements) {
         return movementsService.getTransferMovementsForAgencies(agencyIds, fromDateTime, toDateTime, courtEvents, releaseEvents, transferEvents, movements);
     }
+
+    @ApiResponses({
+        @ApiResponse(code = 401, message = "The token presented did not contain the necessary role to access this resource.", response = ErrorResponse.class),
+        @ApiResponse(code = 403, message = "The token presented has expired.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Information about the set of offenders at an agency who are currently out due to temporary absence.")
+    @GetMapping("/agency/{agencyId}/temporary-absences")
+    public List<OutOnTemporaryAbsenceSummary> getTemporaryAbsences(
+        @PathVariable("agencyId")
+        @ApiParam(value = "The prison id", required = true)
+        final String agencyId) {
+        return movementsService.getOffendersOutOnTemporaryAbsence(agencyId);
+    }
+
+
 
     @ApiOperation(value = "Get future court hearings for all offenders", nickname = "getUpcomingCourtAppearances")
     @GetMapping("/upcomingCourtAppearances")

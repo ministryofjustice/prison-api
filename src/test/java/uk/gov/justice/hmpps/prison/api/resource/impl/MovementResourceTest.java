@@ -310,6 +310,22 @@ public class MovementResourceTest extends ResourceTest {
             return getScheduledMovements(courtEvents, releaseEvents, transferEvents, fromDateTime, toDateTime);
         }
 
+        @Test
+        public void testGetOffendersOutOnTemporaryAbsence() {
+            final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+            final var response = testRestTemplate.exchange(
+                "/api/movements/agency/{agencyId}/temporary-absences",
+                HttpMethod.GET,
+                createHttpEntity(token, null),
+                new ParameterizedTypeReference<String>() {
+                }, "LEI"
+            );
+
+            assertThatStatus(response, HttpStatus.OK.value());
+            assertThat(getBodyAsJsonContent(response)).isStrictlyEqualToJson("movements_temporary_absence.json");
+        }
+
         private ResponseEntity<String> getScheduledMovements(
             final Boolean courtEvents, final Boolean releaseEvents, final Boolean transferEvents, final LocalDateTime fromDateTime, final LocalDateTime toDateTime) {
             final String token = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH);
