@@ -73,7 +73,6 @@ public class SwaggerConfig {
     }
 
     private ApiInfo apiInfo() {
-        System.lineSeparator();
         return new ApiInfo(
                 "HMPPS Prison API Documentation",
                 "A RESTful API service for accessing NOMIS data sets.\n\nAll times sent to the API should be sent in local time without the timezone e.g. YYYY-MM-DDTHH:MM:SS.  All times returned in responses will be in Europe / London local time unless otherwise stated.",
