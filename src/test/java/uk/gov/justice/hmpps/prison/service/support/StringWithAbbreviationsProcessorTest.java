@@ -8,8 +8,8 @@ public class StringWithAbbreviationsProcessorTest {
 
     @Test
     public void formatMultipleUniqueMatches() {
-        // Assert that all abbreviations are unchanged when there a multiple unique ones in a string
-        final var abbreviationsString = String.join(", ", StringWithAbbreviationsProcessor.ABBREVIATIONS);
+        // Assert that all abbreviations are unchanged when there are multiple unique ones in a string
+        final var abbreviationsString = "AAA, ADTP, AIC, AM, ATB, BBV, BHU, BICS, CAD, CASU, CES, CGL, CIT, CSC, CSCP";
         assertThat(StringWithAbbreviationsProcessor.format(abbreviationsString)).isEqualTo(abbreviationsString);
 
     }
@@ -31,8 +31,15 @@ public class StringWithAbbreviationsProcessorTest {
     }
 
     @Test
+    public void formatAbbreviationsWithFollowingNumbers() {
+        // Assert that abbreviations that can have numbers after are uppercased
+        final var abbreviationsString = "Test hb3, hb11 and lb123 are converted but not lb or lrc1";
+        assertThat(StringWithAbbreviationsProcessor.format(abbreviationsString)).isEqualTo("Test HB3, HB11 And LB123 Are Converted But Not Lb Or Lrc1");
+
+    }
+
+    @Test
     public void formatNull() {
         assertThat(StringWithAbbreviationsProcessor.format(null)).isEqualTo(null);
-
     }
 }
