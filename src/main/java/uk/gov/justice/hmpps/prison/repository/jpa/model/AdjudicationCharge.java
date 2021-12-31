@@ -49,4 +49,8 @@ public class AdjudicationCharge extends AuditableEntity {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "CHARGED_OIC_OFFENCE_ID")
     private AdjudicationOffenceType offenceType;
+
+    public Long getSequenceNumber() {
+        return id.getChargeSeq();
+    }
 }

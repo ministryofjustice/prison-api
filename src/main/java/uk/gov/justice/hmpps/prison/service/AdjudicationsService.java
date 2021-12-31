@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -194,16 +195,23 @@ public class AdjudicationsService {
     }
 
     private List<AdjudicationCharge> generateOffenceCharges(AdjudicationParty adjudicationPartyToUpdate, List<AdjudicationOffenceType> offenceCodes) {
-        final var generatedAdjudicationCharges = new ArrayList<AdjudicationCharge>();
+        final var existingCharges = adjudicationPartyToUpdate.getCharges();
+        final var existingChargesBySequenceNumber = existingCharges.stream().collect(Collectors.toMap(AdjudicationCharge::getSequenceNumber, Function.identity()));
+        final var requiredAdjudicationCharges = new ArrayList<AdjudicationCharge>();
         for (int i = 0; i < offenceCodes.size(); i++) {
             final var offenceCode = offenceCodes.get(i);
             final long sequenceNumber = i + 1;
-            generatedAdjudicationCharges.add(AdjudicationCharge.builder()
-                .id(new PK(adjudicationPartyToUpdate, sequenceNumber))
-                .offenceType(offenceCode)
-                .build());
+            final var existingChargeToAdd = existingChargesBySequenceNumber.get(sequenceNumber);
+            if (existingChargeToAdd != null) {
+                requiredAdjudicationCharges.add(existingChargeToAdd);
+            } else {
+                requiredAdjudicationCharges.add(AdjudicationCharge.builder()
+                    .id(new PK(adjudicationPartyToUpdate, sequenceNumber))
+                    .offenceType(offenceCode)
+                    .build());
+            }
         }
-        return generatedAdjudicationCharges;
+        return requiredAdjudicationCharges;
     }
 
     private void trackAdjudicationCreated(final Adjudication createdAdjudication) {
