@@ -36,6 +36,7 @@ import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.Month;
+import java.time.Period;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -1361,6 +1362,8 @@ public class InmateRepositoryTest {
 
     @Test
     public void testSearchForInmatesByWingLocation() {
+        final var expectedDob = LocalDate.of(1990, Month.DECEMBER, 30);
+        final var expectedAge = Period.between(expectedDob, LocalDate.now()).getYears();
         final var expectedInfo = List.of(
             OffenderBooking.builder()
                 .bookingId(-40L)
@@ -1368,8 +1371,8 @@ public class InmateRepositoryTest {
                 .offenderNo("A1184JR")
                 .firstName("JOE")
                 .lastName("ROOT")
-                .dateOfBirth(LocalDate.of(1990, Month.DECEMBER, 30))
-                .age(30)
+                .dateOfBirth(expectedDob)
+                .age(expectedAge)
                 .agencyId("SYI")
                 .assignedLivingUnitId(-204L)
                 .build());
@@ -1382,6 +1385,8 @@ public class InmateRepositoryTest {
 
     @Test
     public void testSearchForInmatesByCellLocation() {
+        final var expectedDob = LocalDate.of(1990, Month.DECEMBER, 30);
+        final var expectedAge = Period.between(expectedDob, LocalDate.now()).getYears();
         final var expectedInfo = List.of(
             OffenderBooking.builder()
                 .bookingId(-40L)
@@ -1389,8 +1394,8 @@ public class InmateRepositoryTest {
                 .offenderNo("A1184JR")
                 .firstName("JOE")
                 .lastName("ROOT")
-                .dateOfBirth(LocalDate.of(1990, Month.DECEMBER, 30))
-                .age(30)
+                .dateOfBirth(expectedDob)
+                .age(expectedAge)
                 .agencyId("SYI")
                 .assignedLivingUnitId(-204L)
                 .build());
