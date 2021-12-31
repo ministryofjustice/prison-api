@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.service;
 
 import com.microsoft.applicationinsights.TelemetryClient;
 import org.assertj.core.matcher.AssertionMatcher;
+import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -9,11 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.hamcrest.MockitoHamcrest;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
-import uk.gov.justice.hmpps.prison.api.model.AdjudicationSearchRequest;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication;
@@ -27,6 +24,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Staff;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationOffenceTypeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
@@ -38,7 +36,6 @@ import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -71,6 +68,8 @@ public class AdjudicationsServiceTest {
     @Mock
     private AdjudicationRepository adjudicationsRepository;
     @Mock
+    private AdjudicationOffenceTypeRepository adjudicationsOffenceTypeRepository;
+    @Mock
     private StaffUserAccountRepository staffUserAccountRepository;
     @Mock
     private OffenderBookingRepository bookingRepository;
@@ -96,6 +95,7 @@ public class AdjudicationsServiceTest {
     public void beforeEach() {
         service = new AdjudicationsService(
             adjudicationsRepository,
+            adjudicationsOffenceTypeRepository,
             staffUserAccountRepository,
             bookingRepository,
             incidentTypeRepository,
@@ -235,6 +235,70 @@ public class AdjudicationsServiceTest {
     }
 
     @Nested
+    public class CreateAdjudication_WithOptionalData {
+
+        @Test
+        public void makesCallToRepositoryWithCorrectData() {
+            Assert.fail("NYI");
+            final var mockDataProvider = new MockDataProvider();
+
+            mockDataProvider.setupMocks();
+
+            final var newAdjudication = generateNewAdjudicationRequest(
+                mockDataProvider.booking.getOffender().getNomsId(),
+                mockDataProvider.internalLocation.getLocationId());
+
+            final Adjudication expectedAdjudication = getExampleAdjudication(mockDataProvider, newAdjudication);
+            final AdjudicationParty expectedOffenderParty = addExampleAdjudicationParty(mockDataProvider, expectedAdjudication);
+
+            when(adjudicationsRepository.save(any())).thenReturn(expectedAdjudication);
+
+            service.createAdjudication(newAdjudication.getOffenderNo(), newAdjudication);
+
+            verify(adjudicationsRepository).save(assertArgThat(actualAdjudication -> {
+                    assertThat(actualAdjudication).usingRecursiveComparison().ignoringFields("createUserId", "parties")
+                        .isEqualTo(expectedAdjudication);
+                    assertThat(actualAdjudication.getParties()).hasSize(1)
+                        .contains(expectedOffenderParty);
+                }
+            ));
+        }
+
+        @Test
+        public void returnsCorrectData() {
+            Assert.fail("NYI");
+            final var mockDataProvider = new MockDataProvider();
+
+            mockDataProvider.setupMocks();
+
+            final var newAdjudication = generateNewAdjudicationRequest(
+                mockDataProvider.booking.getOffender().getNomsId(),
+                mockDataProvider.internalLocation.getLocationId());
+
+            final var expectedReturnedAdjudication = AdjudicationDetail.builder()
+                .adjudicationNumber(EXAMPLE_ADJUDICATION_NUMBER)
+                .incidentTime(newAdjudication.getIncidentTime())
+                .statement(newAdjudication.getStatement())
+                .reporterStaffId(mockDataProvider.reporter.getStaff().getStaffId())
+                .bookingId(mockDataProvider.booking.getBookingId())
+                .offenderNo(mockDataProvider.booking.getOffender().getNomsId())
+                .agencyId(mockDataProvider.agencyDetails.getId())
+                .incidentLocationId(mockDataProvider.internalLocation.getLocationId())
+                .createdByUserId(EXAMPLE_CREATOR_ID)
+                .build();
+
+            final Adjudication expectedAdjudication = getExampleAdjudication(mockDataProvider, newAdjudication);
+            addExampleAdjudicationParty(mockDataProvider, expectedAdjudication);
+
+            when(adjudicationsRepository.save(any())).thenReturn(expectedAdjudication);
+
+            final var returnedAdjudication = service.createAdjudication(newAdjudication.getOffenderNo(), newAdjudication);
+
+            assertThat(returnedAdjudication).isEqualTo(expectedReturnedAdjudication);
+        }
+    }
+
+    @Nested
     public class ModifyAdjudication {
         private Adjudication existingSavedAdjudication;
         private Adjudication savedAdjudication;
@@ -348,10 +412,88 @@ public class AdjudicationsServiceTest {
     }
 
     @Nested
+    public class ModifyAdjudication_WithOptionalData {
+        private Adjudication existingSavedAdjudication;
+        private Adjudication savedAdjudication;
+        private Long updateNumber;
+        private UpdateAdjudication updateRequest;
+        private LocalDateTime updatedIncidentTime;
+        private String updatedStatement;
+        private AgencyInternalLocation updatedInternalLocation;
+
+        @BeforeEach
+        public void setup() {
+            updateNumber = 123L;
+            existingSavedAdjudication = generateExampleAdjudication(new MockDataProvider(), updateNumber);
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(updateNumber)).thenReturn(Optional.of(existingSavedAdjudication));
+
+            updatedIncidentTime = LocalDateTime.of(2020, 1, 1, 2, 3, 5);
+            updatedStatement = "New statement";
+            updatedInternalLocation = AgencyInternalLocation.builder()
+                .locationId(11L)
+                .description("Basketball")
+                .build();
+            lenient().when(internalLocationRepository.findOneByLocationId(updatedInternalLocation.getLocationId())).thenReturn(Optional.of(updatedInternalLocation));
+
+            updateRequest = UpdateAdjudication.builder()
+                .incidentTime(updatedIncidentTime)
+                .incidentLocationId(updatedInternalLocation.getLocationId())
+                .statement(updatedStatement)
+                .build();
+
+            savedAdjudication = existingSavedAdjudication.toBuilder()
+                .incidentTime(updatedIncidentTime)
+                .internalLocation(updatedInternalLocation)
+                .incidentDetails(updatedStatement)
+                .build();
+            AudtableEntityUtils.setCreatedByUserId(savedAdjudication, EXAMPLE_CREATOR_ID);
+
+            lenient().when(adjudicationsRepository.save(any())).thenReturn(savedAdjudication);
+        }
+
+        @Test
+        public void makesCallToRepositoryWithCorrectData() {
+            Assert.fail("NYI");
+            service.updateAdjudication(updateNumber, updateRequest);
+
+            verify(adjudicationsRepository).save(assertArgThat(actualAdjudication -> {
+                    assertThat(actualAdjudication).usingRecursiveComparison().ignoringFields("parties")
+                        .isEqualTo(savedAdjudication);
+                }
+            ));
+        }
+
+        @Test
+        public void returnsCorrectData() {
+            Assert.fail("NYI");
+            service.updateAdjudication(updateNumber, updateRequest);
+
+            final var expectedParty = existingSavedAdjudication.getOffenderParty().get();
+
+            final var expectedReturnedAdjudication = AdjudicationDetail.builder()
+                .adjudicationNumber(updateNumber)
+                .incidentTime(updateRequest.getIncidentTime())
+                .statement(updateRequest.getStatement())
+                .incidentLocationId(updateRequest.getIncidentLocationId())
+                .reporterStaffId(existingSavedAdjudication.getStaffReporter().getStaffId())
+                .bookingId(expectedParty.getOffenderBooking().getBookingId())
+                .offenderNo(expectedParty.getOffenderBooking().getOffender().getNomsId())
+                .agencyId(existingSavedAdjudication.getAgencyLocation().getId())
+                .createdByUserId(EXAMPLE_CREATOR_ID)
+                .build();
+
+            final var returnedAdjudication = service.updateAdjudication(updateNumber, updateRequest);
+
+            assertThat(returnedAdjudication).isEqualTo(expectedReturnedAdjudication);
+        }
+    }
+
+    @Nested
     public class GetAdjudication {
 
         @Test
         public void makesCallToRepositoryWithCorrectData() {
+            Assert.fail("No offence details");
             final var adjudicationNumber = 22L;
 
             final var mockDataProvider = new MockDataProvider();
@@ -368,6 +510,7 @@ public class AdjudicationsServiceTest {
 
         @Test
         public void returnsCorrectData() {
+            Assert.fail("No offence details");
             final var mockDataProvider = new MockDataProvider();
 
             final Adjudication foundAdjudication = generateExampleAdjudication(mockDataProvider);
@@ -420,6 +563,7 @@ public class AdjudicationsServiceTest {
 
         @Test
         public void returnsCorrectData() {
+            Assert.fail("No offence details");
             final var mockDataProvider = new MockDataProvider();
             final var foundAdjudication1 = generateExampleAdjudication(mockDataProvider, 1);
             final var foundAdjudication2 = generateExampleAdjudication(mockDataProvider, 2);

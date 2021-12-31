@@ -8,5 +8,16 @@
     "incidentLocationId": -2,
     "statement": "mKSouDOCmKSouDO",
     "createdByUserId": "XTAG"
+  },
+  {
+    "bookingId": -51,
+    "offenderNo": "A1181HH",
+    "reporterStaffId": -12,
+    "agencyId": "MDI",
+    "incidentTime": "1999-06-25T00:00:00",
+    "incidentLocationId": -41,
+    "statement": "mKSouDOCmKSouDO",
+    "offenceCodes": ["51:2D"],
+    "createdByUserId": "XTAG"
   }
 ]

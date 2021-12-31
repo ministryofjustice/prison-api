@@ -11,6 +11,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationOffenceType;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
@@ -25,20 +27,28 @@ public class AdjudicationOffenceTypeRepositoryTest {
     private AdjudicationOffenceTypeRepository repository;
 
     @Test
-    void offencesFindByOffenceCode() {
-        final var offenceCodeToSearch = "51:1J";
+    void offencesFindByOffenceCodes() {
+        final var offenceCode1ToSearch = "51:1J";
+        final var offenceCode2ToSearch = "51:2A";
 
-        final var foundCode = repository.findByOffenceCode(offenceCodeToSearch);
+        final var foundCodes = repository.findByOffenceCodes(List.of(offenceCode1ToSearch, offenceCode2ToSearch));
 
-        final var expectedOffenceType = AdjudicationOffenceType.builder()
-            .offenceId(80L)
-            .offenceCode(offenceCodeToSearch)
-            .description("Commits any assault - assault on prison officer")
-            .build();
+        final var expectedOffenceTypes = List.of(
+            AdjudicationOffenceType.builder()
+                .offenceId(80L)
+                .offenceCode(offenceCode1ToSearch)
+                .description("Commits any assault - assault on prison officer")
+                .build(),
+            AdjudicationOffenceType.builder()
+                .offenceId(82L)
+                .offenceCode(offenceCode2ToSearch)
+                .description("Detains any person against his will - detention against will of an inmate")
+                .build()
+        );
 
-        assertThat(foundCode).usingRecursiveComparison()
+        assertThat(foundCodes).usingRecursiveComparison()
             .ignoringFields("createDatetime", "createUserId", "modifyDatetime", "modifyUserId", "parties")
-            .isEqualTo(expectedOffenceType);
+            .ignoringCollectionOrder().isEqualTo(expectedOffenceTypes);
     }
 }
 
