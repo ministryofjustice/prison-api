@@ -7,9 +7,14 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,14 +26,18 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
+import uk.gov.justice.hmpps.prison.api.model.OffenderNumber;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.BadRequestException;
 import uk.gov.justice.hmpps.prison.service.ImageService;
 
 import javax.validation.constraints.Pattern;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.springframework.data.domain.Sort.Direction.ASC;
+import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @RestController
@@ -64,6 +73,18 @@ public class ImageResource {
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     public List<ImageDetail> getImagesByOffender(@PathVariable("offenderNo") final String offenderNo) {
         return imageService.findOffenderImagesFor(offenderNo);
+    }
+
+    @GetMapping("/offenders")
+    @ApiOperation(value = "Get offenders with images captured in provided range")
+    @ApiResponses(value = {
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    @PreAuthorize("hasRole('SYSTEM_USER')")
+    public Page<OffenderNumber> getOffendersWithImagesCapturedInRange(
+        @ApiParam(value = "fromDateTime", required = true) @DateTimeFormat(iso = DATE_TIME) @RequestParam("fromDateTime") final LocalDateTime fromDate,
+        @PageableDefault(direction = ASC, sort = "nomsId") final Pageable pageable) {
+        return imageService.getOffendersWithImagesCapturedAfter(fromDate, pageable);
     }
 
     @ApiResponses({
