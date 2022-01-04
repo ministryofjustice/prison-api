@@ -19,6 +19,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.stream.Collectors;
 
 @Getter
 @Entity
@@ -111,6 +112,9 @@ public class OffenderCharge extends AuditableEntity {
             .offenceEndDate(endDate)
             .offenceCode(offence.getCode())
             .offenceDescription(offence.getDescription())
+            .indicators(offence.getOffenceIndicators().stream()
+                .map(OffenceIndicator::getIndicatorCode)
+                .collect(Collectors.toList()))
             .build();
     }
 }
