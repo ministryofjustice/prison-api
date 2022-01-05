@@ -2,10 +2,13 @@ package uk.gov.justice.hmpps.prison.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
+import uk.gov.justice.hmpps.prison.api.model.OffenderNumber;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImage;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImageRepository;
@@ -57,6 +60,12 @@ public class ImageService {
     public Optional<byte[]> getImageContent(final String offenderNo, final boolean fullSizeImage) {
         return offenderImageRepository.findLatestByOffenderNumber(offenderNo)
             .map(i -> fullSizeImage ? i.getFullSizeImage() : i.getThumbnailImage());
+    }
+
+    public Page<OffenderNumber> getOffendersWithImagesCapturedAfter(final LocalDateTime start,
+                                                                    final Pageable pageable) {
+        return offenderRepository.getOffendersWithImagesCapturedAfter(start, pageable)
+            .map(offender -> new OffenderNumber(offender.getNomsId()));
     }
 
     @PreAuthorize("hasRole('IMAGE_UPLOAD')")
