@@ -18,6 +18,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.fail;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @JdbcTest
@@ -120,7 +121,9 @@ public class OffenderDeletionRepositoryTest {
         final var offenceTypes = jdbcTemplate.queryForList(
             "SELECT charged_oic_offence_id FROM AGENCY_INCIDENT_CHARGES WHERE agency_incident_id IN (-6)",
             String.class);
-        System.out.println(String.format("Found charge types: %s", offenceTypes));
+        if (charges.size() > 0) {
+            fail(String.format("Found charges: %s, types: %s", charges, offenceTypes));
+        }
         queryByAgencyIncidentId("AGENCY_INCIDENT_CHARGES").is(condition);
         queryByAgencyIncidentId("AGENCY_INCIDENT_PARTIES").is(condition);
         queryByAgencyIncidentId("AGENCY_INCIDENTS").is(condition);
