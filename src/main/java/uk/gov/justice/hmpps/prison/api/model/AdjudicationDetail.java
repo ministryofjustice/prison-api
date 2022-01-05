@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @ApiModel(description = "AdjudicationDetail")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -49,6 +50,9 @@ public class AdjudicationDetail {
     @ApiModelProperty(value = "The adjudication statement", position = 6, example = "The offence involved ...")
     @NotNull
     private String statement;
+
+    @ApiModelProperty(value = "The list of offence codes the offender may be charged with", position = 7, example = "51:80,51:25A")
+    private List<String> offenceCodes;
 
     @ApiModelProperty(value = "The id of the user the created the adjudication", position = 10, example = "ASMITH")
     private String createdByUserId;

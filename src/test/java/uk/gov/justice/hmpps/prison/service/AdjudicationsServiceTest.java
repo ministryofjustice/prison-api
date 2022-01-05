@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.service;
 
 import com.microsoft.applicationinsights.TelemetryClient;
 import org.assertj.core.matcher.AssertionMatcher;
+import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -9,16 +10,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.hamcrest.MockitoHamcrest;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
-import uk.gov.justice.hmpps.prison.api.model.AdjudicationSearchRequest;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationActionCode;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationCharge;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationCharge.PK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationIncidentType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationOffenceType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationParty;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
@@ -27,6 +27,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Staff;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationOffenceTypeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
@@ -38,12 +39,13 @@ import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static java.time.Instant.ofEpochMilli;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,6 +60,7 @@ import static org.mockito.Mockito.when;
 public class AdjudicationsServiceTest {
     private static final String EXAMPLE_NOMS_ID = "A1234BB";
     private static final Long EXAMPLE_ADJUDICATION_NUMBER = 3L;
+    private static final String EXAMPLE_OFFENCE_CHARGE_CODE = "51:12A";
     private static final String EXAMPLE_CURRENT_USERNAME = "USER_1";
     private static final String EXAMPLE_REPORTER_FIRST_NAME = "JANE";
     private static final String EXAMPLE_REPORTER_LAST_NAME = "SMITH";
@@ -70,6 +73,8 @@ public class AdjudicationsServiceTest {
 
     @Mock
     private AdjudicationRepository adjudicationsRepository;
+    @Mock
+    private AdjudicationOffenceTypeRepository offenceTypeRepository;
     @Mock
     private StaffUserAccountRepository staffUserAccountRepository;
     @Mock
@@ -96,6 +101,7 @@ public class AdjudicationsServiceTest {
     public void beforeEach() {
         service = new AdjudicationsService(
             adjudicationsRepository,
+            offenceTypeRepository,
             staffUserAccountRepository,
             bookingRepository,
             incidentTypeRepository,
@@ -151,6 +157,7 @@ public class AdjudicationsServiceTest {
                 .adjudicationNumber(EXAMPLE_ADJUDICATION_NUMBER)
                 .incidentTime(newAdjudication.getIncidentTime())
                 .statement(newAdjudication.getStatement())
+                .offenceCodes(List.of())
                 .reporterStaffId(mockDataProvider.reporter.getStaff().getStaffId())
                 .bookingId(mockDataProvider.booking.getBookingId())
                 .offenderNo(mockDataProvider.booking.getOffender().getNomsId())
@@ -235,6 +242,69 @@ public class AdjudicationsServiceTest {
     }
 
     @Nested
+    public class CreateAdjudication_WithOptionalData {
+
+        @Test
+        public void makesCallToRepositoryWithCorrectData() {
+            final var mockDataProvider = new MockDataProvider();
+
+            mockDataProvider.setupMocks_WithOptionalData();
+
+            final var newAdjudication = generateNewAdjudicationRequest_WithOptionalData(
+                mockDataProvider.booking.getOffender().getNomsId(),
+                mockDataProvider.internalLocation.getLocationId());
+
+            final Adjudication expectedAdjudication = getExampleAdjudication(mockDataProvider, newAdjudication);
+            final AdjudicationParty expectedOffenderParty = addExampleAdjudicationParty_WithOptionalData(mockDataProvider, expectedAdjudication);
+
+            when(adjudicationsRepository.save(any())).thenReturn(expectedAdjudication);
+
+            service.createAdjudication(newAdjudication.getOffenderNo(), newAdjudication);
+
+            verify(adjudicationsRepository).save(assertArgThat(actualAdjudication -> {
+                    assertThat(actualAdjudication).usingRecursiveComparison().ignoringFields("createUserId", "parties")
+                        .isEqualTo(expectedAdjudication);
+                    assertThat(actualAdjudication.getParties()).hasSize(1)
+                        .contains(expectedOffenderParty);
+                }
+            ));
+        }
+
+        @Test
+        public void returnsCorrectData() {
+            final var mockDataProvider = new MockDataProvider();
+
+            mockDataProvider.setupMocks_WithOptionalData();
+
+            final var newAdjudication = generateNewAdjudicationRequest_WithOptionalData(
+                mockDataProvider.booking.getOffender().getNomsId(),
+                mockDataProvider.internalLocation.getLocationId());
+
+            final var expectedReturnedAdjudication = AdjudicationDetail.builder()
+                .adjudicationNumber(EXAMPLE_ADJUDICATION_NUMBER)
+                .incidentTime(newAdjudication.getIncidentTime())
+                .statement(newAdjudication.getStatement())
+                .reporterStaffId(mockDataProvider.reporter.getStaff().getStaffId())
+                .bookingId(mockDataProvider.booking.getBookingId())
+                .offenderNo(mockDataProvider.booking.getOffender().getNomsId())
+                .agencyId(mockDataProvider.agencyDetails.getId())
+                .incidentLocationId(mockDataProvider.internalLocation.getLocationId())
+                .createdByUserId(EXAMPLE_CREATOR_ID)
+                .offenceCodes(List.of(EXAMPLE_OFFENCE_CHARGE_CODE))
+                .build();
+
+            final Adjudication expectedAdjudication = getExampleAdjudication(mockDataProvider, newAdjudication);
+            addExampleAdjudicationParty_WithOptionalData(mockDataProvider, expectedAdjudication);
+
+            when(adjudicationsRepository.save(any())).thenReturn(expectedAdjudication);
+
+            final var returnedAdjudication = service.createAdjudication(newAdjudication.getOffenderNo(), newAdjudication);
+
+            assertThat(returnedAdjudication).isEqualTo(expectedReturnedAdjudication);
+        }
+    }
+
+    @Nested
     public class ModifyAdjudication {
         private Adjudication existingSavedAdjudication;
         private Adjudication savedAdjudication;
@@ -295,6 +365,7 @@ public class AdjudicationsServiceTest {
                 .adjudicationNumber(updateNumber)
                 .incidentTime(updateRequest.getIncidentTime())
                 .statement(updateRequest.getStatement())
+                .offenceCodes(List.of())
                 .incidentLocationId(updateRequest.getIncidentLocationId())
                 .reporterStaffId(existingSavedAdjudication.getStaffReporter().getStaffId())
                 .bookingId(expectedParty.getOffenderBooking().getBookingId())
@@ -348,6 +419,97 @@ public class AdjudicationsServiceTest {
     }
 
     @Nested
+    public class ModifyAdjudication_WithOptionalData {
+        private Adjudication existingSavedAdjudication;
+        private Adjudication savedAdjudication;
+        private Long updateNumber;
+        private UpdateAdjudication updateRequest;
+        private LocalDateTime updatedIncidentTime;
+        private List<String> updatedOffenceCodes;
+        private String updatedStatement;
+        private AgencyInternalLocation updatedInternalLocation;
+
+        @BeforeEach
+        public void setup() {
+            updateNumber = 123L;
+            existingSavedAdjudication = generateExampleAdjudication_WithOptionalData(new MockDataProvider(), updateNumber);
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(updateNumber)).thenReturn(Optional.of(existingSavedAdjudication));
+
+            updatedIncidentTime = LocalDateTime.of(2020, 1, 1, 2, 3, 5);
+            updatedStatement = "New statement";
+
+            updatedOffenceCodes = List.of("51:22", "51:24");
+            final var offenderParty = existingSavedAdjudication.getOffenderParty().get();
+            final var offenderPartyCharges = generateExampleAdjudicationCharges(offenderParty, updatedOffenceCodes);
+            offenderParty.setCharges(offenderPartyCharges);
+            final var offenceTypes = offenderPartyCharges.stream().map(c -> c.getOffenceType()).collect(Collectors.toList());
+            lenient().when(offenceTypeRepository.findByOffenceCodes(updatedOffenceCodes)).thenReturn(offenceTypes);
+
+            updatedInternalLocation = AgencyInternalLocation.builder()
+                .locationId(11L)
+                .description("Basketball")
+                .build();
+            lenient().when(internalLocationRepository.findOneByLocationId(updatedInternalLocation.getLocationId())).thenReturn(Optional.of(updatedInternalLocation));
+
+            updateRequest = UpdateAdjudication.builder()
+                .incidentTime(updatedIncidentTime)
+                .incidentLocationId(updatedInternalLocation.getLocationId())
+                .statement(updatedStatement)
+                .offenceCodes(updatedOffenceCodes)
+                .build();
+
+            savedAdjudication = existingSavedAdjudication.toBuilder()
+                .incidentTime(updatedIncidentTime)
+                .internalLocation(updatedInternalLocation)
+                .incidentDetails(updatedStatement)
+                .parties(List.of(offenderParty))
+                .build();
+            AudtableEntityUtils.setCreatedByUserId(savedAdjudication, EXAMPLE_CREATOR_ID);
+
+            lenient().when(adjudicationsRepository.save(any())).thenReturn(savedAdjudication);
+        }
+
+        @Test
+        public void makesCallToRepositoryWithCorrectData() {
+            service.updateAdjudication(updateNumber, updateRequest);
+
+            verify(adjudicationsRepository).save(assertArgThat(actualAdjudication -> {
+                    assertThat(actualAdjudication).usingRecursiveComparison().ignoringFields("parties")
+                        .isEqualTo(savedAdjudication);
+                    assertThat(actualAdjudication.getParties()).hasSize(1);
+                    final var adjParty = actualAdjudication.getParties().get(0);
+                    final var actualOffenceCodes = adjParty.getCharges().stream().map(c -> c.getOffenceType().getOffenceCode()).collect(Collectors.toList());
+                    assertThat(actualOffenceCodes).isEqualTo(updatedOffenceCodes);
+                }
+            ));
+        }
+
+        @Test
+        public void returnsCorrectData() {
+            service.updateAdjudication(updateNumber, updateRequest);
+
+            final var expectedParty = existingSavedAdjudication.getOffenderParty().get();
+
+            final var expectedReturnedAdjudication = AdjudicationDetail.builder()
+                .adjudicationNumber(updateNumber)
+                .incidentTime(updateRequest.getIncidentTime())
+                .statement(updateRequest.getStatement())
+                .offenceCodes(updatedOffenceCodes)
+                .incidentLocationId(updateRequest.getIncidentLocationId())
+                .reporterStaffId(existingSavedAdjudication.getStaffReporter().getStaffId())
+                .bookingId(expectedParty.getOffenderBooking().getBookingId())
+                .offenderNo(expectedParty.getOffenderBooking().getOffender().getNomsId())
+                .agencyId(existingSavedAdjudication.getAgencyLocation().getId())
+                .createdByUserId(EXAMPLE_CREATOR_ID)
+                .build();
+
+            final var returnedAdjudication = service.updateAdjudication(updateNumber, updateRequest);
+
+            assertThat(returnedAdjudication).isEqualTo(expectedReturnedAdjudication);
+        }
+    }
+
+    @Nested
     public class GetAdjudication {
 
         @Test
@@ -379,6 +541,7 @@ public class AdjudicationsServiceTest {
                 .adjudicationNumber(EXAMPLE_ADJUDICATION_NUMBER)
                 .incidentTime(foundAdjudication.getIncidentTime())
                 .statement(foundAdjudication.getIncidentDetails())
+                .offenceCodes(List.of())
                 .reporterStaffId(mockDataProvider.reporter.getStaff().getStaffId())
                 .bookingId(mockDataProvider.booking.getBookingId())
                 .offenderNo(mockDataProvider.booking.getOffender().getNomsId())
@@ -443,11 +606,13 @@ public class AdjudicationsServiceTest {
                     .adjudicationNumber(foundAdjudication1.getOffenderParty().get().getAdjudicationNumber())
                     .incidentTime(foundAdjudication1.getIncidentTime())
                     .statement(foundAdjudication1.getIncidentDetails())
+                    .offenceCodes(List.of())
                     .build(),
                 expectedReturnedAdjudication.toBuilder()
                     .adjudicationNumber(foundAdjudication2.getOffenderParty().get().getAdjudicationNumber())
                     .incidentTime(foundAdjudication2.getIncidentTime())
                     .statement(foundAdjudication2.getIncidentDetails())
+                    .offenceCodes(List.of())
                     .build()
             );
         }
@@ -472,9 +637,40 @@ public class AdjudicationsServiceTest {
             mockDataProvider.internalLocation.getLocationId());
 
         final var adjudication = getExampleAdjudication(mockDataProvider, newAdjudication);
-        addExampleAdjudicationParty(mockDataProvider, adjudication, adjudicationNumber, Adjudication.INCIDENT_ROLE_OFFENDER);
+        addExampleAdjudicationParty(false, mockDataProvider, adjudication, adjudicationNumber, Adjudication.INCIDENT_ROLE_OFFENDER);
 
         return adjudication;
+    }
+
+    private Adjudication generateExampleAdjudication_WithOptionalData(final MockDataProvider mockDataProvider, final long adjudicationNumber) {
+        final var newAdjudication = generateNewAdjudicationRequest(
+            mockDataProvider.booking.getOffender().getNomsId(),
+            mockDataProvider.internalLocation.getLocationId());
+
+        final var adjudication = getExampleAdjudication(mockDataProvider, newAdjudication);
+        addExampleAdjudicationParty(true, mockDataProvider, adjudication, adjudicationNumber, Adjudication.INCIDENT_ROLE_OFFENDER);
+
+        return adjudication;
+    }
+
+    private List<AdjudicationCharge> generateExampleAdjudicationCharges(final AdjudicationParty offenderParty, List<String> updatedOffenceCodes) {
+        final var chargeList = new ArrayList<AdjudicationCharge>(); // Party charges must be mutable
+
+        for (String offenceCode : updatedOffenceCodes) {
+            final var newOffenceType = AdjudicationOffenceType.builder()
+                .offenceCode(offenceCode)
+                .offenceId(chargeList.size() + 10L) // Arbitrary ids
+                .description("Another Offence description")
+                .build();
+            final var newCharge = AdjudicationCharge.builder()
+                .id(new PK(offenderParty, chargeList.size() + 1L))
+                .offenceType(newOffenceType)
+                .build();
+
+            chargeList.add(newCharge);
+        }
+
+        return chargeList;
     }
 
     private Adjudication getExampleAdjudication(final MockDataProvider mockDataProvider, final NewAdjudication newAdjudication) {
@@ -496,10 +692,14 @@ public class AdjudicationsServiceTest {
     }
 
     private AdjudicationParty addExampleAdjudicationParty(final MockDataProvider mockDataProvider, final Adjudication expectedAdjudication) {
-        return addExampleAdjudicationParty(mockDataProvider, expectedAdjudication, EXAMPLE_ADJUDICATION_NUMBER, Adjudication.INCIDENT_ROLE_OFFENDER);
+        return addExampleAdjudicationParty(false, mockDataProvider, expectedAdjudication, EXAMPLE_ADJUDICATION_NUMBER, Adjudication.INCIDENT_ROLE_OFFENDER);
     }
 
-    private AdjudicationParty addExampleAdjudicationParty(final MockDataProvider mockDataProvider, final Adjudication expectedAdjudication,
+    private AdjudicationParty addExampleAdjudicationParty_WithOptionalData(final MockDataProvider mockDataProvider, final Adjudication expectedAdjudication) {
+        return addExampleAdjudicationParty(true, mockDataProvider, expectedAdjudication, EXAMPLE_ADJUDICATION_NUMBER, Adjudication.INCIDENT_ROLE_OFFENDER);
+    }
+
+    private AdjudicationParty addExampleAdjudicationParty(final boolean includeOptionalData, final MockDataProvider mockDataProvider, final Adjudication expectedAdjudication,
                                                           final long adjudicationNumber, final String incidentRole) {
         final var expectedOffenderParty = AdjudicationParty.builder()
             .id(new AdjudicationParty.PK(expectedAdjudication, 1L))
@@ -509,6 +709,14 @@ public class AdjudicationsServiceTest {
             .actionCode(mockDataProvider.actionCode)
             .offenderBooking(mockDataProvider.booking)
             .build();
+        if (includeOptionalData) {
+            final var expectedOffenceCharges = AdjudicationCharge.builder()
+                .id(new AdjudicationCharge.PK(expectedOffenderParty, 1L))
+                .offenceType(mockDataProvider.offenceType)
+                .build();
+            expectedOffenderParty.setCharges(List.of(expectedOffenceCharges));
+        }
+
         expectedAdjudication.setParties(List.of(expectedOffenderParty));
         return expectedOffenderParty;
     }
@@ -523,12 +731,24 @@ public class AdjudicationsServiceTest {
             .build();
     }
 
+    private NewAdjudication generateNewAdjudicationRequest_WithOptionalData(final String offenderNo, final Long internalLocationId) {
+        return NewAdjudication.builder()
+            .offenderNo(offenderNo)
+            .agencyId(EXAMPLE_AGENCY_ID)
+            .incidentTime(EXAMPLE_INCIDENT_TIME)
+            .incidentLocationId(internalLocationId)
+            .statement(EXAMPLE_STATEMENT)
+            .offenceCodes(List.of(EXAMPLE_OFFENCE_CHARGE_CODE))
+            .build();
+    }
+
     private class MockDataProvider {
         private final StaffUserAccount reporter;
         private final OffenderBooking booking;
         private final AgencyInternalLocation internalLocation;
         private final AgencyLocation agencyDetails;
         private final AdjudicationIncidentType incidentType;
+        private final AdjudicationOffenceType offenceType;
         private final AdjudicationActionCode actionCode;
 
         private MockDataProvider() {
@@ -537,22 +757,27 @@ public class AdjudicationsServiceTest {
             internalLocation = generateInternalLocation();
             agencyDetails = generateAgencyDetails();
             incidentType = new AdjudicationIncidentType("GOV", "Desc");
+            offenceType = generateOffenceType();
             actionCode = new AdjudicationActionCode("POR", "Desc");
         }
 
         public void setupMocks() {
-            setupMocksInternal(true, true);
+            setupMocksInternal(false, true, true);
+        }
+
+        public void setupMocks_WithOptionalData() {
+            setupMocksInternal(true, true, true);
         }
 
         public void setupMocksWithInvalidAgency() {
-            setupMocksInternal(false, true);
+            setupMocksInternal(false, false, true);
         }
 
         public void setupMocksWithInvalidLocation() {
-            setupMocksInternal(true, false);
+            setupMocksInternal(false, true, false);
         }
 
-        private void setupMocksInternal(final boolean validAgency, final boolean validLocation) {
+        private void setupMocksInternal(final boolean offenceCodeRequested, final boolean validAgency, final boolean validLocation) {
             when(incidentTypeRepository.findById(AdjudicationIncidentType.GOVERNORS_REPORT)).thenReturn(Optional.of(incidentType));
             when(actionCodeRepository.findById(AdjudicationActionCode.PLACED_ON_REPORT)).thenReturn(Optional.of(actionCode));
             when(authenticationFacade.getCurrentUsername()).thenReturn(EXAMPLE_CURRENT_USERNAME);
@@ -569,6 +794,9 @@ public class AdjudicationsServiceTest {
                     when(internalLocationRepository.findOneByLocationId(internalLocation.getLocationId())).thenReturn(Optional.of(internalLocation));
                     when(agencyLocationRepository.findById(agencyDetails.getId())).thenReturn(Optional.empty());
                 }
+            }
+            if (offenceCodeRequested) {
+                when(offenceTypeRepository.findByOffenceCodes(List.of(EXAMPLE_OFFENCE_CHARGE_CODE))).thenReturn(List.of(offenceType));
             }
         }
 
@@ -603,6 +831,14 @@ public class AdjudicationsServiceTest {
         private AgencyLocation generateAgencyDetails() {
             return AgencyLocation.builder()
                 .id(EXAMPLE_AGENCY_ID)
+                .build();
+        }
+
+        private AdjudicationOffenceType generateOffenceType() {
+            return AdjudicationOffenceType.builder()
+                .offenceCode(EXAMPLE_OFFENCE_CHARGE_CODE)
+                .offenceId(21L)
+                .description("Offence description")
                 .build();
         }
 

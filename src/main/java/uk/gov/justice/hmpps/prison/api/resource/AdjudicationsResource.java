@@ -83,6 +83,7 @@ public class AdjudicationsResource {
             .body(savedAdjudication);
     }
 
+    @Deprecated // This is only used for the first version of the Adjudications project - we will eventually remove
     @ApiResponses({
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
     })
@@ -96,6 +97,7 @@ public class AdjudicationsResource {
         return adjudicationsService.getAdjudication(adjudicationNumber);
     }
 
+    @Deprecated // This is only used for the first version of the Adjudications project - we will eventually remove
     @ApiOperation(value = "Gets a list of adjudication details for a list of adjudication numbers", notes = "Requires MAINTAIN_ADJUDICATIONS access")
     @PostMapping
     @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS')")
