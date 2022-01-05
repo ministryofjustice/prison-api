@@ -126,7 +126,7 @@ public class AdjudicationRepositoryTest {
         final var incidentDateAndTime = reportedDateAndTime.minusDays(2);
         final var partyAddedDateAndTime = reportedDateAndTime.minusDays(1);
 
-        final var offenceCode = "51:12A";
+        final var offenceCode = "51:2D";
         final var offenderBookingId = -6L;
         final var agencyId = "LEI";
         final var internalLocationId = -14L;
