@@ -117,7 +117,7 @@ public class OffenderDeletionRepositoryTest {
         final var charges = jdbcTemplate.queryForList(
             "SELECT agency_incident_id FROM AGENCY_INCIDENT_CHARGES WHERE agency_incident_id IN (-6)",
             String.class);
-        if (charges.size() > 0) {
+        if (charges.size() < 1) {
             final var charges2 = jdbcTemplate.queryForList(
                 "SELECT agency_incident_id FROM AGENCY_INCIDENT_CHARGES",
                 String.class);
