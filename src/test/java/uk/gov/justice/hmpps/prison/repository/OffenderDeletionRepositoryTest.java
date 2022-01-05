@@ -117,12 +117,14 @@ public class OffenderDeletionRepositoryTest {
         final var charges = jdbcTemplate.queryForList(
             "SELECT agency_incident_id FROM AGENCY_INCIDENT_CHARGES WHERE agency_incident_id IN (-6)",
             String.class);
-        System.out.println(String.format("Found charges: %s", charges));
-        final var offenceTypes = jdbcTemplate.queryForList(
-            "SELECT charged_oic_offence_id FROM AGENCY_INCIDENT_CHARGES WHERE agency_incident_id IN (-6)",
-            String.class);
         if (charges.size() > 0) {
-            fail(String.format("Found charges: %s, types: %s", charges, offenceTypes));
+            final var charges2 = jdbcTemplate.queryForList(
+                "SELECT agency_incident_id FROM AGENCY_INCIDENT_CHARGES",
+                String.class);
+            final var offenceTypes = jdbcTemplate.queryForList(
+                "SELECT charged_oic_offence_id FROM AGENCY_INCIDENT_CHARGES",
+                String.class);
+            fail(String.format("Found charges: %s, types: %s", charges2, offenceTypes));
         }
         queryByAgencyIncidentId("AGENCY_INCIDENT_CHARGES").is(condition);
         queryByAgencyIncidentId("AGENCY_INCIDENT_PARTIES").is(condition);
