@@ -203,6 +203,7 @@ public class AdjudicationsService {
             final long sequenceNumber = i + 1;
             final var existingChargeToAdd = existingChargesBySequenceNumber.get(sequenceNumber);
             if (existingChargeToAdd != null) {
+                existingChargeToAdd.setOffenceType(offenceCode);
                 requiredAdjudicationCharges.add(existingChargeToAdd);
             } else {
                 requiredAdjudicationCharges.add(AdjudicationCharge.builder()
