@@ -36,6 +36,6 @@ public class UpdateAdjudication {
     @Size(max = 4000)
     private String statement;
 
-    @ApiModelProperty(value = "The list of offence codes the offender may be charged with", position = 6, example = "51:80,51:25A")
+    @ApiModelProperty(value = "The list of offence codes the offender may be charged with", notes = "If this value is not specified then the existing offence codes will be kept", position = 6, example = "51:80,51:25A")
     private List<String> offenceCodes;
 }
