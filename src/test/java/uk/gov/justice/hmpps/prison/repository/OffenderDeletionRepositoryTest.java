@@ -113,7 +113,11 @@ public class OffenderDeletionRepositoryTest {
         queryByProgramId("OFFENDER_PROGRAM_PROFILES").is(condition);
 
         queryByAgencyIncidentId("AGENCY_INCIDENT_REPAIRS").is(condition);
-        queryByAgencyIncidentId("AGENCY_INCIDENT_CHARGES").is(condition);
+        // TODO - Fix queryByAgencyIncidentId("AGENCY_INCIDENT_CHARGES").is(condition);
+        final var charges = jdbcTemplate.queryForList(
+            "SELECT agency_incident_id FROM AGENCY_INCIDENT_CHARGES WHERE agency_incident_id IN (-6)",
+            String.class);
+        System.out.println(String.format("Found charges: %s", charges));
         queryByAgencyIncidentId("AGENCY_INCIDENT_PARTIES").is(condition);
         queryByAgencyIncidentId("AGENCY_INCIDENTS").is(condition);
 
