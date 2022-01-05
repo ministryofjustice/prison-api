@@ -114,6 +114,7 @@ public class OffenderDeletionRepositoryTest {
         queryByProgramId("OFFENDER_PROGRAM_PROFILES").is(condition);
 
         queryByAgencyIncidentId("AGENCY_INCIDENT_REPAIRS").is(condition);
+        /*
         final var charges = jdbcTemplate.queryForList(
             "SELECT agency_incident_id FROM AGENCY_INCIDENT_CHARGES WHERE agency_incident_id IN (-6)",
             String.class);
@@ -126,6 +127,7 @@ public class OffenderDeletionRepositoryTest {
                 String.class);
             fail(String.format("Found charges: %s, types: %s", charges2, offenceTypes));
         }
+         */
         queryByAgencyIncidentId("AGENCY_INCIDENT_CHARGES").is(condition);
         queryByAgencyIncidentId("AGENCY_INCIDENT_PARTIES").is(condition);
         queryByAgencyIncidentId("AGENCY_INCIDENTS").is(condition);

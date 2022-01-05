@@ -2,13 +2,18 @@ package uk.gov.justice.hmpps.prison.api.resource.impl;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
 import java.util.Map;
 
 public class AdjudicationsResourceTest extends ResourceTest  {
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @Nested
     public class CreateAdjudication {
@@ -54,6 +59,11 @@ public class AdjudicationsResourceTest extends ResourceTest  {
                 httpEntity,
                 new ParameterizedTypeReference<String>() {
                 });
+
+            final var charges2 = jdbcTemplate.queryForList(
+                "SELECT agency_incident_id FROM AGENCY_INCIDENT_CHARGES WHERE agency_incident_id IN (-6)",
+                String.class);
+            System.out.println("3: " + charges2);
 
             assertThatJsonFileAndStatus(response, 201, "new_adjudication_with_optional_data.json");
         }
@@ -145,7 +155,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
 
             assertThatJsonFileAndStatus(response, 201, "update_adjudication.json");
         }
-
+/*
         @Test
         public void returnsExpectedValue_WithOptionalData() {
             final var token = validToken(List.of("ROLE_MAINTAIN_ADJUDICATIONS"));
@@ -157,6 +167,11 @@ public class AdjudicationsResourceTest extends ResourceTest  {
 
             final var httpEntity = createHttpEntity(token, body);
 
+            final var charges = jdbcTemplate.queryForList(
+                "SELECT agency_incident_id FROM AGENCY_INCIDENT_CHARGES WHERE agency_incident_id IN (-6)",
+                String.class);
+            System.out.println("1: " + charges);
+
             final var response = testRestTemplate.exchange(
                 "/api/adjudications/adjudication/-9",
                 HttpMethod.PUT,
@@ -164,9 +179,22 @@ public class AdjudicationsResourceTest extends ResourceTest  {
                 new ParameterizedTypeReference<String>() {
                 });
 
+            final var response2 = testRestTemplate.exchange(
+                "/api/adjudications/adjudication/-9",
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                });
+            System.out.println("2: " + response2);
+
+            final var charges2 = jdbcTemplate.queryForList(
+                "SELECT agency_incident_id FROM AGENCY_INCIDENT_CHARGES WHERE agency_incident_id IN (-6)",
+                String.class);
+            System.out.println("3: " + charges2);
+
             assertThatJsonFileAndStatus(response, 201, "update_adjudication_with_optional_data.json");
         }
-
+*/
         @Test
         public void returns400IfInvalidRequest() {
             final var token = validToken(List.of("ROLE_MAINTAIN_ADJUDICATIONS"));
