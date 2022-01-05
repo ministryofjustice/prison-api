@@ -166,13 +166,15 @@ public class AdjudicationsService {
         adjudicationToUpdate.setInternalLocation(incidentInternalLocationDetails);
         adjudicationToUpdate.setIncidentDetails(adjudication.getStatement());
 
-        final var adjudicationOffenderPartyToUpdate = adjudicationToUpdate.getOffenderParty()
-            .orElseThrow(() -> new RuntimeException("No offender associated with this adjudication"));
+        if (adjudication.getOffenceCodes() != null) {
+            final var adjudicationOffenderPartyToUpdate = adjudicationToUpdate.getOffenderParty()
+                .orElseThrow(() -> new RuntimeException("No offender associated with this adjudication"));
 
-        final var offenceCodes = adjudicationsOffenceTypeRepository.findByOffenceCodes(adjudication.getOffenceCodes());
-        final var offenceEntries = generateOffenceCharges(adjudicationOffenderPartyToUpdate, offenceCodes);
-        adjudicationOffenderPartyToUpdate.getCharges().clear();
-        adjudicationOffenderPartyToUpdate.getCharges().addAll(offenceEntries);
+            final var offenceCodes = adjudicationsOffenceTypeRepository.findByOffenceCodes(adjudication.getOffenceCodes());
+            final var offenceEntries = generateOffenceCharges(adjudicationOffenderPartyToUpdate, offenceCodes);
+            adjudicationOffenderPartyToUpdate.getCharges().clear();
+            adjudicationOffenderPartyToUpdate.getCharges().addAll(offenceEntries);
+        }
 
         final var updatedAdjudication = adjudicationsRepository.save(adjudicationToUpdate);
 

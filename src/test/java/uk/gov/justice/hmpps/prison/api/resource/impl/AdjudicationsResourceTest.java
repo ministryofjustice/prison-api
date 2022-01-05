@@ -155,7 +155,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
 
             assertThatJsonFileAndStatus(response, 201, "update_adjudication.json");
         }
-/*
+
         @Test
         public void returnsExpectedValue_WithOptionalData() {
             final var token = validToken(List.of("ROLE_MAINTAIN_ADJUDICATIONS"));
@@ -194,7 +194,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
 
             assertThatJsonFileAndStatus(response, 201, "update_adjudication_with_optional_data.json");
         }
-*/
+
         @Test
         public void returns400IfInvalidRequest() {
             final var token = validToken(List.of("ROLE_MAINTAIN_ADJUDICATIONS"));
