@@ -145,7 +145,7 @@ public class AdjudicationRepositoryTest {
         final var incidentTypeRef = incidentTypeRepository.findById(incidentType);
         final var actionCodeRef = actionCodeRepository.findById(actionCode);
         final var adjudicationNumber = repository.getNextAdjudicationNumber();
-        final var adjudicationOffenceType = adjudicationOffenceTypeRepository.findByOffenceCodes(List.of(offenceCode)).get(0);
+        final var adjudicationOffenceType = adjudicationOffenceTypeRepository.findByOffenceCodeIn(List.of(offenceCode)).get(0);
 
         final var adjudicationToCreate = Adjudication.builder()
             .incidentDate(incidentDateAndTime.toLocalDate())

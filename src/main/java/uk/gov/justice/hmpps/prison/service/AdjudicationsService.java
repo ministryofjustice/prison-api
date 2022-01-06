@@ -96,7 +96,7 @@ public class AdjudicationsService {
 
         var offenceCodes = List.< AdjudicationOffenceType >of();
         if (adjudication.getOffenceCodes() != null) {
-            offenceCodes = adjudicationsOffenceTypeRepository.findByOffenceCodes(adjudication.getOffenceCodes());
+            offenceCodes = adjudicationsOffenceTypeRepository.findByOffenceCodeIn(adjudication.getOffenceCodes());
             if (offenceCodes.size() != adjudication.getOffenceCodes().size()) {
                 throw new RuntimeException("Offence code not found");
             }
@@ -170,7 +170,7 @@ public class AdjudicationsService {
             final var adjudicationOffenderPartyToUpdate = adjudicationToUpdate.getOffenderParty()
                 .orElseThrow(() -> new RuntimeException("No offender associated with this adjudication"));
 
-            final var offenceCodes = adjudicationsOffenceTypeRepository.findByOffenceCodes(adjudication.getOffenceCodes());
+            final var offenceCodes = adjudicationsOffenceTypeRepository.findByOffenceCodeIn(adjudication.getOffenceCodes());
             final var offenceEntries = generateOffenceCharges(adjudicationOffenderPartyToUpdate, offenceCodes);
             adjudicationOffenderPartyToUpdate.getCharges().clear();
             adjudicationOffenderPartyToUpdate.getCharges().addAll(offenceEntries);

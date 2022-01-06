@@ -2,7 +2,6 @@ package uk.gov.justice.hmpps.prison.service;
 
 import com.microsoft.applicationinsights.TelemetryClient;
 import org.assertj.core.matcher.AssertionMatcher;
-import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -443,7 +442,7 @@ public class AdjudicationsServiceTest {
             final var offenderPartyCharges = generateExampleAdjudicationCharges(offenderParty, updatedOffenceCodes);
             offenderParty.setCharges(offenderPartyCharges);
             final var offenceTypes = offenderPartyCharges.stream().map(c -> c.getOffenceType()).collect(Collectors.toList());
-            lenient().when(offenceTypeRepository.findByOffenceCodes(updatedOffenceCodes)).thenReturn(offenceTypes);
+            lenient().when(offenceTypeRepository.findByOffenceCodeIn(updatedOffenceCodes)).thenReturn(offenceTypes);
 
             updatedInternalLocation = AgencyInternalLocation.builder()
                 .locationId(11L)
@@ -796,7 +795,7 @@ public class AdjudicationsServiceTest {
                 }
             }
             if (offenceCodeRequested) {
-                when(offenceTypeRepository.findByOffenceCodes(List.of(EXAMPLE_OFFENCE_CHARGE_CODE))).thenReturn(List.of(offenceType));
+                when(offenceTypeRepository.findByOffenceCodeIn(List.of(EXAMPLE_OFFENCE_CHARGE_CODE))).thenReturn(List.of(offenceType));
             }
         }
 
