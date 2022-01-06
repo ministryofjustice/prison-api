@@ -1,11 +1,9 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import lombok.*;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.time.LocalDate;
 
 @AllArgsConstructor
 @Builder
