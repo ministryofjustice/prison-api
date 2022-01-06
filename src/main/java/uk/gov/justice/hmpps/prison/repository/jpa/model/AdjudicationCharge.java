@@ -32,7 +32,7 @@ public class AdjudicationCharge extends AuditableEntity {
 
     @Data
     @Embeddable
-    @EqualsAndHashCode(exclude = "adjudicationParty")
+    @EqualsAndHashCode
     @NoArgsConstructor
     @AllArgsConstructor
     @ToString

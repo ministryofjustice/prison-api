@@ -31,7 +31,7 @@ public class AdjudicationOffenceTypeRepositoryTest {
         final var offenceCode1ToSearch = "51:1J";
         final var offenceCode2ToSearch = "51:2A";
 
-        final var foundCodes = repository.findByOffenceCodes(List.of(offenceCode1ToSearch, offenceCode2ToSearch));
+        final var foundCodes = repository.findByOffenceCodeIn(List.of(offenceCode1ToSearch, offenceCode2ToSearch));
 
         final var expectedOffenceTypes = List.of(
             AdjudicationOffenceType.builder()
