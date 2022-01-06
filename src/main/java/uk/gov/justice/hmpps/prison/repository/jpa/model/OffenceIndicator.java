@@ -13,18 +13,12 @@ import java.io.Serializable;
 @Entity
 @Table(name = "OFFENCE_INDICATORS")
 @ToString
-@IdClass(OffenceIndicator.PK.class)
 public class OffenceIndicator {
 
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @EqualsAndHashCode
-    public static class PK implements Serializable {
-        private Offence offence;
-        private String indicatorCode;
-    }
-
     @Id
+    @Column(name = "OFFENCE_INDICATOR_ID", nullable = false)
+    private Long offenceIndicatorId;
+
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumns({
         @JoinColumn(name="OFFENCE_CODE", referencedColumnName="OFFENCE_CODE"),
@@ -32,7 +26,6 @@ public class OffenceIndicator {
     })
     private Offence offence;
 
-    @Id
     @Column(name = "INDICATOR_CODE", nullable = false)
     private String indicatorCode;
 
