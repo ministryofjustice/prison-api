@@ -30,7 +30,7 @@ import java.util.List;
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=false, exclude = "charges")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
