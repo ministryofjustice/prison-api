@@ -28,5 +28,6 @@ public class OffenderOffence {
     private String offenceCode;
     @ApiModelProperty(value = "Offence Description")
     private String offenceDescription;
+    @ApiModelProperty(value = "Offence Indicators")
     private List<String> indicators;
 }
