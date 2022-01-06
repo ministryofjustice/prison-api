@@ -15,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import java.time.LocalDate;
 
 @Data
 @Entity
@@ -34,6 +35,12 @@ public class KeyDateAdjustment extends AuditableEntity {
 
     @Column(name = "ADJUST_DAYS")
     private Integer adjustDays;
+
+    @Column
+    private LocalDate adjustFromDate;
+
+    @Column
+    private LocalDate adjustToDate;
 
     @Setter
     @ManyToOne(optional = false, fetch = FetchType.LAZY)

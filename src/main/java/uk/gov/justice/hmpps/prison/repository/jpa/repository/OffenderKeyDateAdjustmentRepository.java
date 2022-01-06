@@ -8,4 +8,5 @@ import java.util.List;
 public interface OffenderKeyDateAdjustmentRepository extends CrudRepository<KeyDateAdjustment, Long> {
     List<KeyDateAdjustment> findAllByOffenderBooking_BookingId(Long bookingId);
     List<KeyDateAdjustment> findAllByOffenderBooking_BookingIdAndActive(Long bookingId, boolean active);
+    List<KeyDateAdjustment> findAllByOffenderBooking_BookingIdAndSentenceAdjustCodeIn(Long bookingId,  List <String> adjustCodes);
 }
