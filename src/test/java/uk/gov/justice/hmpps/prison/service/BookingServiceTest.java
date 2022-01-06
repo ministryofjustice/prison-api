@@ -49,6 +49,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryBranch;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryDischarge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryRank;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offence;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenceIndicator;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge;
@@ -1292,7 +1293,11 @@ public class BookingServiceTest {
                                 .offenderCharge(OffenderCharge.builder()
                                     .dateOfOffence(LocalDate.of(2021, 1, 2))
                                     .endDate(LocalDate.of(2021, 1, 25))
-                                    .offence(Offence.builder().build())
+                                    .offence(Offence.builder()
+                                        .offenceIndicators(Set.of(
+                                            OffenceIndicator.builder().indicatorCode("INDICATOR").build()
+                                        ))
+                                        .build())
                                     .build()
                                 )
                                 .build()
@@ -1326,6 +1331,7 @@ public class BookingServiceTest {
                     OffenderOffence.builder()
                         .offenceStartDate(LocalDate.of(2021, 1, 2))
                         .offenceEndDate(LocalDate.of(2021, 1, 25))
+                        .indicators(List.of("INDICATOR"))
                         .build()
                 ))
                 .build()
