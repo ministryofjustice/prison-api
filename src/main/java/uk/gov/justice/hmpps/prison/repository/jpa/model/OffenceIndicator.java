@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 @Data
-@EqualsAndHashCode(of = {"code", "statute"}, callSuper = false)
+@EqualsAndHashCode(of = {"offence", "indicatorCode"}, callSuper = false)
 @NoArgsConstructor
 @Entity
 @Table(name = "OFFENCE_INDICATORS")
@@ -22,26 +22,20 @@ public class OffenceIndicator {
     @AllArgsConstructor
     @EqualsAndHashCode
     public static class PK implements Serializable {
-        private String code;
-        private Statute statute;
+        private Offence offence;
+        private String indicatorCode;
     }
 
     @Id
-    @Column(name = "OFFENCE_CODE", nullable = false)
-    private String code;
-
-    @Id
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "STATUTE_CODE", nullable = false)
-    private Statute statute;
-
-    @Column(name = "OFFENCE_CODE", nullable = false)
-    private String indicatorCode;
-
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumns({
         @JoinColumn(name="OFFENCE_CODE", referencedColumnName="OFFENCE_CODE"),
         @JoinColumn(name="STATUTE_CODE", referencedColumnName="STATUTE_CODE")
     })
     private Offence offence;
+
+    @Id
+    @Column(name = "INDICATOR_CODE", nullable = false)
+    private String indicatorCode;
+
 }

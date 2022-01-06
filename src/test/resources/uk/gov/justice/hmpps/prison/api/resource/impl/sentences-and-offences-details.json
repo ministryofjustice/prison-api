@@ -19,7 +19,10 @@
         "offenceStartDate": "2015-01-04",
         "offenceEndDate": "2015-01-25",
         "offenceCode": "RC86355",
-        "offenceDescription": "Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury"
+        "offenceDescription": "Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury",
+        "indicators":[
+          "S15/CJIB"
+        ]
       }
     ]
   },
@@ -41,7 +44,10 @@
       {
         "offenderChargeId": -9,
         "offenceCode": "RC86355",
-        "offenceDescription": "Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury"
+        "offenceDescription": "Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury",
+        "indicators":[
+          "S15/CJIB"
+        ]
       }
     ]
   },
