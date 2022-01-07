@@ -2,8 +2,10 @@ package uk.gov.justice.hmpps.prison.api.resource.impl;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
 import java.util.Map;
@@ -33,6 +35,29 @@ public class AdjudicationsResourceTest extends ResourceTest  {
                 });
 
             assertThatJsonFileAndStatus(response, 201, "new_adjudication.json");
+        }
+
+        @Test
+        public void returnsExpectedValue_WithOptionalData() {
+            final var token = validToken(List.of("ROLE_MAINTAIN_ADJUDICATIONS"));
+            final var body = Map.of(
+                "offenderNo", "A1234AE",
+                "agencyId", "MDI",
+                "incidentTime", "2021-01-04T10:12:44",
+                "incidentLocationId", -31L,
+                "statement", "Example statement",
+                "offenceCodes", List.of("51:8D"));
+
+            final var httpEntity = createHttpEntity(token, body);
+
+            final var response = testRestTemplate.exchange(
+                "/api/adjudications/adjudication",
+                HttpMethod.POST,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                });
+
+            assertThatJsonFileAndStatus(response, 201, "new_adjudication_with_optional_data.json");
         }
 
         @Test
@@ -124,6 +149,27 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         }
 
         @Test
+        public void returnsExpectedValue_WithOptionalData() {
+            final var token = validToken(List.of("ROLE_MAINTAIN_ADJUDICATIONS"));
+            final var body = Map.of(
+                "incidentTime", "2021-01-04T10:12:44",
+                "incidentLocationId", -31L,
+                "statement", "Some Adjusted Comment Text",  // Note that the "Text" is used in free text searches
+                "offenceCodes", List.of("51:1B"));
+
+            final var httpEntity = createHttpEntity(token, body);
+
+            final var response = testRestTemplate.exchange(
+                "/api/adjudications/adjudication/-9",
+                HttpMethod.PUT,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                });
+
+            assertThatJsonFileAndStatus(response, 201, "update_adjudication_with_optional_data.json");
+        }
+
+        @Test
         public void returns400IfInvalidRequest() {
             final var token = validToken(List.of("ROLE_MAINTAIN_ADJUDICATIONS"));
             final var body = Map.of(
@@ -203,6 +249,22 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         }
 
         @Test
+        public void returnsExpectedValue_WithOptionalData() {
+            final var token = validToken(List.of("ROLE_MAINTAIN_ADJUDICATIONS"));
+
+            final var httpEntity = createHttpEntity(token, null);
+
+            final var response = testRestTemplate.exchange(
+                "/api/adjudications/adjudication/-1",
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                });
+
+            assertThatJsonFileAndStatus(response, 200, "adjudication_by_number_with_optional_data.json");
+        }
+
+        @Test
         public void returns404IfInvalidRequest() {
             final var token = validToken(List.of("ROLE_MAINTAIN_ADJUDICATIONS"));
 
@@ -240,7 +302,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         @Test
         public void returnsExpectedValue() {
             final var token = validToken(List.of("ROLE_MAINTAIN_ADJUDICATIONS"));
-            final var httpEntity = createHttpEntity(token, List.of(-5, -200));
+            final var httpEntity = createHttpEntity(token, List.of(-5, -7, -200));
 
             final var response = testRestTemplate.exchange(
                 "/api/adjudications",
