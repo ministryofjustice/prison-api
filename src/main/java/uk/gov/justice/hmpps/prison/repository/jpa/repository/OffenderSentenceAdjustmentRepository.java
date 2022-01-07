@@ -8,5 +8,4 @@ import java.util.List;
 public interface OffenderSentenceAdjustmentRepository extends CrudRepository<SentenceAdjustment, Long> {
     List<SentenceAdjustment> findAllByOffenderBooking_BookingId(Long bookingId);
     List<SentenceAdjustment> findAllByOffenderBooking_BookingIdAndActive(Long bookingId, boolean active);
-    List<SentenceAdjustment> findAllByOffenderBooking_BookingIdAndSentenceAdjustCodeIn(Long bookingId, List <String> adjustCodes);
 }

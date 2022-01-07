@@ -7,35 +7,35 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.BookingAdjustment;
 import uk.gov.justice.hmpps.prison.api.model.BookingAndSentenceAdjustments;
+import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentValues;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.KeyDateAdjustment;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceAdjustment;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
+import static uk.gov.justice.hmpps.prison.api.support.BookingAdjustmentType.ADDITIONAL_DAYS_AWARDED;
+import static uk.gov.justice.hmpps.prison.api.support.SentenceAdjustmentType.RECALL_SENTENCE_REMAND;
 
 @ExtendWith(MockitoExtension.class)
 public class AdjustmentServiceTest {
 
     @Mock
-    private OffenderSentenceAdjustmentRepository offenderSentenceAdjustmentRepository;
-    @Mock
-    private OffenderKeyDateAdjustmentRepository offenderKeyDateAdjustmentRepository;
+    private OffenderBookingRepository offenderBookingRepository;
 
     private AdjustmentService service;
 
     private final Long BOOKING_ID = 1L;
-    private final List<String> SENTENCE_ADJUSTMENT_CODES = List.of("RSR", "S240A", "RST", "RX", "UR");
-    private final List<String> BOOKING_ADJUSTMENT_CODES = List.of("SREM", "ADA", "RADA", "UAL", "LAL");
 
     @BeforeEach
     public void setUp() {
-        service = new AdjustmentService(offenderSentenceAdjustmentRepository, offenderKeyDateAdjustmentRepository);
+        service = new AdjustmentService(offenderBookingRepository);
     }
 
     @Test
@@ -43,6 +43,7 @@ public class AdjustmentServiceTest {
         final var sentenceAdjustment = SentenceAdjustment.builder()
             .sentenceSeq(911)
             .active(true)
+            .sentenceAdjustCode("RSR")
             .adjustDays(4)
             .adjustFromDate(LocalDate.of(2022, 1, 1))
             .adjustToDate(LocalDate.of(2022, 1, 4))
@@ -50,23 +51,30 @@ public class AdjustmentServiceTest {
 
         final var keyDateAdjustment = KeyDateAdjustment.builder()
             .active(true)
+            .sentenceAdjustCode("ADA")
             .adjustDays(4)
             .adjustFromDate(LocalDate.of(2022, 1, 1))
             .adjustToDate(LocalDate.of(2022, 1, 4))
             .build();
 
-
-        when(offenderSentenceAdjustmentRepository.findAllByOffenderBooking_BookingIdAndSentenceAdjustCodeIn(BOOKING_ID, SENTENCE_ADJUSTMENT_CODES)).thenReturn(List.of(sentenceAdjustment));
-        when(offenderKeyDateAdjustmentRepository.findAllByOffenderBooking_BookingIdAndSentenceAdjustCodeIn(BOOKING_ID, BOOKING_ADJUSTMENT_CODES)).thenReturn(List.of(keyDateAdjustment));
+        when(offenderBookingRepository.findById(BOOKING_ID)).thenReturn(
+            Optional.of(
+                OffenderBooking.builder()
+                    .sentenceAdjustments(List.of(sentenceAdjustment))
+                    .keyDateAdjustments(List.of(keyDateAdjustment))
+                    .build()
+            )
+        );
 
         final var bookingAndSentenceAdjustments = service.getBookingAndSentenceAdjustments(BOOKING_ID);
 
         final var expected = BookingAndSentenceAdjustments.builder()
             .sentenceAdjustments(List.of(
-                uk.gov.justice.hmpps.prison.api.model.SentenceAdjustment
+                SentenceAdjustmentValues
                     .builder()
                     .sentenceSequence(911)
                     .active(true)
+                    .type(RECALL_SENTENCE_REMAND)
                     .numberOfDays(4)
                     .fromDate(LocalDate.of(2022, 1, 1))
                     .toDate(LocalDate.of(2022, 1, 4))
@@ -75,6 +83,7 @@ public class AdjustmentServiceTest {
                 BookingAdjustment
                     .builder()
                     .active(true)
+                    .type(ADDITIONAL_DAYS_AWARDED)
                     .numberOfDays(4)
                     .fromDate(LocalDate.of(2022, 1, 1))
                     .toDate(LocalDate.of(2022, 1, 4))
@@ -87,8 +96,12 @@ public class AdjustmentServiceTest {
 
     @Test
     void getBookingAndSentenceAdjustmentsReturnsNoData() {
-        when(offenderSentenceAdjustmentRepository.findAllByOffenderBooking_BookingIdAndSentenceAdjustCodeIn(BOOKING_ID, SENTENCE_ADJUSTMENT_CODES)).thenReturn(List.of());
-        when(offenderKeyDateAdjustmentRepository.findAllByOffenderBooking_BookingIdAndSentenceAdjustCodeIn(BOOKING_ID, BOOKING_ADJUSTMENT_CODES)).thenReturn(List.of());
+        when(offenderBookingRepository.findById(BOOKING_ID)).thenReturn(
+            Optional.of(
+                OffenderBooking.builder()
+                    .build()
+            )
+        );
 
         final var bookingAndSentenceAdjustments = service.getBookingAndSentenceAdjustments(BOOKING_ID);
 

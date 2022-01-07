@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 @Data
-public class SentenceAdjustment {
+public class SentenceAdjustmentValues {
     @ApiModelProperty(value = "Sentence sequence", example = "1")
     private Integer sentenceSequence;
 

@@ -16,7 +16,7 @@ import java.util.List;
 @Data
 public class BookingAndSentenceAdjustments {
     @ApiModelProperty(value = "Adjustments associated at a sentence level (of type RECALL_SENTENCE_REMAND, TAGGED_BAIL, RECALL_SENTENCE_TAGGED_BAIL, REMAND or UNUSED_REMAND)")
-    private List<SentenceAdjustment> sentenceAdjustments;
+    private List<SentenceAdjustmentValues> sentenceAdjustments;
 
     @ApiModelProperty(value = "Adjustments associated at a booking level (of type SPECIAL_REMISSION, ADDITIONAL_DAYS_AWARDED, RESTORED_ADDITIONAL_DAYS_AWARDED, UNLAWFULLY_AT_LARGE, LAWFULLY_AT_LARGE)")
     private List<BookingAdjustment> bookingAdjustments;
