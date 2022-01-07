@@ -17,8 +17,8 @@ import uk.gov.justice.hmpps.prison.service.AdjustmentService;
 
 @RestController
 @Validated
-@Api(tags = {"adjustment"})
-@RequestMapping("${api.base.path}/adjustment")
+@Api(tags = {"adjustments"})
+@RequestMapping("${api.base.path}/adjustments")
 @AllArgsConstructor
 public class AdjustmentResource {
 
@@ -30,7 +30,7 @@ public class AdjustmentResource {
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation(value = "Offender sentence adjustments.", nickname = "getBookingSentenceAdjustments")
     @GetMapping("/{bookingId}/sentence-and-booking")
-    public BookingAndSentenceAdjustments getBookingAndSentenceAdjustments(@PathVariable("bookingId") @ApiParam(value = "The booking id of offender", required = true) final Long bookingId) {
+    public BookingAndSentenceAdjustments getBookingAndSentenceAdjustments(@PathVariable("bookingId") @ApiParam(value = "The booking id of the offender", required = true) final Long bookingId) {
         return adjustmentService.getBookingAndSentenceAdjustments(bookingId);
     }
 }
