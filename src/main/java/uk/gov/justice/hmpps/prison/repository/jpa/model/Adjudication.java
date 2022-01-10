@@ -33,7 +33,7 @@ import java.util.Optional;
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=false, exclude = "parties")
 @Builder(toBuilder=true)
 @NoArgsConstructor
 @AllArgsConstructor
