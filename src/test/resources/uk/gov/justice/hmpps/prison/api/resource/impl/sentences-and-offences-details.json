@@ -21,7 +21,8 @@
         "offenceCode": "RC86355",
         "offenceDescription": "Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury",
         "indicators":[
-          "S15/CJIB"
+          "S15/CJIB",
+          "SOR"
         ]
       }
     ]
@@ -46,7 +47,8 @@
         "offenceCode": "RC86355",
         "offenceDescription": "Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury",
         "indicators":[
-          "S15/CJIB"
+          "S15/CJIB",
+          "SOR"
         ]
       }
     ]

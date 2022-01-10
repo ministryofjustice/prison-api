@@ -22,8 +22,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @AllArgsConstructor
 @Builder
@@ -77,6 +77,6 @@ public class Offence {
     @OneToMany(mappedBy = "offence", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @Default
     @BatchSize(size = 25)
-    private Set<OffenceIndicator> offenceIndicators = new HashSet<>();
+    private List<OffenceIndicator> offenceIndicators = new ArrayList<>();
 
 }

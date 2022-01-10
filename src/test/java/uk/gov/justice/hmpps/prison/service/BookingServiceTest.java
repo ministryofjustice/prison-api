@@ -1294,7 +1294,7 @@ public class BookingServiceTest {
                                     .dateOfOffence(LocalDate.of(2021, 1, 2))
                                     .endDate(LocalDate.of(2021, 1, 25))
                                     .offence(Offence.builder()
-                                        .offenceIndicators(Set.of(
+                                        .offenceIndicators(List.of(
                                             OffenceIndicator.builder().indicatorCode("INDICATOR").build()
                                         ))
                                         .build())
