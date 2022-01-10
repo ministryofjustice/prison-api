@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -11,6 +12,7 @@ import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.NotFound;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EmbeddedId;
@@ -18,14 +20,17 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=false, exclude = "charges")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -39,7 +44,7 @@ public class AdjudicationParty extends AuditableEntity {
 
     @Data
     @Embeddable
-    @EqualsAndHashCode(exclude = "adjudication")
+    @EqualsAndHashCode
     @NoArgsConstructor
     @AllArgsConstructor
     @ToString
@@ -51,6 +56,10 @@ public class AdjudicationParty extends AuditableEntity {
         @Column(name = "PARTY_SEQ", nullable = false)
         private Long partySeq;
     }
+
+    @OneToMany(mappedBy = "id.adjudicationParty", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    @Default
+    private List<AdjudicationCharge> charges = new ArrayList<>();
 
     @Column(name = "OIC_INCIDENT_ID")
     private Long adjudicationNumber;

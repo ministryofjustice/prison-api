@@ -9,6 +9,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationActionCode;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationIncidentType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationParty;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
@@ -29,6 +30,9 @@ public class AdjudicationRepositoryTest {
 
     @Autowired
     private AdjudicationRepository repository;
+
+    @Autowired
+    private AdjudicationOffenceTypeRepository adjudicationOffenceTypeRepository;
 
     @Autowired
     private AgencyLocationRepository agencyLocationRepository;
@@ -103,13 +107,18 @@ public class AdjudicationRepositoryTest {
             .offenderBooking(bookingRepository.findById(-51L).get())
             .actionCode(actionCodeRepository.findById(actionCode).get()) // ??
             .build();
+        final var adjudicationParty1ChargeOffenceCode = "51:8D";
 
         assertThat(storedAdjudication.get()).usingRecursiveComparison()
             .ignoringFields("createDatetime", "createUserId", "modifyDatetime", "modifyUserId", "parties")
             .isEqualTo(expectedAdjudication);
         assertThat(storedAdjudication.get().getParties()).usingRecursiveComparison()
-            .ignoringFields("id", "createDatetime", "createUserId", "modifyDatetime", "modifyUserId")
+            .ignoringFields("id", "charges", "createDatetime", "createUserId", "modifyDatetime", "modifyUserId")
             .isEqualTo(List.of(adjudicationParty1, adjudicationParty2));
+        assertThat(storedAdjudication.get().getParties().get(0).getCharges()).hasSize(1)
+            .extracting("offenceType.offenceCode")
+            .isEqualTo(List.of(adjudicationParty1ChargeOffenceCode));
+        assertThat(storedAdjudication.get().getParties().get(1).getCharges()).hasSize(0);
     }
 
     private Adjudication makeAdjudicationObject() {
@@ -117,6 +126,7 @@ public class AdjudicationRepositoryTest {
         final var incidentDateAndTime = reportedDateAndTime.minusDays(2);
         final var partyAddedDateAndTime = reportedDateAndTime.minusDays(1);
 
+        final var offenceCode = "51:2D";
         final var offenderBookingId = -6L;
         final var agencyId = "LEI";
         final var internalLocationId = -14L;
@@ -135,6 +145,7 @@ public class AdjudicationRepositoryTest {
         final var incidentTypeRef = incidentTypeRepository.findById(incidentType);
         final var actionCodeRef = actionCodeRepository.findById(actionCode);
         final var adjudicationNumber = repository.getNextAdjudicationNumber();
+        final var adjudicationOffenceType = adjudicationOffenceTypeRepository.findByOffenceCodeIn(List.of(offenceCode)).get(0);
 
         final var adjudicationToCreate = Adjudication.builder()
             .incidentDate(incidentDateAndTime.toLocalDate())
@@ -157,6 +168,11 @@ public class AdjudicationRepositoryTest {
             .offenderBooking(offenderBooking.get())
             .actionCode(actionCodeRef.get())
             .build();
+        final var adjudicationCharge = AdjudicationCharge.builder()
+            .id(new AdjudicationCharge.PK(adjudicationParty, 1L))
+            .offenceType(adjudicationOffenceType)
+            .build();
+        adjudicationParty.setCharges(List.of(adjudicationCharge));
         adjudicationToCreate.setParties(List.of(adjudicationParty));
 
         return adjudicationToCreate;

@@ -13,6 +13,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @ApiModel(description = "Creation details for a new adjudication")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -43,4 +44,7 @@ public class NewAdjudication {
     @MaximumTextSize
     @Size(max = 4000)
     private String statement;
+
+    @ApiModelProperty(value = "The list of offence codes the offender may be charged with", position = 6, example = "51:80,51:25A")
+    private List<String> offenceCodes;
 }

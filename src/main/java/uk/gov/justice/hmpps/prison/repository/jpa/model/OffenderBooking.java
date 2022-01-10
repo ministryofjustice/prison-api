@@ -12,12 +12,16 @@ import org.hibernate.Hibernate;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.ListIndexBase;
 import org.hibernate.annotations.Type;
+import uk.gov.justice.hmpps.prison.api.model.BookingAdjustment;
 import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
 import uk.gov.justice.hmpps.prison.api.model.LegalStatus;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
 import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentDetail;
+import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentValues;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
+import uk.gov.justice.hmpps.prison.api.support.BookingAdjustmentType;
+import uk.gov.justice.hmpps.prison.api.support.SentenceAdjustmentType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord.BookingAndSequence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail.PK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.KeyDateValues;
@@ -47,6 +51,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.time.LocalDate.now;
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -675,6 +680,43 @@ public class OffenderBooking extends AuditableEntity {
 
     public Integer getUnusedRemand() {
         return getDaysForSentenceAdjustmentsCode(sentenceAdjustments, "UR");
+    }
+
+    public List<SentenceAdjustmentValues> getSentenceAdjustments() {
+        List<String> sentenceAdjustmentCodes = Stream.of(
+            SentenceAdjustmentType.values()).map(SentenceAdjustmentType::getCode).collect(Collectors.toList()
+        );
+        return sentenceAdjustments
+            .stream()
+            .filter(sa -> sentenceAdjustmentCodes.contains(sa.getSentenceAdjustCode()))
+            .map(e -> SentenceAdjustmentValues.builder()
+                .type(SentenceAdjustmentType.getByCode(e.getSentenceAdjustCode()))
+                .sentenceSequence(e.getSentenceSeq())
+                .numberOfDays(e.getAdjustDays())
+                .fromDate(e.getAdjustFromDate())
+                .toDate(e.getAdjustToDate())
+                .active(e.isActive())
+                .build()
+            )
+            .collect(Collectors.toList());
+    }
+
+    public List<BookingAdjustment> getBookingAdjustments() {
+        List<String> bookingAdjustmentCodes = Stream.of(
+            BookingAdjustmentType.values()).map(BookingAdjustmentType::getCode).collect(Collectors.toList()
+        );
+        return keyDateAdjustments
+            .stream()
+            .filter(sa -> bookingAdjustmentCodes.contains(sa.getSentenceAdjustCode()))
+            .map(e -> BookingAdjustment.builder()
+                .type(BookingAdjustmentType.getByCode(e.getSentenceAdjustCode()))
+                .numberOfDays(e.getAdjustDays())
+                .fromDate(e.getAdjustFromDate())
+                .toDate(e.getAdjustToDate())
+                .active(e.isActive())
+                .build()
+            )
+            .collect(Collectors.toList());
     }
 
     public static Integer getDaysForKeyDateAdjustmentsCode(final List<KeyDateAdjustment> adjustmentsList, final String code) {

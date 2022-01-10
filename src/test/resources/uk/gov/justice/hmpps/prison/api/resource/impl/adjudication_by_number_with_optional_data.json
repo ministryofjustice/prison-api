@@ -1,0 +1,11 @@
+{
+  "bookingId": -49,
+  "offenderNo": "A1181GG",
+  "reporterStaffId": -12,
+  "agencyId": "LEI",
+  "incidentTime": "1999-05-25T00:00:00",
+  "incidentLocationId": -1,
+  "statement": "Some Comment Text",
+  "offenceCodes": ["51:1N", "51:2B"],
+  "createdByUserId": "XTAG"
+}
