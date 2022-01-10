@@ -51,13 +51,7 @@ import java.util.stream.Collectors;
         @NamedSubgraph(
             name = "offender-charge-subgraph",
             attributeNodes = {
-                @NamedAttributeNode(value = "offence", subgraph = "offence-indicator-subgraph")
-            }
-        ),
-        @NamedSubgraph(
-            name = "offence-indicator-subgraph",
-            attributeNodes = {
-                @NamedAttributeNode(value = "offenceIndicators")
+                @NamedAttributeNode(value = "offence")
             }
         )
     }
