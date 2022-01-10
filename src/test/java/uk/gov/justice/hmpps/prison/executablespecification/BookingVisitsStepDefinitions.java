@@ -146,11 +146,6 @@ public class BookingVisitsStepDefinitions extends AbstractStepDefinitions {
         bookingVisits.verifyBadRequest(expectedUserMessage);
     }
 
-    @When("the last visit is requested for an offender with booking id \"([^\"]*)\"$")
-    public void lastVisitIsRequested(final String bookingId) throws Throwable {
-        bookingVisits.getBookingVisitLast(Long.valueOf(bookingId));
-    }
-
     @Then("the visit ([^\\\"]*) is \"([^\"]*)\"$")
     public void theVisitFieldIs(final String field, final String value) throws Throwable {
         bookingVisits.verifyVisitField(field, value);

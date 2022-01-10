@@ -17,7 +17,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class BookingVisitSteps extends ScheduledEventSteps {
     private static final String BOOKING_VISITS_API_URL = API_PREFIX + "bookings/{bookingId}/visits";
-    private static final String BOOKING_VISIT_LAST_API_URL = API_PREFIX + "bookings/{bookingId}/visits/last";
     private static final String BOOKING_VISIT_NEXT_API_URL = API_PREFIX + "bookings/{bookingId}/visits/next";
 
 
@@ -36,11 +35,6 @@ public class BookingVisitSteps extends ScheduledEventSteps {
     @Step("Get visits for booking for current day only")
     public void getBookingVisitsForCurrentDay(final Long bookingId) {
         dispatchRequestForPeriod(bookingId, ScheduledEventPeriod.TODAY);
-    }
-
-    @Step("Get last visit for booking")
-    public void getBookingVisitLast(final Long bookingId) {
-        dispatchRequest(BOOKING_VISIT_LAST_API_URL, bookingId);
     }
 
     @Step("Get next visit for booking")

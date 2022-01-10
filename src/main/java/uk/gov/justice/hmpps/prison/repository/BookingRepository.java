@@ -430,22 +430,6 @@ public class BookingRepository extends RepositoryBase {
                 EVENT_ROW_MAPPER);
     }
 
-    public VisitDetails getBookingVisitLast(final Long bookingId, final LocalDateTime cutoffDate) {
-        Objects.requireNonNull(bookingId, "bookingId is a required parameter");
-        Objects.requireNonNull(cutoffDate, "cutoffDate is a required parameter");
-
-        try {
-            final var result = jdbcTemplate.queryForObject(//
-                    BookingRepositorySql.GET_LAST_BOOKING_VISIT.getSql(),
-                    createParams("bookingId", bookingId, "cutoffDate", DateTimeConverter.fromLocalDateTime(cutoffDate)),
-                    VISIT_ROW_MAPPER);
-            result.setLeadVisitor(StringUtils.trimToNull(result.getLeadVisitor()));
-            return result;
-        } catch (final EmptyResultDataAccessException e) {
-            return null;
-        }
-    }
-
     public VisitDetails getBookingVisitNext(final Long bookingId, final LocalDateTime from) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
         Objects.requireNonNull(from, "from is a required parameter");
