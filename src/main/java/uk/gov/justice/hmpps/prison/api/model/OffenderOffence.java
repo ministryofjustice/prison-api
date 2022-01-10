@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @ApiModel(description = "Offence details related to an offender")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -27,4 +28,6 @@ public class OffenderOffence {
     private String offenceCode;
     @ApiModelProperty(value = "Offence Description")
     private String offenceDescription;
+    @ApiModelProperty(value = "Offence Indicators")
+    private List<String> indicators;
 }
