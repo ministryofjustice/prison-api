@@ -3,7 +3,6 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 import lombok.*;
 
 import javax.persistence.*;
-import java.io.Serializable;
 
 @AllArgsConstructor
 @Builder
@@ -12,7 +11,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Entity
 @Table(name = "OFFENCE_INDICATORS")
-@ToString
+@ToString(exclude = {"offence"})
 public class OffenceIndicator {
 
     @Id
