@@ -941,16 +941,6 @@ public class BookingResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @ApiOperation(value = "The most recent visit for the offender.", notes = "The most recent visit for the offender.", nickname = "getBookingVisitsLast")
-    @GetMapping("/{bookingId}/visits/last")
-    public VisitDetails getBookingVisitsLast(@PathVariable("bookingId") @ApiParam(value = "The offender booking id", required = true) final Long bookingId) {
-        return bookingService.getBookingVisitLast(bookingId);
-    }
-
-    @ApiResponses({
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation(value = "The next visit for the offender.", notes = "The next visit for the offender.", nickname = "getBookingVisitsNext")
     @GetMapping("/{bookingId}/visits/next")
     public VisitDetails getBookingVisitsNext(@PathVariable("bookingId") @ApiParam(value = "The offender booking id", required = true) final Long bookingId) {

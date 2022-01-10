@@ -65,16 +65,12 @@ public class BookingRepositoryTest {
 
         assertThat(visitDetails.getStartTime().toString()).isEqualTo("2016-12-11T14:30");
         assertThat(visitDetails.getEndTime().toString()).isEqualTo("2016-12-11T15:30");
-        assertThat(visitDetails.getEventOutcome()).isEqualTo("ABS");
-        assertThat(visitDetails.getEventOutcomeDescription()).isEqualTo("Absence");
         assertThat(visitDetails.getLeadVisitor()).isEqualTo("JESSY SMITH1");
         assertThat(visitDetails.getRelationship()).isEqualTo("FRI");
         assertThat(visitDetails.getRelationshipDescription()).isEqualTo("Friend");
         assertThat(visitDetails.getLocation()).isEqualTo("Visiting Room");
         assertThat(visitDetails.getEventStatus()).isEqualTo("CANC");
         assertThat(visitDetails.getEventStatusDescription()).isEqualTo("Cancelled");
-        assertThat(visitDetails.getCancellationReason()).isEqualTo("NSHOW");
-        assertThat(visitDetails.getCancelReasonDescription()).isEqualTo("Visitor Did Not Arrive");
         assertThat(visitDetails.getVisitType()).isEqualTo("SCON");
         assertThat(visitDetails.getVisitTypeDescription()).isEqualTo("Social Contact");
     }
@@ -89,7 +85,7 @@ public class BookingRepositoryTest {
 
         final var eventId = repository.createBookingAppointment(-2L, appt, "LEI");
 
-        final var event = repository.getBookingAppointmentByEventId(eventId).get();
+        final var event = repository.getBookingAppointmentByEventId(eventId).orElseThrow();
 
         assertThat(event).isNotNull();
         assertThat(event.getEventSubType()).isEqualTo(appt.getAppointmentType());
@@ -112,7 +108,7 @@ public class BookingRepositoryTest {
 
         final var eventId = repository.createBookingAppointment(-2L, appt, "LEI");
 
-        final var event = repository.getBookingAppointmentByEventId(eventId).get();
+        final var event = repository.getBookingAppointmentByEventId(eventId).orElseThrow();
 
         assertThat(event).isNotNull();
         assertThat(event.getEventSubType()).isEqualTo(appt.getAppointmentType());
@@ -126,22 +122,22 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    public void testGetBookingVisitLastSameDay() {
-        final var visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2016-12-11T16:00"));
+    public void testGetBookingVisitNextSameDay() {
+        final var visit = repository.getBookingVisitNext(-1L, LocalDateTime.parse("2016-12-11T14:00"));
 
         assertVisitDetails(visit);
     }
 
     @Test
-    public void testGetBookingVisitLastDifferentDay() {
-        final var visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2016-12-20T00:00"));
+    public void testGetBookingVisitNextDifferentDay() {
+        final var visit = repository.getBookingVisitNext(-1L, LocalDateTime.parse("2016-12-10T17:00"));
 
         assertVisitDetails(visit);
     }
 
     @Test
-    public void testGetBookingVisitLastMultipleCandidates() {
-        final var visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2017-12-07T00:00"));
+    public void testGetBookingVisitNextMultipleCandidates() {
+        final var visit = repository.getBookingVisitNext(-1L, LocalDateTime.parse("2017-11-12T00:00"));
 
         assertThat(visit).isNotNull();
         assertThat(visit.getStartTime().toString()).isEqualTo("2017-11-13T14:30");
@@ -151,24 +147,24 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    public void testGetBookingVisitLastNonexistentBooking() {
-        final var visit = repository.getBookingVisitLast(-99L, LocalDateTime.parse("2016-12-11T16:00:00"));
+    public void testGetBookingVisitNextNonexistentBooking() {
+        final var visit = repository.getBookingVisitNext(-99L, LocalDateTime.parse("2016-12-11T16:00:00"));
 
         assertThat(visit).isNull();
     }
 
     @Test
-    public void testGetBookingVisitLastEarlyDate() {
-        final var visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2011-12-11T16:00:00"));
+    public void testGetBookingVisitNextLateDate() {
+        final var visit = repository.getBookingVisitNext(-1L, LocalDateTime.parse("2021-12-11T16:00:00"));
 
         assertThat(visit).isNull();
     }
 
     @Test
-    public void findBalancesForVisitOrdersAndPrivilageVisitOrders() {
+    public void findBalancesForVisitOrdersAndPrivilegeVisitOrders() {
         final var visitBalances = repository.getBookingVisitBalances(-1L);
 
-        assertThat(visitBalances).get().isEqualToIgnoringGivenFields(
+        assertThat(visitBalances).get().isEqualTo(
                 VisitBalances.builder().remainingVo(25).remainingPvo(2).latestIepAdjustDate(LocalDate.parse("2021-09-22")).latestPrivIepAdjustDate(LocalDate.parse("2021-10-22")).build());
     }
 

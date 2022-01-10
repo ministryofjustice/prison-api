@@ -514,11 +514,6 @@ public class BookingService {
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
-    public VisitDetails getBookingVisitLast(final Long bookingId) {
-        return bookingRepository.getBookingVisitLast(bookingId, LocalDateTime.now());
-    }
-
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public VisitDetails getBookingVisitNext(final Long bookingId) {
         return bookingRepository.getBookingVisitNext(bookingId, LocalDateTime.now());
     }
