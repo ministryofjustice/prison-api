@@ -66,6 +66,9 @@ public class SentenceAdjustmentRepositoryTest {
                             .sentenceAdjustCode("RX")
                             .active(true)
                             .adjustDays(4)
+                            .build(),
+                    SentenceAdjustment.builder()
+                            .id(-14L)
                             .build()
                 );
 

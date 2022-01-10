@@ -1,0 +1,96 @@
+{
+  "sentenceAdjustments": [
+    {
+      "sentenceSequence": 1,
+      "type": "RECALL_SENTENCE_REMAND",
+      "numberOfDays": 4,
+      "fromDate": "2017-10-01",
+      "toDate": "2017-10-04",
+      "active": true
+    },
+    {
+      "sentenceSequence": 1,
+      "type": "RECALL_SENTENCE_TAGGED_BAIL",
+      "numberOfDays": 9,
+      "fromDate": "2017-10-01",
+      "toDate": "2017-10-09",
+      "active": false
+    },
+    {
+      "sentenceSequence": 1,
+      "type": "REMAND",
+      "numberOfDays": 13,
+      "fromDate": "2017-10-01",
+      "toDate": "2017-10-13",
+      "active": true
+    },
+    {
+      "sentenceSequence": 1,
+      "type": "TAGGED_BAIL",
+      "numberOfDays": 1,
+      "fromDate": "2017-10-01",
+      "toDate": "2017-10-01",
+      "active": false
+    },
+    {
+      "sentenceSequence": 1,
+      "type": "UNUSED_REMAND",
+      "numberOfDays": 2,
+      "fromDate": "2017-10-01",
+      "toDate": "2017-10-02",
+      "active": true
+    },
+    {
+      "sentenceSequence": 1,
+      "type": "REMAND",
+      "numberOfDays": 7,
+      "fromDate": "2017-10-01",
+      "toDate": "2017-10-07",
+      "active": true
+    }
+  ],
+  "bookingAdjustments": [
+    {
+      "type": "ADDITIONAL_DAYS_AWARDED",
+      "numberOfDays": 4,
+      "fromDate": "2017-10-01",
+      "toDate": "2017-10-04",
+      "active": true
+    },
+    {
+      "type": "ADDITIONAL_DAYS_AWARDED",
+      "numberOfDays": 9,
+      "fromDate": "2017-10-01",
+      "toDate": "2017-10-09",
+      "active": false
+    },
+    {
+      "type": "ADDITIONAL_DAYS_AWARDED",
+      "numberOfDays": 13,
+      "fromDate": "2017-10-01",
+      "toDate": "2017-10-13",
+      "active": true
+    },
+    {
+      "type": "UNLAWFULLY_AT_LARGE",
+      "numberOfDays": 1,
+      "fromDate": "2017-10-01",
+      "toDate": "2017-10-01",
+      "active": false
+    },
+    {
+      "type": "RESTORED_ADDITIONAL_DAYS_AWARDED",
+      "numberOfDays": 2,
+      "fromDate": "2017-10-01",
+      "toDate": "2017-10-02",
+      "active": true
+    },
+    {
+      "type": "UNLAWFULLY_AT_LARGE",
+      "numberOfDays": 7,
+      "fromDate": "2017-10-01",
+      "toDate": "2017-10-07",
+      "active": true
+    }
+  ]
+}
