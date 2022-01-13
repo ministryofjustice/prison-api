@@ -49,7 +49,6 @@ public class VisitDetails {
     private String leadVisitor;
 
     @ApiModelProperty(value = "Relationship of main visitor to offender")
-    @JsonProperty("relationship")
     private String relationship;
 
     @ApiModelProperty(value = "Description of relationship code")
@@ -66,7 +65,6 @@ public class VisitDetails {
     private LocalDateTime endTime;
 
     @ApiModelProperty(value = "Location at which event takes place (could be an internal location, agency or external address).")
-    @JsonProperty("location")
     private String location;
 
     @NotBlank
@@ -77,6 +75,10 @@ public class VisitDetails {
     @ApiModelProperty(value = "Description of eventOutcome code")
     @JsonProperty("eventOutcomeDescription")
     private String eventOutcomeDescription;
+
+    @ApiModelProperty(value = "Whether the visit was attended. Translation of eventOutcome into boolean. Defaults in NOMIS to true when the visit is created")
+    @NotBlank
+    private boolean attended;
 
     @ApiModelProperty(value = "Reason if not attended")
     @JsonProperty("cancellationReason")

@@ -879,7 +879,7 @@ public class BookingResource {
         @RequestParam(value = "fromDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam("Returned visits must be scheduled on or after this date (in YYYY-MM-DD format).") final LocalDate fromDate,
         @RequestParam(value = "toDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam("Returned visits must be scheduled on or before this date (in YYYY-MM-DD format).") final LocalDate toDate,
         @RequestParam(value = "visitType", required = false) @ApiParam(value = "Type of visit", allowableValues = "SCON, OFFI") final String visitType,
-        @RequestParam(value = "visitStatus", required = false) @ApiParam(name = "Status of visit. code from VIS_STS domain, e.g: Cancelled (CANC) or Scheduled (SCH)", example = "SCH") final String visitStatus,
+        @RequestParam(value = "visitStatus", required = false) @ApiParam(name = "Status of visit. code from VIS_COMPLETE domain, e.g: Cancelled (CANC) or Scheduled (SCH)", example = "SCH") final String visitStatus,
         @RequestParam(value = "page", required = false) @ApiParam(value = "Target page number, zero being the first page", defaultValue = "0") final Integer pageIndex,
         @RequestParam(value = "size", required = false) @ApiParam(value = "The number of results per page", defaultValue = "20") final Integer pageSize) {
         final var pageIndexValue = ofNullable(pageIndex).orElse(0);
