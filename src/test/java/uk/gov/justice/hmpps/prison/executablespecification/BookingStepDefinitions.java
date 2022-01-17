@@ -476,6 +476,12 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingIEP.getBookingIEPSummaryForOffenders(bookingIds, true);
     }
 
+    @When("^a request for IEP summaries are made for the following booking ids \"([^\"]*)\" with POST$")
+    public void aRequestForIEPSummariesAreMadeForTheFollowingBookingIdsWithPost(final String bookings) {
+        final var bookingIds = Arrays.asList(bookings.split(","));
+        bookingIEP.getBookingIEPSummaryForBookingIds(bookingIds);
+    }
+
     @When("^a categorisation request is made for booking \"([^\"]*)\" with category \"([^\"]*)\" for committee \"([^\"]*)\"$")
     public void aCategorisationRequestIsMadeForBookingWithCategoryForCommitteeAt(final String bookingId, final String category, final String committee) {
         bookingAssessment.createCategorisation(Long.parseLong(bookingId), category, committee);
