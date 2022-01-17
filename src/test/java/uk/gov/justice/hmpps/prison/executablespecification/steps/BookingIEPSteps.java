@@ -22,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class BookingIEPSteps extends CommonSteps {
     private static final String BOOKING_IEP_SUMMARY_API_URL = API_PREFIX + "bookings/{bookingId}/iepSummary";
     private static final String BOOKING_IEP_SUMMARY_API_FOR_OFFENDERS_URL = API_PREFIX + "bookings/offenders/iepSummary";
+    private static final String BOOKING_IEP_SUMMARY_API_POST = API_PREFIX + "bookings/iepSummary";
 
     private static final String BOOKING_IEP_SUMMARY_WITH_DETAILS_QUERY = "?withDetails=true";
 
@@ -97,6 +98,24 @@ public class BookingIEPSteps extends CommonSteps {
                             new ParameterizedTypeReference<List<PrivilegeSummary>>() {
                             },
                             bookings);
+
+            privilegeSummaries = response.getBody();
+        } catch (final PrisonApiClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+    public void getBookingIEPSummaryForBookingIds(final List<String> bookingIds) {
+        init();
+
+        try {
+            final var response =
+                restTemplate.exchange(
+                    BOOKING_IEP_SUMMARY_API_POST,
+                    HttpMethod.POST,
+                    createEntity(bookingIds),
+                    new ParameterizedTypeReference<List<PrivilegeSummary>>() {
+                    });
 
             privilegeSummaries = response.getBody();
         } catch (final PrisonApiClientException ex) {
