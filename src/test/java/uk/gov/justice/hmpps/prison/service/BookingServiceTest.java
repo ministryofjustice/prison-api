@@ -551,6 +551,7 @@ public class BookingServiceTest {
                                         .leadVisitor("John Smith")
                                         .relationship("FRI")
                                         .relationshipDescription("Friend")
+                                        .attended(true)
                                         .build())
                         .visitors(List.of(
                                 Visitor
@@ -691,6 +692,7 @@ public class BookingServiceTest {
                                         .leadVisitor("John Smith")
                                         .relationship("FRI")
                                         .relationshipDescription("Friend")
+                                        .attended(true)
                                         .build())
                         .visitors(List.of(
                                 Visitor
@@ -791,10 +793,9 @@ public class BookingServiceTest {
                                         .location("Visits")
                                         .visitType("SOC")
                                         .visitTypeDescription("Social")
-                                        .relationshipDescription("")
-                                        .relationship("")
                                         .leadVisitor(null)
-                                        .build())
+                                    .attended(true)
+                                    .build())
                         .visitors(List.of())
                         .build());
     }
@@ -877,6 +878,7 @@ public class BookingServiceTest {
                                         .leadVisitor("John Smith")
                                         .relationship("FRI")
                                         .relationshipDescription("Friend")
+                                        .attended(true)
                                         .build())
                         .visitors(List.of(
                                 Visitor
