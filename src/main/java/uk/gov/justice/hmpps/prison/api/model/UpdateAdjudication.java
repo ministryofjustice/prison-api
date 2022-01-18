@@ -12,6 +12,7 @@ import uk.gov.justice.hmpps.prison.service.validation.MaximumTextSize;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @ApiModel(description = "Update details for an existing adjudication")
@@ -40,5 +41,11 @@ public class UpdateAdjudication {
     private List<String> offenceCodes;
 
     @ApiModelProperty(value = "TODO", position = 8, example = "TODO")
-    private List<String> staffVictimIds;
+    private List<String> victimStaffIds = new ArrayList<>();
+
+    @ApiModelProperty(value = "TODO", position = 9, example = "TODO")
+    private List<String> victimOffenderIds = new ArrayList<>();
+
+    @ApiModelProperty(value = "TODO", position = 9, example = "TODO")
+    private List<String> connectedOffenders = new ArrayList<>();
 }

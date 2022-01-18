@@ -103,17 +103,29 @@ public class Adjudication extends AuditableEntity {
 
     public Optional<AdjudicationParty> getOffenderParty() {
         return parties.stream().filter(p -> INCIDENT_ROLE_OFFENDER.equals(p.getIncidentRole())).findFirst();
-
     }
 
     public String getCreatedByUserId() {
         return this.getCreateUserId();
     }
 
-    public List<AdjudicationParty> getStaffVictims() {
+    public List<AdjudicationParty> getVictimsStaff() {
         return parties.stream()
             .filter(p -> INCIDENT_ROLE_VICTIM.equals(p.getIncidentRole()))
-            .filter(p -> p.getStaffId() != null).collect(Collectors.toList());
+            .filter(p -> p.getStaffId() != null).toList();
+    }
+
+    public List<AdjudicationParty> getVictimsOffenders() {
+        return parties.stream()
+            .filter(p -> INCIDENT_ROLE_VICTIM.equals(p.getIncidentRole()))
+            .filter(p -> p.getOffenderBooking() != null).toList();
+    }
+
+    public List<AdjudicationParty> getConnectedOffenders() {
+        return parties.stream()
+            .filter(p -> INCIDENT_ROLE_VICTIM.equals(p.getIncidentRole()))
+            .filter(p -> !p.getId().getPartySeq().equals(1L))
+            .filter(p -> p.getOffenderBooking() != null).toList();
     }
 
     public Long getMaxSequence(){
