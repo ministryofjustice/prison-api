@@ -43,13 +43,16 @@ public class Visitor {
     @NotNull
     private LocalDate dateOfBirth;
 
-    @ApiModelProperty(value = "Flag marking the visitor as main or not", example = "true")
+    @ApiModelProperty(value = "Flag marking the visitor as lead visitor or not (only set for visit orders)", example = "true")
     @JsonProperty("leadVisitor")
     @NotNull
     private boolean leadVisitor;
 
     @ApiModelProperty(value = "Relationship of visitor to offender")
-    @JsonProperty("relationship")
     @NotBlank
     private String relationship;
+
+    @ApiModelProperty(value = "Whether the visitor attended.  Defaults in NOMIS to true when the visit is created so of limited value.")
+    @NotBlank
+    private boolean attended;
 }

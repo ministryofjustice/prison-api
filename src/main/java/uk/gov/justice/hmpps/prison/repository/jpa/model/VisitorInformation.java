@@ -12,18 +12,23 @@ import javax.persistence.Id;
 import java.time.LocalDate;
 
 @Entity
-@Subselect(
-        "SELECT * FROM " +
-                "( SELECT P.PERSON_ID," +
-                "VISITOR.OFFENDER_VISIT_VISITOR_ID VISITOR_ID," +
-                "VISITOR.OFFENDER_VISIT_ID VISIT_ID," +
-                "P.FIRST_NAME," +
-                "P.LAST_NAME," +
-                "P.BIRTHDATE," +
-                "VISITOR.GROUP_LEADER_FLAG LEAD_VISITOR " +
-                "FROM OFFENDER_VISIT_VISITORS VISITOR " +
-                "LEFT JOIN PERSONS P ON P.PERSON_ID = VISITOR.PERSON_ID " +
-                "ORDER BY P.BIRTHDATE DESC)")
+@Subselect("""
+   SELECT * FROM
+       (SELECT P.PERSON_ID,
+               VISITOR.OFFENDER_VISIT_VISITOR_ID VISITOR_ID,
+               VISITOR.OFFENDER_VISIT_ID VISIT_ID,
+               P.FIRST_NAME,
+               P.LAST_NAME,
+               P.BIRTHDATE,
+               VISITOR.GROUP_LEADER_FLAG LEAD_VISITOR,
+               NVL(VISITOR.EVENT_OUTCOME,'ATT') EVENT_OUTCOME
+          FROM OFFENDER_VISIT_VISITORS VISITOR
+          JOIN PERSONS P ON P.PERSON_ID = VISITOR.PERSON_ID
+         WHERE VISITOR.OFFENDER_BOOK_ID IS NULL
+         ORDER BY P.BIRTHDATE DESC
+   )
+   """
+)
 @Immutable
 @Builder
 @NoArgsConstructor
@@ -38,4 +43,5 @@ public class VisitorInformation {
     private String firstName;
     private LocalDate birthdate;
     private String leadVisitor;
+    private String eventOutcome;
 }

@@ -19,19 +19,19 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @AutoConfigureTestDatabase(replace = NONE)
 @Import({AuthenticationFacade.class, AuditorAwareImpl.class})
 @WithMockUser
-public class    VisitorInformationRepositoryTest {
+public class VisitorInformationRepositoryTest {
 
     @Autowired
     private VisitorRepository repository;
 
     @Test
     public void findAllByVisitId() {
-        var visits = repository.findAllByVisitId(-15L);
+        final var visits = repository.findAllByVisitId(-15L);
 
-        assertThat(visits).hasSize(3);
-        assertThat(visits).extracting(VisitorInformation::getPersonId).containsOnly(null, -1L, -2L);
-        assertThat(visits).extracting(VisitorInformation::getFirstName).containsOnly(null, "JESSY", "John");
-        assertThat(visits).extracting(VisitorInformation::getLastName).containsOnly(null, "SMITH1", "Smith");
+        assertThat(visits).extracting(VisitorInformation::getPersonId).containsOnly(-1L, -2L);
+        assertThat(visits).extracting(VisitorInformation::getFirstName).containsOnly("JESSY", "John");
+        assertThat(visits).extracting(VisitorInformation::getLastName).containsOnly("SMITH1", "Smith");
+        assertThat(visits).extracting(VisitorInformation::getEventOutcome).containsOnly("ABS", "ATT");
     }
 }
 
