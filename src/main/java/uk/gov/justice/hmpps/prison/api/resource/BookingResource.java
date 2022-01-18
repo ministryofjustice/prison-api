@@ -495,6 +495,17 @@ public class BookingResource {
     }
 
     @ApiResponses({
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Prisoners IEP (Incentives & Earned Privileges) summary for a list of booking IDs", notes = "Must have prisoner in users caseload access data")
+    @PostMapping("/iepSummary")
+    public Collection<PrivilegeSummary> getBookingIEPSummaryDetailForBookingIds(@NotNull @RequestBody @ApiParam(value = "The booking ids of prisoners", required = true) final List<Long> bookings) {
+        return bookingService.getBookingIEPSummary(bookings, true).values();
+
+    }
+
+    @ApiResponses({
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
