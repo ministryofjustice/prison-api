@@ -27,7 +27,7 @@ import java.time.LocalDateTime;
 public class VisitDetails {
 
     @NotBlank
-    @ApiModelProperty(required = true, value = "Status of event")
+    @ApiModelProperty(required = true, value = "Status of event (EVENT_STS reference code)", allowableValues = "EXP,SCH,COMP,CANC")
     @JsonProperty("eventStatus")
     private String eventStatus;
 
@@ -36,19 +36,28 @@ public class VisitDetails {
     private String eventStatusDescription;
 
     @NotBlank
-    @ApiModelProperty(required = true, value = "Social or official")
+    @ApiModelProperty(required = true, value = "Completion status of visit (VIS_COMPLETE reference code)", allowableValues = "NORM,SCH,VDE,OFFEND,VISITOR,CANC,HMPOP")
+    @JsonProperty("completionStatus")
+    private String completionStatus;
+
+    @ApiModelProperty(value = "Description of completionStatus code")
+    @JsonProperty("completionStatusDescription")
+    private String completionStatusDescription;
+
+    @NotBlank
+    @ApiModelProperty(required = true, value = "Code for social (SCON) or official (OFFI) type of visit (VISIT_TYPE reference code)", allowableValues = "OFFI,SCON")
     @JsonProperty("visitType")
     private String visitType;
 
-    @ApiModelProperty(value = "Description of visitType code")
+    @ApiModelProperty(value = "Description of social or official visit", allowableValues = "Official Visit,Social Contact")
     @JsonProperty("visitTypeDescription")
     private String visitTypeDescription;
 
-    @ApiModelProperty(value = "Name of main visitor")
+    @ApiModelProperty(value = "Name of lead visitor (blank if there was no visiting order for this visit)")
     @JsonProperty("leadVisitor")
     private String leadVisitor;
 
-    @ApiModelProperty(value = "Relationship of main visitor to offender")
+    @ApiModelProperty(value = "Relationship of lead visitor to offender")
     private String relationship;
 
     @ApiModelProperty(value = "Description of relationship code")
@@ -67,8 +76,11 @@ public class VisitDetails {
     @ApiModelProperty(value = "Location at which event takes place (could be an internal location, agency or external address).")
     private String location;
 
+    @ApiModelProperty(value = "Prison at which event takes place")
+    private String prison;
+
     @NotBlank
-    @ApiModelProperty(required = true, value = "Whether attended or not")
+    @ApiModelProperty(required = true, value = "Whether attended (ATT) or not (ABS) (OUTCOMES reference code)", allowableValues = "ATT,ABS")
     @JsonProperty("eventOutcome")
     private String eventOutcome;
 
@@ -80,7 +92,7 @@ public class VisitDetails {
     @NotBlank
     private boolean attended;
 
-    @ApiModelProperty(value = "Reason if not attended")
+    @ApiModelProperty(value = "Reason for cancellation if not attended (MOVE_CANC_RS reference code)")
     @JsonProperty("cancellationReason")
     private String cancellationReason;
 

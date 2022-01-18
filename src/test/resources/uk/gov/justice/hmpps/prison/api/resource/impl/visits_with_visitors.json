@@ -3,11 +3,17 @@
     {
       "visitors": [],
       "visitDetails": {
+        "location": "Visiting Room",
+        "prison": "Leeds",
+        "attended": true,
+        "eventStatus": "SCH",
+        "eventStatusDescription": "Scheduled (Approved)",
+        "completionStatus": "SCH",
+        "completionStatusDescription": "Scheduled",
         "visitType": "SCON",
         "visitTypeDescription": "Social Contact",
         "startTime": "2019-07-15T00:00:00",
         "endTime": "2019-07-15T00:00:00",
-        "location": "Visiting Room",
         "eventOutcome": "ATT",
         "eventOutcomeDescription": "Attended"
       }
@@ -15,11 +21,17 @@
     {
       "visitors": [],
       "visitDetails": {
+        "location": "Classroom 1",
+        "prison": "Leeds",
+        "attended": true,
+        "eventStatus": "SCH",
+        "eventStatusDescription": "Scheduled (Approved)",
+        "completionStatus": "SCH",
+        "completionStatusDescription": "Scheduled",
         "visitType": "SCON",
         "visitTypeDescription": "Social Contact",
         "startTime": "2019-07-09T00:00:00",
         "endTime": "2019-07-09T00:00:00",
-        "location": "Classroom 1",
         "eventOutcome": "ATT",
         "eventOutcomeDescription": "Attended"
       }
@@ -27,11 +39,17 @@
     {
       "visitors": [],
       "visitDetails": {
+        "location": "Carpentry Workshop",
+        "prison": "Leeds",
+        "attended": true,
+        "eventStatus": "SCH",
+        "eventStatusDescription": "Scheduled (Approved)",
+        "completionStatus": "SCH",
+        "completionStatusDescription": "Scheduled",
         "visitType": "SCON",
         "visitTypeDescription": "Social Contact",
         "startTime": "2019-07-07T00:00:00",
         "endTime": "2019-07-07T00:00:00",
-        "location": "Carpentry Workshop",
         "eventOutcome": "ATT",
         "eventOutcomeDescription": "Attended"
       }
@@ -39,11 +57,17 @@
     {
       "visitors": [],
       "visitDetails": {
+        "location": "LEI-H",
+        "prison": "Leeds",
+        "attended": true,
+        "eventStatus": "SCH",
+        "eventStatusDescription": "Scheduled (Approved)",
+        "completionStatus": "SCH",
+        "completionStatusDescription": "Scheduled",
         "visitType": "SCON",
         "visitTypeDescription": "Social Contact",
         "startTime": "2019-07-03T00:00:00",
         "endTime": "2019-07-03T00:00:00",
-        "location": "LEI-H",
         "eventOutcome": "ATT",
         "eventOutcomeDescription": "Attended"
       }
@@ -51,11 +75,17 @@
     {
       "visitors": [],
       "visitDetails": {
+        "location": "Medical Centre",
+        "prison": "Leeds",
+        "attended": true,
+        "eventStatus": "SCH",
+        "eventStatusDescription": "Scheduled (Approved)",
+        "completionStatus": "SCH",
+        "completionStatusDescription": "Scheduled",
         "visitType": "SCON",
         "visitTypeDescription": "Social Contact",
         "startTime": "2019-07-01T00:00:00",
         "endTime": "2019-07-01T00:00:00",
-        "location": "Medical Centre",
         "eventOutcome": "ATT",
         "eventOutcomeDescription": "Attended"
       }
@@ -63,24 +93,30 @@
     {
       "visitors": [
         {
+          "relationship": "Brother",
+          "attended": true,
           "personId": -3,
           "lastName": "JOHNSON",
           "firstName": "JOHN",
-          "leadVisitor": true,
-          "relationship": "Brother"
+          "dateOfBirth": "1956-02-28",
+          "leadVisitor": true
         }
       ],
       "visitDetails": {
+        "relationship": "BRO",
+        "location": "Carpentry Workshop",
+        "prison": "Leeds",
+        "attended": true,
         "eventStatus": "SCH",
         "eventStatusDescription": "Scheduled (Approved)",
+        "completionStatus": "SCH",
+        "completionStatusDescription": "Scheduled",
         "visitType": "SCON",
         "visitTypeDescription": "Social Contact",
         "leadVisitor": "JOHN JOHNSON",
-        "relationship": "BRO",
         "relationshipDescription": "Brother",
         "startTime": "2019-06-30T10:00:00",
         "endTime": "2019-06-30T11:00:00",
-        "location": "Carpentry Workshop",
         "eventOutcome": "ATT",
         "eventOutcomeDescription": "Attended"
       }
@@ -88,11 +124,16 @@
     {
       "visitors": [],
       "visitDetails": {
+        "location": "Carpentry Workshop",
+        "prison": "Leeds",
+        "attended": true,
+        "eventStatus": "SCH",
+        "eventStatusDescription": "Scheduled (Approved)",
+        "completionStatus": "CAN",
         "visitType": "SCON",
         "visitTypeDescription": "Social Contact",
         "startTime": "2019-06-29T14:00:00",
         "endTime": "2019-06-29T15:00:00",
-        "location": "Carpentry Workshop",
         "eventOutcome": "ATT",
         "eventOutcomeDescription": "Attended"
       }
@@ -100,11 +141,17 @@
     {
       "visitors": [],
       "visitDetails": {
+        "location": "Visiting Room",
+        "prison": "Leeds",
+        "attended": true,
+        "eventStatus": "SCH",
+        "eventStatusDescription": "Scheduled (Approved)",
+        "completionStatus": "SCH",
+        "completionStatusDescription": "Scheduled",
         "visitType": "SCON",
         "visitTypeDescription": "Social Contact",
         "startTime": "2019-06-29T01:00:00",
         "endTime": "2019-06-29T01:00:00",
-        "location": "Visiting Room",
         "eventOutcome": "ATT",
         "eventOutcomeDescription": "Attended"
       }
@@ -112,9 +159,9 @@
   ],
   "pageable": {
     "sort": {
-      "sorted": false,
+      "empty": true,
       "unsorted": true,
-      "empty": true
+      "sorted": false
     },
     "offset": 0,
     "pageNumber": 0,
@@ -122,15 +169,15 @@
     "paged": true,
     "unpaged": false
   },
-  "totalElements": 8,
-  "totalPages": 1,
   "last": true,
+  "totalPages": 1,
+  "totalElements": 8,
   "size": 20,
   "number": 0,
   "sort": {
-    "sorted": false,
+    "empty": true,
     "unsorted": true,
-    "empty": true
+    "sorted": false
   },
   "first": true,
   "numberOfElements": 8,
