@@ -30,7 +30,9 @@ import java.time.LocalDateTime;
                 COALESCE(AIL.USER_DESC, AIL.DESCRIPTION, AGY.DESCRIPTION) LOCATION,
                 VISIT.VISIT_TYPE,
                 RC3.DESCRIPTION VISIT_TYPE_DESCRIPTION,
-                P.FIRST_NAME || ' ' || P.LAST_NAME LEAD_VISITOR
+                P.FIRST_NAME || ' ' || P.LAST_NAME LEAD_VISITOR,
+                VISIT.AGY_LOC_ID PRISON_ID,
+                AGY.DESCRIPTION PRISON_DESCRIPTION
            FROM OFFENDER_VISITS VISIT
           INNER JOIN OFFENDER_BOOKINGS BOOKING ON BOOKING.OFFENDER_BOOK_ID = VISIT.OFFENDER_BOOK_ID AND BOOKING.ACTIVE_FLAG = 'Y'
           INNER JOIN OFFENDER_VISIT_VISITORS VISIT_EXTRA ON VISIT.OFFENDER_VISIT_ID = VISIT_EXTRA.OFFENDER_VISIT_ID AND VISIT_EXTRA.OFFENDER_BOOK_ID IS NOT NULL
@@ -70,4 +72,6 @@ public class VisitInformation {
     private String visitType;
     private String visitTypeDescription;
     private String leadVisitor;
+    private String prisonId;
+    private String prisonDescription;
 }

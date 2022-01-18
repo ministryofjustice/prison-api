@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.api.resource.impl;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.json.JsonContent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -660,6 +661,27 @@ public class BookingResourceIntTest extends ResourceTest {
     }
 
     @Test
+    public void getVisitsWithVisitorsFilteredByPrison() {
+        final var responseAll = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors?prisonId=", GET,
+            createHttpEntity(AuthToken.NORMAL_USER, null),
+            String.class, -1L);
+
+        assertThat(getBodyAsJsonContent(responseAll)).extractingJsonPathNumberValue("$.numberOfElements").isEqualTo(15);
+
+        final var responseLei = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors?prisonId=LEI", GET,
+            createHttpEntity(AuthToken.NORMAL_USER, null),
+            String.class, -1L);
+
+        assertThat(getBodyAsJsonContent(responseLei)).extractingJsonPathNumberValue("$.numberOfElements").isEqualTo(14);
+
+        final var responseMdi = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors?prisonId=MDI", GET,
+            createHttpEntity(AuthToken.NORMAL_USER, null),
+            String.class, -1L);
+
+        assertThat(getBodyAsJsonContent(responseMdi)).extractingJsonPathNumberValue("$.numberOfElements").isEqualTo(1);
+    }
+
+    @Test
     public void getNonAssociationDetails_victim_rival_gang_and_perpetrator() {
         final var response = testRestTemplate.exchange(
                 "/api/bookings/-1/non-association-details",
@@ -689,37 +711,38 @@ public class BookingResourceIntTest extends ResourceTest {
                 createHttpEntity(authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER), Map.of()),
                 String.class);
 
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.content[0].bookingId").isEqualTo(-36);
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.content[0].livingUnitId").isEqualTo(-18);
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[0].assignmentDate").isEqualTo("2060-10-17");
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[0].assignmentDateTime").isEqualTo("2060-10-17T11:00:00");
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[0].assignmentReason").isEqualTo("ADM");
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[0].agencyId").isEqualTo("LEI");
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[0].description").isEqualTo("LEI-H-1-4");
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.content[0].bedAssignmentHistorySequence").isEqualTo(4);
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[0].movementMadeBy").isEqualTo("SA");
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[0].offenderNo").isEqualTo("A1180MA");
+        final var bodyAsJsonContent = getBodyAsJsonContent(response);
+        assertThat(bodyAsJsonContent).extractingJsonPathNumberValue("$.content[0].bookingId").isEqualTo(-36);
+        assertThat(bodyAsJsonContent).extractingJsonPathNumberValue("$.content[0].livingUnitId").isEqualTo(-18);
+        assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.content[0].assignmentDate").isEqualTo("2060-10-17");
+        assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.content[0].assignmentDateTime").isEqualTo("2060-10-17T11:00:00");
+        assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.content[0].assignmentReason").isEqualTo("ADM");
+        assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.content[0].agencyId").isEqualTo("LEI");
+        assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.content[0].description").isEqualTo("LEI-H-1-4");
+        assertThat(bodyAsJsonContent).extractingJsonPathNumberValue("$.content[0].bedAssignmentHistorySequence").isEqualTo(4);
+        assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.content[0].movementMadeBy").isEqualTo("SA");
+        assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.content[0].offenderNo").isEqualTo("A1180MA");
 
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.content[1].bookingId").isEqualTo(-36);
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.content[1].livingUnitId").isEqualTo(-17);
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[1].assignmentDate").isEqualTo("2050-10-17");
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[1].assignmentDateTime").isEqualTo("2050-10-17T11:00:00");
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[1].assignmentReason").isEqualTo("ADM");
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[1].agencyId").isEqualTo("LEI");
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[1].description").isEqualTo("LEI-H-1-3");
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.content[1].bedAssignmentHistorySequence").isEqualTo(3);
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[1].movementMadeBy").isEqualTo("SA");
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[1].offenderNo").isEqualTo("A1180MA");
+        assertThat(bodyAsJsonContent).extractingJsonPathNumberValue("$.content[1].bookingId").isEqualTo(-36);
+        assertThat(bodyAsJsonContent).extractingJsonPathNumberValue("$.content[1].livingUnitId").isEqualTo(-17);
+        assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.content[1].assignmentDate").isEqualTo("2050-10-17");
+        assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.content[1].assignmentDateTime").isEqualTo("2050-10-17T11:00:00");
+        assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.content[1].assignmentReason").isEqualTo("ADM");
+        assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.content[1].agencyId").isEqualTo("LEI");
+        assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.content[1].description").isEqualTo("LEI-H-1-3");
+        assertThat(bodyAsJsonContent).extractingJsonPathNumberValue("$.content[1].bedAssignmentHistorySequence").isEqualTo(3);
+        assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.content[1].movementMadeBy").isEqualTo("SA");
+        assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.content[1].offenderNo").isEqualTo("A1180MA");
 
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.content[2].bookingId").isEqualTo(-36);
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.content[2].livingUnitId").isEqualTo(-16);
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[2].assignmentDate").isEqualTo("2040-10-17");
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[2].assignmentDateTime").isEqualTo("2040-10-17T11:00:00");
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[2].assignmentReason").isEqualTo("ADM");
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[2].agencyId").isEqualTo("LEI");
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[2].description").isEqualTo("LEI-H-1-2");
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.content[2].bedAssignmentHistorySequence").isEqualTo(2);
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[2].movementMadeBy").isEqualTo("SA");
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.content[2].offenderNo").isEqualTo("A1180MA");
+        assertThat(bodyAsJsonContent).extractingJsonPathNumberValue("$.content[2].bookingId").isEqualTo(-36);
+        assertThat(bodyAsJsonContent).extractingJsonPathNumberValue("$.content[2].livingUnitId").isEqualTo(-16);
+        assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.content[2].assignmentDate").isEqualTo("2040-10-17");
+        assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.content[2].assignmentDateTime").isEqualTo("2040-10-17T11:00:00");
+        assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.content[2].assignmentReason").isEqualTo("ADM");
+        assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.content[2].agencyId").isEqualTo("LEI");
+        assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.content[2].description").isEqualTo("LEI-H-1-2");
+        assertThat(bodyAsJsonContent).extractingJsonPathNumberValue("$.content[2].bedAssignmentHistorySequence").isEqualTo(2);
+        assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.content[2].movementMadeBy").isEqualTo("SA");
+        assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.content[2].offenderNo").isEqualTo("A1180MA");
     }
 }

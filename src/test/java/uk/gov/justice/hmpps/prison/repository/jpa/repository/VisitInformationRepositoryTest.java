@@ -89,7 +89,19 @@ public class VisitInformationRepositoryTest {
         final var cancelledVisits = repository.findAll(VisitInformationFilter.builder().bookingId(-1L).visitStatus("CANC").build(), pageable);
         assertThat(cancelledVisits).hasSize(1);
         assertThat(cancelledVisits).extracting(VisitInformation::getVisitStatus).allMatch((it) -> it.equals("CANC"));
+    }
 
+    @Test
+    public void findAll_filterByAgency() {
+        final var pageable = PageRequest.of(0, 20);
+
+        final var leicesterVisits = repository.findAll(VisitInformationFilter.builder().bookingId(-1L).prisonId("LEI").build(), pageable);
+        assertThat(leicesterVisits).hasSize(14);
+        assertThat(leicesterVisits).extracting(VisitInformation::getPrisonDescription).allMatch((it) -> it.equals("LEEDS"));
+
+        final var moorlandVisits = repository.findAll(VisitInformationFilter.builder().bookingId(-1L).prisonId("MDI").build(), pageable);
+        assertThat(moorlandVisits).hasSize(1);
+        assertThat(moorlandVisits).extracting(VisitInformation::getPrisonDescription).allMatch((it) -> it.equals("MOORLAND"));
     }
 }
 
