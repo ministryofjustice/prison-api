@@ -27,8 +27,10 @@ import javax.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
@@ -44,6 +46,7 @@ public class Adjudication extends AuditableEntity {
 
     public static final String INCIDENT_ROLE_OFFENDER = "S";
     public static final String INCIDENT_ROLE_OTHER = "OTH";
+    public static final String INCIDENT_ROLE_VICTIM = "V";
     public static final String INCIDENT_STATUS_ACTIVE = "ACTIVE";
     public static final String LOCK_FLAG_UNLOCKED = "N";
 
@@ -105,5 +108,15 @@ public class Adjudication extends AuditableEntity {
 
     public String getCreatedByUserId() {
         return this.getCreateUserId();
+    }
+
+    public List<AdjudicationParty> getStaffVictims() {
+        return parties.stream()
+            .filter(p -> INCIDENT_ROLE_VICTIM.equals(p.getIncidentRole()))
+            .filter(p -> p.getStaffId() != null).collect(Collectors.toList());
+    }
+
+    public Long getMaxSequence(){
+        return parties.stream().map(p -> p.getId().getPartySeq()).max(Comparator.comparing(Long::valueOf)).orElse(1L);
     }
 }

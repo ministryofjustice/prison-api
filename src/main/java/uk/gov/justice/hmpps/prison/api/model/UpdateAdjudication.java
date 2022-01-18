@@ -38,4 +38,7 @@ public class UpdateAdjudication {
 
     @ApiModelProperty(value = "The list of offence codes the offender may be charged with", notes = "If this value is not specified then the existing offence codes will be kept", position = 6, example = "51:80,51:25A")
     private List<String> offenceCodes;
+
+    @ApiModelProperty(value = "TODO", position = 8, example = "TODO")
+    private List<String> staffVictimIds;
 }

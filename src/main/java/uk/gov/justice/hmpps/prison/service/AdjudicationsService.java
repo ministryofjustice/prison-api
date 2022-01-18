@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.service;
 import com.google.common.collect.Lists;
 import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,6 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication;
+import uk.gov.justice.hmpps.prison.repository.StaffRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationActionCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationCharge;
@@ -17,6 +19,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationCharge.PK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationIncidentType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationOffenceType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationParty;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Staff;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationOffenceTypeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
@@ -32,12 +35,17 @@ import javax.validation.constraints.NotNull;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+
 
 import static java.lang.String.format;
 
@@ -87,13 +95,8 @@ public class AdjudicationsService {
         this.batchSize = batchSize;
     }
 
-    @Transactional
-    @VerifyOffenderAccess
-    public AdjudicationDetail createAdjudication(@NotNull final String offenderNo, @NotNull @Valid final NewAdjudication adjudication) {
-        final var reporterName = authenticationFacade.getCurrentUsername();
-        final var currentDateTime = LocalDateTime.now(clock);
-        final var incidentDateTime = adjudication.getIncidentTime();
 
+    private List offenceCodesFrom(NewAdjudication adjudication) {
         var offenceCodes = List.< AdjudicationOffenceType >of();
         if (adjudication.getOffenceCodes() != null) {
             offenceCodes = adjudicationsOffenceTypeRepository.findByOffenceCodeIn(adjudication.getOffenceCodes());
@@ -101,10 +104,20 @@ public class AdjudicationsService {
                 throw new RuntimeException("Offence code not found");
             }
         }
+        return offenceCodes;
+    }
+
+    @Transactional
+    @VerifyOffenderAccess
+    public AdjudicationDetail createAdjudication(@NotNull final String offenderNo, @NotNull @Valid final NewAdjudication adjudication) {
+        final var reporterName = authenticationFacade.getCurrentUsername();
+        final var currentDateTime = LocalDateTime.now(clock);
+        final var incidentDateTime = adjudication.getIncidentTime();
+
+        final var offenceCodes = offenceCodesFrom(adjudication);
 
         final var reporter = staffUserAccountRepository.findById(reporterName)
             .orElseThrow(() -> new RuntimeException(format("User not found %s", reporterName)));
-
         final var offenderBookingEntry = bookingRepository.findByOffenderNomsIdAndBookingSequence(offenderNo, 1)
             .orElseThrow(() -> new RuntimeException(format("Could not find a current booking for Offender No %s", offenderNo)));
         final var incidentType = incidentTypeRepository.findById(AdjudicationIncidentType.GOVERNORS_REPORT)
@@ -144,17 +157,89 @@ public class AdjudicationsService {
         final var offenceEntries = generateOffenceCharges(offenderAdjudicationEntry, offenceCodes);
 
         offenderAdjudicationEntry.setCharges(offenceEntries);
+
+
         adjudicationToCreate.setParties(List.of(offenderAdjudicationEntry));
 
-        final var createdAdjudication = adjudicationsRepository.save(adjudicationToCreate);
+        // TODO comment back in when the model looks better.
 
-        trackAdjudicationCreated(createdAdjudication);
 
-        return transformToDto(createdAdjudication);
+
+        // final var createdAdjudication = adjudicationsRepository.save(adjudicationToCreate);
+
+        // trackAdjudicationCreated(createdAdjudication);
+
+        // return transformToDto(createdAdjudication);
+        return transformToDto(adjudicationToCreate);
+    }
+
+    private List<AdjudicationParty> updateAncillaryAdjudicationParties(List<Staff> updatedStaffVictims, Adjudication adjudication) {
+        final var currentDateTime = LocalDateTime.now(clock);
+        var maxSequence = adjudication.getMaxSequence();
+        var definitiveStaffVictims = new ArrayList<>(adjudication.getStaffVictims());
+        var staffVictimIdsToAddWithCount = staffIdsToAddWithCount(updatedStaffVictims, definitiveStaffVictims);
+        var staffVictimIdsToRemoveWithCount = staffIdsToRemoveWithCount(updatedStaffVictims, definitiveStaffVictims);
+
+        // Remove
+        staffVictimIdsToRemoveWithCount.forEach((staffId, toRemoveCount) -> {
+            var toRemove = definitiveStaffVictims.stream()
+                .filter(p -> staffId.equals(p.getStaffId().getStaffId()))
+
+                .limit(toRemoveCount)
+                .collect(Collectors.toList());
+            definitiveStaffVictims.removeAll(toRemove);
+        });
+
+        // Add
+        for (Entry<Long, Long> entry : staffVictimIdsToAddWithCount.entrySet()) {
+                final var staffVictimAdjudicationParty = AdjudicationParty.builder()
+                    .id(new AdjudicationParty.PK(adjudication, ++maxSequence))
+                    .incidentRole(Adjudication.INCIDENT_ROLE_VICTIM)
+                    .partyAddedDate(currentDateTime.toLocalDate())
+                    .staffId(updatedStaffVictims.stream().filter(s -> entry.getKey().equals(s.getStaffId())).findFirst().get())
+                    .build();
+            definitiveStaffVictims.add(staffVictimAdjudicationParty);
+            }
+        return definitiveStaffVictims;
+    }
+
+    private Map<Long, Long> staffIdsToAddWithCount(List<Staff> staffVictimsNow, List<AdjudicationParty> existingAdjudicationParties) {
+        return staffIdsToAddAndRemoveWithCount(staffVictimsNow, existingAdjudicationParties).entrySet().stream()
+            .filter(e -> e.getValue() > 0)
+            .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
+    }
+
+    private Map<Long, Long> staffIdsToRemoveWithCount(List<Staff> staffVictimsNow, List<AdjudicationParty> existingAdjudicationParties) {
+        return staffIdsToAddAndRemoveWithCount(staffVictimsNow, existingAdjudicationParties).entrySet().stream()
+            .filter(e -> e.getValue() < 0)
+            .collect(Collectors.toMap(e -> e.getKey(), e -> -e.getValue()));
+    }
+
+    private Map<Long, Long> staffIdsToAddAndRemoveWithCount(List<Staff> staffVictimsNow, List<AdjudicationParty> existingAdjudicationParties){
+        var existingStaffVictimIdsWithCount = existingAdjudicationParties.stream()
+            .sorted(Comparator.comparing(o -> o.getId().getPartySeq()))
+            .filter(adjudicationParty -> Adjudication.INCIDENT_ROLE_VICTIM.equals(adjudicationParty.getIncidentRole()))
+            .filter(adjudicationParty -> adjudicationParty.getStaffId() != null)
+            .map(adjudicationParty -> adjudicationParty.getStaffId().getStaffId())
+            .collect(Collectors.groupingBy(staffId -> staffId, Collectors.counting()));
+        var updatedStaffVictimIdsWithCount = staffVictimsNow.stream().collect(Collectors.groupingBy(staffId -> staffId.getStaffId(), Collectors.counting()));
+        var allDistinctStaffIdsExistingAndNow = List.of(existingStaffVictimIdsWithCount.keySet(), updatedStaffVictimIdsWithCount.keySet()).stream()
+            .flatMap(Collection::stream).distinct().collect(Collectors.toList());
+        var staffIdsToAddAndRemoveWithCount = allDistinctStaffIdsExistingAndNow.stream().map(staffId -> {
+            var existingCount = existingStaffVictimIdsWithCount.containsKey(staffId) ? existingStaffVictimIdsWithCount.get(staffId) : 0;
+            var newCount = updatedStaffVictimIdsWithCount.containsKey(staffId) ? updatedStaffVictimIdsWithCount.get(staffId) : 0;
+            return Pair.of(staffId, newCount - existingCount);
+        }).collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
+        return staffIdsToAddAndRemoveWithCount;
     }
 
     @Transactional
     public AdjudicationDetail updateAdjudication(@NotNull Long adjudicationNumber, @NotNull @Valid UpdateAdjudication adjudication) {
+
+        final var staffVictims = adjudication.getStaffVictimIds().stream().map(id ->
+                staffUserAccountRepository.findById(id).orElseThrow(() -> new RuntimeException(format("User not found %s", id))).getStaff()
+        ).collect(Collectors.toList());
+
         final var adjudicationToUpdate = adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber)
             .orElseThrow(EntityNotFoundException.withMessage(format("Adjudication with number %s does not exist", adjudicationNumber)));
 
@@ -176,7 +261,20 @@ public class AdjudicationsService {
             adjudicationOffenderPartyToUpdate.getCharges().addAll(offenceEntries);
         }
 
+// TODO
+        var qq = updateAncillaryAdjudicationParties(staffVictims, adjudicationToUpdate);
+        var originalAdjudicationParty = adjudicationToUpdate.getOffenderParty();
+        adjudicationToUpdate.getParties().clear();
+        adjudicationToUpdate.getParties().add(originalAdjudicationParty.get());
+        adjudicationToUpdate.getParties().addAll(qq);
+
+
+
         final var updatedAdjudication = adjudicationsRepository.save(adjudicationToUpdate);
+
+
+
+
 
         trackAdjudicationUpdated(adjudicationNumber, updatedAdjudication);
 
