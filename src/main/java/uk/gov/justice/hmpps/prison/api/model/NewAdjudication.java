@@ -13,6 +13,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @ApiModel(description = "Creation details for a new adjudication")
@@ -48,12 +49,12 @@ public class NewAdjudication {
     @ApiModelProperty(value = "The list of offence codes the offender may be charged with", position = 6, example = "51:80,51:25A")
     private List<String> offenceCodes;
 
-    @ApiModelProperty(value = "TODO", position = 7, example = "TODO")
-    private List<String> offenderVictims;
+    @ApiModelProperty(value = "The list of staff usernames who were victims", position = 7)
+    private List<String> victimStaffIds = new ArrayList<>();
 
-    @ApiModelProperty(value = "TODO", position = 8, example = "TODO")
-    private List<String> staffVictims;
+    @ApiModelProperty(value = "The list of offender numbers of offenders who were victims", position = 8)
+    private List<String> victimOffenderIds = new ArrayList<>();
 
-    @ApiModelProperty(value = "TODO", position = 9, example = "TODO")
-    private List<String> connectedOffenders;
+    @ApiModelProperty(value = "The list of offender numbers of the offenders who were connected", position = 9)
+    private List<String> connectedOffenders = new ArrayList<>();
 }
