@@ -9,5 +9,16 @@
   "leadVisitor": "JOHN JOHNSON",
   "relationshipDescription": "Brother",
   "startTime": "2022-01-20T10:00:00",
-  "endTime": "2022-01-20T11:00:00"
+  "endTime": "2022-01-20T11:00:00",
+  "visitors": [
+    {
+      "relationship": "Brother",
+      "attended": true,
+      "personId": -3,
+      "lastName": "JOHNSON",
+      "firstName": "JOHN",
+      "dateOfBirth": "1956-02-28",
+      "leadVisitor": true
+    }
+  ]
 }
