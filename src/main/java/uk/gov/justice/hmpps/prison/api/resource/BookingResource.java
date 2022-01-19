@@ -469,7 +469,9 @@ public class BookingResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation(value = "Offender IEP (Incentives & Earned Privileges) summary.", notes = "Offender IEP (Incentives & Earned Privileges) summary.", nickname = "getBookingIEPSummary")
     @GetMapping("/{bookingId}/iepSummary")
-    public PrivilegeSummary getBookingIEPSummary(@PathVariable("bookingId") @ApiParam(value = "The booking id of offender", required = true) final Long bookingId, @RequestParam(value = "withDetails", required = false, defaultValue = "false") @ApiParam(value = "Toggle to return IEP detail entries in response (or not).", required = true) final boolean withDetails) {
+    public PrivilegeSummary getBookingIEPSummary(
+        @PathVariable("bookingId") @ApiParam(value = "The booking id of offender", required = true) final Long bookingId,
+        @RequestParam(value = "withDetails", required = false, defaultValue = "false") @ApiParam(value = "Toggle to return IEP detail entries in response (or not).", required = false) final boolean withDetails) {
         return bookingService.getBookingIEPSummary(bookingId, withDetails);
     }
 
@@ -958,7 +960,7 @@ public class BookingResource {
     @GetMapping("/{bookingId}/visits/next")
     public VisitDetails getBookingVisitsNext(
         @PathVariable("bookingId") @ApiParam(value = "The offender booking id", required = true) final Long bookingId,
-        @RequestParam(value = "withVisitors", required = false, defaultValue = "false") @ApiParam(value = "Toggle to return Visitors in response (or not).", required = true) final boolean withVisitors) {
+        @RequestParam(value = "withVisitors", required = false, defaultValue = "false") @ApiParam(value = "Toggle to return Visitors in response (or not).", required = false) final boolean withVisitors) {
         return bookingService.getBookingVisitNext(bookingId, withVisitors);
     }
 
