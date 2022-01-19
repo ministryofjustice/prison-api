@@ -2,7 +2,6 @@ package uk.gov.justice.hmpps.prison.api.resource.impl;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.json.JsonContent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -41,8 +40,8 @@ public class BookingResourceIntTest extends ResourceTest {
         @Bean
         public Clock clock() {
             return Clock.fixed(
-                    LocalDateTime.of(2020, 1, 2, 3, 4, 5).atZone(ZoneId.systemDefault()).toInstant(),
-                    ZoneId.systemDefault());
+                LocalDateTime.of(2020, 1, 2, 3, 4, 5).atZone(ZoneId.systemDefault()).toInstant(),
+                ZoneId.systemDefault());
         }
     }
 
@@ -52,12 +51,12 @@ public class BookingResourceIntTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-                "/api/bookings/{bookingId}",
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                },
-                -2);
+            "/api/bookings/{bookingId}",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            -2);
         assertThatJsonFileAndStatus(response, 200, "booking_offender_-1.json");
     }
 
@@ -129,12 +128,12 @@ public class BookingResourceIntTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, body);
 
         final var response = testRestTemplate.exchange(
-                "/api/bookings/{bookingId}/activities/{activityId}/attendance",
-                HttpMethod.PUT,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                },
-                -2, -11);
+            "/api/bookings/{bookingId}/activities/{activityId}/attendance",
+            HttpMethod.PUT,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            -2, -11);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(403);
     }
@@ -147,33 +146,34 @@ public class BookingResourceIntTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, body);
 
         final var response = testRestTemplate.exchange(
-                "/api/bookings/{bookingId}/activities/{activityId}/attendance",
-                HttpMethod.PUT,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                },
-                -2, -11);
+            "/api/bookings/{bookingId}/activities/{activityId}/attendance",
+            HttpMethod.PUT,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            -2, -11);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(201);
     }
+
     @Test
-    public void testUpdateAttendance_WithInvalidBookingId(){
+    public void testUpdateAttendance_WithInvalidBookingId() {
         final var token = authTokenHelper.getToken(AuthToken.PAY);
         final var body = Map.of("eventOutcome", "ATT", "performance", "STANDARD");
         final var request = createHttpEntity(token, body);
 
         final var response = testRestTemplate.exchange(
-                "/api/bookings/{bookingId}/activities/{activityId}/attendance",
-                HttpMethod.PUT,
-                request,
-                ErrorResponse.class,0,-11);
+            "/api/bookings/{bookingId}/activities/{activityId}/attendance",
+            HttpMethod.PUT,
+            request,
+            ErrorResponse.class, 0, -11);
 
         assertThat(response.getBody()).isEqualTo(
-                ErrorResponse.builder()
-                        .status(404)
-                        .userMessage("Resource with id [0] not found.")
-                        .developerMessage("Resource with id [0] not found.")
-                        .build());
+            ErrorResponse.builder()
+                .status(404)
+                .userMessage("Resource with id [0] not found.")
+                .developerMessage("Resource with id [0] not found.")
+                .build());
     }
 
     @Test
@@ -181,20 +181,20 @@ public class BookingResourceIntTest extends ResourceTest {
         final var token = authTokenHelper.getToken(AuthToken.PAY);
 
         final var body = UpdateAttendanceBatch
-                .builder()
-                .eventOutcome("ATT")
-                .performance("STANDARD")
-                .bookingActivities(Set.of(BookingActivity.builder().activityId(-11L).bookingId(-2L).build()))
-                .build();
+            .builder()
+            .eventOutcome("ATT")
+            .performance("STANDARD")
+            .bookingActivities(Set.of(BookingActivity.builder().activityId(-11L).bookingId(-2L).build()))
+            .build();
 
         final var httpEntity = createHttpEntity(token, body);
 
         final var response = testRestTemplate.exchange(
-                "/api/bookings/activities/attendance",
-                HttpMethod.PUT,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                });
+            "/api/bookings/activities/attendance",
+            HttpMethod.PUT,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
 
         assertThat(response.getStatusCodeValue()).isEqualTo(201);
     }
@@ -204,14 +204,14 @@ public class BookingResourceIntTest extends ResourceTest {
         final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
 
         final var body = CreateAlert.builder().alertCode("X").alertType("XX").comment("XXX")
-                .alertDate(LocalDate.now()).build();
+            .alertDate(LocalDate.now()).build();
 
         final var response = testRestTemplate.exchange(
-                "/api/bookings/{bookingId}/alert",
-                HttpMethod.POST,
-                createHttpEntity(token, body),
-                new ParameterizedTypeReference<ErrorResponse>() {
-                }, -10L);
+            "/api/bookings/{bookingId}/alert",
+            HttpMethod.POST,
+            createHttpEntity(token, body),
+            new ParameterizedTypeReference<ErrorResponse>() {
+            }, -10L);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(403);
     }
@@ -223,11 +223,11 @@ public class BookingResourceIntTest extends ResourceTest {
         final var body = AlertChanges.builder().expiryDate(LocalDate.now()).build();
 
         final var response = testRestTemplate.exchange(
-                "/api/bookings/{bookingId}/alert/{alertSeq}",
-                HttpMethod.PUT,
-                createHttpEntity(token, body),
-                new ParameterizedTypeReference<ErrorResponse>() {
-                }, -1L, 4);
+            "/api/bookings/{bookingId}/alert/{alertSeq}",
+            HttpMethod.PUT,
+            createHttpEntity(token, body),
+            new ParameterizedTypeReference<ErrorResponse>() {
+            }, -1L, 4);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(403);
     }
@@ -237,26 +237,26 @@ public class BookingResourceIntTest extends ResourceTest {
         final var token = authTokenHelper.getToken(AuthToken.UPDATE_ALERT);
 
         final var createdAlert = testRestTemplate.exchange(
-                "/api/bookings/{bookingId}/alert",
-                HttpMethod.POST,
-                createHttpEntity(token,
-                        CreateAlert.builder()
-                                .alertType("L")
-                                .alertCode("LPQAA")
-                                .comment("XXX")
-                                .alertDate(LocalDate.now())
-                                .build()),
-                new ParameterizedTypeReference<Alert>() {
-                }, -14L).getBody();
+            "/api/bookings/{bookingId}/alert",
+            HttpMethod.POST,
+            createHttpEntity(token,
+                CreateAlert.builder()
+                    .alertType("L")
+                    .alertCode("LPQAA")
+                    .comment("XXX")
+                    .alertDate(LocalDate.now())
+                    .build()),
+            new ParameterizedTypeReference<Alert>() {
+            }, -14L).getBody();
 
         final var body = AlertChanges.builder().expiryDate(LocalDate.now()).build();
 
         final var response = testRestTemplate.exchange(
-                "/api/bookings/{bookingId}/alert/{alertSeq}",
-                HttpMethod.PUT,
-                createHttpEntity(token, body),
-                new ParameterizedTypeReference<AlertCreated>() {
-                }, -14L, createdAlert.getAlertId());
+            "/api/bookings/{bookingId}/alert/{alertSeq}",
+            HttpMethod.PUT,
+            createHttpEntity(token, body),
+            new ParameterizedTypeReference<AlertCreated>() {
+            }, -14L, createdAlert.getAlertId());
 
         assertThat(response.getStatusCodeValue()).isEqualTo(200);
     }
@@ -266,26 +266,26 @@ public class BookingResourceIntTest extends ResourceTest {
         final var token = authTokenHelper.getToken(AuthToken.UPDATE_ALERT);
 
         final var createdAlert = testRestTemplate.exchange(
-                "/api/bookings/{bookingId}/alert",
-                HttpMethod.POST,
-                createHttpEntity(token,
-                        CreateAlert.builder()
-                                .alertType("L")
-                                .alertCode("LPQAA")
-                                .comment("XXX")
-                                .alertDate(LocalDate.now())
-                                .build()),
-                new ParameterizedTypeReference<Alert>() {
-                }, -14L).getBody();
+            "/api/bookings/{bookingId}/alert",
+            HttpMethod.POST,
+            createHttpEntity(token,
+                CreateAlert.builder()
+                    .alertType("L")
+                    .alertCode("LPQAA")
+                    .comment("XXX")
+                    .alertDate(LocalDate.now())
+                    .build()),
+            new ParameterizedTypeReference<Alert>() {
+            }, -14L).getBody();
 
         final var body = AlertChanges.builder().comment("New comment").build();
 
         final var response = testRestTemplate.exchange(
-                "/api/bookings/{bookingId}/alert/{alertSeq}",
-                HttpMethod.PUT,
-                createHttpEntity(token, body),
-                new ParameterizedTypeReference<AlertCreated>() {
-                }, -14L, createdAlert.getAlertId());
+            "/api/bookings/{bookingId}/alert/{alertSeq}",
+            HttpMethod.PUT,
+            createHttpEntity(token, body),
+            new ParameterizedTypeReference<AlertCreated>() {
+            }, -14L, createdAlert.getAlertId());
 
         assertThat(response.getStatusCodeValue()).isEqualTo(200);
     }
@@ -297,11 +297,11 @@ public class BookingResourceIntTest extends ResourceTest {
         final var body = CreateAlert.builder().build();
 
         final var response = testRestTemplate.exchange(
-                "/api/bookings/{bookingId}/alert",
-                HttpMethod.POST,
-                createHttpEntity(token, body),
-                new ParameterizedTypeReference<ErrorResponse>() {
-                }, -10L);
+            "/api/bookings/{bookingId}/alert",
+            HttpMethod.POST,
+            createHttpEntity(token, body),
+            new ParameterizedTypeReference<ErrorResponse>() {
+            }, -10L);
 
         final var validationMessages = response.getBody().getUserMessage();
 
@@ -318,17 +318,17 @@ public class BookingResourceIntTest extends ResourceTest {
         final var largeText = IntStream.range(1, 1002).mapToObj(i -> "A").collect(Collectors.joining(""));
 
         final var body = CreateAlert.builder()
-                .alertCode(largeText.substring(0, 13))
-                .alertType(largeText.substring(0, 13))
-                .comment(largeText)
-                .alertDate(LocalDate.now()).build();
+            .alertCode(largeText.substring(0, 13))
+            .alertType(largeText.substring(0, 13))
+            .comment(largeText)
+            .alertDate(LocalDate.now()).build();
 
         final var response = testRestTemplate.exchange(
-                "/api/bookings/{bookingId}/alert",
-                HttpMethod.POST,
-                createHttpEntity(token, body),
-                new ParameterizedTypeReference<ErrorResponse>() {
-                }, -10L);
+            "/api/bookings/{bookingId}/alert",
+            HttpMethod.POST,
+            createHttpEntity(token, body),
+            new ParameterizedTypeReference<ErrorResponse>() {
+            }, -10L);
 
         final var validationMessages = response.getBody().getUserMessage();
 
@@ -344,14 +344,14 @@ public class BookingResourceIntTest extends ResourceTest {
         final var token = authTokenHelper.getToken(AuthToken.UPDATE_ALERT);
 
         final var body = CreateAlert.builder().alertType("L").alertCode("LPQAA").comment("comments")
-                .alertDate(LocalDate.now()).build();
+            .alertDate(LocalDate.now()).build();
 
         final var response = testRestTemplate.exchange(
-                "/api/bookings/{bookingId}/alert",
-                HttpMethod.POST,
-                createHttpEntity(token, body),
-                new ParameterizedTypeReference<AlertCreated>() {
-                }, -10L);
+            "/api/bookings/{bookingId}/alert",
+            HttpMethod.POST,
+            createHttpEntity(token, body),
+            new ParameterizedTypeReference<AlertCreated>() {
+            }, -10L);
 
         assertThat(response.getBody().getAlertId()).isGreaterThan(1);
         assertThat(response.getStatusCodeValue()).isEqualTo(201);
@@ -364,11 +364,11 @@ public class BookingResourceIntTest extends ResourceTest {
         final var body = List.of("Z0020ZZ");
 
         final var response = testRestTemplate.exchange(
-                "/api/bookings/offenders?activeOnly=false",
-                HttpMethod.POST,
-                createHttpEntity(token, body),
-                new ParameterizedTypeReference<List<InmateBasicDetails>>() {
-                });
+            "/api/bookings/offenders?activeOnly=false",
+            HttpMethod.POST,
+            createHttpEntity(token, body),
+            new ParameterizedTypeReference<List<InmateBasicDetails>>() {
+            });
 
         assertThat(response.getBody().get(0).getBookingId()).isEqualTo(-20);
         assertThat(response.getStatusCodeValue()).isEqualTo(200);
@@ -379,10 +379,10 @@ public class BookingResourceIntTest extends ResourceTest {
         final var token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE);
 
         final var response = testRestTemplate.exchange(
-                "/api/bookings/{bookingId}/movement/{sequenceNumber}",
-                GET,
-                createHttpEntity(token, null),
-                Movement.class, "-29", "2");
+            "/api/bookings/{bookingId}/movement/{sequenceNumber}",
+            GET,
+            createHttpEntity(token, null),
+            Movement.class, "-29", "2");
 
         assertThat(response.getStatusCodeValue()).isEqualTo(200);
         assertThat(response.getBody()).isNotNull();
@@ -396,10 +396,10 @@ public class BookingResourceIntTest extends ResourceTest {
         final var token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE);
 
         final var response = testRestTemplate.exchange(
-                "/api/bookings/{bookingId}/movement/{sequenceNumber}",
-                GET,
-                createHttpEntity(token, null),
-                Movement.class, "-29", "999");
+            "/api/bookings/{bookingId}/movement/{sequenceNumber}",
+            GET,
+            createHttpEntity(token, null),
+            Movement.class, "-29", "999");
 
         assertThat(response.getStatusCodeValue()).isEqualTo(404);
     }
@@ -407,8 +407,8 @@ public class BookingResourceIntTest extends ResourceTest {
     @Test
     public void getMainOffence_testRetrieveSingleOffence() {
         final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/mainOffence", GET,
-                createHttpEntity(AuthToken.NORMAL_USER, null),
-                String.class, "-1");
+            createHttpEntity(AuthToken.NORMAL_USER, null),
+            String.class, "-1");
 
         assertThatJsonFileAndStatus(response, 200, "offender_main_offence.json");
     }
@@ -416,8 +416,8 @@ public class BookingResourceIntTest extends ResourceTest {
     @Test
     public void getMainOffence_testRetrieveMultipleOffences() {
         final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/mainOffence", GET,
-                createHttpEntity(AuthToken.NORMAL_USER, null),
-                String.class, "-7");
+            createHttpEntity(AuthToken.NORMAL_USER, null),
+            String.class, "-7");
 
         assertThatJsonFileAndStatus(response, 200, "offender_main_offences.json");
     }
@@ -425,8 +425,8 @@ public class BookingResourceIntTest extends ResourceTest {
     @Test
     public void getFullOffenderInformation() {
         final var response = testRestTemplate.exchange("/api/bookings/{bookingId}?extraInfo=true", GET,
-                createHttpEntity(AuthToken.NORMAL_USER, null),
-                String.class, "-7");
+            createHttpEntity(AuthToken.NORMAL_USER, null),
+            String.class, "-7");
 
         assertThatJsonFileAndStatus(response, 200, "offender_extra_info.json");
     }
@@ -434,8 +434,8 @@ public class BookingResourceIntTest extends ResourceTest {
     @Test
     public void getFullOffenderInformation_byOffenderNo() {
         final var response = testRestTemplate.exchange("/api/bookings/offenderNo/{offenderNo}?extraInfo=true", GET,
-                createHttpEntity(AuthToken.NORMAL_USER, null),
-                String.class, "A1234AG");
+            createHttpEntity(AuthToken.NORMAL_USER, null),
+            String.class, "A1234AG");
         assertThatJsonFileAndStatus(response, 200, "offender_extra_info.json");
     }
 
@@ -450,8 +450,8 @@ public class BookingResourceIntTest extends ResourceTest {
     @Test
     public void getFullOffenderInformationNoCSRA_byOffenderNo() {
         final var response = testRestTemplate.exchange("/api/bookings/offenderNo/{offenderNo}?extraInfo=true", GET,
-                createHttpEntity(AuthToken.NORMAL_USER, null),
-                String.class, "A1184MA");
+            createHttpEntity(AuthToken.NORMAL_USER, null),
+            String.class, "A1184MA");
         assertThatJsonFileAndStatus(response, 200, "offender_extra_info_no_csra.json");
     }
 
@@ -466,16 +466,16 @@ public class BookingResourceIntTest extends ResourceTest {
     @Test
     public void getFullOffenderInformationPersonalCare_byOffenderNo() {
         final var response = testRestTemplate.exchange("/api/bookings/offenderNo/{offenderNo}?extraInfo=true", GET,
-                createHttpEntity(AuthToken.NORMAL_USER, null),
-                String.class, "A1234AA");
+            createHttpEntity(AuthToken.NORMAL_USER, null),
+            String.class, "A1234AA");
         assertThatJsonFileAndStatus(response, 200, "offender_personal_care.json");
     }
 
     @Test
     public void getMainOffence_notFound() {
         final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/mainOffence", GET,
-                createHttpEntity(AuthToken.NORMAL_USER, null),
-                String.class, "-99");
+            createHttpEntity(AuthToken.NORMAL_USER, null),
+            String.class, "-99");
 
         assertThatStatus(response, 404);
     }
@@ -483,8 +483,8 @@ public class BookingResourceIntTest extends ResourceTest {
     @Test
     public void getMainOffence_notInCaseload() {
         final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/mainOffence", GET,
-                createHttpEntity(AuthToken.NORMAL_USER, null),
-                String.class, "-16");
+            createHttpEntity(AuthToken.NORMAL_USER, null),
+            String.class, "-16");
 
         assertThatStatus(response, 404);
     }
@@ -492,8 +492,8 @@ public class BookingResourceIntTest extends ResourceTest {
     @Test
     public void getMainOffence_noOffences() {
         final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/mainOffence", GET,
-                createHttpEntity(AuthToken.NORMAL_USER, null),
-                String.class, "-9");
+            createHttpEntity(AuthToken.NORMAL_USER, null),
+            String.class, "-9");
 
         assertThatStatus(response, 200);
         assertThat(response.getBody()).isEqualTo("[]");
@@ -502,8 +502,8 @@ public class BookingResourceIntTest extends ResourceTest {
     @Test
     public void getOffenceHistory_post() {
         final var response = testRestTemplate.exchange("/api/bookings/mainOffence", POST,
-                createHttpEntity(AuthToken.SYSTEM_USER_READ_WRITE, "[-1, -7]"),
-                String.class);
+            createHttpEntity(AuthToken.SYSTEM_USER_READ_WRITE, "[-1, -7]"),
+            String.class);
 
         assertThatJsonFileAndStatus(response, 200, "offender_main_offences_post.json");
     }
@@ -511,8 +511,8 @@ public class BookingResourceIntTest extends ResourceTest {
     @Test
     public void getOffenceHistory_post_no_offences() {
         final var response = testRestTemplate.exchange("/api/bookings/mainOffence", POST,
-                createHttpEntity(AuthToken.SYSTEM_USER_READ_WRITE, "[ -98, -99 ]"),
-                String.class);
+            createHttpEntity(AuthToken.SYSTEM_USER_READ_WRITE, "[ -98, -99 ]"),
+            String.class);
 
         assertThatStatus(response, 200);
         assertThat(response.getBody()).isEqualTo("[]");
@@ -521,8 +521,8 @@ public class BookingResourceIntTest extends ResourceTest {
     @Test
     public void getOffenceHistory() {
         final var response = testRestTemplate.exchange("/api/bookings/offenderNo/{offenderNo}/offenceHistory", GET,
-                createHttpEntity(AuthToken.VIEW_PRISONER_DATA, null),
-                String.class, "A1234AG");
+            createHttpEntity(AuthToken.VIEW_PRISONER_DATA, null),
+            String.class, "A1234AG");
 
         assertThatJsonFileAndStatus(response, 200, "offender_main_offences.json");
     }
@@ -530,8 +530,8 @@ public class BookingResourceIntTest extends ResourceTest {
     @Test
     public void getOffenceHistoryIncludeOffenderWithoutConviction() {
         final var response = testRestTemplate.exchange("/api/bookings/offenderNo/{offenderNo}/offenceHistory?convictionsOnly=false", GET,
-                createHttpEntity(AuthToken.VIEW_PRISONER_DATA, null),
-                String.class, "A1234AB");
+            createHttpEntity(AuthToken.VIEW_PRISONER_DATA, null),
+            String.class, "A1234AB");
 
         assertThatJsonFileAndStatus(response, 200, "offender_offence_history_A12234AB_include_non_convictions.json");
     }
@@ -539,8 +539,8 @@ public class BookingResourceIntTest extends ResourceTest {
     @Test
     public void getSecondaryLanguages() {
         final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/secondary-languages", GET,
-                createHttpEntity(AuthToken.NORMAL_USER, null),
-                String.class, -3L);
+            createHttpEntity(AuthToken.NORMAL_USER, null),
+            String.class, -3L);
 
         assertThatJsonFileAndStatus(response, 200, "secondary_languages.json");
     }
@@ -564,10 +564,28 @@ public class BookingResourceIntTest extends ResourceTest {
     }
 
     @Test
+    public void getNextVisit_withVisitors_whenNotPresent() {
+        final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits/next?withVisitors=true", GET,
+            createHttpEntity(AuthToken.NORMAL_USER, null),
+            String.class, -1);
+
+        assertThatStatus(response, 404);
+    }
+
+    @Test
+    public void getNextVisit_whenNotPresent() {
+        final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits/next", GET,
+            createHttpEntity(AuthToken.NORMAL_USER, null),
+            String.class, -1);
+
+        assertThatStatus(response, 404);
+    }
+
+    @Test
     public void getVisitsWithVisitorsWithMissingPageAndSize() {
         final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors", GET,
-                createHttpEntity(AuthToken.NORMAL_USER, null),
-                String.class, -6L);
+            createHttpEntity(AuthToken.NORMAL_USER, null),
+            String.class, -6L);
 
         assertThatJsonFileAndStatus(response, 200, "visits_with_visitors.json");
     }
@@ -575,8 +593,8 @@ public class BookingResourceIntTest extends ResourceTest {
     @Test
     public void getVisitsWithVisitorsWithPageAndSize() {
         final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors?size=5&page=1", GET,
-                createHttpEntity(AuthToken.NORMAL_USER, null),
-                String.class, -6L);
+            createHttpEntity(AuthToken.NORMAL_USER, null),
+            String.class, -6L);
 
         assertThatJsonFileAndStatus(response, 200, "visits_with_visitors_paged.json");
     }
@@ -586,8 +604,8 @@ public class BookingResourceIntTest extends ResourceTest {
         var page = Integer.MAX_VALUE;
         var size = Integer.MAX_VALUE;
         final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors?size=" + size + "&page=" + page, GET,
-                createHttpEntity(AuthToken.NORMAL_USER, null),
-                String.class, -6L);
+            createHttpEntity(AuthToken.NORMAL_USER, null),
+            String.class, -6L);
 
         assertThatStatus(response, 200);
     }
@@ -597,8 +615,8 @@ public class BookingResourceIntTest extends ResourceTest {
         var page = Integer.MIN_VALUE;
         var size = 20;
         final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors?size=" + size + "&page=" + page, GET,
-                createHttpEntity(AuthToken.NORMAL_USER, null),
-                String.class, -6L);
+            createHttpEntity(AuthToken.NORMAL_USER, null),
+            String.class, -6L);
 
         assertThatStatus(response, 400);
         assertThat(response.getBody()).contains("Page index must not be less than zero!");
@@ -609,8 +627,8 @@ public class BookingResourceIntTest extends ResourceTest {
         var page = 0;
         var size = Integer.MIN_VALUE;
         final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors?size=" + size + "&page=" + page, GET,
-                createHttpEntity(AuthToken.NORMAL_USER, null),
-                String.class, -6L);
+            createHttpEntity(AuthToken.NORMAL_USER, null),
+            String.class, -6L);
 
         assertThatStatus(response, 400);
         assertThat(response.getBody()).contains("Page size must not be less than one!");
@@ -621,8 +639,8 @@ public class BookingResourceIntTest extends ResourceTest {
         var page = Long.MAX_VALUE;
         var size = 20;
         final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors?size=" + size + "&page=" + page, GET,
-                createHttpEntity(AuthToken.NORMAL_USER, null),
-                String.class, -6L);
+            createHttpEntity(AuthToken.NORMAL_USER, null),
+            String.class, -6L);
 
         assertThatStatus(response, 400);
         assertThat(response.getBody()).contains("For input string: \\\"9223372036854775807\\\"");
@@ -633,8 +651,8 @@ public class BookingResourceIntTest extends ResourceTest {
         var page = 0;
         var size = Long.MAX_VALUE;
         final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors?size=" + size + "&page=" + page, GET,
-                createHttpEntity(AuthToken.NORMAL_USER, null),
-                String.class, -6L);
+            createHttpEntity(AuthToken.NORMAL_USER, null),
+            String.class, -6L);
 
         assertThatStatus(response, 400);
         assertThat(response.getBody()).contains("For input string: \\\"9223372036854775807\\\"");
@@ -643,8 +661,8 @@ public class BookingResourceIntTest extends ResourceTest {
     @Test
     public void getVisitsWithVisitorsWithNonNumberPage() {
         final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors?size=1&page=123x", GET,
-                createHttpEntity(AuthToken.NORMAL_USER, null),
-                String.class, -6L);
+            createHttpEntity(AuthToken.NORMAL_USER, null),
+            String.class, -6L);
 
         assertThatStatus(response, 400);
         assertThat(response.getBody()).contains("For input string: \\\"123x\\\"");
@@ -653,8 +671,8 @@ public class BookingResourceIntTest extends ResourceTest {
     @Test
     public void getVisitsWithVisitorsWithNonNumberSize() {
         final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors?size=1x&page=0", GET,
-                createHttpEntity(AuthToken.NORMAL_USER, null),
-                String.class, -6L);
+            createHttpEntity(AuthToken.NORMAL_USER, null),
+            String.class, -6L);
 
         assertThatStatus(response, 400);
         assertThat(response.getBody()).contains("For input string: \\\"1x\\\"");
@@ -663,8 +681,8 @@ public class BookingResourceIntTest extends ResourceTest {
     @Test
     public void getVisitsWithVisitorsFilteredPagination() {
         final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors?fromDate=2019-07-15&size=5", GET,
-                createHttpEntity(AuthToken.NORMAL_USER, null),
-                String.class, -6L);
+            createHttpEntity(AuthToken.NORMAL_USER, null),
+            String.class, -6L);
 
         assertThatJsonFileAndStatus(response, 200, "visits_with_visitors_filter_paged.json");
     }
@@ -702,10 +720,10 @@ public class BookingResourceIntTest extends ResourceTest {
     @Test
     public void getNonAssociationDetails_victim_rival_gang_and_perpetrator() {
         final var response = testRestTemplate.exchange(
-                "/api/bookings/-1/non-association-details",
-                HttpMethod.GET,
-                createHttpEntity(authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER), Map.of()),
-                String.class);
+            "/api/bookings/-1/non-association-details",
+            HttpMethod.GET,
+            createHttpEntity(authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER), Map.of()),
+            String.class);
 
         assertThatJsonFileAndStatus(response, 200, "offender_non_association_details_vic_rival_gang_and_per.json");
     }
@@ -713,10 +731,10 @@ public class BookingResourceIntTest extends ResourceTest {
     @Test
     public void getNonAssociationDetails_perpetrator_and_victim() {
         final var response = testRestTemplate.exchange(
-                "/api/bookings/-2/non-association-details",
-                HttpMethod.GET,
-                createHttpEntity(authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER), Map.of()),
-                String.class);
+            "/api/bookings/-2/non-association-details",
+            HttpMethod.GET,
+            createHttpEntity(authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER), Map.of()),
+            String.class);
 
         assertThatJsonFileAndStatus(response, 200, "offender_non_association_details_per_vic.json");
     }
@@ -724,10 +742,10 @@ public class BookingResourceIntTest extends ResourceTest {
     @Test
     public void getBedAssignmentHistory_with_defaultSorting() {
         final var response = testRestTemplate.exchange(
-                "/api/bookings/-36/cell-history",
-                HttpMethod.GET,
-                createHttpEntity(authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER), Map.of()),
-                String.class);
+            "/api/bookings/-36/cell-history",
+            HttpMethod.GET,
+            createHttpEntity(authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER), Map.of()),
+            String.class);
 
         final var bodyAsJsonContent = getBodyAsJsonContent(response);
         assertThat(bodyAsJsonContent).extractingJsonPathNumberValue("$.content[0].bookingId").isEqualTo(-36);

@@ -519,7 +519,7 @@ public class BookingService {
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public VisitDetails getBookingVisitNext(final Long bookingId, final boolean withVisitors) {
-        final var visit = bookingRepository.getBookingVisitNext(bookingId, LocalDateTime.now());
+        final var visit = bookingRepository.getBookingVisitNext(bookingId, LocalDateTime.now()).orElseThrow(EntityNotFoundException.withMessage("No next visit"));
         if (withVisitors) {
             final var visitors = getVisitors(bookingId, visit.getId());
             visit.setVisitors(visitors);
