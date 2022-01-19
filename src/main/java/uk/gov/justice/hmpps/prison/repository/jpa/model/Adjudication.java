@@ -123,7 +123,7 @@ public class Adjudication extends AuditableEntity {
 
     public List<AdjudicationParty> getConnectedOffenders() {
         return parties.stream()
-            .filter(p -> INCIDENT_ROLE_VICTIM.equals(p.getIncidentRole()))
+            .filter(p -> INCIDENT_ROLE_OFFENDER.equals(p.getIncidentRole()))
             .filter(p -> !p.getId().getPartySeq().equals(1L))
             .filter(p -> p.getOffenderBooking() != null).toList();
     }
