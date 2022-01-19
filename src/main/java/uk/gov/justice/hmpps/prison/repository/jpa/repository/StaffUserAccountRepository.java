@@ -14,4 +14,6 @@ public interface StaffUserAccountRepository extends CrudRepository<StaffUserAcco
     List<Caseload> getCaseloadsForUser(final String username, final boolean active, final String type);
 
     Optional<StaffUserAccount> findByTypeAndStaff_StaffId(String type, Long staffId);
+
+    Optional<StaffUserAccount> findByStaff_StaffId(Long staffId);
 }

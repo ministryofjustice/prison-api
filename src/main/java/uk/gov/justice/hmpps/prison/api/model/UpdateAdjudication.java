@@ -41,7 +41,7 @@ public class UpdateAdjudication {
     private List<String> offenceCodes;
 
     @ApiModelProperty(value = "The list of staff usernames who were victims", position = 7)
-    private List<String> victimStaffIds = new ArrayList<>();
+    private List<Long> victimStaffIds = new ArrayList<>();
 
     @ApiModelProperty(value = "The list of offender numbers of offenders who were victims", position = 8)
     private List<String> victimOffenderIds = new ArrayList<>();

@@ -56,4 +56,7 @@ public class AdjudicationDetail {
 
     @ApiModelProperty(value = "The id of the user the created the adjudication", position = 10, example = "ASMITH")
     private String createdByUserId;
+
+    @ApiModelProperty(value = "The id of the staff who are victims", position = 11)
+    private List<String> staffVictimIds;
 }

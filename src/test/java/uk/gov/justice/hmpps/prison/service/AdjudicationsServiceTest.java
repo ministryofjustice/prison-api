@@ -41,7 +41,6 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +61,9 @@ import static org.mockito.Mockito.when;
 public class AdjudicationsServiceTest {
     private static final String EXAMPLE_NOMS_ID = "A1234BB";
     private static final Long EXAMPLE_ADJUDICATION_NUMBER = 3L;
+    private static final List<Long> EXAMPLE_VICTIM_STAFF_IDS = List.of(17380L, 17514L);
+    private static final List<String> EXAMPLE_VICTIM_OFFENDER_IDS = List.of("A5015DY", "G1835UN");
+    private static final List<String> EXAMPLE_CONNECTED_OFFENDER_IDS = List.of("G0662GG", "A5060DY");
     private static final String EXAMPLE_OFFENCE_CHARGE_CODE = "51:12A";
     private static final String EXAMPLE_CURRENT_USERNAME = "USER_1";
     private static final String EXAMPLE_REPORTER_FIRST_NAME = "JANE";
@@ -93,8 +95,7 @@ public class AdjudicationsServiceTest {
     private AuthenticationFacade authenticationFacade;
     @Mock
     private TelemetryClient telemetryClient;
-
-    @Autowired
+    @Mock
     private EntityManager entityManager;
 
     private AdjudicationsService service;
@@ -246,7 +247,9 @@ public class AdjudicationsServiceTest {
 
             verifyNoMoreInteractions(telemetryClient);
         }
+
     }
+
 
     @Nested
     public class CreateAdjudication_WithOptionalData {
@@ -309,6 +312,32 @@ public class AdjudicationsServiceTest {
 
             assertThat(returnedAdjudication).isEqualTo(expectedReturnedAdjudication);
         }
+
+        @Test
+        public void canCallCreateWithAncillary() {
+            final var mockDataProvider = new MockDataProvider();
+
+            mockDataProvider.setupMocks();
+
+            final var newAdjudication = generateNewAdjudicationRequest_WithAncillaryAdjudications(
+                mockDataProvider.booking.getOffender().getNomsId(),
+                mockDataProvider.internalLocation.getLocationId());
+            when(bookingRepository.findByOffenderNomsIdAndBookingSequence(any(), any())).thenAnswer(
+                request -> Optional.of(
+                    OffenderBooking.builder()
+                        .bookingId((long)request.getArgument(0).hashCode()).build())
+            );
+            when(staffUserAccountRepository.findByStaff_StaffId(any())).thenAnswer(
+                request -> Optional.of(StaffUserAccount.builder().staff(Staff.builder().staffId(request.getArgument(0)).build()).build()
+            ));
+            when(adjudicationsRepository.save(any())).thenAnswer(
+                request -> request.getArgument(0)
+            );
+
+            final var returnedAdjudication = service.createAdjudication(newAdjudication.getOffenderNo(), newAdjudication);
+
+        }
+
     }
 
     @Nested
@@ -746,6 +775,19 @@ public class AdjudicationsServiceTest {
             .incidentLocationId(internalLocationId)
             .statement(EXAMPLE_STATEMENT)
             .offenceCodes(List.of(EXAMPLE_OFFENCE_CHARGE_CODE))
+            .build();
+    }
+
+    private NewAdjudication generateNewAdjudicationRequest_WithAncillaryAdjudications(final String offenderNo, final Long internalLocationId) {
+        return NewAdjudication.builder()
+            .offenderNo(offenderNo)
+            .agencyId(EXAMPLE_AGENCY_ID)
+            .incidentTime(EXAMPLE_INCIDENT_TIME)
+            .incidentLocationId(internalLocationId)
+            .statement(EXAMPLE_STATEMENT)
+            .victimStaffIds(EXAMPLE_VICTIM_STAFF_IDS)
+            .victimOffenderIds(EXAMPLE_VICTIM_OFFENDER_IDS)
+            .connectedOffenderIds(EXAMPLE_CONNECTED_OFFENDER_IDS)
             .build();
     }
 

@@ -2,8 +2,6 @@ package uk.gov.justice.hmpps.prison.service;
 
 import com.google.common.collect.Lists;
 import com.microsoft.applicationinsights.TelemetryClient;
-import io.swagger.annotations.ApiModelProperty;
-import kotlin.ranges.LongRange;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication;
+import uk.gov.justice.hmpps.prison.repository.StaffRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationActionCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationCharge;
@@ -20,6 +19,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationCharge.PK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationIncidentType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationOffenceType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationParty;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Staff;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationOffenceTypeRepository;
@@ -256,7 +256,10 @@ public class AdjudicationsService {
         final Map<String, String> logMap = new HashMap<>();
         logMap.put("reporterUsername", authenticationFacade.getCurrentUsername());
         logMap.put("offenderNo", createdAdjudication.getOffenderParty()
-            .map(o -> o.getOffenderBooking().getOffender().getNomsId()).orElse(""));
+            .map(AdjudicationParty::getOffenderBooking)
+            .map(OffenderBooking::getOffender)
+            .map(Offender::getNomsId)
+            .orElse(""));
         trackAdjudicationDetails("AdjudicationCreated", createdAdjudication, logMap);
     }
 
@@ -276,8 +279,15 @@ public class AdjudicationsService {
 
     private AdjudicationDetail transformToDto(final Adjudication adjudication) {
         final var offenderPartyDetails = adjudication.getOffenderParty();
-        final var bookingId = offenderPartyDetails.map(p -> p.getOffenderBooking().getBookingId()).orElse(null);
-        final var offenderNo = offenderPartyDetails.map(p -> p.getOffenderBooking().getOffender().getNomsId()).orElse(null);
+        final var bookingId = offenderPartyDetails
+            .map(AdjudicationParty::getOffenderBooking)
+            .map(OffenderBooking::getBookingId)
+            .orElse(null);
+        final var offenderNo = offenderPartyDetails
+            .map(AdjudicationParty::getOffenderBooking)
+            .map(OffenderBooking::getOffender)
+            .map(Offender::getNomsId)
+            .orElse(null);
         return AdjudicationDetail.builder()
             .adjudicationNumber(offenderPartyDetails.map(AdjudicationParty::getAdjudicationNumber).orElse(null))
             .reporterStaffId(adjudication.getStaffReporter().getStaffId())
@@ -292,21 +302,26 @@ public class AdjudicationsService {
             .build();
     }
 
-    private Adjudication updateAncillaryAdjudicationParties(
+    Adjudication updateAncillaryAdjudicationParties(
         @NotNull Adjudication adjudication,
-        @NotNull List<String> victimStaffIds,
+        @NotNull List<Long> victimStaffIds,
         @NotNull List<String> victimOffenderIds,
         @NotNull List<String> connectedOffenderIds)
     {
-        final var victimStaff = victimStaffIds != null ? victimStaffIds.stream().map(id ->
-            staffUserAccountRepository.findById(id).orElseThrow(() -> new RuntimeException(format("User not found %s", id))).getStaff()
-        ).collect(Collectors.toList()) : List.<Staff>of();
-        final var victimOffenderBookings = victimOffenderIds != null ? victimOffenderIds.stream().map(id -> bookingRepository.findByOffenderNomsIdAndBookingSequence(id, 1)
-            .orElseThrow(() -> new RuntimeException(format("Could not find a current booking for Offender No %s", id)))
-        ).collect(Collectors.toList()) : List.<OffenderBooking>of();
-        final var connectedOffenderBookings = connectedOffenderIds != null ? connectedOffenderIds.stream().map(id -> bookingRepository.findByOffenderNomsIdAndBookingSequence(id, 1)
-            .orElseThrow(() -> new RuntimeException(format("Could not find a current booking for Offender No %s", id)))
-        ).collect(Collectors.toList()) : List.<OffenderBooking>of();
+        final var victimStaff = victimStaffIds != null ?
+            victimStaffIds.stream()
+                .map(id -> staffUserAccountRepository.findByStaff_StaffId(id)
+                    .orElseThrow(() -> new RuntimeException(format("User not found %s", id))).getStaff()
+                ).collect(Collectors.toList()) : List.<Staff>of();
+        final var victimOffenderBookings = victimOffenderIds != null ?
+            victimOffenderIds.stream()
+                .map(id -> bookingRepository.findByOffenderNomsIdAndBookingSequence(id, 1)
+                    .orElseThrow(() -> new RuntimeException(format("Could not find a current booking for Offender No %s", id)))
+                ).collect(Collectors.toList()) : List.<OffenderBooking>of();
+        final var connectedOffenderBookings = connectedOffenderIds != null ?
+            connectedOffenderIds.stream().map(id -> bookingRepository.findByOffenderNomsIdAndBookingSequence(id, 1)
+                .orElseThrow(() -> new RuntimeException(format("Could not find a current booking for Offender No %s", id)))
+            ).collect(Collectors.toList()) : List.<OffenderBooking>of();
 
         var remainingAdjudicationParties = ancillaryAdjudicationPartiesToRemain(victimStaff, victimOffenderBookings, connectedOffenderBookings, adjudication);
         var offenderParty = adjudication.getOffenderParty();
