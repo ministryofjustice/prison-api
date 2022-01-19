@@ -56,5 +56,5 @@ public class NewAdjudication {
     private List<String> victimOffenderIds = new ArrayList<>();
 
     @ApiModelProperty(value = "The list of offender numbers of the offenders who were connected", position = 9)
-    private List<String> connectedOffenders = new ArrayList<>();
+    private List<String> connectedOffenderIds = new ArrayList<>();
 }
