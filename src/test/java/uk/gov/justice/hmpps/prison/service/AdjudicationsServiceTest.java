@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.hamcrest.MockitoHamcrest;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication;
@@ -35,10 +36,12 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeReposi
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 
+import javax.persistence.EntityManager;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -91,6 +94,9 @@ public class AdjudicationsServiceTest {
     @Mock
     private TelemetryClient telemetryClient;
 
+    @Autowired
+    private EntityManager entityManager;
+
     private AdjudicationsService service;
 
     private final Clock clock = Clock.fixed(ofEpochMilli(0), ZoneId.systemDefault());
@@ -110,7 +116,9 @@ public class AdjudicationsServiceTest {
             authenticationFacade,
             telemetryClient,
             clock,
-            BATCH_SIZE);
+            BATCH_SIZE,
+            entityManager
+            );
     }
 
     @Nested
@@ -716,7 +724,7 @@ public class AdjudicationsServiceTest {
             expectedOffenderParty.setCharges(List.of(expectedOffenceCharges));
         }
 
-        expectedAdjudication.setParties(List.of(expectedOffenderParty));
+        expectedAdjudication.setParties(new ArrayList<>(List.of(expectedOffenderParty)));
         return expectedOffenderParty;
     }
 
