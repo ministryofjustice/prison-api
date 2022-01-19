@@ -145,28 +145,4 @@ public class BookingVisitsStepDefinitions extends AbstractStepDefinitions {
     public void badRequestResponseWithMessageIsReceivedFromBookingVisitsAPI(final String expectedUserMessage) throws Throwable {
         bookingVisits.verifyBadRequest(expectedUserMessage);
     }
-
-    @Then("the visit ([^\\\"]*) is \"([^\"]*)\"$")
-    public void theVisitFieldIs(final String field, final String value) throws Throwable {
-        bookingVisits.verifyVisitField(field, value);
-    }
-
-    @When("^the next visit is requested for an offender with booking id \"([^\"]*)\"$")
-    public void theNextVisitIsRequestedForAnOffenderWithBookingId(final Long bookingId) throws Throwable {
-        bookingVisits.getBookingVisitNext(bookingId);
-    }
-
-    @And("^the visit startTime is offset from the start of today by \"([^\"]*)\"$")
-    public void theVisitStartTimeIsOffsetFromTheStartOfTodayBy(final String durationString) throws Throwable {
-        final var offset = Duration.parse(durationString);
-        final var expectedDateTime = LocalDate.now().atStartOfDay().plus(offset);
-        bookingVisits.verifyStartDateTime(expectedDateTime);
-    }
-
-    @And("^the visit endTime is offset from the start of today by \"([^\"]*)\"$")
-    public void theVisitEndTimeIsIsOffsetFromTheStartOfTodayBy(final String durationString) throws Throwable {
-        final var offset = Duration.parse(durationString);
-        final var expectedDateTime = LocalDate.now().atStartOfDay().plus(offset);
-        bookingVisits.verifyEndDateTime(expectedDateTime);
-    }
 }
