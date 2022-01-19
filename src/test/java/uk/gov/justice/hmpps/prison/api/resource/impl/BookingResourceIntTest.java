@@ -555,6 +555,15 @@ public class BookingResourceIntTest extends ResourceTest {
     }
 
     @Test
+    public void getNextVisit_withVisitors() {
+        final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits/next?withVisitors=true", GET,
+            createHttpEntity(AuthToken.NORMAL_USER, null),
+            String.class, -3L);
+
+        assertThatJsonFileAndStatus(response, 200, "next-visit-with-visitors.json");
+    }
+
+    @Test
     public void getVisitsWithVisitorsWithMissingPageAndSize() {
         final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors", GET,
                 createHttpEntity(AuthToken.NORMAL_USER, null),
