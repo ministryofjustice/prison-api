@@ -99,19 +99,3 @@ Feature: Booking Visits
     And event source description for "1st" returned visit is "Social Contact"
     And end time for "10th" returned visit is "2017-05-10 16:30:00"
     And event source description for "10th" returned visit is "Official Visit"
-
-  Scenario Outline: Retrieve the next visit for an offender
-    When the next visit is requested for an offender with booking id "<booking id>"
-    Then the visit visitType is "<visitType>"
-    And the visit visitTypeDescription is "<visitTypeDescription>"
-    And the visit eventStatus is "<eventStatus>"
-    And the visit eventStatusDescription is "<eventStatusDescription>"
-    And the visit leadVisitor is "<leadVisitor>"
-    And the visit relationship is "<relationship>"
-    And the visit relationshipDescription is "<relationshipDescription>"
-    And the visit location is "<location>"
-    And the visit startTime is offset from the start of today by "<startOffset>"
-    And the visit endTime is offset from the start of today by "<endOffset>"
-    Examples:
-    | booking id | visitType | visitTypeDescription | eventStatus  | eventStatusDescription | leadVisitor  | relationship  | relationshipDescription   | location           | startOffset | endOffset |
-    | -3         | SCON      | Social Contact       |  SCH         | Scheduled (Approved)   | JOHN JOHNSON | BRO           | Brother                   | Carpentry Workshop | P1DT10H     | P1DT11H   |
