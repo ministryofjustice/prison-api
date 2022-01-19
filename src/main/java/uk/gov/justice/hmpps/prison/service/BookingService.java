@@ -70,7 +70,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.RelationshipType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.KeyDateValues;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AvailablePrisonIepLevelRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingFilter;
@@ -444,23 +443,8 @@ public class BookingService {
 
         final var visitsWithVisitors = visits.getContent().stream()
                 .map(visitInformation -> {
-                    final var relationshipType = getRelationshipType(filter, visitInformation.getVisitorPersonId());
-                    final var visitorsList = visitorRepository.findAllByVisitId(visitInformation.getVisitId())
-                            .stream()
-                            .filter(visitor -> visitor.getPersonId() != null)
-                            .map(visitor -> {
-                                     final var contactRelationship = getRelationshipType(filter, visitor.getPersonId());
-                                     return Visitor.builder()
-                                             .dateOfBirth(visitor.getBirthdate())
-                                             .firstName(visitor.getFirstName())
-                                             .lastName(visitor.getLastName())
-                                             .leadVisitor(visitor.getLeadVisitor().equals("Y"))
-                                             .personId(visitor.getPersonId())
-                                             .relationship(contactRelationship.getDescription())
-                                             .attended("ATT".equals(visitor.getEventOutcome()))
-                                             .build();
-                            })
-                            .collect(Collectors.toList());
+                    final var relationshipType = getRelationshipType(filter.getBookingId(), visitInformation.getVisitorPersonId());
+                    final var visitorsList = getVisitors(filter.getBookingId(), visitInformation.getVisitId());
 
                     return VisitWithVisitors.builder()
                             .visitDetail(
@@ -491,9 +475,28 @@ public class BookingService {
         return new PageImpl<>(visitsWithVisitors, pageable, visits.getTotalElements());
     }
 
-    private RelationshipType getRelationshipType(final VisitInformationFilter filter, final Long personId) {
+    private List<Visitor> getVisitors(final Long bookingId, final Long visitId) {
+        return visitorRepository.findAllByVisitId(visitId)
+            .stream()
+            .filter(visitor -> visitor.getPersonId() != null)
+            .map(visitor -> {
+                final var contactRelationship = getRelationshipType(bookingId, visitor.getPersonId());
+                return Visitor.builder()
+                    .dateOfBirth(visitor.getBirthdate())
+                    .firstName(visitor.getFirstName())
+                    .lastName(visitor.getLastName())
+                    .leadVisitor(visitor.getLeadVisitor().equals("Y"))
+                    .personId(visitor.getPersonId())
+                    .relationship(contactRelationship.getDescription())
+                    .attended("ATT".equals(visitor.getEventOutcome()))
+                    .build();
+            })
+            .collect(Collectors.toList());
+    }
+
+    private RelationshipType getRelationshipType(final Long bookingId, final Long personId) {
         if (personId == null) return null;
-        return offenderContactPersonsRepository.findAllByPersonIdAndOffenderBooking_BookingId(personId, filter.getBookingId())
+        return offenderContactPersonsRepository.findAllByPersonIdAndOffenderBooking_BookingId(personId, bookingId)
             .stream()
             .sorted(Comparator.comparing(OffenderContactPerson::lastUpdatedDateTime).reversed())
             .collect(toList())
@@ -516,7 +519,10 @@ public class BookingService {
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public VisitDetails getBookingVisitNext(final Long bookingId) {
-        return bookingRepository.getBookingVisitNext(bookingId, LocalDateTime.now());
+        final var visit = bookingRepository.getBookingVisitNext(bookingId, LocalDateTime.now());
+        final var visitors = getVisitors(bookingId, visit.getId());
+        visit.setVisitors(visitors);
+        return visit;
     }
 
     public List<OffenderSummary> getBookingsByExternalRefAndType(final String externalRef, final String relationshipType) {

@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
@@ -13,6 +14,7 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Visit details
@@ -25,6 +27,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @EqualsAndHashCode
 public class VisitDetails {
+
+    @JsonIgnore
+    private Long id;
 
     @NotBlank
     @ApiModelProperty(required = true, value = "Status of event (EVENT_STS reference code)", allowableValues = "EXP,SCH,COMP,CANC")
@@ -99,4 +104,8 @@ public class VisitDetails {
     @ApiModelProperty(value = "Description of cancellationReason code")
     @JsonProperty("cancelReasonDescription")
     private String cancelReasonDescription;
+
+    @ApiModelProperty(value = "List of visitors on visit")
+    @JsonProperty("visitors")
+    private List<Visitor> visitors;
 }
