@@ -45,7 +45,7 @@ public class OffenderDatesService {
                 .offenderBooking(offenderBooking)
                 .reasonCode("UPDATE")
                 .calculationDate(calculationDate)
-                .comments("CRD calculation ID: " + requestToUpdateOffenderDates.getCalculationUuid())
+                .comments("The information shown was calculated using the Calculate Release Dates service. The calculation ID is: " + requestToUpdateOffenderDates.getCalculationUuid())
                 .staff(staffUserAccount.getStaff())
                 .recordedUser(staffUserAccount)
                 .recordedDateTime(calculationDate)
