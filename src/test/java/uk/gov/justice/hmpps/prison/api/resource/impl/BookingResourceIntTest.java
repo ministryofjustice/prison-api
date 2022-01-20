@@ -569,7 +569,7 @@ public class BookingResourceIntTest extends ResourceTest {
             createHttpEntity(AuthToken.NORMAL_USER, null),
             String.class, -1);
 
-        assertThatStatus(response, 404);
+        assertThatStatus(response, 200);
     }
 
     @Test
@@ -578,7 +578,7 @@ public class BookingResourceIntTest extends ResourceTest {
             createHttpEntity(AuthToken.NORMAL_USER, null),
             String.class, -1);
 
-        assertThatStatus(response, 404);
+        assertThatStatus(response, 200);
     }
 
     @Test

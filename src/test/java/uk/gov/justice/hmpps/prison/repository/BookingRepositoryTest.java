@@ -157,7 +157,7 @@ public class BookingRepositoryTest {
     public void testGetBookingVisitNextLateDate() {
         final var visit = repository.getBookingVisitNext(-1L, LocalDateTime.parse("2021-12-11T16:00:00"));
 
-        assertThat(visit).isNull();
+        assertThat(visit).isEmpty();
     }
 
     @Test

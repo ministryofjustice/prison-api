@@ -101,6 +101,7 @@ import uk.gov.justice.hmpps.prison.service.IncidentService;
 import uk.gov.justice.hmpps.prison.service.InmateAlertService;
 import uk.gov.justice.hmpps.prison.service.InmateService;
 import uk.gov.justice.hmpps.prison.service.MovementsService;
+import uk.gov.justice.hmpps.prison.service.NoContentException;
 import uk.gov.justice.hmpps.prison.service.OffenderNonAssociationsService;
 import uk.gov.justice.hmpps.prison.service.keyworker.KeyWorkerAllocationService;
 
@@ -953,15 +954,16 @@ public class BookingResource {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @ApiOperation(value = "The next visit for the offender.", notes = "The next visit for the offender.", nickname = "getBookingVisitsNext")
+        @ApiResponse(code = 204, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "The next visit for the offender.", notes = "The next visit for the offender. Will return 200 with no body if no next visit is scheduled", nickname = "getBookingVisitsNext")
     @GetMapping("/{bookingId}/visits/next")
     public VisitDetails getBookingVisitsNext(
         @PathVariable("bookingId") @ApiParam(value = "The offender booking id", required = true) final Long bookingId,
         @RequestParam(value = "withVisitors", required = false, defaultValue = "false") @ApiParam(value = "Toggle to return Visitors in response (or not).", required = false) final boolean withVisitors) {
-        return bookingService.getBookingVisitNext(bookingId, withVisitors);
+        return bookingService.getBookingVisitNext(bookingId, withVisitors).orElse(null);
     }
 
     @ApiOperation(value = "All scheduled appointments for offender.", notes = "All scheduled appointments for offender.", nickname = "getBookingsBookingIdAppointments")

@@ -8,8 +8,6 @@
   "visitTypeDescription": "Social Contact",
   "leadVisitor": "JOHN JOHNSON",
   "relationshipDescription": "Brother",
-  "startTime": "2022-01-20T10:00:00",
-  "endTime": "2022-01-20T11:00:00",
   "visitors": [
     {
       "relationship": "Brother",
