@@ -718,6 +718,21 @@ public class BookingResourceIntTest extends ResourceTest {
     }
 
     @Test
+    public void getVisitsWithVisitorsFilteredByCancellationReason() {
+        final var responseAll = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors?cancellationReason=", GET,
+            createHttpEntity(AuthToken.NORMAL_USER, null),
+            String.class, -1L);
+
+        assertThat(getBodyAsJsonContent(responseAll)).extractingJsonPathNumberValue("$.numberOfElements").isEqualTo(15);
+
+        final var responseLei = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors?cancellationReason=NSHOW", GET,
+            createHttpEntity(AuthToken.NORMAL_USER, null),
+            String.class, -1L);
+
+        assertThat(getBodyAsJsonContent(responseLei)).extractingJsonPathNumberValue("$.numberOfElements").isEqualTo(2);
+    }
+
+    @Test
     public void getNonAssociationDetails_victim_rival_gang_and_perpetrator() {
         final var response = testRestTemplate.exchange(
             "/api/bookings/-1/non-association-details",
