@@ -430,7 +430,7 @@ public class BookingRepository extends RepositoryBase {
                 EVENT_ROW_MAPPER);
     }
 
-    public VisitDetails getBookingVisitNext(final Long bookingId, final LocalDateTime from) {
+    public Optional<VisitDetails> getBookingVisitNext(final Long bookingId, final LocalDateTime from) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
         Objects.requireNonNull(from, "from is a required parameter");
 
@@ -440,9 +440,9 @@ public class BookingRepository extends RepositoryBase {
                     createParams("bookingId", bookingId, "fromDate", DateTimeConverter.fromLocalDateTime(from)),
                     VISIT_ROW_MAPPER);
             result.setLeadVisitor(StringUtils.trimToNull(result.getLeadVisitor()));
-            return result;
+            return Optional.of(result);
         } catch (final EmptyResultDataAccessException e) {
-            return null;
+            return Optional.empty();
         }
     }
 

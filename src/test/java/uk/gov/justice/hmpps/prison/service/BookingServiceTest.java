@@ -482,6 +482,8 @@ public class BookingServiceTest {
                 .visitType("SOC")
                 .visitTypeDescription("Social")
                 .leadVisitor("John Smith")
+                .searchType("FULL")
+                .searchTypeDescription("Full Search")
                 .build());
 
         var page = new PageImpl<>(visits);
@@ -552,6 +554,8 @@ public class BookingServiceTest {
                                         .relationship("FRI")
                                         .relationshipDescription("Friend")
                                         .attended(true)
+                                        .searchType("FULL")
+                                        .searchTypeDescription("Full Search")
                                         .build())
                         .visitors(List.of(
                                 Visitor

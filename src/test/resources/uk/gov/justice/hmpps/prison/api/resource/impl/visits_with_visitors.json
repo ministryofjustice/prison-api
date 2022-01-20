@@ -144,24 +144,26 @@
         "location": "Visiting Room",
         "prison": "Leeds",
         "attended": true,
-        "eventStatus": "SCH",
-        "eventStatusDescription": "Scheduled (Approved)",
-        "completionStatus": "SCH",
-        "completionStatusDescription": "Scheduled",
+        "eventStatus": "COMP",
+        "eventStatusDescription": "Completed",
+        "completionStatus": "NORM",
+        "completionStatusDescription": "Normal Completion",
         "visitType": "SCON",
         "visitTypeDescription": "Social Contact",
         "startTime": "2019-06-29T01:00:00",
         "endTime": "2019-06-29T01:00:00",
         "eventOutcome": "ATT",
-        "eventOutcomeDescription": "Attended"
+        "eventOutcomeDescription": "Attended",
+        "searchType": "FULL",
+        "searchTypeDescription": "Full Search"
       }
     }
   ],
   "pageable": {
     "sort": {
       "empty": true,
-      "unsorted": true,
-      "sorted": false
+      "sorted": false,
+      "unsorted": true
     },
     "offset": 0,
     "pageNumber": 0,
@@ -170,14 +172,14 @@
     "unpaged": false
   },
   "last": true,
-  "totalPages": 1,
   "totalElements": 8,
+  "totalPages": 1,
   "size": 20,
   "number": 0,
   "sort": {
     "empty": true,
-    "unsorted": true,
-    "sorted": false
+    "sorted": false,
+    "unsorted": true
   },
   "first": true,
   "numberOfElements": 8,

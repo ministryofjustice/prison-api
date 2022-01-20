@@ -123,21 +123,21 @@ public class BookingRepositoryTest {
 
     @Test
     public void testGetBookingVisitNextSameDay() {
-        final var visit = repository.getBookingVisitNext(-1L, LocalDateTime.parse("2016-12-11T14:00"));
+        final var visit = repository.getBookingVisitNext(-1L, LocalDateTime.parse("2016-12-11T14:00")).orElseThrow();
 
         assertVisitDetails(visit);
     }
 
     @Test
     public void testGetBookingVisitNextDifferentDay() {
-        final var visit = repository.getBookingVisitNext(-1L, LocalDateTime.parse("2016-12-10T17:00"));
+        final var visit = repository.getBookingVisitNext(-1L, LocalDateTime.parse("2016-12-10T17:00")).orElseThrow();
 
         assertVisitDetails(visit);
     }
 
     @Test
     public void testGetBookingVisitNextMultipleCandidates() {
-        final var visit = repository.getBookingVisitNext(-1L, LocalDateTime.parse("2017-11-12T00:00"));
+        final var visit = repository.getBookingVisitNext(-1L, LocalDateTime.parse("2017-11-12T00:00")).orElseThrow();
 
         assertThat(visit).isNotNull();
         assertThat(visit.getStartTime().toString()).isEqualTo("2017-11-13T14:30");
@@ -150,14 +150,14 @@ public class BookingRepositoryTest {
     public void testGetBookingVisitNextNonexistentBooking() {
         final var visit = repository.getBookingVisitNext(-99L, LocalDateTime.parse("2016-12-11T16:00:00"));
 
-        assertThat(visit).isNull();
+        assertThat(visit).isEmpty();
     }
 
     @Test
     public void testGetBookingVisitNextLateDate() {
         final var visit = repository.getBookingVisitNext(-1L, LocalDateTime.parse("2021-12-11T16:00:00"));
 
-        assertThat(visit).isNull();
+        assertThat(visit).isEmpty();
     }
 
     @Test
