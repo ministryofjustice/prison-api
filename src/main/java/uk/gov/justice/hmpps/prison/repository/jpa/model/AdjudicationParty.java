@@ -26,6 +26,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
@@ -89,4 +90,8 @@ public class AdjudicationParty extends AuditableEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PERSON_ID")
     private Person person;
+
+    public Long stafqqf() {
+        return staffId != null ? staffId.getStaffId() : null;
+    }
 }

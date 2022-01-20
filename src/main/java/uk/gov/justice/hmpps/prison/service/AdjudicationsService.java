@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -299,10 +300,21 @@ public class AdjudicationsService {
             .statement(adjudication.getIncidentDetails())
             .offenceCodes(transformToOffenceCodes(offenderPartyDetails))
             .createdByUserId(adjudication.getCreatedByUserId())
+            .victimStaffIds(adjudication.getVictimsStaff().stream().map(
+                s -> Optional.ofNullable(s).map(Staff::getStaffId).orElse(null)
+            ).toList())
             .build();
     }
 
-    Adjudication updateAncillaryAdjudicationParties(
+    private List<String> transformToOffenceCodes(Optional<AdjudicationParty> offenderPartyDetails) {
+        if (!offenderPartyDetails.isPresent()) {
+            return null;
+        }
+        final var adjudicationCharges = offenderPartyDetails.get().getCharges();
+        return adjudicationCharges.stream().map(c -> c.getOffenceType().getOffenceCode()).collect(Collectors.toList());
+    }
+
+    private Adjudication updateAncillaryAdjudicationParties(
         @NotNull Adjudication adjudication,
         @NotNull List<Long> victimStaffIds,
         @NotNull List<String> victimOffenderIds,
@@ -328,24 +340,20 @@ public class AdjudicationsService {
         adjudication.getParties().clear();
         adjudication.getParties().add(offenderParty.get());
         adjudication.getParties().addAll(remainingAdjudicationParties);
+        // There is a database trigger AGENCY_INCIDENT_PARTIES_T1 intended to maintain the uniqueness of offender bookings
+        // If we do not flush at this point then hibernate batch SQL generated may add a new row before deleting an old
+        // one which violates the trigger - so we need to flush here to ensure ordering.
+        entityManager.flush();
 
         var newAdjudicationParties = newAncillaryAdjudicationParties(victimStaff, victimOffenderBookings, connectedOffenderBookings, adjudication);
         newAdjudicationParties.forEach(newAdjudicationParty -> {
-                // We have to do this in order that we do not get an error with database trigger AGENCY_INCIDENT_PARTIES_T1
-                adjudication.getParties().add(newAdjudicationParty);
-                entityManager.flush();
-            });
+            adjudication.getParties().add(newAdjudicationParty);
+            // Oracle gives an error if we do not flush before each insertion because if these inserts are batched
+            // it cannot run the trigger AGENCY_INCIDENT_PARTIES_T1
+            entityManager.flush();
+        });
         return adjudication;
     }
-
-    private List<String> transformToOffenceCodes(Optional<AdjudicationParty> offenderPartyDetails) {
-        if (!offenderPartyDetails.isPresent()) {
-            return null;
-        }
-        final var adjudicationCharges = offenderPartyDetails.get().getCharges();
-        return adjudicationCharges.stream().map(c -> c.getOffenceType().getOffenceCode()).collect(Collectors.toList());
-    }
-
 
     private List<AdjudicationParty> newAncillaryAdjudicationParties(
         List<Staff> requiredVictimStaff,
@@ -356,28 +364,32 @@ public class AdjudicationsService {
         var currentDateTime = LocalDateTime.now(clock);
         AtomicReference<Long> sequence = new AtomicReference<>(adjudication.getMaxSequence());
 
-        var newVictimStaff = victimStaffIdsToAdd(requiredVictimStaff, adjudication.getVictimsStaff()).stream()
+        var newVictimStaff = idsToAdd(requiredVictimStaff, adjudication.getVictimsStaff(), Staff::getStaffId).stream()
             .map(staffId -> newVictimStaffAdjudicationParty(
                     adjudication,
                     sequence,
                     currentDateTime,
                     staffWithId(requiredVictimStaff, staffId).get()));
 
-        var newVictimOffenders = offenderBookingIdsToAdd(requiredVictimOffenderBookings, adjudication.getVictimsOffenders()).stream()
+        var newVictimOffenders = idsToAdd(requiredVictimOffenderBookings, adjudication.getVictimsOffenderBookings(), OffenderBooking::getBookingId).stream()
             .map(offenderBookingId -> newVictimOffenderAdjudicationParty(
                 adjudication,
                 sequence,
                 currentDateTime,
                 offenderBookingWithId(requiredVictimOffenderBookings, offenderBookingId).get()));
 
-        var newConnectedOffenders = offenderBookingIdsToAdd(requiredConnectedOffenderBookings, adjudication.getConnectedOffenders()).stream()
+        var newConnectedOffenders = idsToAdd(requiredConnectedOffenderBookings, adjudication.getConnectedOffenderBookings(), OffenderBooking::getBookingId).stream()
             .map(offenderBookingId -> newConnectedOffenderAdjudicationParty(
                     adjudication,
                     sequence,
                     currentDateTime,
                     offenderBookingWithId(requiredConnectedOffenderBookings, offenderBookingId).get()));
 
-        return Stream.of(newVictimStaff, newVictimOffenders, newConnectedOffenders).flatMap(Function.identity()).toList();
+        return Stream.of(
+            newVictimStaff,
+            newVictimOffenders,
+            newConnectedOffenders
+        ).flatMap(Function.identity()).toList();
     }
 
 
@@ -387,18 +399,24 @@ public class AdjudicationsService {
         List<OffenderBooking> requiredConnectedOffenderBookings,
         Adjudication adjudication
     ) {
-        var remainingVictimsStaff = new ArrayList<>(adjudication.getVictimsStaff());
-        var remainingVictimsOffender = new ArrayList<>(adjudication.getVictimsOffenders());
-        var remainingConnectedOffenders = new ArrayList<>(adjudication.getConnectedOffenders());
+        var remainingVictimsStaffParties = new ArrayList<>(adjudication.getVictimsStaffParties());
+        var remainingVictimsOffenderParties = new ArrayList<>(adjudication.getVictimsOffenderParties());
+        var remainingConnectedOffendersParties = new ArrayList<>(adjudication.getConnectedOffenderParties());
 
-        victimStaffIdsToRemove(requiredVictimStaff, adjudication.getVictimsStaff())
-            .forEach(staffId -> remove(remainingVictimsStaff, p -> staffId.equals(p.getStaffId().getStaffId())));
-        offenderBookingIdsToRemove(requiredVictimOffenderBookings, adjudication.getVictimsOffenders())
-            .forEach(offenderBookingId -> remove(remainingVictimsOffender, p -> offenderBookingId.equals(p.getOffenderBooking().getBookingId())));
-        offenderBookingIdsToRemove(requiredConnectedOffenderBookings, adjudication.getConnectedOffenders())
-            .forEach(offenderBookingId -> remove(remainingConnectedOffenders, p -> offenderBookingId.equals(p.getOffenderBooking().getBookingId())));
+        idsToRemove(requiredVictimStaff, adjudication.getVictimsStaff(), Staff::getStaffId)
+            .forEach(staffId -> remove(remainingVictimsStaffParties, AdjudicationParty::stafqqf, staffId);
 
-        return List.of(remainingVictimsStaff, remainingVictimsOffender, remainingConnectedOffenders).stream().flatMap(Collection::stream).toList();
+        idsToRemove(requiredVictimOffenderBookings, adjudication.getVictimsOffenderBookings(), OffenderBooking::getBookingId)
+            .forEach(offenderBookingId -> remove(remainingVictimsOffenderParties, p -> offenderBookingId.equals(p.getOffenderBooking().getBookingId())));
+
+        idsToRemove(requiredConnectedOffenderBookings, adjudication.getConnectedOffenderBookings(), OffenderBooking::getBookingId)
+            .forEach(offenderBookingId -> remove(remainingConnectedOffendersParties, p -> offenderBookingId.equals(p.getOffenderBooking().getBookingId())));
+
+        return List.of(
+            remainingVictimsStaffParties,
+            remainingVictimsOffenderParties,
+            remainingConnectedOffendersParties
+            ).stream().flatMap(Collection::stream).toList();
     }
 
     private Optional<Staff> staffWithId(List<Staff> staff, Long id) {
@@ -434,58 +452,33 @@ public class AdjudicationsService {
             .partyAddedDate(currentDateTime.toLocalDate());
     }
 
-    private Set<Long> offenderBookingIdsToRemove(List<OffenderBooking> offenderBookingsNow, List<AdjudicationParty> currentAdjudicationParties) {
-        return idsToRemove(
-            offenderBookingsNow.stream().map(OffenderBooking::getBookingId).toList(),
-            currentAdjudicationParties.stream().map(a -> a.getOffenderBooking().getBookingId()).toList());
+    private <T> Set<Long> idsToAdd(List<T> required, List<T> current, Function<T, Long> toId) {
+        return idsToAdd(required.stream().map(toId).toList(), current.stream().map(toId).toList());
     }
 
-    private Set<Long> offenderBookingIdsToAdd(List<OffenderBooking> offenderBookingsNow, List<AdjudicationParty> currentAdjudicationParties) {
-        return idsToAdd(
-            offenderBookingsNow.stream().map(OffenderBooking::getBookingId).toList(),
-            currentAdjudicationParties.stream().map(a -> a.getOffenderBooking().getBookingId()).toList());
-    }
-
-    private Set<Long> victimStaffIdsToAdd(List<Staff> staffVictimsNow, List<AdjudicationParty> currentAdjudicationParties) {
-        return idsToAdd(
-            staffVictimsNow.stream().map(Staff::getStaffId).toList(),
-            currentAdjudicationParties.stream().map(a -> a.getStaffId().getStaffId()).toList());
-    }
-
-    private Set<Long> victimStaffIdsToRemove(List<Staff> staffVictimsNow, List<AdjudicationParty> currentAdjudicationParties) {
-        return idsToRemove(
-            staffVictimsNow.stream().map(Staff::getStaffId).toList(),
-            currentAdjudicationParties.stream().map(a -> a.getStaffId().getStaffId()).toList());
+    private <T> Set<Long> idsToRemove(List<T> required, List<T> current, Function<T, Long> toId) {
+        return idsToRemove(required.stream().map(toId).toList(), current.stream().map(toId).toList());
     }
 
     private Set<Long> idsToAdd(List<Long> desired, List<Long> current) {
-        return addAndRemoveWithCount(desired, current).entrySet().stream()
-            .filter(e -> e.getValue() > 0)
-            .map(Entry::getKey)
-            .collect(Collectors.toSet());
+        var toAdd = new HashSet<>(desired);
+        toAdd.removeAll(current);
+        return toAdd;
     }
 
     private Set<Long> idsToRemove(List<Long> desired, List<Long> current) {
-        return addAndRemoveWithCount(desired, current).entrySet().stream()
-            .filter(e -> e.getValue() < 0)
-            .map(Entry::getKey)
-            .collect(Collectors.toSet());
-    }
-
-    private Map<Long, Long> addAndRemoveWithCount(List<Long> desired, List<Long> current){
-        var currentIdsWithCount = current.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-        var desiredIdsWithCount = desired.stream().collect(Collectors.groupingBy(staffId -> staffId, Collectors.counting()));
-        var unionIds = List.of(desired, current).stream().flatMap(Collection::stream).distinct().collect(Collectors.toList());
-        var toAddAndRemoveWithCount = unionIds.stream().map(id -> {
-            var currentCount = currentIdsWithCount.containsKey(id) ? currentIdsWithCount.get(id) : 0;
-            var desiredCount = desiredIdsWithCount.containsKey(id) ? desiredIdsWithCount.get(id) : 0;
-            return Pair.of(id, desiredCount - currentCount);
-        }).collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
-        return toAddAndRemoveWithCount;
+        var toRemove = new HashSet<>(current);
+        toRemove.removeAll(desired);
+        return toRemove;
     }
 
     private <T> void remove(List<T> all, Predicate<T> predicate) {
         var toRemove = all.stream().filter(predicate).toList();
+        all.removeAll(toRemove);
+    }
+
+    private <T> void remove(List<T> all, Function<T, Long> toId, Long id) {
+        var toRemove = all.stream().filter(t -> id.equals(toId.apply(t))).toList();
         all.removeAll(toRemove);
     }
 }
