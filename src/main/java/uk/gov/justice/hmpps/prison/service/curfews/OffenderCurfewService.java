@@ -13,6 +13,7 @@ import uk.gov.justice.hmpps.prison.api.model.HomeDetentionCurfew;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceCalc;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.repository.OffenderCurfewRepository;
+import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.BookingService;
 import uk.gov.justice.hmpps.prison.service.CaseloadToAgencyMappingService;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
@@ -124,13 +125,13 @@ public class OffenderCurfewService {
         return ocs.map(OffenderCurfew::getOffenderBookId).collect(toSet());
     }
 
-    @PreAuthorize("hasRole('SYSTEM_USER')")
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     public HomeDetentionCurfew getLatestHomeDetentionCurfew(final long bookingId) {
         return offenderCurfewRepository.getLatestHomeDetentionCurfew(bookingId, StatusTrackingCodes.REFUSED_REASON_CODES)
                 .orElseThrow(() -> new EntityNotFoundException("No 'latest' Home Detention Curfew found for bookingId " + bookingId));
     }
 
-    @PreAuthorize("hasRole('SYSTEM_USER')")
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     public List<HomeDetentionCurfew> getBatchLatestHomeDetentionCurfew(final List<Long> bookingIds) {
         return offenderCurfewRepository.getBatchLatestHomeDetentionCurfew(bookingIds, StatusTrackingCodes.REFUSED_REASON_CODES);
     }
