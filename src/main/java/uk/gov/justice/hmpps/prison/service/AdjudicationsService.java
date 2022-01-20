@@ -46,6 +46,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
@@ -300,9 +301,18 @@ public class AdjudicationsService {
             .statement(adjudication.getIncidentDetails())
             .offenceCodes(transformToOffenceCodes(offenderPartyDetails))
             .createdByUserId(adjudication.getCreatedByUserId())
-            .victimStaffIds(adjudication.getVictimsStaff().stream().map(
-                s -> Optional.ofNullable(s).map(Staff::getStaffId).orElse(null)
-            ).toList())
+            .victimStaffIds(adjudication.getVictimsStaff().stream()
+                .map(s -> Optional.ofNullable(s).map(Staff::getStaffId).orElse(null))
+                .filter(Objects::nonNull)
+                .toList())
+            .victimOffenderIds(adjudication.getVictimsOffenderBookings().stream()
+                .map(b -> Optional.ofNullable(b).map(OffenderBooking::getOffender).map(Offender::getNomsId).orElse(null))
+                .filter(Objects::nonNull)
+                .toList())
+            .connectedOffenderIds(adjudication.getConnectedOffenderBookings().stream()
+                .map(b -> Optional.ofNullable(b).map(OffenderBooking::getOffender).map(Offender::getNomsId).orElse(null))
+                .filter(Objects::nonNull)
+                .toList())
             .build();
     }
 
@@ -404,13 +414,13 @@ public class AdjudicationsService {
         var remainingConnectedOffendersParties = new ArrayList<>(adjudication.getConnectedOffenderParties());
 
         idsToRemove(requiredVictimStaff, adjudication.getVictimsStaff(), Staff::getStaffId)
-            .forEach(staffId -> remove(remainingVictimsStaffParties, AdjudicationParty::stafqqf, staffId);
+            .forEach(staffId -> remove(remainingVictimsStaffParties, AdjudicationParty::staffId, staffId));
 
         idsToRemove(requiredVictimOffenderBookings, adjudication.getVictimsOffenderBookings(), OffenderBooking::getBookingId)
-            .forEach(offenderBookingId -> remove(remainingVictimsOffenderParties, p -> offenderBookingId.equals(p.getOffenderBooking().getBookingId())));
+            .forEach(offenderBookingId -> remove(remainingVictimsOffenderParties, AdjudicationParty::offenderBookingId, offenderBookingId));
 
         idsToRemove(requiredConnectedOffenderBookings, adjudication.getConnectedOffenderBookings(), OffenderBooking::getBookingId)
-            .forEach(offenderBookingId -> remove(remainingConnectedOffendersParties, p -> offenderBookingId.equals(p.getOffenderBooking().getBookingId())));
+            .forEach(offenderBookingId -> remove(remainingConnectedOffendersParties, AdjudicationParty::offenderBookingId, offenderBookingId));
 
         return List.of(
             remainingVictimsStaffParties,
@@ -436,7 +446,7 @@ public class AdjudicationsService {
     private AdjudicationParty newVictimStaffAdjudicationParty(Adjudication adjudication, AtomicReference<Long> sequence, LocalDateTime currentDateTime, Staff victimStaff) {
         return newAdjudicationParty(adjudication, sequence, currentDateTime)
             .incidentRole(Adjudication.INCIDENT_ROLE_VICTIM)
-            .staffId(victimStaff).build();
+            .staff(victimStaff).build();
     }
 
     private AdjudicationParty newVictimOffenderAdjudicationParty(Adjudication adjudication, AtomicReference<Long> sequence, LocalDateTime currentDateTime, OffenderBooking offenderBooking) {
@@ -470,11 +480,6 @@ public class AdjudicationsService {
         var toRemove = new HashSet<>(current);
         toRemove.removeAll(desired);
         return toRemove;
-    }
-
-    private <T> void remove(List<T> all, Predicate<T> predicate) {
-        var toRemove = all.stream().filter(predicate).toList();
-        all.removeAll(toRemove);
     }
 
     private <T> void remove(List<T> all, Function<T, Long> toId, Long id) {

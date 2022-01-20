@@ -31,7 +31,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
@@ -113,13 +112,13 @@ public class Adjudication extends AuditableEntity {
     public List<AdjudicationParty> getVictimsStaffParties(){
         return parties.stream()
             .filter(p -> INCIDENT_ROLE_VICTIM.equals(p.getIncidentRole()))
-            .filter(p -> p.getStaffId() != null)
+            .filter(p -> p.getStaff() != null)
             .toList();
     }
 
     public List<Staff> getVictimsStaff() {
         return getVictimsStaffParties().stream()
-            .map(p -> p.getStaffId())
+            .map(p -> p.getStaff())
             .toList();
     }
 
