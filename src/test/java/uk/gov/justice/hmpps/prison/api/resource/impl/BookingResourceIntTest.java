@@ -23,6 +23,7 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -844,6 +845,31 @@ public class BookingResourceIntTest extends ResourceTest {
                 });
 
             assertThatJsonFileAndStatus(response, 200, "proven_adjudications.json");
+        }
+    }
+
+    @Nested
+    public class getBookingVisitsPrisons {
+        @Test
+        public void success() {
+            final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits/prisons", GET,
+                createHttpEntity(AuthToken.NORMAL_USER, null),
+                String.class, -1L);
+
+            final var bodyAsJsonContent = getBodyAsJsonContent(response);
+            assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$[0].prisonId").isEqualTo("LEI");
+            assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$[0].prisonDescription").isEqualTo("LEEDS");
+            assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$[1].prisonId").isEqualTo("MDI");
+            assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$[1].prisonDescription").isEqualTo("MOORLAND");
+        }
+
+        @Test
+        public void forbidden() {
+            final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits/prisons", GET,
+                createHttpEntity(createJwt("NO_USER", Collections.emptyList()), null),
+                String.class, -1L);
+
+            assertThatStatus(response, 404);
         }
     }
 }

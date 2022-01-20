@@ -6,10 +6,10 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitInformation;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationRepository.Prison;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl;
 
@@ -104,6 +104,13 @@ public class VisitInformationRepositoryTest {
         final var moorlandVisits = repository.findAll(VisitInformationFilter.builder().bookingId(-1L).prisonId("MDI").build(), pageable);
         assertThat(moorlandVisits).hasSize(1);
         assertThat(moorlandVisits).extracting(VisitInformation::getPrisonDescription).allMatch((it) -> it.equals("MOORLAND"));
+    }
+
+    @Test
+    public void findByBookingIdGroupByPrisonId() {
+        final var prisons = repository.findByBookingIdGroupByPrisonId(-1);
+        assertThat(prisons).extracting(Prison::getPrisonId).containsExactly("LEI", "MDI");
+        assertThat(prisons).extracting(Prison::getPrisonDescription).containsExactly("LEEDS", "MOORLAND");
     }
 }
 

@@ -81,6 +81,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRep
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationRepository.Prison;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitorRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
@@ -1118,4 +1119,8 @@ public class BookingService {
             .collect(Collectors.toList()));
     }
 
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    public List<Prison> getBookingVisitsPrisons(final Long bookingId) {
+        return visitInformationRepository.findByBookingIdGroupByPrisonId(bookingId);
+    }
 }
