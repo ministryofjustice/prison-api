@@ -9,7 +9,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.hamcrest.MockitoHamcrest;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication;
@@ -52,6 +51,7 @@ import static java.time.Instant.ofEpochMilli;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -314,29 +314,41 @@ public class AdjudicationsServiceTest {
         }
 
         @Test
-        public void canCallCreateWithAncillary() {
+        public void canCallCreateWithAncillaryAdjudications() {
             final var mockDataProvider = new MockDataProvider();
-
             mockDataProvider.setupMocks();
 
             final var newAdjudication = generateNewAdjudicationRequest_WithAncillaryAdjudications(
                 mockDataProvider.booking.getOffender().getNomsId(),
-                mockDataProvider.internalLocation.getLocationId());
-            when(bookingRepository.findByOffenderNomsIdAndBookingSequence(any(), any())).thenAnswer(
+                mockDataProvider.internalLocation.getLocationId()
+            );
+            when(bookingRepository.findByOffenderNomsIdAndBookingSequence(argThat(
+                notTheMainOffender -> !notTheMainOffender.equals(mockDataProvider.booking.getOffender().getNomsId())), any())
+            ).thenAnswer(
                 request -> Optional.of(
                     OffenderBooking.builder()
-                        .bookingId((long)request.getArgument(0).hashCode()).build())
+                        .bookingId((long)request.getArgument(0).hashCode())
+                        .build()
+                )
             );
             when(staffUserAccountRepository.findByStaff_StaffId(any())).thenAnswer(
-                request -> Optional.of(StaffUserAccount.builder().staff(Staff.builder().staffId(request.getArgument(0)).build()).build()
-            ));
+                request -> Optional.of(StaffUserAccount.builder()
+                    .staff(Staff.builder()
+                        .staffId(request.getArgument(0))
+                        .build())
+                    .build()
+                )
+            );
             when(adjudicationsRepository.save(any())).thenAnswer(
                 request -> request.getArgument(0)
             );
 
             final var returnedAdjudication = service.createAdjudication(newAdjudication.getOffenderNo(), newAdjudication);
-
         }
+    }
+
+    @Nested
+    public class CreateAdjudication_WithAncillaryAdjudicationParties {
 
     }
 
