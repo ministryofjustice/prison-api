@@ -462,8 +462,8 @@ public class BookingService {
                                             .eventStatusDescription(visitInformation.getEventStatusDescription())
                                             .leadVisitor(visitInformation.getLeadVisitor())
                                             .location(visitInformation.getLocation())
-                                            .relationship(relationshipType != null ? relationshipType.getCode() : null)
-                                            .relationshipDescription(relationshipType != null ? relationshipType.getDescription() : null)
+                                            .relationship(relationshipType.map(RelationshipType::getCode).orElse(null))
+                                            .relationshipDescription(relationshipType.map(RelationshipType::getDescription).orElse(null))
                                             .prison(LocationProcessor.formatLocation(visitInformation.getPrisonDescription()))
                                             .completionStatus(visitInformation.getVisitStatus())
                                             .completionStatusDescription(visitInformation.getVisitStatusDescription())
@@ -490,20 +490,19 @@ public class BookingService {
                     .lastName(visitor.getLastName())
                     .leadVisitor(visitor.getLeadVisitor().equals("Y"))
                     .personId(visitor.getPersonId())
-                    .relationship(contactRelationship.getDescription())
+                    .relationship(contactRelationship.map(RelationshipType::getDescription).orElse(null))
                     .attended("ATT".equals(visitor.getEventOutcome()))
                     .build();
             })
             .collect(Collectors.toList());
     }
 
-    private RelationshipType getRelationshipType(final Long bookingId, final Long personId) {
-        if (personId == null) return null;
+    private Optional<RelationshipType> getRelationshipType(final Long bookingId, final Long personId) {
+        if (personId == null) return Optional.empty();
         return offenderContactPersonsRepository.findAllByPersonIdAndOffenderBooking_BookingId(personId, bookingId)
             .stream()
-            .sorted(Comparator.comparing(OffenderContactPerson::lastUpdatedDateTime).reversed())
-            .collect(toList())
-            .get(0).getRelationshipType();
+            .max(Comparator.comparing(OffenderContactPerson::lastUpdatedDateTime))
+            .map(OffenderContactPerson::getRelationshipType);
     }
 
     @VerifyBookingAccess
