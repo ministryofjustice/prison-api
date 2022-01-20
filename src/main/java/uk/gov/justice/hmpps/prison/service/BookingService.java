@@ -467,6 +467,8 @@ public class BookingService {
                                             .completionStatus(visitInformation.getVisitStatus())
                                             .completionStatusDescription(visitInformation.getVisitStatusDescription())
                                             .attended("ATT".equals(visitInformation.getEventOutcome()))
+                                            .searchType(visitInformation.getSearchType())
+                                            .searchTypeDescription(visitInformation.getSearchTypeDescription())
                                             .build())
                     .visitors(visitorsList)
                     .build();
@@ -518,11 +520,13 @@ public class BookingService {
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
-    public VisitDetails getBookingVisitNext(final Long bookingId, final boolean withVisitors) {
+    public Optional<VisitDetails> getBookingVisitNext(final Long bookingId, final boolean withVisitors) {
         final var visit = bookingRepository.getBookingVisitNext(bookingId, LocalDateTime.now());
         if (withVisitors) {
-            final var visitors = getVisitors(bookingId, visit.getId());
-            visit.setVisitors(visitors);
+            visit.ifPresent((visitDetails) -> {
+                final var visitors = getVisitors(bookingId, visitDetails.getId());
+                visitDetails.setVisitors(visitors);
+            });
         }
         return visit;
     }
