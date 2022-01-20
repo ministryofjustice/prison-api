@@ -86,6 +86,7 @@ import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CaseNoteFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationRepository.Prison;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
@@ -983,6 +984,18 @@ public class BookingResource {
         @PathVariable("bookingId") @ApiParam(value = "The offender booking id", required = true) final Long bookingId,
         @RequestParam(value = "withVisitors", required = false, defaultValue = "false") @ApiParam(value = "Toggle to return Visitors in response (or not).", required = false) final boolean withVisitors) {
         return bookingService.getBookingVisitNext(bookingId, withVisitors).orElse(null);
+    }
+
+    @ApiResponses({
+        @ApiResponse(code = 204, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "The list of prisons for which there are visits for the specified booking.", notes = "To be used for filtering visits by prison", nickname = "getBookingVisitsPrisons")
+    @GetMapping("/{bookingId}/visits/prisons")
+    public List<Prison> getBookingVisitsPrisons(
+        @PathVariable("bookingId") @ApiParam(value = "The offender booking id", required = true) final Long bookingId) {
+        return bookingService.getBookingVisitsPrisons(bookingId);
     }
 
     @ApiOperation(value = "All scheduled appointments for offender.", notes = "All scheduled appointments for offender.", nickname = "getBookingsBookingIdAppointments")
