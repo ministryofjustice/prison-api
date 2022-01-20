@@ -80,6 +80,7 @@ import uk.gov.justice.hmpps.prison.api.model.VisitBalances;
 import uk.gov.justice.hmpps.prison.api.model.VisitDetails;
 import uk.gov.justice.hmpps.prison.api.model.VisitWithVisitors;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSummary;
+import uk.gov.justice.hmpps.prison.api.model.adjudications.ProvenAdjudicationSummary;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
@@ -862,6 +863,22 @@ public class BookingResource {
     public AdjudicationSummary getAdjudicationSummary(@PathVariable("bookingId") @ApiParam(value = "The offender booking id", required = true) final Long bookingId, @RequestParam(value = "awardCutoffDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam("Only awards ending on or after this date (in YYYY-MM-DD format) will be considered.") final LocalDate awardCutoffDate, @RequestParam(value = "adjudicationCutoffDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam("Only proved adjudications ending on or after this date (in YYYY-MM-DD format) will be counted.") final LocalDate adjudicationCutoffDate) {
         return adjudicationService.getAdjudicationSummary(bookingId,
                 awardCutoffDate, adjudicationCutoffDate);
+    }
+
+    @ApiResponses({
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Offender proven adjudications count")
+    @PostMapping("/proven-adjudications")
+    @PreAuthorize("hasRole('VIEW_ADJUDICATIONS')")
+    public List<ProvenAdjudicationSummary> getProvenAdjudicationSummaryForBookings(
+                @RequestParam(value = "adjudicationCutoffDate", required = false)
+                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                @ApiParam("Only proved adjudications ending on or after this date (in YYYY-MM-DD format) will be counted. Default is 3 months")
+                final LocalDate adjudicationCutoffDate,
+                @NotNull @RequestBody List<Long> bookingIds) {
+        return adjudicationService.getProvenAdjudications(bookingIds, adjudicationCutoffDate);
     }
 
     @ApiResponses({
