@@ -108,4 +108,12 @@ public class VisitDetails {
     @ApiModelProperty(value = "List of visitors on visit")
     @JsonProperty("visitors")
     private List<Visitor> visitors;
+
+    @ApiModelProperty(value = "Type of search performed - mandatory if visit completed (SEARCH_LEVEL reference code)", example = "FULL")
+    @JsonProperty("searchType")
+    private String searchType;
+
+    @ApiModelProperty(value = "Description of searchType code")
+    @JsonProperty("searchTypeDescription")
+    private String searchTypeDescription;
 }

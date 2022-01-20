@@ -3,21 +3,29 @@
     {
       "visitors": [],
       "visitDetails": {
+        "location": "Visiting Room",
+        "prison": "Leeds",
+        "attended": false,
+        "eventStatus": "CANC",
+        "eventStatusDescription": "Cancelled",
+        "completionStatus": "CANC",
+        "completionStatusDescription": "Cancelled",
         "visitType": "SCON",
         "visitTypeDescription": "Social Contact",
         "startTime": "2017-06-10T14:30:00",
         "endTime": "2017-06-10T15:30:00",
-        "location": "Visiting Room",
-        "eventOutcome": "ATT",
-        "eventOutcomeDescription": "Attended"
+        "eventOutcome": "ABS",
+        "eventOutcomeDescription": "Absence",
+        "cancellationReason": "VISCANC",
+        "cancelReasonDescription": "Visitor Cancelled"
       }
     }
   ],
   "pageable": {
     "sort": {
-      "unsorted": true,
+      "empty": true,
       "sorted": false,
-      "empty": true
+      "unsorted": true
     },
     "offset": 0,
     "pageNumber": 0,
@@ -25,15 +33,15 @@
     "paged": true,
     "unpaged": false
   },
-  "totalPages": 1,
   "last": true,
   "totalElements": 1,
+  "totalPages": 1,
   "size": 20,
   "number": 0,
   "sort": {
-    "unsorted": true,
+    "empty": true,
     "sorted": false,
-    "empty": true
+    "unsorted": true
   },
   "first": true,
   "numberOfElements": 1,

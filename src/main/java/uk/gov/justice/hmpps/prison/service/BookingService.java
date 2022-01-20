@@ -467,6 +467,8 @@ public class BookingService {
                                             .completionStatus(visitInformation.getVisitStatus())
                                             .completionStatusDescription(visitInformation.getVisitStatusDescription())
                                             .attended("ATT".equals(visitInformation.getEventOutcome()))
+                                            .searchType(visitInformation.getSearchType())
+                                            .searchTypeDescription(visitInformation.getSearchTypeDescription())
                                             .build())
                     .visitors(visitorsList)
                     .build();
