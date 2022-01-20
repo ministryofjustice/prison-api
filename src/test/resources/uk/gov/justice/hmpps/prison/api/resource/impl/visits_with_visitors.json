@@ -93,6 +93,13 @@
     {
       "visitors": [
         {
+          "attended": true,
+          "personId": -8,
+          "lastName": "JONES",
+          "firstName": "THADDEUS",
+          "leadVisitor": true
+        },
+        {
           "relationship": "Brother",
           "attended": true,
           "personId": -3,
@@ -103,7 +110,6 @@
         }
       ],
       "visitDetails": {
-        "relationship": "BRO",
         "location": "Carpentry Workshop",
         "prison": "Leeds",
         "attended": true,
@@ -113,8 +119,43 @@
         "completionStatusDescription": "Scheduled",
         "visitType": "SCON",
         "visitTypeDescription": "Social Contact",
-        "leadVisitor": "JOHN JOHNSON",
-        "relationshipDescription": "Brother",
+        "leadVisitor": "THADDEUS JONES",
+        "startTime": "2019-06-30T10:00:00",
+        "endTime": "2019-06-30T11:00:00",
+        "eventOutcome": "ATT",
+        "eventOutcomeDescription": "Attended"
+      }
+    },
+    {
+      "visitors": [
+        {
+          "attended": true,
+          "personId": -8,
+          "lastName": "JONES",
+          "firstName": "THADDEUS",
+          "leadVisitor": true
+        },
+        {
+          "relationship": "Brother",
+          "attended": true,
+          "personId": -3,
+          "lastName": "JOHNSON",
+          "firstName": "JOHN",
+          "dateOfBirth": "1956-02-28",
+          "leadVisitor": true
+        }
+      ],
+      "visitDetails": {
+        "location": "Carpentry Workshop",
+        "prison": "Leeds",
+        "attended": true,
+        "eventStatus": "SCH",
+        "eventStatusDescription": "Scheduled (Approved)",
+        "completionStatus": "SCH",
+        "completionStatusDescription": "Scheduled",
+        "visitType": "SCON",
+        "visitTypeDescription": "Social Contact",
+        "leadVisitor": "THADDEUS JONES",
         "startTime": "2019-06-30T10:00:00",
         "endTime": "2019-06-30T11:00:00",
         "eventOutcome": "ATT",
@@ -162,8 +203,8 @@
   "pageable": {
     "sort": {
       "empty": true,
-      "sorted": false,
-      "unsorted": true
+      "unsorted": true,
+      "sorted": false
     },
     "offset": 0,
     "pageNumber": 0,
@@ -172,16 +213,16 @@
     "unpaged": false
   },
   "last": true,
-  "totalElements": 8,
   "totalPages": 1,
+  "totalElements": 9,
   "size": 20,
   "number": 0,
   "sort": {
     "empty": true,
-    "sorted": false,
-    "unsorted": true
+    "unsorted": true,
+    "sorted": false
   },
   "first": true,
-  "numberOfElements": 8,
+  "numberOfElements": 9,
   "empty": false
 }
