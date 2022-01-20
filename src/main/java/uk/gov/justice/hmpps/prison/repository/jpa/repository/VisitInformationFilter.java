@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.jpa.domain.Specification;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitInformation;
 
@@ -28,6 +29,7 @@ public class VisitInformationFilter implements Specification<VisitInformation> {
     private LocalDate toDate;
     private String visitType;
     private String visitStatus;
+    private String prisonId;
 
     public Predicate toPredicate(final Root<VisitInformation> root, final CriteriaQuery<?> query, final CriteriaBuilder cb) {
         final ImmutableList.Builder<Predicate> predicateBuilder = ImmutableList.builder();
@@ -50,6 +52,10 @@ public class VisitInformationFilter implements Specification<VisitInformation> {
 
         if (visitStatus != null) {
             predicateBuilder.add(cb.equal(root.get("visitStatus"), visitStatus));
+        }
+
+        if (StringUtils.isNotBlank(prisonId)) {
+            predicateBuilder.add(cb.equal(root.get("prisonId"), prisonId));
         }
 
         return cb.and(predicateBuilder.build().toArray(new Predicate[0]));

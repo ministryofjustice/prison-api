@@ -79,7 +79,7 @@ public class OffenderDatesServiceTest {
             .offenderBooking(offenderBooking)
             .reasonCode("UPDATE")
             .calculationDate(calculationDateTime)
-            .comments("CRD calculation ID: " + calculationUuid)
+            .comments("The information shown was calculated using the Calculate Release Dates service. The calculation ID is: " + calculationUuid)
             .staff(staff)
             .recordedDateTime(calculationDateTime)
             .recordedUser(staffUserAccount)

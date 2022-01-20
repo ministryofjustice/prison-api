@@ -124,7 +124,8 @@ public abstract class ResourceTest {
     protected void assertThatJsonFileAndStatus(final ResponseEntity<String> response, final int status, final String jsonFile) {
         assertThatStatus(response, status);
 
-        assertThat(getBodyAsJsonContent(response)).isEqualToJson(jsonFile);
+        final var bodyAsJsonContent = getBodyAsJsonContent(response);
+        assertThat(bodyAsJsonContent).isEqualToJson(jsonFile);
     }
 
     protected void assertThatJsonAndStatus(final ResponseEntity<String> response, final int status, final String json) {

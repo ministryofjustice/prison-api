@@ -101,6 +101,7 @@ import uk.gov.justice.hmpps.prison.service.IncidentService;
 import uk.gov.justice.hmpps.prison.service.InmateAlertService;
 import uk.gov.justice.hmpps.prison.service.InmateService;
 import uk.gov.justice.hmpps.prison.service.MovementsService;
+import uk.gov.justice.hmpps.prison.service.NoContentException;
 import uk.gov.justice.hmpps.prison.service.OffenderNonAssociationsService;
 import uk.gov.justice.hmpps.prison.service.keyworker.KeyWorkerAllocationService;
 
@@ -469,7 +470,9 @@ public class BookingResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation(value = "Offender IEP (Incentives & Earned Privileges) summary.", notes = "Offender IEP (Incentives & Earned Privileges) summary.", nickname = "getBookingIEPSummary")
     @GetMapping("/{bookingId}/iepSummary")
-    public PrivilegeSummary getBookingIEPSummary(@PathVariable("bookingId") @ApiParam(value = "The booking id of offender", required = true) final Long bookingId, @RequestParam(value = "withDetails", required = false, defaultValue = "false") @ApiParam(value = "Toggle to return IEP detail entries in response (or not).", required = true) final boolean withDetails) {
+    public PrivilegeSummary getBookingIEPSummary(
+        @PathVariable("bookingId") @ApiParam(value = "The booking id of offender", required = true) final Long bookingId,
+        @RequestParam(value = "withDetails", required = false, defaultValue = "false") @ApiParam(value = "Toggle to return IEP detail entries in response (or not).", required = false) final boolean withDetails) {
         return bookingService.getBookingIEPSummary(bookingId, withDetails);
     }
 
@@ -491,6 +494,17 @@ public class BookingResource {
     @GetMapping("/offenders/iepSummary")
     public Collection<PrivilegeSummary> getBookingIEPSummaryForOffenders(@RequestParam("bookings") @ApiParam(value = "The booking ids of offender", required = true) final List<Long> bookings, @RequestParam(value = "withDetails", required = false, defaultValue = "false") @ApiParam(value = "Toggle to return IEP detail entries in response (or not).", required = true) final boolean withDetails) {
         return bookingService.getBookingIEPSummary(bookings, withDetails).values();
+
+    }
+
+    @ApiResponses({
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Prisoners IEP (Incentives & Earned Privileges) summary for a list of booking IDs", notes = "Must have prisoner in users caseload access data")
+    @PostMapping("/iepSummary")
+    public Collection<PrivilegeSummary> getBookingIEPSummaryDetailForBookingIds(@NotNull @RequestBody @ApiParam(value = "The booking ids of prisoners", required = true) final List<Long> bookings) {
+        return bookingService.getBookingIEPSummary(bookings, true).values();
 
     }
 
@@ -879,7 +893,8 @@ public class BookingResource {
         @RequestParam(value = "fromDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam("Returned visits must be scheduled on or after this date (in YYYY-MM-DD format).") final LocalDate fromDate,
         @RequestParam(value = "toDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam("Returned visits must be scheduled on or before this date (in YYYY-MM-DD format).") final LocalDate toDate,
         @RequestParam(value = "visitType", required = false) @ApiParam(value = "Type of visit", allowableValues = "SCON, OFFI") final String visitType,
-        @RequestParam(value = "visitStatus", required = false) @ApiParam(name = "Status of visit. code from VIS_STS domain, e.g: Cancelled (CANC) or Scheduled (SCH)", example = "SCH") final String visitStatus,
+        @RequestParam(value = "visitStatus", required = false) @ApiParam(name = "Status of visit. code from VIS_COMPLETE domain, e.g: Cancelled (CANC) or Scheduled (SCH)", example = "SCH") final String visitStatus,
+        @RequestParam(value = "prisonId", required = false) @ApiParam(value = "The prison id", example = "MDI") final String prisonId,
         @RequestParam(value = "page", required = false) @ApiParam(value = "Target page number, zero being the first page", defaultValue = "0") final Integer pageIndex,
         @RequestParam(value = "size", required = false) @ApiParam(value = "The number of results per page", defaultValue = "20") final Integer pageSize) {
         final var pageIndexValue = ofNullable(pageIndex).orElse(0);
@@ -892,6 +907,7 @@ public class BookingResource {
             .toDate(toDate)
             .visitType(visitType)
             .visitStatus(visitStatus)
+            .prisonId(prisonId)
             .build(), pageRequest);
     }
 
@@ -938,13 +954,16 @@ public class BookingResource {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @ApiOperation(value = "The next visit for the offender.", notes = "The next visit for the offender.", nickname = "getBookingVisitsNext")
+        @ApiResponse(code = 204, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "The next visit for the offender.", notes = "The next visit for the offender. Will return 200 with no body if no next visit is scheduled", nickname = "getBookingVisitsNext")
     @GetMapping("/{bookingId}/visits/next")
-    public VisitDetails getBookingVisitsNext(@PathVariable("bookingId") @ApiParam(value = "The offender booking id", required = true) final Long bookingId) {
-        return bookingService.getBookingVisitNext(bookingId);
+    public VisitDetails getBookingVisitsNext(
+        @PathVariable("bookingId") @ApiParam(value = "The offender booking id", required = true) final Long bookingId,
+        @RequestParam(value = "withVisitors", required = false, defaultValue = "false") @ApiParam(value = "Toggle to return Visitors in response (or not).", required = false) final boolean withVisitors) {
+        return bookingService.getBookingVisitNext(bookingId, withVisitors).orElse(null);
     }
 
     @ApiOperation(value = "All scheduled appointments for offender.", notes = "All scheduled appointments for offender.", nickname = "getBookingsBookingIdAppointments")

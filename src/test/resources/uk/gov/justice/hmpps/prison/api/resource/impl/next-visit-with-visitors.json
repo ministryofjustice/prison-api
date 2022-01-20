@@ -1,0 +1,22 @@
+{
+  "relationship": "BRO",
+  "location": "Carpentry Workshop",
+  "attended": false,
+  "eventStatus": "SCH",
+  "eventStatusDescription": "Scheduled (Approved)",
+  "visitType": "SCON",
+  "visitTypeDescription": "Social Contact",
+  "leadVisitor": "JOHN JOHNSON",
+  "relationshipDescription": "Brother",
+  "visitors": [
+    {
+      "relationship": "Brother",
+      "attended": true,
+      "personId": -3,
+      "lastName": "JOHNSON",
+      "firstName": "JOHN",
+      "dateOfBirth": "1956-02-28",
+      "leadVisitor": true
+    }
+  ]
+}

@@ -723,7 +723,7 @@ public class AgencyResourceTest extends ResourceTest {
             httpEntity,
             new ParameterizedTypeReference<String>() {
             });
-        System.out.println(response);
+
         assertThatJsonFileAndStatus(response, 200, "cells_with_capacity.json");
     }
 
@@ -739,7 +739,7 @@ public class AgencyResourceTest extends ResourceTest {
             httpEntity,
             new ParameterizedTypeReference<String>() {
             });
-        System.out.println(response);
+
         assertThatJsonFileAndStatus(response, 200, "cells_with_capacity_filtered.json");
     }
 

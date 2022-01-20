@@ -1,0 +1,11 @@
+{
+  "relationship": "BRO",
+  "location": "Carpentry Workshop",
+  "attended": false,
+  "eventStatus": "SCH",
+  "eventStatusDescription": "Scheduled (Approved)",
+  "visitType": "SCON",
+  "visitTypeDescription": "Social Contact",
+  "leadVisitor": "JOHN JOHNSON",
+  "relationshipDescription": "Brother"
+}

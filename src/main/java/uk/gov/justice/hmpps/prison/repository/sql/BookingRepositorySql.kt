@@ -428,6 +428,7 @@ enum class BookingRepositorySql(val sql: String) {
   GET_NEXT_BOOKING_VISIT(
     """
         SELECT * FROM (SELECT
+                VISIT.OFFENDER_VISIT_ID ID,
                 VISITOR.EVENT_STATUS,
                 RC2.DESCRIPTION EVENT_STATUS_DESCRIPTION,
                 VISIT.START_TIME,
