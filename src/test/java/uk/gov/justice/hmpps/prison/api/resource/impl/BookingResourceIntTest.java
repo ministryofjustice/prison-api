@@ -858,9 +858,9 @@ public class BookingResourceIntTest extends ResourceTest {
 
             final var bodyAsJsonContent = getBodyAsJsonContent(response);
             assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$[0].prisonId").isEqualTo("LEI");
-            assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$[0].prisonDescription").isEqualTo("LEEDS");
+            assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$[0].prison").isEqualTo("Leeds");
             assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$[1].prisonId").isEqualTo("MDI");
-            assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$[1].prisonDescription").isEqualTo("MOORLAND");
+            assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$[1].prison").isEqualTo("Moorland");
         }
 
         @Test

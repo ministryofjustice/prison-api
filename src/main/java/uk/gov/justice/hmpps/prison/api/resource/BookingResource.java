@@ -64,6 +64,7 @@ import uk.gov.justice.hmpps.prison.api.model.PersonalCareNeeds;
 import uk.gov.justice.hmpps.prison.api.model.PhysicalAttributes;
 import uk.gov.justice.hmpps.prison.api.model.PhysicalCharacteristic;
 import uk.gov.justice.hmpps.prison.api.model.PhysicalMark;
+import uk.gov.justice.hmpps.prison.api.model.PrisonDetails;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerBookingSummary;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
 import uk.gov.justice.hmpps.prison.api.model.ProfileInformation;
@@ -993,7 +994,7 @@ public class BookingResource {
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @ApiOperation(value = "The list of prisons for which there are visits for the specified booking.", notes = "To be used for filtering visits by prison", nickname = "getBookingVisitsPrisons")
     @GetMapping("/{bookingId}/visits/prisons")
-    public List<Prison> getBookingVisitsPrisons(
+    public List<PrisonDetails> getBookingVisitsPrisons(
         @PathVariable("bookingId") @ApiParam(value = "The offender booking id", required = true) final Long bookingId) {
         return bookingService.getBookingVisitsPrisons(bookingId);
     }
