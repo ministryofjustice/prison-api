@@ -487,7 +487,7 @@ public class OffenderBooking extends AuditableEntity {
             .flatMap(pd -> pd.getValue().stream()
                 .max(Comparator.comparing(op -> op.getId().getSequence()))
                 .stream())
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public void incBookingSequence() {
@@ -526,14 +526,14 @@ public class OffenderBooking extends AuditableEntity {
         return externalMovements.stream()
             .sorted(Comparator.comparingLong(ExternalMovement::getMovementSequence)
                 .reversed())
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public List<OffenderImprisonmentStatus> getImprisonmentStatusesRecentFirst() {
         return imprisonmentStatuses.stream()
             .sorted(Comparator.comparingLong(OffenderImprisonmentStatus::getImprisonStatusSeq)
                 .reversed())
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public Long getNextImprisonmentStatusSequence() {
@@ -698,7 +698,7 @@ public class OffenderBooking extends AuditableEntity {
                 .active(e.isActive())
                 .build()
             )
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public List<BookingAdjustment> getBookingAdjustments() {
@@ -716,7 +716,7 @@ public class OffenderBooking extends AuditableEntity {
                 .active(e.isActive())
                 .build()
             )
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public static Integer getDaysForKeyDateAdjustmentsCode(final List<KeyDateAdjustment> adjustmentsList, final String code) {

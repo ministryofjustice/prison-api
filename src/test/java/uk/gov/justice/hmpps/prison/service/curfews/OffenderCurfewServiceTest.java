@@ -240,7 +240,7 @@ public class OffenderCurfewServiceTest {
         assertThat(eligibleOffenders
                 .stream()
                 .map(OffenderSentenceCalc::getBookingId)
-                .collect(Collectors.toList())
+                .toList()
         ).containsExactly(1L, 2L, 3L, 4L);
     }
 
@@ -285,7 +285,7 @@ public class OffenderCurfewServiceTest {
 
         final var curfews = offenderCurfewService.getBatchLatestHomeDetentionCurfew(bookingIds);
 
-        assertThat(curfews.stream().map(HomeDetentionCurfew::getId).collect(Collectors.toList()))
+        assertThat(curfews.stream().map(HomeDetentionCurfew::getId).toList())
             .containsExactly(1L, 2L, 3L);
     }
 
@@ -295,7 +295,7 @@ public class OffenderCurfewServiceTest {
         when(offenderCurfewRepository.getBatchLatestHomeDetentionCurfew(bookingIds, StatusTrackingCodes.REFUSED_REASON_CODES))
             .thenReturn(List.of());
         final var curfews = offenderCurfewService.getBatchLatestHomeDetentionCurfew(bookingIds);
-        assertThat(curfews.stream().map(HomeDetentionCurfew::getId).collect(Collectors.toList()))
+        assertThat(curfews.stream().map(HomeDetentionCurfew::getId).toList())
             .hasSize(0);
     }
 

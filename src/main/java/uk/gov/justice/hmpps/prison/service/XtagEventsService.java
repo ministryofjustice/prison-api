@@ -35,7 +35,7 @@ public class XtagEventsService {
         return xtagEventsRepository.findAll(fudgedXtagFilterOf(oeFilter)).stream()
                 .map(offenderEventsTransformer::offenderEventOf)
                 .map(this::addAdditionalEventData)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private OffenderEventsFilter fudgedXtagFilterOf(final OffenderEventsFilter oeFilter) {

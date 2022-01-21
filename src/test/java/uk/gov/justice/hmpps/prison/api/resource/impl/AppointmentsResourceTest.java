@@ -317,7 +317,7 @@ public class AppointmentsResourceTest extends ResourceTest {
                 .bookingId(id)
                 .comment("Comment")
                 .build())
-            .collect(Collectors.toList());
+            .toList();
 
         final var defaults = AppointmentDefaults
             .builder()

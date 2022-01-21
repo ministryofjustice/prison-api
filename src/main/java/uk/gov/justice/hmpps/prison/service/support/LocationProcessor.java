@@ -64,7 +64,7 @@ public class LocationProcessor {
     public static List<Location> processLocations(final List<Location> locations, final boolean preferUserDescription) {
         Objects.requireNonNull(locations);
 
-        return locations.stream().map(loc -> processLocation(loc, preferUserDescription, false)).collect(Collectors.toList());
+        return locations.stream().map(loc -> processLocation(loc, preferUserDescription, false)).toList();
     }
 
     /**

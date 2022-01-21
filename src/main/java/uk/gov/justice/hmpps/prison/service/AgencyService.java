@@ -278,7 +278,7 @@ public class AgencyService {
                     .iepDescription(iep.getIepLevel().getDescription())
                     .build()
         )
-        .collect(Collectors.toList());
+        .toList();
     }
 
     public List<PrisonContactDetail> getPrisonContactDetail() {

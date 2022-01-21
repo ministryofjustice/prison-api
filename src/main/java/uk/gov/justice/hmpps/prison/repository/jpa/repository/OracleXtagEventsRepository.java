@@ -78,7 +78,7 @@ public class OracleXtagEventsRepository implements XtagEventsRepository {
 
     public List<XtagEventNonJpa> findAll(final OffenderEventsFilter f) {
         final var results = jdbcTemplate.query("select * from XTAG.XTAG_LISTENER_TAB where enq_time >= ? and enq_time <= ?", (rs, rowNum) -> xtagEventOf(rs), Timestamp.valueOf(f.getFrom()), Timestamp.valueOf(f.getTo()));
-        return results.stream().filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
+        return results.stream().filter(Optional::isPresent).map(Optional::get).toList();
     }
 
 

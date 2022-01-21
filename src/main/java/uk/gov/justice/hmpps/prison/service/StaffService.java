@@ -134,11 +134,11 @@ public class StaffService {
         return userCaseloadRoleRepository.findAll(filter)
             .stream().map(UserCaseloadRole::transform)
             .sorted(Comparator.comparing(UserRole::getRoleCode))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private List<StaffUserRole> mapToStaffUserRole(final Long staffId, final String username, final List<UserRole> rolesByUsername) {
-        return rolesByUsername.stream().map(role -> transform(staffId, username, role)).collect(Collectors.toList());
+        return rolesByUsername.stream().map(role -> transform(staffId, username, role)).toList();
     }
 
     private StaffUserRole transform(final Long staffId, final String username, final UserRole role) {

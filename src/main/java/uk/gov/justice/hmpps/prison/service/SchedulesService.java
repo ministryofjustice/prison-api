@@ -86,7 +86,7 @@ public class SchedulesService {
 
         return prisonerSchedules.stream()
                 .sorted(getPrisonerScheduleComparator(sortFields, sortOrder))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private Comparator<PrisonerSchedule> getPrisonerScheduleComparator(final String sortFields, final Order sortOrder) {
@@ -109,7 +109,7 @@ public class SchedulesService {
 
         return eventsOnDay.stream()
                 .filter(event -> CalcDateRanges.eventStartsInTimeslot(event.getStartTime(), timeSlot))
-                .map(event -> prisonerSchedule(bookingIdMap.get(event.getBookingId()), event)).collect(Collectors.toList());
+                .map(event -> prisonerSchedule(bookingIdMap.get(event.getBookingId()), event)).toList();
     }
 
     private PrisonerSchedule prisonerSchedule(final InmateDto inmate, final ScheduledEvent event) {
@@ -195,7 +195,7 @@ public class SchedulesService {
         final var visits = Lists.partition(offenderNos, maxBatchSize)
                 .stream()
                 .flatMap(offenderNosList -> scheduleRepository.getVisits(agencyId, offenderNosList, date).stream())
-                .collect(Collectors.toList());
+                .toList();
 
         return filterByTimeSlot(timeSlot, visits);
     }
@@ -210,7 +210,7 @@ public class SchedulesService {
         final var appointments = Lists.partition(offenderNos, maxBatchSize)
                 .stream()
                 .flatMap(offenderNosList -> scheduleRepository.getAppointments(agencyId, offenderNosList, date).stream())
-                .collect(Collectors.toList());
+                .toList();
 
         return filterByTimeSlot(timeSlot, appointments);
     }
@@ -224,13 +224,13 @@ public class SchedulesService {
         final var activities = Lists.partition(offenderNos, maxBatchSize)
                 .stream()
                 .flatMap(offenderNosList -> scheduleRepository.getActivities(agencyId, offenderNosList, date).stream())
-                .collect(Collectors.toList());
+                .toList();
 
         final var filtered = filterByTimeSlot(timeSlot, activities);
         if (includeExcluded) {
             return filtered;
         }
-        return filtered.stream().filter(ps -> !ps.getExcluded()).collect(Collectors.toList());
+        return filtered.stream().filter(ps -> !ps.getExcluded()).toList();
     }
     @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public List<PrisonerSchedule> getActivitiesByEventIds(final String agencyId, final List<Long> eventIds) {
@@ -256,7 +256,7 @@ public class SchedulesService {
                         .lastName(activity.getLastName())
                         .comment(activity.getDescription())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<PrisonerSchedule> getCourtEvents(final String agencyId, final List<String> offenderNos, final LocalDate date, final TimeSlot timeSlot) {
@@ -269,7 +269,7 @@ public class SchedulesService {
                 Lists.partition(offenderNos, maxBatchSize)
                         .stream()
                         .flatMap(offenderNosList -> scheduleRepository.getCourtEvents(offenderNosList, date).stream())
-                        .collect(Collectors.toList());
+                        .toList();
 
 
         return filterByTimeSlot(timeSlot, events);
@@ -284,7 +284,7 @@ public class SchedulesService {
         return Lists.partition(offenderNos, maxBatchSize)
                 .stream()
                 .flatMap(offenderNosList -> scheduleRepository.getExternalTransfers(agencyId, offenderNosList, date).stream())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<PrisonerSchedule> filterByTimeSlot(final TimeSlot timeSlot, final List<PrisonerSchedule> events) {
@@ -295,7 +295,7 @@ public class SchedulesService {
 
         return events.stream()
                 .filter(p -> CalcDateRanges.eventStartsInTimeslot(p.getStartTime(), timeSlot))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private void validateLocation(final Long locationId) {

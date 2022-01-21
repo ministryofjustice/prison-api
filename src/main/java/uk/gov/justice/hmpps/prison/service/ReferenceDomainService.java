@@ -154,7 +154,7 @@ public class ReferenceDomainService {
                         .description(StringWithAbbreviationsProcessor.format(p.getDescription()))
                         .build())
                 .sorted(Comparator.comparing(ReferenceCode::getDescription))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<ReferenceCode> getReferenceCodeByDomainAndDescription(final String domain, final String description, final boolean wildcard) {

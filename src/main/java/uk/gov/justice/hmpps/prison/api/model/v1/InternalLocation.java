@@ -49,7 +49,7 @@ public class InternalLocation {
                         throw new RuntimeException("Badly formed levelStr:" + levelStr);
                     }
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
 }

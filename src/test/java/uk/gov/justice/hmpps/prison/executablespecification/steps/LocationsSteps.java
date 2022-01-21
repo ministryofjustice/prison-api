@@ -139,7 +139,7 @@ public class LocationsSteps extends CommonSteps {
                 .stream()
                 .filter(offender -> offender.getConvictedStatus() != null)
                 .filter(offender -> offender.getConvictedStatus().contentEquals(convictedStatus))
-                .collect(Collectors.toList());
+                .toList();
 
         assertThat(filteredList).hasSize(offenderCount);
     }

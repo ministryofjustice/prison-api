@@ -295,7 +295,7 @@ public abstract class CommonSteps {
                             .stream()
                             .map(mapper)
                             .filter(StringUtils::isNotBlank)
-                            .collect(Collectors.toList())
+                            .toList()
             );
         }
 
@@ -325,7 +325,7 @@ public abstract class CommonSteps {
                             .map(mapper)
                             .filter(Objects::nonNull)
                             .map(date -> date.format(dateTimeFormatter))
-                            .collect(Collectors.toList())
+                            .toList()
             );
         }
 
@@ -343,7 +343,7 @@ public abstract class CommonSteps {
                             .map(mapper)
                             .filter(Objects::nonNull)
                             .map(date -> date.format(dateTimeFormatter))
-                            .collect(Collectors.toList())
+                            .toList()
             );
         }
 
@@ -361,7 +361,7 @@ public abstract class CommonSteps {
                             .map(mapper)
                             .filter(Objects::nonNull)
                             .map(date -> date.format(dateTimeFormatter))
-                            .collect(Collectors.toList())
+                            .toList()
             );
         }
 
@@ -379,7 +379,7 @@ public abstract class CommonSteps {
                             .map(mapper)
                             .filter(Objects::nonNull)
                             .map(date -> date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().format(dateTimeFormatter))
-                            .collect(Collectors.toList())
+                            .toList()
             );
         }
 
@@ -396,7 +396,7 @@ public abstract class CommonSteps {
                             .map(mapper)
                             .filter(Objects::nonNull)
                             .map(String::valueOf)
-                            .collect(Collectors.toList())
+                            .toList()
             );
         }
 

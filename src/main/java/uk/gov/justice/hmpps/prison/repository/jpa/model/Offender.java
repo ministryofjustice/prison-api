@@ -178,7 +178,7 @@ public class Offender extends AuditableEntity {
             .flatMap(pd -> pd.getValue().stream()
                 .max(Comparator.comparing(id -> id.getOffenderIdentifierPK().getOffenderIdSeq()))
                 .stream())
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private Map<String, List<OffenderIdentifier>> mapOfIdentifiers() {
@@ -217,7 +217,7 @@ public class Offender extends AuditableEntity {
         bookings.forEach(b -> externalMovements.addAll(b.getExternalMovements()));
         return externalMovements.stream()
             .sorted(Comparator.comparing(ExternalMovement::getMovementTime))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public void addBooking(final OffenderBooking booking) {

@@ -318,7 +318,7 @@ public class GlobalSearchServiceImplTest {
     private Page<PrisonerDetail> pageResponse(final int prisonerCount) {
         final var prisoners = IntStream.range(1, prisonerCount + 1)
                 .mapToObj(i -> PrisonerDetail.builder().offenderNo(String.format("A%4dAA", i)).latestLocation("WAKEFIELD (HMP)").build())
-                .collect(Collectors.toList());
+                .toList();
 
         return new Page<>(prisoners, prisonerCount, 0, 10);
     }

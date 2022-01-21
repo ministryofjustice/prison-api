@@ -64,7 +64,7 @@ public class KeyworkerStepDefinitions extends AbstractStepDefinitions {
 
     @When("^a key worker allocations request is made with staff ids \"([^\"]*)\" and agency \"([^\"]*)\"$")
     public void aKeyWorkerAllocationsRequestIsMadeWithStaffIdsAndAgency(final String staffIds, final String agencyId) throws Throwable {
-        keyworker.getKeyworkerAllocationsByStaffIds(Arrays.stream(StringUtils.split(staffIds, ",")).map(Long::valueOf).collect(Collectors.toList()), agencyId);
+        keyworker.getKeyworkerAllocationsByStaffIds(Arrays.stream(StringUtils.split(staffIds, ",")).map(Long::valueOf).toList(), agencyId);
     }
 
     @When("^a key worker allocations request is made with nomis ids \"([^\"]*)\" and agency \"([^\"]*)\"$")
@@ -74,7 +74,7 @@ public class KeyworkerStepDefinitions extends AbstractStepDefinitions {
 
     @When("^a key worker allocation history request is made with staff ids \"([^\"]*)\"$")
     public void aKeyWorkerAllocationHistoryRequestIsMadeWithStaffIdsAndAgency(final String staffIds) throws Throwable {
-        keyworker.getKeyworkerAllocationHistoryByStaffIds(Arrays.stream(StringUtils.split(staffIds, ",")).map(Long::valueOf).collect(Collectors.toList()));
+        keyworker.getKeyworkerAllocationHistoryByStaffIds(Arrays.stream(StringUtils.split(staffIds, ",")).map(Long::valueOf).toList());
     }
 
     @When("^a key worker allocation history request is made with nomis ids \"([^\"]*)\"$")

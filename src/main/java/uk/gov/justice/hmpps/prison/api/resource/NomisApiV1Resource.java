@@ -125,7 +125,7 @@ public class NomisApiV1Resource {
     public Alerts getAlerts(@Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @ApiParam(name = "noms_id", value = "Offender Noms Id", example = "A1583AE", required = true) final String nomsId, @RequestParam(value = "alert_type", required = false) @ApiParam(name = "alert_type", value = "Alert Type, if alert_type is specified then only alerts of that type are returned", example = "H") final String alertType, @RequestParam(value = "modified_since", required = false) @ApiParam(name = "modified_since", value = "Modified Since - if modified_since is specified then only those alerts created or modified on or after the specified date time. The following formats are supported: 2018-01-10, 2018-01-10 03:34, 2018-01-10 03:34:12, 2018-01-10 03:34:12.123", example = "2017-10-07T12:23:45.678") final String modifiedSince, @RequestParam(value = "include_inactive", required = false, defaultValue = "false") @ApiParam(name = "include_inactive", value = "Include Inactive alerts, If include_inactive=true is specified then inactive alerts are also returned.", example = "true", defaultValue = "false") final boolean includeInactive) {
         final var alerts = service.getAlerts(nomsId, includeInactive, optionalStrToLocalDateTime(modifiedSince)).stream()
                 .filter(a -> alertType == null || a.getType().getCode().equalsIgnoreCase(alertType))
-                .collect(Collectors.toList());
+                .toList();
         return Alerts.builder().alerts(alerts).build();
     }
 

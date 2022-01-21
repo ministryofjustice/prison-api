@@ -161,7 +161,7 @@ public class InmateService {
                                                 .middleName(WordUtils.capitalizeFully(offender.getMiddleName()))
                                                 .lastName(WordUtils.capitalizeFully(offender.getLastName()))
                                                 .build()
-                                ).collect(Collectors.toList())
+                                ).toList()
                 ));
 
         log.info("getBasicInmateDetailsForOffenders, {} records returned", results.size());
@@ -325,7 +325,7 @@ public class InmateService {
     private List<Assessment> getAllAssessmentsOrdered(final Long bookingId) {
         final var assessmentsDto = repository.findAssessments(Collections.singletonList(bookingId), null, Collections.emptySet());
 
-        return assessmentsDto.stream().map(this::createAssessment).collect(Collectors.toList());
+        return assessmentsDto.stream().map(this::createAssessment).toList();
     }
 
     /**
@@ -393,7 +393,7 @@ public class InmateService {
             final var subTypes = problemTypesMap.get(personalCareNeed.getProblemType());
             // will be null if not in map, otherwise will be empty if type in map with no sub type set
             return subTypes != null && (subTypes.isEmpty() || subTypes.contains(personalCareNeed.getProblemCode()));
-        }).collect(Collectors.toList());
+        }).toList();
         return new PersonalCareNeeds(returnList);
     }
 
@@ -415,11 +415,11 @@ public class InmateService {
         }).collect(Collectors.toMap(
                 PersonalCareNeed::getOffenderNo,
                 List::of,
-                (a, b) -> Stream.of(a, b).flatMap(Collection::stream).collect(Collectors.toList()),
+                (a, b) -> Stream.of(a, b).flatMap(Collection::stream).toList(),
                 TreeMap::new));
 
         // then convert back into list where every entry is for a single offender
-        return map.entrySet().stream().map(e -> new PersonalCareNeeds(e.getKey(), e.getValue())).collect(Collectors.toList());
+        return map.entrySet().stream().map(e -> new PersonalCareNeeds(e.getKey(), e.getValue())).toList();
     }
 
     @VerifyBookingAccess
@@ -458,7 +458,7 @@ public class InmateService {
         return repository.getOffenderIdentifiers(bookingId)
                 .stream()
                 .filter(i -> identifierType == null || identifierType.equalsIgnoreCase(i.getType()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
@@ -754,7 +754,7 @@ public class InmateService {
                         .canWrite("Y".equalsIgnoreCase(lang.getWriteSkill()))
                         .canSpeak("Y".equalsIgnoreCase(lang.getSpeakSkill()))
                         .build()
-                ).collect(Collectors.toList());
+                ).toList();
     }
 
     private Set<String> getUserCaseloadIds(final String username) {

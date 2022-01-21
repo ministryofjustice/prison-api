@@ -55,7 +55,7 @@ public class SearchOffenderService {
 
         final var bookingsPage = getBookings(request, caseloads);
         final var bookings = bookingsPage.getItems();
-        final var bookingIds = bookings.stream().map(OffenderBooking::getBookingId).collect(Collectors.toList());
+        final var bookingIds = bookings.stream().map(OffenderBooking::getBookingId).toList();
 
         log.info("Searching for offenders, Found {} offenders, page size {}", bookingsPage.getTotalRecords(), bookingsPage.getItems().size());
 

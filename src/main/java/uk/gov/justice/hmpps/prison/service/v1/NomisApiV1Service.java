@@ -115,10 +115,10 @@ public class NomisApiV1Service {
                                 .latestBooking("Y".equals(booking.getLatestBooking()))
                                 .releaseDate(booking.getRelDate())
                                 .legalCases(legalV1Repository.getBookingCases(booking.getOffenderBookId()).stream()
-                                        .map(this::buildCase).collect(Collectors.toList()))
+                                        .map(this::buildCase).toList())
                                 .build()
                 )
-                .collect(Collectors.toList());
+                .toList();
 
         if (bookings.isEmpty()) {
             throw EntityNotFoundException.withId(nomsId);
@@ -137,7 +137,7 @@ public class NomisApiV1Service {
                 .caseType(CodeDescription.safeNullBuild(lc.getCaseTypeCode(), lc.getCaseTypeDesc()))
                 .charges(legalV1Repository.getCaseCharges(lc.getCaseId()).stream()
                         .map(this::buildCharge)
-                        .collect(Collectors.toList()))
+                        .toList())
                 .build();
     }
 
@@ -169,7 +169,7 @@ public class NomisApiV1Service {
                         .comment(a.getCommentText())
                         .status(a.getAlertStatus())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
 
         if (alerts.isEmpty()) {
             throw EntityNotFoundException.withId(nomsId);
@@ -191,7 +191,7 @@ public class NomisApiV1Service {
                                 .middleNames(a.getMiddleNames())
                                 .surname(a.getLastName())
                                 .birthDate(a.getBirthDate())
-                                .build()).collect(Collectors.toList()))
+                                .build()).toList())
                         .pncNumber(o.getPncNumber())
                         .croNumber(o.getCroNumber())
                         .nationalities(o.getNationalities())
@@ -245,7 +245,7 @@ public class NomisApiV1Service {
                         .type(e.getEventType())
                         .eventData(convertToJsonString(e))
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private String convertToJsonString(final EventSP e) {
@@ -287,11 +287,11 @@ public class NomisApiV1Service {
                         .description(h.getTxnEntryDesc())
                         .referenceNo(h.getTxnReferenceNumber())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<String> getLiveRoll(final String prisonId) {
-        return prisonV1Repository.getLiveRoll(prisonId).stream().map(LiveRollSP::getOffenderIdDisplay).collect(Collectors.toList());
+        return prisonV1Repository.getLiveRoll(prisonId).stream().map(LiveRollSP::getOffenderIdDisplay).toList();
     }
 
     @Transactional
@@ -326,7 +326,7 @@ public class NomisApiV1Service {
                         .amount(poundsToPence(t.getTxnEntryAmount()))
                         .date(t.getTxnEntryDate())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public AccountTransaction getTransactionByClientUniqueRef(final String prisonId, final String nomsId, final String uniqueClientId) {
@@ -340,7 +340,7 @@ public class NomisApiV1Service {
                         .amount(poundsToPence(t.getTxnEntryAmount()))
                         .date(t.getTxnEntryDate())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
 
         if (response.size() == 1) {
             return response.get(0);
@@ -361,7 +361,7 @@ public class NomisApiV1Service {
 
         final var dates = visitV1Repository.getAvailableDates(offenderID, fromDate, toDate);
 
-        return AvailableDates.builder().dates(dates.stream().map(AvailableDatesSP::getSlotDate).collect(Collectors.toList())).build();
+        return AvailableDates.builder().dates(dates.stream().map(AvailableDatesSP::getSlotDate).toList()).build();
     }
 
     public ContactList getVisitContactList(final Long offenderID) {
@@ -372,7 +372,7 @@ public class NomisApiV1Service {
         final var contactPersonList = response.entrySet().stream().map(e -> {
             e.getKey().setRestrictions(addToPerson(e.getValue()));
             return e.getKey();
-        }).collect(Collectors.toList());
+        }).toList();
 
         return new ContactList(contactPersonList);
     }
@@ -396,7 +396,7 @@ public class NomisApiV1Service {
                         .visitorsBooked(v.getVisitorsBooked())
                         .adultsBooked(v.getAdultsBooked())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
 
         return new VisitSlots(response);
     }
@@ -420,7 +420,7 @@ public class NomisApiV1Service {
                         .restrictionType(CodeDescription.safeNullBuild(r.getRestrictionTypeCode(), r.getRestrictionTypeDesc()))
                         .effectiveDate(r.getRestrictionEffectiveDate())
                         .expiryDate(r.getRestrictionExpiryDate())
-                        .commentText(r.getCommentText()).build()).collect(Collectors.toList());
+                        .commentText(r.getCommentText()).build()).toList();
     }
 
     private ContactPerson convertToPerson(final ContactPersonSP c) {
@@ -444,7 +444,7 @@ public class NomisApiV1Service {
         }
         return Arrays.stream(dates.split(",")).map(LocalDate::parse).peek(localDate -> {
             if (!localDate.isAfter(LocalDate.now())) throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Dates requested must be in future");
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     private SortedMap<String, UnavailabilityReason> combineResultsIntoMap(final List<LocalDate> dates, final List<UnavailabilityReasonSP> response) {

@@ -24,7 +24,7 @@ public class RepeatTest {
                         .repeatPeriod(RepeatPeriod.DAILY)
                         .build()
                         .dateTimeStream(WEDNESDAY_START)
-                        .collect(Collectors.toList()))
+                        .toList())
                 .containsExactly(WEDNESDAY_START);
     }
 
@@ -36,7 +36,7 @@ public class RepeatTest {
                         .repeatPeriod(RepeatPeriod.DAILY)
                         .build()
                         .dateTimeStream(WEDNESDAY_START)
-                        .collect(Collectors.toList()))
+                        .toList())
                 .containsExactly(
                         WEDNESDAY_START, // Wednesday
                         WEDNESDAY_START.plusDays(1), // Thursday
@@ -56,7 +56,7 @@ public class RepeatTest {
                         .repeatPeriod(RepeatPeriod.WEEKDAYS)
                         .build()
                         .dateTimeStream(WEDNESDAY_START)
-                        .collect(Collectors.toList()))
+                        .toList())
                 .containsExactly(
                         WEDNESDAY_START,               // Wednesday
                         WEDNESDAY_START.plusDays(1),   // Thursday
@@ -83,7 +83,7 @@ public class RepeatTest {
                         .repeatPeriod(RepeatPeriod.WEEKLY)
                         .build()
                         .dateTimeStream(WEDNESDAY_START)
-                        .collect(Collectors.toList()))
+                        .toList())
                 .containsExactly(
                         WEDNESDAY_START,
                         WEDNESDAY_START.plusDays(7),
@@ -103,7 +103,7 @@ public class RepeatTest {
                         .repeatPeriod(RepeatPeriod.FORTNIGHTLY)
                         .build()
                         .dateTimeStream(WEDNESDAY_START)
-                        .collect(Collectors.toList()))
+                        .toList())
                 .containsExactly(
                         WEDNESDAY_START,
                         WEDNESDAY_START.plusDays(14),
@@ -123,7 +123,7 @@ public class RepeatTest {
                         .repeatPeriod(RepeatPeriod.MONTHLY)
                         .build()
                         .dateTimeStream(JAN_31_2019_START)
-                        .collect(Collectors.toList()))
+                        .toList())
                 .containsExactly(
                         JAN_31_2019_START,
                         LocalDateTime.of(LocalDate.of(2019, 2, 28), START_TIME),

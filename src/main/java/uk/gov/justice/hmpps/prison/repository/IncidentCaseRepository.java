@@ -227,7 +227,7 @@ public class IncidentCaseRepository extends RepositoryBase {
                 sql,
                 createParams("cutoffTimestamp", cutoffTimestamp, "offset", offset, "limit", limit),
                 paRowMapper);
-        final var results = offenderSummaries.stream().map(OffenderSummary::getOffenderNo).collect(Collectors.toList());
+        final var results = offenderSummaries.stream().map(OffenderSummary::getOffenderNo).toList();
 
         return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
     }

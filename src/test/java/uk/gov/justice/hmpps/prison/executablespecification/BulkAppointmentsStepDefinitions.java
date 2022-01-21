@@ -53,7 +53,7 @@ public class BulkAppointmentsStepDefinitions extends AbstractStepDefinitions {
                         .endTime(asLocalDateTime(row.get("endTime")))
                         .comment(row.get("comment"))
                         .build())
-                .collect(Collectors.toList());
+                .toList();
         bulkAppointmentSteps.appointmentDetails(appointmentDetails);
     }
 
@@ -82,7 +82,7 @@ public class BulkAppointmentsStepDefinitions extends AbstractStepDefinitions {
         return appointments
                 .stream()
                 .map(BulkAppointmentsStepDefinitions::replaceRelativeTimes)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @When("^I make a request to create bulk appointments$")
