@@ -118,7 +118,7 @@ public class OffenderCurfewService {
                                 .build())
                         .build())
                 .sorted(OSC_BY_HDCED_COMPARATOR)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     private Set<Long> curfewBookingIds(Stream<OffenderCurfew> ocs) {
