@@ -266,8 +266,7 @@ public class AgencyService {
 
         final var locations = agencyRepository.getAgencyLocationsBooked(agencyId, bookedOnDay, bookedOnPeriod);
         final var processedLocations = LocationProcessor.processLocations(locations, true);
-        processedLocations.sort(LOCATION_DESCRIPTION_COMPARATOR);
-        return processedLocations;
+        return processedLocations.stream().sorted(LOCATION_DESCRIPTION_COMPARATOR).toList();
     }
 
     public List<IepLevel> getAgencyIepLevels(final String prisonId) {

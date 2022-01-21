@@ -12,6 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
+import uk.gov.justice.hmpps.prison.api.model.OffenderCategorise;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.test.ErrorResponseErrorHandler;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -259,11 +261,8 @@ public abstract class CommonSteps {
     void verifyIdentical(final List<String> listActual, final List<String> listExpected) {
         // Both lists are expected to be provided (i.e. non-null). Empty lists are ok.
         // Sorting and converting back to String so that details of non-matching lists are clearly disclosed
-        Collections.sort(listActual);
-        Collections.sort(listExpected);
-
-        final var actual = String.join(",", listActual);
-        final var expected = String.join(",", listExpected);
+        final var actual = listActual.stream().sorted().toList();
+        final var expected = listExpected.stream().sorted().toList();
 
         assertThat(actual).isEqualTo(expected);
     }
