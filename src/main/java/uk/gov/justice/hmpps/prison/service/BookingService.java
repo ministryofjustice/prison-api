@@ -39,6 +39,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetailDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
+import uk.gov.justice.hmpps.prison.api.model.PrisonDetails;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerBookingSummary;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeDetail;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
@@ -1119,7 +1120,12 @@ public class BookingService {
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
-    public List<Prison> getBookingVisitsPrisons(final Long bookingId) {
-        return visitInformationRepository.findByBookingIdGroupByPrisonId(bookingId);
+    public List<PrisonDetails> getBookingVisitsPrisons(final Long bookingId) {
+        return visitInformationRepository.findByBookingIdGroupByPrisonId(bookingId)
+            .stream().map(prison -> PrisonDetails.builder()
+                .prisonId(prison.getPrisonId())
+                .prison(LocationProcessor.formatLocation(prison.getPrisonDescription()))
+                .build())
+            .collect(Collectors.toList());
     }
 }
