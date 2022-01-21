@@ -206,7 +206,7 @@ public class CaseNoteRepository extends RepositoryBase {
 
             final var sortedSubTypes = caseNoteType.getSubCodes().stream()
                 .sorted(Comparator.comparing(a -> a.getDescription().toLowerCase()))
-                .collect(Collectors.toList());
+                .toList();
 
             caseNoteType.setSubCodes(sortedSubTypes);
         });
@@ -214,6 +214,6 @@ public class CaseNoteRepository extends RepositoryBase {
         return caseNoteTypes.values().stream()
             .filter(typesWithSubTypes)
             .sorted(Comparator.comparing(a -> a.getDescription().toLowerCase()))
-            .collect(Collectors.toList());
+            .toList();
     }
 }

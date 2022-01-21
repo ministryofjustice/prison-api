@@ -106,7 +106,7 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
             .map(offender -> offender.toBuilder()
                 .middleName(StringUtils.defaultString(offender.getMiddleName()))
                 .location(StringUtils.defaultString(offender.getLocation()))
-                .build()).collect(Collectors.toList())
+                .build()).toList()
         );
     }
 

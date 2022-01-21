@@ -71,7 +71,7 @@ public class StaffUserAccount extends AuditableEntity {
     private AccountDetail accountDetail;
 
     public List<UserCaseloadRole> getDpsRoles() {
-        return getRoles().stream().filter(r -> "NWEB".equals(r.getId().getCaseload())).collect(Collectors.toList());
+        return getRoles().stream().filter(r -> "NWEB".equals(r.getId().getCaseload())).toList();
     }
 
     public Optional<UserCaseloadRole> findByCaseloadAndRoleCode(final String caseload, final String roleCode) {

@@ -165,7 +165,7 @@ class SchedulesServiceImplTest {
 
     @Test
     void testCallsToGetVisits_AreBatched() {
-        final var offenders = IntStream.range(1, 1000).mapToObj(String::valueOf).collect(Collectors.toList());
+        final var offenders = IntStream.range(1, 1000).mapToObj(String::valueOf).toList();
         schedulesService.getVisits("LEI", offenders, LocalDate.now(), TimeSlot.AM);
 
         verify(scheduleRepository, times(2)).getVisits(any(), anyList(), any());
@@ -173,7 +173,7 @@ class SchedulesServiceImplTest {
 
     @Test
     void testCallsToGetAppointments_AreBatched() {
-        final var offenders = IntStream.range(1, 1000).mapToObj(String::valueOf).collect(Collectors.toList());
+        final var offenders = IntStream.range(1, 1000).mapToObj(String::valueOf).toList();
         schedulesService.getAppointments("LEI", offenders, LocalDate.now(), TimeSlot.AM);
 
         verify(scheduleRepository, times(2)).getAppointments(any(), anyList(), any());
@@ -182,7 +182,7 @@ class SchedulesServiceImplTest {
 
     @Test
     void testCallsToGetActivities_AreBatched() {
-        final var offenders = IntStream.range(1, 1000).mapToObj(String::valueOf).collect(Collectors.toList());
+        final var offenders = IntStream.range(1, 1000).mapToObj(String::valueOf).toList();
         schedulesService.getActivitiesByEventIds("LEI", offenders, LocalDate.now(), TimeSlot.AM, true);
 
         verify(scheduleRepository, times(2)).getActivities(any(), anyList(), any());
@@ -190,7 +190,7 @@ class SchedulesServiceImplTest {
 
     @Test
     void testCallsToGetCourtEvents_AreBatched() {
-        final var offenders = IntStream.range(1, 1000).mapToObj(String::valueOf).collect(Collectors.toList());
+        final var offenders = IntStream.range(1, 1000).mapToObj(String::valueOf).toList();
         schedulesService.getCourtEvents("LEI", offenders, LocalDate.now(), TimeSlot.AM);
 
         verify(scheduleRepository, times(2)).getCourtEvents(anyList(), any());
@@ -198,7 +198,7 @@ class SchedulesServiceImplTest {
 
     @Test
     void testCallsToGetExternalTransfers_AreBatched() {
-        final var offenders = IntStream.range(1, 1000).mapToObj(String::valueOf).collect(Collectors.toList());
+        final var offenders = IntStream.range(1, 1000).mapToObj(String::valueOf).toList();
         schedulesService.getExternalTransfers("LEI", offenders, LocalDate.now());
 
         verify(scheduleRepository, times(2)).getExternalTransfers(any(), anyList(), any());
@@ -275,7 +275,7 @@ class SchedulesServiceImplTest {
     void testBatchGetScheduledActivities() {
         when(scheduledActivityRepository.findAllByEventIdIn(any())).thenReturn(Collections.emptyList());
 
-        final var eventIds = IntStream.range(1, 1000).mapToObj(Long::valueOf).collect(Collectors.toList());
+        final var eventIds = IntStream.range(1, 1000).mapToObj(Long::valueOf).toList();
 
         schedulesService.getActivitiesByEventIds("LEI", eventIds);
 

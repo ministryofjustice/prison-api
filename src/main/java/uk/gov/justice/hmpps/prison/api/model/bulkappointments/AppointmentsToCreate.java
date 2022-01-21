@@ -41,7 +41,7 @@ public class AppointmentsToCreate {
                     if (appt.getComment() == null) builder.comment(appointmentDefaults.getComment());
                     return builder.build();
                 }
-        ).collect(Collectors.toList());
+        ).toList();
     }
 
     public boolean moreThanOneOffender() {

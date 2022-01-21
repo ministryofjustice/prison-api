@@ -193,7 +193,7 @@ public class AdjudicationsService {
         return Lists.partition(adjudicationNumbers, batchSize).stream().flatMap(
                 numbers -> adjudicationsRepository.findByParties_AdjudicationNumberIn(numbers).stream()
             ).map(this::transformToDto)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private List<AdjudicationCharge> generateOffenceCharges(AdjudicationParty adjudicationPartyToUpdate, List<AdjudicationOffenceType> offenceCodes) {
@@ -262,6 +262,6 @@ public class AdjudicationsService {
             return null;
         }
         final var adjudicationCharges = offenderPartyDetails.get().getCharges();
-        return adjudicationCharges.stream().map(c -> c.getOffenceType().getOffenceCode()).collect(Collectors.toList());
+        return adjudicationCharges.stream().map(c -> c.getOffenceType().getOffenceCode()).toList();
     }
 }

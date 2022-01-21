@@ -97,7 +97,7 @@ public class InmateAlertService {
         final var alerts = Lists.partition(offenderNos, maxBatchSize)
                 .stream()
                 .flatMap(offenderNosList -> inmateAlertRepository.getAlertsByOffenderNos(agencyId, offenderNosList, true, "bookingId,alertId", Order.ASC).stream())
-                .collect(Collectors.toList());
+                .toList();
 
         alerts.forEach(alert -> alert.setExpired(isExpiredAlert(alert)));
 
@@ -140,7 +140,7 @@ public class InmateAlertService {
             .findAll(filter, Sort.by(direction, OffenderAlertTransformer.mapSortProperties(sortProperties)))
             .stream()
             .map(OffenderAlertTransformer::transformForOffender)
-            .collect(Collectors.toList());
+            .toList();
         log.info("Returning {} matching Alerts for Offender Number {}", alerts.size(), offenderNo);
         return alerts;
     }
@@ -169,7 +169,7 @@ public class InmateAlertService {
             .map(order -> Sort.Order
                 .by(mapSortProperty(order.getProperty()))
                 .with(order.getDirection()))
-            .collect(Collectors.toList()));
+            .toList());
     }
 
     @PreAuthorize("hasAnyRole('SYSTEM_USER')")

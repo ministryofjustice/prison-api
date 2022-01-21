@@ -59,7 +59,7 @@ public class AuthenticationFacade {
     public static boolean hasRoles(final String... allowedRoles) {
         final var roles = Arrays.stream(allowedRoles)
                 .map(r -> RegExUtils.replaceFirst(r, "ROLE_", ""))
-                .collect(Collectors.toList());
+                .toList();
 
         return hasMatchingRole(roles, SecurityContextHolder.getContext().getAuthentication());
     }

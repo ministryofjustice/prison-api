@@ -57,14 +57,14 @@ public class CaseLoadRepositoryTest {
     @Test
     public void testGetCaseLoadsByUsername_CurrentActive() {
         final var caseLoads = repository.getCaseLoadsByUsername(TEST_USERNAME);
-        final var activeCaseLoads = caseLoads.stream().filter(CaseLoad::isCurrentlyActive).collect(Collectors.toList());
+        final var activeCaseLoads = caseLoads.stream().filter(CaseLoad::isCurrentlyActive).toList();
         assertThat(activeCaseLoads).extracting(CaseLoad::getCaseLoadId).containsOnly("LEI");
     }
 
     @Test
     public void testGetCaseLoadsByUsername_CurrentInactive() {
         final var caseLoads = repository.getCaseLoadsByUsername(TEST_USERNAME);
-        final var activeCaseLoads = caseLoads.stream().filter(cl -> !cl.isCurrentlyActive()).collect(Collectors.toList());
+        final var activeCaseLoads = caseLoads.stream().filter(cl -> !cl.isCurrentlyActive()).toList();
         assertThat(activeCaseLoads).extracting(CaseLoad::getCaseLoadId).containsOnly("BXI", "MDI", "RNI", "SYI", "WAI");
     }
 

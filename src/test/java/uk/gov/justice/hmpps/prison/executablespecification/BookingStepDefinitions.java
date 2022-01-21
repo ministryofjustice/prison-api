@@ -511,7 +511,7 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
 
     @When("^a request is made with booking Ids \"([^\"]*)\" for prison \"([^\"]*)\"$")
     public void aRequestIsMadeForBookingIds(final String bookingsIds, final String agency) {
-        bookingDetail.findInmateDetailsNyBookingIds(agency, Arrays.stream(bookingsIds.split(",")).map(Long::valueOf).collect(Collectors.toList()));
+        bookingDetail.findInmateDetailsNyBookingIds(agency, Arrays.stream(bookingsIds.split(",")).map(Long::valueOf).toList());
     }
 
     @Then("^data is returned that includes \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\"$")

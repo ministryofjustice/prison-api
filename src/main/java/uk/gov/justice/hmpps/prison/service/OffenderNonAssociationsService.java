@@ -35,7 +35,7 @@ public class OffenderNonAssociationsService {
         final var nonAssociations = booking.getNonAssociationDetails()
                 .stream()
                 .map(this::transform)
-                .collect(Collectors.toList());
+                .toList();
 
         log.debug("'{}' non-association(s) found for booking '{}'", nonAssociations.size(), bookingId);
 

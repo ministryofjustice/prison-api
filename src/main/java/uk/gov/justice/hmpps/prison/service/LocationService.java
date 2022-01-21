@@ -68,10 +68,10 @@ public class LocationService {
 
                 // Then retrieve all associated internal locations at configured level of granularity.
                 locations.addAll(agencyInternalLocationRepository.findByAgencyIdAndLocationTypeAndActiveAndParentLocationIsNull(agency.getAgencyId(), locationTypeGranularity, true)
-                        .stream().map(LocationTransformer::fromAgencyInternalLocationPreferUserDesc).sorted(Comparator.comparing(Location::getDescription)).collect(Collectors.toList()));
+                        .stream().map(LocationTransformer::fromAgencyInternalLocationPreferUserDesc).sorted(Comparator.comparing(Location::getDescription)).toList());
                 return locations.stream();
 
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     public Page<OffenderBooking> getInmatesFromLocation(final long locationId, final String username, final String orderByField, final Order order, final long offset, final long limit) {

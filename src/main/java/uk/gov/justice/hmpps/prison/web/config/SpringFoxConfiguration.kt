@@ -9,7 +9,6 @@ import org.springframework.web.servlet.mvc.method.RequestMappingInfoHandlerMappi
 import springfox.documentation.spring.web.plugins.WebFluxRequestHandlerProvider
 import springfox.documentation.spring.web.plugins.WebMvcRequestHandlerProvider
 import java.lang.reflect.Field
-import java.util.stream.Collectors
 
 @Configuration
 open class SpringFoxConfiguration {
@@ -26,7 +25,7 @@ open class SpringFoxConfiguration {
     private fun <T : RequestMappingInfoHandlerMapping?> customizeSpringfoxHandlerMappings(mappings: MutableList<T>) {
       val copy = mappings.stream()
         .filter { mapping: T -> mapping?.patternParser == null }
-        .collect(Collectors.toList())
+        .toList()
       mappings.clear()
       mappings.addAll(copy)
     }

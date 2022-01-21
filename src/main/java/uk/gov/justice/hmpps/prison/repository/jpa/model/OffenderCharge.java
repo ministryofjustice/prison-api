@@ -114,7 +114,7 @@ public class OffenderCharge extends AuditableEntity {
             .offenceDescription(offence.getDescription())
             .indicators(offence.getOffenceIndicators().stream()
                 .map(OffenceIndicator::getIndicatorCode)
-                .collect(Collectors.toList()))
+                .toList())
             .build();
     }
 }

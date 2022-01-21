@@ -1039,7 +1039,7 @@ public class AppointmentsServiceImplTest {
     }
 
     private void stubValidBookingIds(final String agencyId, final long... bookingIds) {
-        final var ids = Arrays.stream(bookingIds).boxed().collect(Collectors.toList());
+        final var ids = Arrays.stream(bookingIds).boxed().toList();
         when(bookingRepository.findBookingsIdsInAgency(ids, agencyId)).thenReturn(ids);
     }
 

@@ -65,7 +65,7 @@ public class ContactService {
         return repository.getOffenderRelationships(bookingId, relationshipType)
                 .stream()
                 .filter(r -> !activeOnly || r.isActiveFlag())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<Contact> getRelationshipsByOffenderNo(final String offenderNo, final String relationshipType) {

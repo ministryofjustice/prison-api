@@ -474,7 +474,7 @@ public class BookingService {
                                             .build())
                     .visitors(visitorsList)
                     .build();
-                }).collect(Collectors.toList());
+                }).toList();
 
         return new PageImpl<>(visitsWithVisitors, pageable, visits.getTotalElements());
     }
@@ -495,7 +495,7 @@ public class BookingService {
                     .attended("ATT".equals(visitor.getEventOutcome()))
                     .build();
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private Optional<RelationshipType> getRelationshipType(final Long bookingId, final Long personId) {
@@ -686,7 +686,7 @@ public class BookingService {
         return Stream.of(activities, visits, appointments)
                 .flatMap(Collection::stream)
                 .sorted(startTimeComparator)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<ScheduledEvent> getEvents(final Collection<Long> bookingIds, final LocalDate from, final LocalDate to) {
@@ -696,7 +696,7 @@ public class BookingService {
 
         return Stream.of(activities, visits, appointments)
                 .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<OffenderSentenceCalculation> getOffenderSentenceCalculationsForAgency(final Set<String> agencyIds) {
@@ -898,7 +898,7 @@ public class BookingService {
 
         return Stream.of(globalRestrictions, restrictions)
                 .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+                .toList();
     }
 
 
@@ -1023,7 +1023,7 @@ public class BookingService {
                     var query = "offenderNo:in:" + quotedAndPipeDelimited(numbers.stream());
                     return bookingRepository.getOffenderSentenceSummary(query, caseloads, filterByCaseloads, isViewInactiveBookings()).stream();
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<OffenderSentenceDetailDto> bookingSentenceSummaries(final List<Long> bookingIds, final Set<String> caseloads, final boolean filterByCaseloads) {
@@ -1035,7 +1035,7 @@ public class BookingService {
                     var query = "bookingId:in:" + numbers.stream().map(String::valueOf).collect(Collectors.joining("|"));
                     return bookingRepository.getOffenderSentenceSummary(query, caseloads, filterByCaseloads, isViewInactiveBookings()).stream();
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private boolean isAllowedToViewAllPrisonerData(final String[] overrideRoles) {
@@ -1116,7 +1116,7 @@ public class BookingService {
             .map(order -> Sort.Order
                 .by(OffenderBookingTransformer.mapSortProperty(order.getProperty()))
                 .with(order.getDirection()))
-            .collect(Collectors.toList()));
+            .toList());
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
@@ -1126,6 +1126,6 @@ public class BookingService {
                 .prisonId(prison.getPrisonId())
                 .prison(LocationProcessor.formatLocation(prison.getPrisonDescription()))
                 .build())
-            .collect(Collectors.toList());
+            .toList();
     }
 }
