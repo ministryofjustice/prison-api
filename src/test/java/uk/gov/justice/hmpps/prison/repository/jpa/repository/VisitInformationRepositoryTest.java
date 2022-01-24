@@ -98,7 +98,7 @@ public class VisitInformationRepositoryTest {
         final var pageable = PageRequest.of(0, 20);
 
         final var leicesterVisits = repository.findAll(VisitInformationFilter.builder().bookingId(-1L).prisonId("LEI").build(), pageable);
-        assertThat(leicesterVisits).hasSize(14);
+        assertThat(leicesterVisits).hasSize(13);
         assertThat(leicesterVisits).extracting(VisitInformation::getPrisonDescription).allMatch((it) -> it.equals("LEEDS"));
 
         final var moorlandVisits = repository.findAll(VisitInformationFilter.builder().bookingId(-1L).prisonId("MDI").build(), pageable);
@@ -109,8 +109,8 @@ public class VisitInformationRepositoryTest {
     @Test
     public void findByBookingIdGroupByPrisonId() {
         final var prisons = repository.findByBookingIdGroupByPrisonId(-1);
-        assertThat(prisons).extracting(Prison::getPrisonId).containsExactly("LEI", "MDI");
-        assertThat(prisons).extracting(Prison::getPrisonDescription).containsExactly("LEEDS", "MOORLAND");
+        assertThat(prisons).extracting(Prison::getPrisonId).containsExactly("LEI", "MDI", "BXI");
+        assertThat(prisons).extracting(Prison::getPrisonDescription).containsExactly("LEEDS", "MOORLAND", "BRIXTON");
     }
 }
 

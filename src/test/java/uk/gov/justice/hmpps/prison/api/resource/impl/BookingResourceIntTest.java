@@ -710,7 +710,7 @@ public class BookingResourceIntTest extends ResourceTest {
             createHttpEntity(AuthToken.NORMAL_USER, null),
             String.class, -1L);
 
-        assertThat(getBodyAsJsonContent(responseLei)).extractingJsonPathNumberValue("$.numberOfElements").isEqualTo(14);
+        assertThat(getBodyAsJsonContent(responseLei)).extractingJsonPathNumberValue("$.numberOfElements").isEqualTo(13);
 
         final var responseMdi = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors?prisonId=MDI", GET,
             createHttpEntity(AuthToken.NORMAL_USER, null),
@@ -861,6 +861,8 @@ public class BookingResourceIntTest extends ResourceTest {
             assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$[0].prison").isEqualTo("Leeds");
             assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$[1].prisonId").isEqualTo("MDI");
             assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$[1].prison").isEqualTo("Moorland");
+            assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$[2].prisonId").isEqualTo("BXI");
+            assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$[2].prison").isEqualTo("Brixton");
         }
 
         @Test

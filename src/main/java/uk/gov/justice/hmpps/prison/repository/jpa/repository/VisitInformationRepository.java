@@ -12,11 +12,13 @@ import java.util.List;
 @Repository
 public interface VisitInformationRepository extends PagingAndSortingRepository<VisitInformation, String>, JpaSpecificationExecutor<VisitInformation> {
     @Query(value = """
-        SELECT DISTINCT VISIT.AGY_LOC_ID prisonId,
-                        AGY.DESCRIPTION prisonDescription
+        SELECT VISIT.AGY_LOC_ID prisonId,
+               AGY.DESCRIPTION prisonDescription
           FROM OFFENDER_VISITS VISIT
          INNER JOIN AGENCY_LOCATIONS AGY ON VISIT.AGY_LOC_ID = AGY.AGY_LOC_ID
          WHERE VISIT.OFFENDER_BOOK_ID = :bookingId
+         GROUP BY VISIT.AGY_LOC_ID, AGY.DESCRIPTION
+         ORDER BY max(VISIT.START_TIME) DESC
         """, nativeQuery = true)
     List<Prison> findByBookingIdGroupByPrisonId(@Param("bookingId") final long bookingId);
 
