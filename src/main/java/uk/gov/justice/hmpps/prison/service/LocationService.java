@@ -100,21 +100,9 @@ public class LocationService {
             .orElseThrow(EntityNotFoundException.withId(locationId));
     }
 
-    public Optional<Location> getLocationByDescription(final String description) {
-        return agencyInternalLocationRepository.findOneByDescription(description)
-            .map(
-                l -> LocationProcessor.processLocation(Location.builder()
-                    .locationId(l.getLocationId())
-                    .locationType(l.getLocationType())
-                    .agencyId(l.getAgencyId())
-                    .currentOccupancy(l.getCurrentOccupancy())
-                    .internalLocationCode(l.getLocationCode())
-                    .parentLocationId(l.getParentLocation() != null ? l.getParentLocation().getLocationId() : null)
-                    .description(l.getDescription())
-                    .operationalCapacity(l.getOperationalCapacity())
-                    .userDescription(l.getUserDescription())
-                    .build(), true, true)
-            );
+    public Optional<Location> getLocationByCode(final String code) {
+        return agencyInternalLocationRepository.findOneByDescription(code)
+            .map(LocationTransformer::fromAgencyInternalLocationPreferUserDesc);
     }
 
 

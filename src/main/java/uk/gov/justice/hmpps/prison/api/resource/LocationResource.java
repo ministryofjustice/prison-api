@@ -113,10 +113,10 @@ public class LocationResource {
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     @ApiOperation(value = "Returns the location (internal) for a prison based on description")
-    @GetMapping("/description/{description}")
+    @GetMapping("/code/{code}")
     public Location getLocationByDescription(
-        @PathVariable("description") @ApiParam(example = "MDI-1", required = true) final String description) {
-           return locationService.getLocationByDescription(description).orElseThrow(EntityNotFoundException.withId(description));
+        @PathVariable("code") @ApiParam(example = "MDI-1", required = true) final String code) {
+           return locationService.getLocationByCode(code).orElseThrow(EntityNotFoundException.withId(code));
     }
 
     @ApiResponses({
