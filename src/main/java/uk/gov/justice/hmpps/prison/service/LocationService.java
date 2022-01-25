@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -99,6 +99,12 @@ public class LocationService {
             .findLocation(locationId, includeInactive ? StatusFilter.ALL : StatusFilter.ACTIVE_ONLY)
             .orElseThrow(EntityNotFoundException.withId(locationId));
     }
+
+    public Optional<Location> getLocationByCode(final String code) {
+        return agencyInternalLocationRepository.findOneByDescription(code)
+            .map(LocationTransformer::fromAgencyInternalLocationPreferUserDesc);
+    }
+
 
     private String getWorkingCaseLoad(final String username) {
         final var workingCaseLoad = caseLoadService.getWorkingCaseLoadForUser(username);
