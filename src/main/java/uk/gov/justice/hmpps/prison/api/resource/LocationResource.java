@@ -114,7 +114,7 @@ public class LocationResource {
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     @ApiOperation(value = "Returns the location (internal) for a prison based on description")
     @GetMapping("/code/{code}")
-    public Location getLocationByDescription(
+    public Location getLocationByCode(
         @PathVariable("code") @ApiParam(example = "MDI-1", required = true) final String code) {
            return locationService.getLocationByCode(code).orElseThrow(EntityNotFoundException.withId(code));
     }
