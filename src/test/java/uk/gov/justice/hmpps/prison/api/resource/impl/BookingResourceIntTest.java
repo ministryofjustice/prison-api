@@ -20,7 +20,6 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
 
 import java.time.Clock;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -34,7 +33,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.InstanceOfAssertFactories.DURATION;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 
@@ -888,7 +886,6 @@ public class BookingResourceIntTest extends ResourceTest {
                 String.class, -3L);
 
             final var bodyAsJsonContent = getBodyAsJsonContent(response);
-            System.out.println(bodyAsJsonContent);
             assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.startTime").isEqualTo(
                 LocalDateTime.now()
                     .truncatedTo(ChronoUnit.DAYS)
@@ -904,9 +901,8 @@ public class BookingResourceIntTest extends ResourceTest {
                 String.class, -1L);
 
             final var bodyAsJsonContent = getBodyAsJsonContent(response);
-            System.out.println(bodyAsJsonContent);
             assertThat(bodyAsJsonContent).extractingJsonPathBooleanValue("$.hasVisits").isEqualTo(true);
-            assertThat(bodyAsJsonContent).doesNotHaveJsonPath("$.startTime");
+            assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.startTime").isBlank();
         }
 
         @Test
