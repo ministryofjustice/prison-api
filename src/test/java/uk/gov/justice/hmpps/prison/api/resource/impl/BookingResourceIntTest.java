@@ -886,7 +886,7 @@ public class BookingResourceIntTest extends ResourceTest {
                 String.class, -3L);
 
             final var bodyAsJsonContent = getBodyAsJsonContent(response);
-            assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.startTime").isEqualTo(
+            assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.startDateTime").isEqualTo(
                 LocalDateTime.now()
                     .truncatedTo(ChronoUnit.DAYS)
                     .plus(1, ChronoUnit.DAYS)
@@ -902,7 +902,7 @@ public class BookingResourceIntTest extends ResourceTest {
 
             final var bodyAsJsonContent = getBodyAsJsonContent(response);
             assertThat(bodyAsJsonContent).extractingJsonPathBooleanValue("$.hasVisits").isEqualTo(true);
-            assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.startTime").isBlank();
+            assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.startDateTime").isBlank();
         }
 
         @Test
