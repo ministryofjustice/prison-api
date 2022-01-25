@@ -23,6 +23,8 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -868,6 +870,44 @@ public class BookingResourceIntTest extends ResourceTest {
         @Test
         public void forbidden() {
             final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits/prisons", GET,
+                createHttpEntity(createJwt("NO_USER", Collections.emptyList()), null),
+                String.class, -1L);
+
+            assertThatStatus(response, 404);
+        }
+    }
+
+    @Nested
+    public class getBookingVisitsSummary {
+        @Test
+        public void success_visits() {
+            final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits/summary", GET,
+                createHttpEntity(AuthToken.NORMAL_USER, null),
+                String.class, -3L);
+
+            final var bodyAsJsonContent = getBodyAsJsonContent(response);
+            assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.startTime").isEqualTo(
+                LocalDateTime.now()
+                    .truncatedTo(ChronoUnit.DAYS)
+                    .plus(1, ChronoUnit.DAYS)
+                    .plus(10, ChronoUnit.HOURS)
+                    .format(DateTimeFormatter.ISO_DATE_TIME));
+            assertThat(bodyAsJsonContent).extractingJsonPathBooleanValue("$.hasVisits").isEqualTo(true);
+        }
+        @Test
+        public void success_nonextvisit() {
+            final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits/summary", GET,
+                createHttpEntity(AuthToken.NORMAL_USER, null),
+                String.class, -1L);
+
+            final var bodyAsJsonContent = getBodyAsJsonContent(response);
+            assertThat(bodyAsJsonContent).extractingJsonPathBooleanValue("$.hasVisits").isEqualTo(true);
+            assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.startTime").isBlank();
+        }
+
+        @Test
+        public void forbidden() {
+            final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits/summary", GET,
                 createHttpEntity(createJwt("NO_USER", Collections.emptyList()), null),
                 String.class, -1L);
 

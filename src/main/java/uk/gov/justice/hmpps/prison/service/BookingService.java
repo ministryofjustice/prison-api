@@ -52,6 +52,7 @@ import uk.gov.justice.hmpps.prison.api.model.SentenceSummary.PrisonTerm;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
 import uk.gov.justice.hmpps.prison.api.model.VisitBalances;
 import uk.gov.justice.hmpps.prison.api.model.VisitDetails;
+import uk.gov.justice.hmpps.prison.api.model.VisitSummary;
 import uk.gov.justice.hmpps.prison.api.model.VisitWithVisitors;
 import uk.gov.justice.hmpps.prison.api.model.Visitor;
 import uk.gov.justice.hmpps.prison.api.model.VisitorRestriction;
@@ -1127,5 +1128,12 @@ public class BookingService {
                 .prison(LocationProcessor.formatLocation(prison.getPrisonDescription()))
                 .build())
             .toList();
+    }
+
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    public VisitSummary getBookingVisitsSummary(final Long bookingId) {
+        final var visit = bookingRepository.getBookingVisitNext(bookingId, LocalDateTime.now());
+        final var count = visitInformationRepository.countByBookingId(bookingId);
+        return new VisitSummary(visit.map(VisitDetails::getStartTime).orElse(null), count > 0);
     }
 }
