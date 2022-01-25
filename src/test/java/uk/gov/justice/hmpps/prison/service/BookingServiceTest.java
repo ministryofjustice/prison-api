@@ -29,6 +29,7 @@ import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentDetail;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
 import uk.gov.justice.hmpps.prison.api.model.VisitBalances;
 import uk.gov.justice.hmpps.prison.api.model.VisitDetails;
+import uk.gov.justice.hmpps.prison.api.model.VisitSummary;
 import uk.gov.justice.hmpps.prison.api.model.VisitWithVisitors;
 import uk.gov.justice.hmpps.prison.api.model.Visitor;
 import uk.gov.justice.hmpps.prison.api.support.Order;
@@ -1469,6 +1470,29 @@ public class BookingServiceTest {
                     .agencyId(agencyId)
                     .locationType(locationType)
                     .build();
+        }
+    }
+
+    @Nested
+    class getBookingVisitsSummary {
+        @Test
+        void hasVisits() {
+            when(visitInformationRepository.countByBookingId(anyLong())).thenReturn(5L);
+            final var startTime = LocalDateTime.parse("2020-02-01T10:20:30");
+            when(bookingRepository.getBookingVisitNext(anyLong(), any())).thenReturn(Optional.of(
+                VisitDetails.builder().startTime(startTime).build()
+            ));
+            final var summary = bookingService.getBookingVisitsSummary(-1L);
+            assertThat(summary.getStartTime()).isEqualTo(startTime);
+            assertThat(summary.getHasVisits()).isTrue();
+        }
+        @Test
+        void noVisits() {
+            when(visitInformationRepository.countByBookingId(anyLong())).thenReturn(0L);
+            when(bookingRepository.getBookingVisitNext(anyLong(), any())).thenReturn(Optional.empty());
+            final var summary = bookingService.getBookingVisitsSummary(-1L);
+            assertThat(summary.getStartTime()).isNull();
+            assertThat(summary.getHasVisits()).isFalse();
         }
     }
 }

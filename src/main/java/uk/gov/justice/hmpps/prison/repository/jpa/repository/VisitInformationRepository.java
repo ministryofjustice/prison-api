@@ -22,6 +22,8 @@ public interface VisitInformationRepository extends PagingAndSortingRepository<V
         """, nativeQuery = true)
     List<Prison> findByBookingIdGroupByPrisonId(@Param("bookingId") final long bookingId);
 
+    long countByBookingId(@Param("bookingId") final long bookingId);
+
     interface Prison {
         String getPrisonId();
         String getPrisonDescription();

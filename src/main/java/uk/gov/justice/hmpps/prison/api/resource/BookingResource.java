@@ -79,6 +79,7 @@ import uk.gov.justice.hmpps.prison.api.model.UpdateAttendanceBatch;
 import uk.gov.justice.hmpps.prison.api.model.UpdateCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.VisitBalances;
 import uk.gov.justice.hmpps.prison.api.model.VisitDetails;
+import uk.gov.justice.hmpps.prison.api.model.VisitSummary;
 import uk.gov.justice.hmpps.prison.api.model.VisitWithVisitors;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSummary;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.ProvenAdjudicationSummary;
@@ -87,7 +88,6 @@ import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CaseNoteFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationRepository.Prison;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
@@ -104,7 +104,6 @@ import uk.gov.justice.hmpps.prison.service.IncidentService;
 import uk.gov.justice.hmpps.prison.service.InmateAlertService;
 import uk.gov.justice.hmpps.prison.service.InmateService;
 import uk.gov.justice.hmpps.prison.service.MovementsService;
-import uk.gov.justice.hmpps.prison.service.NoContentException;
 import uk.gov.justice.hmpps.prison.service.OffenderNonAssociationsService;
 import uk.gov.justice.hmpps.prison.service.keyworker.KeyWorkerAllocationService;
 
@@ -985,6 +984,17 @@ public class BookingResource {
         @PathVariable("bookingId") @ApiParam(value = "The offender booking id", required = true) final Long bookingId,
         @RequestParam(value = "withVisitors", required = false, defaultValue = "false") @ApiParam(value = "Toggle to return Visitors in response (or not).", required = false) final boolean withVisitors) {
         return bookingService.getBookingVisitNext(bookingId, withVisitors).orElse(null);
+    }
+
+    @ApiResponses({
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found or no permissions to see it.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "The summary of the visits for the offender.", notes = "Will return whether there are any visits and also the date of the next scheduled visit", nickname = "getBookingVisitsSummary")
+    @GetMapping("/{bookingId}/visits/summary")
+    public VisitSummary getBookingVisitsSummary(
+        @PathVariable("bookingId") @ApiParam(value = "The offender booking id", required = true) final Long bookingId) {
+        return bookingService.getBookingVisitsSummary(bookingId);
     }
 
     @ApiResponses({

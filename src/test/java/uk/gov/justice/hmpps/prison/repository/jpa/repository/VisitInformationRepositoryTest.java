@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.repository;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -111,6 +112,25 @@ public class VisitInformationRepositoryTest {
         final var prisons = repository.findByBookingIdGroupByPrisonId(-1);
         assertThat(prisons).extracting(Prison::getPrisonId).containsExactly("LEI", "MDI", "BXI");
         assertThat(prisons).extracting(Prison::getPrisonDescription).containsExactly("LEEDS", "MOORLAND", "BRIXTON");
+    }
+
+    @Nested
+    public class countByBookingId {
+        @Test
+        public void countByBookingId() {
+            final var visits = repository.countByBookingId(-1L);
+            assertThat(visits).isEqualTo(15);
+        }
+        @Test
+        public void countByBookingId_notfound() {
+            final var visits = repository.countByBookingId(-12345L);
+            assertThat(visits).isEqualTo(0);
+        }
+        @Test
+        public void countByBookingId_other() {
+            final var visits = repository.countByBookingId(-2L);
+            assertThat(visits).isEqualTo(1);
+        }
     }
 }
 
