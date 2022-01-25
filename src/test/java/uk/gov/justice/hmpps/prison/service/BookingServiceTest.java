@@ -29,7 +29,6 @@ import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentDetail;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
 import uk.gov.justice.hmpps.prison.api.model.VisitBalances;
 import uk.gov.justice.hmpps.prison.api.model.VisitDetails;
-import uk.gov.justice.hmpps.prison.api.model.VisitSummary;
 import uk.gov.justice.hmpps.prison.api.model.VisitWithVisitors;
 import uk.gov.justice.hmpps.prison.api.model.Visitor;
 import uk.gov.justice.hmpps.prison.api.support.Order;
@@ -1483,7 +1482,7 @@ public class BookingServiceTest {
                 VisitDetails.builder().startTime(startTime).build()
             ));
             final var summary = bookingService.getBookingVisitsSummary(-1L);
-            assertThat(summary.getStartTime()).isEqualTo(startTime);
+            assertThat(summary.getStartDateTime()).isEqualTo(startTime);
             assertThat(summary.getHasVisits()).isTrue();
         }
         @Test
@@ -1491,7 +1490,7 @@ public class BookingServiceTest {
             when(visitInformationRepository.countByBookingId(anyLong())).thenReturn(0L);
             when(bookingRepository.getBookingVisitNext(anyLong(), any())).thenReturn(Optional.empty());
             final var summary = bookingService.getBookingVisitsSummary(-1L);
-            assertThat(summary.getStartTime()).isNull();
+            assertThat(summary.getStartDateTime()).isNull();
             assertThat(summary.getHasVisits()).isFalse();
         }
     }
