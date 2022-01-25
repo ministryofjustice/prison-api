@@ -19,6 +19,7 @@ import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
+import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 import uk.gov.justice.hmpps.prison.service.LocationService;
 import uk.gov.justice.hmpps.prison.service.SearchOffenderService;
 import uk.gov.justice.hmpps.prison.service.support.SearchOffenderRequest;
@@ -105,6 +106,17 @@ public class LocationResource {
         final Boolean includeInactive
     ) {
         return locationService.getLocation(locationId, includeInactive != null && includeInactive);
+    }
+
+    @ApiResponses({
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    @ApiOperation(value = "Returns the location (internal) for a prison based on description")
+    @GetMapping("/description/{description}")
+    public Location getLocationByDescription(
+        @PathVariable("description") @ApiParam(example = "MDI-1", required = true) final String description) {
+           return locationService.getLocationByDescription(description).orElseThrow(EntityNotFoundException.withId(description));
     }
 
     @ApiResponses({
