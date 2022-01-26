@@ -45,13 +45,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -69,13 +67,13 @@ public class AdjudicationsService {
     private final ReferenceCodeRepository<AdjudicationIncidentType> incidentTypeRepository;
     private final ReferenceCodeRepository<AdjudicationActionCode> actionCodeRepository;
     private final AgencyLocationRepository agencyLocationRepository;
+    private final AdjudicationsPartyService adjudicationsPartyService;
     private final AgencyInternalLocationRepository internalLocationRepository;
     private final AuthenticationFacade authenticationFacade;
     private final TelemetryClient telemetryClient;
     private final Clock clock;
     @Value("${batch.max.size:1000}")
     private final int batchSize;
-    private final EntityManager entityManager;
 
     public AdjudicationsService(
         final AdjudicationRepository adjudicationsRepository,
@@ -90,7 +88,7 @@ public class AdjudicationsService {
         final TelemetryClient telemetryClient,
         final Clock clock,
         @Value("${batch.max.size:1000}") final int batchSize,
-        final EntityManager entityManager) {
+        final AdjudicationsPartyService adjudicationsPartyService) {
         this.adjudicationsRepository = adjudicationsRepository;
         this.adjudicationsOffenceTypeRepository = adjudicationsOffenceTypeRepository;
         this.staffUserAccountRepository = staffUserAccountRepository;
@@ -103,7 +101,7 @@ public class AdjudicationsService {
         this.telemetryClient = telemetryClient;
         this.clock = clock;
         this.batchSize = batchSize;
-        this.entityManager = entityManager;
+        this.adjudicationsPartyService = adjudicationsPartyService;
     }
 
     private List offenceCodesFrom(NewAdjudication adjudication) {
@@ -172,11 +170,13 @@ public class AdjudicationsService {
 
         final var createdAdjudication = adjudicationsRepository.save(adjudicationToCreate);
 
-        var updatedWithAncillaryAdjudications = updateAncillaryAdjudicationParties(
-            createdAdjudication,
-            adjudication.getVictimStaffIds(),
-            adjudication.getVictimOffenderIds(),
-            adjudication.getConnectedOffenderIds());
+        var updatedWithAncillaryAdjudications =
+            adjudicationsPartyService.updateAncillaryAdjudicationParties(
+                createdAdjudication,
+                offenderAdjudicationEntry,
+                adjudication.getVictimStaffIds(),
+                adjudication.getVictimOffenderIds(),
+                adjudication.getConnectedOffenderIds());
 
         trackAdjudicationCreated(updatedWithAncillaryAdjudications);
 
@@ -206,11 +206,13 @@ public class AdjudicationsService {
             adjudicationOffenderPartyToUpdate.getCharges().addAll(offenceEntries);
         }
 
-        final var adjudicationWithAncillaryAdjudicationParties = updateAncillaryAdjudicationParties(
-            adjudicationToUpdate,
-            adjudication.getVictimStaffIds(),
-            adjudication.getVictimOffenderIds(),
-            adjudication.getConnectedOffenderIds()
+        final var adjudicationWithAncillaryAdjudicationParties=
+            adjudicationsPartyService.updateAncillaryAdjudicationParties(
+                adjudicationToUpdate,
+                adjudicationToUpdate.getOffenderParty().get(),
+                adjudication.getVictimStaffIds(),
+                adjudication.getVictimOffenderIds(),
+                adjudication.getConnectedOffenderIds()
         );
 
         final var updatedAdjudication = adjudicationsRepository.save(adjudicationWithAncillaryAdjudicationParties);
@@ -322,168 +324,5 @@ public class AdjudicationsService {
         }
         final var adjudicationCharges = offenderPartyDetails.get().getCharges();
         return adjudicationCharges.stream().map(c -> c.getOffenceType().getOffenceCode()).toList();
-    }
-
-    private Adjudication updateAncillaryAdjudicationParties(
-        @NotNull Adjudication adjudication,
-        @NotNull List<Long> victimStaffIds,
-        @NotNull List<String> victimOffenderIds,
-        @NotNull List<String> connectedOffenderIds)
-    {
-        final var victimStaff = victimStaffIds != null ?
-            victimStaffIds.stream()
-                .map(id -> staffUserAccountRepository.findByStaff_StaffId(id)
-                    .orElseThrow(() -> new RuntimeException(format("User not found %s", id))).getStaff()
-                ).collect(Collectors.toList()) : List.<Staff>of();
-        final var victimOffenderBookings = victimOffenderIds != null ?
-            victimOffenderIds.stream()
-                .map(id -> bookingRepository.findByOffenderNomsIdAndBookingSequence(id, 1)
-                    .orElseThrow(() -> new RuntimeException(format("Could not find a current booking for Offender No %s", id)))
-                ).collect(Collectors.toList()) : List.<OffenderBooking>of();
-        final var connectedOffenderBookings = connectedOffenderIds != null ?
-            connectedOffenderIds.stream().map(id -> bookingRepository.findByOffenderNomsIdAndBookingSequence(id, 1)
-                .orElseThrow(() -> new RuntimeException(format("Could not find a current booking for Offender No %s", id)))
-            ).collect(Collectors.toList()) : List.<OffenderBooking>of();
-
-        var remainingAdjudicationParties = ancillaryAdjudicationPartiesToRemain(victimStaff, victimOffenderBookings, connectedOffenderBookings, adjudication);
-        var offenderParty = adjudication.getOffenderParty();
-        adjudication.getParties().clear();
-        adjudication.getParties().add(offenderParty.get());
-        adjudication.getParties().addAll(remainingAdjudicationParties);
-        // There is a database trigger AGENCY_INCIDENT_PARTIES_T1 intended to maintain the uniqueness of offender bookings
-        // If we do not flush at this point then hibernate batch SQL generated may add a new row before deleting an old
-        // one which violates the trigger - so we need to flush here to ensure ordering.
-        entityManager.flush();
-
-        var newAdjudicationParties = newAncillaryAdjudicationParties(victimStaff, victimOffenderBookings, connectedOffenderBookings, adjudication);
-        newAdjudicationParties.forEach(newAdjudicationParty -> {
-            adjudication.getParties().add(newAdjudicationParty);
-            // Oracle gives an error if we do not flush before each insertion because if these inserts are batched
-            // it cannot run the trigger AGENCY_INCIDENT_PARTIES_T1
-            entityManager.flush();
-        });
-        return adjudication;
-    }
-
-    private List<AdjudicationParty> newAncillaryAdjudicationParties(
-        List<Staff> requiredVictimStaff,
-        List<OffenderBooking> requiredVictimOffenderBookings,
-        List<OffenderBooking> requiredConnectedOffenderBookings,
-        Adjudication adjudication
-    ) {
-        var currentDateTime = LocalDateTime.now(clock);
-        AtomicReference<Long> sequence = new AtomicReference<>(adjudication.getMaxSequence());
-
-        var newVictimStaff = idsToAdd(requiredVictimStaff, adjudication.getVictimsStaff(), Staff::getStaffId).stream()
-            .map(staffId -> newVictimStaffAdjudicationParty(
-                    adjudication,
-                    sequence,
-                    currentDateTime,
-                    staffWithId(requiredVictimStaff, staffId).get()));
-
-        var newVictimOffenders = idsToAdd(requiredVictimOffenderBookings, adjudication.getVictimsOffenderBookings(), OffenderBooking::getBookingId).stream()
-            .map(offenderBookingId -> newVictimOffenderAdjudicationParty(
-                adjudication,
-                sequence,
-                currentDateTime,
-                offenderBookingWithId(requiredVictimOffenderBookings, offenderBookingId).get()));
-
-        var newConnectedOffenders = idsToAdd(requiredConnectedOffenderBookings, adjudication.getConnectedOffenderBookings(), OffenderBooking::getBookingId).stream()
-            .map(offenderBookingId -> newConnectedOffenderAdjudicationParty(
-                    adjudication,
-                    sequence,
-                    currentDateTime,
-                    offenderBookingWithId(requiredConnectedOffenderBookings, offenderBookingId).get()));
-
-        return Stream.of(
-            newVictimStaff,
-            newVictimOffenders,
-            newConnectedOffenders
-        ).flatMap(Function.identity()).toList();
-    }
-
-
-    private List<AdjudicationParty> ancillaryAdjudicationPartiesToRemain(
-        List<Staff> requiredVictimStaff,
-        List<OffenderBooking> requiredVictimOffenderBookings,
-        List<OffenderBooking> requiredConnectedOffenderBookings,
-        Adjudication adjudication
-    ) {
-        var remainingVictimsStaffParties = new ArrayList<>(adjudication.getVictimsStaffParties());
-        var remainingVictimsOffenderParties = new ArrayList<>(adjudication.getVictimsOffenderParties());
-        var remainingConnectedOffendersParties = new ArrayList<>(adjudication.getConnectedOffenderParties());
-
-        idsToRemove(requiredVictimStaff, adjudication.getVictimsStaff(), Staff::getStaffId)
-            .forEach(staffId -> remove(remainingVictimsStaffParties, AdjudicationParty::staffId, staffId));
-
-        idsToRemove(requiredVictimOffenderBookings, adjudication.getVictimsOffenderBookings(), OffenderBooking::getBookingId)
-            .forEach(offenderBookingId -> remove(remainingVictimsOffenderParties, AdjudicationParty::offenderBookingId, offenderBookingId));
-
-        idsToRemove(requiredConnectedOffenderBookings, adjudication.getConnectedOffenderBookings(), OffenderBooking::getBookingId)
-            .forEach(offenderBookingId -> remove(remainingConnectedOffendersParties, AdjudicationParty::offenderBookingId, offenderBookingId));
-
-        return List.of(
-            remainingVictimsStaffParties,
-            remainingVictimsOffenderParties,
-            remainingConnectedOffendersParties
-            ).stream().flatMap(Collection::stream).toList();
-    }
-
-    private Optional<Staff> staffWithId(List<Staff> staff, Long id) {
-        return staff.stream().filter(s -> id.equals(s.getStaffId())).findFirst();
-    }
-
-    private Optional<OffenderBooking> offenderBookingWithId(List<OffenderBooking> offenderBookings, Long id) {
-        return offenderBookings.stream().filter(o -> id.equals(o.getBookingId())).findFirst();
-    }
-
-    private AdjudicationParty newConnectedOffenderAdjudicationParty(Adjudication adjudication, AtomicReference<Long> sequence, LocalDateTime currentDateTime, OffenderBooking offenderBooking) {
-        return newAdjudicationParty(adjudication, sequence, currentDateTime)
-            .incidentRole(Adjudication.INCIDENT_ROLE_OFFENDER)
-            .offenderBooking(offenderBooking).build();
-    }
-
-    private AdjudicationParty newVictimStaffAdjudicationParty(Adjudication adjudication, AtomicReference<Long> sequence, LocalDateTime currentDateTime, Staff victimStaff) {
-        return newAdjudicationParty(adjudication, sequence, currentDateTime)
-            .incidentRole(Adjudication.INCIDENT_ROLE_VICTIM)
-            .staff(victimStaff).build();
-    }
-
-    private AdjudicationParty newVictimOffenderAdjudicationParty(Adjudication adjudication, AtomicReference<Long> sequence, LocalDateTime currentDateTime, OffenderBooking offenderBooking) {
-        return newAdjudicationParty(adjudication, sequence, currentDateTime)
-            .incidentRole(Adjudication.INCIDENT_ROLE_VICTIM)
-            .offenderBooking(offenderBooking).build();
-    }
-
-    private AdjudicationParty.AdjudicationPartyBuilder newAdjudicationParty(Adjudication adjudication, AtomicReference<Long> sequence, LocalDateTime currentDateTime) {
-        sequence.set(sequence.get() + 1);
-        return AdjudicationParty.builder()
-            .id(new AdjudicationParty.PK(adjudication, sequence.get()))
-            .partyAddedDate(currentDateTime.toLocalDate());
-    }
-
-    private <T> Set<Long> idsToAdd(List<T> required, List<T> current, Function<T, Long> toId) {
-        return idsToAdd(required.stream().map(toId).toList(), current.stream().map(toId).toList());
-    }
-
-    private <T> Set<Long> idsToRemove(List<T> required, List<T> current, Function<T, Long> toId) {
-        return idsToRemove(required.stream().map(toId).toList(), current.stream().map(toId).toList());
-    }
-
-    private Set<Long> idsToAdd(List<Long> desired, List<Long> current) {
-        var toAdd = new HashSet<>(desired);
-        toAdd.removeAll(current);
-        return toAdd;
-    }
-
-    private Set<Long> idsToRemove(List<Long> desired, List<Long> current) {
-        var toRemove = new HashSet<>(current);
-        toRemove.removeAll(desired);
-        return toRemove;
-    }
-
-    private <T> void remove(List<T> all, Function<T, Long> toId, Long id) {
-        var toRemove = all.stream().filter(t -> id.equals(toId.apply(t))).toList();
-        all.removeAll(toRemove);
     }
 }
