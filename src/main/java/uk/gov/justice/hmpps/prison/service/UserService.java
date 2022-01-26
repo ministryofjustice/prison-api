@@ -117,7 +117,7 @@ public class UserService {
             UserCaseloadRoleFilter.builder().username(username).caseload(allRoles ? null : apiCaseloadId).build())
             .stream().map(r -> allRoles ? r.transform() : r.transformWithoutCaseload())
             .sorted(Comparator.comparing(UserRole::getRoleCode))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public boolean isUserAccessibleCaseloadAvailable(final String caseload, final String username) {

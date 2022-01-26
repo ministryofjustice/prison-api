@@ -39,6 +39,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetailDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
+import uk.gov.justice.hmpps.prison.api.model.PrisonDetails;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerBookingSummary;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeDetail;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
@@ -51,6 +52,7 @@ import uk.gov.justice.hmpps.prison.api.model.SentenceSummary.PrisonTerm;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
 import uk.gov.justice.hmpps.prison.api.model.VisitBalances;
 import uk.gov.justice.hmpps.prison.api.model.VisitDetails;
+import uk.gov.justice.hmpps.prison.api.model.VisitSummary;
 import uk.gov.justice.hmpps.prison.api.model.VisitWithVisitors;
 import uk.gov.justice.hmpps.prison.api.model.Visitor;
 import uk.gov.justice.hmpps.prison.api.model.VisitorRestriction;
@@ -81,6 +83,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRep
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationRepository.Prison;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitorRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
@@ -461,16 +464,18 @@ public class BookingService {
                                             .eventStatusDescription(visitInformation.getEventStatusDescription())
                                             .leadVisitor(visitInformation.getLeadVisitor())
                                             .location(visitInformation.getLocation())
-                                            .relationship(relationshipType != null ? relationshipType.getCode() : null)
-                                            .relationshipDescription(relationshipType != null ? relationshipType.getDescription() : null)
+                                            .relationship(relationshipType.map(RelationshipType::getCode).orElse(null))
+                                            .relationshipDescription(relationshipType.map(RelationshipType::getDescription).orElse(null))
                                             .prison(LocationProcessor.formatLocation(visitInformation.getPrisonDescription()))
                                             .completionStatus(visitInformation.getVisitStatus())
                                             .completionStatusDescription(visitInformation.getVisitStatusDescription())
                                             .attended("ATT".equals(visitInformation.getEventOutcome()))
+                                            .searchType(visitInformation.getSearchType())
+                                            .searchTypeDescription(visitInformation.getSearchTypeDescription())
                                             .build())
                     .visitors(visitorsList)
                     .build();
-                }).collect(Collectors.toList());
+                }).toList();
 
         return new PageImpl<>(visitsWithVisitors, pageable, visits.getTotalElements());
     }
@@ -487,20 +492,19 @@ public class BookingService {
                     .lastName(visitor.getLastName())
                     .leadVisitor(visitor.getLeadVisitor().equals("Y"))
                     .personId(visitor.getPersonId())
-                    .relationship(contactRelationship.getDescription())
+                    .relationship(contactRelationship.map(RelationshipType::getDescription).orElse(null))
                     .attended("ATT".equals(visitor.getEventOutcome()))
                     .build();
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 
-    private RelationshipType getRelationshipType(final Long bookingId, final Long personId) {
-        if (personId == null) return null;
+    private Optional<RelationshipType> getRelationshipType(final Long bookingId, final Long personId) {
+        if (personId == null) return Optional.empty();
         return offenderContactPersonsRepository.findAllByPersonIdAndOffenderBooking_BookingId(personId, bookingId)
             .stream()
-            .sorted(Comparator.comparing(OffenderContactPerson::lastUpdatedDateTime).reversed())
-            .collect(toList())
-            .get(0).getRelationshipType();
+            .max(Comparator.comparing(OffenderContactPerson::lastUpdatedDateTime))
+            .map(OffenderContactPerson::getRelationshipType);
     }
 
     @VerifyBookingAccess
@@ -683,7 +687,7 @@ public class BookingService {
         return Stream.of(activities, visits, appointments)
                 .flatMap(Collection::stream)
                 .sorted(startTimeComparator)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<ScheduledEvent> getEvents(final Collection<Long> bookingIds, final LocalDate from, final LocalDate to) {
@@ -693,7 +697,7 @@ public class BookingService {
 
         return Stream.of(activities, visits, appointments)
                 .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<OffenderSentenceCalculation> getOffenderSentenceCalculationsForAgency(final Set<String> agencyIds) {
@@ -895,7 +899,7 @@ public class BookingService {
 
         return Stream.of(globalRestrictions, restrictions)
                 .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+                .toList();
     }
 
 
@@ -1020,7 +1024,7 @@ public class BookingService {
                     var query = "offenderNo:in:" + quotedAndPipeDelimited(numbers.stream());
                     return bookingRepository.getOffenderSentenceSummary(query, caseloads, filterByCaseloads, isViewInactiveBookings()).stream();
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<OffenderSentenceDetailDto> bookingSentenceSummaries(final List<Long> bookingIds, final Set<String> caseloads, final boolean filterByCaseloads) {
@@ -1032,7 +1036,7 @@ public class BookingService {
                     var query = "bookingId:in:" + numbers.stream().map(String::valueOf).collect(Collectors.joining("|"));
                     return bookingRepository.getOffenderSentenceSummary(query, caseloads, filterByCaseloads, isViewInactiveBookings()).stream();
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private boolean isAllowedToViewAllPrisonerData(final String[] overrideRoles) {
@@ -1113,7 +1117,23 @@ public class BookingService {
             .map(order -> Sort.Order
                 .by(OffenderBookingTransformer.mapSortProperty(order.getProperty()))
                 .with(order.getDirection()))
-            .collect(Collectors.toList()));
+            .toList());
     }
 
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    public List<PrisonDetails> getBookingVisitsPrisons(final Long bookingId) {
+        return visitInformationRepository.findByBookingIdGroupByPrisonId(bookingId)
+            .stream().map(prison -> PrisonDetails.builder()
+                .prisonId(prison.getPrisonId())
+                .prison(LocationProcessor.formatLocation(prison.getPrisonDescription()))
+                .build())
+            .toList();
+    }
+
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    public VisitSummary getBookingVisitsSummary(final Long bookingId) {
+        final var visit = bookingRepository.getBookingVisitNext(bookingId, LocalDateTime.now());
+        final var count = visitInformationRepository.countByBookingId(bookingId);
+        return new VisitSummary(visit.map(VisitDetails::getStartTime).orElse(null), count > 0);
+    }
 }

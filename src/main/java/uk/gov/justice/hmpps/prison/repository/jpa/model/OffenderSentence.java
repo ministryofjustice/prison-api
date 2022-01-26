@@ -145,7 +145,7 @@ public class OffenderSentence extends AuditableEntity {
                 .stream()
                 .map(OffenderSentenceCharge::getOffenderCharge)
                 .map(OffenderCharge::getOffenceDetail)
-                .collect(Collectors.toList()))
+                .toList())
             .build();
     }
 }

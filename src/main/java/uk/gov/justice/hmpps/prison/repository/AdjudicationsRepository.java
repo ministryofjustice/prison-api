@@ -47,6 +47,9 @@ public class AdjudicationsRepository extends RepositoryBase {
         return jdbcTemplate.query(AdjudicationsRepositorySql.FIND_AWARDS.getSql(), createParams("bookingId", bookingId), rowMapper);
     }
 
+    public List<Award> findAwardsForMultipleBookings(final List<Long> bookingIds) {
+        return jdbcTemplate.query(AdjudicationsRepositorySql.FIND_AWARDS_BY_BOOKINGS.getSql(), createParams("bookingIds", bookingIds), rowMapper);
+    }
 
     public List<AdjudicationOffence> findAdjudicationOffences(final String offenderNumber) {
         return jdbcTemplate.query(AdjudicationsRepositorySql.FIND_LATEST_ADJUDICATION_OFFENCE_TYPES_FOR_OFFENDER.getSql(),

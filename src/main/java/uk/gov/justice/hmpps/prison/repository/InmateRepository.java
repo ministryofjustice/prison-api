@@ -537,7 +537,7 @@ public class InmateRepository extends RepositoryBase {
         return offendersLatestCategorisations
             .filter(this::validCategoryCode)
             .filter(categorisation -> nextReviewDateIsBeforeCutOffDateOrPendingCategorisation(categorisation, cutoffDate))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private boolean oneStandardCategorisationExists(final List<OffenderCategorise> offenderCategorisations) {
@@ -553,7 +553,7 @@ public class InmateRepository extends RepositoryBase {
     }
 
     private List<OffenderCategorise>  getCategorisationsWithValidAssessStatus(final List<OffenderCategorise> offenderCategorisations) {
-        return offenderCategorisations.stream().filter(cat -> cat.getCategory() != null && validAssessStatus.contains(cat.getAssessStatus())).collect(Collectors.toList());
+        return offenderCategorisations.stream().filter(cat -> cat.getCategory() != null && validAssessStatus.contains(cat.getAssessStatus())).toList();
     }
 
     public List<OffenderCategorise> getOffenderCategorisations(final List<Long> bookingIds, final String agencyId, final boolean latestOnly) {
@@ -582,7 +582,7 @@ public class InmateRepository extends RepositoryBase {
                         || UNSENTENCED_OR_UNCLASSIFIED_CATEGORY_CODES.contains(o.getCategory()))
 
                 .map(OffenderCategorise::deriveStatus)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<OffenderCategorise> getLatestOffenderCategorisations(final List<OffenderCategorise> individualCatList) {
@@ -592,7 +592,7 @@ public class InmateRepository extends RepositoryBase {
 
         return individualCatList.stream()
                 .filter(oc -> oc.getAssessmentSeq() == null || (oc.getAssessmentSeq().equals(maxSeqOpt.get().getAssessmentSeq()) && oc.getAssessmentDate().equals(maxDateOpt.get().getAssessmentDate())))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<OffenderCategorise> removeEarlierCategorisations(final List<OffenderCategorise> catList) {
@@ -601,7 +601,7 @@ public class InmateRepository extends RepositoryBase {
 
         return bookingIdMap.values().stream()
             .flatMap(List::stream)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public Optional<AssignedLivingUnit> findAssignedLivingUnit(final long bookingId, final String locationTypeRoot) {
@@ -783,7 +783,7 @@ public class InmateRepository extends RepositoryBase {
         }
         if (sequences.size() > 1) {
             final var previousSequences = sequences.stream().skip(1)
-                    .collect(Collectors.toList());
+                    .toList();
             final var updatePreviousResult = jdbcTemplate.update(
                     InmateRepositorySql.CATEGORY_SET_STATUS.getSql(),
                     createParams("bookingId", detail.getBookingId(),

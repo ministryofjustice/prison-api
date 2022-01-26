@@ -364,7 +364,7 @@ public class MovementsService {
                 .eventDescription((String) e.get("eventDescription"))
                 .hold("Y".equals(e.get("holdFlag")))
                 .build()
-            ).collect(Collectors.toList());
+            ).toList();
     }
 
     @Transactional

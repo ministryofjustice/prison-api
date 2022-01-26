@@ -23,6 +23,6 @@ public class QueryParamHelper {
                             final var subtype = StringUtils.substringAfter(n, "+");
                             return subtype.isEmpty() ? List.of() : List.of(subtype);
                         },
-                        (v1, v2) -> Stream.of(v1, v2).flatMap(Collection::stream).collect(Collectors.toList())));
+                        (v1, v2) -> Stream.of(v1, v2).flatMap(Collection::stream).toList()));
     }
 }

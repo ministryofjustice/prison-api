@@ -150,7 +150,7 @@ public class MovementUpdateService {
                 .findByLocationCodeAndAgencyId("CSWAP", agency)
                 .stream()
                 .filter(AgencyInternalLocation::isCellSwap)
-                .collect(Collectors.toList());
+                .toList();
 
         if (cellSwapLocations.size() > 1)
             throw new RuntimeException("There are more than 1 CSWAP locations configured");

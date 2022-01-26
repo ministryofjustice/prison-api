@@ -63,6 +63,6 @@ public class Person extends AuditableEntity {
     private List<PersonInternetAddress> internetAddresses = new ArrayList<>();
 
     public List<PersonInternetAddress> getEmails() {
-        return internetAddresses.stream().filter(ia -> "EMAIL".equals(ia.getInternetAddressClass())).collect(Collectors.toList());
+        return internetAddresses.stream().filter(ia -> "EMAIL".equals(ia.getInternetAddressClass())).toList();
     }
 }

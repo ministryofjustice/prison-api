@@ -48,7 +48,7 @@ public class AddressTransformer {
                                         .activeFlag(addressUsage.isActive())
                                         .addressUsage(addressUsage.getAddressUsage())
                                         .addressUsageDescription(addressUsage.getAddressUsageType() == null ? null : addressUsage.getAddressUsageType().getDescription())
-                                        .build()).collect(Collectors.toList()))
+                                        .build()).toList())
                 .phones(translatePhones(address.getPhones()))
                 .build();
     }

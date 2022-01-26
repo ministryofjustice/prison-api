@@ -50,9 +50,9 @@ public class PrisonerInformationService {
     public Page<PrisonerInformation> getPrisonerInformationByPrison(final @NotNull String agencyId, final Pageable pageable) {
 
         final var page = prisonerStatusInformationRepository.findAllByEstablishmentCode(agencyId, pageable);
-        final var prisonerInformation = page.getContent().stream().map(this::transform).collect(Collectors.toList());
+        final var prisonerInformation = page.getContent().stream().map(this::transform).toList();
 
-        final var bookingIds = prisonerInformation.stream().map(PrisonerInformation::getBookingId).collect(Collectors.toList());
+        final var bookingIds = prisonerInformation.stream().map(PrisonerInformation::getBookingId).toList();
         InmatesHelper.setReleaseDate(prisonerInformation, bookingService.getBookingSentencesSummary(bookingIds));
         Lists.partition(bookingIds, maxBatchSize).forEach(bookingIdList -> InmatesHelper.setCategory(prisonerInformation, repository.findAssessments(bookingIdList, "CATEGORY", Set.of())));
         return new PageImpl<>(prisonerInformation, pageable, page.getTotalElements());

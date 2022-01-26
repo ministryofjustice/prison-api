@@ -256,11 +256,11 @@ public class InmateServiceImplTest {
 
         final var listOf100Longs = Stream.iterate(1L, n -> n + 1)
                 .limit(100)
-                .collect(Collectors.toList());
+                .toList();
 
         final var listOf50Longs = Stream.iterate(101L, n -> n + 1)
                 .limit(50)
-                .collect(Collectors.toList());
+                .toList();
 
         when(repository.getOffenderCategorisations(listOf100Longs, "LEI", true)).thenReturn(Collections.singletonList(catDetail1));
         when(repository.getOffenderCategorisations(listOf50Longs, "LEI", true)).thenReturn(ImmutableList.of(catDetail2, catDetail3));
@@ -290,11 +290,11 @@ public class InmateServiceImplTest {
 
         final var listOf100Longs = Stream.iterate(1L, n -> n + 1)
                 .limit(100)
-                .collect(Collectors.toList());
+                .toList();
 
         final var listOf50Longs = Stream.iterate(101L, n -> n + 1)
                 .limit(50)
-                .collect(Collectors.toList());
+                .toList();
 
         when(repository.getBasicInmateDetailsByBookingIds("LEI", listOf100Longs)).thenReturn(Collections.singletonList(detail1));
         when(repository.getBasicInmateDetailsByBookingIds("LEI", listOf50Longs)).thenReturn(ImmutableList.of(detail2, detail3));

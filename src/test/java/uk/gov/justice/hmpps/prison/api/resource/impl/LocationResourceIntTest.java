@@ -51,6 +51,37 @@ public class LocationResourceIntTest extends ResourceTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
+    @Test
+    public void testGetLocation_by_code() {
+        final var response = getLocationByCode("LEI-A");
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        Location responseBody = response.getBody();
+        assertThat(responseBody).isNotNull();
+        assertThat(responseBody.getAgencyId()).isEqualTo("LEI");
+        assertThat(responseBody.getLocationType()).isEqualTo("WING");
+        assertThat(responseBody.getUserDescription()).isEqualTo("Block A");
+    }
+
+    @Test
+    public void testGetLocation_by_code_not_found() {
+        final var response = getLocationByCode("LEI-X");
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    private ResponseEntity<Location> getLocationByCode(String code) {
+        return testRestTemplate.exchange(
+            "/api/locations/code/{code}",
+            HttpMethod.GET,
+            createHttpEntityWithBearerAuthorisation(
+                "ITAG_USER",
+                List.of(),
+                Map.of(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+            ),
+            Location.class,
+            code);
+    }
+
     ResponseEntity<Location> getLocation(long locationId, String queryString) {
         return testRestTemplate.exchange(
             LOCATION_URL + queryString,

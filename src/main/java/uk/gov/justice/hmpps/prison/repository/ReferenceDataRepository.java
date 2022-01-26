@@ -184,7 +184,7 @@ public class ReferenceDataRepository extends RepositoryBase {
         final var refCodes = getReferenceCodes(domain, true, orderBy, order, offset, limit);
 
         // Extract codes to list
-        final var codes = refCodes.getItems().stream().map(ReferenceCode::getCode).collect(Collectors.toList());
+        final var codes = refCodes.getItems().stream().map(ReferenceCode::getCode).toList();
 
         // Build query to obtain sub-codes for domain (as parent domain) and codes (as parent codes) - this query is
         // not paginated as it must get every sub-code for the specified parent domain and codes. It is, however,
@@ -217,7 +217,7 @@ public class ReferenceDataRepository extends RepositoryBase {
         final Map<String, List<ReferenceCode>> refCodeMap = new HashMap<>();
 
         // Seed map
-        final var parentCodes = referenceCodes.stream().map(ReferenceCode::getParentCode).distinct().collect(Collectors.toList());
+        final var parentCodes = referenceCodes.stream().map(ReferenceCode::getParentCode).distinct().toList();
 
         parentCodes.forEach(pc -> {
             refCodeMap.put(pc, new ArrayList<>());

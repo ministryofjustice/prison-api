@@ -37,7 +37,7 @@ public class OffenderDamageObligationService {
         return damages
                 .stream()
                 .map(this::damageObligationTransformer)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public OffenderDamageObligationModel damageObligationTransformer(final OffenderDamageObligation damageObligation) {

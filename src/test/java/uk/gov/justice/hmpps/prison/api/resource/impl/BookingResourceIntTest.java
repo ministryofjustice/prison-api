@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -22,6 +23,9 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -708,13 +712,28 @@ public class BookingResourceIntTest extends ResourceTest {
             createHttpEntity(AuthToken.NORMAL_USER, null),
             String.class, -1L);
 
-        assertThat(getBodyAsJsonContent(responseLei)).extractingJsonPathNumberValue("$.numberOfElements").isEqualTo(14);
+        assertThat(getBodyAsJsonContent(responseLei)).extractingJsonPathNumberValue("$.numberOfElements").isEqualTo(13);
 
         final var responseMdi = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors?prisonId=MDI", GET,
             createHttpEntity(AuthToken.NORMAL_USER, null),
             String.class, -1L);
 
         assertThat(getBodyAsJsonContent(responseMdi)).extractingJsonPathNumberValue("$.numberOfElements").isEqualTo(1);
+    }
+
+    @Test
+    public void getVisitsWithVisitorsFilteredByCancellationReason() {
+        final var responseAll = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors?cancellationReason=", GET,
+            createHttpEntity(AuthToken.NORMAL_USER, null),
+            String.class, -1L);
+
+        assertThat(getBodyAsJsonContent(responseAll)).extractingJsonPathNumberValue("$.numberOfElements").isEqualTo(15);
+
+        final var responseLei = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors?cancellationReason=NSHOW", GET,
+            createHttpEntity(AuthToken.NORMAL_USER, null),
+            String.class, -1L);
+
+        assertThat(getBodyAsJsonContent(responseLei)).extractingJsonPathNumberValue("$.numberOfElements").isEqualTo(2);
     }
 
     @Test
@@ -780,5 +799,119 @@ public class BookingResourceIntTest extends ResourceTest {
         assertThat(bodyAsJsonContent).extractingJsonPathNumberValue("$.content[2].bedAssignmentHistorySequence").isEqualTo(2);
         assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.content[2].movementMadeBy").isEqualTo("SA");
         assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.content[2].offenderNo").isEqualTo("A1180MA");
+    }
+
+    @Nested
+    public class GetProvenAdjudications {
+
+        @Test
+        public void returns403IfInvalidRole() {
+            final var token = validToken(List.of("ROLE_DUMMY"));
+            final var httpEntity = createHttpEntity(token, List.of(-5, -200));
+
+            final var response = testRestTemplate.exchange(
+                "/api/bookings/proven-adjudications",
+                HttpMethod.POST,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                });
+
+            assertThatStatus(response, 403);
+        }
+
+        @Test
+        public void returnsDataForValidRole() {
+            final var token = validToken(List.of("ROLE_VIEW_ADJUDICATIONS"));
+            final var httpEntity = createHttpEntity(token, List.of(-5, -200));
+
+            final var response = testRestTemplate.exchange(
+                "/api/bookings/proven-adjudications",
+                HttpMethod.POST,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                });
+
+            assertThatStatus(response, 200);
+        }
+
+        @Test
+        public void returnsValidData() {
+            final var token = validToken(List.of("ROLE_VIEW_ADJUDICATIONS"));
+            final var httpEntity = createHttpEntity(token, List.of(-5,-8));
+
+            final var response = testRestTemplate.exchange(
+                "/api/bookings/proven-adjudications?adjudicationCutoffDate=2017-09-13",
+                HttpMethod.POST,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                });
+
+            assertThatJsonFileAndStatus(response, 200, "proven_adjudications.json");
+        }
+    }
+
+    @Nested
+    public class getBookingVisitsPrisons {
+        @Test
+        public void success() {
+            final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits/prisons", GET,
+                createHttpEntity(AuthToken.NORMAL_USER, null),
+                String.class, -1L);
+
+            final var bodyAsJsonContent = getBodyAsJsonContent(response);
+            assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$[0].prisonId").isEqualTo("LEI");
+            assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$[0].prison").isEqualTo("Leeds");
+            assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$[1].prisonId").isEqualTo("MDI");
+            assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$[1].prison").isEqualTo("Moorland");
+            assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$[2].prisonId").isEqualTo("BXI");
+            assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$[2].prison").isEqualTo("Brixton");
+        }
+
+        @Test
+        public void forbidden() {
+            final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits/prisons", GET,
+                createHttpEntity(createJwt("NO_USER", Collections.emptyList()), null),
+                String.class, -1L);
+
+            assertThatStatus(response, 404);
+        }
+    }
+
+    @Nested
+    public class getBookingVisitsSummary {
+        @Test
+        public void success_visits() {
+            final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits/summary", GET,
+                createHttpEntity(AuthToken.NORMAL_USER, null),
+                String.class, -3L);
+
+            final var bodyAsJsonContent = getBodyAsJsonContent(response);
+            assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.startDateTime").isEqualTo(
+                LocalDateTime.now()
+                    .truncatedTo(ChronoUnit.DAYS)
+                    .plus(1, ChronoUnit.DAYS)
+                    .plus(10, ChronoUnit.HOURS)
+                    .format(DateTimeFormatter.ISO_DATE_TIME));
+            assertThat(bodyAsJsonContent).extractingJsonPathBooleanValue("$.hasVisits").isEqualTo(true);
+        }
+        @Test
+        public void success_nonextvisit() {
+            final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits/summary", GET,
+                createHttpEntity(AuthToken.NORMAL_USER, null),
+                String.class, -1L);
+
+            final var bodyAsJsonContent = getBodyAsJsonContent(response);
+            assertThat(bodyAsJsonContent).extractingJsonPathBooleanValue("$.hasVisits").isEqualTo(true);
+            assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.startDateTime").isBlank();
+        }
+
+        @Test
+        public void forbidden() {
+            final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits/summary", GET,
+                createHttpEntity(createJwt("NO_USER", Collections.emptyList()), null),
+                String.class, -1L);
+
+            assertThatStatus(response, 404);
+        }
     }
 }

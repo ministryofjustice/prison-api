@@ -482,6 +482,8 @@ public class BookingServiceTest {
                 .visitType("SOC")
                 .visitTypeDescription("Social")
                 .leadVisitor("John Smith")
+                .searchType("FULL")
+                .searchTypeDescription("Full Search")
                 .build());
 
         var page = new PageImpl<>(visits);
@@ -552,6 +554,8 @@ public class BookingServiceTest {
                                         .relationship("FRI")
                                         .relationshipDescription("Friend")
                                         .attended(true)
+                                        .searchType("FULL")
+                                        .searchTypeDescription("Full Search")
                                         .build())
                         .visitors(List.of(
                                 Visitor
@@ -1465,6 +1469,29 @@ public class BookingServiceTest {
                     .agencyId(agencyId)
                     .locationType(locationType)
                     .build();
+        }
+    }
+
+    @Nested
+    class getBookingVisitsSummary {
+        @Test
+        void hasVisits() {
+            when(visitInformationRepository.countByBookingId(anyLong())).thenReturn(5L);
+            final var startTime = LocalDateTime.parse("2020-02-01T10:20:30");
+            when(bookingRepository.getBookingVisitNext(anyLong(), any())).thenReturn(Optional.of(
+                VisitDetails.builder().startTime(startTime).build()
+            ));
+            final var summary = bookingService.getBookingVisitsSummary(-1L);
+            assertThat(summary.getStartDateTime()).isEqualTo(startTime);
+            assertThat(summary.getHasVisits()).isTrue();
+        }
+        @Test
+        void noVisits() {
+            when(visitInformationRepository.countByBookingId(anyLong())).thenReturn(0L);
+            when(bookingRepository.getBookingVisitNext(anyLong(), any())).thenReturn(Optional.empty());
+            final var summary = bookingService.getBookingVisitsSummary(-1L);
+            assertThat(summary.getStartDateTime()).isNull();
+            assertThat(summary.getHasVisits()).isFalse();
         }
     }
 }

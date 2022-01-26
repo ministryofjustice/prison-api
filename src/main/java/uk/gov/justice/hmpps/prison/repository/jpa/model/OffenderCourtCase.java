@@ -127,7 +127,7 @@ public class OffenderCourtCase extends AuditableEntity {
     }
 
     public Collection<OffenderCharge> getCharges(final Predicate<OffenderCharge> filter) {
-        return charges.stream().filter(filter).collect(Collectors.toList());
+        return charges.stream().filter(filter).toList();
     }
 
     @Override

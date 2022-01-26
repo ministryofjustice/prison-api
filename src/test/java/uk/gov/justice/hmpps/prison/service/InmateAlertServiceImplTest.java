@@ -335,7 +335,7 @@ public class InmateAlertServiceImplTest {
 
     @Test
     public void testGetInmateAlertsByOffenderNosAtAgency() {
-        final var offenders = IntStream.range(1, 20).mapToObj(String::valueOf).collect(Collectors.toList());
+        final var offenders = IntStream.range(1, 20).mapToObj(String::valueOf).toList();
 
         service.getInmateAlertsByOffenderNosAtAgency("MDI", offenders);
 

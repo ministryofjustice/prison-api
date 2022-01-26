@@ -100,7 +100,7 @@ public class CaseNoteService {
 
     public Page<CaseNote> getCaseNotes(final CaseNoteFilter caseNoteFilter, final Pageable pageable) {
         final var pagedListOfCaseNotes = offenderCaseNoteRepository.findAll(caseNoteFilter, pageable);
-        final var transformedCaseNotes = pagedListOfCaseNotes.stream().map(transformer::transform).collect(Collectors.toList());
+        final var transformedCaseNotes = pagedListOfCaseNotes.stream().map(transformer::transform).toList();
 
         log.info("Returning {} out of {} matching Case Notes, starting at {} for booking id {}", transformedCaseNotes.size(), pagedListOfCaseNotes.getTotalElements(), pagedListOfCaseNotes.getPageable().getOffset(), caseNoteFilter.getBookingId());
         return new PageImpl<>(transformedCaseNotes, pageable, pagedListOfCaseNotes.getTotalElements());
@@ -263,7 +263,7 @@ public class CaseNoteService {
             final var subTypes = noteTypesMap.get(event.getMainNoteType());
             // will be null if not in map, otherwise will be empty if type in map with no sub type set
             return subTypes != null && (subTypes.isEmpty() || subTypes.contains(event.getSubNoteType()));
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
 

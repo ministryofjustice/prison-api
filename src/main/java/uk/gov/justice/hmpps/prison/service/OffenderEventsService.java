@@ -68,7 +68,7 @@ public class OffenderEventsService {
         final var offenderEvents = Optional.ofNullable(offenderEventsRepository.findAll(oeFilter))
                 .map(ev -> ev.stream()
                         .map(offenderEventsTransformer::offenderEventOf)
-                        .collect(Collectors.toList()))
+                        .toList())
                 .orElse(Collections.emptyList());
 
         final var xtagEvents = xtagEventsService.findAll(oeFilter);
@@ -82,7 +82,7 @@ public class OffenderEventsService {
         return Optional.of(allEvents.stream()
                 .filter(oe -> typeFilter.isEmpty() || typeFilter.contains(oe.getEventType()))
                 .sorted(sortFunctionOf(maybeSortBy))
-                .collect(Collectors.toList()));
+                .toList());
 
     }
 

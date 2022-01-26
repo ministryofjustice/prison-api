@@ -87,7 +87,7 @@ public class ReferenceDomainsSteps extends CommonSteps {
         final var refCode = referenceCodes.get(index);
 
         final var actualSubCodeDomains = refCode.getSubCodes()
-                .stream().map(ReferenceCode::getDomain).distinct().collect(Collectors.toList());
+                .stream().map(ReferenceCode::getDomain).distinct().toList();
 
         verifyIdentical(actualSubCodeDomains, csv2list(expectedSubCodeDomains));
     }

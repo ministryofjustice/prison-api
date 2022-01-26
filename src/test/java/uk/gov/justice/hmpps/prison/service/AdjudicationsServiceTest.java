@@ -490,7 +490,7 @@ public class AdjudicationsServiceTest {
             final var offenderParty = existingSavedAdjudication.getOffenderParty().get();
             final var offenderPartyCharges = generateExampleAdjudicationCharges(offenderParty, updatedOffenceCodes);
             offenderParty.setCharges(offenderPartyCharges);
-            final var offenceTypes = offenderPartyCharges.stream().map(c -> c.getOffenceType()).collect(Collectors.toList());
+            final var offenceTypes = offenderPartyCharges.stream().map(c -> c.getOffenceType()).toList();
             lenient().when(offenceTypeRepository.findByOffenceCodeIn(updatedOffenceCodes)).thenReturn(offenceTypes);
 
             updatedInternalLocation = AgencyInternalLocation.builder()
@@ -526,7 +526,7 @@ public class AdjudicationsServiceTest {
                         .isEqualTo(savedAdjudication);
                     assertThat(actualAdjudication.getParties()).hasSize(1);
                     final var adjParty = actualAdjudication.getParties().get(0);
-                    final var actualOffenceCodes = adjParty.getCharges().stream().map(c -> c.getOffenceType().getOffenceCode()).collect(Collectors.toList());
+                    final var actualOffenceCodes = adjParty.getCharges().stream().map(c -> c.getOffenceType().getOffenceCode()).toList();
                     assertThat(actualOffenceCodes).isEqualTo(updatedOffenceCodes);
                 }
             ));

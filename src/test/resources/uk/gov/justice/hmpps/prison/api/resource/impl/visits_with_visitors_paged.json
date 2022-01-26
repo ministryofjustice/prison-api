@@ -3,24 +3,71 @@
     {
       "visitors": [
         {
+          "attended": true,
+          "personId": -8,
+          "lastName": "JONES",
+          "firstName": "THADDEUS",
+          "leadVisitor": true
+        },
+        {
+          "relationship": "Brother",
+          "attended": true,
           "personId": -3,
           "lastName": "JOHNSON",
           "firstName": "JOHN",
-          "leadVisitor": true,
-          "relationship": "Brother"
+          "dateOfBirth": "1956-02-28",
+          "leadVisitor": true
         }
       ],
       "visitDetails": {
+        "location": "Carpentry Workshop",
+        "prison": "Leeds",
+        "attended": true,
         "eventStatus": "SCH",
         "eventStatusDescription": "Scheduled (Approved)",
+        "completionStatus": "SCH",
+        "completionStatusDescription": "Scheduled",
         "visitType": "SCON",
         "visitTypeDescription": "Social Contact",
-        "leadVisitor": "JOHN JOHNSON",
-        "relationship": "BRO",
-        "relationshipDescription": "Brother",
+        "leadVisitor": "THADDEUS JONES",
         "startTime": "2019-06-30T10:00:00",
         "endTime": "2019-06-30T11:00:00",
+        "eventOutcome": "ATT",
+        "eventOutcomeDescription": "Attended"
+      }
+    },
+    {
+      "visitors": [
+        {
+          "attended": true,
+          "personId": -8,
+          "lastName": "JONES",
+          "firstName": "THADDEUS",
+          "leadVisitor": true
+        },
+        {
+          "relationship": "Brother",
+          "attended": true,
+          "personId": -3,
+          "lastName": "JOHNSON",
+          "firstName": "JOHN",
+          "dateOfBirth": "1956-02-28",
+          "leadVisitor": true
+        }
+      ],
+      "visitDetails": {
         "location": "Carpentry Workshop",
+        "prison": "Leeds",
+        "attended": true,
+        "eventStatus": "SCH",
+        "eventStatusDescription": "Scheduled (Approved)",
+        "completionStatus": "SCH",
+        "completionStatusDescription": "Scheduled",
+        "visitType": "SCON",
+        "visitTypeDescription": "Social Contact",
+        "leadVisitor": "THADDEUS JONES",
+        "startTime": "2019-06-30T10:00:00",
+        "endTime": "2019-06-30T11:00:00",
         "eventOutcome": "ATT",
         "eventOutcomeDescription": "Attended"
       }
@@ -28,11 +75,16 @@
     {
       "visitors": [],
       "visitDetails": {
+        "location": "Carpentry Workshop",
+        "prison": "Leeds",
+        "attended": true,
+        "eventStatus": "SCH",
+        "eventStatusDescription": "Scheduled (Approved)",
+        "completionStatus": "CAN",
         "visitType": "SCON",
         "visitTypeDescription": "Social Contact",
         "startTime": "2019-06-29T14:00:00",
         "endTime": "2019-06-29T15:00:00",
-        "location": "Carpentry Workshop",
         "eventOutcome": "ATT",
         "eventOutcomeDescription": "Attended"
       }
@@ -40,21 +92,29 @@
     {
       "visitors": [],
       "visitDetails": {
+        "location": "Visiting Room",
+        "prison": "Leeds",
+        "attended": true,
+        "eventStatus": "COMP",
+        "eventStatusDescription": "Completed",
+        "completionStatus": "NORM",
+        "completionStatusDescription": "Normal Completion",
         "visitType": "SCON",
         "visitTypeDescription": "Social Contact",
         "startTime": "2019-06-29T01:00:00",
         "endTime": "2019-06-29T01:00:00",
-        "location": "Visiting Room",
         "eventOutcome": "ATT",
-        "eventOutcomeDescription": "Attended"
+        "eventOutcomeDescription": "Attended",
+        "searchType": "FULL",
+        "searchTypeDescription": "Full Search"
       }
     }
   ],
   "pageable": {
     "sort": {
-      "unsorted": true,
+      "empty": true,
       "sorted": false,
-      "empty": true
+      "unsorted": true
     },
     "offset": 5,
     "pageNumber": 1,
@@ -62,17 +122,17 @@
     "paged": true,
     "unpaged": false
   },
-  "totalPages": 2,
   "last": true,
-  "totalElements": 8,
+  "totalElements": 9,
+  "totalPages": 2,
   "size": 5,
   "number": 1,
   "sort": {
-    "unsorted": true,
+    "empty": true,
     "sorted": false,
-    "empty": true
+    "unsorted": true
   },
   "first": false,
-  "numberOfElements": 3,
+  "numberOfElements": 4,
   "empty": false
 }

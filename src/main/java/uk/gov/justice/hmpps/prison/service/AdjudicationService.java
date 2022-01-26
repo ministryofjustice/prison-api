@@ -13,6 +13,7 @@ import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationOffence;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSummary;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.Award;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.Hearing;
+import uk.gov.justice.hmpps.prison.api.model.adjudications.ProvenAdjudicationSummary;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.repository.AdjudicationsRepository;
 import uk.gov.justice.hmpps.prison.repository.AgencyRepository;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static uk.gov.justice.hmpps.prison.repository.support.StatusFilter.ALL;
 
@@ -49,8 +51,8 @@ public class AdjudicationService {
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public AdjudicationDetail findAdjudication(final String offenderNo, final long adjudicationNo) {
         return repository.findAdjudicationDetails(offenderNo, adjudicationNo)
-                .map(this::enrich)
-                .orElseThrow(EntityNotFoundException.withId(adjudicationNo));
+            .map(this::enrich)
+            .orElseThrow(EntityNotFoundException.withId(adjudicationNo));
     }
 
     private AdjudicationDetail enrich(final AdjudicationDetail detail) {
@@ -59,46 +61,46 @@ public class AdjudicationService {
         val establishmentFinder = establishmentFinder();
 
         val hearings = detail.getHearings().stream()
-                .<Hearing>map(hearing -> {
-                    val location = locationFinder.apply(hearing.getInternalLocationId());
-                    val establishment = establishmentFinder.apply(location.getAgencyId());
-                    return enrich(hearing, location, establishment);
-                })
-                .collect(toList());
+            .<Hearing>map(hearing -> {
+                val location = locationFinder.apply(hearing.getInternalLocationId());
+                val establishment = establishmentFinder.apply(location.getAgencyId());
+                return enrich(hearing, location, establishment);
+            })
+            .collect(toList());
 
         val location = locationFinder.apply(detail.getInternalLocationId());
         val establishment = establishmentFinder.apply(detail.getAgencyId());
 
         return detail.toBuilder()
-                .clearHearings()
-                .establishment(establishment)
-                .interiorLocation(getInteriorLocationDescription(location))
-                .hearings(hearings)
-                .build();
+            .clearHearings()
+            .establishment(establishment)
+            .interiorLocation(getInteriorLocationDescription(location))
+            .hearings(hearings)
+            .build();
     }
 
 
     private Hearing enrich(final Hearing hearing, final Location location, final String establishment) {
 
         return hearing.toBuilder()
-                .establishment(establishment)
-                .location(getInteriorLocationDescription(location))
-                .build();
+            .establishment(establishment)
+            .location(getInteriorLocationDescription(location))
+            .build();
     }
 
     private Function<Long, Location> locationFinder() {
         val locations = new HashMap<Long, Location>();
         return locationId -> locations.computeIfAbsent(locationId, id ->
-                locationRepository.findLocation(id, ALL)
-                        .orElseThrow(EntityNotFoundException.withId(id)));
+            locationRepository.findLocation(id, ALL)
+                .orElseThrow(EntityNotFoundException.withId(id)));
     }
 
     private Function<String, String> establishmentFinder() {
         val establishments = new HashMap<String, String>();
         return agencyId -> establishments.computeIfAbsent(agencyId, id ->
-                agencyRepository.findAgency(id, ALL, null)
-                        .map(agency -> LocationProcessor.formatLocation(agency.getDescription()))
-                        .orElseThrow(EntityNotFoundException.withId(agencyId)));
+            agencyRepository.findAgency(id, ALL, null)
+                .map(agency -> LocationProcessor.formatLocation(agency.getDescription()))
+                .orElseThrow(EntityNotFoundException.withId(agencyId)));
     }
 
     private String getInteriorLocationDescription(final Location location) {
@@ -117,10 +119,10 @@ public class AdjudicationService {
 
     public List<Agency> findAdjudicationAgencies(final String offenderNo) {
         return repository.findAdjudicationAgencies(offenderNo).stream()
-                .map(agency -> agency.toBuilder()
-                        .description(LocationProcessor.formatLocation(agency.getDescription()))
-                        .build())
-                .collect(toList());
+            .map(agency -> agency.toBuilder()
+                .description(LocationProcessor.formatLocation(agency.getDescription()))
+                .build())
+            .collect(toList());
     }
 
     /**
@@ -131,6 +133,11 @@ public class AdjudicationService {
     public AdjudicationSummary getAdjudicationSummary(final Long bookingId, final LocalDate awardCutoffDateParam,
                                                       final LocalDate adjudicationCutoffDateParam) {
         val list = repository.findAwards(bookingId);
+        int adjudicationCount = getAdjudicationCount(awardCutoffDateParam, adjudicationCutoffDateParam, list);
+        return AdjudicationSummary.builder().awards(list).adjudicationCount(adjudicationCount).build();
+    }
+
+    private int getAdjudicationCount(LocalDate awardCutoffDateParam, LocalDate adjudicationCutoffDateParam, List<Award> list) {
         val today = LocalDate.now();
         var awardCutoffDate = awardCutoffDateParam;
         if (awardCutoffDate == null) {
@@ -156,8 +163,21 @@ public class AdjudicationService {
                 iterator.remove();
             }
         }
-        return AdjudicationSummary.builder().awards(list).adjudicationCount(adjudicationCount).build();
+        return adjudicationCount;
     }
+
+    public List<ProvenAdjudicationSummary> getProvenAdjudications(final List<Long> bookingIds,
+                                                                  final LocalDate cutoffDateParam) {
+        return repository.findAwardsForMultipleBookings(bookingIds).stream()
+            .collect(groupingBy(Award::getBookingId))
+            .entrySet().stream().map(e -> {
+
+                    int provenAdjudicationCount = getAdjudicationCount(null, cutoffDateParam, e.getValue());
+                    return ProvenAdjudicationSummary.builder().bookingId(e.getKey()).provenAdjudicationCount(provenAdjudicationCount).build();
+                }
+            ).toList();
+    }
+
 
     private LocalDate calculateEndDate(final Award award) {
         var endDate = award.getEffectiveDate();

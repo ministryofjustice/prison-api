@@ -71,7 +71,7 @@ public class BedAssignmentHistoryService {
         final var results = bedAssignmentsHistory.getContent()
             .stream()
             .map(this::transform)
-            .collect(Collectors.toList());
+            .toList();
 
         return new PageImpl<>(results, pageRequest, bedAssignmentsHistory.getTotalElements());
     }
@@ -86,7 +86,7 @@ public class BedAssignmentHistoryService {
             .findByLivingUnitIdAndDateTimeRange(livingUnitId, from, to)
             .stream()
             .map(this::transform)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @VerifyAgencyAccess
@@ -102,7 +102,7 @@ public class BedAssignmentHistoryService {
             .stream()
             .flatMap(livingUnitIds -> repository.findBedAssignmentHistoriesByAssignmentDateAndLivingUnitIdIn(assignmentDate, new HashSet<>(livingUnitIds)).stream())
             .map(this::transform)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private BedAssignment transform(final BedAssignmentHistory assignment) {

@@ -696,18 +696,18 @@ public class InmateRepositoryTest {
     public void testGetUncategorisedGeneral() {
         final var list = repository.getUncategorised("LEI");
 
-        list.sort(Comparator.comparing(OffenderCategorise::getOffenderNo));
-        assertThat(list).extracting("offenderNo", "bookingId", "firstName", "lastName", "status", "category").contains(
+        final var sortedList = list.stream().sorted(Comparator.comparing(OffenderCategorise::getOffenderNo)).toList();
+        assertThat(sortedList).extracting("offenderNo", "bookingId", "firstName", "lastName", "status", "category").contains(
                 Tuple.tuple("A1234AB", -2L, "GILLIAN", "ANDERSON", UNCATEGORISED, null),
                 Tuple.tuple("A1234AC", -3L, "NORMAN", "BATES", UNCATEGORISED, "X"),
                 Tuple.tuple("A1234AD", -4L, "CHARLES", "CHAPLIN", UNCATEGORISED, "U"),
                 Tuple.tuple("A1234AE", -5L, "DONALD", "MATTHEWS", UNCATEGORISED, "Z"));
 
-        assertThat(list).extracting("offenderNo", "bookingId", "firstName", "lastName", "status",
+        assertThat(sortedList).extracting("offenderNo", "bookingId", "firstName", "lastName", "status",
             "categoriserFirstName", "categoriserLastName", "category").contains(
             Tuple.tuple("A1234AA", -1L, "ARTHUR", "ANDERSON", AWAITING_APPROVAL, "PRISON", "USER", "B"));
 
-        assertThat(list).extracting("offenderNo").doesNotContain("A1234AF", "A1234AG"); // "Active" categorisation should be ignored
+        assertThat(sortedList).extracting("offenderNo").doesNotContain("A1234AF", "A1234AG"); // "Active" categorisation should be ignored
         // Note that size of list may vary depending on whether feature tests have run, e.g. approving booking id -34
     }
 
@@ -715,8 +715,8 @@ public class InmateRepositoryTest {
     public void testGetApprovedCategorised() {
         final var list = repository.getApprovedCategorised("LEI", LocalDate.of(1976, 5, 5));
 
-        list.sort(Comparator.comparing(OffenderCategorise::getOffenderNo));
-        assertThat(list)
+        final var sortedList = list.stream().sorted(Comparator.comparing(OffenderCategorise::getOffenderNo)).toList();
+        assertThat(sortedList)
             .extracting("offenderNo", "bookingId", "approverFirstName", "approverLastName", "categoriserFirstName", "categoriserLastName", "category")
             .contains(Tuple.tuple("A5576RS", -31L, "API", "USER", "CA", "USER", "A"));
     }
@@ -725,8 +725,8 @@ public class InmateRepositoryTest {
     public void testGetOffenderCategorisationsLatest() {
         final var list = repository.getOffenderCategorisations(Arrays.asList(-1L, -31L), "LEI", true);
 
-        list.sort(Comparator.comparing(OffenderCategorise::getOffenderNo));
-        assertThat(list)
+        final var sortedList = list.stream().sorted(Comparator.comparing(OffenderCategorise::getOffenderNo)).toList();
+        assertThat(sortedList)
             .extracting("offenderNo", "bookingId", "approverFirstName", "approverLastName", "categoriserFirstName", "categoriserLastName", "category", "assessStatus")
             .containsExactly(
                 Tuple.tuple("A1234AA", -1L, "API", "USER", "PRISON", "USER", "B", "P"),
@@ -764,7 +764,6 @@ public class InmateRepositoryTest {
     public void testGetRecategoriseNoResults() {
         final var list = repository.getRecategorise("BMI", LocalDate.of(2003, 5, 5));
 
-        list.sort(Comparator.comparing(OffenderCategorise::getOffenderNo));
         assertThat(list).hasSize(0);
     }
 

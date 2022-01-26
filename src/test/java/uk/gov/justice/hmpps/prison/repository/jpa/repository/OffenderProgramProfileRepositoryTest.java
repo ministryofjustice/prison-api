@@ -113,7 +113,7 @@ public class OffenderProgramProfileRepositoryTest {
                 PageRequest.of(0, 10))
             .stream()
             .sorted((o1, o2) -> (int) (o2.getOffenderProgramReferenceId() - o1.getOffenderProgramReferenceId()))
-            .collect(Collectors.toList());
+            .toList();
 
         assertThat(activities).usingElementComparatorIgnoringFields("offenderProgramReferenceId",
                 "offenderBooking", "agencyLocation", "createUserId", "createDatetime")
@@ -198,7 +198,7 @@ public class OffenderProgramProfileRepositoryTest {
                 PageRequest.of(0, 10))
             .stream()
             .sorted((o1, o2) -> (int) (o2.getOffenderProgramReferenceId() - o1.getOffenderProgramReferenceId()))
-            .collect(Collectors.toList());
+            .toList();
 
         assertThat(activities).usingElementComparatorIgnoringFields("offenderProgramReferenceId",
             "offenderBooking", "agencyLocation", "createUserId", "createDatetime")

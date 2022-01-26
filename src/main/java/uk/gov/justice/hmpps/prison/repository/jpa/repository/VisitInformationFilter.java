@@ -29,6 +29,7 @@ public class VisitInformationFilter implements Specification<VisitInformation> {
     private LocalDate toDate;
     private String visitType;
     private String visitStatus;
+    private String cancellationReason;
     private String prisonId;
 
     public Predicate toPredicate(final Root<VisitInformation> root, final CriteriaQuery<?> query, final CriteriaBuilder cb) {
@@ -52,6 +53,10 @@ public class VisitInformationFilter implements Specification<VisitInformation> {
 
         if (visitStatus != null) {
             predicateBuilder.add(cb.equal(root.get("visitStatus"), visitStatus));
+        }
+
+        if (StringUtils.isNotBlank(cancellationReason)) {
+            predicateBuilder.add(cb.equal(root.get("cancellationReason"), cancellationReason));
         }
 
         if (StringUtils.isNotBlank(prisonId)) {
