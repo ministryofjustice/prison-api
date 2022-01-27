@@ -833,7 +833,7 @@ public class PrisonerReleaseAndTransferService {
             offenderBooking.addExternalMovement(builder.build());
         } else {
             courtEventRepository
-                .findOneByParentCourtEventId(latestExternalMovement.getEventId())
+                .findOneByOffenderBookingBookingIdAndParentCourtEventId(offenderBooking.getBookingId(), latestExternalMovement.getEventId())
                 .ifPresentOrElse(
                     courtEvent -> {
                         courtEvent.setEventStatus(eventStatusRepository.findById(EventStatus.COMPLETED).orElseThrow());
