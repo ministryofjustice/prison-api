@@ -27,14 +27,14 @@ jobs:
       - restore_cache:
           key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
       - restore_cache:
-          key: gradle-cache-{{ checksum "build.gradle" }}
+          key: gradle-cache-{{ checksum "build.gradle.kts" }}
       - run: ./gradlew check --exclude-task testIntegration --exclude-task testWithSchemaNomis
       - save_cache:
           key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
           paths:
             - /home/circleci/.gradle/wrapper
       - save_cache:
-          key: gradle-cache-{{ checksum "build.gradle" }}
+          key: gradle-cache-{{ checksum "build.gradle.kts" }}
           paths:
             - /home/circleci/.gradle/caches
       - store_test_results:
@@ -50,14 +50,14 @@ jobs:
       - restore_cache:
           key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
       - restore_cache:
-          key: gradle-cache-{{ checksum "build.gradle" }}
+          key: gradle-cache-{{ checksum "build.gradle.kts" }}
       - run: ./gradlew -Dorg.gradle.jvmargs="--illegal-access=permit" -Dkotlin.daemon.jvm.options="--illegal-access=permit" testIntegration
       - save_cache:
           key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
           paths:
             - /home/circleci/.gradle/wrapper
       - save_cache:
-          key: gradle-cache-{{ checksum "build.gradle" }}
+          key: gradle-cache-{{ checksum "build.gradle.kts" }}
           paths:
             - /home/circleci/.gradle/caches
       - store_test_results:
@@ -73,14 +73,14 @@ jobs:
       - restore_cache:
           key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
       - restore_cache:
-          key: gradle-cache-{{ checksum "build.gradle" }}
+          key: gradle-cache-{{ checksum "build.gradle.kts" }}
       - run: ./gradlew -Dorg.gradle.jvmargs="--illegal-access=permit" -Dkotlin.daemon.jvm.options="--illegal-access=permit" testWithSchemaNomis
       - save_cache:
           key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
           paths:
             - /home/circleci/.gradle/wrapper
       - save_cache:
-          key: gradle-cache-{{ checksum "build.gradle" }}
+          key: gradle-cache-{{ checksum "build.gradle.kts" }}
           paths:
             - /home/circleci/.gradle/caches
       - store_test_results:
