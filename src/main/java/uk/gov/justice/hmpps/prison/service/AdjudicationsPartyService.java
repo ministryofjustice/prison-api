@@ -96,6 +96,7 @@ public class AdjudicationsPartyService {
             // AGENCY_INCIDENT_PARTIES_T1
             entityManager.flush();
         });
+        adjudicationRepository.save(adjudication);
         return AdjudicationsTransformer.transformToDto(adjudication);
     }
 
