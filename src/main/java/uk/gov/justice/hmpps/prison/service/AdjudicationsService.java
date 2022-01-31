@@ -158,7 +158,7 @@ public class AdjudicationsService {
 
         adjudicationsRepository.save(adjudicationToCreate);
 
-        adjudicationsPartyService.updateAncillaryAdjudicationParties(
+        adjudicationsPartyService.updateAdjudicationParties(
             adjudicationNumber,
             adjudication.getVictimStaffIds(),
             adjudication.getVictimOffenderIds(),
@@ -195,7 +195,7 @@ public class AdjudicationsService {
         }
         adjudicationsRepository.save(adjudicationToUpdate);
 
-        adjudicationsPartyService.updateAncillaryAdjudicationParties(
+        adjudicationsPartyService.updateAdjudicationParties(
             adjudicationNumber,
             adjudication.getVictimStaffIds(),
             adjudication.getVictimOffenderIds(),

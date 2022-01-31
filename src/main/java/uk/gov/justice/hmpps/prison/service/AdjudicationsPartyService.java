@@ -54,7 +54,7 @@ public class AdjudicationsPartyService {
     }
 
     @Transactional
-    public AdjudicationDetail updateAncillaryAdjudicationParties(
+    public AdjudicationDetail updateAdjudicationParties(
         @NotNull long adjudicationNumber,
         @NotNull Collection<Long> victimStaffIds,
         @NotNull Collection<String> victimOffenderIds,
@@ -187,19 +187,19 @@ public class AdjudicationsPartyService {
             .offenderBooking(offenderBooking).build();
     }
 
-    private <T> Set<Long> idsToAdd(Collection<T> required, Collection<T> current, Function<T, Long> toId) {
+    public static <T> Set<Long> idsToAdd(Collection<T> required, Collection<T> current, Function<T, Long> toId) {
         var toAdd = new HashSet<>(required.stream().map(toId).toList());
         toAdd.removeAll(current.stream().map(toId).toList());
         return toAdd;
     }
 
-    private <T> Set<Long> idsToRemove(Collection<T> required, Collection<T> current, Function<T, Long> toId) {
+    public static <T> Set<Long> idsToRemove(Collection<T> required, Collection<T> current, Function<T, Long> toId) {
         var toRemove = new HashSet<>(current.stream().map(toId).toList());
         toRemove.removeAll(required.stream().map(toId).toList());
         return toRemove;
     }
 
-    private <T> void remove(Collection<T> all, Function<T, Long> toId, Long id) {
+    public static <T> void remove(Collection<T> all, Function<T, Long> toId, Long id) {
         var toRemove = all.stream().filter(t -> id.equals(toId.apply(t))).toList();
         all.removeAll(toRemove);
     }
