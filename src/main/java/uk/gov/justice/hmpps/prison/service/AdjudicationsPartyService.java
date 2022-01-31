@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -199,8 +200,8 @@ public class AdjudicationsPartyService {
         return toRemove;
     }
 
-    public static <T> void remove(Collection<T> all, Function<T, Long> toId, Long id) {
-        var toRemove = all.stream().filter(t -> id.equals(toId.apply(t))).toList();
+    public static <T> void remove(Collection<T> all, Function<T, Optional<Long>> toId, Long idsToRemove) {
+        var toRemove = all.stream().filter(t -> toId.apply(t).map(id -> id.equals(idsToRemove)).orElse(false)).toList();
         all.removeAll(toRemove);
     }
 }

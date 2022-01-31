@@ -210,7 +210,7 @@ public class AdjudicationsPartyServiceTest {
         var toRemain = List.of(new ExampleClassWithId(1l), new ExampleClassWithId(2l));
         var listToRemoveElementFrom = new ArrayList<>(toRemain);
         listToRemoveElementFrom.add(new ExampleClassWithId(3l));
-        AdjudicationsPartyService.remove(listToRemoveElementFrom, e -> e.id, 3l);
+        AdjudicationsPartyService.remove(listToRemoveElementFrom, e -> Optional.ofNullable(e.id), 3l);
         assertThat(listToRemoveElementFrom)
             .containsExactlyInAnyOrderElementsOf(toRemain);
     }

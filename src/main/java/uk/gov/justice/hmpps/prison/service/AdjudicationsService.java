@@ -92,7 +92,7 @@ public class AdjudicationsService {
         this.adjudicationsPartyService = adjudicationsPartyService;
     }
 
-    private List offenceCodesFrom(NewAdjudication adjudication) {
+    private List<AdjudicationOffenceType> offenceCodesFrom(NewAdjudication adjudication) {
         var offenceCodes = List.< AdjudicationOffenceType >of();
         if (adjudication.getOffenceCodes() != null) {
             offenceCodes = adjudicationsOffenceTypeRepository.findByOffenceCodeIn(adjudication.getOffenceCodes());

@@ -26,6 +26,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
@@ -90,11 +91,11 @@ public class AdjudicationParty extends AuditableEntity {
     @JoinColumn(name = "PERSON_ID")
     private Person person;
 
-    public Long staffId() {
-        return staff != null ? staff.getStaffId() : null;
+    public Optional<Long> staffId() {
+        return Optional.ofNullable(staff).map(Staff::getStaffId);
     }
 
-    public Long offenderBookingId() {
-        return offenderBooking != null ? offenderBooking.getBookingId() : null;
+    public Optional<Long> offenderBookingId() {
+        return Optional.ofNullable(offenderBooking).map(OffenderBooking::getBookingId);
     }
 }
