@@ -1,27 +1,27 @@
 package uk.gov.justice.hmpps.prison.service;
 
-import com.google.common.collect.Lists;
-import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
-import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
-import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.*;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationCharge.PK;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.*;
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
-import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationParty;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Staff;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
+import uk.gov.justice.hmpps.prison.service.transformers.AdjudicationsTransformer;
 
 import javax.persistence.EntityManager;
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -96,7 +96,7 @@ public class AdjudicationsPartyService {
             // AGENCY_INCIDENT_PARTIES_T1
             entityManager.flush();
         });
-        return AdjudicationsService.transformToDto(adjudication);
+        return AdjudicationsTransformer.transformToDto(adjudication);
     }
 
     private Set<AdjudicationParty> newAncillaryAdjudicationParties(

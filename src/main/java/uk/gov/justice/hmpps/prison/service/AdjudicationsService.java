@@ -3,7 +3,6 @@ package uk.gov.justice.hmpps.prison.service;
 import com.google.common.collect.Lists;
 import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,7 +10,6 @@ import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication;
-import uk.gov.justice.hmpps.prison.repository.StaffRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationActionCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationCharge;
@@ -21,7 +19,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationOffenceType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationParty;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.Staff;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationOffenceTypeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
@@ -31,27 +28,18 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeReposi
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
+import uk.gov.justice.hmpps.prison.service.transformers.AdjudicationsTransformer;
 
-import javax.persistence.EntityManager;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.time.Clock;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -172,7 +160,6 @@ public class AdjudicationsService {
 
         adjudicationsPartyService.updateAncillaryAdjudicationParties(
             adjudicationNumber,
-            offenderAdjudicationEntry,
             adjudication.getVictimStaffIds(),
             adjudication.getVictimOffenderIds(),
             adjudication.getConnectedOffenderIds());
@@ -181,7 +168,7 @@ public class AdjudicationsService {
 
         trackAdjudicationCreated(updatedAdjudication);
 
-        return transformToDto(updatedAdjudication);
+        return AdjudicationsTransformer.transformToDto(updatedAdjudication);
     }
 
     @Transactional
@@ -210,7 +197,6 @@ public class AdjudicationsService {
 
         adjudicationsPartyService.updateAncillaryAdjudicationParties(
             adjudicationNumber,
-            adjudicationToUpdate.getOffenderParty().get(),
             adjudication.getVictimStaffIds(),
             adjudication.getVictimOffenderIds(),
             adjudication.getConnectedOffenderIds()
@@ -220,19 +206,19 @@ public class AdjudicationsService {
 
         trackAdjudicationUpdated(adjudicationNumber, updatedAdjudication);
 
-        return transformToDto(updatedAdjudication);
+        return AdjudicationsTransformer.transformToDto(updatedAdjudication);
     }
 
     public AdjudicationDetail getAdjudication(@NotNull final Long adjudicationNumber) {
         final var requestedAdjudication = adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber)
             .orElseThrow(EntityNotFoundException.withMessage(format("Adjudication not found with the number %d", adjudicationNumber)));
-        return transformToDto(requestedAdjudication);
+        return AdjudicationsTransformer.transformToDto(requestedAdjudication);
     }
 
     public List<AdjudicationDetail> getAdjudications(final List<Long> adjudicationNumbers) {
         return Lists.partition(adjudicationNumbers, batchSize).stream().flatMap(
                 numbers -> adjudicationsRepository.findByParties_AdjudicationNumberIn(numbers).stream()
-            ).map(AdjudicationsService::transformToDto)
+            ).map(AdjudicationsTransformer::transformToDto)
             .toList();
     }
 
@@ -280,50 +266,5 @@ public class AdjudicationsService {
         propertyMap.put("statementSize", "" + adjudication.getIncidentDetails().length());
 
         telemetryClient.trackEvent(eventName, propertyMap, null);
-    }
-
-    public static AdjudicationDetail transformToDto(final Adjudication adjudication) {
-        final var offenderPartyDetails = adjudication.getOffenderParty();
-        final var bookingId = offenderPartyDetails
-            .map(AdjudicationParty::getOffenderBooking)
-            .map(OffenderBooking::getBookingId)
-            .orElse(null);
-        final var offenderNo = offenderPartyDetails
-            .map(AdjudicationParty::getOffenderBooking)
-            .map(OffenderBooking::getOffender)
-            .map(Offender::getNomsId)
-            .orElse(null);
-        return AdjudicationDetail.builder()
-            .adjudicationNumber(offenderPartyDetails.map(AdjudicationParty::getAdjudicationNumber).orElse(null))
-            .reporterStaffId(adjudication.getStaffReporter().getStaffId())
-            .bookingId(bookingId)
-            .offenderNo(offenderNo)
-            .agencyId(adjudication.getAgencyLocation().getId())
-            .incidentTime(adjudication.getIncidentTime())
-            .incidentLocationId(adjudication.getInternalLocation().getLocationId())
-            .statement(adjudication.getIncidentDetails())
-            .offenceCodes(transformToOffenceCodes(offenderPartyDetails))
-            .createdByUserId(adjudication.getCreatedByUserId())
-            .victimStaffIds(adjudication.getVictimsStaff().stream()
-                .map(s -> Optional.ofNullable(s).map(Staff::getStaffId).orElse(null))
-                .filter(Objects::nonNull)
-                .toList())
-            .victimOffenderIds(adjudication.getVictimsOffenderBookings().stream()
-                .map(b -> Optional.ofNullable(b).map(OffenderBooking::getOffender).map(Offender::getNomsId).orElse(null))
-                .filter(Objects::nonNull)
-                .toList())
-            .connectedOffenderIds(adjudication.getConnectedOffenderBookings().stream()
-                .map(b -> Optional.ofNullable(b).map(OffenderBooking::getOffender).map(Offender::getNomsId).orElse(null))
-                .filter(Objects::nonNull)
-                .toList())
-            .build();
-    }
-
-    private static List<String> transformToOffenceCodes(Optional<AdjudicationParty> offenderPartyDetails) {
-        if (!offenderPartyDetails.isPresent()) {
-            return null;
-        }
-        final var adjudicationCharges = offenderPartyDetails.get().getCharges();
-        return adjudicationCharges.stream().map(c -> c.getOffenceType().getOffenceCode()).toList();
     }
 }
