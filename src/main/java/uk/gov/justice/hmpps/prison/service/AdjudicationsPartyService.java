@@ -34,6 +34,7 @@ import static java.lang.String.format;
 @Transactional(readOnly = true)
 @Slf4j
 public class AdjudicationsPartyService {
+    private final AdjudicationRepository adjudicationRepository;
     private final StaffUserAccountRepository staffUserAccountRepository;
     private final OffenderBookingRepository bookingRepository;
     private final Clock clock;
@@ -42,22 +43,25 @@ public class AdjudicationsPartyService {
     public AdjudicationsPartyService(
         final StaffUserAccountRepository staffUserAccountRepository,
         final OffenderBookingRepository bookingRepository,
+        final AdjudicationRepository adjudicationRepository,
         final Clock clock,
         final EntityManager entityManager) {
         this.staffUserAccountRepository = staffUserAccountRepository;
+        this.adjudicationRepository = adjudicationRepository;
         this.bookingRepository = bookingRepository;
         this.clock = clock;
         this.entityManager = entityManager;
     }
 
     @Transactional
-    public Adjudication updateAncillaryAdjudicationParties(
-        @NotNull Adjudication adjudication,
-        @NotNull AdjudicationParty offenderParty,
-        @NotNull List<Long> victimStaffIds,
-        @NotNull List<String> victimOffenderIds,
-        @NotNull List<String> connectedOffenderIds)
+    public AdjudicationDetail updateAncillaryAdjudicationParties(
+        @NotNull long adjudicationNumber,
+        @NotNull Collection<Long> victimStaffIds,
+        @NotNull Collection<String> victimOffenderIds,
+        @NotNull Collection<String> connectedOffenderIds)
     {
+        final var adjudication = adjudicationRepository.findByParties_AdjudicationNumber(adjudicationNumber)
+            .orElseThrow(EntityNotFoundException.withMessage(format("Adjudication with number %s does not exist", adjudicationNumber)));
         final var victimStaff = victimStaffIds != null ?
             victimStaffIds.stream()
                 .map(id -> staffUserAccountRepository.findByStaff_StaffId(id)
@@ -73,6 +77,7 @@ public class AdjudicationsPartyService {
                 .orElseThrow(() -> new RuntimeException(format("Could not find a current booking for Offender No %s", id)))
             ).collect(Collectors.toList()) : List.<OffenderBooking>of();
 
+        var offenderParty = adjudication.getOffenderParty().get();
         var remainingAdjudicationParties = ancillaryAdjudicationPartiesToRemain(victimStaff, victimOffenderBookings, connectedOffenderBookings, adjudication);
         adjudication.getParties().clear();
         adjudication.getParties().add(offenderParty);
@@ -91,13 +96,13 @@ public class AdjudicationsPartyService {
             // AGENCY_INCIDENT_PARTIES_T1
             entityManager.flush();
         });
-        return adjudication;
+        return AdjudicationsService.transformToDto(adjudication);
     }
 
-    private List<AdjudicationParty> newAncillaryAdjudicationParties(
-        List<Staff> requiredVictimStaff,
-        List<OffenderBooking> requiredVictimOffenderBookings,
-        List<OffenderBooking> requiredConnectedOffenderBookings,
+    private Set<AdjudicationParty> newAncillaryAdjudicationParties(
+        Collection<Staff> requiredVictimStaff,
+        Collection<OffenderBooking> requiredVictimOffenderBookings,
+        Collection<OffenderBooking> requiredConnectedOffenderBookings,
         Adjudication adjudication
     ) {
         var currentDateTime = LocalDateTime.now(clock);
@@ -119,19 +124,20 @@ public class AdjudicationsPartyService {
                     newConnectedOffenderAdjudicationParty(adjudication, sequence, currentDateTime, offenderBookingWithId(requiredConnectedOffenderBookings, offenderBookingId)));
 
         return Stream.of(newVictimStaff, newVictimOffenders, newConnectedOffenders)
-            .flatMap(Function.identity()).toList();
+            .flatMap(Function.identity())
+            .collect(Collectors.toSet());
     }
 
 
-    private List<AdjudicationParty> ancillaryAdjudicationPartiesToRemain(
-        List<Staff> requiredVictimStaff,
-        List<OffenderBooking> requiredVictimOffenderBookings,
-        List<OffenderBooking> requiredConnectedOffenderBookings,
+    private Set<AdjudicationParty> ancillaryAdjudicationPartiesToRemain(
+        Collection<Staff> requiredVictimStaff,
+        Collection<OffenderBooking> requiredVictimOffenderBookings,
+        Collection<OffenderBooking> requiredConnectedOffenderBookings,
         Adjudication adjudication
     ) {
-        var remainingVictimsStaffParties = new ArrayList<>(adjudication.getVictimsStaffParties());
-        var remainingVictimsOffenderParties = new ArrayList<>(adjudication.getVictimsOffenderParties());
-        var remainingConnectedOffendersParties = new ArrayList<>(adjudication.getConnectedOffenderParties());
+        var remainingVictimsStaffParties = new HashSet<>(adjudication.getVictimsStaffParties());
+        var remainingVictimsOffenderParties = new HashSet<>(adjudication.getVictimsOffenderParties());
+        var remainingConnectedOffendersParties = new HashSet<>(adjudication.getConnectedOffenderParties());
 
         idsToRemove(requiredVictimStaff, adjudication.getVictimsStaff(), Staff::getStaffId)
             .forEach(staffId -> remove(remainingVictimsStaffParties, AdjudicationParty::staffId, staffId));
@@ -143,15 +149,23 @@ public class AdjudicationsPartyService {
             .forEach(offenderBookingId -> remove(remainingConnectedOffendersParties, AdjudicationParty::offenderBookingId, offenderBookingId));
 
         return List.of(remainingVictimsStaffParties, remainingVictimsOffenderParties, remainingConnectedOffendersParties).stream()
-            .flatMap(Collection::stream).toList();
+            .flatMap(Collection::stream)
+            .collect(Collectors.toSet());
     }
 
-    private Staff staffWithId(List<Staff> staff, Long id) {
+    private Staff staffWithId(Collection<Staff> staff, Long id) {
         return staff.stream().filter(s -> id.equals(s.getStaffId())).findFirst().get();
     }
 
-    private OffenderBooking offenderBookingWithId(List<OffenderBooking> offenderBookings, Long id) {
+    private OffenderBooking offenderBookingWithId(Collection<OffenderBooking> offenderBookings, Long id) {
         return offenderBookings.stream().filter(o -> id.equals(o.getBookingId())).findFirst().get();
+    }
+
+    private AdjudicationParty.AdjudicationPartyBuilder newAdjudicationParty(Adjudication adjudication, AtomicReference<Long> sequence, LocalDateTime currentDateTime) {
+        sequence.set(sequence.get() + 1);
+        return AdjudicationParty.builder()
+            .id(new AdjudicationParty.PK(adjudication, sequence.get()))
+            .partyAddedDate(currentDateTime.toLocalDate());
     }
 
     private AdjudicationParty newConnectedOffenderAdjudicationParty(Adjudication adjudication, AtomicReference<Long> sequence, LocalDateTime currentDateTime, OffenderBooking offenderBooking) {
@@ -172,34 +186,19 @@ public class AdjudicationsPartyService {
             .offenderBooking(offenderBooking).build();
     }
 
-    private AdjudicationParty.AdjudicationPartyBuilder newAdjudicationParty(Adjudication adjudication, AtomicReference<Long> sequence, LocalDateTime currentDateTime) {
-        sequence.set(sequence.get() + 1);
-        return AdjudicationParty.builder()
-            .id(new AdjudicationParty.PK(adjudication, sequence.get()))
-            .partyAddedDate(currentDateTime.toLocalDate());
-    }
-
-    private <T> Set<Long> idsToAdd(List<T> required, List<T> current, Function<T, Long> toId) {
-        return idsToAdd(required.stream().map(toId).toList(), current.stream().map(toId).toList());
-    }
-
-    private <T> Set<Long> idsToRemove(List<T> required, List<T> current, Function<T, Long> toId) {
-        return idsToRemove(required.stream().map(toId).toList(), current.stream().map(toId).toList());
-    }
-
-    private Set<Long> idsToAdd(List<Long> desired, List<Long> current) {
-        var toAdd = new HashSet<>(desired);
-        toAdd.removeAll(current);
+    private <T> Set<Long> idsToAdd(Collection<T> required, Collection<T> current, Function<T, Long> toId) {
+        var toAdd = new HashSet<>(required.stream().map(toId).toList());
+        toAdd.removeAll(current.stream().map(toId).toList());
         return toAdd;
     }
 
-    private Set<Long> idsToRemove(List<Long> desired, List<Long> current) {
-        var toRemove = new HashSet<>(current);
-        toRemove.removeAll(desired);
+    private <T> Set<Long> idsToRemove(Collection<T> required, Collection<T> current, Function<T, Long> toId) {
+        var toRemove = new HashSet<>(current.stream().map(toId).toList());
+        toRemove.removeAll(required.stream().map(toId).toList());
         return toRemove;
     }
 
-    private <T> void remove(List<T> all, Function<T, Long> toId, Long id) {
+    private <T> void remove(Collection<T> all, Function<T, Long> toId, Long id) {
         var toRemove = all.stream().filter(t -> id.equals(toId.apply(t))).toList();
         all.removeAll(toRemove);
     }

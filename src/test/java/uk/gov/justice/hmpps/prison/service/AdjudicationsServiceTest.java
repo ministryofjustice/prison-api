@@ -96,7 +96,7 @@ public class AdjudicationsServiceTest {
     @Mock
     private TelemetryClient telemetryClient;
     @Mock
-    private EntityManager entityManager;
+    private AdjudicationsPartyService adjudicationsPartyService;
 
     private AdjudicationsService service;
 
@@ -118,7 +118,7 @@ public class AdjudicationsServiceTest {
             telemetryClient,
             clock,
             BATCH_SIZE,
-            entityManager
+            adjudicationsPartyService
             );
     }
 
@@ -839,6 +839,12 @@ public class AdjudicationsServiceTest {
         }
 
         private void setupMocksInternal(final boolean offenceCodeRequested, final boolean validAgency, final boolean validLocation) {
+//            when(adjudicationsPartyService.updateAncillaryAdjudicationParties()).thenAnswer(
+//                request -> Optional.of(
+//                    OffenderBooking.builder()
+//                        .bookingId((long)request.getArgument(0).hashCode())
+//                        .build()
+//                )
             when(incidentTypeRepository.findById(AdjudicationIncidentType.GOVERNORS_REPORT)).thenReturn(Optional.of(incidentType));
             when(actionCodeRepository.findById(AdjudicationActionCode.PLACED_ON_REPORT)).thenReturn(Optional.of(actionCode));
             when(authenticationFacade.getCurrentUsername()).thenReturn(EXAMPLE_CURRENT_USERNAME);

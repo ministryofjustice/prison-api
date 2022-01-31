@@ -168,19 +168,20 @@ public class AdjudicationsService {
         offenderAdjudicationEntry.setCharges(offenceEntries);
         adjudicationToCreate.getParties().add(offenderAdjudicationEntry);
 
-        final var createdAdjudication = adjudicationsRepository.save(adjudicationToCreate);
+        adjudicationsRepository.save(adjudicationToCreate);
 
-        var updatedWithAncillaryAdjudications =
-            adjudicationsPartyService.updateAncillaryAdjudicationParties(
-                createdAdjudication,
-                offenderAdjudicationEntry,
-                adjudication.getVictimStaffIds(),
-                adjudication.getVictimOffenderIds(),
-                adjudication.getConnectedOffenderIds());
+        adjudicationsPartyService.updateAncillaryAdjudicationParties(
+            adjudicationNumber,
+            offenderAdjudicationEntry,
+            adjudication.getVictimStaffIds(),
+            adjudication.getVictimOffenderIds(),
+            adjudication.getConnectedOffenderIds());
 
-        trackAdjudicationCreated(updatedWithAncillaryAdjudications);
+        final var updatedAdjudication = adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber).get();
 
-        return transformToDto(updatedWithAncillaryAdjudications);
+        trackAdjudicationCreated(updatedAdjudication);
+
+        return transformToDto(updatedAdjudication);
     }
 
     @Transactional
@@ -205,17 +206,17 @@ public class AdjudicationsService {
             adjudicationOffenderPartyToUpdate.getCharges().clear();
             adjudicationOffenderPartyToUpdate.getCharges().addAll(offenceEntries);
         }
+        adjudicationsRepository.save(adjudicationToUpdate);
 
-        final var adjudicationWithAncillaryAdjudicationParties=
-            adjudicationsPartyService.updateAncillaryAdjudicationParties(
-                adjudicationToUpdate,
-                adjudicationToUpdate.getOffenderParty().get(),
-                adjudication.getVictimStaffIds(),
-                adjudication.getVictimOffenderIds(),
-                adjudication.getConnectedOffenderIds()
+        adjudicationsPartyService.updateAncillaryAdjudicationParties(
+            adjudicationNumber,
+            adjudicationToUpdate.getOffenderParty().get(),
+            adjudication.getVictimStaffIds(),
+            adjudication.getVictimOffenderIds(),
+            adjudication.getConnectedOffenderIds()
         );
 
-        final var updatedAdjudication = adjudicationsRepository.save(adjudicationWithAncillaryAdjudicationParties);
+        final var updatedAdjudication = adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber).get();
 
         trackAdjudicationUpdated(adjudicationNumber, updatedAdjudication);
 
@@ -231,7 +232,7 @@ public class AdjudicationsService {
     public List<AdjudicationDetail> getAdjudications(final List<Long> adjudicationNumbers) {
         return Lists.partition(adjudicationNumbers, batchSize).stream().flatMap(
                 numbers -> adjudicationsRepository.findByParties_AdjudicationNumberIn(numbers).stream()
-            ).map(this::transformToDto)
+            ).map(AdjudicationsService::transformToDto)
             .toList();
     }
 
@@ -281,7 +282,7 @@ public class AdjudicationsService {
         telemetryClient.trackEvent(eventName, propertyMap, null);
     }
 
-    private AdjudicationDetail transformToDto(final Adjudication adjudication) {
+    public static AdjudicationDetail transformToDto(final Adjudication adjudication) {
         final var offenderPartyDetails = adjudication.getOffenderParty();
         final var bookingId = offenderPartyDetails
             .map(AdjudicationParty::getOffenderBooking)
@@ -318,7 +319,7 @@ public class AdjudicationsService {
             .build();
     }
 
-    private List<String> transformToOffenceCodes(Optional<AdjudicationParty> offenderPartyDetails) {
+    private static List<String> transformToOffenceCodes(Optional<AdjudicationParty> offenderPartyDetails) {
         if (!offenderPartyDetails.isPresent()) {
             return null;
         }
