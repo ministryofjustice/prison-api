@@ -115,18 +115,18 @@ public class AdjudicationsPartyServiceTest {
         var expectedVictimStaffIds = expectedVictimStaffUserAccounts.stream().map(s -> s.getStaff().getStaffId()).toList();
 
         Adjudication adjudication = basicAdjudication();
-        var idOfConnectedOffenderToBeRemovedFromAdjudication = 1000l;
+        var idOfConnectedOffenderBookingToBeRemovedFromAdjudication = 1000l;
         adjudication.getParties().add(
             AdjudicationParty.builder()
                 .id(new AdjudicationParty.PK(adjudication, 2l))
                 .incidentRole(Adjudication.INCIDENT_ROLE_OFFENDER)
                 .offenderBooking(
                     OffenderBooking.builder()
-                        .bookingId(idOfConnectedOffenderToBeRemovedFromAdjudication)
+                        .bookingId(idOfConnectedOffenderBookingToBeRemovedFromAdjudication)
                         .build())
                 .build());
 
-        when(adjudicationRepository.findByParties_AdjudicationNumber(any())).thenReturn(Optional.of(basicAdjudication()));
+        when(adjudicationRepository.findByParties_AdjudicationNumber(any())).thenReturn(Optional.of(adjudication));
         mockOffenderBookings(expectedConnectedOffenderBookings, expectedVictimOffenderBooking);
         mockStaffUserAccounts(expectedVictimStaffUserAccounts);
 
@@ -134,7 +134,42 @@ public class AdjudicationsPartyServiceTest {
 
         verify(adjudicationRepository).save(assertArgThat(actualAdjudication -> {
             assertThat(actualAdjudication.getConnectedOffenderBookings().stream().map(OffenderBooking::getBookingId))
-                .doesNotContain(idOfConnectedOffenderToBeRemovedFromAdjudication);
+                .doesNotContain(idOfConnectedOffenderBookingToBeRemovedFromAdjudication);
+        }));
+    }
+
+    @Test
+    public void retainsPartiesFromAdjudication() {
+        var expectedVictimOffenderBooking = generateVictimOffenders();
+        var expectedVictimOffenderIds = expectedVictimOffenderBooking.stream().map(b -> b.getOffender().getNomsId()).toList();
+        var expectedConnectedOffenderBookings = generateConnectedOffenders();
+        var expectedConnectedOffenderIds = expectedConnectedOffenderBookings.stream().map(b -> b.getOffender().getNomsId()).toList();
+        var expectedVictimStaffUserAccounts = generateVictimStaff();
+        var expectedVictimStaffIds = expectedVictimStaffUserAccounts.stream().map(s -> s.getStaff().getStaffId()).toList();
+
+        Adjudication adjudication = basicAdjudication();
+        var idOfConnectedOffenderBookingToBeRetainedOnAdjudication = expectedConnectedOffenderBookings.get(0).getBookingId();
+        var sequenceOfConnectedOffenderBookingToBeRetainedOnAdjudication = 2l;
+        adjudication.getParties().add(
+            AdjudicationParty.builder()
+                .id(new AdjudicationParty.PK(adjudication, sequenceOfConnectedOffenderBookingToBeRetainedOnAdjudication))
+                .incidentRole(Adjudication.INCIDENT_ROLE_OFFENDER)
+                .offenderBooking(
+                    OffenderBooking.builder()
+                        .bookingId(idOfConnectedOffenderBookingToBeRetainedOnAdjudication)
+                        .build())
+                .build());
+
+        when(adjudicationRepository.findByParties_AdjudicationNumber(any())).thenReturn(Optional.of(adjudication));
+        mockOffenderBookings(expectedConnectedOffenderBookings, expectedVictimOffenderBooking);
+        mockStaffUserAccounts(expectedVictimStaffUserAccounts);
+
+        service.updateAdjudicationParties(1l, expectedVictimStaffIds, expectedVictimOffenderIds, expectedConnectedOffenderIds);
+
+        verify(adjudicationRepository).save(assertArgThat(actualAdjudication -> {
+            assertThat(actualAdjudication.getConnectedOffenderPartyWithBookingId(idOfConnectedOffenderBookingToBeRetainedOnAdjudication)
+                .get().getId().getPartySeq())
+                .isEqualTo(sequenceOfConnectedOffenderBookingToBeRetainedOnAdjudication);
         }));
     }
 

@@ -122,13 +122,6 @@ public class Adjudication extends AuditableEntity {
             .toList();
     }
 
-    public List<Long> getVictimsStaffIds() {
-        return getVictimsStaff().stream()
-            .map(s -> Optional.ofNullable(s).map(Staff::getStaffId).orElse(null))
-            .filter(Objects::nonNull)
-            .toList();
-    }
-
     public List<AdjudicationParty> getVictimsOffenderParties() {
         return parties.stream()
             .filter(p -> INCIDENT_ROLE_VICTIM.equals(p.getIncidentRole()))
@@ -147,6 +140,13 @@ public class Adjudication extends AuditableEntity {
             .filter(p -> INCIDENT_ROLE_OFFENDER.equals(p.getIncidentRole()))
             .filter(p -> !p.getId().getPartySeq().equals(1L))
             .filter(p -> p.getOffenderBooking() != null).toList();
+    }
+
+    public Optional<AdjudicationParty> getConnectedOffenderPartyWithBookingId(Long bookingId) {
+        return getConnectedOffenderParties().stream()
+            .filter(p -> p.getOffenderBooking() != null)
+            .filter(p -> bookingId.equals(p.getOffenderBooking().getBookingId()))
+            .findFirst();
     }
 
     public List<OffenderBooking> getConnectedOffenderBookings() {
