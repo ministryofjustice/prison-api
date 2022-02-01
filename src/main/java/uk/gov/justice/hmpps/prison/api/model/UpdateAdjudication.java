@@ -43,9 +43,9 @@ public class UpdateAdjudication {
     @ApiModelProperty(value = "The list of staff ids who were victims", position = 7, example = "[17381, 17515]")
     private List<Long> victimStaffIds = new ArrayList<>();
 
-    @ApiModelProperty(value = "The list of offender numbers of offenders who were victims", position = 8, example = "[\"A5060GG\", \"G0662DY\"]")
+    @ApiModelProperty(value = "The list of offender numbers of offenders who were victims", position = 8)
     private List<String> victimOffenderIds = new ArrayList<>();
 
-    @ApiModelProperty(value = "The list of offender numbers of the offenders who were connected", position = 9, example = "[\"A5015UN\", \"G1835DY\"]")
+    @ApiModelProperty(value = "The list of offender numbers of the offenders who were connected", position = 9)
     private List<String> connectedOffenderIds = new ArrayList<>();
 }

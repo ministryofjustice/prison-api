@@ -60,9 +60,9 @@ public class AdjudicationDetail {
     @ApiModelProperty(value = "The list of staff ids who were victims", position = 11, example = "[17381, 17515]")
     private List<Long> victimStaffIds;
 
-    @ApiModelProperty(value = "The list of offender numbers of offenders who were victims", position = 12, example = "[\"A5060GG\", \"G0662DY\"]")
+    @ApiModelProperty(value = "The list of offender numbers of offenders who were victims", position = 12)
     private List<String> victimOffenderIds;
 
-    @ApiModelProperty(value = "The list of offender numbers of the offenders who were connected", position = 13, example = "[\"A5015UN\", \"G1835DY\"]")
+    @ApiModelProperty(value = "The list of offender numbers of the offenders who were connected", position = 13)
     private List<String> connectedOffenderIds;
 }
