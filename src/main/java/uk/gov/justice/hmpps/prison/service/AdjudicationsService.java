@@ -17,6 +17,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationCharge.PK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationIncidentType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationOffenceType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationParty;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationOffenceTypeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
@@ -26,6 +28,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeReposi
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
+import uk.gov.justice.hmpps.prison.service.transformers.AdjudicationsTransformer;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -35,7 +38,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -53,6 +55,7 @@ public class AdjudicationsService {
     private final ReferenceCodeRepository<AdjudicationIncidentType> incidentTypeRepository;
     private final ReferenceCodeRepository<AdjudicationActionCode> actionCodeRepository;
     private final AgencyLocationRepository agencyLocationRepository;
+    private final AdjudicationsPartyService adjudicationsPartyService;
     private final AgencyInternalLocationRepository internalLocationRepository;
     private final AuthenticationFacade authenticationFacade;
     private final TelemetryClient telemetryClient;
@@ -72,7 +75,8 @@ public class AdjudicationsService {
         final AuthenticationFacade authenticationFacade,
         final TelemetryClient telemetryClient,
         final Clock clock,
-        @Value("${batch.max.size:1000}") final int batchSize) {
+        @Value("${batch.max.size:1000}") final int batchSize,
+        final AdjudicationsPartyService adjudicationsPartyService) {
         this.adjudicationsRepository = adjudicationsRepository;
         this.adjudicationsOffenceTypeRepository = adjudicationsOffenceTypeRepository;
         this.staffUserAccountRepository = staffUserAccountRepository;
@@ -85,6 +89,18 @@ public class AdjudicationsService {
         this.telemetryClient = telemetryClient;
         this.clock = clock;
         this.batchSize = batchSize;
+        this.adjudicationsPartyService = adjudicationsPartyService;
+    }
+
+    private List<AdjudicationOffenceType> offenceCodesFrom(NewAdjudication adjudication) {
+        var offenceCodes = List.< AdjudicationOffenceType >of();
+        if (adjudication.getOffenceCodes() != null) {
+            offenceCodes = adjudicationsOffenceTypeRepository.findByOffenceCodeIn(adjudication.getOffenceCodes());
+            if (offenceCodes.size() != adjudication.getOffenceCodes().size()) {
+                throw new RuntimeException("Offence code not found");
+            }
+        }
+        return offenceCodes;
     }
 
     @Transactional
@@ -94,13 +110,7 @@ public class AdjudicationsService {
         final var currentDateTime = LocalDateTime.now(clock);
         final var incidentDateTime = adjudication.getIncidentTime();
 
-        var offenceCodes = List.< AdjudicationOffenceType >of();
-        if (adjudication.getOffenceCodes() != null) {
-            offenceCodes = adjudicationsOffenceTypeRepository.findByOffenceCodeIn(adjudication.getOffenceCodes());
-            if (offenceCodes.size() != adjudication.getOffenceCodes().size()) {
-                throw new RuntimeException("Offence code not found");
-            }
-        }
+        final var offenceCodes = offenceCodesFrom(adjudication);
 
         final var reporter = staffUserAccountRepository.findById(reporterName)
             .orElseThrow(() -> new RuntimeException(format("User not found %s", reporterName)));
@@ -144,13 +154,21 @@ public class AdjudicationsService {
         final var offenceEntries = generateOffenceCharges(offenderAdjudicationEntry, offenceCodes);
 
         offenderAdjudicationEntry.setCharges(offenceEntries);
-        adjudicationToCreate.setParties(List.of(offenderAdjudicationEntry));
+        adjudicationToCreate.getParties().add(offenderAdjudicationEntry);
 
-        final var createdAdjudication = adjudicationsRepository.save(adjudicationToCreate);
+        adjudicationsRepository.save(adjudicationToCreate);
 
-        trackAdjudicationCreated(createdAdjudication);
+        adjudicationsPartyService.updateAdjudicationParties(
+            adjudicationNumber,
+            adjudication.getVictimStaffIds(),
+            adjudication.getVictimOffenderIds(),
+            adjudication.getConnectedOffenderIds());
 
-        return transformToDto(createdAdjudication);
+        final var updatedAdjudication = adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber).get();
+
+        trackAdjudicationCreated(updatedAdjudication);
+
+        return AdjudicationsTransformer.transformToDto(updatedAdjudication);
     }
 
     @Transactional
@@ -175,24 +193,32 @@ public class AdjudicationsService {
             adjudicationOffenderPartyToUpdate.getCharges().clear();
             adjudicationOffenderPartyToUpdate.getCharges().addAll(offenceEntries);
         }
+        adjudicationsRepository.save(adjudicationToUpdate);
 
-        final var updatedAdjudication = adjudicationsRepository.save(adjudicationToUpdate);
+        adjudicationsPartyService.updateAdjudicationParties(
+            adjudicationNumber,
+            adjudication.getVictimStaffIds(),
+            adjudication.getVictimOffenderIds(),
+            adjudication.getConnectedOffenderIds()
+        );
+
+        final var updatedAdjudication = adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber).get();
 
         trackAdjudicationUpdated(adjudicationNumber, updatedAdjudication);
 
-        return transformToDto(updatedAdjudication);
+        return AdjudicationsTransformer.transformToDto(updatedAdjudication);
     }
 
     public AdjudicationDetail getAdjudication(@NotNull final Long adjudicationNumber) {
         final var requestedAdjudication = adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber)
             .orElseThrow(EntityNotFoundException.withMessage(format("Adjudication not found with the number %d", adjudicationNumber)));
-        return transformToDto(requestedAdjudication);
+        return AdjudicationsTransformer.transformToDto(requestedAdjudication);
     }
 
     public List<AdjudicationDetail> getAdjudications(final List<Long> adjudicationNumbers) {
         return Lists.partition(adjudicationNumbers, batchSize).stream().flatMap(
                 numbers -> adjudicationsRepository.findByParties_AdjudicationNumberIn(numbers).stream()
-            ).map(this::transformToDto)
+            ).map(AdjudicationsTransformer::transformToDto)
             .toList();
     }
 
@@ -221,7 +247,10 @@ public class AdjudicationsService {
         final Map<String, String> logMap = new HashMap<>();
         logMap.put("reporterUsername", authenticationFacade.getCurrentUsername());
         logMap.put("offenderNo", createdAdjudication.getOffenderParty()
-            .map(o -> o.getOffenderBooking().getOffender().getNomsId()).orElse(""));
+            .map(AdjudicationParty::getOffenderBooking)
+            .map(OffenderBooking::getOffender)
+            .map(Offender::getNomsId)
+            .orElse(""));
         trackAdjudicationDetails("AdjudicationCreated", createdAdjudication, logMap);
     }
 
@@ -237,31 +266,5 @@ public class AdjudicationsService {
         propertyMap.put("statementSize", "" + adjudication.getIncidentDetails().length());
 
         telemetryClient.trackEvent(eventName, propertyMap, null);
-    }
-
-    private AdjudicationDetail transformToDto(final Adjudication adjudication) {
-        final var offenderPartyDetails = adjudication.getOffenderParty();
-        final var bookingId = offenderPartyDetails.map(p -> p.getOffenderBooking().getBookingId()).orElse(null);
-        final var offenderNo = offenderPartyDetails.map(p -> p.getOffenderBooking().getOffender().getNomsId()).orElse(null);
-        return AdjudicationDetail.builder()
-            .adjudicationNumber(offenderPartyDetails.map(AdjudicationParty::getAdjudicationNumber).orElse(null))
-            .reporterStaffId(adjudication.getStaffReporter().getStaffId())
-            .bookingId(bookingId)
-            .offenderNo(offenderNo)
-            .agencyId(adjudication.getAgencyLocation().getId())
-            .incidentTime(adjudication.getIncidentTime())
-            .incidentLocationId(adjudication.getInternalLocation().getLocationId())
-            .statement(adjudication.getIncidentDetails())
-            .offenceCodes(transformToOffenceCodes(offenderPartyDetails))
-            .createdByUserId(adjudication.getCreatedByUserId())
-            .build();
-    }
-
-    private List<String> transformToOffenceCodes(Optional<AdjudicationParty> offenderPartyDetails) {
-        if (!offenderPartyDetails.isPresent()) {
-            return null;
-        }
-        final var adjudicationCharges = offenderPartyDetails.get().getCharges();
-        return adjudicationCharges.stream().map(c -> c.getOffenceType().getOffenceCode()).toList();
     }
 }

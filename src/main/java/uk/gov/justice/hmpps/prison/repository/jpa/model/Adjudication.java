@@ -27,6 +27,7 @@ import javax.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,6 +45,7 @@ public class Adjudication extends AuditableEntity {
 
     public static final String INCIDENT_ROLE_OFFENDER = "S";
     public static final String INCIDENT_ROLE_OTHER = "OTH";
+    public static final String INCIDENT_ROLE_VICTIM = "V";
     public static final String INCIDENT_STATUS_ACTIVE = "ACTIVE";
     public static final String LOCK_FLAG_UNLOCKED = "N";
 
@@ -100,10 +102,59 @@ public class Adjudication extends AuditableEntity {
 
     public Optional<AdjudicationParty> getOffenderParty() {
         return parties.stream().filter(p -> INCIDENT_ROLE_OFFENDER.equals(p.getIncidentRole())).findFirst();
-
     }
 
     public String getCreatedByUserId() {
         return this.getCreateUserId();
+    }
+
+    public List<AdjudicationParty> getVictimsStaffParties(){
+        return parties.stream()
+            .filter(p -> INCIDENT_ROLE_VICTIM.equals(p.getIncidentRole()))
+            .filter(p -> p.getStaff() != null)
+            .toList();
+    }
+
+    public List<Staff> getVictimsStaff() {
+        return getVictimsStaffParties().stream()
+            .map(p -> p.getStaff())
+            .toList();
+    }
+
+    public List<AdjudicationParty> getVictimsOffenderParties() {
+        return parties.stream()
+            .filter(p -> INCIDENT_ROLE_VICTIM.equals(p.getIncidentRole()))
+            .filter(p -> p.getOffenderBooking() != null).toList();
+    }
+
+    public List<OffenderBooking> getVictimsOffenderBookings() {
+        return getVictimsOffenderParties().stream()
+            .map(AdjudicationParty::getOffenderBooking)
+            .toList();
+
+    }
+
+    public List<AdjudicationParty> getConnectedOffenderParties() {
+        return parties.stream()
+            .filter(p -> INCIDENT_ROLE_OFFENDER.equals(p.getIncidentRole()))
+            .filter(p -> !p.getId().getPartySeq().equals(1L))
+            .filter(p -> p.getOffenderBooking() != null).toList();
+    }
+
+    public Optional<AdjudicationParty> getConnectedOffenderPartyWithBookingId(Long bookingId) {
+        return getConnectedOffenderParties().stream()
+            .filter(p -> p.getOffenderBooking() != null)
+            .filter(p -> bookingId.equals(p.getOffenderBooking().getBookingId()))
+            .findFirst();
+    }
+
+    public List<OffenderBooking> getConnectedOffenderBookings() {
+        return getConnectedOffenderParties().stream()
+            .map(AdjudicationParty::getOffenderBooking)
+            .toList();
+    }
+
+    public Long getMaxSequence(){
+        return parties.stream().map(p -> p.getId().getPartySeq()).max(Comparator.comparing(Long::valueOf)).orElse(1L);
     }
 }
