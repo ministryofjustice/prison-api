@@ -40,12 +40,12 @@ public class UpdateAdjudication {
     @ApiModelProperty(value = "The list of offence codes the offender may be charged with", notes = "If this value is not specified then the existing offence codes will be kept", position = 6, example = "51:80,51:25A")
     private List<String> offenceCodes;
 
-    @ApiModelProperty(value = "The list of staff ids who were victims", position = 7)
+    @ApiModelProperty(value = "The list of staff ids who were victims", position = 7, example = "[17381, 17515]")
     private List<Long> victimStaffIds = new ArrayList<>();
 
-    @ApiModelProperty(value = "The list of offender numbers of offenders who were victims", position = 8)
+    @ApiModelProperty(value = "The list of offender numbers of offenders who were victims", position = 8, example = "[\"A5060GG\", \"G0662DY\"]")
     private List<String> victimOffenderIds = new ArrayList<>();
 
-    @ApiModelProperty(value = "The list of offender numbers of the offenders who were connected", position = 9)
+    @ApiModelProperty(value = "The list of offender numbers of the offenders who were connected", position = 9, example = "[\"A5015UN\", \"G1835DY\"]")
     private List<String> connectedOffenderIds = new ArrayList<>();
 }

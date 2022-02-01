@@ -130,7 +130,6 @@ public class AdjudicationsPartyService {
             .collect(Collectors.toSet());
     }
 
-
     private Set<AdjudicationParty> ancillaryAdjudicationPartiesToRemain(
         Collection<Staff> requiredVictimStaff,
         Collection<OffenderBooking> requiredVictimOffenderBookings,
