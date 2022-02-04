@@ -83,7 +83,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRep
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationRepository.Prison;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitorRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
@@ -812,7 +811,7 @@ public class BookingService {
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     public List<OffenderSentenceAndOffences> getSentenceAndOffenceDetails(final Long bookingId) {
-        final var offenderSentences = offenderSentenceRepository.findByOffenderBooking_BookingId_AndCalculationType_CalculationTypeNotLike(bookingId, "AGG%");
+        final var offenderSentences = offenderSentenceRepository.findByOffenderBooking_BookingId_AndCalculationType_CalculationTypeNotLikeAndCalculationType_CategoryNot(bookingId, "%AGG%", "LICENCE");
         return offenderSentences.stream()
             .map(OffenderSentence::getSentenceAndOffenceDetail)
             .collect(toList());
