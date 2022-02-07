@@ -57,7 +57,7 @@ public abstract class ReferenceCode implements Serializable {
     private boolean active;
 
     public ReferenceCode(final String domain, final String code, final String description) {
-        this(domain, code, description, 1, true);
+        this(domain, code, description, 99, true);
     }
 
     public static String getDescriptionOrNull(final ReferenceCode referenceCode) {
