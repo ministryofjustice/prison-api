@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus.CASE_STS;
@@ -123,7 +122,7 @@ public class OffenderCourtCase extends AuditableEntity {
     }
 
     public boolean isActive() {
-        return caseStatus != null && caseStatus.isActive();
+        return caseStatus != null && caseStatus.isActiveStatus();
     }
 
     public Collection<OffenderCharge> getCharges(final Predicate<OffenderCharge> filter) {

@@ -16,6 +16,10 @@ public class Country extends ReferenceCode {
         super(COUNTRY, code, description);
     }
 
+    public Country(final String code, final String description, final int sequence) {
+        super(COUNTRY, code, description, sequence, true);
+    }
+
     public static ReferenceCode.Pk pk(final String code) {
         return new ReferenceCode.Pk(COUNTRY, code);
     }

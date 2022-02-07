@@ -21,8 +21,10 @@ public class IepLevel {
     @NotBlank(message = "The IEP level must not be blank")
     private String iepLevel;
 
-
     @ApiModelProperty(value = "A long description of the IEP level value", required = true, example = "Basic")
     @NotBlank(message = "The IEP description must not be blank")
     private String iepDescription;
+
+    @ApiModelProperty(value = "Sequence Order of IEP", example = "1")
+    private Integer sequence;
 }
