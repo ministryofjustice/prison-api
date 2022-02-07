@@ -275,8 +275,9 @@ public class AgencyService {
                 iep -> IepLevel.builder()
                     .iepLevel(iep.getIepLevel().getCode())
                     .iepDescription(iep.getIepLevel().getDescription())
+                    .sequence(iep.getIepLevel().getListSequence())
                     .build()
-        )
+        ).sorted(Comparator.comparing(IepLevel::getSequence))
         .toList();
     }
 

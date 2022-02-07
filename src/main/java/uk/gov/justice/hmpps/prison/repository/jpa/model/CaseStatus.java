@@ -20,7 +20,7 @@ public class CaseStatus extends ReferenceCode {
         super(CASE_STS, code, description);
     }
 
-    boolean isActive() {
+    boolean isActiveStatus() {
         return ACTIVE_CODE.equalsIgnoreCase(this.getCode());
     }
 }
