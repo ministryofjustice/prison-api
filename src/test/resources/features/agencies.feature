@@ -133,8 +133,8 @@ Feature: Agencies
   Scenario: Retrieve IEP levels for an agency
     When a request is submitted to retrieve IEP levels for agency "LEI"
     Then the returned IEP levels are as follows:
-      | iepLevel | iepDescription |
-      | ENT      | Entry          |
-      | BAS      | Basic          |
-      | STD      | Standard       |
-      | ENH      | Enhanced       |
+      | iepLevel | iepDescription | sequence |
+      | BAS      | Basic          | 1        |
+      | ENT      | Entry          | 2        |
+      | STD      | Standard       | 3        |
+      | ENH      | Enhanced       | 4        |

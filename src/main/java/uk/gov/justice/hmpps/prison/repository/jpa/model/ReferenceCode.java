@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
@@ -47,6 +48,17 @@ public abstract class ReferenceCode implements Serializable {
     private String code;
 
     private String description;
+
+    @Column(name = "LIST_SEQ")
+    private Integer listSequence;
+
+    @Column(name = "ACTIVE_FLAG")
+    @Type(type="yes_no")
+    private boolean active;
+
+    public ReferenceCode(final String domain, final String code, final String description) {
+        this(domain, code, description, 99, true);
+    }
 
     public static String getDescriptionOrNull(final ReferenceCode referenceCode) {
         return referenceCode != null ? referenceCode.getDescription() : null;
