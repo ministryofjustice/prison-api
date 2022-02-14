@@ -33,7 +33,7 @@ public class PrisonerRepository extends RepositoryBase {
     enum ColumnMapper {
         ORACLE_11(ColumnMappings.getOracleColumnMappings()),
         ORACLE_12(ColumnMappings.getOracleColumnMappings()),
-        HSQLDB(ColumnMappings.getAnsiColumnMappings());
+        H2(ColumnMappings.getAnsiColumnMappings());
 
         private final Map<String, String> columnMappings;
 
@@ -46,7 +46,7 @@ public class PrisonerRepository extends RepositoryBase {
             return switch (databaseDialect) {
                 case ORACLE_11 -> ORACLE_11.columnMappings;
                 case ORACLE_12 -> ORACLE_12.columnMappings;
-                case HSQLDB -> HSQLDB.columnMappings;
+                case H2 -> H2.columnMappings;
                 default -> Collections.emptyMap();
             };
         }

@@ -35,7 +35,7 @@ public class QueryBuilderFactory {
     public IQueryBuilder getQueryBuilder(final String initialSql, final Map<String, FieldMapper> fieldMap) {
 
         return switch (dialect) {
-            case HSQLDB -> new HSQLDBQueryBuilder(initialSql, fieldMap, dialect);
+            case H2 -> new H2QueryBuilder(initialSql, fieldMap, dialect);
             case ORACLE_11, ORACLE_12, POSTGRES -> new OracleQueryBuilder(initialSql, fieldMap, dialect);
         };
     }

@@ -18,10 +18,10 @@ spring:
       nomis:
         - "nomis-local"
         - "ai"
-      nomis-hsqldb:
+      nomis-h2:
         - "dev"
       test:
-        - "nomis-hsqldb"
+        - "nomis-h2"
 
   jpa:
     open-in-view: false

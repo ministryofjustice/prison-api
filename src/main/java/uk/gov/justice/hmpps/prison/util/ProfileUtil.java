@@ -11,6 +11,6 @@ public class ProfileUtil {
     }
 
     public static boolean isInMemoryDb(Environment env) {
-        return Arrays.stream(env.getActiveProfiles()).anyMatch(p -> p.contains("hsqldb"));
+        return Arrays.stream(env.getActiveProfiles()).anyMatch(p -> p.contains("h2"));
     }
 }

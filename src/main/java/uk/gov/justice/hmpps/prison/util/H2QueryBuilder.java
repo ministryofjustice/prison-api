@@ -6,11 +6,11 @@ import uk.gov.justice.hmpps.prison.repository.mapping.FieldMapper;
 import java.util.Map;
 import java.util.Optional;
 
-public class HSQLDBQueryBuilder extends AbstractQueryBuilder {
+public class H2QueryBuilder extends AbstractQueryBuilder {
 
     private static final String COUNT_SELECT = "WITH TOTAL_COUNT AS ( SELECT COUNT(*) AS RECORD_COUNT %s ) SELECT * FROM TOTAL_COUNT, (";
 
-    public HSQLDBQueryBuilder(final String initialSQL, final Map<String, FieldMapper> fieldMap, final DatabaseDialect dialect) {
+    public H2QueryBuilder(final String initialSQL, final Map<String, FieldMapper> fieldMap, final DatabaseDialect dialect) {
         super(initialSQL, fieldMap, dialect);
     }
 
