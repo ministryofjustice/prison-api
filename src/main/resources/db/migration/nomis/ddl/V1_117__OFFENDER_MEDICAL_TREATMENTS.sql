@@ -48,7 +48,7 @@ comment on column OFFENDER_MEDICAL_TREATMENTS.COMMENT_TEXT is 'Comment Text';
 
 comment on column OFFENDER_MEDICAL_TREATMENTS.DESCRIPTION is 'The treatment description';
 
-comment on column OFFENDER_MEDICAL_TREATMENTS.TREATMENT_PROVIDER_CODE is 'The treatment provider code';
+comment on column OFFENDER_MEDICAL_TREATMENTS.TREATMENT_PROVIDER_CODE is 'The treatment provider code (HEALTH_PROV domain)';
 
 comment on column OFFENDER_MEDICAL_TREATMENTS.CREATE_DATETIME is 'The timestamp when the record is created';
 

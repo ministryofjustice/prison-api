@@ -17,7 +17,7 @@ CREATE TABLE OFFENDER_PRG_PRF_PAY_BANDS
     AUDIT_ADDITIONAL_INFO          VARCHAR2(256),
     CONSTRAINT OFFENDER_PRG_PRF_PAY_BANDS_PK PRIMARY KEY (OFF_PRGREF_ID, START_DATE)
 );
-COMMENT ON TABLE OFFENDER_PRG_PRF_PAY_BANDS IS 'This row identifies the payment bands associated with an offender for a prison activity'
+COMMENT ON TABLE OFFENDER_PRG_PRF_PAY_BANDS IS 'This row identifies the payment bands associated with an offender for a prison activity';
 COMMENT ON COLUMN OFFENDER_PRG_PRF_PAY_BANDS.OFF_PRGREF_ID IS 'The associated identifier to the offenders program profile';
 COMMENT ON COLUMN OFFENDER_PRG_PRF_PAY_BANDS.START_DATE IS 'The start date on which the payment band starts';
 COMMENT ON COLUMN OFFENDER_PRG_PRF_PAY_BANDS.END_DATE IS 'The end date on which the payment band starts';
