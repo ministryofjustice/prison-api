@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.0.2-beta"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.0.3"
 }
 
 configurations {
@@ -29,7 +29,7 @@ dependencies {
 
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
-  implementation(platform("com.amazonaws:aws-java-sdk-bom:1.12.147"))
+  implementation(platform("com.amazonaws:aws-java-sdk-bom:1.12.158"))
 
   implementation("javax.annotation:javax.annotation-api:1.3.2")
   implementation("javax.xml.bind:jaxb-api:2.3.1")
@@ -52,30 +52,30 @@ dependencies {
   compileOnly("org.projectlombok:lombok:1.18.22")
 
   runtimeOnly("org.hsqldb:hsqldb:2.5.1")
-  runtimeOnly("org.flywaydb:flyway-core:8.4.3")
+  runtimeOnly("org.flywaydb:flyway-core:8.4.4")
 
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
-  testImplementation("io.rest-assured:rest-assured:4.5.0")
-  testImplementation("io.rest-assured:json-schema-validator:4.5.0")
-  testImplementation("io.rest-assured:spring-mock-mvc:4.5.0")
+  testImplementation("io.rest-assured:rest-assured:4.5.1")
+  testImplementation("io.rest-assured:json-schema-validator:4.5.1")
+  testImplementation("io.rest-assured:spring-mock-mvc:4.5.1")
   testImplementation("org.springframework.security:spring-security-test")
-  testImplementation("com.google.code.gson:gson:2.8.9")
+  testImplementation("com.google.code.gson:gson:2.9.0")
   testImplementation("org.powermock:powermock-api-mockito2:2.0.9")
   testImplementation("org.powermock:powermock-module-junit4:2.0.9")
 
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.28.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.31.0")
 
-  testImplementation("net.serenity-bdd:serenity-core:3.1.16")
-  testImplementation("net.serenity-bdd:serenity-junit:3.1.16")
-  testImplementation("net.serenity-bdd:serenity-spring:3.1.16")
-  testImplementation("net.serenity-bdd:serenity-cucumber:3.1.16")
+  testImplementation("net.serenity-bdd:serenity-core:3.2.0")
+  testImplementation("net.serenity-bdd:serenity-junit:3.2.0")
+  testImplementation("net.serenity-bdd:serenity-spring:3.2.0")
+  testImplementation("net.serenity-bdd:serenity-cucumber:3.2.0")
   testImplementation("com.paulhammant:ngwebdriver:1.1.6")
-  testImplementation("org.slf4j:slf4j-api:1.7.35")
+  testImplementation("org.slf4j:slf4j-api:1.7.36")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
   testImplementation("org.glassfish:javax.el:3.0.0")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.0.20") // Keep this at 2.0.20 as advised here: https://github.com/ministryofjustice/prison-api/pull/748#discussion_r512664711
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.0.30")
 
   testCompileOnly("org.projectlombok:lombok:1.18.22")
 }
