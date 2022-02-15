@@ -5,12 +5,9 @@ import com.google.common.collect.Lists
 import org.springframework.boot.info.BuildProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Import
 import org.springframework.web.bind.annotation.RestController
-import springfox.bean.validators.configuration.BeanValidatorPluginsConfiguration
 import springfox.documentation.builders.PathSelectors
 import springfox.documentation.builders.RequestHandlerSelectors
-import springfox.documentation.oas.annotations.EnableOpenApi
 import springfox.documentation.service.ApiInfo
 import springfox.documentation.service.ApiKey
 import springfox.documentation.service.Contact
@@ -28,8 +25,6 @@ import java.time.ZonedDateTime
 import java.util.Optional
 
 @Configuration
-@EnableOpenApi
-@Import(BeanValidatorPluginsConfiguration::class)
 class SwaggerConfig(buildProperties: BuildProperties) {
   private val version = buildProperties.version
 
@@ -54,9 +49,6 @@ class SwaggerConfig(buildProperties: BuildProperties) {
       .securitySchemes(Lists.newArrayList<SecurityScheme>(apiKey))
       .forCodeGeneration(true)
   }
-
-  @Bean
-  fun jsonSerializer(): JsonSerializer = SwaggerJsonSerializer()
 
   private fun securityContext(): SecurityContext = SecurityContext.builder()
     .securityReferences(listOf(SecurityReference(SECURITY_SCHEME_REF, arrayOfNulls(0))))
