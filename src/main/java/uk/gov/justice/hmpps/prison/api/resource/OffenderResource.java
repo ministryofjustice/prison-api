@@ -52,6 +52,7 @@ import uk.gov.justice.hmpps.prison.api.model.RequestToRecall;
 import uk.gov.justice.hmpps.prison.api.model.RequestToReleasePrisoner;
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferIn;
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOut;
+import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.SentenceSummary;
 import uk.gov.justice.hmpps.prison.api.model.UpdateCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationDetail;
@@ -88,6 +89,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
 import static uk.gov.justice.hmpps.prison.util.ResourceUtils.nvl;
 
 @RestController
@@ -299,7 +301,7 @@ public class OffenderResource {
         @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "List")})
     @ApiOperation(value = "Return a list of offender nos across the estate for which an incident has recently occurred or changed", notes = "This query is slow and can take several minutes")
     @GetMapping("/incidents/candidates")
-    public ResponseEntity<List<String>> getIncidentCandidates(@RequestParam("fromDateTime") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @ApiParam(value = "A recent timestamp that indicates the earliest time to consider. NOTE More than a few days in the past can result in huge amounts of data.", required = true, example = "2019-10-22T03:00") @NotNull final LocalDateTime fromDateTime, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @ApiParam(value = "Requested offset of first offender in returned list.", defaultValue = "0") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "1000", required = false) @ApiParam(value = "Requested limit to number of offenders returned.", defaultValue = "1000") final Long pageLimit) {
+    public ResponseEntity<List<String>> getIncidentCandidates(@RequestParam("fromDateTime") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @ApiParam(value = "A recent timestamp that indicates the earliest time to consider. NOTE More than a few days in the past can result in huge amounts of data.", required = true, example = "2019-10-22T03:00") @NotNull final LocalDateTime fromDateTime, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @ApiParam(value = "Requested offset of first offender in returned list.", defaultValue = "0") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "1000", required = false) @ApiParam(value = "Requested limit to number of offenders returned.", defaultValue = "1000") final Long pageLimit) {
         var paged = incidentService.getIncidentCandidates(fromDateTime,
             nvl(pageOffset, 0L),
             nvl(pageLimit, 1000L));
@@ -328,7 +330,7 @@ public class OffenderResource {
                                                                                    @RequestParam(value = "offenceId", required = false) @ApiParam("An offence id to allow optionally filtering by type of offence") final String offenceId,
                                                                                    @RequestParam(value = "agencyId", required = false) @ApiParam("An agency id to allow optionally filtering by the agency in which the offence occurred") final String agencyId,
                                                                                    @RequestParam(value = "finding", required = false) @ApiParam(value = "Finding code to allow optionally filtering by type of finding", example = "NOT_PROVED") final String finding,
-                                                                                   @RequestParam(value = "fromDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam("Adjudications must have been reported on or after this date (in YYYY-MM-DD format).") final LocalDate fromDate, @RequestParam(value = "toDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam("Adjudications must have been reported on or before this date (in YYYY-MM-DD format).") LocalDate toDate,
+                                                                                   @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DATE) @ApiParam("Adjudications must have been reported on or after this date (in YYYY-MM-DD format).") final LocalDate fromDate, @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DATE) @ApiParam("Adjudications must have been reported on or before this date (in YYYY-MM-DD format).") LocalDate toDate,
                                                                                    @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @ApiParam(value = "Requested offset of first record in returned collection of adjudications.", defaultValue = "0") final Long pageOffset,
                                                                                    @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @ApiParam(value = "Requested limit to number of adjudications returned.", defaultValue = "10") final Long pageLimit) {
 
@@ -408,7 +410,7 @@ public class OffenderResource {
         @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "List")})
     @ApiOperation(value = "Return a list of offender nos across the estate for which an alert has recently been created or changed", notes = "This query is slow and can take several minutes")
     @GetMapping("/alerts/candidates")
-    public ResponseEntity<List<String>> getAlertCandidates(@RequestParam("fromDateTime") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @ApiParam(value = "A recent timestamp that indicates the earliest time to consider. NOTE More than a few days in the past can result in huge amounts of data.", required = true, example = "2019-11-22T03:00") @NotNull final LocalDateTime fromDateTime, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @ApiParam(value = "Requested offset of first offender in returned list.", defaultValue = "0") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "1000", required = false) @ApiParam(value = "Requested limit to number of offenders returned.", defaultValue = "1000") final Long pageLimit) {
+    public ResponseEntity<List<String>> getAlertCandidates(@RequestParam("fromDateTime") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @ApiParam(value = "A recent timestamp that indicates the earliest time to consider. NOTE More than a few days in the past can result in huge amounts of data.", required = true, example = "2019-11-22T03:00") @NotNull final LocalDateTime fromDateTime, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @ApiParam(value = "Requested offset of first offender in returned list.", defaultValue = "0") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "1000", required = false) @ApiParam(value = "Requested limit to number of offenders returned.", defaultValue = "1000") final Long pageLimit) {
         return alertService.getAlertCandidates(fromDateTime,
             nvl(pageOffset, 0L),
             nvl(pageLimit, 1000L)).getResponse();
@@ -420,8 +422,8 @@ public class OffenderResource {
     @GetMapping("/{offenderNo}/case-notes/v2")
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public Page<CaseNote> getOffenderCaseNotes(@PathVariable("offenderNo") @ApiParam(value = "Noms ID or Prisoner number (also called offenderNo)", required = true, example = "A1234AA") final String offenderNo,
-                                               @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam(value = "start contact date to search from", example = "2021-02-03") final LocalDate from,
-                                               @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam(value = "end contact date to search up to (including this date)", example = "2021-02-04") final LocalDate to,
+                                               @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DATE) @ApiParam(value = "start contact date to search from", example = "2021-02-03") final LocalDate from,
+                                               @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DATE) @ApiParam(value = "end contact date to search up to (including this date)", example = "2021-02-04") final LocalDate to,
                                                @RequestParam(value = "type", required = false) @ApiParam(value = "Filter by case note type", example = "GEN") final String type,
                                                @RequestParam(value = "subType", required = false) @ApiParam(value = "Filter by case note sub-type", example = "OBS") final String subType,
                                                @RequestParam(value = "prisonId", required = false) @ApiParam(value = "Filter by the ID of the prison", example = "LEI") final String prisonId,
@@ -634,5 +636,20 @@ public class OffenderResource {
     {
         final var booking = bookingService.getLatestBookingByOffenderNo(offenderNo);
         return bookingService.getOffenderRestrictions(booking.getBookingId(),activeRestrictionsOnly );
+    }
+
+    @ApiResponses({
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    @ApiOperation(value = "All scheduled events for offender.", notes = "All scheduled events for offender.", nickname = "getEvents")
+    @GetMapping("/{offenderNo}/events")
+    public List<ScheduledEvent> getEvents(
+        @ApiParam(name = "offenderNo", value = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo", required = true) @NotNull final String offenderNo,
+        @ApiParam("Returned events must be scheduled on or after this date (in YYYY-MM-DD format).") @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DATE) final LocalDate fromDate,
+        @ApiParam("Returned events must be scheduled on or before this date (in YYYY-MM-DD format).") @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DATE) final LocalDate toDate) {
+
+        final var booking = bookingService.getLatestBookingByOffenderNo(offenderNo);
+        return bookingService.getEvents(booking.getBookingId(), fromDate, toDate);
     }
 }
