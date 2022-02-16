@@ -13,6 +13,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 public interface ExternalMovementRepository extends PagingAndSortingRepository<ExternalMovement, ExternalMovement.PK> {
@@ -45,13 +46,23 @@ public interface ExternalMovementRepository extends PagingAndSortingRepository<E
         @Param("end") LocalDateTime end,
         Pageable pageable);
 
+    //We get bigger set of data due to missing index on active flag and movement direction
+    default List<ExternalMovement> findCurrentTemporaryAbsencesForPrison(
+        @Param("agencyId") String agencyId,
+        @Param("movementType") MovementType movementType) {
+        List<ExternalMovement> list = findTemporaryAbsencesForPrison(agencyId, movementType);
+        return list.stream().filter(externalMovement ->
+            externalMovement.isActive() == true
+                && externalMovement.getOffenderBooking().isActive() == true
+                && MovementDirection.OUT.equals(externalMovement.getMovementDirection())
+        ).collect(Collectors.toList());
+
+    }
+
     @Query("select m " +
         "     from ExternalMovement m " +
         "    where m.fromAgency.id = :agencyId " +
-        "          and m.movementDirection = 'OUT' " +
-        "          and m.active = true " +
         "          and m.movementType = :movementType " +
-        "          and m.offenderBooking.active = true " +
         "          and m.movementSequence = (" +
         "            select max(m2.movementSequence) " +
         "              from ExternalMovement m2 " +
@@ -59,9 +70,10 @@ public interface ExternalMovementRepository extends PagingAndSortingRepository<E
         "                   and m2.offenderBooking.bookingId = m.offenderBooking.bookingId " +
         "          )"
     )
-    List<ExternalMovement> findCurrentTemporaryAbsencesForPrison(
+    List<ExternalMovement> findTemporaryAbsencesForPrison(
         @Param("agencyId") String agencyId,
         @Param("movementType") MovementType movementType);
+
 
     List<ExternalMovement> findAllByOffenderBooking_BookingIdAndActive(Long bookingId, boolean active);
 
