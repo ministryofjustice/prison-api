@@ -41,9 +41,11 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.MovementTypeAndReas
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -84,6 +86,11 @@ public class MovementsServiceImplTest {
 
     @BeforeEach
     public void init() {
+        Clock clock = Clock.fixed(
+            LocalDateTime.of(2020, 1, 2, 3, 4, 5).atZone(ZoneId.systemDefault()).toInstant(),
+            ZoneId.systemDefault());
+
+
         movementsService = new MovementsService(
             movementsRepository,
             externalMovementRepository,
@@ -93,6 +100,7 @@ public class MovementsServiceImplTest {
             movementReasonRepository,
             offenderBookingRepository,
             movementTypeAndReasonRespository,
+            clock,
             1);
     }
 
