@@ -244,11 +244,11 @@ public class MovementsRepositoryTest {
     @Test
     public void canRetrieveRecentMoves_byMovementTypes() {
         final var threshold = LocalDateTime.of(2000, Month.JANUARY, 1, 0, 0, 0);
-        final var recentMovements = repository.getRecentMovementsByDate(threshold, LocalDate.of(2017, Month.JULY, 16), List.of("TAP"));
+        final var recentMovements = repository.getRecentMovementsByDate(threshold, LocalDate.of(2017, Month.AUGUST, 16), List.of("TRN"));
         assertThat(recentMovements).hasSize(1);
         assertThat(recentMovements).asList()
                 .extracting("offenderNo", "createDateTime", "fromAgency", "toAgency", "movementType", "directionCode")
-                .contains(tuple("Z0020ZZ", LocalDateTime.of(2017, Month.FEBRUARY, 20, 0, 0), "LEI", "OUT", "TAP", "OUT"));
+                .contains(tuple("Z0019ZZ", LocalDateTime.of(2017, Month.FEBRUARY, 19, 0, 0), "LEI", "BMI", "TRN", "OUT"));
     }
 
     @Test

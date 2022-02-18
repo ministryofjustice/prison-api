@@ -1004,7 +1004,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         final var recallEntity = createHttpEntity(token, body);
 
-        final var response =  testRestTemplate.exchange(
+        final var recallResponse =  testRestTemplate.exchange(
             "/api/offenders/{nomsId}/recall",
             PUT,
             recallEntity,
@@ -1013,7 +1013,52 @@ public class OffendersResourceTest extends ResourceTest {
             "Z0022ZZ"
         );
 
-        assertThatStatus(response, 409);
+        assertThat(recallResponse.getStatusCodeValue()).isEqualTo(409);
+    }
+
+    @Test
+    public void testRecallAPrisonerDoesNotUpdateImprisonmentStatusIfNotSupplied() {
+        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
+
+        final var body = Map.of("prisonId", "SYI", "fromLocationId", "COURT1", "movementReasonCode", "24", "youthOffender", "true", "cellLocation", "SYI-A-1-1");
+
+        final var recallEntity = createHttpEntity(token, body);
+
+        final var recallResponse =  testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/recall",
+            PUT,
+            recallEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            "Z0020ZZ"
+        );
+
+        assertThat(recallResponse.getStatusCodeValue()).isEqualTo(200);
+
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+            "/api/offenders/{nomsId}",
+            GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            "Z0020ZZ");
+
+        assertThatJsonFileAndStatus(response, 200, "recalled_prisoner_original_imprisonment_status.json");
+
+        final var releaseBody = createHttpEntity(token, Map.of("movementReasonCode", "CR", "commentText", "released prisoner today"));
+
+        final var releaseResponse =  testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/release",
+            PUT,
+            releaseBody,
+            new ParameterizedTypeReference<String>() {
+            },
+            "Z0020ZZ"
+        );
+
+        assertThat(releaseResponse.getStatusCodeValue()).isEqualTo(200);
     }
 
     @Test

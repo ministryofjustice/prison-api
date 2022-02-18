@@ -265,7 +265,10 @@ public class PrisonerReleaseAndTransferService {
         final var fromLocation = getFromLocation(requestToRecall.getFromLocationId());
 
         // check imprisonment status
-        final var imprisonmentStatus = imprisonmentStatusRepository.findByStatusAndActive(requestToRecall.getImprisonmentStatus(), true).orElseThrow(EntityNotFoundException.withMessage(format("No imprisonment status %s found", requestToRecall.getImprisonmentStatus())));
+        ImprisonmentStatus imprisonmentStatus = null;
+        if (requestToRecall.getImprisonmentStatus() != null) {
+            imprisonmentStatus = imprisonmentStatusRepository.findByStatusAndActive(requestToRecall.getImprisonmentStatus(), true).orElseThrow(EntityNotFoundException.withMessage(format("No imprisonment status %s found", requestToRecall.getImprisonmentStatus())));
+        }
 
         // check prison id
         final var agencyLocationType = agencyLocationTypeRepository.findById(AgencyLocationType.INST).orElseThrow(EntityNotFoundException.withMessage(format("Agency Location Type of %s not Found", AgencyLocationType.INST.getCode())));
@@ -469,10 +472,12 @@ public class PrisonerReleaseAndTransferService {
     private void setupBookingAccount(final OffenderBooking booking, final AgencyLocation fromLocation, final AgencyLocation receivedPrison, final LocalDateTime receiveTime, final MovementReason movementReason, final ImprisonmentStatus imprisonmentStatus) {
 
         // add imprisonment status
-        booking.setImprisonmentStatus(OffenderImprisonmentStatus.builder()
-            .agyLocId(receivedPrison.getId())
-            .imprisonmentStatus(imprisonmentStatus)
-            .build(), receiveTime);
+        if (imprisonmentStatus != null) {
+            booking.setImprisonmentStatus(OffenderImprisonmentStatus.builder()
+                .agyLocId(receivedPrison.getId())
+                .imprisonmentStatus(imprisonmentStatus)
+                .build(), receiveTime);
+        }
 
         // create Admission case note
         generateAdmissionNote(booking, fromLocation, receivedPrison, receiveTime, movementReason);
