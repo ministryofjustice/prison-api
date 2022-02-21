@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.client.HttpClientErrorException;
+import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.CourtEvent;
 import uk.gov.justice.hmpps.prison.api.model.CourtEventBasic;
 import uk.gov.justice.hmpps.prison.api.model.CreateExternalMovement;
@@ -39,6 +40,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository;
@@ -51,13 +53,13 @@ import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
 import javax.validation.constraints.NotNull;
-import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.util.stream.Collectors.toList;
@@ -80,7 +82,7 @@ public class MovementsService {
     private final OffenderBookingRepository offenderBookingRepository;
     private final MovementTypeAndReasonRespository movementTypeAndReasonRespository;
     private final int maxBatchSize;
-    private final Clock clock;
+
 
     public MovementsService(final MovementsRepository movementsRepository,
                             final ExternalMovementRepository externalMovementRepository,
@@ -90,7 +92,6 @@ public class MovementsService {
                             final ReferenceCodeRepository<MovementReason> movementReasonRepository,
                             final OffenderBookingRepository offenderBookingRepository,
                             final MovementTypeAndReasonRespository movementTypeAndReasonRespository,
-                            final Clock clock,
                             @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.movementsRepository = movementsRepository;
         this.externalMovementRepository = externalMovementRepository;
@@ -100,7 +101,6 @@ public class MovementsService {
         this.movementTypeRepository = movementTypeRepository;
         this.movementReasonRepository = movementReasonRepository;
         this.movementTypeAndReasonRespository = movementTypeAndReasonRespository;
-        this.clock = clock;
         this.maxBatchSize = maxBatchSize;
     }
 
@@ -444,11 +444,10 @@ public class MovementsService {
     }
 
     public List<OutOnTemporaryAbsenceSummary> getOffendersOutOnTemporaryAbsence(final String agencyId) {
-        LocalDate currentDate = LocalDate.now(clock);
         return
             externalMovementRepository.findCurrentTemporaryAbsencesForPrison(
-                    agencyId,
-                    movementTypeRepository.findById(MovementType.TAP).orElseThrow(), currentDate.minusYears(1))
+                agencyId,
+                movementTypeRepository.findById(MovementType.TAP).orElseThrow())
                 .stream().map(MovementsService::transformToOutOnTemporaryAbsenceSummary).collect(toList());
     }
 
@@ -464,9 +463,9 @@ public class MovementsService {
             .lastName(offender.getLastName())
             .dateOfBirth(offender.getBirthDate())
             .movementTime(movement.getMovementTime())
-            .toAgency(toAgency == null ? null : toAgency.getId())
-            .toAgencyDescription(toAgency == null ? null : toAgency.getDescription())
-            .toCity(toCity == null ? null : toCity.getDescription())
+            .toAgency(toAgency == null ? null: toAgency.getId())
+            .toAgencyDescription(toAgency == null ? null: toAgency.getDescription())
+            .toCity(toCity == null ? null: toCity.getDescription())
             .movementReason(movement.getMovementReason().getDescription())
             .movementReasonCode(movement.getMovementReason().getCode())
             .commentText(movement.getCommentText())
