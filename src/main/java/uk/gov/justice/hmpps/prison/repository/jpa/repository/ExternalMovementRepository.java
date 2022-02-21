@@ -10,7 +10,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -49,10 +48,9 @@ public interface ExternalMovementRepository extends PagingAndSortingRepository<E
     @Query("select m " +
         "     from ExternalMovement m " +
         "    where m.fromAgency.id = :agencyId " +
-        "          and m.movementDate > :dateFrom " +
-        "          and m.movementType = :movementType " +
         "          and m.movementDirection = 'OUT' " +
         "          and m.active = true " +
+        "          and m.movementType = :movementType " +
         "          and m.offenderBooking.active = true " +
         "          and m.movementSequence = (" +
         "            select max(m2.movementSequence) " +
@@ -63,8 +61,7 @@ public interface ExternalMovementRepository extends PagingAndSortingRepository<E
     )
     List<ExternalMovement> findCurrentTemporaryAbsencesForPrison(
         @Param("agencyId") String agencyId,
-        @Param("movementType") MovementType movementType,
-        @Param("dateFrom") LocalDate dateFrom);
+        @Param("movementType") MovementType movementType);
 
     List<ExternalMovement> findAllByOffenderBooking_BookingIdAndActive(Long bookingId, boolean active);
 
