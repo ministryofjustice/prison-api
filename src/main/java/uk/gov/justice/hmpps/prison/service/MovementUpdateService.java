@@ -13,7 +13,6 @@ import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;

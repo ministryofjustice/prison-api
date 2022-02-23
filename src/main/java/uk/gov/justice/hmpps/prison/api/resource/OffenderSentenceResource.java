@@ -1,10 +1,12 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +39,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@Api(tags = {"offender-sentences"})
+@Tag(name = "offender-sentences")
 @Validated
 @RequestMapping("${api.base.path}/offender-sentences")
 public class OffenderSentenceResource {
@@ -55,57 +57,56 @@ public class OffenderSentenceResource {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = OffenderSentenceDetail.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "List of offenders (with associated sentence detail).", nickname = "getOffenderSentences", notes = "<h3>Algorithm</h3><ul><li>If there is a confirmed release date, the offender release date is the confirmed release date.</li><li>If there is no confirmed release date for the offender, the offender release date is either the actual parole date or the home detention curfew actual date.</li><li>If there is no confirmed release date, actual parole date or home detention curfew actual date for the offender, the release date is the later of the nonDtoReleaseDate or midTermDate value (if either or both are present)</li></ul>")
+            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "List of offenders (with associated sentence detail).. Note: <h3>Algorithm</h3><ul><li>If there is a confirmed release date, the offender release date is the confirmed release date.</li><li>If there is no confirmed release date for the offender, the offender release date is either the actual parole date or the home detention curfew actual date.</li><li>If there is no confirmed release date, actual parole date or home detention curfew actual date for the offender, the release date is the later of the nonDtoReleaseDate or midTermDate value (if either or both are present)</li></ul>")
     @GetMapping
-    public List<OffenderSentenceDetail> getOffenderSentences(@RequestParam(value = "agencyId", required = false) @ApiParam("agency/prison to restrict results, if none provided current active caseload will be used, unless offenderNo list is specified") final String agencyId, @RequestParam(value = "offenderNo", required = false) @ApiParam("a list of offender numbers to search.") final List<String> offenderNos) {
+    public List<OffenderSentenceDetail> getOffenderSentences(@RequestParam(value = "agencyId", required = false) @Parameter(description = "agency/prison to restrict results, if none provided current active caseload will be used, unless offenderNo list is specified") final String agencyId, @RequestParam(value = "offenderNo", required = false) @Parameter(description = "a list of offender numbers to search.") final List<String> offenderNos) {
         return bookingService.getOffenderSentencesSummary(
                 agencyId,
                 offenderNos);
     }
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Sentence details for offenders who are candidates for Home Detention Curfew.", response = OffenderSentenceCalc.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "List of offenders eligible for HDC", notes = "Version 1", nickname = "getOffenderSentencesHomeDetentionCurfewCandidates")
+            @ApiResponse(responseCode = "200", description = "Sentence details for offenders who are candidates for Home Detention Curfew."),
+            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "List of offenders eligible for HDC", description = "Version 1")
     @GetMapping("/home-detention-curfew-candidates")
     public List<OffenderSentenceCalc> getOffenderSentencesHomeDetentionCurfewCandidates() {
         return offenderCurfewService.getHomeDetentionCurfewCandidates(authenticationFacade.getCurrentUsername());
     }
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "HDC information", response = HomeDetentionCurfew.class),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(responseCode = "200", description = "HDC information", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = HomeDetentionCurfew.class))}),
+            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @ApiOperation("Retrieve the current state of the latest Home Detention Curfew for a booking")
+    @Operation(summary = "Retrieve the current state of the latest Home Detention Curfew for a booking")
     @GetMapping("/booking/{bookingId}/home-detention-curfews/latest")
     public HomeDetentionCurfew getLatestHomeDetentionCurfew(@PathVariable("bookingId") Long bookingId) {
         return offenderCurfewService.getLatestHomeDetentionCurfew(bookingId);
     }
 
     @ApiResponses({
-        @ApiResponse(code = 200, message = "List of HDC status information", response = HomeDetentionCurfew.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(responseCode = "200", description = "List of HDC status information"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @ApiOperation("Retrieve the latest Home Detention Curfew status for a list of offender booking identifiers")
+    @Operation(summary = "Retrieve the latest Home Detention Curfew status for a list of offender booking identifiers")
     @PostMapping("/home-detention-curfews/latest")
-    public List<HomeDetentionCurfew> getBatchLatestHomeDetentionCurfew(@RequestBody @ApiParam(value = "A list of booking ids", required = true) final List<Long> bookingIds) {
+    public List<HomeDetentionCurfew> getBatchLatestHomeDetentionCurfew(@RequestBody @Parameter(description = "A list of booking ids", required = true) final List<Long> bookingIds) {
         validateBookingIdList(bookingIds);
         return offenderCurfewService.getBatchLatestHomeDetentionCurfew(bookingIds);
     }
 
     @ApiResponses({
-            @ApiResponse(code = 204, message = "The checks passed flag was set"),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(responseCode = "204", description = "The checks passed flag was set"),
+            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @ApiOperation("Set the HDC checks passed flag")
+    @Operation(summary = "Set the HDC checks passed flag")
     @PutMapping("/booking/{bookingId}/home-detention-curfews/latest/checks-passed")
     @ProxyUser
     public ResponseEntity<Void> setCurfewChecks(@PathVariable("bookingId") final Long bookingId, @RequestBody @javax.validation.Valid final HdcChecks hdcChecks) {
@@ -114,11 +115,11 @@ public class OffenderSentenceResource {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 204, message = "The checks passed flag was cleared"),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(responseCode = "204", description = "The checks passed flag was cleared"),
+            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @ApiOperation("Clear the HDC checks passed flag")
+    @Operation(summary = "Clear the HDC checks passed flag")
     @DeleteMapping("/booking/{bookingId}/home-detention-curfews/latest/checks-passed")
     @ProxyUser
     public ResponseEntity<Void> clearCurfewChecks(@PathVariable("bookingId") Long bookingId) {
@@ -127,11 +128,11 @@ public class OffenderSentenceResource {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 204, message = "The new approval status was set"),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(responseCode = "204", description = "The new approval status was set"),
+            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @ApiOperation("Set the HDC approval status")
+    @Operation(summary = "Set the HDC approval status")
     @PutMapping("/booking/{bookingId}/home-detention-curfews/latest/approval-status")
     @ProxyUser
     public ResponseEntity<Void> setApprovalStatus(@PathVariable("bookingId") final Long bookingId, @RequestBody @javax.validation.Valid final ApprovalStatus approvalStatus) {
@@ -141,11 +142,11 @@ public class OffenderSentenceResource {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 204, message = "The new approval status was cleared"),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(responseCode = "204", description = "The new approval status was cleared"),
+            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @ApiOperation("Clear the HDC approval status")
+    @Operation(summary = "Clear the HDC approval status")
     @DeleteMapping("/booking/{bookingId}/home-detention-curfews/latest/approval-status")
     @ProxyUser
     public ResponseEntity<Void> clearApprovalStatus(@PathVariable("bookingId") Long bookingId) {
@@ -154,10 +155,10 @@ public class OffenderSentenceResource {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "The list of offenders is returned.", response = OffenderSentenceDetail.class, responseContainer = "List")})
-    @ApiOperation(value = "Retrieves list of offenders (with associated sentence detail) - POST version to allow large offender lists.", notes = "Retrieves list of offenders (with associated sentence detail) - POST version to allow large offender lists.", nickname = "postOffenderSentences")
+            @ApiResponse(responseCode = "200", description = "The list of offenders is returned.")})
+    @Operation(summary = "Retrieves list of offenders (with associated sentence detail) - POST version to allow large offender lists.", description = "Retrieves list of offenders (with associated sentence detail) - POST version to allow large offender lists.")
     @PostMapping
-    public List<OffenderSentenceDetail> postOffenderSentences(@RequestBody @ApiParam(value = "The required offender numbers (mandatory)", required = true) final List<String> offenderNos) {
+    public List<OffenderSentenceDetail> postOffenderSentences(@RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderNos) {
         validateOffenderList(offenderNos);
 
         //no agency id filter required here as offenderNos will always be provided
@@ -166,29 +167,29 @@ public class OffenderSentenceResource {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "The list of offenders is returned.", response = OffenderSentenceDetail.class, responseContainer = "List")})
-    @ApiOperation(value = "Retrieves list of offenders (with associated sentence detail) - POST version using booking id lists.", notes = "Retrieves list of offenders (with associated sentence detail) - POST version using booking id lists.", nickname = "postOffenderSentencesBookings")
+            @ApiResponse(responseCode = "200", description = "The list of offenders is returned.")})
+    @Operation(summary = "Retrieves list of offenders (with associated sentence detail) - POST version using booking id lists.", description = "Retrieves list of offenders (with associated sentence detail) - POST version using booking id lists.")
     @PostMapping("/bookings")
-    public List<OffenderSentenceDetail> postOffenderSentencesBookings(@RequestBody @ApiParam(value = "The required booking ids (mandatory)", required = true) final List<Long> bookingIds) {
+    public List<OffenderSentenceDetail> postOffenderSentencesBookings(@RequestBody @Parameter(description = "The required booking ids (mandatory)", required = true) final List<Long> bookingIds) {
         validateOffenderList(bookingIds);
         return bookingService.getBookingSentencesSummary(bookingIds);
     }
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Sentence term details for a prisoner.", response = OffenderSentenceTerms.class),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "Sentence term details for a prisoner", nickname = "getOffenderSentenceTerms")
+            @ApiResponse(responseCode = "200", description = "Sentence term details for a prisoner.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = OffenderSentenceTerms.class))}),
+            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Sentence term details for a prisoner")
     @GetMapping("/booking/{bookingId}/sentenceTerms")
-    public List<OffenderSentenceTerms> getOffenderSentenceTerms(@PathVariable("bookingId") @ApiParam(value = "The required booking id (mandatory)", required = true) final Long bookingId, @RequestParam(value = "filterBySentenceTermCodes", required = false) final List<String> filterBySentenceTermCodes) {
+    public List<OffenderSentenceTerms> getOffenderSentenceTerms(@PathVariable("bookingId") @Parameter(description = "The required booking id (mandatory)", required = true) final Long bookingId, @RequestParam(value = "filterBySentenceTermCodes", required = false) final List<String> filterBySentenceTermCodes) {
         return bookingService.getOffenderSentenceTerms(bookingId, filterBySentenceTermCodes);
     }
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Sentence and offence details for a prisoner.", response = OffenderSentenceAndOffences.class),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "Sentence and offence details  for a prisoner", nickname = "getSentenceAndOffenceDetails")
+            @ApiResponse(responseCode = "200", description = "Sentence and offence details for a prisoner.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = OffenderSentenceAndOffences.class))}),
+            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Sentence and offence details  for a prisoner")
     @GetMapping("/booking/{bookingId}/sentences-and-offences")
-    public List<OffenderSentenceAndOffences> getSentenceAndOffenceDetails(@PathVariable("bookingId") @ApiParam(value = "The required booking id (mandatory)", required = true) final Long bookingId) {
+    public List<OffenderSentenceAndOffences> getSentenceAndOffenceDetails(@PathVariable("bookingId") @Parameter(description = "The required booking id (mandatory)", required = true) final Long bookingId) {
         return bookingService.getSentenceAndOffenceDetails(bookingId);
     }
 

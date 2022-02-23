@@ -2,8 +2,7 @@ package uk.gov.justice.hmpps.prison.api.model.v1;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,7 +14,7 @@ import java.math.BigDecimal;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include;
 
-@ApiModel(description = "Active Offender")
+@Schema(description = "Active Offender")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -25,10 +24,10 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonPropertyOrder({"found", "offender"})
 public class ActiveOffender {
 
-    @ApiModelProperty(value = "found", name = "found", example = "true")
+    @Schema(description = "found", name = "found", example = "true")
     private boolean found;
 
-    @ApiModelProperty(value = "offender", name = "offender")
+    @Schema(description = "offender", name = "offender")
     @JsonInclude(Include.NON_NULL)
     private OffenderId offender;
 

@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -21,7 +21,7 @@ import java.util.Map;
  * Keyworker Details
  **/
 @SuppressWarnings("unused")
-@ApiModel(description = "Keyworker Details")
+@Schema(description = "Keyworker Details")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -53,7 +53,7 @@ public class Keyworker {
         return additionalProperties == null ? new HashMap<>() : additionalProperties;
     }
 
-    @ApiModelProperty(hidden = true)
+    @Hidden
     @JsonAnySetter
     public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
@@ -62,7 +62,7 @@ public class Keyworker {
     /**
      * Unique identifier for staff member.
      */
-    @ApiModelProperty(required = true, value = "Unique identifier for staff member.")
+    @Schema(required = true, description = "Unique identifier for staff member.")
     @JsonProperty("staffId")
     public Long getStaffId() {
         return staffId;
@@ -75,7 +75,7 @@ public class Keyworker {
     /**
      * Staff member's first name.
      */
-    @ApiModelProperty(required = true, value = "Staff member's first name.")
+    @Schema(required = true, description = "Staff member's first name.")
     @JsonProperty("firstName")
     public String getFirstName() {
         return firstName;
@@ -88,7 +88,7 @@ public class Keyworker {
     /**
      * Staff member's last name.
      */
-    @ApiModelProperty(required = true, value = "Staff member's last name.")
+    @Schema(required = true, description = "Staff member's last name.")
     @JsonProperty("lastName")
     public String getLastName() {
         return lastName;
@@ -101,7 +101,7 @@ public class Keyworker {
     /**
      * Status of staff member.
      */
-    @ApiModelProperty(required = true, value = "Status of staff member.")
+    @Schema(required = true, description = "Status of staff member.")
     @JsonProperty("status")
     public String getStatus() {
         return status;
@@ -114,7 +114,7 @@ public class Keyworker {
     /**
      * Identifier for staff member image.
      */
-    @ApiModelProperty(value = "Identifier for staff member image.")
+    @Schema(description = "Identifier for staff member image.")
     @JsonProperty("thumbnailId")
     public Long getThumbnailId() {
         return thumbnailId;
@@ -127,7 +127,7 @@ public class Keyworker {
     /**
      * Current number allocated
      */
-    @ApiModelProperty(required = true, value = "Current number allocated")
+    @Schema(required = true, description = "Current number allocated")
     @JsonProperty("numberAllocated")
     public Integer getNumberAllocated() {
         return numberAllocated;

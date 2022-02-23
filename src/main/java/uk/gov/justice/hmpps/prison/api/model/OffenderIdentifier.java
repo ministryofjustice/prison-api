@@ -1,8 +1,7 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,7 +14,7 @@ import java.time.LocalDate;
  * Offender Identifier
  **/
 @SuppressWarnings("unused")
-@ApiModel(description = "Offender Identifier")
+@Schema(description = "Offender Identifier")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -23,25 +22,25 @@ import java.time.LocalDate;
 @Data
 public class OffenderIdentifier {
     @NotBlank
-    @ApiModelProperty(required = true, value = "Type of offender identifier", example = "PNC", position = 0)
+    @Schema(required = true, description = "Type of offender identifier", example = "PNC")
     private String type;
 
     @NotBlank
-    @ApiModelProperty(required = true, value = "The value of the offender identifier", example = "1231/XX/121", position = 1)
+    @Schema(required = true, description = "The value of the offender identifier", example = "1231/XX/121")
     private String value;
 
-    @ApiModelProperty(value = "The offender number for this identifier", example = "A1234AB", position = 2)
+    @Schema(description = "The offender number for this identifier", example = "A1234AB")
     private String offenderNo;
 
-    @ApiModelProperty(value = "The booking ID for this identifier", example = "1231223", position = 3)
+    @Schema(description = "The booking ID for this identifier", example = "1231223")
     private Long bookingId;
 
-    @ApiModelProperty(value = "Issuing Authority Information", example = "Important Auth", position = 4)
+    @Schema(description = "Issuing Authority Information", example = "Important Auth")
     private String issuedAuthorityText;
 
-    @ApiModelProperty(value = "Date of issue", example = "2018-01-21", position = 5)
+    @Schema(description = "Date of issue", example = "2018-01-21")
     private LocalDate issuedDate;
 
-    @ApiModelProperty(value = "Related caseload type", example = "GENERAL", position = 6)
+    @Schema(description = "Related caseload type", example = "GENERAL")
     private String caseloadType;
 }

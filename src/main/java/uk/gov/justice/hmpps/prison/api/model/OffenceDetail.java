@@ -1,8 +1,7 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,26 +9,26 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-@ApiModel(description = "Offence Details")
+@Schema(description = "Offence Details")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 public class OffenceDetail {
 
-    @ApiModelProperty(required = true, value = "Prisoner booking id", example = "1123456", position = 1)
+    @Schema(required = true, description = "Prisoner booking id", example = "1123456")
     @NotNull
     private Long bookingId;
 
-    @ApiModelProperty(required = true, value = "Description of offence", position = 2)
+    @Schema(required = true, description = "Description of offence")
     @NotBlank
     private String offenceDescription;
 
-    @ApiModelProperty(required = true, value = "Reference Code", example = "RR84070", position = 3)
+    @Schema(required = true, description = "Reference Code", example = "RR84070")
     @NotBlank
     private String offenceCode;
 
-    @ApiModelProperty(required = true, value = "Statute code", example = "RR84", position = 4)
+    @Schema(required = true, description = "Statute code", example = "RR84")
     @NotBlank
     private String statuteCode;
 }

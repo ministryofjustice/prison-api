@@ -2,8 +2,7 @@ package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,7 +16,7 @@ import java.math.BigDecimal;
 /**
  * Physical Attributes
  **/
-@ApiModel(description = "Physical Attributes")
+@Schema(description = "Physical Attributes")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -29,34 +28,34 @@ import java.math.BigDecimal;
 public class PhysicalAttributes {
 
     @NotBlank
-    @ApiModelProperty(required = true, value = "Gender Code", position = 1, example = "M")
+    @Schema(required = true, description = "Gender Code", example = "M")
     private String sexCode;
 
     @NotBlank
-    @ApiModelProperty(required = true, value = "Gender", position = 2, example = "Male")
+    @Schema(required = true, description = "Gender", example = "Male")
     private String gender;
 
-    @ApiModelProperty(required = true, value = "Ethnicity Code", position = 3, example = "W1")
+    @Schema(required = true, description = "Ethnicity Code", example = "W1")
     private String raceCode;
 
-    @ApiModelProperty(required = true, value = "Ethnicity", position = 4, example = "White: Eng./Welsh/Scot./N.Irish/British")
+    @Schema(required = true, description = "Ethnicity", example = "White: Eng./Welsh/Scot./N.Irish/British")
     private String ethnicity;
 
-    @ApiModelProperty(required = true, value = "Height in Feet", position = 5, example = "5")
+    @Schema(required = true, description = "Height in Feet", example = "5")
     private Integer heightFeet;
 
-    @ApiModelProperty(required = true, value = "Height in Inches", position = 6, example = "60")
+    @Schema(required = true, description = "Height in Inches", example = "60")
     private Integer heightInches;
 
-    @ApiModelProperty(required = true, value = "Height in Metres (to 2dp)", position = 7, example = "1.76")
+    @Schema(required = true, description = "Height in Metres (to 2dp)", example = "1.76")
     private BigDecimal heightMetres;
 
-    @ApiModelProperty(required = true, value = "Height in Centimetres", position = 8, example = "176")
+    @Schema(required = true, description = "Height in Centimetres", example = "176")
     private Integer heightCentimetres;
 
-    @ApiModelProperty(required = true, value = "Weight in Pounds", position = 9, example = "50")
+    @Schema(required = true, description = "Weight in Pounds", example = "50")
     private Integer weightPounds;
 
-    @ApiModelProperty(required = true, value = "Weight in Kilograms", position = 10, example = "67")
+    @Schema(required = true, description = "Weight in Kilograms", example = "67")
     private Integer weightKilograms;
 }

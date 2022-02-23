@@ -1,10 +1,12 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -56,7 +58,7 @@ import static uk.gov.justice.hmpps.prison.repository.support.StatusFilter.ALL;
 
 @RestController
 @Validated
-@Api(tags = {"agencies"})
+@Tag(name = "agencies")
 @RequestMapping("${api.base.path}/agencies")
 public class AgencyResource {
     private final AgencyService agencyService;
@@ -70,82 +72,86 @@ public class AgencyResource {
     }
 
     @ApiResponses({
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "List of active agencies.", notes = "List of active agencies.", nickname = "getAgencies")
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "List of active agencies.", description = "List of active agencies.")
     @GetMapping
-    public ResponseEntity<List<Agency>> getAgencies(@RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @ApiParam(value = "Requested offset of first record in returned collection of agency records.", defaultValue = "0") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @ApiParam(value = "Requested limit to number of agency records returned.", defaultValue = "10") final Long pageLimit) {
+    public ResponseEntity<List<Agency>> getAgencies(@RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of agency records.") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of agency records returned.") final Long pageLimit) {
         return agencyService.getAgencies(pageOffset, pageLimit).getResponse();
     }
 
     @ApiResponses({
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "List of agencies by type", notes = "List of active agencies by type")
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "List of agencies by type", description = "List of active agencies by type")
     @GetMapping("/type/{type}")
     public List<Agency> getAgenciesByType(
         @PathVariable("type")
-        @ApiParam(value = "Agency Type", required = true)
+        @Parameter(description = "Agency Type", required = true)
         final String agencyType,
 
         @RequestParam(value = "activeOnly", defaultValue = "true", required = false)
-        @ApiParam("Only return active agencies")
+        @Parameter(description = "Only return active agencies")
         boolean activeOnly,
 
         @Deprecated(forRemoval = true)
         @RequestParam(value = "jurisdictionCode", required = false)
-        @ApiParam(value = "Only return agencies that match the supplied Jurisdiction Code(s), NOTE: Deprecated, please use courtType param", example = "MC")
+        @Parameter(description = "Only return agencies that match the supplied Jurisdiction Code(s), NOTE: Deprecated, please use courtType param", example = "MC")
         List<String> jurisdictionCodes,
 
         @RequestParam(value = "courtType", required = false)
-        @ApiParam(value = "Only return courts that match the supplied court types(s)", example = "MC")
+        @Parameter(description = "Only return courts that match the supplied court types(s)", example = "MC")
             List<String> courtTypes,
 
         @RequestParam(value = "withAddresses", defaultValue = "false", required = false)
-        @ApiParam(value = "Returns Address Information", defaultValue = "false") final boolean withAddresses,
+        @Parameter(description = "Returns Address Information") final boolean withAddresses,
 
         @RequestParam(value = "skipFormatLocation", defaultValue = "false", required = false)
-        @ApiParam(value = "Don't format the location", defaultValue = "false") final boolean skipFormatLocation
+        @Parameter(description = "Don't format the location") final boolean skipFormatLocation
     ) {
         return agencyService.getAgenciesByType(agencyType, activeOnly, courtTypes != null ? courtTypes : jurisdictionCodes, withAddresses, skipFormatLocation);
     }
 
     @ApiResponses({
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @ApiOperation(value = "Agency detail.", notes = "Agency detail.", nickname = "getAgency")
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Agency detail.", description = "Agency detail.")
     @GetMapping("/{agencyId}")
-    public Agency getAgency(@PathVariable("agencyId") @ApiParam(value = "The ID of the agency", required = true) final String agencyId,
-                            @RequestParam(value = "activeOnly", defaultValue = "true", required = false) @ApiParam(value = "Only return active agencies", defaultValue = "true") final boolean activeOnly,
-                            @RequestParam(value = "agencyType", required = false) @ApiParam("Agency Type") final String agencyType,
-                            @RequestParam(value = "withAddresses", defaultValue = "false", required = false) @ApiParam(value = "Returns Address Information", defaultValue = "false") final boolean withAddresses,
-                            @RequestParam(value = "skipFormatLocation", defaultValue = "false", required = false) @ApiParam(value = "Don't format the location", defaultValue = "false") final boolean skipFormatLocation) {
+    public Agency getAgency(@PathVariable("agencyId") @Parameter(description = "The ID of the agency", required = true) final String agencyId,
+                            @RequestParam(value = "activeOnly", defaultValue = "true", required = false) @Parameter(description = "Only return active agencies") final boolean activeOnly,
+                            @RequestParam(value = "agencyType", required = false) @Parameter(description = "Agency Type") final String agencyType,
+                            @RequestParam(value = "withAddresses", defaultValue = "false", required = false) @Parameter(description = "Returns Address Information") final boolean withAddresses,
+                            @RequestParam(value = "skipFormatLocation", defaultValue = "false", required = false) @Parameter(description = "Don't format the location") final boolean skipFormatLocation) {
         return agencyService.getAgency(agencyId, activeOnly ? ACTIVE_ONLY : ALL, agencyType, withAddresses, skipFormatLocation);
     }
 
     @ApiResponses({
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden - user not authorised to update a agency location", response = ErrorResponse.class),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @ApiOperation(value = "Update an existing agency", notes = "Requires MAINTAIN_REF_DATA")
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to update a agency location", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Update an existing agency", description = "Requires MAINTAIN_REF_DATA")
     @PutMapping("/{agencyId}")
     @PreAuthorize("hasRole('MAINTAIN_REF_DATA') and hasAuthority('SCOPE_write')")
     @ProxyUser
-    public Agency updateAgency(@PathVariable("agencyId") @ApiParam(value = "The ID of the agency", required = true) @Valid @Length(max = 6, message = "Agency Id is max 6 characters") final String agencyId,
+    public Agency updateAgency(@PathVariable("agencyId") @Parameter(description = "The ID of the agency", required = true) @Valid @Length(max = 6, message = "Agency Id is max 6 characters") final String agencyId,
                                @RequestBody @NotNull @Valid RequestToUpdateAgency agencyToUpdate) {
         return agencyService.updateAgency(agencyId, agencyToUpdate);
     }
 
     @ApiResponses({
-        @ApiResponse(code = 201, message = "The Agency location created", response = Agency.class),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden - user not authorised to create an agency location", response = ErrorResponse.class),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @ApiOperation(value = "Create an agency", notes = "Requires MAINTAIN_REF_DATA")
+        @ApiResponse(responseCode = "201", description = "The Agency location created"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to create an agency location", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Create an agency", description = "Requires MAINTAIN_REF_DATA")
     @PostMapping()
     @PreAuthorize("hasRole('MAINTAIN_REF_DATA') and hasAuthority('SCOPE_write')")
     @ProxyUser
@@ -155,117 +161,127 @@ public class AgencyResource {
     }
 
     @ApiResponses({
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "List of active internal locations for agency.", notes = "List of active internal locations for agency.", nickname = "getAgencyLocations")
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "List of active internal locations for agency.", description = "List of active internal locations for agency.")
     @GetMapping("/{agencyId}/locations")
-    public List<Location> getAgencyLocations(@PathVariable("agencyId") @ApiParam(value = "", required = true) final String agencyId, @RequestParam(value = "eventType", required = false) @ApiParam("Restricts list of locations returned to those that can be used for the specified event type.") final String eventType, @RequestHeader(value = "Sort-Fields", required = false) @ApiParam("Comma separated list of one or more of the following fields - <b>description, userDescription</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") final Order sortOrder) {
+    public List<Location> getAgencyLocations(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestParam(value = "eventType", required = false) @Parameter(description = "Restricts list of locations returned to those that can be used for the specified event type.") final String eventType, @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>description, userDescription</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
         return agencyService.getAgencyLocations(agencyId, eventType, sortFields, sortOrder);
     }
 
     @ApiResponses({
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "List of active cells with capacity for agency.", notes = "List of active cells with capacity for agency.", nickname = "getAgencyActiveCellsWithCapacity")
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "List of active cells with capacity for agency.", description = "List of active cells with capacity for agency.")
     @GetMapping("/{agencyId}/cellsWithCapacity")
-    public List<OffenderCell> getAgencyActiveCellsWithCapacity(@PathVariable("agencyId") @ApiParam(value = "", required = true) final String agencyId, @RequestParam(value = "attribute", required = false) @ApiParam("Restricts list of cells returned to those that have a specified attribute.") final String attribute) {
+    public List<OffenderCell> getAgencyActiveCellsWithCapacity(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestParam(value = "attribute", required = false) @Parameter(description = "Restricts list of cells returned to those that have a specified attribute.") final String attribute) {
         return agencyService.getCellsWithCapacityInAgency(agencyId, attribute);
     }
 
     @ApiResponses({
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "List of active internal locations for agency by type.", notes = "List of active internal locations for agency by type.", nickname = "getAgencyLocationsByType")
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "List of active internal locations for agency by type.", description = "List of active internal locations for agency by type.")
     @GetMapping("/{agencyId}/locations/type/{type}")
-    public List<Location> getAgencyLocationsByType(@PathVariable("agencyId") @ApiParam(value = "The prison", required = true) final String agencyId, @PathVariable("type") @ApiParam(value = "Restricts list of locations returned to those of the passed type.", required = true) final String type) {
+    public List<Location> getAgencyLocationsByType(@PathVariable("agencyId") @Parameter(description = "The prison", required = true) final String agencyId, @PathVariable("type") @Parameter(description = "Restricts list of locations returned to those of the passed type.", required = true) final String type) {
         return agencyService.getAgencyLocationsByType(agencyId, type);
     }
 
     @ApiResponses({
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "List of active IEP levels for agency.", notes = "List of active IEP levels for agency.", nickname = "getAgencyIepLevels")
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "List of active IEP levels for agency.", description = "List of active IEP levels for agency.")
     @GetMapping("/{agencyId}/iepLevels")
-    public List<IepLevel> getAgencyIepLevels(@PathVariable("agencyId") @ApiParam(value = "agencyId", required = true) final String agencyId) {
+    public List<IepLevel> getAgencyIepLevels(@PathVariable("agencyId") @Parameter(description = "agencyId", required = true) final String agencyId) {
         return agencyService.getAgencyIepLevels(agencyId);
     }
 
     @ApiResponses({
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "List of all available Location Groups at agency.", notes = "List of all available Location Groups at agency.", nickname = "getAvailableLocationGroups")
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "List of all available Location Groups at agency.", description = "List of all available Location Groups at agency.")
     @GetMapping("/{agencyId}/locations/groups")
-    public List<LocationGroup> getAvailableLocationGroups(@PathVariable("agencyId") @ApiParam(value = "The prison", required = true) final String agencyId) {
+    public List<LocationGroup> getAvailableLocationGroups(@PathVariable("agencyId") @Parameter(description = "The prison", required = true) final String agencyId) {
         return locationGroupService.getLocationGroupsForAgency(agencyId);
     }
 
     @ApiResponses({
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "List of locations for agency where events (appointments, visits, activities) could be held.", notes = "List of locations for agency where events (appointments, visits, activities) could be held.", nickname = "getAgencyEventLocations")
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "List of locations for agency where events (appointments, visits, activities) could be held.", description = "List of locations for agency where events (appointments, visits, activities) could be held.")
     @GetMapping("/{agencyId}/eventLocations")
-    public List<Location> getAgencyEventLocations(@PathVariable("agencyId") @ApiParam(value = "", required = true) final String agencyId, @RequestHeader(value = "Sort-Fields", required = false) @ApiParam("Comma separated list of one or more of the following fields - <b>description, userDescription</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") final Order sortOrder) {
+    public List<Location> getAgencyEventLocations(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>description, userDescription</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
         return agencyService.getAgencyEventLocations(agencyId, sortFields, sortOrder);
     }
 
     @ApiResponses({
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "List of locations for agency where events (appointments, visits, activities) are being held.", notes = "List of locations for agency where events (appointments, visits, activities) are being held.", nickname = "getAgencyEventLocationsBooked")
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "List of locations for agency where events (appointments, visits, activities) are being held.", description = "List of locations for agency where events (appointments, visits, activities) are being held.")
     @GetMapping("/{agencyId}/eventLocationsBooked")
-    public List<Location> getAgencyEventLocationsBooked(@PathVariable("agencyId") @ApiParam(value = "", required = true) final String agencyId, @RequestParam("bookedOnDay") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam(value = "Filter list to only return locations which prisoners will be attending on this day", required = true) final LocalDate date, @RequestParam(value = "timeSlot", required = false) @ApiParam(value = "Only return locations which prisoners will be attending in this time slot (AM, PM or ED, and bookedOnDay must be specified)", allowableValues = "AM,PM,ED") final TimeSlot timeSlot) {
+    public List<Location> getAgencyEventLocationsBooked(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestParam("bookedOnDay") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Filter list to only return locations which prisoners will be attending on this day", required = true) final LocalDate date, @RequestParam(value = "timeSlot", required = false) @Parameter(description = "Only return locations which prisoners will be attending in this time slot (AM, PM or ED, and bookedOnDay must be specified)",  schema = @Schema(implementation = String.class, allowableValues = {"AM","PM","ED"})) final TimeSlot timeSlot) {
         return agencyService.getAgencyEventLocationsBooked(agencyId, date, timeSlot);
     }
 
     @ApiResponses({
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "List of agencies for caseload.", notes = "List of agencies for caseload.", nickname = "getAgenciesByCaseload")
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "List of agencies for caseload.", description = "List of agencies for caseload.")
     @GetMapping("/caseload/{caseload}")
-    public List<Agency> getAgenciesByCaseload(@PathVariable("caseload") @ApiParam(value = "", required = true) final String caseload) {
+    public List<Agency> getAgenciesByCaseload(@PathVariable("caseload") @Parameter(required = true) final String caseload) {
         return agencyService.getAgenciesByCaseload(caseload);
     }
 
     @ApiResponses({
-        @ApiResponse(code = 200, message = "OK", response = PrisonContactDetail.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "List of prison contact details.", notes = "List of prison contact details.", nickname = "getPrisonContactDetailList")
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "List of prison contact details.", description = "List of prison contact details.")
     @GetMapping("/prison")
     public List<PrisonContactDetail> getPrisonContactDetailList() {
         return agencyService.getPrisonContactDetail();
     }
 
     @ApiResponses({
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @ApiOperation(value = "Prison contact detail.", notes = "Prison contact detail.", nickname = "getPrisonContactDetail")
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Prison contact detail.", description = "Prison contact detail.")
     @GetMapping("/prison/{agencyId}")
-    public PrisonContactDetail getPrisonContactDetail(@PathVariable("agencyId") @ApiParam(value = "", required = true) final String agencyId) {
+    public PrisonContactDetail getPrisonContactDetail(@PathVariable("agencyId") @Parameter(required = true) final String agencyId) {
         return agencyService.getPrisonContactDetail(agencyId);
     }
 
     @ApiResponses({
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @ApiOperation(value = "Per offender information necessary for IEP review.", notes = "IEP review information", nickname = "getPrisonIepReview")
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Per offender information necessary for IEP review.", description = "IEP review information")
     @GetMapping("/{agencyId}/iepReview")
-    public ResponseEntity<List<OffenderIepReview>> getPrisonIepReview(@PathVariable("agencyId") @ApiParam(value = "", required = true) final String agencyId,
-                                                                      @RequestParam("iepLevel") @ApiParam("IEP level to filter by.") final String iepLevel,
-                                                                      @RequestParam("location") @ApiParam("Offender location to filter by.") final String location,
-                                                                      @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @ApiParam(value = "Requested offset of first record in returned offenders.", defaultValue = "0") final Long pageOffset,
-                                                                      @RequestHeader(value = "Page-Limit", defaultValue = "20") @ApiParam(value = "Requested limit to number of offenders returned.", defaultValue = "20") final Long pageLimit) {
+    public ResponseEntity<List<OffenderIepReview>> getPrisonIepReview(@PathVariable("agencyId") @Parameter(required = true) final String agencyId,
+                                                                      @RequestParam("iepLevel") @Parameter(description = "IEP level to filter by.") final String iepLevel,
+                                                                      @RequestParam("location") @Parameter(description = "Offender location to filter by.") final String location,
+                                                                      @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned offenders.") final Long pageOffset,
+                                                                      @RequestHeader(value = "Page-Limit", defaultValue = "20") @Parameter(description = "Requested limit to number of offenders returned.") final Long pageLimit) {
         final var criteria = OffenderIepReviewSearchCriteria.builder()
             .agencyId(agencyId)
             .iepLevel(iepLevel)
@@ -281,27 +297,29 @@ public class AgencyResource {
     }
 
     @ApiResponses({
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @ApiOperation(value = "Return the establishment types for the given Agency.", notes = "An agency can have one to many establishment types. For example a prison could be both a youth and adult establishment.", nickname = "getAgencyEstablishmentTypes")
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Return the establishment types for the given Agency.", description = "An agency can have one to many establishment types. For example a prison could be both a youth and adult establishment.")
     @GetMapping("/{agencyId}/establishment-types")
-    public AgencyEstablishmentTypes getAgencyEstablishmentTypes(@PathVariable("agencyId") @ApiParam(value = "", required = true) final String agencyId) {
+    public AgencyEstablishmentTypes getAgencyEstablishmentTypes(@PathVariable("agencyId") @Parameter(required = true) final String agencyId) {
         return agencyService.getEstablishmentTypes(agencyId);
     }
 
     @ApiResponses({
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden - user not authorised to create a agency address", response = ErrorResponse.class),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @ApiOperation(value = "Create an address", notes = "Requires MAINTAIN_REF_DATA")
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to create a agency address", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Create an address", description = "Requires MAINTAIN_REF_DATA")
     @PreAuthorize("hasRole('MAINTAIN_REF_DATA') and hasAuthority('SCOPE_write')")
     @ProxyUser
     @PostMapping("/{agencyId}/addresses")
     @ResponseStatus(HttpStatus.CREATED)
     public AddressDto createAgencyAddress(
-        @PathVariable @ApiParam(value = "The ID of the agency", required = true) @Size(max = 12, min = 2, message = "Agency ID must be between 2 and 12") final String agencyId,
+        @PathVariable @Parameter(description = "The ID of the agency", required = true) @Size(max = 12, min = 2, message = "Agency ID must be between 2 and 12") final String agencyId,
         @RequestBody @Valid @NotNull RequestToUpdateAddress requestToUpdateAddress
     ) {
 
@@ -309,17 +327,17 @@ public class AgencyResource {
     }
 
     @ApiResponses({
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden - user not authorised to update a agency address", response = ErrorResponse.class),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @ApiOperation(value = "Update an existing address", notes = "Requires MAINTAIN_REF_DATA")
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to update a agency address", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Update an existing address", description = "Requires MAINTAIN_REF_DATA")
     @PreAuthorize("hasRole('MAINTAIN_REF_DATA') and hasAuthority('SCOPE_write')")
     @ProxyUser
     @PutMapping("/{agencyId}/addresses/{addressId}")
     public AddressDto updateAgencyAddress(
-        @PathVariable @ApiParam(value = "The ID of the agency", required = true) @Size(max = 12, min = 2, message = "Agency ID must be between 2 and 12") final String agencyId,
-        @PathVariable @ApiParam(value = "The ID of the address", required = true) final Long addressId,
+        @PathVariable @Parameter(description = "The ID of the agency", required = true) @Size(max = 12, min = 2, message = "Agency ID must be between 2 and 12") final String agencyId,
+        @PathVariable @Parameter(description = "The ID of the address", required = true) final Long addressId,
         @RequestBody @Valid @NotNull RequestToUpdateAddress requestToUpdateAddress
         ) {
 
@@ -327,33 +345,33 @@ public class AgencyResource {
     }
 
     @ApiResponses({
-        @ApiResponse(code = 403, message = "Forbidden - user not authorised to delete a agency address", response = ErrorResponse.class),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @ApiOperation(value = "Delete an existing address", notes = "Requires MAINTAIN_REF_DATA")
+        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to delete a agency address", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Delete an existing address", description = "Requires MAINTAIN_REF_DATA")
     @PreAuthorize("hasRole('MAINTAIN_REF_DATA') and hasAuthority('SCOPE_write')")
     @ProxyUser
     @DeleteMapping("/{agencyId}/addresses/{addressId}")
     public void deleteAgencyAddress(
-        @PathVariable @ApiParam(value = "The ID of the agency", required = true) @Size(max = 12, min = 2, message = "Agency ID must be between 2 and 12") final String agencyId,
-        @PathVariable @ApiParam(value = "The ID of the address", required = true) final Long addressId
+        @PathVariable @Parameter(description = "The ID of the agency", required = true) @Size(max = 12, min = 2, message = "Agency ID must be between 2 and 12") final String agencyId,
+        @PathVariable @Parameter(description = "The ID of the address", required = true) final Long addressId
     ) {
         agencyService.deleteAgencyAddress(agencyId, addressId);
     }
 
     @ApiResponses({
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden - user not authorised to create a agency address", response = ErrorResponse.class),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @ApiOperation(value = "Create an contact for an address", notes = "Requires MAINTAIN_REF_DATA")
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to create a agency address", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Create an contact for an address", description = "Requires MAINTAIN_REF_DATA")
     @PreAuthorize("hasRole('MAINTAIN_REF_DATA') and hasAuthority('SCOPE_write')")
     @ProxyUser
     @PostMapping("/{agencyId}/addresses/{addressId}/phones")
     @ResponseStatus(HttpStatus.CREATED)
     public Telephone createAgencyAddressPhoneContact(
-        @PathVariable @ApiParam(value = "The ID of the agency", required = true) @Size(max = 12, min = 2, message = "Agency ID must be between 2 and 12") final String agencyId,
-        @PathVariable @ApiParam(value = "The ID of the address", required = true) final Long addressId,
+        @PathVariable @Parameter(description = "The ID of the agency", required = true) @Size(max = 12, min = 2, message = "Agency ID must be between 2 and 12") final String agencyId,
+        @PathVariable @Parameter(description = "The ID of the address", required = true) final Long addressId,
         @RequestBody @Valid @NotNull RequestToUpdatePhone requestToUpdatePhone
     ) {
 
@@ -361,18 +379,18 @@ public class AgencyResource {
     }
 
     @ApiResponses({
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden - user not authorised to update a agency address", response = ErrorResponse.class),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @ApiOperation(value = "Update an existing contact on an address", notes = "Requires MAINTAIN_REF_DATA")
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to update a agency address", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Update an existing contact on an address", description = "Requires MAINTAIN_REF_DATA")
     @PreAuthorize("hasRole('MAINTAIN_REF_DATA') and hasAuthority('SCOPE_write')")
     @ProxyUser
     @PutMapping("/{agencyId}/addresses/{addressId}/phones/{phoneId}")
     public Telephone updateAgencyAddressPhoneContact(
-        @PathVariable @ApiParam(value = "The ID of the agency", required = true) @Size(max = 12, min = 2, message = "Agency ID must be between 2 and 12") final String agencyId,
-        @PathVariable @ApiParam(value = "The ID of the address", required = true) final Long addressId,
-        @PathVariable @ApiParam(value = "The ID of the contact", required = true) final Long phoneId,
+        @PathVariable @Parameter(description = "The ID of the agency", required = true) @Size(max = 12, min = 2, message = "Agency ID must be between 2 and 12") final String agencyId,
+        @PathVariable @Parameter(description = "The ID of the address", required = true) final Long addressId,
+        @PathVariable @Parameter(description = "The ID of the contact", required = true) final Long phoneId,
         @RequestBody @Valid @NotNull RequestToUpdatePhone requestToUpdatePhone
     ) {
 
@@ -380,17 +398,17 @@ public class AgencyResource {
     }
 
     @ApiResponses({
-        @ApiResponse(code = 403, message = "Forbidden - user not authorised to delete a agency address", response = ErrorResponse.class),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @ApiOperation(value = "Delete an existing address contact", notes = "Requires MAINTAIN_REF_DATA")
+        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to delete a agency address", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Delete an existing address contact", description = "Requires MAINTAIN_REF_DATA")
     @PreAuthorize("hasRole('MAINTAIN_REF_DATA') and hasAuthority('SCOPE_write')")
     @ProxyUser
     @DeleteMapping("/{agencyId}/addresses/{addressId}/phones/{phoneId}")
     public void deleteAgencyAddressPhoneContact(
-        @PathVariable @ApiParam(value = "The ID of the agency", required = true) @Size(max = 12, min = 2, message = "Agency ID must be between 2 and 12") final String agencyId,
-        @PathVariable @ApiParam(value = "The ID of the address", required = true) final Long addressId,
-        @PathVariable @ApiParam(value = "The ID of the contact", required = true) final Long phoneId
+        @PathVariable @Parameter(description = "The ID of the agency", required = true) @Size(max = 12, min = 2, message = "Agency ID must be between 2 and 12") final String agencyId,
+        @PathVariable @Parameter(description = "The ID of the address", required = true) final Long addressId,
+        @PathVariable @Parameter(description = "The ID of the contact", required = true) final Long phoneId
     ) {
          agencyService.deleteAgencyAddressPhone(agencyId, addressId, phoneId);
     }

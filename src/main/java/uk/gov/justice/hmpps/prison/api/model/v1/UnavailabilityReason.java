@@ -2,8 +2,7 @@ package uk.gov.justice.hmpps.prison.api.model.v1;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,7 +13,7 @@ import uk.gov.justice.hmpps.prison.repository.v1.model.UnavailabilityReasonSP;
 import java.util.ArrayList;
 import java.util.List;
 
-@ApiModel(description = "Date Unavailability Reasons")
+@Schema(description = "Date Unavailability Reasons")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,19 +22,19 @@ import java.util.List;
 @JsonPropertyOrder({"external_movement", "existing_visits", "out_of_vo", "banned"})
 public class UnavailabilityReason {
 
-    @ApiModelProperty(value = "External Movement", name = "external_movement", example = "true", position = 1)
+    @Schema(description = "External Movement", name = "external_movement", example = "true")
     @JsonProperty("external_movement")
     private boolean externalMovement;
 
-    @ApiModelProperty(value = "Existing Visits", name = "existing_visits", position = 2)
+    @Schema(description = "Existing Visits", name = "existing_visits")
     @JsonProperty("existing_visits")
     private List<Visit> existingVisits = new ArrayList<>();
 
-    @ApiModelProperty(value = "Out of Vo", name = "out_of_vo", example = "true", position = 3)
+    @Schema(description = "Out of Vo", name = "out_of_vo", example = "true")
     @JsonProperty("out_of_vo")
     private boolean outOfVo;
 
-    @ApiModelProperty(value = "Banned", name = "banned", example = "true", position = 4)
+    @Schema(description = "Banned", name = "banned", example = "true")
     @JsonProperty("banned")
     private boolean banned;
 

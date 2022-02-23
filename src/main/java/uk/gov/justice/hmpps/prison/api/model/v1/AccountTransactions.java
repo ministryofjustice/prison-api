@@ -1,7 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.model.v1;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -10,7 +9,7 @@ import lombok.ToString;
 
 import java.util.List;
 
-@ApiModel(description = "Account Transactions")
+@Schema(description = "Account Transactions")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,6 +17,6 @@ import java.util.List;
 @ToString
 public class AccountTransactions {
 
-    @ApiModelProperty(value = "List of account transactions", allowEmptyValue = true)
+    @Schema(description = "List of account transactions")
     private List<AccountTransaction> transactions;
 }

@@ -2,7 +2,6 @@ package uk.gov.justice.hmpps.prison.service;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.apache.commons.text.WordUtils;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.model.LocationGroup;
