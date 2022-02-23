@@ -25,6 +25,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCodeInfo;
+import uk.gov.justice.hmpps.prison.api.model.ReferenceDomain;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.service.CaseNoteService;
@@ -117,6 +118,16 @@ public class ReferenceDomainResource {
                         nvl(pageLimit, 10L));
 
         return ResponseEntity.ok().headers(referenceCodes.getPaginationHeaders()).body(referenceCodes.getItems());
+    }
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "List of all reference domains", description = "A reference domain can be used to retrieve all codes related to that domian")
+    @GetMapping("/domains")
+    public List<ReferenceDomain> getAllReferenceDomains() {
+        return referenceDomainService.getAllDomains();
     }
 
     @ApiResponses({

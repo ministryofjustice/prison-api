@@ -17,7 +17,7 @@ public class AuthTokenHelper {
 
     private final Map<String, String> tokens = new HashMap<>();
     private String currentToken;
-    private JwtAuthenticationHelper jwtAuthenticationHelper;
+    private final JwtAuthenticationHelper jwtAuthenticationHelper;
 
     public enum AuthToken {
         PRISON_API_USER,
@@ -380,6 +380,16 @@ public class AuthTokenHelper {
                 .username("ITAG_USER") // use ITAG_USER to avoid the pain of creating a new username in the test DB
                 .scope(List.of("read", "write"))
                 .roles(List.of("ROLE_RELEASE_DATES_CALCULATOR"))
+                .expiryTime(Duration.ofDays(365 * 10))
+                .build()
+        );
+    }
+    public String someClientUser(String... roles) {
+        return jwtAuthenticationHelper.createJwt(
+            JwtParameters.builder()
+                .username("Another System")
+                .scope(List.of("read", "write"))
+                .roles(List.of(roles))
                 .expiryTime(Duration.ofDays(365 * 10))
                 .build()
         );

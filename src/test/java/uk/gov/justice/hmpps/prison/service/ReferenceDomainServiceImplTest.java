@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.ReferenceDataRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceDomainRepository;
 import uk.gov.justice.hmpps.prison.service.support.ReferenceDomain;
 
 import java.util.Arrays;
@@ -23,12 +24,15 @@ public class ReferenceDomainServiceImplTest {
     @Mock
     private ReferenceDataRepository repository;
 
+    @Mock
+    private ReferenceDomainRepository referenceDomainRepository;
+
     private ReferenceDomainService service;
 
     @BeforeEach
     public void setUp() {
         initMocks(repository);
-        service = new ReferenceDomainService(repository);
+        service = new ReferenceDomainService(repository, referenceDomainRepository);
     }
 
     @Test
