@@ -18,7 +18,7 @@ public class SentenceAdjustmentValues {
     @Schema(description = "Sentence sequence", example = "1")
     private Integer sentenceSequence;
 
-    @Schema(description = "Adjustment type", allowableValues = {"RECALL_SENTENCE_REMAND","TAGGED_BAIL","RECALL_SENTENCE_TAGGED_BAIL","REMAND","UNUSED_REMAND"})
+    @Schema(description = "Adjustment type")
     private SentenceAdjustmentType type;
 
     @Schema(description = "Number of days to adjust", example = "12")

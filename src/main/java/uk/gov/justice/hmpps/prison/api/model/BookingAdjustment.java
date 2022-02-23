@@ -9,13 +9,13 @@ import uk.gov.justice.hmpps.prison.api.support.BookingAdjustmentType;
 
 import java.time.LocalDate;
 
-@Schema(description = "Sentence Adjustment values")
+@Schema(description = "Booking Adjustment values")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Data
 public class BookingAdjustment {
-    @Schema(description = "Adjustment type", allowableValues = {"SPECIAL_REMISSION","ADDITIONAL_DAYS_AWARDED","RESTORED_ADDITIONAL_DAYS_AWARDED","UNLAWFULLY_AT_LARGE","LAWFULLY_AT_LARGE"})
+    @Schema(description = "Adjustment type")
     private BookingAdjustmentType type;
 
     @Schema(description = "Number of days to adjust", example = "12")

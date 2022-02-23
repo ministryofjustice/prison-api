@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Repeat {
-    @Schema(required = true, description = "The period at which the appointment should repeat.", example = "WEEKLY", allowableValues = {"DAILY", "WEEKDAYS","WEEKLY","FORTNIGHTLY","MONTHLY"})
+    @Schema(required = true, description = "The period at which the appointment should repeat.", example = "WEEKLY")
     @NotNull
     private RepeatPeriod repeatPeriod;
 

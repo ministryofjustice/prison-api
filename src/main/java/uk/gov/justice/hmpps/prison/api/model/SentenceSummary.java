@@ -282,7 +282,7 @@ public class SentenceSummary {
 
         @Schema(description = "Release date for non-DTO sentence (if applicable). This will be based on one of ARD, CRD, NPD or PRRD.", example = "2020-04-01")
         private LocalDate nonDtoReleaseDate;
-        @Schema(description = "Indicates which type of non-DTO release date is the effective release date. One of 'ARD', 'CRD', 'NPD' or 'PRRD'.", example = "CRD", allowableValues = {"ARD","CRD","NPD","PRRD"}, required = true)
+        @Schema(description = "Indicates which type of non-DTO release date is the effective release date. One of 'ARD', 'CRD', 'NPD' or 'PRRD'.", example = "CRD", required = true)
         private NonDtoReleaseDateType nonDtoReleaseDateType;
         @Schema(description = "Confirmed release date for offender.", example = "2020-04-20")
         private LocalDate confirmedReleaseDate;
