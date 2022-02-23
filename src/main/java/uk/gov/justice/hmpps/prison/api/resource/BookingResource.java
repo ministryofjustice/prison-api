@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -159,7 +160,7 @@ public class BookingResource {
         @RequestParam(value = "iepLevel", defaultValue = "false", required = false) @Parameter(description = "Return IEP level data") final boolean iepLevel,
         @RequestParam(value = "legalInfo", defaultValue = "false", required = false) @Parameter(description = "Return additional legal information (imprisonmentStatus, legalStatus, convictedStatus)") final boolean legalInfo,
         @RequestParam(value = "image", defaultValue = "false", required = false) @Parameter(description = "Return facial ID for latest prisoner image") final boolean imageId,
-        @PageableDefault(sort = {"lastName","firstName","offenderNo"}, direction = Direction.ASC) final Pageable pageable) {
+        @ParameterObject @PageableDefault(sort = {"lastName","firstName","offenderNo"}, direction = Direction.ASC) final Pageable pageable) {
 
         return bookingService.getPrisonerBookingSummary(prisonId, bookingIds, offenderNos, iepLevel, legalInfo, imageId, pageable);
     }
@@ -363,7 +364,7 @@ public class BookingResource {
         @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "end alert date to search up to (including this date)", example = "2021-02-04") final LocalDate to,
         @RequestParam(value = "alertType", required = false) @Parameter(description = "Filter by alert type", example = "X") final String alertType,
         @RequestParam(value = "alertStatus", required = false) @Parameter(description = "Filter by alert active status", example = "ACTIVE") final String alertStatus,
-        @PageableDefault(sort = {"dateExpires", "dateCreated"}, direction = Sort.Direction.DESC) final Pageable pageable) {
+        @ParameterObject @PageableDefault(sort = {"dateExpires", "dateCreated"}, direction = Sort.Direction.DESC) final Pageable pageable) {
 
         return inmateAlertService.getAlertsForBooking(bookingId, from, to, alertType, alertStatus, pageable);
     }
@@ -445,7 +446,7 @@ public class BookingResource {
                                                                @RequestParam(value = "type", required = false) @Parameter(description = "Filter by case note type", example = "GEN") final String type,
                                                                @RequestParam(value = "subType", required = false) @Parameter(description = "Filter by case note sub-type", example = "OBS") final String subType,
                                                                @RequestParam(value = "prisonId", required = false) @Parameter(description = "Filter by the ID of the prison", example = "LEI") final String prisonId,
-                                                               @PageableDefault(sort = {"occurrenceDateTime"}, direction = Sort.Direction.DESC) final Pageable pageable) {
+                                                               @ParameterObject @PageableDefault(sort = {"occurrenceDateTime"}, direction = Sort.Direction.DESC) final Pageable pageable) {
 
         final var caseNoteFilter = CaseNoteFilter.builder()
             .type(type)
