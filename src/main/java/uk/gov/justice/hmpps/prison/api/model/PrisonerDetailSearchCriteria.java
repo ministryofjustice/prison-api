@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.With;
 
 import javax.validation.constraints.Max;
 import java.time.LocalDate;
@@ -20,6 +21,7 @@ import java.util.List;
 @NoArgsConstructor
 @EqualsAndHashCode
 @Data
+@With
 @ToString
 public class PrisonerDetailSearchCriteria {
 
