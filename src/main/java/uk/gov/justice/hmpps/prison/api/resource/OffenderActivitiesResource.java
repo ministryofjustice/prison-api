@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -42,7 +43,7 @@ public class OffenderActivitiesResource {
     @GetMapping("/{offenderNo}/activities-history")
     public Page<OffenderActivitySummary> getRecentStartedActivities(@PathVariable("offenderNo") @Parameter(description = "The offenderNo of the prisoner", required = true) final String offenderNo,
                                                                     @RequestParam(value = "earliestEndDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Only include activities that have not ended or have an end date after the given date", example = "1970-01-02") final LocalDate earliestEndDate,
-                                                                    @PageableDefault(size = 20) final Pageable pageable
+                                                                    @ParameterObject @PageableDefault(size = 20) final Pageable pageable
     ) {
         return activitiesService.getStartedActivities(offenderNo, earliestEndDate, pageable);
     }
@@ -55,7 +56,7 @@ public class OffenderActivitiesResource {
                                                              @RequestParam(value = "fromDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Only include attendences on or after this date", example = "2021-01-02", required = true) final LocalDate earliestActivityDate,
                                                              @RequestParam(value = "toDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Only include attendences on or before this date", example = "2021-05-27", required = true) final LocalDate latestActivityDate,
                                                              @RequestParam(value = "outcome", required = false) @Parameter(description = "Only include attendences which have this outcome (default all)", schema = @Schema(implementation = String.class, allowableValues = {"ABS","ACCAB","ATT","CANC","NREQ","SUS","UNACAB","REST"})) final String outcome,
-                                                             @PageableDefault(size = 20) final Pageable pageable
+                                                             @ParameterObject @PageableDefault(size = 20) final Pageable pageable
     ) {
         return activitiesService.getHistoricalAttendancies(offenderNo, earliestActivityDate, latestActivityDate, outcome, pageable);
     }
