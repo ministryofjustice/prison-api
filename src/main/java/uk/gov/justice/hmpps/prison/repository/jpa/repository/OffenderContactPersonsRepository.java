@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface OffenderContactPersonsRepository extends CrudRepository<OffenderContactPerson, Long> {
     List<OffenderContactPerson> findAllByPersonIdAndOffenderBooking_BookingId(final long personId, final long bookingId);
-    List<OffenderContactPerson> findAllByOffenderBooking_BookingIdAndActiveTrueOrderByIdDesc(final long bookingId);
+    List<OffenderContactPerson> findAllByOffenderBooking_BookingIdOrderByIdDesc(final long bookingId);
 }

@@ -617,10 +617,11 @@ public class OffenderResource {
     @GetMapping("/{offenderNo}/contacts")
     public OffenderContacts getOffenderContacts(
             @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo,
-            @Parameter(name = "approvedVisitorsOnly", description = "return only contacts approved for visits") @RequestParam(value = "approvedVisitorsOnly", required = false, defaultValue = "false") final boolean approvedVisitors
+            @Parameter(name = "approvedVisitorsOnly", description = "return only contacts approved for visits") @RequestParam(value = "approvedVisitorsOnly", required = false, defaultValue = "false") final boolean approvedVisitors,
+            @Parameter(name = "activeOnly", description = "return only active contacts, nb visitors can be inactive contacts") @RequestParam(value = "activeOnly", required = false, defaultValue = "false") final boolean activeOnly
     ) {
         final var booking = bookingService.getLatestBookingByOffenderNo(offenderNo);
-        return bookingService.getOffenderContacts(booking.getBookingId(), approvedVisitors);
+        return bookingService.getOffenderContacts(booking.getBookingId(), approvedVisitors, activeOnly);
     }
 
     @ApiResponses({

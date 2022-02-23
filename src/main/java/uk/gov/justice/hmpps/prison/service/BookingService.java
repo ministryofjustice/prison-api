@@ -835,10 +835,11 @@ public class BookingService {
             );
     }
 
-    public OffenderContacts getOffenderContacts(final Long bookingId, boolean approvedVisitorOnly) {
-        return new OffenderContacts(offenderContactPersonsRepository.findAllByOffenderBooking_BookingIdAndActiveTrueOrderByIdDesc(bookingId).stream()
+    public OffenderContacts getOffenderContacts(final Long bookingId, boolean approvedVisitorOnly, boolean activeOnly) {
+        return new OffenderContacts(offenderContactPersonsRepository.findAllByOffenderBooking_BookingIdOrderByIdDesc(bookingId).stream()
                 .filter(contact -> contact.getPerson() != null)
                 .filter(contact -> !approvedVisitorOnly || contact.isApprovedVisitor())
+                .filter(contact -> !activeOnly || contact.isActive())
                 .map(oc ->
                         OffenderContact.builder()
                                 .relationshipCode(ReferenceCode.getCodeOrNull(oc.getRelationshipType()))
@@ -858,6 +859,7 @@ public class BookingService {
                                         Email.builder().email(email.getInternetAddress()).build()).collect(toList()))
                                 .middleName(WordUtils.capitalizeFully(oc.getPerson().getMiddleName()))
                                 .restrictions(mergeGlobalAndStandardRestrictions(oc))
+                                .active(oc.isActive())
                                 .build()).toList());
     }
 
