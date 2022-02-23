@@ -2,8 +2,7 @@ package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +11,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-@ApiModel(description = "Home Detention Curfew information")
+@Schema(description = "Home Detention Curfew information")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -24,21 +23,21 @@ public class HomeDetentionCurfew {
     @JsonIgnore
     private long id;
 
-    @ApiModelProperty(value = "HDC Checks passed flag", example = "true")
+    @Schema(description = "HDC Checks passed flag", example = "true")
     private Boolean passed;
 
-    @ApiModelProperty(value = "HDC Checks passed date. ISO-8601 format. YYYY-MM-DD", example = "2018-12-31")
+    @Schema(description = "HDC Checks passed date. ISO-8601 format. YYYY-MM-DD", example = "2018-12-31")
     private LocalDate checksPassedDate;
 
-    @ApiModelProperty(value = "Approval status. Will be one of the 'HDC_APPROVE' reference codes", example = "APPROVED")
+    @Schema(description = "Approval status. Will be one of the 'HDC_APPROVE' reference codes", example = "APPROVED")
     String approvalStatus;
 
-    @ApiModelProperty(value = "Refused reason. Will be one of the 'HDC_REJ_RSN' reference codes", example = "UNDER_14DAYS")
+    @Schema(description = "Refused reason. Will be one of the 'HDC_REJ_RSN' reference codes", example = "UNDER_14DAYS")
     String refusedReason;
 
-    @ApiModelProperty(required = true, value = "Approval status date. ISO-8601 format. YYYY-MM-DD", example = "2018-12-31")
+    @Schema(required = true, description = "Approval status date. ISO-8601 format. YYYY-MM-DD", example = "2018-12-31")
     LocalDate approvalStatusDate;
 
-    @ApiModelProperty(value = "Offender booking ID", example = "123")
+    @Schema(description = "Offender booking ID", example = "123")
     private Long bookingId;
 }

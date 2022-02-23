@@ -1,10 +1,13 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,9 +44,9 @@ import java.util.List;
 import java.util.Set;
 
 @RestController
-@Api(tags = {"users"})
+@Tag(name = "users")
 @Validated
-@RequestMapping("${api.base.path}/users")
+@RequestMapping(value = "${api.base.path}/users", produces = "application/json")
 public class UserResource {
     private final AuthenticationFacade authenticationFacade;
     private final UserService userService;
@@ -64,19 +67,19 @@ public class UserResource {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = UserDetail.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "Get staff details for local administrator", notes = "Get user details for local administrator", nickname = "getStaffUsersForLocalAdministrator")
+        @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = UserDetail.class)))}),
+            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Get staff details for local administrator", description = "Get user details for local administrator")
     @GetMapping("/local-administrator/available")
-    public ResponseEntity<List<UserDetail>> getStaffUsersForLocalAdministrator(@RequestParam(value = "nameFilter", required = false) @ApiParam("Filter results by first name and/or username and/or last name of staff member.") final String nameFilter,
-                                                                               @RequestParam(value = "accessRole", required = false) @ApiParam("Filter results by access role") final List<String> accessRoles,
-                                                                               @RequestParam(value = "status", required = false, defaultValue = "ALL") @ApiParam("Limit to active / inactive / show all users.") final Status status,
-                                                                               @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @ApiParam(value = "Requested offset of first record in returned collection of caseload records.", defaultValue = "0") final Long pageOffset,
-                                                                               @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @ApiParam(value = "Requested limit to number of caseload records returned.", defaultValue = "10") final Long pageLimit,
-                                                                               @RequestHeader(value = "Sort-Fields", required = false) @ApiParam("Comma separated list of one or more of the following fields - <b>firstName, lastName</b>") final String sortFields,
-                                                                               @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") final Order sortOrder) {
+    public ResponseEntity<List<UserDetail>> getStaffUsersForLocalAdministrator(@RequestParam(value = "nameFilter", required = false) @Parameter(description = "Filter results by first name and/or username and/or last name of staff member.") final String nameFilter,
+                                                                               @RequestParam(value = "accessRole", required = false) @Parameter(description = "Filter results by access role") final List<String> accessRoles,
+                                                                               @RequestParam(value = "status", required = false, defaultValue = "ALL") @Parameter(description = "Limit to active / inactive / show all users.") final Status status,
+                                                                               @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of caseload records.") final Long pageOffset,
+                                                                               @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of caseload records returned.") final Long pageLimit,
+                                                                               @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>firstName, lastName</b>") final String sortFields,
+                                                                               @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
 
         final var pageRequest = new PageRequest(sortFields, sortOrder, pageOffset, pageLimit);
 
@@ -88,25 +91,25 @@ public class UserResource {
     }
 
     @ApiResponses({
-        @ApiResponse(code = 200, message = "OK", response = UserDetail.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "Get user details.", notes = "Get user details.", nickname = "getUsers")
+        @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = UserDetail.class)))}),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Get user details.", description = "Get user details.")
     @GetMapping
-    public ResponseEntity<List<UserDetail>> getUsers(@RequestParam(value = "nameFilter", required = false) @ApiParam("Filter results by first name and/or username and/or last name of staff member.") final String nameFilter,
-                                                     @RequestParam(value = "accessRole", required = false) @ApiParam("Filter results by access roles") final List<String> accessRoles,
-                                                     @RequestParam(value = "status", required = false, defaultValue = "ALL") @ApiParam("Limit to active / inactive / show all users.") final Status status,
-                                                     @RequestParam(value = "caseload", required = false) @ApiParam(value = "Filter results to include only those users that have access to the specified caseload (irrespective of whether it is currently active or not", example = "MDI") final String caseload,
-                                                     @RequestParam(value = "activeCaseload", required = false) @ApiParam(value = "Filter results by user's currently active caseload i.e. the one they have currently selected.", example = "MDI") final String activeCaseload,
+    public ResponseEntity<List<UserDetail>> getUsers(@RequestParam(value = "nameFilter", required = false) @Parameter(description = "Filter results by first name and/or username and/or last name of staff member.") final String nameFilter,
+                                                     @RequestParam(value = "accessRole", required = false) @Parameter(description = "Filter results by access roles") final List<String> accessRoles,
+                                                     @RequestParam(value = "status", required = false, defaultValue = "ALL") @Parameter(description = "Limit to active / inactive / show all users.") final Status status,
+                                                     @RequestParam(value = "caseload", required = false) @Parameter(description = "Filter results to include only those users that have access to the specified caseload (irrespective of whether it is currently active or not", example = "MDI") final String caseload,
+                                                     @RequestParam(value = "activeCaseload", required = false) @Parameter(description = "Filter results by user's currently active caseload i.e. the one they have currently selected.", example = "MDI") final String activeCaseload,
                                                      @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false)
-                                                         @ApiParam(value = "Requested offset of first record in returned collection of user records.", defaultValue = "0") final Long pageOffset,
+                                                         @Parameter(description = "Requested offset of first record in returned collection of user records.") final Long pageOffset,
                                                      @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false)
-                                                         @ApiParam(value = "Requested limit to number of user records returned.", defaultValue = "10") final Long pageLimit,
+                                                         @Parameter(description = "Requested limit to number of user records returned.") final Long pageLimit,
                                                      @RequestHeader(value = "Sort-Fields", required = false)
-                                                         @ApiParam("Comma separated list of one or more of the following fields - <b>firstName, lastName</b>") final String sortFields,
+                                                         @Parameter(description = "Comma separated list of one or more of the following fields - <b>firstName, lastName</b>") final String sortFields,
                                                      @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false)
-                                                         @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") final Order sortOrder) {
+                                                         @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
         final var pageRequest = new PageRequest(sortFields, sortOrder, pageOffset, pageLimit);
 
         final var userDetails = userService.getUsers(nameFilter, accessRoles, status,
@@ -118,35 +121,35 @@ public class UserResource {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = UserDetail.class),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @ApiOperation(value = "Current user detail.", notes = "Current user detail.", nickname = "getMyUserInformation")
+            @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = UserDetail.class))}),
+            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Current user detail.", description = "Current user detail.")
     @GetMapping("/me")
     public UserDetail getMyUserInformation() {
         return userService.getUserByUsername(authenticationFacade.getCurrentUsername());
     }
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = CaseLoad.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "List of caseloads accessible to current user.", notes = "List of caseloads accessible to current user.", nickname = "getMyCaseLoads")
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "List of caseloads accessible to current user.", description = "List of caseloads accessible to current user.")
     @GetMapping("/me/caseLoads")
-    public List<CaseLoad> getMyCaseLoads(@RequestParam(value = "allCaseloads", required = false, defaultValue = "false") @ApiParam(value = "If set to true then all caseloads are returned", defaultValue = "false") final boolean allCaseloads) {
+    public List<CaseLoad> getMyCaseLoads(@RequestParam(value = "allCaseloads", required = false, defaultValue = "false") @Parameter(description = "If set to true then all caseloads are returned") final boolean allCaseloads) {
         return userService.getCaseLoads(authenticationFacade.getCurrentUsername(), allCaseloads);
     }
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = ReferenceCode.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "List of all case note types (with sub-types) accessible to current user (and based on working caseload).", notes = "List of all case note types (with sub-types) accessible to current user (and based on working caseload).", nickname = "getMyCaseNoteTypes")
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "List of all case note types (with sub-types) accessible to current user (and based on working caseload).", description = "List of all case note types (with sub-types) accessible to current user (and based on working caseload).")
     @GetMapping("/me/caseNoteTypes")
-    public List<ReferenceCode> getMyCaseNoteTypes(@RequestHeader(value = "Sort-Fields", required = false) @ApiParam("Comma separated list of one or more of the following fields - <b>code, activeFlag, description</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") final Order sortOrder) {
+    public List<ReferenceCode> getMyCaseNoteTypes(@RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>code, activeFlag, description</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
         final var currentCaseLoad =
                 caseLoadService.getWorkingCaseLoadForUser(authenticationFacade.getCurrentUsername());
 
@@ -155,35 +158,36 @@ public class UserResource {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = Location.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "List of locations accessible to current user.", notes = "List of locations accessible to current user.", nickname = "getMyLocations")
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "List of locations accessible to current user.", description = "List of locations accessible to current user.")
     @GetMapping("/me/locations")
     public List<Location> getMyLocations() {
         return locationService.getUserLocations(authenticationFacade.getCurrentUsername());
     }
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = UserRole.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "List of roles for current user.", notes = "List of roles for current user.", nickname = "getMyRoles")
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "List of roles for current user.", description = "List of roles for current user.")
     @GetMapping("/me/roles")
-    public List<UserRole> getMyRoles(@RequestParam(value = "allRoles", required = false, defaultValue = "false") @ApiParam(value = "If set to true then all roles are returned rather than just API roles", defaultValue = "false") final boolean allRoles) {
+    public List<UserRole> getMyRoles(@RequestParam(value = "allRoles", required = false, defaultValue = "false") @Parameter(description = "If set to true then all roles are returned rather than just API roles") final boolean allRoles) {
         return userService.getRolesByUsername(authenticationFacade.getCurrentUsername(), allRoles);
     }
 
     @ApiResponses({
-            @ApiResponse(code = 401, message = "Invalid username or password", response = ErrorResponse.class),
-            @ApiResponse(code = 403, message = "the user does not have permission to view the caseload.", response = ErrorResponse.class)})
-    @ApiOperation(value = "Update working caseload for current user.", notes = "Update working caseload for current user.", nickname = "updateMyActiveCaseLoad")
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "401", description = "Invalid username or password", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "403", description = "the user does not have permission to view the caseload.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Update working caseload for current user.", description = "Update working caseload for current user.")
     @PutMapping("/me/activeCaseLoad")
     @HasWriteScope
     @ProxyUser
-    public ResponseEntity<?> updateMyActiveCaseLoad(@RequestBody @ApiParam(value = "", required = true) final CaseLoad caseLoad) {
+    public ResponseEntity<?> updateMyActiveCaseLoad(@RequestBody @Parameter(required = true) final CaseLoad caseLoad) {
         try {
             userService.setActiveCaseLoad(authenticationFacade.getCurrentUsername(), caseLoad.getCaseLoadId());
         } catch (final AccessDeniedException ex) {
@@ -197,32 +201,31 @@ public class UserResource {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = UserDetail.class),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
-    @ApiOperation(value = "User detail.", notes = "User detail.", nickname = "getUserDetails")
+            @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = UserDetail.class))}),
+            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "User detail.", description = "User detail.")
     @GetMapping("/{username}")
-    public UserDetail getUserDetails(@PathVariable("username") @ApiParam(value = "The username of the user.", required = true) final String username) {
+    public UserDetail getUserDetails(@PathVariable("username") @Parameter(description = "The username of the user.", required = true) final String username) {
         return userService.getUserByUsername(username.toUpperCase());
     }
 
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "The list of user details", response = UserDetail.class, responseContainer = "List")})
-    @ApiOperation(value = "Returns the user details for supplied usernames - POST version to allow large user lists.", notes = "user details for supplied usernames", nickname = "getUserDetailsList")
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "The list of user details")})
+    @Operation(summary = "Returns the user details for supplied usernames - POST version to allow large user lists.", description = "user details for supplied usernames")
     @PostMapping("/list")
-    public List<UserDetail> getUserDetailsList(@RequestBody @ApiParam(value = "The required usernames (mandatory)", required = true) final Set<String> usernames) {
+    public List<UserDetail> getUserDetailsList(@RequestBody @Parameter(description = "The required usernames (mandatory)", required = true) final Set<String> usernames) {
         return userService.getUserListByUsernames(usernames);
     }
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "No New Users", response = CaseloadUpdate.class),
-            @ApiResponse(code = 201, message = "New Users Enabled", response = CaseloadUpdate.class),
+            @ApiResponse(responseCode = "200", description = "No New Users", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CaseloadUpdate.class))}),
+            @ApiResponse(responseCode = "201", description = "New Users Enabled", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CaseloadUpdate.class))}),
     })
-    @ApiOperation(value = "Add the NWEB caseload to specified caseload.", notes = "Add the NWEB caseload to specified caseload.", nickname = "addApiAccessForCaseload")
+    @Operation(summary = "Add the NWEB caseload to specified caseload.", description = "Add the NWEB caseload to specified caseload.")
     @PutMapping("/add/default/{caseload}")
     @ProxyUser
-    public ResponseEntity<CaseloadUpdate> addApiAccessForCaseload(@PathVariable("caseload") @ApiParam(value = "The caseload (equates to prison) id to add all active users to default API caseload (NWEB)", required = true) final String caseload) {
+    public ResponseEntity<CaseloadUpdate> addApiAccessForCaseload(@PathVariable("caseload") @Parameter(description = "The caseload (equates to prison) id to add all active users to default API caseload (NWEB)", required = true) final String caseload) {
         final var caseloadUpdate = userService.addDefaultCaseloadForPrison(caseload);
         if (caseloadUpdate.getNumUsersEnabled() > 0) {
             return ResponseEntity.status(HttpStatus.CREATED).body(caseloadUpdate);

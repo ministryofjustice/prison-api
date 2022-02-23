@@ -1,9 +1,7 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -28,27 +26,16 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @Slf4j
 @RestController
 @Validated
-@RequestMapping("${api.base.path}/events")
+@RequestMapping(value = "${api.base.path}/events", produces = "application/json")
 @AllArgsConstructor
-@Api(tags = "events")
+@Tag(name = "events")
 public class OffenderEventsController {
 
     private final OffenderEventsService offenderEventsService;
 
     @GetMapping
     @ResponseBody
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "from", dataType = "date", paramType = "query",
-                    value = "ISO 8601 Date Time without zone or offset (local date time), eg 2017-07-24T09:18:15"),
-            @ApiImplicitParam(name = "to", dataType = "date", paramType = "query",
-                    value = "ISO 8601 Date Time without zone or offset (local date time), eg 2017-07-24T09:18:15"),
-            @ApiImplicitParam(name = "type", dataType = "string", paramType = "query", allowMultiple = true,
-                    value = "Comma separated list of event types to filter inclusively:\n" +
-                            "BALANCE_UPDATE\nCOURT_SENTENCE-CHANGED\nALERT-DELETED\nPERSON_ADDRESS-UPDATED\nOFFENDER_ADDRESS-UPDATED\nADDRESS-UPDATED\nPERSON_ADDRESS-DELETED\nOFFENDER_ADDRESS-DELETED\nADDRESS-DELETED\nPERSON_ADDRESS-INSERTED\nHDC_FINE-INSERTED\nHDC_CONDITION-CHANGED\nOFFENDER_EMPLOYMENT-INSERTED\nOFFENDER_EMPLOYMENT-UPDATED\nOFFENDER_EMPLOYMENT-DELETED\nPHONE-INSERTED\nPHONE-UPDATED\nPHONE-DELETED\nHEARING_RESULT-CHANGED\nHEARING_RESULT-DELETED\nHEARING_DATE-CHANGED\nSENTENCE_CALCULATION_DATES-CHANGED\nOFFENDER_PROFILE_DETAILS-UPDATED\nOFFENDER_PROFILE_DETAILS-INSERTED\nALERT-INSERTED\nALERT-UPDATED\nASSESSMENT-CHANGED\nIMPRISONMENT_STATUS-CHANGED\nOFFENDER_IDENTIFIER-INSERTED\nOFFENDER_IDENTIFIER-DELETED\nEDUCATION_LEVEL-INSERTED\nEDUCATION_LEVEL-UPDATED\nEDUCATION_LEVEL-DELETED\nCONTACT_PERSON-INSERTED\nCONTACT_PERSON-UPDATED\nCONTACT_PERSON-DELETED\nOFFENDER-UPDATED\nOFFENDER_ALIAS-CHANGED\nADDRESS_USAGE-INSERTED\nADDRESS_USAGE-UPDATED\nADDRESS_USAGE-DELETED\nOFFENDER_DETAILS-CHANGED\nOFFENDER_BOOKING-INSERTED\nOFFENDER_BOOKING-CHANGED\nOFFENDER_BOOKING-REASSIGNED\nEXTERNAL_MOVEMENT_RECORD-INSERTED\nEXTERNAL_MOVEMENT_RECORD-DELETED\nEXTERNAL_MOVEMENT_RECORD-UPDATED\nOFFENDER_MOVEMENT-DISCHARGE\nOFFENDER_MOVEMENT-RECEPTION\nMATERNITY_STATUS-INSERTED\nMATERNITY_STATUS-UPDATED\nRISK_SCORE-CHANGED\nRISK_SCORE-DELETED\nOFFENDER_SANCTION-CHANGED\nBOOKING_NUMBER-CHANGED"),
-            @ApiImplicitParam(name = "sortBy", dataType = "string", paramType = "query", value = "Sort order")
-
-    })
-    @ApiOperation(value = "Get events", notes = "**from** and **to** query params are optional.\n" +
+    @Operation(summary = "Get events", description = "**from** and **to** query params are optional.\n" +
             "An awful lot of events occur every day. To guard against unintentionally heavy queries, the following rules are applied:\n" +
             "If **both** are absent, scope will be limited to 24 hours starting from midnight yesterday.\n" +
             "If **to** is present but **from** is absent, **from** will be defaulted to 24 hours before **to**.\n" +

@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -21,7 +21,7 @@ import java.util.Map;
  * Person
  **/
 @SuppressWarnings("unused")
-@ApiModel(description = "Person")
+@Schema(description = "Person")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -45,7 +45,7 @@ public class Person {
         return additionalProperties == null ? new HashMap<>() : additionalProperties;
     }
 
-    @ApiModelProperty(hidden = true)
+    @Hidden
     @JsonAnySetter
     public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
@@ -54,7 +54,7 @@ public class Person {
     /**
      * id of the person
      */
-    @ApiModelProperty(required = true, value = "id of the person")
+    @Schema(required = true, description = "id of the person")
     @JsonProperty("personId")
     public Long getPersonId() {
         return personId;
@@ -67,7 +67,7 @@ public class Person {
     /**
      * Surname
      */
-    @ApiModelProperty(required = true, value = "Surname")
+    @Schema(required = true, description = "Surname")
     @JsonProperty("lastName")
     public String getLastName() {
         return lastName;
@@ -80,7 +80,7 @@ public class Person {
     /**
      * First Name
      */
-    @ApiModelProperty(required = true, value = "First Name")
+    @Schema(required = true, description = "First Name")
     @JsonProperty("firstName")
     public String getFirstName() {
         return firstName;

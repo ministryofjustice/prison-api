@@ -1,10 +1,13 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -30,20 +33,20 @@ import java.util.List;
 @Slf4j
 @RestController
 @Validated
-@Api(tags = {"prisoners"})
-@RequestMapping("${api.base.path}/prisoners")
+@Tag(name = "prisoners")
+@RequestMapping(value = "${api.base.path}/prisoners", produces = "application/json")
 @AllArgsConstructor
 public class PrisonerStatusController {
 
     private final PrisonerInformationService service;
 
-    @GetMapping("/{offenderNo}/full-status")
-    @ApiOperation(value = "Status and core offender information", consumes = "application/json", produces = "application/json")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = PrisonerInformation.class),
-            @ApiResponse(code = 401, message = "Unauthorized.", response = ErrorResponse.class),
-            @ApiResponse(code = 404, message = "User not found.", response = ErrorResponse.class)})
-    public PrisonerInformation getPrisonerInformationById(@ApiParam(name = "offenderNo", value = "Offender No (NOMS ID)", required = true, example = "A1234AA")
+    @GetMapping(value = "/{offenderNo}/full-status", consumes = "application/json", produces = "application/json")
+    @Operation(summary = "Status and core offender information")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PrisonerInformation.class))}),
+            @ApiResponse(responseCode = "401", description = "Unauthorized.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "404", description = "User not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    public PrisonerInformation getPrisonerInformationById(@Parameter(name = "offenderNo", description = "Offender No (NOMS ID)", required = true, example = "A1234AA")
                                                          @PathVariable("offenderNo") final String offenderNo) {
         return service.getPrisonerInformationById(offenderNo);
     }
@@ -52,17 +55,17 @@ public class PrisonerStatusController {
 
     @Deprecated
     @GetMapping("/at-location/{establishmentCode}")
-    @ApiOperation(value = "List of prisoners at a prison establishment", notes = "Pagination In Headers")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = PrisonerInformation.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    @Operation(summary = "List of prisoners at a prison establishment", description = "Pagination In Headers")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = PrisonerInformation.class)))}),
+            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     public ResponseEntity<List<PrisonerInformation>> getPrisonerDetailAtLocationOld(
-                                         @ApiParam(value = "Establishment Code", required = true, example = "MDI") @PathVariable("establishmentCode") final String establishmentCode,
-                                         @ApiParam(value = "Requested offset of first record in returned collection of prisoner records.", defaultValue = "0") @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) Long pageOffset,
-                                         @ApiParam(value = "Requested limit to number of prisoner records returned.", defaultValue = "10") @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) Long pageLimit,
-                                         @ApiParam(value = "Comma separated list of one or more of the following fields - <b>bookingId, nomsId, cellLocation</b>", defaultValue = "bookingId") @RequestHeader(value = "Sort-Fields", defaultValue = "bookingId", required = false) String sortFields,
-                                         @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) Order sortOrder) {
+                                         @Parameter(description = "Establishment Code", required = true, example = "MDI") @PathVariable("establishmentCode") final String establishmentCode,
+                                         @Parameter(description = "Requested offset of first record in returned collection of prisoner records.") @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) Long pageOffset,
+                                         @Parameter(description = "Requested limit to number of prisoner records returned.") @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) Long pageLimit,
+                                         @Parameter(description = "Comma separated list of one or more of the following fields - <b>bookingId, nomsId, cellLocation</b>") @RequestHeader(value = "Sort-Fields", defaultValue = "bookingId", required = false) String sortFields,
+                                         @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) Order sortOrder) {
 
         final var prisonerInfo =  service.getPrisonerInformationByPrison(establishmentCode,
                 PageRequest.of(sortFields, sortOrder, pageOffset, pageLimit));
@@ -80,13 +83,13 @@ public class PrisonerStatusController {
     /* NOTE: This is the new way of sending paging and returning information to match spring data patterns **/
 
     @GetMapping("/by-establishment/{establishmentCode}")
-    @ApiOperation(value = "List of prisoners at a prison establishment")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = PrisonerInformation.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    @Operation(summary = "List of prisoners at a prison establishment")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = PrisonerInformation.class)))}),
+            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     public Page<PrisonerInformation> getPrisonerDetailAtLocation(
-            @ApiParam(value = "Establishment Code", required = true, example = "MDI") @PathVariable("establishmentCode") final String establishmentCode,
+            @Parameter(description = "Establishment Code", required = true, example = "MDI") @PathVariable("establishmentCode") final String establishmentCode,
             @PageableDefault(sort = {"bookingId"}, direction = Sort.Direction.ASC) final Pageable pageable) {
 
         return service.getPrisonerInformationByPrison(establishmentCode,  pageable);

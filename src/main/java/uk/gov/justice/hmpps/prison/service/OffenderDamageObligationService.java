@@ -12,7 +12,6 @@ import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class OffenderDamageObligationService {

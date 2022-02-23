@@ -1,10 +1,10 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -29,88 +29,89 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
-@Api(tags = {"appointments"})
+@Tag(name = "appointments")
 @Validated
-@RequestMapping("${api.base.path}/appointments")
+@RequestMapping(value = "${api.base.path}/appointments", produces = "application/json")
 @AllArgsConstructor
 public class AppointmentsResource {
     private final AppointmentsService appointmentsService;
 
     @ApiResponses({
-        @ApiResponse(code = 200, message = "The appointments have been created.")})
-    @ApiOperation(value = "Create multiple appointments", notes = "Create multiple appointments", nickname = "createAppointments")
+        @ApiResponse(responseCode = "200", description = "The appointments have been created.")})
+    @Operation(summary = "Create multiple appointments", description = "Create multiple appointments")
     @PostMapping
     @ProxyUser
     public List<CreatedAppointmentDetails> createAppointments(
         @RequestBody
-        @ApiParam(required = true) final AppointmentsToCreate createAppointmentsRequest
+        @Parameter(required = true) final AppointmentsToCreate createAppointmentsRequest
     ) {
         return appointmentsService.createAppointments(createAppointmentsRequest);
     }
 
     @ApiResponses({
-        @ApiResponse(code = 204, message = "The appointment has been deleted"),
-        @ApiResponse(code = 404, message = "The appointment was not found"),
-        @ApiResponse(code = 403, message = "The client is not authorised for this operation")
+        @ApiResponse(responseCode = "204", description = "The appointment has been deleted"),
+        @ApiResponse(responseCode = "404", description = "The appointment was not found"),
+        @ApiResponse(responseCode = "403", description = "The client is not authorised for this operation")
     })
-    @ApiOperation(value = "Delete an appointment.", notes = "Delete appointment.", nickname = "deleteBookingAppointment")
+    @Operation(summary = "Delete an appointment.", description = "Delete appointment.")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{appointmentId}")
     @HasWriteScope
     public void deleteAppointment(
         @PathVariable("appointmentId")
-        @ApiParam(value = "The unique identifier for the appointment", required = true)
+        @Parameter(description = "The unique identifier for the appointment", required = true)
         @NotNull final Long appointmentId
     ) {
         appointmentsService.deleteBookingAppointment(appointmentId);
     }
 
     @ApiResponses({
-        @ApiResponse(code = 403, message = "The client is not authorised for this operation"),
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "403", description = "The client is not authorised for this operation"),
     })
-    @ApiOperation(value = "Delete multiple appointments.", notes = "Delete multiple appointments.", nickname = "deleteAppointments")
+    @Operation(summary = "Delete multiple appointments.", description = "Delete multiple appointments.")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PostMapping("/delete")
     @HasWriteScope
     public void deleteAppointments(
-        @ApiParam(value = "The unique identifier for the appointment", required = true)
+        @Parameter(description = "The unique identifier for the appointment", required = true)
         @NotNull @RequestBody List<Long> appointmentIds
     ) {
         appointmentsService.deleteBookingAppointments(appointmentIds);
     }
 
     @ApiResponses({
-        @ApiResponse(code = 200, message = "The appointment has been returned"),
-        @ApiResponse(code = 403, message = "The client is not authorised for this operation"),
-        @ApiResponse(code = 404, message = "The appointment was not found")
+        @ApiResponse(responseCode = "200", description = "The appointment has been returned"),
+        @ApiResponse(responseCode = "403", description = "The client is not authorised for this operation"),
+        @ApiResponse(responseCode = "404", description = "The appointment was not found")
     })
-    @ApiOperation(value = "Get an appointment by id.", notes = "Get appointment byId.", nickname = "getBookingAppointment")
+    @Operation(summary = "Get an appointment by id.", description = "Get appointment byId.")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{appointmentId}")
     public ScheduledEvent getAppointment(
         @PathVariable("appointmentId")
-        @ApiParam(value = "The unique identifier for the appointment", required = true)
+        @Parameter(description = "The unique identifier for the appointment", required = true)
         @NotNull final Long appointmentId
     ) {
         return appointmentsService.getBookingAppointment(appointmentId);
     }
 
-    @ApiOperation(value = "Change an appointment's comment.")
+    @Operation(summary = "Change an appointment's comment.")
     @ApiResponses({
-        @ApiResponse(code = 204, message = "The appointment's comment has been set."),
-        @ApiResponse(code = 403, message = "The client is not authorised for this operation"),
-        @ApiResponse(code = 404, message = "The appointment was not found."),
+        @ApiResponse(responseCode = "204", description = "The appointment's comment has been set."),
+        @ApiResponse(responseCode = "403", description = "The client is not authorised for this operation"),
+        @ApiResponse(responseCode = "404", description = "The appointment was not found."),
     })
     @HasWriteScope
     @PutMapping(path = "/{appointmentId}/comment", consumes = {MediaType.TEXT_PLAIN_VALUE})
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateAppointmentComment(
         @PathVariable("appointmentId")
-        @ApiParam(value = "The appointment's unique identifier.", required = true)
+        @Parameter(description = "The appointment's unique identifier.", required = true)
         @NotNull final Long appointmentId,
 
         @RequestBody(required = false)
-        @ApiParam(value = "The text of the comment. May be empty or null", allowEmptyValue = true) final String comment
+        @Parameter(description = "The text of the comment. May be empty or null", allowEmptyValue = true) final String comment
     ) {
         appointmentsService.updateComment(appointmentId, comment);
     }

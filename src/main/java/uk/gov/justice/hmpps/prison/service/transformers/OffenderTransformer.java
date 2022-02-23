@@ -16,7 +16,6 @@ import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.stream.Collectors;
 
 import static uk.gov.justice.hmpps.prison.util.DateTimeConverter.getAge;
 

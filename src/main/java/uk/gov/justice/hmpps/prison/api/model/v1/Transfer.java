@@ -1,22 +1,21 @@
 package uk.gov.justice.hmpps.prison.api.model.v1;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-@ApiModel(description = "Transfer Response")
+@Schema(description = "Transfer Response")
 @Data
 @AllArgsConstructor
 @EqualsAndHashCode
 @ToString
 public class Transfer {
-    @ApiModelProperty(value = "Current Location", name = "current_location", position = 1)
+    @Schema(description = "Current Location", name = "current_location")
     @JsonProperty("current_location")
     public CodeDescription currentLocation;
-    @ApiModelProperty(value = "Transaction", name = "transaction", position = 2)
+    @Schema(description = "Transaction", name = "transaction")
     public Transaction transaction;
 }

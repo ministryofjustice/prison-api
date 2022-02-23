@@ -1,8 +1,7 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,7 +17,7 @@ import java.time.LocalDateTime;
  * Contact
  **/
 @SuppressWarnings("unused")
-@ApiModel(description = "Contact")
+@Schema(description = "Contact")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -26,69 +25,69 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode
 @Data
 public class Contact {
-    @ApiModelProperty(required = true, value = "Last name of the contact", example = "SMITH", position = 1)
+    @Schema(required = true, description = "Last name of the contact", example = "SMITH")
     @NotBlank
     private String lastName;
 
-    @ApiModelProperty(required = true, value = "First Name", example = "JOHN", position = 2)
+    @Schema(required = true, description = "First Name", example = "JOHN")
     @NotBlank
     private String firstName;
 
-    @ApiModelProperty(value = "Middle Names", example = "MARK", position = 3)
+    @Schema(description = "Middle Names", example = "MARK")
     private String middleName;
 
-    @ApiModelProperty(required = true, value = "Contact type", example = "O", position = 4)
+    @Schema(required = true, description = "Contact type", example = "O")
     @NotBlank
     private String contactType;
 
-    @ApiModelProperty(value = "Contact type text", example = "Official", position = 5)
+    @Schema(description = "Contact type text", example = "Official")
     private String contactTypeDescription;
 
-    @ApiModelProperty(required = true, value = "Relationship to prisoner", example = "RO", position = 6)
+    @Schema(required = true, description = "Relationship to prisoner", example = "RO")
     @NotBlank
     private String relationship;
 
-    @ApiModelProperty(value = "Relationship text", example = "Responsible Officer", position = 7)
+    @Schema(description = "Relationship text", example = "Responsible Officer")
     private String relationshipDescription;
 
-    @ApiModelProperty(value = "Comments", example = "Some additional information", position = 8)
+    @Schema(description = "Comments", example = "Some additional information")
     private String commentText;
 
-    @ApiModelProperty(required = true, value = "Is an emergency contact", example = "true", position = 9)
+    @Schema(required = true, description = "Is an emergency contact", example = "true")
     @NotNull
     private boolean emergencyContact;
 
-    @ApiModelProperty(required = true, value = "Indicates that the contact is Next of Kin Type", example = "false", position = 10)
+    @Schema(required = true, description = "Indicates that the contact is Next of Kin Type", example = "false")
     @NotNull
     private boolean nextOfKin;
 
-    @ApiModelProperty(value = "ID of the relationship (internal)", example = "10466277", position = 11)
+    @Schema(description = "ID of the relationship (internal)", example = "10466277")
     private Long relationshipId;
 
-    @ApiModelProperty(value = "id of the person contact", example = "5871791", position = 12)
+    @Schema(description = "id of the person contact", example = "5871791")
     private Long personId;
 
-    @ApiModelProperty(required = true, value = "Active indicator flag.", example = "true", allowableValues = "true,false", position = 12)
+    @Schema(required = true, description = "Active indicator flag.", example = "true", allowableValues = {"true","false"})
     private boolean activeFlag;
 
-    @ApiModelProperty(value = "Date made inactive", example = "2019-01-31", position = 13)
+    @Schema(description = "Date made inactive", example = "2019-01-31")
     private LocalDate expiryDate;
 
-    @ApiModelProperty(required = true, value = "Approved Visitor", example = "true", allowableValues = "true,false", position = 14)
+    @Schema(required = true, description = "Approved Visitor", example = "true", allowableValues = {"true","false"})
     private boolean approvedVisitorFlag;
 
-    @ApiModelProperty(required = true, value = "Can be contacted", example = "false", allowableValues = "true,false", position = 15)
+    @Schema(required = true, description = "Can be contacted", example = "false", allowableValues = {"true","false"})
     private boolean canBeContactedFlag;
 
-    @ApiModelProperty(required = true, value = "Aware of charges against prisoner", example = "true", allowableValues = "true,false", position = 16)
+    @Schema(required = true, description = "Aware of charges against prisoner", example = "true", allowableValues = {"true","false"})
     private boolean awareOfChargesFlag;
 
-    @ApiModelProperty(value = "Link to root offender ID", example = "5871791", position = 17)
+    @Schema(description = "Link to root offender ID", example = "5871791")
     private Long contactRootOffenderId;
 
-    @ApiModelProperty(required = true, value = "Offender Booking Id for this contact", example = "2468081", position = 18)
+    @Schema(required = true, description = "Offender Booking Id for this contact", example = "2468081")
     private Long bookingId;
 
-    @ApiModelProperty(required = true, value = "Date time the contact was created", example = "2020-10-10T:20:00", position = 19)
+    @Schema(required = true, description = "Date time the contact was created", example = "2020-10-10T:20:00")
     private LocalDateTime createDateTime;
 }

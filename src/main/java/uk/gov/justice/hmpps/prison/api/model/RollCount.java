@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -21,7 +21,7 @@ import java.util.Map;
  * Establishment roll count numbers for a housing block, wing, or reception etc.
  **/
 @SuppressWarnings("unused")
-@ApiModel(description = "Establishment roll count numbers for a housing block, wing, or reception etc.")
+@Schema(description = "Establishment roll count numbers for a housing block, wing, or reception etc.")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -66,7 +66,7 @@ public class RollCount {
         return additionalProperties == null ? new HashMap<>() : additionalProperties;
     }
 
-    @ApiModelProperty(hidden = true)
+    @Hidden
     @JsonAnySetter
     public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
@@ -75,7 +75,7 @@ public class RollCount {
     /**
      * Id of location
      */
-    @ApiModelProperty(required = true, value = "Id of location")
+    @Schema(required = true, description = "Id of location")
     @JsonProperty("livingUnitId")
     public Long getLivingUnitId() {
         return livingUnitId;
@@ -88,7 +88,7 @@ public class RollCount {
     /**
      * Wing, houseblock etc. name
      */
-    @ApiModelProperty(required = true, value = "Wing, houseblock etc. name")
+    @Schema(required = true, description = "Wing, houseblock etc. name")
     @JsonProperty("livingUnitDesc")
     public String getLivingUnitDesc() {
         return livingUnitDesc;
@@ -101,7 +101,7 @@ public class RollCount {
     /**
      * No of residential prisoners
      */
-    @ApiModelProperty(required = true, value = "No of residential prisoners")
+    @Schema(required = true, description = "No of residential prisoners")
     @JsonProperty("bedsInUse")
     public Integer getBedsInUse() {
         return bedsInUse;
@@ -114,7 +114,7 @@ public class RollCount {
     /**
      * No of residential prisoners actually in
      */
-    @ApiModelProperty(required = true, value = "No of residential prisoners actually in")
+    @Schema(required = true, description = "No of residential prisoners actually in")
     @JsonProperty("currentlyInCell")
     public Integer getCurrentlyInCell() {
         return currentlyInCell;
@@ -127,7 +127,7 @@ public class RollCount {
     /**
      * No of residential prisoners out
      */
-    @ApiModelProperty(required = true, value = "No of residential prisoners out")
+    @Schema(required = true, description = "No of residential prisoners out")
     @JsonProperty("currentlyOut")
     public Integer getCurrentlyOut() {
         return currentlyOut;
@@ -140,7 +140,7 @@ public class RollCount {
     /**
      * Total capacity not including unavailable cells
      */
-    @ApiModelProperty(required = true, value = "Total capacity not including unavailable cells")
+    @Schema(required = true, description = "Total capacity not including unavailable cells")
     @JsonProperty("operationalCapacity")
     public Integer getOperationalCapacity() {
         return operationalCapacity;
@@ -153,7 +153,7 @@ public class RollCount {
     /**
      * Available empty beds
      */
-    @ApiModelProperty(required = true, value = "Available empty beds")
+    @Schema(required = true, description = "Available empty beds")
     @JsonProperty("netVacancies")
     public Integer getNetVacancies() {
         return netVacancies;
@@ -166,7 +166,7 @@ public class RollCount {
     /**
      * Total capacity including unavailable cells
      */
-    @ApiModelProperty(required = true, value = "Total capacity including unavailable cells")
+    @Schema(required = true, description = "Total capacity including unavailable cells")
     @JsonProperty("maximumCapacity")
     public Integer getMaximumCapacity() {
         return maximumCapacity;
@@ -179,7 +179,7 @@ public class RollCount {
     /**
      * All empty beds
      */
-    @ApiModelProperty(required = true, value = "All empty beds")
+    @Schema(required = true, description = "All empty beds")
     @JsonProperty("availablePhysical")
     public Integer getAvailablePhysical() {
         return availablePhysical;
@@ -192,7 +192,7 @@ public class RollCount {
     /**
      * No of unavailable cells
      */
-    @ApiModelProperty(required = true, value = "No of unavailable cells")
+    @Schema(required = true, description = "No of unavailable cells")
     @JsonProperty("outOfOrder")
     public Integer getOutOfOrder() {
         return outOfOrder;

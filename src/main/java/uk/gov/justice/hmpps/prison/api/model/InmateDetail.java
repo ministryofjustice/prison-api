@@ -3,8 +3,7 @@ package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,7 +23,7 @@ import static java.lang.String.format;
  * Inmate Detail
  **/
 @SuppressWarnings("unused")
-@ApiModel(description = "Inmate Detail")
+@Schema(description = "Inmate Detail")
 @JsonInclude(Include.NON_NULL)
 @Builder(toBuilder = true)
 @AllArgsConstructor
@@ -34,173 +33,173 @@ import static java.lang.String.format;
 @Data
 public class InmateDetail {
 
-    @ApiModelProperty(required = true, value = "Offender Unique Reference", position = 1, example = "A1234AA")
+    @Schema(required = true, description = "Offender Unique Reference", example = "A1234AA")
     @NotBlank
     private String offenderNo;
 
-    @ApiModelProperty(value = "Offender Booking Id", position = 2, example = "432132")
+    @Schema(description = "Offender Booking Id", example = "432132")
     private Long bookingId;
 
-    @ApiModelProperty(value = "Booking Number", position = 3)
+    @Schema(description = "Booking Number")
     private String bookingNo;
 
-    @ApiModelProperty(required = true, value = "Internal Offender ID", position = 4)
+    @Schema(required = true, description = "Internal Offender ID")
     @NotBlank
     private Long offenderId;
 
-    @ApiModelProperty(required = true, value = "Internal Root Offender ID", position = 5)
+    @Schema(required = true, description = "Internal Root Offender ID")
     @NotBlank
     private Long rootOffenderId;
 
-    @ApiModelProperty(required = true, value = "First Name", position = 6)
+    @Schema(required = true, description = "First Name")
     @NotBlank
     private String firstName;
 
-    @ApiModelProperty(value = "Middle Name(s)", position = 7)
+    @Schema(description = "Middle Name(s)")
     private String middleName;
 
-    @ApiModelProperty(required = true, value = "Last Name", position = 8)
+    @Schema(required = true, description = "Last Name")
     @NotBlank
     private String lastName;
 
-    @ApiModelProperty(required = true, value = "Date of Birth of prisoner", example = "1970-03-15", position = 9)
+    @Schema(required = true, description = "Date of Birth of prisoner", example = "1970-03-15")
     @NotNull
     private LocalDate dateOfBirth;
 
-    @ApiModelProperty(value = "Age of prisoner", notes = "Full Details Only", position = 10)
+    @Schema(description = "Age of prisoner. Note: Full Details Only")
     private Integer age;
 
-    @ApiModelProperty(required = true, value = "Indicates that the person is currently in prison", position = 11)
+    @Schema(required = true, description = "Indicates that the person is currently in prison")
     @NotNull
     private boolean activeFlag;
 
-    @ApiModelProperty(value = "Image Id Ref of prisoner")
+    @Schema(description = "Image Id Ref of prisoner")
     private Long facialImageId;
 
-    @ApiModelProperty(value = "Identifier of agency to which the prisoner is associated.")
+    @Schema(description = "Identifier of agency to which the prisoner is associated.")
     private String agencyId;
 
-    @ApiModelProperty(value = "Identifier of living unit (e.g. cell) that prisoner is assigned to.")
+    @Schema(description = "Identifier of living unit (e.g. cell) that prisoner is assigned to.")
     private Long assignedLivingUnitId;
 
-    @ApiModelProperty(value = "Religion of the prisoner")
+    @Schema(description = "Religion of the prisoner")
     private String religion;
 
-    @ApiModelProperty(value = "Preferred spoken language")
+    @Schema(description = "Preferred spoken language")
     private String language;
 
-    @ApiModelProperty(value = "Interpreter required")
+    @Schema(description = "Interpreter required")
     private Boolean interpreterRequired;
 
-    @ApiModelProperty(value = "Preferred written language")
+    @Schema(description = "Preferred written language")
     private String writtenLanguage;
 
-    @ApiModelProperty(value = "List of Alerts")
+    @Schema(description = "List of Alerts")
     private List<String> alertsCodes;
 
-    @ApiModelProperty(value = "number of active alerts", notes = "Full Details Only")
+    @Schema(description = "number of active alerts. Note: Full Details Only")
     private Long activeAlertCount;
 
-    @ApiModelProperty(value = "number of inactive alerts", notes = "Full Details Only")
+    @Schema(description = "number of inactive alerts. Note: Full Details Only")
     private Long inactiveAlertCount;
 
-    @ApiModelProperty(value = "List of alert details")
+    @Schema(description = "List of alert details")
     private List<Alert> alerts;
 
-    @ApiModelProperty(value = "Cell or location of the prisoner")
+    @Schema(description = "Cell or location of the prisoner")
     private AssignedLivingUnit assignedLivingUnit;
 
-    @ApiModelProperty(value = "A set of physical attributes")
+    @Schema(description = "A set of physical attributes")
     private PhysicalAttributes physicalAttributes;
 
-    @ApiModelProperty(value = "List of physical characteristics")
+    @Schema(description = "List of physical characteristics")
     private List<PhysicalCharacteristic> physicalCharacteristics;
 
-    @ApiModelProperty(value = "List of profile information")
+    @Schema(description = "List of profile information")
     private List<ProfileInformation> profileInformation;
 
-    @ApiModelProperty(value = "List of physical marks")
+    @Schema(description = "List of physical marks")
     private List<PhysicalMark> physicalMarks;
 
-    @ApiModelProperty(value = "List of assessments")
+    @Schema(description = "List of assessments")
     private List<Assessment> assessments;
 
-    @ApiModelProperty(value = "CSRA (Latest assessment with cellSharing=true from list of assessments)")
+    @Schema(description = "CSRA (Latest assessment with cellSharing=true from list of assessments)")
     private String csra;
 
-    @ApiModelProperty(value = "The CSRA classification (calculated from the list of CSRA assessments)", example="STANDARD")
+    @Schema(description = "The CSRA classification (calculated from the list of CSRA assessments)", example="STANDARD")
     private String csraClassificationCode;
 
-    @ApiModelProperty(value = "The date that the csraClassificationCode was assessed")
+    @Schema(description = "The date that the csraClassificationCode was assessed")
     private LocalDate csraClassificationDate;
 
-    @ApiModelProperty(value = "Category description (from list of assessments)")
+    @Schema(description = "Category description (from list of assessments)")
     private String category;
 
-    @ApiModelProperty(value = "Category code (from list of assessments)")
+    @Schema(description = "Category code (from list of assessments)")
     private String categoryCode;
 
-    @ApiModelProperty(value = "Place of birth", example = "WALES")
+    @Schema(description = "Place of birth", example = "WALES")
     private String birthPlace;
 
-    @ApiModelProperty(value = "Country of birth", example = "GBR")
+    @Schema(description = "Country of birth", example = "GBR")
     private String birthCountryCode;
 
-    @ApiModelProperty(value = "In/Out Status", required = true, example = "IN", allowableValues = "IN,OUT,TRN")
+    @Schema(description = "In/Out Status", required = true, example = "IN", allowableValues = {"IN","OUT","TRN"})
     private String inOutStatus;
 
-    @ApiModelProperty(value = "Identifiers", notes = "Only returned when requesting extra details")
+    @Schema(description = "Identifiers. Note: Only returned when requesting extra details")
     private List<OffenderIdentifier> identifiers;
 
-    @ApiModelProperty(value = "Personal Care Needs", notes = "Only returned when requesting extra details")
+    @Schema(description = "Personal Care Needs. Note: Only returned when requesting extra details")
     private List<PersonalCareNeed> personalCareNeeds;
 
-    @ApiModelProperty(value = "Sentence Detail", notes = "Only returned when requesting extra details")
+    @Schema(description = "Sentence Detail. Note: Only returned when requesting extra details")
     private SentenceCalcDates sentenceDetail;
 
-    @ApiModelProperty(value = "Offence History", notes = "Only returned when requesting extra details")
+    @Schema(description = "Offence History. Note: Only returned when requesting extra details")
     private List<OffenceHistoryDetail> offenceHistory;
 
-    @ApiModelProperty(value = "Current Sentence Terms", notes = "Only returned when requesting extra details")
+    @Schema(description = "Current Sentence Terms. Note: Only returned when requesting extra details")
     private List<OffenderSentenceTerms> sentenceTerms;
 
-    @ApiModelProperty(value = "Aliases", notes = "Only returned when requesting extra details")
+    @Schema(description = "Aliases. Note: Only returned when requesting extra details")
     private List<Alias> aliases;
 
-    @ApiModelProperty(value = "Status of prisoner", required = true, example = "ACTIVE IN", allowableValues = "ACTIVE IN,ACTIVE OUT")
+    @Schema(description = "Status of prisoner", required = true, example = "ACTIVE IN", allowableValues = {"ACTIVE IN","ACTIVE OUT"})
     private String status;
 
-    @ApiModelProperty(value = "Last movement status of the prison", example = "CRT-CA")
+    @Schema(description = "Last movement status of the prison", example = "CRT-CA")
     private String statusReason;
 
-    @ApiModelProperty(value = "Last Movement Type Code of prisoner", example = "TAP", allowableValues = "TAP,CRT,TRN,ADM,REL", notes = "Reference Data from MOVE_TYPE Domain")
+    @Schema(description = "Last Movement Type Code of prisoner. Note: Reference Data from MOVE_TYPE Domain", example = "TAP", allowableValues = {"TAP","CRT","TRN","ADM,REL"})
     private String lastMovementTypeCode;
 
-    @ApiModelProperty(value = "Last Movement Reason of prisoner", example = "CA", notes = "Reference Data from MOVE_RSN Domain")
+    @Schema(description = "Last Movement Reason of prisoner. Note: Reference Data from MOVE_RSN Domain", example = "CA")
     private String lastMovementReasonCode;
 
-    @ApiModelProperty(value = "Legal Status", example = "REMAND", notes = "Only returned when requesting extra details")
+    @Schema(description = "Legal Status. Note: Only returned when requesting extra details", example = "REMAND")
     private LegalStatus legalStatus;
 
-    @ApiModelProperty(value = "Recall", example = "true", notes = "Only returned when requesting extra details")
+    @Schema(description = "Recall. Note: Only returned when requesting extra details", example = "true")
     private Boolean recall;
 
-    @ApiModelProperty(value = "The prisoner's imprisonment status.", example="LIFE", notes = "Only returned when requesting extra details")
+    @Schema(description = "The prisoner's imprisonment status. Note: Only returned when requesting extra details", example="LIFE")
     private String imprisonmentStatus;
 
-    @ApiModelProperty(value = "The prisoner's imprisonment status description.", example="Serving Life Imprisonment", notes = "Only returned when requesting extra details")
+    @Schema(description = "The prisoner's imprisonment status description. Note: Only returned when requesting extra details", example="Serving Life Imprisonment")
     private String imprisonmentStatusDescription;
 
-    @ApiModelProperty(value = "The prisoner's IEP Status", notes = "Only returned when requesting extra details")
+    @Schema(description = "The prisoner's IEP Status. Note: Only returned when requesting extra details")
     private PrivilegeSummary privilegeSummary;
 
-    @ApiModelProperty(value = "Date prisoner was received into the prison.", example="1980-01-01")
+    @Schema(description = "Date prisoner was received into the prison.", example="1980-01-01")
     private LocalDate receptionDate;
 
-    @ApiModelProperty(value = "current prison or outside with last movement information.", example="Outside - released from Leeds")
+    @Schema(description = "current prison or outside with last movement information.", example="Outside - released from Leeds")
     private String locationDescription;
 
-    @ApiModelProperty(value = "the current prison id or the last prison before release", example="MDI")
+    @Schema(description = "the current prison id or the last prison before release", example="MDI")
     private String latestLocationId;
 
     public void setProfileInformation(final List<ProfileInformation> profileInformation) {

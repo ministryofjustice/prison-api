@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -20,7 +20,7 @@ import java.util.Map;
  * Location Count
  **/
 @SuppressWarnings("unused")
-@ApiModel(description = "Location Count")
+@Schema(description = "Location Count")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -56,7 +56,7 @@ public class LocationCount {
         return additionalProperties == null ? new HashMap<>() : additionalProperties;
     }
 
-    @ApiModelProperty(hidden = true)
+    @Hidden
     @JsonAnySetter
     public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
@@ -65,7 +65,7 @@ public class LocationCount {
     /**
      * Phyical Count Id
      */
-    @ApiModelProperty(required = true, value = "Phyical Count Id")
+    @Schema(required = true, description = "Phyical Count Id")
     @JsonProperty("physicalCountId")
     public Long getPhysicalCountId() {
         return physicalCountId;
@@ -78,7 +78,7 @@ public class LocationCount {
     /**
      * Location Id
      */
-    @ApiModelProperty(required = true, value = "Location Id")
+    @Schema(required = true, description = "Location Id")
     @JsonProperty("locationId")
     public Long getLocationId() {
         return locationId;
@@ -91,7 +91,7 @@ public class LocationCount {
     /**
      * Staff Id
      */
-    @ApiModelProperty(value = "Staff Id")
+    @Schema(description = "Staff Id")
     @JsonProperty("enteredByUserId")
     public Long getEnteredByUserId() {
         return enteredByUserId;
@@ -104,7 +104,7 @@ public class LocationCount {
     /**
      * Initial Count Details
      */
-    @ApiModelProperty(required = true, value = "Initial Count Details")
+    @Schema(required = true, description = "Initial Count Details")
     @JsonProperty("initialCount")
     public LocationCountDetail getInitialCount() {
         return initialCount;
@@ -117,7 +117,7 @@ public class LocationCount {
     /**
      * Recount Details
      */
-    @ApiModelProperty(value = "Recount Details")
+    @Schema(description = "Recount Details")
     @JsonProperty("recount")
     public LocationCountDetail getRecount() {
         return recount;
@@ -130,7 +130,7 @@ public class LocationCount {
     /**
      * Status of count
      */
-    @ApiModelProperty(value = "Status of count")
+    @Schema(description = "Status of count")
     @JsonProperty("countStatusCode")
     public CountStatusCode getCountStatusCode() {
         return countStatusCode;

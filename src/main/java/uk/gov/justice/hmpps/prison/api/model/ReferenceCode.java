@@ -2,8 +2,7 @@ package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,7 +19,7 @@ import java.util.List;
 /**
  * Reference Code
  **/
-@ApiModel(description = "Reference Code")
+@Schema(description = "Reference Code")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @AllArgsConstructor
 @NoArgsConstructor
@@ -31,17 +30,17 @@ import java.util.List;
 @ToString
 public class ReferenceCode extends ReferenceCodeInfo {
 
-    @ApiModelProperty(required = true, value = "Reference data item domain.", position = 1, example = "TASK_TYPE")
+    @Schema(required = true, description = "Reference data item domain.", example = "TASK_TYPE")
     @NotBlank
     @Size(max = 12)
     private String domain;
 
-    @ApiModelProperty(required = true, value = "Reference data item code.", position = 2, example = "MISC")
+    @Schema(required = true, description = "Reference data item code.", example = "MISC")
     @NotBlank
     @Size(max = 12)
     private String code;
 
-    @ApiModelProperty(value = "List of subordinate reference data items associated with this reference data item.", position = 3, allowEmptyValue = true)
+    @Schema(description = "List of subordinate reference data items associated with this reference data item.")
     @Builder.Default
     private List<ReferenceCode> subCodes = new ArrayList<>();
 
