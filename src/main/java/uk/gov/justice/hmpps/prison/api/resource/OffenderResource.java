@@ -612,7 +612,7 @@ public class OffenderResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Offender Contacts", description = "Active Contacts including restrictions, using latest offender booking")
+    @Operation(summary = "Offender Contacts", description = "Contacts including restrictions, using latest offender booking and including inactive contacts by default")
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "OFFENDER_CONTACTS"})
     @GetMapping("/{offenderNo}/contacts")
     public OffenderContacts getOffenderContacts(
