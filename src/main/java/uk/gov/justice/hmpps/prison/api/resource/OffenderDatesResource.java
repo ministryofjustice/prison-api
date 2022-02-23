@@ -26,7 +26,7 @@ import uk.gov.justice.hmpps.prison.service.OffenderDatesService;
 @RestController
 @Validated
 @Tag(name = "offender-dates")
-@RequestMapping("${api.base.path}/offender-dates")
+@RequestMapping(value = "${api.base.path}/offender-dates", produces = "application/json")
 @AllArgsConstructor
 public class OffenderDatesResource {
 

@@ -24,7 +24,7 @@ import java.util.List;
 @RestController
 @Tag(name = "persons")
 @Validated
-@RequestMapping("${api.base.path}/persons")
+@RequestMapping(value = "${api.base.path}/persons", produces = "application/json")
 public class PersonResource {
     private final PersonService service;
 

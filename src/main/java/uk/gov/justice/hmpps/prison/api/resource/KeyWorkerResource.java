@@ -29,7 +29,7 @@ import java.util.List;
 @RestController
 @Tag(name = "key-worker")
 @Validated
-@RequestMapping("${api.base.path}/key-worker")
+@RequestMapping(value = "${api.base.path}/key-worker", produces = "application/json")
 public class KeyWorkerResource {
     private final KeyWorkerAllocationService keyWorkerService;
 

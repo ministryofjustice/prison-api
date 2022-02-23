@@ -27,7 +27,7 @@ import java.time.LocalDate;
 @RestController
 @Tag(name = "offender-activities")
 @Validated
-@RequestMapping("${api.base.path}/offender-activities")
+@RequestMapping(value = "${api.base.path}/offender-activities", produces = "application/json")
 public class OffenderActivitiesResource {
 
     private final OffenderActivitiesService activitiesService;

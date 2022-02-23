@@ -45,7 +45,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @RestController
 @Tag(name = "images")
 @Validated
-@RequestMapping("${api.base.path}/images")
+@RequestMapping(value = "${api.base.path}/images", produces = "application/json")
 @AllArgsConstructor
 public class ImageResource {
 

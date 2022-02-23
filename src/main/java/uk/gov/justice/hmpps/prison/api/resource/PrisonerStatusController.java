@@ -34,7 +34,7 @@ import java.util.List;
 @RestController
 @Validated
 @Tag(name = "prisoners")
-@RequestMapping("${api.base.path}/prisoners")
+@RequestMapping(value = "${api.base.path}/prisoners", produces = "application/json")
 @AllArgsConstructor
 public class PrisonerStatusController {
 

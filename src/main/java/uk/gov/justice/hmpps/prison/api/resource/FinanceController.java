@@ -32,7 +32,7 @@ import static uk.gov.justice.hmpps.prison.api.resource.NomisApiV1Resource.NOMS_I
 @Slf4j
 @RestController
 @Tag(name = "finance")
-@RequestMapping("${api.base.path}/finance")
+@RequestMapping(value = "${api.base.path}/finance", produces = "application/json")
 @AllArgsConstructor
 @Validated
 public class FinanceController {

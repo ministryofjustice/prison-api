@@ -27,7 +27,7 @@ import javax.validation.constraints.NotBlank;
 
 @RestController
 @Tag(name = "offences")
-@RequestMapping("${api.base.path}/offences")
+@RequestMapping(value = "${api.base.path}/offences", produces = "application/json")
 @Validated
 @AllArgsConstructor
 public class OffenceResource {

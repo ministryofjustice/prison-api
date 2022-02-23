@@ -48,7 +48,7 @@ import java.util.List;
 @RestController
 @Tag(name = "movements")
 @Validated
-@RequestMapping("${api.base.path}/movements")
+@RequestMapping(value = "${api.base.path}/movements", produces = "application/json")
 public class MovementResource {
 
     private final MovementsService movementsService;

@@ -41,7 +41,7 @@ import java.util.List;
 @RestController
 @Tag(name = "offender-sentences")
 @Validated
-@RequestMapping("${api.base.path}/offender-sentences")
+@RequestMapping(value = "${api.base.path}/offender-sentences", produces = "application/json")
 public class OffenderSentenceResource {
     private final AuthenticationFacade authenticationFacade;
     private final BookingService bookingService;

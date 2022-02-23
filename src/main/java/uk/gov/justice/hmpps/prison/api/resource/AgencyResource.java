@@ -59,7 +59,7 @@ import static uk.gov.justice.hmpps.prison.repository.support.StatusFilter.ALL;
 @RestController
 @Validated
 @Tag(name = "agencies")
-@RequestMapping("${api.base.path}/agencies")
+@RequestMapping(value = "${api.base.path}/agencies", produces = "application/json")
 public class AgencyResource {
     private final AgencyService agencyService;
     private final LocationGroupService locationGroupService;

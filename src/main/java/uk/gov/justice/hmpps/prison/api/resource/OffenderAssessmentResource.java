@@ -50,7 +50,7 @@ import java.util.Set;
 @RestController
 @Tag(name = "offender-assessments")
 @Validated
-@RequestMapping("${api.base.path}/offender-assessments")
+@RequestMapping(value = "${api.base.path}/offender-assessments", produces = "application/json")
 public class OffenderAssessmentResource {
     private final InmateService inmateService;
     private final OffenderAssessmentService offenderAssessmentService;

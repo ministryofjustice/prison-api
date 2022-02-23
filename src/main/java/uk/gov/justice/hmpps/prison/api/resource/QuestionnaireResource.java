@@ -21,7 +21,7 @@ import javax.validation.constraints.NotNull;
 @RestController
 @Tag(name = "questionnaires")
 @Validated
-@RequestMapping("${api.base.path}/questionnaires")
+@RequestMapping(value = "${api.base.path}/questionnaires", produces = "application/json")
 public class QuestionnaireResource {
     private final IncidentService incidentService;
 

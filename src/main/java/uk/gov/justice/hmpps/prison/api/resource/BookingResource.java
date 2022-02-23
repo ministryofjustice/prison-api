@@ -124,7 +124,7 @@ import static uk.gov.justice.hmpps.prison.util.ResourceUtils.nvl;
  */
 @RestController
 @Tag(name = "bookings")
-@RequestMapping("${api.base.path}/bookings")
+@RequestMapping(value = "${api.base.path}/bookings", produces = "application/json")
 @Validated
 @AllArgsConstructor
 @Slf4j

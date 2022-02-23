@@ -34,7 +34,7 @@ import static uk.gov.justice.hmpps.prison.util.ResourceUtils.nvl;
 @RestController
 @Tag(name = "locations")
 @Validated
-@RequestMapping("${api.base.path}/locations")
+@RequestMapping(value = "${api.base.path}/locations", produces = "application/json")
 public class LocationResource {
     private final AuthenticationFacade authenticationFacade;
     private final LocationService locationService;

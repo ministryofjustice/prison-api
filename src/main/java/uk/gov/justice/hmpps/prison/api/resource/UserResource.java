@@ -46,7 +46,7 @@ import java.util.Set;
 @RestController
 @Tag(name = "users")
 @Validated
-@RequestMapping("${api.base.path}/users")
+@RequestMapping(value = "${api.base.path}/users", produces = "application/json")
 public class UserResource {
     private final AuthenticationFacade authenticationFacade;
     private final UserService userService;

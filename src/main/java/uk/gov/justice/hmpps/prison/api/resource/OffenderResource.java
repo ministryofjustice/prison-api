@@ -97,7 +97,7 @@ import static uk.gov.justice.hmpps.prison.util.ResourceUtils.nvl;
 @RestController
 @Tag(name = "offenders")
 @Validated
-@RequestMapping("${api.base.path}/offenders")
+@RequestMapping(value = "${api.base.path}/offenders", produces = "application/json")
 @RequiredArgsConstructor
 public class OffenderResource {
 

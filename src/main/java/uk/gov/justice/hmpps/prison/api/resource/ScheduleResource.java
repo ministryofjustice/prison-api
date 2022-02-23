@@ -36,7 +36,7 @@ import java.util.List;
 @RestController
 @Tag(name = "schedules")
 @Validated
-@RequestMapping("${api.base.path}/schedules")
+@RequestMapping(value = "${api.base.path}/schedules", produces = "application/json")
 public class ScheduleResource {
     private final SchedulesService schedulesService;
     private final AppointmentsService appointmentsService;

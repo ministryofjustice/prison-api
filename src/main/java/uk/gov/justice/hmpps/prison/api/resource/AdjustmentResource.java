@@ -21,7 +21,7 @@ import uk.gov.justice.hmpps.prison.service.AdjustmentService;
 @RestController
 @Validated
 @Tag(name = "adjustments")
-@RequestMapping(value = "${api.base.path}/adjustments", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "${api.base.path}/adjustments", produces = "application/json")
 @AllArgsConstructor
 public class AdjustmentResource {
 

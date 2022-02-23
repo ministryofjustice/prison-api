@@ -36,7 +36,7 @@ import java.util.List;
 @RestController
 @Validated
 @Tag(name = "case-notes")
-@RequestMapping("${api.base.path}/case-notes")
+@RequestMapping(value = "${api.base.path}/case-notes", produces = "application/json")
 @AllArgsConstructor
 public class CaseNoteResource {
 

@@ -27,7 +27,7 @@ import java.util.List;
 @RestController
 @Validated
 @Tag(name = "cell")
-@RequestMapping("${api.base.path}/cell")
+@RequestMapping(value = "${api.base.path}/cell", produces = "application/json")
 public class CellResource {
 
     private final BedAssignmentHistoryService bedAssignmentHistoryService;

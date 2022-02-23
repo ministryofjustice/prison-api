@@ -58,7 +58,7 @@ import static uk.gov.justice.hmpps.prison.util.ResourceUtils.getUniqueClientId;
 @RestController
 @Tag(name = "v1")
 @Validated
-@RequestMapping("${api.base.path}/v1")
+@RequestMapping(value = "${api.base.path}/v1", produces = "application/json")
 public class NomisApiV1Resource {
 
     public static final String NOMS_ID_REGEX_PATTERN = "[a-zA-Z][0-9]{4}[a-zA-Z]{2}";
