@@ -66,6 +66,7 @@ public class AppointmentsResource {
     }
 
     @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "403", description = "The client is not authorised for this operation"),
     })
     @Operation(summary = "Delete multiple appointments.", description = "Delete multiple appointments.")

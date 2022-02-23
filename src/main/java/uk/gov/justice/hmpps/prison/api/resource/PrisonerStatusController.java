@@ -42,7 +42,7 @@ public class PrisonerStatusController {
 
     @GetMapping(value = "/{offenderNo}/full-status", consumes = "application/json", produces = "application/json")
     @Operation(summary = "Status and core offender information")
-    @ApiResponses(value = {
+    @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PrisonerInformation.class))}),
             @ApiResponse(responseCode = "401", description = "Unauthorized.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "User not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
@@ -56,7 +56,7 @@ public class PrisonerStatusController {
     @Deprecated
     @GetMapping("/at-location/{establishmentCode}")
     @Operation(summary = "List of prisoners at a prison establishment", description = "Pagination In Headers")
-    @ApiResponses(value = {
+    @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = PrisonerInformation.class)))}),
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
@@ -84,7 +84,7 @@ public class PrisonerStatusController {
 
     @GetMapping("/by-establishment/{establishmentCode}")
     @Operation(summary = "List of prisoners at a prison establishment")
-    @ApiResponses(value = {
+    @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = PrisonerInformation.class)))}),
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
