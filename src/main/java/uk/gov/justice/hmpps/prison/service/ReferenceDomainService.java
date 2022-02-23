@@ -8,6 +8,7 @@ import uk.gov.justice.hmpps.prison.api.model.ReferenceCodeInfo;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.repository.ReferenceDataRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceDomainRepository;
 import uk.gov.justice.hmpps.prison.service.support.ReferenceDomain;
 import uk.gov.justice.hmpps.prison.service.support.StringWithAbbreviationsProcessor;
 
@@ -22,9 +23,11 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class ReferenceDomainService {
     private final ReferenceDataRepository referenceDataRepository;
+    private final ReferenceDomainRepository referenceDomainRepository;
 
-    public ReferenceDomainService(final ReferenceDataRepository referenceDataRepository) {
+    public ReferenceDomainService(final ReferenceDataRepository referenceDataRepository, ReferenceDomainRepository referenceDomainRepository) {
         this.referenceDataRepository = referenceDataRepository;
+        this.referenceDomainRepository = referenceDomainRepository;
     }
 
     private static String getDefaultOrderBy(final String orderBy) {
@@ -161,5 +164,22 @@ public class ReferenceDomainService {
         verifyReferenceDomain(domain);
 
         return referenceDataRepository.getReferenceCodeByDomainAndDescription(domain, description, wildcard);
+    }
+
+    public List<uk.gov.justice.hmpps.prison.api.model.ReferenceDomain> getAllDomains() {
+        return referenceDomainRepository
+            .findAll()
+            .stream()
+            .map(it -> uk.gov.justice.hmpps.prison.api.model.ReferenceDomain
+                .builder()
+                .domain(it.getDomain())
+                .description(it.getDescription())
+                .domainStatus(it.getDomainStatus())
+                .ownerCode(it.getOwnerCode())
+                .applnCode(it.getApplnCode())
+                .parentDomain(it.getParentDomain())
+                .build()
+            )
+            .toList();
     }
 }
