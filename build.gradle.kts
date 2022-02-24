@@ -47,6 +47,7 @@ dependencies {
   implementation("org.springdoc:springdoc-openapi-ui:1.6.6")
   implementation("org.springdoc:springdoc-openapi-kotlin:1.6.6")
   implementation("org.springdoc:springdoc-openapi-data-rest:1.6.6")
+  implementation("org.springdoc:springdoc-openapi-security:1.6.6")
 
   implementation("org.apache.commons:commons-lang3:3.12.0")
   implementation("commons-io:commons-io:2.11.0")
