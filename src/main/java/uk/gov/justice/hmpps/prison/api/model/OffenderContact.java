@@ -69,4 +69,7 @@ public class OffenderContact {
 
     @Schema(description = "List of restrictions associated with the contact")
     private List<VisitorRestriction> restrictions;
+
+    @Schema(required = true, description = "active contact", example = "true")
+    private boolean active;
 }

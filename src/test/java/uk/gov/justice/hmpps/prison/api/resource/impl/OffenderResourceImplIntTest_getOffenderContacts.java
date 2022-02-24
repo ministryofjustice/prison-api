@@ -25,7 +25,7 @@ public class OffenderResourceImplIntTest_getOffenderContacts extends ResourceTes
                 });
 
         final var json = getBodyAsJsonContent(response);
-        assertThat(json).extractingJsonPathArrayValue("offenderContacts").hasSize(2);
+        assertThat(json).extractingJsonPathArrayValue("offenderContacts").hasSize(3);
         assertThat(json).extractingJsonPathStringValue("offenderContacts[0].lastName").isEqualTo("Johnson");
         assertThat(json).extractingJsonPathStringValue("offenderContacts[0].firstName").isEqualTo("John");
         assertThat(json).extractingJsonPathStringValue("offenderContacts[0].middleName").isEqualTo("Justice");
@@ -53,8 +53,11 @@ public class OffenderResourceImplIntTest_getOffenderContacts extends ResourceTes
         assertThat(json).extractingJsonPathStringValue("offenderContacts[0].restrictions[1].expiryDate").isNull();
         assertThat(json).extractingJsonPathNumberValue("offenderContacts[0].restrictions[1].restrictionId").isEqualTo(-2);
         assertThat(json).extractingJsonPathBooleanValue("offenderContacts[0].restrictions[1].globalRestriction").isFalse();
+        assertThat(json).extractingJsonPathBooleanValue("offenderContacts[0].active").isTrue();
         assertThat(json).extractingJsonPathBooleanValue("offenderContacts[1].approvedVisitor").isFalse();
+        assertThat(json).extractingJsonPathBooleanValue("offenderContacts[1].active").isTrue();
         assertThat(json).extractingJsonPathArrayValue("offenderContacts[1].restrictions").isEmpty();
+        assertThat(json).extractingJsonPathBooleanValue("offenderContacts[2].active").isFalse();
     }
 
     @Test
@@ -72,6 +75,23 @@ public class OffenderResourceImplIntTest_getOffenderContacts extends ResourceTes
 
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathArrayValue("offenderContacts").hasSize(1);
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("offenderContacts[0].personId").isEqualTo(-3);
+    }
+
+    @Test
+    public void shouldReturnListOfActiveContacts() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+        final var request = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+                "/api/offenders/A1234AH/contacts?activeOnly=true",
+                HttpMethod.GET,
+                request,
+                new ParameterizedTypeReference<String>() {
+                });
+
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathArrayValue("offenderContacts")
+                .extracting("active").containsExactly(true, true);
     }
 
 
