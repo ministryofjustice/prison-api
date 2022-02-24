@@ -255,4 +255,70 @@ public class ReferenceDataResourceTest extends ResourceTest {
                 });
         }
     }
+    @Nested
+    @DisplayName("GET /domains/codes")
+    class GetCodesBuDomainTest {
+        @Test
+        @DisplayName("must have a valid token to access endpoint")
+        void mustHaveAValidTokenToAccessEndpoint() {
+            assertThat(getCodesByDomain(null, "ETHNICITY").getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        }
+
+        @Test
+        @DisplayName("can have any role to access endpoint")
+        void canHaveAnyRoleToAccessEndpoint() {
+            final var token = authTokenHelper.someClientUser("ROLE_BANANAS");
+
+            assertThat(getCodesByDomain(token, "ETHNICITY").getStatusCode()).isEqualTo(HttpStatus.OK);
+        }
+
+        @Test
+        @DisplayName("will return a list of codes")
+        void willReturnAListOfDomains() {
+            final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+            final var response = getBodyAsJsonContent(getCodesByDomain(token, "VISIT_TYPE"));
+
+            assertThat(response).hasJsonPathArrayValue("$");
+            assertThat(response).extractingJsonPathNumberValue("$.length()").isEqualTo(2);
+        }
+
+        @Test
+        @DisplayName("will return details of a domain code")
+        void willReturnDetailsOfADomainCode() {
+            final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+            final var response = getBodyAsJsonContent(getCodesByDomain(token, "VISIT_TYPE"));
+
+            final var codeAt = "$[?(@.code == '%s')]";
+            final var codePropertyAt = "$[?(@.code == '%s')].%s";
+
+            assertThat(response)
+                .hasJsonPathValue(codeAt, "SCON");
+
+            assertThat(response)
+                .extractingJsonPathValue(codePropertyAt, "SCON", "domain").asList().element(0)
+                .isEqualTo("VISIT_TYPE");
+            assertThat(response)
+                .extractingJsonPathValue(codePropertyAt, "SCON", "description").asList().element(0)
+                .isEqualTo("Social Contact");
+            assertThat(response)
+                .extractingJsonPathValue(codePropertyAt, "SCON", "activeFlag").asList().element(0)
+                .isEqualTo("Y");
+            assertThat(response)
+                .extractingJsonPathValue(codePropertyAt, "SCON", "systemDataFlag").asList().element(0)
+                .isEqualTo("N");
+        }
+
+
+        private ResponseEntity<String> getCodesByDomain(String token, String domain) {
+            return testRestTemplate.exchange(
+                "/api/reference-domains/domains/{domain}/codes",
+                HttpMethod.GET,
+                createHttpEntity(token, null),
+                new ParameterizedTypeReference<>() {
+                },
+                domain);
+        }
+    }
 }

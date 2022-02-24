@@ -40,7 +40,7 @@ public class ReferenceCode extends ReferenceCodeInfo {
     @Size(max = 12)
     private String code;
 
-    @Schema(description = "List of subordinate reference data items associated with this reference data item.")
+    @Schema(description = "List of subordinate reference data items associated with this reference data item. Not returned by default")
     @Builder.Default
     private List<ReferenceCode> subCodes = new ArrayList<>();
 
