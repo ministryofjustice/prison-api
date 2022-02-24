@@ -60,6 +60,7 @@ dependencies {
   runtimeOnly("org.flywaydb:flyway-core:8.5.0")
 
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
+  testImplementation("org.springframework.boot:spring-boot-starter-webflux")
   testImplementation("io.rest-assured:rest-assured:4.5.1")
   testImplementation("io.rest-assured:json-schema-validator:4.5.1")
   testImplementation("io.rest-assured:spring-mock-mvc:4.5.1")
