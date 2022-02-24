@@ -75,7 +75,7 @@ public class ReferenceDataRepository extends RepositoryBase {
                 createParams("domain", domain, "code", code),
                 REF_CODE_DETAIL_ROW_MAPPER);
 
-        final var referenceCodeAsList = convertToReferenceCodes(rcdResults, false);
+        final var referenceCodeAsList = convertToReferenceCodes(rcdResults);
 
         return referenceCodeAsList.isEmpty() ? Optional.empty() : Optional.of(referenceCodeAsList.get(0));
     }
@@ -168,7 +168,7 @@ public class ReferenceDataRepository extends RepositoryBase {
                 .addPagination()
                 .build();
 
-        final var paRowMapper = new PageAwareRowMapper<ReferenceCode>(REF_CODE_ROW_MAPPER);
+        final var paRowMapper = new PageAwareRowMapper<>(REF_CODE_ROW_MAPPER);
 
         final var results = jdbcTemplate.query(
                 sql,
@@ -176,6 +176,19 @@ public class ReferenceDataRepository extends RepositoryBase {
                 paRowMapper);
 
         return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
+    }
+
+    public List<ReferenceCode> getReferenceCodesByDomain(final String domain, final String orderBy, final Order order) {
+        final var builder = queryBuilderFactory.getQueryBuilder(ReferenceDataRepositorySql.FIND_REFERENCE_CODES_BY_DOMAIN.getSql(), REF_CODE_ROW_MAPPER.getFieldMap());
+
+        final var sql = builder
+                .addOrderBy(order, orderBy)
+                .build();
+
+        return jdbcTemplate.query(
+            sql,
+            createParams("domain", domain),
+            REF_CODE_ROW_MAPPER);
     }
 
     private Page<ReferenceCode> getReferenceCodesWithSubCodes(final String domain, final String orderBy, final Order order, final long offset, final long limit) {
@@ -205,9 +218,7 @@ public class ReferenceDataRepository extends RepositoryBase {
         final var collectedSubCodes = collectByParentCode(subCodes);
 
         // Inject associated sub-codes into each 'parent' reference code
-        refCodes.getItems().forEach(rc -> {
-            rc.setSubCodes(collectedSubCodes.get(rc.getCode()));
-        });
+        refCodes.getItems().forEach(rc -> rc.setSubCodes(collectedSubCodes.get(rc.getCode())));
 
         return new Page<>(refCodes.getItems(), refCodes.getTotalRecords(), offset, limit);
     }
@@ -218,28 +229,21 @@ public class ReferenceDataRepository extends RepositoryBase {
         // Seed map
         final var parentCodes = referenceCodes.stream().map(ReferenceCode::getParentCode).distinct().toList();
 
-        parentCodes.forEach(pc -> {
-            refCodeMap.put(pc, new ArrayList<>());
-        });
+        parentCodes.forEach(pc -> refCodeMap.put(pc, new ArrayList<>()));
 
         // Populate map
-        referenceCodes.forEach(rc -> {
-            refCodeMap.get(rc.getParentCode()).add(rc);
-        });
+        referenceCodes.forEach(rc -> refCodeMap.get(rc.getParentCode()).add(rc));
 
         return refCodeMap;
     }
 
-    private List<ReferenceCode> convertToReferenceCodes(final List<ReferenceCodeDetail> results, final boolean suppressEmptySubTypes) {
+    private List<ReferenceCode> convertToReferenceCodes(final List<ReferenceCodeDetail> results) {
         final List<ReferenceCode> referenceCodes = new ArrayList<>();
 
         ReferenceCode activeRef = null;
 
         for (final var ref : results) {
             if (activeRef == null || !activeRef.getCode().equalsIgnoreCase(ref.getCode())) {
-                if (suppressEmptySubTypes) {
-                    removeWhereSubTypesAreEmpty(referenceCodes, activeRef);
-                }
 
                 activeRef = ReferenceCode.builder()
                         .code(ref.getCode())
@@ -269,17 +273,7 @@ public class ReferenceDataRepository extends RepositoryBase {
             }
         }
 
-        if (suppressEmptySubTypes) {
-            removeWhereSubTypesAreEmpty(referenceCodes, activeRef);
-        }
-
         return referenceCodes;
-    }
-
-    private static void removeWhereSubTypesAreEmpty(final List<ReferenceCode> referenceCodes, final ReferenceCode activeRef) {
-        if (activeRef != null && activeRef.getSubCodes().isEmpty()) {
-            referenceCodes.remove(activeRef);
-        }
     }
 
 

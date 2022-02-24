@@ -118,6 +118,12 @@ public class ReferenceDomainService {
                 domain, withSubCodes, getDefaultOrderBy(orderBy), getDefaultOrder(order), offset, limit);
     }
 
+    public List<ReferenceCode> getReferenceCodesByDomain(final String domain) {
+        verifyReferenceDomain(domain);
+
+        return referenceDataRepository.getReferenceCodesByDomain(domain, "code", Order.ASC);
+    }
+
     public Optional<ReferenceCode> getReferenceCodeByDomainAndCode(final String domain, final String code, final boolean withSubCodes) {
         verifyReferenceDomain(domain);
         verifyReferenceCode(domain, code);
