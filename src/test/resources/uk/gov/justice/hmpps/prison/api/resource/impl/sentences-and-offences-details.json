@@ -13,6 +13,17 @@
     "months": 0,
     "weeks": 0,
     "days": 0,
+    "terms": [{
+      "years": 3,
+      "months": 0,
+      "weeks": 0,
+      "days": 0
+    },{
+      "years": 3,
+      "months": 0,
+      "weeks": 0,
+      "days": 0
+    }],
     "offences": [
       {
         "offenderChargeId": -10,
@@ -41,6 +52,13 @@
     "months": 0,
     "weeks": 0,
     "days": 0,
+    "terms": [
+      {
+        "years": 5,
+        "months": 0,
+        "weeks": 0,
+        "days": 0
+    }],
     "offences": [
       {
         "offenderChargeId": -9,

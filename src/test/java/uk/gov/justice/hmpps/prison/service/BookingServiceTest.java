@@ -22,6 +22,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderOffence;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetailDto;
+import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerm;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeDetail;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
@@ -1292,7 +1293,10 @@ public class BookingServiceTest {
                             )
                         .terms(List.of(
                             SentenceTerm.builder()
-                                .years(3)
+                                .years(2)
+                                .build(),
+                            SentenceTerm.builder()
+                                .years(1)
                                 .build()
                         ))
                         .offenderSentenceCharges(List.of(
@@ -1334,6 +1338,20 @@ public class BookingServiceTest {
                 .weeks(0)
                 .months(0)
                 .years(3)
+                .terms(List.of(
+                    OffenderSentenceTerm.builder()
+                        .days(0)
+                        .weeks(0)
+                        .months(0)
+                        .years(2)
+                        .build(),
+                    OffenderSentenceTerm.builder()
+                        .days(0)
+                        .weeks(0)
+                        .months(0)
+                        .years(1)
+                        .build()
+                ))
                 .offences(List.of(
                     OffenderOffence.builder()
                         .offenceStartDate(LocalDate.of(2021, 1, 2))
