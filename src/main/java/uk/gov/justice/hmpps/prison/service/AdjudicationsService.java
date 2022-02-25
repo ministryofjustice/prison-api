@@ -160,7 +160,7 @@ public class AdjudicationsService {
 
         adjudicationsPartyService.updateAdjudicationParties(
             adjudicationNumber,
-            adjudication.getVictimStaffIds(),
+            adjudication.getVictimStaffUsernames(),
             adjudication.getVictimOffenderIds(),
             adjudication.getConnectedOffenderIds());
 
@@ -197,7 +197,7 @@ public class AdjudicationsService {
 
         adjudicationsPartyService.updateAdjudicationParties(
             adjudicationNumber,
-            adjudication.getVictimStaffIds(),
+            adjudication.getVictimStaffUsernames(),
             adjudication.getVictimOffenderIds(),
             adjudication.getConnectedOffenderIds()
         );

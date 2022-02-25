@@ -55,18 +55,18 @@ public class AdjudicationsPartyService {
     }
 
     @Transactional
-    public AdjudicationDetail updateAdjudicationParties(
+    public void updateAdjudicationParties(
         @NotNull long adjudicationNumber,
-        @NotNull Collection<Long> victimStaffIds,
+        @NotNull Collection<String> victimStaffUsernames,
         @NotNull Collection<String> victimOffenderIds,
         @NotNull Collection<String> connectedOffenderIds)
     {
         final var adjudication = adjudicationRepository.findByParties_AdjudicationNumber(adjudicationNumber)
             .orElseThrow(EntityNotFoundException.withMessage(format("Adjudication with number %s does not exist", adjudicationNumber)));
-        final var victimStaff = victimStaffIds != null ?
-            victimStaffIds.stream()
-                .map(id -> staffUserAccountRepository.findByStaff_StaffId(id)
-                    .orElseThrow(() -> new RuntimeException(format("User not found %s", id))).getStaff()
+        final var victimStaff = victimStaffUsernames != null ?
+            victimStaffUsernames.stream()
+                .map(username -> staffUserAccountRepository.findByUsername(username)
+                    .orElseThrow(() -> new RuntimeException(format("User not found %s", username))).getStaff()
                 ).collect(Collectors.toList()) : List.<Staff>of();
         final var victimOffenderBookings = victimOffenderIds != null ?
             victimOffenderIds.stream()
@@ -98,7 +98,7 @@ public class AdjudicationsPartyService {
             entityManager.flush();
         });
         adjudicationRepository.save(adjudication);
-        return AdjudicationsTransformer.transformToDto(adjudication);
+        return;
     }
 
     private Set<AdjudicationParty> newAncillaryAdjudicationParties(

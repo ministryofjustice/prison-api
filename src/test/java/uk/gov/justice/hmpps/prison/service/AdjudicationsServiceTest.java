@@ -58,7 +58,7 @@ import static org.mockito.Mockito.when;
 public class AdjudicationsServiceTest {
     private static final String EXAMPLE_NOMS_ID = "A1234BB";
     private static final Long EXAMPLE_ADJUDICATION_NUMBER = 3L;
-    private static final List<Long> EXAMPLE_VICTIM_STAFF_IDS = List.of(17380L, 17514L);
+    private static final List<String> EXAMPLE_VICTIM_STAFF_USERNAMES = List.of("NGK33Y", "NGK34Y");
     private static final List<String> EXAMPLE_VICTIM_OFFENDER_IDS = List.of("A5015DY", "G1835UN");
     private static final List<String> EXAMPLE_CONNECTED_OFFENDER_IDS = List.of("G0662GG", "A5060DY");
     private static final String EXAMPLE_OFFENCE_CHARGE_CODE = "51:12A";
@@ -774,7 +774,7 @@ public class AdjudicationsServiceTest {
             .incidentTime(EXAMPLE_INCIDENT_TIME)
             .incidentLocationId(internalLocationId)
             .statement(EXAMPLE_STATEMENT)
-            .victimStaffIds(EXAMPLE_VICTIM_STAFF_IDS)
+            .victimStaffUsernames(EXAMPLE_VICTIM_STAFF_USERNAMES)
             .victimOffenderIds(EXAMPLE_VICTIM_OFFENDER_IDS)
             .connectedOffenderIds(EXAMPLE_CONNECTED_OFFENDER_IDS)
             .build();
