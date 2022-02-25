@@ -55,7 +55,7 @@ public class AdjudicationsPartyService {
     }
 
     @Transactional
-    public AdjudicationDetail updateAdjudicationParties(
+    public void updateAdjudicationParties(
         @NotNull long adjudicationNumber,
         @NotNull Collection<String> victimStaffUsernames,
         @NotNull Collection<String> victimOffenderIds,
@@ -98,7 +98,7 @@ public class AdjudicationsPartyService {
             entityManager.flush();
         });
         adjudicationRepository.save(adjudication);
-        return AdjudicationsTransformer.transformToDto(adjudication);
+        return;
     }
 
     private Set<AdjudicationParty> newAncillaryAdjudicationParties(

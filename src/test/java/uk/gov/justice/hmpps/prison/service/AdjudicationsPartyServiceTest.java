@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.assertj.core.matcher.AssertionMatcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,7 +36,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class AdjudicationsPartyServiceTest {
 
-    private static final List<Long> EXAMPLE_VICTIM_STAFF_IDS = List.of(17380L, 17514L);
+    private static final List<Pair<Long, String>> EXAMPLE_VICTIM_STAFF_IDS_AND_USERNAMES = List.of(Pair.of(17380L, "NGK33Y"), Pair.of(17514L, "NGK34Y"));
     private static final List<ExampleOffender> EXAMPLE_VICTIM_OFFENDERS = List.of(new ExampleOffender(1L, "A5015DY"), new ExampleOffender(2L, "G1835UN"));
     private static final List<ExampleOffender> EXAMPLE_CONNECTED_OFFENDERS = List.of(new ExampleOffender(3l, "G0662GG"), new ExampleOffender(4l, "A5060DY"));
 
@@ -69,7 +70,7 @@ public class AdjudicationsPartyServiceTest {
         var expectedConnectedOffenderBookings = generateConnectedOffenders();
         var expectedConnectedOffenderIds = expectedConnectedOffenderBookings.stream().map(b -> b.getOffender().getNomsId()).toList();
         var expectedVictimStaffUserAccounts = generateVictimStaff();
-        var expectedVictimStaffIds = expectedVictimStaffUserAccounts.stream().map(s -> s.getStaff().getStaffId()).toList();
+        var expectedVictimStaffUsernames = expectedVictimStaffUserAccounts.stream().map(s -> s.getUsername()).toList();
         var expectedVictimStaff = expectedVictimStaffUserAccounts.stream().map(s -> s.getStaff()).toList();
 
         when(adjudicationRepository.findByParties_AdjudicationNumber(any())).thenReturn(Optional.of(basicAdjudication()));
@@ -77,7 +78,7 @@ public class AdjudicationsPartyServiceTest {
         mockStaffUserAccounts(expectedVictimStaffUserAccounts);
 
 
-        service.updateAdjudicationParties(1l, expectedVictimStaffIds, expectedVictimOffenderIds, expectedConnectedOffenderIds);
+        service.updateAdjudicationParties(1l, expectedVictimStaffUsernames, expectedVictimOffenderIds, expectedConnectedOffenderIds);
 
         verify(adjudicationRepository).save(assertArgThat(actualAdjudication -> {
             assertThat(actualAdjudication.getVictimsOffenderBookings()).containsExactlyInAnyOrderElementsOf(expectedVictimOffenderBooking);
@@ -87,32 +88,13 @@ public class AdjudicationsPartyServiceTest {
     }
 
     @Test
-    public void returnsCorrectData() {
-        var expectedVictimOffenderBooking = generateVictimOffenders();
-        var expectedVictimOffenderIds = expectedVictimOffenderBooking.stream().map(b -> b.getOffender().getNomsId()).toList();
-        var expectedConnectedOffenderBookings = generateConnectedOffenders();
-        var expectedConnectedOffenderIds = expectedConnectedOffenderBookings.stream().map(b -> b.getOffender().getNomsId()).toList();
-        var expectedVictimStaffUserAccounts = generateVictimStaff();
-        var expectedVictimStaffIds = expectedVictimStaffUserAccounts.stream().map(s -> s.getStaff().getStaffId()).toList();
-
-        when(adjudicationRepository.findByParties_AdjudicationNumber(any())).thenReturn(Optional.of(basicAdjudication()));
-        mockOffenderBookings(expectedConnectedOffenderBookings, expectedVictimOffenderBooking);
-        mockStaffUserAccounts(expectedVictimStaffUserAccounts);
-
-        var returnedAdjudication = service.updateAdjudicationParties(1l, expectedVictimStaffIds, expectedVictimOffenderIds, expectedConnectedOffenderIds);
-        assertThat(returnedAdjudication.getVictimStaffIds()).containsExactlyInAnyOrderElementsOf(expectedVictimStaffIds);
-        assertThat(returnedAdjudication.getVictimOffenderIds()).containsExactlyInAnyOrderElementsOf(expectedVictimOffenderIds);
-        assertThat(returnedAdjudication.getConnectedOffenderIds()).containsExactlyInAnyOrderElementsOf(expectedConnectedOffenderIds);
-    }
-
-    @Test
     public void removesPartiesFromAdjudication() {
         var expectedVictimOffenderBooking = generateVictimOffenders();
         var expectedVictimOffenderIds = expectedVictimOffenderBooking.stream().map(b -> b.getOffender().getNomsId()).toList();
         var expectedConnectedOffenderBookings = generateConnectedOffenders();
         var expectedConnectedOffenderIds = expectedConnectedOffenderBookings.stream().map(b -> b.getOffender().getNomsId()).toList();
         var expectedVictimStaffUserAccounts = generateVictimStaff();
-        var expectedVictimStaffIds = expectedVictimStaffUserAccounts.stream().map(s -> s.getStaff().getStaffId()).toList();
+        var expectedVictimStaffUsernames = expectedVictimStaffUserAccounts.stream().map(s -> s.getUsername()).toList();
 
         Adjudication adjudication = basicAdjudication();
         var idOfConnectedOffenderBookingToBeRemovedFromAdjudication = 1000l;
@@ -130,7 +112,7 @@ public class AdjudicationsPartyServiceTest {
         mockOffenderBookings(expectedConnectedOffenderBookings, expectedVictimOffenderBooking);
         mockStaffUserAccounts(expectedVictimStaffUserAccounts);
 
-        service.updateAdjudicationParties(1l, expectedVictimStaffIds, expectedVictimOffenderIds, expectedConnectedOffenderIds);
+        service.updateAdjudicationParties(1l, expectedVictimStaffUsernames, expectedVictimOffenderIds, expectedConnectedOffenderIds);
 
         verify(adjudicationRepository).save(assertArgThat(actualAdjudication -> {
             assertThat(actualAdjudication.getConnectedOffenderBookings().stream().map(OffenderBooking::getBookingId))
@@ -145,7 +127,7 @@ public class AdjudicationsPartyServiceTest {
         var expectedConnectedOffenderBookings = generateConnectedOffenders();
         var expectedConnectedOffenderIds = expectedConnectedOffenderBookings.stream().map(b -> b.getOffender().getNomsId()).toList();
         var expectedVictimStaffUserAccounts = generateVictimStaff();
-        var expectedVictimStaffIds = expectedVictimStaffUserAccounts.stream().map(s -> s.getStaff().getStaffId()).toList();
+        var expectedVictimStaffUsernames = expectedVictimStaffUserAccounts.stream().map(s -> s.getUsername()).toList();
 
         Adjudication adjudication = basicAdjudication();
         var idOfConnectedOffenderBookingToBeRetainedOnAdjudication = expectedConnectedOffenderBookings.get(0).getBookingId();
@@ -164,7 +146,7 @@ public class AdjudicationsPartyServiceTest {
         mockOffenderBookings(expectedConnectedOffenderBookings, expectedVictimOffenderBooking);
         mockStaffUserAccounts(expectedVictimStaffUserAccounts);
 
-        service.updateAdjudicationParties(1l, expectedVictimStaffIds, expectedVictimOffenderIds, expectedConnectedOffenderIds);
+        service.updateAdjudicationParties(1l, expectedVictimStaffUsernames, expectedVictimOffenderIds, expectedConnectedOffenderIds);
 
         verify(adjudicationRepository).save(assertArgThat(actualAdjudication -> {
             assertThat(actualAdjudication.getConnectedOffenderPartyWithBookingId(idOfConnectedOffenderBookingToBeRetainedOnAdjudication)
@@ -245,8 +227,11 @@ public class AdjudicationsPartyServiceTest {
     }
 
     private List<StaffUserAccount> generateVictimStaff() {
-        return EXAMPLE_VICTIM_STAFF_IDS.stream().
-            map(id -> StaffUserAccount.builder().staff(Staff.builder().staffId(id).build()).build()).toList();
+        return EXAMPLE_VICTIM_STAFF_IDS_AND_USERNAMES.stream().
+            map(idAndUsername -> StaffUserAccount.builder()
+                .username(idAndUsername.getRight())
+                .staff(Staff.builder().staffId(idAndUsername.getLeft()).build())
+                .build()).toList();
     }
 
     private void mockOffenderBookings(List<OffenderBooking>... offenderBookings) {
@@ -260,10 +245,10 @@ public class AdjudicationsPartyServiceTest {
     }
 
     private void mockStaffUserAccounts(List<StaffUserAccount> staffUserAccounts) {
-        when(staffUserAccountRepository.findByStaff_StaffId(any()))
+        when(staffUserAccountRepository.findByUsername(any()))
             .thenAnswer(request -> {
-                var staffId = request.getArgument(0);
-                return staffUserAccounts.stream().filter(s -> s.getStaff().getStaffId().equals(staffId)).findFirst();
+                var staffUsername = request.getArgument(0);
+                return staffUserAccounts.stream().filter(s -> s.getUsername().equals(staffUsername)).findFirst();
             });
     }
 
