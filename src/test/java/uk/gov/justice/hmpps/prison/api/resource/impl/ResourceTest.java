@@ -34,6 +34,9 @@ public abstract class ResourceTest {
     protected TestRestTemplate testRestTemplate;
 
     @Autowired
+    protected WebTestClient webTestClient;
+
+    @Autowired
     protected JwtAuthenticationHelper jwtAuthenticationHelper;
 
     @Autowired

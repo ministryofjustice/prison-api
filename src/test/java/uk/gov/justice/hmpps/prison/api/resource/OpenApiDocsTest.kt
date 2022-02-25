@@ -1,11 +1,12 @@
 package uk.gov.justice.hmpps.prison.api.resource
 
 import io.swagger.v3.parser.OpenAPIV3Parser
-import net.javacrumbs.jsonunit.assertj.assertThatJson
+import net.minidev.json.JSONArray
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
+import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import uk.gov.justice.hmpps.prison.api.resource.impl.ResourceTest
 import java.time.LocalDate
@@ -20,22 +21,31 @@ class OpenApiDocsTest : ResourceTest() {
 
   @Test
   fun `open api docs are available`() {
-    val response = testRestTemplate.getForEntity("/swagger-ui/index.html?configUrl=/v3/api-docs", String::class.java)
-    assertThatStatus(response, 200)
+    webTestClient.get()
+      .uri("/swagger-ui/index.html?configUrl=/v3/api-docs")
+      .accept(MediaType.APPLICATION_JSON)
+      .exchange()
+      .expectStatus().isOk
   }
 
   @Test
   fun `open api docs redirect to correct page`() {
-    val response = testRestTemplate.getForEntity("/swagger-ui.html", String::class.java)
-    assertThatStatus(response, 302)
-    assertThat(response.headers["Location"]).contains("/swagger-ui/index.html")
+    webTestClient.get()
+      .uri("/swagger-ui.html")
+      .accept(MediaType.APPLICATION_JSON)
+      .exchange()
+      .expectStatus().is3xxRedirection
+      .expectHeader().value("Location") { it.contains("/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config") }
   }
 
   @Test
   fun `the swagger json is valid`() {
-    val response = testRestTemplate.getForEntity("/v3/api-docs", String::class.java)
-    assertThatStatus(response, 200)
-    assertThatJson(response.body!!).inPath(".messages").isArray.isEmpty()
+    webTestClient.get()
+      .uri("/v3/api-docs")
+      .accept(MediaType.APPLICATION_JSON)
+      .exchange()
+      .expectStatus().isOk
+      .expectBody().jsonPath("messages").doesNotExist()
   }
 
   @Test
@@ -47,9 +57,44 @@ class OpenApiDocsTest : ResourceTest() {
 
   @Test
   fun `the swagger json contains the version number`() {
-    val response = testRestTemplate.getForEntity("/v3/api-docs", String::class.java)
-    assertThatStatus(response, 200)
-    assertThatJson(response.body!!).inPath(".info.version")
-      .isArray.asList().containsExactly(DateTimeFormatter.ISO_DATE.format(LocalDate.now()))
+    webTestClient.get()
+      .uri("/v3/api-docs")
+      .accept(MediaType.APPLICATION_JSON)
+      .exchange()
+      .expectStatus().isOk
+      .expectBody().jsonPath("info.version").isEqualTo(DateTimeFormatter.ISO_DATE.format(LocalDate.now()))
+  }
+
+  @Test
+  fun `the generated swagger for date times hasn't got the time zone`() {
+    webTestClient.get()
+      .uri("/v3/api-docs")
+      .accept(MediaType.APPLICATION_JSON)
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("$.components.schemas.OffenderIn.properties.movementDateTime.example").isEqualTo("2021-07-05T10:35:17")
+      .jsonPath("$.components.schemas.OffenderIn.properties.movementDateTime.description")
+      .isEqualTo("Movement date time")
+      .jsonPath("$.components.schemas.OffenderIn.properties.movementDateTime.type").isEqualTo("string")
+      .jsonPath("$.components.schemas.OffenderIn.properties.movementDateTime.pattern")
+      .isEqualTo("""^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}${'$'}""")
+      .jsonPath("$.components.schemas.OffenderIn.properties.movementDateTime.format").doesNotExist()
+  }
+
+  @Test
+  fun `the security scheme is setup for bearer tokens`() {
+    val bearerJwts = JSONArray()
+    bearerJwts.addAll(listOf("read", "write"))
+    webTestClient.get()
+      .uri("/v3/api-docs")
+      .accept(MediaType.APPLICATION_JSON)
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("$.components.securitySchemes.bearer-jwt")
+      .isEqualTo(mapOf("type" to "http", "scheme" to "bearer", "bearerFormat" to "JWT"))
+      .jsonPath("$.security[0].bearer-jwt")
+      .isEqualTo(bearerJwts)
   }
 }
