@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -146,5 +147,10 @@ public abstract class ResourceTest {
 
     protected <T> JsonContent<T> getBodyAsJsonContent(final ResponseEntity<String> response) {
         return new JsonContent<>(getClass(), forType(String.class), Objects.requireNonNull(response.getBody()));
+    }
+
+
+    protected Consumer<HttpHeaders> setAuthorisation(List<String> roles) {
+        return (httpHeaders -> httpHeaders.add("Authorization", "Bearer " + validToken(roles)));
     }
 }

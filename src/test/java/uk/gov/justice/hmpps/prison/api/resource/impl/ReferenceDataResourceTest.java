@@ -6,11 +6,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
+
+import java.util.List;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -191,69 +192,65 @@ public class ReferenceDataResourceTest extends ResourceTest {
         @Test
         @DisplayName("must have a valid token to access endpoint")
         void mustHaveAValidTokenToAccessEndpoint() {
-            assertThat(getDomains(null).getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+            webTestClient.get()
+                .uri("/api/reference-domains/domains")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isUnauthorized();
         }
 
         @Test
         @DisplayName("can have any role to access endpoint")
         void canHaveAnyRoleToAccessEndpoint() {
-            final var token = authTokenHelper.someClientUser("ROLE_BANANAS");
-
-            assertThat(getDomains(token).getStatusCode()).isEqualTo(HttpStatus.OK);
+            webTestClient.get()
+                .uri("/api/reference-domains/domains")
+                .headers(setAuthorisation(List.of("ROLE_BANANAS")))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk();
         }
 
         @Test
         @DisplayName("will return a list of domains")
         void willReturnAListOfDomains() {
-            final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
-
-            final var response = getBodyAsJsonContent(getDomains(token));
-
-            assertThat(response).hasJsonPathArrayValue("$");
-            assertThat(response).extractingJsonPathNumberValue("$.length()").isEqualTo(430);
+            final var CURRENT_NUMBER_OF_DOMAINS = 430;
+            webTestClient.get()
+                .uri("/api/reference-domains/domains")
+                .headers(setAuthorisation(List.of("ROLE_SYSTEM")))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody()
+                .jsonPath("$.length()").isEqualTo(CURRENT_NUMBER_OF_DOMAINS);
         }
 
         @Test
         @DisplayName("will return details of a domain")
         void willReturnDetailsOfADomain() {
-            final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
-
-            final var response = getBodyAsJsonContent(getDomains(token));
 
             final var domainAt = "$[?(@.domain == '%s')]";
             final var domainPropertyAt = "$[?(@.domain == '%s')].%s";
 
-            assertThat(response)
-                .hasJsonPathValue(domainAt, "ETHNICITY");
-            assertThat(response)
-                .hasJsonPathValue(domainAt, "SKL_SUB_TYPE");
-
-            assertThat(response)
-                .extractingJsonPathValue(domainPropertyAt, "ETHNICITY", "description").asList().element(0)
-                .isEqualTo("Ethnicity");
-            assertThat(response)
-                .extractingJsonPathValue(domainPropertyAt, "ETHNICITY", "domainStatus").asList().element(0)
-                .isEqualTo("ACTIVE");
-            assertThat(response)
-                .extractingJsonPathValue(domainPropertyAt, "ETHNICITY", "ownerCode").asList().element(0)
-                .isEqualTo("ADMIN");
-            assertThat(response)
-                .extractingJsonPathValue(domainPropertyAt, "ETHNICITY", "applnCode").asList().element(0)
-                .isEqualTo("OMS");
-            assertThat(response)
-                .extractingJsonPathValue(domainPropertyAt, "SKL_SUB_TYPE", "parentDomain").asList().element(0)
-                .isEqualTo("STAFF_SKILLS");
+            webTestClient.get()
+                .uri("/api/reference-domains/domains")
+                .headers(setAuthorisation(List.of("ROLE_SYSTEM")))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody()
+                .jsonPath(domainAt, "ETHNICITY").isNotEmpty()
+                .jsonPath(domainAt, "SKL_SUB_TYPE").isNotEmpty()
+                .jsonPath(domainPropertyAt, "ETHNICITY", "description").isEqualTo("Ethnicity")
+                .jsonPath(domainPropertyAt, "ETHNICITY", "domainStatus").isEqualTo("ACTIVE")
+                .jsonPath(domainPropertyAt, "ETHNICITY", "ownerCode").isEqualTo("ADMIN")
+                .jsonPath(domainPropertyAt, "ETHNICITY", "applnCode").isEqualTo("OMS")
+                .jsonPath(domainPropertyAt, "SKL_SUB_TYPE", "parentDomain").isEqualTo("STAFF_SKILLS")
+                ;
         }
 
 
-        private ResponseEntity<String> getDomains(String token) {
-            return testRestTemplate.exchange(
-                "/api/reference-domains/domains",
-                HttpMethod.GET,
-                createHttpEntity(token, null),
-                new ParameterizedTypeReference<>() {
-                });
-        }
     }
     @Nested
     @DisplayName("GET /domains/codes")
@@ -261,64 +258,61 @@ public class ReferenceDataResourceTest extends ResourceTest {
         @Test
         @DisplayName("must have a valid token to access endpoint")
         void mustHaveAValidTokenToAccessEndpoint() {
-            assertThat(getCodesByDomain(null, "ETHNICITY").getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+            webTestClient.get()
+                .uri(builder -> builder.path("/api/reference-domains/domains/codes/{code}").build("ETHNICITY"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isUnauthorized();
         }
 
         @Test
         @DisplayName("can have any role to access endpoint")
         void canHaveAnyRoleToAccessEndpoint() {
-            final var token = authTokenHelper.someClientUser("ROLE_BANANAS");
-
-            assertThat(getCodesByDomain(token, "ETHNICITY").getStatusCode()).isEqualTo(HttpStatus.OK);
+            webTestClient.get()
+                .uri(builder -> builder.path("/api/reference-domains/domains/{domain}/codes").build("ETHNICITY"))
+                .headers(setAuthorisation(List.of("ROLE_BANANAS")))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk();
         }
 
         @Test
         @DisplayName("will return a list of codes")
         void willReturnAListOfDomains() {
-            final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+            final var CURRENT_NUMBER_OF_VISIT_TYPE_CODES = 2;
 
-            final var response = getBodyAsJsonContent(getCodesByDomain(token, "VISIT_TYPE"));
-
-            assertThat(response).hasJsonPathArrayValue("$");
-            assertThat(response).extractingJsonPathNumberValue("$.length()").isEqualTo(2);
+            webTestClient.get()
+                .uri(builder -> builder.path("/api/reference-domains/domains/{domain}/codes").build("VISIT_TYPE"))
+                .headers(setAuthorisation(List.of("ROLE_SYSTEM")))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody()
+                .jsonPath("$.length()").isEqualTo(CURRENT_NUMBER_OF_VISIT_TYPE_CODES)
+            ;
         }
 
         @Test
         @DisplayName("will return details of a domain code")
         void willReturnDetailsOfADomainCode() {
-            final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
-
-            final var response = getBodyAsJsonContent(getCodesByDomain(token, "VISIT_TYPE"));
-
             final var codeAt = "$[?(@.code == '%s')]";
             final var codePropertyAt = "$[?(@.code == '%s')].%s";
 
-            assertThat(response)
-                .hasJsonPathValue(codeAt, "SCON");
-
-            assertThat(response)
-                .extractingJsonPathValue(codePropertyAt, "SCON", "domain").asList().element(0)
-                .isEqualTo("VISIT_TYPE");
-            assertThat(response)
-                .extractingJsonPathValue(codePropertyAt, "SCON", "description").asList().element(0)
-                .isEqualTo("Social Contact");
-            assertThat(response)
-                .extractingJsonPathValue(codePropertyAt, "SCON", "activeFlag").asList().element(0)
-                .isEqualTo("Y");
-            assertThat(response)
-                .extractingJsonPathValue(codePropertyAt, "SCON", "systemDataFlag").asList().element(0)
-                .isEqualTo("N");
-        }
-
-
-        private ResponseEntity<String> getCodesByDomain(String token, String domain) {
-            return testRestTemplate.exchange(
-                "/api/reference-domains/domains/{domain}/codes",
-                HttpMethod.GET,
-                createHttpEntity(token, null),
-                new ParameterizedTypeReference<>() {
-                },
-                domain);
+            webTestClient.get()
+                .uri(builder -> builder.path("/api/reference-domains/domains/{domain}/codes").build("VISIT_TYPE"))
+                .headers(setAuthorisation(List.of("ROLE_SYSTEM")))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody()
+                .jsonPath(codeAt, "SCON").isNotEmpty()
+                .jsonPath(codePropertyAt, "SCON", "domain").isEqualTo("VISIT_TYPE")
+                .jsonPath(codePropertyAt, "SCON", "description").isEqualTo("Social Contact")
+                .jsonPath(codePropertyAt, "SCON", "activeFlag").isEqualTo("Y")
+                .jsonPath(codePropertyAt, "SCON", "systemDataFlag").isEqualTo("N")
+                ;
         }
     }
 }
