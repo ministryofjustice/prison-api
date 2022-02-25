@@ -48,8 +48,8 @@ public class NewAdjudication {
     @Schema(description = "The list of offence codes the offender may be charged with", example = "51:80,51:25A")
     private List<String> offenceCodes;
 
-    @Schema(description = "The list of staff ids who were victims")
-    private List<Long> victimStaffIds = new ArrayList<>();
+    @Schema(description = "The list of staff usernames who were victims", example = "NGK33Y")
+    private List<String> victimStaffUsernames = new ArrayList<>();
 
     @Schema(description = "The list of offender numbers of offenders who were victims")
     private List<String> victimOffenderIds = new ArrayList<>();

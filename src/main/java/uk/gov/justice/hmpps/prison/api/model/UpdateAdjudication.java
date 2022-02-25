@@ -39,8 +39,8 @@ public class UpdateAdjudication {
     @Schema(description = "The list of offence codes the offender may be charged with. Note: If this value is not specified then the existing offence codes will be kept", example = "51:80,51:25A")
     private List<String> offenceCodes;
 
-    @Schema(description = "The list of staff ids who were victims", example = "[17381, 17515]")
-    private List<Long> victimStaffIds = new ArrayList<>();
+    @Schema(description = "The list of staff usernames who were victims", example = "NGK33Y")
+    private List<String> victimStaffUsernames = new ArrayList<>();
 
     @Schema(description = "The list of offender numbers of offenders who were victims")
     private List<String> victimOffenderIds = new ArrayList<>();

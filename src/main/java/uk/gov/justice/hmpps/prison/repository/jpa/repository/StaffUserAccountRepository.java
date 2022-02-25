@@ -15,5 +15,5 @@ public interface StaffUserAccountRepository extends CrudRepository<StaffUserAcco
 
     Optional<StaffUserAccount> findByTypeAndStaff_StaffId(String type, Long staffId);
 
-    Optional<StaffUserAccount> findByStaff_StaffId(Long staffId);
+    Optional<StaffUserAccount> findByUsername(String staffUsername);
 }
