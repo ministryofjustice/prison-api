@@ -59,6 +59,9 @@ public class OffenderSentenceAndOffences {
     @Schema(description = "The sentence duration - days")
     private Integer days;
 
+    @Schema(description = "The sentence terms of the sentence")
+    private List<OffenderSentenceTerm> terms;
+
     @Schema(description = "The offences related to this sentence (will usually only have one offence per sentence)")
     private List<OffenderOffence> offences;
 }

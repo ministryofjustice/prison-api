@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.BatchSize;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences;
+import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerm;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -140,6 +141,15 @@ public class OffenderSentence extends AuditableEntity {
             .months(terms == null ? 0 : terms.stream().mapToInt(val -> val.getMonths() == null ? 0 : val.getMonths()).sum())
             .weeks(terms == null ? 0 : terms.stream().mapToInt(val -> val.getWeeks() == null ? 0 : val.getWeeks()).sum())
             .days(terms == null ? 0 : terms.stream().mapToInt(val -> val.getDays() == null ? 0 : val.getDays()).sum())
+            .terms(terms == null ? null : terms
+                .stream()
+                .map(term -> OffenderSentenceTerm.builder()
+                    .years(term.getYears() == null ? 0 : term.getYears())
+                    .months(term.getMonths() == null ? 0 : term.getMonths())
+                    .weeks(term.getWeeks() == null ? 0 : term.getWeeks())
+                    .days(term.getDays() == null ? 0 : term.getDays())
+                    .build())
+                .toList())
             .offences(offenderSentenceCharges == null ? null : offenderSentenceCharges
                 .stream()
                 .map(OffenderSentenceCharge::getOffenderCharge)
