@@ -30,11 +30,11 @@ import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.transformers.AdjudicationsTransformer;
 
+import javax.persistence.EntityManager;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,6 +60,7 @@ public class AdjudicationsService {
     private final AuthenticationFacade authenticationFacade;
     private final TelemetryClient telemetryClient;
     private final Clock clock;
+    private final EntityManager entityManager;
     @Value("${batch.max.size:1000}")
     private final int batchSize;
 
@@ -75,6 +76,7 @@ public class AdjudicationsService {
         final AuthenticationFacade authenticationFacade,
         final TelemetryClient telemetryClient,
         final Clock clock,
+        final EntityManager entityManager,
         @Value("${batch.max.size:1000}") final int batchSize,
         final AdjudicationsPartyService adjudicationsPartyService) {
         this.adjudicationsRepository = adjudicationsRepository;
@@ -88,6 +90,7 @@ public class AdjudicationsService {
         this.authenticationFacade = authenticationFacade;
         this.telemetryClient = telemetryClient;
         this.clock = clock;
+        this.entityManager = entityManager;
         this.batchSize = batchSize;
         this.adjudicationsPartyService = adjudicationsPartyService;
     }
@@ -151,12 +154,11 @@ public class AdjudicationsService {
             .actionCode(actionCode)
             .offenderBooking(offenderBookingEntry)
             .build();
-        final var offenceEntries = generateOffenceCharges(offenderAdjudicationEntry, offenceCodes);
 
-        offenderAdjudicationEntry.setCharges(offenceEntries);
         adjudicationToCreate.getParties().add(offenderAdjudicationEntry);
-
         adjudicationsRepository.save(adjudicationToCreate);
+
+        addOffenceCharges(offenderAdjudicationEntry, offenceCodes);
 
         adjudicationsPartyService.updateAdjudicationParties(
             adjudicationNumber,
@@ -189,9 +191,7 @@ public class AdjudicationsService {
                 .orElseThrow(() -> new RuntimeException("No offender associated with this adjudication"));
 
             final var offenceCodes = adjudicationsOffenceTypeRepository.findByOffenceCodeIn(adjudication.getOffenceCodes());
-            final var offenceEntries = generateOffenceCharges(adjudicationOffenderPartyToUpdate, offenceCodes);
-            adjudicationOffenderPartyToUpdate.getCharges().clear();
-            adjudicationOffenderPartyToUpdate.getCharges().addAll(offenceEntries);
+            addOffenceCharges(adjudicationOffenderPartyToUpdate, offenceCodes);
         }
         adjudicationsRepository.save(adjudicationToUpdate);
 
@@ -222,25 +222,30 @@ public class AdjudicationsService {
             .toList();
     }
 
-    private List<AdjudicationCharge> generateOffenceCharges(AdjudicationParty adjudicationPartyToUpdate, List<AdjudicationOffenceType> offenceCodes) {
+    private void addOffenceCharges(AdjudicationParty adjudicationPartyToUpdate, List<AdjudicationOffenceType> offenceCodes) {
         final var existingCharges = adjudicationPartyToUpdate.getCharges();
         final var existingChargesBySequenceNumber = existingCharges.stream().collect(Collectors.toMap(AdjudicationCharge::getSequenceNumber, Function.identity()));
-        final var requiredAdjudicationCharges = new ArrayList<AdjudicationCharge>();
+        adjudicationPartyToUpdate.getCharges().clear();
+        // If we do not run these inserts one at a time Oracle errors as it is not able to correctly run the trigger
+        // AGENCY_INCIDENT_CHARGES_T1
+        entityManager.flush();
         for (int i = 0; i < offenceCodes.size(); i++) {
             final var offenceCode = offenceCodes.get(i);
             final long sequenceNumber = i + 1;
             final var existingChargeToAdd = existingChargesBySequenceNumber.get(sequenceNumber);
             if (existingChargeToAdd != null) {
                 existingChargeToAdd.setOffenceType(offenceCode);
-                requiredAdjudicationCharges.add(existingChargeToAdd);
+                adjudicationPartyToUpdate.getCharges().add(existingChargeToAdd);
             } else {
-                requiredAdjudicationCharges.add(AdjudicationCharge.builder()
+                adjudicationPartyToUpdate.getCharges().add(AdjudicationCharge.builder()
                     .id(new PK(adjudicationPartyToUpdate, sequenceNumber))
                     .offenceType(offenceCode)
                     .build());
             }
+            // If we do not run these inserts one at a time Oracle errors as it is not able to correctly run the trigger
+            // AGENCY_INCIDENT_CHARGES_T1
+            entityManager.flush();
         }
-        return requiredAdjudicationCharges;
     }
 
     private void trackAdjudicationCreated(final Adjudication createdAdjudication) {
