@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.0.4"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.0.5-beta"
   kotlin("plugin.spring") version "1.6.10"
   kotlin("plugin.jpa") version "1.6.10"
 }
@@ -31,7 +31,7 @@ dependencies {
 
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
-  implementation(platform("com.amazonaws:aws-java-sdk-bom:1.12.163"))
+  implementation(platform("com.amazonaws:aws-java-sdk-bom:1.12.168"))
 
   implementation("javax.annotation:javax.annotation-api:1.3.2")
   implementation("javax.xml.bind:jaxb-api:2.3.1")
@@ -57,7 +57,7 @@ dependencies {
   compileOnly("org.projectlombok:lombok:1.18.22")
 
   runtimeOnly("org.hsqldb:hsqldb:2.5.1")
-  runtimeOnly("org.flywaydb:flyway-core:8.5.0")
+  runtimeOnly("org.flywaydb:flyway-core:8.5.1")
 
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
