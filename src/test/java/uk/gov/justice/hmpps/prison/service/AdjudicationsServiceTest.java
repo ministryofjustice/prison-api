@@ -35,6 +35,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeReposi
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 
+import javax.persistence.EntityManager;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -94,6 +95,8 @@ public class AdjudicationsServiceTest {
     private TelemetryClient telemetryClient;
     @Mock
     private AdjudicationsPartyService adjudicationsPartyService;
+    @Mock
+    private EntityManager entityManager;
 
     private AdjudicationsService service;
 
@@ -114,6 +117,7 @@ public class AdjudicationsServiceTest {
             authenticationFacade,
             telemetryClient,
             clock,
+            entityManager,
             BATCH_SIZE,
             adjudicationsPartyService
             );
