@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -87,7 +86,7 @@ public class ImageResource {
     @PreAuthorize("hasRole('SYSTEM_USER')")
     public Page<OffenderNumber> getOffendersWithImagesCapturedInRange(
         @Parameter(description = "fromDateTime", required = true) @DateTimeFormat(iso = DATE_TIME) @RequestParam("fromDateTime") final LocalDateTime fromDate,
-        @ParameterObject @PageableDefault(direction = ASC, sort = "nomsId") final Pageable pageable) {
+        @PageableDefault(direction = ASC, sort = "nomsId") final Pageable pageable) {
         return imageService.getOffendersWithImagesCapturedAfter(fromDate, pageable);
     }
 

@@ -42,7 +42,7 @@ public class RequestToCreateAgency {
     @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "Invalid characters for agencyType")
     private String agencyType;
 
-    @Schema(required = true, description = "Court Type.  Reference domain is JURISDICTION", example = "CC", allowableValues = {"CACD","CB","CC","CO","DCM","GCM","IMM","MC","OTHER","YC"})
+    @Schema(required = true, description = "Court Type.  Reference domain is JURISDICTION", example = "CC", allowableValues = {"CACD","CB","CC","CO","DCM","GCM","IMM","MC","OTHER,YC"})
     @Valid @Length(max = 12, min = 2, message = "Court Type is max 12 characters and min of 2")
     @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "Invalid characters for Court Type")
     private String courtType;

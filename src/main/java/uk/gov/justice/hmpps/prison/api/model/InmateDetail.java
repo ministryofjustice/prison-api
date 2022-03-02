@@ -172,7 +172,7 @@ public class InmateDetail {
     @Schema(description = "Last movement status of the prison", example = "CRT-CA")
     private String statusReason;
 
-    @Schema(description = "Last Movement Type Code of prisoner. Note: Reference Data from MOVE_TYPE Domain", example = "TAP", allowableValues = {"TAP","CRT","TRN","ADM","REL"})
+    @Schema(description = "Last Movement Type Code of prisoner. Note: Reference Data from MOVE_TYPE Domain", example = "TAP", allowableValues = {"TAP","CRT","TRN","ADM,REL"})
     private String lastMovementTypeCode;
 
     @Schema(description = "Last Movement Reason of prisoner. Note: Reference Data from MOVE_RSN Domain", example = "CA")

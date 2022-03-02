@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -42,7 +41,7 @@ public class OffenceResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     public Page<OffenceDto> getActiveOffences(
-        @ParameterObject @PageableDefault(sort = {"code"}, direction = Sort.Direction.ASC) final Pageable pageable) {
+        @PageableDefault(sort = {"code"}, direction = Sort.Direction.ASC) final Pageable pageable) {
 
         return service.getOffences(true, pageable);
     }
@@ -54,7 +53,7 @@ public class OffenceResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     public Page<OffenceDto> getOffences(
-        @ParameterObject @PageableDefault(sort = {"code"}, direction = Sort.Direction.ASC) final Pageable pageable) {
+        @PageableDefault(sort = {"code"}, direction = Sort.Direction.ASC) final Pageable pageable) {
 
         return service.getOffences(false, pageable);
     }
@@ -67,7 +66,7 @@ public class OffenceResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     public Page<OffenceDto> getOffencesByHoCode(
         @Parameter(description = "HO Code", required = true, example = "825/99") @RequestParam("code") @NotBlank final String code,
-        @ParameterObject @PageableDefault(sort = {"code"}, direction = Sort.Direction.ASC) final Pageable pageable) {
+        @PageableDefault(sort = {"code"}, direction = Sort.Direction.ASC) final Pageable pageable) {
         return service.findByHoCode(code, pageable);
     }
 
@@ -79,7 +78,7 @@ public class OffenceResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     public Page<OffenceDto> getOffencesByStatute(
         @Parameter(description = "Statute Code", required = true, example = "RR84") @RequestParam("code") @NotBlank final String code,
-        @ParameterObject @PageableDefault(sort = {"code"}, direction = Sort.Direction.ASC) final Pageable pageable) {
+        @PageableDefault(sort = {"code"}, direction = Sort.Direction.ASC) final Pageable pageable) {
         return service.findByStatute(code, pageable);
     }
 
