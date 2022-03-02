@@ -186,6 +186,7 @@ public class ReferenceDomainService {
                 .parentDomain(it.getParentDomain())
                 .build()
             )
+            .sorted(Comparator.comparing(uk.gov.justice.hmpps.prison.api.model.ReferenceDomain::getDomain))
             .toList();
     }
 }

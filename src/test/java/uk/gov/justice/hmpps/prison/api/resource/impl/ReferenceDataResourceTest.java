@@ -222,7 +222,9 @@ public class ReferenceDataResourceTest extends ResourceTest {
                 .expectStatus()
                 .isOk()
                 .expectBody()
-                .jsonPath("$.length()").isEqualTo(CURRENT_NUMBER_OF_DOMAINS);
+                .jsonPath("$.length()").isEqualTo(CURRENT_NUMBER_OF_DOMAINS)
+                .jsonPath("$[0].domain").isEqualTo("ACCESS_PRIVI")
+                .jsonPath("$[429].domain").isEqualTo("WRK_FLW_ACT");
         }
 
         @Test
