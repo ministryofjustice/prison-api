@@ -1,8 +1,9 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,7 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@ApiModel(description = "Sentence Summary")
+@Schema(description = "Sentence Summary")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @AllArgsConstructor
 @NoArgsConstructor
@@ -34,32 +35,32 @@ import java.util.stream.Collectors;
 @Builder
 public class SentenceSummary {
 
-    @ApiModelProperty(value = "Prisoner Identifier", example = "A1234AA", required = true)
+    @Schema(description = "Prisoner Identifier", example = "A1234AA", required = true)
     private String prisonerNumber;
 
-    @ApiModelProperty(value = "Most recent term in prison")
+    @Schema(description = "Most recent term in prison")
     private PrisonTerm latestPrisonTerm;
 
-    @ApiModelProperty(value = "Other prison terms")
+    @Schema(description = "Other prison terms")
     private List<PrisonTerm> previousPrisonTerms;
 
 
-    @ApiModel(description = "Prison Term")
+    @Schema(description = "Prison Term")
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
     @Data
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class PrisonTerm {
-        @ApiModelProperty(value = "Book Number (Prison) / Prison Number (Probation)", example = "B45232", required = true)
+        @Schema(description = "Book Number (Prison) / Prison Number (Probation)", example = "B45232", required = true)
         private String bookNumber;
 
-        @ApiModelProperty(value = "Booking Identifier (internal)", example = "12312312", required = true)
+        @Schema(description = "Booking Identifier (internal)", example = "12312312", required = true)
         private Long bookingId;
 
         private List<CourtSentences> courtSentences;
 
-        @ApiModelProperty(value = "Licence sentences")
+        @Schema(description = "Licence sentences")
         private List<SentencesOffencesTerms> licenceSentences;
 
         private KeyDates keyDates;
@@ -81,44 +82,44 @@ public class SentenceSummary {
         }
     }
 
-    @ApiModel(description = "Court case details")
+    @Schema(description = "Court case details")
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
     @Data
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class CourtSentences {
-        @ApiModelProperty(value = "The case information number", example = "TD20177010")
+        @Schema(description = "The case information number", example = "TD20177010")
         private String caseInfoNumber;
 
-        @ApiModelProperty(value = "The case identifier (internal)", example = "1")
+        @Schema(description = "The case identifier (internal)", example = "1")
         private Long id;
 
-        @ApiModelProperty(value = "The case sequence number for the offender", example = "1")
+        @Schema(description = "The case sequence number for the offender", example = "1")
         private Long caseSeq;
 
-        @ApiModelProperty(value = "The begin date of the court hearings", example = "2019-12-01")
+        @Schema(description = "The begin date of the court hearings", example = "2019-12-01")
         private LocalDate beginDate;
 
-        @ApiModelProperty(value = "Court details")
+        @Schema(description = "Court details")
         private Agency court;
 
-        @ApiModelProperty(value = "The case type", example = "Adult")
+        @Schema(description = "The case type", example = "Adult")
         private String caseType;
 
-        @ApiModelProperty(value = "The prefix of the case number")
+        @Schema(description = "The prefix of the case number")
         private String caseInfoPrefix;
 
-        @ApiModelProperty(value = "The case status", example = "ACTIVE", allowableValues = "ACTIVE, CLOSED, INACTIVE")
+        @Schema(description = "The case status", example = "ACTIVE", allowableValues = "ACTIVE, CLOSED, INACTIVE")
         private String caseStatus;
 
-        @ApiModelProperty(value = "Court sentences associated with the court case")
+        @Schema(description = "Court sentences associated with the court case")
         private List<SentencesOffencesTerms> sentences;
 
-        @ApiModelProperty(value = "Issuing Court Details")
+        @Schema(description = "Issuing Court Details")
         private Agency issuingCourt;
 
-        @ApiModelProperty(value = "Issuing Court Date")
+        @Schema(description = "Issuing Court Date")
         private LocalDate issuingCourtDate;
 
         public String getCaseStatus() {
@@ -145,47 +146,47 @@ public class SentenceSummary {
 
     }
 
-    @ApiModel(description = "Offender sentence and offence details")
+    @Schema(description = "Offender sentence and offence details")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
     @Data
     public static class SentencesOffencesTerms {
-        @ApiModelProperty(value = "Sentence sequence - a number representing the order")
+        @Schema(description = "Sentence sequence - a number representing the order")
         private Integer sentenceSequence;
 
-        @ApiModelProperty(value = "This sentence is consecutive to this sequence (if populated)")
+        @Schema(description = "This sentence is consecutive to this sequence (if populated)")
         private Integer consecutiveToSequence;
 
-        @ApiModelProperty(value = "This sentence status: A = Active I = Inactive")
+        @Schema(description = "This sentence status: A = Active I = Inactive")
         private String sentenceStatus;
 
-        @ApiModelProperty(value = "The sentence category e.g. 2003 or Licence")
+        @Schema(description = "The sentence category e.g. 2003 or Licence")
         private String sentenceCategory;
 
-        @ApiModelProperty(value = "The sentence calculation type e.g. R or ADIMP_ORA")
+        @Schema(description = "The sentence calculation type e.g. R or ADIMP_ORA")
         private String sentenceCalculationType;
 
-        @ApiModelProperty(value = "The sentence type description e.g. Standard Determinate Sentence")
+        @Schema(description = "The sentence type description e.g. Standard Determinate Sentence")
         private String sentenceTypeDescription;
 
-        @ApiModelProperty(value = "The sentence start date for this sentence (aka court date)")
+        @Schema(description = "The sentence start date for this sentence (aka court date)")
         private LocalDate sentenceStartDate;
 
-        @ApiModelProperty(value = "The sentence end date for this sentence")
+        @Schema(description = "The sentence end date for this sentence")
         private LocalDate sentenceEndDate;
 
-        @ApiModelProperty(required = true, value = "Fine amount.")
+        @Schema(required = true, description = "Fine amount.")
         private Double fineAmount;
 
-        @ApiModelProperty(required = true, value = "Sentence line number", example = "1")
+        @Schema(required = true, description = "Sentence line number", example = "1")
         private Long lineSeq;
 
-        @ApiModelProperty(value = "The offences related to this sentence (will usually only have one offence per sentence)")
+        @Schema(description = "The offences related to this sentence (will usually only have one offence per sentence)")
         private List<OffenderOffence> offences;
 
-        @ApiModelProperty(value = "The terms related to this sentence (will usually only have one term per sentence)")
+        @Schema(description = "The terms related to this sentence (will usually only have one term per sentence)")
         private List<Terms> terms;
 
         public static SentencesOffencesTerms transform(final OffenderSentence sentence) {
@@ -211,7 +212,7 @@ public class SentenceSummary {
 
     }
 
-    @ApiModel(description = "Offender Sentence terms details for booking id")
+    @Schema(description = "Offender Sentence terms details for booking id")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Builder
     @AllArgsConstructor
@@ -219,37 +220,37 @@ public class SentenceSummary {
     @Data
     public static class Terms {
 
-        @ApiModelProperty(required = true, value = "Sentence term number within sentence.", example = "1")
+        @Schema(required = true, description = "Sentence term number within sentence.", example = "1")
         private Integer termSequence;
 
-        @ApiModelProperty(value = "Sentence number which this sentence follows if consecutive, otherwise concurrent.", example = "2")
+        @Schema(description = "Sentence number which this sentence follows if consecutive, otherwise concurrent.", example = "2")
         private Integer consecutiveTo;
 
-        @ApiModelProperty(value = "Sentence type, using reference data from table SENTENCE_CALC_TYPES.", example = "2")
+        @Schema(description = "Sentence type, using reference data from table SENTENCE_CALC_TYPES.", example = "2")
         private String sentenceType;
 
-        @ApiModelProperty(required = true, value = "Sentence term code.", example = "IMP")
+        @Schema(required = true, description = "Sentence term code.", example = "IMP")
         private String sentenceTermCode;
 
-        @ApiModelProperty(value = "Sentence type description.", example = "2")
+        @Schema(description = "Sentence type description.", example = "2")
         private String sentenceTypeDescription;
 
-        @ApiModelProperty(required = true, value = "Start date of sentence term.", example = "2018-12-31")
+        @Schema(required = true, description = "Start date of sentence term.", example = "2018-12-31")
         private LocalDate startDate;
 
-        @ApiModelProperty(value = "Sentence length years.")
+        @Schema(description = "Sentence length years.")
         private Integer years;
 
-        @ApiModelProperty(value = "Sentence length months.")
+        @Schema(description = "Sentence length months.")
         private Integer months;
 
-        @ApiModelProperty(value = "Sentence length weeks.")
+        @Schema(description = "Sentence length weeks.")
         private Integer weeks;
 
-        @ApiModelProperty(value = "Sentence length days.")
+        @Schema(description = "Sentence length days.")
         private Integer days;
 
-        @ApiModelProperty(required = true, value = "Whether this is a life sentence.")
+        @Schema(required = true, description = "Whether this is a life sentence.")
         private Boolean lifeSentence;
 
 
@@ -266,7 +267,7 @@ public class SentenceSummary {
                 .build();
         }
     }
-    @ApiModel(description = "Key Dates")
+    @Schema(description = "Key Dates")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Builder
     @AllArgsConstructor
@@ -274,71 +275,71 @@ public class SentenceSummary {
     @Data
     public static class KeyDates {
 
-        @ApiModelProperty(value = "Sentence start date.", example = "2010-02-03", required = true)
+        @Schema(description = "Sentence start date.", example = "2010-02-03", required = true)
         private LocalDate sentenceStartDate;
-        @ApiModelProperty(value = "Effective sentence end date", example = "2020-02-03")
+        @Schema(description = "Effective sentence end date", example = "2020-02-03")
         private LocalDate effectiveSentenceEndDate;
-        @ApiModelProperty(value = "ADA - days added to sentence term due to adjustments.", example = "5")
+        @Schema(description = "ADA - days added to sentence term due to adjustments.", example = "5")
         private Integer additionalDaysAwarded;
 
 
-        @ApiModelProperty(value = "Release date for non-DTO sentence (if applicable). This will be based on one of ARD, CRD, NPD or PRRD.", example = "2020-04-01")
+        @Schema(description = "Release date for non-DTO sentence (if applicable). This will be based on one of ARD, CRD, NPD or PRRD.", example = "2020-04-01")
         private LocalDate nonDtoReleaseDate;
-        @ApiModelProperty(value = "Indicates which type of non-DTO release date is the effective release date. One of 'ARD', 'CRD', 'NPD' or 'PRRD'.", example = "CRD", allowableValues = "ARD,CRD,NPD,PRRD", required = true)
+        @Schema(description = "Indicates which type of non-DTO release date is the effective release date. One of 'ARD', 'CRD', 'NPD' or 'PRRD'.", example = "CRD", allowableValues = "ARD,CRD,NPD,PRRD", required = true)
         private NonDtoReleaseDateType nonDtoReleaseDateType;
-        @ApiModelProperty(value = "Confirmed release date for offender.", example = "2020-04-20")
+        @Schema(description = "Confirmed release date for offender.", example = "2020-04-20")
         private LocalDate confirmedReleaseDate;
-        @ApiModelProperty(value = "Confirmed, actual, approved, provisional or calculated release date for offender, according to offender release date algorithm." +
+        @Schema(description = "Confirmed, actual, approved, provisional or calculated release date for offender, according to offender release date algorithm." +
             "<h3>Algorithm</h3><ul><li>If there is a confirmed release date, the offender release date is the confirmed release date.</li><li>If there is no confirmed release date for the offender, the offender release date is either the actual parole date or the home detention curfew actual date.</li><li>If there is no confirmed release date, actual parole date or home detention curfew actual date for the offender, the release date is the later of the nonDtoReleaseDate or midTermDate value (if either or both are present)</li></ul>", example = "2020-04-01")
         private LocalDate releaseDate;
         
-        @ApiModelProperty(value = "SED - date on which sentence expires.", example = "2020-02-03")
+        @Schema(description = "SED - date on which sentence expires.", example = "2020-02-03")
         private LocalDate sentenceExpiryDate;
-        @ApiModelProperty(value = "ARD - calculated automatic (unconditional) release date for offender.", example = "2020-02-03")
+        @Schema(description = "ARD - calculated automatic (unconditional) release date for offender.", example = "2020-02-03")
         private LocalDate automaticReleaseDate;
-        @ApiModelProperty(value = "CRD - calculated conditional release date for offender.", example = "2020-02-03")
+        @Schema(description = "CRD - calculated conditional release date for offender.", example = "2020-02-03")
         private LocalDate conditionalReleaseDate;
-        @ApiModelProperty(value = "NPD - calculated non-parole date for offender (relating to the 1991 act).", example = "2020-02-03")
+        @Schema(description = "NPD - calculated non-parole date for offender (relating to the 1991 act).", example = "2020-02-03")
         private LocalDate nonParoleDate;
-        @ApiModelProperty(value = "PRRD - calculated post-recall release date for offender.", example = "2020-02-03")
+        @Schema(description = "PRRD - calculated post-recall release date for offender.", example = "2020-02-03")
         private LocalDate postRecallReleaseDate;
-        @ApiModelProperty(value = "LED - date on which offender licence expires.", example = "2020-02-03")
+        @Schema(description = "LED - date on which offender licence expires.", example = "2020-02-03")
         private LocalDate licenceExpiryDate;
-        @ApiModelProperty(value = "HDCED - date on which offender will be eligible for home detention curfew.", example = "2020-02-03")
+        @Schema(description = "HDCED - date on which offender will be eligible for home detention curfew.", example = "2020-02-03")
         private LocalDate homeDetentionCurfewEligibilityDate;
-        @ApiModelProperty(value = "PED - date on which offender is eligible for parole.", example = "2020-02-03")
+        @Schema(description = "PED - date on which offender is eligible for parole.", example = "2020-02-03")
         private LocalDate paroleEligibilityDate;
-        @ApiModelProperty(value = "HDCAD - the offender's actual home detention curfew date.", example = "2020-02-03")
+        @Schema(description = "HDCAD - the offender's actual home detention curfew date.", example = "2020-02-03")
         private LocalDate homeDetentionCurfewActualDate;
-        @ApiModelProperty(value = "APD - the offender's actual parole date.", example = "2020-02-03")
+        @Schema(description = "APD - the offender's actual parole date.", example = "2020-02-03")
         private LocalDate actualParoleDate;
-        @ApiModelProperty(value = "ROTL - the date on which offender will be released on temporary licence.", example = "2020-02-03")
+        @Schema(description = "ROTL - the date on which offender will be released on temporary licence.", example = "2020-02-03")
         private LocalDate releaseOnTemporaryLicenceDate;
-        @ApiModelProperty(value = "ERSED - the date on which offender will be eligible for early removal (under the Early Removal Scheme for foreign nationals).", example = "2020-02-03")
+        @Schema(description = "ERSED - the date on which offender will be eligible for early removal (under the Early Removal Scheme for foreign nationals).", example = "2020-02-03")
         private LocalDate earlyRemovalSchemeEligibilityDate;
-        @ApiModelProperty(value = "ETD - early term date for offender.", example = "2020-02-03")
+        @Schema(description = "ETD - early term date for offender.", example = "2020-02-03")
         private LocalDate earlyTermDate;
-        @ApiModelProperty(value = "MTD - mid term date for offender.", example = "2020-02-03")
+        @Schema(description = "MTD - mid term date for offender.", example = "2020-02-03")
         private LocalDate midTermDate;
-        @ApiModelProperty(value = "LTD - late term date for offender.", example = "2020-02-03")
+        @Schema(description = "LTD - late term date for offender.", example = "2020-02-03")
         private LocalDate lateTermDate;
-        @ApiModelProperty(value = "TUSED - top-up supervision expiry date for offender.", example = "2020-02-03")
+        @Schema(description = "TUSED - top-up supervision expiry date for offender.", example = "2020-02-03")
         private LocalDate topupSupervisionExpiryDate;
-        @ApiModelProperty(value = "Date on which minimum term is reached for parole (indeterminate/life sentences).", example = "2020-02-03")
+        @Schema(description = "Date on which minimum term is reached for parole (indeterminate/life sentences).", example = "2020-02-03")
         private LocalDate tariffDate;
-        @ApiModelProperty(value = "DPRRD - Detention training order post recall release date", example = "2020-02-03")
+        @Schema(description = "DPRRD - Detention training order post recall release date", example = "2020-02-03")
         private LocalDate dtoPostRecallReleaseDate;
-        @ApiModelProperty(value = "TERSED - Tariff early removal scheme eligibility date", example = "2020-02-03")
+        @Schema(description = "TERSED - Tariff early removal scheme eligibility date", example = "2020-02-03")
         private LocalDate tariffEarlyRemovalSchemeEligibilityDate;
 
-        @ApiModelProperty(value = "Top-up supervision start date for offender - calculated as licence end date + 1 day or releaseDate if licence end date not set.", example = "2019-04-01")
+        @Schema(description = "Top-up supervision start date for offender - calculated as licence end date + 1 day or releaseDate if licence end date not set.", example = "2019-04-01")
         public LocalDate getTopupSupervisionStartDate() {
             if (getTopupSupervisionExpiryDate() == null) return null;
             if (getLicenceExpiryDate() != null) return getLicenceExpiryDate().plusDays(1);
             return getConditionalReleaseDate();
         }
 
-        @ApiModelProperty(value = "Offender's home detention curfew end date - calculated as one day before the releaseDate.", example = "2019-04-01")
+        @Schema(description = "Offender's home detention curfew end date - calculated as one day before the releaseDate.", example = "2019-04-01")
         public LocalDate getHomeDetentionCurfewEndDate() {
             if (getHomeDetentionCurfewActualDate() == null) return null;
             final var calcConditionalReleaseDate = getConditionalReleaseDate();

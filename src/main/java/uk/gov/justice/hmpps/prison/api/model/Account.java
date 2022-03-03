@@ -2,8 +2,9 @@ package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,7 +21,7 @@ import static uk.gov.justice.hmpps.prison.util.MoneySupport.MoneyDeserializer;
 /**
  * Prisoner Account Balance
  **/
-@ApiModel(description = "Prisoner Account Balance")
+@Schema(description = "Prisoner Account Balance")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder(toBuilder = true)
 @AllArgsConstructor
@@ -30,27 +31,27 @@ import static uk.gov.justice.hmpps.prison.util.MoneySupport.MoneyDeserializer;
 @Data
 public class Account {
 
-    @ApiModelProperty(required = true, value = "Spends sub account balance.")
+    @Schema(required = true, description = "Spends sub account balance.")
     @NotNull
     @JsonDeserialize(using = MoneyDeserializer.class)
     private BigDecimal spends;
 
-    @ApiModelProperty(required = true, value = "Cash sub account balance.")
+    @Schema(required = true, description = "Cash sub account balance.")
     @NotNull
     @JsonDeserialize(using = MoneyDeserializer.class)
     private BigDecimal cash;
 
-    @ApiModelProperty(required = true, value = "Saves sub account balance.")
+    @Schema(required = true, description = "Saves sub account balance.")
     @NotNull
     @JsonDeserialize(using = MoneyDeserializer.class)
     private BigDecimal savings;
 
-    @ApiModelProperty(required = true, value = "Damage obligation balance.")
+    @Schema(required = true, description = "Damage obligation balance.")
     @NotNull
     @JsonDeserialize(using = MoneyDeserializer.class)
     private BigDecimal damageObligations;
 
-    @ApiModelProperty(required = true, value = "Currency of these balances.")
+    @Schema(required = true, description = "Currency of these balances.")
     @NotBlank
     private String currency;
 }

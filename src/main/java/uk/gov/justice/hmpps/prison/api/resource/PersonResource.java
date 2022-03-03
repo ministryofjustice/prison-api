@@ -1,10 +1,12 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,7 +22,7 @@ import uk.gov.justice.hmpps.prison.service.PersonService;
 import java.util.List;
 
 @RestController
-@Api(tags = {"persons"})
+@Tag(name = "persons")
 @Validated
 @RequestMapping("${api.base.path}/persons")
 public class PersonResource {
@@ -31,43 +33,43 @@ public class PersonResource {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = PersonIdentifier.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "The most recent value of each type of person identifier", notes = "The most recent value of each type of person identifier", nickname = "getPersonIdentifiers")
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "The most recent value of each type of person identifier", description = "The most recent value of each type of person identifier")
     @GetMapping("/{personId}/identifiers")
-    public List<PersonIdentifier> getPersonIdentifiers(@PathVariable("personId") @ApiParam(value = "The persons NOMIS identifier (personId).", required = true) final Long personId) {
+    public List<PersonIdentifier> getPersonIdentifiers(@PathVariable("personId") @Parameter(description = "The persons NOMIS identifier (personId).", required = true) final Long personId) {
         return service.getPersonIdentifiers(personId);
     }
 
     @ApiResponses({
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "The addresses for person", notes = "The addresses for person", nickname = "getPersonAddresses")
+            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "The addresses for person", description = "The addresses for person")
     @GetMapping("/{personId}/addresses")
-    public List<AddressDto> getPersonAddresses(@PathVariable("personId") @ApiParam(value = "The persons NOMIS identifier (personId).", required = true) final Long personId) {
+    public List<AddressDto> getPersonAddresses(@PathVariable("personId") @Parameter(description = "The persons NOMIS identifier (personId).", required = true) final Long personId) {
         return service.getAddresses(personId);
     }
 
     @ApiResponses({
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "The phone numbers for person", notes = "The phone numbers for person", nickname = "getPersonPhones")
+            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "The phone numbers for person", description = "The phone numbers for person")
     @GetMapping("/{personId}/phones")
-    public List<Telephone> getPersonPhones(@PathVariable("personId") @ApiParam(value = "The persons NOMIS identifier (personId).", required = true) final Long personId) {
+    public List<Telephone> getPersonPhones(@PathVariable("personId") @Parameter(description = "The persons NOMIS identifier (personId).", required = true) final Long personId) {
         return service.getPhones(personId);
     }
 
     @ApiResponses({
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "The emails for person", notes = "The emails for person", nickname = "getPersonEmails")
+            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "The emails for person", description = "The emails for person")
     @GetMapping("/{personId}/emails")
-    public List<Email> getPersonEmails(@PathVariable("personId") @ApiParam(value = "The persons NOMIS identifier (personId).", required = true) final Long personId) {
+    public List<Email> getPersonEmails(@PathVariable("personId") @Parameter(description = "The persons NOMIS identifier (personId).", required = true) final Long personId) {
         return service.getEmails(personId);
     }
 }

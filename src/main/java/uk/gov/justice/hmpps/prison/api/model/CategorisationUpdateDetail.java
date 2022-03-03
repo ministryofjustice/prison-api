@@ -1,8 +1,9 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +13,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
-@ApiModel(description = "Categorisation detail for an offender")
+@Schema(description = "Categorisation detail for an offender")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @Data
@@ -20,24 +21,24 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class CategorisationUpdateDetail {
 
-    @ApiModelProperty(required = true, value = "Booking Id", position = 1)
+    @Schema(required = true, description = "Booking Id")
     @NotNull(message = "bookingId must be provided")
     private Long bookingId;
 
-    @ApiModelProperty(required = true, value = "Sequence number", position = 2)
+    @Schema(required = true, description = "Sequence number")
     @NotNull(message = "Sequence number must be provided")
     private Integer assessmentSeq;
 
-    @ApiModelProperty(value = "Category code", position = 3)
+    @Schema(description = "Category code")
     private String category;
 
-    @ApiModelProperty(value = "The assessment committee code (reference code in domain 'ASSESS_COMM')", position = 4)
+    @Schema(description = "The assessment committee code (reference code in domain 'ASSESS_COMM')")
     private String committee;
 
-    @ApiModelProperty(value = "Next review date for recategorisation", position = 5)
+    @Schema(description = "Next review date for recategorisation")
     private LocalDate nextReviewDate;
 
-    @ApiModelProperty(value = "Initial categorisation comment", position = 6)
+    @Schema(description = "Initial categorisation comment")
     @Size(max = 4000, message = "Comment text must be a maximum of 4000 characters")
     private String comment;
 }

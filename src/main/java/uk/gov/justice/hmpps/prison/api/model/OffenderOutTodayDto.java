@@ -1,8 +1,9 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,7 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Data
-@ApiModel(description = "Offender out today details")
+@Schema(description = "Offender out today details")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,25 +22,25 @@ import java.time.LocalTime;
 public class OffenderOutTodayDto {
 
     @NotBlank
-    @ApiModelProperty(required = true, value = "Offender Unique Reference")
+    @Schema(required = true, description = "Offender Unique Reference")
     private String offenderNo;
 
     @NotBlank
-    @ApiModelProperty(required = true)
+    @Schema(required = true)
     private LocalDate dateOfBirth;
 
-    @ApiModelProperty(value = "Reason for out movement")
+    @Schema(description = "Reason for out movement")
     private String reasonDescription;
 
     @NotBlank
-    @ApiModelProperty(required = true)
+    @Schema(required = true)
     private LocalTime timeOut;
 
     @NotBlank
-    @ApiModelProperty(required = true)
+    @Schema(required = true)
     private String firstName;
 
     @NotBlank
-    @ApiModelProperty(required = true)
+    @Schema(required = true)
     private String lastName;
 }

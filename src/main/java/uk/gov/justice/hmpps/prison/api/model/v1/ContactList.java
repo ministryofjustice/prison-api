@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model.v1;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +11,7 @@ import lombok.ToString;
 
 import java.util.List;
 
-@ApiModel(description = "Contact List")
+@Schema(description = "Contact List")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,6 +19,6 @@ import java.util.List;
 @ToString
 public class ContactList {
 
-    @ApiModelProperty(value = "Available Dates", allowEmptyValue = true)
+    @Schema(description = "Available Dates")
     private List<ContactPerson> contacts;
 }

@@ -45,6 +45,9 @@ dependencies {
   implementation("com.zaxxer:HikariCP:5.0.1")
 
   implementation("io.springfox:springfox-boot-starter:3.0.0")
+  implementation("org.springdoc:springdoc-openapi-ui:1.6.1")
+  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.1")
+  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.1")
   implementation("io.swagger.core.v3:swagger-core:2.1.13")
 
   implementation("org.apache.commons:commons-lang3:3.12.0")

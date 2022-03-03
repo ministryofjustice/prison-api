@@ -1,8 +1,9 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +13,7 @@ import org.apache.commons.lang3.builder.CompareToBuilder;
 
 import java.time.LocalDateTime;
 
-@ApiModel(description = "Incident Reponses")
+@Schema(description = "Incident Reponses")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -21,21 +22,21 @@ import java.time.LocalDateTime;
 @Data
 public class IncidentResponse implements Comparable<IncidentResponse> {
 
-    @ApiModelProperty(required = true, value = "The Question", example = "Was it a violent assault?")
+    @Schema(required = true, description = "The Question", example = "Was it a violent assault?")
     private String question;
-    @ApiModelProperty(required = true, value = "The Answer to the Question", example = "YES", position = 1)
+    @Schema(required = true, description = "The Answer to the Question", example = "YES")
     private String answer;
-    @ApiModelProperty(required = true, value = "Sequence of presented Questions", example = "2131231", position = 2)
+    @Schema(required = true, description = "Sequence of presented Questions", example = "2131231")
     private int questionSeq;
-    @ApiModelProperty(required = true, value = "ID for Questionnaire Question", example = "983431", position = 3)
+    @Schema(required = true, description = "ID for Questionnaire Question", example = "983431")
     private Long questionnaireQueId;
-    @ApiModelProperty(required = true, value = "ID for Questionnaire Answer", example = "983434", position = 4)
+    @Schema(required = true, description = "ID for Questionnaire Answer", example = "983434")
     private Long questionnaireAnsId;
-    @ApiModelProperty(required = false, value = "Date response was recorded", example = "2018-03-04T11:00:05", position = 5)
+    @Schema(description = "Date response was recorded", example = "2018-03-04T11:00:05")
     private LocalDateTime responseDate;
-    @ApiModelProperty(required = false, value = "Additional comments for the response to the question", example = "The knife was in his pocket", position = 6)
+    @Schema(description = "Additional comments for the response to the question", example = "The knife was in his pocket")
     private String responseCommentText;
-    @ApiModelProperty(required = false, value = "Staff Id recording comment", example = "123123", position = 7)
+    @Schema(description = "Staff Id recording comment", example = "123123")
     private Long recordStaffId;
 
     @Override
