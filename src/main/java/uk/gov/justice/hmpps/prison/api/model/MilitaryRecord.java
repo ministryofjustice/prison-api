@@ -2,53 +2,54 @@ package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
 
-@Schema(description = "Military Record")
+@ApiModel(description = "Military Record")
 @Builder
 @AllArgsConstructor
 @Data
 @JsonInclude(Include.NON_NULL)
 public class MilitaryRecord {
-    @Schema(description = "War zone code", example = "AFG")
+    @ApiModelProperty(value = "War zone code", position = 1, example = "AFG")
     private final String warZoneCode;
-    @Schema(description = "War zone description", example = "Afghanistan")
+    @ApiModelProperty(value = "War zone description", position = 2, example = "Afghanistan")
     private final String warZoneDescription;
-    @Schema(description = "Start date", example = "2000-01-01", required = true)
+    @ApiModelProperty(value = "Start date", position = 3, example = "2000-01-01", required = true)
     private final LocalDate startDate;
-    @Schema(description = "End date", example = "2020-10-17")
+    @ApiModelProperty(value = "End date", position = 4, example = "2020-10-17")
     private final LocalDate endDate;
-    @Schema(description = "Military discharge code", example = "DIS")
+    @ApiModelProperty(value = "Military discharge code", position = 5, example = "DIS")
     private final String militaryDischargeCode;
-    @Schema(description = "Military discharge description", example = "Dishonourable")
+    @ApiModelProperty(value = "Military discharge description", position = 6, example = "Dishonourable")
     private final String militaryDischargeDescription;
-    @Schema(description = "Military branch code", example = "ARM", required = true)
+    @ApiModelProperty(value = "Military branch code", position = 7, example = "ARM", required = true)
     private final String militaryBranchCode;
-    @Schema(description = "Military branch description", example = "Army", required = true)
+    @ApiModelProperty(value = "Military branch description", position = 8, example = "Army", required = true)
     private final String militaryBranchDescription;
-    @Schema(description = "Description", example = "Some description")
+    @ApiModelProperty(value = "Description", position = 9, example = "Some description")
     private final String description;
-    @Schema(description = "The unit number", example = "255 TACP Battery")
+    @ApiModelProperty(value = "The unit number", position = 10, example = "255 TACP Battery")
     private final String unitNumber;
-    @Schema(description = "Enlistment location", example = "Sheffield")
+    @ApiModelProperty(value = "Enlistment location", position = 11, example = "Sheffield")
     private final String enlistmentLocation;
-    @Schema(description = "Discharge location", example = "Manchester")
+    @ApiModelProperty(value = "Discharge location", position = 12, example = "Manchester")
     private final String dischargeLocation;
-    @Schema(description = "Selective services flag", example = "false", required = true)
+    @ApiModelProperty(value = "Selective services flag", position = 13, example = "false", required = true)
     private final boolean selectiveServicesFlag;
-    @Schema(description = "Military rank code", example = "LCPL_RMA")
+    @ApiModelProperty(value = "Military rank code", position = 14, example = "LCPL_RMA")
     private final String militaryRankCode;
-    @Schema(description = "Military rank description", example = "Lance Corporal  (Royal Marines)")
+    @ApiModelProperty(value = "Military rank description", position = 15, example = "Lance Corporal  (Royal Marines)")
     private final String militaryRankDescription;
-    @Schema(description = "Service number", example = "25232301")
+    @ApiModelProperty(value = "Service number", position = 16, example = "25232301")
     private final String serviceNumber;
-    @Schema(description = "Disciplinary action code", example = "CM")
+    @ApiModelProperty(value = "Disciplinary action code", position = 17, example = "CM")
     private final String disciplinaryActionCode;
-    @Schema(description = "Disciplinary action description", example = "Court Martial")
+    @ApiModelProperty(value = "Disciplinary action description", position = 18, example = "Court Martial")
     private final String disciplinaryActionDescription;
 }

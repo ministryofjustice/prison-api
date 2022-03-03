@@ -7,7 +7,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,7 +19,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 
-@Schema(description = "Offender")
+@ApiModel(description = "Offender")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -43,71 +44,71 @@ public class Offender {
     @JsonIgnore
     private Long rootOffenderId;
 
-    @Schema(description = "Given Name", name = "given_name", example = "JENNIFER")
+    @ApiModelProperty(value = "Given Name", name = "given_name", example = "JENNIFER", position = 0)
     @JsonProperty("given_name")
     private String givenName;
 
-    @Schema(description = "Middle Names", name = "middle_names", example = "ESMERALADA JANE")
+    @ApiModelProperty(value = "Middle Names", name = "middle_names", example = "ESMERALADA JANE", position = 1)
     @JsonProperty("middle_names")
     private String middleNames;
 
-    @Schema(description = "Last Name", name = "surname", example = "HALLIBUT")
+    @ApiModelProperty(value = "Last Name", name = "surname", example = "HALLIBUT", position = 2)
     private String surname;
 
-    @Schema(description = "Title", name = "title", example = "MR")
+    @ApiModelProperty(value = "Title", name = "title", example = "MR", position = 3)
     private String title;
 
-    @Schema(description = "Suffix", name = "suffix")
+    @ApiModelProperty(value = "Suffix", name = "suffix", position = 4)
     private String suffix;
 
-    @Schema(description = "Date of Birth", name = "date_of_birth", example = "1970-01-01")
+    @ApiModelProperty(value = "Date of Birth", name = "date_of_birth", example = "1970-01-01", position = 5)
     @JsonProperty("date_of_birth")
     private LocalDate birthDate;
 
-    @Schema(description = "List of offender’s aliases", name = "aliases")
+    @ApiModelProperty(value = "List of offender’s aliases", name = "aliases", position = 6)
     private List<OffenderAlias> aliases;
 
-    @Schema(description = "Gender", name = "gender")
+    @ApiModelProperty(value = "Gender", name = "gender", position = 7)
     private CodeDescription gender;
 
-    @Schema(description = "Nationalities", name = "nationalities")
+    @ApiModelProperty(value = "Nationalities", name = "nationalities", position = 8)
     private String nationalities;
 
-    @Schema(description = "Religion", name = "religion")
+    @ApiModelProperty(value = "Religion", name = "religion", position = 9)
     private CodeDescription religion;
 
-    @Schema(description = "Ethnicity", name = "ethnicity")
+    @ApiModelProperty(value = "Ethnicity", name = "ethnicity", position = 10)
     private CodeDescription ethnicity;
 
-    @Schema(description = "Language", name = "language")
+    @ApiModelProperty(value = "Language", name = "language", position = 11)
     private Language language;
 
-    @Schema(description = "Cell Sharing Risk Assessment", name = "csra")
+    @ApiModelProperty(value = "Cell Sharing Risk Assessment", name = "csra", position = 12)
     private CodeDescription csra;
 
-    @Schema(description = "indicates whether the offender has been convicted or is on remand", name = "convicted", example = "true")
+    @ApiModelProperty(value = "indicates whether the offender has been convicted or is on remand", name = "convicted", example = "true", position = 13)
     private boolean convicted;
 
-    @Schema(description = "CRO Number", name = "cro_number", example = "ADF567890")
+    @ApiModelProperty(value = "CRO Number", name = "cro_number", example = "ADF567890", position = 14)
     @JsonProperty("cro_number")
     private String croNumber;
 
-    @Schema(description = "PNC Number", name = "pnc_number", example = "96/346527V")
+    @ApiModelProperty(value = "PNC Number", name = "pnc_number", example = "96/346527V", position = 15)
     @JsonProperty("pnc_number")
     private String pncNumber;
 
-    @Schema(description = "Imprisonment Status", name = "imprisonment_status")
+    @ApiModelProperty(value = "Imprisonment Status", name = "imprisonment_status", position = 16)
     @JsonProperty("imprisonment_status")
     private CodeDescription imprisonmentStatus;
 
-    @Schema(description = "IEP Level", name = "iep_level")
+    @ApiModelProperty(value = "IEP Level", name = "iep_level", position = 17)
     @JsonProperty("iep_level")
     private CodeDescription iepLevel;
 
-    @Schema(description = "Diet", name = "diet")
+    @ApiModelProperty(value = "Diet", name = "diet", position = 18)
     private CodeDescription diet;
 
-    @Schema(description = "Security Categorisation", name = "security_category")
+    @ApiModelProperty(value = "Security Categorisation", name = "security_category", position = 19)
     @JsonProperty("security_category")
     private CodeDescription categorisationLevel;
 }

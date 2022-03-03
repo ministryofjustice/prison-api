@@ -8,6 +8,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Address;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Phone;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 

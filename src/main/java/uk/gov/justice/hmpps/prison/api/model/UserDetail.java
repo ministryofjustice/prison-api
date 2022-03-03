@@ -3,8 +3,8 @@ package uk.gov.justice.hmpps.prison.api.model;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.Hidden;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,55 +20,55 @@ import java.util.Map;
  * User Details
  **/
 @SuppressWarnings("unused")
-@Schema(description = "User Details")
+@ApiModel(description = "User Details")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 public class UserDetail {
-    @Schema(required = true, description = "Staff Id", example = "231232")
+    @ApiModelProperty(required = true, value = "Staff Id", example = "231232")
     @NotNull
     private Long staffId;
 
-    @Schema(required = true, description = "Username", example = "DEMO_USER1")
+    @ApiModelProperty(required = true, value = "Username", example = "DEMO_USER1", position = 1)
     @NotBlank
     private String username;
 
-    @Schema(required = true, description = "First Name", example = "John")
+    @ApiModelProperty(required = true, value = "First Name", example = "John", position = 2)
     @NotBlank
     private String firstName;
 
-    @Schema(required = true, description = "Last Name", example = "Smith")
+    @ApiModelProperty(required = true, value = "Last Name", example = "Smith", position = 3)
     @NotBlank
     private String lastName;
 
-    @Schema(description = "Image Thumbnail Id", example = "2342341224")
+    @ApiModelProperty(value = "Image Thumbnail Id", example = "2342341224", position = 4)
     private Long thumbnailId;
 
-    @Schema(description = "Current Active Caseload", example = "MDI")
+    @ApiModelProperty(value = "Current Active Caseload", example = "MDI", position = 5)
     private String activeCaseLoadId;
 
-    @Schema(required = true, description = "Status of the User Account", allowableValues = {"ACTIVE","INACT","SUS","CAREER","MAT","SAB","SICK"}, example = "ACTIVE")
+    @ApiModelProperty(required = true, value = "Status of the User Account", allowableValues = "ACTIVE,INACT,SUS,CAREER,MAT,SAB,SICK", example = "ACTIVE", position = 6)
     private String accountStatus;
 
-    @Schema(required = true, description = "Date the user account was locked", example = "2018-06-04T12:35:00")
+    @ApiModelProperty(required = true, value = "Date the user account was locked", example = "2018-06-04T12:35:00", position = 7)
     private LocalDateTime lockDate;
 
-    @Schema(description = "Date the user account has expired", example = "2018-01-04T12:35:00")
+    @ApiModelProperty(value = "Date the user account has expired", example = "2018-01-04T12:35:00", position = 8)
     private LocalDateTime expiryDate;
 
-    @Schema(description = "The User account is locked", example = "false")
+    @ApiModelProperty(value = "The User account is locked", example = "false", position = 9)
     private Boolean lockedFlag;
 
-    @Schema(description = "Indicates the user account has expired", example = "true")
+    @ApiModelProperty(value = "Indicates the user account has expired", example = "true", position = 10)
     private Boolean expiredFlag;
 
     @JsonIgnore
-    @Hidden
+    @ApiModelProperty(hidden = true)
     private Map<String, Object> additionalProperties;
 
-    @Schema(required = true, description = "Indicate if the account is active", example = "true")
+    @ApiModelProperty(required = true, value = "Indicate if the account is active", example = "true", position = 11)
     @JsonGetter
     public boolean isActive() {
         return "ACTIVE".equals(accountStatus);

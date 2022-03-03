@@ -1,7 +1,7 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,7 +16,7 @@ import java.util.List;
  * Contacts Details for offender
  **/
 @SuppressWarnings("unused")
-@Schema(description = "Contacts Details for offender")
+@ApiModel(description = "Contacts Details for offender")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @Data

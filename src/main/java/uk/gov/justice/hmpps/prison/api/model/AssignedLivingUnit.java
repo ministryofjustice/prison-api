@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.v3.oas.annotations.Hidden;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -21,7 +21,7 @@ import java.util.Map;
  * Assigned Living Unit
  **/
 @SuppressWarnings("unused")
-@Schema(description = "Assigned Living Unit")
+@ApiModel(description = "Assigned Living Unit")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -48,7 +48,7 @@ public class AssignedLivingUnit {
         return additionalProperties == null ? new HashMap<>() : additionalProperties;
     }
 
-    @Hidden
+    @ApiModelProperty(hidden = true)
     @JsonAnySetter
     public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
@@ -57,7 +57,7 @@ public class AssignedLivingUnit {
     /**
      * Agency Id
      */
-    @Schema(required = true, description = "Agency Id")
+    @ApiModelProperty(required = true, value = "Agency Id")
     @JsonProperty("agencyId")
     public String getAgencyId() {
         return agencyId;
@@ -70,7 +70,7 @@ public class AssignedLivingUnit {
     /**
      * location Id
      */
-    @Schema(required = true, description = "location Id")
+    @ApiModelProperty(required = true, value = "location Id")
     @JsonProperty("locationId")
     public Long getLocationId() {
         return locationId;
@@ -83,7 +83,7 @@ public class AssignedLivingUnit {
     /**
      * Living Unit Desc
      */
-    @Schema(required = true, description = "Living Unit Desc")
+    @ApiModelProperty(required = true, value = "Living Unit Desc")
     @JsonProperty("description")
     public String getDescription() {
         return description;
@@ -96,7 +96,7 @@ public class AssignedLivingUnit {
     /**
      * Name of the agency where this living unit resides
      */
-    @Schema(required = true, description = "Name of the agency where this living unit resides")
+    @ApiModelProperty(required = true, value = "Name of the agency where this living unit resides")
     @JsonProperty("agencyName")
     public String getAgencyName() {
         return agencyName;

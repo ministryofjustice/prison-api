@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.v3.oas.annotations.Hidden;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -20,7 +20,7 @@ import java.util.Map;
  * PersonIdentifier
  **/
 @SuppressWarnings("unused")
-@Schema(description = "PersonIdentifier")
+@ApiModel(description = "PersonIdentifier")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -41,7 +41,7 @@ public class PersonIdentifier {
         return additionalProperties == null ? new HashMap<>() : additionalProperties;
     }
 
-    @Hidden
+    @ApiModelProperty(hidden = true)
     @JsonAnySetter
     public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
@@ -50,7 +50,7 @@ public class PersonIdentifier {
     /**
      * The identifier type
      */
-    @Schema(required = true, description = "The identifier type")
+    @ApiModelProperty(required = true, value = "The identifier type")
     @JsonProperty("identifierType")
     public String getIdentifierType() {
         return identifierType;
@@ -63,7 +63,7 @@ public class PersonIdentifier {
     /**
      * The most recent identifier value of that type.
      */
-    @Schema(required = true, description = "The most recent identifier value of that type.")
+    @ApiModelProperty(required = true, value = "The most recent identifier value of that type.")
     @JsonProperty("identifierValue")
     public String getIdentifierValue() {
         return identifierValue;

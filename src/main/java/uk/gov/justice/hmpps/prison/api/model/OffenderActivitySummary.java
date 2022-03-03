@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +13,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
-@Schema(description = "Offender activity")
+@ApiModel(description = "Offender activity")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder(toBuilder = true)
 @Data
@@ -23,37 +24,37 @@ public class OffenderActivitySummary {
     private Long bookingId;
 
     @NotNull
-    @Schema(description = "The id of the institution where this activity was based", example = "MDI")
+    @ApiModelProperty(value = "The id of the institution where this activity was based", example = "MDI")
     private String agencyLocationId;
 
     @NotNull
-    @Schema(description = "The description of the institution where this activity was based", example = "Moorland (HMP & YOI)")
+    @ApiModelProperty(value = "The description of the institution where this activity was based", example = "Moorland (HMP & YOI)")
     private String agencyLocationDescription;
 
     @NotBlank
-    @Schema(description = "The description of the activity")
+    @ApiModelProperty(value = "The description of the activity")
     private String description;
 
     @NotNull
-    @Schema(description = "When the offender started this activity")
+    @ApiModelProperty(value = "When the offender started this activity")
     private LocalDate startDate;
 
     @NotNull
-    @Schema(description = "When the offender stopped this activity")
+    @ApiModelProperty(value = "When the offender stopped this activity")
     private LocalDate endDate;
 
-    @Schema(description = "End reason code")
+    @ApiModelProperty(value = "End reason code")
     private String endReasonCode;
 
-    @Schema(description = "End reason description")
+    @ApiModelProperty(value = "End reason description")
     private String endReasonDescription;
 
-    @Schema(description = "End comment")
+    @ApiModelProperty(value = "End comment")
     @Size(max = 240, message = "End comment text must be a maximum of 240 characters")
     private String endCommentText;
 
     @NotBlank
-    @Schema(description = "Whether the offender is currently registered to do this activity")
+    @ApiModelProperty(value = "Whether the offender is currently registered to do this activity")
     private Boolean isCurrentActivity;
 
 }

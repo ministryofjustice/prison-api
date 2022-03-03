@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,7 +12,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
-@Schema(description = "Summary of an offender 'currently out' according to Establishment Roll")
+@ApiModel(description = "Summary of an offender 'currently out' according to Establishment Roll")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder(toBuilder = true)
 @Data
@@ -19,7 +20,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class OffenderOut {
     @NotBlank
-    @Schema(required = true, description = "Display Prisoner Number")
+    @ApiModelProperty(required = true, value = "Display Prisoner Number")
     private String offenderNo;
 
     @NotNull
@@ -35,6 +36,6 @@ public class OffenderOut {
     private String lastName;
 
     @NotNull
-    @Schema(required = true, description = "The prisoner's internal location (Cell)")
+    @ApiModelProperty(required = true, value = "The prisoner's internal location (Cell)")
     private String location;
 }

@@ -6,6 +6,7 @@ import uk.gov.justice.hmpps.prison.api.model.Location;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Utility class containing methods for processing of {@link uk.gov.justice.hmpps.prison.api.model.Location} objects.

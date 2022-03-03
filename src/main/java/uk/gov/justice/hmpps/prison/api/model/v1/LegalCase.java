@@ -5,7 +5,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,7 +16,7 @@ import lombok.ToString;
 import java.time.LocalDate;
 import java.util.List;
 
-@Schema(description = "Legal Case")
+@ApiModel(description = "Legal Case")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -26,29 +27,29 @@ import java.util.List;
 public class LegalCase {
 
     @JsonIgnore
-    @Schema(description = "Case Id", example = "2323133")
+    @ApiModelProperty(value = "Case Id", position = 0, example = "2323133")
     private Long caseId;
 
-    @Schema(description = "Case Information Number", example = "1254232")
+    @ApiModelProperty(value = "Case Information Number", position = 1, example = "1254232")
     @JsonProperty("case_info_number")
     private String caseInfoNumber;
 
-    @Schema(description = "Case Active", example = "true")
+    @ApiModelProperty(value = "Case Active", position = 2, example = "true")
     @JsonProperty("case_active")
     private boolean caseActive;
 
-    @Schema(description = "Case Started Date", example = "2019-01-17")
+    @ApiModelProperty(value = "Case Started Date", position = 3, example = "2019-01-17")
     @JsonProperty("case_started")
     private LocalDate beginDate;
 
-    @Schema(description = "Court", example = "{ \"code\": \"ABDRCT\", \"desc\": \"Aberdare County Court\" }")
+    @ApiModelProperty(value = "Court", position = 4, example = "{ \"code\": \"ABDRCT\", \"desc\": \"Aberdare County Court\" }")
     private CodeDescription court;
 
-    @Schema(description = "Legal Case Type", example = "{ \"code\": \"A\", \"desc\": \"Adult\" }")
+    @ApiModelProperty(value = "Legal Case Type", position = 5, example = "{ \"code\": \"A\", \"desc\": \"Adult\" }")
     @JsonProperty("legal_case_type")
     private CodeDescription caseType;
 
-    @Schema(description = "Charges")
+    @ApiModelProperty(value = "Charges", position = 6)
     List<Charge> charges;
 
 }

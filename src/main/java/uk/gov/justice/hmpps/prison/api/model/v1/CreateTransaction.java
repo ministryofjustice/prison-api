@@ -4,7 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -15,7 +16,7 @@ import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-@Schema(description = "Transaction to Create")
+@ApiModel(description = "Transaction to Create")
 @Data
 @EqualsAndHashCode
 @ToString
@@ -24,20 +25,20 @@ import java.math.RoundingMode;
 public class CreateTransaction {
 
     @NotNull
-    @Schema(description = "Valid transaction type for the prison_id", example = "CANT", allowableValues = {"CANT","REFND","PHONE","MRPR","MTDS","DTDS","CASHD","RELA","RELS"})
+    @ApiModelProperty(value = "Valid transaction type for the prison_id", example = "CANT", allowableValues = "CANT,REFND,PHONE,MRPR,MTDS,DTDS,CASHD,RELA,RELS", position = 1)
     private String type;
 
     @Size(max = 240)
-    @Schema(description = "Description of the Transaction", example = "Canteen Purchase of £16.34")
+    @ApiModelProperty(value = "Description of the Transaction", example = "Canteen Purchase of £16.34", position = 2)
     private String description;
 
     @NotNull
-    @Schema(description = "Amount of transaction in pence, hence 1634 is £16.34", example = "1634")
+    @ApiModelProperty(value = "Amount of transaction in pence, hence 1634 is £16.34", example = "1634", position = 3)
     private Long amount;
 
     @NotNull
     @Size(max = 12)
-    @Schema(description = "Client Transaction Id", example = "CL123212")
+    @ApiModelProperty(value = "Client Transaction Id", example = "CL123212", position = 4)
     @JsonProperty(value = "client_transaction_id")
     private String clientTransactionId;
 
@@ -45,7 +46,7 @@ public class CreateTransaction {
     @Size(max = 64)
     @Pattern(regexp = "[a-zA-Z0-9-_]+")
     @JsonProperty(value = "client_unique_ref")
-    @Schema(description = "A reference unique to the client making the post. Maximum size 64 characters, only alphabetic, numeric, '-' and '_' are allowed", example = "CLIENT121131-0_11")
+    @ApiModelProperty(value = "A reference unique to the client making the post. Maximum size 64 characters, only alphabetic, numeric, '-' and '_' are allowed", example = "CLIENT121131-0_11", position = 5)
     private String clientUniqueRef;
 
     @JsonIgnore

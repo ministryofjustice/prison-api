@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,7 +12,7 @@ import lombok.ToString;
 
 import javax.validation.constraints.NotBlank;
 
-@Schema(description = "Access Role")
+@ApiModel(description = "Access Role")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @Data
@@ -21,20 +22,20 @@ import javax.validation.constraints.NotBlank;
 @ToString
 public class AccessRole {
 
-    @Schema(description = "internal role id")
+    @ApiModelProperty(value = "internal role id")
     private Long roleId;
 
-    @Schema(required = true, description = "unique code for the access role")
+    @ApiModelProperty(required = true, value = "unique code for the access role")
     @NotBlank
     private String roleCode;
 
-    @Schema(description = "name of the access role")
+    @ApiModelProperty(value = "name of the access role")
     private String roleName;
 
-    @Schema(description = "role code of the parent role")
+    @ApiModelProperty(value = "role code of the parent role")
     private String parentRoleCode;
 
-    @Schema(description = "ADMIN or GENERAL")
+    @ApiModelProperty(value = "ADMIN or GENERAL")
     private String roleFunction;
 
 }

@@ -1,14 +1,15 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 
-@Schema(description = "Incident Party")
+@ApiModel(description = "Incident Party")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -16,21 +17,21 @@ import org.apache.commons.lang3.builder.CompareToBuilder;
 @Data
 public class IncidentParty implements Comparable<IncidentParty> {
 
-    @Schema(required = true, description = "Booking Id of offender involved", example = "1241232")
+    @ApiModelProperty(required = true, value = "Booking Id of offender involved", example = "1241232", position = 0)
     private Long bookingId;
-    @Schema(required = true, description = "Sequence or each party member", example = "1")
+    @ApiModelProperty(required = true, value = "Sequence or each party member", example = "1", position = 1)
     private Long partySeq;
-    @Schema(description = "Staff Member ID (optional)", example = "1534133")
+    @ApiModelProperty(required = false, value = "Staff Member ID (optional)", example = "1534133", position = 2)
     private Long staffId;
-    @Schema(description = "Person (non-staff) ID (optional)", example = "544233")
+    @ApiModelProperty(required = false, value = "Person (non-staff) ID (optional)", example = "544233", position = 3)
     private Long personId;
-    @Schema(required = true, description = "Role in the Incident", example = "ASSIAL")
+    @ApiModelProperty(required = true, value = "Role in the Incident", example = "ASSIAL", position = 4)
     private String participationRole;
-    @Schema(required = true, description = "Outcome Code", example = "POR")
+    @ApiModelProperty(required = true, value = "Outcome Code", example = "POR", position = 5)
     private String outcomeCode;
-    @Schema(required = true, description = "Additional Comments", example = "Some additional Information")
+    @ApiModelProperty(required = true, value = "Additional Comments", example = "Some additional Information", position = 6)
     private String commentText;
-    @Schema(required = true, description = "Incident Case ID", example = "12431243")
+    @ApiModelProperty(required = true, value = "Incident Case ID", example = "12431243", position = 7)
     private Long incidentCaseId;
 
     @Override

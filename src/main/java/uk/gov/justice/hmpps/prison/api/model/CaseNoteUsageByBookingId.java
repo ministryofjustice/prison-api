@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +11,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-@Schema(description = "Case Note Type Usage By Booking Id")
+@ApiModel(description = "Case Note Type Usage By Booking Id")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -18,18 +19,18 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode
 @Data
 public class CaseNoteUsageByBookingId {
-    @Schema(required = true, description = "Booking Id", example = "123456")
+    @ApiModelProperty(required = true, value = "Booking Id", position = 1, example = "123456")
     private Integer bookingId;
 
-    @Schema(required = true, description = "Case Note Type", example = "KA")
+    @ApiModelProperty(required = true, value = "Case Note Type", position = 2, example = "KA")
     private String caseNoteType;
 
-    @Schema(required = true, description = "Case Note Sub Type", example = "KS")
+    @ApiModelProperty(required = true, value = "Case Note Sub Type", position = 3, example = "KS")
     private String caseNoteSubType;
 
-    @Schema(required = true, description = "Number of case notes of this type/subtype", example = "5")
+    @ApiModelProperty(required = true, value = "Number of case notes of this type/subtype", position = 4, example = "5")
     private Integer numCaseNotes;
 
-    @Schema(required = true, description = "Last case note of this type", example = "2018-12-01T14:55:23")
+    @ApiModelProperty(required = true, value = "Last case note of this type", position = 5, example = "2018-12-01T14:55:23")
     private LocalDateTime latestCaseNote;
 }

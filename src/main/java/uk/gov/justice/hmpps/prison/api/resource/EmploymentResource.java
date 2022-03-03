@@ -1,12 +1,10 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -26,24 +24,23 @@ import uk.gov.justice.hmpps.prison.service.OffenderEmploymentService;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@Tag(name = "employment")
-@RequestMapping(value = "${api.base.path}/employment", produces = "application/json")
+@Api(tags = {"employment"})
+@RequestMapping("${api.base.path}/employment")
 public class EmploymentResource {
 
     private final OffenderEmploymentService offenderEmploymentService;
 
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "A list of offender employments.", description = "A list of offender employments.")
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "A list of offender employments.", notes = "A list of offender employments.", nickname = "getPrisonerEmployments")
     @GetMapping("/prisoner/{offenderNo}")
     @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH', 'VIEW_PRISONER_DATA')")
     public Page<Employment> getPrisonerEmployments(
-        @PathVariable(value = "offenderNo") @Parameter(description = "List of offender NOMS numbers. NOMS numbers have the format:<b>ANNNNAA</b>") final String offenderNo,
-        @RequestParam(value = "page", defaultValue = "0", required = false) @Parameter(description = "The page number of the paged results") final Integer page,
-        @RequestParam(value = "size", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of results returned.") final Integer size
+        @PathVariable(value = "offenderNo") @ApiParam(value = "List of offender NOMS numbers. NOMS numbers have the format:<b>ANNNNAA</b>") final String offenderNo,
+        @RequestParam(value = "page", defaultValue = "0", required = false) @ApiParam(value = "The page number of the paged results", defaultValue = "0") final Integer page,
+        @RequestParam(value = "size", defaultValue = "10", required = false) @ApiParam(value = "Requested limit to number of results returned.", defaultValue = "10") final Integer size
     ) {
         log.info("get prisoner employments for offenderNo: {}", offenderNo);
         return offenderEmploymentService.getOffenderEmployments(offenderNo, PageRequest.of(page, size));

@@ -1,14 +1,15 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-@Schema(description = "Offender non-association")
+@ApiModel(description = "Offender non-association")
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,27 +18,27 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode
 public class OffenderNonAssociation {
 
-    @Schema(required = true, description = "The offenders number", example = "G0135GA")
+    @ApiModelProperty(required = true, value = "The offenders number", position = 1, example = "G0135GA")
     private String offenderNo;
 
-    @Schema(required = true, description = "The offenders first name", example = "Joseph")
+    @ApiModelProperty(required = true, value = "The offenders first name", position = 2, example = "Joseph")
     private String firstName;
 
-    @Schema(required = true, description = "The offenders last name", example = "Bloggs")
+    @ApiModelProperty(required = true, value = "The offenders last name", position = 3, example = "Bloggs")
     private String lastName;
 
-    @Schema(required = true, description = "The non-association reason code", example = "PER")
+    @ApiModelProperty(required = true, value = "The non-association reason code", position = 4, example = "PER")
     private String reasonCode;
 
-    @Schema(required = true, description = "The non-association reason description", example = "Perpetrator")
+    @ApiModelProperty(required = true, value = "The non-association reason description", position = 5, example = "Perpetrator")
     private String reasonDescription;
 
-    @Schema(required = true, description = "Description of the agency (e.g. prison) the offender is assigned to.", example = "Pentonville (PVI)")
+    @ApiModelProperty(required = true, value = "Description of the agency (e.g. prison) the offender is assigned to.", position = 6, example = "Pentonville (PVI)")
     private String agencyDescription;
 
-    @Schema(required = true, description = "Description of living unit (e.g. cell) the offender is assigned to.", example = "PVI-1-2-4")
+    @ApiModelProperty(required = true, value = "Description of living unit (e.g. cell) the offender is assigned to.", position = 7, example = "PVI-1-2-4")
     private String assignedLivingUnitDescription;
 
-    @Schema(required = true, description = "Id of living unit (e.g. cell) the offender is assigned to.", example = "123")
+    @ApiModelProperty(required = true, value = "Id of living unit (e.g. cell) the offender is assigned to.", position = 8, example = "123")
     private Long assignedLivingUnitId;
 }

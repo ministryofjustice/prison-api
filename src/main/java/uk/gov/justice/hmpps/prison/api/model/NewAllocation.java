@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.v3.oas.annotations.Hidden;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -23,7 +23,7 @@ import java.util.Map;
  * New Allocation
  **/
 @SuppressWarnings("unused")
-@Schema(description = "New Allocation")
+@ApiModel(description = "New Allocation")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -53,7 +53,7 @@ public class NewAllocation {
         return additionalProperties == null ? new HashMap<>() : additionalProperties;
     }
 
-    @Hidden
+    @ApiModelProperty(hidden = true)
     @JsonAnySetter
     public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
@@ -62,7 +62,7 @@ public class NewAllocation {
     /**
      * Offender Booking Id
      */
-    @Schema(required = true, description = "Offender Booking Id")
+    @ApiModelProperty(required = true, value = "Offender Booking Id")
     @JsonProperty("bookingId")
     public Long getBookingId() {
         return bookingId;
@@ -75,7 +75,7 @@ public class NewAllocation {
     /**
      * Keyworker's staff Id
      */
-    @Schema(required = true, description = "Keyworker's staff Id")
+    @ApiModelProperty(required = true, value = "Keyworker's staff Id")
     @JsonProperty("staffId")
     public Long getStaffId() {
         return staffId;
@@ -88,7 +88,7 @@ public class NewAllocation {
     /**
      * Whether auto or manual
      */
-    @Schema(required = true, description = "Whether auto or manual")
+    @ApiModelProperty(required = true, value = "Whether auto or manual")
     @JsonProperty("type")
     public String getType() {
         return type;
@@ -101,7 +101,7 @@ public class NewAllocation {
     /**
      * Allocation reason
      */
-    @Schema(description = "Allocation reason")
+    @ApiModelProperty(value = "Allocation reason")
     @JsonProperty("reason")
     public String getReason() {
         return reason;

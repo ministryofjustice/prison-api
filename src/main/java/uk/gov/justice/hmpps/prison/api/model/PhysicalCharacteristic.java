@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.v3.oas.annotations.Hidden;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -20,7 +20,7 @@ import java.util.Map;
  * Physical Characteristic
  **/
 @SuppressWarnings("unused")
-@Schema(description = "Physical Characteristic")
+@ApiModel(description = "Physical Characteristic")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -46,7 +46,7 @@ public class PhysicalCharacteristic {
         return additionalProperties == null ? new HashMap<>() : additionalProperties;
     }
 
-    @Hidden
+    @ApiModelProperty(hidden = true)
     @JsonAnySetter
     public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
@@ -55,7 +55,7 @@ public class PhysicalCharacteristic {
     /**
      * Type code of physical characteristic
      */
-    @Schema(required = true, description = "Type code of physical characteristic")
+    @ApiModelProperty(required = true, value = "Type code of physical characteristic")
     @JsonProperty("type")
     public String getType() {
         return type;
@@ -68,7 +68,7 @@ public class PhysicalCharacteristic {
     /**
      * Type of physical characteristic
      */
-    @Schema(required = true, description = "Type of physical characteristic")
+    @ApiModelProperty(required = true, value = "Type of physical characteristic")
     @JsonProperty("characteristic")
     public String getCharacteristic() {
         return characteristic;
@@ -81,7 +81,7 @@ public class PhysicalCharacteristic {
     /**
      * Detailed information about the physical characteristic
      */
-    @Schema(required = true, description = "Detailed information about the physical characteristic")
+    @ApiModelProperty(required = true, value = "Detailed information about the physical characteristic")
     @JsonProperty("detail")
     public String getDetail() {
         return detail;
@@ -94,7 +94,7 @@ public class PhysicalCharacteristic {
     /**
      * Image Id Ref
      */
-    @Schema(description = "Image Id Ref")
+    @ApiModelProperty(value = "Image Id Ref")
     @JsonProperty("imageId")
     public Long getImageId() {
         return imageId;

@@ -4,7 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,7 +18,7 @@ import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-@Schema(description = "Transaction to Create")
+@ApiModel(description = "Transaction to Create")
 @Builder
 @Data
 @NoArgsConstructor
@@ -29,20 +30,20 @@ import java.math.RoundingMode;
 public class StorePaymentRequest {
 
     @NotNull
-    @Schema(description = "Valid payment type for the prison", example = "ADJ", allowableValues = {"A_EARN","ADJ"})
+    @ApiModelProperty(value = "Valid payment type for the prison", example = "ADJ", allowableValues = "A_EARN,ADJ", position = 1)
     private String type;
 
     @Size(max = 240)
-    @Schema(description = "Description of the payment", example = "Adjustment")
+    @ApiModelProperty(value = "Description of the payment", example = "Adjustment", position = 2)
     private String description;
 
     @NotNull
-    @Schema(description = "Amount of the payment in pence, hence 1634 is £16.34", example = "1634")
+    @ApiModelProperty(value = "Amount of the payment in pence, hence 1634 is £16.34", example = "1634", position = 3)
     private Long amount;
 
     @NotNull
     @Size(max = 12)
-    @Schema(description = "Client transaction identifier", example = "CL123212")
+    @ApiModelProperty(value = "Client transaction identifier", example = "CL123212", position = 4)
     @JsonProperty(value = "client_transaction_id")
     private String clientTransactionId;
 

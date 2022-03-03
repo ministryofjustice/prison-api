@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.v3.oas.annotations.Hidden;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -20,7 +20,7 @@ import java.util.Map;
  * Offender Relationship
  **/
 @SuppressWarnings("unused")
-@Schema(description = "Offender Relationship")
+@ApiModel(description = "Offender Relationship")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -48,7 +48,7 @@ public class OffenderRelationship {
         return additionalProperties == null ? new HashMap<>() : additionalProperties;
     }
 
-    @Hidden
+    @ApiModelProperty(hidden = true)
     @JsonAnySetter
     public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
@@ -57,7 +57,7 @@ public class OffenderRelationship {
     /**
      * id of the person contact
      */
-    @Schema(description = "id of the person contact")
+    @ApiModelProperty(value = "id of the person contact")
     @JsonProperty("personId")
     public Long getPersonId() {
         return personId;
@@ -70,7 +70,7 @@ public class OffenderRelationship {
     /**
      * unique external Id
      */
-    @Schema(description = "unique external Id")
+    @ApiModelProperty(value = "unique external Id")
     @JsonProperty("externalRef")
     public String getExternalRef() {
         return externalRef;
@@ -83,7 +83,7 @@ public class OffenderRelationship {
     /**
      * Surname
      */
-    @Schema(required = true, description = "Surname")
+    @ApiModelProperty(required = true, value = "Surname")
     @JsonProperty("lastName")
     public String getLastName() {
         return lastName;
@@ -96,7 +96,7 @@ public class OffenderRelationship {
     /**
      * First Name
      */
-    @Schema(required = true, description = "First Name")
+    @ApiModelProperty(required = true, value = "First Name")
     @JsonProperty("firstName")
     public String getFirstName() {
         return firstName;
@@ -109,7 +109,7 @@ public class OffenderRelationship {
     /**
      * Relationship to inmate (e.g. COM or POM, etc.)
      */
-    @Schema(required = true, description = "Relationship to inmate (e.g. COM or POM, etc.)")
+    @ApiModelProperty(required = true, value = "Relationship to inmate (e.g. COM or POM, etc.)")
     @JsonProperty("relationshipType")
     public String getRelationshipType() {
         return relationshipType;

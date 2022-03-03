@@ -1,12 +1,10 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,9 +25,9 @@ import java.util.Collections;
 import java.util.List;
 
 @RestController
-@Tag(name = "key-worker")
+@Api(tags = {"key-worker"})
 @Validated
-@RequestMapping(value = "${api.base.path}/key-worker", produces = "application/json")
+@RequestMapping("${api.base.path}/key-worker")
 public class KeyWorkerResource {
     private final KeyWorkerAllocationService keyWorkerService;
 
@@ -38,67 +36,67 @@ public class KeyWorkerResource {
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Key workers available for allocation at specified agency.", description = "Key workers available for allocation at specified agency.")
+            @ApiResponse(code = 200, message = "OK", response = Keyworker.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    @ApiOperation(value = "Key workers available for allocation at specified agency.", notes = "Key workers available for allocation at specified agency.", nickname = "getAvailableKeyworkers")
     @GetMapping("/{agencyId}/available")
-    public List<Keyworker> getAvailableKeyworkers(@PathVariable("agencyId") @Parameter(description = "The agency (prison) identifier.", required = true) final String agencyId) {
+    public List<Keyworker> getAvailableKeyworkers(@PathVariable("agencyId") @ApiParam(value = "The agency (prison) identifier.", required = true) final String agencyId) {
         return keyWorkerService.getAvailableKeyworkers(agencyId);
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Specified key worker's currently assigned offenders.", description = "Specified key worker's currently assigned offenders.")
+            @ApiResponse(code = 200, message = "OK", response = KeyWorkerAllocationDetail.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    @ApiOperation(value = "Specified key worker's currently assigned offenders.", notes = "Specified key worker's currently assigned offenders.", nickname = "getAllocationsForKeyworker")
     @GetMapping("/{staffId}/agency/{agencyId}/offenders")
-    public List<KeyWorkerAllocationDetail> getAllocationsForKeyworker(@PathVariable("staffId") @Parameter(description = "The key worker staff id", required = true) final Long staffId, @PathVariable("agencyId") @Parameter(description = "The agency (prison) identifier.", required = true) final String agencyId) {
+    public List<KeyWorkerAllocationDetail> getAllocationsForKeyworker(@PathVariable("staffId") @ApiParam(value = "The key worker staff id", required = true) final Long staffId, @PathVariable("agencyId") @ApiParam(value = "The agency (prison) identifier.", required = true) final String agencyId) {
         return keyWorkerService.getAllocationDetailsForKeyworkers(Collections.singletonList(staffId), agencyId);
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "The allocations list is returned.")})
-    @Operation(summary = "Retrieves Specified key worker's currently assigned offenders - POST version to allow larger staff lists.", description = "Retrieves Specified key worker's currently assigned offenders - POST version to allow larger staff lists.")
+            @ApiResponse(code = 200, message = "The allocations list is returned.", response = KeyWorkerAllocationDetail.class, responseContainer = "List")})
+    @ApiOperation(value = "Retrieves Specified key worker's currently assigned offenders - POST version to allow larger staff lists.", notes = "Retrieves Specified key worker's currently assigned offenders - POST version to allow larger staff lists.", nickname = "postKeyWorkerAgencyIdCurrentAllocations")
     @PostMapping("/{agencyId}/current-allocations")
-    public List<KeyWorkerAllocationDetail> postKeyWorkerAgencyIdCurrentAllocations(@PathVariable("agencyId") @Parameter(description = "The agency (prison) identifier.", required = true) final String agencyId, @RequestBody @Parameter(description = "The required staff Ids (mandatory)", required = true) final List<Long> staffIds) {
+    public List<KeyWorkerAllocationDetail> postKeyWorkerAgencyIdCurrentAllocations(@PathVariable("agencyId") @ApiParam(value = "The agency (prison) identifier.", required = true) final String agencyId, @RequestBody @ApiParam(value = "The required staff Ids (mandatory)", required = true) final List<Long> staffIds) {
         return keyWorkerService.getAllocationDetailsForKeyworkers(staffIds, agencyId);
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "The allocations list is returned.")})
-    @Operation(summary = "Retrieves Specified key worker's currently assigned offenders - POST version to allow larger staff lists.", description = "Retrieves Specified key worker's currently assigned offenders - POST version to allow larger staff lists.")
+            @ApiResponse(code = 200, message = "The allocations list is returned.", response = KeyWorkerAllocationDetail.class, responseContainer = "List")})
+    @ApiOperation(value = "Retrieves Specified key worker's currently assigned offenders - POST version to allow larger staff lists.", notes = "Retrieves Specified key worker's currently assigned offenders - POST version to allow larger staff lists.", nickname = "postKeyWorkerAgencyIdCurrentAllocationsOffenders")
     @PostMapping("/{agencyId}/current-allocations/offenders")
-    public List<KeyWorkerAllocationDetail> postKeyWorkerAgencyIdCurrentAllocationsOffenders(@PathVariable("agencyId") @Parameter(description = "The agency (prison) identifier.", required = true) final String agencyId, @RequestBody @Parameter(description = "The required offender Nos (mandatory)", required = true) final List<String> offenderNos) {
+    public List<KeyWorkerAllocationDetail> postKeyWorkerAgencyIdCurrentAllocationsOffenders(@PathVariable("agencyId") @ApiParam(value = "The agency (prison) identifier.", required = true) final String agencyId, @RequestBody @ApiParam(value = "The required offender Nos (mandatory)", required = true) final List<String> offenderNos) {
         return keyWorkerService.getAllocationDetailsForOffenders(offenderNos, agencyId);
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "The allocations history list is returned.")})
-    @Operation(summary = "Retrieves Specified prisoners allocation history - POST version to allow larger allocation lists.", description = "Retrieves Specified prisoners allocation history - POST version to allow larger allocation lists.")
+            @ApiResponse(code = 200, message = "The allocations history list is returned.", response = OffenderKeyWorker.class, responseContainer = "List")})
+    @ApiOperation(value = "Retrieves Specified prisoners allocation history - POST version to allow larger allocation lists.", notes = "Retrieves Specified prisoners allocation history - POST version to allow larger allocation lists.", nickname = "postKeyWorkerOffendersAllocationHistory")
     @PostMapping("/offenders/allocationHistory")
-    public List<OffenderKeyWorker> postKeyWorkerOffendersAllocationHistory(@RequestBody @Parameter(description = "The required offender nos (mandatory)", required = true) final List<String> offenderNos) {
+    public List<OffenderKeyWorker> postKeyWorkerOffendersAllocationHistory(@RequestBody @ApiParam(value = "The required offender nos (mandatory)", required = true) final List<String> offenderNos) {
         return keyWorkerService.getAllocationHistoryByOffenderNos(offenderNos);
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "The allocations history list is returned.")})
-    @Operation(summary = "Retrieves Specified key worker's currently allocation history - POST version to allow larger staff lists.", description = "Retrieves Specified key worker's currently allocation history - POST version to allow larger staff lists.")
+            @ApiResponse(code = 200, message = "The allocations history list is returned.", response = OffenderKeyWorker.class, responseContainer = "List")})
+    @ApiOperation(value = "Retrieves Specified key worker's currently allocation history - POST version to allow larger staff lists.", notes = "Retrieves Specified key worker's currently allocation history - POST version to allow larger staff lists.", nickname = "postKeyWorkerStaffAllocationHistory")
     @PostMapping("/staff/allocationHistory")
-    public List<OffenderKeyWorker> postKeyWorkerStaffAllocationHistory(@RequestBody @Parameter(description = "The required staff Ids (mandatory)", required = true) final List<Long> staffIds) {
+    public List<OffenderKeyWorker> postKeyWorkerStaffAllocationHistory(@RequestBody @ApiParam(value = "The required staff Ids (mandatory)", required = true) final List<Long> staffIds) {
         return keyWorkerService.getAllocationHistoryByStaffIds(staffIds);
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "All allocations in specified agency.", description = "All allocations in specified agency.")
+            @ApiResponse(code = 200, message = "OK", response = OffenderKeyWorker.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    @ApiOperation(value = "All allocations in specified agency.", notes = "All allocations in specified agency.", nickname = "getAllocationHistory")
     @GetMapping("/{agencyId}/allocationHistory")
-    public ResponseEntity<List<OffenderKeyWorker>> getAllocationHistory(@PathVariable("agencyId") @Parameter(description = "The agency (prison) identifier.", required = true) final String agencyId, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of allocationHistory records.") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of allocationHistory records returned.") final Long pageLimit) {
+    public ResponseEntity<List<OffenderKeyWorker>> getAllocationHistory(@PathVariable("agencyId") @ApiParam(value = "The agency (prison) identifier.", required = true) final String agencyId, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @ApiParam(value = "Requested offset of first record in returned collection of allocationHistory records.", defaultValue = "0") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @ApiParam(value = "Requested limit to number of allocationHistory records returned.", defaultValue = "10") final Long pageLimit) {
         final var pageRequest = new PageRequest(pageOffset, pageLimit);
         final var allocations = keyWorkerService.getAllocationHistoryByAgency(agencyId, pageRequest);
 

@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,7 +19,7 @@ import java.time.LocalTime;
  **/
 @SuppressWarnings("unused")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Schema(description = "Prisoner Custody Status")
+@ApiModel(description = "Prisoner Custody Status")
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
@@ -26,53 +27,53 @@ import java.time.LocalTime;
 public class Movement {
 
     @NotBlank
-    @Schema(required = true, description = "Display Prisoner Number (UK is NOMS ID)")
+    @ApiModelProperty(required = true, value = "Display Prisoner Number (UK is NOMS ID)")
     private String offenderNo;
 
     @NotNull
-    @Schema(required = true, description = "Timestamp when the external movement record was created")
+    @ApiModelProperty(required = true, value = "Timestamp when the external movement record was created")
     private LocalDateTime createDateTime;
 
     @NotBlank
-    @Schema(required = true, description = "Agency travelling from")
+    @ApiModelProperty(required = true, value = "Agency travelling from")
     private String fromAgency;
 
-    @Schema(required = true, description = "Description of the agency travelling from")
+    @ApiModelProperty(required = true, value = "Description of the agency travelling from")
     private String fromAgencyDescription;
 
     @NotBlank
-    @Schema(required = true, description = "Agency travelling to")
+    @ApiModelProperty(required = true, value = "Agency travelling to")
     private String toAgency;
 
-    @Schema(required = true, description = "Description of the agency travelling to")
+    @ApiModelProperty(required = true, value = "Description of the agency travelling to")
     private String toAgencyDescription;
 
-    @Schema(description = "City offender was received from")
+    @ApiModelProperty(value = "City offender was received from")
     private String fromCity;
 
-    @Schema(description = "City offender was sent to")
+    @ApiModelProperty(value = "City offender was sent to")
     private String toCity;
 
     @NotBlank
-    @Schema(required = true, description = "ADM (admission), CRT (court), REL (release), TAP (temporary absence) or TRN (transfer)", example = "ADM", allowableValues = {"ADM","CRT","REL","TAP","TRN"})
+    @ApiModelProperty(required = true, value = "ADM (admission), CRT (court), REL (release), TAP (temporary absence) or TRN (transfer)", example = "ADM", allowableValues = "ADM,CRT,REL,TAP,TRN")
     private String movementType;
 
-    @Schema(required = true, description = "Description of the movement type")
+    @ApiModelProperty(required = true, value = "Description of the movement type")
     private String movementTypeDescription;
 
-    @Schema(required = true, description = "IN or OUT")
+    @ApiModelProperty(required = true, value = "IN or OUT")
     @NotBlank
     private String directionCode;
 
-    @Schema(required = true, description = "Movement date")
+    @ApiModelProperty(required = true, value = "Movement date")
     private LocalDate movementDate;
 
-    @Schema(required = true, description = "Movement time")
+    @ApiModelProperty(required = true, value = "Movement time")
     private LocalTime movementTime;
 
-    @Schema(required = true, description = "Description of movement reason")
+    @ApiModelProperty(required = true, value = "Description of movement reason")
     private String movementReason;
 
-    @Schema(description = "Comment")
+    @ApiModelProperty(value = "Comment")
     private String commentText;
 }

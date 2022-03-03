@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.0.4"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.0.3"
   kotlin("plugin.spring") version "1.6.10"
   kotlin("plugin.jpa") version "1.6.10"
 }
@@ -31,7 +31,7 @@ dependencies {
 
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
-  implementation(platform("com.amazonaws:aws-java-sdk-bom:1.12.163"))
+  implementation(platform("com.amazonaws:aws-java-sdk-bom:1.12.158"))
 
   implementation("javax.annotation:javax.annotation-api:1.3.2")
   implementation("javax.xml.bind:jaxb-api:2.3.1")
@@ -44,9 +44,8 @@ dependencies {
   implementation("net.sf.ehcache:ehcache:2.10.9.2")
   implementation("com.zaxxer:HikariCP:5.0.1")
 
-  implementation("org.springdoc:springdoc-openapi-ui:1.6.6")
-  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.6")
-  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.6")
+  implementation("io.springfox:springfox-boot-starter:3.0.0")
+  implementation("io.swagger.core.v3:swagger-core:2.1.13")
 
   implementation("org.apache.commons:commons-lang3:3.12.0")
   implementation("commons-io:commons-io:2.11.0")
@@ -56,7 +55,7 @@ dependencies {
   compileOnly("org.projectlombok:lombok:1.18.22")
 
   runtimeOnly("org.hsqldb:hsqldb:2.5.1")
-  runtimeOnly("org.flywaydb:flyway-core:8.5.0")
+  runtimeOnly("org.flywaydb:flyway-core:8.4.4")
 
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
   testImplementation("io.rest-assured:rest-assured:4.5.1")
@@ -68,7 +67,7 @@ dependencies {
   testImplementation("org.powermock:powermock-module-junit4:2.0.9")
 
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.32.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.31.0")
 
   testImplementation("net.serenity-bdd:serenity-core:3.2.0")
   testImplementation("net.serenity-bdd:serenity-junit:3.2.0")
@@ -110,6 +109,7 @@ tasks {
     }
     minHeapSize = "128m"
     maxHeapSize = "2048m"
+    jvmArgs = listOf("--add-opens", "java.base/java.lang=ALL-UNNAMED", "--add-opens", "java.base/java.util=ALL-UNNAMED")
   }
 
   register<Test>("testWithSchemaNomis") {

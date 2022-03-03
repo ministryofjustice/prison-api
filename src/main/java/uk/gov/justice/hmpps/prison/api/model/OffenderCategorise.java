@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,7 +12,7 @@ import uk.gov.justice.hmpps.prison.api.support.CategorisationStatus;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
-@Schema(description = "Prisoner with categorisation data")
+@ApiModel(description = "Prisoner with categorisation data")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @Data
@@ -19,52 +20,52 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class OffenderCategorise {
 
-    @Schema(required = true, description = "Display Prisoner Number")
+    @ApiModelProperty(required = true, value = "Display Prisoner Number")
     private String offenderNo;
 
     @NotNull
     private Long bookingId;
 
-    @Schema(required = true, description = "Prisoner First Name")
+    @ApiModelProperty(required = true, value = "Prisoner First Name")
     private String firstName;
 
-    @Schema(required = true, description = "Prisoner Last Name")
+    @ApiModelProperty(required = true, value = "Prisoner Last Name")
     private String lastName;
 
-    @Schema(description = "Categorisation date if any")
+    @ApiModelProperty(value = "Categorisation date if any")
     private LocalDate assessmentDate;
 
-    @Schema(description = "Date categorisation was approved if any")
+    @ApiModelProperty(value = "Date categorisation was approved if any")
     private LocalDate approvalDate;
 
-    @Schema(description = "Sequence number within booking")
+    @ApiModelProperty(value = "Sequence number within booking")
     private Integer assessmentSeq;
 
-    @Schema(description = "assessment type", allowableValues = {"CATEGORY"})
+    @ApiModelProperty(value = "assessment type", allowableValues = "CATEGORY")
     private Long assessmentTypeId;
 
-    @Schema(description = "Categorisation status", allowableValues = {"P","A","I"})
+    @ApiModelProperty(value = "Categorisation status", allowableValues = "P,A,I,null")
     private String assessStatus;
 
-    @Schema(description = "Categoriser First Name")
+    @ApiModelProperty(value = "Categoriser First Name")
     private String categoriserFirstName;
 
-    @Schema(description = "Categoriser Last Name")
+    @ApiModelProperty(value = "Categoriser Last Name")
     private String categoriserLastName;
 
-    @Schema(description = "Approver First Name if any")
+    @ApiModelProperty(value = "Approver First Name if any")
     private String approverFirstName;
 
-    @Schema(description = "Approver Last Name if any")
+    @ApiModelProperty(value = "Approver Last Name if any")
     private String approverLastName;
 
-    @Schema(description = "Categorisation")
+    @ApiModelProperty(value = "Categorisation")
     private String category;
 
-    @Schema(description = "Next Review Date - for recategorisations")
+    @ApiModelProperty(value = "Next Review Date - for recategorisations")
     private LocalDate nextReviewDate;
 
-    @Schema(required = true, description = "Where in the categorisation workflow the prisoner is")
+    @ApiModelProperty(required = true, value = "Where in the categorisation workflow the prisoner is")
     private CategorisationStatus status;
 
     static public OffenderCategorise deriveStatus(final OffenderCategorise cat) {

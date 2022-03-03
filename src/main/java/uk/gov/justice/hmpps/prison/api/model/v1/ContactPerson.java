@@ -5,7 +5,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,7 +17,7 @@ import lombok.ToString;
 import java.time.LocalDate;
 import java.util.List;
 
-@Schema(description = "Contact Person")
+@ApiModel(description = "Contact Person")
 @Builder
 @Data
 @AllArgsConstructor
@@ -32,46 +33,46 @@ public class ContactPerson {
     @JsonIgnore
     private Long _id;
 
-    @Schema(description = "ID", name = "id", example = "1234567")
+    @ApiModelProperty(value = "ID", name = "id", example = "1234567", position = 1)
     private Long id;
 
-    @Schema(description = "Given Name", name = "given_name", example = "JENNIFER")
+    @ApiModelProperty(value = "Given Name", name = "given_name", example = "JENNIFER", position = 2)
     @JsonProperty("given_name")
     private String firstName;
 
-    @Schema(description = "Middle Names", name = "middle_names", example = "ESMERALADA JANE")
+    @ApiModelProperty(value = "Middle Names", name = "middle_names", example = "ESMERALADA JANE", position = 3)
     @JsonProperty("middle_names")
     private String middleName;
 
-    @Schema(description = "Last Name", name = "surname", example = "HALLIBUT")
+    @ApiModelProperty(value = "Last Name", name = "surname", example = "HALLIBUT", position = 4)
     @JsonProperty("surname")
     private String lastName;
 
-    @Schema(description = "Date of Birth", name = "date_of_birth", example = "1970-01-01")
+    @ApiModelProperty(value = "Date of Birth", name = "date_of_birth", example = "1970-01-01", position = 5)
     @JsonProperty("date_of_birth")
     private LocalDate dateOfBirth;
 
-    @Schema(description = "Gender", name = "gender")
+    @ApiModelProperty(value = "Gender", name = "gender", position = 6)
     @JsonProperty("gender")
     private CodeDescription gender;
 
-    @Schema(description = "Relationship Type", name = "relationship type")
+    @ApiModelProperty(value = "Relationship Type", name = "relationship type", position = 7)
     @JsonProperty("relationship_type")
     private CodeDescription relationshipType;
 
-    @Schema(description = "Contact Type", name = "contact type")
+    @ApiModelProperty(value = "Contact Type", name = "contact type", position = 8)
     @JsonProperty("contact_type")
     private CodeDescription contactType;
 
-    @Schema(description = "Approved Visitor", name = "approved visitor")
+    @ApiModelProperty(value = "Approved Visitor", name = "approved visitor", position = 9)
     @JsonProperty("approved_visitor")
     private boolean approvedVisitor;
 
-    @Schema(description = "Active", name = "active")
+    @ApiModelProperty(value = "Active", name = "active", position = 10)
     @JsonProperty("active")
     private boolean active;
 
-    @Schema(description = "Restrictions", name = "restrictions")
+    @ApiModelProperty(value = "Restrictions", name = "restrictions", position = 11)
     @JsonProperty("restrictions")
     private List<VisitRestriction> restrictions;
 }

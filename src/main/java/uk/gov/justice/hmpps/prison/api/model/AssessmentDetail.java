@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("unused")
-@Schema(description = "AssessmentDetail")
+@ApiModel(description = "AssessmentDetail")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @AllArgsConstructor
 @NoArgsConstructor
@@ -40,28 +41,28 @@ public class AssessmentDetail extends AssessmentSummary {
         this.questions = questions;
     }
 
-    @Schema(description = "The code of the committee that conducted the assessment", example = "REVIEW")
+    @ApiModelProperty(value = "The code of the committee that conducted the assessment", position = 10, example = "REVIEW")
     private String assessmentCommitteeCode;
 
-    @Schema(description = "The name of the committee that conducted the assessment", example = "REVIEW")
+    @ApiModelProperty(value = "The name of the committee that conducted the assessment", position = 11, example = "REVIEW")
     private String assessmentCommitteeName;
 
-    @Schema(description = "Date of assessment approval", example = "2018-02-11")
+    @ApiModelProperty(value = "Date of assessment approval", position = 13, example = "2018-02-11")
     private LocalDate approvalDate;
 
-    @Schema(description = "The code of the committee that conducted the approval", example = "REVIEW")
+    @ApiModelProperty(value = "The code of the committee that conducted the approval", position = 14, example = "REVIEW")
     private String approvalCommitteeCode;
 
-    @Schema(description = "The name of the committee that conducted the approval", example = "REVIEW")
+    @ApiModelProperty(value = "The name of the committee that conducted the approval", position = 15, example = "REVIEW")
     private String approvalCommitteeName;
 
-    @Schema(description = "Classification code before it was reviewed", example = "HI")
+    @ApiModelProperty(value = "Classification code before it was reviewed", position = 16, example = "HI")
     private String originalClassificationCode;
 
-    @Schema(description = "The reason for the review of the classification", example = "HI")
+    @ApiModelProperty(value = "The reason for the review of the classification", position = 17, example = "HI")
     private String classificationReviewReason;
 
     @NotNull
-    @Schema(description = "Assessment questions and answers, in the order they were asked")
+    @ApiModelProperty(value = "Assessment questions and answers, in the order they were asked", position = 31)
     private List<AssessmentQuestion> questions = new ArrayList<>();
 }

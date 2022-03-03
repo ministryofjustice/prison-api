@@ -1,25 +1,26 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Schema(description = "An Offender's address usage")
+@ApiModel(description = "An Offender's address usage")
 @Data
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AddressUsageDto {
-    @Schema(description = "Address ID of the associated address", example = "23422313")
+    @ApiModelProperty(value = "Address ID of the associated address", example = "23422313", position = 1)
     private Long addressId;
-    @Schema(description = "The address usages", example = "HDC")
+    @ApiModelProperty(value = "The address usages", example = "HDC", position = 2)
     private String addressUsage;
-    @Schema(description = "The address usages description", example = "HDC Address")
+    @ApiModelProperty(value = "The address usages description", example = "HDC Address", position = 3)
     private String addressUsageDescription;
-    @Schema(description = "Active Flag", example = "true")
+    @ApiModelProperty(value = "Active Flag", example = "true", position = 4)
     private Boolean activeFlag;
 }

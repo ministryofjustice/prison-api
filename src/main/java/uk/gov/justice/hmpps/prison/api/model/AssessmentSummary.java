@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,7 +14,7 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 @SuppressWarnings("unused")
-@Schema(description = "AssessmentSummary")
+@ApiModel(description = "AssessmentSummary")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,41 +24,41 @@ import java.time.LocalDate;
 public class AssessmentSummary {
 
     @NotNull
-    @Schema(description = "Booking number", example = "123456")
+    @ApiModelProperty(value = "Booking number", position = 1, example = "123456")
     private Long bookingId;
 
     @NotNull
-    @Schema(description = "Sequence number of assessment within booking", example = "1")
+    @ApiModelProperty(value = "Sequence number of assessment within booking", position = 2, example = "1")
     private Integer assessmentSeq;
 
     @NotBlank
-    @Schema(description = "Offender number (e.g. NOMS Number).", example = "GV09876N")
+    @ApiModelProperty(value = "Offender number (e.g. NOMS Number).", position = 3, example = "GV09876N")
     private String offenderNo;
 
-    @Schema(description = "Classification code. This will not have a value if the assessment is incomplete or pending", example = "STANDARD")
+    @ApiModelProperty(value = "Classification code. This will not have a value if the assessment is incomplete or pending", position = 4, example = "STANDARD")
     private String classificationCode;
 
     @NotBlank
-    @Schema(description = "Identifies the type of assessment", example = "CSR")
+    @ApiModelProperty(value = "Identifies the type of assessment", position = 5, example = "CSR")
     private String assessmentCode;
 
     @NotNull
-    @Schema(description = "Indicates whether this is a CSRA assessment")
+    @ApiModelProperty(value = "Indicates whether this is a CSRA assessment", position = 6)
     private boolean cellSharingAlertFlag;
 
     @NotNull
-    @Schema(description = "Date assessment was created", example = "2018-02-11")
+    @ApiModelProperty(value = "Date assessment was created", position = 7, example = "2018-02-11")
     private LocalDate assessmentDate;
 
-    @Schema(description = "The assessment creation agency id", example = "MDI")
+    @ApiModelProperty(value = "The assessment creation agency id", position = 8, example = "MDI")
     private String assessmentAgencyId;
 
-    @Schema(description = "Comment from assessor", example = "Comment details")
+    @ApiModelProperty(value = "Comment from assessor", position = 9, example = "Comment details")
     private String assessmentComment;
 
-    @Schema(description = "Username who made the assessment", example = "NGK33Y")
+    @ApiModelProperty(value = "Username who made the assessment", position = 8, example = "NGK33Y")
     private String assessorUser;
 
-    @Schema(description = "Date of next review", example = "2018-02-11")
+    @ApiModelProperty(value = "Date of next review", position = 9, example = "2018-02-11")
     private LocalDate nextReviewDate;
 }
