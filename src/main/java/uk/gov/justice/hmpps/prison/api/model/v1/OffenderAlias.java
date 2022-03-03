@@ -4,8 +4,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,7 +16,7 @@ import lombok.ToString;
 
 import java.time.LocalDate;
 
-@ApiModel(description = "Offender Alias")
+@Schema(description = "Offender Alias")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -26,18 +27,18 @@ import java.time.LocalDate;
 @ToString
 public class OffenderAlias {
 
-    @ApiModelProperty(value = "Given Name", name = "given_name", example = "JENNIFER", position = 0)
+    @Schema(description = "Given Name", name = "given_name", example = "JENNIFER")
     @JsonProperty("given_name")
     private String givenName;
 
-    @ApiModelProperty(value = "Middle Names", name = "middle_names", example = "ESMERALADA JANE", position = 1)
+    @Schema(description = "Middle Names", name = "middle_names", example = "ESMERALADA JANE")
     @JsonProperty("middle_names")
     private String middleNames;
 
-    @ApiModelProperty(value = "Surname", name = "surname", example = "HALLIBUT", position = 2)
+    @Schema(description = "Surname", name = "surname", example = "HALLIBUT")
     private String surname;
 
-    @ApiModelProperty(value = "Date of Birth", name = "date_of_birth", example = "1970-01-01", position = 3)
+    @Schema(description = "Date of Birth", name = "date_of_birth", example = "1970-01-01")
     @JsonProperty("date_of_birth")
     private LocalDate birthDate;
 }

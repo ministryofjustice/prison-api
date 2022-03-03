@@ -1,8 +1,9 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,7 +12,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-@ApiModel(description = "Offender non-association detail")
+@Schema(description = "Offender non-association detail")
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,30 +21,30 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode
 public class OffenderNonAssociationDetail {
 
-    @ApiModelProperty(required = true, value = "The non-association reason code", position = 1, example = "VIC")
+    @Schema(required = true, description = "The non-association reason code", example = "VIC")
     private String reasonCode;
 
-    @ApiModelProperty(required = true, value = "The non-association reason description", position = 2, example = "Victim")
+    @Schema(required = true, description = "The non-association reason description", example = "Victim")
     private String reasonDescription;
 
-    @ApiModelProperty(required = true, value = "The non-association type code", position = 3, example = "WING")
+    @Schema(required = true, description = "The non-association type code", example = "WING")
     private String typeCode;
 
-    @ApiModelProperty(required = true, value = "The non-association type description", position = 4, example = "Do Not Locate on Same Wing")
+    @Schema(required = true, description = "The non-association type description", example = "Do Not Locate on Same Wing")
     private String typeDescription;
 
-    @ApiModelProperty(required = true, value = "Date and time the mom-association is effective from. In Europe/London (ISO 8601) format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS.", position = 5, example = "2019-12-01T13:34:00")
+    @Schema(required = true, description = "Date and time the mom-association is effective from. In Europe/London (ISO 8601) format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS.", example = "2019-12-01T13:34:00")
     private LocalDateTime effectiveDate;
 
-    @ApiModelProperty(value = "Date and time the mom-association expires. In Europe/London (ISO 8601) format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS.", position = 6, example = "2019-12-01T13:34:00")
+    @Schema(description = "Date and time the mom-association expires. In Europe/London (ISO 8601) format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS.", example = "2019-12-01T13:34:00")
     private LocalDateTime expiryDate;
 
-    @ApiModelProperty(value = "The person who authorised the non-association (free text).", position = 7)
+    @Schema(description = "The person who authorised the non-association (free text).")
     private String authorisedBy;
 
-    @ApiModelProperty(value = "Additional free text comments related to the non-association.", position = 8)
+    @Schema(description = "Additional free text comments related to the non-association.")
     private String comments;
 
-    @ApiModelProperty(required = true, value = "The offender with whom not to associate.", position = 9)
+    @Schema(required = true, description = "The offender with whom not to associate.")
     private OffenderNonAssociation offenderNonAssociation;
 }

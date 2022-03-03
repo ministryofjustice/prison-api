@@ -1,8 +1,9 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +11,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 
-@ApiModel(description = "Update Phone Request")
+@Schema(description = "Update Phone Request")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder(toBuilder = true)
 @AllArgsConstructor
@@ -18,14 +19,14 @@ import javax.validation.constraints.NotBlank;
 @Data
 public class RequestToUpdatePhone {
 
-    @ApiModelProperty(required = true, value = "Telephone number")
+    @Schema(required = true, description = "Telephone number")
     @NotBlank
     private String number;
 
-    @ApiModelProperty(required = true, value = "Telephone type")
+    @Schema(required = true, description = "Telephone type")
     @NotBlank
     private String type;
 
-    @ApiModelProperty(value = "Telephone extension number")
+    @Schema(description = "Telephone extension number")
     private String ext;
 }

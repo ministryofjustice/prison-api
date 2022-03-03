@@ -1,8 +1,9 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,17 +12,17 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-@ApiModel(description = "Update an alert")
+@Schema(description = "Update an alert")
 @Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
 public class AlertChanges {
-    @ApiModelProperty(value = "Date the alert became inactive", example = "2019-02-13")
+    @Schema(description = "Date the alert became inactive", example = "2019-02-13")
     private LocalDate expiryDate;
 
-    @ApiModelProperty(value = "Alert comment")
+    @Schema(description = "Alert comment")
     private String comment;
 
     @JsonIgnore

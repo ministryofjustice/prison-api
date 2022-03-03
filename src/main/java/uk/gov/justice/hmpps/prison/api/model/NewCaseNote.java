@@ -5,8 +5,9 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -23,7 +24,7 @@ import java.util.Map;
  * New Case Note
  **/
 @SuppressWarnings("unused")
-@ApiModel(description = "New Case Note")
+@Schema(description = "New Case Note")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -53,7 +54,7 @@ public class NewCaseNote {
         return additionalProperties == null ? new HashMap<>() : additionalProperties;
     }
 
-    @ApiModelProperty(hidden = true)
+    @Hidden
     @JsonAnySetter
     public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
@@ -62,7 +63,7 @@ public class NewCaseNote {
     /**
      * Case Note Type
      */
-    @ApiModelProperty(required = true, value = "Case Note Type")
+    @Schema(required = true, description = "Case Note Type")
     @JsonProperty("type")
     public String getType() {
         return type;
@@ -75,7 +76,7 @@ public class NewCaseNote {
     /**
      * Case Note Sub Type
      */
-    @ApiModelProperty(required = true, value = "Case Note Sub Type")
+    @Schema(required = true, description = "Case Note Sub Type")
     @JsonProperty("subType")
     public String getSubType() {
         return subType;
@@ -88,7 +89,7 @@ public class NewCaseNote {
     /**
      * Date and Time of when case note contact with offender was made
      */
-    @ApiModelProperty(value = "Date and Time of when case note contact with offender was made")
+    @Schema(description = "Date and Time of when case note contact with offender was made")
     @JsonProperty("occurrenceDateTime")
     public LocalDateTime getOccurrenceDateTime() {
         return occurrenceDateTime;
@@ -101,7 +102,7 @@ public class NewCaseNote {
     /**
      * Case Note Text
      */
-    @ApiModelProperty(required = true, value = "Case Note Text")
+    @Schema(required = true, description = "Case Note Text")
     @JsonProperty("text")
     public String getText() {
         return text;

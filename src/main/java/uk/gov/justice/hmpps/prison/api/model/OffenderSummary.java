@@ -5,8 +5,9 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -21,7 +22,7 @@ import java.util.Map;
  * Offender Summary
  **/
 @SuppressWarnings("unused")
-@ApiModel(description = "Offender Summary")
+@Schema(description = "Offender Summary")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -64,7 +65,7 @@ public class OffenderSummary {
         return additionalProperties == null ? new HashMap<>() : additionalProperties;
     }
 
-    @ApiModelProperty(hidden = true)
+    @Hidden
     @JsonAnySetter
     public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
@@ -73,7 +74,7 @@ public class OffenderSummary {
     /**
      * A unique booking id.
      */
-    @ApiModelProperty(required = true, value = "A unique booking id.")
+    @Schema(required = true, description = "A unique booking id.")
     @JsonProperty("bookingId")
     public Long getBookingId() {
         return bookingId;
@@ -86,7 +87,7 @@ public class OffenderSummary {
     /**
      * The offender's unique offender number (aka NOMS Number in the UK).
      */
-    @ApiModelProperty(required = true, value = "The offender's unique offender number (aka NOMS Number in the UK).")
+    @Schema(required = true, description = "The offender's unique offender number (aka NOMS Number in the UK).")
     @JsonProperty("offenderNo")
     public String getOffenderNo() {
         return offenderNo;
@@ -99,7 +100,7 @@ public class OffenderSummary {
     /**
      * A code representing the offender's title (from TITLE reference domain).
      */
-    @ApiModelProperty(value = "A code representing the offender's title (from TITLE reference domain).")
+    @Schema(description = "A code representing the offender's title (from TITLE reference domain).")
     @JsonProperty("title")
     public String getTitle() {
         return title;
@@ -112,7 +113,7 @@ public class OffenderSummary {
     /**
      * A code representing a suffix that is applied to offender's name (from SUFFIX reference domain).
      */
-    @ApiModelProperty(value = "A code representing a suffix that is applied to offender's name (from SUFFIX reference domain).")
+    @Schema(description = "A code representing a suffix that is applied to offender's name (from SUFFIX reference domain).")
     @JsonProperty("suffix")
     public String getSuffix() {
         return suffix;
@@ -125,7 +126,7 @@ public class OffenderSummary {
     /**
      * The offender's first name.
      */
-    @ApiModelProperty(required = true, value = "The offender's first name.")
+    @Schema(required = true, description = "The offender's first name.")
     @JsonProperty("firstName")
     public String getFirstName() {
         return firstName;
@@ -138,7 +139,7 @@ public class OffenderSummary {
     /**
      * The offender's middle name(s).
      */
-    @ApiModelProperty(value = "The offender's middle name(s).")
+    @Schema(description = "The offender's middle name(s).")
     @JsonProperty("middleNames")
     public String getMiddleNames() {
         return middleNames;
@@ -151,7 +152,7 @@ public class OffenderSummary {
     /**
      * The offender's last name.
      */
-    @ApiModelProperty(required = true, value = "The offender's last name.")
+    @Schema(required = true, description = "The offender's last name.")
     @JsonProperty("lastName")
     public String getLastName() {
         return lastName;
@@ -164,7 +165,7 @@ public class OffenderSummary {
     /**
      * Set to Y or N to indicate if the person is currently in prison. If not set, status is not known.
      */
-    @ApiModelProperty(value = "Set to Y or N to indicate if the person is currently in prison. If not set, status is not known.")
+    @Schema(description = "Set to Y or N to indicate if the person is currently in prison. If not set, status is not known.")
     @JsonProperty("currentlyInPrison")
     public String getCurrentlyInPrison() {
         return currentlyInPrison;
@@ -177,7 +178,7 @@ public class OffenderSummary {
     /**
      * Agency Id (if known)
      */
-    @ApiModelProperty(value = "Agency Id (if known)")
+    @Schema(description = "Agency Id (if known)")
     @JsonProperty("agencyLocationId")
     public String getAgencyLocationId() {
         return agencyLocationId;
@@ -190,7 +191,7 @@ public class OffenderSummary {
     /**
      * Agency description (if known)
      */
-    @ApiModelProperty(value = "Agency description (if known)")
+    @Schema(description = "Agency description (if known)")
     @JsonProperty("agencyLocationDesc")
     public String getAgencyLocationDesc() {
         return agencyLocationDesc;
@@ -203,7 +204,7 @@ public class OffenderSummary {
     /**
      * Internal location id (if known)
      */
-    @ApiModelProperty(value = "Internal location id (if known)")
+    @Schema(description = "Internal location id (if known)")
     @JsonProperty("internalLocationId")
     public String getInternalLocationId() {
         return internalLocationId;
@@ -216,7 +217,7 @@ public class OffenderSummary {
     /**
      * Internal location description (if known)
      */
-    @ApiModelProperty(value = "Internal location description (if known)")
+    @Schema(description = "Internal location description (if known)")
     @JsonProperty("internalLocationDesc")
     public String getInternalLocationDesc() {
         return internalLocationDesc;

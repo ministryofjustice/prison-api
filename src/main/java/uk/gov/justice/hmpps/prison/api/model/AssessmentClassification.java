@@ -1,8 +1,9 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,7 +14,7 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 @SuppressWarnings("unused")
-@ApiModel(description = "AssessmentRating")
+@Schema(description = "AssessmentRating")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,12 +23,12 @@ import java.time.LocalDate;
 public class AssessmentClassification {
 
     @NotBlank
-    @ApiModelProperty(value = "Offender number (e.g. NOMS Number).", position = 1, example = "GV09876N")
+    @Schema(description = "Offender number (e.g. NOMS Number).", example = "GV09876N")
     private String offenderNo;
 
-    @ApiModelProperty(value = "The current classification code. This will not have a value if np assessment has been completed", position = 2, example = "STANDARD")
+    @Schema(description = "The current classification code. This will not have a value if np assessment has been completed", example = "STANDARD")
     private String classificationCode;
 
-    @ApiModelProperty(value = "The date that the current classification was made. This will not have a value if np assessment has been completed", position = 3, example = "2018-02-11")
+    @Schema(description = "The date that the current classification was made. This will not have a value if np assessment has been completed", example = "2018-02-11")
     private LocalDate classificationDate;
 }

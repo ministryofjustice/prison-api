@@ -1,14 +1,15 @@
 package uk.gov.justice.hmpps.prison.api.model.v1;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@ApiModel(description = "Type Value")
+@Schema(description = "Type Value")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -16,9 +17,9 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class TypeValue {
 
-    @ApiModelProperty(value = "Type", position = 0, example = "Wing")
+    @Schema(description = "Type", example = "Wing")
     private String type;
 
-    @ApiModelProperty(value = "Value", position = 1, example = "C")
+    @Schema(description = "Value", example = "C")
     private String value;
 }

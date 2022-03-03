@@ -1,8 +1,9 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,23 +12,23 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.util.List;
 
-@ApiModel(description = "Offence details related to an offender")
+@Schema(description = "Offence details related to an offender")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 public class OffenderOffence {
-    @ApiModelProperty(value = "Internal ID for charge relating to offender")
+    @Schema(description = "Internal ID for charge relating to offender")
     private Long offenderChargeId;
-    @ApiModelProperty(value = "Offence Start Date")
+    @Schema(description = "Offence Start Date")
     private LocalDate offenceStartDate;
-    @ApiModelProperty(value = "Offence End Date")
+    @Schema(description = "Offence End Date")
     private LocalDate offenceEndDate;
-    @ApiModelProperty(value = "Offence Code")
+    @Schema(description = "Offence Code")
     private String offenceCode;
-    @ApiModelProperty(value = "Offence Description")
+    @Schema(description = "Offence Description")
     private String offenceDescription;
-    @ApiModelProperty(value = "Offence Indicators")
+    @Schema(description = "Offence Indicators")
     private List<String> indicators;
 }
