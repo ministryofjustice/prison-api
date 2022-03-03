@@ -1,7 +1,3 @@
 management.endpoint:
   health.cache.time-to-live: 0
   info.cache.time-to-live: 0
-
-spring:
-  codec:
-    max-in-memory-size: 10MB

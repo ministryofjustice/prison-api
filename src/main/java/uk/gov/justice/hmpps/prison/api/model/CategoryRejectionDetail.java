@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +13,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
-@Schema(description = "Categorisation approval detail for an offender")
+@ApiModel(description = "Categorisation approval detail for an offender")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @Data
@@ -20,23 +21,23 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class CategoryRejectionDetail {
 
-    @Schema(required = true, description = "Booking Id")
+    @ApiModelProperty(required = true, value = "Booking Id", position = 1)
     @NotNull(message = "bookingId must be provided")
     private Long bookingId;
 
-    @Schema(required = true, description = "Sequence number")
+    @ApiModelProperty(required = true, value = "Sequence number", position = 2)
     @NotNull(message = "Sequence number must be provided")
     private Integer assessmentSeq;
 
-    @Schema(required = true, description = "Date of rejection")
+    @ApiModelProperty(required = true, value = "Date of rejection", position = 3)
     @NotNull(message = "Date of rejection must be provided") // TODO make optional, default today?
     private LocalDate evaluationDate;
 
-    @Schema(required = true, description = "Department, reference code in domain 'ASSESS_COMM'. Normally 'REVIEW'")
+    @ApiModelProperty(required = true, value = "Department, reference code in domain 'ASSESS_COMM'. Normally 'REVIEW'", position = 4)
     @NotEmpty(message = "Department must be provided")
     private String reviewCommitteeCode;
 
-    @Schema(description = "Overall comment")
+    @ApiModelProperty(value = "Overall comment", position = 5)
     @Size(max = 240, message = "Comment text must be a maximum of 240 characters")
     private String committeeCommentText;
 }

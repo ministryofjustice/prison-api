@@ -1,5 +1,7 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication;

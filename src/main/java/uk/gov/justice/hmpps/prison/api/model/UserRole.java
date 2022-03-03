@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.v3.oas.annotations.Hidden;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -21,7 +21,7 @@ import java.util.Map;
  * User Role
  **/
 @SuppressWarnings("unused")
-@Schema(description = "User Role")
+@ApiModel(description = "User Role")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -49,7 +49,7 @@ public class UserRole {
         return additionalProperties == null ? new HashMap<>() : additionalProperties;
     }
 
-    @Hidden
+    @ApiModelProperty(hidden = true)
     @JsonAnySetter
     public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
@@ -58,7 +58,7 @@ public class UserRole {
     /**
      * Role Id
      */
-    @Schema(required = true, description = "Role Id")
+    @ApiModelProperty(required = true, value = "Role Id")
     @JsonProperty("roleId")
     public Long getRoleId() {
         return roleId;
@@ -71,7 +71,7 @@ public class UserRole {
     /**
      * code for this role
      */
-    @Schema(required = true, description = "code for this role")
+    @ApiModelProperty(required = true, value = "code for this role")
     @JsonProperty("roleCode")
     public String getRoleCode() {
         return roleCode;
@@ -84,7 +84,7 @@ public class UserRole {
     /**
      * Full text description of the role type
      */
-    @Schema(required = true, description = "Full text description of the role type")
+    @ApiModelProperty(required = true, value = "Full text description of the role type")
     @JsonProperty("roleName")
     public String getRoleName() {
         return roleName;
@@ -97,7 +97,7 @@ public class UserRole {
     /**
      * role code of the parent role
      */
-    @Schema(description = "role code of the parent role")
+    @ApiModelProperty(value = "role code of the parent role")
     @JsonProperty("parentRoleCode")
     public String getParentRoleCode() {
         return parentRoleCode;
@@ -110,7 +110,7 @@ public class UserRole {
     /**
      * caseload that this role belongs to, (NOMIS only)
      */
-    @Schema(description = "caseload that this role belongs to, (NOMIS only)")
+    @ApiModelProperty(value = "caseload that this role belongs to, (NOMIS only)")
     @JsonProperty("caseloadId")
     public String getCaseloadId() {
         return caseloadId;

@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model.v1;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,7 +12,7 @@ import lombok.ToString;
 
 import java.time.LocalDate;
 
-@Schema(description = "Account Transaction")
+@ApiModel(description = "Account Transaction")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,18 +22,18 @@ import java.time.LocalDate;
 @JsonPropertyOrder({"id", "type", "description", "amount", "date"})
 public class AccountTransaction {
 
-    @Schema(description = "Transaction ID", required = true, example = "204564839-3")
+    @ApiModelProperty(value = "Transaction ID", required = true, example = "204564839-3", position = 1)
     private String id;
 
-    @Schema(description = "The type of transaction", required = true)
+    @ApiModelProperty(value = "The type of transaction", required = true, position = 2)
     private CodeDescription type;
 
-    @Schema(description = "Transaction description", example = "Transfer In Regular from caseload PVR", required = true)
+    @ApiModelProperty(value = "Transaction description", example = "Transfer In Regular from caseload PVR", required = true, position = 3)
     private String description;
 
-    @Schema(description = "Amount in pence", example = "12345", required = true)
+    @ApiModelProperty(value = "Amount in pence", example = "12345", required = true, position = 4)
     private Long amount;
 
-    @Schema(description = "Date of the transaction", example = "2016-10-21", required = true)
+    @ApiModelProperty(value = "Date of the transaction", example = "2016-10-21", required = true, position = 5)
     private LocalDate date;
 }

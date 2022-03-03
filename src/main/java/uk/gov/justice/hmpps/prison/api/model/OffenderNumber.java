@@ -2,13 +2,14 @@ package uk.gov.justice.hmpps.prison.api.model;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Schema(description = "The NOMS Offender Number")
+@ApiModel(description = "The NOMS Offender Number")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 @Builder
@@ -16,7 +17,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class OffenderNumber {
 
-    @Schema(description = "offenderNumber")
+    @ApiModelProperty("offenderNumber")
     private String offenderNumber;
 
 }

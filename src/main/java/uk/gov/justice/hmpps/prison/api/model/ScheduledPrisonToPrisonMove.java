@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +11,7 @@ import lombok.ToString;
 
 import java.time.LocalDateTime;
 
-@Schema(description = "Represents the data for a scheduled prison to prison move.")
+@ApiModel(description = "Represents the data for a scheduled prison to prison move.")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,15 +20,15 @@ import java.time.LocalDateTime;
 @ToString
 public class ScheduledPrisonToPrisonMove {
 
-    @Schema(description = "The identifier for the scheduled prison to prison move.", example = "123456789")
+    @ApiModelProperty(value = "The identifier for the scheduled prison to prison move.", position = 1, example = "123456789")
     private Long id;
 
-    @Schema(description = "The date and start time of the move in Europe/London (ISO 8601) format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS.", example = "2020-02-28T14:40:00")
+    @ApiModelProperty(value = "The date and start time of the move in Europe/London (ISO 8601) format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS.", position = 2, example = "2020-02-28T14:40:00")
     private LocalDateTime scheduledMoveDateTime;
 
-    @Schema(description = "The location of the prison to move from.", example = "PVI")
+    @ApiModelProperty(value = "The location of the prison to move from.", position = 3, example = "PVI")
     private Agency fromPrisonLocation;
 
-    @Schema(description = "The location of the prison to move to.", example = "LEI")
+    @ApiModelProperty(value = "The location of the prison to move to.", position = 4, example = "LEI")
     private Agency toPrisonLocation;
 }

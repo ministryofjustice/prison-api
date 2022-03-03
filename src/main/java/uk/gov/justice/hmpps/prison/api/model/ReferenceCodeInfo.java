@@ -2,7 +2,8 @@ package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,7 +18,7 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
-@Schema(description = "Reference Code Data")
+@ApiModel(description = "Reference Code Data")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @AllArgsConstructor
 @NoArgsConstructor
@@ -28,36 +29,36 @@ import java.time.LocalDate;
 @ToString
 public class ReferenceCodeInfo {
 
-    @Schema(required = true, description = "Reference data item description.", example = "Some description")
+    @ApiModelProperty(required = true, value = "Reference data item description.", position = 1, example = "Some description")
     @NotBlank
     @Size(max = 40)
     private String description;
 
-    @Schema(description = "Parent reference data item domain.", example = "TASK_TYPE")
+    @ApiModelProperty(value = "Parent reference data item domain.", position = 2, example = "TASK_TYPE")
     @Size(max = 12)
     private String parentDomain;
 
-    @Schema(description = "Parent reference data item code.", example = "MIGRATION")
+    @ApiModelProperty(value = "Parent reference data item code.", position = 3, example = "MIGRATION")
     @Size(max = 12)
     private String parentCode;
 
-    @Schema(required = true, description = "Reference data item active indicator flag.", example = "Y", allowableValues = {"Y","N"})
+    @ApiModelProperty(required = true, value = "Reference data item active indicator flag.", example = "Y", allowableValues = "Y,N", position = 4)
     @Size(max = 1)
     @Pattern(regexp = "[N|Y]")
     @Builder.Default
     private String activeFlag = "Y";
 
-    @Schema(description = "List Sequence", example = "1")
+    @ApiModelProperty(value = "List Sequence", example = "1", position = 5)
     @Max(value = 999999)
     private Integer listSeq;
 
-    @Schema(description = "System Data Flag", example = "Y", allowableValues = {"Y","N"})
+    @ApiModelProperty(value = "System Data Flag", position = 6, example = "Y", allowableValues = "Y,N")
     @Size(max = 1)
     @Pattern(regexp = "[N|Y]")
     @Builder.Default
     private String systemDataFlag = "Y";
 
-    @Schema(description = "Expired Date", example = "2018-03-09")
+    @ApiModelProperty(value = "Expired Date", position = 7, example = "2018-03-09")
 
     private LocalDate expiredDate;
 

@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,7 +12,7 @@ import org.apache.commons.lang3.builder.CompareToBuilder;
 
 import java.time.LocalDateTime;
 
-@Schema(description = "Questionnaire Answer")
+@ApiModel(description = "Questionnaire Answer")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -20,21 +21,21 @@ import java.time.LocalDateTime;
 @Data
 public class QuestionnaireAnswer implements Comparable<QuestionnaireAnswer> {
 
-    @Schema(required = true, description = "ID for this Answer")
+    @ApiModelProperty(required = true, value = "ID for this Answer")
     private Long questionnaireAnsId;
-    @Schema(required = true, description = "", example = "1")
+    @ApiModelProperty(required = true, value = "", example = "1", position = 1)
     private int answerSeq;
-    @Schema(required = true, description = "", example = "YES")
+    @ApiModelProperty(required = true, value = "", example = "YES", position = 2)
     private String answerDesc;
-    @Schema(required = true, description = "", example = "1")
+    @ApiModelProperty(required = true, value = "", example = "1", position = 3)
     private int answerListSeq;
-    @Schema(required = true, description = "", example = "true")
+    @ApiModelProperty(required = true, value = "", example = "true", position = 4)
     private Boolean answerActiveFlag;
-    @Schema(required = true, description = "", example = "2017-01-02T00:00:00")
+    @ApiModelProperty(required = true, value = "", example = "2017-01-02T00:00:00", position = 5)
     private LocalDateTime answerExpiryDate;
-    @Schema(required = true, description = "", example = "false")
+    @ApiModelProperty(required = true, value = "", example = "false", position = 6)
     private Boolean dateRequiredFlag;
-    @Schema(required = true, description = "", example = "false")
+    @ApiModelProperty(required = true, value = "", example = "false", position = 7)
     private Boolean commentRequiredFlag;
 
     @Override

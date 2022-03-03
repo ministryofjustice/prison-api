@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,61 +11,61 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
 @SuppressWarnings("unused")
-@Schema(description = "Offender Sentence terms details for booking id")
+@ApiModel(description = "Offender Sentence terms details for booking id")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 public class OffenderSentenceTerms {
-    @Schema(required = true, description = "Offender booking id.", example = "1132400")
+    @ApiModelProperty(required = true, value = "Offender booking id.", position = 1, example = "1132400")
     private Long bookingId;
 
-    @Schema(required = true, description = "Sentence number within booking id.", example = "2")
+    @ApiModelProperty(required = true, value = "Sentence number within booking id.", position = 2, example = "2")
     private Integer sentenceSequence;
 
-    @Schema(required = true, description = "Sentence term number within sentence.", example = "1")
+    @ApiModelProperty(required = true, value = "Sentence term number within sentence.", position = 3, example = "1")
     private Integer termSequence;
 
-    @Schema(description = "Sentence number which this sentence follows if consecutive, otherwise concurrent.", example = "2")
+    @ApiModelProperty(value = "Sentence number which this sentence follows if consecutive, otherwise concurrent.", position = 4, example = "2")
     private Integer consecutiveTo;
 
-    @Schema(description = "Sentence type, using reference data from table SENTENCE_CALC_TYPES.", example = "2")
+    @ApiModelProperty(value = "Sentence type, using reference data from table SENTENCE_CALC_TYPES.", position = 5, example = "2")
     private String sentenceType;
 
-    @Schema(description = "Sentence type description.", example = "2")
+    @ApiModelProperty(value = "Sentence type description.", position = 6, example = "2")
     private String sentenceTypeDescription;
 
-    @Schema(required = true, description = "Start date of sentence term.", example = "2018-12-31")
+    @ApiModelProperty(required = true, value = "Start date of sentence term.", position = 7, example = "2018-12-31")
     private LocalDate startDate;
 
-    @Schema(description = "Sentence length years.")
+    @ApiModelProperty(value = "Sentence length years.", position = 8)
     private Integer years;
 
-    @Schema(description = "Sentence length months.")
+    @ApiModelProperty(value = "Sentence length months.", position = 9)
     private Integer months;
 
-    @Schema(description = "Sentence length weeks.")
+    @ApiModelProperty(value = "Sentence length weeks.", position = 10)
     private Integer weeks;
 
-    @Schema(description = "Sentence length days.")
+    @ApiModelProperty(value = "Sentence length days.", position = 11)
     private Integer days;
 
-    @Schema(required = true, description = "Whether this is a life sentence.")
+    @ApiModelProperty(required = true, value = "Whether this is a life sentence.", position = 12)
     private Boolean lifeSentence;
 
-    @Schema(required = true, description = "Court case id")
+    @ApiModelProperty(required = true, value = "Court case id", position = 13)
     private String caseId;
 
-    @Schema(required = true, description = "Fine amount.")
+    @ApiModelProperty(required = true, value = "Fine amount.", position = 14)
     private Double fineAmount;
 
-    @Schema(required = true, description = "Sentence term code.", example = "IMP")
+    @ApiModelProperty(required = true, value = "Sentence term code.", position = 15, example = "IMP")
     private String sentenceTermCode;
 
-    @Schema(required = true, description = "Sentence line number", example = "1")
+    @ApiModelProperty(required = true, value = "Sentence line number", position = 16, example = "1")
     private Long lineSeq;
 
-    @Schema(required = true, description = "Sentence start date", example = "2018-12-31")
+    @ApiModelProperty(required = true, value = "Sentence start date", position = 17, example = "2018-12-31")
     private LocalDate sentenceStartDate;
 }

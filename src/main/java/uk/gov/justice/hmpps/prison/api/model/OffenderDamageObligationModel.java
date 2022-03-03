@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -11,41 +12,41 @@ import java.time.LocalDateTime;
 
 @Builder
 @Getter
-@Schema(description = "Damage obligation for an offender")
+@ApiModel(description = "Damage obligation for an offender")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OffenderDamageObligationModel {
 
-    @Schema(description = "Identifier of damage obligation", example = "1")
+    @ApiModelProperty(value = "Identifier of damage obligation", example = "1", position = 1)
     private Long id;
 
-    @Schema(description = "Offender number", example = "G4346UT")
+    @ApiModelProperty(value = "Offender number", example = "G4346UT", position = 2)
     private String offenderNo;
 
-    @Schema(description = "Reference number", example = "841177/1, A841821/1, 842371")
+    @ApiModelProperty(value = "Reference number", example = "841177/1, A841821/1, 842371", position = 3)
     private String referenceNumber;
 
-    @Schema(description = "The start date time when the damage obligation started", example = "2020-12-10T21:00:00")
+    @ApiModelProperty(value = "The start date time when the damage obligation started", example = "2020-12-10T21:00:00", position = 4)
     private LocalDateTime startDateTime;
 
-    @Schema(description = "The end date time when the damage obligation ended", example = "2020-12-11T21:00:00")
+    @ApiModelProperty(value = "The end date time when the damage obligation ended", example = "2020-12-11T21:00:00", position = 5)
     private LocalDateTime endDateTime;
 
-    @Schema(description = "Prison the damages occurred", example = "MDI")
+    @ApiModelProperty(value = "Prison the damages occurred", example = "MDI", position = 6)
     private String prisonId;
 
-    @Schema(description = "Original amount to pay", example = "50.0")
+    @ApiModelProperty(value = "Original amount to pay", example = "50.0", position = 7)
     private BigDecimal amountToPay;
 
-    @Schema(description = "Amount paid", example = "10.0")
+    @ApiModelProperty(value = "Amount paid", example = "10.0", position = 8)
     private BigDecimal amountPaid;
 
-    @Schema(description = "Status", example = "ACTIVE")
+    @ApiModelProperty(value = "Status", example = "ACTIVE", position = 9)
     private String status;
 
-    @Schema(description = "Comment", example = "Damages to canteen furniture")
+    @ApiModelProperty(value = "Comment", example = "Damages to canteen furniture", position = 10)
     private String comment;
 
-    @Schema(description = "Currency of these amounts.", example = "GBP")
+    @ApiModelProperty(value = "Currency of these amounts.", example = "GBP", position = 11)
     @NotBlank
     private String currency;
 }

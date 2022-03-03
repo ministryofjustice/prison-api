@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,14 +17,14 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Schema(description = "Agency Establishment Types")
+@ApiModel(description = "Agency Establishment Types")
 public class AgencyEstablishmentTypes {
 
     @NotBlank
-    @Schema(required = true, description = "Agency id", example = "MDI")
+    @ApiModelProperty(required = true, value = "Agency id", example = "MDI", position = 1)
     private String agencyId;
 
-    @Schema(description = "The establishment types for the agency.")
+    @ApiModelProperty(value = "The establishment types for the agency.", position = 2)
     @Builder.Default
     private List<AgencyEstablishmentType> establishmentTypes = new ArrayList<>();
 }

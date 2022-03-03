@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +13,7 @@ import org.springframework.data.annotation.Id;
 
 import java.util.List;
 
-@Schema(description = "Prisoners time in prison summary")
+@ApiModel(description = "Prisoners time in prison summary")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -22,10 +23,10 @@ import java.util.List;
 @ToString
 public class PrisonerInPrisonSummary {
     @Id
-    @Schema(description = "Prisoner Identifier", example = "A1234AA", required = true)
+    @ApiModelProperty(value = "Prisoner Identifier", example = "A1234AA", required = true, position = 1)
     private String prisonerNumber;
 
-    @Schema(description = "List of date when prisoner was in prison")
+    @ApiModelProperty(value = "List of date when prisoner was in prison", position = 2)
     private List<PrisonPeriod> prisonPeriod;
 
 }

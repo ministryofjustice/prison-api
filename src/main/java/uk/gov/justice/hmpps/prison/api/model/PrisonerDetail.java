@@ -2,7 +2,8 @@ package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,7 +19,7 @@ import java.time.LocalDate;
  * Prisoner Details
  **/
 @SuppressWarnings("unused")
-@Schema(description = "Prisoner Details")
+@ApiModel(description = "Prisoner Details")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -28,109 +29,109 @@ import java.time.LocalDate;
 @ToString
 public class PrisonerDetail {
 
-    @Schema(required = true, description = "The prisoner's unique offender number (aka NOMS Number in the UK).", example="A0000AA")
+    @ApiModelProperty(required = true, value = "The prisoner's unique offender number (aka NOMS Number in the UK).", example="A0000AA")
     @NotBlank
     private String offenderNo;
 
-    @Schema(description = "The prisoner's title.", example="Earl")
+    @ApiModelProperty(value = "The prisoner's title.", example="Earl")
     private String title;
 
-    @Schema(description = "The prisoner's name suffix.", example="Mac")
+    @ApiModelProperty(value = "The prisoner's name suffix.", example="Mac")
     private String suffix;
 
-    @Schema(required = true, description = "The prisoner's first name.", example="Thorfinn")
+    @ApiModelProperty(required = true, value = "The prisoner's first name.", example="Thorfinn")
     @NotBlank
     private String firstName;
 
-    @Schema(description = "The prisoner's middle name(s).", example="Skull-splitter")
+    @ApiModelProperty(value = "The prisoner's middle name(s).", example="Skull-splitter")
     private String middleNames;
 
-    @Schema(required = true, description = "The prisoner's last name.", example="Torf-Einarsson")
+    @ApiModelProperty(required = true, value = "The prisoner's last name.", example="Torf-Einarsson")
     @NotBlank
     private String lastName;
 
-    @Schema(required = true, description = "The prisoner's date of birth (in YYYY-MM-DD format).", example="1960-02-29")
+    @ApiModelProperty(required = true, value = "The prisoner's date of birth (in YYYY-MM-DD format).", example="1960-02-29")
     @NotNull
     private LocalDate dateOfBirth;
 
-    @Schema(required = true, description = "The prisoner's gender.", example="Female")
+    @ApiModelProperty(required = true, value = "The prisoner's gender.", example="Female")
     @NotBlank
     private String gender;
 
-    @Schema(required = true, description = "The prisoner's gender code.", example="F")
+    @ApiModelProperty(required = true, value = "The prisoner's gender code.", example="F")
     @NotBlank
     private String sexCode;
 
-    @Schema(description = "The prisoner's nationality.", example="Scottish")
+    @ApiModelProperty(value = "The prisoner's nationality.", example="Scottish")
     private String nationalities;
 
-    @Schema(required = true, description = "Flag (Y or N) to indicate if prisoner is currently in prison.", example="N")
+    @ApiModelProperty(required = true, value = "Flag (Y or N) to indicate if prisoner is currently in prison.", example="N")
     @NotBlank
     private String currentlyInPrison;
 
-    @Schema(description = "ID of prisoner's latest booking.", example="1")
+    @ApiModelProperty(value = "ID of prisoner's latest booking.", example="1")
     private Long latestBookingId;
 
-    @Schema(description = "Latest location ID of a prisoner (if in prison).", example="WRI")
+    @ApiModelProperty(value = "Latest location ID of a prisoner (if in prison).", example="WRI")
     private String latestLocationId;
 
-    @Schema(description = "Name of the prison where the prisoner resides (if in prison).", example="Whitemoor (HMP)")
+    @ApiModelProperty(value = "Name of the prison where the prisoner resides (if in prison).", example="Whitemoor (HMP)")
     private String latestLocation;
 
-    @Schema(description = "Name of the location where the prisoner resides (if in prison)", example="WRI-B-3-018")
+    @ApiModelProperty(value = "Name of the location where the prisoner resides (if in prison)", example="WRI-B-3-018")
     private String internalLocation;
 
-    @Schema(description = "The prisoner's PNC (Police National Computer) number.", example="01/000000A")
+    @ApiModelProperty(value = "The prisoner's PNC (Police National Computer) number.", example="01/000000A")
     private String pncNumber;
 
-    @Schema(description = "The prisoner's CRO (Criminal Records Office) number.", example="01/0001/01A")
+    @ApiModelProperty(value = "The prisoner's CRO (Criminal Records Office) number.", example="01/0001/01A")
     private String croNumber;
 
-    @Schema(description = "The prisoner's ethnicity.", example="White: British")
+    @ApiModelProperty(value = "The prisoner's ethnicity.", example="White: British")
     private String ethnicity;
 
-    @Schema(description = "The prisoner's ethnicity code.", example="W1")
+    @ApiModelProperty(value = "The prisoner's ethnicity code.", example="W1")
     private String ethnicityCode;
 
-    @Schema(description = "The prisoner's country of birth.", example="Norway")
+    @ApiModelProperty(value = "The prisoner's country of birth.", example="Norway")
     private String birthCountry;
 
-    @Schema(description = "The prisoner's religion.", example="Pagan")
+    @ApiModelProperty(value = "The prisoner's religion.", example="Pagan")
     private String religion;
 
-    @Schema(description = "The prisoner's religion code.", example="PAG")
+    @ApiModelProperty(value = "The prisoner's religion code.", example="PAG")
     private String religionCode;
 
-    @Schema(description = "Status code of prisoner's latest conviction.", example="Convicted", allowableValues = {"Convicted","Remand"})
+    @ApiModelProperty(value = "Status code of prisoner's latest conviction.", example="Convicted", allowableValues = "Convicted,Remand")
     private String convictedStatus;
 
-    @Schema(description = "Legal Status", example="REMAND")
+    @ApiModelProperty(value = "Legal Status", example="REMAND")
     private LegalStatus legalStatus;
 
     @JsonIgnore
     private String bandCode;
 
-    @Schema(description = "The prisoner's imprisonment status.", example="LIFE")
+    @ApiModelProperty(value = "The prisoner's imprisonment status.", example="LIFE")
     private String imprisonmentStatus;
 
-    @Schema(description = "The prisoner's imprisonment status description.", example="Service Life Imprisonment")
+    @ApiModelProperty(value = "The prisoner's imprisonment status description.", example="Service Life Imprisonment")
     private String imprisonmentStatusDesc;
 
-    @Schema(description = "Date prisoner was received into the prison.", example="1980-01-01")
+    @ApiModelProperty(value = "Date prisoner was received into the prison.", example="1980-01-01")
     private LocalDate receptionDate;
 
-    @Schema(description = "The prisoner's marital status.", example="Single")
+    @ApiModelProperty(value = "The prisoner's marital status.", example="Single")
     private String maritalStatus;
 
-    @Schema(required = true, description = "The prisoner's current working first name.", example="Thorfinn")
+    @ApiModelProperty(required = true, value = "The prisoner's current working first name.", example="Thorfinn")
     @NotBlank
     private String currentWorkingFirstName;
 
-    @Schema(required = true, description = "The prisoner's current working last name.", example="Torf-Einarsson")
+    @ApiModelProperty(required = true, value = "The prisoner's current working last name.", example="Torf-Einarsson")
     @NotBlank
     private String currentWorkingLastName;
 
-    @Schema(required = true, description = "The prisoner's current working date of birth (in YYYY-MM-DD format).", example="1960-02-29")
+    @ApiModelProperty(required = true, value = "The prisoner's current working date of birth (in YYYY-MM-DD format).", example="1960-02-29")
     @NotNull
     private LocalDate currentWorkingBirthDate;
 

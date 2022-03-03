@@ -3,8 +3,8 @@ package uk.gov.justice.hmpps.prison.api.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.v3.oas.annotations.Hidden;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +19,7 @@ import java.util.Map;
  * Alert
  **/
 @SuppressWarnings("unused")
-@Schema(description = "Alert")
+@ApiModel(description = "Alert")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder(toBuilder = true)
 @Data
@@ -27,82 +27,82 @@ import java.util.Map;
 @NoArgsConstructor
 public class Alert {
 
-    @Hidden
+    @ApiModelProperty(hidden = true)
     @JsonIgnore
     private Map<String, Object> additionalProperties;
 
-    @Schema(required = true, description = "Alert Id", example = "1")
+    @ApiModelProperty(required = true, value = "Alert Id", example = "1", position = 1)
     @JsonProperty("alertId")
     @NotNull
     private Long alertId;
 
-    @Schema(required = true, description = "Offender booking id.", example = "14")
+    @ApiModelProperty(required = true, value = "Offender booking id.", example = "14", position = 2)
     @JsonProperty("bookingId")
     @NotNull
     private Long bookingId;
 
-    @Schema(required = true, description = "Offender Unique Reference", example = "G3878UK")
+    @ApiModelProperty(required = true, value = "Offender Unique Reference", example = "G3878UK", position = 3)
     @JsonProperty("offenderNo")
     @NotBlank
     private String offenderNo;
 
-    @Schema(required = true, description = "Alert Type", example = "X")
+    @ApiModelProperty(required = true, value = "Alert Type", example = "X", position = 4)
     @JsonProperty("alertType")
     @NotBlank
     private String alertType;
 
-    @Schema(required = true, description = "Alert Type Description", example = "Security")
+    @ApiModelProperty(required = true, value = "Alert Type Description", example = "Security", position = 5)
     @JsonProperty("alertTypeDescription")
     @NotBlank
     private String alertTypeDescription;
 
-    @Schema(required = true, description = "Alert Code", example = "XER")
+    @ApiModelProperty(required = true, value = "Alert Code", example = "XER", position = 6)
     @JsonProperty("alertCode")
     @NotBlank
     private String alertCode;
 
-    @Schema(required = true, description = "Alert Code Description", example = "Escape Risk")
+    @ApiModelProperty(required = true, value = "Alert Code Description", example = "Escape Risk", position = 7)
     @JsonProperty("alertCodeDescription")
     @NotBlank
     private String alertCodeDescription;
 
-    @Schema(required = true, description = "Alert comments", example = "Profession lock pick.")
+    @ApiModelProperty(required = true, value = "Alert comments", example = "Profession lock pick.", position = 8)
     @JsonProperty("comment")
     @NotBlank
     private String comment;
 
-    @Schema(required = true, description = "Date of the alert, which might differ to the date it was created", example = "2019-08-20")
+    @ApiModelProperty(required = true, value = "Date of the alert, which might differ to the date it was created", example = "2019-08-20", position = 9)
     @JsonProperty("dateCreated")
     @NotNull
     private LocalDate dateCreated;
 
-    @Schema(description = "Date the alert expires", example = "2020-08-20")
+    @ApiModelProperty(value = "Date the alert expires", example = "2020-08-20", position = 10)
     @JsonProperty("dateExpires")
     private LocalDate dateExpires;
 
-    @Schema(required = true, description = "True / False based on presence of expiry date", example = "true")
+    @ApiModelProperty(required = true, value = "True / False based on presence of expiry date", example = "true", position = 11)
     @JsonProperty("expired")
     @NotNull
     private boolean expired;
 
-    @Schema(required = true, description = "True / False based on alert status", example = "false")
+    @ApiModelProperty(required = true, value = "True / False based on alert status", example = "false", position = 12)
     @JsonProperty("active")
     @NotNull
     private boolean active;
 
-    @Schema(description = "First name of the user who added the alert", example = "John")
+    @ApiModelProperty(value = "First name of the user who added the alert", example = "John", position = 13)
     @JsonProperty("addedByFirstName")
     private String addedByFirstName;
 
-    @Schema(description = "Last name of the user who added the alert", example = "Smith")
+    @ApiModelProperty(value = "Last name of the user who added the alert", example = "Smith", position = 14)
     @JsonProperty("addedByLastName")
     private String addedByLastName;
 
-    @Schema(description = "First name of the user who last modified the alert", example = "John")
+    @ApiModelProperty(value = "First name of the user who last modified the alert", example = "John", position = 15)
     @JsonProperty("expiredByFirstName")
     private String expiredByFirstName;
 
-    @Schema(description = "Last name of the user who last modified the alert", example = "Smith")
+    @ApiModelProperty(value = "Last name of the user who last modified the alert", example = "Smith", position = 16)
     @JsonProperty("expiredByLastName")
     private String expiredByLastName;
 }

@@ -4,7 +4,8 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,7 +18,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-@Schema(description = "Offender Event")
+@ApiModel(description = "Offender Event")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -27,15 +28,15 @@ import java.time.format.DateTimeFormatter;
 @JsonSerialize(using = EventSerializer.class)
 public class Event {
 
-    @Schema(description = "Type of event", required = true, example = "IEP_CHANGED")
+    @ApiModelProperty(value = "Type of event", required = true, example = "IEP_CHANGED", position = 1)
     private String type;
-    @Schema(description = "Unique identifier for event", required = true, example = "21")
+    @ApiModelProperty(value = "Unique indentifier for event", required = true, example = "21", position = 2)
     private Long id;
-    @Schema(name = "noms_id", description = "Offender Noms Id", example = "A1417AE", required = true)
+    @ApiModelProperty(name = "noms_id", value = "Offender Noms Id", example = "A1417AE", required = true, position = 3)
     private String nomsId;
-    @Schema(name = "prison_id", description = "Prison ID", example = "BMI", required = true)
+    @ApiModelProperty(name = "prison_id", value = "Prison ID", example = "BMI", required = true, position = 4)
     private String prisonId;
-    @Schema(name = "timestamp", description = "Date and time the event occurred", example = "2016-10-21 15:55:06.284", required = true)
+    @ApiModelProperty(name = "timestamp", value = "Date and time the event occurred", example = "2016-10-21 15:55:06.284", required = true, position = 5)
     private LocalDateTime timestamp;
 
     private String eventData;

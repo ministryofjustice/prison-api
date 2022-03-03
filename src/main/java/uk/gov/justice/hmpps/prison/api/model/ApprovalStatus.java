@@ -2,7 +2,8 @@ package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,7 +17,7 @@ import java.time.LocalDate;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
-@Schema(description = "HDC Approval Status")
+@ApiModel(description = "HDC Approval Status")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -27,14 +28,14 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 public class ApprovalStatus {
     public static final String APPROVED_STATUS = "APPROVED";
 
-    @Schema(required = true, description = "Approval status. Must be one of the 'HDC_APPROVE' reference codes", example = "APPROVED")
+    @ApiModelProperty(required = true, value = "Approval status. Must be one of the 'HDC_APPROVE' reference codes", example = "APPROVED")
     @NotBlank
     String approvalStatus;
 
-    @Schema(description = "Refused reason. Must be one of the 'HDC_REJ_RSN' reference codes", example = "UNDER_14DAYS")
+    @ApiModelProperty(value = "Refused reason. Must be one of the 'HDC_REJ_RSN' reference codes", example = "UNDER_14DAYS")
     String refusedReason;
 
-    @Schema(required = true, description = "Approval status date. ISO-8601 format. YYYY-MM-DD", example = "2018-12-31")
+    @ApiModelProperty(required = true, value = "Approval status date. ISO-8601 format. YYYY-MM-DD", example = "2018-12-31")
     @NotNull
     LocalDate date;
 

@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,57 +12,57 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Schema(description = "AdjudicationDetail")
+@ApiModel(description = "AdjudicationDetail")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder(toBuilder = true)
 public class AdjudicationDetail {
-    @Schema(description = "Adjudication number", example = "123")
+    @ApiModelProperty(value = "Adjudication number", position = 1, example = "123")
     @NotNull
     private Long adjudicationNumber;
 
-    @Schema(description = "The staff id of the reporter", example = "123456")
+    @ApiModelProperty(value = "The staff id of the reporter", position = 2, example = "123456")
     @NotNull
     private Long reporterStaffId;
 
-    @Schema(description = "Booking number", example = "123456")
+    @ApiModelProperty(value = "Booking number", position = 3, example = "123456")
     @NotNull
     private Long bookingId;
 
-    @Schema(description = "Offender number (NOMS ID)", example = "G3878UK")
+    @ApiModelProperty(value = "Offender number (NOMS ID)", example = "G3878UK")
     @NotNull
     private String offenderNo;
 
-    @Schema(description = "The id of the agency related to this incident", example = "MDI")
+    @ApiModelProperty(value = "The id of the agency related to this incident", example = "MDI")
     @NotNull
     private String agencyId;
 
-    @Schema(description = "When the incident took place", example = "15-06-2020T09:03:11")
+    @ApiModelProperty(value = "When the incident took place", position = 4, example = "15-06-2020T09:03:11")
     @NotNull
     private LocalDateTime incidentTime;
 
-    @Schema(description = "The id to indicate where the incident took place. Note: This will be an agency's internal location id")
+    @ApiModelProperty(value = "The id to indicate where the incident took place", notes = "This will be an agency's internal location id", position = 5)
     @NotNull
     private Long incidentLocationId;
 
-    @Schema(description = "The adjudication statement", example = "The offence involved ...")
+    @ApiModelProperty(value = "The adjudication statement", position = 6, example = "The offence involved ...")
     @NotNull
     private String statement;
 
-    @Schema(description = "The list of offence codes the offender may be charged with", example = "51:80,51:25A")
+    @ApiModelProperty(value = "The list of offence codes the offender may be charged with", position = 7, example = "51:80,51:25A")
     private List<String> offenceCodes;
 
-    @Schema(description = "The id of the user the created the adjudication", example = "ASMITH")
+    @ApiModelProperty(value = "The id of the user the created the adjudication", position = 10, example = "ASMITH")
     private String createdByUserId;
 
-    @Schema(description = "The list of staff ids who were victims", example = "[17381, 17515]")
+    @ApiModelProperty(value = "The list of staff ids who were victims", position = 11, example = "[17381, 17515]")
     private List<Long> victimStaffIds;
 
-    @Schema(description = "The list of offender numbers of offenders who were victims")
+    @ApiModelProperty(value = "The list of offender numbers of offenders who were victims", position = 12)
     private List<String> victimOffenderIds;
 
-    @Schema(description = "The list of offender numbers of the offenders who were connected")
+    @ApiModelProperty(value = "The list of offender numbers of the offenders who were connected", position = 13)
     private List<String> connectedOffenderIds;
 }

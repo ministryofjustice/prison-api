@@ -15,6 +15,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepo
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)

@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,27 +17,27 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Schema(description = "Create external movement")
+@ApiModel(description = "Create external movement")
 public class CreateExternalMovement {
-    @Schema(description = "Booking id", required = true, example = "1")
+    @ApiModelProperty(value = "Booking id", required = true, example = "1")
     @NotNull
     private Long bookingId;
-    @Schema(description = "Agency location moving from", required = true, example = "MDI")
+    @ApiModelProperty(value = "Agency location moving from", required = true, example = "MDI")
     @NotNull
     private String fromAgencyId;
-    @Schema(description = "Agency location moving to", required = true, example = "OUT")
+    @ApiModelProperty(value = "Agency location moving to", required = true, example = "OUT")
     @NotNull
     private String toAgencyId;
-    @Schema(description = "Date time of movement", required = true, example = "2020-02-28T14:40:00")
+    @ApiModelProperty(value = "Date time of movement", required = true, example = "2020-02-28T14:40:00")
     @NotNull
     private LocalDateTime movementTime;
-    @Schema(description = "Type of movement", required = true, example = "TRN")
+    @ApiModelProperty(value = "Type of movement", required = true, example = "TRN")
     @NotNull
     private String movementType;
-    @Schema(description = "Movement reason", required = true, example = "SEC")
+    @ApiModelProperty(value = "Movement reason", required = true, example = "SEC")
     @NotNull
     private String movementReason;
-    @Schema(description = "Direction code", required = true, example = "OUT")
+    @ApiModelProperty(value = "Direction code", required = true, example = "OUT", allowableValues = "IN,OUT")
     @NotNull
     private MovementDirection directionCode;
 }

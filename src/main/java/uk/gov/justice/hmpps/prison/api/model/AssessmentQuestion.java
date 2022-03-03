@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,7 +12,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @SuppressWarnings("unused")
-@Schema(description = "AssessmentQuestion")
+@ApiModel(description = "AssessmentQuestion")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -20,12 +21,12 @@ import java.util.List;
 public class AssessmentQuestion {
 
     @NotNull
-    @Schema(description = "Question")
+    @ApiModelProperty(value = "Question", position = 1)
     private String question;
 
-    @Schema(description = "The answer given. More than one answer might have been given, in which case the other answers will be in the additionalAnswers property")
+    @ApiModelProperty(value = "The answer given. More than one answer might have been given, in which case the other answers will be in the additionalAnswers property", position = 2)
     private String answer;
 
-    @Schema(description = "If a question has more than one answer, all but the first answer will be in this property")
+    @ApiModelProperty(value = "If a question has more than one answer, all but the first answer will be in this property", position = 3)
     private List<String> additionalAnswers;
 }

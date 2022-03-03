@@ -2,7 +2,8 @@ package uk.gov.justice.hmpps.prison.api.model.adjudications;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +15,7 @@ import java.util.List;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
-@Schema(description = "Detail about an individual Adjudication")
+@ApiModel(description = "Detail about an individual Adjudication")
 @JsonInclude(NON_NULL)
 @Builder(toBuilder = true)
 @AllArgsConstructor
@@ -22,43 +23,43 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 @Data
 public class AdjudicationDetail {
 
-    @Schema(description = "Adjudication Number", example = "1234567")
+    @ApiModelProperty(value = "Adjudication Number", example = "1234567")
     private Long adjudicationNumber;
 
-    @Schema(description = "Incident Time", example = "2017-03-17T08:02:00")
+    @ApiModelProperty(value = "Incident Time", example = "2017-03-17T08:02:00")
     private LocalDateTime incidentTime;
 
-    @Schema(description = "Establishment", example = "Moorland (HMP & YOI)")
+    @ApiModelProperty(value = "Establishment", example = "Moorland (HMP & YOI)")
     private String establishment;
 
     @JsonIgnore
     private String agencyId;
 
-    @Schema(description = "Interior Location", example = "Wing A")
+    @ApiModelProperty(value = "Interior Location", example = "Wing A")
     private String interiorLocation;
 
     @JsonIgnore
     private long internalLocationId;
 
-    @Schema(description = "Incident Details", example = "Whilst conducting an intelligence cell search...")
+    @ApiModelProperty(value = "Incident Details", example = "Whilst conducting an intelligence cell search...")
     private String incidentDetails;
 
-    @Schema(description = "Report Number", example = "1234567")
+    @ApiModelProperty(value = "Report Number", example = "1234567")
     private Long reportNumber;
 
-    @Schema(description = "Report Type", example = "Governor's Report")
+    @ApiModelProperty(value = "Report Type", example = "Governor's Report")
     private String reportType;
 
-    @Schema(description = "Reporter First Name", example = "John")
+    @ApiModelProperty(value = "Reporter First Name", example = "John")
     private String reporterFirstName;
 
-    @Schema(description = "Reporter Last Name", example = "Smith")
+    @ApiModelProperty(value = "Reporter Last Name", example = "Smith")
     private String reporterLastName;
 
-    @Schema(description = "Report Time", example = "2017-03-17T08:02:00")
+    @ApiModelProperty(value = "Report Time", example = "2017-03-17T08:02:00")
     private LocalDateTime reportTime;
 
     @Singular
-    @Schema(description = "Hearings")
+    @ApiModelProperty(value = "Hearings")
     private List<Hearing> hearings;
 }

@@ -21,6 +21,7 @@ import javax.persistence.EntityNotFoundException;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 

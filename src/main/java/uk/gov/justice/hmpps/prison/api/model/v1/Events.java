@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.api.model.v1;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,12 +9,12 @@ import lombok.ToString;
 
 import java.util.List;
 
-@Schema(description = "Events")
+@ApiModel(description = "Events")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
 public class Events {
-    @Schema(description = "Events")
+    @ApiModelProperty(value = "Events", allowEmptyValue = true)
     private List<Event> events;
 }

@@ -3,7 +3,8 @@ package uk.gov.justice.hmpps.prison.api.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,7 +19,7 @@ import java.util.List;
 /**
  * Visit details
  **/
-@Schema(description = "Visit details")
+@ApiModel(description = "Visit details")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 @Builder
@@ -31,88 +32,88 @@ public class VisitDetails {
     private Long id;
 
     @NotBlank
-    @Schema(required = true, description = "Status of event (EVENT_STS reference code)", allowableValues = {"EXP","SCH","COMP","CANC"})
+    @ApiModelProperty(required = true, value = "Status of event (EVENT_STS reference code)", allowableValues = "EXP,SCH,COMP,CANC")
     @JsonProperty("eventStatus")
     private String eventStatus;
 
-    @Schema(description = "Description of eventStatus code")
+    @ApiModelProperty(value = "Description of eventStatus code")
     @JsonProperty("eventStatusDescription")
     private String eventStatusDescription;
 
     @NotBlank
-    @Schema(required = true, description = "Completion status of visit (VIS_COMPLETE reference code)", allowableValues = {"NORM","SCH","VDE","OFFEND","VISITOR","CANC","HMPOP"})
+    @ApiModelProperty(required = true, value = "Completion status of visit (VIS_COMPLETE reference code)", allowableValues = "NORM,SCH,VDE,OFFEND,VISITOR,CANC,HMPOP")
     @JsonProperty("completionStatus")
     private String completionStatus;
 
-    @Schema(description = "Description of completionStatus code")
+    @ApiModelProperty(value = "Description of completionStatus code")
     @JsonProperty("completionStatusDescription")
     private String completionStatusDescription;
 
     @NotBlank
-    @Schema(required = true, description = "Code for social (SCON) or official (OFFI) type of visit (VISIT_TYPE reference code)", allowableValues = {"OFFI","SCON"})
+    @ApiModelProperty(required = true, value = "Code for social (SCON) or official (OFFI) type of visit (VISIT_TYPE reference code)", allowableValues = "OFFI,SCON")
     @JsonProperty("visitType")
     private String visitType;
 
-    @Schema(description = "Description of social or official visit", allowableValues = {"Official Visit","Social Contact"})
+    @ApiModelProperty(value = "Description of social or official visit", allowableValues = "Official Visit,Social Contact")
     @JsonProperty("visitTypeDescription")
     private String visitTypeDescription;
 
-    @Schema(description = "Name of lead visitor (blank if there was no visiting order for this visit)")
+    @ApiModelProperty(value = "Name of lead visitor (blank if there was no visiting order for this visit)")
     @JsonProperty("leadVisitor")
     private String leadVisitor;
 
-    @Schema(description = "Relationship of lead visitor to offender")
+    @ApiModelProperty(value = "Relationship of lead visitor to offender")
     private String relationship;
 
-    @Schema(description = "Description of relationship code")
+    @ApiModelProperty(value = "Description of relationship code")
     @JsonProperty("relationshipDescription")
     private String relationshipDescription;
 
     @NotNull
-    @Schema(required = true, description = "Date and time at which event starts")
+    @ApiModelProperty(required = true, value = "Date and time at which event starts")
     @JsonProperty("startTime")
     private LocalDateTime startTime;
 
-    @Schema(description = "Date and time at which event ends")
+    @ApiModelProperty(value = "Date and time at which event ends")
     @JsonProperty("endTime")
     private LocalDateTime endTime;
 
-    @Schema(description = "Location at which event takes place (could be an internal location, agency or external address).")
+    @ApiModelProperty(value = "Location at which event takes place (could be an internal location, agency or external address).")
     private String location;
 
-    @Schema(description = "Prison at which event takes place")
+    @ApiModelProperty(value = "Prison at which event takes place")
     private String prison;
 
     @NotBlank
-    @Schema(required = true, description = "Whether attended (ATT) or not (ABS) (OUTCOMES reference code)", allowableValues = {"ATT","ABS"})
+    @ApiModelProperty(required = true, value = "Whether attended (ATT) or not (ABS) (OUTCOMES reference code)", allowableValues = "ATT,ABS")
     @JsonProperty("eventOutcome")
     private String eventOutcome;
 
-    @Schema(description = "Description of eventOutcome code")
+    @ApiModelProperty(value = "Description of eventOutcome code")
     @JsonProperty("eventOutcomeDescription")
     private String eventOutcomeDescription;
 
-    @Schema(description = "Whether the visit was attended. Translation of eventOutcome into boolean. Defaults in NOMIS to true when the visit is created")
+    @ApiModelProperty(value = "Whether the visit was attended. Translation of eventOutcome into boolean. Defaults in NOMIS to true when the visit is created")
     @NotBlank
     private boolean attended;
 
-    @Schema(description = "Reason for cancellation if not attended (MOVE_CANC_RS reference code)")
+    @ApiModelProperty(value = "Reason for cancellation if not attended (MOVE_CANC_RS reference code)")
     @JsonProperty("cancellationReason")
     private String cancellationReason;
 
-    @Schema(description = "Description of cancellationReason code")
+    @ApiModelProperty(value = "Description of cancellationReason code")
     @JsonProperty("cancelReasonDescription")
     private String cancelReasonDescription;
 
-    @Schema(description = "List of visitors on visit")
+    @ApiModelProperty(value = "List of visitors on visit")
     @JsonProperty("visitors")
     private List<Visitor> visitors;
 
-    @Schema(description = "Type of search performed - mandatory if visit completed (SEARCH_LEVEL reference code)", example = "FULL")
+    @ApiModelProperty(value = "Type of search performed - mandatory if visit completed (SEARCH_LEVEL reference code)", example = "FULL")
     @JsonProperty("searchType")
     private String searchType;
 
-    @Schema(description = "Description of searchType code")
+    @ApiModelProperty(value = "Description of searchType code")
     @JsonProperty("searchTypeDescription")
     private String searchTypeDescription;
 }

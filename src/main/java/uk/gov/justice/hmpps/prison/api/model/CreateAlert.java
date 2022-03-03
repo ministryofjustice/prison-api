@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +15,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
-@Schema(description = "Create new alert")
+@ApiModel(description = "Create new alert")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @Data
@@ -22,22 +23,22 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @EqualsAndHashCode
 public class CreateAlert {
-    @Schema(description = "Code identifying type of alert", required = true, example = "X")
+    @ApiModelProperty(value = "Code identifying type of alert", required = true, example = "X")
     @NotBlank
     @Size(max = 12)
     private String alertType;
 
-    @Schema(description = "Code identifying the sub type of alert", required = true, example = "XEL")
+    @ApiModelProperty(value = "Code identifying the sub type of alert", position = 1, required = true, example = "XEL")
     @NotBlank
     @Size(max = 12)
     private String alertCode;
 
-    @Schema(description = "Free Text Comment", example = "has a large poster on cell wall")
+    @ApiModelProperty(value = "Free Text Comment", position = 5, example = "has a large poster on cell wall")
     @NotBlank
     @Size(max = 1000)
     private String comment;
 
-    @Schema(description = "Date the alert became effective", example = "2019-02-13", required = true)
+    @ApiModelProperty(value = "Date the alert became effective", position = 2, example = "2019-02-13", required = true)
     @NotNull
     private LocalDate alertDate;
 

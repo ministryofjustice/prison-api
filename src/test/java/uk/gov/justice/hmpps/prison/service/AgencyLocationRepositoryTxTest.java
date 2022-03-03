@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,8 +13,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
@@ -43,19 +42,19 @@ public class AgencyLocationRepositoryTxTest {
         TestTransaction.flagForCommit();
         TestTransaction.end();
 
-        assertThat(persistedEntity.getId()).isNotNull();
+        Assertions.assertThat(persistedEntity.getId()).isNotNull();
 
         TestTransaction.start();
 
         final var retrievedAgency = repository.findById(TEST_AGY_ID).orElseThrow();
-        assertThat(retrievedAgency).isEqualTo(persistedEntity);
+        Assertions.assertThat(retrievedAgency).isEqualTo(persistedEntity);
 
         // Check that the user name and timestamp is set
         final var createUserId = ReflectionTestUtils.getField(retrievedAgency, AgencyLocation.class, "createUserId");
-        assertThat(createUserId).isEqualTo("anonymous");
+        Assertions.assertThat(createUserId).isEqualTo("anonymous");
 
         final var createDatetime = ReflectionTestUtils.getField(retrievedAgency, AgencyLocation.class, "createDatetime");
-        assertThat(createDatetime).isNotNull();
+        Assertions.assertThat(createDatetime).isNotNull();
 
 
         //Clean up
@@ -65,6 +64,6 @@ public class AgencyLocationRepositoryTxTest {
         TestTransaction.end();
         TestTransaction.start();
 
-        assertThat(repository.findById(TEST_AGY_ID)).isEmpty();
+        Assertions.assertThat(repository.findById(TEST_AGY_ID)).isEmpty();
     }
 }

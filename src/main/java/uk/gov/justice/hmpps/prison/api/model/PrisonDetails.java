@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,7 +14,7 @@ import javax.validation.constraints.NotBlank;
 /**
  * Prison details
  **/
-@Schema(description = "Prison details")
+@ApiModel(description = "Prison details")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 @Builder
@@ -23,10 +24,10 @@ import javax.validation.constraints.NotBlank;
 public class PrisonDetails {
 
     @NotBlank
-    @Schema(description = "ID of prison", example = "MDI")
+    @ApiModelProperty(value = "ID of prison", example = "MDI")
     private String prisonId;
 
     @NotBlank
-    @Schema(description = "Name of prison", example = "Moorland (HMP)")
+    @ApiModelProperty(value = "Name of prison", example = "Moorland (HMP)")
     private String prison;
 }

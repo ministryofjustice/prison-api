@@ -1,5 +1,8 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.Lob;
+import javax.persistence.SequenceGenerator;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,12 +17,9 @@ import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.Objects;

@@ -1,15 +1,16 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.List;
 
-@Schema(description = "Military Records")
+@ApiModel(description = "Military Records")
 @Data
 @AllArgsConstructor
 public class MilitaryRecords {
-    @Schema(description = "Military Records")
+    @ApiModelProperty(value = "Military Records")
     final List<MilitaryRecord> militaryRecords;
 }
