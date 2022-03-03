@@ -103,7 +103,7 @@ public class ReferenceDomainResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    @ApiOperation(value = "List of reference codes for reference domain paged.", notes = "List of reference codes for reference domainpaged. Please note this API has the incorrect name so the non-paged /domains/{domain}/codes version is preferred..", nickname = "getReferenceCodesByDomain")
+    @ApiOperation(value = "List of reference codes for reference domain paged.", notes = "List of reference codes for reference domain paged. Please note this API has the incorrect name so the non-paged /domains/{domain}/codes version is preferred..", nickname = "getReferenceCodesByDomain")
     @GetMapping("/domains/{domain}")
     public ResponseEntity<List<ReferenceCode>> getReferenceCodesByDomain(@PathVariable("domain") @ApiParam(value = "The domain identifier/name.", required = true) final String domain, @RequestParam(value = "withSubCodes", required = false, defaultValue = "false") @ApiParam(value = "Specify whether or not to return reference codes with their associated sub-codes.", defaultValue = "false") final boolean withSubCodes, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @ApiParam(value = "Requested offset of first record in returned collection of domain records.", defaultValue = "0") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @ApiParam(value = "Requested limit to number of domain records returned.", defaultValue = "10") final Long pageLimit, @RequestHeader(value = "Sort-Fields", required = false) @ApiParam("Comma separated list of one or more of the following fields - <b>code, description</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") final Order sortOrder) {
         final var referenceCodes =
@@ -118,22 +118,22 @@ public class ReferenceDomainResource {
         return ResponseEntity.ok().headers(referenceCodes.getPaginationHeaders()).body(referenceCodes.getItems());
     }
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "List of reference codes for reference domain.", description = "List of reference codes for reference domain ordered by code ascending. The list is an un-paged flat list")
+            @ApiResponse(code = 200, message = "OK", response = ReferenceCode.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    @ApiOperation(value = "List of reference codes for reference domain.", notes = "List of reference codes for reference domain ordered by code ascending. The list is an un-paged flat list")
     @GetMapping("/domains/{domain}/codes")
-    public List<ReferenceCode> getReferenceCodesByDomain(@PathVariable("domain") @Parameter(description = "The domain identifier/name.", required = true) final String domain) {
+    public List<ReferenceCode> getReferenceCodesByDomain(@PathVariable("domain") @ApiParam(value = "The domain identifier/name.", required = true) final String domain) {
         return referenceDomainService.getReferenceCodesByDomain(domain);
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "List of all reference domains", description = "A reference domain can be used to retrieve all codes related to that domain. Ordered by domain ascending")
+            @ApiResponse(code = 200, message = "OK", response = ReferenceCode.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    @ApiOperation(value = "List of all reference domains", notes = "A reference domain can be used to retrieve all codes related to that domain. Ordered by domain ascending")
     @GetMapping("/domains")
     public List<ReferenceDomain> getAllReferenceDomains() {
         return referenceDomainService.getAllDomains();

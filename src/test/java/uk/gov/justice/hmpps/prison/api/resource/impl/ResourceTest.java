@@ -8,6 +8,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.reactive.server.WebTestClient;
 import uk.gov.justice.hmpps.prison.PrisonApiServer;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
@@ -32,6 +33,9 @@ public abstract class ResourceTest {
 
     @Autowired
     protected TestRestTemplate testRestTemplate;
+
+    @Autowired
+    protected WebTestClient webTestClient;
 
     @Autowired
     protected JwtAuthenticationHelper jwtAuthenticationHelper;
