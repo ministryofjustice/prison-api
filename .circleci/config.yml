@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  hmpps: ministryofjustice/hmpps@3.13
+  hmpps: ministryofjustice/hmpps@3.11
 
 executor: &executor
   executor:
@@ -115,7 +115,6 @@ workflows:
       - hmpps/deploy_env:
           name: deploy_dev
           env: "t3"
-          jira_update: true
           context:
             - hmpps-common-vars
           filters:
@@ -135,8 +134,6 @@ workflows:
       - hmpps/deploy_env:
           name: deploy_stage
           env: "t2"
-          jira_update: true
-          jira_env_type: testing
           context:
             - hmpps-common-vars
             - prison-api-t2
@@ -150,8 +147,6 @@ workflows:
       - hmpps/deploy_env:
           name: deploy_preprod
           env: "preprod"
-          jira_update: true
-          jira_env_type: staging
           context:
             - hmpps-common-vars
             - prison-api-preprod
@@ -165,8 +160,6 @@ workflows:
       - hmpps/deploy_env:
           name: deploy_prod
           env: "prod"
-          jira_update: true
-          jira_env_type: production
           slack_notification: true
           context:
             - hmpps-common-vars
