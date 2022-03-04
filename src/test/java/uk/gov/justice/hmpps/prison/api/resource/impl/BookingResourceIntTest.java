@@ -914,7 +914,7 @@ public class BookingResourceIntTest extends ResourceTest {
             assertThatStatus(response, 404);
         }
     }
-    
+
     @Nested
     public class getReturnToCustodyDate {
         @Test

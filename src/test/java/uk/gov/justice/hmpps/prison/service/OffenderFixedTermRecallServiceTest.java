@@ -56,6 +56,6 @@ public class OffenderFixedTermRecallServiceTest {
 
         assertThatThrownBy(() -> returnToCustodyService.getReturnToCustodyDate(bookingId))
             .isInstanceOf(EntityNotFoundException.class)
-            .hasMessage("Court hearing '2' with booking '1' not found.");
+            .hasMessage("No fixed term recall found for booking 1");
     }
 }
