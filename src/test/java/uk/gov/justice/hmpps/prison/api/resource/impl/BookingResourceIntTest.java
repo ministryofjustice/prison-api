@@ -921,7 +921,7 @@ public class BookingResourceIntTest extends ResourceTest {
         @Test
         public void success() {
             final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/return-to-custody", GET,
-                createHttpEntity(AuthToken.NORMAL_USER, null),
+                createHttpEntity(AuthToken.VIEW_PRISONER_DATA, null),
                 String.class, -20L);
 
             final var bodyAsJsonContent = getBodyAsJsonContent(response);
@@ -934,7 +934,7 @@ public class BookingResourceIntTest extends ResourceTest {
         @Test
         public void notFound() {
             final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/return-to-custody", GET,
-                createHttpEntity(AuthToken.NORMAL_USER, null),
+                createHttpEntity(AuthToken.VIEW_PRISONER_DATA, null),
                 String.class, -9999L);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);

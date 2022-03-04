@@ -23,7 +23,7 @@ public class OffenderFixedTermRecallService {
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
-    public ReturnToCustodyDate getReturnToCustodyDate(Long bookingId) {
+    public ReturnToCustodyDate getReturnToCustodyDate(final Long bookingId) {
         return repository.findById(bookingId).map(OffenderFixedTermRecall::mapToReturnToCustody)
             .orElseThrow(EntityNotFoundException.withMessage(format("No fixed term recall found for booking %d", bookingId)));
     }
