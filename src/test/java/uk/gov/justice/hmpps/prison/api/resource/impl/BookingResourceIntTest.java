@@ -6,6 +6,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import uk.gov.justice.hmpps.prison.api.model.Alert;
 import uk.gov.justice.hmpps.prison.api.model.AlertChanges;
@@ -936,7 +937,7 @@ public class BookingResourceIntTest extends ResourceTest {
                 createHttpEntity(AuthToken.NORMAL_USER, null),
                 String.class, -9999L);
 
-            assertThat(response.getStatusCodeValue()).isEqualTo(404);
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         }
     }
 }
