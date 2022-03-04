@@ -16,7 +16,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of = {"offenderBooking"}, callSuper = false)
+@EqualsAndHashCode(of = {"bookingId"}, callSuper = false)
 @Table(name = "OFFENDER_FIXED_TERM_RECALLS")
 public class OffenderFixedTermRecall extends AuditableEntity {
 
