@@ -914,4 +914,29 @@ public class BookingResourceIntTest extends ResourceTest {
             assertThatStatus(response, 404);
         }
     }
+    
+    @Nested
+    public class getReturnToCustodyDate {
+        @Test
+        public void success() {
+            final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/return-to-custody", GET,
+                createHttpEntity(AuthToken.NORMAL_USER, null),
+                String.class, -20L);
+
+            final var bodyAsJsonContent = getBodyAsJsonContent(response);
+
+            assertThat(bodyAsJsonContent).extractingJsonPathNumberValue("$.bookingId").isEqualTo(-20);
+            assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.returnToCustodyDate").isEqualTo("2001-01-01");
+
+        }
+
+        @Test
+        public void notFound() {
+            final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/return-to-custody", GET,
+                createHttpEntity(AuthToken.NORMAL_USER, null),
+                String.class, -9999L);
+
+            assertThat(response.getStatusCodeValue()).isEqualTo(404);
+        }
+    }
 }
