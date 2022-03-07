@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.client.HttpClientErrorException;
-import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.CourtEvent;
 import uk.gov.justice.hmpps.prison.api.model.CourtEventBasic;
 import uk.gov.justice.hmpps.prison.api.model.CreateExternalMovement;
@@ -40,7 +39,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository;
@@ -59,7 +57,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.util.stream.Collectors.toList;
@@ -320,9 +317,8 @@ public class MovementsService {
         final var datesToTry = splitDatesIfTheySpanAcrossDifferentDays(fromDateTime, toDateTime);
 
         return datesToTry.stream()
-            .flatMap(date -> movementsRepository.getIndividualSchedules(date).stream())
+            .flatMap(date -> movementsRepository.getIndividualSchedules(agencyIds, date).stream())
             .filter(isTransferAndNotDeleted())
-            .filter(isGoingToOrBeingSentFrom(agencyIds))
             .filter(isStartTimeBetween(fromDateTime, toDateTime))
             .map(scheduled -> scheduled.toBuilder()
                 .fromAgencyDescription(LocationProcessor.formatLocation(scheduled.getFromAgencyDescription()))
@@ -333,10 +329,6 @@ public class MovementsService {
 
     private Predicate<TransferEvent> isTransferAndNotDeleted() {
         return scheduledEvent -> scheduledEvent.getEventClass().equals("EXT_MOV") && !scheduledEvent.getEventStatus().equals("DEL");
-    }
-
-    private Predicate<TransferEvent> isGoingToOrBeingSentFrom(java.util.List<String> agencyIds) {
-        return scheduleEvent -> agencyIds.contains(scheduleEvent.getFromAgency()) || agencyIds.contains(scheduleEvent.getToAgency());
     }
 
     private Predicate<TransferEvent> isStartTimeBetween(final LocalDateTime fromDateTime, final LocalDateTime toDateTime) {

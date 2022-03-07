@@ -229,11 +229,10 @@ public class MovementsRepository extends RepositoryBase {
             OFFENDER_TRANSFER_MAPPER);
     }
 
-    public List<TransferEvent> getIndividualSchedules(final LocalDate date) {
-
+    public List<TransferEvent> getIndividualSchedules(final List<String> agencies, final LocalDate date) {
         return jdbcTemplate.query(
             MovementsRepositorySql.GET_OFFENDER_INDIVIDUAL_SCHEDULES_BY_DATE.getSql(),
-            createParams("date", DateTimeConverter.toDate(date)),
+            createParams("date", DateTimeConverter.toDate(date), "agencyListFrom", agencies, "agencyListTo", agencies),
             OFFENDER_TRANSFER_MAPPER
         );
     }

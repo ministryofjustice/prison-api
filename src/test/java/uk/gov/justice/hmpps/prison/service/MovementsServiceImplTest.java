@@ -644,7 +644,7 @@ public class MovementsServiceImplTest {
             final var movements = false;
 
             when(movementsRepository.getCourtEvents(agencyList, from, to)).thenReturn(listOfCourtEvents);
-            when(movementsRepository.getIndividualSchedules(from.toLocalDate())).thenReturn(listOfTransferEvents);
+            when(movementsRepository.getIndividualSchedules(agencyList, from.toLocalDate())).thenReturn(listOfTransferEvents);
 
             final var transferSummary = movementsService.getTransferMovementsForAgencies(agencyList, from, to, courtEvents, releaseEvents, transferEvents, movements);
 
@@ -656,7 +656,7 @@ public class MovementsServiceImplTest {
             assertThat(transferSummary.getMovements()).isNullOrEmpty();
 
             verify(movementsRepository).getCourtEvents(agencyList, from, to);
-            verify(movementsRepository).getIndividualSchedules(from.toLocalDate());
+            verify(movementsRepository).getIndividualSchedules(agencyList, from.toLocalDate());
 
             verifyNoMoreInteractions(movementsRepository);
         }
@@ -763,28 +763,30 @@ public class MovementsServiceImplTest {
                 final var todayAtMidnight = LocalDate.now().atTime(LocalTime.MIDNIGHT);
                 final var tomorrowMorning = LocalDate.now().plusDays(1).atStartOfDay();
 
+                final var agencyList = List.of("LEI");
                 movementsService.getTransferMovementsForAgencies(
-                    List.of("LEI"),
+                    agencyList,
                     todayAtMidnight,
                     tomorrowMorning,
                     false, false, true, false
                 );
 
-                verify(movementsRepository).getIndividualSchedules(todayAtMidnight.toLocalDate());
-                verify(movementsRepository).getIndividualSchedules(tomorrowMorning.toLocalDate());
+                verify(movementsRepository).getIndividualSchedules(agencyList, todayAtMidnight.toLocalDate());
+                verify(movementsRepository).getIndividualSchedules(agencyList, tomorrowMorning.toLocalDate());
             }
 
             @Test
             public void makesASingleCallToTheRepository() {
+                final var agencyList = List.of("LEI");
                 movementsService.getTransferMovementsForAgencies(
-                    List.of("LEI"),
+                    agencyList,
                     LocalDateTime.now(),
                     LocalDateTime.now(),
                     false, false, true, false
                 );
 
-                verify(movementsRepository, times(1)).getIndividualSchedules(any());
-                verify(movementsRepository).getIndividualSchedules(LocalDate.now());
+                verify(movementsRepository, times(1)).getIndividualSchedules(any(), any());
+                verify(movementsRepository).getIndividualSchedules(agencyList, LocalDate.now());
             }
 
             @Test
@@ -792,7 +794,7 @@ public class MovementsServiceImplTest {
                 final var startDateTime = LocalDateTime.now();
                 final var endDateTime = LocalDateTime.now();
 
-                when(movementsRepository.getIndividualSchedules(any())).thenReturn(List.of(
+                when(movementsRepository.getIndividualSchedules(any(), any())).thenReturn(List.of(
                     makeTransfer("A12345", "SCH", "LEI", "MDI", startDateTime, endDateTime),
                     makeTransfer("A12346", "DEL", "MDI", "LEI", startDateTime, endDateTime),
                     makeInternalMovement("A12347")
@@ -812,35 +814,11 @@ public class MovementsServiceImplTest {
             }
 
             @Test
-            public void returnScheduledTransfers_forGivenAgencies() {
-                final var startDateTime = LocalDateTime.now();
-                final var endDateTime = LocalDateTime.now();
-
-                when(movementsRepository.getIndividualSchedules(any())).thenReturn(List.of(
-                    makeTransfer("A12345", "SCH", "LEI", "MDI", startDateTime, endDateTime),
-                    makeTransfer("A12346", "SCH", "WFI", "WX", startDateTime, endDateTime),
-                    makeInternalMovement("A12347")
-                ));
-
-                final var transfers = movementsService.getTransferMovementsForAgencies(
-                    List.of("WX"),
-                    startDateTime,
-                    endDateTime,
-                    false, false, true, false
-                );
-
-                assertThat(transfers.getTransferEvents()).hasSize(1);
-                assertThat(transfers.getTransferEvents())
-                    .extracting("offenderNo", "fromAgency", "toAgency")
-                    .contains(Tuple.tuple("A12346", "WFI", "WX"));
-            }
-
-            @Test
             public void returnScheduledTransfer_forTheTimePeriod() {
                 final var startDateTime = LocalDateTime.now();
                 final var endDateTime = LocalDateTime.now().plusMinutes(5);
 
-                when(movementsRepository.getIndividualSchedules(any())).thenReturn(List.of(
+                when(movementsRepository.getIndividualSchedules(any(), any())).thenReturn(List.of(
                     makeTransfer("A12345", "SCH", "LEI", "MDI", startDateTime, endDateTime),
                     makeTransfer("A12346", "SCH", "WFI", "WX", startDateTime.plusMinutes(6), endDateTime.plusHours(8)),
                     makeInternalMovement("A12347")
@@ -864,7 +842,7 @@ public class MovementsServiceImplTest {
                 final var startDateTime = LocalDateTime.now();
                 final var endDateTime = LocalDateTime.now();
 
-                when(movementsRepository.getIndividualSchedules(any())).thenReturn(List.of(
+                when(movementsRepository.getIndividualSchedules(any(), any())).thenReturn(List.of(
                     makeTransfer("A12345", "SCH", "LEI", "MDI", startDateTime, endDateTime),
                     makeInternalMovement("A12347")
                 ));
