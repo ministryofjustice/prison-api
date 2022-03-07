@@ -514,6 +514,7 @@ enum class MovementsRepositorySql(val sql: String) {
                 LEFT JOIN AGENCY_LOCATIONS AL2   ON AL2.AGY_LOC_ID = OIS.TO_AGY_LOC_ID
                 LEFT JOIN REFERENCE_CODES RC3    ON RC3.CODE = OIS.TO_CITY_CODE AND RC3.DOMAIN = 'CITY'
         WHERE OIS.EVENT_DATE = :date
+        AND (OIS.AGY_LOC_ID IN (:agencyListFrom) OR OIS.TO_AGY_LOC_ID IN (:agencyListTo))
     """
   ),
 
