@@ -41,4 +41,5 @@ abstract class AuditableEntity implements Serializable {
     @Column(name = "MODIFY_DATETIME")
     @LastModifiedDate
     private LocalDateTime modifyDatetime;
+
 }

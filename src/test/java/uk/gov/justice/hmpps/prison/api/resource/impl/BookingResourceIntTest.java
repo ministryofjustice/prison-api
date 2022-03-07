@@ -6,6 +6,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import uk.gov.justice.hmpps.prison.api.model.Alert;
 import uk.gov.justice.hmpps.prison.api.model.AlertChanges;
@@ -912,6 +913,31 @@ public class BookingResourceIntTest extends ResourceTest {
                 String.class, -1L);
 
             assertThatStatus(response, 404);
+        }
+    }
+
+    @Nested
+    public class getReturnToCustodyDate {
+        @Test
+        public void success() {
+            final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/return-to-custody", GET,
+                createHttpEntity(AuthToken.VIEW_PRISONER_DATA, null),
+                String.class, -20L);
+
+            final var bodyAsJsonContent = getBodyAsJsonContent(response);
+
+            assertThat(bodyAsJsonContent).extractingJsonPathNumberValue("$.bookingId").isEqualTo(-20);
+            assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.returnToCustodyDate").isEqualTo("2001-01-01");
+
+        }
+
+        @Test
+        public void notFound() {
+            final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/return-to-custody", GET,
+                createHttpEntity(AuthToken.VIEW_PRISONER_DATA, null),
+                String.class, -9999L);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         }
     }
 }
