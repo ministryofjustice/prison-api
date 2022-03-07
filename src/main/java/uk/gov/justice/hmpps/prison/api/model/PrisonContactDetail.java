@@ -1,9 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +18,7 @@ import java.util.List;
 /**
  * Contacts Details for agency
  **/
-@Schema(description = "Contacts details for agency")
+@ApiModel(description = "Contacts details for agency")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -28,52 +27,52 @@ import java.util.List;
 @Data
 @ToString
 public class PrisonContactDetail {
-    @Schema(required = true, description = "Identifier of agency/prison.", example = "MDI")
+    @ApiModelProperty(required = true, position = 1, value = "Identifier of agency/prison.", example = "MDI")
     @NotBlank
     private String agencyId;
 
     @NotBlank
-    @Schema(required = true, description = "Agency description.", example = "MOORLAND (HMP & YOI)")
+    @ApiModelProperty(required = true, value = "Agency description.", example = "MOORLAND (HMP & YOI)")
     private String description;
 
     @NotBlank
-    @Schema(required = true, description = "Formatted agency description.", example = "Moorland (HMP & YOI)")
+    @ApiModelProperty(required = true, value = "Formatted agency description.", example = "Moorland (HMP & YOI)")
     private String formattedDescription;
 
-    @Schema(required = true, description = "Type of agency.", example = "INST")
+    @ApiModelProperty(required = true, position = 2, value = "Type of agency.", example = "INST")
     @NotBlank
     private String agencyType;
 
-    @Schema(required = true, description = "Type of address.")
+    @ApiModelProperty(required = true, position = 3, value = "Type of address.")
     @NotBlank
     private String addressType;
 
-    @Schema(required = true, description = "The Prison name.")
+    @ApiModelProperty(required = true, position = 4, value = "The Prison name.")
     @NotBlank
     private String premise;
 
-    @Schema(required = true, description = "Describes the geographic location.")
+    @ApiModelProperty(required = true, position = 5, value = "Describes the geographic location.")
     @NotBlank
     private String locality;
 
-    @Schema(required = true, description = "Address city.")
+    @ApiModelProperty(required = true, position = 6, value = "Address city.")
     @NotBlank
     private String city;
 
-    @Schema(required = true, description = "Address country.")
+    @ApiModelProperty(required = true, position = 7, value = "Address country.")
     @NotBlank
     private String country;
 
-    @Schema(required = true, description = "Address postcode.")
+    @ApiModelProperty(required = true, position = 8, value = "Address postcode.")
     @NotBlank
     private String postCode;
 
-    @Schema(required = true, description = "List of Telephone details")
+    @ApiModelProperty(required = true, position = 9, value = "List of Telephone details")
     @NotNull
     @Builder.Default
     private List<Telephone> phones = new ArrayList<>();
 
-    @Schema(required = false, description = "List of Address details")
+    @ApiModelProperty(required = false, position = 10, value = "List of Address details")
     @NotNull
     @Builder.Default
     private List<AddressDto> addresses = new ArrayList<>();

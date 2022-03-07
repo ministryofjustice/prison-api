@@ -1,9 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +18,7 @@ import java.time.LocalDate;
  * Image Detail
  **/
 
-@Schema(description = "Image Detail")
+@ApiModel(description = "Image Detail")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -29,27 +28,27 @@ import java.time.LocalDate;
 @ToString
 public class ImageDetail {
 
-    @Schema(required = true, description = "Image ID")
+    @ApiModelProperty(required = true, value = "Image ID")
     @NotNull
     private Long imageId;
 
-    @Schema(required = true, description = "Date of image capture")
+    @ApiModelProperty(required = true, value = "Date of image capture")
     @NotNull
     private LocalDate captureDate;
 
-    @Schema(required = true, description = "Image view information")
+    @ApiModelProperty(required = true, value = "Image view information")
     @NotBlank
     private String imageView;
 
-    @Schema(required = true, description = "Orientation of the image")
+    @ApiModelProperty(required = true, value = "Orientation of the image")
     @NotBlank
     private String imageOrientation;
 
-    @Schema(required = true, description = "Image Type")
+    @ApiModelProperty(required = true, value = "Image Type")
     @NotBlank
     private String imageType;
 
-    @Schema(description = "Object ID")
+    @ApiModelProperty(value = "Object ID")
     private Long objectId;
 
 }

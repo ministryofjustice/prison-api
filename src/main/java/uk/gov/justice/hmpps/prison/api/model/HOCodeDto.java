@@ -1,9 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,7 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-@Schema(description = "HO Code")
+@ApiModel(description = "HO Code")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,15 +18,15 @@ import java.time.LocalDate;
 @Builder
 public class HOCodeDto {
 
-    @Schema(required = true, description = "HO code", example = "825/99")
+    @ApiModelProperty(required = true, value = "HO code", example = "825/99", position = 1)
     private String code;
 
-    @Schema(required = true, description = "HO code description", example = "Ho Code 825/99")
+    @ApiModelProperty(required = true, value = "HO code description", example = "Ho Code 825/99", position = 2)
     private String description;
 
-    @Schema(required = true, description = "Active Y/N", example = "Y")
+    @ApiModelProperty(required = true, value = "Active Y/N", example = "Y", position = 3)
     private String activeFlag;
 
-    @Schema(description = "Expiry Date", example = "2021-01-05")
+    @ApiModelProperty(value = "Expiry Date", example = "2021-01-05", position = 4)
     private LocalDate expiryDate;
 }

@@ -1,9 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,7 +14,7 @@ import uk.gov.justice.hmpps.prison.util.MoneySupport.MoneyDeserializer;
 import java.time.LocalDate;
 
 
-@Schema(description = "Offender transaction drill down details")
+@ApiModel(description = "Offender transaction drill down details")
 @Data
 @EqualsAndHashCode
 @ToString
@@ -24,40 +23,40 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class RelatedTransactionDetails {
 
-    @Schema(description = "Transaction details id", example = "1")
+    @ApiModelProperty(value = "Transaction details id", example = "1", position = 1)
     private Long id;
 
-    @Schema(description = "Transaction Id", example = "1")
+    @ApiModelProperty(value = "Transaction Id", example = "1", position = 2)
     private Long transactionId;
 
-    @Schema(description = "Transaction Sequence", example = "1")
+    @ApiModelProperty(value = "Transaction Sequence", example = "1", position = 3)
     private Long transactionEntrySequence;
 
-    @Schema(description = "Calendar date the payment was processed", example = "2020-10-12")
+    @ApiModelProperty(value = "Calendar date the payment was processed", example = "2020-10-12", position = 4)
     private LocalDate calendarDate;
 
-    @Schema(description = "Pay type code", example = "UNEMPLOYED,SESSION,LTSICK,STSICK,MATERNAL,RETIRED,HOSPITAL")
+    @ApiModelProperty(value = "Pay type code", example = "UNEMPLOYED,SESSION,LTSICK,STSICK,MATERNAL,RETIRED,HOSPITAL", position = 5)
     private String payTypeCode;
 
-    @Schema(description = "Event id the payment is associated with", example = "1")
+    @ApiModelProperty(value = "Event id the payment is associated with", example = "1", position = 6)
     private Long eventId;
 
-    @Schema(description = "Payment amount in pence", example = "100")
+    @ApiModelProperty(value = "Payment amount in pence", example = "100", position = 7)
     @JsonDeserialize(using = MoneyDeserializer.class)
     private Long payAmount;
 
-    @Schema(description = "Piece work amount in pence", example = "250")
+    @ApiModelProperty(value = "Piece work amount in pence", example = "250", position = 8)
     @JsonDeserialize(using = MoneyDeserializer.class)
     private Long pieceWork;
 
-    @Schema(description = "Bonus payment in pence", example = "55")
+    @ApiModelProperty(value = "Bonus payment in pence", example = "55", position = 9)
     @JsonDeserialize(using = MoneyDeserializer.class)
     private Long bonusPay;
 
-    @Schema(description = "Balance at a point in time")
+    @ApiModelProperty(value = "Balance at a point in time", position = 10)
     private Long currentBalance;
 
-    @Schema(description = "Reason for payment",example = "Cleaner HB1 PM")
+    @ApiModelProperty(value = "Reason for payment",example = "Cleaner HB1 PM", position = 11)
     private String paymentDescription;
 
 }

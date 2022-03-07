@@ -1,12 +1,10 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -32,7 +30,7 @@ import java.util.List;
 import static uk.gov.justice.hmpps.prison.util.ResourceUtils.nvl;
 
 @RestController
-@Tag(name = "locations")
+@Api(tags = {"locations"})
 @Validated
 @RequestMapping("${api.base.path}/locations")
 public class LocationResource {
@@ -47,26 +45,26 @@ public class LocationResource {
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "List of offenders at location.", description = "List of offenders at location.")
+            @ApiResponse(code = 200, message = "OK", response = OffenderBooking.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    @ApiOperation(value = "List of offenders at location.", notes = "List of offenders at location.", nickname = "getOffendersAtLocationDescription")
     @GetMapping("/description/{locationPrefix}/inmates")
     public ResponseEntity<List<OffenderBooking>> getOffendersAtLocationDescription(
-            @PathVariable("locationPrefix") @Parameter(description = "", required = true) final String locationPrefix,
-            @RequestParam(value = "keywords", required = false) @Parameter(description = "offender name or id to match") final String keywords,
-            @RequestParam(value = "fromDob", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Offenders with a DOB >= this date", example = "1970-01-02") final LocalDate fromDob,
-            @RequestParam(value = "toDob", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Offenders with a DOB <= this date", example = "1975-01-02") final LocalDate toDob,
-            @RequestParam(value = "alerts", required = false) @Parameter(description = "alert flags to filter by") final List<String> alerts,
-            @RequestParam(value = "returnIep", required = false, defaultValue = "false") @Parameter(description = "return IEP data") final boolean returnIep,
-            @RequestParam(value = "returnAlerts", required = false, defaultValue = "false") @Parameter(description = "return Alert data") final boolean returnAlerts,
-            @RequestParam(value = "returnCategory", defaultValue = "false") @Parameter(description = "retrieve category classification from assessments") final boolean returnCategory,
-            @RequestParam(value = "convictedStatus", defaultValue = "All") @Parameter(description = "retrieve inmates with a specific convicted status (Convicted, Remand, default: All)") final String convictedStatus,
-            @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of inmate records.") final Long pageOffset,
-            @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of inmate records returned.") final Long pageLimit,
-            @RequestHeader(value = "Sort-Fields", defaultValue = "lastName,firstName,bookingId", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, or assignedLivingUnitId</b>") final String sortFields,
-            @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
+            @PathVariable("locationPrefix") @ApiParam(value = "", required = true) final String locationPrefix,
+            @RequestParam(value = "keywords", required = false) @ApiParam("offender name or id to match") final String keywords,
+            @RequestParam(value = "fromDob", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam(value = "Offenders with a DOB >= this date", example = "1970-01-02") final LocalDate fromDob,
+            @RequestParam(value = "toDob", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam(value = "Offenders with a DOB <= this date", example = "1975-01-02") final LocalDate toDob,
+            @RequestParam(value = "alerts", required = false) @ApiParam("alert flags to filter by") final List<String> alerts,
+            @RequestParam(value = "returnIep", required = false, defaultValue = "false") @ApiParam(value = "return IEP data", defaultValue = "false") final boolean returnIep,
+            @RequestParam(value = "returnAlerts", required = false, defaultValue = "false") @ApiParam(value = "return Alert data", defaultValue = "false") final boolean returnAlerts,
+            @RequestParam(value = "returnCategory", defaultValue = "false") @ApiParam(value = "retrieve category classification from assessments", defaultValue = "false") final boolean returnCategory,
+            @RequestParam(value = "convictedStatus", defaultValue = "All") @ApiParam(value = "retrieve inmates with a specific convicted status (Convicted, Remand, default: All)", defaultValue = "All") final String convictedStatus,
+            @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @ApiParam(value = "Requested offset of first record in returned collection of inmate records.", defaultValue = "0") final Long pageOffset,
+            @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @ApiParam(value = "Requested limit to number of inmate records returned.", defaultValue = "10") final Long pageLimit,
+            @RequestHeader(value = "Sort-Fields", defaultValue = "lastName,firstName,bookingId", required = false) @ApiParam("Comma separated list of one or more of the following fields - <b>bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, or assignedLivingUnitId</b>") final String sortFields,
+            @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") final Order sortOrder) {
         final var request = SearchOffenderRequest.builder()
                 .username(authenticationFacade.getCurrentUsername())
                 .keywords(keywords)
@@ -92,43 +90,43 @@ public class LocationResource {
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Location.class))}),
-            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Location detail.", description = "Location detail.")
+            @ApiResponse(code = 200, message = "OK", response = Location.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Location detail.", notes = "Location detail.", nickname = "getLocation")
     @GetMapping("/{locationId}")
     public Location getLocation(
         @PathVariable("locationId")
-        @Parameter(description = "The location id of location", required = true)
+        @ApiParam(value = "The location id of location", required = true)
         final Long locationId,
 
         @RequestParam(value="includeInactive", required = false)
-        @Parameter(description = "Match a location that is inactive?")
+        @ApiParam(value = "Match a location that is inactive?", allowableValues = "true,false")
         final Boolean includeInactive
     ) {
         return locationService.getLocation(locationId, includeInactive != null && includeInactive);
     }
 
     @ApiResponses({
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Returns the location (internal) for a prison based on description")
+        @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+        @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    @ApiOperation(value = "Returns the location (internal) for a prison based on description")
     @GetMapping("/code/{code}")
     public Location getLocationByCode(
-        @PathVariable("code") @Parameter(example = "MDI-1", required = true) final String code) {
+        @PathVariable("code") @ApiParam(example = "MDI-1", required = true) final String code) {
            return locationService.getLocationByCode(code).orElseThrow(EntityNotFoundException.withId(code));
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "List of offenders at location.", description = "List of offenders at location.")
+            @ApiResponse(code = 200, message = "OK", response = OffenderBooking.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    @ApiOperation(value = "List of offenders at location.", notes = "List of offenders at location.", nickname = "getOffendersAtLocation")
     @GetMapping("/{locationId}/inmates")
-    public ResponseEntity<List<OffenderBooking>> getOffendersAtLocation(@PathVariable("locationId") @Parameter(description = "The location id of location", required = true) final Long locationId, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of inmate records.") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of inmate records returned.") final Long pageLimit, @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, or assignedLivingUnitId</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
+    public ResponseEntity<List<OffenderBooking>> getOffendersAtLocation(@PathVariable("locationId") @ApiParam(value = "The location id of location", required = true) final Long locationId, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @ApiParam(value = "Requested offset of first record in returned collection of inmate records.", defaultValue = "0") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @ApiParam(value = "Requested limit to number of inmate records returned.", defaultValue = "10") final Long pageLimit, @RequestHeader(value = "Sort-Fields", required = false) @ApiParam("Comma separated list of one or more of the following fields - <b>bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, or assignedLivingUnitId</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") final Order sortOrder) {
         final var inmates = locationService.getInmatesFromLocation(
                 locationId,
                 authenticationFacade.getCurrentUsername(),

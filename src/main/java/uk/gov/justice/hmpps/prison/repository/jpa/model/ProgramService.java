@@ -1,7 +1,6 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,18 +27,18 @@ public class ProgramService {
     private Long programId;
 
     @Column(name = "DESCRIPTION")
-    @Schema(description = "Activity name")
+    @ApiModelProperty(value = "Activity name")
     private String activity;
 
     @Column(name = "PROGRAM_CATEGORY")
-    @Schema(description = "Program category")
+    @ApiModelProperty(value = "Program category")
     private String programCategory;
 
     @Column(name = "PROGRAM_CODE")
-    @Schema(description = "Program code")
+    @ApiModelProperty(value = "Program code")
     private String programCode;
 
     @Column(name = "ACTIVE_FLAG")
-    @Schema(description = "Active flag")
+    @ApiModelProperty(value = "Active flag")
     private String activeFlag = "Y";
 }

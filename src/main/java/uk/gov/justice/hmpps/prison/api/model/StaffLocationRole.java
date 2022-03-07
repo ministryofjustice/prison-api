@@ -1,9 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +18,7 @@ import java.time.LocalDate;
 /**
  * Staff Details with position and role
  **/
-@Schema(description = "Staff Details with position and role")
+@ApiModel(description = "Staff Details with position and role")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -28,66 +27,66 @@ import java.time.LocalDate;
 @Data
 @ToString
 public class StaffLocationRole {
-    @Schema(required = true, description = "Unique identifier for staff member.", example = "242342")
+    @ApiModelProperty(required = true, value = "Unique identifier for staff member.", position = 1, example = "242342")
     @NotNull
     private Long staffId;
 
-    @Schema(required = true, description = "Staff member's first name.", example = "JOHN")
+    @ApiModelProperty(required = true, value = "Staff member's first name.", position = 2, example = "JOHN")
     @NotBlank
     private String firstName;
 
-    @Schema(required = true, description = "Staff member's last name.", example = "SMITH")
+    @ApiModelProperty(required = true, value = "Staff member's last name.", position = 3, example = "SMITH")
     @NotBlank
     private String lastName;
 
-    @Schema(required = true, description = "Status of staff member.", example = "ACTIVE", allowableValues = "ACTIVE,INACTIVE")
+    @ApiModelProperty(required = true, value = "Status of staff member.", position = 4, example = "ACTIVE", allowableValues = "ACTIVE,INACTIVE")
     @NotBlank
     private String status;
 
-    @Schema(description = "Identifier for staff member image.", example = "2342334")
+    @ApiModelProperty(value = "Identifier for staff member image.", position = 5, example = "2342334")
     private Long thumbnailId;
 
-    @Schema(description = "Gender of Staff Member", example = "M", allowableValues = "M,F,NK,NS,REF")
+    @ApiModelProperty(value = "Gender of Staff Member", position = 6, example = "M", allowableValues = "M,F,NK,NS,REF")
     private String gender;
 
-    @Schema(description = "Date of Birth of Staff Member", example = "1970-01-02")
+    @ApiModelProperty(value = "Date of Birth of Staff Member", position = 7, example = "1970-01-02")
     private LocalDate dateOfBirth;
 
-    @Schema(required = true, description = "Agency at which staff member is performing role.", example = "LEI")
+    @ApiModelProperty(required = true, value = "Agency at which staff member is performing role.", position = 8, example = "LEI")
     @NotBlank
     private String agencyId;
 
-    @Schema(description = "Agency description.", example = "HMP Leeds")
+    @ApiModelProperty(value = "Agency description.", position = 9, example = "HMP Leeds")
     private String agencyDescription;
 
-    @Schema(required = true, description = "Date from which staff member is actively performing role.", example = "2019-02-05")
+    @ApiModelProperty(required = true, value = "Date from which staff member is actively performing role.", position = 10, example = "2019-02-05")
     @NotNull
     private LocalDate fromDate;
 
-    @Schema(description = "Date on which staff member stops actively performing role.", example = "2019-03-25")
+    @ApiModelProperty(value = "Date on which staff member stops actively performing role.", position = 11, example = "2019-03-25")
     private LocalDate toDate;
 
-    @Schema(required = true, description = "A code that defines staff member's position at agency.", example = "PRO")
+    @ApiModelProperty(required = true, value = "A code that defines staff member's position at agency.", position = 12, example = "PRO")
     @NotBlank
     private String position;
 
-    @Schema(description = "Description of staff member's position at agency.", example = "Prison Officer")
+    @ApiModelProperty(value = "Description of staff member's position at agency.", position = 13, example = "Prison Officer")
     private String positionDescription;
 
-    @Schema(required = true, description = "A code that defines staff member's role at agency.", example = "KW")
+    @ApiModelProperty(required = true, value = "A code that defines staff member's role at agency.", position = 14, example = "KW")
     @NotBlank
     private String role;
 
-    @Schema(description = "Description of staff member's role at agency.", example = "Key Worker")
+    @ApiModelProperty(value = "Description of staff member's role at agency.", position = 15, example = "Key Worker")
     private String roleDescription;
 
-    @Schema(description = "A code the defines staff member's schedule type.", example = "FT")
+    @ApiModelProperty(value = "A code the defines staff member's schedule type.", position = 16, example = "FT")
     private String scheduleType;
 
-    @Schema(description = "Description of staff member's schedule type.", example = "Full Time")
+    @ApiModelProperty(value = "Description of staff member's schedule type.", position = 17, example = "Full Time")
     private String scheduleTypeDescription;
 
-    @Schema(description = "Number of hours worked per week by staff member.", example = "30")
+    @ApiModelProperty(value = "Number of hours worked per week by staff member.", position = 18, example = "30")
     private BigDecimal hoursPerWeek;
 
 }

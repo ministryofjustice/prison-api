@@ -1,23 +1,22 @@
 package uk.gov.justice.hmpps.prison.api.model.v1;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
 
-@Schema(description = "Code Description")
+@ApiModel(description = "Code Description")
 @Getter
 @ToString
 @EqualsAndHashCode
 public class CodeDescription {
 
-    @Schema(description = "Code")
+    @ApiModelProperty(value = "Code", position = 1)
     private final String code;
 
-    @Schema(description = "Description")
+    @ApiModelProperty(value = "Description", position = 2)
     private final String desc;
 
     private CodeDescription(final String code, final String desc) {

@@ -5,9 +5,8 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -23,7 +22,7 @@ import java.util.Map;
  * Offender Key Worker record representation (to facilitate data migration)
  **/
 @SuppressWarnings("unused")
-@Schema(description = "Offender Key Worker record representation (to facilitate data migration)")
+@ApiModel(description = "Offender Key Worker record representation (to facilitate data migration)")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -68,7 +67,7 @@ public class OffenderKeyWorker {
         return additionalProperties == null ? new HashMap<>() : additionalProperties;
     }
 
-    @Hidden
+    @ApiModelProperty(hidden = true)
     @JsonAnySetter
     public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
@@ -77,7 +76,7 @@ public class OffenderKeyWorker {
     /**
      * Offender Unique Reference
      */
-    @Schema(required = true, description = "Offender Unique Reference")
+    @ApiModelProperty(required = true, value = "Offender Unique Reference")
     @JsonProperty("offenderNo")
     public String getOffenderNo() {
         return offenderNo;
@@ -90,7 +89,7 @@ public class OffenderKeyWorker {
     /**
      * The key worker's Staff Id
      */
-    @Schema(required = true, description = "The key worker's Staff Id")
+    @ApiModelProperty(required = true, value = "The key worker's Staff Id")
     @JsonProperty("staffId")
     public Long getStaffId() {
         return staffId;
@@ -103,7 +102,7 @@ public class OffenderKeyWorker {
     /**
      * Agency Id
      */
-    @Schema(required = true, description = "Agency Id")
+    @ApiModelProperty(required = true, value = "Agency Id")
     @JsonProperty("agencyId")
     public String getAgencyId() {
         return agencyId;
@@ -116,7 +115,7 @@ public class OffenderKeyWorker {
     /**
      * Date and time allocation was assigned
      */
-    @Schema(required = true, description = "Date and time allocation was assigned")
+    @ApiModelProperty(required = true, value = "Date and time allocation was assigned")
     @JsonProperty("assigned")
     public LocalDateTime getAssigned() {
         return assigned;
@@ -129,7 +128,7 @@ public class OffenderKeyWorker {
     /**
      * Date and time allocation expired
      */
-    @Schema(description = "Date and time allocation expired")
+    @ApiModelProperty(value = "Date and time allocation expired")
     @JsonProperty("expired")
     public LocalDateTime getExpired() {
         return expired;
@@ -142,7 +141,7 @@ public class OffenderKeyWorker {
     /**
      * Username of user who processed allocation
      */
-    @Schema(required = true, description = "Username of user who processed allocation")
+    @ApiModelProperty(required = true, value = "Username of user who processed allocation")
     @JsonProperty("userId")
     public String getUserId() {
         return userId;
@@ -155,7 +154,7 @@ public class OffenderKeyWorker {
     /**
      * Y
      */
-    @Schema(required = true, description = "Y")
+    @ApiModelProperty(required = true, value = "Y")
     @JsonProperty("active")
     public String getActive() {
         return active;
@@ -168,7 +167,7 @@ public class OffenderKeyWorker {
     /**
      * Date and time allocation record was created
      */
-    @Schema(required = true, description = "Date and time allocation record was created")
+    @ApiModelProperty(required = true, value = "Date and time allocation record was created")
     @JsonProperty("created")
     public LocalDateTime getCreated() {
         return created;
@@ -181,7 +180,7 @@ public class OffenderKeyWorker {
     /**
      * Username of user who created allocation record
      */
-    @Schema(required = true, description = "Username of user who created allocation record")
+    @ApiModelProperty(required = true, value = "Username of user who created allocation record")
     @JsonProperty("createdBy")
     public String getCreatedBy() {
         return createdBy;
@@ -194,7 +193,7 @@ public class OffenderKeyWorker {
     /**
      * Date and time allocation record was last modified
      */
-    @Schema(description = "Date and time allocation record was last modified")
+    @ApiModelProperty(value = "Date and time allocation record was last modified")
     @JsonProperty("modified")
     public LocalDateTime getModified() {
         return modified;
@@ -207,7 +206,7 @@ public class OffenderKeyWorker {
     /**
      * Username of user who last modified allocation record
      */
-    @Schema(description = "Username of user who last modified allocation record")
+    @ApiModelProperty(value = "Username of user who last modified allocation record")
     @JsonProperty("modifiedBy")
     public String getModifiedBy() {
         return modifiedBy;

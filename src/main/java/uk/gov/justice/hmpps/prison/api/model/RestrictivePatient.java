@@ -1,9 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,7 +14,7 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 @SuppressWarnings("unused")
-@Schema(description = "Restrictive Patient details")
+@ApiModel(description = "Restrictive Patient details")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -24,19 +23,19 @@ import java.time.LocalDate;
 @ToString
 @Data
 public class RestrictivePatient {
-    @Schema(required = true, description = "Prison where the offender is support by POM")
+    @ApiModelProperty(required = true, value = "Prison where the offender is support by POM")
     @NotNull
     private Agency supportingPrison;
 
-    @Schema(required = true, description = "Hospital where the offender is currently located")
+    @ApiModelProperty(required = true, value = "Hospital where the offender is currently located")
     @NotNull
     private Agency dischargedHospital;
 
-    @Schema(required = true, description = "Date Discharged")
+    @ApiModelProperty(required = true, value = "Date Discharged")
     @NotNull
     private LocalDate dischargeDate;
 
-    @Schema(description = "Discharge details")
+    @ApiModelProperty(value = "Discharge details")
     private String dischargeDetails;
 
 }

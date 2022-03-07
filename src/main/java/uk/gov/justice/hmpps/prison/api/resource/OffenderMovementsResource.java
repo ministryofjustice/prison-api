@@ -1,12 +1,10 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -47,7 +45,7 @@ import java.time.LocalDateTime;
 import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
 
 @RestController
-@Tag(name = "bookings")
+@Api(tags = {"bookings"})
 @RequestMapping("${api.base.path}/bookings")
 @Validated
 @Slf4j
@@ -72,48 +70,48 @@ public class OffenderMovementsResource {
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Court hearing created.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CourtHearing.class))}),
-            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Schedules a prison to court hearing for an offender and given court case.", description = "Schedules a prison to court hearing for an offender and given court case.")
+            @ApiResponse(code = 201, message = "Court hearing created.", response = CourtHearing.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Schedules a prison to court hearing for an offender and given court case.", notes = "Schedules a prison to court hearing for an offender and given court case.", nickname = "prisonToCourt")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{bookingId}/court-cases/{courtCaseId}/prison-to-court-hearings")
     @ProxyUser
-    public CourtHearing prisonToCourt(@PathVariable("bookingId") @Parameter(description = "The offender booking to associate the court hearing with.", required = true) final Long bookingId, @PathVariable("courtCaseId") @Parameter(description = "The court case to associate the hearing with.", required = true) final Long courtCaseId, @RequestBody @Parameter(description = "The prison to court hearing to be scheduled for the offender booking.", required = true) final @Valid PrisonToCourtHearing hearing) {
+    public CourtHearing prisonToCourt(@PathVariable("bookingId") @ApiParam(value = "The offender booking to associate the court hearing with.", required = true) final Long bookingId, @PathVariable("courtCaseId") @ApiParam(value = "The court case to associate the hearing with.", required = true) final Long courtCaseId, @RequestBody @ApiParam(value = "The prison to court hearing to be scheduled for the offender booking.", required = true) final @Valid PrisonToCourtHearing hearing) {
         return courtHearingsService.scheduleHearing(bookingId, courtCaseId, hearing);
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Court hearing created.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CourtHearing.class))}),
-            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Schedules a prison to court hearing for an offender.", description = "Schedules a prison to court hearing for an offender.")
+            @ApiResponse(code = 201, message = "Court hearing created.", response = CourtHearing.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Schedules a prison to court hearing for an offender.", notes = "Schedules a prison to court hearing for an offender.", nickname = "prisonToCourt")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{bookingId}/prison-to-court-hearings")
     @ProxyUser
-    public CourtHearing prisonToCourt(@PathVariable("bookingId") @Parameter(description = "The offender booking to associate the court hearing with.", required = true) final Long bookingId, @RequestBody @Parameter(description = "The prison to court hearing to be scheduled for the offender booking.", required = true) final @Valid PrisonToCourtHearing hearing) {
+    public CourtHearing prisonToCourt(@PathVariable("bookingId") @ApiParam(value = "The offender booking to associate the court hearing with.", required = true) final Long bookingId, @RequestBody @ApiParam(value = "The prison to court hearing to be scheduled for the offender booking.", required = true) final @Valid PrisonToCourtHearing hearing) {
         return courtHearingsService.scheduleHearing(bookingId, hearing);
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CourtHearings.class))}),
-            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+            @ApiResponse(code = 200, message = "OK", response = CourtHearings.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     @GetMapping("{bookingId}/court-hearings")
-    public CourtHearings getCourtHearings(@PathVariable("bookingId") @Parameter(description = "The offender booking linked to the court hearings.", required = true) final Long bookingId, @RequestParam(value = "fromDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Return court hearings on or after this date (in YYYY-MM-DD format).") final LocalDate fromDate, @RequestParam(value = "toDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Return court hearings on or before this date (in YYYY-MM-DD format).") final LocalDate toDate) {
+    public CourtHearings getCourtHearings(@PathVariable("bookingId") @ApiParam(value = "The offender booking linked to the court hearings.", required = true) final Long bookingId, @RequestParam(value = "fromDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam("Return court hearings on or after this date (in YYYY-MM-DD format).") final LocalDate fromDate, @RequestParam(value = "toDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @ApiParam("Return court hearings on or before this date (in YYYY-MM-DD format).") final LocalDate toDate) {
         return courtHearingsService.getCourtHearingsFor(bookingId, fromDate, toDate);
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @PutMapping("/{bookingId}/living-unit/{internalLocationDescription}")
     @ProxyUser
-    public CellMoveResult moveToCell(@PathVariable("bookingId") @Parameter(description = "The offender booking id", example = "1200866", required = true) final Long bookingId, @PathVariable("internalLocationDescription") @Parameter(description = "The cell location the offender has been moved to", example = "MDI-1-1", required = true) final String internalLocationDescription, @RequestParam("reasonCode") @Parameter(description = "The reason code for the move (from reason code domain CHG_HOUS_RSN)", example = "ADM", required = true) final String reasonCode, @RequestParam(value = "dateTime", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @Parameter(description = "The date / time of the move (defaults to current)", example = "2020-03-24T12:13:40") final LocalDateTime dateTime) {
+    public CellMoveResult moveToCell(@PathVariable("bookingId") @ApiParam(value = "The offender booking id", example = "1200866", required = true) final Long bookingId, @PathVariable("internalLocationDescription") @ApiParam(value = "The cell location the offender has been moved to", example = "MDI-1-1", required = true) final String internalLocationDescription, @RequestParam("reasonCode") @ApiParam(value = "The reason code for the move (from reason code domain CHG_HOUS_RSN)", example = "ADM", required = true) final String reasonCode, @RequestParam(value = "dateTime", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @ApiParam(value = "The date / time of the move (defaults to current)", example = "2020-03-24T12:13:40") final LocalDateTime dateTime) {
         log.debug("Received moveToCell request for booking id {}, cell location {}, reasonCode {}, date/time {}",
                 bookingId,
                 internalLocationDescription,
@@ -124,12 +122,12 @@ public class OffenderMovementsResource {
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = OffenderBooking.class))}),
-            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+            @ApiResponse(code = 200, message = "OK", response = OffenderBooking.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     @PutMapping("/{bookingId}/move-to-cell-swap")
-    public CellMoveResult moveToCellSwap(@PathVariable("bookingId") @Parameter(description = "The offender booking id", example = "1200866", required = true) final Long bookingId, @RequestBody final RequestMoveToCellSwap requestMoveToCellSwap) {
+    public CellMoveResult moveToCellSwap(@PathVariable("bookingId") @ApiParam(value = "The offender booking id", example = "1200866", required = true) final Long bookingId, @RequestBody final RequestMoveToCellSwap requestMoveToCellSwap) {
         final var dateTime = requestMoveToCellSwap.getDateTime();
         final var reasonCode = requestMoveToCellSwap.getReasonCode();
 
@@ -142,49 +140,49 @@ public class OffenderMovementsResource {
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "The scheduled prison move.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ScheduledPrisonToPrisonMove.class))}),
-            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Schedules a future prison to prison move for an offender.", description = "Schedules a future prison to prison move for an offender.")
+            @ApiResponse(code = 201, message = "The scheduled prison move.", response = ScheduledPrisonToPrisonMove.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Schedules a future prison to prison move for an offender.", notes = "Schedules a future prison to prison move for an offender.", nickname = "prisonToPrison")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{bookingId}/prison-to-prison")
     @ProxyUser
-    public ScheduledPrisonToPrisonMove prisonToPrison(@PathVariable("bookingId") @Parameter(description = "The offender booking to associate the prison to prison move with.", required = true) final Long bookingId, @RequestBody @Parameter(description = "The prison to prison move to be scheduled for the offender booking.", required = true) final @Valid SchedulePrisonToPrisonMove prisonMove) {
+    public ScheduledPrisonToPrisonMove prisonToPrison(@PathVariable("bookingId") @ApiParam(value = "The offender booking to associate the prison to prison move with.", required = true) final Long bookingId, @RequestBody @ApiParam(value = "The prison to prison move to be scheduled for the offender booking.", required = true) final @Valid SchedulePrisonToPrisonMove prisonMove) {
         return prisonToPrisonMoveSchedulingService.schedule(bookingId, prisonMove);
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Cancels a scheduled prison to prison move for an offender.", description = "Cancels a scheduled prison to prison move for an offender.")
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Cancels a scheduled prison to prison move for an offender.", notes = "Cancels a scheduled prison to prison move for an offender.", nickname = "cancelPrisonToPrisonMove")
     @PutMapping("/{bookingId}/prison-to-prison/{eventId}/cancel")
     @ProxyUser
-    public ResponseEntity<Void> cancelPrisonToPrisonMove(@PathVariable("bookingId") @Parameter(description = "The offender booking linked to the scheduled event.", required = true) final Long bookingId, @PathVariable("eventId") @Parameter(description = "The identifier of the scheduled event to be cancelled.", required = true) final Long eventId, @RequestBody @Parameter(description = "The cancellation details.", required = true) @Valid final PrisonMoveCancellation cancellation) {
+    public ResponseEntity<Void> cancelPrisonToPrisonMove(@PathVariable("bookingId") @ApiParam(value = "The offender booking linked to the scheduled event.", required = true) final Long bookingId, @PathVariable("eventId") @ApiParam(value = "The identifier of the scheduled event to be cancelled.", required = true) final Long eventId, @RequestBody @ApiParam(value = "The cancellation details.", required = true) @Valid final PrisonMoveCancellation cancellation) {
         prisonToPrisonMoveSchedulingService.cancel(bookingId, eventId, cancellation.getReasonCode());
 
         return ResponseEntity.ok().build();
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Amends the scheduled court hearing date and/or time for an offender.", description = "Amends the scheduled court hearing date and/or time for an offender.")
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Amends the scheduled court hearing date and/or time for an offender.", notes = "Amends the scheduled court hearing date and/or time for an offender.", nickname = "courtHearingDateAmendment")
     @PutMapping("/{bookingId}/court-hearings/{hearingId}/hearing-date")
     @ProxyUser
-    public CourtHearing courtHearingDateAmendment(@PathVariable("bookingId") @Parameter(description = "The offender booking to associate the update with.", required = true) final Long bookingId, @PathVariable @Parameter(description = "The  court hearing to be updated.", required = true) final Long hearingId, @RequestBody @Parameter(description = "The amendments for the scheduled court hearing.", required = true) @Valid CourtHearingDateAmendment amendment) {
+    public CourtHearing courtHearingDateAmendment(@PathVariable("bookingId") @ApiParam(value = "The offender booking to associate the update with.", required = true) final Long bookingId, @PathVariable @ApiParam(value = "The  court hearing to be updated.", required = true) final Long hearingId, @RequestBody @ApiParam(value = "The amendments for the scheduled court hearing.", required = true) @Valid CourtHearingDateAmendment amendment) {
         return courtHearingReschedulingService.reschedule(bookingId, hearingId, amendment.getHearingDateTime());
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Cancels the scheduled court hearing for an offender.", description = "Cancels the scheduled court hearing for an offender.")
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Cancels the scheduled court hearing for an offender.", notes = "Cancels the scheduled court hearing for an offender.", nickname = "cancelCourtHearing")
     @DeleteMapping("/{bookingId}/court-hearings/{hearingId}/cancel")
-    public ResponseEntity<Void> cancelCourtHearing(@PathVariable("bookingId") @Parameter(description = "The offender booking to linked to the scheduled event.", required = true) final Long bookingId, @PathVariable("hearingId") @Parameter(description = "The identifier of the scheduled event to be cancelled.", required = true) final Long hearingId) {
+    public ResponseEntity<Void> cancelCourtHearing(@PathVariable("bookingId") @ApiParam(value = "The offender booking to linked to the scheduled event.", required = true) final Long bookingId, @PathVariable("hearingId") @ApiParam(value = "The identifier of the scheduled event to be cancelled.", required = true) final Long hearingId) {
         courtHearingCancellationService.cancel(bookingId, hearingId);
 
         return ResponseEntity.ok().build();

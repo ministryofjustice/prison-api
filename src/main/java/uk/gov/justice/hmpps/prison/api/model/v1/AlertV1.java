@@ -5,9 +5,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,7 +16,7 @@ import lombok.ToString;
 
 import java.time.LocalDate;
 
-@Schema(description = "Offender Alert")
+@ApiModel(description = "Offender Alert")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -28,26 +27,26 @@ import java.time.LocalDate;
 @JsonPropertyOrder({"alert_type", "alert_sub_type", "alert_date", "expiry_date", "status", "comment"})
 public class AlertV1 {
 
-    @Schema(description = "Code and description identifying the type of alert", required = true, example = "{ \"code\": \"FX\", \"desc\": \"Security\" }")
+    @ApiModelProperty(value = "Code and description identifying the type of alert", required = true, example = "{ \"code\": \"FX\", \"desc\": \"Security\" }")
     @JsonProperty("alert_type")
     private CodeDescription type;
 
-    @Schema(description = "Code and description identifying the sub type of alert", required = true, example = "{ \"code\": \"XEL\", \"desc\": \"Escape List\" }")
+    @ApiModelProperty(value = "Code and description identifying the sub type of alert", position = 1, required = true, example = "{ \"code\": \"XEL\", \"desc\": \"Escape List\" }")
     @JsonProperty("alert_sub_type")
     private CodeDescription subType;
 
-    @Schema(description = "Date the alert became effective", example = "2019-02-13", required = true)
+    @ApiModelProperty(value = "Date the alert became effective", position = 2, example = "2019-02-13", required = true)
     @JsonProperty("alert_date")
     private LocalDate date;
 
-    @Schema(description = "Alert Type", example = "2019-04-15")
+    @ApiModelProperty(value = "Alert Type", position = 3, example = "2019-04-15")
     @JsonProperty("expiry_date")
     private LocalDate expiryDate;
 
-    @Schema(description = "ACTIVE or INACTIVE (Inactive alerts will have a expiry date of today or earlier", example = "ACTIVE", allowableValues = "ACTIVE,INACTIVE")
+    @ApiModelProperty(value = "ACTIVE or INACTIVE (Inactive alerts will have a expiry date of today or earlier", position = 4, example = "ACTIVE", allowableValues = "ACTIVE,INACTIVE")
     private String status;
 
-    @Schema(description = "Free Text Comment", example = "has a large poster on cell wall")
+    @ApiModelProperty(value = "Free Text Comment", position = 5, example = "has a large poster on cell wall")
     private String comment;
 
     @JsonIgnore
