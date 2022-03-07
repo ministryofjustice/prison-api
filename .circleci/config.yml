@@ -127,10 +127,23 @@ workflows:
             - check
             - test-integration
             - test-schema-nomis
-      - request-preprod-approval:
+      - request-stage-approval:
           type: approval
           requires:
             - deploy_dev
+
+      - hmpps/deploy_env:
+          name: deploy_stage
+          env: "t2"
+          context:
+            - hmpps-common-vars
+            - prison-api-t2
+          requires:
+            - request-stage-approval
+      - request-preprod-approval:
+          type: approval
+          requires:
+            - deploy_stage
 
       - hmpps/deploy_env:
           name: deploy_preprod

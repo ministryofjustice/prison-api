@@ -1,6 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,7 +19,7 @@ import java.time.LocalDateTime;
  * Incentive &amp; Earned Privilege Details
  **/
 @SuppressWarnings("unused")
-@Schema(description = "Incentive & Earned Privilege Details")
+@ApiModel(description = "Incentive & Earned Privilege Details")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -25,33 +27,33 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode
 @Data
 public class PrivilegeDetail {
-    @Schema(required = true, description = "Offender booking identifier.")
+    @ApiModelProperty(required = true, value = "Offender booking identifier.")
     @NotNull
     private Long bookingId;
 
-    @Schema(required = true, description = "Sequence Number of IEP Level", example = "1")
+    @ApiModelProperty(required = true, value = "Sequence Number of IEP Level", example = "1")
     @NotNull
     private Long sequence;
 
-    @Schema(required = true, description = "Effective date of IEP level.")
+    @ApiModelProperty(required = true, value = "Effective date of IEP level.")
     @NotNull
     private LocalDate iepDate;
 
-    @Schema(description = "Effective date & time of IEP level.")
+    @ApiModelProperty(value = "Effective date & time of IEP level.")
     private LocalDateTime iepTime;
 
-    @Schema(required = true, description = "Identifier of Agency this privilege entry is associated with.")
+    @ApiModelProperty(required = true, value = "Identifier of Agency this privilege entry is associated with.")
     @NotBlank
     private String agencyId;
 
-    @Schema(required = true, description = "The IEP level (e.g. Basic, Standard or Enhanced).")
+    @ApiModelProperty(required = true, value = "The IEP level (e.g. Basic, Standard or Enhanced).")
     @NotBlank
     private String iepLevel;
 
-    @Schema(description = "Further details relating to this privilege entry.")
+    @ApiModelProperty(value = "Further details relating to this privilege entry.")
     private String comments;
 
-    @Schema(description = "Identifier of user related to this privilege entry.")
+    @ApiModelProperty(value = "Identifier of user related to this privilege entry.")
     private String userId;
 
     @Schema(description = "The Screen (e.g. NOMIS screen OIDOIEPS) or system (PRISON_API) that made the change", example = "PRISON_API")

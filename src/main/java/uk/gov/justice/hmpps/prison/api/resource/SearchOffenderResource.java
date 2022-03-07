@@ -1,12 +1,10 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -28,7 +26,7 @@ import java.util.List;
 import static uk.gov.justice.hmpps.prison.util.ResourceUtils.nvl;
 
 @RestController
-@Tag(name = "search-offenders")
+@Api(tags = {"search-offenders"})
 @Validated
 @RequestMapping("${api.base.path}/search-offenders")
 public class SearchOffenderResource {
@@ -41,14 +39,14 @@ public class SearchOffenderResource {
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "List offenders by location (matching keywords).", description = "Deprecated: Use <b>/locations/description/{locationPrefix}/inmates</b> instead. This API will be removed in a future release.")
+            @ApiResponse(code = 200, message = "OK", response = OffenderBooking.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    @ApiOperation(value = "List offenders by location (matching keywords).", notes = "Deprecated: Use <b>/locations/description/{locationPrefix}/inmates</b> instead. This API will be removed in a future release.", nickname = "searchForOffendersLocationAndKeyword")
     @Deprecated
     @GetMapping("/{locationPrefix}/{keywords}")
-    public ResponseEntity<List<OffenderBooking>> searchForOffendersLocationAndKeyword(@PathVariable("locationPrefix") @Parameter(description = "", required = true) final String locationPrefix, @PathVariable("keywords") @Parameter(description = "", required = true) final String keywords, @RequestParam(value = "returnIep", required = false, defaultValue = "false") @Parameter(description = "return IEP data") final boolean returnIep, @RequestParam(value = "returnAlerts", required = false, defaultValue = "false") @Parameter(description = "return Alert data") final boolean returnAlerts, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of search-offender records.") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of search-offender records returned.") final Long pageLimit, @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b><<fieldsList>></b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
+    public ResponseEntity<List<OffenderBooking>> searchForOffendersLocationAndKeyword(@PathVariable("locationPrefix") @ApiParam(value = "", required = true) final String locationPrefix, @PathVariable("keywords") @ApiParam(value = "", required = true) final String keywords, @RequestParam(value = "returnIep", required = false, defaultValue = "false") @ApiParam(value = "return IEP data", defaultValue = "false") final boolean returnIep, @RequestParam(value = "returnAlerts", required = false, defaultValue = "false") @ApiParam(value = "return Alert data", defaultValue = "false") final boolean returnAlerts, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @ApiParam(value = "Requested offset of first record in returned collection of search-offender records.", defaultValue = "0") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @ApiParam(value = "Requested limit to number of search-offender records returned.", defaultValue = "10") final Long pageLimit, @RequestHeader(value = "Sort-Fields", required = false) @ApiParam("Comma separated list of one or more of the following fields - <b><<fieldsList>></b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") final Order sortOrder) {
         final var request = SearchOffenderRequest.builder()
                 .username(authenticationFacade.getCurrentUsername())
                 .keywords(keywords)

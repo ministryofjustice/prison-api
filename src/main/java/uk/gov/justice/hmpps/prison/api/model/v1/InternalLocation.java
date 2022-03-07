@@ -3,9 +3,8 @@ package uk.gov.justice.hmpps.prison.api.model.v1;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,7 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Schema(description = "Internal Location")
+@ApiModel(description = "Internal Location")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -25,11 +24,11 @@ public class InternalLocation {
 
     final static int MAX_LEVELS = 4;
 
-    @Schema(description = "Description", example = "BMI-C-2-03")
+    @ApiModelProperty(value = "Description", position = 0, example = "BMI-C-2-03")
     @JsonProperty("description")
     private String description;
 
-    @Schema(description = "Levels")
+    @ApiModelProperty(value = "Levels", position = 1)
     @JsonProperty("levels")
     private List<TypeValue> levels;
 

@@ -1,12 +1,10 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.validation.annotation.Validated;
@@ -22,7 +20,7 @@ import uk.gov.justice.hmpps.prison.service.SmokeTestHelperService;
 import javax.validation.constraints.NotNull;
 
 @RestController
-@Tag(name = "smoketest")
+@Api(tags = {"smoketest"})
 @RequestMapping("${api.base.path}/smoketest")
 @Validated
 @Slf4j
@@ -35,32 +33,32 @@ public class SmokeTestHelperResource {
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "403", description = "Requires role ROLE_SMOKE_TEST", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Sets imprisonment status smoke test data for this offender")
+            @ApiResponse(code = 403, message = "Requires role ROLE_SMOKE_TEST", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Sets imprisonment status smoke test data for this offender")
     @PostMapping("/offenders/{offenderNo}/imprisonment-status")
     @ProxyUser
-    public void imprisonmentDataSetup(@PathVariable("offenderNo") @Parameter(description = "offenderNo", required = true, example = "A1234AA") @NotNull final String offenderNo) {
+    public void imprisonmentDataSetup(@PathVariable("offenderNo") @ApiParam(value = "offenderNo", required = true, example = "A1234AA") @NotNull final String offenderNo) {
         service.imprisonmentDataSetup(offenderNo);
     }
 
     @ApiResponses({
-        @ApiResponse(responseCode = "403", description = "Requires role ROLE_SMOKE_TEST", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Releases this offender, with smoke test data")
+        @ApiResponse(code = 403, message = "Requires role ROLE_SMOKE_TEST", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Releases this offender, with smoke test data")
     @PutMapping("/offenders/{offenderNo}/release")
     @ProxyUser
-    public void releasePrisoner(@PathVariable("offenderNo") @Parameter(description = "offenderNo", required = true, example = "A1234AA") @NotNull final String offenderNo) {
+    public void releasePrisoner(@PathVariable("offenderNo") @ApiParam(value = "offenderNo", required = true, example = "A1234AA") @NotNull final String offenderNo) {
         service.releasePrisoner(offenderNo);
     }
 
     @ApiResponses({
-        @ApiResponse(responseCode = "403", description = "Requires role ROLE_SMOKE_TEST", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Recalls this offender, with smoke test data")
+        @ApiResponse(code = 403, message = "Requires role ROLE_SMOKE_TEST", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class)})
+    @ApiOperation(value = "Recalls this offender, with smoke test data")
     @PutMapping("/offenders/{offenderNo}/recall")
     @ProxyUser
-    public void recallPrisoner(@PathVariable("offenderNo") @Parameter(description = "offenderNo", required = true, example = "A1234AA") @NotNull final String offenderNo) {
+    public void recallPrisoner(@PathVariable("offenderNo") @ApiParam(value = "offenderNo", required = true, example = "A1234AA") @NotNull final String offenderNo) {
         service.recallPrisoner(offenderNo);
     }
 }

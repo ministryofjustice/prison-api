@@ -1,9 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,23 +17,23 @@ import java.time.LocalDate;
  * Offender Sentence Detail
  **/
 @SuppressWarnings("unused")
-@Schema(description = "Offender Sentence Detail")
+@ApiModel(description = "Offender Sentence Detail")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class OffenderSentenceDetail extends OffenderSentenceCalc<SentenceCalcDates> {
-    @Schema(required = true, description = "Offender date of birth.")
+    @ApiModelProperty(required = true, value = "Offender date of birth.", position = 5)
     @NotNull
     private LocalDate dateOfBirth;
-    @Schema(required = true, description = "Agency Description")
+    @ApiModelProperty(required = true, value = "Agency Description", position = 6)
     @NotBlank
     private String agencyLocationDesc;
-    @Schema(required = true, description = "Description of the location within the prison")
+    @ApiModelProperty(required = true, value = "Description of the location within the prison", position = 7)
     @NotBlank
     private String internalLocationDesc;
-    @Schema(description = "Identifier of facial image of offender.")
+    @ApiModelProperty(value = "Identifier of facial image of offender.", position = 8)
     private Long facialImageId;
 
     @Builder(builderMethodName = "offenderSentenceDetailBuilder")

@@ -1,20 +1,19 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.List;
 
-@Schema(description = "Offender damage obligation response")
+@ApiModel(description = "Offender damage obligation response")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
 @AllArgsConstructor
 public class OffenderDamageObligationResponse {
 
-    @Schema(description = "List of offender damage obligations")
+    @ApiModelProperty(value = "List of offender damage obligations", position = 1)
     private List<OffenderDamageObligationModel> damageObligations;
 }

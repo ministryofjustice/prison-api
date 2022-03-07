@@ -1,9 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,7 +12,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-@Schema(description = "Personal Care Need")
+@ApiModel(description = "Personal Care Need")
 @Data
 @Builder
 @AllArgsConstructor
@@ -22,25 +21,25 @@ import java.time.LocalDate;
 @EqualsAndHashCode
 public class PersonalCareNeed {
 
-    @Schema(description = "Problem Type", example = "MATSTAT")
+    @ApiModelProperty(value = "Problem Type", position = 1, example = "MATSTAT")
     private String problemType;
 
-    @Schema(description = "Problem Code", example = "ACCU9")
+    @ApiModelProperty(value = "Problem Code", position = 2, example = "ACCU9")
     private String problemCode;
 
-    @Schema(description = "Problem Status", example = "ON")
+    @ApiModelProperty(value = "Problem Status", position = 3, example = "ON")
     private String problemStatus;
 
-    @Schema(description = "Problem Description", example = "Preg, acc under 9mths")
+    @ApiModelProperty(value = "Problem Description", position = 4, example = "Preg, acc under 9mths")
     private String problemDescription;
 
-    @Schema(description = "Comment Text", example = "a comment")
+    @ApiModelProperty(value = "Comment Text", position = 5, example = "a comment")
     private String commentText;
 
-    @Schema(description = "Start Date", example = "2010-06-21")
+    @ApiModelProperty(value = "Start Date", position = 6, example = "2010-06-21")
     private LocalDate startDate;
 
-    @Schema(description = "End Date", example = "2010-06-21")
+    @ApiModelProperty(value = "End Date", position = 7, example = "2010-06-21")
     private LocalDate endDate;
 
     @JsonIgnore

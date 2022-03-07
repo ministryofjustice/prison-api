@@ -1,20 +1,19 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.List;
 
-@Schema(description = "Offender restrictions")
+@ApiModel(description = "Offender restrictions")
 @Data
 @AllArgsConstructor
 public class OffenderRestrictions {
-    @Schema(description = "Booking id for offender")
+    @ApiModelProperty(value = "Booking id for offender")
     private Long bookingId;
 
-    @Schema(description = "Offender restrictions")
+    @ApiModelProperty(value = "Offender restrictions")
     final List<OffenderRestriction> offenderRestrictions;
 }

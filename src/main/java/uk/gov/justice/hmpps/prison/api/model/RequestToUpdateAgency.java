@@ -2,9 +2,8 @@ package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -16,7 +15,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
-@Schema(description = "Update Agency Request")
+@ApiModel(description = "Update Agency Request")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder(toBuilder = true)
 @AllArgsConstructor
@@ -25,26 +24,26 @@ import javax.validation.constraints.Pattern;
 @JsonPropertyOrder({ "description", "longDescription", "agencyType", "active"})
 public class RequestToUpdateAgency {
     @NotBlank
-    @Schema(required = true, description = "Agency description.", example = "Moorland (HMP & YOI)")
+    @ApiModelProperty(required = true, value = "Agency description.", example = "Moorland (HMP & YOI)", position = 1)
     @Length(max = 40, min = 3, message = "Agency description is max 40 characters and min of 3")
     private String description;
 
-    @Schema(description = "Long description of the agency", example = "Moorland (HMP & YOI)")
+    @ApiModelProperty(value = "Long description of the agency", example = "Moorland (HMP & YOI)", position = 2)
     @Length(max = 3000, min = 3, message = "Agency long description is max 3000 characters and min of 3")
     private String longDescription;
 
     @NotBlank
-    @Schema(required = true, description = "Agency type.  Reference domain is AGY_LOC_TYPE", example = "INST", allowableValues = "CRC,POLSTN,INST,COMM,APPR,CRT,POLICE,IMDC,TRN,OUT,YOT,SCH,STC,HOST,AIRPORT,HSHOSP,HOSPITAL,PECS,PAR,PNP,PSY")
+    @ApiModelProperty(required = true, value = "Agency type.  Reference domain is AGY_LOC_TYPE", example = "INST", allowableValues = "CRC,POLSTN,INST,COMM,APPR,CRT,POLICE,IMDC,TRN,OUT,YOT,SCH,STC,HOST,AIRPORT,HSHOSP,HOSPITAL,PECS,PAR,PNP,PSY", position = 3)
     @Valid @Length(max = 12, min = 2, message = "Agency Type is max 12 characters and min of 2")
     @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "Invalid characters for agencyType")
     private String agencyType;
 
-    @Schema(required = true, description = "Court Type.  Reference domain is JURISDICTION", example = "CC", allowableValues = "CACD,CB,CC,CO,DCM,GCM,IMM,MC,OTHER,YC")
+    @ApiModelProperty(required = true, value = "Court Type.  Reference domain is JURISDICTION", example = "CC", allowableValues = "CACD,CB,CC,CO,DCM,GCM,IMM,MC,OTHER,YC", position = 4)
     @Valid @Length(max = 12, min = 2, message = "Court Type is max 12 characters and min of 2")
     @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "Invalid characters for Court Type")
     private String courtType;
 
-    @Schema(description = "Indicates the Agency is active. Note: If set false, the current date will be the deactivation date", example = "true")
+    @ApiModelProperty(value = "Indicates the Agency is active",  notes = "if set false, the current date will be the deactivation date", example = "true", position = 5)
     @Default
     private boolean active = true;
 }

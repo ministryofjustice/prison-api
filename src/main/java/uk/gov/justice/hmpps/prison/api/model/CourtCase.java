@@ -1,9 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,38 +12,38 @@ import org.apache.commons.lang3.StringUtils;
 import java.time.LocalDate;
 import java.util.List;
 
-@Schema(description = "Offender court case details")
+@ApiModel(description = "Offender court case details")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CourtCase {
-    @Schema(description = "The case identifier", example = "1")
+    @ApiModelProperty(value = "The case identifier", position = 1, example = "1")
     private Long id;
 
-    @Schema(description = "The case sequence number for the offender", example = "1")
+    @ApiModelProperty(value = "The case sequence number for the offender", position = 2, example = "1")
     private Long caseSeq;
 
-    @Schema(description = "The begin date", example = "2019-12-01")
+    @ApiModelProperty(value = "The begin date", position = 3, example = "2019-12-01")
     private LocalDate beginDate;
 
-    @Schema(description = "Agency details")
+    @ApiModelProperty(value = "Agency details", position = 4)
     private Agency agency;
 
-    @Schema(description = "The case type", example = "Adult")
+    @ApiModelProperty(value = "The case type", position = 5, example = "Adult")
     private String caseType;
 
-    @Schema(description = "The prefix of the case number")
+    @ApiModelProperty(value = "The prefix of the case number", position = 6)
     private String caseInfoPrefix;
 
-    @Schema(description = "The case information number", example = "TD20177010")
+    @ApiModelProperty(value = "The case information number", position = 7, example = "TD20177010")
     private String caseInfoNumber;
 
-    @Schema(description = "The case status", example = "ACTIVE", allowableValues = "ACTIVE, CLOSED, INACTIVE")
+    @ApiModelProperty(value = "The case status", position = 8, example = "ACTIVE", allowableValues = "ACTIVE, CLOSED, INACTIVE")
     private String caseStatus;
 
-    @Schema(description = "Court hearings associated with the court case")
+    @ApiModelProperty(value = "Court hearings associated with the court case", position = 9)
     private List<CourtHearing> courtHearings;
 
     public String getCaseStatus() {
