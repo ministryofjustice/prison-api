@@ -2,9 +2,7 @@ package uk.gov.justice.hmpps.prison.api.resource;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -32,7 +30,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import io.swagger.v3.oas.annotations.Hidden;
 import uk.gov.justice.hmpps.prison.api.model.Account;
 import uk.gov.justice.hmpps.prison.api.model.Alert;
 import uk.gov.justice.hmpps.prison.api.model.AlertChanges;
@@ -72,6 +69,7 @@ import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
 import uk.gov.justice.hmpps.prison.api.model.ProfileInformation;
 import uk.gov.justice.hmpps.prison.api.model.PropertyContainer;
 import uk.gov.justice.hmpps.prison.api.model.ReasonableAdjustments;
+import uk.gov.justice.hmpps.prison.api.model.ReturnToCustodyDate;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.SecondaryLanguage;
 import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentDetail;
@@ -107,6 +105,7 @@ import uk.gov.justice.hmpps.prison.service.InmateAlertService;
 import uk.gov.justice.hmpps.prison.service.InmateService;
 import uk.gov.justice.hmpps.prison.service.MovementsService;
 import uk.gov.justice.hmpps.prison.service.OffenderNonAssociationsService;
+import uk.gov.justice.hmpps.prison.service.OffenderFixedTermRecallService;
 import uk.gov.justice.hmpps.prison.service.keyworker.KeyWorkerAllocationService;
 
 import javax.validation.Valid;
@@ -147,6 +146,7 @@ public class BookingResource {
     private final MovementsService movementsService;
     private final AppointmentsService appointmentsService;
     private final OffenderNonAssociationsService offenderNonAssociationsService;
+    private final OffenderFixedTermRecallService returnToCustodyService;
 
     @ApiResponses({
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
@@ -1118,5 +1118,15 @@ public class BookingResource {
         final var pageIndex = page != null ? page : 0;
         final var pageSize = size != null ? size : 20;
         return bedAssignmentHistoryService.getBedAssignmentsHistory(bookingId, PageRequest.of(pageIndex, pageSize, Sort.by("assignmentDate").descending()));
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Gets the return to custody date for a booking")
+    @GetMapping("/{bookingId}/return-to-custody")
+    public ReturnToCustodyDate getReturnToCustodyDate(@PathVariable("bookingId") @Parameter(description = "The offender booking linked to the return to custody date.", required = true) final Long bookingId) {
+        return returnToCustodyService.getReturnToCustodyDate(bookingId);
     }
 }
