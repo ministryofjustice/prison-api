@@ -96,15 +96,20 @@ public class OffenderIepLevel extends AuditableEntity {
     @Column(name = "USER_ID", updatable = false, insertable = false)
     private String username;
 
-    public PrivilegeDetail getPrivilageDetail() {
+    @Column(name = "AUDIT_MODULE_NAME")
+    private String auditModuleName;
+
+    public PrivilegeDetail getPrivilegeDetail() {
         return PrivilegeDetail.builder()
             .bookingId(getOffenderBooking().getBookingId())
+            .sequence(getSequence())
             .iepDate(getIepDate())
             .iepTime(getIepDateTime())
             .iepLevel(getIepLevel().getDescription())
             .agencyId(getAvailablePrisonIepLevel().getAgencyLocation().getId())
             .comments(getComment())
             .userId(getStaffUser() != null ? getStaffUser().getUsername() : getUsername())
+            .auditModuleName(getAuditModuleName())
             .build();
     }
 
