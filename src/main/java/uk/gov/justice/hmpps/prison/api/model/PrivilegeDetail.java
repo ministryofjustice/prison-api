@@ -2,8 +2,6 @@ package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -31,6 +29,10 @@ public class PrivilegeDetail {
     @NotNull
     private Long bookingId;
 
+    @Schema(required = true, description = "Sequence Number of IEP Level", example = "1")
+    @NotNull
+    private Long sequence;
+
     @Schema(required = true, description = "Effective date of IEP level.")
     @NotNull
     private LocalDate iepDate;
@@ -51,4 +53,7 @@ public class PrivilegeDetail {
 
     @Schema(description = "Identifier of user related to this privilege entry.")
     private String userId;
+
+    @Schema(description = "The Screen (e.g. NOMIS screen OIDOIEPS) or system (PRISON_API) that made the change", example = "PRISON_API")
+    private String auditModuleName;
 }
