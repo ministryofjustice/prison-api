@@ -564,42 +564,50 @@ public class BookingRepositoryTest {
                 .containsExactlyInAnyOrder(
                         PrivilegeDetail.builder()
                                 .bookingId(-3L)
+                                .sequence(3L)
                                 .iepDate(LocalDate.of(2017, 10, 12))
                                 .iepTime(LocalDateTime.of(2017, 10, 12, 7, 53, 45))
                                 .agencyId("LEI")
                                 .iepLevel("Enhanced")
                                 .userId("ITAG_USER")
                                 .comments("Did not assault another inmate - data entry error.")
+                                .auditModuleName("PRISON_API")
                                 .build(),
 
                         PrivilegeDetail.builder()
                                 .bookingId(-3L)
+                                .sequence(2L)
                                 .iepDate(LocalDate.of(2017, 10, 12))
                                 .iepTime(LocalDateTime.of(2017, 10, 12, 9, 44, 1))
                                 .agencyId("LEI")
                                 .iepLevel("Basic")
                                 .userId("ITAG_USER")
                                 .comments("Assaulted another inmate.")
+                                .auditModuleName("PRISON_API")
                                 .build(),
 
                         PrivilegeDetail.builder()
                                 .bookingId(-3L)
+                                .sequence(4L)
                                 .iepDate(LocalDate.of(2017, 8, 22))
                                 .iepTime(LocalDateTime.of(2017, 8, 22, 18, 42, 35))
                                 .agencyId("LEI")
                                 .iepLevel("Standard")
                                 .userId("ITAG_USER")
                                 .comments("He has been a very good boy.")
+                                .auditModuleName("PRISON_API")
                                 .build(),
 
                         PrivilegeDetail.builder()
                                 .bookingId(-3L)
+                                .sequence(1L)
                                 .iepDate(LocalDate.of(2017, 7, 4))
                                 .iepTime(LocalDateTime.of(2017, 7, 4, 12, 15, 42))
                                 .agencyId("LEI")
                                 .iepLevel("Entry")
                                 .userId(null)
                                 .comments(null)
+                                .auditModuleName("OIDOIEPS")
                                 .build()
 
                 );
