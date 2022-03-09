@@ -135,6 +135,8 @@ workflows:
       - hmpps/deploy_env:
           name: deploy_stage
           env: "t2"
+          jira_update: true
+          jira_env_type: testing
           context:
             - hmpps-common-vars
             - prison-api-t2
