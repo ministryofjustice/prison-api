@@ -4,8 +4,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,7 +14,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@ApiModel(description = "Language")
+@Schema(description = "Language")
 @JsonInclude(Include.NON_NULL)
 @JsonPropertyOrder({"preferred_spoken", "interpreter_required"})
 @Data
@@ -24,11 +25,11 @@ import lombok.ToString;
 @ToString
 public class Language {
 
-    @ApiModelProperty(value = "Spoken language", name = "preferred_spoken", position = 0)
+    @Schema(description = "Spoken language", name = "preferred_spoken")
     @JsonProperty("preferred_spoken")
     private CodeDescription spokenLanguage;
 
-    @ApiModelProperty(value = "whether an interpreter is required", name = "interpreter_required", example = "true", position = 1)
+    @Schema(description = "whether an interpreter is required", name = "interpreter_required", example = "true")
     @JsonProperty("interpreter_required")
     private Boolean interpreterRequired;
 
