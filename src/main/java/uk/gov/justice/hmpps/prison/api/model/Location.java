@@ -1,8 +1,9 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,45 +16,45 @@ import javax.validation.constraints.NotNull;
  * Location Details
  **/
 @SuppressWarnings("unused")
-@ApiModel(description = "Location Details")
+@Schema(description = "Location Details")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 public class Location {
-    @ApiModelProperty(required = true, value = "Location identifier.")
+    @Schema(required = true, description = "Location identifier.")
     @NotNull
     private Long locationId;
 
-    @ApiModelProperty(required = true, value = "Location type.")
+    @Schema(required = true, description = "Location type.")
     @NotBlank
     private String locationType;
 
-    @ApiModelProperty(required = true, value = "Location description.")
+    @Schema(required = true, description = "Location description.")
     @NotBlank
     private String description;
 
-    @ApiModelProperty(value = "What events this room can be used for.")
+    @Schema(description = "What events this room can be used for.")
     private String locationUsage;
 
-    @ApiModelProperty(required = true, value = "Identifier of Agency this location is associated with.")
+    @Schema(required = true, description = "Identifier of Agency this location is associated with.")
     @NotBlank
     private String agencyId;
 
-    @ApiModelProperty(value = "Identifier of this location's parent location.")
+    @Schema(description = "Identifier of this location's parent location.")
     private Long parentLocationId;
 
-    @ApiModelProperty(value = "Current occupancy of location.")
+    @Schema(description = "Current occupancy of location.")
     private Integer currentOccupancy;
 
-    @ApiModelProperty(value = "Location prefix. Defines search prefix that will constrain search to this location and its subordinate locations.")
+    @Schema(description = "Location prefix. Defines search prefix that will constrain search to this location and its subordinate locations.")
     private String locationPrefix;
 
-    @ApiModelProperty(value = "Operational capacity of the location.")
+    @Schema(description = "Operational capacity of the location.")
     private Integer operationalCapacity;
 
-    @ApiModelProperty(value = "User-friendly location description.")
+    @Schema(description = "User-friendly location description.")
     private String userDescription;
 
     private String internalLocationCode;

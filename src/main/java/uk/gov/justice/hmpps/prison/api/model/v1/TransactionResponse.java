@@ -1,7 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model.v1;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,7 +12,7 @@ import lombok.ToString;
 
 import javax.validation.constraints.NotNull;
 
-@ApiModel(description = "Transaction Response")
+@Schema(description = "Transaction Response")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,7 +20,7 @@ import javax.validation.constraints.NotNull;
 @EqualsAndHashCode
 @ToString
 public class TransactionResponse {
-    @ApiModelProperty(value = "ID of created transaction", example = "6179604-1")
+    @Schema(description = "ID of created transaction", example = "6179604-1")
     @NotNull
     private String id;
 }

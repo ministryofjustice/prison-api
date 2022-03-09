@@ -1,8 +1,9 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,7 +16,7 @@ import javax.validation.constraints.NotNull;
  * Case Load Update
  **/
 @SuppressWarnings("unused")
-@ApiModel(description = "Caseload Update")
+@Schema(description = "Caseload Update")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -24,11 +25,11 @@ import javax.validation.constraints.NotNull;
 @Data
 public class CaseloadUpdate {
 
-    @ApiModelProperty(required = true, value = "Caseload", example = "MDI")
+    @Schema(required = true, description = "Caseload", example = "MDI")
     @NotNull
     private String caseload;
 
-    @ApiModelProperty(required = true, value = "Number of users enabled to access API", example = "5", position = 2)
+    @Schema(required = true, description = "Number of users enabled to access API", example = "5")
     @NotNull
     private int numUsersEnabled;
 }

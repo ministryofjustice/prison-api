@@ -1,8 +1,9 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,7 +18,7 @@ import java.time.LocalDateTime;
  * Case Note Amendment
  **/
 @SuppressWarnings("unused")
-@ApiModel(description = "Case Note Amendment")
+@Schema(description = "Case Note Amendment")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -25,15 +26,15 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode
 @Data
 public class CaseNoteAmendment {
-    @ApiModelProperty(required = true, value = "Date and Time of Case Note creation", example = "2018-12-01T13:45:00")
+    @Schema(required = true, description = "Date and Time of Case Note creation", example = "2018-12-01T13:45:00")
     @NotNull
     private LocalDateTime creationDateTime;
 
-    @ApiModelProperty(required = true, value = "Name of the user amending the case note (lastname, firstname)", position = 1, example = "Smith, John")
+    @Schema(required = true, description = "Name of the user amending the case note (lastname, firstname)", example = "Smith, John")
     @NotBlank
     private String authorName;
 
-    @ApiModelProperty(required = true, value = "Additional Case Note Information", position = 2, example = "Some Additional Text")
+    @Schema(required = true, description = "Additional Case Note Information", example = "Some Additional Text")
     @NotBlank
     private String additionalNoteText;
 }

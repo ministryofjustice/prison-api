@@ -1,8 +1,9 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 import java.util.SortedSet;
 
 
-@ApiModel(description = "Questionnaire Question")
+@Schema(description = "Questionnaire Question")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -23,23 +24,23 @@ import java.util.SortedSet;
 @Data
 public class QuestionnaireQuestion implements Comparable<QuestionnaireQuestion> {
 
-    @ApiModelProperty(required = true, value = "")
+    @Schema(required = true, description = "")
     private Long questionnaireQueId;
-    @ApiModelProperty(required = true, value = "", position = 1)
+    @Schema(required = true, description = "")
     private int questionSeq;
-    @ApiModelProperty(required = true, value = "", position = 2)
+    @Schema(required = true, description = "")
     private String questionDesc;
-    @ApiModelProperty(required = true, value = "", position = 3)
+    @Schema(required = true, description = "")
     private int questionListSeq;
-    @ApiModelProperty(required = true, value = "", position = 4)
+    @Schema(required = true, description = "")
     private Boolean questionActiveFlag;
-    @ApiModelProperty(required = true, value = "", position = 5)
+    @Schema(required = true, description = "")
     private LocalDateTime questionExpiryDate;
-    @ApiModelProperty(required = true, value = "", position = 6)
+    @Schema(required = true, description = "")
     private Boolean multipleAnswerFlag;
-    @ApiModelProperty(required = true, value = "", position = 7)
+    @Schema(required = true, description = "")
     private Long nextQuestionnaireQueId;
-    @ApiModelProperty(required = true, value = "", position = 8)
+    @Schema(required = true, description = "")
     private SortedSet<QuestionnaireAnswer> answers;
 
     @Override

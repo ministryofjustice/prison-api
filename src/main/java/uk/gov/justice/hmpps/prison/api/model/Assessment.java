@@ -2,8 +2,9 @@ package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,7 +19,7 @@ import java.util.Map;
  * Assessment
  **/
 @SuppressWarnings("unused")
-@ApiModel(description = "Assessment")
+@Schema(description = "Assessment")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -29,59 +30,59 @@ public class Assessment {
     private Map<String, Object> additionalProperties;
 
     @NotNull
-    @ApiModelProperty(value = "Booking number", position = 1, example = "123456")
+    @Schema(description = "Booking number", example = "123456")
     private Long bookingId;
 
     @NotBlank
-    @ApiModelProperty(value = "Offender number (e.g. NOMS Number).", position = 2, example = "GV09876N")
+    @Schema(description = "Offender number (e.g. NOMS Number).", example = "GV09876N")
     private String offenderNo;
 
     @NotBlank
-    @ApiModelProperty(value = "Classification code", position = 3, example = "C")
+    @Schema(description = "Classification code", example = "C")
     private String classificationCode;
 
     @NotBlank
-    @ApiModelProperty(value = "Classification description", position = 4, example = "Cat C")
+    @Schema(description = "Classification description", example = "Cat C")
     private String classification;
 
     @NotBlank
-    @ApiModelProperty(value = "Identifies the type of assessment", position = 5, example = "CATEGORY")
+    @Schema(description = "Identifies the type of assessment", example = "CATEGORY")
     private String assessmentCode;
 
     @NotBlank
-    @ApiModelProperty(value = "Assessment description", position = 6, example = "Categorisation")
+    @Schema(description = "Assessment description", example = "Categorisation")
     private String assessmentDescription;
 
     @NotNull
-    @ApiModelProperty(value = "Indicates the presence of a cell sharing alert", position = 7)
+    @Schema(description = "Indicates the presence of a cell sharing alert")
     private boolean cellSharingAlertFlag;
 
     @NotNull
-    @ApiModelProperty(value = "Date assessment was created", position = 8, example = "2018-02-11")
+    @Schema(description = "Date assessment was created", example = "2018-02-11")
     private LocalDate assessmentDate;
 
     @NotNull
-    @ApiModelProperty(value = "Date of next review", position = 9, example = "2018-02-11")
+    @Schema(description = "Date of next review", example = "2018-02-11")
     private LocalDate nextReviewDate;
 
-    @ApiModelProperty(value = "Date of assessment approval", position = 10, example = "2018-02-11")
+    @Schema(description = "Date of assessment approval", example = "2018-02-11")
     private LocalDate approvalDate;
 
-    @ApiModelProperty(value = "The assessment creation agency id", position = 11, example = "MDI")
+    @Schema(description = "The assessment creation agency id", example = "MDI")
     private String assessmentAgencyId;
 
-    @ApiModelProperty(value = "The status of the assessment", position = 12, example = "A", allowableValues = "P,A,I")
+    @Schema(description = "The status of the assessment", example = "A", allowableValues = "P,A,I")
     private String assessmentStatus;
 
-    @ApiModelProperty(value = "Sequence number of assessment within booking", position = 13, example = "1")
+    @Schema(description = "Sequence number of assessment within booking", example = "1")
     private Integer assessmentSeq;
 
-    @ApiModelProperty(value = "Comment from assessor", position = 14, example = "Comment details")
+    @Schema(description = "Comment from assessor", example = "Comment details")
     private String assessmentComment;
 
-    @ApiModelProperty(value = "Staff member who made the assessment", position = 15, example = "130000")
+    @Schema(description = "Staff member who made the assessment", example = "130000")
     private Long assessorId;
 
-    @ApiModelProperty(value = "Username who made the assessment", position = 16, example = "NGK33Y")
+    @Schema(description = "Username who made the assessment", example = "NGK33Y")
     private String assessorUser;
 }

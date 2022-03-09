@@ -2,8 +2,9 @@ package uk.gov.justice.hmpps.prison.api.model.adjudications;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +15,7 @@ import java.util.List;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
-@ApiModel(description = "A result from a hearing")
+@Schema(description = "A result from a hearing")
 @JsonInclude(NON_NULL)
 @Builder(toBuilder = true)
 @AllArgsConstructor
@@ -22,23 +23,22 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 @Data
 public class HearingResult {
 
-    @ApiModelProperty(value = "OIC Offence Code", example = "51:22")
+    @Schema(description = "OIC Offence Code", example = "51:22")
     private String oicOffenceCode;
 
-    @ApiModelProperty(value = "Offence Type", example = "Prison Rule 51")
+    @Schema(description = "Offence Type", example = "Prison Rule 51")
     private String offenceType;
 
-    @ApiModelProperty(value = "Offence Description", example = "Disobeys any lawful order")
+    @Schema(description = "Offence Description", example = "Disobeys any lawful order")
     private String offenceDescription;
 
-    @ApiModelProperty(value = "Plea", example = "Guilty")
+    @Schema(description = "Plea", example = "Guilty")
     private String plea;
 
-    @ApiModelProperty(value = "Finding", example = "Charge Proved")
+    @Schema(description = "Finding", example = "Charge Proved")
     private String finding;
 
     @Singular
-    @ApiModelProperty
     private List<Sanction> sanctions;
 
     @JsonIgnore

@@ -1,8 +1,9 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @SuppressWarnings("unused")
-@ApiModel(description = "Summary data for a completed movement")
+@Schema(description = "Summary data for a completed movement")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder(toBuilder = true)
 @AllArgsConstructor
@@ -22,39 +23,39 @@ import java.time.LocalDateTime;
 @Data
 public class OutOnTemporaryAbsenceSummary {
 
-    @ApiModelProperty(required = true, value = "Offender number (NOMS ID)", example = "G3878UK", position = 0)
+    @Schema(required = true, description = "Offender number (NOMS ID)", example = "G3878UK")
     private String offenderNo;
 
     @NotBlank
-    @ApiModelProperty(required = true, value = "Prisoner first name.", example = "JOHN", position = 1)
+    @Schema(required = true, description = "Prisoner first name.", example = "JOHN")
     private String firstName;
 
     @NotBlank
-    @ApiModelProperty(required = true, value = "Prisoner's last name.", example = "SMITH", position = 2)
+    @Schema(required = true, description = "Prisoner's last name.", example = "SMITH")
     private String lastName;
 
     @NotNull
-    @ApiModelProperty(required = true, value = "Prisoner's date of birth.", example = "1980-05-02", position = 3)
+    @Schema(required = true, description = "Prisoner's date of birth.", example = "1980-05-02")
     private LocalDate dateOfBirth;
 
-    @ApiModelProperty(required = true, value = "Movement date and time in Europe/London local time format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS.", example = "2019-12-01T13:34:00", position = 4)
+    @Schema(required = true, description = "Movement date and time in Europe/London local time format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS.", example = "2019-12-01T13:34:00")
     private LocalDateTime movementTime;
 
-    @ApiModelProperty(value = "Agency travelling to", example = "MDI", position = 5)
+    @Schema(description = "Agency travelling to", example = "MDI")
     private String toAgency;
 
-    @ApiModelProperty( value = "Description of the agency travelling to", example = "HMP MOORLANDS", position = 7)
+    @Schema(description = "Description of the agency travelling to", example = "HMP MOORLANDS")
     private String toAgencyDescription;
 
-    @ApiModelProperty(value = "City offender was sent to", example = "DONCASTER", position = 8)
+    @Schema(description = "City offender was sent to", example = "DONCASTER")
     private String toCity;
 
-    @ApiModelProperty(required = true, value = "The movement reason code", example = "C1", position = 9)
+    @Schema(required = true, description = "The movement reason code", example = "C1")
     private String movementReasonCode;
 
-    @ApiModelProperty(required = true, value = "Description of movement reason", example = "Convicted at court", position = 10)
+    @Schema(required = true, description = "Description of movement reason", example = "Convicted at court")
     private String movementReason;
 
-    @ApiModelProperty(value = "Comment", example = "This is a free text comment", position = 11)
+    @Schema(description = "Comment", example = "This is a free text comment")
     private String commentText;
 }

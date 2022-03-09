@@ -1,8 +1,9 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +15,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 
-@ApiModel(description = "Information about an Offender's attendance at an activity")
+@Schema(description = "Information about an Offender's attendance at an activity")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder(toBuilder = true)
 @Data
@@ -25,27 +26,27 @@ public class OffenderAttendance {
     private Long bookingId;
 
     @NotNull
-    @ApiModelProperty(value = "The date of this activity")
+    @Schema(description = "The date of this activity")
     private LocalDate eventDate;
 
-    @ApiModelProperty(value = "Whether the offender attended", allowableValues = "ABS,ACCAB,ATT,CANC,NREQ,SUS,UNACAB,REST")
+    @Schema(description = "Whether the offender attended", allowableValues = "ABS,ACCAB,ATT,CANC,NREQ,SUS,UNACAB,REST")
     private String outcome;
 
-    @ApiModelProperty(value = "The course code")
+    @Schema(description = "The course code")
     private String code;
 
-    @ApiModelProperty(value = "The course description")
+    @Schema(description = "The course description")
     private String description;
 
-    @ApiModelProperty(value = "The Prison ID", example = "MDI")
+    @Schema(description = "The Prison ID", example = "MDI")
     private String prisonId;
 
-    @ApiModelProperty(value = "The current status for the offender on this activity")
+    @Schema(description = "The current status for the offender on this activity")
     private String activityStatus;
 
-    @ApiModelProperty(value = "Activity name")
+    @Schema(description = "Activity name")
     private String activity;
 
-    @ApiModelProperty(value = "Attendance comment")
+    @Schema(description = "Attendance comment")
     private String comment;
 }

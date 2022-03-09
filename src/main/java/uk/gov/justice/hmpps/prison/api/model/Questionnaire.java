@@ -1,8 +1,9 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +13,7 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.NotBlank;
 import java.util.SortedSet;
 
-@ApiModel(description = "Questionnaire")
+@Schema(description = "Questionnaire")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -20,13 +21,13 @@ import java.util.SortedSet;
 @EqualsAndHashCode
 @Data
 public class Questionnaire {
-    @ApiModelProperty(required = true, value = "Code to identify this questionnaire", example = "ASSAULTS")
+    @Schema(required = true, description = "Code to identify this questionnaire", example = "ASSAULTS")
     @NotBlank
     private String code;
-    @ApiModelProperty(required = true, value = "ID internal of this Questionnaire", example = "123412", position = 1)
+    @Schema(required = true, description = "ID internal of this Questionnaire", example = "123412")
     @NotBlank
     private Long questionnaireId;
 
-    @ApiModelProperty(required = true, value = "List of Questions (with Answers) for this Questionnaire", position = 2)
+    @Schema(required = true, description = "List of Questions (with Answers) for this Questionnaire")
     private SortedSet<QuestionnaireQuestion> questions;
 }

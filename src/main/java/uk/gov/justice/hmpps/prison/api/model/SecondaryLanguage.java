@@ -1,26 +1,27 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.Builder;
 import lombok.Data;
 
-@ApiModel(description = "Secondary language")
+@Schema(description = "Secondary language")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @Data
 public class SecondaryLanguage {
-    @ApiModelProperty(value = "Booking id", example = "10000")
+    @Schema(description = "Booking id", example = "10000")
     private Long bookingId;
-    @ApiModelProperty(value = "Language code", example = "ENG")
+    @Schema(description = "Language code", example = "ENG")
     private String code;
-    @ApiModelProperty(value = "Language description", example = "English")
+    @Schema(description = "Language description", example = "English")
     private String description;
-    @ApiModelProperty(value = "Reading proficiency")
+    @Schema(description = "Reading proficiency")
     private Boolean canRead;
-    @ApiModelProperty(value = "Writing proficiency")
+    @Schema(description = "Writing proficiency")
     private Boolean canWrite;
-    @ApiModelProperty(value = "Speaking proficiency")
+    @Schema(description = "Speaking proficiency")
     private Boolean canSpeak;
 }

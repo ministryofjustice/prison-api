@@ -1,8 +1,9 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,7 +14,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
-@ApiModel(description = "Categorisation approval detail for an offender")
+@Schema(description = "Categorisation approval detail for an offender")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @Data
@@ -21,23 +22,23 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class CategoryRejectionDetail {
 
-    @ApiModelProperty(required = true, value = "Booking Id", position = 1)
+    @Schema(required = true, description = "Booking Id")
     @NotNull(message = "bookingId must be provided")
     private Long bookingId;
 
-    @ApiModelProperty(required = true, value = "Sequence number", position = 2)
+    @Schema(required = true, description = "Sequence number")
     @NotNull(message = "Sequence number must be provided")
     private Integer assessmentSeq;
 
-    @ApiModelProperty(required = true, value = "Date of rejection", position = 3)
+    @Schema(required = true, description = "Date of rejection")
     @NotNull(message = "Date of rejection must be provided") // TODO make optional, default today?
     private LocalDate evaluationDate;
 
-    @ApiModelProperty(required = true, value = "Department, reference code in domain 'ASSESS_COMM'. Normally 'REVIEW'", position = 4)
+    @Schema(required = true, description = "Department, reference code in domain 'ASSESS_COMM'. Normally 'REVIEW'")
     @NotEmpty(message = "Department must be provided")
     private String reviewCommitteeCode;
 
-    @ApiModelProperty(value = "Overall comment", position = 5)
+    @Schema(description = "Overall comment")
     @Size(max = 240, message = "Comment text must be a maximum of 240 characters")
     private String committeeCommentText;
 }

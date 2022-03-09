@@ -1,8 +1,9 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,7 +18,7 @@ import java.time.LocalDate;
 /**
  * Alias
  **/
-@ApiModel(description = "Alias")
+@Schema(description = "Alias")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -27,35 +28,35 @@ import java.time.LocalDate;
 @Data
 public class Alias {
     @NotBlank
-    @ApiModelProperty(required = true, value = "First name of offender alias", example = "Mike")
+    @Schema(required = true, description = "First name of offender alias", example = "Mike")
     private String firstName;
 
-    @ApiModelProperty(value = "Middle names of offender alias", example = "John")
+    @Schema(description = "Middle names of offender alias", example = "John")
     private String middleName;
 
     @NotBlank
-    @ApiModelProperty(required = true, value = "Last name of offender alias", example = "Smith")
+    @Schema(required = true, description = "Last name of offender alias", example = "Smith")
     private String lastName;
 
     @NotNull
-    @ApiModelProperty(required = true, value = "Age of Offender", example = "32")
+    @Schema(required = true, description = "Age of Offender", example = "32")
     private Integer age;
 
     @NotNull
-    @ApiModelProperty(required = true, value = "Date of Birth of Offender", example = "1980-02-28")
+    @Schema(required = true, description = "Date of Birth of Offender", example = "1980-02-28")
     private LocalDate dob;
 
     @NotBlank
-    @ApiModelProperty(required = true, value = "Gender", example = "Male")
+    @Schema(required = true, description = "Gender", example = "Male")
     private String gender;
 
-    @ApiModelProperty(value = "Ethnicity", example = "Mixed: White and Black African")
+    @Schema(description = "Ethnicity", example = "Mixed: White and Black African")
     private String ethnicity;
 
-    @ApiModelProperty(value = "Type of Alias", example = "Alias Name")
+    @Schema(description = "Type of Alias", example = "Alias Name")
     private String nameType;
 
     @NotNull
-    @ApiModelProperty(required = true, value = "Date of creation", example = "2019-02-15")
+    @Schema(required = true, description = "Date of creation", example = "2019-02-15")
     private LocalDate createDate;
 }
