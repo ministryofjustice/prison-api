@@ -1,9 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +18,7 @@ import java.time.LocalDate;
  * Staff Details
  **/
 @SuppressWarnings("unused")
-@Schema(description = "Staff Details")
+@ApiModel(description = "Staff Details")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @Data
@@ -29,29 +28,29 @@ import java.time.LocalDate;
 @EqualsAndHashCode
 public class StaffDetail {
 
-    @Schema(required = true, description = "Unique identifier for staff member.", example = "423142")
+    @ApiModelProperty(required = true, value = "Unique identifier for staff member.", position = 1, example = "423142")
     @NotNull
     private Long staffId;
 
-    @Schema(required = true, description = "Staff member's first name.", example = "JOHN")
+    @ApiModelProperty(required = true, value = "Staff member's first name.", position = 2, example = "JOHN")
     @NotBlank
     private String firstName;
 
-    @Schema(required = true, description = "Staff member's last name.", example = "SMITH")
+    @ApiModelProperty(required = true, value = "Staff member's last name.", position = 3, example = "SMITH")
     @NotBlank
     private String lastName;
 
-    @Schema(required = true, description = "Status of staff member.", example = "ACTIVE", allowableValues = "ACTIVE,INACTIVE")
+    @ApiModelProperty(required = true, value = "Status of staff member.", position = 4, example = "ACTIVE", allowableValues = "ACTIVE,INACTIVE")
     @NotBlank
     private String status;
 
-    @Schema(description = "Identifier for staff member image.", example = "231232")
+    @ApiModelProperty(value = "Identifier for staff member image.", position = 5, example = "231232")
     private Long thumbnailId;
 
-    @Schema(description = "Gender of Staff Member", example = "M", allowableValues = "M,F,NK,NS,REF")
+    @ApiModelProperty(value = "Gender of Staff Member", position = 6, example = "M", allowableValues = "M,F,NK,NS,REF")
     private String gender;
 
-    @Schema(description = "Date of Birth of Staff Member", example = "1970-01-02")
+    @ApiModelProperty(value = "Date of Birth of Staff Member", position = 7, example = "1970-01-02")
     private LocalDate dateOfBirth;
 
 }

@@ -2,9 +2,8 @@ package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,7 +17,7 @@ import java.time.LocalDateTime;
 
 
 @Getter
-@Schema(description = "Case Note Event")
+@ApiModel(description = "Case Note Event")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @EqualsAndHashCode
@@ -26,19 +25,19 @@ import java.time.LocalDateTime;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Data
 public class CaseNoteEvent {
-    @Schema(name = "noms_id", description = "Offender Noms Id", example = "A1417AE", required = true)
+    @ApiModelProperty(name = "noms_id", value = "Offender Noms Id", example = "A1417AE", required = true, position = 1)
     private String nomsId;
 
-    @Schema(required = true, description = "Case Note Id (unique)", example = "12311312")
+    @ApiModelProperty(required = true, value = "Case Note Id (unique)", example = "12311312", position = 2)
     private Long id;
 
-    @Schema(required = true, description = "Case Note Text", example = "This is some text")
+    @ApiModelProperty(required = true, value = "Case Note Text", position = 3, example = "This is some text")
     private String content;
 
-    @Schema(required = true, description = "Date and Time of when case note contact with offender was made", example = "2017-10-31T01:30:00")
+    @ApiModelProperty(required = true, value = "Date and Time of when case note contact with offender was made", position = 4, example = "2017-10-31T01:30:00")
     private LocalDateTime contactTimestamp;
 
-    @Schema(required = true, description = "Date and Time of notification of event", example = "2017-10-31T01:30:00")
+    @ApiModelProperty(required = true, value = "Date and Time of notification of event", position = 5, example = "2017-10-31T01:30:00")
     private LocalDateTime notificationTimestamp;
 
     @JsonIgnore
@@ -46,7 +45,7 @@ public class CaseNoteEvent {
     @JsonIgnore
     private String lastName;
 
-    @Schema(description = "Agency Code where Case Note was made.", example = "MDI")
+    @ApiModelProperty(value = "Agency Code where Case Note was made.", position = 7, example = "MDI")
     private String establishmentCode;
 
     @JsonIgnore
@@ -54,12 +53,12 @@ public class CaseNoteEvent {
     @JsonIgnore
     private String subNoteType;
 
-    @Schema(required = true, description = "Case Note Type and Sub Type", example = "POS IEP_ENC")
+    @ApiModelProperty(required = true, value = "Case Note Type and Sub Type", position = 8, example = "POS IEP_ENC")
     public String getNoteType() {
         return mainNoteType + " " + subNoteType;
     }
 
-    @Schema(required = true, description = "Name of staff member who created case note (lastname, firstname)", example = "Smith, John")
+    @ApiModelProperty(required = true, value = "Name of staff member who created case note (lastname, firstname)", position = 6, example = "Smith, John")
     public String getStaffName() {
         return WordUtils.capitalizeFully(lastName + ", " + firstName);
     }

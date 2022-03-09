@@ -5,9 +5,8 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -22,7 +21,7 @@ import java.util.Map;
  * Location Inmate Count
  **/
 @SuppressWarnings("unused")
-@Schema(description = "Location Inmate Count")
+@ApiModel(description = "Location Inmate Count")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -51,7 +50,7 @@ public class LocationCountDetail {
         return additionalProperties == null ? new HashMap<>() : additionalProperties;
     }
 
-    @Hidden
+    @ApiModelProperty(hidden = true)
     @JsonAnySetter
     public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
@@ -60,7 +59,7 @@ public class LocationCountDetail {
     /**
      * Who did the count (staff ID)
      */
-    @Schema(required = true, description = "Who did the count (staff ID)")
+    @ApiModelProperty(required = true, value = "Who did the count (staff ID)")
     @JsonProperty("conductByUserId")
     public Long getConductByUserId() {
         return conductByUserId;
@@ -73,7 +72,7 @@ public class LocationCountDetail {
     /**
      * Staff Id
      */
-    @Schema(required = true, description = "Staff Id")
+    @ApiModelProperty(required = true, value = "Staff Id")
     @JsonProperty("enteredByUserId")
     public Long getEnteredByUserId() {
         return enteredByUserId;
@@ -86,7 +85,7 @@ public class LocationCountDetail {
     /**
      * The number of inmates
      */
-    @Schema(required = true, description = "The number of inmates")
+    @ApiModelProperty(required = true, value = "The number of inmates")
     @JsonProperty("inmateCount")
     public Integer getInmateCount() {
         return inmateCount;
@@ -99,7 +98,7 @@ public class LocationCountDetail {
     /**
      * Reason for count
      */
-    @Schema(required = true, description = "Reason for count")
+    @ApiModelProperty(required = true, value = "Reason for count")
     @JsonProperty("countReasonCode")
     public String getCountReasonCode() {
         return countReasonCode;
@@ -112,7 +111,7 @@ public class LocationCountDetail {
     /**
      * Comments
      */
-    @Schema(description = "Comments")
+    @ApiModelProperty(value = "Comments")
     @JsonProperty("comment")
     public String getComment() {
         return comment;

@@ -5,9 +5,8 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -24,7 +23,7 @@ import java.util.Map;
  * Case Note Type Staff Usage Request
  **/
 @SuppressWarnings("unused")
-@Schema(description = "Case Note Type Staff Usage Request")
+@ApiModel(description = "Case Note Type Staff Usage Request")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -53,7 +52,7 @@ public class CaseNoteStaffUsageRequest {
         return additionalProperties == null ? new HashMap<>() : additionalProperties;
     }
 
-    @Hidden
+    @ApiModelProperty(hidden = true)
     @JsonAnySetter
     public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
@@ -62,7 +61,7 @@ public class CaseNoteStaffUsageRequest {
     /**
      * a list of staff numbers to search.
      */
-    @Schema(required = true, description = "a list of staff numbers to search.")
+    @ApiModelProperty(required = true, value = "a list of staff numbers to search.")
     @JsonProperty("staffIds")
     public List<Integer> getStaffIds() {
         return staffIds;
@@ -75,7 +74,7 @@ public class CaseNoteStaffUsageRequest {
     /**
      * Number of month to look forward (if fromDate only defined), or back (if toDate only defined). Default is 1 month
      */
-    @Schema(description = "Number of month to look forward (if fromDate only defined), or back (if toDate only defined). Default is 1 month")
+    @ApiModelProperty(value = "Number of month to look forward (if fromDate only defined), or back (if toDate only defined). Default is 1 month")
     @JsonProperty("numMonths")
     public Integer getNumMonths() {
         return numMonths;
@@ -88,7 +87,7 @@ public class CaseNoteStaffUsageRequest {
     /**
      * Only case notes occurring on or after this date (in YYYY-MM-DD format) will be considered.  If not defined then the numMonth before the current date, unless a toDate is defined when it will be numMonths before toDate
      */
-    @Schema(description = "Only case notes occurring on or after this date (in YYYY-MM-DD format) will be considered.  If not defined then the numMonth before the current date, unless a toDate is defined when it will be numMonths before toDate")
+    @ApiModelProperty(value = "Only case notes occurring on or after this date (in YYYY-MM-DD format) will be considered.  If not defined then the numMonth before the current date, unless a toDate is defined when it will be numMonths before toDate")
     @JsonProperty("fromDate")
     public LocalDate getFromDate() {
         return fromDate;
@@ -101,7 +100,7 @@ public class CaseNoteStaffUsageRequest {
     /**
      * Only case notes occurring on or before this date (in YYYY-MM-DD format) will be considered. If not defined then the current date will be used, unless a fromDate is defined when it will be numMonths after fromDate
      */
-    @Schema(description = "Only case notes occurring on or before this date (in YYYY-MM-DD format) will be considered. If not defined then the current date will be used, unless a fromDate is defined when it will be numMonths after fromDate")
+    @ApiModelProperty(value = "Only case notes occurring on or before this date (in YYYY-MM-DD format) will be considered. If not defined then the current date will be used, unless a fromDate is defined when it will be numMonths after fromDate")
     @JsonProperty("toDate")
     public LocalDate getToDate() {
         return toDate;
@@ -114,7 +113,7 @@ public class CaseNoteStaffUsageRequest {
     /**
      * Case note type.
      */
-    @Schema(description = "Case note type.")
+    @ApiModelProperty(value = "Case note type.")
     @JsonProperty("type")
     public String getType() {
         return type;
@@ -127,7 +126,7 @@ public class CaseNoteStaffUsageRequest {
     /**
      * Case note sub-type.
      */
-    @Schema(description = "Case note sub-type.")
+    @ApiModelProperty(value = "Case note sub-type.")
     @JsonProperty("subType")
     public String getSubType() {
         return subType;

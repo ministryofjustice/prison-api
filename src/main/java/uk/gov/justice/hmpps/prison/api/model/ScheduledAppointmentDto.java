@@ -1,9 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,50 +11,50 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Schema(description = "Scheduled appointment")
+@ApiModel(description = "Scheduled appointment")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 public class ScheduledAppointmentDto {
-    @Schema(description = "Appointment id")
+    @ApiModelProperty(value = "Appointment id")
     private Long id;
 
-    @Schema(description = "Offender number (e.g. NOMS Number)")
+    @ApiModelProperty(value = "Offender number (e.g. NOMS Number)")
     private String offenderNo;
 
-    @Schema(description = "Offender first name")
+    @ApiModelProperty(value = "Offender first name")
     private String firstName;
 
-    @Schema(description = "Offender last name")
+    @ApiModelProperty(value = "Offender last name")
     private String lastName;
 
-    @Schema(description = "Date the appointment is scheduled")
+    @ApiModelProperty(value = "Date the appointment is scheduled")
     private LocalDate date;
 
-    @Schema(description = "Date and time at which appointment starts")
+    @ApiModelProperty(value = "Date and time at which appointment starts")
     private LocalDateTime startTime;
 
-    @Schema(description = "Date and time at which appointment ends")
+    @ApiModelProperty(value = "Date and time at which appointment ends")
     private LocalDateTime endTime;
 
-    @Schema(description = "Description of appointment type")
+    @ApiModelProperty(value = "Description of appointment type")
     private String appointmentTypeDescription;
 
-    @Schema(description = "Appointment code")
+    @ApiModelProperty(value = "Appointment code")
     private String appointmentTypeCode;
 
-    @Schema(description = "Description of location the appointment is held")
+    @ApiModelProperty(value = "Description of location the appointment is held")
     private String locationDescription;
 
-    @Schema(description = "Id of location the appointment is held")
+    @ApiModelProperty(value = "Id of location the appointment is held")
     private Long locationId;
 
-    @Schema(description = "Staff member who created the appointment")
+    @ApiModelProperty(value = "Staff member who created the appointment")
     private String createUserId;
 
-    @Schema(description = "Agency the appointment belongs to")
+    @ApiModelProperty(value = "Agency the appointment belongs to")
     private String agencyId;
 }
 

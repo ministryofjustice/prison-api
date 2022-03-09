@@ -1,9 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,7 +12,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Offence;
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDate;
 
-@Schema(description = "Offence")
+@ApiModel(description = "Offence")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,31 +20,31 @@ import java.time.LocalDate;
 @Builder
 public class OffenceDto {
 
-    @Schema(required = true, description = "Reference Code", example = "RR84070")
+    @ApiModelProperty(required = true, value = "Reference Code", example = "RR84070", position = 1)
     @NotBlank
     private String code;
 
-    @Schema(required = true, description = "Description of offence")
+    @ApiModelProperty(required = true, value = "Description of offence", position = 2)
     @NotBlank
     private String description;
 
-    @Schema(required = true, description = "Statute code", example = "RR84")
+    @ApiModelProperty(required = true, value = "Statute code", example = "RR84", position = 3)
     @NotBlank
     private StatuteDto statuteCode;
 
-    @Schema(required = true, description = "HO code", example = "825/99")
+    @ApiModelProperty(required = true, value = "HO code", example = "825/99", position = 4)
     private HOCodeDto hoCode;
 
-    @Schema(required = true, description = "Severity Ranking", example = "5")
+    @ApiModelProperty(required = true, value = "Severity Ranking", example = "5", position = 5)
     private String severityRanking;
 
-    @Schema(required = true, description = "Active Y/N", example = "Y")
+    @ApiModelProperty(required = true, value = "Active Y/N", example = "Y", position = 6)
     private String activeFlag;
 
-    @Schema(description = "Sequence", example = "1")
+    @ApiModelProperty(value = "Sequence", example = "1", position = 7)
     private Integer listSequence;
 
-    @Schema(description = "Expiry Date if no longer active", example = "2021-04-01")
+    @ApiModelProperty(value = "Expiry Date if no longer active", example = "2021-04-01", position = 8)
     private LocalDate expiryDate;
 
 

@@ -1,9 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,7 +15,7 @@ import javax.validation.constraints.NotBlank;
 /**
  * Profile Information
  **/
-@Schema(description = "Profile Information")
+@ApiModel(description = "Profile Information")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -27,15 +26,15 @@ import javax.validation.constraints.NotBlank;
 public class ProfileInformation {
 
     @NotBlank
-    @Schema(required = true, description = "Type of profile information")
+    @ApiModelProperty(required = true, value = "Type of profile information")
     private String type;
 
     @NotBlank
-    @Schema(required = true, description = "Profile Question")
+    @ApiModelProperty(required = true, value = "Profile Question")
     private String question;
 
     @NotBlank
-    @Schema(required = true, description = "Profile Result Answer")
+    @ApiModelProperty(required = true, value = "Profile Result Answer")
     private String resultValue;
 
 }

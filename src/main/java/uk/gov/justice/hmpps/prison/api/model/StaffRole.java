@@ -5,9 +5,8 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -21,7 +20,7 @@ import java.util.Map;
  * Staff Role
  **/
 @SuppressWarnings("unused")
-@Schema(description = "Staff Role")
+@ApiModel(description = "Staff Role")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -41,7 +40,7 @@ public class StaffRole {
         return additionalProperties == null ? new HashMap<>() : additionalProperties;
     }
 
-    @Hidden
+    @ApiModelProperty(hidden = true)
     @JsonAnySetter
     public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
@@ -50,7 +49,7 @@ public class StaffRole {
     /**
      * A code that defines staff member's role at agency.
      */
-    @Schema(required = true, description = "A code that defines staff member's role at agency.")
+    @ApiModelProperty(required = true, value = "A code that defines staff member's role at agency.")
     @JsonProperty("role")
     public String getRole() {
         return role;
@@ -63,7 +62,7 @@ public class StaffRole {
     /**
      * Description of staff member's role at agency.
      */
-    @Schema(description = "Description of staff member's role at agency.")
+    @ApiModelProperty(value = "Description of staff member's role at agency.")
     @JsonProperty("roleDescription")
     public String getRoleDescription() {
         return roleDescription;

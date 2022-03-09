@@ -2,9 +2,8 @@ package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,7 +14,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
-@Schema(description = "Visitor")
+@ApiModel(description = "Visitor")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 @Builder
@@ -24,36 +23,36 @@ import java.time.LocalDate;
 @EqualsAndHashCode
 public class Visitor {
 
-    @Schema(description = "Person id of visitor")
+    @ApiModelProperty(value = "Person id of visitor")
     @JsonProperty("personId")
     @NotNull
     private Long personId;
 
-    @Schema(description = "Last name of visitor")
+    @ApiModelProperty(value = "Last name of visitor")
     @JsonProperty("lastName")
     @NotBlank
     private String lastName;
 
-    @Schema(description = "First name of visitor")
+    @ApiModelProperty(value = "First name of visitor")
     @JsonProperty("firstName")
     @NotBlank
     private String firstName;
 
-    @Schema(description = "Date of birth of visitor")
+    @ApiModelProperty(value = "Date of birth of visitor")
     @JsonProperty("dateOfBirth")
     @NotNull
     private LocalDate dateOfBirth;
 
-    @Schema(description = "Flag marking the visitor as lead visitor or not (only set for visit orders)", example = "true")
+    @ApiModelProperty(value = "Flag marking the visitor as lead visitor or not (only set for visit orders)", example = "true")
     @JsonProperty("leadVisitor")
     @NotNull
     private boolean leadVisitor;
 
-    @Schema(description = "Relationship of visitor to offender")
+    @ApiModelProperty(value = "Relationship of visitor to offender")
     @NotBlank
     private String relationship;
 
-    @Schema(description = "Whether the visitor attended.  Defaults in NOMIS to true when the visit is created so of limited value.")
+    @ApiModelProperty(value = "Whether the visitor attended.  Defaults in NOMIS to true when the visit is created so of limited value.")
     @NotBlank
     private boolean attended;
 }

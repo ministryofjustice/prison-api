@@ -5,9 +5,8 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -21,7 +20,7 @@ import java.util.Map;
  * Physical Mark
  **/
 @SuppressWarnings("unused")
-@Schema(description = "Physical Mark")
+@ApiModel(description = "Physical Mark")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -53,7 +52,7 @@ public class PhysicalMark {
         return additionalProperties == null ? new HashMap<>() : additionalProperties;
     }
 
-    @Hidden
+    @ApiModelProperty(hidden = true)
     @JsonAnySetter
     public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
@@ -62,7 +61,7 @@ public class PhysicalMark {
     /**
      * Type of Mark
      */
-    @Schema(required = true, description = "Type of Mark")
+    @ApiModelProperty(required = true, value = "Type of Mark")
     @JsonProperty("type")
     public String getType() {
         return type;
@@ -75,7 +74,7 @@ public class PhysicalMark {
     /**
      * Left or Right Side
      */
-    @Schema(required = true, description = "Left or Right Side")
+    @ApiModelProperty(required = true, value = "Left or Right Side")
     @JsonProperty("side")
     public String getSide() {
         return side;
@@ -88,7 +87,7 @@ public class PhysicalMark {
     /**
      * Where on the body
      */
-    @Schema(required = true, description = "Where on the body")
+    @ApiModelProperty(required = true, value = "Where on the body")
     @JsonProperty("bodyPart")
     public String getBodyPart() {
         return bodyPart;
@@ -101,7 +100,7 @@ public class PhysicalMark {
     /**
      * Image orientation
      */
-    @Schema(required = true, description = "Image orientation")
+    @ApiModelProperty(required = true, value = "Image orientation")
     @JsonProperty("orientation")
     public String getOrientation() {
         return orientation;
@@ -114,7 +113,7 @@ public class PhysicalMark {
     /**
      * More information
      */
-    @Schema(required = true, description = "More information")
+    @ApiModelProperty(required = true, value = "More information")
     @JsonProperty("comment")
     public String getComment() {
         return comment;
@@ -127,7 +126,7 @@ public class PhysicalMark {
     /**
      * Image Id Ref
      */
-    @Schema(description = "Image Id Ref")
+    @ApiModelProperty(value = "Image Id Ref")
     @JsonProperty("imageId")
     public Long getImageId() {
         return imageId;

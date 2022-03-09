@@ -1,9 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,7 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.SortedSet;
 
-@Schema(description = "Incident Case")
+@ApiModel(description = "Incident Case")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -24,44 +23,44 @@ import java.util.SortedSet;
 @Data
 public class IncidentCase {
 
-    @Schema(required = true, description = "Incident Case ID", example = "2131231")
+    @ApiModelProperty(required = true, value = "Incident Case ID", example = "2131231")
     @NotNull
     private Long incidentCaseId;
 
-    @Schema(required = true, description = "Title of the case", example = "Assault on staff member")
+    @ApiModelProperty(required = true, value = "Title of the case", example = "Assault on staff member", position = 1)
     @NotNull
     private String incidentTitle;
 
-    @Schema(required = true, description = "Type of incident", example = "ASSAULT", allowableValues = "MISC,ASSAULT,FINDS1,DISORDER,KEY_LOCK,ROOF_CLIMB,DEATH_NI,REL_ERROR,FINDS,FIRE,DAMAGE,FOOD_REF,BOMB,ATT_ESC_E,ESCAPE_ESC,DRONE,TRF3,ATT_ESCAPE,BREACH,ESCAPE_EST,FIND,TRF2,FIND1,BARRICADE,HOSTAGE,SELF_HARM,DRUGS,TOOL_LOSS,RADIO_COMP,FIREARM_ETC,CON_INDISC,KEY_LOCKNEW,CLOSE_DOWN,DEATH,ABSCOND,TRF,MOBILES")
+    @ApiModelProperty(required = true, value = "Type of incident", example = "ASSAULT", position = 2, allowableValues = "MISC,ASSAULT,FINDS1,DISORDER,KEY_LOCK,ROOF_CLIMB,DEATH_NI,REL_ERROR,FINDS,FIRE,DAMAGE,FOOD_REF,BOMB,ATT_ESC_E,ESCAPE_ESC,DRONE,TRF3,ATT_ESCAPE,BREACH,ESCAPE_EST,FIND,TRF2,FIND1,BARRICADE,HOSTAGE,SELF_HARM,DRUGS,TOOL_LOSS,RADIO_COMP,FIREARM_ETC,CON_INDISC,KEY_LOCKNEW,CLOSE_DOWN,DEATH,ABSCOND,TRF,MOBILES")
     @NotNull
     private String incidentType;
 
-    @Schema(description = "Details about the case", example = "There was a big fight")
+    @ApiModelProperty(value = "Details about the case", example = "There was a big fight", position = 3)
     private String incidentDetails;
 
-    @Schema(required = true, description = "Date the incident took place", example = "2018-02-10")
+    @ApiModelProperty(required = true, value = "Date the incident took place", example = "2018-02-10", position = 4)
     @NotNull
     private LocalDate incidentDate;
 
-    @Schema(required = true, description = "Time when incident occurred", example = "2018-02-10T16:35:20")
+    @ApiModelProperty(required = true, value = "Time when incident occurred", example = "2018-02-10T16:35:20", position = 5)
     @NotNull
     private LocalDateTime incidentTime;
 
-    @Schema(required = true, description = "Staff ID who created report", example = "2131231")
+    @ApiModelProperty(required = true, value = "Staff ID who created report", example = "2131231", position = 6)
     @NotNull
     private Long reportedStaffId;
 
-    @Schema(required = true, description = "Date when incident reported", example = "2018-02-11")
+    @ApiModelProperty(required = true, value = "Date when incident reported", example = "2018-02-11", position = 7)
     @NotNull
     private LocalDate reportDate;
 
-    @Schema(required = true, description = "Time incident reported", example = "2018-02-11T08:00:00")
+    @ApiModelProperty(required = true, value = "Time incident reported", example = "2018-02-11T08:00:00", position = 8)
     @NotNull
     private LocalDateTime reportTime;
 
-    @Schema(required = true, example = "CLOSE",
+    @ApiModelProperty(required = true, value = "Current Status of Incident", example = "CLOSE", position = 9,
             allowableValues = "CLOSE,DUP,AWAN,INAN,INREQ,INAME,PIU,IUP",
-            description = "Current Status of Incident. Note: AWAN = Awaiting Analysis\n" +
+            notes = "AWAN = Awaiting Analysis\n" +
                     "INAN = In Analysis\n" +
                     "INREQ = Information Required\n" +
                     "INAME =Information Amended\n" +
@@ -72,16 +71,16 @@ public class IncidentCase {
     @NotNull
     private String incidentStatus;
 
-    @Schema(description = "Agency where incident happened", example = "MDI")
+    @ApiModelProperty(value = "Agency where incident happened", example = "MDI", position = 10)
     private String agencyId;
 
-    @Schema(description = "Is the response completed?", example = "true")
+    @ApiModelProperty(value = "Is the response completed?", example = "true", position = 11)
     private Boolean responseLockedFlag;
 
-    @Schema(description = "Question And Answer Responses")
+    @ApiModelProperty(value = "Question And Answer Responses", position = 12)
     private SortedSet<IncidentResponse> responses;
 
-    @Schema(description = "Parties Involved in case")
+    @ApiModelProperty(value = "Parties Involved in case", position = 13)
     private SortedSet<IncidentParty> parties;
 }
 
