@@ -70,3 +70,8 @@ api:
 smoke:
   test:
     aware: false
+
+springdoc:
+  swagger-ui:
+    operationsSorter: alpha
+    tagsSorter: alpha

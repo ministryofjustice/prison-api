@@ -59,7 +59,7 @@ import static uk.gov.justice.hmpps.prison.repository.support.StatusFilter.ALL;
 @RestController
 @Validated
 @Tag(name = "agencies")
-@RequestMapping("${api.base.path}/agencies")
+@RequestMapping(value = "${api.base.path}/agencies", produces = "application/json")
 public class AgencyResource {
     private final AgencyService agencyService;
     private final LocationGroupService locationGroupService;
@@ -147,7 +147,7 @@ public class AgencyResource {
     }
 
     @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "The Agency location created", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Agency.class))}),
+        @ApiResponse(responseCode = "201", description = "The Agency location created"),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to create an agency location", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
@@ -233,7 +233,7 @@ public class AgencyResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of locations for agency where events (appointments, visits, activities) are being held.", description = "List of locations for agency where events (appointments, visits, activities) are being held.")
     @GetMapping("/{agencyId}/eventLocationsBooked")
-    public List<Location> getAgencyEventLocationsBooked(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestParam("bookedOnDay") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Filter list to only return locations which prisoners will be attending on this day", required = true) final LocalDate date, @RequestParam(value = "timeSlot", required = false) @Parameter(description = "Only return locations which prisoners will be attending in this time slot (AM, PM or ED, and bookedOnDay must be specified)") final TimeSlot timeSlot) {
+    public List<Location> getAgencyEventLocationsBooked(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestParam("bookedOnDay") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Filter list to only return locations which prisoners will be attending on this day", required = true) final LocalDate date, @RequestParam(value = "timeSlot", required = false) @Parameter(description = "Only return locations which prisoners will be attending in this time slot (AM, PM or ED, and bookedOnDay must be specified)",  schema = @Schema(implementation = String.class, allowableValues = {"AM","PM","ED"})) final TimeSlot timeSlot) {
         return agencyService.getAgencyEventLocationsBooked(agencyId, date, timeSlot);
     }
 

@@ -30,7 +30,7 @@ import static uk.gov.justice.hmpps.prison.util.ResourceUtils.nvl;
 @RestController
 @Tag(name = "search-offenders")
 @Validated
-@RequestMapping("${api.base.path}/search-offenders")
+@RequestMapping(value = "${api.base.path}/search-offenders", produces = "application/json")
 public class SearchOffenderResource {
     private final AuthenticationFacade authenticationFacade;
     private final SearchOffenderService searchOffenderService;

@@ -33,7 +33,7 @@ import java.util.List;
 @RestController
 @Tag(name = "adjudications")
 @Validated
-@RequestMapping("${api.base.path}/adjudications")
+@RequestMapping(value = "${api.base.path}/adjudications", produces = "application/json")
 public class AdjudicationsResource {
     private final AdjudicationsService adjudicationsService;
 

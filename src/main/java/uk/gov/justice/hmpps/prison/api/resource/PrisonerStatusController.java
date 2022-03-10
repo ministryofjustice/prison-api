@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -33,7 +34,7 @@ import java.util.List;
 @RestController
 @Validated
 @Tag(name = "prisoners")
-@RequestMapping("${api.base.path}/prisoners")
+@RequestMapping(value = "${api.base.path}/prisoners", produces = "application/json")
 @AllArgsConstructor
 public class PrisonerStatusController {
 
@@ -89,7 +90,7 @@ public class PrisonerStatusController {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     public Page<PrisonerInformation> getPrisonerDetailAtLocation(
             @Parameter(description = "Establishment Code", required = true, example = "MDI") @PathVariable("establishmentCode") final String establishmentCode,
-            @PageableDefault(sort = {"bookingId"}, direction = Sort.Direction.ASC) final Pageable pageable) {
+            @ParameterObject @PageableDefault(sort = {"bookingId"}, direction = Sort.Direction.ASC) final Pageable pageable) {
 
         return service.getPrisonerInformationByPrison(establishmentCode,  pageable);
     }

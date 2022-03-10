@@ -48,7 +48,7 @@ import java.util.List;
 @RestController
 @Tag(name = "movements")
 @Validated
-@RequestMapping("${api.base.path}/movements")
+@RequestMapping(value = "${api.base.path}/movements", produces = "application/json")
 public class MovementResource {
 
     private final MovementsService movementsService;
@@ -64,7 +64,6 @@ public class MovementResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Returns a list of recently released or moved offender nos and the associated timestamp.", description = "Returns a list of recently released or moved offender nos and the associated timestamp.")
     @GetMapping
-    @SuppressWarnings("RestParamTypeInspection")
     public List<Movement> getRecentMovementsByDate(@RequestParam("fromDateTime") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @Parameter(description = "A timestamp that indicates the earliest record required", required = true) final LocalDateTime fromDateTime, @RequestParam(value = "movementDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "The date for which movements are searched, defaults to today") final LocalDate movementDate, @RequestParam(value = "agencyId", required = false) @Parameter(description = "Filter to just movements to or from this agency.") final String agencyId, @RequestParam(value = "movementTypes", required = false) @Parameter(description = "movement type codes to filter by, defaults to TRN, REL, ADM") final List<String> movementTypes) {
         return movementsService.getRecentMovementsByDate(fromDateTime, movementDate, movementTypes);
     }
@@ -161,7 +160,7 @@ public class MovementResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation()
+    @Operation
     @GetMapping("/{agencyId}/out/{isoDate}")
     public List<OffenderOutTodayDto> getOffendersOutToday(
         @PathVariable("agencyId") @Parameter(description = "The prison id", required = true) final String agencyId,
@@ -176,7 +175,7 @@ public class MovementResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation()
+    @Operation
     @GetMapping("/rollcount/{agencyId}/in-reception")
     public List<OffenderInReception> getOffendersInReception(@PathVariable("agencyId") @Parameter(description = "The prison id", required = true) final String agencyId) {
         return movementsService.getOffendersInReception(agencyId);

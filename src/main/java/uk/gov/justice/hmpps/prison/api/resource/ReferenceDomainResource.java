@@ -40,7 +40,7 @@ import static uk.gov.justice.hmpps.prison.util.ResourceUtils.nvl;
 
 @RestController
 @Tag(name = "reference-domains")
-@RequestMapping("${api.base.path}/reference-domains")
+@RequestMapping(value = "${api.base.path}/reference-domains", produces = "application/json")
 @Validated
 public class ReferenceDomainResource {
     private final ReferenceDomainService referenceDomainService;

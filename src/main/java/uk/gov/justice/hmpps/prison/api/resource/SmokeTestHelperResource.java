@@ -23,7 +23,7 @@ import javax.validation.constraints.NotNull;
 
 @RestController
 @Tag(name = "smoketest")
-@RequestMapping("${api.base.path}/smoketest")
+@RequestMapping(value = "${api.base.path}/smoketest", produces = "application/json")
 @Validated
 @Slf4j
 @ConditionalOnProperty(name = "smoke.test.aware", havingValue = "true")

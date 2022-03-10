@@ -58,7 +58,7 @@ import static uk.gov.justice.hmpps.prison.util.ResourceUtils.getUniqueClientId;
 @RestController
 @Tag(name = "v1")
 @Validated
-@RequestMapping("${api.base.path}/v1")
+@RequestMapping(value = "${api.base.path}/v1", produces = "application/json")
 public class NomisApiV1Resource {
 
     public static final String NOMS_ID_REGEX_PATTERN = "[a-zA-Z][0-9]{4}[a-zA-Z]{2}";
@@ -321,8 +321,7 @@ public class NomisApiV1Resource {
     @Operation(summary = "Retrieve an offender's financial transaction history for cash, spends or savings.", description = "Transactions are returned in NOMIS ordee (Descending date followed by id).<br/>" +
             "All transaction amounts are represented as pence values.")
     @GetMapping("/prison/{prison_id}/offenders/{noms_id}/accounts/{account_code}/transactions")
-    @SuppressWarnings("RestParamTypeInspection")
-    public AccountTransactions getAccountTransactions(@Size(max = 3) @NotNull @PathVariable("prison_id") @Parameter(name = "prison_id", description = "Prison ID", example = "WLI", required = true) final String prisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @Parameter(name = "noms_id", description = "Offender Noms Id", example = "A1404AE", required = true) final String nomsId, @NotNull @PathVariable("account_code") @Parameter(name = "account_code", description = "Account code", example = "spends", required = true) final String accountCode, @RequestParam(value = "from_date", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(name = "from_date", description = "Start date for transactions (defaults to today if not supplied)", example = "2019-04-01") final LocalDate fromDate, @RequestParam(value = "to_date", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(name = "to_date", description = "To date for transactions (defaults to today if not supplied)", example = "2019-05-01") final LocalDate toDate) {
+    public AccountTransactions getAccountTransactions(@Size(max = 3) @NotNull @PathVariable("prison_id") @Parameter(name = "prison_id", description = "Prison ID", example = "WLI", required = true) final String prisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @Parameter(name = "noms_id", description = "Offender Noms Id", example = "A1404AE", required = true) final String nomsId, @NotNull @PathVariable("account_code") @Parameter(name = "account_code", description = "Account code", example = "spends", required = true, schema = @Schema(implementation = String.class, allowableValues = {"spends","cash","savings"})) final String accountCode, @RequestParam(value = "from_date", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(name = "from_date", description = "Start date for transactions (defaults to today if not supplied)", example = "2019-04-01") final LocalDate fromDate, @RequestParam(value = "to_date", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(name = "to_date", description = "To date for transactions (defaults to today if not supplied)", example = "2019-05-01") final LocalDate toDate) {
         final var transactions = service.getAccountTransactions(prisonId, nomsId, accountCode, fromDate, toDate);
         return new AccountTransactions(transactions);
     }
@@ -347,7 +346,6 @@ public class NomisApiV1Resource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Retrieve active offender", description = "offender id will be returned if offender is found")
     @GetMapping("/lookup/active_offender")
-    @SuppressWarnings("RestParamTypeInspection")
     public ActiveOffender getActiveOffender(@Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @RequestParam("noms_id") @Parameter(name = "noms_id", description = "Offender Noms Id", example = "A1404AE", required = true) final String nomsId, @RequestParam(value = "date_of_birth", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @NotNull @Parameter(name = "date_of_birth", description = "date of birth", example = "2019-05-01") final LocalDate birthDate) {
         return service.getActiveOffender(nomsId, birthDate);
     }
@@ -359,7 +357,6 @@ public class NomisApiV1Resource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Fetch available_dates for offender", description = "returns list of dates")
     @GetMapping("offenders/{offender_id}/visits/available_dates")
-    @SuppressWarnings("RestParamTypeInspection")
     public AvailableDates getVisitAvailableDates(@PathVariable("offender_id") @NotNull @Parameter(name = "offender_id", description = "Offender Id", example = "1234567", required = true) final Long offenderId, @RequestParam("start_date") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @NotNull @Parameter(name = "start_date", description = "Start date", example = "2019-04-01", required = true) final LocalDate fromDate, @RequestParam("end_date") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @NotNull @Parameter(name = "end_date", description = "To date", example = "2019-05-01", required = true) final LocalDate toDate) {
         return service.getVisitAvailableDates(offenderId, fromDate, toDate);
     }

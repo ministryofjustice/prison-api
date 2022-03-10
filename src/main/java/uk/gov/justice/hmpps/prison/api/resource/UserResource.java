@@ -45,7 +45,7 @@ import java.util.Set;
 @RestController
 @Tag(name = "users")
 @Validated
-@RequestMapping("${api.base.path}/users")
+@RequestMapping(value = "${api.base.path}/users", produces = "application/json")
 public class UserResource {
     private final AuthenticationFacade authenticationFacade;
     private final UserService userService;
@@ -210,8 +210,7 @@ public class UserResource {
         return userService.getUserByUsername(username.toUpperCase());
     }
 
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "The list of user details")})
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "The list of user details")})
     @Operation(summary = "Returns the user details for supplied usernames - POST version to allow large user lists.", description = "user details for supplied usernames")
     @PostMapping("/list")
     public List<UserDetail> getUserDetailsList(@RequestBody @Parameter(description = "The required usernames (mandatory)", required = true) final Set<String> usernames) {
