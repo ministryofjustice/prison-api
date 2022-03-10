@@ -44,11 +44,10 @@ dependencies {
   implementation("net.sf.ehcache:ehcache:2.10.9.2")
   implementation("com.zaxxer:HikariCP:5.0.1")
 
-  implementation("io.springfox:springfox-boot-starter:3.0.0")
-  implementation("org.springdoc:springdoc-openapi-ui:1.6.1")
-  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.1")
-  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.1")
-  implementation("io.swagger.core.v3:swagger-core:2.1.13")
+  implementation("io.swagger:swagger-annotations:1.6.5")
+  implementation("org.springdoc:springdoc-openapi-ui:1.6.6")
+  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.6")
+  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.6")
 
   implementation("org.apache.commons:commons-lang3:3.12.0")
   implementation("commons-io:commons-io:2.11.0")
@@ -113,7 +112,6 @@ tasks {
     }
     minHeapSize = "128m"
     maxHeapSize = "2048m"
-    jvmArgs = listOf("--add-opens", "java.base/java.lang=ALL-UNNAMED", "--add-opens", "java.base/java.util=ALL-UNNAMED")
   }
 
   register<Test>("testWithSchemaNomis") {

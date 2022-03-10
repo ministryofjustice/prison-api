@@ -34,7 +34,7 @@ public class QuestionnaireResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary =  "Return a questionnaire for a specified category and code")
+    @Operation(summary = "Return a questionnaire for a specified category and code")
     @GetMapping("/{category}/{code}")
     public Questionnaire getQuestionnaire(@PathVariable("category") @Parameter(description = "Category", example = "IR_TYPE", required = true) @NotNull final String category, @PathVariable("code") @Parameter(description = "Code", example = "ASSAULT", required = true) @NotNull final String code) {
         return incidentService.getQuestionnaire(category, code);

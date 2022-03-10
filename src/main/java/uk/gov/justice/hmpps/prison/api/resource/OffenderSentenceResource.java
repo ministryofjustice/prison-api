@@ -92,7 +92,7 @@ public class OffenderSentenceResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @Operation(summary =  "Retrieve the current state of the latest Home Detention Curfew for a booking")
+    @Operation(summary = "Retrieve the current state of the latest Home Detention Curfew for a booking")
     @GetMapping("/booking/{bookingId}/home-detention-curfews/latest")
     public HomeDetentionCurfew getLatestHomeDetentionCurfew(@PathVariable("bookingId") Long bookingId) {
         return offenderCurfewService.getLatestHomeDetentionCurfew(bookingId);
@@ -102,7 +102,7 @@ public class OffenderSentenceResource {
         @ApiResponse(responseCode = "200", description = "List of HDC status information"),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @Operation(summary =  "Retrieve the latest Home Detention Curfew status for a list of offender booking identifiers")
+    @Operation(summary = "Retrieve the latest Home Detention Curfew status for a list of offender booking identifiers")
     @PostMapping("/home-detention-curfews/latest")
     public List<HomeDetentionCurfew> getBatchLatestHomeDetentionCurfew(@RequestBody @Parameter(description = "A list of booking ids", required = true) final List<Long> bookingIds) {
         validateBookingIdList(bookingIds);
@@ -114,7 +114,7 @@ public class OffenderSentenceResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @Operation(summary =  "Set the HDC checks passed flag")
+    @Operation(summary = "Set the HDC checks passed flag")
     @PutMapping("/booking/{bookingId}/home-detention-curfews/latest/checks-passed")
     @ProxyUser
     public ResponseEntity<Void> setCurfewChecks(@PathVariable("bookingId") final Long bookingId, @RequestBody @javax.validation.Valid final HdcChecks hdcChecks) {
@@ -127,7 +127,7 @@ public class OffenderSentenceResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @Operation(summary =  "Clear the HDC checks passed flag")
+    @Operation(summary = "Clear the HDC checks passed flag")
     @DeleteMapping("/booking/{bookingId}/home-detention-curfews/latest/checks-passed")
     @ProxyUser
     public ResponseEntity<Void> clearCurfewChecks(@PathVariable("bookingId") Long bookingId) {
@@ -140,7 +140,7 @@ public class OffenderSentenceResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @Operation(summary =  "Set the HDC approval status")
+    @Operation(summary = "Set the HDC approval status")
     @PutMapping("/booking/{bookingId}/home-detention-curfews/latest/approval-status")
     @ProxyUser
     public ResponseEntity<Void> setApprovalStatus(@PathVariable("bookingId") final Long bookingId, @RequestBody @javax.validation.Valid final ApprovalStatus approvalStatus) {
@@ -154,7 +154,7 @@ public class OffenderSentenceResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @Operation(summary =  "Clear the HDC approval status")
+    @Operation(summary = "Clear the HDC approval status")
     @DeleteMapping("/booking/{bookingId}/home-detention-curfews/latest/approval-status")
     @ProxyUser
     public ResponseEntity<Void> clearApprovalStatus(@PathVariable("bookingId") Long bookingId) {

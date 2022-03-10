@@ -390,7 +390,6 @@ public class NomisApiV1Resource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Fetch visit slots with capacity", description = "returns list slots with capacity details")
     @GetMapping("prison/{prison_id}/slots")
-    @SuppressWarnings("RestParamTypeInspection")
     public VisitSlots getVisitSlotsWithCapacity(@Size(max = 3) @PathVariable("prison_id") @Parameter(name = "prison_id", description = "Prison ID", example = "BMI", required = true) final String prisonId, @RequestParam("start_date") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @NotNull @Parameter(name = "start_date", description = "Start date", example = "2019-04-01", required = true) final LocalDate fromDate, @RequestParam("end_date") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @NotNull @Parameter(name = "end_date", description = "End date", example = "2019-05-01", required = true) final LocalDate toDate) {
         return service.getVisitSlotsWithCapacity(prisonId, fromDate, toDate);
     }
