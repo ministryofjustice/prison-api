@@ -1,12 +1,12 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -61,8 +61,8 @@ public class OffenderAssessmentResource {
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Offender assessment detail for multiple offenders.")
@@ -109,6 +109,7 @@ public class OffenderAssessmentResource {
     }
 
     @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Retrieves CSRAs for the given offender, ordered by the latest first.")
@@ -118,6 +119,7 @@ public class OffenderAssessmentResource {
     }
 
     @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Retrieves details of a single CSRA assessment.")
@@ -127,8 +129,8 @@ public class OffenderAssessmentResource {
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "400", description = "Invalid request - e.g. no offender numbers provided.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request - e.g. no offender numbers provided.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary =  "Returns assessment information on Offenders at a prison.")
     @GetMapping("/assessments")
     public List<Assessment> getAssessments(@RequestParam("offenderNo") @Parameter(description = "The required offender numbers Ids (mandatory)", required = true) final List<String> offenderList, @RequestParam(value = "latestOnly", required = false, defaultValue = "true") @Parameter(description = "Returns only assessments for the current sentence if true, otherwise assessments for all previous sentences are included") final Boolean latestOnly, @RequestParam(value = "activeOnly", required = false, defaultValue = "true") @Parameter(description = "Returns only active assessments if true, otherwise inactive and pending assessments are included") final Boolean activeOnly, @RequestParam(value = "mostRecentOnly", required = false) @Parameter(description = "Returns only the last assessment per sentence if true, otherwise all assessments for the booking are included") final Boolean mostRecentOnly) {
@@ -190,8 +192,8 @@ public class OffenderAssessmentResource {
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "400", description = "Invalid request - e.g. category does not exist.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request - e.g. category does not exist.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Update a pending offender categorisation.", description = "This is intended for use by the categoriser to correct any problems with a pending (in-progress) categorisation." +
             " Fields left as null will be left unchanged")
     @PutMapping("/category/categorise")
@@ -224,8 +226,8 @@ public class OffenderAssessmentResource {
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "400", description = "Invalid request - e.g. invalid status.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request - e.g. invalid status.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to update categorisations.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Set all active or pending (status A or P) categorisations inactive", description = "This endpoint should only be used with edge case categorisations.")
     @PutMapping("/category/{bookingId}/inactive")
@@ -246,8 +248,8 @@ public class OffenderAssessmentResource {
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "404", description = "Active categorisation not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "404", description = "Active categorisation not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to update the categorisation.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Update the next review date on the latest active categorisation", description = "Update categorisation record with new next review date.")
     @PutMapping("/category/{bookingId}/nextReviewDate/{nextReviewDate}")

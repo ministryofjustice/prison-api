@@ -1,12 +1,12 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -54,7 +54,7 @@ public class LocationResource {
     @Operation(summary = "List of offenders at location.", description = "List of offenders at location.")
     @GetMapping("/description/{locationPrefix}/inmates")
     public ResponseEntity<List<OffenderBooking>> getOffendersAtLocationDescription(
-            @PathVariable("locationPrefix") @Parameter(description = "", required = true) final String locationPrefix,
+            @PathVariable("locationPrefix") @Parameter(required = true) final String locationPrefix,
             @RequestParam(value = "keywords", required = false) @Parameter(description = "offender name or id to match") final String keywords,
             @RequestParam(value = "fromDob", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Offenders with a DOB >= this date", example = "1970-01-02") final LocalDate fromDob,
             @RequestParam(value = "toDob", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Offenders with a DOB <= this date", example = "1975-01-02") final LocalDate toDob,
@@ -111,6 +111,7 @@ public class LocationResource {
     }
 
     @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})

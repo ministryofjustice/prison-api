@@ -1,13 +1,13 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -163,13 +163,14 @@ public class ReferenceDomainResource {
     }
 
     @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Reference code matching description ", description = "Wild card can be specified")
     @GetMapping("/domains/{domain}/reverse-lookup")
     public List<ReferenceCode> getReferenceCodeByDomainAndDescription(@PathVariable("domain") @Parameter(description = "The domain identifier/name.", required = true) final String domain,
-                                                                      @RequestParam(value = "description", required = true) @Parameter(description = "decription of a reference code to find", required = true) final String description,
+                                                                      @RequestParam(value = "description") @Parameter(description = "decription of a reference code to find", required = true) final String description,
                                                                       @RequestParam(value = "wildcard", required = false, defaultValue = "false") @Parameter(description = "Specify whether or not to wild card the results") final boolean wildcard) {
         return referenceDomainService.getReferenceCodeByDomainAndDescription(domain, description, wildcard);
     }

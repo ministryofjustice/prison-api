@@ -1,12 +1,12 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -48,7 +48,7 @@ public class SearchOffenderResource {
     @Operation(summary = "List offenders by location (matching keywords).", description = "Deprecated: Use <b>/locations/description/{locationPrefix}/inmates</b> instead. This API will be removed in a future release.")
     @Deprecated
     @GetMapping("/{locationPrefix}/{keywords}")
-    public ResponseEntity<List<OffenderBooking>> searchForOffendersLocationAndKeyword(@PathVariable("locationPrefix") @Parameter(description = "", required = true) final String locationPrefix, @PathVariable("keywords") @Parameter(description = "", required = true) final String keywords, @RequestParam(value = "returnIep", required = false, defaultValue = "false") @Parameter(description = "return IEP data") final boolean returnIep, @RequestParam(value = "returnAlerts", required = false, defaultValue = "false") @Parameter(description = "return Alert data") final boolean returnAlerts, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of search-offender records.") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of search-offender records returned.") final Long pageLimit, @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b><<fieldsList>></b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
+    public ResponseEntity<List<OffenderBooking>> searchForOffendersLocationAndKeyword(@PathVariable("locationPrefix") @Parameter(required = true) final String locationPrefix, @PathVariable("keywords") @Parameter(required = true) final String keywords, @RequestParam(value = "returnIep", required = false, defaultValue = "false") @Parameter(description = "return IEP data") final boolean returnIep, @RequestParam(value = "returnAlerts", required = false, defaultValue = "false") @Parameter(description = "return Alert data") final boolean returnAlerts, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of search-offender records.") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of search-offender records returned.") final Long pageLimit, @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b><<fieldsList>></b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
         final var request = SearchOffenderRequest.builder()
                 .username(authenticationFacade.getCurrentUsername())
                 .keywords(keywords)
