@@ -1,13 +1,13 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,7 +36,8 @@ public class OffenceResource {
 
     @GetMapping()
     @Operation(summary = "Paged List of active offences")
-    @ApiResponses(value = {
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     public Page<OffenceDto> getActiveOffences(
@@ -47,7 +48,8 @@ public class OffenceResource {
 
     @GetMapping("/all")
     @Operation(summary = "Paged List of all offences")
-    @ApiResponses(value = {
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     public Page<OffenceDto> getOffences(
@@ -58,7 +60,8 @@ public class OffenceResource {
 
     @GetMapping("/ho-code")
     @Operation(summary = "Paged List of offences by HO Code")
-    @ApiResponses(value = {
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     public Page<OffenceDto> getOffencesByHoCode(
@@ -69,7 +72,8 @@ public class OffenceResource {
 
     @GetMapping("/statute")
     @Operation(summary = "Paged List of offences by Statute")
-    @ApiResponses(value = {
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     public Page<OffenceDto> getOffencesByStatute(
@@ -80,7 +84,8 @@ public class OffenceResource {
 
     @GetMapping("/search")
     @Operation(summary = "Paged List of offences matching offence description")
-    @ApiResponses(value = {
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     public Page<OffenceDto> getOffencesByDescription(

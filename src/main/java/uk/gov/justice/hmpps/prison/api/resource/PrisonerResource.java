@@ -1,12 +1,12 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -126,7 +126,7 @@ public class PrisonerResource {
     @Operation(summary = "List of offenders matching specified criteria. (POST version)", description = "List of offenders matching specified criteria.")
     @PostMapping
     @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH')")
-    public ResponseEntity<List<PrisonerDetail>> getPrisoners(@RequestBody @Parameter(description = "", required = true) final PrisonerDetailSearchCriteria criteria,
+    public ResponseEntity<List<PrisonerDetail>> getPrisoners(@RequestBody @Parameter(required = true) final PrisonerDetailSearchCriteria criteria,
                                                              @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of prisoner records.") final Long pageOffset,
                                                              @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of prisoner records returned.") final Long pageLimit,
                                                              @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>offenderNo, pncNumber, croNumber, firstName, lastName, dob</b>") final String sortFields,

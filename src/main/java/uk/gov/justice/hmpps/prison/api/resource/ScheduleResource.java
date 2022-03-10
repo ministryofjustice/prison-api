@@ -1,12 +1,12 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,6 +47,7 @@ public class ScheduleResource {
     }
 
     @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
@@ -60,6 +61,7 @@ public class ScheduleResource {
     }
 
     @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
@@ -74,6 +76,7 @@ public class ScheduleResource {
     }
 
     @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
@@ -84,6 +87,7 @@ public class ScheduleResource {
     }
 
     @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
@@ -94,6 +98,7 @@ public class ScheduleResource {
     }
 
     @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
@@ -103,45 +108,45 @@ public class ScheduleResource {
         return schedulesService.getActivitiesAtAllLocations(agencyId, fromDate, toDate, timeSlot, sortFields, sortOrder, includeSuspended);
     }
 
-    @Operation(summary = "")
+    @Operation()
     @PostMapping("/{agencyId}/appointments")
-    public List<PrisonerSchedule> getAppointmentsForOffenders(@PathVariable("agencyId") @Parameter(description = "", required = true) final String agencyId, @RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> body, @RequestParam(value = "date", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Date of whereabouts list, default today") final LocalDate date, @RequestParam(value = "timeSlot", required = false) @Parameter(description = "AM, PM or ED") final TimeSlot timeSlot) {
+    public List<PrisonerSchedule> getAppointmentsForOffenders(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> body, @RequestParam(value = "date", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Date of whereabouts list, default today") final LocalDate date, @RequestParam(value = "timeSlot", required = false) @Parameter(description = "AM, PM or ED") final TimeSlot timeSlot) {
         return schedulesService.getAppointments(agencyId, body, date, timeSlot);
 
     }
 
-    @Operation(summary = "")
+    @Operation()
     @GetMapping("/{agencyId}/appointments")
-    public List<ScheduledAppointmentDto> getAppointments(@PathVariable("agencyId") @Parameter(description = "", required = true) final String agencyId, @RequestParam("date") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Date the appointments are scheduled", required = true) final LocalDate date, @RequestParam(value = "locationId", required = false) @Parameter(description = "Location id") final Long locationId, @RequestParam(value = "timeSlot", required = false) @Parameter(description = "AM, PM or ED") final TimeSlot timeSlot) {
+    public List<ScheduledAppointmentDto> getAppointments(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestParam("date") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Date the appointments are scheduled", required = true) final LocalDate date, @RequestParam(value = "locationId", required = false) @Parameter(description = "Location id") final Long locationId, @RequestParam(value = "timeSlot", required = false) @Parameter(description = "AM, PM or ED") final TimeSlot timeSlot) {
         return appointmentsService.getAppointments(agencyId, date, locationId, timeSlot);
     }
 
     @PostMapping("/{agencyId}/visits")
-    public List<PrisonerSchedule> getVisits(@PathVariable("agencyId") @Parameter(description = "", required = true) final String agencyId, @RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> body, @RequestParam(value = "date", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Date of whereabouts list, default today") final LocalDate date, @RequestParam(value = "timeSlot", required = false) @Parameter(description = "AM, PM or ED") final TimeSlot timeSlot) {
+    public List<PrisonerSchedule> getVisits(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> body, @RequestParam(value = "date", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Date of whereabouts list, default today") final LocalDate date, @RequestParam(value = "timeSlot", required = false) @Parameter(description = "AM, PM or ED") final TimeSlot timeSlot) {
         return schedulesService.getVisits(agencyId, body, date, timeSlot);
     }
 
-    @Operation(summary = "")
+    @Operation()
     @PostMapping("/{agencyId}/activities")
-    public List<PrisonerSchedule> getActivitiesForBookings(@PathVariable("agencyId") @Parameter(description = "", required = true) final String agencyId, @RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> body, @RequestParam(value = "date", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Date of whereabouts list, default today") final LocalDate date, @RequestParam(value = "timeSlot", required = false) @Parameter(description = "AM, PM or ED") final TimeSlot timeSlot, @RequestParam(value = "includeExcluded", required = false, defaultValue = "false") @Parameter(description = "Whether to include 'excluded' activities in the results") final boolean includeExcluded) {
+    public List<PrisonerSchedule> getActivitiesForBookings(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> body, @RequestParam(value = "date", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Date of whereabouts list, default today") final LocalDate date, @RequestParam(value = "timeSlot", required = false) @Parameter(description = "AM, PM or ED") final TimeSlot timeSlot, @RequestParam(value = "includeExcluded", required = false, defaultValue = "false") @Parameter(description = "Whether to include 'excluded' activities in the results") final boolean includeExcluded) {
         return schedulesService.getActivitiesByEventIds(agencyId, body, date, timeSlot, includeExcluded);
     }
 
-    @Operation(summary = "")
+    @Operation()
     @PostMapping("/{agencyId}/activities-by-event-ids")
-    public List<PrisonerSchedule> getActivitiesByEventIds(@PathVariable("agencyId") @Parameter(description = "", required = true) final String agencyId, @NotEmpty @RequestBody @Parameter(description = "Event ids(mandatory)", required = true) final List<Long> eventIds) {
+    public List<PrisonerSchedule> getActivitiesByEventIds(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @NotEmpty @RequestBody @Parameter(description = "Event ids(mandatory)", required = true) final List<Long> eventIds) {
         return schedulesService.getActivitiesByEventIds(agencyId, eventIds);
     }
 
-    @Operation(summary = "")
+    @Operation()
     @PostMapping("/{agencyId}/courtEvents")
-    public List<PrisonerSchedule> getCourtEvents(@PathVariable("agencyId") @Parameter(description = "", required = true) final String agencyId, @RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> body, @RequestParam(value = "date", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Date of whereabouts list, default today") final LocalDate date, @RequestParam(value = "timeSlot", required = false) @Parameter(description = "AM, PM or ED") final TimeSlot timeSlot) {
+    public List<PrisonerSchedule> getCourtEvents(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> body, @RequestParam(value = "date", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Date of whereabouts list, default today") final LocalDate date, @RequestParam(value = "timeSlot", required = false) @Parameter(description = "AM, PM or ED") final TimeSlot timeSlot) {
         return schedulesService.getCourtEvents(agencyId, body, date, timeSlot);
     }
 
-    @Operation(summary = "")
+    @Operation()
     @PostMapping("/{agencyId}/externalTransfers")
-    public List<PrisonerSchedule> getExternalTransfers(@PathVariable("agencyId") @Parameter(description = "", required = true) final String agencyId, @RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> body, @RequestParam("date") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Date of scheduled transfer") final LocalDate date) {
+    public List<PrisonerSchedule> getExternalTransfers(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> body, @RequestParam("date") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Date of scheduled transfer") final LocalDate date) {
         return schedulesService.getExternalTransfers(agencyId, body, date);
     }
 }

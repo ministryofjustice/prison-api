@@ -1,13 +1,13 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -31,7 +31,6 @@ import javax.validation.constraints.NotEmpty;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @Validated
@@ -58,7 +57,7 @@ public class CaseNoteResource {
             @ApiResponse(responseCode = "200", description = "The case note usage list is returned.")})
     @Operation(summary = "Retrieves list of case notes grouped by type/sub-type and staff", description = "Retrieves list of case notes grouped by type/sub-type and staff")
     @PostMapping("/staff-usage")
-    public List<CaseNoteStaffUsage> getCaseNoteStaffUsageSummaryByPost(@RequestBody @Parameter(description = "", required = true) final CaseNoteStaffUsageRequest request) {
+    public List<CaseNoteStaffUsage> getCaseNoteStaffUsageSummaryByPost(@RequestBody @Parameter(required = true) final CaseNoteStaffUsageRequest request) {
         return caseNoteService.getCaseNoteStaffUsage(request.getType(), request.getSubType(), request.getStaffIds(), request.getFromDate(), request.getToDate(), ObjectUtils.defaultIfNull(request.getNumMonths(), 1));
     }
 
@@ -77,7 +76,7 @@ public class CaseNoteResource {
             @ApiResponse(responseCode = "200", description = "The case note usage list is returned.")})
     @Operation(summary = "Retrieves list of case notes grouped by type and offender", description = "Retrieves list of case notes grouped by type and offender")
     @PostMapping("/usage")
-    public List<CaseNoteUsage> getCaseNoteUsageSummaryByPost(@RequestBody @Parameter(description = "", required = true) final CaseNoteUsageRequest request) {
+    public List<CaseNoteUsage> getCaseNoteUsageSummaryByPost(@RequestBody @Parameter(required = true) final CaseNoteUsageRequest request) {
         return caseNoteService.getCaseNoteUsage(request.getType(), request.getSubType(), request.getOffenderNos(), request.getStaffId(), request.getAgencyId(), request.getFromDate(), request.getToDate(), ObjectUtils.defaultIfNull(request.getNumMonths(), 1));
     }
 
