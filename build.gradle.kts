@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.0.3"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.1.0"
   kotlin("plugin.spring") version "1.6.10"
   kotlin("plugin.jpa") version "1.6.10"
 }
@@ -31,7 +31,7 @@ dependencies {
 
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
-  implementation(platform("com.amazonaws:aws-java-sdk-bom:1.12.158"))
+  implementation(platform("com.amazonaws:aws-java-sdk-bom:1.12.175"))
 
   implementation("javax.annotation:javax.annotation-api:1.3.2")
   implementation("javax.xml.bind:jaxb-api:2.3.1")
@@ -57,7 +57,7 @@ dependencies {
   compileOnly("org.projectlombok:lombok:1.18.22")
 
   runtimeOnly("org.hsqldb:hsqldb:2.5.1")
-  runtimeOnly("org.flywaydb:flyway-core:8.4.4")
+  runtimeOnly("org.flywaydb:flyway-core:8.5.2")
 
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
@@ -70,7 +70,7 @@ dependencies {
   testImplementation("org.powermock:powermock-module-junit4:2.0.9")
 
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.31.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.32.0")
 
   testImplementation("net.serenity-bdd:serenity-core:3.2.0")
   testImplementation("net.serenity-bdd:serenity-junit:3.2.0")
