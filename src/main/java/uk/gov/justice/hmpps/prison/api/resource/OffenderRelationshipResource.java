@@ -21,7 +21,7 @@ import java.util.List;
 @RestController
 @Tag(name = "offender-relationships")
 @Validated
-@RequestMapping("${api.base.path}/offender-relationships")
+@RequestMapping(value = "${api.base.path}/offender-relationships", produces = "application/json")
 public class OffenderRelationshipResource {
 
     private final BookingService bookingService;

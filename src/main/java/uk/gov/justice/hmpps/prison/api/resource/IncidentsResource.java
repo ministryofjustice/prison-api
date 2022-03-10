@@ -22,7 +22,7 @@ import javax.validation.constraints.NotNull;
 @RestController
 @Tag(name = "incidents")
 @Validated
-@RequestMapping("${api.base.path}/incidents")
+@RequestMapping(value = "${api.base.path}/incidents", produces = "application/json")
 @AllArgsConstructor
 public class IncidentsResource {
 

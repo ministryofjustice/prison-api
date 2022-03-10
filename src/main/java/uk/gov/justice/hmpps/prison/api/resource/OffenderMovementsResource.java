@@ -48,7 +48,7 @@ import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
 
 @RestController
 @Tag(name = "bookings")
-@RequestMapping("${api.base.path}/bookings")
+@RequestMapping(value = "${api.base.path}/bookings", produces = "application/json")
 @Validated
 @Slf4j
 public class OffenderMovementsResource {

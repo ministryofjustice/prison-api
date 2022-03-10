@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -126,7 +127,7 @@ import static uk.gov.justice.hmpps.prison.util.ResourceUtils.nvl;
  */
 @RestController
 @Tag(name = "bookings")
-@RequestMapping("${api.base.path}/bookings")
+@RequestMapping(value = "${api.base.path}/bookings", produces = "application/json")
 @Validated
 @AllArgsConstructor
 @Slf4j
@@ -162,8 +163,7 @@ public class BookingResource {
         @RequestParam(value = "iepLevel", defaultValue = "false", required = false) @Parameter(description = "Return IEP level data") final boolean iepLevel,
         @RequestParam(value = "legalInfo", defaultValue = "false", required = false) @Parameter(description = "Return additional legal information (imprisonmentStatus, legalStatus, convictedStatus)") final boolean legalInfo,
         @RequestParam(value = "image", defaultValue = "false", required = false) @Parameter(description = "Return facial ID for latest prisoner image") final boolean imageId,
-        @Parameter(hidden = true)
-        @PageableDefault(sort = {"lastName","firstName","offenderNo"}, direction = Direction.ASC) final Pageable pageable) {
+        @ParameterObject @PageableDefault(sort = {"lastName","firstName","offenderNo"}, direction = Direction.ASC) final Pageable pageable) {
 
         return bookingService.getPrisonerBookingSummary(prisonId, bookingIds, offenderNos, iepLevel, legalInfo, imageId, pageable);
     }
@@ -322,7 +322,7 @@ public class BookingResource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Return a set Incidents for a given booking Id", description = "Can be filtered by participation type and incident type")
     @GetMapping("/{bookingId}/incidents")
-    public List<IncidentCase> getIncidentsByBookingId(@PathVariable("bookingId") @Parameter(description = "bookingId", required = true) @NotNull final Long bookingId, @RequestParam("incidentType") @Parameter(description = "incidentType", example = "ASSAULT") final List<String> incidentTypes, @RequestParam("participationRoles") @Parameter(description = "participationRoles", example = "ASSIAL") final List<String> participationRoles) {
+    public List<IncidentCase> getIncidentsByBookingId(@PathVariable("bookingId") @Parameter(description = "bookingId", required = true) @NotNull final Long bookingId, @RequestParam("incidentType") @Parameter(description = "incidentType", example = "ASSAULT") final List<String> incidentTypes, @RequestParam("participationRoles") @Parameter(description = "participationRoles", example = "ASSIAL", schema = @Schema(allowableValues = {"ACTINV","ASSIAL","FIGHT","IMPED","PERP","SUSASS","SUSINV","VICT","AI","PAS","AO"})) final List<String> participationRoles) {
         return incidentService.getIncidentCasesByBookingId(bookingId, incidentTypes, participationRoles);
     }
 
@@ -367,8 +367,7 @@ public class BookingResource {
         @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "end alert date to search up to (including this date)", example = "2021-02-04") final LocalDate to,
         @RequestParam(value = "alertType", required = false) @Parameter(description = "Filter by alert type", example = "X") final String alertType,
         @RequestParam(value = "alertStatus", required = false) @Parameter(description = "Filter by alert active status", example = "ACTIVE") final String alertStatus,
-        @Parameter(hidden = true)
-        @PageableDefault(sort = {"dateExpires", "dateCreated"}, direction = Sort.Direction.DESC) final Pageable pageable) {
+        @ParameterObject @PageableDefault(sort = {"dateExpires", "dateCreated"}, direction = Sort.Direction.DESC) final Pageable pageable) {
 
         return inmateAlertService.getAlertsForBooking(bookingId, from, to, alertType, alertStatus, pageable);
     }
@@ -450,7 +449,7 @@ public class BookingResource {
                                                                @RequestParam(value = "type", required = false) @Parameter(description = "Filter by case note type", example = "GEN") final String type,
                                                                @RequestParam(value = "subType", required = false) @Parameter(description = "Filter by case note sub-type", example = "OBS") final String subType,
                                                                @RequestParam(value = "prisonId", required = false) @Parameter(description = "Filter by the ID of the prison", example = "LEI") final String prisonId,
-                                                               @PageableDefault(sort = {"occurrenceDateTime"}, direction = Sort.Direction.DESC) final Pageable pageable) {
+                                                               @ParameterObject @PageableDefault(sort = {"occurrenceDateTime"}, direction = Sort.Direction.DESC) final Pageable pageable) {
 
         final var caseNoteFilter = CaseNoteFilter.builder()
             .type(type)
@@ -559,7 +558,14 @@ public class BookingResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Offender sentence detail (key dates and additional days awarded).. Note: <h3>Algorithm</h3><ul><li>If there is a confirmed release date, the offender release date is the confirmed release date.</li><li>If there is no confirmed release date for the offender, the offender release date is either the actual parole date or the home detention curfew actual date.</li><li>If there is no confirmed release date, actual parole date or home detention curfew actual date for the offender, the release date is the later of the nonDtoReleaseDate or midTermDate value (if either or both are present)</li></ul>")
+    @Operation(summary = "Offender sentence detail (key dates and additional days awarded)", description = """
+        <h3>Algorithm</h3>
+        <ul>
+          <li>If there is a confirmed release date, the offender release date is the confirmed release date.</li>
+          <li>If there is no confirmed release date for the offender, the offender release date is either the actual parole date or the home detention curfew actual date.</li>
+          <li>If there is no confirmed release date, actual parole date or home detention curfew actual date for the offender, the release date is the later of the nonDtoReleaseDate or midTermDate value (if either or both are present)</li>
+        </ul>
+        """)
     @GetMapping("/{bookingId}/sentenceDetail")
     public SentenceCalcDates getBookingSentenceDetail(
         @RequestHeader(value = "version", defaultValue = "1.0", required = false) @Parameter(description = "Version of Sentence Calc Dates, 1.0 is default") final String version,
@@ -948,12 +954,12 @@ public class BookingResource {
         @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
         @RequestParam(value = "fromDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Returned visits must be scheduled on or after this date (in YYYY-MM-DD format).") final LocalDate fromDate,
         @RequestParam(value = "toDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Returned visits must be scheduled on or before this date (in YYYY-MM-DD format).") final LocalDate toDate,
-        @RequestParam(value = "visitType", required = false) @Parameter(description = "Type of visit") final String visitType,
+        @RequestParam(value = "visitType", required = false) @Parameter(description = "Type of visit", schema = @Schema(implementation = String.class, allowableValues = {"SCON", "OFFI"})) final String visitType,
         @RequestParam(value = "visitStatus", required = false) @Parameter(name = "Status of visit. code from VIS_COMPLETE domain, e.g: CANC (Cancelled) or SCH (Scheduled)", example = "SCH") final String visitStatus,
         @RequestParam(value = "cancellationReason", required = false) @Parameter(name = "Reason for cancellation. code from MOVE_CANC_RS domain, e.g: VISCANC (Visitor Cancelled) or NO_VO (No Visiting Order)", example = "NSHOW") final String cancellationReason,
         @RequestParam(value = "prisonId", required = false) @Parameter(description = "The prison id", example = "MDI") final String prisonId,
-        @RequestParam(value = "page", required = false) @Parameter(description = "Target page number, zero being the first page") final Integer pageIndex,
-        @RequestParam(value = "size", required = false) @Parameter(description = "The number of results per page") final Integer pageSize) {
+        @RequestParam(value = "page", required = false, defaultValue = "0") @Parameter(description = "Target page number, zero being the first page") final Integer pageIndex,
+        @RequestParam(value = "size", required = false, defaultValue = "20") @Parameter(description = "The number of results per page") final Integer pageSize) {
         final var pageIndexValue = ofNullable(pageIndex).orElse(0);
         final var pageSizeValue = ofNullable(pageSize).orElse(20);
         final PageRequest pageRequest = PageRequest.of(pageIndexValue, pageSizeValue);
@@ -1174,8 +1180,8 @@ public class BookingResource {
     @Operation(summary = "Gets cell history for an offender booking", description = "Default sort order is by assignment date descending")
     @GetMapping("/{bookingId}/cell-history")
     public Page<BedAssignment> getBedAssignmentsHistory(@PathVariable("bookingId") @Parameter(description = "The offender booking linked to the court hearings.", required = true) final Long bookingId,
-                                                        @RequestParam(value = "page", required = false) @Parameter(description = "The page number to return. Index starts at 0") final Integer page,
-                                                        @RequestParam(value = "size", required = false) @Parameter(description = "The number of results per page. Defaults to 20.") final Integer size) {
+                                                        @RequestParam(value = "page", required = false, defaultValue = "0") @Parameter(description = "The page number to return. Index starts at 0") final Integer page,
+                                                        @RequestParam(value = "size", required = false, defaultValue = "20") @Parameter(description = "The number of results per page. Defaults to 20.") final Integer size) {
         final var pageIndex = page != null ? page : 0;
         final var pageSize = size != null ? size : 20;
         return bedAssignmentHistoryService.getBedAssignmentsHistory(bookingId, PageRequest.of(pageIndex, pageSize, Sort.by("assignmentDate").descending()));

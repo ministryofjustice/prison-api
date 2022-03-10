@@ -22,7 +22,7 @@ import java.util.List;
 @RestController
 @Validated
 @Tag(name = "identifiers")
-@RequestMapping("${api.base.path}/identifiers")
+@RequestMapping(value = "${api.base.path}/identifiers", produces = "application/json")
 public class IdentifiersResource {
     private final InmateService inmateService;
 

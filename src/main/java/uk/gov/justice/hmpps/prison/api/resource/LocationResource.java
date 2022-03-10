@@ -34,7 +34,7 @@ import static uk.gov.justice.hmpps.prison.util.ResourceUtils.nvl;
 @RestController
 @Tag(name = "locations")
 @Validated
-@RequestMapping("${api.base.path}/locations")
+@RequestMapping(value = "${api.base.path}/locations", produces = "application/json")
 public class LocationResource {
     private final AuthenticationFacade authenticationFacade;
     private final LocationService locationService;
@@ -104,7 +104,7 @@ public class LocationResource {
         final Long locationId,
 
         @RequestParam(value="includeInactive", required = false)
-        @Parameter(description = "Match a location that is inactive?")
+        @Parameter(description = "Match a location that is inactive?", schema = @Schema(implementation = String.class, allowableValues = {"true","false"}))
         final Boolean includeInactive
     ) {
         return locationService.getLocation(locationId, includeInactive != null && includeInactive);

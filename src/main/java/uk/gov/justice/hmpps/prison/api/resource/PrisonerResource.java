@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.api.resource;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -33,7 +34,7 @@ import java.util.List;
 
 @RestController
 @Tag(name = "prisoners")
-@RequestMapping("${api.base.path}/prisoners")
+@RequestMapping(value = "${api.base.path}/prisoners", produces = "application/json")
 @Slf4j
 @Validated
 @AllArgsConstructor

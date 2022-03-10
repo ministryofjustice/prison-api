@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,7 +21,7 @@ import uk.gov.justice.hmpps.prison.service.AdjustmentService;
 @RestController
 @Validated
 @Tag(name = "adjustments")
-@RequestMapping("${api.base.path}/adjustments")
+@RequestMapping(value = "${api.base.path}/adjustments", produces = "application/json")
 @AllArgsConstructor
 public class AdjustmentResource {
 

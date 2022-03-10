@@ -26,7 +26,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @Slf4j
 @RestController
 @Validated
-@RequestMapping("${api.base.path}/events")
+@RequestMapping(value = "${api.base.path}/events", produces = "application/json")
 @AllArgsConstructor
 @Tag(name = "events")
 public class OffenderEventsController {

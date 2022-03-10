@@ -27,7 +27,7 @@ import uk.gov.justice.hmpps.prison.service.OffenderEducationService;
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "education")
-@RequestMapping("${api.base.path}/education")
+@RequestMapping(value = "${api.base.path}/education", produces = "application/json")
 public class EducationResource {
 
     private final OffenderEducationService offenderEducationService;

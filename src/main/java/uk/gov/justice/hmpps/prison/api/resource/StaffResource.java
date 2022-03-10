@@ -30,7 +30,7 @@ import java.util.List;
 @RestController
 @Tag(name = "staff")
 @Validated
-@RequestMapping("${api.base.path}/staff")
+@RequestMapping(value = "${api.base.path}/staff", produces = "application/json")
 public class StaffResource {
     private final StaffService staffService;
 

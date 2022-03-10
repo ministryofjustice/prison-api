@@ -36,7 +36,7 @@ import java.util.List;
 @RestController
 @Tag(name = "schedules")
 @Validated
-@RequestMapping("${api.base.path}/schedules")
+@RequestMapping(value = "${api.base.path}/schedules", produces = "application/json")
 public class ScheduleResource {
     private final SchedulesService schedulesService;
     private final AppointmentsService appointmentsService;
@@ -108,14 +108,14 @@ public class ScheduleResource {
         return schedulesService.getActivitiesAtAllLocations(agencyId, fromDate, toDate, timeSlot, sortFields, sortOrder, includeSuspended);
     }
 
-    @Operation()
+    @Operation
     @PostMapping("/{agencyId}/appointments")
     public List<PrisonerSchedule> getAppointmentsForOffenders(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> body, @RequestParam(value = "date", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Date of whereabouts list, default today") final LocalDate date, @RequestParam(value = "timeSlot", required = false) @Parameter(description = "AM, PM or ED") final TimeSlot timeSlot) {
         return schedulesService.getAppointments(agencyId, body, date, timeSlot);
 
     }
 
-    @Operation()
+    @Operation
     @GetMapping("/{agencyId}/appointments")
     public List<ScheduledAppointmentDto> getAppointments(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestParam("date") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Date the appointments are scheduled", required = true) final LocalDate date, @RequestParam(value = "locationId", required = false) @Parameter(description = "Location id") final Long locationId, @RequestParam(value = "timeSlot", required = false) @Parameter(description = "AM, PM or ED") final TimeSlot timeSlot) {
         return appointmentsService.getAppointments(agencyId, date, locationId, timeSlot);
@@ -126,25 +126,25 @@ public class ScheduleResource {
         return schedulesService.getVisits(agencyId, body, date, timeSlot);
     }
 
-    @Operation()
+    @Operation
     @PostMapping("/{agencyId}/activities")
     public List<PrisonerSchedule> getActivitiesForBookings(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> body, @RequestParam(value = "date", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Date of whereabouts list, default today") final LocalDate date, @RequestParam(value = "timeSlot", required = false) @Parameter(description = "AM, PM or ED") final TimeSlot timeSlot, @RequestParam(value = "includeExcluded", required = false, defaultValue = "false") @Parameter(description = "Whether to include 'excluded' activities in the results") final boolean includeExcluded) {
         return schedulesService.getActivitiesByEventIds(agencyId, body, date, timeSlot, includeExcluded);
     }
 
-    @Operation()
+    @Operation
     @PostMapping("/{agencyId}/activities-by-event-ids")
     public List<PrisonerSchedule> getActivitiesByEventIds(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @NotEmpty @RequestBody @Parameter(description = "Event ids(mandatory)", required = true) final List<Long> eventIds) {
         return schedulesService.getActivitiesByEventIds(agencyId, eventIds);
     }
 
-    @Operation()
+    @Operation
     @PostMapping("/{agencyId}/courtEvents")
     public List<PrisonerSchedule> getCourtEvents(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> body, @RequestParam(value = "date", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Date of whereabouts list, default today") final LocalDate date, @RequestParam(value = "timeSlot", required = false) @Parameter(description = "AM, PM or ED") final TimeSlot timeSlot) {
         return schedulesService.getCourtEvents(agencyId, body, date, timeSlot);
     }
 
-    @Operation()
+    @Operation
     @PostMapping("/{agencyId}/externalTransfers")
     public List<PrisonerSchedule> getExternalTransfers(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> body, @RequestParam("date") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Date of scheduled transfer") final LocalDate date) {
         return schedulesService.getExternalTransfers(agencyId, body, date);

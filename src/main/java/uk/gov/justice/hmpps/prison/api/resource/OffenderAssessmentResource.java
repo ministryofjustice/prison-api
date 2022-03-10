@@ -50,7 +50,7 @@ import java.util.Set;
 @RestController
 @Tag(name = "offender-assessments")
 @Validated
-@RequestMapping("${api.base.path}/offender-assessments")
+@RequestMapping(value = "${api.base.path}/offender-assessments", produces = "application/json")
 public class OffenderAssessmentResource {
     private final InmateService inmateService;
     private final OffenderAssessmentService offenderAssessmentService;
@@ -141,8 +141,6 @@ public class OffenderAssessmentResource {
         return inmateService.getInmatesAssessmentsByCode(offenderList, null, latest, active, false, mostRecent);
     }
 
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK")})
     @Operation(summary =  "Returns category information on Offenders at a prison.")
     @GetMapping("/category/{agencyId}")
     public List<OffenderCategorise> getOffenderCategorisations(@PathVariable("agencyId") @Parameter(description = "Prison id", required = true) final String agencyId, @NotNull(message = "Categorisation type must not be null") @RequestParam("type") @Parameter(description = "Indicates which type of category information is required." +
@@ -234,7 +232,7 @@ public class OffenderAssessmentResource {
     @ProxyUser
     public ResponseEntity<Void> setCategorisationInactive(@PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId, @RequestParam(value = "status", required = false, defaultValue = "ACTIVE") @Parameter(description = "Indicates which categorisation statuses to set." +
             "<li>ACTIVE (default): set all active (i.e. approved) categorisations inactive,</li>" +
-            "<li>PENDING: set all pending (i.e. awaiting approval) categorisations inactive,</li>") final String status){
+            "<li>PENDING: set all pending (i.e. awaiting approval) categorisations inactive,</li>", schema = @Schema(implementation = String.class, allowableValues = {"ACTIVE","PENDING"})) final String status){
 
         final AssessmentStatusType enumType;
         try {
