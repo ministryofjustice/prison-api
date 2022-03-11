@@ -1,26 +1,21 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
-@ApiModel(description = "Summary of an offender 'currently out' according to Establishment Roll")
+@Schema(description = "Summary of an offender 'currently out' according to Establishment Roll")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder(toBuilder = true)
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class OffenderOut {
     @NotBlank
-    @ApiModelProperty(required = true, value = "Display Prisoner Number")
+    @Schema(required = true, description = "Display Prisoner Number")
     private String offenderNo;
 
     @NotNull
@@ -36,6 +31,17 @@ public class OffenderOut {
     private String lastName;
 
     @NotNull
-    @ApiModelProperty(required = true, value = "The prisoner's internal location (Cell)")
+    @Schema(required = true, description = "The prisoner's internal location (Cell)")
     private String location;
+
+    public OffenderOut(@NotBlank String offenderNo, @NotNull Long bookingId, @NotNull LocalDate dateOfBirth, @NotBlank String firstName, @NotBlank String lastName, @NotNull String location) {
+        this.offenderNo = offenderNo;
+        this.bookingId = bookingId;
+        this.dateOfBirth = dateOfBirth;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.location = location;
+    }
+
+    public OffenderOut() {}
 }
