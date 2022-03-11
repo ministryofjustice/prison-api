@@ -332,7 +332,7 @@ public class BookingResource {
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
     })
-    @Operation(summary =  "Create an alert")
+    @Operation(summary = "Create an alert")
     @PostMapping("/{bookingId}/alert")
     @ProxyUser
     public ResponseEntity<AlertCreated> postAlert(@PathVariable("bookingId") @Parameter(description = "bookingId", required = true) final Long bookingId, @Valid @RequestBody @Parameter(description = "Alert details", required = true) final CreateAlert alert) {
@@ -346,7 +346,7 @@ public class BookingResource {
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
     })
-    @Operation(summary =  "Update an alert")
+    @Operation(summary = "Update an alert")
     @PutMapping("/{bookingId}/alert/{alertSeq}")
     @ProxyUser
     public Alert updateAlert(@PathVariable("bookingId") @Parameter(description = "bookingId", required = true) final Long bookingId, @PathVariable("alertSeq") @Parameter(description = "alertSeq", required = true) final Long alertSeq, @Valid @RequestBody @Parameter(description = "Alert details", required = true) final AlertChanges alert) {
@@ -383,13 +383,13 @@ public class BookingResource {
         return inmateAlertService.getInmateAlert(bookingId, alertId);
     }
 
-    @Operation(summary =  "Get alerts for a list of offenders at a prison")
+    @Operation(summary = "Get alerts for a list of offenders at a prison")
     @PostMapping("/offenderNo/{agencyId}/alerts")
     public List<Alert> getAlertsByOffenderNosAtAgency(@PathVariable("agencyId") @Parameter(description = "The prison where the offenders are booked", required = true) final String agencyId, @RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderNos) {
         return inmateAlertService.getInmateAlertsByOffenderNosAtAgency(agencyId, offenderNos);
     }
 
-    @Operation(summary =  "Get alerts for a list of offenders. Requires VIEW_PRISONER_DATA role")
+    @Operation(summary = "Get alerts for a list of offenders. Requires VIEW_PRISONER_DATA role")
     @PostMapping("/offenderNo/alerts")
     public List<Alert> getAlertsByOffenderNos(@RequestBody @NotEmpty(message = "A minimum of one offender number is required") @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderNos) {
         return inmateAlertService.getInmateAlertsByOffenderNos(offenderNos, true, "bookingId,alertId", Order.ASC);
@@ -482,7 +482,7 @@ public class BookingResource {
         return bookingService.getBookingIEPSummary(bookingId, withDetails);
     }
 
-    @Operation(summary =  "Add a new IEP (Incentives & Earned Privileges) level to an offender's booking.")
+    @Operation(summary = "Add a new IEP (Incentives & Earned Privileges) level to an offender's booking.")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PostMapping("/{bookingId}/iepLevels")
     @PreAuthorize("hasRole('MAINTAIN_IEP') and hasAuthority('SCOPE_write')")

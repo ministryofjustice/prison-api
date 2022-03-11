@@ -126,7 +126,7 @@ public class MovementResource {
             .body(page.getContent());
     }
 
-    @Operation()
+    @Operation
     @PostMapping("/offenders")
     public List<Movement> getMovementsByOffenders(@RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderNumbers,
                                                   @RequestParam(value = "movementTypes", required = false) @Parameter(description = "movement type codes to filter by") final List<String> movementTypes,

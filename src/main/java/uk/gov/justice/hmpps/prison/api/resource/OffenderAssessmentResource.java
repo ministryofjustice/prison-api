@@ -131,7 +131,7 @@ public class OffenderAssessmentResource {
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "400", description = "Invalid request - e.g. no offender numbers provided.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary =  "Returns assessment information on Offenders at a prison.")
+    @Operation(summary = "Returns assessment information on Offenders at a prison.")
     @GetMapping("/assessments")
     public List<Assessment> getAssessments(@RequestParam("offenderNo") @Parameter(description = "The required offender numbers Ids (mandatory)", required = true) final List<String> offenderList, @RequestParam(value = "latestOnly", required = false, defaultValue = "true") @Parameter(description = "Returns only assessments for the current sentence if true, otherwise assessments for all previous sentences are included") final Boolean latestOnly, @RequestParam(value = "activeOnly", required = false, defaultValue = "true") @Parameter(description = "Returns only active assessments if true, otherwise inactive and pending assessments are included") final Boolean activeOnly, @RequestParam(value = "mostRecentOnly", required = false) @Parameter(description = "Returns only the last assessment per sentence if true, otherwise all assessments for the booking are included") final Boolean mostRecentOnly) {
         final var latest = latestOnly == null || latestOnly;
@@ -141,7 +141,7 @@ public class OffenderAssessmentResource {
         return inmateService.getInmatesAssessmentsByCode(offenderList, null, latest, active, false, mostRecent);
     }
 
-    @Operation(summary =  "Returns category information on Offenders at a prison.")
+    @Operation(summary = "Returns category information on Offenders at a prison.")
     @GetMapping("/category/{agencyId}")
     public List<OffenderCategorise> getOffenderCategorisations(@PathVariable("agencyId") @Parameter(description = "Prison id", required = true) final String agencyId, @NotNull(message = "Categorisation type must not be null") @RequestParam("type") @Parameter(description = "Indicates which type of category information is required." +
             "<li>UNCATEGORISED: Offenders who need to be categorised,</li>" +
