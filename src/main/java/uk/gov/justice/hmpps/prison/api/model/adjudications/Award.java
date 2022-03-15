@@ -1,59 +1,72 @@
 package uk.gov.justice.hmpps.prison.api.model.adjudications;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@ApiModel(description = "Adjudication award / sanction")
+@Schema(description = "Adjudication award / sanction")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 @EqualsAndHashCode
 public class Award {
 
-    @ApiModelProperty(required = true, value = "Id of booking")
+    @Schema(required = true, description = "Id of booking")
     private Long bookingId;
 
-    @ApiModelProperty(required = true, value = "Type of award")
+    @Schema(required = true, description = "Type of award")
     private String sanctionCode;
 
-    @ApiModelProperty(value = "Award type description")
+    @Schema(description = "Award type description")
     private String sanctionCodeDescription;
 
-    @ApiModelProperty(value = "Number of months duration")
+    @Schema(description = "Number of months duration")
     private Integer months;
 
-    @ApiModelProperty(value = "Number of days duration")
+    @Schema(description = "Number of days duration")
     private Integer days;
 
-    @ApiModelProperty(value = "Compensation amount")
+    @Schema(description = "Compensation amount")
     private BigDecimal limit;
 
-    @ApiModelProperty(value = "Optional details")
+    @Schema(description = "Optional details")
     private String comment;
 
-    @ApiModelProperty(required = true, value = "Start of sanction")
+    @Schema(required = true, description = "Start of sanction")
     private LocalDate effectiveDate;
 
-    @ApiModelProperty(value = "Award status (ref domain OIC_SANCT_ST)")
+    @Schema(description = "Award status (ref domain OIC_SANCT_ST)")
     private String status;
 
-    @ApiModelProperty(value = "Award status description")
+    @Schema(description = "Award status description")
     private String statusDescription;
 
-    @ApiModelProperty(required = true, value = "Id of hearing")
+    @Schema(required = true, description = "Id of hearing")
     private Long hearingId;
 
-    @ApiModelProperty(required = true, value = "hearing record sequence number")
+    @Schema(required = true, description = "hearing record sequence number")
     private Integer hearingSequence;
+
+    public Award(Long bookingId, String sanctionCode, String sanctionCodeDescription, Integer months, Integer days, BigDecimal limit, String comment, LocalDate effectiveDate, String status, String statusDescription, Long hearingId, Integer hearingSequence) {
+        this.bookingId = bookingId;
+        this.sanctionCode = sanctionCode;
+        this.sanctionCodeDescription = sanctionCodeDescription;
+        this.months = months;
+        this.days = days;
+        this.limit = limit;
+        this.comment = comment;
+        this.effectiveDate = effectiveDate;
+        this.status = status;
+        this.statusDescription = statusDescription;
+        this.hearingId = hearingId;
+        this.hearingSequence = hearingSequence;
+    }
+
+    public Award() {
+    }
 }

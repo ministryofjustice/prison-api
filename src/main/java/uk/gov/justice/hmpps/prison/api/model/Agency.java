@@ -1,52 +1,63 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
 
-@ApiModel(description = "Agency Details")
+@Schema(description = "Agency Details")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder(toBuilder = true)
-@AllArgsConstructor
-@NoArgsConstructor
 @Data
 public class Agency {
-    @ApiModelProperty(required = true, value = "Agency identifier.", example = "MDI", position = 1)
+    @Schema(required = true, description = "Agency identifier.", example = "MDI")
     private String agencyId;
 
-    @ApiModelProperty(required = true, value = "Agency description.", example = "Moorland (HMP & YOI)", position = 2)
+    @Schema(required = true, description = "Agency description.", example = "Moorland (HMP & YOI)")
     private String description;
 
-    @ApiModelProperty(value = "Long description of the agency", example = "Moorland (HMP & YOI)", position = 3)
+    @Schema(description = "Long description of the agency", example = "Moorland (HMP & YOI)")
     private String longDescription;
 
-    @ApiModelProperty(required = true, value = "Agency type.  Reference domain is AGY_LOC_TYPE", example = "INST", allowableValues = "CRC,POLSTN,INST,COMM,APPR,CRT,POLICE,IMDC,TRN,OUT,YOT,SCH,STC,HOST,AIRPORT,HSHOSP,HOSPITAL,PECS,PAR,PNP,PSY", position = 4)
+    @Schema(required = true, description = "Agency type.  Reference domain is AGY_LOC_TYPE", example = "INST", allowableValues = "CRC,POLSTN,INST,COMM,APPR,CRT,POLICE,IMDC,TRN,OUT,YOT,SCH,STC,HOST,AIRPORT,HSHOSP,HOSPITAL,PECS,PAR,PNP,PSY")
     private String agencyType;
 
-    @ApiModelProperty(required = true, value = "Indicates the Agency is active", example = "true", position = 5)
+    @Schema(required = true, description = "Indicates the Agency is active", example = "true")
     @Default
     private boolean active = true;
 
-    @ApiModelProperty(value = "Court Type.  Reference domain is JURISDICTION", example = "CC", allowableValues = "CACD,CB,CC,CO,DCM,GCM,IMM,MC,OTHER,YC", position = 6)
+    @Schema(description = "Court Type.  Reference domain is JURISDICTION", example = "CC", allowableValues = "CACD,CB,CC,CO,DCM,GCM,IMM,MC,OTHER,YC")
     private String courtType;
 
-    @ApiModelProperty(value = "Date agency became inactive", example = "2012-01-12", position = 7)
+    @Schema(description = "Date agency became inactive", example = "2012-01-12")
     private LocalDate deactivationDate;
 
-    @ApiModelProperty(value = "List of addresses associated with agency",  position = 8)
+    @Schema(description = "List of addresses associated with agency")
     private List<AddressDto> addresses;
 
-    @ApiModelProperty(value = "List of phones associated with agency",  position = 9)
+    @Schema(description = "List of phones associated with agency")
     private List<Telephone> phones;
 
-    @ApiModelProperty(value = "List of emails associated with agency",  position = 10)
+    @Schema(description = "List of emails associated with agency")
     private List<Email> emails;
+
+    public Agency(String agencyId, String description, String longDescription, String agencyType, boolean active, String courtType, LocalDate deactivationDate, List<AddressDto> addresses, List<Telephone> phones, List<Email> emails) {
+        this.agencyId = agencyId;
+        this.description = description;
+        this.longDescription = longDescription;
+        this.agencyType = agencyType;
+        this.active = active;
+        this.courtType = courtType;
+        this.deactivationDate = deactivationDate;
+        this.addresses = addresses;
+        this.phones = phones;
+        this.emails = emails;
+    }
+
+    public Agency() {
+    }
 }
