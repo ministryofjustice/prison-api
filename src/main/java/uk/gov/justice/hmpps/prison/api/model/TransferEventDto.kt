@@ -1,0 +1,56 @@
+package uk.gov.justice.hmpps.prison.api.model
+
+import java.time.LocalDate
+import java.time.LocalDateTime
+
+data class TransferEventDto(
+  var offenderNo: String? = null,
+  var createDateTime: LocalDateTime? = null,
+  var eventId: Long? = null,
+  var fromAgency: String? = null,
+  var fromAgencyDescription: String? = null,
+  var toAgency: String? = null,
+  var toAgencyDescription: String? = null,
+  var toCity: String? = null,
+  var eventStatus: String? = null,
+  var eventClass: String? = null,
+  var eventType: String? = null,
+  var eventSubType: String? = null,
+  var eventDate: LocalDate? = null,
+  var startTime: LocalDateTime? = null,
+  var endTime: LocalDateTime? = null,
+  var outcomeReasonCode: String? = null,
+  var judgeName: String? = null,
+  var engagementCode: String? = null,
+  var escortCode: String? = null,
+  var performanceCode: String? = null,
+  var directionCode: String? = null,
+  var bookingActiveFlag: Boolean = false,
+  var bookingInOutStatus: String? = null,
+) {
+  fun toTransferEvent() = TransferEvent(
+    this.offenderNo,
+    this.createDateTime,
+    this.eventId,
+    this.fromAgency,
+    this.fromAgencyDescription,
+    this.toAgency,
+    this.toAgencyDescription,
+    this.toCity,
+    this.eventStatus,
+    this.eventClass,
+    this.eventType,
+    this.eventSubType,
+    this.eventDate,
+    this.startTime,
+    this.endTime,
+    this.outcomeReasonCode,
+    this.judgeName,
+    this.engagementCode,
+    this.escortCode,
+    this.performanceCode,
+    this.directionCode,
+    this.bookingActiveFlag,
+    this.bookingInOutStatus,
+  )
+}

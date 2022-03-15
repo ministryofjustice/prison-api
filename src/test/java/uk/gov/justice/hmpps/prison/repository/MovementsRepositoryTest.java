@@ -310,21 +310,15 @@ public class MovementsRepositoryTest {
     }
 
     @Test
-    public void canRetrieveTransferEventsByAgency() {
-
+    public void getIndividualSchedules() {
         // Match with specific rows loaded in the seeded data
-        final var fromTime = LocalDateTime.now().minusHours(1);
-        final var toTime = LocalDateTime.now().plusHours(23);
         final var agencies = List.of("LEI", "MDI");
+        final var transferEvents = repository.getIndividualSchedules(agencies, LocalDate.now());
 
-        final var transferEvents = repository.getOffenderTransfers(agencies, fromTime, toTime);
-
-        assertThat(transferEvents).isNotEmpty();
-
-        assertThat(transferEvents).asList()
-                .extracting("eventClass", "eventStatus", "eventType", "offenderNo", "fromAgency", "toAgency")
-                .contains(tuple("EXT_MOV", "SCH", "TRN", "A1234AC", "LEI", "MDI"))
-                .contains(tuple("EXT_MOV", "SCH", "TRN", "A1234AC", "MDI", "LEI"));
+        assertThat(transferEvents)
+            .extracting("eventClass", "eventStatus", "eventType", "offenderNo", "fromAgency", "toAgency")
+            .contains(tuple("EXT_MOV", "SCH", "TRN", "A1234AC", "LEI", "MDI"))
+            .contains(tuple("EXT_MOV", "SCH", "TRN", "A1234AC", "MDI", "LEI"));
     }
 
 }
