@@ -2,18 +2,26 @@ package uk.gov.justice.hmpps.prison.repository;
 
 import com.google.common.collect.Lists;
 import lombok.val;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
+import uk.gov.justice.hmpps.prison.api.model.AgencyDto;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.Adjudication;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationCharge;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationDetail;
+import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationDetailDto;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationOffence;
+import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationOffenceDto;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.Award;
+import uk.gov.justice.hmpps.prison.api.model.adjudications.AwardDto;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.Hearing;
-import uk.gov.justice.hmpps.prison.api.model.adjudications.HearingResult;
+import uk.gov.justice.hmpps.prison.api.model.adjudications.HearingDto;
+import uk.gov.justice.hmpps.prison.api.model.adjudications.HearingResultDto;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.Sanction;
+import uk.gov.justice.hmpps.prison.api.model.adjudications.SanctionDto;
 import uk.gov.justice.hmpps.prison.api.support.Page;
+import uk.gov.justice.hmpps.prison.repository.mapping.DataClassByColumnRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
 import uk.gov.justice.hmpps.prison.repository.sql.AdjudicationsRepositorySql;
 import uk.gov.justice.hmpps.prison.service.AdjudicationSearchCriteria;
@@ -33,35 +41,39 @@ import static java.util.stream.Collectors.toList;
 @Repository
 public class AdjudicationsRepository extends RepositoryBase {
 
-    private final StandardBeanPropertyRowMapper<Award> rowMapper = new StandardBeanPropertyRowMapper<>(Award.class);
-    private final StandardBeanPropertyRowMapper<Agency> agencyMapper = new StandardBeanPropertyRowMapper<>(Agency.class);
-    private final StandardBeanPropertyRowMapper<AdjudicationChargeDto> adjudicationMapper = new StandardBeanPropertyRowMapper<>(AdjudicationChargeDto.class);
-    private final StandardBeanPropertyRowMapper<AdjudicationOffence> offenceMapper = new StandardBeanPropertyRowMapper<>(AdjudicationOffence.class);
-    private final StandardBeanPropertyRowMapper<AdjudicationDetail> detailMapper = new StandardBeanPropertyRowMapper<>(AdjudicationDetail.class);
-    private final StandardBeanPropertyRowMapper<Hearing> hearingMapper = new StandardBeanPropertyRowMapper<>(Hearing.class);
-    private final StandardBeanPropertyRowMapper<HearingResult> resultMapper = new StandardBeanPropertyRowMapper<>(HearingResult.class);
-    private final StandardBeanPropertyRowMapper<Sanction> sanctionMapper = new StandardBeanPropertyRowMapper<>(Sanction.class);
+    private final RowMapper<AwardDto> rowMapper = new DataClassByColumnRowMapper<>(AwardDto.class);
+    private final RowMapper<AgencyDto> agencyMapper = new DataClassByColumnRowMapper<>(AgencyDto.class);
+    private final RowMapper<AdjudicationChargeDto> adjudicationMapper = new StandardBeanPropertyRowMapper<>(AdjudicationChargeDto.class);
+    private final RowMapper<AdjudicationOffenceDto> offenceMapper = new DataClassByColumnRowMapper<>(AdjudicationOffenceDto.class);
+    private final RowMapper<AdjudicationDetailDto> detailMapper = new DataClassByColumnRowMapper<>(AdjudicationDetailDto.class);
+    private final RowMapper<HearingDto> hearingMapper = new DataClassByColumnRowMapper<>(HearingDto.class);
+    private final RowMapper<HearingResultDto> resultMapper = new DataClassByColumnRowMapper<>(HearingResultDto.class);
+    private final RowMapper<SanctionDto> sanctionMapper = new DataClassByColumnRowMapper<>(SanctionDto.class);
 
 
     public List<Award> findAwards(final long bookingId) {
-        return jdbcTemplate.query(AdjudicationsRepositorySql.FIND_AWARDS.getSql(), createParams("bookingId", bookingId), rowMapper);
+        final var awards = jdbcTemplate.query(AdjudicationsRepositorySql.FIND_AWARDS.getSql(), createParams("bookingId", bookingId), rowMapper);
+        return awards.stream().map(AwardDto::toAward).collect(toList());
     }
 
     public List<Award> findAwardsForMultipleBookings(final List<Long> bookingIds) {
-        return jdbcTemplate.query(AdjudicationsRepositorySql.FIND_AWARDS_BY_BOOKINGS.getSql(), createParams("bookingIds", bookingIds), rowMapper);
+        final var awards = jdbcTemplate.query(AdjudicationsRepositorySql.FIND_AWARDS_BY_BOOKINGS.getSql(), createParams("bookingIds", bookingIds), rowMapper);
+        return awards.stream().map(AwardDto::toAward).collect(toList());
     }
 
     public List<AdjudicationOffence> findAdjudicationOffences(final String offenderNumber) {
-        return jdbcTemplate.query(AdjudicationsRepositorySql.FIND_LATEST_ADJUDICATION_OFFENCE_TYPES_FOR_OFFENDER.getSql(),
+        final var adjudications = jdbcTemplate.query(AdjudicationsRepositorySql.FIND_LATEST_ADJUDICATION_OFFENCE_TYPES_FOR_OFFENDER.getSql(),
                 createParams("offenderNo", offenderNumber),
                 offenceMapper);
+        return adjudications.stream().map(AdjudicationOffenceDto::toAdjudicationOffence).collect(toList());
     }
 
 
     public List<Agency> findAdjudicationAgencies(final String offenderNumber) {
-        return jdbcTemplate.query(AdjudicationsRepositorySql.FIND_LATEST_ADJUDICATION_AGENCIES_FOR_OFFENDER.getSql(),
+        final var agencies = jdbcTemplate.query(AdjudicationsRepositorySql.FIND_LATEST_ADJUDICATION_AGENCIES_FOR_OFFENDER.getSql(),
                 createParams("offenderNo", offenderNumber),
                 agencyMapper);
+        return agencies.stream().map(AgencyDto::toAgency).collect(toList());
     }
 
 
@@ -77,11 +89,11 @@ public class AdjudicationsRepository extends RepositoryBase {
         return details.stream().map(detail -> populateDetails(adjudicationNumber, detail)).findFirst();
     }
 
-    private AdjudicationDetail populateDetails(final long adjudicationNumber, final AdjudicationDetail detail) {
+    private AdjudicationDetail populateDetails(final long adjudicationNumber, final AdjudicationDetailDto detail) {
 
         val hearings = jdbcTemplate.query(AdjudicationsRepositorySql.FIND_HEARINGS.getSql(), createParams("adjudicationNo", adjudicationNumber), hearingMapper);
 
-        val hearingIds = Lists.transform(hearings, Hearing::getOicHearingId);
+        val hearingIds = Lists.transform(hearings, HearingDto::getOicHearingId);
 
         val results = getResults(hearingIds);
 
@@ -94,36 +106,36 @@ public class AdjudicationsRepository extends RepositoryBase {
                         sanctions.getOrDefault(hearing.getOicHearingId(), List.of())))
                 .collect(toList());
 
-        return detail.toBuilder().hearings(populatedHearings).build();
+        return detail.toAdjudicationDetail().toBuilder().hearings(populatedHearings).build();
     }
 
-    private Hearing populateHearing(final Hearing hearing, final List<HearingResult> results, final List<Sanction> sanctions) {
+    private Hearing populateHearing(final HearingDto hearing, final List<HearingResultDto> results, final List<SanctionDto> sanctions) {
 
-        val sanctionsByResult = sanctions.stream().collect(groupingBy(Sanction::getResultSeq));
+        val sanctionsByResult = sanctions.stream().map(SanctionDto::toSanction).collect(groupingBy(Sanction::getResultSeq));
 
         val populatedResults = results.stream().map(result ->
-                result.toBuilder()
+                result.toHearingResult().toBuilder()
                         .sanctions(sanctionsByResult.getOrDefault(result.getResultSeq(), List.of()))
                         .build())
                 .collect(toList());
 
-        return hearing.toBuilder().results(populatedResults).build();
+        return hearing.toHearing().toBuilder().results(populatedResults).build();
     }
 
-    private Map<Long, List<Sanction>> getSanctions(List<Long> hearingIds) {
+    private Map<Long, List<SanctionDto>> getSanctions(List<Long> hearingIds) {
         return hearingIds.isEmpty()
                 ? Map.of()
                 : jdbcTemplate.query(AdjudicationsRepositorySql.FIND_SANCTIONS.getSql(), createParams("hearingIds", hearingIds), sanctionMapper)
                 .stream()
-                .collect(groupingBy(Sanction::getOicHearingId));
+                .collect(groupingBy(SanctionDto::getOicHearingId));
     }
 
-    private Map<Long, List<HearingResult>> getResults(List<Long> hearingIds) {
+    private Map<Long, List<HearingResultDto>> getResults(List<Long> hearingIds) {
         return hearingIds.isEmpty()
                 ? Map.of()
                 : jdbcTemplate.query(AdjudicationsRepositorySql.FIND_RESULTS.getSql(), createParams("hearingIds", hearingIds), resultMapper)
                 .stream()
-                .collect(groupingBy(HearingResult::getOicHearingId));
+                .collect(groupingBy(HearingResultDto::getOicHearingId));
     }
 
 
