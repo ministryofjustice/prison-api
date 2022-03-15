@@ -1,12 +1,12 @@
 package uk.gov.justice.hmpps.prison.api.model
 import java.time.LocalDate
 data class OffenderOutDto(
-  var offenderNo: String? = null,
-  var bookingId: Long? = null,
-  var dateOfBirth: LocalDate? = null,
-  var firstName: String? = null,
-  var lastName: String? = null,
-  var location: String? = null,
+  val offenderNo: String?,
+  val bookingId: Long?,
+  val dateOfBirth: LocalDate?,
+  val firstName: String?,
+  val lastName: String?,
+  val location: String?,
 ) {
   fun toOffenderOut() = OffenderOut(
     this.offenderNo,
