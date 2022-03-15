@@ -44,7 +44,6 @@ public class UserDetailsServiceImpl implements UserDetailsService, Authenticatio
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
         final var nomisProfile = ProfileUtil.isNomisProfile(env);
 
-        final var userDetail = userService.getUserByUsername(username);
         final var roles = userService.getRolesByUsername(username, false);
 
         if (nomisProfile && !userService.isUserAccessibleCaseloadAvailable(apiCaseloadId, username)) {
@@ -56,7 +55,7 @@ public class UserDetailsServiceImpl implements UserDetailsService, Authenticatio
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + StringUtils.upperCase(StringUtils.replaceAll(role.getRoleCode(), "-", "_"))))
                 .collect(Collectors.toSet());
 
-        return new UserDetailsImpl(username, null, authorities, userDetail.getAdditionalProperties());
+        return new UserDetailsImpl(username, null, authorities);
     }
 
     @Override

@@ -1,74 +1,80 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.apache.commons.text.WordUtils;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-import java.util.Map;
 
 /**
  * User Details
  **/
 @SuppressWarnings("unused")
-@ApiModel(description = "User Details")
+@Schema(description = "User Details")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
 @Data
 public class UserDetail {
-    @ApiModelProperty(required = true, value = "Staff Id", example = "231232")
+    @Schema(required = true, description = "Staff Id", example = "231232")
     @NotNull
     private Long staffId;
 
-    @ApiModelProperty(required = true, value = "Username", example = "DEMO_USER1", position = 1)
+    @Schema(required = true, description = "Username", example = "DEMO_USER1")
     @NotBlank
     private String username;
 
-    @ApiModelProperty(required = true, value = "First Name", example = "John", position = 2)
+    @Schema(required = true, description = "First Name", example = "John")
     @NotBlank
     private String firstName;
 
-    @ApiModelProperty(required = true, value = "Last Name", example = "Smith", position = 3)
+    @Schema(required = true, description = "Last Name", example = "Smith")
     @NotBlank
     private String lastName;
 
-    @ApiModelProperty(value = "Image Thumbnail Id", example = "2342341224", position = 4)
+    @Schema(description = "Image Thumbnail Id", example = "2342341224")
     private Long thumbnailId;
 
-    @ApiModelProperty(value = "Current Active Caseload", example = "MDI", position = 5)
+    @Schema(description = "Current Active Caseload", example = "MDI")
     private String activeCaseLoadId;
 
-    @ApiModelProperty(required = true, value = "Status of the User Account", allowableValues = "ACTIVE,INACT,SUS,CAREER,MAT,SAB,SICK", example = "ACTIVE", position = 6)
+    @Schema(required = true, description = "Status of the User Account", allowableValues = "ACTIVE,INACT,SUS,CAREER,MAT,SAB,SICK", example = "ACTIVE")
     private String accountStatus;
 
-    @ApiModelProperty(required = true, value = "Date the user account was locked", example = "2018-06-04T12:35:00", position = 7)
+    @Schema(required = true, description = "Date the user account was locked", example = "2018-06-04T12:35:00")
     private LocalDateTime lockDate;
 
-    @ApiModelProperty(value = "Date the user account has expired", example = "2018-01-04T12:35:00", position = 8)
+    @Schema(description = "Date the user account has expired", example = "2018-01-04T12:35:00")
     private LocalDateTime expiryDate;
 
-    @ApiModelProperty(value = "The User account is locked", example = "false", position = 9)
+    @Schema(description = "The User account is locked", example = "false")
     private Boolean lockedFlag;
 
-    @ApiModelProperty(value = "Indicates the user account has expired", example = "true", position = 10)
+    @Schema(description = "Indicates the user account has expired", example = "true")
     private Boolean expiredFlag;
 
-    @JsonIgnore
-    @ApiModelProperty(hidden = true)
-    private Map<String, Object> additionalProperties;
+    public UserDetail(@NotNull Long staffId, @NotBlank String username, @NotBlank String firstName, @NotBlank String lastName, Long thumbnailId, String activeCaseLoadId, String accountStatus, LocalDateTime lockDate, LocalDateTime expiryDate, Boolean lockedFlag, Boolean expiredFlag) {
+        this.staffId = staffId;
+        this.username = username;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.thumbnailId = thumbnailId;
+        this.activeCaseLoadId = activeCaseLoadId;
+        this.accountStatus = accountStatus;
+        this.lockDate = lockDate;
+        this.expiryDate = expiryDate;
+        this.lockedFlag = lockedFlag;
+        this.expiredFlag = expiredFlag;
+    }
 
-    @ApiModelProperty(required = true, value = "Indicate if the account is active", example = "true", position = 11)
+    public UserDetail() {
+    }
+
+    @Schema(required = true, description = "Indicate if the account is active", example = "true")
     @JsonGetter
     public boolean isActive() {
         return "ACTIVE".equals(accountStatus);

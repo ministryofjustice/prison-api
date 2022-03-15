@@ -47,9 +47,6 @@ public class StaffServiceImplTest {
     public CaseLoadRepository caseLoadRepository;
 
     @Mock
-    public UserRepository userRepository;
-
-    @Mock
     private UserCaseloadRoleRepository userCaseloadRoleRepository;
 
     @Mock
@@ -62,7 +59,7 @@ public class StaffServiceImplTest {
 
     @BeforeEach
     public void init() {
-        staffService = new StaffService(staffRepository, staffUserAccountRepository, userRepository, caseLoadRepository, userCaseloadRoleRepository, roleRepository, userCaseloadRepository);
+        staffService = new StaffService(staffRepository, staffUserAccountRepository, caseLoadRepository, userCaseloadRoleRepository, roleRepository, userCaseloadRepository);
     }
 
     @Test
