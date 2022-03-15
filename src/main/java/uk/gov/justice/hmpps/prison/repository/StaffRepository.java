@@ -6,12 +6,17 @@ import org.apache.commons.lang3.Validate;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.api.model.StaffDetail;
+import uk.gov.justice.hmpps.prison.api.model.StaffDetailDto;
 import uk.gov.justice.hmpps.prison.api.model.StaffLocationRole;
+import uk.gov.justice.hmpps.prison.api.model.StaffLocationRoleDto;
 import uk.gov.justice.hmpps.prison.api.model.StaffRole;
+import uk.gov.justice.hmpps.prison.api.model.StaffRoleDto;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
+import uk.gov.justice.hmpps.prison.repository.mapping.DataClassByColumnRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.PageAwareRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
 import uk.gov.justice.hmpps.prison.repository.sql.StaffRepositorySql;
@@ -21,19 +26,20 @@ import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 @Slf4j
 public class StaffRepository extends RepositoryBase {
 
-    private static final StandardBeanPropertyRowMapper<StaffDetail> STAFF_DETAIL_ROW_MAPPER =
-            new StandardBeanPropertyRowMapper<>(StaffDetail.class);
+    private static final RowMapper<StaffDetailDto> STAFF_DETAIL_ROW_MAPPER =
+            new DataClassByColumnRowMapper<>(StaffDetailDto.class);
 
-    private static final StandardBeanPropertyRowMapper<StaffLocationRole> STAFF_LOCATION_ROLE_ROW_MAPPER =
-            new StandardBeanPropertyRowMapper<>(StaffLocationRole.class);
+    private static final StandardBeanPropertyRowMapper<StaffLocationRoleDto> STAFF_LOCATION_ROLE_ROW_MAPPER =
+            new StandardBeanPropertyRowMapper<>(StaffLocationRoleDto.class);
 
-    private static final StandardBeanPropertyRowMapper<StaffRole> STAFF_ROLES_MAPPER =
-            new StandardBeanPropertyRowMapper<>(StaffRole.class);
+    private static final RowMapper<StaffRoleDto> STAFF_ROLES_MAPPER =
+            new DataClassByColumnRowMapper<>(StaffRoleDto.class);
 
 
 
@@ -43,7 +49,7 @@ public class StaffRepository extends RepositoryBase {
 
         final var sql = StaffRepositorySql.FIND_STAFF_BY_STAFF_ID.getSql();
 
-        StaffDetail staffDetail;
+        StaffDetailDto staffDetail;
 
         try {
             staffDetail = jdbcTemplate.queryForObject(
@@ -54,7 +60,7 @@ public class StaffRepository extends RepositoryBase {
             staffDetail = null;
         }
 
-        return Optional.ofNullable(staffDetail);
+        return Optional.ofNullable(staffDetail).map(StaffDetailDto::toStaffDetail);
     }
 
 
@@ -64,7 +70,7 @@ public class StaffRepository extends RepositoryBase {
 
         final var sql = StaffRepositorySql.FIND_STAFF_BY_PERSONNEL_IDENTIFIER.getSql();
 
-        StaffDetail staffDetail;
+        StaffDetailDto staffDetail;
 
         try {
             staffDetail = jdbcTemplate.queryForObject(
@@ -78,7 +84,7 @@ public class StaffRepository extends RepositoryBase {
             staffDetail = null;
         }
 
-        return Optional.ofNullable(staffDetail);
+        return Optional.ofNullable(staffDetail).map(StaffDetailDto::toStaffDetail);
     }
 
     public List<String> findEmailAddressesForStaffId(final Long staffId) {
@@ -105,12 +111,14 @@ public class StaffRepository extends RepositoryBase {
 
         final var paRowMapper = new PageAwareRowMapper<>(STAFF_LOCATION_ROLE_ROW_MAPPER);
 
-        final var staffDetails = jdbcTemplate.query(
+        final var staffDetailsDtos = jdbcTemplate.query(
                 sql,
                 createParamSource(pageRequest, "agencyId", agencyId, "position", position, "role", role),
                 paRowMapper);
 
-        staffDetails.forEach(sd -> sd.setAgencyDescription(LocationProcessor.formatLocation(sd.getAgencyDescription())));
+        final var staffDetails = staffDetailsDtos.stream()
+            .map(sd -> sd.toStaffLocationRole().toBuilder().agencyDescription(LocationProcessor.formatLocation(sd.getAgencyDescription())).build())
+            .collect(Collectors.toList());
         return new Page<>(staffDetails, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
     }
 
@@ -132,11 +140,13 @@ public class StaffRepository extends RepositoryBase {
 
         final var paRowMapper = new PageAwareRowMapper<>(STAFF_LOCATION_ROLE_ROW_MAPPER);
 
-        final var staffDetails = jdbcTemplate.query(
+        final var staffLocationDtos = jdbcTemplate.query(
                 sql,
                 createParamSource(pageRequest, "agencyId", agencyId, "role", role),
                 paRowMapper);
-        staffDetails.forEach(sd -> sd.setAgencyDescription(LocationProcessor.formatLocation(sd.getAgencyDescription())));
+        final var staffDetails = staffLocationDtos.stream()
+            .map(sd -> sd.toStaffLocationRole().toBuilder().agencyDescription(LocationProcessor.formatLocation(sd.getAgencyDescription())).build())
+            .collect(Collectors.toList());
 
         return new Page<>(staffDetails, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
     }
@@ -148,10 +158,11 @@ public class StaffRepository extends RepositoryBase {
 
         final var sql = StaffRepositorySql.GET_STAFF_ROLES_FOR_AGENCY.getSql();
 
-        return jdbcTemplate.query(
+        final var staffRoles = jdbcTemplate.query(
                 sql,
                 createParams("staffId", staffId, "agencyId", agencyId, "currentDate", DateTimeConverter.toDate(LocalDate.now())),
                 STAFF_ROLES_MAPPER);
+        return staffRoles.stream().map(StaffRoleDto::toStaffRole).collect(Collectors.toList());
     }
 
     private String applyNameFilterQuery(final String baseSql, final String nameFilter) {
