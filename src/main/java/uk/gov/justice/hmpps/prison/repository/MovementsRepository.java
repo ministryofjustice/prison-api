@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.repository;
 
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.DataClassRowMapper;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.api.model.CourtEvent;
@@ -24,7 +25,7 @@ import uk.gov.justice.hmpps.prison.api.model.RollCount;
 import uk.gov.justice.hmpps.prison.api.model.RollCountDto;
 import uk.gov.justice.hmpps.prison.api.model.TransferEvent;
 import uk.gov.justice.hmpps.prison.api.model.TransferEventDto;
-import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
+import uk.gov.justice.hmpps.prison.repository.mapping.DataClassByColumnRowMapper;
 import uk.gov.justice.hmpps.prison.repository.sql.MovementsRepositorySql;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
@@ -43,16 +44,16 @@ import static java.util.stream.Collectors.groupingBy;
 public class MovementsRepository extends RepositoryBase {
 
     private static final Set<String> DEACTIVATE_REASON_CODES = Set.of("A", "C", "E", "I");
-    private final RowMapper<MovementDto> MOVEMENT_MAPPER = new StandardBeanPropertyRowMapper<>(MovementDto.class);
-    private final RowMapper<OffenderMovementDto> OFFENDER_MOVEMENT_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderMovementDto.class);
-    private final RowMapper<RollCountDto> ROLLCOUNT_MAPPER = new StandardBeanPropertyRowMapper<>(RollCountDto.class);
-    private final RowMapper<OffenderInDto> OFFENDER_IN_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderInDto.class);
-    private final RowMapper<OffenderOutDto> OFFENDER_OUT_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderOutDto.class);
-    private final RowMapper<OffenderInReceptionDto> OFFENDER_IN_RECEPTION_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderInReceptionDto.class);
-    private final RowMapper<MovementSummaryDto> MOVEMENT_SUMMARY_MAPPER = new StandardBeanPropertyRowMapper<>(MovementSummaryDto.class);
-    private final RowMapper<CourtEventDto> COURT_EVENT_MAPPER = new StandardBeanPropertyRowMapper<>(CourtEventDto.class);
-    private final RowMapper<TransferEventDto> OFFENDER_TRANSFER_MAPPER = new StandardBeanPropertyRowMapper<>(TransferEventDto.class);
-    private final RowMapper<ReleaseEventDto> OFFENDER_RELEASE_MAPPER = new StandardBeanPropertyRowMapper<>(ReleaseEventDto.class);
+    private final RowMapper<MovementDto> MOVEMENT_MAPPER = new DataClassByColumnRowMapper<>(MovementDto.class);
+    private final RowMapper<OffenderMovementDto> OFFENDER_MOVEMENT_MAPPER = new DataClassByColumnRowMapper<>(OffenderMovementDto.class);
+    private final RowMapper<RollCountDto> ROLLCOUNT_MAPPER = new DataClassByColumnRowMapper<>(RollCountDto.class);
+    private final RowMapper<OffenderInDto> OFFENDER_IN_MAPPER = new DataClassByColumnRowMapper<>(OffenderInDto.class);
+    private final RowMapper<OffenderOutDto> OFFENDER_OUT_MAPPER = new DataClassByColumnRowMapper<>(OffenderOutDto.class);
+    private final RowMapper<OffenderInReceptionDto> OFFENDER_IN_RECEPTION_MAPPER = new DataClassByColumnRowMapper<>(OffenderInReceptionDto.class);
+    private final RowMapper<MovementSummaryDto> MOVEMENT_SUMMARY_MAPPER = new DataClassByColumnRowMapper<>(MovementSummaryDto.class);
+    private final RowMapper<CourtEventDto> COURT_EVENT_MAPPER = new DataClassByColumnRowMapper<>(CourtEventDto.class);
+    private final RowMapper<TransferEventDto> OFFENDER_TRANSFER_MAPPER = new DataClassRowMapper<>(TransferEventDto.class);
+    private final RowMapper<ReleaseEventDto> OFFENDER_RELEASE_MAPPER = new DataClassByColumnRowMapper<>(ReleaseEventDto.class);
 
     private static final String MOVEMENT_DATE_CLAUSE = " AND OEM.MOVEMENT_DATE = :movementDate";
 
