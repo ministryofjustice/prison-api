@@ -1,5 +1,4 @@
 package uk.gov.justice.hmpps.prison.api.model
-import java.time.LocalDateTime
 
 data class UserDetailDto(
   var staffId: Long? = null,
@@ -8,11 +7,7 @@ data class UserDetailDto(
   var lastName: String? = null,
   var thumbnailId: Long? = null,
   var activeCaseLoadId: String? = null,
-  var accountStatus: String? = null,
-  var lockDate: LocalDateTime? = null,
-  var expiryDate: LocalDateTime? = null,
-  var lockedFlag: Boolean? = null,
-  var expiredFlag: Boolean? = null,
+  var accountStatus: String? = null
 ) {
   fun toUserDetail() = UserDetail(
     this.staffId,
@@ -22,9 +17,9 @@ data class UserDetailDto(
     this.thumbnailId,
     this.activeCaseLoadId,
     this.accountStatus,
-    this.lockDate,
-    this.expiryDate,
-    this.lockedFlag,
-    this.expiredFlag,
+    null,
+    null,
+    false,
+    false,
   )
 }
