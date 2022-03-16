@@ -1,10 +1,13 @@
 package uk.gov.justice.hmpps.prison.repository;
 
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.api.model.OffenceDetail;
+import uk.gov.justice.hmpps.prison.api.model.OffenceDetailDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenceHistoryDetail;
-import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
+import uk.gov.justice.hmpps.prison.api.model.OffenceHistoryDetailDto;
+import uk.gov.justice.hmpps.prison.repository.mapping.DataClassByColumnRowMapper;
 import uk.gov.justice.hmpps.prison.repository.sql.SentenceRepositorySql;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
@@ -14,22 +17,23 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 public class SentenceRepository extends RepositoryBase {
 
-    private final StandardBeanPropertyRowMapper<OffenceDetail> offenceDetailMapper = new StandardBeanPropertyRowMapper<>(OffenceDetail.class);
-    private final StandardBeanPropertyRowMapper<OffenceHistoryDetail> offenceHistoryMapper = new StandardBeanPropertyRowMapper<>(OffenceHistoryDetail.class);
-
+    private final RowMapper<OffenceDetailDto> offenceDetailMapper = new DataClassByColumnRowMapper<>(OffenceDetailDto.class);
+    private final RowMapper<OffenceHistoryDetailDto> offenceHistoryMapper = new DataClassByColumnRowMapper<>(OffenceHistoryDetailDto.class);
 
     public List<OffenceDetail> getMainOffenceDetails(final Long bookingId) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
         final var sql = SentenceRepositorySql.GET_BOOKING_MAIN_OFFENCES.getSql();
 
-        return jdbcTemplate.query(
+        final var offences = jdbcTemplate.query(
                 sql,
                 createParams("bookingId", bookingId, "mostSerious", "Y", "chargeStatus", "A", "severityRanking", "999"),
                 offenceDetailMapper);
+        return offences.stream().map(OffenceDetailDto::toOffenceDetail).collect(Collectors.toList());
     }
 
 
@@ -38,10 +42,11 @@ public class SentenceRepository extends RepositoryBase {
 
         final var sql = SentenceRepositorySql.GET_BOOKING_MAIN_OFFENCES_MULTIPLE.getSql();
 
-        return jdbcTemplate.query(
+        final var offences = jdbcTemplate.query(
                 sql,
                 createParams("bookingIds", bookingIds, "mostSerious", "Y", "chargeStatus", "A"),
                 offenceDetailMapper);
+        return offences.stream().map(OffenceDetailDto::toOffenceDetail).collect(Collectors.toList());
     }
 
 
@@ -49,10 +54,11 @@ public class SentenceRepository extends RepositoryBase {
         Objects.requireNonNull(offenderNo, "offenderNo is a required parameter");
         final var sql = SentenceRepositorySql.GET_OFFENCES.getSql();
 
-        return jdbcTemplate.query(
+        final var offences = jdbcTemplate.query(
                 sql,
                 createParams("offenderNo", offenderNo, "convictionsOnly", convictionsOnly ? "Y": "N"),
                 offenceHistoryMapper);
+        return offences.stream().map(OffenceHistoryDetailDto::toOffenceHistoryDetail).collect(Collectors.toList());
     }
 
 
@@ -60,10 +66,11 @@ public class SentenceRepository extends RepositoryBase {
         Objects.requireNonNull(bookingId, "offenderNo is a required parameter");
         final var sql = SentenceRepositorySql.GET_OFFENCES_FOR_BOOKING.getSql();
 
-        return jdbcTemplate.query(
+        final var offences = jdbcTemplate.query(
                 sql,
                 createParams("bookingId", bookingId, "convictionsOnly", convictionsOnly ? "Y": "N"),
                 offenceHistoryMapper);
+        return offences.stream().map(OffenceHistoryDetailDto::toOffenceHistoryDetail).collect(Collectors.toList());
     }
 
 

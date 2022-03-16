@@ -21,6 +21,9 @@ class DataClassByColumnRowMapper<T>(mappedClass: Class<T>) : BeanPropertyRowMapp
   private val mappedConstructor: Constructor<T>
   private val constructorParametersAsColumnNames: List<String>
   private val constructorParameterTypes: List<TypeDescriptor>
+  // fieldMap is used for building up sorting, mapping the java parameter name to the database column name
+  // for example so can then pass "lastName,startTime" and will then sort by those fields
+  val fieldMap: Map<String, FieldMapper>
 
   private companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
@@ -35,13 +38,17 @@ class DataClassByColumnRowMapper<T>(mappedClass: Class<T>) : BeanPropertyRowMapp
         suppressProperty(it)
         underscoreName(it)
       }
-      constructorParameterTypes = (0 until paramCount).map {
-        TypeDescriptor(MethodParameter(mappedConstructor, it))
+      constructorParameterTypes = (0 until paramCount).map { index ->
+        TypeDescriptor(MethodParameter(mappedConstructor, index))
+      }
+      fieldMap = parameterNames.associate {
+        underscoreName(it).uppercase() to FieldMapper(it)
       }
     } else {
       log.warn("No args constructor for {}, expecting constructor with parameters instead", mappedClass)
       constructorParametersAsColumnNames = emptyList()
       constructorParameterTypes = emptyList()
+      fieldMap = emptyMap()
     }
   }
 
@@ -50,8 +57,8 @@ class DataClassByColumnRowMapper<T>(mappedClass: Class<T>) : BeanPropertyRowMapp
     if (constructorParametersAsColumnNames.isNotEmpty() && constructorParameterTypes.isNotEmpty()) {
       val rsmd = rs.metaData
       // construct map of column names to column indexes
-      val columnMap = (1..rsmd.columnCount).associateBy {
-        val column = JdbcUtils.lookupColumnName(rsmd, it)
+      val columnMap = (1..rsmd.columnCount).associateBy { index ->
+        val column = JdbcUtils.lookupColumnName(rsmd, index)
         lowerCaseName(StringUtils.delete(column, " "))
       }
 
@@ -68,5 +75,12 @@ class DataClassByColumnRowMapper<T>(mappedClass: Class<T>) : BeanPropertyRowMapp
       args = arrayOfNulls(0)
     }
     return BeanUtils.instantiateClass(mappedConstructor, *args)
+  }
+
+  override fun getColumnValue(rs: ResultSet, index: Int, paramType: Class<*>): Any? {
+    return when (paramType) {
+      Boolean::class.javaObjectType -> "Y" == rs.getObject(index) || rs.getBoolean(index)
+      else -> super.getColumnValue(rs, index, paramType)
+    }
   }
 }
