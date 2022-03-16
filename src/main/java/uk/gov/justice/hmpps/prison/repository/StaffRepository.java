@@ -35,8 +35,8 @@ public class StaffRepository extends RepositoryBase {
     private static final RowMapper<StaffDetailDto> STAFF_DETAIL_ROW_MAPPER =
             new DataClassByColumnRowMapper<>(StaffDetailDto.class);
 
-    private static final StandardBeanPropertyRowMapper<StaffLocationRoleDto> STAFF_LOCATION_ROLE_ROW_MAPPER =
-            new StandardBeanPropertyRowMapper<>(StaffLocationRoleDto.class);
+    private static final DataClassByColumnRowMapper<StaffLocationRoleDto> STAFF_LOCATION_ROLE_ROW_MAPPER =
+            new DataClassByColumnRowMapper<>(StaffLocationRoleDto.class);
 
     private static final RowMapper<StaffRoleDto> STAFF_ROLES_MAPPER =
             new DataClassByColumnRowMapper<>(StaffRoleDto.class);
@@ -111,12 +111,11 @@ public class StaffRepository extends RepositoryBase {
 
         final var paRowMapper = new PageAwareRowMapper<>(STAFF_LOCATION_ROLE_ROW_MAPPER);
 
-        final var staffDetailsDtos = jdbcTemplate.query(
+        final var staffDetailDtos = jdbcTemplate.query(
                 sql,
                 createParamSource(pageRequest, "agencyId", agencyId, "position", position, "role", role),
                 paRowMapper);
-
-        final var staffDetails = staffDetailsDtos.stream()
+        final var staffDetails = staffDetailDtos.stream()
             .map(sd -> sd.toStaffLocationRole().toBuilder().agencyDescription(LocationProcessor.formatLocation(sd.getAgencyDescription())).build())
             .collect(Collectors.toList());
         return new Page<>(staffDetails, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
@@ -140,11 +139,11 @@ public class StaffRepository extends RepositoryBase {
 
         final var paRowMapper = new PageAwareRowMapper<>(STAFF_LOCATION_ROLE_ROW_MAPPER);
 
-        final var staffLocationDtos = jdbcTemplate.query(
+        final var staffDetailDtos = jdbcTemplate.query(
                 sql,
                 createParamSource(pageRequest, "agencyId", agencyId, "role", role),
                 paRowMapper);
-        final var staffDetails = staffLocationDtos.stream()
+        final var staffDetails = staffDetailDtos.stream()
             .map(sd -> sd.toStaffLocationRole().toBuilder().agencyDescription(LocationProcessor.formatLocation(sd.getAgencyDescription())).build())
             .collect(Collectors.toList());
 

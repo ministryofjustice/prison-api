@@ -1,14 +1,10 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 
 import javax.validation.constraints.NotBlank;
@@ -16,107 +12,131 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Map;
 
 /**
  * Prisoner Schedule
  **/
 @SuppressWarnings("unused")
-@ApiModel(description = "Prisoner Schedule")
+@Schema(description = "Prisoner Schedule")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
 @EqualsAndHashCode
 @Data
 public class PrisonerSchedule {
-    @JsonIgnore
-    @ApiModelProperty(hidden = true)
-    private Map<String, Object> additionalProperties;
-
-    @ApiModelProperty(required = true, value = "Offender number (e.g. NOMS Number)")
+    @Schema(required = true, description = "Offender number (e.g. NOMS Number)")
     @NotBlank
     private String offenderNo;
 
-    @ApiModelProperty(value = "Activity id if any. Used to attend or pay the event")
+    @Schema(description = "Activity id if any. Used to attend or pay the event")
     private Long eventId;
 
-    @ApiModelProperty(value = "Booking id for offender")
+    @Schema(description = "Booking id for offender")
     private Long bookingId;
 
-    @ApiModelProperty(required = true, value = "The number which (uniquely) identifies the internal location associated with the Scheduled Event (Prisoner Schedule)")
+    @Schema(required = true, description = "The number which (uniquely) identifies the internal location associated with the Scheduled Event (Prisoner Schedule)")
     @NotNull
     private Long locationId;
 
-    @ApiModelProperty(required = true, value = "Offender first name")
+    @Schema(required = true, description = "Offender first name")
     @NotBlank
     private String firstName;
 
-    @ApiModelProperty(required = true, value = "Offender last name")
+    @Schema(required = true, description = "Offender last name")
     @NotBlank
     private String lastName;
 
-    @ApiModelProperty(required = true, value = "Offender cell")
+    @Schema(required = true, description = "Offender cell")
     @NotBlank
     private String cellLocation;
 
-    @ApiModelProperty(required = true, value = "Event code")
+    @Schema(required = true, description = "Event code")
     @NotBlank
     private String event;
 
-    @ApiModelProperty(required = true, value = "Event type, e.g. VISIT, APP, PRISON_ACT")
+    @Schema(required = true, description = "Event type, e.g. VISIT, APP, PRISON_ACT")
     @NotBlank
     private String eventType;
 
-    @ApiModelProperty(required = true, value = "Description of event code")
+    @Schema(required = true, description = "Description of event code")
     @NotBlank
     private String eventDescription;
 
-    @ApiModelProperty(required = true, value = "Location of the event")
+    @Schema(required = true, description = "Location of the event")
     private String eventLocation;
 
-    @ApiModelProperty(value = "Id of an internal event location")
+    @Schema(description = "Id of an internal event location")
     private Long eventLocationId;
 
-    @ApiModelProperty(required = true, value = "The event's status. Includes 'CANC', meaning cancelled for 'VISIT'")
+    @Schema(required = true, description = "The event's status. Includes 'CANC', meaning cancelled for 'VISIT'")
     @NotBlank
     private String eventStatus;
 
-    @ApiModelProperty(required = true, value = "Comment")
+    @Schema(required = true, description = "Comment")
     @Size(max = 4000)
     private String comment;
 
-    @ApiModelProperty(required = true, value = "Date and time at which event starts")
+    @Schema(required = true, description = "Date and time at which event starts")
     @NotNull
     private LocalDateTime startTime;
 
-    @ApiModelProperty(value = "Date and time at which event ends")
+    @Schema(description = "Date and time at which event ends")
     private LocalDateTime endTime;
 
-    @ApiModelProperty(value = "Attendance, possible values are the codes in the 'PS_PA_OC' reference domain")
+    @Schema(description = "Attendance, possible values are the codes in the 'PS_PA_OC' reference domain")
     private String eventOutcome;
 
-    @ApiModelProperty(value = "Possible values are the codes in the 'PERFORMANCE' reference domain")
+    @Schema(description = "Possible values are the codes in the 'PERFORMANCE' reference domain")
     private String performance;
 
-    @ApiModelProperty(value = "No-pay reason")
+    @Schema(description = "No-pay reason")
     private String outcomeComment;
 
-    @ApiModelProperty(value = "Activity paid flag")
+    @Schema(description = "Activity paid flag")
     private Boolean paid;
 
-    @ApiModelProperty(value = "Amount paid per activity session in pounds")
+    @Schema(description = "Amount paid per activity session in pounds")
     private BigDecimal payRate;
 
-    @ApiModelProperty(value = "Activity excluded flag")
+    @Schema(description = "Activity excluded flag")
     private Boolean excluded;
 
-    @ApiModelProperty(value = "Activity time slot")
+    @Schema(description = "Activity time slot")
     private TimeSlot timeSlot;
 
-    @ApiModelProperty(value = "The code for the activity location")
+    @Schema(description = "The code for the activity location")
     private String locationCode;
 
-    @ApiModelProperty(value = "Event scheduled has been suspended")
+    @Schema(description = "Event scheduled has been suspended")
     private Boolean suspended;
+
+    public PrisonerSchedule(@NotBlank String offenderNo, Long eventId, Long bookingId, @NotNull Long locationId, @NotBlank String firstName, @NotBlank String lastName, @NotBlank String cellLocation, @NotBlank String event, @NotBlank String eventType, @NotBlank String eventDescription, String eventLocation, Long eventLocationId, @NotBlank String eventStatus, @Size(max = 4000) String comment, @NotNull LocalDateTime startTime, LocalDateTime endTime, String eventOutcome, String performance, String outcomeComment, Boolean paid, BigDecimal payRate, Boolean excluded, TimeSlot timeSlot, String locationCode, Boolean suspended) {
+        this.offenderNo = offenderNo;
+        this.eventId = eventId;
+        this.bookingId = bookingId;
+        this.locationId = locationId;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.cellLocation = cellLocation;
+        this.event = event;
+        this.eventType = eventType;
+        this.eventDescription = eventDescription;
+        this.eventLocation = eventLocation;
+        this.eventLocationId = eventLocationId;
+        this.eventStatus = eventStatus;
+        this.comment = comment;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.eventOutcome = eventOutcome;
+        this.performance = performance;
+        this.outcomeComment = outcomeComment;
+        this.paid = paid;
+        this.payRate = payRate;
+        this.excluded = excluded;
+        this.timeSlot = timeSlot;
+        this.locationCode = locationCode;
+        this.suspended = suspended;
+    }
+
+    public PrisonerSchedule() {
+    }
 }

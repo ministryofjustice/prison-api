@@ -11,8 +11,8 @@ import uk.gov.justice.hmpps.prison.api.model.UserDetailDto;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.api.support.Status;
+import uk.gov.justice.hmpps.prison.repository.mapping.DataClassByColumnRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.PageAwareRowMapper;
-import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
 import uk.gov.justice.hmpps.prison.repository.sql.UserRepositorySql;
 import uk.gov.justice.hmpps.prison.service.filters.NameFilter;
 
@@ -33,8 +33,7 @@ public class UserRepository extends RepositoryBase {
     @Value("${application.type:APP}")
     private String applicationType;
 
-    private final StandardBeanPropertyRowMapper<UserDetailDto> USER_DETAIL_ROW_MAPPER =
-        new StandardBeanPropertyRowMapper<>(UserDetailDto.class);
+    private final DataClassByColumnRowMapper<UserDetailDto> USER_DETAIL_ROW_MAPPER = new DataClassByColumnRowMapper<>(UserDetailDto.class);
 
 
     public Optional<UserDetail> findByUsername(final String username) {

@@ -3,8 +3,9 @@ package uk.gov.justice.hmpps.prison.repository;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerSchedule;
+import uk.gov.justice.hmpps.prison.api.model.PrisonerScheduleDto;
 import uk.gov.justice.hmpps.prison.api.support.Order;
-import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
+import uk.gov.justice.hmpps.prison.repository.mapping.DataClassByColumnRowMapper;
 import uk.gov.justice.hmpps.prison.repository.sql.ScheduleRepositorySql;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
@@ -13,11 +14,12 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Repository
 public class ScheduleRepository extends RepositoryBase {
 
-    private static final StandardBeanPropertyRowMapper<PrisonerSchedule> EVENT_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(PrisonerSchedule.class);
+    private static final DataClassByColumnRowMapper<PrisonerScheduleDto> EVENT_ROW_MAPPER = new DataClassByColumnRowMapper<>(PrisonerScheduleDto.class);
 
 
     public List<PrisonerSchedule> getAllActivitiesAtAgency(final String agencyId, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order, boolean includeSuspended) {
@@ -27,13 +29,14 @@ public class ScheduleRepository extends RepositoryBase {
                 .addOrderBy(order, orderByFields)
                 .build();
 
-        return jdbcTemplate.query(
+        final var schedules = jdbcTemplate.query(
                 sql,
                 createParams("agencyId", agencyId,
                         "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
                         "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate)),
                         "includeSuspended", includeSuspended ? Set.of("Y", "N") : Set.of("N")),
                 EVENT_ROW_MAPPER);
+        return schedules.stream().map(PrisonerScheduleDto::toPrisonerSchedule).collect(Collectors.toList());
     }
 
 
@@ -46,13 +49,14 @@ public class ScheduleRepository extends RepositoryBase {
                 .addOrderBy(order, orderByFields)
                 .build();
 
-        return jdbcTemplate.query(
+        final var schedules = jdbcTemplate.query(
                 sql,
                 createParams("locationId", locationId,
                         "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
                         "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate)),
                         "includeSuspended", includeSuspended ? Set.of("Y", "N") : Set.of("N")),
                 EVENT_ROW_MAPPER);
+        return schedules.stream().map(PrisonerScheduleDto::toPrisonerSchedule).collect(Collectors.toList());
     }
 
 
@@ -80,61 +84,67 @@ public class ScheduleRepository extends RepositoryBase {
                 .addOrderBy(order, orderByFields)
                 .build();
 
-        return jdbcTemplate.query(
+        final var schedules = jdbcTemplate.query(
                 sql,
                 createParams("locationId", locationId,
                         "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
                         "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate))), EVENT_ROW_MAPPER);
+        return schedules.stream().map(PrisonerScheduleDto::toPrisonerSchedule).collect(Collectors.toList());
     }
 
 
     public List<PrisonerSchedule> getVisits(final String agencyId, final List<String> offenderNo, final LocalDate date) {
-        return jdbcTemplate.query(
+        final var schedules =  jdbcTemplate.query(
                 ScheduleRepositorySql.GET_VISITS.getSql() + ScheduleRepositorySql.AND_OFFENDER_NUMBERS.getSql(),
                 createParams(
                         "offenderNos", offenderNo,
                         "date", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(date))),
                 EVENT_ROW_MAPPER);
+        return schedules.stream().map(PrisonerScheduleDto::toPrisonerSchedule).collect(Collectors.toList());
     }
 
 
     public List<PrisonerSchedule> getAppointments(final String agencyId, final List<String> offenderNo, final LocalDate date) {
-        return jdbcTemplate.query(
+        final var schedules =  jdbcTemplate.query(
                 ScheduleRepositorySql.GET_APPOINTMENTS.getSql() + ScheduleRepositorySql.AND_OFFENDER_NUMBERS.getSql(),
                 createParams(
                         "offenderNos", offenderNo,
                         "date", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(date))),
                 EVENT_ROW_MAPPER);
+        return schedules.stream().map(PrisonerScheduleDto::toPrisonerSchedule).collect(Collectors.toList());
     }
 
 
     public List<PrisonerSchedule> getActivities(final String agencyId, final List<String> offenderNumbers, final LocalDate date) {
-        return jdbcTemplate.query(
+        final var schedules =  jdbcTemplate.query(
                 ScheduleRepositorySql.GET_ACTIVITIES.getSql() + ScheduleRepositorySql.AND_OFFENDER_NUMBERS.getSql(),
                 createParams(
                         "offenderNos", offenderNumbers,
                         "date", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(date))),
                 EVENT_ROW_MAPPER);
+        return schedules.stream().map(PrisonerScheduleDto::toPrisonerSchedule).collect(Collectors.toList());
     }
 
 
     public List<PrisonerSchedule> getCourtEvents(final List<String> offenderNumbers, final LocalDate date) {
-        return jdbcTemplate.query(
+        final var schedules =  jdbcTemplate.query(
                 ScheduleRepositorySql.GET_COURT_EVENTS.getSql(),
                 createParams(
                         "offenderNos", offenderNumbers,
                         "date", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(date))),
                 EVENT_ROW_MAPPER);
+        return schedules.stream().map(PrisonerScheduleDto::toPrisonerSchedule).collect(Collectors.toList());
     }
 
 
     public List<PrisonerSchedule> getExternalTransfers(final String agencyId, final List<String> offenderNumbers, final LocalDate date) {
-        return jdbcTemplate.query(
+        final var schedules =  jdbcTemplate.query(
                 ScheduleRepositorySql.GET_EXTERNAL_TRANSFERS.getSql() + ScheduleRepositorySql.AND_OFFENDER_NUMBERS.getSql(),
                 createParams(
                         "offenderNos", offenderNumbers,
                         "agencyId", agencyId,
                         "date", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(date))),
                 EVENT_ROW_MAPPER);
+        return schedules.stream().map(PrisonerScheduleDto::toPrisonerSchedule).collect(Collectors.toList());
     }
 }
