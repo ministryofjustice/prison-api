@@ -1,38 +1,47 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 
-@ApiModel(description = "Incident Party")
+@Schema(description = "Incident Party")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
 @Data
 public class IncidentParty implements Comparable<IncidentParty> {
 
-    @ApiModelProperty(required = true, value = "Booking Id of offender involved", example = "1241232", position = 0)
+    @Schema(required = true, description = "Booking Id of offender involved", example = "1241232")
     private Long bookingId;
-    @ApiModelProperty(required = true, value = "Sequence or each party member", example = "1", position = 1)
+    @Schema(required = true, description = "Sequence or each party member", example = "1")
     private Long partySeq;
-    @ApiModelProperty(required = false, value = "Staff Member ID (optional)", example = "1534133", position = 2)
+    @Schema(description = "Staff Member ID (optional)", example = "1534133")
     private Long staffId;
-    @ApiModelProperty(required = false, value = "Person (non-staff) ID (optional)", example = "544233", position = 3)
+    @Schema(description = "Person (non-staff) ID (optional)", example = "544233")
     private Long personId;
-    @ApiModelProperty(required = true, value = "Role in the Incident", example = "ASSIAL", position = 4)
+    @Schema(required = true, description = "Role in the Incident", example = "ASSIAL")
     private String participationRole;
-    @ApiModelProperty(required = true, value = "Outcome Code", example = "POR", position = 5)
+    @Schema(required = true, description = "Outcome Code", example = "POR")
     private String outcomeCode;
-    @ApiModelProperty(required = true, value = "Additional Comments", example = "Some additional Information", position = 6)
+    @Schema(required = true, description = "Additional Comments", example = "Some additional Information")
     private String commentText;
-    @ApiModelProperty(required = true, value = "Incident Case ID", example = "12431243", position = 7)
+    @Schema(required = true, description = "Incident Case ID", example = "12431243")
     private Long incidentCaseId;
+
+    public IncidentParty(Long bookingId, Long partySeq, Long staffId, Long personId, String participationRole, String outcomeCode, String commentText, Long incidentCaseId) {
+        this.bookingId = bookingId;
+        this.partySeq = partySeq;
+        this.staffId = staffId;
+        this.personId = personId;
+        this.participationRole = participationRole;
+        this.outcomeCode = outcomeCode;
+        this.commentText = commentText;
+        this.incidentCaseId = incidentCaseId;
+    }
+
+    public IncidentParty() {
+    }
 
     @Override
     public int compareTo(final IncidentParty party) {

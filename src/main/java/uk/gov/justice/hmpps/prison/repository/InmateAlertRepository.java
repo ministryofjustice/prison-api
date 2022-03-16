@@ -9,12 +9,13 @@ import uk.gov.justice.hmpps.prison.api.model.Alert;
 import uk.gov.justice.hmpps.prison.api.model.AlertChanges;
 import uk.gov.justice.hmpps.prison.api.model.CreateAlert;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
+import uk.gov.justice.hmpps.prison.api.model.OffenderSummaryDto;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
+import uk.gov.justice.hmpps.prison.repository.mapping.DataClassByColumnRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.FieldMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.PageAwareRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.Row2BeanRowMapper;
-import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
 import uk.gov.justice.hmpps.prison.repository.sql.InmateAlertRepositorySql;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
@@ -23,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Repository
 @Slf4j
@@ -47,8 +47,8 @@ public class InmateAlertRepository extends RepositoryBase {
             .put("UPDATE_LAST_NAME", new FieldMapper("expiredByLastName"))
             .build();
 
-    private final StandardBeanPropertyRowMapper<OffenderSummary> CANDIDATE_MAPPER =
-            new StandardBeanPropertyRowMapper<>(OffenderSummary.class);
+    private final DataClassByColumnRowMapper<OffenderSummaryDto> CANDIDATE_MAPPER =
+            new DataClassByColumnRowMapper<>(OffenderSummaryDto.class);
 
 
     public List<Alert> getActiveAlerts(final long bookingId) {
@@ -128,7 +128,7 @@ public class InmateAlertRepository extends RepositoryBase {
 
 
     public Page<String> getAlertCandidates(final LocalDateTime cutoffTimestamp, final long offset, final long limit) {
-        final var builder = queryBuilderFactory.getQueryBuilder(InmateAlertRepositorySql.GET_ALERT_CANDIDATES.getSql(), CANDIDATE_MAPPER);
+        final var builder = queryBuilderFactory.getQueryBuilder(InmateAlertRepositorySql.GET_ALERT_CANDIDATES.getSql(), CANDIDATE_MAPPER.getFieldMap());
 
         final var sql = builder
                 .addRowCount()
@@ -138,7 +138,7 @@ public class InmateAlertRepository extends RepositoryBase {
         final var rowMapper = Row2BeanRowMapper.makeMapping(OffenderSummary.class, CANDIDATE_MAPPER.getFieldMap());
         final var paRowMapper = new PageAwareRowMapper<>(rowMapper);
 
-        final List<OffenderSummary> offenderSummaries = jdbcTemplate.query(
+        final var offenderSummaries = jdbcTemplate.query(
                 sql,
                 createParams("cutoffTimestamp", cutoffTimestamp, "offset", offset, "limit", limit),
                 paRowMapper);

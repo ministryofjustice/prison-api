@@ -1,15 +1,19 @@
 package uk.gov.justice.hmpps.prison.repository;
 
 import org.apache.commons.lang3.Validate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.api.model.IncidentCase;
 import uk.gov.justice.hmpps.prison.api.model.IncidentParty;
+import uk.gov.justice.hmpps.prison.api.model.IncidentPartyDto;
 import uk.gov.justice.hmpps.prison.api.model.IncidentResponse;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
+import uk.gov.justice.hmpps.prison.api.model.OffenderSummaryDto;
 import uk.gov.justice.hmpps.prison.api.model.Questionnaire;
 import uk.gov.justice.hmpps.prison.api.model.QuestionnaireAnswer;
 import uk.gov.justice.hmpps.prison.api.model.QuestionnaireQuestion;
 import uk.gov.justice.hmpps.prison.api.support.Page;
+import uk.gov.justice.hmpps.prison.repository.mapping.DataClassByColumnRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.PageAwareRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.Row2BeanRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
@@ -22,24 +26,23 @@ import java.util.List;
 import java.util.Optional;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 
 @Repository
 public class IncidentCaseRepository extends RepositoryBase {
 
-    private final StandardBeanPropertyRowMapper<FlatIncidentCase> INCIDENT_CASE_MAPPER =
+    private final RowMapper<FlatIncidentCase> INCIDENT_CASE_MAPPER =
             new StandardBeanPropertyRowMapper<>(FlatIncidentCase.class);
 
-    private final StandardBeanPropertyRowMapper<IncidentParty> INCIDENT_PARTY_MAPPER =
-            new StandardBeanPropertyRowMapper<>(IncidentParty.class);
+    private final RowMapper<IncidentPartyDto> INCIDENT_PARTY_MAPPER =
+            new DataClassByColumnRowMapper<>(IncidentPartyDto.class);
 
-    private final StandardBeanPropertyRowMapper<FlatQuestionnaire> QUESTIONNAIRE_MAPPER =
+    private final RowMapper<FlatQuestionnaire> QUESTIONNAIRE_MAPPER =
             new StandardBeanPropertyRowMapper<>(FlatQuestionnaire.class);
 
-    private final StandardBeanPropertyRowMapper<OffenderSummary> CANDIDATE_MAPPER =
-            new StandardBeanPropertyRowMapper<>(OffenderSummary.class);
+    private final DataClassByColumnRowMapper<OffenderSummaryDto> CANDIDATE_MAPPER =
+            new DataClassByColumnRowMapper<>(OffenderSummaryDto.class);
 
     public List<IncidentCase> getIncidentCasesByOffenderNo(final String offenderNo, final List<String> incidentTypes, final List<String> participationRoles) {
         final var sql = generateSql(incidentTypes, participationRoles, IncidentCaseRepositorySql.GET_INCIDENT_CASES_BY_OFFENDER_NO);
@@ -136,7 +139,7 @@ public class IncidentCaseRepository extends RepositoryBase {
                 incidentCases.add(incidentCaseBuilder.build());
             });
 
-            final var partiesByCase = incidentParties.stream().collect(groupingBy(IncidentParty::getIncidentCaseId));
+            final var partiesByCase = incidentParties.stream().map(IncidentPartyDto::toIncidentParty).collect(groupingBy(IncidentParty::getIncidentCaseId));
 
             incidentCases.forEach(ic -> {
                 final var parties = partiesByCase.get(ic.getIncidentCaseId());
@@ -213,7 +216,7 @@ public class IncidentCaseRepository extends RepositoryBase {
     }
 
     public Page<String> getIncidentCandidates(LocalDateTime cutoffTimestamp, final long offset, final long limit) {
-        final var builder = queryBuilderFactory.getQueryBuilder(IncidentCaseRepositorySql.GET_INCIDENT_CANDIDATES.getSql(), CANDIDATE_MAPPER);
+        final var builder = queryBuilderFactory.getQueryBuilder(IncidentCaseRepositorySql.GET_INCIDENT_CANDIDATES.getSql(), CANDIDATE_MAPPER.getFieldMap());
 
         final var sql = builder
                 .addRowCount()
