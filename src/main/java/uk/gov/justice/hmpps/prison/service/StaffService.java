@@ -33,7 +33,6 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static uk.gov.justice.hmpps.prison.service.UserService.STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION;
 
@@ -43,7 +42,6 @@ public class StaffService {
     public static final String STAFF_STATUS_ACTIVE = "ACTIVE";
 
     private final StaffRepository staffRepository;
-    private final UserRepository userRepository;
     private final UserCaseloadRoleRepository userCaseloadRoleRepository;
     private final RoleRepository roleRepository;
     private final StaffUserAccountRepository staffUserAccountRepository;
@@ -52,13 +50,12 @@ public class StaffService {
 
     public StaffService(final StaffRepository staffRepository,
                         final StaffUserAccountRepository staffUserAccountRepository,
-                        final UserRepository userRepository, CaseLoadRepository caseLoadRepository,
+                        final CaseLoadRepository caseLoadRepository,
                         final UserCaseloadRoleRepository userCaseloadRoleRepository,
                         final RoleRepository roleRepository,
                         final UserCaseloadRepository userCaseloadRepository) {
         this.staffRepository = staffRepository;
         this.staffUserAccountRepository = staffUserAccountRepository;
-        this.userRepository = userRepository;
         this.caseLoadRepository = caseLoadRepository;
         this.userCaseloadRoleRepository = userCaseloadRoleRepository;
         this.roleRepository = roleRepository;
@@ -151,10 +148,6 @@ public class StaffService {
                 .username(username)
                 .staffId(staffId)
                 .build();
-    }
-
-    public List<StaffUserRole> getAllStaffRolesForCaseload(final String caseload, final String roleCode) {
-        return userRepository.getAllStaffRolesForCaseload(caseload, roleCode);
     }
 
     @PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES')")

@@ -94,23 +94,6 @@ enum class UserRepositorySql(val sql: String) {
     """
   ),
 
-  FIND_ROLES_BY_CASELOAD_AND_ROLE(
-    """
-        SELECT RL.ROLE_ID,
-        REPLACE(RL.ROLE_CODE, '-', '_') ROLE_CODE,
-        ROLE_NAME,
-        REPLACE(RL.PARENT_ROLE_CODE, '-', '_') PARENT_ROLE_CODE,
-        CLR.CASELOAD_ID,
-        CLR.USERNAME,
-        AUA.STAFF_ID
-        FROM USER_CASELOAD_ROLES CLR
-        INNER JOIN OMS_ROLES RL ON RL.ROLE_ID = CLR.ROLE_ID
-                INNER JOIN STAFF_USER_ACCOUNTS AUA ON AUA.USERNAME = CLR.USERNAME
-                WHERE RL.ROLE_CODE = :roleCode
-        AND   CLR.CASELOAD_ID = :caseloadId
-    """
-  ),
-
   FIND_USERS_BY_CASELOAD(
     """
         SELECT SM.STAFF_ID,
