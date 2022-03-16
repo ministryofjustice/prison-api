@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
-import uk.gov.justice.hmpps.prison.api.model.StaffUserRole;
 import uk.gov.justice.hmpps.prison.api.model.UserDetail;
+import uk.gov.justice.hmpps.prison.api.model.UserDetailDto;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.api.support.Status;
@@ -19,6 +19,7 @@ import uk.gov.justice.hmpps.prison.service.filters.NameFilter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static java.lang.String.format;
@@ -32,16 +33,13 @@ public class UserRepository extends RepositoryBase {
     @Value("${application.type:APP}")
     private String applicationType;
 
-    private final StandardBeanPropertyRowMapper<StaffUserRole> STAFF_USER_ROLE_MAPPER =
-        new StandardBeanPropertyRowMapper<>(StaffUserRole.class);
-
-    private final StandardBeanPropertyRowMapper<UserDetail> USER_DETAIL_ROW_MAPPER =
-        new StandardBeanPropertyRowMapper<>(UserDetail.class);
+    private final StandardBeanPropertyRowMapper<UserDetailDto> USER_DETAIL_ROW_MAPPER =
+        new StandardBeanPropertyRowMapper<>(UserDetailDto.class);
 
 
     public Optional<UserDetail> findByUsername(final String username) {
         final var sql = UserRepositorySql.FIND_USER_BY_USERNAME.getSql();
-        UserDetail userDetails;
+        UserDetailDto userDetails;
         try {
             userDetails = jdbcTemplate.queryForObject(
                 sql,
@@ -50,7 +48,7 @@ public class UserRepository extends RepositoryBase {
         } catch (final EmptyResultDataAccessException ex) {
             userDetails = null;
         }
-        return Optional.ofNullable(userDetails);
+        return Optional.ofNullable(userDetails).map(UserDetailDto::toUserDetail);
     }
 
     public void updateWorkingCaseLoad(final String username, final String caseLoadId) {
@@ -66,7 +64,7 @@ public class UserRepository extends RepositoryBase {
 
         final var sql = UserRepositorySql.FIND_USER_BY_STAFF_ID_STAFF_USER_TYPE.getSql();
 
-        UserDetail userDetail;
+        UserDetailDto userDetail;
 
         try {
             userDetail = jdbcTemplate.queryForObject(
@@ -77,17 +75,7 @@ public class UserRepository extends RepositoryBase {
             userDetail = null;
         }
 
-        return Optional.ofNullable(userDetail);
-    }
-
-    public List<StaffUserRole> getAllStaffRolesForCaseload(final String caseload, final String roleCode) {
-        Validate.notBlank(caseload, "caseload is required.");
-        Validate.notBlank(roleCode, "roleCode is required.");
-
-        return jdbcTemplate.query(UserRepositorySql.FIND_ROLES_BY_CASELOAD_AND_ROLE.getSql(),
-            createParams("caseloadId", caseload, "roleCode", roleCode),
-            STAFF_USER_ROLE_MAPPER);
-
+        return Optional.ofNullable(userDetail).map(UserDetailDto::toUserDetail);
     }
 
     public List<UserDetail> findAllUsersWithCaseload(final String caseloadId, final String missingCaseloadId) {
@@ -95,10 +83,11 @@ public class UserRepository extends RepositoryBase {
 
         final var sql = UserRepositorySql.FIND_ACTIVE_STAFF_USERS_WITH_ACCESSIBLE_CASELOAD.getSql();
 
-        return jdbcTemplate.query(
+        final var users = jdbcTemplate.query(
             sql,
             createParams("caseloadId", caseloadId, "missingCaseloadId", missingCaseloadId),
             USER_DETAIL_ROW_MAPPER);
+        return users.stream().map(UserDetailDto::toUserDetail).collect(Collectors.toList());
     }
 
 
@@ -106,10 +95,11 @@ public class UserRepository extends RepositoryBase {
 
         final var sql = UserRepositorySql.FIND_USERS_BY_USERNAMES.getSql();
 
-        return jdbcTemplate.query(
+        final var users = jdbcTemplate.query(
             sql,
             createParams("usernames", usernames),
             USER_DETAIL_ROW_MAPPER);
+        return users.stream().map(UserDetailDto::toUserDetail).collect(Collectors.toList());
     }
 
 
@@ -180,7 +170,8 @@ public class UserRepository extends RepositoryBase {
             "status", status == null ? Status.ALL : status.getSqlName());
 
         paramSource.addValues(paramRoleMap);
-        final var users = jdbcTemplate.query(sql, paramSource, paRowMapper);
+        final var users = jdbcTemplate.query(sql, paramSource, paRowMapper)
+            .stream().map(UserDetailDto::toUserDetail).collect(Collectors.toList());
 
         return new Page<>(users, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
     }

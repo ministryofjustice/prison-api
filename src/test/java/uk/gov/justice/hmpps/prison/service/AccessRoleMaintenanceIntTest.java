@@ -19,32 +19,6 @@ public class AccessRoleMaintenanceIntTest {
     @Autowired
     private StaffService staffService;
 
-    @Autowired
-    private EntityManager entityManager;
-
-    @Test
-    @WithUserDetails("ITAG_USER")
-    public void testGetAllRolesInCaseload() {
-        final var allRolesInCaseload = staffService.getAllStaffRolesForCaseload("NWEB", "KW_ADMIN");
-        assertThat(allRolesInCaseload).containsExactly(
-            StaffUserRole.builder()
-                .roleId(-201L)
-                .roleCode("KW_ADMIN")
-                .roleName("Keyworker Admin")
-                .caseloadId("NWEB")
-                .username("API_TEST_USER")
-                .staffId(-4L)
-                .build(),
-            StaffUserRole.builder()
-                .roleId(-201L)
-                .roleCode("KW_ADMIN")
-                .roleName("Keyworker Admin")
-                .caseloadId("NWEB")
-                .username("ITAG_USER")
-                .staffId(-2L)
-                .build());
-    }
-
     @Test
     @WithUserDetails("ITAG_USER")
     public void testGetSpecificRoles() {
