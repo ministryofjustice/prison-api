@@ -225,6 +225,26 @@ public class BookingResourceImplIntTest extends ResourceTest {
     }
 
     @Test
+    public void getVisitBalances_allowNoContent() {
+
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
+
+        final var responseEntity = testRestTemplate.exchange("/api/bookings/offenderNo/A1234AE/visit/balances?allowNoContent=true", HttpMethod.GET, requestEntity, String.class);
+
+        assertThatStatus(responseEntity, 204);
+    }
+
+    @Test
+    public void getVisitBalances_noBalancesNotFound() {
+
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
+
+        final var responseEntity = testRestTemplate.exchange("/api/bookings/offenderNo/A1234AE/visit/balances", HttpMethod.GET, requestEntity, String.class);
+
+        assertThatStatus(responseEntity, 404);
+    }
+
+    @Test
     public void getOffenderBalances() {
         final var bookingId = -1;
 
