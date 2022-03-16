@@ -2,14 +2,15 @@ package uk.gov.justice.hmpps.prison.repository;
 
 import org.apache.commons.lang3.Validate;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.api.model.KeyWorkerAllocationDetail;
 import uk.gov.justice.hmpps.prison.api.model.Keyworker;
 import uk.gov.justice.hmpps.prison.api.model.OffenderKeyWorker;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
+import uk.gov.justice.hmpps.prison.repository.mapping.DataClassByColumnRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.PageAwareRowMapper;
-import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
 import uk.gov.justice.hmpps.prison.repository.sql.KeyWorkerAllocationRepositorySql;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
@@ -21,14 +22,14 @@ import java.util.Optional;
 @Repository
 public class KeyWorkerAllocationRepository extends RepositoryBase {
 
-    private static final StandardBeanPropertyRowMapper<KeyWorkerAllocationDetail> KEY_WORKER_ALLOCATION_DETAIL_ROW_MAPPER =
-            new StandardBeanPropertyRowMapper<>(KeyWorkerAllocationDetail.class);
+    private static final RowMapper<KeyWorkerAllocationDetail> KEY_WORKER_ALLOCATION_DETAIL_ROW_MAPPER =
+            new DataClassByColumnRowMapper<>(KeyWorkerAllocationDetail.class);
 
-    private static final StandardBeanPropertyRowMapper<Keyworker> KEY_WORKER_ROW_MAPPER =
-            new StandardBeanPropertyRowMapper<>(Keyworker.class);
+    private static final RowMapper<Keyworker> KEY_WORKER_ROW_MAPPER =
+            new DataClassByColumnRowMapper<>(Keyworker.class);
 
-    private static final StandardBeanPropertyRowMapper<OffenderKeyWorker> OFFENDER_KEY_WORKER_ROW_MAPPER =
-            new StandardBeanPropertyRowMapper<>(OffenderKeyWorker.class);
+    private static final DataClassByColumnRowMapper<OffenderKeyWorker> OFFENDER_KEY_WORKER_ROW_MAPPER =
+            new DataClassByColumnRowMapper<>(OffenderKeyWorker.class);
 
 
 
@@ -107,7 +108,7 @@ public class KeyWorkerAllocationRepository extends RepositoryBase {
                 .addPagination()
                 .build();
 
-        final var paRowMapper = new PageAwareRowMapper<OffenderKeyWorker>(OFFENDER_KEY_WORKER_ROW_MAPPER);
+        final var paRowMapper = new PageAwareRowMapper<>(OFFENDER_KEY_WORKER_ROW_MAPPER);
 
         final var results = jdbcTemplate.query(
                 sql,
