@@ -1,35 +1,22 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Reference Domain
  **/
 @SuppressWarnings("unused")
-@ApiModel(description = "Reference Domain")
+@Schema(description = "Reference Domain")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
 @EqualsAndHashCode
 public class ReferenceDomain {
-    @JsonIgnore
-    private Map<String, Object> additionalProperties;
-
     @NotBlank
     private String domain;
 
@@ -47,21 +34,22 @@ public class ReferenceDomain {
 
     private String parentDomain;
 
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return additionalProperties == null ? new HashMap<>() : additionalProperties;
+    public ReferenceDomain(@NotBlank String domain, @NotBlank String description, @NotBlank String domainStatus, @NotBlank String ownerCode, @NotBlank String applnCode, String parentDomain) {
+        this.domain = domain;
+        this.description = description;
+        this.domainStatus = domainStatus;
+        this.ownerCode = ownerCode;
+        this.applnCode = applnCode;
+        this.parentDomain = parentDomain;
     }
 
-    @ApiModelProperty(hidden = true)
-    @JsonAnySetter
-    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
-        this.additionalProperties = additionalProperties;
+    public ReferenceDomain() {
     }
 
     /**
      * Reference domain name
      */
-    @ApiModelProperty(required = true, value = "Reference domain name")
+    @Schema(required = true, description = "Reference domain name")
     @JsonProperty("domain")
     public String getDomain() {
         return domain;
@@ -74,7 +62,7 @@ public class ReferenceDomain {
     /**
      * Reference domain description.
      */
-    @ApiModelProperty(required = true, value = "Reference domain description.")
+    @Schema(required = true, description = "Reference domain description.")
     @JsonProperty("description")
     public String getDescription() {
         return description;
@@ -87,7 +75,7 @@ public class ReferenceDomain {
     /**
      * Reference domain status.
      */
-    @ApiModelProperty(required = true, value = "Reference domain status.")
+    @Schema(required = true, description = "Reference domain status.")
     @JsonProperty("domainStatus")
     public String getDomainStatus() {
         return domainStatus;
@@ -100,7 +88,7 @@ public class ReferenceDomain {
     /**
      * Reference domain owner.
      */
-    @ApiModelProperty(required = true, value = "Reference domain owner.")
+    @Schema(required = true, description = "Reference domain owner.")
     @JsonProperty("ownerCode")
     public String getOwnerCode() {
         return ownerCode;
@@ -113,7 +101,7 @@ public class ReferenceDomain {
     /**
      * Application that uses reference domain.
      */
-    @ApiModelProperty(required = true, value = "Application that uses reference domain.")
+    @Schema(required = true, description = "Application that uses reference domain.")
     @JsonProperty("applnCode")
     public String getApplnCode() {
         return applnCode;
@@ -126,7 +114,7 @@ public class ReferenceDomain {
     /**
      * Parent domain for reference domain.
      */
-    @ApiModelProperty(value = "Parent domain for reference domain.")
+    @Schema(description = "Parent domain for reference domain.")
     @JsonProperty("parentDomain")
     public String getParentDomain() {
         return parentDomain;
