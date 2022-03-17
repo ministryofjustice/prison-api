@@ -132,6 +132,7 @@ public class OffenderSentence extends AuditableEntity {
             .sentenceSequence(sequence)
             .lineSequence(lineSequence)
             .caseSequence(courtCase == null ? null : courtCase.getCaseSeq())
+            .caseReference(courtCase == null ? null : courtCase.getCaseInfoNumber())
             .consecutiveToSequence(consecutiveToSentenceSequence)
             .sentenceStatus(status)
             .sentenceCategory(calculationType.getCategory())

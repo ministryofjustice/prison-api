@@ -1314,7 +1314,7 @@ public class BookingServiceTest {
                                 .build()
                         ))
                         .courtCase(
-                            OffenderCourtCase.builder().caseSeq(10L).build()
+                            OffenderCourtCase.builder().caseSeq(10L).caseInfoNumber("XYZ789").build()
                         )
                         .build()
                     )
@@ -1328,6 +1328,7 @@ public class BookingServiceTest {
                 .sentenceSequence(2)
                 .lineSequence(5L)
                 .caseSequence(10L)
+                .caseReference("XYZ789")
                 .consecutiveToSequence(1)
                 .sentenceStatus("A")
                 .sentenceCategory("CAT")
