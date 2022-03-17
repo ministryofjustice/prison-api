@@ -36,6 +36,7 @@ import javax.validation.constraints.NotNull;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -95,11 +96,11 @@ public class AdjudicationsService {
         this.adjudicationsPartyService = adjudicationsPartyService;
     }
 
-    private List<AdjudicationOffenceType> offenceCodesFrom(NewAdjudication adjudication) {
+    private List<AdjudicationOffenceType> offenceCodesFrom(List<String> suppliedOffenceCodes) {
         var offenceCodes = List.< AdjudicationOffenceType >of();
-        if (adjudication.getOffenceCodes() != null) {
-            offenceCodes = adjudicationsOffenceTypeRepository.findByOffenceCodeIn(adjudication.getOffenceCodes());
-            if (offenceCodes.size() != adjudication.getOffenceCodes().size()) {
+        if (suppliedOffenceCodes != null) {
+            offenceCodes = adjudicationsOffenceTypeRepository.findByOffenceCodeIn(suppliedOffenceCodes);
+            if (offenceCodes.size() != (new HashSet<>(suppliedOffenceCodes)).size()) {
                 throw new RuntimeException("Offence code not found");
             }
         }
@@ -113,7 +114,7 @@ public class AdjudicationsService {
         final var currentDateTime = LocalDateTime.now(clock);
         final var incidentDateTime = adjudication.getIncidentTime();
 
-        final var offenceCodes = offenceCodesFrom(adjudication);
+        final var offenceCodes = offenceCodesFrom(adjudication.getOffenceCodes());
 
         final var reporter = staffUserAccountRepository.findById(reporterName)
             .orElseThrow(() -> new RuntimeException(format("User not found %s", reporterName)));
@@ -190,7 +191,7 @@ public class AdjudicationsService {
             final var adjudicationOffenderPartyToUpdate = adjudicationToUpdate.getOffenderParty()
                 .orElseThrow(() -> new RuntimeException("No offender associated with this adjudication"));
 
-            final var offenceCodes = adjudicationsOffenceTypeRepository.findByOffenceCodeIn(adjudication.getOffenceCodes());
+            final var offenceCodes = offenceCodesFrom(adjudication.getOffenceCodes());
             addOffenceCharges(adjudicationOffenderPartyToUpdate, offenceCodes);
         }
         adjudicationsRepository.save(adjudicationToUpdate);
