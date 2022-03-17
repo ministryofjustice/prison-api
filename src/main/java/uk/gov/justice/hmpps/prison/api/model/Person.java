@@ -1,36 +1,23 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Person
  **/
 @SuppressWarnings("unused")
-@ApiModel(description = "Person")
+@Schema(description = "Person")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
 @EqualsAndHashCode
 public class Person {
-    @JsonIgnore
-    private Map<String, Object> additionalProperties;
-
     @NotNull
     private Long personId;
 
@@ -40,21 +27,19 @@ public class Person {
     @NotBlank
     private String firstName;
 
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return additionalProperties == null ? new HashMap<>() : additionalProperties;
+    public Person(@NotNull Long personId, @NotBlank String lastName, @NotBlank String firstName) {
+        this.personId = personId;
+        this.lastName = lastName;
+        this.firstName = firstName;
     }
 
-    @ApiModelProperty(hidden = true)
-    @JsonAnySetter
-    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
-        this.additionalProperties = additionalProperties;
+    public Person() {
     }
 
     /**
      * id of the person
      */
-    @ApiModelProperty(required = true, value = "id of the person")
+    @Schema(required = true, description = "id of the person")
     @JsonProperty("personId")
     public Long getPersonId() {
         return personId;
@@ -67,7 +52,7 @@ public class Person {
     /**
      * Surname
      */
-    @ApiModelProperty(required = true, value = "Surname")
+    @Schema(required = true, description = "Surname")
     @JsonProperty("lastName")
     public String getLastName() {
         return lastName;
@@ -80,7 +65,7 @@ public class Person {
     /**
      * First Name
      */
-    @ApiModelProperty(required = true, value = "First Name")
+    @Schema(required = true, description = "First Name")
     @JsonProperty("firstName")
     public String getFirstName() {
         return firstName;

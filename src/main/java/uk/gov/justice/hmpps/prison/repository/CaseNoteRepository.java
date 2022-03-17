@@ -7,11 +7,16 @@ import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.stereotype.Repository;
 import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteEvent;
+import uk.gov.justice.hmpps.prison.api.model.CaseNoteEventDto;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteStaffUsage;
+import uk.gov.justice.hmpps.prison.api.model.CaseNoteStaffUsageDto;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsage;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageByBookingId;
+import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageByBookingIdDto;
+import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageDto;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
+import uk.gov.justice.hmpps.prison.repository.mapping.DataClassByColumnRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
 import uk.gov.justice.hmpps.prison.repository.sql.CaseNoteRepositorySql;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
@@ -33,22 +38,22 @@ import java.util.stream.Collectors;
 @Validated
 public class CaseNoteRepository extends RepositoryBase {
     private static final RowMapper<ReferenceCode> REF_CODE_ROW_MAPPER =
-        new StandardBeanPropertyRowMapper<>(ReferenceCode.class);
+        new DataClassByColumnRowMapper<>(ReferenceCode.class);
 
     private static final RowMapper<ReferenceCodeDetail> REF_CODE_DETAIL_ROW_MAPPER =
         new StandardBeanPropertyRowMapper<>(ReferenceCodeDetail.class);
 
-    private static final RowMapper<CaseNoteUsage> CASE_NOTE_USAGE_MAPPER =
-        new StandardBeanPropertyRowMapper<>(CaseNoteUsage.class);
+    private static final RowMapper<CaseNoteUsageDto> CASE_NOTE_USAGE_MAPPER =
+        new DataClassByColumnRowMapper<>(CaseNoteUsageDto.class);
 
-    private static final RowMapper<CaseNoteUsageByBookingId> CASE_NOTE_USAGE_BY_BOOKING_ID_ROW_MAPPER =
-        new StandardBeanPropertyRowMapper<>(CaseNoteUsageByBookingId.class);
+    private static final RowMapper<CaseNoteUsageByBookingIdDto> CASE_NOTE_USAGE_BY_BOOKING_ID_ROW_MAPPER =
+        new DataClassByColumnRowMapper<>(CaseNoteUsageByBookingIdDto.class);
 
-    private static final RowMapper<CaseNoteStaffUsage> CASE_NOTE_STAFF_USAGE_MAPPER =
-        new StandardBeanPropertyRowMapper<>(CaseNoteStaffUsage.class);
+    private static final RowMapper<CaseNoteStaffUsageDto> CASE_NOTE_STAFF_USAGE_MAPPER =
+        new DataClassByColumnRowMapper<>(CaseNoteStaffUsageDto.class);
 
-    private static final RowMapper<CaseNoteEvent> CASE_NOTE_EVENT_ROW_MAPPER =
-        new StandardBeanPropertyRowMapper<>(CaseNoteEvent.class);
+    private static final RowMapper<CaseNoteEventDto> CASE_NOTE_EVENT_ROW_MAPPER =
+        new DataClassByColumnRowMapper<>(CaseNoteEventDto.class);
 
 
     public List<CaseNoteUsage> getCaseNoteUsage(@NotNull final LocalDate fromDate, @NotNull final LocalDate toDate, final String agencyId, final List<String> offenderNos, final Integer staffId, final String type, final String subType) {
@@ -72,7 +77,7 @@ public class CaseNoteRepository extends RepositoryBase {
 
         final var sql = String.format(CaseNoteRepositorySql.GROUP_BY_TYPES_AND_OFFENDERS.getSql(), addSql.length() > 0 ? addSql.toString() : "");
 
-        return jdbcTemplate.query(sql,
+        final var usages = jdbcTemplate.query(sql,
             createParams(
                 "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
                 "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate)),
@@ -82,6 +87,7 @@ public class CaseNoteRepository extends RepositoryBase {
                 "agencyId", new SqlParameterValue(Types.VARCHAR, agencyId),
                 "staffId", new SqlParameterValue(Types.INTEGER, staffId)),
             CASE_NOTE_USAGE_MAPPER);
+        return usages.stream().map(CaseNoteUsageDto::toCaseNoteUsage).collect(Collectors.toList());
     }
 
 
@@ -89,34 +95,38 @@ public class CaseNoteRepository extends RepositoryBase {
 
         final var sql = CaseNoteRepositorySql.GROUP_BY_TYPES_AND_OFFENDERS_FOR_BOOKING.getSql();
 
-        return jdbcTemplate.query(sql,
+        final var usages = jdbcTemplate.query(sql,
             createParams("bookingIds", bookingIds,
                 "type", new SqlParameterValue(Types.VARCHAR, type),
                 "subType", new SqlParameterValue(Types.VARCHAR, subType),
                 "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
                 "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate))),
             CASE_NOTE_USAGE_BY_BOOKING_ID_ROW_MAPPER);
+        return usages.stream().map(CaseNoteUsageByBookingIdDto::toCaseNoteUsageByBookingId).collect(Collectors.toList());
     }
 
 
     public List<CaseNoteEvent> getCaseNoteEvents(final LocalDateTime fromDate, final Set<String> events, final long limit) {
-        return jdbcTemplate.query(queryBuilderFactory.getQueryBuilder(CaseNoteRepositorySql.RECENT_CASE_NOTE_EVENTS.getSql(), Map.of()).addPagination().build(),
+        final var casenoteevents = jdbcTemplate.query(queryBuilderFactory.getQueryBuilder(CaseNoteRepositorySql.RECENT_CASE_NOTE_EVENTS.getSql(), Map.of()).addPagination().build(),
             createParamSource(new PageRequest(0L, limit),
                 "fromDate", new SqlParameterValue(Types.TIMESTAMP, fromDate),
                 "types", events),
             CASE_NOTE_EVENT_ROW_MAPPER);
+        return casenoteevents.stream().map(CaseNoteEventDto::toCaseNoteEvent).collect(Collectors.toList());
     }
 
 
     public List<CaseNoteStaffUsage> getCaseNoteStaffUsage(final String type, final String subType, final List<Integer> staffIds, final LocalDate fromDate, final LocalDate toDate) {
 
-        return jdbcTemplate.query(CaseNoteRepositorySql.GROUP_BY_TYPES_AND_STAFF.getSql(),
+        final var usage = jdbcTemplate.query(CaseNoteRepositorySql.GROUP_BY_TYPES_AND_STAFF.getSql(),
             createParams("staffIds", staffIds,
                 "type", type,
                 "subType", subType,
                 "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
                 "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate))),
             CASE_NOTE_STAFF_USAGE_MAPPER);
+        return usage.stream().map(CaseNoteStaffUsageDto::toCaseNoteStaffUsage).collect(Collectors.toList());
+
     }
 
     public Long getCaseNoteCount(final long bookingId, final String type, final String subType, final LocalDate fromDate, final LocalDate toDate) {
