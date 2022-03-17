@@ -319,6 +319,59 @@ public class AdjudicationsServiceTest {
 
             assertThat(returnedAdjudication).isEqualTo(expectedReturnedAdjudication);
         }
+
+        @Nested
+        public class OffenceCodes {
+
+            @Test
+            public void withDuplicateOffenceCodesReturnsCorrectly() {
+                final var mockDataProvider = new MockDataProvider();
+
+                mockDataProvider.setupMocks();
+
+                // We must override the mock as it expects 1 value
+                when(offenceTypeRepository.findByOffenceCodeIn(any())).thenReturn(List.of(
+                    new MockDataProvider().offenceType
+                ));
+
+                final var newAdjudication = generateNewAdjudicationRequest_WithOptionalData(
+                    mockDataProvider.booking.getOffender().getNomsId(),
+                    mockDataProvider.internalLocation.getLocationId());
+
+                newAdjudication.setOffenceCodes(List.of(EXAMPLE_OFFENCE_CHARGE_CODE, EXAMPLE_OFFENCE_CHARGE_CODE));
+
+                final Adjudication expectedAdjudication = getExampleAdjudication(mockDataProvider, newAdjudication);
+                addExampleAdjudicationParty(mockDataProvider, expectedAdjudication);
+
+                when(adjudicationsRepository.findByParties_AdjudicationNumber(any())).thenReturn(Optional.of(expectedAdjudication));
+
+                final var returnedAdjudication = service.createAdjudication(newAdjudication.getOffenderNo(), newAdjudication);
+
+                assertThat(returnedAdjudication.getAdjudicationNumber()).isEqualTo(EXAMPLE_ADJUDICATION_NUMBER);
+            }
+
+            @Test
+            public void withInvalidOffenceCodesThrowsRuntimeException() {
+                final var mockDataProvider = new MockDataProvider();
+
+                // We only need 2 mocks to perform the validation
+                when(authenticationFacade.getCurrentUsername()).thenReturn(EXAMPLE_CURRENT_USERNAME);
+                when(offenceTypeRepository.findByOffenceCodeIn(any())).thenReturn(List.of(
+                    mockDataProvider.offenceType
+                ));
+
+                final var newAdjudication = generateNewAdjudicationRequest_WithOptionalData(
+                    mockDataProvider.booking.getOffender().getNomsId(),
+                    mockDataProvider.internalLocation.getLocationId());
+
+                newAdjudication.setOffenceCodes(List.of(EXAMPLE_OFFENCE_CHARGE_CODE, "51:99"));
+
+                assertThatThrownBy(() ->
+                    service.createAdjudication(newAdjudication.getOffenderNo(), newAdjudication))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessageContaining("Offence code not found");
+            }
+        }
     }
 
     @Nested
@@ -529,6 +582,39 @@ public class AdjudicationsServiceTest {
             final var returnedAdjudication = service.updateAdjudication(updateNumber, updateRequest);
 
             assertThat(returnedAdjudication).isEqualTo(expectedReturnedAdjudication);
+        }
+
+        @Nested
+        public class OffenceCodes {
+
+            @Test
+            public void withDuplicateOffenceCodesReturnsCorrectly() {
+                updateRequest.setOffenceCodes(List.of(EXAMPLE_OFFENCE_CHARGE_CODE, EXAMPLE_OFFENCE_CHARGE_CODE));
+
+                // We must override the mock as it expects 1 value
+                when(offenceTypeRepository.findByOffenceCodeIn(any())).thenReturn(List.of(
+                    new MockDataProvider().offenceType
+                ));
+
+                final var returnedAdjudication =service.updateAdjudication(updateNumber, updateRequest);
+
+                assertThat(returnedAdjudication.getAdjudicationNumber()).isEqualTo(updateNumber);
+            }
+
+            @Test
+            public void withInvalidOffenceCodesThrowsRuntimeException() {
+                updateRequest.setOffenceCodes(List.of("51;99", EXAMPLE_OFFENCE_CHARGE_CODE));
+
+                // We only need 1 mock to perform the validation
+                when(offenceTypeRepository.findByOffenceCodeIn(any())).thenReturn(List.of(
+                    new MockDataProvider().offenceType
+                ));
+
+                assertThatThrownBy(() ->
+                    service.updateAdjudication(updateNumber, updateRequest))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessageContaining("Offence code not found");
+            }
         }
     }
 
