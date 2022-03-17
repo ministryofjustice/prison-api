@@ -21,6 +21,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceCalculation;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetailDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeDetail;
+import uk.gov.justice.hmpps.prison.api.model.PrivilegeDetailDto;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEventDto;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
@@ -63,8 +64,8 @@ import java.util.stream.Collectors;
 @Repository
 @Slf4j
 public class BookingRepository extends RepositoryBase {
-    private static final RowMapper<PrivilegeDetail> PRIV_DETAIL_ROW_MAPPER =
-            new StandardBeanPropertyRowMapper<>(PrivilegeDetail.class);
+    private static final RowMapper<PrivilegeDetailDto> PRIV_DETAIL_ROW_MAPPER =
+            new DataClassByColumnRowMapper<>(PrivilegeDetailDto.class);
 
     private static final DataClassByColumnRowMapper<ScheduledEventDto> EVENT_ROW_MAPPER =
             new DataClassByColumnRowMapper<>(ScheduledEventDto.class);
@@ -224,7 +225,9 @@ public class BookingRepository extends RepositoryBase {
                 createParams("bookingIds", bookingIds),
                 PRIV_DETAIL_ROW_MAPPER);
 
-        return privs.stream().collect(Collectors.groupingBy(PrivilegeDetail::getBookingId));
+        return privs.stream()
+            .map(PrivilegeDetailDto::toPrivilegeDetail)
+            .collect(Collectors.groupingBy(PrivilegeDetail::getBookingId));
     }
 
     /**
