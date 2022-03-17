@@ -34,6 +34,9 @@ public class OffenderSentenceAndOffences {
     @ApiModelProperty(value = "Case sequence - a number representing the order of the case this sentence belongs to")
     private Long caseSequence;
 
+    @ApiModelProperty(value = "Case reference - a string identifying the case this sentence belongs to")
+    private String caseReference;
+
     @ApiModelProperty(value = "This sentence status: A = Active I = Inactive")
     private String sentenceStatus;
 
