@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import uk.gov.justice.hmpps.prison.repository.mapping.DataClassByColumnRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.FieldMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
 
@@ -24,6 +25,10 @@ public class QueryBuilderFactory {
     }
 
     public <T> IQueryBuilder getQueryBuilder(final String initialSql, final StandardBeanPropertyRowMapper<T> rowMapper) {
+        return getQueryBuilder(initialSql, rowMapper.getFieldMap());
+    }
+
+    public <T> IQueryBuilder getQueryBuilder(final String initialSql, final DataClassByColumnRowMapper<T> rowMapper) {
         return getQueryBuilder(initialSql, rowMapper.getFieldMap());
     }
 

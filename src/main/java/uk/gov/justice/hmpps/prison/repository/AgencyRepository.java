@@ -4,20 +4,24 @@ import lombok.val;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
+import uk.gov.justice.hmpps.prison.api.model.AgencyDto;
 import uk.gov.justice.hmpps.prison.api.model.Location;
+import uk.gov.justice.hmpps.prison.api.model.LocationDto;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
+import uk.gov.justice.hmpps.prison.repository.mapping.DataClassByColumnRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.PageAwareRowMapper;
-import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
 import uk.gov.justice.hmpps.prison.repository.sql.AgencyRepositorySql;
 import uk.gov.justice.hmpps.prison.repository.support.StatusFilter;
 import uk.gov.justice.hmpps.prison.service.OffenderIepReview;
+import uk.gov.justice.hmpps.prison.service.OffenderIepReviewDto;
 import uk.gov.justice.hmpps.prison.service.OffenderIepReviewSearchCriteria;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
@@ -37,19 +41,19 @@ import static java.util.stream.Collectors.toList;
 @Repository
 public class AgencyRepository extends RepositoryBase {
 
-    private static final StandardBeanPropertyRowMapper<Agency> AGENCY_ROW_MAPPER =
-            new StandardBeanPropertyRowMapper<>(Agency.class);
+    private static final DataClassByColumnRowMapper<AgencyDto> AGENCY_ROW_MAPPER =
+            new DataClassByColumnRowMapper<>(AgencyDto.class);
 
-    private static final StandardBeanPropertyRowMapper<Location> LOCATION_ROW_MAPPER =
-            new StandardBeanPropertyRowMapper<>(Location.class);
+    private static final DataClassByColumnRowMapper<LocationDto> LOCATION_ROW_MAPPER =
+            new DataClassByColumnRowMapper<>(LocationDto.class);
 
-    private static final StandardBeanPropertyRowMapper<OffenderIepReview> OFFENDER_IEP_REVIEW_ROW_MAPPER =
-            new StandardBeanPropertyRowMapper<>(OffenderIepReview.class);
+    private static final RowMapper<OffenderIepReviewDto> OFFENDER_IEP_REVIEW_ROW_MAPPER =
+            new DataClassByColumnRowMapper<>(OffenderIepReviewDto.class);
 
 
     public Page<Agency> getAgencies(final String orderByField, final Order order, final long offset, final long limit) {
         final var initialSql = AgencyRepositorySql.GET_AGENCIES.getSql();
-        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, AGENCY_ROW_MAPPER);
+        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, AGENCY_ROW_MAPPER.getFieldMap());
 
         final var sql = builder
                 .addRowCount()
@@ -59,46 +63,50 @@ public class AgencyRepository extends RepositoryBase {
 
         final var paRowMapper = new PageAwareRowMapper<>(AGENCY_ROW_MAPPER);
 
-        final var agencies = jdbcTemplate.query(
+        final var agencyDtos = jdbcTemplate.query(
                 sql,
                 createParams("offset", offset, "limit", limit),
                 paRowMapper);
+        final var agencies = agencyDtos.stream().map(AgencyDto::toAgency).collect(toList());
 
         return new Page<>(agencies, paRowMapper.getTotalRecords(), offset, limit);
     }
 
 
     public List<Agency> getAgenciesByType(final String agencyType) {
-        return jdbcTemplate.query(
+        final var agencies = jdbcTemplate.query(
                 AgencyRepositorySql.GET_AGENCIES_BY_TYPE.getSql(),
                 createParams("agencyType", agencyType, "activeFlag", "Y", "excludeIds", List.of("OUT", "TRN")),
                 AGENCY_ROW_MAPPER);
+        return agencies.stream().map(AgencyDto::toAgency).collect(toList());
     }
 
 
     @Cacheable("findAgenciesByUsername")
     public List<Agency> findAgenciesByUsername(final String username) {
         final var initialSql = AgencyRepositorySql.FIND_AGENCIES_BY_USERNAME.getSql();
-        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, AGENCY_ROW_MAPPER);
+        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, AGENCY_ROW_MAPPER.getFieldMap());
 
         final var sql = builder.addOrderBy(true, "agencyId").build();
 
-        return jdbcTemplate.query(
+        final var agencies = jdbcTemplate.query(
                 sql,
                 createParams("username", username, "caseloadType", "INST", "caseloadFunction", "GENERAL"),
                 AGENCY_ROW_MAPPER);
+        return agencies.stream().map(AgencyDto::toAgency).collect(toList());
     }
 
 
     public List<Agency> findAgenciesForCurrentCaseloadByUsername(final String username) {
         final var initialSql = AgencyRepositorySql.FIND_AGENCIES_BY_CURRENT_CASELOAD.getSql();
-        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, AGENCY_ROW_MAPPER);
+        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, AGENCY_ROW_MAPPER.getFieldMap());
 
         final var sql = builder.build();
-        return jdbcTemplate.query(
+        final var agencies = jdbcTemplate.query(
                 sql,
                 createParams("username", username),
                 AGENCY_ROW_MAPPER);
+        return agencies.stream().map(AgencyDto::toAgency).collect(toList());
     }
 
 
@@ -107,13 +115,12 @@ public class AgencyRepository extends RepositoryBase {
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, AGENCY_ROW_MAPPER);
 
         final var sql = builder.build();
-        return jdbcTemplate.query(
+        final var agencies = jdbcTemplate.query(
                 sql,
                 createParams("caseloadId", caseload),
                 AGENCY_ROW_MAPPER);
+        return agencies.stream().map(AgencyDto::toAgency).collect(toList());
     }
-
-
 
     public Optional<Agency> findAgency(final String agencyId, final StatusFilter filter, final String agencyType) {
         final var initialSql = AgencyRepositorySql.GET_AGENCY.getSql();
@@ -121,7 +128,7 @@ public class AgencyRepository extends RepositoryBase {
 
         final var sql = builder.build();
 
-        Agency agency;
+        AgencyDto agency;
 
         try {
             agency = jdbcTemplate.queryForObject(sql,
@@ -133,7 +140,7 @@ public class AgencyRepository extends RepositoryBase {
             agency = null;
         }
 
-        return Optional.ofNullable(agency);
+        return Optional.ofNullable(agency).map(AgencyDto::toAgency);
     }
 
 
@@ -150,10 +157,11 @@ public class AgencyRepository extends RepositoryBase {
 
         final var sql = builder.addOrderBy(sortOrder, sortFields).build();
 
-        return jdbcTemplate.query(
+        final var locations = jdbcTemplate.query(
                 sql,
                 createParams("agencyId", agencyId, "eventTypes", eventTypes),
                 LOCATION_ROW_MAPPER);
+        return locations.stream().map(LocationDto::toLocation).collect(toList());
     }
 
     public List<Location> getAgencyLocationsBooked(final String agencyId, final LocalDate bookedOnDay, final TimeSlot bookedOnPeriod) {
@@ -165,7 +173,8 @@ public class AgencyRepository extends RepositoryBase {
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, LOCATION_ROW_MAPPER);
         final var sql = builder.build();
 
-        return jdbcTemplate.query(sql, params, LOCATION_ROW_MAPPER);
+        final var locations = jdbcTemplate.query(sql, params, LOCATION_ROW_MAPPER);
+        return locations.stream().map(LocationDto::toLocation).collect(toList());
     }
 
     private void setupDates(final MapSqlParameterSource params, final LocalDate bookedOnDay, final TimeSlot bookedOnPeriod) {
@@ -203,6 +212,7 @@ public class AgencyRepository extends RepositoryBase {
         val results = jdbcTemplate.query(AgencyRepositorySql.GET_AGENCY_IEP_REVIEW_INFORMATION.getSql(), params, OFFENDER_IEP_REVIEW_ROW_MAPPER);
 
         val page = results.stream()
+                .map(OffenderIepReviewDto::toOffenderIepReview)
                 .sorted(comparing(OffenderIepReview::getNegativeIeps).reversed())
                 .skip(criteria.getPageRequest().getOffset())
                 .limit(criteria.getPageRequest().getLimit())

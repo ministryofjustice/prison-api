@@ -7,7 +7,8 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.api.model.Contact;
 import uk.gov.justice.hmpps.prison.api.model.Person;
-import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
+import uk.gov.justice.hmpps.prison.api.model.PersonDto;
+import uk.gov.justice.hmpps.prison.repository.mapping.DataClassByColumnRowMapper;
 import uk.gov.justice.hmpps.prison.repository.sql.ContactRepositorySql;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
@@ -20,7 +21,7 @@ import java.util.Optional;
 @Repository
 public class ContactRepository extends RepositoryBase {
 
-    private static final StandardBeanPropertyRowMapper<Person> PERSON_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(Person.class);
+    private static final RowMapper<PersonDto> PERSON_ROW_MAPPER = new DataClassByColumnRowMapper<>(PersonDto.class);
 
     private static final RowMapper<Contact> CONTACT_ROW_MAPPER = (rs, rowNum) -> Contact.builder()
             .relationshipId(rs.getLong("RELATIONSHIP_ID"))
@@ -74,13 +75,13 @@ public class ContactRepository extends RepositoryBase {
     public Optional<Person> getPersonById(final Long personId) {
         final var sql = ContactRepositorySql.GET_PERSON_BY_ID.getSql();
 
-        Person person;
+        PersonDto person;
         try {
             person = jdbcTemplate.queryForObject(sql, createParams("personId", personId), PERSON_ROW_MAPPER);
         } catch (final EmptyResultDataAccessException e) {
             person = null;
         }
-        return Optional.ofNullable(person);
+        return Optional.ofNullable(person).map(PersonDto::toPerson);
     }
 
 
@@ -90,7 +91,7 @@ public class ContactRepository extends RepositoryBase {
                 createParams("identifierType", identifierType,
                         "identifier", externalRef), PERSON_ROW_MAPPER);
 
-        return persons.stream().min(Comparator.comparing(Person::getPersonId));
+        return persons.stream().min(Comparator.comparing(PersonDto::getPersonId)).map(PersonDto::toPerson);
     }
 
 

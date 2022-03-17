@@ -1,56 +1,40 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * PersonIdentifier
  **/
 @SuppressWarnings("unused")
-@ApiModel(description = "PersonIdentifier")
+@Schema(description = "PersonIdentifier")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
 @EqualsAndHashCode
 public class PersonIdentifier {
-    @JsonIgnore
-    private Map<String, Object> additionalProperties;
-
     @NotBlank
     private String identifierType;
 
     @NotBlank
     private String identifierValue;
 
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return additionalProperties == null ? new HashMap<>() : additionalProperties;
+    public PersonIdentifier(@NotBlank String identifierType, @NotBlank String identifierValue) {
+        this.identifierType = identifierType;
+        this.identifierValue = identifierValue;
     }
 
-    @ApiModelProperty(hidden = true)
-    @JsonAnySetter
-    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
-        this.additionalProperties = additionalProperties;
+    public PersonIdentifier() {
     }
 
     /**
      * The identifier type
      */
-    @ApiModelProperty(required = true, value = "The identifier type")
+    @Schema(required = true, description = "The identifier type")
     @JsonProperty("identifierType")
     public String getIdentifierType() {
         return identifierType;
@@ -63,7 +47,7 @@ public class PersonIdentifier {
     /**
      * The most recent identifier value of that type.
      */
-    @ApiModelProperty(required = true, value = "The most recent identifier value of that type.")
+    @Schema(required = true, description = "The most recent identifier value of that type.")
     @JsonProperty("identifierValue")
     public String getIdentifierValue() {
         return identifierValue;
