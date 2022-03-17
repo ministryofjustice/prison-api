@@ -1,8 +1,7 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,7 +16,7 @@ import java.util.List;
  * Case Note Type Usage Request
  **/
 @SuppressWarnings("unused")
-@ApiModel(description = "Case Note Type Usage Request")
+@Schema(description = "Case Note Type Usage Request")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -26,30 +25,30 @@ import java.util.List;
 @Data
 public class CaseNoteUsageRequest {
 
-    @ApiModelProperty(value = "Only case notes occurring on or after this date (in YYYY-MM-DD format) will be considered.  If not defined then the numMonth before the current date, unless a toDate is defined when it will be numMonths before toDate", position = 1, example = "2018-11-01")
+    @Schema(description = "Only case notes occurring on or after this date (in YYYY-MM-DD format) will be considered.  If not defined then the numMonth before the current date, unless a toDate is defined when it will be numMonths before toDate", example = "2018-11-01")
     private LocalDate fromDate;
 
-    @ApiModelProperty(value = "Only case notes occurring on or before this date (in YYYY-MM-DD format) will be considered. If not defined then the current date will be used, unless a fromDate is defined when it will be numMonths after fromDate", position = 2, example = "2018-12-01")
+    @Schema(description = "Only case notes occurring on or before this date (in YYYY-MM-DD format) will be considered. If not defined then the current date will be used, unless a fromDate is defined when it will be numMonths after fromDate", example = "2018-12-01")
     private LocalDate toDate;
 
-    @ApiModelProperty(value = "Number of month to look forward (if fromDate only defined), or back (if toDate only defined). Default is 1 month", position = 3, example = "2")
+    @Schema(description = "Number of month to look forward (if fromDate only defined), or back (if toDate only defined). Default is 1 month", example = "2")
     @Builder.Default
     private Integer numMonths = 1;
 
     @Builder.Default
-    @ApiModelProperty(required = true, value = "a list of offender numbers to search.", position = 4)
+    @Schema(required = true, description = "a list of offender numbers to search.")
     private List<String> offenderNos = new ArrayList<>();
 
-    @ApiModelProperty(value = "staff Id to use in search (optional).", position = 5, example = "223423")
+    @Schema(description = "staff Id to use in search (optional).", example = "223423")
     private Integer staffId;
 
-    @ApiModelProperty(value = "Case note type.", position = 6, example = "KA")
+    @Schema(description = "Case note type.", example = "KA")
     private String type;
 
-    @ApiModelProperty(value = "Case note sub-type.", position = 7, example = "KS")
+    @Schema(description = "Case note sub-type.", example = "KS")
     private String subType;
 
-    @ApiModelProperty(value = "Optional agency Id to filter by", position = 8, example = "MDI")
+    @Schema(description = "Optional agency Id to filter by", example = "MDI")
     private String agencyId;
 
 }

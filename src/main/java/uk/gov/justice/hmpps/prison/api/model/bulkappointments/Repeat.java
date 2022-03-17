@@ -1,6 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.model.bulkappointments;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,11 +17,11 @@ import java.util.stream.Stream;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Repeat {
-    @ApiModelProperty(required = true, value = "The period at which the appointment should repeat.", example = "WEEKLY", allowableValues = "DAILY, WEEKDAYS, WEEKLY, FORTNIGHTLY, MONTHLY")
+    @Schema(required = true, description = "The period at which the appointment should repeat.", example = "WEEKLY", allowableValues = {"DAILY", "WEEKDAYS", "WEEKLY", "FORTNIGHTLY", "MONTHLY"})
     @NotNull
     private RepeatPeriod repeatPeriod;
 
-    @ApiModelProperty(required = true, value = "The total number of appointments. Must be greater than 0", position = 1)
+    @Schema(required = true, description = "The total number of appointments. Must be greater than 0")
     @Min(1)
     @NotNull
     private Integer count;

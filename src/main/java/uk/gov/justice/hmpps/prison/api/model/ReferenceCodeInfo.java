@@ -37,7 +37,7 @@ public class ReferenceCodeInfo {
     @Size(max = 12)
     private String parentCode;
 
-    @Schema(required = true, description = "Reference data item active indicator flag.", example = "Y", allowableValues = "Y,N")
+    @Schema(required = true, description = "Reference data item active indicator flag.", example = "Y", allowableValues = {"Y","N"})
     @Size(max = 1)
     @Pattern(regexp = "[N|Y]")
     @Builder.Default
@@ -47,7 +47,7 @@ public class ReferenceCodeInfo {
     @Max(value = 999999)
     private Integer listSeq;
 
-    @Schema(description = "System Data Flag", example = "Y", allowableValues = "Y,N")
+    @Schema(description = "System Data Flag", example = "Y", allowableValues = {"Y","N"})
     @Size(max = 1)
     @Pattern(regexp = "[N|Y]")
     @Builder.Default

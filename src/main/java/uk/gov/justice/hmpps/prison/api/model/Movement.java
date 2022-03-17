@@ -50,7 +50,7 @@ public class Movement {
     private String toCity;
 
     @NotBlank
-    @Schema(required = true, description = "ADM (admission), CRT (court), REL (release), TAP (temporary absence) or TRN (transfer)", example = "ADM", allowableValues = "ADM,CRT,REL,TAP,TRN")
+    @Schema(required = true, description = "ADM (admission), CRT (court), REL (release), TAP (temporary absence) or TRN (transfer)", example = "ADM", allowableValues = {"ADM","CRT","REL","TAP","TRN"})
     private String movementType;
 
     @Schema(required = true, description = "Description of the movement type")

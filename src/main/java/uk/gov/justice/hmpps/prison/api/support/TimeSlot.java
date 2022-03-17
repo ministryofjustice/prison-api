@@ -6,5 +6,5 @@ package uk.gov.justice.hmpps.prison.api.support;
 public enum TimeSlot {
     AM,
     PM,
-    ED;
+    ED
 }
