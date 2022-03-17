@@ -1,13 +1,10 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import javax.validation.constraints.NotBlank;
@@ -15,26 +12,32 @@ import javax.validation.constraints.NotBlank;
 /**
  * Profile Information
  **/
-@ApiModel(description = "Profile Information")
+@Schema(description = "Profile Information")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
 @EqualsAndHashCode(of = { "type", "question"})
 @ToString
 @Data
 public class ProfileInformation {
 
     @NotBlank
-    @ApiModelProperty(required = true, value = "Type of profile information")
+    @Schema(required = true, description = "Type of profile information")
     private String type;
 
     @NotBlank
-    @ApiModelProperty(required = true, value = "Profile Question")
+    @Schema(required = true, description = "Profile Question")
     private String question;
 
     @NotBlank
-    @ApiModelProperty(required = true, value = "Profile Result Answer")
+    @Schema(required = true, description = "Profile Result Answer")
     private String resultValue;
 
+    public ProfileInformation(@NotBlank String type, @NotBlank String question, @NotBlank String resultValue) {
+        this.type = type;
+        this.question = question;
+        this.resultValue = resultValue;
+    }
+
+    public ProfileInformation() {
+    }
 }
