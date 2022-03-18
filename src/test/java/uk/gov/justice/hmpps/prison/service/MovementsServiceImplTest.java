@@ -814,6 +814,27 @@ public class MovementsServiceImplTest {
             }
 
             @Test
+            public void copesWithStartDateTimesThatAreNull() {
+                final var startDateTime = LocalDateTime.now();
+                final var endDateTime = LocalDateTime.now();
+
+                when(movementsRepository.getIndividualSchedules(any(), any())).thenReturn(List.of(
+                    makeTransfer("A12345", "SCH", "LEI", "MDI", null, endDateTime),
+                    makeTransfer("A12346", "DEL", "MDI", "LEI", null, endDateTime),
+                    makeInternalMovement("A12347")
+                ));
+
+                final var transfers = movementsService.getTransferMovementsForAgencies(
+                    List.of("LEI", "MDI"),
+                    startDateTime,
+                    endDateTime,
+                    false, false, true, false
+                );
+
+                assertThat(transfers.getTransferEvents()).isEmpty();
+            }
+
+            @Test
             public void returnScheduledTransfer_forTheTimePeriod() {
                 final var startDateTime = LocalDateTime.now();
                 final var endDateTime = LocalDateTime.now().plusMinutes(5);
