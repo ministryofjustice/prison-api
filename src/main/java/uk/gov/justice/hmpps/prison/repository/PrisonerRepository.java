@@ -3,13 +3,15 @@ package uk.gov.justice.hmpps.prison.repository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.api.model.OffenderNumber;
+import uk.gov.justice.hmpps.prison.api.model.OffenderNumberDto;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerDetail;
+import uk.gov.justice.hmpps.prison.api.model.PrisonerDetailDto;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerDetailSearchCriteria;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.NomsIdSequence;
+import uk.gov.justice.hmpps.prison.repository.mapping.DataClassByColumnRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.PageAwareRowMapper;
-import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
 import uk.gov.justice.hmpps.prison.repository.sql.PrisonerRepositorySql;
 import uk.gov.justice.hmpps.prison.repository.support.OffenderRepositorySearchHelper;
 import uk.gov.justice.hmpps.prison.util.DatabaseDialect;
@@ -22,11 +24,11 @@ import java.util.Set;
 @Repository
 @Slf4j
 public class PrisonerRepository extends RepositoryBase {
-    private final StandardBeanPropertyRowMapper<PrisonerDetail> PRISONER_DETAIL_MAPPER =
-            new StandardBeanPropertyRowMapper<>(PrisonerDetail.class);
+    private final DataClassByColumnRowMapper<PrisonerDetailDto> PRISONER_DETAIL_MAPPER =
+            new DataClassByColumnRowMapper<>(PrisonerDetailDto.class);
 
-    private final StandardBeanPropertyRowMapper<OffenderNumber> OFFENDER_NUMBER_MAPPER =
-            new StandardBeanPropertyRowMapper<>(OffenderNumber.class);
+    private final DataClassByColumnRowMapper<OffenderNumberDto> OFFENDER_NUMBER_MAPPER =
+            new DataClassByColumnRowMapper<>(OffenderNumberDto.class);
 
     enum ColumnMapper {
         ORACLE_11(ColumnMappings.getOracleColumnMappings()),
@@ -72,9 +74,11 @@ public class PrisonerRepository extends RepositoryBase {
         final var params =
                 createParams("offset", pageRequest.getOffset(), "limit", pageRequest.getLimit());
 
-        final var prisonerDetails = jdbcTemplate.query(sql, params, paRowMapper);
+        final var prisonerDetailDtos = jdbcTemplate.query(sql, params, paRowMapper);
 
-        prisonerDetails.forEach(PrisonerDetail::deriveLegalDetails);
+        final var prisonerDetails = prisonerDetailDtos.stream()
+            .map(pd -> pd.toPrisonerDetail())
+            .map(PrisonerDetail::deriveLegalDetails).toList();
         return new Page<>(prisonerDetails, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
     }
 
@@ -90,8 +94,8 @@ public class PrisonerRepository extends RepositoryBase {
 
         final var params = createParams("offset", pageRequest.getOffset(), "limit", pageRequest.getLimit());
 
-        final var offenderNumbers = jdbcTemplate.query(sql, params, paRowMapper);
-
+        final var dtos = jdbcTemplate.query(sql, params, paRowMapper);
+        final var offenderNumbers = dtos.stream().map(OffenderNumberDto::toOffenderNumber).toList();
         return new Page<>(offenderNumbers, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
     }
 

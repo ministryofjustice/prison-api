@@ -4,33 +4,37 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
+import uk.gov.justice.hmpps.prison.api.model.ReferenceCodeDto;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCodeInfo;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceDomain;
+import uk.gov.justice.hmpps.prison.api.model.ReferenceDomainDto;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
+import uk.gov.justice.hmpps.prison.repository.mapping.DataClassByColumnRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.PageAwareRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
 import uk.gov.justice.hmpps.prison.repository.sql.ReferenceDataRepositorySql;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.groupingBy;
 
 @Repository
 public class ReferenceDataRepository extends RepositoryBase {
-    private static final StandardBeanPropertyRowMapper<ReferenceDomain> REF_DOMAIN_ROW_MAPPER =
-            new StandardBeanPropertyRowMapper<>(ReferenceDomain.class);
+    private static final RowMapper<ReferenceDomainDto> REF_DOMAIN_ROW_MAPPER =
+            new DataClassByColumnRowMapper<>(ReferenceDomainDto.class);
 
-    private static final StandardBeanPropertyRowMapper<ReferenceCode> REF_CODE_ROW_MAPPER =
-            new StandardBeanPropertyRowMapper<>(ReferenceCode.class);
+    private static final DataClassByColumnRowMapper<ReferenceCodeDto> REF_CODE_ROW_MAPPER =
+            new DataClassByColumnRowMapper<>(ReferenceCodeDto.class);
 
-    private static final StandardBeanPropertyRowMapper<ReferenceCodeDetail> REF_CODE_DETAIL_ROW_MAPPER =
+    private static final RowMapper<ReferenceCodeDetail> REF_CODE_DETAIL_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(ReferenceCodeDetail.class);
 
 
@@ -39,7 +43,7 @@ public class ReferenceDataRepository extends RepositoryBase {
     public Optional<ReferenceDomain> getReferenceDomain(final String domain) {
         final var sql = ReferenceDataRepositorySql.FIND_REFERENCE_DOMAIN.getSql();
 
-        ReferenceDomain referenceDomain;
+        ReferenceDomainDto referenceDomain;
 
         try {
             referenceDomain = jdbcTemplate.queryForObject(
@@ -50,7 +54,7 @@ public class ReferenceDataRepository extends RepositoryBase {
             referenceDomain = null;
         }
 
-        return Optional.ofNullable(referenceDomain);
+        return Optional.ofNullable(referenceDomain).map(ReferenceDomainDto::toReferenceDomain);
     }
 
 
@@ -86,16 +90,17 @@ public class ReferenceDataRepository extends RepositoryBase {
         final var sql = ReferenceDataRepositorySql.FIND_REFERENCE_CODE_BY_DOMAIN_AND_DESCRIPTION.getSql();
 
         final var searchWord = StringUtils.upperCase(wildcard ? "%" + description + "%" : description);
-        return jdbcTemplate.query(
+        final var codes = jdbcTemplate.query(
             sql,
             createParams("domain", domain, "description", searchWord),
             REF_CODE_ROW_MAPPER);
+        return codes.stream().map(ReferenceCodeDto::toReferenceCode).toList();
     }
 
     private Optional<ReferenceCode> getReferenceCodeByDomainAndCode(final String domain, final String code) {
         final var sql = ReferenceDataRepositorySql.FIND_REFERENCE_CODE_BY_DOMAIN_AND_CODE.getSql();
 
-        ReferenceCode referenceCode;
+        ReferenceCodeDto referenceCode;
 
         try {
             referenceCode = jdbcTemplate.queryForObject(
@@ -106,7 +111,7 @@ public class ReferenceDataRepository extends RepositoryBase {
             referenceCode = null;
         }
 
-        return Optional.ofNullable(referenceCode);
+        return Optional.ofNullable(referenceCode).map(ReferenceCodeDto::toReferenceCode);
     }
 
 
@@ -161,7 +166,7 @@ public class ReferenceDataRepository extends RepositoryBase {
         final var initialSql = havingSubCodes ? ReferenceDataRepositorySql.FIND_REFERENCE_CODES_BY_DOMAIN_HAVING_SUB_CODES.getSql() :
                                                        ReferenceDataRepositorySql.FIND_REFERENCE_CODES_BY_DOMAIN.getSql();
 
-        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, REF_CODE_ROW_MAPPER.getFieldMap());
+        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, REF_CODE_ROW_MAPPER);
 
         final var sql = builder
                 .addRowCount()
@@ -171,10 +176,11 @@ public class ReferenceDataRepository extends RepositoryBase {
 
         final var paRowMapper = new PageAwareRowMapper<>(REF_CODE_ROW_MAPPER);
 
-        final var results = jdbcTemplate.query(
+        final var dtos = jdbcTemplate.query(
                 sql,
                 createParams("domain", domain, "offset", offset, "limit", limit),
                 paRowMapper);
+        final var results = dtos.stream().map(ReferenceCodeDto::toReferenceCode).toList();
 
         return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
     }
@@ -186,10 +192,11 @@ public class ReferenceDataRepository extends RepositoryBase {
                 .addOrderBy(order, orderBy)
                 .build();
 
-        return jdbcTemplate.query(
+        final var codes = jdbcTemplate.query(
             sql,
             createParams("domain", domain),
             REF_CODE_ROW_MAPPER);
+        return codes.stream().map(ReferenceCodeDto::toReferenceCode).toList();
     }
 
     private Page<ReferenceCode> getReferenceCodesWithSubCodes(final String domain, final String orderBy, final Order order, final long offset, final long limit) {
@@ -224,18 +231,10 @@ public class ReferenceDataRepository extends RepositoryBase {
         return new Page<>(refCodes.getItems(), refCodes.getTotalRecords(), offset, limit);
     }
 
-    private Map<String, List<ReferenceCode>> collectByParentCode(final List<ReferenceCode> referenceCodes) {
-        final Map<String, List<ReferenceCode>> refCodeMap = new HashMap<>();
-
-        // Seed map
-        final var parentCodes = referenceCodes.stream().map(ReferenceCode::getParentCode).distinct().toList();
-
-        parentCodes.forEach(pc -> refCodeMap.put(pc, new ArrayList<>()));
-
-        // Populate map
-        referenceCodes.forEach(rc -> refCodeMap.get(rc.getParentCode()).add(rc));
-
-        return refCodeMap;
+    private Map<String, List<ReferenceCode>> collectByParentCode(final List<ReferenceCodeDto> referenceCodes) {
+        return referenceCodes.stream()
+            .map(ReferenceCodeDto::toReferenceCode)
+            .collect(groupingBy(ReferenceCode::getParentCode));
     }
 
     private List<ReferenceCode> convertToReferenceCodes(final List<ReferenceCodeDetail> results) {
@@ -280,6 +279,7 @@ public class ReferenceDataRepository extends RepositoryBase {
 
     public List<ReferenceCode> getScheduleReasons(final String eventType) {
         final var sql = ReferenceDataRepositorySql.GET_AVAILABLE_EVENT_SUBTYPES.getSql();
-        return jdbcTemplate.query(sql, createParams("eventType", eventType), REF_CODE_ROW_MAPPER);
+        final var codes = jdbcTemplate.query(sql, createParams("eventType", eventType), REF_CODE_ROW_MAPPER);
+        return codes.stream().map(ReferenceCodeDto::toReferenceCode).toList();
     }
 }

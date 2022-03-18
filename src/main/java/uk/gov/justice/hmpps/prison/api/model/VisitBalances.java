@@ -1,30 +1,35 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-@ApiModel(description = "Balances of visit orders and privilege visit orders")
+@Schema(description = "Balances of visit orders and privilege visit orders")
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
 @Data
 public class VisitBalances {
 
-    @ApiModelProperty(required = true, value = "Balance of visit orders remaining")
+    @Schema(required = true, description = "Balance of visit orders remaining")
     private Integer remainingVo;
 
-    @ApiModelProperty(required = true, value = "Balance of privilege visit orders remaining")
+    @Schema(required = true, description = "Balance of privilege visit orders remaining")
     public Integer remainingPvo;
 
-    @ApiModelProperty(value = "Date of last IEP adjustment for Visit orders")
+    @Schema(description = "Date of last IEP adjustment for Visit orders")
     private LocalDate latestIepAdjustDate;
 
-    @ApiModelProperty(value = "Date of last IEP adjustment for Privilege Visit orders")
+    @Schema(description = "Date of last IEP adjustment for Privilege Visit orders")
     private LocalDate latestPrivIepAdjustDate;
+
+    public VisitBalances(Integer remainingVo, Integer remainingPvo, LocalDate latestIepAdjustDate, LocalDate latestPrivIepAdjustDate) {
+        this.remainingVo = remainingVo;
+        this.remainingPvo = remainingPvo;
+        this.latestIepAdjustDate = latestIepAdjustDate;
+        this.latestPrivIepAdjustDate = latestPrivIepAdjustDate;
+    }
+
+    public VisitBalances() {
+    }
 }
