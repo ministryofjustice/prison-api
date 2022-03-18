@@ -2,8 +2,7 @@ package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,7 +12,7 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
-@ApiModel(description = "HDC Curfew Check")
+@Schema(description = "HDC Curfew Check")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -21,11 +20,11 @@ import java.time.LocalDate;
 @EqualsAndHashCode
 @Data
 public class HdcChecks {
-    @ApiModelProperty(required = true, value = "HDC Checks passed flag", example = "true")
+    @Schema(required = true, description = "HDC Checks passed flag", example = "true")
     @NotNull
     private Boolean passed;
 
-    @ApiModelProperty(required = true, value = "HDC Checks passed date. ISO-8601 format. YYYY-MM-DD", example = "2018-12-31")
+    @Schema(required = true, description = "HDC Checks passed date. ISO-8601 format. YYYY-MM-DD", example = "2018-12-31")
     @NotNull
     private LocalDate date;
 

@@ -1,7 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -16,7 +15,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@ApiModel(description = "Offender transaction details")
+@Schema(description = "Offender transaction details")
 @Data
 @EqualsAndHashCode
 @ToString
@@ -25,57 +24,57 @@ import java.util.List;
 @NoArgsConstructor
 public class OffenderTransactionHistoryDto {
 
-    @ApiModelProperty(value = "Offender Id", example = "1", position = 1)
+    @Schema(description = "Offender Id", example = "1")
     private Long offenderId;
 
-    @ApiModelProperty(value = "Transaction Id", example = "1", position = 2)
+    @Schema(description = "Transaction Id", example = "1")
     private Long transactionId;
 
-    @ApiModelProperty(value = "Transaction Sequence", example = "1", position = 3)
+    @Schema(description = "Transaction Sequence", example = "1")
     private Long transactionEntrySequence;
 
-    @ApiModelProperty(value = "Transaction Date", example = "2020-12-11", position = 4)
+    @Schema(description = "Transaction Date", example = "2020-12-11")
     private LocalDate entryDate;
 
-    @ApiModelProperty(value = "Transaction Type", position = 5)
+    @Schema(description = "Transaction Type")
     private String transactionType;
 
-    @ApiModelProperty(value = "Transaction Description", example = "some textual description here", position = 6)
+    @Schema(description = "Transaction Description", example = "some textual description here")
     private String entryDescription;
 
-    @ApiModelProperty(value = "Transaction Reference Number", position = 7)
+    @Schema(description = "Transaction Reference Number")
     private String referenceNumber;
 
-    @ApiModelProperty(value = "Currency of these amounts.", example = "GBP", position = 8)
+    @Schema(description = "Currency of these amounts.", example = "GBP")
     @NotBlank
     private String currency;
 
-    @ApiModelProperty(value = "Transaction Amount", example = "60", position = 9)
+    @Schema(description = "Transaction Amount", example = "60")
     private Long penceAmount;
 
-    @ApiModelProperty(value = "Offender Sub Account", example = "savings,spends,cash", position = 10)
+    @Schema(description = "Offender Sub Account", example = "savings,spends,cash")
     private String accountType;
 
-    @ApiModelProperty(value = "Posting type. Denotes the direction of money moving in or out of the account", example = "CR,DR", position = 11)
+    @Schema(description = "Posting type. Denotes the direction of money moving in or out of the account", example = "CR,DR")
     private String postingType;
 
-    @ApiModelProperty(value = "Offender number", example = "G6123VU", position = 12)
+    @Schema(description = "Offender number", example = "G6123VU")
     private String offenderNo;
 
-    @ApiModelProperty(value = "The place the transaction took place", example = "MDI", position = 13)
+    @Schema(description = "The place the transaction took place", example = "MDI")
     private String agencyId;
 
-    @ApiModelProperty(value = "List of related transaction details", position = 14)
+    @Schema(description = "List of related transaction details")
     @Default
     private List<RelatedTransactionDetails> relatedOffenderTransactions = new ArrayList<>();
 
-    @ApiModelProperty(value = "Balance at a point in time", position = 15)
+    @Schema(description = "Balance at a point in time")
     private Long currentBalance;
 
-    @ApiModelProperty(value = "Indicates that the amount has been cleared from holding", position = 16)
+    @Schema(description = "Indicates that the amount has been cleared from holding")
     private Boolean holdingCleared;
 
-    @ApiModelProperty(value = "Creation date time", example = "2020-12-11T:20:00", position = 17)
+    @Schema(description = "Creation date time", example = "2020-12-11T:20:00")
     private LocalDateTime createDateTime;
 }
 

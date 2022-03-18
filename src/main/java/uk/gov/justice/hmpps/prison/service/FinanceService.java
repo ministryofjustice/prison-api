@@ -86,7 +86,7 @@ public class FinanceService {
 
         final var subActTypeDr = SPENDS.code;
         final var subActTypeDrId = accountCodeRepository.findByCaseLoadTypeAndSubAccountType("INST", subActTypeDr).orElseThrow().getAccountCode();
-        final var subActTypeCr = SAVINGS.code;;
+        final var subActTypeCr = SAVINGS.code;
 
         validateTransferToSavings(prisonId, offenderNo, transferTransaction, booking, subActTypeDrId);
 

@@ -1,8 +1,7 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,10 +10,9 @@ import org.springframework.data.domain.Page;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 
-@ApiModel(description = "Information about an Offender's activities")
+@Schema(description = "Information about an Offender's activities")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder(toBuilder = true)
 @Data
@@ -22,10 +20,10 @@ import java.util.List;
 @NoArgsConstructor
 public class OffenderActivities {
     @NotBlank
-    @ApiModelProperty(required = true, value = "Display Prisoner Number (UK is NOMS ID)")
+    @Schema(required = true, description = "Display Prisoner Number (UK is NOMS ID)")
     private String offenderNo;
 
-    @ApiModelProperty(value = "The current work activities")
+    @Schema(description = "The current work activities")
     @NotNull
     private Page<OffenderActivitySummary> workActivities;
 }

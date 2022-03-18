@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -22,7 +22,7 @@ import java.util.Map;
  * Case Note Count Detail
  **/
 @SuppressWarnings("unused")
-@ApiModel(description = "Case Note Count Detail")
+@Schema(description = "Case Note Count Detail")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -53,7 +53,7 @@ public class CaseNoteCount {
         return additionalProperties == null ? new HashMap<>() : additionalProperties;
     }
 
-    @ApiModelProperty(hidden = true)
+    @Hidden
     @JsonAnySetter
     public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
@@ -62,7 +62,7 @@ public class CaseNoteCount {
     /**
      * Offender booking id
      */
-    @ApiModelProperty(required = true, value = "Offender booking id")
+    @Schema(required = true, description = "Offender booking id")
     @JsonProperty("bookingId")
     public Long getBookingId() {
         return bookingId;
@@ -75,7 +75,7 @@ public class CaseNoteCount {
     /**
      * Case note type.
      */
-    @ApiModelProperty(required = true, value = "Case note type.")
+    @Schema(required = true, description = "Case note type.")
     @JsonProperty("type")
     public String getType() {
         return type;
@@ -88,7 +88,7 @@ public class CaseNoteCount {
     /**
      * Case note sub-type.
      */
-    @ApiModelProperty(required = true, value = "Case note sub-type.")
+    @Schema(required = true, description = "Case note sub-type.")
     @JsonProperty("subType")
     public String getSubType() {
         return subType;
@@ -101,7 +101,7 @@ public class CaseNoteCount {
     /**
      * Number of case notes of defined type and subType for offender.
      */
-    @ApiModelProperty(required = true, value = "Number of case notes of defined type and subType for offender.")
+    @Schema(required = true, description = "Number of case notes of defined type and subType for offender.")
     @JsonProperty("count")
     public Long getCount() {
         return count;
@@ -114,7 +114,7 @@ public class CaseNoteCount {
     /**
      * Count includes case notes occurring on or after this date (in YYYY-MM-DD format).
      */
-    @ApiModelProperty(value = "Count includes case notes occurring on or after this date (in YYYY-MM-DD format).")
+    @Schema(description = "Count includes case notes occurring on or after this date (in YYYY-MM-DD format).")
     @JsonProperty("fromDate")
     public LocalDate getFromDate() {
         return fromDate;
@@ -127,7 +127,7 @@ public class CaseNoteCount {
     /**
      * Count includes case notes occurring on or before this date (in YYYY-MM-DD format).
      */
-    @ApiModelProperty(value = "Count includes case notes occurring on or before this date (in YYYY-MM-DD format).")
+    @Schema(description = "Count includes case notes occurring on or before this date (in YYYY-MM-DD format).")
     @JsonProperty("toDate")
     public LocalDate getToDate() {
         return toDate;

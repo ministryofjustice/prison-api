@@ -1,30 +1,29 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@ApiModel(description = "Statute")
+@Schema(description = "Statute")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
 public class StatuteDto {
-    @ApiModelProperty(required = true, value = "Statute code", example = "RR84", position = 1)
+    @Schema(required = true, description = "Statute code", example = "RR84")
     private String code;
 
-    @ApiModelProperty(required = true, value = "Statute code description", example = "Statute RV98", position = 2)
+    @Schema(required = true, description = "Statute code description", example = "Statute RV98")
     private String description;
 
-    @ApiModelProperty(required = true, value = "Legislating Body Code", position = 3)
+    @Schema(required = true, description = "Legislating Body Code")
     private String legislatingBodyCode;
 
-    @ApiModelProperty(required = true, value = "Active Y/N", example = "Y", position = 4)
+    @Schema(required = true, description = "Active Y/N", example = "Y")
     private String activeFlag;
 
 }

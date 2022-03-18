@@ -1,8 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.model.v1;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.Hidden;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;

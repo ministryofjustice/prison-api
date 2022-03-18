@@ -1,8 +1,7 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,47 +16,47 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel(description = "Offender Education")
+@Schema(description = "Offender Education")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Education {
 
     @NotNull
-    @ApiModelProperty(value = "Offender booking id.", example = "14", required = true)
+    @Schema(description = "Offender booking id.", example = "14", required = true)
     private Long bookingId;
 
     @NotNull
-    @ApiModelProperty(value = "Start date of education", example = "2018-02-11")
+    @Schema(description = "Start date of education", example = "2018-02-11")
     private LocalDate startDate;
 
-    @ApiModelProperty(value = "End date of education", example = "2020-02-11")
+    @Schema(description = "End date of education", example = "2020-02-11")
     private LocalDate endDate;
 
-    @ApiModelProperty(value = "The area of study for the offender while in school.", example = "General Studies")
+    @Schema(description = "The area of study for the offender while in school.", example = "General Studies")
     private String studyArea;
 
-    @ApiModelProperty(value = "The highest level attained for the educational period.", example = "Degree Level or Higher")
+    @Schema(description = "The highest level attained for the educational period.", example = "Degree Level or Higher")
     private String educationLevel;
 
-    @ApiModelProperty(value = "The number of educational years completed.", example = "2")
+    @Schema(description = "The number of educational years completed.", example = "2")
     private Integer numberOfYears;
 
-    @ApiModelProperty(value = "Year of graduation.", example = "2021")
+    @Schema(description = "Year of graduation.", example = "2021")
     private String graduationYear;
 
-    @ApiModelProperty(value = "Comment relating to education.", example = "The education is going well")
+    @Schema(description = "Comment relating to education.", example = "The education is going well")
     private String comment;
 
-    @ApiModelProperty(value = "Name of school attended.", example = "School of economics")
+    @Schema(description = "Name of school attended.", example = "School of economics")
     private String school;
 
-    @ApiModelProperty(value = "Whether this is special education", example = "false", required = true)
+    @Schema(description = "Whether this is special education", example = "false", required = true)
     private Boolean isSpecialEducation;
 
-    @ApiModelProperty(value = "The education schedule", example = "Full Time", required = true)
+    @Schema(description = "The education schedule", example = "Full Time", required = true)
     private String schedule;
 
     @NotNull
     @Builder.Default
-    @ApiModelProperty(value = "A list of addresses associated with the education", required = true)
+    @Schema(description = "A list of addresses associated with the education", required = true)
     private List<AddressDto> addresses = new ArrayList<>();
 }

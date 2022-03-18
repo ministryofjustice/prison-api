@@ -2,8 +2,7 @@ package uk.gov.justice.hmpps.prison.api.model;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +11,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.util.List;
 
-@ApiModel(description = "An Address")
+@Schema(description = "An Address")
 @Data
 @Builder(toBuilder = true)
 @NoArgsConstructor
@@ -20,54 +19,54 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AddressDto {
 
-    @ApiModelProperty(value = "Address Id", example = "543524", position = 1)
+    @Schema(description = "Address Id", example = "543524")
     private Long addressId;
 
-    @ApiModelProperty(value = "Address Type", notes= "Reference domain is ADDR_TYPE", example = "BUS", position = 2)
+    @Schema(description = "Address Type. Note: Reference domain is ADDR_TYPE", example = "BUS")
     private String addressType;
 
-    @ApiModelProperty(value = "Flat", example = "3B", position = 3)
+    @Schema(description = "Flat", example = "3B")
     private String flat;
 
-    @ApiModelProperty(value = "Premise", example = "Liverpool Prison", position = 4)
+    @Schema(description = "Premise", example = "Liverpool Prison")
     private String premise;
 
-    @ApiModelProperty(value = "Street", example = "Slinn Street", position = 5)
+    @Schema(description = "Street", example = "Slinn Street")
     private String street;
 
-    @ApiModelProperty(value = "Locality", example = "Brincliffe", position = 6)
+    @Schema(description = "Locality", example = "Brincliffe")
     private String locality;
 
-    @ApiModelProperty(value = "Town/City", notes = "Reference domain is CITY", example = "Liverpool", position = 7)
+    @Schema(description = "Town/City. Note: Reference domain is CITY", example = "Liverpool")
     private String town;
 
-    @ApiModelProperty(value = "Postal Code", example = "LI1 5TH", position = 8)
+    @Schema(description = "Postal Code", example = "LI1 5TH")
     private String postalCode;
 
-    @ApiModelProperty(value = "County", notes = "Reference domain is COUNTY", example = "HEREFORD", position = 9)
+    @Schema(description = "County. Note: Reference domain is COUNTY", example = "HEREFORD")
     private String county;
 
-    @ApiModelProperty(value = "Country", notes = "Reference domain is COUNTRY", example = "ENG", position = 10)
+    @Schema(description = "Country. Note: Reference domain is COUNTRY", example = "ENG")
     private String country;
 
-    @ApiModelProperty(value = "Comment", example = "This is a comment text", position = 11)
+    @Schema(description = "Comment", example = "This is a comment text")
     private String comment;
 
-    @ApiModelProperty(required = true, value = "Primary Address", example = "Y", position = 12)
+    @Schema(required = true, description = "Primary Address", example = "Y")
     private Boolean primary;
 
-    @ApiModelProperty(required = true, value = "No Fixed Address", example = "N", position = 13)
+    @Schema(required = true, description = "No Fixed Address", example = "N")
     private Boolean noFixedAddress;
 
-    @ApiModelProperty(value = "Date Added", example = "2005-05-12", position = 14)
+    @Schema(description = "Date Added", example = "2005-05-12")
     private LocalDate startDate;
 
-    @ApiModelProperty(value = "Date ended", example = "2021-02-12", position = 15)
+    @Schema(description = "Date ended", example = "2021-02-12")
     private LocalDate endDate;
 
-    @ApiModelProperty(value = "The phone number associated with the address", position = 16)
+    @Schema(description = "The phone number associated with the address")
     private List<Telephone> phones;
 
-    @ApiModelProperty(value = "The address usages/types", position = 17)
+    @Schema(description = "The address usages/types")
     private List<AddressUsageDto> addressUsages;
 }

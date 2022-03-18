@@ -97,7 +97,7 @@ public class PrisonerDetail {
     @Schema(description = "The prisoner's religion code.", example="PAG")
     private String religionCode;
 
-    @Schema(description = "Status code of prisoner's latest conviction.", example="Convicted", allowableValues = "Convicted,Remand")
+    @Schema(description = "Status code of prisoner's latest conviction.", example="Convicted", allowableValues = {"Convicted","Remand"})
     private String convictedStatus;
 
     @Schema(description = "Legal Status", example="REMAND")

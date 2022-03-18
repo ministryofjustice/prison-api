@@ -27,7 +27,7 @@ public class VisitDetails {
     private Long id;
 
     @NotBlank
-    @Schema(required = true, description = "Status of event (EVENT_STS reference code)", allowableValues = "EXP,SCH,COMP,CANC")
+    @Schema(required = true, description = "Status of event (EVENT_STS reference code)", allowableValues = {"EXP","SCH","COMP","CANC"})
     @JsonProperty("eventStatus")
     private String eventStatus;
 
@@ -36,7 +36,7 @@ public class VisitDetails {
     private String eventStatusDescription;
 
     @NotBlank
-    @Schema(required = true, description = "Completion status of visit (VIS_COMPLETE reference code)", allowableValues = "NORM,SCH,VDE,OFFEND,VISITOR,CANC,HMPOP")
+    @Schema(required = true, description = "Completion status of visit (VIS_COMPLETE reference code)", allowableValues = {"NORM","SCH","VDE","OFFEND","VISITOR","CANC","HMPOP"})
     @JsonProperty("completionStatus")
     private String completionStatus;
 
@@ -45,11 +45,11 @@ public class VisitDetails {
     private String completionStatusDescription;
 
     @NotBlank
-    @Schema(required = true, description = "Code for social (SCON) or official (OFFI) type of visit (VISIT_TYPE reference code)", allowableValues = "OFFI,SCON")
+    @Schema(required = true, description = "Code for social (SCON) or official (OFFI) type of visit (VISIT_TYPE reference code)", allowableValues = {"OFFI","SCON"})
     @JsonProperty("visitType")
     private String visitType;
 
-    @Schema(description = "Description of social or official visit", allowableValues = "Official Visit,Social Contact")
+    @Schema(description = "Description of social or official visit", allowableValues = {"Official Visit","Social Contact"})
     @JsonProperty("visitTypeDescription")
     private String visitTypeDescription;
 
@@ -80,7 +80,7 @@ public class VisitDetails {
     private String prison;
 
     @NotBlank
-    @Schema(required = true, description = "Whether attended (ATT) or not (ABS) (OUTCOMES reference code)", allowableValues = "ATT,ABS")
+    @Schema(required = true, description = "Whether attended (ATT) or not (ABS) (OUTCOMES reference code)", allowableValues = {"ATT","ABS"})
     @JsonProperty("eventOutcome")
     private String eventOutcome;
 
