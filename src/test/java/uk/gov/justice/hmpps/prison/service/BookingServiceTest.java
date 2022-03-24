@@ -1260,10 +1260,6 @@ public class BookingServiceTest {
         assertThat(sentencesAndOffences).containsExactly(
             OffenderSentenceAndOffences.builder()
                 .bookingId(-99L)
-                .days(0)
-                .weeks(0)
-                .months(0)
-                .years(0)
                 .build()
         );
     }
@@ -1335,10 +1331,6 @@ public class BookingServiceTest {
                 .sentenceCalculationType("CALC")
                 .sentenceTypeDescription("Calc description")
                 .sentenceDate(LocalDate.of(2021,1,1))
-                .days(0)
-                .weeks(0)
-                .months(0)
-                .years(3)
                 .terms(List.of(
                     OffenderSentenceTerm.builder()
                         .days(0)

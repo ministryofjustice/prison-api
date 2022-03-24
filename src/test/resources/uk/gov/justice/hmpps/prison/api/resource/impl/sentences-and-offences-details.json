@@ -10,10 +10,6 @@
     "sentenceCalculationType": "ADIMP_ORA",
     "sentenceTypeDescription": "ORA CJA03 Standard Determinate Sentence",
     "sentenceDate": "2017-06-21",
-    "years": 6,
-    "months": 0,
-    "weeks": 0,
-    "days": 0,
     "terms": [{
       "years": 3,
       "months": 0,
@@ -50,10 +46,6 @@
     "sentenceCalculationType": "ADIMP_ORA",
     "sentenceTypeDescription": "ORA CJA03 Standard Determinate Sentence",
     "sentenceDate": "2017-06-21",
-    "years": 5,
-    "months": 0,
-    "weeks": 0,
-    "days": 0,
     "terms": [
       {
         "years": 5,

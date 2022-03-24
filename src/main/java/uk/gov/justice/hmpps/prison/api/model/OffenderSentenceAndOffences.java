@@ -50,18 +50,6 @@ public class OffenderSentenceAndOffences {
     @Schema(description = "The sentenced date for this sentence (aka court date)")
     private LocalDate sentenceDate;
 
-    @Schema(description = "The sentence duration - years")
-    private Integer years;
-
-    @Schema(description = "The sentence duration - months")
-    private Integer months;
-
-    @Schema(description = "The sentence duration - weeks")
-    private Integer weeks;
-
-    @Schema(description = "The sentence duration - days")
-    private Integer days;
-
     @Schema(description = "The sentence terms of the sentence")
     private List<OffenderSentenceTerm> terms;
 
