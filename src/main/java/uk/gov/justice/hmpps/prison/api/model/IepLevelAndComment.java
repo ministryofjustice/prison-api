@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -24,4 +25,10 @@ public class IepLevelAndComment {
     @NotBlank(message = "The IEP comment must not be blank")
     @Size(min = 1, max = 240, message = "The IEP level must have comment text of between 1 and 240 characters")
     private String comment;
+
+    @Schema(description = "Time review occurred, default is now")
+    private LocalDateTime reviewTime;
+
+    @Schema(description = "The reviewer user name - will take the calling user name if not supplied")
+    private String reviewerUserName;
 }

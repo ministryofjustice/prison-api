@@ -198,7 +198,7 @@ public class AgencyResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "List of active IEP levels for agency.", description = "List of active IEP levels for agency.")
+    @Operation(summary = "List of active IEP levels for agency.", description = "Do not use, use incentives API", deprecated = true, hidden = true)
     @GetMapping("/{agencyId}/iepLevels")
     public List<IepLevel> getAgencyIepLevels(@PathVariable("agencyId") @Parameter(description = "agencyId", required = true) final String agencyId) {
         return agencyService.getAgencyIepLevels(agencyId);
