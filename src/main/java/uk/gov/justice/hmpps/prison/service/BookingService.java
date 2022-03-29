@@ -279,9 +279,9 @@ public class BookingService {
         );
     }
 
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = "IEP_SYNC")
     @Transactional
-    public void addIepLevel(final Long bookingId, final String username, @Valid final IepLevelAndComment iepLevel) {
+    public void addIepLevel(final Long bookingId, @Valid final IepLevelAndComment iepLevel) {
 
         final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
 
@@ -289,9 +289,13 @@ public class BookingService {
             EntityNotFoundException.withMessage(format("IEP Level '%1$s' is not active for this booking's agency: Booking Id %2$d.", iepLevel.getIepLevel(), bookingId))
         );
 
-        final var staff = staffUserAccountRepository.findById(username).orElseThrow(EntityNotFoundException.withId(username));
+        final var reviewerUsername = (StringUtils.isNotBlank(iepLevel.getReviewerUserName()) ? iepLevel.getReviewerUserName() : authenticationFacade.getCurrentUsername());
 
-        offenderBooking.addIepLevel(iep.getIepLevel(), iepLevel.getComment(), LocalDateTime.now(), staff);
+        final var staff = staffUserAccountRepository.findById(reviewerUsername).orElseThrow(EntityNotFoundException.withId(reviewerUsername));
+
+        final var reviewTime = iepLevel.getReviewTime() != null ? iepLevel.getReviewTime() : LocalDateTime.now();
+
+        offenderBooking.addIepLevel(iep.getIepLevel(), iepLevel.getComment(), reviewTime, staff);
     }
 
     public Map<Long, PrivilegeSummary> getBookingIEPSummary(final List<Long> bookingIds, final boolean withDetails) {
