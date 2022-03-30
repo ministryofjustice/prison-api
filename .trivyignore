@@ -7,5 +7,3 @@
  # To stop the dps-gradle-spring-boot project from overwriting any project specific customisations here, remove the
  # warning at the top of this file.
 
- # suppress jackson warning until 2.14 is published
- CVE-2020-36518
