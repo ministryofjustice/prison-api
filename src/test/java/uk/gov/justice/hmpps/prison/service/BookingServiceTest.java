@@ -1260,6 +1260,7 @@ public class BookingServiceTest {
         assertThat(sentencesAndOffences).containsExactly(
             OffenderSentenceAndOffences.builder()
                 .bookingId(-99L)
+                .sentenceCalculationType("ADIMP")
                 .days(0)
                 .weeks(0)
                 .months(0)
