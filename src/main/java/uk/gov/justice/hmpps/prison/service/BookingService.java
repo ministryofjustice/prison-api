@@ -812,7 +812,11 @@ public class BookingService {
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     public List<OffenderSentenceAndOffences> getSentenceAndOffenceDetails(final Long bookingId) {
         final var offenderSentences = offenderSentenceRepository.findByOffenderBooking_BookingId_AndCalculationType_CategoryNot(bookingId, "LICENCE")
-            .stream().filter(sentence -> !sentence.getCalculationType().getCalculationType().contains("AGG")).toList();
+            .stream().filter(sentence -> {
+                var calculationType = sentence.getCalculationType().getCalculationType();
+                return calculationType != null && !calculationType.contains("AGG");
+            })
+            .toList();
         return offenderSentences.stream()
             .map(OffenderSentence::getSentenceAndOffenceDetail)
             .collect(toList());
