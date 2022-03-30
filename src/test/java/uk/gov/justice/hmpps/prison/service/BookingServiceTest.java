@@ -1246,11 +1246,11 @@ public class BookingServiceTest {
     @Test
     void getSentenceAndOffenceDetails_withMinimalData() {
         final var bookingId = -1L;
-        when(offenderSentenceRepository.findByOffenderBooking_BookingId_AndCalculationType_CategoryNot(bookingId, "LICENCE"))
+        when(offenderSentenceRepository.findByOffenderBooking_BookingId_AndCalculationType_CalculationTypeNotLikeAndCalculationType_CategoryNot(bookingId, "%AGG%", "LICENCE"))
             .thenReturn(
                 List.of(OffenderSentence.builder()
                         .offenderBooking(OffenderBooking.builder().bookingId(-99L).build())
-                        .calculationType(SentenceCalcType.builder().calculationType("ADIMP").build()
+                        .calculationType(SentenceCalcType.builder().build()
                     ).build()
                 )
             );
@@ -1260,7 +1260,6 @@ public class BookingServiceTest {
         assertThat(sentencesAndOffences).containsExactly(
             OffenderSentenceAndOffences.builder()
                 .bookingId(-99L)
-                .sentenceCalculationType("ADIMP")
                 .days(0)
                 .weeks(0)
                 .months(0)
@@ -1272,7 +1271,7 @@ public class BookingServiceTest {
     @Test
     void getSentenceAndOffenceDetails_withFullData() {
         final var bookingId = -1L;
-        when(offenderSentenceRepository.findByOffenderBooking_BookingId_AndCalculationType_CategoryNot(bookingId, "LICENCE"))
+        when(offenderSentenceRepository.findByOffenderBooking_BookingId_AndCalculationType_CalculationTypeNotLikeAndCalculationType_CategoryNot(bookingId, "%AGG%", "LICENCE"))
             .thenReturn(
                 List.of(OffenderSentence.builder()
                         .offenderBooking(OffenderBooking.builder().bookingId(-98L).build())
