@@ -332,8 +332,11 @@ public class MovementsService {
     }
 
     private Predicate<TransferEvent> isStartTimeBetween(final LocalDateTime fromDateTime, final LocalDateTime toDateTime) {
-        return scheduledEvent -> scheduledEvent.getStartTime().isEqual(fromDateTime) || scheduledEvent.getStartTime().isAfter(fromDateTime) &&
-            (scheduledEvent.getStartTime().isEqual(toDateTime) || scheduledEvent.getStartTime().isBefore(toDateTime));
+        return scheduledEvent -> {
+            final var startTime = scheduledEvent.getStartTime();
+            return startTime != null && (startTime.isEqual(fromDateTime) || startTime.isAfter(fromDateTime) &&
+                (startTime.isEqual(toDateTime) || startTime.isBefore(toDateTime)));
+        };
     }
 
     private List<LocalDate> splitDatesIfTheySpanAcrossDifferentDays(final LocalDateTime fromDateTime, final LocalDateTime toDateTime) {

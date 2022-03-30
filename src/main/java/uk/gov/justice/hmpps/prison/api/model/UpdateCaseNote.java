@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -20,7 +20,7 @@ import java.util.Map;
  * Update Case Note
  **/
 @SuppressWarnings("unused")
-@ApiModel(description = "Update Case Note")
+@Schema(description = "Update Case Note")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -38,7 +38,7 @@ public class UpdateCaseNote {
         return additionalProperties == null ? new HashMap<>() : additionalProperties;
     }
 
-    @ApiModelProperty(hidden = true)
+    @Hidden
     @JsonAnySetter
     public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
@@ -47,7 +47,7 @@ public class UpdateCaseNote {
     /**
      * Updated Case Note Text
      */
-    @ApiModelProperty(required = true, value = "Updated Case Note Text")
+    @Schema(required = true, description = "Updated Case Note Text")
     @JsonProperty("text")
     public String getText() {
         return text;

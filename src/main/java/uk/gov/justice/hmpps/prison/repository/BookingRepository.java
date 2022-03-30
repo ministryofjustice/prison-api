@@ -20,13 +20,17 @@ import uk.gov.justice.hmpps.prison.api.model.NewAppointment;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceCalculation;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetailDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
+import uk.gov.justice.hmpps.prison.api.model.OffenderSummaryDto;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeDetail;
+import uk.gov.justice.hmpps.prison.api.model.PrivilegeDetailDto;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEventDto;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
 import uk.gov.justice.hmpps.prison.api.model.VisitBalances;
+import uk.gov.justice.hmpps.prison.api.model.VisitBalancesDto;
 import uk.gov.justice.hmpps.prison.api.model.VisitDetails;
+import uk.gov.justice.hmpps.prison.api.model.VisitDetailsDto;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentDefaults;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentDetails;
 import uk.gov.justice.hmpps.prison.api.support.Order;
@@ -63,8 +67,8 @@ import java.util.stream.Collectors;
 @Repository
 @Slf4j
 public class BookingRepository extends RepositoryBase {
-    private static final RowMapper<PrivilegeDetail> PRIV_DETAIL_ROW_MAPPER =
-            new StandardBeanPropertyRowMapper<>(PrivilegeDetail.class);
+    private static final RowMapper<PrivilegeDetailDto> PRIV_DETAIL_ROW_MAPPER =
+            new DataClassByColumnRowMapper<>(PrivilegeDetailDto.class);
 
     private static final DataClassByColumnRowMapper<ScheduledEventDto> EVENT_ROW_MAPPER =
             new DataClassByColumnRowMapper<>(ScheduledEventDto.class);
@@ -90,14 +94,14 @@ public class BookingRepository extends RepositoryBase {
     private static final RowMapper<OffenderSentenceCalculation> SENTENCE_CALC_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(OffenderSentenceCalculation.class);
 
-    private static final RowMapper<VisitDetails> VISIT_ROW_MAPPER =
-            new StandardBeanPropertyRowMapper<>(VisitDetails.class);
+    private static final RowMapper<VisitDetailsDto> VISIT_ROW_MAPPER =
+            new DataClassByColumnRowMapper<>(VisitDetailsDto.class);
 
-    private final RowMapper<VisitBalances> VISIT_BALANCES_MAPPER =
-            new StandardBeanPropertyRowMapper<>(VisitBalances.class);
+    private final RowMapper<VisitBalancesDto> VISIT_BALANCES_MAPPER =
+            new DataClassByColumnRowMapper<>(VisitBalancesDto.class);
 
-    private static final RowMapper<OffenderSummary> OFFENDER_SUMMARY_ROW_MAPPER =
-            new StandardBeanPropertyRowMapper<>(OffenderSummary.class);
+    private static final RowMapper<OffenderSummaryDto> OFFENDER_SUMMARY_ROW_MAPPER =
+            new DataClassByColumnRowMapper<>(OffenderSummaryDto.class);
 
     private static final Map<String, FieldMapper> SENTENCE_DETAIL_MAPPING =
             new ImmutableMap.Builder<String, FieldMapper>()
@@ -224,7 +228,9 @@ public class BookingRepository extends RepositoryBase {
                 createParams("bookingIds", bookingIds),
                 PRIV_DETAIL_ROW_MAPPER);
 
-        return privs.stream().collect(Collectors.groupingBy(PrivilegeDetail::getBookingId));
+        return privs.stream()
+            .map(PrivilegeDetailDto::toPrivilegeDetail)
+            .collect(Collectors.groupingBy(PrivilegeDetail::getBookingId));
     }
 
     /**
@@ -404,7 +410,7 @@ public class BookingRepository extends RepositoryBase {
         Objects.requireNonNull(bookingId, "bookingIds is a required parameter");
         final var sql = BookingRepositorySql.FIND_VO_PVO_BALANCE_DETAILS.getSql();
 
-        VisitBalances visitBalances;
+        VisitBalancesDto visitBalances;
         try {
             visitBalances = jdbcTemplate.queryForObject(
                     sql,
@@ -413,7 +419,7 @@ public class BookingRepository extends RepositoryBase {
         } catch (final EmptyResultDataAccessException ex) {
             visitBalances = null;
         }
-        return Optional.ofNullable(visitBalances);
+        return Optional.ofNullable(visitBalances).map(VisitBalancesDto::toVisitBalances);
     }
 
     public List<ScheduledEvent> getBookingVisits(final Collection<Long> bookingIds, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order) {
@@ -444,8 +450,8 @@ public class BookingRepository extends RepositoryBase {
                     BookingRepositorySql.GET_NEXT_BOOKING_VISIT.getSql(),
                     createParams("bookingId", bookingId, "fromDate", DateTimeConverter.fromLocalDateTime(from)),
                     VISIT_ROW_MAPPER);
-            result.setLeadVisitor(StringUtils.trimToNull(result.getLeadVisitor()));
-            return Optional.of(result);
+            return Optional.of(result)
+                .map(vd -> vd.toVisitDetails().toBuilder().leadVisitor(StringUtils.trimToNull(vd.getLeadVisitor())).build());
         } catch (final EmptyResultDataAccessException e) {
             return Optional.empty();
         }
@@ -472,24 +478,26 @@ public class BookingRepository extends RepositoryBase {
 
         final var sql = BookingRepositorySql.FIND_BOOKINGS_BY_PERSON_CONTACT.getSql();
 
-        return jdbcTemplate.query(
+        final var summaries = jdbcTemplate.query(
                 sql,
                 createParams("identifierType", identifierType,
                         "identifier", externalRef,
                         "relationshipType", relationshipType),
                 OFFENDER_SUMMARY_ROW_MAPPER);
+        return summaries.stream().map(OffenderSummaryDto::toOffenderSummary).toList();
     }
 
     public List<OffenderSummary> getBookingsByRelationship(final Long personId, final String relationshipType) {
 
         final var sql = BookingRepositorySql.FIND_BOOKINGS_BY_PERSON_ID_CONTACT.getSql();
 
-        return jdbcTemplate.query(
+        final var summaries = jdbcTemplate.query(
                 sql,
                 createParams(
                         "personId", personId,
                         "relationshipType", relationshipType),
                 OFFENDER_SUMMARY_ROW_MAPPER);
+        return summaries.stream().map(OffenderSummaryDto::toOffenderSummary).toList();
     }
 
     public Page<ScheduledEvent> getBookingAppointments(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final long offset, final long limit, final String orderByFields, final Order order) {
@@ -658,7 +666,7 @@ public class BookingRepository extends RepositoryBase {
 
         final var sql = BookingRepositorySql.GET_LATEST_BOOKING_BY_BOOKING_ID.getSql();
 
-        OffenderSummary summary;
+        OffenderSummaryDto summary;
 
         try {
             summary = jdbcTemplate.queryForObject(
@@ -669,7 +677,7 @@ public class BookingRepository extends RepositoryBase {
             summary = null;
         }
 
-        return Optional.ofNullable(summary);
+        return Optional.ofNullable(summary).map(OffenderSummaryDto::toOffenderSummary);
     }
 
     public Optional<OffenderSummary> getLatestBookingByOffenderNo(final String offenderNo) {
@@ -677,7 +685,7 @@ public class BookingRepository extends RepositoryBase {
 
         final var sql = BookingRepositorySql.GET_LATEST_BOOKING_BY_OFFENDER_NO.getSql();
 
-        OffenderSummary summary;
+        OffenderSummaryDto summary;
 
         try {
             summary = jdbcTemplate.queryForObject(
@@ -688,7 +696,7 @@ public class BookingRepository extends RepositoryBase {
             summary = null;
         }
 
-        return Optional.ofNullable(summary);
+        return Optional.ofNullable(summary).map(OffenderSummaryDto::toOffenderSummary);
     }
 
     public List<OffenderSentenceCalculation> getOffenderSentenceCalculations(final Set<String> agencyIds) {

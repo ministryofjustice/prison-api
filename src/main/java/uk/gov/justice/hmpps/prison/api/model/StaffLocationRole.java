@@ -34,14 +34,14 @@ public class StaffLocationRole {
     @NotBlank
     private String lastName;
 
-    @Schema(required = true, description = "Status of staff member.", example = "ACTIVE", allowableValues = "ACTIVE,INACTIVE")
+    @Schema(required = true, description = "Status of staff member.", example = "ACTIVE", allowableValues = {"ACTIVE","INACTIVE"})
     @NotBlank
     private String status;
 
     @Schema(description = "Identifier for staff member image.", example = "2342334")
     private Long thumbnailId;
 
-    @Schema(description = "Gender of Staff Member", example = "M", allowableValues = "M,F,NK,NS,REF")
+    @Schema(description = "Gender of Staff Member", example = "M", allowableValues = {"M","F","NK","NS","REF"})
     private String gender;
 
     @Schema(description = "Date of Birth of Staff Member", example = "1970-01-02")

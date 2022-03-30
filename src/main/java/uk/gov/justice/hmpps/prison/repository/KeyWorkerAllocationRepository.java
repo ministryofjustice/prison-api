@@ -5,8 +5,11 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.api.model.KeyWorkerAllocationDetail;
+import uk.gov.justice.hmpps.prison.api.model.KeyWorkerAllocationDetailDto;
 import uk.gov.justice.hmpps.prison.api.model.Keyworker;
+import uk.gov.justice.hmpps.prison.api.model.KeyworkerDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderKeyWorker;
+import uk.gov.justice.hmpps.prison.api.model.OffenderKeyWorkerDto;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.repository.mapping.DataClassByColumnRowMapper;
@@ -22,29 +25,30 @@ import java.util.Optional;
 @Repository
 public class KeyWorkerAllocationRepository extends RepositoryBase {
 
-    private static final RowMapper<KeyWorkerAllocationDetail> KEY_WORKER_ALLOCATION_DETAIL_ROW_MAPPER =
-            new DataClassByColumnRowMapper<>(KeyWorkerAllocationDetail.class);
+    private static final RowMapper<KeyWorkerAllocationDetailDto> KEY_WORKER_ALLOCATION_DETAIL_ROW_MAPPER =
+            new DataClassByColumnRowMapper<>(KeyWorkerAllocationDetailDto.class);
 
-    private static final RowMapper<Keyworker> KEY_WORKER_ROW_MAPPER =
-            new DataClassByColumnRowMapper<>(Keyworker.class);
+    private static final RowMapper<KeyworkerDto> KEY_WORKER_ROW_MAPPER =
+            new DataClassByColumnRowMapper<>(KeyworkerDto.class);
 
-    private static final DataClassByColumnRowMapper<OffenderKeyWorker> OFFENDER_KEY_WORKER_ROW_MAPPER =
-            new DataClassByColumnRowMapper<>(OffenderKeyWorker.class);
+    private static final DataClassByColumnRowMapper<OffenderKeyWorkerDto> OFFENDER_KEY_WORKER_ROW_MAPPER =
+            new DataClassByColumnRowMapper<>(OffenderKeyWorkerDto.class);
 
 
 
     public List<Keyworker> getAvailableKeyworkers(final String agencyId) {
         final var sql = KeyWorkerAllocationRepositorySql.GET_AVAILABLE_KEY_WORKERS.getSql();
 
-        return jdbcTemplate.query(
+        final var keyworkers = jdbcTemplate.query(
                 sql,
                 createParams("agencyId", agencyId, "role", "KW"),
                 KEY_WORKER_ROW_MAPPER);
+        return keyworkers.stream().map(KeyworkerDto::toKeyworker).toList();
     }
 
 
     public Optional<Keyworker> getKeyworkerDetailsByBooking(final Long bookingId) {
-        Keyworker keyworker;
+        KeyworkerDto keyworker;
 
         try {
             keyworker = jdbcTemplate.queryForObject(
@@ -55,7 +59,7 @@ public class KeyWorkerAllocationRepository extends RepositoryBase {
             keyworker = null;
         }
 
-        return Optional.ofNullable(keyworker);
+        return Optional.ofNullable(keyworker).map(KeyworkerDto::toKeyworker);
     }
 
 
@@ -67,20 +71,22 @@ public class KeyWorkerAllocationRepository extends RepositoryBase {
     public List<KeyWorkerAllocationDetail> getAllocationDetailsForKeyworkers(final List<Long> staffIds, final List<String> agencyIds) {
         final var sql = KeyWorkerAllocationRepositorySql.GET_ALLOCATION_DETAIL_FOR_KEY_WORKERS.getSql();
 
-        return jdbcTemplate.query(
+        final var details = jdbcTemplate.query(
                 sql,
                 createParams("staffIds", staffIds, "agencyIds", agencyIds),
                 KEY_WORKER_ALLOCATION_DETAIL_ROW_MAPPER);
+        return details.stream().map(KeyWorkerAllocationDetailDto::toKeyWorkerAllocationDetail).toList();
     }
 
 
     public List<KeyWorkerAllocationDetail> getAllocationDetailsForOffenders(final List<String> offenderNos, final List<String> agencyIds) {
         final var sql = KeyWorkerAllocationRepositorySql.GET_ALLOCATION_DETAIL_FOR_OFFENDERS.getSql();
 
-        return jdbcTemplate.query(
+        final var details = jdbcTemplate.query(
                 sql,
                 createParams("offenderNos", offenderNos, "agencyIds", agencyIds),
                 KEY_WORKER_ALLOCATION_DETAIL_ROW_MAPPER);
+        return details.stream().map(KeyWorkerAllocationDetailDto::toKeyWorkerAllocationDetail).toList();
     }
 
 
@@ -110,10 +116,11 @@ public class KeyWorkerAllocationRepository extends RepositoryBase {
 
         final var paRowMapper = new PageAwareRowMapper<>(OFFENDER_KEY_WORKER_ROW_MAPPER);
 
-        final var results = jdbcTemplate.query(
+        final var dtos = jdbcTemplate.query(
                 sql,
                 createParamSource(pageRequest, "agencyId", agencyId),
                 paRowMapper);
+        final var results = dtos.stream().map(OffenderKeyWorkerDto::toOffenderKeyWorker).toList();
 
         return new Page<>(results, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
     }
@@ -124,10 +131,11 @@ public class KeyWorkerAllocationRepository extends RepositoryBase {
 
         final var sql = KeyWorkerAllocationRepositorySql.GET_ALLOCATION_HISTORY_BY_OFFENDER.getSql();
 
-        return jdbcTemplate.query(
+        final var results = jdbcTemplate.query(
                 sql,
                 createParams("offenderNos", offenderNos),
                 OFFENDER_KEY_WORKER_ROW_MAPPER);
+        return results.stream().map(OffenderKeyWorkerDto::toOffenderKeyWorker).toList();
     }
 
 
@@ -136,10 +144,11 @@ public class KeyWorkerAllocationRepository extends RepositoryBase {
 
         final var sql = KeyWorkerAllocationRepositorySql.GET_ALLOCATION_HISTORY_BY_STAFF.getSql();
 
-        return jdbcTemplate.query(
+        final var results = jdbcTemplate.query(
                 sql,
                 createParams("staffIds", staffIds),
                 OFFENDER_KEY_WORKER_ROW_MAPPER);
+        return results.stream().map(OffenderKeyWorkerDto::toOffenderKeyWorker).toList();
     }
 
 }

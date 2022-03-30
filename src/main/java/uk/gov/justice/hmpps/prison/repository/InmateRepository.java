@@ -6,6 +6,7 @@ import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.stereotype.Repository;
@@ -19,22 +20,31 @@ import uk.gov.justice.hmpps.prison.api.model.CategoryApprovalDetail;
 import uk.gov.justice.hmpps.prison.api.model.CategoryRejectionDetail;
 import uk.gov.justice.hmpps.prison.api.model.ImprisonmentStatus;
 import uk.gov.justice.hmpps.prison.api.model.InmateBasicDetails;
+import uk.gov.justice.hmpps.prison.api.model.InmateBasicDetailsDto;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCategorise;
+import uk.gov.justice.hmpps.prison.api.model.OffenderCategoriseDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifier;
+import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifierDto;
 import uk.gov.justice.hmpps.prison.api.model.PersonalCareNeed;
+import uk.gov.justice.hmpps.prison.api.model.PersonalCareNeedDto;
 import uk.gov.justice.hmpps.prison.api.model.PhysicalAttributes;
 import uk.gov.justice.hmpps.prison.api.model.PhysicalCharacteristic;
+import uk.gov.justice.hmpps.prison.api.model.PhysicalCharacteristicDto;
 import uk.gov.justice.hmpps.prison.api.model.PhysicalMark;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerDetail;
+import uk.gov.justice.hmpps.prison.api.model.PrisonerDetailDto;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerDetailSearchCriteria;
 import uk.gov.justice.hmpps.prison.api.model.ProfileInformation;
+import uk.gov.justice.hmpps.prison.api.model.ProfileInformationDto;
 import uk.gov.justice.hmpps.prison.api.model.ReasonableAdjustment;
+import uk.gov.justice.hmpps.prison.api.model.ReasonableAdjustmentDto;
 import uk.gov.justice.hmpps.prison.api.support.AssessmentStatusType;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
+import uk.gov.justice.hmpps.prison.repository.mapping.DataClassByColumnRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.FieldMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.PageAwareRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.Row2BeanRowMapper;
@@ -131,21 +141,21 @@ public class InmateRepository extends RepositoryBase {
             .put("COMMENT_TEXT", new FieldMapper("comment"))
             .build();
 
-    private static final StandardBeanPropertyRowMapper<PersonalCareNeed> PERSONAL_CARE_NEEDS_MAPPER = new StandardBeanPropertyRowMapper<>(PersonalCareNeed.class);
-    private static final StandardBeanPropertyRowMapper<ReasonableAdjustment> REASONABLE_ADJUSTMENTS_MAPPER = new StandardBeanPropertyRowMapper<>(ReasonableAdjustment.class);
+    private static final RowMapper<PersonalCareNeedDto> PERSONAL_CARE_NEEDS_MAPPER = new DataClassByColumnRowMapper<>(PersonalCareNeedDto.class);
+    private static final RowMapper<ReasonableAdjustmentDto> REASONABLE_ADJUSTMENTS_MAPPER = new DataClassByColumnRowMapper<>(ReasonableAdjustmentDto.class);
 
     private static final StandardBeanPropertyRowMapper<AssessmentDto> ASSESSMENT_MAPPER = new StandardBeanPropertyRowMapper<>(AssessmentDto.class);
-    private static final StandardBeanPropertyRowMapper<PhysicalCharacteristic> PHYSICAL_CHARACTERISTIC_MAPPER = new StandardBeanPropertyRowMapper<>(PhysicalCharacteristic.class);
-    private static final StandardBeanPropertyRowMapper<InmateDto> INMATE_MAPPER = new StandardBeanPropertyRowMapper<>(InmateDto.class);
-    private static final StandardBeanPropertyRowMapper<ProfileInformation> PROFILE_INFORMATION_MAPPER = new StandardBeanPropertyRowMapper<>(ProfileInformation.class);
-    private static final StandardBeanPropertyRowMapper<OffenderIdentifier> OFFENDER_IDENTIFIER_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderIdentifier.class);
-    private static final StandardBeanPropertyRowMapper<OffenderCategorise> OFFENDER_CATEGORY_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderCategorise.class);
+    private static final RowMapper<PhysicalCharacteristicDto> PHYSICAL_CHARACTERISTIC_MAPPER = new DataClassByColumnRowMapper<>(PhysicalCharacteristicDto.class);
+    private static final RowMapper<InmateDto> INMATE_MAPPER = new StandardBeanPropertyRowMapper<>(InmateDto.class);
+    private static final RowMapper<ProfileInformationDto> PROFILE_INFORMATION_MAPPER = new DataClassByColumnRowMapper<>(ProfileInformationDto.class);
+    private static final RowMapper<OffenderIdentifierDto> OFFENDER_IDENTIFIER_MAPPER = new DataClassByColumnRowMapper<>(OffenderIdentifierDto.class);
+    private static final RowMapper<OffenderCategoriseDto> OFFENDER_CATEGORY_MAPPER = new DataClassByColumnRowMapper<>(OffenderCategoriseDto.class);
 
-    private static final StandardBeanPropertyRowMapper<PrisonerDetail> PRISONER_DETAIL_MAPPER = new StandardBeanPropertyRowMapper<>(PrisonerDetail.class);
+    private static final DataClassByColumnRowMapper<PrisonerDetailDto> PRISONER_DETAIL_MAPPER = new DataClassByColumnRowMapper<>(PrisonerDetailDto.class);
 
-    private static final StandardBeanPropertyRowMapper<InmateBasicDetails> OFFENDER_BASIC_DETAILS_MAPPER = new StandardBeanPropertyRowMapper<>(InmateBasicDetails.class);
+    private static final RowMapper<InmateBasicDetailsDto> OFFENDER_BASIC_DETAILS_MAPPER = new DataClassByColumnRowMapper<>(InmateBasicDetailsDto.class);
 
-    private static final StandardBeanPropertyRowMapper<ImprisonmentStatus> IMPRISONMENT_STATUS_MAPPER = new StandardBeanPropertyRowMapper<>(ImprisonmentStatus.class);
+    private static final RowMapper<ImprisonmentStatus> IMPRISONMENT_STATUS_MAPPER = new StandardBeanPropertyRowMapper<>(ImprisonmentStatus.class);
 
     private static final Map<String, FieldMapper> ALIAS_MAPPING = new ImmutableMap.Builder<String, FieldMapper>()
             .put("LAST_NAME", new FieldMapper("lastName"))
@@ -339,8 +349,10 @@ public class InmateRepository extends RepositoryBase {
 
         final var params = createParams("offset", pageRequest.getOffset(), "limit", pageRequest.getLimit());
 
-        final var prisonerDetails = jdbcTemplate.query(sql, params, paRowMapper);
-        prisonerDetails.forEach(PrisonerDetail::deriveLegalDetails);
+        final var prisonerDetailDtos = jdbcTemplate.query(sql, params, paRowMapper);
+        final var prisonerDetails = prisonerDetailDtos.stream()
+            .map(PrisonerDetailDto::toPrisonerDetail)
+            .map(PrisonerDetail::deriveLegalDetails).collect(Collectors.toList());
         return new Page<>(prisonerDetails, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
     }
 
@@ -361,78 +373,86 @@ public class InmateRepository extends RepositoryBase {
     public List<PersonalCareNeed> findPersonalCareNeeds(final long bookingId, final Set<String> problemCodes) {
         final var sql = InmateRepositorySql.FIND_PERSONAL_CARE_NEEDS_BY_BOOKING.getSql();
 
-        return jdbcTemplate.query(
+        final var needs = jdbcTemplate.query(
                 sql,
                 createParams("bookingId", bookingId, "problemCodes", problemCodes),
                 PERSONAL_CARE_NEEDS_MAPPER);
+        return needs.stream().map(PersonalCareNeedDto::toPersonalCareNeed).collect(Collectors.toList());
     }
 
 
     public List<PersonalCareNeed> findPersonalCareNeeds(final List<String> offenderNos, final Set<String> problemCodes) {
         final var sql = InmateRepositorySql.FIND_PERSONAL_CARE_NEEDS_BY_OFFENDER.getSql();
 
-        return jdbcTemplate.query(
+        final var needs = jdbcTemplate.query(
                 sql,
                 createParams("offenderNos", offenderNos, "problemCodes", problemCodes),
                 PERSONAL_CARE_NEEDS_MAPPER);
+        return needs.stream().map(PersonalCareNeedDto::toPersonalCareNeed).collect(Collectors.toList());
     }
 
 
     public List<ReasonableAdjustment> findReasonableAdjustments(final long bookingId, final List<String> treatmentCodes) {
         final var sql = InmateRepositorySql.FIND_REASONABLE_ADJUSTMENTS_BY_BOOKING.getSql();
 
-        return jdbcTemplate.query(
+        final var adjustments = jdbcTemplate.query(
                 sql,
                 createParams("bookingId", bookingId, "treatmentCodes", treatmentCodes),
                 REASONABLE_ADJUSTMENTS_MAPPER);
+        return adjustments.stream().map(ReasonableAdjustmentDto::toReasonableAdjustment).collect(Collectors.toList());
     }
 
 
     public List<PhysicalCharacteristic> findPhysicalCharacteristics(final long bookingId) {
         final var sql = InmateRepositorySql.FIND_PHYSICAL_CHARACTERISTICS_BY_BOOKING.getSql();
 
-        return jdbcTemplate.query(
+        final var characteristics = jdbcTemplate.query(
                 sql,
                 createParams("bookingId", bookingId),
                 PHYSICAL_CHARACTERISTIC_MAPPER);
+        return characteristics.stream().map(PhysicalCharacteristicDto::toPhysicalCharacteristic).collect(Collectors.toList());
     }
 
 
     public List<ProfileInformation> getProfileInformation(final long bookingId) {
         final var sql = InmateRepositorySql.FIND_PROFILE_INFORMATION_BY_BOOKING.getSql();
 
-        return jdbcTemplate.query(
+        final var information = jdbcTemplate.query(
                 sql,
                 createParams("bookingId", bookingId),
                 PROFILE_INFORMATION_MAPPER);
+        return information.stream().map(ProfileInformationDto::toProfileInformation).collect(Collectors.toList());
     }
 
 
     public List<OffenderIdentifier> getOffenderIdentifiers(final long bookingId) {
         final var sql = InmateRepositorySql.GET_OFFENDER_IDENTIFIERS_BY_BOOKING.getSql();
 
-        return jdbcTemplate.query(
+        final var identifiers = jdbcTemplate.query(
                 sql,
                 createParams("bookingId", bookingId),
                 OFFENDER_IDENTIFIER_MAPPER);
+        return identifiers.stream().map(OffenderIdentifierDto::toOffenderIdentifier).collect(Collectors.toList());
     }
 
     public List<OffenderIdentifier> getOffenderIdentifiersByOffenderId(final long offenderId) {
         final var sql = InmateRepositorySql.GET_OFFENDER_IDENTIFIERS_BY_OFFENDER_ID.getSql();
 
-        return jdbcTemplate.query(
+        final var identifiers = jdbcTemplate.query(
             sql,
             createParams("offenderId", offenderId),
             OFFENDER_IDENTIFIER_MAPPER);
+        return identifiers.stream().map(OffenderIdentifierDto::toOffenderIdentifier).collect(Collectors.toList());
     }
 
     public List<OffenderIdentifier> getOffenderIdentifiersByTypeAndValue(final String identifierType, final String identifierValue) {
         final var sql = InmateRepositorySql.FIND_IDENTIFIER_RECORDS_BY_TYPE_AND_VALUE.getSql();
 
-        return jdbcTemplate.query(
+        final var identifiers = jdbcTemplate.query(
                 sql,
                 createParams("identifierType", identifierType, "identifierValue", identifierValue),
                 OFFENDER_IDENTIFIER_MAPPER);
+        return identifiers.stream().map(OffenderIdentifierDto::toOffenderIdentifier).collect(Collectors.toList());
     }
 
 
@@ -498,17 +518,18 @@ public class InmateRepository extends RepositoryBase {
 
 
     public List<OffenderCategorise> getUncategorised(final String agencyId) {
-        final var rawData = jdbcTemplate.query(
+        final var dtos = jdbcTemplate.query(
                 InmateRepositorySql.GET_UNCATEGORISED.getSql(),
                 createParams("agencyId", agencyId, "assessmentId", getCategoryAssessmentTypeId()),
                 OFFENDER_CATEGORY_MAPPER);
 
+        final var rawData = dtos.stream().map(OffenderCategoriseDto::toOffenderCategorise).toList();
         return applyCategorisationRestrictions(rawData);
     }
 
 
     public List<OffenderCategorise> getApprovedCategorised(final String agencyId, final LocalDate cutoffDate) {
-        final var rawData = jdbcTemplate.query(
+        final var dtos = jdbcTemplate.query(
                 InmateRepositorySql.GET_APPROVED_CATEGORISED.getSql(),
                 createParams("agencyId", agencyId,
                         "cutOffDate", DateTimeConverter.toDate(cutoffDate),
@@ -516,6 +537,7 @@ public class InmateRepository extends RepositoryBase {
                         "assessmentId", getCategoryAssessmentTypeId()),
                 OFFENDER_CATEGORY_MAPPER);
 
+        final var rawData = dtos.stream().map(OffenderCategoriseDto::toOffenderCategorise).toList();
         return removeEarlierCategorisations(rawData);
     }
 
@@ -527,7 +549,9 @@ public class InmateRepository extends RepositoryBase {
                         "assessmentId", getCategoryAssessmentTypeId()),
                 OFFENDER_CATEGORY_MAPPER);
 
-        final var offenderNoMap = rawData.stream().collect(Collectors.groupingBy(OffenderCategorise::getOffenderNo));
+        final var offenderNoMap = rawData.stream()
+            .map(OffenderCategoriseDto::toOffenderCategorise)
+            .collect(Collectors.groupingBy(OffenderCategorise::getOffenderNo));
         final var offendersLatestCategorisations = offenderNoMap
             .values().stream()
             .filter(this::oneStandardCategorisationExists)
@@ -557,13 +581,14 @@ public class InmateRepository extends RepositoryBase {
     }
 
     public List<OffenderCategorise> getOffenderCategorisations(final List<Long> bookingIds, final String agencyId, final boolean latestOnly) {
-        final var rawData = jdbcTemplate.query(
+        final var dtos = jdbcTemplate.query(
                 InmateRepositorySql.GET_OFFENDER_CATEGORISATIONS.getSql(),
                 createParams("bookingIds", bookingIds,
                         "agencyId", agencyId,
                         "assessmentId", getCategoryAssessmentTypeId()),
                 OFFENDER_CATEGORY_MAPPER);
 
+        final var rawData = dtos.stream().map(OffenderCategoriseDto::toOffenderCategorise).toList();
         return latestOnly ? removeEarlierCategorisations(rawData) : rawData;
     }
 
@@ -874,10 +899,11 @@ public class InmateRepository extends RepositoryBase {
         final var withCaseloadSql = accessToAllData ? baseSql : String.format("%s AND %s", baseSql, InmateRepositorySql.CASELOAD_FILTER.getSql());
         final var sql = active ? String.format("%s AND %s", withCaseloadSql, InmateRepositorySql.ACTIVE_BOOKING_FILTER.getSql()) : withCaseloadSql;
 
-        return jdbcTemplate.query(
+        final var details = jdbcTemplate.query(
                 sql,
                 createParams("offenders", offenders, "caseLoadId", caseloads, "bookingSeq", 1),
                 OFFENDER_BASIC_DETAILS_MAPPER);
+        return details.stream().map(InmateBasicDetailsDto::toInmateBasicDetails).toList();
     }
 
 
@@ -899,10 +925,11 @@ public class InmateRepository extends RepositoryBase {
 
     public List<InmateBasicDetails> getBasicInmateDetailsByBookingIds(final String caseload, final List<Long> bookingIds) {
         final var sql = InmateRepositorySql.FIND_BASIC_INMATE_DETAIL_BY_BOOKING_IDS.getSql();
-        return jdbcTemplate.query(
+        final var details = jdbcTemplate.query(
                 sql,
                 createParams("bookingIds", bookingIds, "caseloadId", caseload),
                 OFFENDER_BASIC_DETAILS_MAPPER);
+        return details.stream().map(InmateBasicDetailsDto::toInmateBasicDetails).toList();
     }
 
     private Integer getOffenderAssessmentSeq(final Long bookingId) {

@@ -1,8 +1,7 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -22,7 +21,7 @@ import java.util.List;
  * Incentive &amp; Earned Privilege Summary
  **/
 @SuppressWarnings("unused")
-@ApiModel(description = "Incentive & Earned Privilege Summary")
+@Schema(description = "Incentive & Earned Privilege Summary")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
@@ -32,27 +31,27 @@ import java.util.List;
 @Data
 public class PrivilegeSummary {
 
-    @ApiModelProperty(required = true, value = "Offender booking identifier.", example = "112321", position = 1)
+    @Schema(required = true, description = "Offender booking identifier.", example = "112321")
     @NotNull
     private Long bookingId;
 
-    @ApiModelProperty(required = true, value = "The current IEP level (e.g. Basic, Standard or Enhanced).", example = "Basic", allowableValues = "Basic,Standard,Enhanced", position = 2)
+    @Schema(required = true, description = "The current IEP level (e.g. Basic, Standard or Enhanced).", example = "Basic", allowableValues = {"Basic","Standard","Enhanced"})
     @NotBlank
     private String iepLevel;
 
-    @ApiModelProperty(required = true, value = "Effective date of current IEP level.", example = "2019-01-24", position = 3)
+    @Schema(required = true, description = "Effective date of current IEP level.", example = "2019-01-24")
     @NotNull
     private LocalDate iepDate;
 
-    @ApiModelProperty(value = "Effective date & time of current IEP level.", example = "2019-01-24 15:00:00", position = 4)
+    @Schema(description = "Effective date & time of current IEP level.", example = "2019-01-24 15:00:00")
     private LocalDateTime iepTime;
 
 
-    @ApiModelProperty(required = true, value = "The number of days since last review.", example = "35", position = 5)
+    @Schema(required = true, description = "The number of days since last review.", example = "35")
     @NotNull
     private Long daysSinceReview;
 
-    @ApiModelProperty(value = "All IEP detail entries for the offender (most recent first).", position = 6)
+    @Schema(description = "All IEP detail entries for the offender (most recent first).")
     @Default
     private List<PrivilegeDetail> iepDetails = new ArrayList<>();
 }

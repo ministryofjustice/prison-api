@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.1.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.1.2"
   kotlin("plugin.spring") version "1.6.10"
   kotlin("plugin.jpa") version "1.6.10"
 }
@@ -31,7 +31,7 @@ dependencies {
 
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
-  implementation(platform("com.amazonaws:aws-java-sdk-bom:1.12.175"))
+  implementation(platform("com.amazonaws:aws-java-sdk-bom:1.12.188"))
 
   implementation("javax.annotation:javax.annotation-api:1.3.2")
   implementation("javax.xml.bind:jaxb-api:2.3.1")
@@ -52,12 +52,12 @@ dependencies {
   implementation("org.apache.commons:commons-lang3:3.12.0")
   implementation("commons-io:commons-io:2.11.0")
   implementation("org.apache.commons:commons-text:1.9")
-  implementation("com.oracle.database.jdbc:ojdbc10:19.13.0.0.1")
+  implementation("com.oracle.database.jdbc:ojdbc10:19.14.0.0")
 
   compileOnly("org.projectlombok:lombok:1.18.22")
 
   runtimeOnly("org.hsqldb:hsqldb:2.5.1")
-  runtimeOnly("org.flywaydb:flyway-core:8.5.2")
+  runtimeOnly("org.flywaydb:flyway-core:8.5.5")
 
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
@@ -72,16 +72,16 @@ dependencies {
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.32.0")
 
-  testImplementation("net.serenity-bdd:serenity-core:3.2.0")
-  testImplementation("net.serenity-bdd:serenity-junit:3.2.0")
-  testImplementation("net.serenity-bdd:serenity-spring:3.2.0")
-  testImplementation("net.serenity-bdd:serenity-cucumber:3.2.0")
+  testImplementation("net.serenity-bdd:serenity-core:3.2.2")
+  testImplementation("net.serenity-bdd:serenity-junit:3.2.2")
+  testImplementation("net.serenity-bdd:serenity-spring:3.2.2")
+  testImplementation("net.serenity-bdd:serenity-cucumber:3.2.2")
   testImplementation("com.paulhammant:ngwebdriver:1.1.6")
   testImplementation("org.slf4j:slf4j-api:1.7.36")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
   testImplementation("org.glassfish:javax.el:3.0.0")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.0.30")
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.0.31")
 
   testCompileOnly("org.projectlombok:lombok:1.18.22")
 }

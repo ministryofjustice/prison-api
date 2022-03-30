@@ -23,14 +23,14 @@ public class Agency {
     @Schema(description = "Long description of the agency", example = "Moorland (HMP & YOI)")
     private String longDescription;
 
-    @Schema(required = true, description = "Agency type.  Reference domain is AGY_LOC_TYPE", example = "INST", allowableValues = "CRC,POLSTN,INST,COMM,APPR,CRT,POLICE,IMDC,TRN,OUT,YOT,SCH,STC,HOST,AIRPORT,HSHOSP,HOSPITAL,PECS,PAR,PNP,PSY")
+    @Schema(required = true, description = "Agency type.  Reference domain is AGY_LOC_TYPE", example = "INST", allowableValues = {"CRC","POLSTN","INST","COMM","APPR","CRT","POLICE","IMDC","TRN","OUT","YOT","SCH","STC","HOST","AIRPORT","HSHOSP","HOSPITAL","PECS","PAR","PNP","PSY"})
     private String agencyType;
 
     @Schema(required = true, description = "Indicates the Agency is active", example = "true")
     @Default
     private boolean active = true;
 
-    @Schema(description = "Court Type.  Reference domain is JURISDICTION", example = "CC", allowableValues = "CACD,CB,CC,CO,DCM,GCM,IMM,MC,OTHER,YC")
+    @Schema(description = "Court Type.  Reference domain is JURISDICTION", example = "CC", allowableValues = {"CACD","CB","CC","CO","DCM","GCM","IMM","MC","OTHER","YC"})
     private String courtType;
 
     @Schema(description = "Date agency became inactive", example = "2012-01-12")

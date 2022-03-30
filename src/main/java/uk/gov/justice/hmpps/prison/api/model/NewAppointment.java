@@ -1,8 +1,7 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,7 +17,7 @@ import java.time.LocalDateTime;
  * Creation details for a new appointment
  **/
 @SuppressWarnings("unused")
-@ApiModel(description = "Creation details for a new appointment")
+@Schema(description = "Creation details for a new appointment")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 @Builder
@@ -26,24 +25,24 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class NewAppointment {
 
-    @ApiModelProperty(required = true, value = "Corresponds to the scheduled event subType")
+    @Schema(required = true, description = "Corresponds to the scheduled event subType")
     @Size(max = 12)
     @Pattern(regexp = "\\w*")
     @NotBlank
     private String appointmentType;
 
-    @ApiModelProperty(required = true, value = "Location at which the appointment takes place.")
+    @Schema(required = true, description = "Location at which the appointment takes place.")
     @NotNull
     private Long locationId;
 
-    @ApiModelProperty(required = true, value = "Date and time at which event starts")
+    @Schema(required = true, description = "Date and time at which event starts")
     @NotNull
     private LocalDateTime startTime;
 
-    @ApiModelProperty(value = "Date and time at which event ends")
+    @Schema(description = "Date and time at which event ends")
     private LocalDateTime endTime;
 
-    @ApiModelProperty(value = "Details of appointment")
+    @Schema(description = "Details of appointment")
     @Size(max = 4000)
     private String comment;
 }

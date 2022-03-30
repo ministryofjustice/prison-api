@@ -24,7 +24,7 @@ public interface OffenderRepository extends JpaRepository<Offender, Long> {
 
     default Optional<Offender> findOffenderByNomsId(String nomsId){
         return findOffendersByNomsId(nomsId, PageRequest.of(0,1)).stream().findFirst();
-    };
+    }
 
     @Query(value =
         "select o from Offender o join o.bookings ob join ob.images oi WHERE oi.captureDateTime > :start")

@@ -15,6 +15,7 @@ import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageByBookingId;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageByBookingIdDto;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageDto;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
+import uk.gov.justice.hmpps.prison.api.model.ReferenceCodeDto;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.repository.mapping.DataClassByColumnRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
@@ -37,8 +38,8 @@ import java.util.stream.Collectors;
 @Repository
 @Validated
 public class CaseNoteRepository extends RepositoryBase {
-    private static final RowMapper<ReferenceCode> REF_CODE_ROW_MAPPER =
-        new DataClassByColumnRowMapper<>(ReferenceCode.class);
+    private static final RowMapper<ReferenceCodeDto> REF_CODE_ROW_MAPPER =
+        new DataClassByColumnRowMapper<>(ReferenceCodeDto.class);
 
     private static final RowMapper<ReferenceCodeDetail> REF_CODE_DETAIL_ROW_MAPPER =
         new StandardBeanPropertyRowMapper<>(ReferenceCodeDetail.class);
@@ -147,9 +148,10 @@ public class CaseNoteRepository extends RepositoryBase {
     public List<ReferenceCode> getCaseNoteTypesByCaseLoadType(final String caseLoadType) {
         final var sql = CaseNoteRepositorySql.GET_CASE_NOTE_TYPES_BY_CASELOAD_TYPE.getSql();
 
-        return jdbcTemplate.query(sql,
+        final var codes = jdbcTemplate.query(sql,
             createParams("caseLoadType", caseLoadType),
             REF_CODE_ROW_MAPPER);
+        return codes.stream().map(ReferenceCodeDto::toReferenceCode).toList();
     }
 
 

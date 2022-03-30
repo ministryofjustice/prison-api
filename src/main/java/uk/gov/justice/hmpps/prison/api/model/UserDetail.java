@@ -42,7 +42,7 @@ public class UserDetail {
     @Schema(description = "Current Active Caseload", example = "MDI")
     private String activeCaseLoadId;
 
-    @Schema(required = true, description = "Status of the User Account", allowableValues = "ACTIVE,INACT,SUS,CAREER,MAT,SAB,SICK", example = "ACTIVE")
+    @Schema(required = true, description = "Status of the User Account", allowableValues = {"ACTIVE","INACT","SUS","CAREER","MAT","SAB","SICK"}, example = "ACTIVE")
     private String accountStatus;
 
     @Schema(required = true, description = "Date the user account was locked", example = "2018-06-04T12:35:00")

@@ -247,13 +247,13 @@ public class BookingServiceTest {
     @Test
     public void givenValidBookingIdIepLevelAndComment_whenIepLevelAdded() {
         final var bookingId = 1L;
-        final var iepLevelAndComment = IepLevelAndComment.builder().iepLevel("STD").comment("Comment").build();
+        final var iepLevelAndComment = IepLevelAndComment.builder().iepLevel("STD").comment("Comment").reviewerUserName("FRED").build();
 
         final var leedsPrison = AgencyLocation.builder().id("LEI").build();
         when(offenderBookingRepository.findById(bookingId)).thenReturn(Optional.of(OffenderBooking.builder().bookingId(bookingId).location(leedsPrison).build()));
         when(availablePrisonIepLevelRepository.findById(eq(new PK(iepLevelAndComment.getIepLevel(), leedsPrison)))).thenReturn(Optional.of(AvailablePrisonIepLevel.builder().iepLevel(new IepLevel("STD", "Standard")).agencyLocation(leedsPrison).build()));
         when(staffUserAccountRepository.findById("FRED")).thenReturn(Optional.of(StaffUserAccount.builder().username("FRED").build()));
-        bookingService.addIepLevel(bookingId, "FRED", iepLevelAndComment);
+        bookingService.addIepLevel(bookingId, iepLevelAndComment);
 
         verify(availablePrisonIepLevelRepository).findById(eq(new PK(iepLevelAndComment.getIepLevel(), leedsPrison)));
     }
@@ -261,13 +261,13 @@ public class BookingServiceTest {
     @Test
     public void givenInvalidIepLevel_whenIepLevelAdded() {
         final var bookingId = 1L;
-        final var iepLevelAndComment = IepLevelAndComment.builder().iepLevel("STD").comment("Comment").build();
+        final var iepLevelAndComment = IepLevelAndComment.builder().iepLevel("STD").comment("Comment").reviewerUserName("FRED").build();
 
         final var leedsPrison = AgencyLocation.builder().id("LEI").build();
         when(offenderBookingRepository.findById(bookingId)).thenReturn(Optional.of(OffenderBooking.builder().bookingId(bookingId).location(leedsPrison).build()));
         when(availablePrisonIepLevelRepository.findById(eq(new PK(iepLevelAndComment.getIepLevel(), leedsPrison)))).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> bookingService.addIepLevel(bookingId, "FRED", iepLevelAndComment))
+        assertThatThrownBy(() -> bookingService.addIepLevel(bookingId, iepLevelAndComment))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("IEP Level 'STD' is not active for this booking's agency: Booking Id 1.");
     }

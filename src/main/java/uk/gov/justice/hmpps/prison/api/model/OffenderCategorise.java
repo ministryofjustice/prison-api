@@ -1,72 +1,89 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import uk.gov.justice.hmpps.prison.api.support.CategorisationStatus;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
-@ApiModel(description = "Prisoner with categorisation data")
+@Schema(description = "Prisoner with categorisation data")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class OffenderCategorise {
 
-    @ApiModelProperty(required = true, value = "Display Prisoner Number")
+    @Schema(required = true, description = "Display Prisoner Number")
     private String offenderNo;
 
     @NotNull
     private Long bookingId;
 
-    @ApiModelProperty(required = true, value = "Prisoner First Name")
+    @Schema(required = true, description = "Prisoner First Name")
     private String firstName;
 
-    @ApiModelProperty(required = true, value = "Prisoner Last Name")
+    @Schema(required = true, description = "Prisoner Last Name")
     private String lastName;
 
-    @ApiModelProperty(value = "Categorisation date if any")
+    @Schema(description = "Categorisation date if any")
     private LocalDate assessmentDate;
 
-    @ApiModelProperty(value = "Date categorisation was approved if any")
+    @Schema(description = "Date categorisation was approved if any")
     private LocalDate approvalDate;
 
-    @ApiModelProperty(value = "Sequence number within booking")
+    @Schema(description = "Sequence number within booking")
     private Integer assessmentSeq;
 
-    @ApiModelProperty(value = "assessment type", allowableValues = "CATEGORY")
+    @Schema(description = "assessment type", allowableValues = {"CATEGORY"})
     private Long assessmentTypeId;
 
-    @ApiModelProperty(value = "Categorisation status", allowableValues = "P,A,I,null")
+    @Schema(description = "Categorisation status", allowableValues = {"P","A","I"})
     private String assessStatus;
 
-    @ApiModelProperty(value = "Categoriser First Name")
+    @Schema(description = "Categoriser First Name")
     private String categoriserFirstName;
 
-    @ApiModelProperty(value = "Categoriser Last Name")
+    @Schema(description = "Categoriser Last Name")
     private String categoriserLastName;
 
-    @ApiModelProperty(value = "Approver First Name if any")
+    @Schema(description = "Approver First Name if any")
     private String approverFirstName;
 
-    @ApiModelProperty(value = "Approver Last Name if any")
+    @Schema(description = "Approver Last Name if any")
     private String approverLastName;
 
-    @ApiModelProperty(value = "Categorisation")
+    @Schema(description = "Categorisation")
     private String category;
 
-    @ApiModelProperty(value = "Next Review Date - for recategorisations")
+    @Schema(description = "Next Review Date - for recategorisations")
     private LocalDate nextReviewDate;
 
-    @ApiModelProperty(required = true, value = "Where in the categorisation workflow the prisoner is")
+    @Schema(required = true, description = "Where in the categorisation workflow the prisoner is")
     private CategorisationStatus status;
+
+    public OffenderCategorise(String offenderNo, @NotNull Long bookingId, String firstName, String lastName, LocalDate assessmentDate, LocalDate approvalDate, Integer assessmentSeq, Long assessmentTypeId, String assessStatus, String categoriserFirstName, String categoriserLastName, String approverFirstName, String approverLastName, String category, LocalDate nextReviewDate, CategorisationStatus status) {
+        this.offenderNo = offenderNo;
+        this.bookingId = bookingId;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.assessmentDate = assessmentDate;
+        this.approvalDate = approvalDate;
+        this.assessmentSeq = assessmentSeq;
+        this.assessmentTypeId = assessmentTypeId;
+        this.assessStatus = assessStatus;
+        this.categoriserFirstName = categoriserFirstName;
+        this.categoriserLastName = categoriserLastName;
+        this.approverFirstName = approverFirstName;
+        this.approverLastName = approverLastName;
+        this.category = category;
+        this.nextReviewDate = nextReviewDate;
+        this.status = status;
+    }
+
+    public OffenderCategorise() {
+    }
 
     static public OffenderCategorise deriveStatus(final OffenderCategorise cat) {
         cat.status = (cat.getAssessStatus()) != null && cat.getAssessStatus().equals("P") ?

@@ -1,7 +1,7 @@
 package uk.gov.justice.hmpps.prison.api.model.adjudications;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,12 +19,12 @@ import java.util.List;
 @Data
 public class AdjudicationSearchResponse {
 
-    @ApiModelProperty("Search results")
+    @Schema(description = "Search results")
     private List<Adjudication> results;
 
-    @ApiModelProperty("A complete list of the type of offences that this offender has had adjudications for")
+    @Schema(description = "A complete list of the type of offences that this offender has had adjudications for")
     private List<AdjudicationOffence> offences;
 
-    @ApiModelProperty("Complete list of agencies where this offender has had adjudications")
+    @Schema(description = "Complete list of agencies where this offender has had adjudications")
     private List<Agency> agencies;
 }

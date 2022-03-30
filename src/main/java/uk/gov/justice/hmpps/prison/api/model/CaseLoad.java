@@ -27,12 +27,12 @@ public class CaseLoad {
     @NotBlank
     private String description;
 
-    @Schema(required = true, description = "Type of case load. Note: Reference Code CSLD_TYPE", example = "INST", allowableValues = "COMM,INST,APP")
+    @Schema(required = true, description = "Type of case load. Note: Reference Code CSLD_TYPE", example = "INST", allowableValues = {"COMM","INST","APP"})
     @JsonProperty("type")
     @NotBlank
     private String type;
 
-    @Schema(description = "Functional Use of the case load", example = "GENERAL", allowableValues = "GENERAL,ADMIN")
+    @Schema(description = "Functional Use of the case load", example = "GENERAL", allowableValues = {"GENERAL","ADMIN"})
     @JsonProperty("caseloadFunction")
     private String caseloadFunction;
 

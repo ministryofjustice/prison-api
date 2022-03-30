@@ -3,13 +3,10 @@ package uk.gov.justice.hmpps.prison.api.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -19,12 +16,10 @@ import java.util.List;
 /**
  * Visit details
  **/
-@ApiModel(description = "Visit details")
+@Schema(description = "Visit details")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
+@Builder(toBuilder = true)
 @EqualsAndHashCode
 public class VisitDetails {
 
@@ -32,88 +27,116 @@ public class VisitDetails {
     private Long id;
 
     @NotBlank
-    @ApiModelProperty(required = true, value = "Status of event (EVENT_STS reference code)", allowableValues = "EXP,SCH,COMP,CANC")
+    @Schema(required = true, description = "Status of event (EVENT_STS reference code)", allowableValues = {"EXP","SCH","COMP","CANC"})
     @JsonProperty("eventStatus")
     private String eventStatus;
 
-    @ApiModelProperty(value = "Description of eventStatus code")
+    @Schema(description = "Description of eventStatus code")
     @JsonProperty("eventStatusDescription")
     private String eventStatusDescription;
 
     @NotBlank
-    @ApiModelProperty(required = true, value = "Completion status of visit (VIS_COMPLETE reference code)", allowableValues = "NORM,SCH,VDE,OFFEND,VISITOR,CANC,HMPOP")
+    @Schema(required = true, description = "Completion status of visit (VIS_COMPLETE reference code)", allowableValues = {"NORM","SCH","VDE","OFFEND","VISITOR","CANC","HMPOP"})
     @JsonProperty("completionStatus")
     private String completionStatus;
 
-    @ApiModelProperty(value = "Description of completionStatus code")
+    @Schema(description = "Description of completionStatus code")
     @JsonProperty("completionStatusDescription")
     private String completionStatusDescription;
 
     @NotBlank
-    @ApiModelProperty(required = true, value = "Code for social (SCON) or official (OFFI) type of visit (VISIT_TYPE reference code)", allowableValues = "OFFI,SCON")
+    @Schema(required = true, description = "Code for social (SCON) or official (OFFI) type of visit (VISIT_TYPE reference code)", allowableValues = {"OFFI","SCON"})
     @JsonProperty("visitType")
     private String visitType;
 
-    @ApiModelProperty(value = "Description of social or official visit", allowableValues = "Official Visit,Social Contact")
+    @Schema(description = "Description of social or official visit", allowableValues = {"Official Visit","Social Contact"})
     @JsonProperty("visitTypeDescription")
     private String visitTypeDescription;
 
-    @ApiModelProperty(value = "Name of lead visitor (blank if there was no visiting order for this visit)")
+    @Schema(description = "Name of lead visitor (blank if there was no visiting order for this visit)")
     @JsonProperty("leadVisitor")
     private String leadVisitor;
 
-    @ApiModelProperty(value = "Relationship of lead visitor to offender")
+    @Schema(description = "Relationship of lead visitor to offender")
     private String relationship;
 
-    @ApiModelProperty(value = "Description of relationship code")
+    @Schema(description = "Description of relationship code")
     @JsonProperty("relationshipDescription")
     private String relationshipDescription;
 
     @NotNull
-    @ApiModelProperty(required = true, value = "Date and time at which event starts")
+    @Schema(required = true, description = "Date and time at which event starts")
     @JsonProperty("startTime")
     private LocalDateTime startTime;
 
-    @ApiModelProperty(value = "Date and time at which event ends")
+    @Schema(description = "Date and time at which event ends")
     @JsonProperty("endTime")
     private LocalDateTime endTime;
 
-    @ApiModelProperty(value = "Location at which event takes place (could be an internal location, agency or external address).")
+    @Schema(description = "Location at which event takes place (could be an internal location, agency or external address).")
     private String location;
 
-    @ApiModelProperty(value = "Prison at which event takes place")
+    @Schema(description = "Prison at which event takes place")
     private String prison;
 
     @NotBlank
-    @ApiModelProperty(required = true, value = "Whether attended (ATT) or not (ABS) (OUTCOMES reference code)", allowableValues = "ATT,ABS")
+    @Schema(required = true, description = "Whether attended (ATT) or not (ABS) (OUTCOMES reference code)", allowableValues = {"ATT","ABS"})
     @JsonProperty("eventOutcome")
     private String eventOutcome;
 
-    @ApiModelProperty(value = "Description of eventOutcome code")
+    @Schema(description = "Description of eventOutcome code")
     @JsonProperty("eventOutcomeDescription")
     private String eventOutcomeDescription;
 
-    @ApiModelProperty(value = "Whether the visit was attended. Translation of eventOutcome into boolean. Defaults in NOMIS to true when the visit is created")
+    @Schema(description = "Whether the visit was attended. Translation of eventOutcome into boolean. Defaults in NOMIS to true when the visit is created")
     @NotBlank
     private boolean attended;
 
-    @ApiModelProperty(value = "Reason for cancellation if not attended (MOVE_CANC_RS reference code)")
+    @Schema(description = "Reason for cancellation if not attended (MOVE_CANC_RS reference code)")
     @JsonProperty("cancellationReason")
     private String cancellationReason;
 
-    @ApiModelProperty(value = "Description of cancellationReason code")
+    @Schema(description = "Description of cancellationReason code")
     @JsonProperty("cancelReasonDescription")
     private String cancelReasonDescription;
 
-    @ApiModelProperty(value = "List of visitors on visit")
+    @Schema(description = "List of visitors on visit")
     @JsonProperty("visitors")
     private List<Visitor> visitors;
 
-    @ApiModelProperty(value = "Type of search performed - mandatory if visit completed (SEARCH_LEVEL reference code)", example = "FULL")
+    @Schema(description = "Type of search performed - mandatory if visit completed (SEARCH_LEVEL reference code)", example = "FULL")
     @JsonProperty("searchType")
     private String searchType;
 
-    @ApiModelProperty(value = "Description of searchType code")
+    @Schema(description = "Description of searchType code")
     @JsonProperty("searchTypeDescription")
     private String searchTypeDescription;
+
+    public VisitDetails(Long id, @NotBlank String eventStatus, String eventStatusDescription, @NotBlank String completionStatus, String completionStatusDescription, @NotBlank String visitType, String visitTypeDescription, String leadVisitor, String relationship, String relationshipDescription, @NotNull LocalDateTime startTime, LocalDateTime endTime, String location, String prison, @NotBlank String eventOutcome, String eventOutcomeDescription, @NotBlank boolean attended, String cancellationReason, String cancelReasonDescription, List<Visitor> visitors, String searchType, String searchTypeDescription) {
+        this.id = id;
+        this.eventStatus = eventStatus;
+        this.eventStatusDescription = eventStatusDescription;
+        this.completionStatus = completionStatus;
+        this.completionStatusDescription = completionStatusDescription;
+        this.visitType = visitType;
+        this.visitTypeDescription = visitTypeDescription;
+        this.leadVisitor = leadVisitor;
+        this.relationship = relationship;
+        this.relationshipDescription = relationshipDescription;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.location = location;
+        this.prison = prison;
+        this.eventOutcome = eventOutcome;
+        this.eventOutcomeDescription = eventOutcomeDescription;
+        this.attended = attended;
+        this.cancellationReason = cancellationReason;
+        this.cancelReasonDescription = cancelReasonDescription;
+        this.visitors = visitors;
+        this.searchType = searchType;
+        this.searchTypeDescription = searchTypeDescription;
+    }
+
+    public VisitDetails() {
+    }
 }
