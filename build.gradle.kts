@@ -31,6 +31,12 @@ dependencies {
 
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
+  // Problem with hibernate-core 5.6.7.Final which was causing issue with 'startingWith'
+  // https://github.com/spring-projects/spring-data-jpa/issues/2472
+  // https://hibernate.atlassian.net/browse/HHH-15142
+  // Temporarily revert to 5.6.5.Final until fixed
+  implementation("org.hibernate:hibernate-core:5.6.5.Final")
+
   implementation(platform("com.amazonaws:aws-java-sdk-bom:1.12.188"))
 
   implementation("javax.annotation:javax.annotation-api:1.3.2")
