@@ -1250,7 +1250,7 @@ public class BookingServiceTest {
             .thenReturn(
                 List.of(OffenderSentence.builder()
                         .offenderBooking(OffenderBooking.builder().bookingId(-99L).build())
-                        .calculationType(SentenceCalcType.builder().build()
+                        .calculationType(SentenceCalcType.builder().calculationType("ADIMP").build()
                     ).build()
                 )
             );
