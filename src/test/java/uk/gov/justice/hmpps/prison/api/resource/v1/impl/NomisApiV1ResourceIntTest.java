@@ -1,5 +1,7 @@
 package uk.gov.justice.hmpps.prison.api.resource.v1.impl;
 
+import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.boot.test.json.JsonContent;
@@ -179,6 +181,7 @@ public class NomisApiV1ResourceIntTest extends ResourceTest {
     }
 
     @Test
+    @Disabled("SDI-147: Create transaction disabled during unilink testing")
     public void createTransaction() {
         final var transaction = new CreateTransaction();
         transaction.setAmount(1234L);

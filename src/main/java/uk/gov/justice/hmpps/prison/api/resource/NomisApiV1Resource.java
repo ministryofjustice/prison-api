@@ -224,14 +224,15 @@ public class NomisApiV1Resource {
     public Transaction createTransaction(@RequestHeader(value = "X-Client-Name", required = false) @Parameter(name = "X-Client-Name", description = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") final String clientName, @Size(max = 3) @NotNull @PathVariable("prison_id") @Parameter(name = "prison_id", description = "Prison ID", example = "BMI", required = true) final String prisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @Parameter(name = "noms_id", description = "Offender Noms Id", example = "A1417AE", required = true) final String nomsId,
                                          @javax.validation.Valid @NotNull @RequestBody @Parameter(description = "Transaction Details", required = true) final CreateTransaction createTransaction) {
 
-        final var uniqueClientId = getUniqueClientId(clientName, createTransaction.getClientUniqueRef());
-
-        final var result = service.createTransaction(prisonId, nomsId,
-                createTransaction.getType(), createTransaction.getDescription(),
-                createTransaction.getAmountInPounds(), LocalDate.now(),
-                createTransaction.getClientTransactionId(), uniqueClientId);
-
-        return new Transaction(result);
+        throw new RuntimeException("SDI-147: Create transaction currently disabled during unilink testing");
+//        final var uniqueClientId = getUniqueClientId(clientName, createTransaction.getClientUniqueRef());
+//
+//        final var result = service.createTransaction(prisonId, nomsId,
+//                createTransaction.getType(), createTransaction.getDescription(),
+//                createTransaction.getAmountInPounds(), LocalDate.now(),
+//                createTransaction.getClientTransactionId(), uniqueClientId);
+//
+//        return new Transaction(result);
     }
 
     @ApiResponses({
