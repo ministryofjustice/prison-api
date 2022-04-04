@@ -475,7 +475,9 @@ public class BookingResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Offender IEP (Incentives & Earned Privileges) summary.", description = "Offender IEP (Incentives & Earned Privileges) summary.")
+    @Operation(summary = "Offender IEP (Incentives & Earned Privileges) summary.",
+        description = "Deprecated - use Incentives API to get IEP summary, requires MAINTAIN_IEP",
+        deprecated = true, hidden = true)
     @GetMapping("/{bookingId}/iepSummary")
     public PrivilegeSummary getBookingIEPSummary(
         @PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId,
@@ -483,13 +485,15 @@ public class BookingResource {
         return bookingService.getBookingIEPSummary(bookingId, withDetails);
     }
 
-    @Operation(summary = "Add a new IEP (Incentives & Earned Privileges) level to an offender's booking.")
+    @Operation(summary = "Add a new IEP (Incentives & Earned Privileges) level to an offender's booking.",
+        description = "Deprecated, should only be called by IEP Sync Service, use incentives API to add IEP review, required MAINTAIN_IEP or IEP_SYNC role",
+        deprecated = true, hidden = true)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PostMapping("/{bookingId}/iepLevels")
-    @PreAuthorize("hasRole('MAINTAIN_IEP') and hasAuthority('SCOPE_write')")
+    @PreAuthorize("hasAnyRole('MAINTAIN_IEP','IEP_SYNC') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public ResponseEntity<Void> addIepLevel(@PathVariable("bookingId") @Parameter(description = "The booking id of the offender", required = true) final Long bookingId, @RequestBody @Parameter(description = "The new IEP Level and accompanying comment (reason for change).", required = true) @NotNull final IepLevelAndComment iepLevel) {
-        bookingService.addIepLevel(bookingId, authenticationFacade.getCurrentUsername(), iepLevel);
+        bookingService.addIepLevel(bookingId, iepLevel);
         return ResponseEntity.noContent().build();
     }
 
