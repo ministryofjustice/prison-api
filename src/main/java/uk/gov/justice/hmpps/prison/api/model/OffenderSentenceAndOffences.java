@@ -35,6 +35,9 @@ public class OffenderSentenceAndOffences {
     @Schema(description = "Case reference - a string identifying the case this sentence belongs to")
     private String caseReference;
 
+    @Schema(description = "Court description - a string describing the the court that the case was heard at")
+    private String courtDescription;
+
     @Schema(description = "This sentence status: A = Active I = Inactive")
     private String sentenceStatus;
 

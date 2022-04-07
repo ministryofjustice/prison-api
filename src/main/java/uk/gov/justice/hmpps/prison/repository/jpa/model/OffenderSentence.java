@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
     attributeNodes = {
         @NamedAttributeNode(value = "offenderSentenceCharges", subgraph = "offender-sentence-charge-subgraph"),
         @NamedAttributeNode("calculationType"),
-        @NamedAttributeNode("courtOrder"),
+        @NamedAttributeNode(value = "courtCase", subgraph = "offender-sentence-court-case-subgraph"),
         @NamedAttributeNode("courtCase"),
     },
     subgraphs = {
@@ -53,6 +53,12 @@ import java.util.stream.Collectors;
             name = "offender-charge-subgraph",
             attributeNodes = {
                 @NamedAttributeNode(value = "offence")
+            }
+        ),
+        @NamedSubgraph(
+            name = "offender-sentence-court-case-subgraph",
+            attributeNodes = {
+                @NamedAttributeNode(value = "agencyLocation")
             }
         )
     }
@@ -133,6 +139,7 @@ public class OffenderSentence extends AuditableEntity {
             .lineSequence(lineSequence)
             .caseSequence(courtCase == null ? null : courtCase.getCaseSeq())
             .caseReference(courtCase == null ? null : courtCase.getCaseInfoNumber())
+            .courtDescription(courtCase == null ? null : courtCase.getAgencyLocation() == null ? null : courtCase.getAgencyLocation().getDescription())
             .consecutiveToSequence(consecutiveToSentenceSequence)
             .sentenceStatus(status)
             .sentenceCategory(calculationType.getCategory())
