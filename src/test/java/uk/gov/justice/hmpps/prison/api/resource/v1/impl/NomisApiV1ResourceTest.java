@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.api.resource.v1.impl;
 
 import com.google.common.collect.ImmutableSortedMap;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -74,6 +75,7 @@ public class NomisApiV1ResourceTest {
     }
 
     @Test
+    @Disabled("SDI-147: Create transaction disabled during unilink testing")
     public void createTransaction() {
         when(service.createTransaction(anyString(), anyString(), anyString(), anyString(), any(), any(), anyString(), anyString())).
                 thenReturn("someId");
