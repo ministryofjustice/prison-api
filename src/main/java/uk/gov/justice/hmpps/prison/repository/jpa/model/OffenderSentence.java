@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
     attributeNodes = {
         @NamedAttributeNode(value = "offenderSentenceCharges", subgraph = "offender-sentence-charge-subgraph"),
         @NamedAttributeNode("calculationType"),
-        @NamedAttributeNode(value = "courtCase", subgraph = "offender-sentence-court-case-subgraph"),
+        @NamedAttributeNode("courtOrder"),
         @NamedAttributeNode("courtCase"),
     },
     subgraphs = {
@@ -53,12 +53,6 @@ import java.util.stream.Collectors;
             name = "offender-charge-subgraph",
             attributeNodes = {
                 @NamedAttributeNode(value = "offence")
-            }
-        ),
-        @NamedSubgraph(
-            name = "offender-sentence-court-case-subgraph",
-            attributeNodes = {
-                @NamedAttributeNode(value = "agencyLocation")
             }
         )
     }
@@ -133,19 +127,29 @@ public class OffenderSentence extends AuditableEntity {
     private List<OffenderSentenceCharge> offenderSentenceCharges;
 
     public OffenderSentenceAndOffences getSentenceAndOffenceDetail() {
+        var sentenceDate = courtOrder == null ? null : courtOrder.getCourtDate();
+
         return OffenderSentenceAndOffences.builder()
             .bookingId(offenderBooking.getBookingId())
             .sentenceSequence(sequence)
             .lineSequence(lineSequence)
             .caseSequence(courtCase == null ? null : courtCase.getCaseSeq())
             .caseReference(courtCase == null ? null : courtCase.getCaseInfoNumber())
-            .courtDescription(courtCase == null ? null : courtCase.getAgencyLocation() == null ? null : courtCase.getAgencyLocation().getDescription())
+            .courtDescription(courtCase == null || sentenceDate == null ? null :
+                courtCase.getCourtEvents() == null ? null :
+                    courtCase.getCourtEvents()
+                        .stream()
+                        .filter(val -> val.getEventDate().equals(sentenceDate))
+                        .findAny()
+                        .map(CourtEvent::getCourtLocation)
+                        .map(AgencyLocation::getDescription)
+                        .orElse(null))
             .consecutiveToSequence(consecutiveToSentenceSequence)
             .sentenceStatus(status)
             .sentenceCategory(calculationType.getCategory())
             .sentenceCalculationType(calculationType.getCalculationType())
             .sentenceTypeDescription(calculationType.getDescription())
-            .sentenceDate(courtOrder == null ? null : courtOrder.getCourtDate())
+            .sentenceDate(sentenceDate)
             .years(terms == null ? 0 : terms.stream().mapToInt(val -> val.getYears() == null ? 0 : val.getYears()).sum())
             .months(terms == null ? 0 : terms.stream().mapToInt(val -> val.getMonths() == null ? 0 : val.getMonths()).sum())
             .weeks(terms == null ? 0 : terms.stream().mapToInt(val -> val.getWeeks() == null ? 0 : val.getWeeks()).sum())

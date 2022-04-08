@@ -41,6 +41,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AvailablePrisonIepLevel;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AvailablePrisonIepLevel.PK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtOrder;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.DisciplinaryAction;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.IepLevel;
@@ -1317,10 +1318,15 @@ public class BookingServiceTest {
                             OffenderCourtCase.builder()
                                 .caseSeq(10L)
                                 .caseInfoNumber("XYZ789")
-                                .agencyLocation(
-                                    AgencyLocation.builder()
-                                        .description("A court")
-                                        .build()
+                                .courtEvents(
+                                    List.of(CourtEvent.builder()
+                                        .eventDate(LocalDate.of(2021,1,1))
+                                        .courtLocation(
+                                            AgencyLocation.builder()
+                                                .description("A court")
+                                                .build()
+                                        )
+                                        .build())
                                 )
                                 .build()
                         )
