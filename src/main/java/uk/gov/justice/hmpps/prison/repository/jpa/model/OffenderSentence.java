@@ -127,18 +127,29 @@ public class OffenderSentence extends AuditableEntity {
     private List<OffenderSentenceCharge> offenderSentenceCharges;
 
     public OffenderSentenceAndOffences getSentenceAndOffenceDetail() {
+        var sentenceDate = courtOrder == null ? null : courtOrder.getCourtDate();
+
         return OffenderSentenceAndOffences.builder()
             .bookingId(offenderBooking.getBookingId())
             .sentenceSequence(sequence)
             .lineSequence(lineSequence)
             .caseSequence(courtCase == null ? null : courtCase.getCaseSeq())
             .caseReference(courtCase == null ? null : courtCase.getCaseInfoNumber())
+            .courtDescription(courtCase == null || sentenceDate == null ? null :
+                courtCase.getCourtEvents() == null ? null :
+                    courtCase.getCourtEvents()
+                        .stream()
+                        .filter(val -> val.getEventDate().equals(sentenceDate))
+                        .findAny()
+                        .map(CourtEvent::getCourtLocation)
+                        .map(AgencyLocation::getDescription)
+                        .orElse(null))
             .consecutiveToSequence(consecutiveToSentenceSequence)
             .sentenceStatus(status)
             .sentenceCategory(calculationType.getCategory())
             .sentenceCalculationType(calculationType.getCalculationType())
             .sentenceTypeDescription(calculationType.getDescription())
-            .sentenceDate(courtOrder == null ? null : courtOrder.getCourtDate())
+            .sentenceDate(sentenceDate)
             .terms(terms == null ? null : terms
                 .stream()
                 .map(term -> OffenderSentenceTerm.builder()

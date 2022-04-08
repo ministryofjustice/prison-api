@@ -41,6 +41,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AvailablePrisonIepLevel;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AvailablePrisonIepLevel.PK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtOrder;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.DisciplinaryAction;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.IepLevel;
@@ -1310,7 +1311,20 @@ public class BookingServiceTest {
                                 .build()
                         ))
                         .courtCase(
-                            OffenderCourtCase.builder().caseSeq(10L).caseInfoNumber("XYZ789").build()
+                            OffenderCourtCase.builder()
+                                .caseSeq(10L)
+                                .caseInfoNumber("XYZ789")
+                                .courtEvents(
+                                    List.of(CourtEvent.builder()
+                                        .eventDate(LocalDate.of(2021,1,1))
+                                        .courtLocation(
+                                            AgencyLocation.builder()
+                                                .description("A court")
+                                                .build()
+                                        )
+                                        .build())
+                                )
+                                .build()
                         )
                         .build()
                     )
@@ -1325,6 +1339,7 @@ public class BookingServiceTest {
                 .lineSequence(5L)
                 .caseSequence(10L)
                 .caseReference("XYZ789")
+                .courtDescription("A court")
                 .consecutiveToSequence(1)
                 .sentenceStatus("A")
                 .sentenceCategory("CAT")
