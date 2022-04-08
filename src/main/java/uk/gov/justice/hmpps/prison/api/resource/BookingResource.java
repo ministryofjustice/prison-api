@@ -475,7 +475,9 @@ public class BookingResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Offender IEP (Incentives & Earned Privileges) summary.", description = "Offender IEP (Incentives & Earned Privileges) summary.")
+    @Operation(summary = "Offender IEP (Incentives & Earned Privileges) summary.",
+        description = "Deprecated - use Incentives API to get IEP summary, requires MAINTAIN_IEP",
+        deprecated = true, hidden = true)
     @GetMapping("/{bookingId}/iepSummary")
     public PrivilegeSummary getBookingIEPSummary(
         @PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId,

@@ -150,10 +150,6 @@ public class OffenderSentence extends AuditableEntity {
             .sentenceCalculationType(calculationType.getCalculationType())
             .sentenceTypeDescription(calculationType.getDescription())
             .sentenceDate(sentenceDate)
-            .years(terms == null ? 0 : terms.stream().mapToInt(val -> val.getYears() == null ? 0 : val.getYears()).sum())
-            .months(terms == null ? 0 : terms.stream().mapToInt(val -> val.getMonths() == null ? 0 : val.getMonths()).sum())
-            .weeks(terms == null ? 0 : terms.stream().mapToInt(val -> val.getWeeks() == null ? 0 : val.getWeeks()).sum())
-            .days(terms == null ? 0 : terms.stream().mapToInt(val -> val.getDays() == null ? 0 : val.getDays()).sum())
             .terms(terms == null ? null : terms
                 .stream()
                 .map(term -> OffenderSentenceTerm.builder()
