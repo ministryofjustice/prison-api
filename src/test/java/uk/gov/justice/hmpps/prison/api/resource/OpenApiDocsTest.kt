@@ -80,7 +80,6 @@ class OpenApiDocsTest : ResourceTest() {
       .jsonPath("$.components.schemas.OffenderIn.properties.movementDateTime.format").doesNotExist()
   }
 
-  @Test
   fun `the security scheme is setup for bearer tokens`() {
     val bearerJwts = JSONArray()
     bearerJwts.addAll(listOf("read", "write"))
@@ -90,8 +89,9 @@ class OpenApiDocsTest : ResourceTest() {
       .exchange()
       .expectStatus().isOk
       .expectBody()
-      .jsonPath("$.components.securitySchemes.bearer-jwt")
-      .isEqualTo(mapOf("type" to "http", "scheme" to "bearer", "bearerFormat" to "JWT"))
+      .jsonPath("$.components.securitySchemes.bearer-jwt.type").isEqualTo("http")
+      .jsonPath("$.components.securitySchemes.bearer-jwt.scheme").isEqualTo("bearer")
+      .jsonPath("$.components.securitySchemes.bearer-jwt.bearerFormat").isEqualTo("JWT")
       .jsonPath("$.security[0].bearer-jwt")
       .isEqualTo(bearerJwts)
   }
