@@ -37,5 +37,4 @@ class OffenderBookingBuilder(
       .expectStatus().isOk
       .returnResult<InmateDetail>().responseBody.blockFirst()!!
   }
-
 }

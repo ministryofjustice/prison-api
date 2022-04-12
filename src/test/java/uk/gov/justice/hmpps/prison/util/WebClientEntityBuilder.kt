@@ -4,7 +4,6 @@ import org.springframework.http.HttpHeaders
 import java.time.Duration
 import java.util.function.Consumer
 
-
 abstract class WebClientEntityBuilder(private val jwtAuthenticationHelper: JwtAuthenticationHelper) {
   protected fun setAuthorisation(roles: List<String>): Consumer<HttpHeaders> {
     return Consumer { httpHeaders: HttpHeaders ->
@@ -25,5 +24,4 @@ abstract class WebClientEntityBuilder(private val jwtAuthenticationHelper: JwtAu
         .build()
     )
   }
-
 }

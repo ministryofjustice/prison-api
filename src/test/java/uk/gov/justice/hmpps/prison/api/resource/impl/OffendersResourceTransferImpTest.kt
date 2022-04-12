@@ -50,7 +50,8 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             "toLocation":"MDI",
             "movementTime": "${LocalDateTime.now().minusHours(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
             
-          }""".trimIndent()
+          }
+              """.trimIndent()
             )
           )
           .exchange()
@@ -79,10 +80,11 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             "commentText":"admitted",
             "cellLocation":"MDI-1-3-022",
             "receiveTime": "${
-                LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+              LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
               }"
             
-          }""".trimIndent()
+          }
+              """.trimIndent()
             )
           )
           .exchange()
@@ -128,7 +130,8 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             "toLocation":"MDI",
             "movementTime": "${LocalDateTime.now().minusHours(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
             
-          }""".trimIndent()
+          }
+              """.trimIndent()
             )
           )
           .exchange()
@@ -140,8 +143,6 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           .jsonPath("lastMovementReasonCode").isEqualTo("NOTR")
           .jsonPath("assignedLivingUnit.agencyId").isEqualTo("TRN")
           .jsonPath("assignedLivingUnit.description").doesNotExist()
-
-
       }
 
       @Test
@@ -159,10 +160,11 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             "commentText":"admitted",
             "cellLocation":"MDI-FULL",
             "receiveTime": "${
-                LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+              LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
               }"
             
-          }""".trimIndent()
+          }
+              """.trimIndent()
             )
           )
           .exchange()
@@ -171,13 +173,9 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           .jsonPath("userMessage").isEqualTo("The cell MDI-FULL does not have any available capacity")
       }
     }
-
   }
-
 
   @Nested
   @DisplayName("PUT /{offenderNo}/court-transfer-in")
-  inner class CourtTransferIn {
-
-  }
+  inner class CourtTransferIn
 }

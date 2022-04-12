@@ -8,7 +8,6 @@ import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.api.model.RequestToCreate
 import java.time.LocalDate
 
-
 class OffenderBuilder(
   private val webTestClient: WebTestClient,
   jwtAuthenticationHelper: JwtAuthenticationHelper,
@@ -56,7 +55,6 @@ class OffenderBuilder(
 
     return bookingBuilders.map { it.save(offenderNo = offender.offenderNo) }.lastOrNull() ?: offender
   }
-
 }
 
 private fun randomName(): String {
