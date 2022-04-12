@@ -80,6 +80,7 @@ class OpenApiDocsTest : ResourceTest() {
       .jsonPath("$.components.schemas.OffenderIn.properties.movementDateTime.format").doesNotExist()
   }
 
+  @Test
   fun `the security scheme is setup for bearer tokens`() {
     val bearerJwts = JSONArray()
     bearerJwts.addAll(listOf("read", "write"))

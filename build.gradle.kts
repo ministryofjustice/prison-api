@@ -46,7 +46,7 @@ dependencies {
   implementation("javax.activation:activation:1.1.1")
 
   implementation("commons-codec:commons-codec:1.15")
-  implementation("com.github.jsqlparser:jsqlparser:4.4")
+  implementation("com.github.jsqlparser:jsqlparser:4.3")
   implementation("net.sf.ehcache:ehcache:2.10.9.2")
   implementation("com.zaxxer:HikariCP:5.0.1")
 
