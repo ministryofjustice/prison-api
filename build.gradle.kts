@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.1.2"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.1.3"
   kotlin("plugin.spring") version "1.6.10"
   kotlin("plugin.jpa") version "1.6.10"
 }
@@ -37,7 +37,7 @@ dependencies {
   // Temporarily revert to 5.6.5.Final until fixed
   implementation("org.hibernate:hibernate-core:5.6.5.Final")
 
-  implementation(platform("com.amazonaws:aws-java-sdk-bom:1.12.188"))
+  implementation(platform("com.amazonaws:aws-java-sdk-bom:1.12.197"))
 
   implementation("javax.annotation:javax.annotation-api:1.3.2")
   implementation("javax.xml.bind:jaxb-api:2.3.1")
@@ -46,14 +46,15 @@ dependencies {
   implementation("javax.activation:activation:1.1.1")
 
   implementation("commons-codec:commons-codec:1.15")
+  // Temporarily kept at 4.3 due to bug in 4.4 parser
   implementation("com.github.jsqlparser:jsqlparser:4.3")
   implementation("net.sf.ehcache:ehcache:2.10.9.2")
   implementation("com.zaxxer:HikariCP:5.0.1")
 
-  implementation("io.swagger:swagger-annotations:1.6.5")
-  implementation("org.springdoc:springdoc-openapi-ui:1.6.6")
-  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.6")
-  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.6")
+  implementation("io.swagger:swagger-annotations:1.6.6")
+  implementation("org.springdoc:springdoc-openapi-ui:1.6.7")
+  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.7")
+  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.7")
 
   implementation("org.apache.commons:commons-lang3:3.12.0")
   implementation("commons-io:commons-io:2.11.0")
@@ -62,8 +63,9 @@ dependencies {
 
   compileOnly("org.projectlombok:lombok:1.18.22")
 
+  // Temporarily keep at 2.5.1 until can switch to h2 instead (tests break anyway with 2.6.1)
   runtimeOnly("org.hsqldb:hsqldb:2.5.1")
-  runtimeOnly("org.flywaydb:flyway-core:8.5.5")
+  runtimeOnly("org.flywaydb:flyway-core:8.5.7")
 
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
@@ -76,8 +78,9 @@ dependencies {
   testImplementation("org.powermock:powermock-module-junit4:2.0.9")
 
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.32.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.33.0")
 
+  // Temporarily keep at 3.2.2 as seems to bring in groovy incompatibilites by upgrading to 3.2.4
   testImplementation("net.serenity-bdd:serenity-core:3.2.2")
   testImplementation("net.serenity-bdd:serenity-junit:3.2.2")
   testImplementation("net.serenity-bdd:serenity-spring:3.2.2")
@@ -87,7 +90,7 @@ dependencies {
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
   testImplementation("org.glassfish:javax.el:3.0.0")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.0.31")
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.0.32")
 
   testCompileOnly("org.projectlombok:lombok:1.18.22")
 }
