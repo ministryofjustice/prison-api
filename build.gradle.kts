@@ -1,7 +1,7 @@
 plugins {
   id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.1.3"
-  kotlin("plugin.spring") version "1.6.20"
-  kotlin("plugin.jpa") version "1.6.20"
+  kotlin("plugin.spring") version "1.6.10"
+  kotlin("plugin.jpa") version "1.6.10"
 }
 
 configurations {
@@ -37,7 +37,7 @@ dependencies {
   // Temporarily revert to 5.6.5.Final until fixed
   implementation("org.hibernate:hibernate-core:5.6.5.Final")
 
-  implementation(platform("com.amazonaws:aws-java-sdk-bom:1.12.196"))
+  implementation(platform("com.amazonaws:aws-java-sdk-bom:1.12.197"))
 
   implementation("javax.annotation:javax.annotation-api:1.3.2")
   implementation("javax.xml.bind:jaxb-api:2.3.1")
@@ -62,7 +62,7 @@ dependencies {
 
   compileOnly("org.projectlombok:lombok:1.18.22")
 
-  runtimeOnly("org.hsqldb:hsqldb:2.6.1")
+  runtimeOnly("org.hsqldb:hsqldb:2.5.1")
   runtimeOnly("org.flywaydb:flyway-core:8.5.7")
 
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
@@ -78,10 +78,10 @@ dependencies {
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.33.0")
 
-  testImplementation("net.serenity-bdd:serenity-core:3.2.3")
-  testImplementation("net.serenity-bdd:serenity-junit:3.2.3")
-  testImplementation("net.serenity-bdd:serenity-spring:3.2.3")
-  testImplementation("net.serenity-bdd:serenity-cucumber:3.2.3")
+  testImplementation("net.serenity-bdd:serenity-core:3.2.4")
+  testImplementation("net.serenity-bdd:serenity-junit:3.2.4")
+  testImplementation("net.serenity-bdd:serenity-spring:3.2.4")
+  testImplementation("net.serenity-bdd:serenity-cucumber:3.2.4")
   testImplementation("com.paulhammant:ngwebdriver:1.1.6")
   testImplementation("org.slf4j:slf4j-api:1.7.36")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
