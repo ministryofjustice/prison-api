@@ -25,6 +25,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetailDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerm;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeDetail;
+import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentDetail;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
@@ -57,6 +58,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderContactPerson;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIepLevel;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPropertyContainer;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence;
@@ -329,6 +331,36 @@ public class BookingServiceTest {
     public void getBookingIEPSummary_multipleBooking_noPrivileges() {
         assertThatThrownBy(() -> bookingService.getBookingIEPSummary(List.of(-1L, -2L), false))
                 .isInstanceOf(EntityNotFoundException.class);
+    }
+
+    @Test
+    public void getBookingIEPSummary_returnOffenderCurrentIepLevel() {
+        when(offenderBookingRepository.findById(-1L))
+            .thenReturn(Optional.of(OffenderBooking.builder()
+                    .iepLevels(List.of(
+                        OffenderIepLevel.builder()
+                            .iepLevel(new IepLevel("", "Standard"))
+                            .iepDate(LocalDate.now().minusDays(1))
+                            .build()))
+                .build()));
+        final var result = bookingService.getBookingIEPSummary(-1L, false);
+        assertThat(result.getIepLevel()).isEqualTo("Standard");
+        assertThat(result.getDaysSinceReview()).isEqualTo(1L);
+    }
+
+    @Test
+    public void getBookingIEPSummary_offenderHasNoIepSummary() {
+        final var defaultIepLevel = "Standard";
+        when(offenderBookingRepository.findById(-1L))
+            .thenReturn(Optional.of(OffenderBooking.builder()
+                .location(AgencyLocation.builder().id("MDI").build())
+                .build()));
+        when(availablePrisonIepLevelRepository.findByAgencyLocation_IdAndDefaultIep("MDI", true))
+            .thenReturn(List.of(
+                AvailablePrisonIepLevel.builder().iepLevel(new IepLevel("", defaultIepLevel)).build()));
+        final var result = bookingService.getBookingIEPSummary(-1L, false);
+        assertThat(result.getIepLevel()).isEqualTo(defaultIepLevel);
+        assertThat(result.getDaysSinceReview()).isEqualTo(0L);
     }
 
     @Test
