@@ -46,6 +46,7 @@ dependencies {
   implementation("javax.activation:activation:1.1.1")
 
   implementation("commons-codec:commons-codec:1.15")
+  // Temporarily kept at 4.3 due to bug in 4.4 parser
   implementation("com.github.jsqlparser:jsqlparser:4.3")
   implementation("net.sf.ehcache:ehcache:2.10.9.2")
   implementation("com.zaxxer:HikariCP:5.0.1")
@@ -62,6 +63,7 @@ dependencies {
 
   compileOnly("org.projectlombok:lombok:1.18.22")
 
+  // Temporarily keep at 2.5.1 until can switch to h2 instead (tests break anyway with 2.6.1)
   runtimeOnly("org.hsqldb:hsqldb:2.5.1")
   runtimeOnly("org.flywaydb:flyway-core:8.5.7")
 
@@ -78,6 +80,7 @@ dependencies {
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.33.0")
 
+  // Temporarily keep at 3.2.2 as seems to bring in groovy incompatibilites by upgrading to 3.2.4
   testImplementation("net.serenity-bdd:serenity-core:3.2.2")
   testImplementation("net.serenity-bdd:serenity-junit:3.2.2")
   testImplementation("net.serenity-bdd:serenity-spring:3.2.2")
