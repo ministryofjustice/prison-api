@@ -27,14 +27,12 @@ class OffendersResourceTransferImpTest : ResourceTest() {
       @BeforeEach
       internal fun setUp() {
         offenderNo =
-          OffenderBuilder(webTestClient = webTestClient, jwtAuthenticationHelper = jwtAuthenticationHelper).withBooking(
+          OffenderBuilder().withBooking(
             OffenderBookingBuilder(
-              webTestClient = webTestClient,
-              jwtAuthenticationHelper = jwtAuthenticationHelper,
               prisonId = "LEI",
               bookingInTime = LocalDateTime.now().minusDays(1)
             )
-          ).save().offenderNo
+          ).save(webTestClient = webTestClient, jwtAuthenticationHelper = jwtAuthenticationHelper).offenderNo
 
         webTestClient.put()
           .uri("/api/offenders/{nomsId}/transfer-out", offenderNo)
@@ -107,14 +105,12 @@ class OffendersResourceTransferImpTest : ResourceTest() {
       @BeforeEach
       internal fun setUp() {
         offenderNo =
-          OffenderBuilder(webTestClient = webTestClient, jwtAuthenticationHelper = jwtAuthenticationHelper).withBooking(
+          OffenderBuilder().withBooking(
             OffenderBookingBuilder(
-              webTestClient = webTestClient,
-              jwtAuthenticationHelper = jwtAuthenticationHelper,
               prisonId = "LEI",
               bookingInTime = LocalDateTime.now().minusDays(1)
             )
-          ).save().offenderNo
+          ).save(webTestClient = webTestClient, jwtAuthenticationHelper = jwtAuthenticationHelper).offenderNo
 
         webTestClient.put()
           .uri("/api/offenders/{nomsId}/transfer-out", offenderNo)
