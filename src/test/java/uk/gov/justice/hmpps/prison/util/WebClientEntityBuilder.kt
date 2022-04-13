@@ -4,17 +4,20 @@ import org.springframework.http.HttpHeaders
 import java.time.Duration
 import java.util.function.Consumer
 
-abstract class WebClientEntityBuilder(private val jwtAuthenticationHelper: JwtAuthenticationHelper) {
-  protected fun setAuthorisation(roles: List<String>): Consumer<HttpHeaders> {
+abstract class WebClientEntityBuilder() {
+  protected fun setAuthorisation(
+    jwtAuthenticationHelper: JwtAuthenticationHelper,
+    roles: List<String>
+  ): Consumer<HttpHeaders> {
     return Consumer { httpHeaders: HttpHeaders ->
       httpHeaders.add(
         "Authorization",
-        "Bearer " + validToken(roles)
+        "Bearer " + validToken(jwtAuthenticationHelper, roles)
       )
     }
   }
 
-  protected fun validToken(roles: List<String?>?): String? {
+  protected fun validToken(jwtAuthenticationHelper: JwtAuthenticationHelper, roles: List<String?>?): String? {
     return jwtAuthenticationHelper.createJwt(
       JwtParameters.builder()
         .username("ITAG_USER")

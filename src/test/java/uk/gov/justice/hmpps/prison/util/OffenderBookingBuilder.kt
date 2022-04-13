@@ -9,8 +9,6 @@ import uk.gov.justice.hmpps.prison.api.model.RequestForNewBooking
 import java.time.LocalDateTime
 
 class OffenderBookingBuilder(
-  private val webTestClient: WebTestClient,
-  jwtAuthenticationHelper: JwtAuthenticationHelper,
   var prisonId: String = "MDI",
   var bookingInTime: LocalDateTime = LocalDateTime.now(),
   var fromLocationId: String = "OUT",
@@ -18,8 +16,12 @@ class OffenderBookingBuilder(
   var youthOffender: Boolean = false,
   var cellLocation: String? = null,
   var imprisonmentStatus: String = "SENT03"
-) : WebClientEntityBuilder(jwtAuthenticationHelper) {
-  fun save(offenderNo: String): InmateDetail {
+) : WebClientEntityBuilder() {
+  fun save(
+    webTestClient: WebTestClient,
+    jwtAuthenticationHelper: JwtAuthenticationHelper,
+    offenderNo: String
+  ): InmateDetail {
     val request =
       RequestForNewBooking.builder().bookingInTime(bookingInTime).cellLocation(cellLocation)
         .fromLocationId(fromLocationId).imprisonmentStatus(imprisonmentStatus).movementReasonCode(movementReasonCode)
@@ -27,7 +29,12 @@ class OffenderBookingBuilder(
 
     return webTestClient.post()
       .uri("/api/offenders/{offenderNo}/booking", offenderNo)
-      .headers(setAuthorisation(listOf("ROLE_BOOKING_CREATE")))
+      .headers(
+        setAuthorisation(
+          jwtAuthenticationHelper = jwtAuthenticationHelper,
+          roles = listOf("ROLE_BOOKING_CREATE")
+        )
+      )
       .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
       .accept(MediaType.APPLICATION_JSON)
       .body(

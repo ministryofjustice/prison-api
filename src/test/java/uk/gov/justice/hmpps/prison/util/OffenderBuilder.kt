@@ -9,8 +9,6 @@ import uk.gov.justice.hmpps.prison.api.model.RequestToCreate
 import java.time.LocalDate
 
 class OffenderBuilder(
-  private val webTestClient: WebTestClient,
-  jwtAuthenticationHelper: JwtAuthenticationHelper,
   var pncNumber: String? = null,
   var croNumber: String? = null,
   var lastName: String = "NTHANDA",
@@ -22,20 +20,20 @@ class OffenderBuilder(
   var title: String? = null,
   var ethnicity: String? = null,
   var bookingBuilders: Array<OffenderBookingBuilder> = Array(1) {
-    OffenderBookingBuilder(
-      webTestClient = webTestClient,
-      jwtAuthenticationHelper = jwtAuthenticationHelper
-    )
+    OffenderBookingBuilder()
   }
 
-) : WebClientEntityBuilder(jwtAuthenticationHelper) {
+) : WebClientEntityBuilder() {
 
   fun withBooking(vararg bookingBuilder: OffenderBookingBuilder): OffenderBuilder {
     bookingBuilders = arrayOf(*bookingBuilder)
     return this
   }
 
-  fun save(): InmateDetail {
+  fun save(
+    webTestClient: WebTestClient,
+    jwtAuthenticationHelper: JwtAuthenticationHelper
+  ): InmateDetail {
     val request =
       RequestToCreate.builder().croNumber(croNumber).pncNumber(pncNumber).lastName(lastName).firstName(firstName)
         .middleName1(middleName1).middleName2(middleName2).dateOfBirth(birthDate).gender(genderCode)
@@ -43,7 +41,12 @@ class OffenderBuilder(
 
     val offender = webTestClient.post()
       .uri("/api/offenders")
-      .headers(setAuthorisation(listOf("ROLE_BOOKING_CREATE")))
+      .headers(
+        setAuthorisation(
+          jwtAuthenticationHelper = jwtAuthenticationHelper,
+          roles = listOf("ROLE_BOOKING_CREATE")
+        )
+      )
       .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
       .accept(MediaType.APPLICATION_JSON)
       .body(
@@ -53,7 +56,14 @@ class OffenderBuilder(
       .expectStatus().isOk
       .returnResult<InmateDetail>().responseBody.blockFirst()!!
 
-    return bookingBuilders.map { it.save(offenderNo = offender.offenderNo) }.lastOrNull() ?: offender
+    return bookingBuilders.map {
+      it.save(
+        webTestClient = webTestClient,
+        jwtAuthenticationHelper = jwtAuthenticationHelper,
+        offenderNo = offender.offenderNo
+      )
+    }
+      .lastOrNull() ?: offender
   }
 }
 
