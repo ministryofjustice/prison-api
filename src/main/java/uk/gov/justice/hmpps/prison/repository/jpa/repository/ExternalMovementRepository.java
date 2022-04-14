@@ -65,5 +65,7 @@ public interface ExternalMovementRepository extends PagingAndSortingRepository<E
 
     List<ExternalMovement> findAllByOffenderBooking_BookingIdAndActive(Long bookingId, boolean active);
 
+    List<ExternalMovement> findAllByOffenderBooking_BookingId(Long bookingId);
+
     Optional<ExternalMovement> findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(Long bookingId);
 }
