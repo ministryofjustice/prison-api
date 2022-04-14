@@ -271,12 +271,25 @@ public class BookingService {
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public PrivilegeSummary getBookingIEPSummary(final Long bookingId, final boolean withDetails) {
         final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
-        return offenderBooking.getIepSummary(withDetails).orElse(
-            PrivilegeSummary.builder()
+        final var iepSummary = offenderBooking.getIepSummary(withDetails);
+
+        if (iepSummary.isPresent()) {
+            return iepSummary.get();
+        } else {
+            final var iepDefault = availablePrisonIepLevelRepository.findByAgencyLocation_IdAndDefaultIep(offenderBooking.getLocation().getId(), true)
+                .stream().findFirst()
+                .map(iep -> iep.getIepLevel().getDescription())
+                .orElse(defaultIepLevel);
+            final var now = LocalDateTime.now();
+
+            return PrivilegeSummary.builder()
                 .bookingId(bookingId)
-                .iepLevel(defaultIepLevel)
-                .build()
-        );
+                .iepLevel(iepDefault)
+                .iepTime(now)
+                .iepDate(now.toLocalDate())
+                .daysSinceReview(0L)
+                .build();
+        }
     }
 
     @VerifyBookingAccess(overrideRoles = "IEP_SYNC")
