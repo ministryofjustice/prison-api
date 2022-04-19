@@ -273,23 +273,7 @@ public class BookingService {
         final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
         final var iepSummary = offenderBooking.getIepSummary(withDetails);
 
-        if (iepSummary.isPresent()) {
-            return iepSummary.get();
-        } else {
-            final var iepDefault = availablePrisonIepLevelRepository.findByAgencyLocation_IdAndDefaultIep(offenderBooking.getLocation().getId(), true)
-                .stream().findFirst()
-                .map(iep -> iep.getIepLevel().getDescription())
-                .orElse(defaultIepLevel);
-            final var now = LocalDateTime.now();
-
-            return PrivilegeSummary.builder()
-                .bookingId(bookingId)
-                .iepLevel(iepDefault)
-                .iepTime(now)
-                .iepDate(now.toLocalDate())
-                .daysSinceReview(0L)
-                .build();
-        }
+        return iepSummary.orElseGet(() -> buildDefaultIep(bookingId, offenderBooking));
     }
 
     @VerifyBookingAccess(overrideRoles = "IEP_SYNC")
@@ -342,14 +326,30 @@ public class BookingService {
         // If no IEP details exist for offender, cannot derive an IEP summary.
         bookingIds.stream()
                 .filter(bookingId -> !mapOfEip.containsKey(bookingId))
-                .collect(toList())
-                .forEach(bookingId -> mapOfEip.put(bookingId, PrivilegeSummary.builder()
-                        .bookingId(bookingId)
-                        .iepLevel(defaultIepLevel)
-                        .iepDetails(Collections.emptyList())
-                        .build()));
+                .toList()
+                .forEach(bookingId -> {
+                    final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
+                    mapOfEip.put(bookingId, buildDefaultIep(bookingId, offenderBooking));
+                });
 
         return mapOfEip;
+    }
+
+    private PrivilegeSummary buildDefaultIep(final Long bookingId, final OffenderBooking offenderBooking) {
+        final var now = LocalDateTime.now();
+        final var iepDefault = availablePrisonIepLevelRepository.findByAgencyLocation_IdAndDefaultIep(offenderBooking.getLocation().getId(), true)
+            .stream().findFirst()
+            .map(iep -> iep.getIepLevel().getDescription())
+            .orElse(defaultIepLevel);
+
+        return PrivilegeSummary.builder()
+            .bookingId(bookingId)
+            .iepLevel(iepDefault)
+            .iepDetails(Collections.emptyList())
+            .iepDate(now.toLocalDate())
+            .iepTime(now)
+            .daysSinceReview(0L)
+            .build();
     }
 
     private PrivilegeDetail mostRecentDetail(final List<PrivilegeDetail> iepDetails) {

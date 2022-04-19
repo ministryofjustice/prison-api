@@ -367,6 +367,7 @@ public class BookingServiceTest {
     public void getBookingIEPSummary_multipleBooking_globalSearchUser() {
         when(authenticationFacade.isOverrideRole(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(true);
         when(bookingRepository.getBookingIEPDetailsByBookingIds(anyList())).thenReturn(Map.of(-5L, List.of(PrivilegeDetail.builder().iepDate(LocalDate.now()).build())));
+        when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.of(OffenderBooking.builder().location(AgencyLocation.builder().id("MDI").build()).build()));
         assertThat(bookingService.getBookingIEPSummary(List.of(-1L, -2L), false)).containsKeys(-5L);
     }
 
@@ -374,7 +375,27 @@ public class BookingServiceTest {
     public void getBookingIEPSummary_multipleBooking_withDetail_systemUser() {
         when(authenticationFacade.isOverrideRole()).thenReturn(true);
         when(bookingRepository.getBookingIEPDetailsByBookingIds(anyList())).thenReturn(Map.of(-5L, List.of(PrivilegeDetail.builder().iepDate(LocalDate.now()).build())));
+        when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.of(OffenderBooking.builder().location(AgencyLocation.builder().id("MDI").build()).build()));
         assertThat(bookingService.getBookingIEPSummary(List.of(-1L, -2L), true)).containsKeys(-5L);
+    }
+
+    @Test
+    public void getBookingIEPSummary_oneOffenderHasNoIepSummary() {
+        when(authenticationFacade.isOverrideRole()).thenReturn(true);
+        when(bookingRepository.getBookingIEPDetailsByBookingIds(anyList())).thenReturn(Map.of(-5L, List.of(PrivilegeDetail.builder().iepDate(LocalDate.now()).build())));
+
+        final var defaultIepLevel = "Standard";
+        when(offenderBookingRepository.findById(anyLong()))
+            .thenReturn(Optional.of(OffenderBooking.builder()
+                .location(AgencyLocation.builder().id("MDI").build())
+                .build()));
+        when(availablePrisonIepLevelRepository.findByAgencyLocation_IdAndDefaultIep("MDI", true))
+            .thenReturn(List.of(
+                AvailablePrisonIepLevel.builder().iepLevel(new IepLevel("", defaultIepLevel)).build()));
+
+        final var result = bookingService.getBookingIEPSummary(List.of(-1L, -2L), true);
+        assertThat(result.get(-1L).getIepLevel()).isEqualTo(defaultIepLevel);
+        assertThat(result.get(-1L).getDaysSinceReview()).isEqualTo(0L);
     }
 
     @Test
@@ -394,6 +415,7 @@ public class BookingServiceTest {
         when(agencyService.getAgencyIds()).thenReturn(agencyIds).thenReturn(agencyIds);
         when(bookingRepository.verifyBookingAccess(anyLong(), any())).thenReturn(true).thenReturn(true);
         when(bookingRepository.getBookingIEPDetailsByBookingIds(anyList())).thenReturn(Map.of(-5L, List.of(PrivilegeDetail.builder().iepDate(LocalDate.now()).build())));
+        when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.of(OffenderBooking.builder().location(AgencyLocation.builder().id("MDI").build()).build()));
 
         assertThat(bookingService.getBookingIEPSummary(List.of(-1L, -2L), true)).containsKeys(-5L);
     }
