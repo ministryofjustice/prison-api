@@ -257,7 +257,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
       @Test
       @Disabled
-      internal fun `will reset PVO balance back to default for prison`() {
+      internal fun `will insert an vo balance adjustment (production trigger will set PVO balance to prison default)`() {
         assertThat(getCurrentIEP(offenderNo))
           .extracting(PrivilegeSummary::getIepLevel)
           .isEqualTo("Enhanced")

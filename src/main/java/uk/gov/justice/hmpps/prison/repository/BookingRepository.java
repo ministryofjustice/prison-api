@@ -100,9 +100,6 @@ public class BookingRepository extends RepositoryBase {
     private final RowMapper<VisitBalancesDto> VISIT_BALANCES_MAPPER =
             new DataClassByColumnRowMapper<>(VisitBalancesDto.class);
 
-    private final RowMapper<VisitBalancesDto> VISIT_BALANCE_ADJUSTMENTS_MAPPER =
-            new DataClassByColumnRowMapper<>(VisitBalancesDto.class);
-
     private static final RowMapper<OffenderSummaryDto> OFFENDER_SUMMARY_ROW_MAPPER =
             new DataClassByColumnRowMapper<>(OffenderSummaryDto.class);
 
