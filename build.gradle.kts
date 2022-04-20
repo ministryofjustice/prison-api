@@ -1,7 +1,7 @@
 plugins {
   id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.1.4-beta"
-  kotlin("plugin.spring") version "1.6.20"
-  kotlin("plugin.jpa") version "1.6.20"
+  kotlin("plugin.spring") version "1.6.21"
+  kotlin("plugin.jpa") version "1.6.21"
 }
 
 configurations {
@@ -18,8 +18,8 @@ ext["selenium.version"] = "4.1.1"
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-  annotationProcessor("org.projectlombok:lombok:1.18.22")
-  testAnnotationProcessor("org.projectlombok:lombok:1.18.22")
+  annotationProcessor("org.projectlombok:lombok:1.18.24")
+  testAnnotationProcessor("org.projectlombok:lombok:1.18.24")
 
   implementation("org.springframework.boot:spring-boot-starter-aop")
   implementation("org.springframework.boot:spring-boot-starter-validation")
@@ -36,8 +36,6 @@ dependencies {
   // https://hibernate.atlassian.net/browse/HHH-15142
   // Temporarily revert to 5.6.5.Final until fixed
   implementation("org.hibernate:hibernate-core:5.6.5.Final")
-
-  implementation(platform("com.amazonaws:aws-java-sdk-bom:1.12.197"))
 
   implementation("javax.annotation:javax.annotation-api:1.3.2")
   implementation("javax.xml.bind:jaxb-api:2.3.1")
@@ -61,11 +59,11 @@ dependencies {
   implementation("org.apache.commons:commons-text:1.9")
   implementation("com.oracle.database.jdbc:ojdbc10:19.14.0.0")
 
-  compileOnly("org.projectlombok:lombok:1.18.22")
+  compileOnly("org.projectlombok:lombok:1.18.24")
 
   // Temporarily keep at 2.5.1 until can switch to h2 instead (tests break anyway with 2.6.1)
   runtimeOnly("org.hsqldb:hsqldb:2.5.1")
-  runtimeOnly("org.flywaydb:flyway-core:8.5.7")
+  runtimeOnly("org.flywaydb:flyway-core:8.5.8")
 
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
@@ -78,7 +76,7 @@ dependencies {
   testImplementation("org.powermock:powermock-module-junit4:2.0.9")
 
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.33.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.34.0")
 
   // Temporarily keep at 3.2.2 as seems to bring in groovy incompatibilites by upgrading to 3.2.4
   testImplementation("net.serenity-bdd:serenity-core:3.2.2")
@@ -92,7 +90,7 @@ dependencies {
   testImplementation("org.glassfish:javax.el:3.0.0")
   testImplementation("io.swagger.parser.v3:swagger-parser:2.0.32")
 
-  testCompileOnly("org.projectlombok:lombok:1.18.22")
+  testCompileOnly("org.projectlombok:lombok:1.18.24")
 }
 
 java {
