@@ -422,6 +422,17 @@ public class BookingRepository extends RepositoryBase {
         return Optional.ofNullable(visitBalances).map(VisitBalancesDto::toVisitBalances);
     }
 
+    public boolean createBookingVisitOrderBalances(final Long bookingId, final Integer voBalance, final Integer pvoBalance) {
+        Objects.requireNonNull(bookingId, "bookingIds is a required parameter");
+        final var sql = BookingRepositorySql.INSERT_VO_PVO_BALANCE.getSql();
+
+        VisitBalancesDto visitBalances;
+
+        return jdbcTemplate.update(
+                sql,
+                createParams("bookingId", bookingId, "voBalance", voBalance, "pvoBalance", pvoBalance)) == 1;
+    }
+
     public List<ScheduledEvent> getBookingVisits(final Collection<Long> bookingIds, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order) {
         Objects.requireNonNull(bookingIds, "bookingIds is a required parameter");
 
