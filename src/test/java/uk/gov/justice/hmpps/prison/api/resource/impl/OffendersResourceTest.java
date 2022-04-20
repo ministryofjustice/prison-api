@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.IncidentCase;
+import uk.gov.justice.hmpps.prison.exception.CustomErrorCodes;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
 
@@ -764,6 +765,7 @@ public class OffendersResourceTest extends ResourceTest {
         final var error = response.getBody();
 
         assertThat(response.getStatusCodeValue()).isEqualTo(400);
+        assertThat(error.getErrorCode()).isEqualTo(CustomErrorCodes.PRISONER_ALREADY_EXIST);
         assertThat(error.getUserMessage()).contains("Prisoner with PNC 1998/1234567L already exists with ID A1234AD");
     }
 
@@ -795,6 +797,7 @@ public class OffendersResourceTest extends ResourceTest {
         final var error = response.getBody();
 
         assertThat(response.getStatusCodeValue()).isEqualTo(400);
+        assertThat(error.getErrorCode()).isEqualTo(CustomErrorCodes.PRISONER_ALREADY_EXIST);
         assertThat(error.getUserMessage()).contains("Prisoner with CRO CRO112234 already exists with ID A1234AC");
     }
 

@@ -18,6 +18,7 @@ import uk.gov.justice.hmpps.prison.api.model.RequestToRecall;
 import uk.gov.justice.hmpps.prison.api.model.RequestToReleasePrisoner;
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferIn;
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOut;
+import uk.gov.justice.hmpps.prison.exception.CustomErrorCodes;
 import uk.gov.justice.hmpps.prison.repository.FinanceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
@@ -278,7 +279,7 @@ public class PrisonerReleaseAndTransferService {
 
         final var cellLocation = agencyInternalLocationRepository.findOneByDescriptionAndAgencyId(internalLocation, prisonToRecallTo.getId()).orElseThrow(EntityNotFoundException.withMessage(format("%s cell location not found", internalLocation)));
         if (!cellLocation.hasSpace(true)) {
-            throw ConflictingRequestException.withMessage(format("The cell %s does not have any available capacity", internalLocation));
+            throw ConflictingRequestException.withMessage(format("The cell %s does not have any available capacity", internalLocation), CustomErrorCodes.NO_CELL_CAPACITY);
         }
 
         booking.setInOutStatus(IN.name());
@@ -374,7 +375,7 @@ public class PrisonerReleaseAndTransferService {
 
         final var cellLocation = agencyInternalLocationRepository.findOneByDescriptionAndAgencyId(internalLocation, receivedPrison.getId()).orElseThrow(EntityNotFoundException.withMessage(format("%s cell location not found", internalLocation)));
         if (!cellLocation.hasSpace(true)) {
-            throw ConflictingRequestException.withMessage(format("The cell %s does not have any available capacity", internalLocation));
+            throw ConflictingRequestException.withMessage(format("The cell %s does not have any available capacity", internalLocation), CustomErrorCodes.NO_CELL_CAPACITY);
         }
 
         final var currentUsername = authenticationFacade.getCurrentUsername();
@@ -510,7 +511,7 @@ public class PrisonerReleaseAndTransferService {
 
         final var cellLocation = agencyInternalLocationRepository.findOneByDescriptionAndAgencyId(internalLocation, latestExternalMovement.getToAgency().getId()).orElseThrow(EntityNotFoundException.withMessage(format("%s cell location not found", internalLocation)));
         if (!cellLocation.hasSpace(true)) {
-            throw ConflictingRequestException.withMessage(format("The cell %s does not have any available capacity", internalLocation));
+            throw ConflictingRequestException.withMessage(format("The cell %s does not have any available capacity", internalLocation), CustomErrorCodes.NO_CELL_CAPACITY);
         }
 
         booking.setInOutStatus(IN.name());
