@@ -35,7 +35,7 @@ dependencies {
   // https://github.com/spring-projects/spring-data-jpa/issues/2472
   // https://hibernate.atlassian.net/browse/HHH-15142
   // Temporarily revert to 5.6.5.Final until fixed
-  implementation("org.hibernate:hibernate-core:6.0.0.Final")
+  implementation("org.hibernate:hibernate-core:5.6.5.Final")
 
   implementation(platform("com.amazonaws:aws-java-sdk-bom:1.12.202"))
 
@@ -47,7 +47,7 @@ dependencies {
 
   implementation("commons-codec:commons-codec:1.15")
   // Temporarily kept at 4.3 due to bug in 4.4 parser
-  implementation("com.github.jsqlparser:jsqlparser:4.4")
+  implementation("com.github.jsqlparser:jsqlparser:4.3")
   implementation("net.sf.ehcache:ehcache:2.10.9.2")
   implementation("com.zaxxer:HikariCP:5.0.1")
 
@@ -64,27 +64,26 @@ dependencies {
   compileOnly("org.projectlombok:lombok:1.18.24")
 
   // Temporarily keep at 2.5.1 until can switch to h2 instead (tests break anyway with 2.6.1)
-  runtimeOnly("org.hsqldb:hsqldb:2.6.1")
+  runtimeOnly("org.hsqldb:hsqldb:2.5.1")
   runtimeOnly("org.flywaydb:flyway-core:8.5.8")
 
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
-  testImplementation("io.rest-assured:rest-assured:5.0.1")
-  testImplementation("io.rest-assured:json-schema-validator:5.0.1")
-  testImplementation("io.rest-assured:spring-mock-mvc:5.0.1")
+  testImplementation("io.rest-assured:rest-assured:4.5.1")
+  testImplementation("io.rest-assured:json-schema-validator:4.5.1")
+  testImplementation("io.rest-assured:spring-mock-mvc:4.5.1")
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("com.google.code.gson:gson:2.9.0")
   testImplementation("org.powermock:powermock-api-mockito2:2.0.9")
   testImplementation("org.powermock:powermock-module-junit4:2.0.9")
 
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.34.0")
 
   // Temporarily keep at 3.2.2 as seems to bring in groovy incompatibilites by upgrading to 3.2.4
-  testImplementation("net.serenity-bdd:serenity-core:3.2.4")
-  testImplementation("net.serenity-bdd:serenity-junit:3.2.4")
-  testImplementation("net.serenity-bdd:serenity-spring:3.2.4")
-  testImplementation("net.serenity-bdd:serenity-cucumber:3.2.4")
+  testImplementation("net.serenity-bdd:serenity-core:3.2.2")
+  testImplementation("net.serenity-bdd:serenity-junit:3.2.2")
+  testImplementation("net.serenity-bdd:serenity-spring:3.2.2")
+  testImplementation("net.serenity-bdd:serenity-cucumber:3.2.2")
   testImplementation("com.paulhammant:ngwebdriver:1.1.6")
   testImplementation("org.slf4j:slf4j-api:1.7.36")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
