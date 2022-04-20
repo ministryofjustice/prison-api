@@ -37,8 +37,6 @@ dependencies {
   // Temporarily revert to 5.6.5.Final until fixed
   implementation("org.hibernate:hibernate-core:5.6.5.Final")
 
-  implementation(platform("com.amazonaws:aws-java-sdk-bom:1.12.202"))
-
   implementation("javax.annotation:javax.annotation-api:1.3.2")
   implementation("javax.xml.bind:jaxb-api:2.3.1")
   implementation("com.sun.xml.bind:jaxb-impl:3.0.2")
@@ -78,6 +76,7 @@ dependencies {
   testImplementation("org.powermock:powermock-module-junit4:2.0.9")
 
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.34.0")
 
   // Temporarily keep at 3.2.2 as seems to bring in groovy incompatibilites by upgrading to 3.2.4
   testImplementation("net.serenity-bdd:serenity-core:3.2.2")
