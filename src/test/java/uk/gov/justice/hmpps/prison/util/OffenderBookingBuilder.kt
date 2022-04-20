@@ -7,6 +7,8 @@ import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.api.model.IepLevelAndComment
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.api.model.RequestForNewBooking
+import uk.gov.justice.hmpps.prison.repository.BookingRepository
+import uk.gov.justice.hmpps.prison.service.BadRequestException
 import java.time.LocalDateTime
 
 class OffenderBookingBuilder(
@@ -18,7 +20,9 @@ class OffenderBookingBuilder(
   var cellLocation: String? = null,
   var imprisonmentStatus: String = "SENT03",
   var iepLevel: String? = null,
-  var iepLevelComment: String = "iep level comment"
+  var iepLevelComment: String = "iep level comment",
+  var voBalance: Int? = null,
+  var pvoBalance: Int? = null,
 ) : WebClientEntityBuilder() {
 
   fun withIEPLevel(iepLevel: String): OffenderBookingBuilder {
@@ -26,10 +30,17 @@ class OffenderBookingBuilder(
     return this
   }
 
+  fun withInitialVoBalances(voBalance: Int, pvoBalance: Int): OffenderBookingBuilder {
+    this.voBalance = voBalance
+    this.pvoBalance = pvoBalance
+    return this
+  }
+
   fun save(
     webTestClient: WebTestClient,
     jwtAuthenticationHelper: JwtAuthenticationHelper,
-    offenderNo: String
+    offenderNo: String,
+    bookingRepository: BookingRepository? = null
   ): InmateDetail {
 
     val request =
@@ -69,6 +80,11 @@ class OffenderBookingBuilder(
           )
           .exchange()
           .expectStatus().is2xxSuccessful
+      }
+    }.also {
+      this.voBalance?.run {
+        bookingRepository?.createBookingVisitOrderBalances(it.bookingId, voBalance, pvoBalance)
+          ?: throw BadRequestException("No booking repository provided")
       }
     }
   }

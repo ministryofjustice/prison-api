@@ -100,6 +100,9 @@ public class BookingRepository extends RepositoryBase {
     private final RowMapper<VisitBalancesDto> VISIT_BALANCES_MAPPER =
             new DataClassByColumnRowMapper<>(VisitBalancesDto.class);
 
+    private final RowMapper<VisitBalancesDto> VISIT_BALANCE_ADJUSTMENTS_MAPPER =
+            new DataClassByColumnRowMapper<>(VisitBalancesDto.class);
+
     private static final RowMapper<OffenderSummaryDto> OFFENDER_SUMMARY_ROW_MAPPER =
             new DataClassByColumnRowMapper<>(OffenderSummaryDto.class);
 
@@ -420,6 +423,17 @@ public class BookingRepository extends RepositoryBase {
             visitBalances = null;
         }
         return Optional.ofNullable(visitBalances).map(VisitBalancesDto::toVisitBalances);
+    }
+
+    public boolean createBookingVisitOrderBalances(final Long bookingId, final Integer voBalance, final Integer pvoBalance) {
+        Objects.requireNonNull(bookingId, "bookingIds is a required parameter");
+        final var sql = BookingRepositorySql.INSERT_VO_PVO_BALANCE.getSql();
+
+        VisitBalancesDto visitBalances;
+
+        return jdbcTemplate.update(
+                sql,
+                createParams("bookingId", bookingId, "voBalance", voBalance, "pvoBalance", pvoBalance)) == 1;
     }
 
     public List<ScheduledEvent> getBookingVisits(final Collection<Long> bookingIds, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order) {

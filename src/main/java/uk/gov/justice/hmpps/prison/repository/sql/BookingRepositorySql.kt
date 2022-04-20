@@ -663,6 +663,22 @@ enum class BookingRepositorySql(val sql: String) {
     """
   ),
 
+  FIND_VO_PVO_BALANCE_ADJUSTMENTS(
+    """
+        SELECT ADJUST_DATE, ADJUST_REASON_CODE
+        FROM OFFENDER_VISIT_BALANCE_ADJS
+        WHERE OFFENDER_BOOK_ID = :bookingId 
+        ORDER BY ADJUST_DATE DESC
+    """
+  ),
+
+  INSERT_VO_PVO_BALANCE(
+    """
+        INSERT INTO offender_visit_balances (offender_book_id, remaining_vo, remaining_pvo)
+        VALUES (:bookingId, :voBalance, :pvoBalance)
+    """
+  ),
+
   ACTIVITIES_BOOKING_ID_CLAUSE(" AND OPP.OFFENDER_BOOK_ID = :bookingId"),
   ACTIVITIES_BOOKING_ID_IN_CLAUSE(" AND OPP.OFFENDER_BOOK_ID IN (:bookingIds)"),
   VISITS_BOOKING_ID_CLAUSE(" AND VIS.OFFENDER_BOOK_ID = :bookingId"),

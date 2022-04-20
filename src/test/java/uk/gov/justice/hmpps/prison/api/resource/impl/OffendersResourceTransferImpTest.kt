@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.tuple
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -17,6 +18,8 @@ import org.springframework.test.web.reactive.server.returnResult
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.api.model.CaseNote
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary
+import uk.gov.justice.hmpps.prison.api.model.VisitBalances
+import uk.gov.justice.hmpps.prison.repository.BookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection.IN
@@ -40,6 +43,9 @@ class OffendersResourceTransferImpTest : ResourceTest() {
   @Autowired
   private lateinit var bedAssignmentHistoriesRepository: BedAssignmentHistoriesRepository
 
+  @Autowired
+  private lateinit var bookingRepository: BookingRepository
+
   @Nested
   @DisplayName("PUT /{offenderNo}/transfer-in")
   inner class TransferIn {
@@ -56,8 +62,12 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           OffenderBookingBuilder(
             prisonId = "LEI",
             bookingInTime = bookingInTime
-          ).withIEPLevel("ENH")
-        ).save(webTestClient = webTestClient, jwtAuthenticationHelper = jwtAuthenticationHelper).also {
+          ).withIEPLevel("ENH").withInitialVoBalances(2, 8)
+        ).save(
+          webTestClient = webTestClient,
+          jwtAuthenticationHelper = jwtAuthenticationHelper,
+          bookingRepository = bookingRepository
+        ).also {
           offenderNo = it.offenderNo
           bookingId = it.bookingId
         }
@@ -246,10 +256,54 @@ class OffendersResourceTransferImpTest : ResourceTest() {
       }
 
       @Test
+      @Disabled
+      internal fun `will reset PVO balance back to default for prison`() {
+        assertThat(getCurrentIEP(offenderNo))
+          .extracting(PrivilegeSummary::getIepLevel)
+          .isEqualTo("Enhanced")
+
+        // vo balance exists with no adjustments
+        assertThat(getVOBalanceDetails(offenderNo))
+          .extracting(VisitBalances::getRemainingPvo, VisitBalances::getLatestIepAdjustDate)
+          .containsExactly(8, null)
+
+        webTestClient.put()
+          .uri("/api/offenders/{nomsId}/transfer-in", offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
+          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+          .accept(MediaType.APPLICATION_JSON)
+          .body(
+            BodyInserters.fromValue(
+              """
+          {
+            "receiveTime": "${
+              LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+              }"
+            
+          }
+              """.trimIndent()
+            )
+          )
+          .exchange()
+          .expectStatus().isOk
+
+        // in production a trigger would use the adjustment insert to update the balance, in this test we can only check for the existence of the adjustment record
+        assertThat(getVOBalanceDetails(offenderNo))
+          .extracting(VisitBalances::getLatestIepAdjustDate)
+          .isEqualTo(LocalDate.now())
+      }
+
+      @Test
       internal fun `will create a transfer in case note`() {
         assertThat(getCaseNotes(bookingId))
           .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getText)
-          .contains(tuple("TRANSFER", "FROMTOL", "Offender admitted to LEEDS for reason: Unconvicted Remand from OUTSIDE."))
+          .contains(
+            tuple(
+              "TRANSFER",
+              "FROMTOL",
+              "Offender admitted to LEEDS for reason: Unconvicted Remand from OUTSIDE."
+            )
+          )
 
         webTestClient.put()
           .uri("/api/offenders/{nomsId}/transfer-in", offenderNo)
@@ -461,6 +515,19 @@ class OffendersResourceTransferImpTest : ResourceTest() {
     .exchange()
     .expectStatus().isOk
     .returnResult<PrivilegeSummary>().responseBody.blockFirst()!!
+
+  private fun getVOBalanceDetails(offenderNo: String) = webTestClient.get()
+    .uri("/api/bookings/offenderNo/{offenderNo}/visit/balances", offenderNo)
+    .headers(
+      setAuthorisation(
+        listOf("ROLE_SYSTEM_USER")
+      )
+    )
+    .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+    .accept(MediaType.APPLICATION_JSON)
+    .exchange()
+    .expectStatus().isOk
+    .returnResult<VisitBalances>().responseBody.blockFirst()!!
 
   private fun getCaseNotes(bookingId: Long) = webTestClient.get()
     .uri("/api/bookings/{bookingId}/caseNotes?size=999", bookingId)
