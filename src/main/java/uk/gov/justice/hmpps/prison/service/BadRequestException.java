@@ -1,8 +1,10 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import uk.gov.justice.hmpps.prison.exception.ApplicationSpecificException;
+
 import java.util.function.Supplier;
 
-public class BadRequestException extends RuntimeException implements Supplier<BadRequestException> {
+public class BadRequestException extends ApplicationSpecificException implements Supplier<BadRequestException> {
     private static final String DEFAULT_MESSAGE_FOR_DATA_FORMAT = "Invalid Data supplied [%s]";
 
     public static BadRequestException withId(final long data) {
@@ -15,6 +17,12 @@ public class BadRequestException extends RuntimeException implements Supplier<Ba
 
     public static BadRequestException withMessage(final String message) {
         return new BadRequestException(message);
+    }
+
+    public static BadRequestException withMessage(final String message, Integer customErrorCode) {
+        BadRequestException ex = new BadRequestException(message);
+        ex.setErrorCode(customErrorCode);
+        return ex;
     }
 
     public static BadRequestException withMessage(final String message, final Object... args) {

@@ -30,7 +30,7 @@ public class ErrorResponse {
     @NotNull
     private Integer status;
 
-    @Schema(description = "An (optional) application-specific error code.", example = "404")
+    @Schema(description = "An (optional) application-specific error code.", example = "20002")
     private Integer errorCode;
 
     @Schema(required = true, description = "Concise error reason for end-user consumption.", example = "Entity Not Found")

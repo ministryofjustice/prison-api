@@ -10,6 +10,7 @@ import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerIdentifier;
 import uk.gov.justice.hmpps.prison.api.model.RequestToCreate;
+import uk.gov.justice.hmpps.prison.exception.CustomErrorCodes;
 import uk.gov.justice.hmpps.prison.repository.PrisonerRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Ethnicity;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Gender;
@@ -56,7 +57,7 @@ public class PrisonerCreationService {
             offenderIdentifierRepository.findByIdentifierTypeAndIdentifier("PNC", shortPnc).stream()
                 .findFirst()
                 .ifPresent(identifier -> {
-                    throw new BadRequestException(format("Prisoner with PNC %s already exists with ID %s", shortPnc, identifier.getOffender().getNomsId()));
+                    throw BadRequestException.withMessage(format("Prisoner with PNC %s already exists with ID %s", shortPnc, identifier.getOffender().getNomsId()), CustomErrorCodes.PRISONER_ALREADY_EXIST);
                 });
 
             final var longPnc = Pnc.getLongPncNumber(requestToCreate.getPncNumber());
@@ -64,23 +65,23 @@ public class PrisonerCreationService {
             offenderIdentifierRepository.findByIdentifierTypeAndIdentifier("PNC", longPnc).stream()
                 .findFirst()
                 .ifPresent(identifier -> {
-                    throw new BadRequestException(format("Prisoner with PNC %s already exists with ID %s", longPnc, identifier.getOffender().getNomsId()));
+                    throw BadRequestException.withMessage(format("Prisoner with PNC %s already exists with ID %s", longPnc, identifier.getOffender().getNomsId()), CustomErrorCodes.PRISONER_ALREADY_EXIST);
                 });
         }
 
         if (StringUtils.isNotBlank(requestToCreate.getCroNumber())) {
-           offenderIdentifierRepository.findByIdentifierTypeAndIdentifier("CRO", requestToCreate.getCroNumber()).stream()
-               .findFirst()
-               .ifPresent(identifier -> {
-                   throw new BadRequestException(format("Prisoner with CRO %s already exists with ID %s", requestToCreate.getCroNumber(), identifier.getOffender().getNomsId()));
-               });
+            offenderIdentifierRepository.findByIdentifierTypeAndIdentifier("CRO", requestToCreate.getCroNumber()).stream()
+                .findFirst()
+                .ifPresent(identifier -> {
+                    throw BadRequestException.withMessage(format("Prisoner with CRO %s already exists with ID %s", requestToCreate.getCroNumber(), identifier.getOffender().getNomsId()), CustomErrorCodes.PRISONER_ALREADY_EXIST);
+                });
         }
 
         if (StringUtils.isBlank(requestToCreate.getPncNumber()) && StringUtils.isBlank(requestToCreate.getCroNumber())) {
             offenderRepository.findByLastNameAndFirstNameAndBirthDate(upperLastName, upperFirstname, requestToCreate.getDateOfBirth())
                 .stream().findFirst().ifPresent(offender -> {
-                throw new BadRequestException(format("Prisoner with lastname %s, firstname %s and dob %s already exists with ID %s", upperLastName, upperFirstname, requestToCreate.getDateOfBirth().format(DateTimeFormatter.ISO_LOCAL_DATE), offender.getNomsId()));
-            });
+                    throw new BadRequestException(format("Prisoner with lastname %s, firstname %s and dob %s already exists with ID %s", upperLastName, upperFirstname, requestToCreate.getDateOfBirth().format(DateTimeFormatter.ISO_LOCAL_DATE), offender.getNomsId()));
+                });
         }
 
         //check dob range

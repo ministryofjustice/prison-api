@@ -19,6 +19,7 @@ import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.api.model.CaseNote
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary
 import uk.gov.justice.hmpps.prison.api.model.VisitBalances
+import uk.gov.justice.hmpps.prison.exception.CustomErrorCodes
 import uk.gov.justice.hmpps.prison.repository.BookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
@@ -374,6 +375,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           .exchange()
           .expectStatus().isEqualTo(409)
           .expectBody()
+          .jsonPath("errorCode").isEqualTo(CustomErrorCodes.NO_CELL_CAPACITY)
           .jsonPath("userMessage").isEqualTo("The cell MDI-FULL does not have any available capacity")
       }
 
