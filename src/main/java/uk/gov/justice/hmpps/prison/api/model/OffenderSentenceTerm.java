@@ -25,4 +25,7 @@ public class OffenderSentenceTerm {
 
     @Schema(description = "The term duration - days")
     private Integer days;
+
+    @Schema(description = "The sentence term code, indicating if this is the term of imprisonment or license")
+    private String code;
 }

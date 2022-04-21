@@ -157,6 +157,7 @@ public class OffenderSentence extends AuditableEntity {
                     .months(term.getMonths() == null ? 0 : term.getMonths())
                     .weeks(term.getWeeks() == null ? 0 : term.getWeeks())
                     .days(term.getDays() == null ? 0 : term.getDays())
+                    .code(term.getSentenceTermCode())
                     .build())
                 .toList())
             .offences(offenderSentenceCharges == null ? null : offenderSentenceCharges
