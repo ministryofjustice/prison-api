@@ -80,7 +80,14 @@ public class PrisonerCreationService {
         if (StringUtils.isBlank(requestToCreate.getPncNumber()) && StringUtils.isBlank(requestToCreate.getCroNumber())) {
             offenderRepository.findByLastNameAndFirstNameAndBirthDate(upperLastName, upperFirstname, requestToCreate.getDateOfBirth())
                 .stream().findFirst().ifPresent(offender -> {
-                    throw new BadRequestException(format("Prisoner with lastname %s, firstname %s and dob %s already exists with ID %s", upperLastName, upperFirstname, requestToCreate.getDateOfBirth().format(DateTimeFormatter.ISO_LOCAL_DATE), offender.getNomsId()));
+                    throw BadRequestException.withMessage(
+                        format("Prisoner with lastname %s, firstname %s and dob %s already exists with ID %s",
+                            upperLastName,
+                            upperFirstname,
+                            requestToCreate.getDateOfBirth().format(DateTimeFormatter.ISO_LOCAL_DATE),
+                            offender.getNomsId()),
+                        CustomErrorCodes.PRISONER_ALREADY_EXIST
+                    );
                 });
         }
 
