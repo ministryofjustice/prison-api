@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.service.transfer
 import org.springframework.stereotype.Service
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferIn
+import uk.gov.justice.hmpps.prison.exception.CustomErrorCodes
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
@@ -117,7 +118,7 @@ private fun ExternalMovement.isTransfer() = this.movementType.code == MovementTy
 private fun AgencyInternalLocation.assertHasSpaceInCell(): Result<AgencyInternalLocation> = if (this.hasSpace(true)) {
   success(this)
 } else {
-  failure(ConflictingRequestException("The cell ${this.description} does not have any available capacity"))
+  failure(ConflictingRequestException.withMessage("The cell ${this.description} does not have any available capacity", CustomErrorCodes.NO_CELL_CAPACITY))
 }
 
 private inline fun <T> Result<T>.flatMap(transform: (value: T) -> Result<T>): Result<T> {
