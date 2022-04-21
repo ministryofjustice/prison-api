@@ -48,20 +48,20 @@ class PrisonTransferService(
         request = request,
         booking = booking,
         lastMovement = transferMovement
-      ).also {
-        statusReason = MovementType.ADM.code + "-" + it.movementReason.code
+      ).also { movement ->
+        this.statusReason = MovementType.ADM.code + "-" + movement.movementReason.code
         bedAssignmentTransferService.createBedHistory(
           booking = this,
           cellLocation = cellLocation,
-          receiveTime = it.movementTime
+          receiveTime = movement.movementTime
         )
         trustAccountService.createTrustAccount(
           booking = this,
           lastMovement = transferMovement,
-          movementReason = it.movementReason
+          movementReason = movement.movementReason
         )
-        iepTransferService.resetLevelForPrison(booking = this, transferMovement = it)
-        caseNoteTransferService.createGenerateAdmissionNote(booking = this, transferMovement = it)
+        iepTransferService.resetLevelForPrison(booking = this, transferMovement = movement)
+        caseNoteTransferService.createGenerateAdmissionNote(booking = this, transferMovement = movement)
       }
     }
 
