@@ -1345,9 +1345,11 @@ public class BookingServiceTest {
                         .terms(List.of(
                             SentenceTerm.builder()
                                 .years(2)
+                                .sentenceTermCode("IMP")
                                 .build(),
                             SentenceTerm.builder()
                                 .years(1)
+                                .sentenceTermCode("LI")
                                 .build()
                         ))
                         .offenderSentenceCharges(List.of(
@@ -1406,12 +1408,14 @@ public class BookingServiceTest {
                         .weeks(0)
                         .months(0)
                         .years(2)
+                        .code("IMP")
                         .build(),
                     OffenderSentenceTerm.builder()
                         .days(0)
                         .weeks(0)
                         .months(0)
                         .years(1)
+                        .code("LI")
                         .build()
                 ))
                 .offences(List.of(
