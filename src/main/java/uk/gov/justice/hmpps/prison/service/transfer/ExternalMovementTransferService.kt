@@ -21,7 +21,7 @@ import kotlin.Result.Companion.success
 class ExternalMovementTransferService(
   private val movementReasonRepository: ReferenceCodeRepository<MovementReason>,
   private val externalMovementRepository: ExternalMovementRepository,
-  private val movementTypeRepository: ReferenceCodeRepository<MovementType?>,
+  private val movementTypeRepository: ReferenceCodeRepository<MovementType>,
   private val entityManager: EntityManager,
 ) {
   fun updateMovementsForTransfer(
@@ -62,7 +62,7 @@ class ExternalMovementTransferService(
 
   private fun getAdmissionMovementType(): Result<MovementType> =
     movementTypeRepository.findByIdOrNull(MovementType.ADM)?.let { success(it) } ?: failure(
-      BadRequestException.withMessage("No ${MovementType.ADM} movement type found")
+      EntityNotFoundException.withMessage("No ${MovementType.ADM} movement type found")
     )
 
   private fun getMovementReason(): Result<MovementReason> {

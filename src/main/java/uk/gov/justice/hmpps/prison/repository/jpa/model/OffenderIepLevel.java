@@ -1,7 +1,6 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,12 +32,15 @@ import java.util.Objects;
 @Getter
 @RequiredArgsConstructor
 @AllArgsConstructor
-@Builder
 @Table(name = "OFFENDER_IEP_LEVELS")
 @Entity
 @ToString
 @IdClass(OffenderIepLevel.PK.class)
 public class OffenderIepLevel extends AuditableEntity {
+    public static OffenderIepLevelBuilder builder() {
+        return new OffenderIepLevelBuilder();
+    }
+
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
@@ -128,5 +130,85 @@ public class OffenderIepLevel extends AuditableEntity {
         int result = Objects.hashCode(getOffenderBooking());
         result = 31 * result + (Objects.hashCode(getSequence()));
         return result;
+    }
+
+    public static class OffenderIepLevelBuilder {
+        private OffenderBooking offenderBooking;
+        private Long sequence;
+        private LocalDate iepDate;
+        private LocalDateTime iepDateTime;
+        private AgencyLocation agencyLocation;
+        private AvailablePrisonIepLevel availablePrisonIepLevel;
+        private IepLevel iepLevel;
+        private String comment;
+        private StaffUserAccount staffUser;
+        private String username;
+        private String auditModuleName;
+
+        OffenderIepLevelBuilder() {
+        }
+
+        public OffenderIepLevelBuilder offenderBooking(OffenderBooking offenderBooking) {
+            this.offenderBooking = offenderBooking;
+            return this;
+        }
+
+        public OffenderIepLevelBuilder sequence(Long sequence) {
+            this.sequence = sequence;
+            return this;
+        }
+
+        public OffenderIepLevelBuilder iepDate(LocalDate iepDate) {
+            this.iepDate = iepDate;
+            return this;
+        }
+
+        public OffenderIepLevelBuilder iepDateTime(LocalDateTime iepDateTime) {
+            this.iepDateTime = iepDateTime;
+            return this;
+        }
+
+        public OffenderIepLevelBuilder agencyLocation(AgencyLocation agencyLocation) {
+            this.agencyLocation = agencyLocation;
+            return this;
+        }
+
+        public OffenderIepLevelBuilder availablePrisonIepLevel(AvailablePrisonIepLevel availablePrisonIepLevel) {
+            this.availablePrisonIepLevel = availablePrisonIepLevel;
+            return this;
+        }
+
+        public OffenderIepLevelBuilder iepLevel(IepLevel iepLevel) {
+            this.iepLevel = iepLevel;
+            return this;
+        }
+
+        public OffenderIepLevelBuilder comment(String comment) {
+            this.comment = comment;
+            return this;
+        }
+
+        public OffenderIepLevelBuilder staffUser(StaffUserAccount staffUser) {
+            this.staffUser = staffUser;
+            return this;
+        }
+
+        public OffenderIepLevelBuilder username(String username) {
+            this.username = username;
+            return this;
+        }
+
+        public OffenderIepLevelBuilder auditModuleName(String auditModuleName) {
+            this.auditModuleName = auditModuleName;
+            return this;
+        }
+
+        public OffenderIepLevel build() {
+            return new OffenderIepLevel(offenderBooking, sequence, iepDate, iepDateTime, agencyLocation, availablePrisonIepLevel, iepLevel, comment, staffUser, username, auditModuleName);
+        }
+
+        public String toString() {
+            return "OffenderIepLevel.OffenderIepLevelBuilder(offenderBooking=" + this.offenderBooking + ", sequence=" + this.sequence + ", iepDate=" + this.iepDate + ", iepDateTime=" + this.iepDateTime + ", agencyLocation=" + this.agencyLocation + ", availablePrisonIepLevel=" + this.availablePrisonIepLevel + ", iepLevel=" + this.iepLevel + ", comment=" + this.comment + ", staffUser=" + this.staffUser + ", username=" + this.username + ", auditModuleName=" + this.auditModuleName + ")";
+        }
     }
 }
