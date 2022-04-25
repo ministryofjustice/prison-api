@@ -1,15 +1,13 @@
 package uk.gov.justice.hmpps.prison.service.transfer
 
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 
 @Service
 class VisitBalanceTransferService {
-  companion object {
-    private val log = LoggerFactory.getLogger(this::class.java)
-  }
   fun adjustVisitBalances(booking: OffenderBooking) {
-    log.debug("Will update visit balances based on current IEP level")
+    // see SDU-187 - if that goes live in NOMIS then we will need the same logic here
+    // That would update visit order balances for recalls and where there has been no recent manual adjustment
+    // see the latest version of oidamis.create_vo_allowance with code that was due to go live
   }
 }
