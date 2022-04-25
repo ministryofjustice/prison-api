@@ -60,10 +60,6 @@ public class SearchOffenderService {
         log.info("Searching for offenders, Found {} offenders, page size {}", bookingsPage.getTotalRecords(), bookingsPage.getItems().size());
 
         if (!CollectionUtils.isEmpty(bookingIds)) {
-            if (request.isReturnIep()) {
-                final var bookingIEPSummary = bookingService.getBookingIEPSummary(bookingIds, false);
-                bookings.forEach(booking -> booking.setIepLevel(bookingIEPSummary.get(booking.getBookingId()).getIepLevel()));
-            }
             if (request.isReturnAlerts()) {
                 final var alertCodesForBookings = bookingService.getBookingAlertSummary(bookingIds, LocalDateTime.now());
                 bookings.forEach(booking -> booking.setAlertsDetails(alertCodesForBookings.get(booking.getBookingId())));
