@@ -28,7 +28,7 @@ public class OffenderBookingTransformer {
         "dateOfBirth", "offender.birthDate"
     );
 
-    public PrisonerBookingSummary transform(final OffenderBooking offenderBooking, final boolean iepLevel, final boolean legalInfo, final boolean imageId) {
+    public PrisonerBookingSummary transform(final OffenderBooking offenderBooking, final boolean legalInfo, final boolean imageId) {
         final var bookingSummaryBuilder = PrisonerBookingSummary.builder()
             .bookingId(offenderBooking.getBookingId())
             .bookingNo(offenderBooking.getBookNumber())
@@ -57,10 +57,6 @@ public class OffenderBookingTransformer {
                 .facialImageId(offenderBooking.getLatestFaceImage().map(OffenderImage::getId).orElse(null));
         }
 
-        if (iepLevel) {
-            bookingSummaryBuilder
-                .iepLevel(offenderBooking.getLatestIepLevel().map(iep -> iep.getIepLevel().getDescription()).orElse(null));
-        }
         return bookingSummaryBuilder.build();
     }
 
