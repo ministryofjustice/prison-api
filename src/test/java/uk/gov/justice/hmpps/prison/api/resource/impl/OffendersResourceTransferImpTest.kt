@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.JsonNode
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.tuple
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -257,8 +256,12 @@ class OffendersResourceTransferImpTest : ResourceTest() {
       }
 
       @Test
-      @Disabled
-      internal fun `will insert an vo balance adjustment (production trigger will set PVO balance to prison default)`() {
+      internal fun `will not create a visit order balance adjustment even though IEP levels has changed`() {
+        // Why is this odd test here?
+        // NOMIS was supposed to update the balance after an IEP was updated.
+        // This was part of change SDU-187 that was reverted from production due to issues
+        // If this change is implemented then we would need to port this functionality as well
+
         assertThat(getCurrentIEP(offenderNo))
           .extracting(PrivilegeSummary::getIepLevel)
           .isEqualTo("Enhanced")
@@ -288,10 +291,10 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           .exchange()
           .expectStatus().isOk
 
-        // in production a trigger would use the adjustment insert to update the balance, in this test we can only check for the existence of the adjustment record
+        // vo balance exists with no adjustments
         assertThat(getVOBalanceDetails(offenderNo))
-          .extracting(VisitBalances::getLatestIepAdjustDate)
-          .isEqualTo(LocalDate.now())
+          .extracting(VisitBalances::getRemainingPvo, VisitBalances::getLatestIepAdjustDate)
+          .containsExactly(8, null)
       }
 
       @Test
