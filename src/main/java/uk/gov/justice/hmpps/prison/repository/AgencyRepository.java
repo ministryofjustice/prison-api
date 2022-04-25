@@ -1,11 +1,8 @@
 package uk.gov.justice.hmpps.prison.repository;
 
-import lombok.val;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.client.HttpClientErrorException;
@@ -20,19 +17,13 @@ import uk.gov.justice.hmpps.prison.repository.mapping.DataClassByColumnRowMapper
 import uk.gov.justice.hmpps.prison.repository.mapping.PageAwareRowMapper;
 import uk.gov.justice.hmpps.prison.repository.sql.AgencyRepositorySql;
 import uk.gov.justice.hmpps.prison.repository.support.StatusFilter;
-import uk.gov.justice.hmpps.prison.service.OffenderIepReview;
-import uk.gov.justice.hmpps.prison.service.OffenderIepReviewDto;
-import uk.gov.justice.hmpps.prison.service.OffenderIepReviewSearchCriteria;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
-import java.sql.Types;
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -46,10 +37,6 @@ public class AgencyRepository extends RepositoryBase {
 
     private static final DataClassByColumnRowMapper<LocationDto> LOCATION_ROW_MAPPER =
             new DataClassByColumnRowMapper<>(LocationDto.class);
-
-    private static final RowMapper<OffenderIepReviewDto> OFFENDER_IEP_REVIEW_ROW_MAPPER =
-            new DataClassByColumnRowMapper<>(OffenderIepReviewDto.class);
-
 
     public Page<Agency> getAgencies(final String orderByField, final Order order, final long offset, final long limit) {
         final var initialSql = AgencyRepositorySql.GET_AGENCIES.getSql();
@@ -196,28 +183,5 @@ public class AgencyRepository extends RepositoryBase {
         final var periodEnd = DateTimeConverter.fromLocalDateTime(end);
         params.addValue("periodStart", periodStart);
         params.addValue("periodEnd", periodEnd);
-    }
-
-    public Page<OffenderIepReview> getPrisonIepReview(final OffenderIepReviewSearchCriteria criteria) {
-        val pageRequest = criteria.getPageRequest();
-
-        val params = createParamSource(pageRequest,
-                "agencyId", new SqlParameterValue(Types.VARCHAR, criteria.getAgencyId()),
-                "bookingSeq", new SqlParameterValue(Types.INTEGER, 1),
-                "hearingFinding", new SqlParameterValue(Types.VARCHAR, "PROVED"),
-                "threeMonthsAgo", new SqlParameterValue(Types.DATE, LocalDate.now().minus(Period.ofMonths(3))),
-                "iepLevel", new SqlParameterValue(Types.VARCHAR, criteria.getIepLevel()),
-                "location", new SqlParameterValue(Types.VARCHAR, criteria.getLocation()));
-
-        val results = jdbcTemplate.query(AgencyRepositorySql.GET_AGENCY_IEP_REVIEW_INFORMATION.getSql(), params, OFFENDER_IEP_REVIEW_ROW_MAPPER);
-
-        val page = results.stream()
-                .map(OffenderIepReviewDto::toOffenderIepReview)
-                .sorted(comparing(OffenderIepReview::getNegativeIeps).reversed())
-                .skip(criteria.getPageRequest().getOffset())
-                .limit(criteria.getPageRequest().getLimit())
-                .collect(toList());
-
-        return new Page<>(page, results.size(), pageRequest);
     }
 }
