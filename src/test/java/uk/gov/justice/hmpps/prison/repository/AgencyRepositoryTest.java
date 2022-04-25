@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.repository;
 
-import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,14 +12,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.support.Order;
-import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
-import uk.gov.justice.hmpps.prison.service.OffenderIepReview;
-import uk.gov.justice.hmpps.prison.service.OffenderIepReviewSearchCriteria;
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.List;
 
@@ -160,187 +155,9 @@ public class AgencyRepositoryTest {
     }
 
     @Test
-    public void testGetPrisonIepReview() {
-
-        val criteria = OffenderIepReviewSearchCriteria.builder()
-                .agencyId("LEI")
-                .pageRequest(new PageRequest(0L, 10L))
-                .build();
-
-        val results = repository.getPrisonIepReview(criteria);
-
-        assertThat(results.getItems()).containsExactly(OFFENDER_1_IEP_REVIEW,
-                OFFENDER_2_IEP_REVIEW,
-                OFFENDER_3_IEP_REVIEW,
-                OFFENDER_4_IEP_REVIEW,
-                OFFENDER_5_IEP_REVIEW,
-                OFFENDER_6_IEP_REVIEW,
-                OFFENDER_7_IEP_REVIEW,
-                OFFENDER_8_IEP_REVIEW,
-                OFFENDER_9_IEP_REVIEW,
-                OFFENDER_10_IEP_REVIEW);
-    }
-
-    @Test
-    public void testFilterPrisonIepReviewByIepLevel() {
-
-        val criteria = OffenderIepReviewSearchCriteria.builder()
-                .agencyId("LEI")
-                .iepLevel("Basic")
-                .pageRequest(new PageRequest(0L, 1L))
-                .build();
-
-        val results = repository.getPrisonIepReview(criteria);
-
-        assertThat(results.getItems()).containsExactly(OFFENDER_6_IEP_REVIEW);
-    }
-
-    @Test
     public void testGetAgencyLocationsWhenAllOffendersSuspended() {
         final var locations = repository.getAgencyLocationsBooked("BXI", LocalDate.of(2021, Month.MAY, 1), null);
 
         assertThat(locations).extracting("locationId").containsExactly(-3001L, -3002L);
     }
-
-    private static final OffenderIepReview OFFENDER_1_IEP_REVIEW = OffenderIepReview.builder()
-            .offenderNo("A5577RS")
-            .currentLevel("Standard")
-            .provenAdjudications(2)
-            .positiveIeps(1)
-            .negativeIeps(10)
-            .bookingId(-33L)
-            .lastReviewTime(LocalDateTime.of(2017, 9, 6, 9, 44, 1))
-            .firstName("HAROLD")
-            .middleName(null)
-            .lastName("LLOYD")
-            .cellLocation("LEI-H-1-1")
-            .build();
-
-
-    private static final OffenderIepReview OFFENDER_2_IEP_REVIEW = OffenderIepReview.builder()
-            .offenderNo(null)
-            .currentLevel("Standard")
-            .provenAdjudications(0)
-            .positiveIeps(0)
-            .negativeIeps(9)
-            .bookingId(-51L)
-            .lastReviewTime(LocalDateTime.of(2017, 9, 6, 9, 44, 1))
-            .firstName(null)
-            .middleName(null)
-            .lastName(null)
-            .cellLocation(null)
-            .build();
-
-    private static final OffenderIepReview OFFENDER_3_IEP_REVIEW = OffenderIepReview.builder()
-            .offenderNo("A1176RS")
-            .currentLevel("Enhanced")
-            .provenAdjudications(1)
-            .positiveIeps(0)
-            .negativeIeps(8)
-            .bookingId(-32L)
-            .lastReviewTime(LocalDateTime.of(2017, 9, 6, 9, 44, 1))
-            .firstName("FRED")
-            .middleName(null)
-            .lastName("JAMES")
-            .cellLocation("LEI-H-1")
-            .build();
-
-    private static final OffenderIepReview OFFENDER_4_IEP_REVIEW = OffenderIepReview.builder()
-            .offenderNo("A5576RS")
-            .currentLevel("Standard")
-            .provenAdjudications(0)
-            .positiveIeps(1)
-            .negativeIeps(7)
-            .bookingId(-31L)
-            .lastReviewTime(LocalDateTime.of(2017, 9, 6, 9, 44, 1))
-            .firstName("HARRY")
-            .middleName(null)
-            .lastName("SARLY")
-            .cellLocation("LEI-H-1")
-            .build();
-
-    private static final OffenderIepReview OFFENDER_5_IEP_REVIEW = OffenderIepReview.builder()
-            .offenderNo("A4476RS")
-            .currentLevel("Standard")
-            .provenAdjudications(0)
-            .positiveIeps(0)
-            .negativeIeps(6)
-            .bookingId(-30L)
-            .lastReviewTime(LocalDateTime.of(2017, 9, 6, 9, 44, 1))
-            .firstName("NEIL")
-            .middleName(null)
-            .lastName("SARLY")
-            .cellLocation("LEI-H-1")
-            .build();
-
-    private static final OffenderIepReview OFFENDER_6_IEP_REVIEW = OffenderIepReview.builder()
-            .offenderNo("A6676RS")
-            .currentLevel("Basic")
-            .provenAdjudications(1)
-            .positiveIeps(0)
-            .negativeIeps(5)
-            .bookingId(-29L)
-            .lastReviewTime(LocalDateTime.of(2017, 9, 6, 9, 44, 1))
-            .firstName("NEIL")
-            .middleName("IAN")
-            .lastName("BRADLEY")
-            .cellLocation("LEI-H-1")
-            .build();
-
-    private static final OffenderIepReview OFFENDER_7_IEP_REVIEW = OffenderIepReview.builder()
-            .offenderNo("A9876RS")
-            .currentLevel("Standard")
-            .provenAdjudications(0)
-            .positiveIeps(0)
-            .negativeIeps(4)
-            .bookingId(-28L)
-            .lastReviewTime(LocalDateTime.of(2017, 9, 6, 9, 44, 1))
-            .firstName("RODERICK")
-            .middleName(null)
-            .lastName("STEWART")
-            .cellLocation("LEI-H-1")
-            .build();
-
-    private static final OffenderIepReview OFFENDER_8_IEP_REVIEW = OffenderIepReview.builder()
-            .offenderNo("A9876EC")
-            .currentLevel("Standard")
-            .provenAdjudications(0)
-            .positiveIeps(0)
-            .negativeIeps(3)
-            .bookingId(-27L)
-            .lastReviewTime(LocalDateTime.of(2017, 9, 6, 9, 44, 1))
-            .firstName("ERIC")
-            .middleName(null)
-            .lastName("CLAPTON")
-            .cellLocation("LEI-H-1")
-            .build();
-
-    private static final OffenderIepReview OFFENDER_9_IEP_REVIEW = OffenderIepReview.builder()
-            .offenderNo("A1178RS")
-            .currentLevel("Standard")
-            .provenAdjudications(0)
-            .positiveIeps(0)
-            .negativeIeps(2)
-            .bookingId(-34L)
-            .lastReviewTime(LocalDateTime.of(2017, 9, 6, 9, 44, 1))
-            .firstName("FRED")
-            .middleName(null)
-            .lastName("QUIMBY")
-            .cellLocation("LEI-H-1")
-            .build();
-
-    private static final OffenderIepReview OFFENDER_10_IEP_REVIEW = OffenderIepReview.builder()
-            .offenderNo("A1234AI")
-            .currentLevel(null)
-            .provenAdjudications(0)
-            .positiveIeps(0)
-            .negativeIeps(1)
-            .bookingId(-9L)
-            .lastReviewTime(null)
-            .firstName("CHESTER")
-            .middleName("JAMES")
-            .lastName("THOMPSON")
-            .cellLocation("LEI-A-1-5")
-            .build();
-
 }
