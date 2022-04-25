@@ -18,17 +18,18 @@ class IEPTransferService(
   staffUserAccountRepository = staffUserAccountRepository,
   authenticationFacade = authenticationFacade
 ) {
-  fun resetLevelForPrison(booking: OffenderBooking, transferMovement: ExternalMovement) {
+  fun resetLevelForPrison(booking: OffenderBooking, transferMovement: ExternalMovement): OffenderBooking =
     availablePrisonIepLevelRepository.findByAgencyLocation_IdAndDefaultIep(booking.location.id, true)
-      .firstOrNull()?.run {
+      .firstOrNull()?.let {
         booking.addIepLevel(
-          /* iepLevel = */ this.iepLevel,
+          /* iepLevel = */ it.iepLevel,
           /* comment = */ "Admission to ${transferMovement.toAgency.description}",
           /* iepDateTime = */ transferMovement.movementTime,
           /* staff = */ getLoggedInStaff().getOrThrow()
+
         ).also {
           visitBalanceTransferService.adjustVisitBalances(booking)
         }
+        booking
       } ?: throw BadRequestException("No default IEP level found")
-  }
 }
