@@ -18,7 +18,6 @@ import java.util.List;
 public class SearchOffenderRequest extends PageRequest {
     private String username;
     private String keywords;
-    private boolean returnIep;
     private boolean returnAlerts;
     private boolean returnCategory;
     private String convictedStatus;
@@ -29,7 +28,7 @@ public class SearchOffenderRequest extends PageRequest {
 
     @Builder(toBuilder = true)
     public SearchOffenderRequest(final String orderBy, final Order order, final long offset, final long limit, final String username, final String keywords,
-                                 final String locationPrefix, final List<String> alerts, final boolean returnIep, final boolean returnAlerts, final boolean returnCategory, final String convictedStatus,
+                                 final String locationPrefix, final List<String> alerts, final boolean returnAlerts, final boolean returnCategory, final String convictedStatus,
                                  final LocalDate fromDob, final LocalDate toDob) {
         super(orderBy, order, offset, limit);
 
@@ -38,7 +37,6 @@ public class SearchOffenderRequest extends PageRequest {
         this.locationPrefix = locationPrefix;
         this.alerts = alerts;
         this.returnAlerts = returnAlerts;
-        this.returnIep = returnIep;
         this.returnCategory = returnCategory;
         this.convictedStatus = convictedStatus;
         this.fromDob = fromDob;
