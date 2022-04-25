@@ -541,7 +541,9 @@ public class OffenderResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Offenders IEP (Incentives & Earned Privileges) summary for the latest booking only.", description = "Offenders IEP (Incentives & Earned Privileges) summary.")
+    @Operation(summary = "Offenders IEP (Incentives & Earned Privileges) summary for the latest booking only.",
+        description = "Deprecated - use Incentives API to get IEP summary, requires MAINTAIN_IEP",
+        deprecated = true, hidden = true)
     @GetMapping("/{offenderNo}/iepSummary")
     public PrivilegeSummary getLatestBookingIEPSummaryForOffender(@NotNull @PathVariable("offenderNo") @Parameter(description = "offenderNo", required = true, example = "A1234AA") final String offenderNo, @RequestParam(value = "withDetails", required = false, defaultValue = "false") @Parameter(description = "Toggle to return IEP detail entries in response (or not).", required = true) final boolean withDetails) {
         var booking = bookingService.getLatestBookingByOffenderNo(offenderNo);
