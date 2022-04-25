@@ -161,12 +161,11 @@ public class BookingResource {
         @RequestParam(value = "prisonId", required = false) @Parameter(description = "Filter by prison Id", example = "MDI") final String prisonId,
         @RequestParam(value = "bookingId", required = false) @Parameter(description = "Filter by a list of booking ids") final List<Long> bookingIds,
         @RequestParam(value = "offenderNo", required = false) @Parameter(description = "Filter by a list of offender numbers") final List<String> offenderNos,
-        @RequestParam(value = "iepLevel", defaultValue = "false", required = false) @Parameter(description = "Return IEP level data") final boolean iepLevel,
         @RequestParam(value = "legalInfo", defaultValue = "false", required = false) @Parameter(description = "Return additional legal information (imprisonmentStatus, legalStatus, convictedStatus)") final boolean legalInfo,
         @RequestParam(value = "image", defaultValue = "false", required = false) @Parameter(description = "Return facial ID for latest prisoner image") final boolean imageId,
         @ParameterObject @PageableDefault(sort = {"lastName","firstName","offenderNo"}, direction = Direction.ASC) final Pageable pageable) {
 
-        return bookingService.getPrisonerBookingSummary(prisonId, bookingIds, offenderNos, iepLevel, legalInfo, imageId, pageable);
+        return bookingService.getPrisonerBookingSummary(prisonId, bookingIds, offenderNos, legalInfo, imageId, pageable);
     }
 
     @ApiResponses({
@@ -502,7 +501,9 @@ public class BookingResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Offenders IEP (Incentives & Earned Privileges) summary.", description = "Offenders IEP (Incentives & Earned Privileges) summary.")
+    @Operation(summary = "Offenders IEP (Incentives & Earned Privileges) summary.",
+        description = "Deprecated - use Incentives API to get IEP summary, requires MAINTAIN_IEP",
+        deprecated = true, hidden = true)
     @GetMapping("/offenders/iepSummary")
     public Collection<PrivilegeSummary> getBookingIEPSummaryForOffenders(@RequestParam("bookings") @Parameter(description = "The booking ids of offender", required = true) final List<Long> bookings, @RequestParam(value = "withDetails", required = false, defaultValue = "false") @Parameter(description = "Toggle to return IEP detail entries in response (or not).", required = true) final boolean withDetails) {
         return bookingService.getBookingIEPSummary(bookings, withDetails).values();
@@ -514,7 +515,9 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Prisoners IEP (Incentives & Earned Privileges) summary for a list of booking IDs", description = "Must have prisoner in users caseload access data")
+    @Operation(summary = "Prisoners IEP (Incentives & Earned Privileges) summary for a list of booking IDs",
+        description = "Deprecated - use Incentives API to get IEP summary, requires MAINTAIN_IEP",
+        deprecated = true, hidden = true)
     @PostMapping("/iepSummary")
     public Collection<PrivilegeSummary> getBookingIEPSummaryDetailForBookingIds(@NotNull @RequestBody @Parameter(description = "The booking ids of prisoners", required = true) final List<Long> bookings) {
         return bookingService.getBookingIEPSummary(bookings, true).values();

@@ -39,13 +39,10 @@ import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateAgency;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdatePhone;
 import uk.gov.justice.hmpps.prison.api.model.Telephone;
 import uk.gov.justice.hmpps.prison.api.support.Order;
-import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.service.AgencyService;
 import uk.gov.justice.hmpps.prison.service.LocationGroupService;
-import uk.gov.justice.hmpps.prison.service.OffenderIepReview;
-import uk.gov.justice.hmpps.prison.service.OffenderIepReviewSearchCriteria;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -268,32 +265,6 @@ public class AgencyResource {
     @GetMapping("/prison/{agencyId}")
     public PrisonContactDetail getPrisonContactDetail(@PathVariable("agencyId") @Parameter(required = true) final String agencyId) {
         return agencyService.getPrisonContactDetail(agencyId);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Per offender information necessary for IEP review.", description = "IEP review information")
-    @GetMapping("/{agencyId}/iepReview")
-    public ResponseEntity<List<OffenderIepReview>> getPrisonIepReview(@PathVariable("agencyId") @Parameter(required = true) final String agencyId,
-                                                                      @RequestParam("iepLevel") @Parameter(description = "IEP level to filter by.") final String iepLevel,
-                                                                      @RequestParam("location") @Parameter(description = "Offender location to filter by.") final String location,
-                                                                      @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned offenders.") final Long pageOffset,
-                                                                      @RequestHeader(value = "Page-Limit", defaultValue = "20") @Parameter(description = "Requested limit to number of offenders returned.") final Long pageLimit) {
-        final var criteria = OffenderIepReviewSearchCriteria.builder()
-            .agencyId(agencyId)
-            .iepLevel(iepLevel)
-            .location(location)
-            .pageRequest(new PageRequest(pageOffset, pageLimit))
-            .build();
-
-        final var prisonIepReview = agencyService.getPrisonIepReview(criteria);
-
-        return ResponseEntity.ok()
-            .headers(prisonIepReview.getPaginationHeaders())
-            .body(prisonIepReview.getItems());
     }
 
     @ApiResponses({

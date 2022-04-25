@@ -354,10 +354,6 @@ public class AgencyService {
         return pcd.getPremise() == null && pcd.getCity() == null && pcd.getLocality() == null && pcd.getPostCode() == null;
     }
 
-    public Page<OffenderIepReview> getPrisonIepReview(final OffenderIepReviewSearchCriteria criteria) {
-        return agencyRepository.getPrisonIepReview(criteria);
-    }
-
     public List<OffenderCell> getCellsWithCapacityInAgency(@NotNull final String agencyId, final String attribute) {
         final var cells = agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive(agencyId, "CELL", true);
         return cells.stream()
