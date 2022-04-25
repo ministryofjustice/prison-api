@@ -59,7 +59,6 @@ public class LocationResource {
             @RequestParam(value = "fromDob", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Offenders with a DOB >= this date", example = "1970-01-02") final LocalDate fromDob,
             @RequestParam(value = "toDob", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Offenders with a DOB <= this date", example = "1975-01-02") final LocalDate toDob,
             @RequestParam(value = "alerts", required = false) @Parameter(description = "alert flags to filter by") final List<String> alerts,
-            @RequestParam(value = "returnIep", required = false, defaultValue = "false") @Parameter(description = "return IEP data") final boolean returnIep,
             @RequestParam(value = "returnAlerts", required = false, defaultValue = "false") @Parameter(description = "return Alert data") final boolean returnAlerts,
             @RequestParam(value = "returnCategory", defaultValue = "false") @Parameter(description = "retrieve category classification from assessments") final boolean returnCategory,
             @RequestParam(value = "convictedStatus", defaultValue = "All") @Parameter(description = "retrieve inmates with a specific convicted status (Convicted, Remand, default: All)") final String convictedStatus,
@@ -72,7 +71,6 @@ public class LocationResource {
                 .keywords(keywords)
                 .locationPrefix(locationPrefix)
                 .returnAlerts(returnAlerts)
-                .returnIep(returnIep)
                 .returnCategory(returnCategory)
                 .convictedStatus(convictedStatus)
                 .alerts(alerts)
