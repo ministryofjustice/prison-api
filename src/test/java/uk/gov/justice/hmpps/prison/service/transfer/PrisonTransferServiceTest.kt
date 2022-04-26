@@ -30,7 +30,7 @@ import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer
 import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
+import java.util.Optional
 
 internal class PrisonTransferServiceTest {
   private val externalMovementService: ExternalMovementTransferService = mock()
