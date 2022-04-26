@@ -14,9 +14,11 @@ import org.hibernate.annotations.NotFound;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.time.LocalDate;
 
@@ -34,6 +36,8 @@ public class OffenderProgramProfile extends AuditableEntity {
 
     @Id
     @Column(name = "OFF_PRGREF_ID")
+    @SequenceGenerator(name = "OFF_PRGREF_ID", sequenceName = "OFF_PRGREF_ID", allocationSize = 1)
+    @GeneratedValue(generator = "OFF_PRGREF_ID")
     private Long offenderProgramReferenceId;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
@@ -57,6 +61,8 @@ public class OffenderProgramProfile extends AuditableEntity {
     @Column(name = "OFFENDER_PROGRAM_STATUS")
     private String programStatus;
 
+    private Long programId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
@@ -65,8 +71,36 @@ public class OffenderProgramProfile extends AuditableEntity {
     })
     private OffenderProgramEndReason endReason;
 
+    @Column(name = "OFFENDER_END_REASON", updatable = false, insertable = false)
+    private String endReasonCode;
+
     @Column(name = "OFFENDER_END_COMMENT_TEXT")
     private String endCommentText;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotFound(action = IGNORE)
+    @JoinColumnsOrFormulas(value = {
+            @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + WaitlistDecisionCode.DOMAIN + "'", referencedColumnName = "domain")),
+            @JoinColumnOrFormula(column = @JoinColumn(name = "WAITLIST_DECISION_CODE", referencedColumnName = "code"))
+    })
+    private WaitlistDecisionCode waitlistDecision;
+
+    @Column(name = "WAITLIST_DECISION_CODE", updatable = false, insertable = false)
+    private LocalDate waitlistDecisionCode;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotFound(action = IGNORE)
+    @JoinColumnsOrFormulas(value = {
+            @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + RejectReasonCode.DOMAIN + "'", referencedColumnName = "domain")),
+            @JoinColumnOrFormula(column = @JoinColumn(name = "REJECT_REASON_CODE", referencedColumnName = "code"))
+    })
+    private RejectReasonCode rejectReason;
+
+    @Column(name = "REJECT_REASON_CODE", updatable = false, insertable = false)
+    private String rejectReasonCode;
+
+    @Column(name = "REJECT_DATE")
+    private LocalDate rejectDate;
 
     public boolean isCurrentActivity() {
         final var currentDate = LocalDate.now();
