@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.tuple
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -507,9 +508,11 @@ class OffendersResourceTransferImpTest : ResourceTest() {
       @Nested
       @DisplayName("When bed is released")
       inner class BedReleased {
+        private lateinit var transferOutDateTime: LocalDateTime
+
         @BeforeEach
         internal fun setUp() {
-          transferOutToCourt(offenderNo, toLocation = "COURT1", shouldReleaseBed = true)
+          transferOutDateTime = transferOutToCourt(offenderNo, toLocation = "COURT1", shouldReleaseBed = true)
         }
 
         @Nested
@@ -526,15 +529,12 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               .body(
                 BodyInserters.fromValue(
                   """
-          {
-            "agencyId":"LEI",
-            "commentText":"admitted",
-            "movementReasonCode":"CRT",
-            "dateTime": "${
-                  LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-                  }"
-            
-          }
+                  {
+                    "agencyId":"LEI",
+                    "commentText":"admitted",
+                    "movementReasonCode":"CRT",
+                    "dateTime": "${LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
+                  }
                   """.trimIndent()
                 )
               )
@@ -555,15 +555,12 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               .body(
                 BodyInserters.fromValue(
                   """
-          {
-            "agencyId":"LEI",
-            "commentText":"admitted",
-            "movementReasonCode":"CRT",
-            "dateTime": "${
-                  LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-                  }"
-            
-          }
+                  {
+                    "agencyId":"LEI",
+                    "commentText":"admitted",
+                    "movementReasonCode":"CRT",
+                    "dateTime": "${LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
+                  }
                   """.trimIndent()
                 )
               )
@@ -584,14 +581,11 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               .body(
                 BodyInserters.fromValue(
                   """
-          {
-            "agencyId":"LEI",
-            "commentText":"admitted",
-            "dateTime": "${
-                  LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-                  }"
-            
-          }
+                  {
+                    "agencyId":"LEI",
+                    "commentText":"admitted",
+                    "dateTime": "${LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
+                  }
                   """.trimIndent()
                 )
               )
@@ -605,9 +599,10 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
         @Nested
         @DisplayName("Returning to a different prison")
+        @Disabled
         inner class DifferentPrison {
           @Test
-          internal fun `returning to a different prison not allowed yet - coming soon`() {
+          internal fun `returning to a different prison is allowed`() {
             webTestClient.put()
               .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
               .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
@@ -616,15 +611,204 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               .body(
                 BodyInserters.fromValue(
                   """
-          {
-            "agencyId":"MDI",
-            "commentText":"admitted"
-          }
+                  {
+                    "agencyId":"MDI",
+                    "commentText":"admitted"
+                  }
                   """.trimIndent()
                 )
               )
               .exchange()
-              .expectStatus().isBadRequest
+              .expectStatus().isOk
+              .expectBody()
+              .jsonPath("inOutStatus").isEqualTo("IN")
+              .jsonPath("status").isEqualTo("ACTIVE IN")
+              .jsonPath("lastMovementTypeCode").isEqualTo("ADM")
+              .jsonPath("lastMovementReasonCode").isEqualTo("TRNCRT")
+          }
+
+          @Test
+          internal fun `by default transfer will be into reception`() {
+            webTestClient.put()
+              .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
+              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
+              .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+              .accept(MediaType.APPLICATION_JSON)
+              .body(
+                BodyInserters.fromValue(
+                  """
+                  {
+                    "agencyId":"MDI",
+                    "commentText":"admitted"
+                  }
+                  """.trimIndent()
+                )
+              )
+              .exchange()
+              .expectStatus().isOk
+              .expectBody()
+              .jsonPath("assignedLivingUnit.agencyId").isEqualTo("MDI")
+              .jsonPath("assignedLivingUnit.description").isEqualTo("RECP")
+          }
+
+          @Test
+          internal fun `will create a new movement and deactivate the transfer out`() {
+            assertThat(getMovements(bookingId))
+              .extracting(
+                ExternalMovement::getMovementSequence,
+                ExternalMovement::getMovementDirection,
+                ExternalMovement::isActive
+              )
+              .containsExactly(
+                tuple(1L, IN, false),
+                tuple(2L, OUT, true),
+              )
+
+            webTestClient.put()
+              .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
+              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
+              .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+              .accept(MediaType.APPLICATION_JSON)
+              .body(
+                BodyInserters.fromValue(
+                  """
+                  {
+                    "agencyId":"MDI",
+                    "commentText":"admitted"
+                  }
+                  """.trimIndent()
+                )
+              )
+              .exchange()
+              .expectStatus().isOk
+
+            assertThat(getMovements(bookingId))
+              .extracting(
+                ExternalMovement::getMovementSequence,
+                ExternalMovement::getMovementDirection,
+                ExternalMovement::isActive
+              )
+              .containsExactly(
+                tuple(1L, IN, false),
+                tuple(2L, OUT, false),
+                tuple(3L, IN, true),
+              )
+          }
+
+          @Test
+          internal fun `will create a new bed assignment history record with no reason code`() {
+            val receiveDateTime = LocalDateTime.now().minusMinutes(2)
+            assertThat(getBedAssignments(bookingId))
+              .extracting(
+                BedAssignmentHistory::getAssignmentReason,
+                BedAssignmentHistory::getAssignmentDate,
+                BedAssignmentHistory::getAssignmentEndDate
+              )
+              .containsExactly(
+                tuple("ADM", bookingInTime.toLocalDate(), LocalDate.now()),
+                tuple("19", bookingInTime.toLocalDate(), null),
+              )
+
+            webTestClient.put()
+              .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
+              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
+              .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+              .accept(MediaType.APPLICATION_JSON)
+              .body(
+                BodyInserters.fromValue(
+                  """
+                  {
+                    "agencyId":"MDI",
+                    "commentText":"admitted"
+                    "dateTime": "${receiveDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"          
+                  }
+                  """.trimIndent()
+                )
+              )
+              .exchange()
+              .expectStatus().isOk
+
+            assertThat(getBedAssignments(bookingId))
+              .extracting(
+                BedAssignmentHistory::getAssignmentReason,
+                BedAssignmentHistory::getAssignmentDate,
+                BedAssignmentHistory::getAssignmentEndDate
+              )
+              .containsExactly(
+                tuple("ADM", bookingInTime.toLocalDate(), LocalDate.now()),
+                tuple("19", transferOutDateTime, LocalDate.now()),
+                tuple(null, receiveDateTime, null),
+              )
+          }
+
+          @Test
+          internal fun `will reset IEP level back to default for prison`() {
+            assertThat(getCurrentIEP(offenderNo))
+              .extracting(PrivilegeSummary::getIepLevel)
+              .isEqualTo("Enhanced")
+
+            webTestClient.put()
+              .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
+              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
+              .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+              .accept(MediaType.APPLICATION_JSON)
+              .body(
+                BodyInserters.fromValue(
+                  """
+                  {
+                    "agencyId":"MDI",
+                    "commentText":"admitted"
+                  }
+                  """.trimIndent()
+                )
+              )
+              .exchange()
+              .expectStatus().isOk
+
+            assertThat(getCurrentIEP(offenderNo))
+              .extracting(PrivilegeSummary::getIepLevel)
+              .isEqualTo("Entry")
+          }
+
+          @Test
+          internal fun `will create a transfer via court case note`() {
+            assertThat(getCaseNotes(bookingId))
+              .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getText)
+              .contains(
+                tuple(
+                  "TRANSFER",
+                  "FROMTOL",
+                  "Offender admitted to LEEDS for reason: Unconvicted Remand from OUTSIDE."
+                )
+              )
+
+            webTestClient.put()
+              .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
+              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
+              .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+              .accept(MediaType.APPLICATION_JSON)
+              .body(
+                BodyInserters.fromValue(
+                  """
+                  {
+                    "agencyId":"MDI",
+                    "commentText":"admitted"
+                  }
+                  """.trimIndent()
+                )
+              )
+              .exchange()
+              .expectStatus().isOk
+
+            assertThat(getCaseNotes(bookingId))
+              .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getText)
+              .contains(
+                tuple(
+                  "TRANSFER",
+                  "FROMTOL",
+                  "Offender admitted to MOORLAND for reason: Transfer Via Court from LEEDS."
+                )
+              )
           }
         }
       }
@@ -632,9 +816,11 @@ class OffendersResourceTransferImpTest : ResourceTest() {
       @Nested
       @DisplayName("When bed is not released")
       inner class BedNotReleased {
+        private lateinit var transferOutDateTime: LocalDateTime
+
         @BeforeEach
         internal fun setUp() {
-          transferOutToCourt(offenderNo, toLocation = "COURT1", shouldReleaseBed = false)
+          transferOutDateTime = transferOutToCourt(offenderNo, toLocation = "COURT1", shouldReleaseBed = false)
         }
 
         @Nested
@@ -667,10 +853,11 @@ class OffendersResourceTransferImpTest : ResourceTest() {
         }
 
         @Nested
+        @Disabled
         @DisplayName("Returning to a different prison")
         inner class DifferentPrison {
           @Test
-          internal fun `returning to a different prison not allowed yet - coming soon`() {
+          internal fun `will set the prisoner as active in`() {
             webTestClient.put()
               .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
               .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
@@ -679,15 +866,64 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               .body(
                 BodyInserters.fromValue(
                   """
-          {
-            "agencyId":"MDI",
-            "commentText":"admitted"
-          }
+                  {
+                    "agencyId":"LEI",
+                    "commentText":"admitted",
+                    "movementReasonCode":"CRT",
+                    "dateTime": "${LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
+                  }
                   """.trimIndent()
                 )
               )
               .exchange()
-              .expectStatus().isBadRequest
+              .expectStatus().isOk
+              .expectBody()
+              .jsonPath("inOutStatus").isEqualTo("IN")
+              .jsonPath("status").isEqualTo("ACTIVE IN")
+          }
+
+          @Test
+          internal fun `will create a new bed assignment history record with no reason code`() {
+            val receiveDateTime = LocalDateTime.now().minusMinutes(2)
+            assertThat(getBedAssignments(bookingId))
+              .extracting(
+                BedAssignmentHistory::getAssignmentReason,
+                BedAssignmentHistory::getAssignmentDate,
+                BedAssignmentHistory::getAssignmentEndDate
+              )
+              .containsExactly(
+                tuple("ADM", bookingInTime.toLocalDate(), null),
+              )
+
+            webTestClient.put()
+              .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
+              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
+              .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+              .accept(MediaType.APPLICATION_JSON)
+              .body(
+                BodyInserters.fromValue(
+                  """
+                  {
+                    "agencyId":"MDI",
+                    "commentText":"admitted"
+                    "dateTime": "${receiveDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"          
+                  }
+                  """.trimIndent()
+                )
+              )
+              .exchange()
+              .expectStatus().isOk
+
+            assertThat(getBedAssignments(bookingId))
+              .extracting(
+                BedAssignmentHistory::getAssignmentReason,
+                BedAssignmentHistory::getAssignmentDate,
+                BedAssignmentHistory::getAssignmentEndDate
+              )
+              .containsExactly(
+                tuple("ADM", bookingInTime.toLocalDate(), LocalDate.now()),
+                tuple(null, receiveDateTime, null),
+              )
           }
         }
       }
@@ -724,7 +960,8 @@ class OffendersResourceTransferImpTest : ResourceTest() {
       .jsonPath("assignedLivingUnit.description").doesNotExist()
   }
 
-  fun transferOutToCourt(offenderNo: String, toLocation: String, shouldReleaseBed: Boolean = false) {
+  fun transferOutToCourt(offenderNo: String, toLocation: String, shouldReleaseBed: Boolean = false): LocalDateTime {
+    val movementTime = LocalDateTime.now().minusHours(1)
     webTestClient.put()
       .uri("/api/offenders/{nomsId}/court-transfer-out", offenderNo)
       .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER_ALPHA")))
@@ -737,7 +974,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             "transferReasonCode":"19",
             "commentText":"court appearance",
             "toLocation":"$toLocation",
-            "movementTime": "${LocalDateTime.now().minusHours(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}",
+            "movementTime": "${movementTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}",
             "shouldReleaseBed": $shouldReleaseBed
             
           }
@@ -752,6 +989,8 @@ class OffendersResourceTransferImpTest : ResourceTest() {
       .jsonPath("lastMovementTypeCode").isEqualTo("CRT")
       .jsonPath("lastMovementReasonCode").isEqualTo("19")
       .jsonPath("assignedLivingUnit.agencyId").isEqualTo("LEI")
+
+    return movementTime
   }
 
   private fun getMovements(bookingId: Long) = externalMovementRepository.findAllByOffenderBooking_BookingId(bookingId)
