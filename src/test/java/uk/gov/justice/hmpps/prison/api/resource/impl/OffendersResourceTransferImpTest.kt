@@ -331,7 +331,13 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
         assertThat(getCaseNotes(bookingId))
           .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getText)
-          .contains(tuple("TRANSFER", "FROMTOL", "Offender admitted to MOORLAND for reason: Transfer In from Other Establishment from LEEDS."))
+          .contains(
+            tuple(
+              "TRANSFER",
+              "FROMTOL",
+              "Offender admitted to MOORLAND for reason: Transfer In from Other Establishment from LEEDS."
+            )
+          )
       }
     }
 
@@ -472,7 +478,221 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
   @Nested
   @DisplayName("PUT /{offenderNo}/court-transfer-in")
-  inner class CourtTransferIn
+  inner class CourtTransferIn {
+    @Nested
+    @DisplayName("Successful transfer in")
+    inner class Success {
+      private lateinit var offenderNo: String
+      private var bookingId: Long = 0
+      private val bookingInTime = LocalDateTime.now().minusDays(1)
+
+      @BeforeEach
+      internal fun setUp() {
+        OffenderBuilder().withBooking(
+          OffenderBookingBuilder(
+            prisonId = "LEI",
+            bookingInTime = bookingInTime,
+            cellLocation = "LEI-RECP"
+          ).withIEPLevel("ENH").withInitialVoBalances(2, 8)
+        ).save(
+          webTestClient = webTestClient,
+          jwtAuthenticationHelper = jwtAuthenticationHelper,
+          bookingRepository = bookingRepository
+        ).also {
+          offenderNo = it.offenderNo
+          bookingId = it.bookingId
+        }
+      }
+
+      @Nested
+      @DisplayName("When bed is released")
+      inner class BedReleased {
+        @BeforeEach
+        internal fun setUp() {
+          transferOutToCourt(offenderNo, toLocation = "COURT1", shouldReleaseBed = true)
+        }
+
+        @Nested
+        @DisplayName("Returning back to the same prison")
+        inner class SamePrison {
+
+          @Test
+          internal fun `will set the prisoner as active in`() {
+            webTestClient.put()
+              .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
+              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
+              .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+              .accept(MediaType.APPLICATION_JSON)
+              .body(
+                BodyInserters.fromValue(
+                  """
+          {
+            "agencyId":"LEI",
+            "commentText":"admitted",
+            "movementReasonCode":"CRT",
+            "dateTime": "${
+                  LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                  }"
+            
+          }
+                  """.trimIndent()
+                )
+              )
+              .exchange()
+              .expectStatus().isOk
+              .expectBody()
+              .jsonPath("inOutStatus").isEqualTo("IN")
+              .jsonPath("status").isEqualTo("ACTIVE IN")
+          }
+
+          @Test
+          internal fun `can override movement reason`() {
+            webTestClient.put()
+              .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
+              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
+              .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+              .accept(MediaType.APPLICATION_JSON)
+              .body(
+                BodyInserters.fromValue(
+                  """
+          {
+            "agencyId":"LEI",
+            "commentText":"admitted",
+            "movementReasonCode":"CRT",
+            "dateTime": "${
+                  LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                  }"
+            
+          }
+                  """.trimIndent()
+                )
+              )
+              .exchange()
+              .expectStatus().isOk
+              .expectBody()
+              .jsonPath("lastMovementTypeCode").isEqualTo("CRT")
+              .jsonPath("lastMovementReasonCode").isEqualTo("CRT")
+          }
+
+          @Test
+          internal fun `cell remains unchanged from when the prisoner was transferred to court`() {
+            webTestClient.put()
+              .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
+              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
+              .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+              .accept(MediaType.APPLICATION_JSON)
+              .body(
+                BodyInserters.fromValue(
+                  """
+          {
+            "agencyId":"LEI",
+            "commentText":"admitted",
+            "dateTime": "${
+                  LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                  }"
+            
+          }
+                  """.trimIndent()
+                )
+              )
+              .exchange()
+              .expectStatus().isOk
+              .expectBody()
+              .jsonPath("assignedLivingUnit.agencyId").isEqualTo("LEI")
+              .jsonPath("assignedLivingUnit.description").isEqualTo("COURT") // as set when bed was released
+          }
+        }
+
+        @Nested
+        @DisplayName("Returning to a different prison")
+        inner class DifferentPrison {
+          @Test
+          internal fun `returning to a different prison not allowed yet - coming soon`() {
+            webTestClient.put()
+              .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
+              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
+              .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+              .accept(MediaType.APPLICATION_JSON)
+              .body(
+                BodyInserters.fromValue(
+                  """
+          {
+            "agencyId":"MDI",
+            "commentText":"admitted"
+          }
+                  """.trimIndent()
+                )
+              )
+              .exchange()
+              .expectStatus().isBadRequest
+          }
+        }
+      }
+
+      @Nested
+      @DisplayName("When bed is not released")
+      inner class BedNotReleased {
+        @BeforeEach
+        internal fun setUp() {
+          transferOutToCourt(offenderNo, toLocation = "COURT1", shouldReleaseBed = false)
+        }
+
+        @Nested
+        @DisplayName("Returning back to the same prison")
+        inner class SamePrison {
+
+          @Test
+          internal fun `cell remains on changed from when the prisoner was transferred to court`() {
+            webTestClient.put()
+              .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
+              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
+              .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+              .accept(MediaType.APPLICATION_JSON)
+              .body(
+                BodyInserters.fromValue(
+                  """
+          {
+            "agencyId":"LEI",
+            "commentText":"admitted"
+          }
+                  """.trimIndent()
+                )
+              )
+              .exchange()
+              .expectStatus().isOk
+              .expectBody()
+              .jsonPath("assignedLivingUnit.agencyId").isEqualTo("LEI")
+              .jsonPath("assignedLivingUnit.description").isEqualTo("RECP")
+          }
+        }
+
+        @Nested
+        @DisplayName("Returning to a different prison")
+        inner class DifferentPrison {
+          @Test
+          internal fun `returning to a different prison not allowed yet - coming soon`() {
+            webTestClient.put()
+              .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
+              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
+              .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+              .accept(MediaType.APPLICATION_JSON)
+              .body(
+                BodyInserters.fromValue(
+                  """
+          {
+            "agencyId":"MDI",
+            "commentText":"admitted"
+          }
+                  """.trimIndent()
+                )
+              )
+              .exchange()
+              .expectStatus().isBadRequest
+          }
+        }
+      }
+    }
+  }
 
   fun transferOut(offenderNo: String, toLocation: String) {
     webTestClient.put()
@@ -502,6 +722,36 @@ class OffendersResourceTransferImpTest : ResourceTest() {
       .jsonPath("lastMovementReasonCode").isEqualTo("NOTR")
       .jsonPath("assignedLivingUnit.agencyId").isEqualTo("TRN")
       .jsonPath("assignedLivingUnit.description").doesNotExist()
+  }
+
+  fun transferOutToCourt(offenderNo: String, toLocation: String, shouldReleaseBed: Boolean = false) {
+    webTestClient.put()
+      .uri("/api/offenders/{nomsId}/court-transfer-out", offenderNo)
+      .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER_ALPHA")))
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .accept(MediaType.APPLICATION_JSON)
+      .body(
+        BodyInserters.fromValue(
+          """
+          {
+            "transferReasonCode":"19",
+            "commentText":"court appearance",
+            "toLocation":"$toLocation",
+            "movementTime": "${LocalDateTime.now().minusHours(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}",
+            "shouldReleaseBed": $shouldReleaseBed
+            
+          }
+          """.trimIndent()
+        )
+      )
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("inOutStatus").isEqualTo("OUT")
+      .jsonPath("status").isEqualTo("ACTIVE OUT")
+      .jsonPath("lastMovementTypeCode").isEqualTo("CRT")
+      .jsonPath("lastMovementReasonCode").isEqualTo("19")
+      .jsonPath("assignedLivingUnit.agencyId").isEqualTo("LEI")
   }
 
   private fun getMovements(bookingId: Long) = externalMovementRepository.findAllByOffenderBooking_BookingId(bookingId)
