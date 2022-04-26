@@ -21,7 +21,6 @@ import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOut;
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOutToCourt;
 import uk.gov.justice.hmpps.prison.exception.CustomErrorCodes;
 import uk.gov.justice.hmpps.prison.repository.FinanceRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory;
@@ -152,8 +151,7 @@ public class PrisonerReleaseAndTransferService {
         // generate the release case note
         generateReleaseNote(booking, releaseDateTime, movementReason);
 
-        // Update occupancy (recursively)
-        updateBeds(booking, releaseDateTime);
+        updateBedAssignmentHistory(booking, releaseDateTime);
 
         deactivateSentences(booking.getBookingId());
 
@@ -234,7 +232,7 @@ public class PrisonerReleaseAndTransferService {
         final var toLocation = agencyLocationRepository.findByIdAndTypeAndActiveAndDeactivationDateIsNull(requestToTransferOut.getToLocation(), agencyLocationType, true).orElseThrow(EntityNotFoundException.withMessage(format("No %s agency found", requestToTransferOut.getToLocation())));
 
         createOutMovement(booking, TRN, movementReason, booking.getLocation(), toLocation, transferDateTime, requestToTransferOut.getCommentText(), requestToTransferOut.getEscortType());
-        updateBeds(booking, transferDateTime);
+        updateBedAssignmentHistory(booking, transferDateTime);
         updatePayPeriods(booking.getBookingId(), transferDateTime.toLocalDate());
 
         final var trnLocation = agencyLocationRepository.findById(TRN.getCode()).orElseThrow(EntityNotFoundException.withMessage(format("No %s agency found", TRN.getCode())));
@@ -273,7 +271,7 @@ public class PrisonerReleaseAndTransferService {
 
         createOutMovement(booking, CRT, movementReason, booking.getLocation(), toLocation, transferDateTime, requestToTransferOutToCourt.getCommentText(), requestToTransferOutToCourt.getEscortType());
         if (requestToTransferOutToCourt.isShouldReleaseBed()) {
-            updateBeds(booking, transferDateTime);
+            updateBedAssignmentHistory(booking, transferDateTime);
             booking.setLivingUnitMv(null);
             booking.setAssignedLivingUnit(agencyInternalLocationRepository.findOneByLocationCodeAndAgencyId("COURT", booking.getLocation().getId()).orElseThrow(EntityNotFoundException.withMessage(format("No COURT internal location found for %s", booking.getLocation().getId()))));
         }
@@ -663,19 +661,7 @@ public class PrisonerReleaseAndTransferService {
         caseNoteRepository.save(newCaseNote);
     }
 
-    private void decrementCurrentOccupancy(final AgencyInternalLocation assignedLivingUnit) {
-        if (assignedLivingUnit != null) {
-            assignedLivingUnit.decrementCurrentOccupancy();
-            agencyInternalLocationRepository.save(assignedLivingUnit);
-            decrementCurrentOccupancy(assignedLivingUnit.getParentLocation());
-        }
-    }
-
-
-    private void updateBeds(final OffenderBooking booking, final LocalDateTime releaseDateTime) {
-        // Update occupancy (recursively)
-        decrementCurrentOccupancy(booking.getAssignedLivingUnit());
-
+    private void updateBedAssignmentHistory(final OffenderBooking booking, final LocalDateTime releaseDateTime) {
         // Update Bed Assignment
         bedAssignmentHistoriesRepository.findByBedAssignmentHistoryPKOffenderBookingIdAndBedAssignmentHistoryPKSequence(booking.getBookingId(),
             bedAssignmentHistoriesRepository.getMaxSeqForBookingId(booking.getBookingId())).ifPresent(b -> {

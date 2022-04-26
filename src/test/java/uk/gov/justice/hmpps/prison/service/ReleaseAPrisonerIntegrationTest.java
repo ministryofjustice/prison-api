@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,7 +90,10 @@ public class ReleaseAPrisonerIntegrationTest {
     }
 
     @Test
+    @Ignore("This test is disabled because decrementing the occupancy is done by a trigger that only runs in Oracle not H2")
     public void replenishSpaceInPreviousLivingUnit() {
+        // Test disabled until we can test against Oracle - previously worked since code incorrectly decremented the occupancy
+        // so the occupancy was decremented twice
         final var offenderBooking = getOffenderBooking(OFFENDER_NO, true);
         final var currentlyAssignedLivingUnit = offenderBooking.getAssignedLivingUnit();
         final var occupancyBeforeRelease = currentlyAssignedLivingUnit.getCurrentOccupancy();
