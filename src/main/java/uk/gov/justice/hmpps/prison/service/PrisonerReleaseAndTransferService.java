@@ -18,6 +18,7 @@ import uk.gov.justice.hmpps.prison.api.model.RequestToRecall;
 import uk.gov.justice.hmpps.prison.api.model.RequestToReleasePrisoner;
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferIn;
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOut;
+import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOutToCourt;
 import uk.gov.justice.hmpps.prison.exception.CustomErrorCodes;
 import uk.gov.justice.hmpps.prison.repository.FinanceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
@@ -247,6 +248,41 @@ public class PrisonerReleaseAndTransferService {
         booking.setLocation(trnLocation);
         booking.setCreateLocation(trnLocation);
         booking.setStatusReason(TRN.getCode() + "-" + requestToTransferOut.getTransferReasonCode());
+        booking.setCommStatus(null);
+
+        return offenderTransformer.transform(booking);
+    }
+    @VerifyOffenderAccess(overrideRoles = {"TRANSFER_PRISONER_ALPHA"})
+    public InmateDetail transferOutPrisonerToCourt(final String prisonerIdentifier, final RequestToTransferOutToCourt requestToTransferOutToCourt) {
+        // NB This API requires further validation before it can be used for production - it is currently used just to generate test data
+
+        // check that prisoner is active in
+        final OffenderBooking booking = getAndCheckOffenderBooking(prisonerIdentifier, false);
+
+        checkMovementTypes(CRT.getCode(), requestToTransferOutToCourt.getTransferReasonCode());
+
+        // Generate the external movement out
+        final var movementReason = movementReasonRepository.findById(MovementReason.pk(requestToTransferOutToCourt.getTransferReasonCode())).orElseThrow(EntityNotFoundException.withMessage(format("No movement reason %s found", requestToTransferOutToCourt.getTransferReasonCode())));
+
+        final var transferDateTime = getAndCheckMovementTime(requestToTransferOutToCourt.getMovementTime(), booking.getBookingId());
+        // set previous active movements to false
+        deactivatePreviousMovements(booking);
+
+        final var agencyLocationType = agencyLocationTypeRepository.findById(AgencyLocationType.CRT).orElseThrow(EntityNotFoundException.withMessage(format("Agency Location Type of %s not Found", AgencyLocationType.INST.getCode())));
+        final var toLocation = agencyLocationRepository.findByIdAndTypeAndActiveAndDeactivationDateIsNull(requestToTransferOutToCourt.getToLocation(), agencyLocationType, true).orElseThrow(EntityNotFoundException.withMessage(format("No %s agency found", requestToTransferOutToCourt.getToLocation())));
+
+        createOutMovement(booking, CRT, movementReason, booking.getLocation(), toLocation, transferDateTime, requestToTransferOutToCourt.getCommentText(), requestToTransferOutToCourt.getEscortType());
+        if (requestToTransferOutToCourt.isShouldReleaseBed()) {
+            updateBeds(booking, transferDateTime);
+            booking.setLivingUnitMv(null);
+            booking.setAssignedLivingUnit(agencyInternalLocationRepository.findOneByLocationCodeAndAgencyId("COURT", booking.getLocation().getId()).orElseThrow(EntityNotFoundException.withMessage(format("No COURT internal location found for %s", booking.getLocation().getId()))));
+        }
+
+        // update the booking record
+        booking.setInOutStatus("OUT");
+        booking.setActive(true);
+        booking.setBookingStatus("O");
+        booking.setStatusReason(CRT.getCode() + "-" + requestToTransferOutToCourt.getTransferReasonCode());
         booking.setCommStatus(null);
 
         return offenderTransformer.transform(booking);
@@ -752,6 +788,7 @@ public class PrisonerReleaseAndTransferService {
 
         final MovementReason movementReason = getMovementReason(requestForCourtTransferIn.getMovementReasonCode(), latestExternalMovement.getMovementReason());
 
+        offenderBooking.setStatusReason(MovementType.CRT.getCode() + "-" + movementReason.getCode());
         final LocalDateTime movementTime = getAndCheckMovementTime(requestForCourtTransferIn.getDateTime(), offenderBooking.getBookingId());
 
         final ExternalMovement.ExternalMovementBuilder builder = ExternalMovement.builder()
