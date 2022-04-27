@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.*;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramEndReason;
@@ -30,10 +31,17 @@ public interface OffenderProgramProfileRepository extends CrudRepository<Offende
     Page<OffenderProgramProfile> findByNomisIdAndProgramStatusAndEndDateAfter(String nomsId, List<String> programStatuses, LocalDate earliestEndDate, Pageable pageable);
 
     @Modifying
-    @Query("update OffenderProgramProfile set endDate = :endDate, endReason = :endReason where programStatus <> 'WAIT' and (endDate is null or endDate > :date) and offenderBooking = :booking and agencyLocation = :agency")
-    void endActivitiesForBookingAtPrison(OffenderBooking booking, AgencyLocation agency, LocalDate endDate, OffenderProgramEndReason endReason);
+    @Query("update OffenderProgramProfile set endDate = :endDate, endReason = :endReason where programStatus <> 'WAIT' and (endDate is null or endDate > :endDate) and offenderBooking = :booking and agencyLocation = :agency")
+    void endActivitiesForBookingAtPrison(@Param("booking") OffenderBooking booking, @Param("agency") AgencyLocation agency, @Param("endDate") LocalDate endDate, @Param("endReason") OffenderProgramEndReason endReason);
 
     @Modifying
     @Query("update OffenderProgramProfile set endDate = :endDate, endReason = :endReason where programStatus = 'WAIT' and waitlistDecisionCode <> 'REJ' and offenderBooking = :booking and agencyLocation = :agency")
-    void endWaitListActivitiesForBookingAtPrison(OffenderBooking booking, AgencyLocation agency, LocalDate endDate, OffenderProgramEndReason endReason);
+    void endWaitListActivitiesForBookingAtPrison(@Param("booking") OffenderBooking booking, @Param("agency") AgencyLocation agency, @Param("endDate") LocalDate endDate, @Param("endReason") OffenderProgramEndReason endReason);
+
+    @Query("select OP from  OffenderProgramProfile OP where OP.endDate is null and OP.programStatus = 'WAIT' and OP.waitlistDecisionCode <> 'REJ' and OP.offenderBooking = :booking and OP.agencyLocation = :agency")
+    List<OffenderProgramProfile> findActiveWaitListActivitiesForBookingAtPrison(@Param("booking") OffenderBooking booking, @Param("agency") AgencyLocation agency);
+
+    @Query("select OP from  OffenderProgramProfile OP where OP.programStatus <> 'WAIT' and (OP.endDate is null or OP.endDate > :endDate) and OP.offenderBooking = :booking and OP.agencyLocation = :agency")
+    List<OffenderProgramProfile> findActiveActivitiesForBookingAtPrison(@Param("booking") OffenderBooking booking, @Param("agency") AgencyLocation agency, @Param("endDate") LocalDate date);
+
 }

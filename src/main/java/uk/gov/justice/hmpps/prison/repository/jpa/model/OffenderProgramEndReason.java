@@ -1,9 +1,8 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
+import javax.persistence.*;
 
 @Entity
 @DiscriminatorValue(OffenderProgramEndReason.DOMAIN)
@@ -17,7 +16,4 @@ public class OffenderProgramEndReason extends ReferenceCode {
         super(DOMAIN, code, description);
     }
 
-    public static MovementType.Pk pk(final String code) {
-        return new ReferenceCode.Pk(DOMAIN, code);
-    }
 }
