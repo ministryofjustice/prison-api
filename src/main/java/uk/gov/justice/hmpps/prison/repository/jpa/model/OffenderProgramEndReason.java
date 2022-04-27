@@ -17,7 +17,7 @@ public class OffenderProgramEndReason extends ReferenceCode {
         super(DOMAIN, code, description);
     }
 
-    public static MovementType.Pk pk(final String code) {
-        return new ReferenceCode.Pk(DOMAIN, code);
+    public static Pk pk(final String code) {
+        return new Pk(DOMAIN, code);
     }
 }
