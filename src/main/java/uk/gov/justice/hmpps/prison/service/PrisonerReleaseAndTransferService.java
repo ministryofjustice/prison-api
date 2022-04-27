@@ -746,6 +746,9 @@ public class PrisonerReleaseAndTransferService {
         return format("%05d", number);
     }
 
+    public InmateDetail courtTransferInV2(final String offenderNo, final RequestForCourtTransferIn requestForCourtTransferIn) {
+        return prisonTransferService.transferViaCourt(offenderNo, requestForCourtTransferIn);
+    }
     public InmateDetail courtTransferIn(final String offenderNo, final RequestForCourtTransferIn requestForCourtTransferIn) {
 
         final OffenderBooking offenderBooking = this.getOffenderBooking(offenderNo);

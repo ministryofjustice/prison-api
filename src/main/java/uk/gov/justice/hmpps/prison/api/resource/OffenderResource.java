@@ -295,6 +295,22 @@ public class OffenderResource {
         @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to transfer a prisoner", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "WIP Transfer a prisoner into a prison from court. Must be an out prisoner in currently in transfer status, requires the TRANSFER_PRISONER_ALPHA role")
+    @PutMapping("/{offenderNo}/court-transfer-in/v2")
+    @PreAuthorize("hasRole('TRANSFER_PRISONER_ALPHA') and hasAuthority('SCOPE_write')")
+    @ProxyUser
+    public InmateDetail courtTransferInV2(
+        @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
+        @RequestBody @NotNull @Valid final RequestForCourtTransferIn requestForCourtTransferIn) {
+        return prisonerReleaseAndTransferService.courtTransferInV2(offenderNo, requestForCourtTransferIn);
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to transfer a prisoner", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Transfer a prisoner into a prison from temporary absence. Must be an out prisoner in currently in transfer status, requires the TRANSFER_PRISONER role")
     @PutMapping("/{offenderNo}/temporary-absence-arrival")
     @PreAuthorize("hasRole('TRANSFER_PRISONER') and hasAuthority('SCOPE_write')")
