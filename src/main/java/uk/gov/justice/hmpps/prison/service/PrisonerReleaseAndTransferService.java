@@ -274,6 +274,14 @@ public class PrisonerReleaseAndTransferService {
             updateBedAssignmentHistory(booking, transferDateTime);
             booking.setLivingUnitMv(null);
             booking.setAssignedLivingUnit(agencyInternalLocationRepository.findOneByLocationCodeAndAgencyId("COURT", booking.getLocation().getId()).orElseThrow(EntityNotFoundException.withMessage(format("No COURT internal location found for %s", booking.getLocation().getId()))));
+            bedAssignmentHistoriesRepository.save(BedAssignmentHistory.builder()
+                .bedAssignmentHistoryPK(new BedAssignmentHistoryPK(booking.getBookingId(), bedAssignmentHistoriesRepository.getMaxSeqForBookingId(booking.getBookingId()) + 1))
+                .livingUnitId(booking.getAssignedLivingUnit().getLocationId())
+                .assignmentDate(transferDateTime.toLocalDate())
+                .assignmentDateTime(transferDateTime)
+                .assignmentReason(movementReason.getCode())
+                .offenderBooking(booking)
+                .build());
         }
 
         // update the booking record
@@ -773,12 +781,12 @@ public class PrisonerReleaseAndTransferService {
         offenderBooking.setInOutStatus(IN.name());
         offenderBooking.setLivingUnitMv(null);
 
-        deactivatePreviousMovements(offenderBooking);
 
         final MovementReason movementReason = getMovementReason(requestForCourtTransferIn.getMovementReasonCode(), latestExternalMovement.getMovementReason());
 
         offenderBooking.setStatusReason(MovementType.CRT.getCode() + "-" + movementReason.getCode());
         final LocalDateTime movementTime = getAndCheckMovementTime(requestForCourtTransferIn.getDateTime(), offenderBooking.getBookingId());
+        deactivatePreviousMovements(offenderBooking);
 
         final ExternalMovement.ExternalMovementBuilder builder = ExternalMovement.builder()
             .movementDate(movementTime.toLocalDate())
