@@ -86,7 +86,7 @@ public class OffenderProgramProfile extends AuditableEntity {
     private WaitlistDecisionCode waitlistDecision;
 
     @Column(name = "WAITLIST_DECISION_CODE", updatable = false, insertable = false)
-    private LocalDate waitlistDecisionCode;
+    private String waitlistDecisionCode;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)

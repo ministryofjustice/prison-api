@@ -13,6 +13,8 @@ public class WaitlistDecisionCode extends ReferenceCode {
 
     static final String DOMAIN = "PS_ACT_DEC";
 
+    public static final ReferenceCode.Pk REJ = new ReferenceCode.Pk(DOMAIN, "REJ");
+
     public WaitlistDecisionCode(final String code, final String description) {
         super(DOMAIN, code, description);
     }
