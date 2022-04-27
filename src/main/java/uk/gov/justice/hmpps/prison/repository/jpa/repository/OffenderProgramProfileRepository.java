@@ -2,8 +2,12 @@ package uk.gov.justice.hmpps.prison.repository.jpa.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramEndReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramProfile;
 
 import java.time.LocalDate;
@@ -24,4 +28,12 @@ public interface OffenderProgramProfileRepository extends CrudRepository<Offende
             """
     )
     Page<OffenderProgramProfile> findByNomisIdAndProgramStatusAndEndDateAfter(String nomsId, List<String> programStatuses, LocalDate earliestEndDate, Pageable pageable);
+
+    @Modifying
+    @Query("update OffenderProgramProfile set endDate = :endDate, endReason = :endReason where programStatus <> 'WAIT' and (endDate is null or endDate > :date) and offenderBooking = :booking and agencyLocation = :agency")
+    void endActivitiesForBookingAtPrison(OffenderBooking booking, AgencyLocation agency, LocalDate endDate, OffenderProgramEndReason endReason);
+
+    @Modifying
+    @Query("update OffenderProgramProfile set endDate = :endDate, endReason = :endReason where programStatus = 'WAIT' and waitlistDecisionCode <> 'REJ' and offenderBooking = :booking and agencyLocation = :agency")
+    void endWaitListActivitiesForBookingAtPrison(OffenderBooking booking, AgencyLocation agency, LocalDate endDate, OffenderProgramEndReason endReason);
 }

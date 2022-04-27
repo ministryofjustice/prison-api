@@ -11,7 +11,13 @@ import javax.persistence.Entity;
 public class OffenderProgramEndReason extends ReferenceCode {
     public static final String DOMAIN = "PS_END_RSN";
 
+    public static final ReferenceCode.Pk TRF = new ReferenceCode.Pk(DOMAIN, "TRF");
+
     public OffenderProgramEndReason(final String code, final String description) {
         super(DOMAIN, code, description);
+    }
+
+    public static MovementType.Pk pk(final String code) {
+        return new ReferenceCode.Pk(DOMAIN, code);
     }
 }
