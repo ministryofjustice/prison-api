@@ -11,4 +11,5 @@ import java.util.Optional;
 public interface OffenderBookingRepository extends PagingAndSortingRepository<OffenderBooking, Long>, JpaSpecificationExecutor<OffenderBooking> {
     Optional<OffenderBooking> findByOffenderNomsIdAndActive(String nomsId, boolean active);
     Optional<OffenderBooking> findByOffenderNomsIdAndBookingSequence(String nomsId, Integer bookingSequence);
+    Optional<OffenderBooking> findByBookingId(Long bookingId);
 }

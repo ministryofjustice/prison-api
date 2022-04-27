@@ -18,8 +18,11 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramEndReason
+import uk.gov.justice.hmpps.prison.repository.jpa.model.RejectReasonCode
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
 import uk.gov.justice.hmpps.prison.service.BadRequestException
 import uk.gov.justice.hmpps.prison.service.ConflictingRequestException
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
@@ -36,6 +39,9 @@ internal class PrisonTransferServiceTest {
   private val iepTransferService: IEPTransferService = mock()
   private val caseNoteTransferService: CaseNoteTransferService = mock()
   private val offenderBookingRepository: OffenderBookingRepository = mock()
+  private val activityTransferService: ActivityTransferService = mock()
+  private val offenderProgramEndReasonRepository: ReferenceCodeRepository<OffenderProgramEndReason> = mock()
+  private val rejectReasonRepository: ReferenceCodeRepository<RejectReasonCode> = mock()
   private val agencyInternalLocationRepository: AgencyInternalLocationRepository = mock()
   private val transformer: OffenderTransformer = OffenderTransformer(Clock.systemDefaultZone())
 
@@ -59,6 +65,9 @@ internal class PrisonTransferServiceTest {
     caseNoteTransferService,
     offenderBookingRepository,
     agencyInternalLocationRepository,
+    activityTransferService,
+    offenderProgramEndReasonRepository,
+    rejectReasonRepository,
     transformer
   )
   lateinit var booking: OffenderBooking
