@@ -13,6 +13,7 @@ class OffenderProgramProfileBuilder(
   var prisonId: String = "MDI",
   var startDate: LocalDate = LocalDate.of(2016, 11, 9),
   var programStatus: String = "ALLOC",
+  var waitListDecisionCode: String? = null,
   var courseActivityId: Long = -1,
   var offenderBookingId: Long = -1,
   var programId: Long = -1
@@ -39,7 +40,8 @@ class OffenderProgramProfileBuilder(
 
     val offenderProgramProfile =
       OffenderProgramProfile.builder().offenderBooking(offenderBooking).programStatus(programStatus)
-        .programId(programId).agencyLocation(prison).courseActivity(courseActivity).startDate(startDate).build()
+        .programId(programId).agencyLocation(prison).courseActivity(courseActivity).startDate(startDate)
+        .waitlistDecisionCode(waitListDecisionCode).build()
 
     return offenderProgramProfileRepository?.save(offenderProgramProfile)
       ?: throw BadRequestException("No offender program profile repository provided")

@@ -81,11 +81,11 @@ public class OffenderProgramProfile extends AuditableEntity {
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + WaitlistDecisionCode.DOMAIN + "'", referencedColumnName = "domain")),
-            @JoinColumnOrFormula(column = @JoinColumn(name = "WAITLIST_DECISION_CODE", referencedColumnName = "code"))
+            @JoinColumnOrFormula(column = @JoinColumn(name = "WAITLIST_DECISION_CODE", referencedColumnName = "code", updatable = false, insertable = false))
     })
     private WaitlistDecisionCode waitlistDecision;
 
-    @Column(name = "WAITLIST_DECISION_CODE", updatable = false, insertable = false)
+    @Column(name = "WAITLIST_DECISION_CODE")
     private String waitlistDecisionCode;
 
     @ManyToOne(fetch = FetchType.LAZY)
