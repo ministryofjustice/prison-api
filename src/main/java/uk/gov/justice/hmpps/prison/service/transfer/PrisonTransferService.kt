@@ -25,6 +25,7 @@ import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer
 import kotlin.Result.Companion.failure
 import kotlin.Result.Companion.success
+
 @Transactional
 @Service
 class PrisonTransferService(
@@ -91,7 +92,7 @@ class PrisonTransferService(
       booking,
       movement.fromAgency,
       request.dateTime.toLocalDate(),
-      programEndReasonRepository.lookupReferenceCode(OffenderProgramEndReason.TRF).getOrThrow()
+      OffenderProgramEndReason.TRF.code
     )
     // TODO
     return transformer.transform(booking)
@@ -177,7 +178,8 @@ private fun AgencyInternalLocation.assertHasSpaceInCell(): Result<AgencyInternal
 } else {
   failure(
     ConflictingRequestException.withMessage(
-      "The cell ${this.description} does not have any available capacity", CustomErrorCodes.NO_CELL_CAPACITY
+      "The cell ${this.description} does not have any available capacity",
+      CustomErrorCodes.NO_CELL_CAPACITY
     )
   )
 }

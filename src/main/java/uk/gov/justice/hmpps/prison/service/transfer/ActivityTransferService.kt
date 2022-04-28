@@ -16,7 +16,7 @@ class ActivityTransferService(private val offenderProgramProfileRepository: Offe
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 
-  fun endActivitiesAndWaitlist(booking: OffenderBooking, fromAgency: AgencyLocation, endDate: LocalDate, endReason: OffenderProgramEndReason) {
+  fun endActivitiesAndWaitlist(booking: OffenderBooking, fromAgency: AgencyLocation, endDate: LocalDate, endReason: String) {
     offenderProgramProfileRepository.endActivitiesForBookingAtPrison(booking, fromAgency, endDate, endReason)
     offenderProgramProfileRepository.endWaitListActivitiesForBookingAtPrison(booking, fromAgency, endDate, endReason)
   }

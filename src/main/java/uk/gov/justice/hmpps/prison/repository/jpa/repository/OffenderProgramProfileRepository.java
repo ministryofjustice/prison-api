@@ -31,14 +31,14 @@ public interface OffenderProgramProfileRepository extends CrudRepository<Offende
     Page<OffenderProgramProfile> findByNomisIdAndProgramStatusAndEndDateAfter(String nomsId, List<String> programStatuses, LocalDate earliestEndDate, Pageable pageable);
 
     @Modifying
-    @Query("update OffenderProgramProfile set endDate = :endDate, endReason = :endReason where programStatus <> 'WAIT' and (endDate is null or endDate > :endDate) and offenderBooking = :booking and agencyLocation = :agency")
-    void endActivitiesForBookingAtPrison(@Param("booking") OffenderBooking booking, @Param("agency") AgencyLocation agency, @Param("endDate") LocalDate endDate, @Param("endReason") OffenderProgramEndReason endReason);
+    @Query("update OffenderProgramProfile set endDate = :endDate, endReasonCode = :endReason where coalesce(programStatus, '') <> 'WAIT' and (endDate is null or endDate > :endDate) and offenderBooking = :booking and agencyLocation = :agency")
+    void endActivitiesForBookingAtPrison(@Param("booking") OffenderBooking booking, @Param("agency") AgencyLocation agency, @Param("endDate") LocalDate endDate, @Param("endReason") String endReason);
 
     @Modifying
-    @Query("update OffenderProgramProfile set endDate = :endDate, endReason = :endReason where programStatus = 'WAIT' and waitlistDecisionCode <> 'REJ' and offenderBooking = :booking and agencyLocation = :agency")
-    void endWaitListActivitiesForBookingAtPrison(@Param("booking") OffenderBooking booking, @Param("agency") AgencyLocation agency, @Param("endDate") LocalDate endDate, @Param("endReason") OffenderProgramEndReason endReason);
+    @Query("update OffenderProgramProfile set endDate = :endDate, endReasonCode = :endReason where programStatus = 'WAIT' and coalesce(waitlistDecisionCode, '') <> 'REJ' and offenderBooking = :booking and agencyLocation = :agency")
+    void endWaitListActivitiesForBookingAtPrison(@Param("booking") OffenderBooking booking, @Param("agency") AgencyLocation agency, @Param("endDate") LocalDate endDate, @Param("endReason") String endReason);
 
-    @Query("select OP from  OffenderProgramProfile OP where OP.endDate is null and OP.programStatus = 'WAIT' and OP.waitlistDecisionCode <> 'REJ' and OP.offenderBooking = :booking and OP.agencyLocation = :agency")
+    @Query("select OP from  OffenderProgramProfile OP where OP.endDate is null and OP.programStatus = 'WAIT' and coalesce(OP.waitlistDecisionCode, '') <> 'REJ'  and OP.offenderBooking = :booking and OP.agencyLocation = :agency")
     List<OffenderProgramProfile> findActiveWaitListActivitiesForBookingAtPrison(@Param("booking") OffenderBooking booking, @Param("agency") AgencyLocation agency);
 
     @Query("select OP from  OffenderProgramProfile OP where OP.programStatus <> 'WAIT' and (OP.endDate is null or OP.endDate > :endDate) and OP.offenderBooking = :booking and OP.agencyLocation = :agency")

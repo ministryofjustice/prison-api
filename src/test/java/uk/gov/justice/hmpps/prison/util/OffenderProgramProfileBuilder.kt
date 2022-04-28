@@ -17,7 +17,7 @@ class OffenderProgramProfileBuilder(
   var prisonId: String = "MDI",
   var startDate: LocalDate = LocalDate.of(2016, 11, 9),
   var programStatus: String = "ALLOC",
-  var waitListDecisionCode: ReferenceCode.Pk? = null,
+  var waitListDecisionCode: String? = null,
   var courseActivityId: Long = -1,
   var offenderBookingId: Long = -1,
   var programId: Long = -1
@@ -26,7 +26,6 @@ class OffenderProgramProfileBuilder(
   fun save(
     courseActivityRepository: CourseActivityRepository? = null,
     agencyLocationRepository: AgencyLocationRepository? = null,
-    waitListDecisionCodeRepository: ReferenceCodeRepository<WaitlistDecisionCode>? = null,
     bookingRepository: OffenderBookingRepository? = null,
     offenderProgramProfileRepository: OffenderProgramProfileRepository? = null
   ): OffenderProgramProfile {
@@ -43,17 +42,11 @@ class OffenderProgramProfileBuilder(
       it.findByIdOrNull(courseActivityId) ?: throw BadRequestException("prison $prisonId not found")
     } ?: throw BadRequestException("No course activity repository provided")
 
-    val decisionCode = waitListDecisionCode?.let {
-      waitListDecisionCodeRepository?.let {
-        it.findByIdOrNull(waitListDecisionCode)
-          ?: throw BadRequestException("decision code  $waitListDecisionCode not found")
-      } ?: throw BadRequestException("No decision code repository provided")
-    }
 
     val offenderProgramProfile =
       OffenderProgramProfile.builder().offenderBooking(offenderBooking).programStatus(programStatus)
         .programId(programId).agencyLocation(prison).courseActivity(courseActivity).startDate(startDate)
-        .build()
+        .waitlistDecisionCode(waitListDecisionCode).build()
 
     return offenderProgramProfileRepository?.save(offenderProgramProfile)
       ?: throw BadRequestException("No offender program profile repository provided")

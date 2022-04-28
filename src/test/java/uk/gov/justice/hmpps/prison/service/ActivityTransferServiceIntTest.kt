@@ -16,12 +16,10 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramEndReason
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramProfile
-import uk.gov.justice.hmpps.prison.repository.jpa.model.WaitlistDecisionCode
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourseActivityRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProgramProfileRepository
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
 import uk.gov.justice.hmpps.prison.service.transfer.ActivityTransferService
 import uk.gov.justice.hmpps.prison.util.OffenderBookingBuilder
 import uk.gov.justice.hmpps.prison.util.OffenderBuilder
@@ -52,12 +50,6 @@ class ActivityTransferServiceIntTest : ResourceTest() {
   private lateinit var agencyLocationRepository: AgencyLocationRepository
 
   @Autowired
-  private lateinit var endReasonRepository: ReferenceCodeRepository<OffenderProgramEndReason>
-
-  @Autowired
-  private lateinit var waitListDecisionRepository: ReferenceCodeRepository<WaitlistDecisionCode>
-
-  @Autowired
   private lateinit var transferService: ActivityTransferService
 
   @Nested
@@ -86,25 +78,39 @@ class ActivityTransferServiceIntTest : ResourceTest() {
           agencyLocationRepository = agencyLocationRepository,
           offenderProgramProfileRepository = offenderProgramProfileRepository
         )
-        OffenderProgramProfileBuilder(offenderBookingId = it.bookingId, prisonId = it.agencyId, courseActivityId = -3).save(
+        OffenderProgramProfileBuilder(
+          offenderBookingId = it.bookingId,
+          prisonId = it.agencyId,
+          courseActivityId = -3
+        ).save(
           courseActivityRepository = courseActivityRepository,
           bookingRepository = offenderBookingRepository,
           agencyLocationRepository = agencyLocationRepository,
           offenderProgramProfileRepository = offenderProgramProfileRepository
         )
-        OffenderProgramProfileBuilder(offenderBookingId = it.bookingId, prisonId = it.agencyId, programStatus = "WAIT", courseActivityId = -4).save(
+        OffenderProgramProfileBuilder(
+          offenderBookingId = it.bookingId,
+          prisonId = it.agencyId,
+          programStatus = "WAIT",
+          courseActivityId = -4
+        ).save(
           courseActivityRepository = courseActivityRepository,
           bookingRepository = offenderBookingRepository,
           agencyLocationRepository = agencyLocationRepository,
           offenderProgramProfileRepository = offenderProgramProfileRepository
         )
         // rejected waitlist decision should mean that this is ignored
-        OffenderProgramProfileBuilder(offenderBookingId = it.bookingId, prisonId = it.agencyId, programStatus = "WAIT", waitListDecisionCode = WaitlistDecisionCode.REJ, courseActivityId = -5).save(
+        OffenderProgramProfileBuilder(
+          offenderBookingId = it.bookingId,
+          prisonId = it.agencyId,
+          programStatus = "WAIT",
+          waitListDecisionCode = "REJ",
+          courseActivityId = -5
+        ).save(
           courseActivityRepository = courseActivityRepository,
           bookingRepository = offenderBookingRepository,
           agencyLocationRepository = agencyLocationRepository,
-          offenderProgramProfileRepository = offenderProgramProfileRepository,
-          waitListDecisionCodeRepository = waitListDecisionRepository
+          offenderProgramProfileRepository = offenderProgramProfileRepository
         )
       }
     }
@@ -117,7 +123,6 @@ class ActivityTransferServiceIntTest : ResourceTest() {
 
       val offenderBooking = offenderBookingRepository.findByBookingId(bookingId).orElseThrow()
       val prison = agencyLocationRepository.findById("LEI").orElseThrow()
-      val endReason = endReasonRepository.findById(OffenderProgramEndReason.TRF).orElseThrow()
 
       assertThat(
         getActiveActivities(
@@ -126,7 +131,7 @@ class ActivityTransferServiceIntTest : ResourceTest() {
       ).extracting(
         OffenderProgramProfile::getProgramStatus, { it.courseActivity.activityId }
       ).containsExactly(
-        tuple("ALLOC", -1L),tuple("ALLOC", -3L)
+        tuple("ALLOC", -1L), tuple("ALLOC", -3L)
       )
 
       assertThat(
@@ -134,15 +139,15 @@ class ActivityTransferServiceIntTest : ResourceTest() {
           offenderBooking, prison
         )
       ).extracting(
-        OffenderProgramProfile::getProgramStatus, { it.courseActivity.activityId }, OffenderProgramProfile::getWaitlistDecisionCode
-      ).isEmpty()
-
-            //).containsExactly(
-        // tuple("WAIT", -4L)
-      //)
+        OffenderProgramProfile::getProgramStatus,
+        { it.courseActivity.activityId },
+        OffenderProgramProfile::getWaitlistDecisionCode
+      ).containsExactly(
+        tuple("WAIT", -4L, null)
+      )
 
       transferService.endActivitiesAndWaitlist(
-        offenderBooking, prison, testEndDate, endReason
+        offenderBooking, prison, testEndDate, OffenderProgramEndReason.TRF.code
       )
 
       assertThat(
@@ -196,7 +201,6 @@ class ActivityTransferServiceIntTest : ResourceTest() {
 
     return movementTime
   }
-
 
 
 }
