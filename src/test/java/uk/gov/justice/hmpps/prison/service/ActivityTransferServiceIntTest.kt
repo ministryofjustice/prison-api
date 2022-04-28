@@ -11,15 +11,10 @@ import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.api.resource.impl.ResourceTest
-import uk.gov.justice.hmpps.prison.repository.BookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramEndReason
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramProfile
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourseActivityRepository
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProgramProfileRepository
 import uk.gov.justice.hmpps.prison.service.transfer.ActivityTransferService
 import uk.gov.justice.hmpps.prison.util.OffenderBookingBuilder
 import uk.gov.justice.hmpps.prison.util.OffenderBuilder
@@ -34,19 +29,7 @@ import java.time.format.DateTimeFormatter
 @WithMockUser
 class ActivityTransferServiceIntTest : ResourceTest() {
   @Autowired
-  private lateinit var bookingRepository: BookingRepository
-
-  @Autowired
-  private lateinit var offenderProgramProfileRepository: OffenderProgramProfileRepository
-
-  @Autowired
-  private lateinit var courseActivityRepository: CourseActivityRepository
-
-  @Autowired
-  private lateinit var offenderBookingRepository: OffenderBookingRepository
-
-  @Autowired
-  private lateinit var agencyLocationRepository: AgencyLocationRepository
+  private lateinit var dataLoader: DataLoaderRepository
 
   @Autowired
   private lateinit var transferService: ActivityTransferService
@@ -63,54 +46,32 @@ class ActivityTransferServiceIntTest : ResourceTest() {
       OffenderBuilder().withBooking(
         OffenderBookingBuilder(
           prisonId = "LEI", bookingInTime = bookingInTime
-        ).withIEPLevel("ENH").withInitialVoBalances(2, 8)
+        )
+          .withIEPLevel("ENH")
+          .withInitialVoBalances(2, 8)
+          .withProgramProfiles(
+            OffenderProgramProfileBuilder(),
+            OffenderProgramProfileBuilder(
+              courseActivityId = -3
+            ),
+            OffenderProgramProfileBuilder(
+              programStatus = "WAIT",
+              courseActivityId = -4
+            ),
+            // rejected waitlist decision should mean that this is ignored
+            OffenderProgramProfileBuilder(
+              programStatus = "WAIT",
+              waitListDecisionCode = "REJ",
+              courseActivityId = -5
+            )
+          )
       ).save(
         webTestClient = webTestClient,
         jwtAuthenticationHelper = jwtAuthenticationHelper,
-        bookingRepository = bookingRepository
+        dataLoader = dataLoader
       ).also {
         offenderNo = it.offenderNo
         bookingId = it.bookingId
-        OffenderProgramProfileBuilder(offenderBookingId = it.bookingId, prisonId = it.agencyId).save(
-          courseActivityRepository = courseActivityRepository,
-          bookingRepository = offenderBookingRepository,
-          agencyLocationRepository = agencyLocationRepository,
-          offenderProgramProfileRepository = offenderProgramProfileRepository
-        )
-        OffenderProgramProfileBuilder(
-          offenderBookingId = it.bookingId,
-          prisonId = it.agencyId,
-          courseActivityId = -3
-        ).save(
-          courseActivityRepository = courseActivityRepository,
-          bookingRepository = offenderBookingRepository,
-          agencyLocationRepository = agencyLocationRepository,
-          offenderProgramProfileRepository = offenderProgramProfileRepository
-        )
-        OffenderProgramProfileBuilder(
-          offenderBookingId = it.bookingId,
-          prisonId = it.agencyId,
-          programStatus = "WAIT",
-          courseActivityId = -4
-        ).save(
-          courseActivityRepository = courseActivityRepository,
-          bookingRepository = offenderBookingRepository,
-          agencyLocationRepository = agencyLocationRepository,
-          offenderProgramProfileRepository = offenderProgramProfileRepository
-        )
-        // rejected waitlist decision should mean that this is ignored
-        OffenderProgramProfileBuilder(
-          offenderBookingId = it.bookingId,
-          prisonId = it.agencyId,
-          programStatus = "WAIT",
-          waitListDecisionCode = "REJ",
-          courseActivityId = -5
-        ).save(
-          courseActivityRepository = courseActivityRepository,
-          bookingRepository = offenderBookingRepository,
-          agencyLocationRepository = agencyLocationRepository,
-          offenderProgramProfileRepository = offenderProgramProfileRepository
-        )
       }
     }
 
@@ -119,8 +80,8 @@ class ActivityTransferServiceIntTest : ResourceTest() {
       val testEndDate = LocalDate.of(2022, 10, 1)
       transferOutToCourt(offenderNo, "COURT1", true)
 
-      val offenderBooking = offenderBookingRepository.findByBookingId(bookingId).orElseThrow()
-      val prison = agencyLocationRepository.findById("LEI").orElseThrow()
+      val offenderBooking = dataLoader.offenderBookingRepository.findByBookingId(bookingId).orElseThrow()
+      val prison = dataLoader.agencyLocationRepository.findById("LEI").orElseThrow()
 
       assertThat(
         getActiveActivities(
@@ -166,16 +127,18 @@ class ActivityTransferServiceIntTest : ResourceTest() {
     offenderBooking: OffenderBooking,
     prison: AgencyLocation,
     testEndDate: LocalDate
-  ): List<OffenderProgramProfile> = offenderProgramProfileRepository.findActiveActivitiesForBookingAtPrison(
-    offenderBooking, prison, testEndDate
-  )
+  ): List<OffenderProgramProfile> =
+    dataLoader.offenderProgramProfileRepository.findActiveActivitiesForBookingAtPrison(
+      offenderBooking, prison, testEndDate
+    )
 
   fun getActiveWaitList(
     offenderBooking: OffenderBooking,
     prison: AgencyLocation
-  ): List<OffenderProgramProfile> = offenderProgramProfileRepository.findActiveWaitListActivitiesForBookingAtPrison(
-    offenderBooking, prison
-  )
+  ): List<OffenderProgramProfile> =
+    dataLoader.offenderProgramProfileRepository.findActiveWaitListActivitiesForBookingAtPrison(
+      offenderBooking, prison
+    )
 
   fun transferOutToCourt(offenderNo: String, toLocation: String, shouldReleaseBed: Boolean = false): LocalDateTime {
     val movementTime = LocalDateTime.now().minusHours(1)

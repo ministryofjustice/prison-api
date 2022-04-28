@@ -20,13 +20,13 @@ import uk.gov.justice.hmpps.prison.api.model.CaseNote
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary
 import uk.gov.justice.hmpps.prison.api.model.VisitBalances
 import uk.gov.justice.hmpps.prison.exception.CustomErrorCodes
-import uk.gov.justice.hmpps.prison.repository.BookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection.IN
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection.OUT
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository
+import uk.gov.justice.hmpps.prison.service.DataLoaderRepository
 import uk.gov.justice.hmpps.prison.util.OffenderBookingBuilder
 import uk.gov.justice.hmpps.prison.util.OffenderBuilder
 import java.time.LocalDate
@@ -45,7 +45,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
   private lateinit var bedAssignmentHistoriesRepository: BedAssignmentHistoriesRepository
 
   @Autowired
-  private lateinit var bookingRepository: BookingRepository
+  private lateinit var dataLoader: DataLoaderRepository
 
   @Nested
   @DisplayName("PUT /{offenderNo}/transfer-in")
@@ -67,7 +67,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
         ).save(
           webTestClient = webTestClient,
           jwtAuthenticationHelper = jwtAuthenticationHelper,
-          bookingRepository = bookingRepository
+          dataLoader = dataLoader
         ).also {
           offenderNo = it.offenderNo
           bookingId = it.bookingId
@@ -355,7 +355,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               prisonId = "LEI",
               bookingInTime = LocalDateTime.now().minusDays(1)
             )
-          ).save(webTestClient = webTestClient, jwtAuthenticationHelper = jwtAuthenticationHelper).offenderNo
+          ).save(webTestClient = webTestClient, jwtAuthenticationHelper = jwtAuthenticationHelper, dataLoader = dataLoader).offenderNo
       }
 
       @Test
@@ -498,7 +498,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
         ).save(
           webTestClient = webTestClient,
           jwtAuthenticationHelper = jwtAuthenticationHelper,
-          bookingRepository = bookingRepository
+          dataLoader = dataLoader,
         ).also {
           offenderNo = it.offenderNo
           bookingId = it.bookingId
@@ -1077,7 +1077,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
         ).save(
           webTestClient = webTestClient,
           jwtAuthenticationHelper = jwtAuthenticationHelper,
-          bookingRepository = bookingRepository
+          dataLoader = dataLoader
         ).also {
           offenderNo = it.offenderNo
         }

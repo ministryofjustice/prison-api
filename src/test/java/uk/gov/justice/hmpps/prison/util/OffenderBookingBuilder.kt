@@ -7,8 +7,7 @@ import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.api.model.IepLevelAndComment
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.api.model.RequestForNewBooking
-import uk.gov.justice.hmpps.prison.repository.BookingRepository
-import uk.gov.justice.hmpps.prison.service.BadRequestException
+import uk.gov.justice.hmpps.prison.service.DataLoaderRepository
 import java.time.LocalDateTime
 
 class OffenderBookingBuilder(
@@ -23,6 +22,7 @@ class OffenderBookingBuilder(
   var iepLevelComment: String = "iep level comment",
   var voBalance: Int? = null,
   var pvoBalance: Int? = null,
+  var programProfiles: List<OffenderProgramProfileBuilder> = emptyList(),
 ) : WebClientEntityBuilder() {
 
   fun withIEPLevel(iepLevel: String): OffenderBookingBuilder {
@@ -36,11 +36,16 @@ class OffenderBookingBuilder(
     return this
   }
 
+  fun withProgramProfiles(vararg programProfiles: OffenderProgramProfileBuilder): OffenderBookingBuilder {
+    this.programProfiles = programProfiles.toList()
+    return this
+  }
+
   fun save(
     webTestClient: WebTestClient,
     jwtAuthenticationHelper: JwtAuthenticationHelper,
     offenderNo: String,
-    bookingRepository: BookingRepository? = null
+    dataLoader: DataLoaderRepository
   ): InmateDetail {
 
     val request =
@@ -81,10 +86,12 @@ class OffenderBookingBuilder(
           .exchange()
           .expectStatus().is2xxSuccessful
       }
-    }.also {
+    }.also { inmateDetail ->
       this.voBalance?.run {
-        bookingRepository?.createBookingVisitOrderBalances(it.bookingId, voBalance, pvoBalance)
-          ?: throw BadRequestException("No booking repository provided")
+        dataLoader.bookingRepository.createBookingVisitOrderBalances(inmateDetail.bookingId, voBalance, pvoBalance)
+      }
+      this.programProfiles.forEach {
+        it.save(offenderBookingId = inmateDetail.bookingId, prisonId = inmateDetail.agencyId, dataLoader = dataLoader)
       }
     }
   }

@@ -6,7 +6,7 @@ import org.springframework.test.web.reactive.server.returnResult
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.api.model.RequestToCreate
-import uk.gov.justice.hmpps.prison.repository.BookingRepository
+import uk.gov.justice.hmpps.prison.service.DataLoaderRepository
 import java.time.LocalDate
 
 class OffenderBuilder(
@@ -34,7 +34,7 @@ class OffenderBuilder(
   fun save(
     webTestClient: WebTestClient,
     jwtAuthenticationHelper: JwtAuthenticationHelper,
-    bookingRepository: BookingRepository? = null
+    dataLoader: DataLoaderRepository,
   ): InmateDetail {
     val request =
       RequestToCreate.builder().croNumber(croNumber).pncNumber(pncNumber).lastName(lastName).firstName(firstName)
@@ -63,7 +63,7 @@ class OffenderBuilder(
         webTestClient = webTestClient,
         jwtAuthenticationHelper = jwtAuthenticationHelper,
         offenderNo = offender.offenderNo,
-        bookingRepository = bookingRepository
+        dataLoader = dataLoader
       )
     }
       .lastOrNull() ?: offender
