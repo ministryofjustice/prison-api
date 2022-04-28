@@ -28,7 +28,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-
 /**
  * KOTLIN
  */
@@ -120,7 +119,6 @@ class ActivityTransferServiceIntTest : ResourceTest() {
       val testEndDate = LocalDate.of(2022, 10, 1)
       transferOutToCourt(offenderNo, "COURT1", true)
 
-
       val offenderBooking = offenderBookingRepository.findByBookingId(bookingId).orElseThrow()
       val prison = agencyLocationRepository.findById("LEI").orElseThrow()
 
@@ -165,18 +163,19 @@ class ActivityTransferServiceIntTest : ResourceTest() {
   }
 
   fun getActiveActivities(
-    offenderBooking: OffenderBooking, prison: AgencyLocation, testEndDate: LocalDate
+    offenderBooking: OffenderBooking,
+    prison: AgencyLocation,
+    testEndDate: LocalDate
   ): List<OffenderProgramProfile> = offenderProgramProfileRepository.findActiveActivitiesForBookingAtPrison(
     offenderBooking, prison, testEndDate
   )
 
-
   fun getActiveWaitList(
-    offenderBooking: OffenderBooking, prison: AgencyLocation
+    offenderBooking: OffenderBooking,
+    prison: AgencyLocation
   ): List<OffenderProgramProfile> = offenderProgramProfileRepository.findActiveWaitListActivitiesForBookingAtPrison(
     offenderBooking, prison
   )
-
 
   fun transferOutToCourt(offenderNo: String, toLocation: String, shouldReleaseBed: Boolean = false): LocalDateTime {
     val movementTime = LocalDateTime.now().minusHours(1)
@@ -201,6 +200,4 @@ class ActivityTransferServiceIntTest : ResourceTest() {
 
     return movementTime
   }
-
-
 }

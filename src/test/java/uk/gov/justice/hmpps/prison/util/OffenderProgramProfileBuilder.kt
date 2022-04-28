@@ -1,15 +1,11 @@
 package uk.gov.justice.hmpps.prison.util
 
 import org.springframework.data.repository.findByIdOrNull
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail.PK
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramProfile
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode
-import uk.gov.justice.hmpps.prison.repository.jpa.model.WaitlistDecisionCode
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourseActivityRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProgramProfileRepository
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
 import uk.gov.justice.hmpps.prison.service.BadRequestException
 import java.time.LocalDate
 
@@ -41,7 +37,6 @@ class OffenderProgramProfileBuilder(
     val courseActivity = courseActivityRepository?.let {
       it.findByIdOrNull(courseActivityId) ?: throw BadRequestException("prison $prisonId not found")
     } ?: throw BadRequestException("No course activity repository provided")
-
 
     val offenderProgramProfile =
       OffenderProgramProfile.builder().offenderBooking(offenderBooking).programStatus(programStatus)
