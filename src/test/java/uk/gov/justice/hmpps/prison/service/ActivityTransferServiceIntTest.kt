@@ -128,7 +128,7 @@ class ActivityTransferServiceIntTest : ResourceTest() {
         )
       ).extracting(
         OffenderProgramProfile::getProgramStatus, { it.courseActivity.activityId }
-      ).containsExactly(
+      ).containsExactlyInAnyOrder(
         tuple("ALLOC", -1L), tuple("ALLOC", -3L)
       )
 

@@ -6,7 +6,7 @@ spring:
   codec:
     max-in-memory-size: 10MB
 
-logging:
-  level:
-     org.hibernate.SQL: DEBUG
-     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+#logging:
+#  level:
+#     org.hibernate.SQL: DEBUG
+#     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
