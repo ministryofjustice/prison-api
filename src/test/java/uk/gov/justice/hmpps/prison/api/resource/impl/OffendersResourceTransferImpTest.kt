@@ -26,7 +26,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection.IN
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection.OUT
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository
-import uk.gov.justice.hmpps.prison.util.DataLoaderRepository
+import uk.gov.justice.hmpps.prison.service.DataLoaderRepository
 import uk.gov.justice.hmpps.prison.util.OffenderBookingBuilder
 import uk.gov.justice.hmpps.prison.util.OffenderBuilder
 import java.time.LocalDate

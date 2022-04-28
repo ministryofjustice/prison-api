@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.util
+package uk.gov.justice.hmpps.prison.service
 
 import org.springframework.stereotype.Service
 import uk.gov.justice.hmpps.prison.repository.BookingRepository

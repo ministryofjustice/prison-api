@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.util
 import org.springframework.data.repository.findByIdOrNull
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramProfile
 import uk.gov.justice.hmpps.prison.service.BadRequestException
+import uk.gov.justice.hmpps.prison.service.DataLoaderRepository
 import java.time.LocalDate
 
 class OffenderProgramProfileBuilder(
