@@ -1093,8 +1093,8 @@ class OffendersResourceTransferImpTest : ResourceTest() {
         internal fun `will complete scheduled appearance event`() {
           assertThat(getCourtHearings(bookingId)).extracting("eventStatus.code").containsExactly("COMP", "SCH")
           webTestClient.put()
-            .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
-            .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
+            .uri("/api/offenders/{nomsId}/court-transfer-in/v2", offenderNo)
+            .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER_ALPHA")))
             .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
             .accept(MediaType.APPLICATION_JSON)
             .body(
