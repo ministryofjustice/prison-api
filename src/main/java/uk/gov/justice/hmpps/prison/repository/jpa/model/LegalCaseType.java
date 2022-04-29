@@ -15,4 +15,7 @@ public class LegalCaseType extends ReferenceCode {
     public LegalCaseType(final String code, final String description) {
         super(LEG_CASE_TYP, code, description);
     }
+    public static ReferenceCode.Pk pk(final String code) {
+        return new ReferenceCode.Pk(LEG_CASE_TYP, code);
+    }
 }

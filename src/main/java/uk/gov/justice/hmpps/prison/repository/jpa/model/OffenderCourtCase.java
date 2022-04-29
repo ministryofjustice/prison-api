@@ -19,11 +19,13 @@ import org.hibernate.annotations.NotFound;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -52,7 +54,9 @@ public class OffenderCourtCase extends AuditableEntity {
     private static final String ACTIVE = "active";
 
     @Id
-    @Column(name = "CASE_ID", nullable = false)
+    @Column(name = "CASE_ID")
+    @SequenceGenerator(name = "CASE_ID", sequenceName = "CASE_ID", allocationSize = 1)
+    @GeneratedValue(generator = "CASE_ID")
     private Long id;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)

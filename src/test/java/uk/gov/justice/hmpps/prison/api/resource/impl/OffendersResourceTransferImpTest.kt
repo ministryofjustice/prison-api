@@ -14,10 +14,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.MediaType
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.reactive.server.returnResult
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.api.model.CaseNote
+import uk.gov.justice.hmpps.prison.api.model.CourtHearing
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary
+import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOutToCourt
 import uk.gov.justice.hmpps.prison.api.model.VisitBalances
 import uk.gov.justice.hmpps.prison.exception.CustomErrorCodes
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory
@@ -25,10 +28,12 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection.IN
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection.OUT
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository
 import uk.gov.justice.hmpps.prison.service.DataLoaderRepository
 import uk.gov.justice.hmpps.prison.util.OffenderBookingBuilder
 import uk.gov.justice.hmpps.prison.util.OffenderBuilder
+import uk.gov.justice.hmpps.prison.util.OffenderCourtCaseBuilder
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -36,13 +41,16 @@ import java.time.format.DateTimeFormatter
 /**
  * KOTLIN
  */
-
+@WithMockUser
 class OffendersResourceTransferImpTest : ResourceTest() {
   @Autowired
   private lateinit var externalMovementRepository: ExternalMovementRepository
 
   @Autowired
   private lateinit var bedAssignmentHistoriesRepository: BedAssignmentHistoriesRepository
+
+  @Autowired
+  private lateinit var courtEventRepository: CourtEventRepository
 
   @Autowired
   private lateinit var dataLoader: DataLoaderRepository
@@ -493,20 +501,24 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
       @BeforeEach
       internal fun setUp() {
-        OffenderBuilder().withBooking(
-          OffenderBookingBuilder(
-            prisonId = "LEI",
-            bookingInTime = bookingInTime,
-            cellLocation = "LEI-RECP"
-          ).withIEPLevel("ENH").withInitialVoBalances(2, 8)
-        ).save(
+        dataLoader.save(
+          OffenderBuilder().withBooking(
+            OffenderBookingBuilder(
+              prisonId = "LEI",
+              bookingInTime = bookingInTime,
+              cellLocation = "LEI-RECP"
+            )
+              .withIEPLevel("ENH")
+              .withInitialVoBalances(2, 8)
+              .withCourtCases(OffenderCourtCaseBuilder())
+          ),
           webTestClient = webTestClient,
-          jwtAuthenticationHelper = jwtAuthenticationHelper,
-          dataLoader = dataLoader,
-        ).also {
-          offenderNo = it.offenderNo
-          bookingId = it.bookingId
-        }
+          jwtAuthenticationHelper = jwtAuthenticationHelper
+        )
+          .also {
+            offenderNo = it.offenderNo
+            bookingId = it.bookingId
+          }
       }
 
       @Nested
@@ -1065,6 +1077,43 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           }
         }
       }
+
+      @Nested
+      @DisplayName("With a scheduled court appearance")
+      open inner class WithCourtAppearance {
+        var courtHearingEventId: Long = 0
+        @BeforeEach
+        internal fun setUp() {
+          courtHearingEventId = createCourtHearing(bookingId)
+          assertThat(getCourtHearings(bookingId)).extracting("eventStatus.code").containsExactly("SCH")
+          transferOutToCourt(offenderNo = offenderNo, toLocation = "COURT1", false, courtHearingEventId)
+        }
+
+        @Test
+        internal fun `will complete scheduled appearance event`() {
+          assertThat(getCourtHearings(bookingId)).extracting("eventStatus.code").containsExactly("COMP", "SCH")
+          webTestClient.put()
+            .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
+            .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
+            .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+            .accept(MediaType.APPLICATION_JSON)
+            .body(
+              BodyInserters.fromValue(
+                """
+                {
+                  "agencyId":"LEI",
+                  "commentText":"admitted"
+                }
+                """.trimIndent()
+              )
+            )
+            .exchange()
+            .expectStatus().isOk
+          val courtHearingEVents = getCourtHearings(bookingId)
+          assertThat(courtHearingEVents).extracting("eventStatus.code").containsExactly("COMP", "COMP")
+          assertThat(getMovements(bookingId).last().eventId).isEqualTo(courtHearingEVents.last().id)
+        }
+      }
     }
 
     @Nested
@@ -1259,27 +1308,23 @@ class OffendersResourceTransferImpTest : ResourceTest() {
       .jsonPath("assignedLivingUnit.description").doesNotExist()
   }
 
-  fun transferOutToCourt(offenderNo: String, toLocation: String, shouldReleaseBed: Boolean = false): LocalDateTime {
+  fun transferOutToCourt(offenderNo: String, toLocation: String, shouldReleaseBed: Boolean = false, courtHearingEventId: Long? = null): LocalDateTime {
     val movementTime = LocalDateTime.now().minusHours(1)
+    val request = RequestToTransferOutToCourt(
+      /* toLocation = */ toLocation,
+      /* movementTime = */ movementTime,
+      /* escortType = */ null,
+      /* transferReasonCode = */ "19",
+      /* commentText = */ "court appearance",
+      /* shouldReleaseBed = */ shouldReleaseBed,
+      /* courtEventId = */ courtHearingEventId
+    )
     webTestClient.put()
       .uri("/api/offenders/{nomsId}/court-transfer-out", offenderNo)
       .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER_ALPHA")))
       .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
       .accept(MediaType.APPLICATION_JSON)
-      .body(
-        BodyInserters.fromValue(
-          """
-          {
-            "transferReasonCode":"19",
-            "commentText":"court appearance",
-            "toLocation":"$toLocation",
-            "movementTime": "${movementTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}",
-            "shouldReleaseBed": $shouldReleaseBed
-            
-          }
-          """.trimIndent()
-        )
-      )
+      .body(BodyInserters.fromValue(request))
       .exchange()
       .expectStatus().isOk
       .expectBody()
@@ -1290,6 +1335,32 @@ class OffendersResourceTransferImpTest : ResourceTest() {
       .jsonPath("assignedLivingUnit.agencyId").isEqualTo("LEI")
 
     return movementTime
+  }
+
+  fun createCourtHearing(bookingId: Long): Long {
+    val courtCase = dataLoader.offenderCourtCaseRepository.findAllByOffenderBooking_BookingId(bookingId).first()
+
+    return webTestClient.post()
+      .uri("/api/bookings/{bookingId}/court-cases/{courtCaseId}/prison-to-court-hearings", bookingId, courtCase.id)
+      .headers(setAuthorisation(listOf("ROLE_COURT_HEARING_MAINTAINER")))
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .accept(MediaType.APPLICATION_JSON)
+      .body(
+        BodyInserters.fromValue(
+          """
+          {
+            "fromPrisonLocation":"LEI",
+            "toCourtLocation":"COURT1",
+            "courtHearingDateTime": "${LocalDateTime.now().plusHours(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}",
+            "comments":"court appearance"
+            
+          }
+          """.trimIndent()
+        )
+      )
+      .exchange()
+      .expectStatus().isCreated
+      .returnResult<CourtHearing>().responseBody.blockFirst()?.id!!
   }
 
   private fun getMovements(bookingId: Long) = externalMovementRepository.findAllByOffenderBooking_BookingId(bookingId)
@@ -1334,6 +1405,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
     .exchange()
     .expectStatus().isOk
     .returnResult<RestResponsePage<CaseNote>>().responseBody.blockFirst()!!.content
+  private fun getCourtHearings(bookingId: Long) = courtEventRepository.findByOffenderBooking_BookingIdOrderByIdAsc(bookingId)
 }
 
 class RestResponsePage<T> @JsonCreator(mode = JsonCreator.Mode.PROPERTIES) constructor(

@@ -44,4 +44,6 @@ public class RequestToTransferOutToCourt {
     @Schema(description = "Flag indicate if bed should be released")
     private boolean shouldReleaseBed;
 
+    @Schema(description = "Optional scheduled court hearing event this movement relates to")
+    private Long courtEventId;
 }

@@ -27,6 +27,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory.BedAssignmentHistoryPK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteSubType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ImprisonmentStatus;
@@ -71,6 +72,7 @@ import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
 import javax.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Random;
 
 import static java.lang.String.format;
@@ -250,6 +252,7 @@ public class PrisonerReleaseAndTransferService {
 
         return offenderTransformer.transform(booking);
     }
+
     @VerifyOffenderAccess(overrideRoles = {"TRANSFER_PRISONER_ALPHA"})
     public InmateDetail transferOutPrisonerToCourt(final String prisonerIdentifier, final RequestToTransferOutToCourt requestToTransferOutToCourt) {
         // NB This API requires further validation before it can be used for production - it is currently used just to generate test data
@@ -269,7 +272,8 @@ public class PrisonerReleaseAndTransferService {
         final var agencyLocationType = agencyLocationTypeRepository.findById(AgencyLocationType.CRT).orElseThrow(EntityNotFoundException.withMessage(format("Agency Location Type of %s not Found", AgencyLocationType.INST.getCode())));
         final var toLocation = agencyLocationRepository.findByIdAndTypeAndActiveAndDeactivationDateIsNull(requestToTransferOutToCourt.getToLocation(), agencyLocationType, true).orElseThrow(EntityNotFoundException.withMessage(format("No %s agency found", requestToTransferOutToCourt.getToLocation())));
 
-        createOutMovement(booking, CRT, movementReason, booking.getLocation(), toLocation, transferDateTime, requestToTransferOutToCourt.getCommentText(), requestToTransferOutToCourt.getEscortType());
+        createOutMovement(booking, CRT, movementReason, booking.getLocation(), toLocation, transferDateTime, requestToTransferOutToCourt.getCommentText(), requestToTransferOutToCourt.getEscortType(), requestToTransferOutToCourt.getCourtEventId());
+        Optional.ofNullable(requestToTransferOutToCourt.getCourtEventId()).ifPresent(id -> createScheduleCourtHearingInEvent(markCourtEventComplete(booking, id)));
         if (requestToTransferOutToCourt.isShouldReleaseBed()) {
             updateBedAssignmentHistory(booking, transferDateTime);
             booking.setLivingUnitMv(null);
@@ -292,6 +296,28 @@ public class PrisonerReleaseAndTransferService {
         booking.setCommStatus(null);
 
         return offenderTransformer.transform(booking);
+    }
+
+    private CourtEvent createScheduleCourtHearingInEvent(CourtEvent parentEvent) {
+        var returnToPrisonScheduledEvent = CourtEvent
+            .builder()
+            .courtEventType(parentEvent.getCourtEventType())
+            .courtLocation(parentEvent.getCourtLocation())
+            .eventStatus(eventStatusRepository.findById(EventStatus.SCHEDULED_APPROVED).orElseThrow())
+            .commentText(parentEvent.getCommentText())
+            .directionCode("IN")
+            .eventDate(parentEvent.getEventDate())
+            .offenderBooking(parentEvent.getOffenderBooking())
+            .parentCourtEventId(parentEvent.getId())
+            .startTime(parentEvent.getStartTime())
+            .build();
+        return courtEventRepository.save(returnToPrisonScheduledEvent);
+    }
+
+    private CourtEvent markCourtEventComplete(OffenderBooking booking, Long id) {
+        var courtEvent = courtEventRepository.findById(id).orElseThrow(EntityNotFoundException.withMessage(format("No court event found for %s", id)));
+        courtEvent.setEventStatus(eventStatusRepository.findById(EventStatus.COMPLETED).orElseThrow());
+        return courtEvent;
     }
 
     public InmateDetail recallPrisoner(final String prisonerIdentifier, final RequestToRecall requestToRecall) {
@@ -588,6 +614,31 @@ public class PrisonerReleaseAndTransferService {
             .build());
     }
 
+    private void createOutMovement(final OffenderBooking booking,
+                                   final ReferenceCode.Pk movementCode,
+                                   final MovementReason movementReason,
+                                   final AgencyLocation fromLocation,
+                                   final AgencyLocation toLocation,
+                                   final LocalDateTime movementTime,
+                                   final String commentText,
+                                   final String escortText,
+                                   final Long courtEventId) {
+        booking.addExternalMovement(ExternalMovement.builder()
+            .movementDate(movementTime.toLocalDate())
+            .movementTime(movementTime)
+            .movementType(movementTypeRepository.findById(movementCode).orElseThrow(EntityNotFoundException.withMessage(format("No %s movement type found", movementCode))))
+            .movementReason(movementReason)
+            .movementDirection(MovementDirection.OUT)
+            .reportingDate(movementTime.toLocalDate())
+            .fromAgency(fromLocation)
+            .toAgency(toLocation)
+            .escortText(escortText)
+            .active(true)
+            .commentText(commentText)
+            .eventId(courtEventId)
+            .build());
+    }
+
     private void createInMovement(final OffenderBooking booking, final MovementReason movementReason, final AgencyLocation fromLocation, final AgencyLocation toLocation, final LocalDateTime movementTime, final String commentText) {
         booking.addExternalMovement(ExternalMovement.builder()
             .movementDate(movementTime.toLocalDate())
@@ -757,6 +808,7 @@ public class PrisonerReleaseAndTransferService {
     public InmateDetail courtTransferInV2(final String offenderNo, final RequestForCourtTransferIn requestForCourtTransferIn) {
         return prisonTransferService.transferViaCourt(offenderNo, requestForCourtTransferIn);
     }
+
     public InmateDetail courtTransferIn(final String offenderNo, final RequestForCourtTransferIn requestForCourtTransferIn) {
 
         final OffenderBooking offenderBooking = this.getOffenderBooking(offenderNo);
