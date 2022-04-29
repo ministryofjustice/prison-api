@@ -91,7 +91,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             "commentText":"admitted",
             "cellLocation":"MDI-1-3-022",
             "receiveTime": "${
-                LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+              LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
               }"
             
           }
@@ -121,7 +121,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               """
           {
             "receiveTime": "${
-                LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+              LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
               }"
             
           }
@@ -158,7 +158,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               """
           {
             "receiveTime": "${
-                LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+              LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
               }"
             
           }
@@ -203,7 +203,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               """
           {
             "receiveTime": "${
-                LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+              LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
               }"
             
           }
@@ -241,7 +241,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               """
           {
             "receiveTime": "${
-                LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+              LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
               }"
             
           }
@@ -282,7 +282,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               """
           {
             "receiveTime": "${
-                LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+              LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
               }"
             
           }
@@ -320,7 +320,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               """
           {
             "receiveTime": "${
-                LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+              LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
               }"
             
           }
@@ -379,7 +379,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             "commentText":"admitted",
             "cellLocation":"MDI-FULL",
             "receiveTime": "${
-                LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+              LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
               }"
             
           }
@@ -408,7 +408,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             "commentText":"admitted",
             "cellLocation":"MDI-RECP",
             "receiveTime": "${
-                LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+              LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
               }"
             
           }
@@ -437,7 +437,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             "transferReasonCode":"NOTR",
             "commentText":"admitted",
             "receiveTime": "${
-                LocalDateTime.now().plusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+              LocalDateTime.now().plusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
               }"
             
           }
@@ -466,7 +466,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             "transferReasonCode":"NOTR",
             "commentText":"admitted",
             "receiveTime": "${
-                LocalDateTime.now().minusHours(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+              LocalDateTime.now().minusHours(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
               }"
             
           }
