@@ -9,6 +9,7 @@ import uk.gov.justice.hmpps.prison.api.model.RequestToTransferIn
 import uk.gov.justice.hmpps.prison.exception.CustomErrorCodes
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType
@@ -78,9 +79,9 @@ class PrisonTransferService(
     val booking = getLatestOffenderBooking(offenderNo).flatMap { it.assertIsOut() }.getOrThrow()
     val transferMovement = booking.getLatestMovement().flatMap { it.assertIsActiveCourtTransfer() }.getOrThrow()
 
-    return if (request.agencyId.equals(transferMovement.fromAgency.id)) transferViaCourtFromDifferentPrison(
+    return if (request.agencyId.equals(transferMovement.fromAgency.id)) transferViaCourtFromSamePrison(
       booking, request, transferMovement
-    ) else transferViaCourtFromSamePrison(booking, request, transferMovement)
+    ) else transferViaCourtFromDifferentPrison(booking, request, transferMovement)
   }
 
   fun transferViaCourtFromDifferentPrison(
@@ -103,7 +104,17 @@ class PrisonTransferService(
     request: RequestForCourtTransferIn,
     movement: ExternalMovement
   ): InmateDetail {
-    // TODO
+    // TODO getCourtMovementType update if movement event id != null
+    val courtEvent: CourtEvent? = null
+    with(booking) {
+      inOutStatus = MovementDirection.IN.name
+      livingUnitMv = null
+      statusReason = MovementType.CRT.code + "-" + (request.movementReasonCode ?: movement.movementReason.code)
+      externalMovementService.updateMovementsForCourtTransferToSamePrison(
+        request = request, booking = booking, lastMovement = movement, courtEvent = courtEvent
+      )
+    }
+
     return transformer.transform(booking)
   }
 

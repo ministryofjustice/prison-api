@@ -91,7 +91,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             "commentText":"admitted",
             "cellLocation":"MDI-1-3-022",
             "receiveTime": "${
-              LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
               }"
             
           }
@@ -121,7 +121,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               """
           {
             "receiveTime": "${
-              LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
               }"
             
           }
@@ -158,7 +158,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               """
           {
             "receiveTime": "${
-              LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
               }"
             
           }
@@ -203,7 +203,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               """
           {
             "receiveTime": "${
-              LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
               }"
             
           }
@@ -241,7 +241,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               """
           {
             "receiveTime": "${
-              LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
               }"
             
           }
@@ -282,7 +282,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               """
           {
             "receiveTime": "${
-              LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
               }"
             
           }
@@ -320,7 +320,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               """
           {
             "receiveTime": "${
-              LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
               }"
             
           }
@@ -355,7 +355,11 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               prisonId = "LEI",
               bookingInTime = LocalDateTime.now().minusDays(1)
             )
-          ).save(webTestClient = webTestClient, jwtAuthenticationHelper = jwtAuthenticationHelper, dataLoader = dataLoader).offenderNo
+          ).save(
+            webTestClient = webTestClient,
+            jwtAuthenticationHelper = jwtAuthenticationHelper,
+            dataLoader = dataLoader
+          ).offenderNo
       }
 
       @Test
@@ -375,7 +379,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             "commentText":"admitted",
             "cellLocation":"MDI-FULL",
             "receiveTime": "${
-              LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
               }"
             
           }
@@ -404,7 +408,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             "commentText":"admitted",
             "cellLocation":"MDI-RECP",
             "receiveTime": "${
-              LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
               }"
             
           }
@@ -433,7 +437,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             "transferReasonCode":"NOTR",
             "commentText":"admitted",
             "receiveTime": "${
-              LocalDateTime.now().plusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                LocalDateTime.now().plusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
               }"
             
           }
@@ -462,7 +466,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             "transferReasonCode":"NOTR",
             "commentText":"admitted",
             "receiveTime": "${
-              LocalDateTime.now().minusHours(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                LocalDateTime.now().minusHours(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
               }"
             
           }
@@ -478,10 +482,10 @@ class OffendersResourceTransferImpTest : ResourceTest() {
   }
 
   @Nested
-  @DisplayName("PUT /{offenderNo}/court-transfer-in")
+  @DisplayName("PUT /{offenderNo}/court-transfer-in/v2")
   inner class CourtTransferIn {
     @Nested
-    @DisplayName("Successful transfer in")
+    @DisplayName("Successful transfer in from court")
     inner class Success {
       private lateinit var offenderNo: String
       private var bookingId: Long = 0
@@ -522,8 +526,8 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           @Test
           internal fun `will set the prisoner as active in`() {
             webTestClient.put()
-              .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
-              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
+              .uri("/api/offenders/{nomsId}/court-transfer-in/v2", offenderNo)
+              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER_ALPHA")))
               .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
               .accept(MediaType.APPLICATION_JSON)
               .body(
@@ -548,8 +552,8 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           @Test
           internal fun `can override movement reason`() {
             webTestClient.put()
-              .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
-              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
+              .uri("/api/offenders/{nomsId}/court-transfer-in/v2", offenderNo)
+              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER_ALPHA")))
               .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
               .accept(MediaType.APPLICATION_JSON)
               .body(
@@ -574,8 +578,8 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           @Test
           internal fun `cell remains unchanged from when the prisoner was transferred to court`() {
             webTestClient.put()
-              .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
-              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
+              .uri("/api/offenders/{nomsId}/court-transfer-in/v2", offenderNo)
+              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER_ALPHA")))
               .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
               .accept(MediaType.APPLICATION_JSON)
               .body(
@@ -594,6 +598,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               .expectBody()
               .jsonPath("assignedLivingUnit.agencyId").isEqualTo("LEI")
               .jsonPath("assignedLivingUnit.description").isEqualTo("COURT") // as set when bed was released
+              .jsonPath("lastMovementReasonCode").isEqualTo("19")
           }
 
           @Test
@@ -610,8 +615,8 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               )
 
             webTestClient.put()
-              .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
-              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
+              .uri("/api/offenders/{nomsId}/court-transfer-in/v2", offenderNo)
+              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER_ALPHA")))
               .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
               .accept(MediaType.APPLICATION_JSON)
               .body(
@@ -620,7 +625,8 @@ class OffendersResourceTransferImpTest : ResourceTest() {
                   {
                     "agencyId":"LEI",
                     "commentText":"admitted",
-                    "dateTime": "${LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
+                    "dateTime": "${LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}",
+                    "movementReasonCode": "19"
                   }
                   """.trimIndent()
                 )
@@ -656,8 +662,8 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               )
 
             webTestClient.put()
-              .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
-              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
+              .uri("/api/offenders/{nomsId}/court-transfer-in/v2", offenderNo)
+              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER_ALPHA")))
               .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
               .accept(MediaType.APPLICATION_JSON)
               .body(
@@ -1110,6 +1116,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             .expectBody()
             .jsonPath("userMessage").isEqualTo("Prisoner is not currently out")
         }
+
         @Test
         internal fun `cannot transfer in when not previously transferred to court`() {
           release(offenderNo)
@@ -1222,6 +1229,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
       .jsonPath("assignedLivingUnit.agencyId").isEqualTo("TRN")
       .jsonPath("assignedLivingUnit.description").doesNotExist()
   }
+
   fun release(offenderNo: String) {
     webTestClient.put()
       .uri("/api/offenders/{nomsId}/release", offenderNo)
