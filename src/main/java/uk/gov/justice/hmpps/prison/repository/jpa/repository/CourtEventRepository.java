@@ -14,6 +14,7 @@ import java.util.Optional;
 public interface CourtEventRepository extends CrudRepository<CourtEvent, Long>, JpaSpecificationExecutor<CourtEvent> {
 
     Optional<CourtEvent> findByOffenderBooking_BookingIdAndId(final Long bookingId, final Long eventId);
+    List<CourtEvent> findByOffenderBooking_BookingIdOrderByIdAsc(final Long bookingId);
 
     @Query("select " +
             "o.nomsId as offenderNo, " +

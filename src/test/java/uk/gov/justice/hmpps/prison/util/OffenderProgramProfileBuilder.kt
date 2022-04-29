@@ -12,7 +12,7 @@ class OffenderProgramProfileBuilder(
   var waitListDecisionCode: String? = null,
   var courseActivityId: Long = -1,
   var programId: Long = -1
-) : WebClientEntityBuilder() {
+) {
 
   fun save(
     offenderBookingId: Long,

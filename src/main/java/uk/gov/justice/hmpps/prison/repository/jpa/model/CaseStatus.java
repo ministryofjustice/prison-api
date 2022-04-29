@@ -23,4 +23,8 @@ public class CaseStatus extends ReferenceCode {
     boolean isActiveStatus() {
         return ACTIVE_CODE.equalsIgnoreCase(this.getCode());
     }
+
+    public static ReferenceCode.Pk pk(final String code) {
+        return new ReferenceCode.Pk(CASE_STS, code);
+    }
 }

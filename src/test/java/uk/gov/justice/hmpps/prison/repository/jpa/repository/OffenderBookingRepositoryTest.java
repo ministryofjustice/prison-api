@@ -174,10 +174,10 @@ public class OffenderBookingRepositoryTest {
     void saveOffenderCourtCases() {
         final var booking = repository.findById(-2L).orElseThrow();
 
-        assertThat(booking.getCourtCases()).extracting(OffenderCourtCase::getId).containsOnly(-2L);
+        assertThat(booking.getCourtCases()).extracting(OffenderCourtCase::getCaseSeq).containsOnly(1L);
 
-        booking.add(offenderCourtCase(-98L));
-        booking.add(offenderCourtCase(-99L));
+        booking.add(offenderCourtCase(2L));
+        booking.add(offenderCourtCase(3L));
 
         repository.save(booking);
 
@@ -185,14 +185,13 @@ public class OffenderBookingRepositoryTest {
 
         final var persistedBooking = repository.findById(-2L).orElseThrow();
 
-        assertThat(persistedBooking.getCourtCases()).extracting(OffenderCourtCase::getId).containsExactly(-2L, -98L, -99L);
+        assertThat(persistedBooking.getCourtCases()).extracting(OffenderCourtCase::getCaseSeq).contains(1L, 2L, 3L);
     }
 
-    private OffenderCourtCase offenderCourtCase(final Long caseIdentifier) {
+    private OffenderCourtCase offenderCourtCase(final Long sequence) {
         return OffenderCourtCase.builder()
-                .id(caseIdentifier)
                 .beginDate(LocalDate.EPOCH)
-                .caseSeq(caseIdentifier)
+                .caseSeq(sequence)
                 .agencyLocation(agencyLocationRepository.findById("COURT1").orElseThrow())
                 .build();
     }
