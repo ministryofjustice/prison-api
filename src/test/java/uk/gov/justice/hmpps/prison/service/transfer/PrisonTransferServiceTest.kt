@@ -18,13 +18,11 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramEndReason
-import uk.gov.justice.hmpps.prison.repository.jpa.model.RejectReasonCode
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
 import uk.gov.justice.hmpps.prison.service.BadRequestException
 import uk.gov.justice.hmpps.prison.service.ConflictingRequestException
+import uk.gov.justice.hmpps.prison.service.CourtHearingsService
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer
 import java.time.Clock
@@ -40,8 +38,7 @@ internal class PrisonTransferServiceTest {
   private val caseNoteTransferService: CaseNoteTransferService = mock()
   private val offenderBookingRepository: OffenderBookingRepository = mock()
   private val activityTransferService: ActivityTransferService = mock()
-  private val offenderProgramEndReasonRepository: ReferenceCodeRepository<OffenderProgramEndReason> = mock()
-  private val rejectReasonRepository: ReferenceCodeRepository<RejectReasonCode> = mock()
+  private val courtHearingService: CourtHearingsService = mock()
   private val agencyInternalLocationRepository: AgencyInternalLocationRepository = mock()
   private val transformer: OffenderTransformer = OffenderTransformer(Clock.systemDefaultZone())
 
@@ -66,8 +63,7 @@ internal class PrisonTransferServiceTest {
     offenderBookingRepository,
     agencyInternalLocationRepository,
     activityTransferService,
-    offenderProgramEndReasonRepository,
-    rejectReasonRepository,
+    courtHearingService,
     transformer
   )
   lateinit var booking: OffenderBooking

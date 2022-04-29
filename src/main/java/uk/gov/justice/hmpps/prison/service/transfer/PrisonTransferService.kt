@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.service.transfer
 
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
@@ -15,13 +14,11 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramEndReason
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode
-import uk.gov.justice.hmpps.prison.repository.jpa.model.RejectReasonCode
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
 import uk.gov.justice.hmpps.prison.service.BadRequestException
 import uk.gov.justice.hmpps.prison.service.ConflictingRequestException
+import uk.gov.justice.hmpps.prison.service.CourtHearingsService
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer
 import kotlin.Result.Companion.failure
@@ -38,8 +35,7 @@ class PrisonTransferService(
   private val offenderBookingRepository: OffenderBookingRepository,
   private val agencyInternalLocationRepository: AgencyInternalLocationRepository,
   private val activityTransferService: ActivityTransferService,
-  private val programEndReasonRepository: ReferenceCodeRepository<OffenderProgramEndReason>,
-  private val rejectReasonRepository: ReferenceCodeRepository<RejectReasonCode>,
+  private val courtHearingsService: CourtHearingsService,
   private val transformer: OffenderTransformer,
 ) {
   fun transferFromPrison(offenderNo: String, request: RequestToTransferIn): InmateDetail {
@@ -102,16 +98,17 @@ class PrisonTransferService(
   fun transferViaCourtFromSamePrison(
     booking: OffenderBooking,
     request: RequestForCourtTransferIn,
-    movement: ExternalMovement
+    toCourtMovement: ExternalMovement
   ): InmateDetail {
-    // TODO getCourtMovementType update if movement event id != null
-    val courtEvent: CourtEvent? = null
+    val courtEvent: CourtEvent? = toCourtMovement.eventId?.let {
+      courtHearingsService.completeScheduledChildHearingEvent(booking.bookingId, it).orElse(null)
+    }
     with(booking) {
       inOutStatus = MovementDirection.IN.name
       livingUnitMv = null
-      statusReason = MovementType.CRT.code + "-" + (request.movementReasonCode ?: movement.movementReason.code)
+      statusReason = MovementType.CRT.code + "-" + (request.movementReasonCode ?: toCourtMovement.movementReason.code)
       externalMovementService.updateMovementsForCourtTransferToSamePrison(
-        request = request, booking = booking, lastMovement = movement, courtEvent = courtEvent
+        request = request, booking = booking, lastMovement = toCourtMovement, courtEvent = courtEvent
       )
     }
 
@@ -176,11 +173,6 @@ private fun ExternalMovement.assertIsActiveCourtTransfer(): Result<ExternalMovem
 
   return success(this)
 }
-
-private fun <T : ReferenceCode> ReferenceCodeRepository<T>.lookupReferenceCode(
-  code: ReferenceCode.Pk
-): Result<T> = this.findByIdOrNull(code)?.let { success(it) }
-  ?: failure(EntityNotFoundException.withMessage("Reference code not found"))
 
 private fun ExternalMovement.isTransfer() = this.movementType.code == MovementType.TRN.code
 private fun ExternalMovement.isCourtTransfer() = this.movementType.code == MovementType.CRT.code

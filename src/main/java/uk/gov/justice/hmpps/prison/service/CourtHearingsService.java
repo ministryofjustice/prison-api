@@ -25,9 +25,11 @@ import uk.gov.justice.hmpps.prison.service.transformers.AgencyTransformer;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Comparator.comparing;
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus.COMPLETED;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus.SCHEDULED_APPROVED;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason.COURT;
 
@@ -150,6 +152,21 @@ public class CourtHearingsService {
                 );
 
         return courtHearingsBuilder.build();
+    }
+
+    /**
+     * Used by internally court transfer to complete the return back from court event
+     * @param bookingId
+     * @param parentCourtHearingEventId
+     * @return JPA CourtEvent for child event
+     */
+    @Transactional
+    public Optional<CourtEvent> completeScheduledChildHearingEvent(final Long bookingId, final Long parentCourtHearingEventId) {
+        return courtEventRepository.findOneByOffenderBookingBookingIdAndParentCourtEventId(bookingId, parentCourtHearingEventId)
+            .map(courtHearingEvent -> {
+                courtHearingEvent.setEventStatus(eventStatusRepository.findById(COMPLETED).orElseThrow());
+                return courtHearingEvent;
+            });
     }
 
     private void checkFromAndToDatesAreValid(final LocalDate from, final LocalDate to) {
