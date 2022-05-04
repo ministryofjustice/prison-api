@@ -6,6 +6,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -42,6 +43,7 @@ internal class PrisonTransferServiceTest {
   private val courtHearingService: CourtHearingsService = mock()
   private val agencyInternalLocationRepository: AgencyInternalLocationRepository = mock()
   private val agencyLocationRepository: AgencyLocationRepository = mock()
+  private val teamWorkflowNotificationService: TeamWorkflowNotificationService = mock()
   private val transformer: OffenderTransformer = OffenderTransformer(Clock.systemDefaultZone())
 
   private val fromPrison = AgencyLocation().apply { description = "HMPS Brixton"; id = "BXI"; }
@@ -51,16 +53,6 @@ internal class PrisonTransferServiceTest {
     toAgency = toPrison
     movementType = MovementType().apply { code = "TRN"; description = "Transfer" }
     movementReason = MovementReason().apply { code = "TRN"; description = "Transfer" }
-    movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
-    movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
-    isActive = true
-  }
-
-  private val bookingLastMovementCourt = ExternalMovement().apply {
-    fromAgency = fromPrison
-    toAgency = toPrison
-    movementType = MovementType().apply { code = "CRT"; description = "Court" }
-    movementReason = MovementReason().apply { code = "CRT"; description = "Court" }
     movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
     movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
     isActive = true
@@ -77,9 +69,18 @@ internal class PrisonTransferServiceTest {
     agencyLocationRepository,
     activityTransferService,
     courtHearingService,
-    transformer
+    teamWorkflowNotificationService,
+    transformer,
   )
   lateinit var booking: OffenderBooking
+
+  @BeforeEach
+  internal fun setUp() {
+    whenever(teamWorkflowNotificationService.sendTransferViaCourtNotification(any(), any())).thenAnswer {
+      // make sure lambda is called
+      it.getArgument<() -> ExternalMovement>(1)()
+    }
+  }
 
   @Nested
   @DisplayName("transferFromPrison")
