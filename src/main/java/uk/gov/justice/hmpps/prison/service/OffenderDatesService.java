@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.gov.justice.hmpps.prison.api.model.OffenderKeyDates;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateOffenderDates;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation;
@@ -64,7 +65,8 @@ public class OffenderDatesService {
                 .tusedCalculatedDate(keyDatesFromPayload.getTopupSupervisionExpiryDate())
                 .effectiveSentenceEndDate(keyDatesFromPayload.getEffectiveSentenceEndDate())
                 .effectiveSentenceLength(keyDatesFromPayload.getSentenceLength())
-                .judiciallyImposedSentenceLength(keyDatesFromPayload.getSentenceLength())
+                .judiciallyImposedSentenceLength(keyDatesFromPayload.getJudiciallyImposedSentenceLength() != null ?
+                    keyDatesFromPayload.getJudiciallyImposedSentenceLength() : keyDatesFromPayload.getSentenceLength())
                 .build();
         offenderBooking.addSentenceCalculation(sentenceCalculation);
 
@@ -76,5 +78,29 @@ public class OffenderDatesService {
             ), null);
 
         return offenderBooking.getSentenceCalcDates(Optional.of(sentenceCalculation));
+    }
+
+    public OffenderKeyDates getOffenderKeyDates(Long bookingId) {
+        final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
+        final var sentenceCalculation = offenderBooking.getLatestCalculation().orElseThrow(EntityNotFoundException.withId(bookingId));;
+
+        return OffenderKeyDates.builder()
+            .homeDetentionCurfewEligibilityDate(sentenceCalculation.getHomeDetentionCurfewEligibilityDate())
+            .earlyTermDate(sentenceCalculation.getEarlyTermDate())
+            .midTermDate(sentenceCalculation.getMidTermDate())
+            .lateTermDate(sentenceCalculation.getLateTermDate())
+            .dtoPostRecallReleaseDate(sentenceCalculation.getDtoPostRecallReleaseDate())
+            .automaticReleaseDate(sentenceCalculation.getAutomaticReleaseDate())
+            .conditionalReleaseDate(sentenceCalculation.getConditionalReleaseDate())
+            .paroleEligibilityDate(sentenceCalculation.getParoleEligibilityDate())
+            .nonParoleDate(sentenceCalculation.getNonParoleDate())
+            .licenceExpiryDate(sentenceCalculation.getLicenceExpiryDate())
+            .postRecallReleaseDate(sentenceCalculation.getPostRecallReleaseDate())
+            .sentenceExpiryDate(sentenceCalculation.getSentenceExpiryDate())
+            .topupSupervisionExpiryDate(sentenceCalculation.getTopupSupervisionExpiryDate())
+            .effectiveSentenceEndDate(sentenceCalculation.getEffectiveSentenceEndDate())
+            .sentenceLength(sentenceCalculation.getEffectiveSentenceLength())
+            .judiciallyImposedSentenceLength(sentenceCalculation.getJudiciallyImposedSentenceLength())
+            .build();
     }
 }

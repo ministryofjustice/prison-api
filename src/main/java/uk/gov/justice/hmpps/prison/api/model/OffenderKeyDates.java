@@ -61,4 +61,7 @@ public class OffenderKeyDates {
 
     @Schema(required = true, description = "Sentence length in the format 00 years/00 months/00 days.", example = "11/00/00")
     private String sentenceLength;
+
+    @Schema(description = "Judicially imposed length in the format 00 years/00 months/00 days. Will default to 'sentenceLength'", example = "11/00/00")
+    private String judiciallyImposedSentenceLength;
 }
