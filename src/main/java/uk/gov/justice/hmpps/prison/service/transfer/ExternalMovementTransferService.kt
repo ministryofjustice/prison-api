@@ -2,8 +2,8 @@ package uk.gov.justice.hmpps.prison.service.transfer
 
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
-import uk.gov.justice.hmpps.prison.api.model.RequestForCourtTransferIn
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferIn
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
@@ -62,15 +62,55 @@ class ExternalMovementTransferService(
     }
   }
 
-  fun updateMovementsForCourtTransferToSamePrison(
-    request: RequestForCourtTransferIn,
+  fun updateMovementsForCourtTransferToDifferentPrison(
+    movementDateTime: LocalDateTime?,
     booking: OffenderBooking,
     lastMovement: ExternalMovement,
-    courtEvent: CourtEvent?
+    toAgency: AgencyLocation,
+    commentText: String?
   ): ExternalMovement {
-    val movementReason = getMovementReasonForCourtTransfer(request.movementReasonCode, lastMovement.movementReason)
-    val receiveDateTime = getReceiveDateTime(request.dateTime, booking).getOrThrow()
-    val movementType = getCourtMovementType().getOrThrow()
+    val movementReason = getMovementReasonForCourtTransfer(MovementReason.TRANSFER_VIA_COURT.code)
+    val receiveDateTime = getReceiveDateTime(movementDateTime, booking).getOrThrow()
+    val movementType = getAdmissionMovementType().getOrThrow()
+
+    return with(booking) {
+      setPreviousMovementsToInactive().also { entityManager.flush() }
+      addExternalMovement(
+        ExternalMovement(
+          /* offenderBooking = */ booking,
+          /* movementSequence = */ null,
+          /* movementDate = */ receiveDateTime.toLocalDate(),
+          /* reportingDate = */ null,
+          /* movementTime = */ receiveDateTime,
+          /* eventId = */ null,
+          /* parentEventId = */ null,
+          /* arrestAgencyLocation = */ null,
+          /* fromAgency = */ lastMovement.fromAgency,
+          /* toAgency = */ toAgency, // the passed in agency in the request is just for validation
+          /* active = */ true,
+          /* escortText = */ null,
+          /* commentText = */ commentText,
+          /* toCity = */ null,
+          /* fromCity = */ null,
+          /* movementReason = */ movementReason,
+          /* movementDirection = */ MovementDirection.IN,
+          /* movementType = */ movementType
+        )
+      )
+    }
+  }
+
+  fun updateMovementsForCourtTransferToSamePrison(
+    movementReasonCode: String?,
+    movementDateTime: LocalDateTime?,
+    booking: OffenderBooking,
+    lastMovement: ExternalMovement,
+    courtEvent: CourtEvent?,
+    commentText: String?
+  ): ExternalMovement {
+    val movementReason = getMovementReasonForCourtTransfer(movementReasonCode ?: lastMovement.movementReason.code)
+    val receiveDateTime = getReceiveDateTime(movementDateTime, booking).getOrThrow()
+    val movementType = getCourtMovementType().getOrThrow() // not an admission as only returning from court
 
     return with(booking) {
       setPreviousMovementsToInactive().also { entityManager.flush() }
@@ -84,11 +124,11 @@ class ExternalMovementTransferService(
           /* eventId = */ courtEvent?.id,
           /* parentEventId = */ courtEvent?.parentCourtEventId,
           /* arrestAgencyLocation = */ null,
-          /* fromAgency = */ lastMovement.toAgency, // the passed in agency in the request is just for validation
+          /* fromAgency = */ lastMovement.toAgency,
           /* toAgency = */ lastMovement.fromAgency,
           /* active = */ true,
           /* escortText = */ null,
-          /* commentText = */ request.commentText,
+          /* commentText = */ commentText,
           /* toCity = */ null,
           /* fromCity = */ null,
           /* movementReason = */ movementReason,
@@ -115,8 +155,9 @@ class ExternalMovementTransferService(
       ?: return failure(EntityNotFoundException.withMessage("No movement reason INT found"))
   }
 
-  private fun getMovementReasonForCourtTransfer(movementReasonCode: String?, defaultMovementReason: MovementReason): MovementReason {
-    return movementReasonCode?.let { movementReasonRepository.findByIdOrNull(MovementReason.pk(movementReasonCode)) } ?: return defaultMovementReason
+  private fun getMovementReasonForCourtTransfer(movementReasonCode: String): MovementReason {
+    return movementReasonRepository.findByIdOrNull(MovementReason.pk(movementReasonCode))
+      ?: throw EntityNotFoundException.withMessage("No movement reason $movementReasonCode found")
   }
 
   private fun getReceiveDateTime(movementTime: LocalDateTime?, booking: OffenderBooking): Result<LocalDateTime> {

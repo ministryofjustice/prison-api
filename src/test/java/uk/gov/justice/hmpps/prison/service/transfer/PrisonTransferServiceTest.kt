@@ -19,6 +19,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.service.BadRequestException
 import uk.gov.justice.hmpps.prison.service.ConflictingRequestException
@@ -40,6 +41,7 @@ internal class PrisonTransferServiceTest {
   private val activityTransferService: ActivityTransferService = mock()
   private val courtHearingService: CourtHearingsService = mock()
   private val agencyInternalLocationRepository: AgencyInternalLocationRepository = mock()
+  private val agencyLocationRepository: AgencyLocationRepository = mock()
   private val transformer: OffenderTransformer = OffenderTransformer(Clock.systemDefaultZone())
 
   private val fromPrison = AgencyLocation().apply { description = "HMPS Brixton"; id = "BXI"; }
@@ -62,6 +64,7 @@ internal class PrisonTransferServiceTest {
     caseNoteTransferService,
     offenderBookingRepository,
     agencyInternalLocationRepository,
+    agencyLocationRepository,
     activityTransferService,
     courtHearingService,
     transformer

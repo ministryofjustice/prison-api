@@ -15,6 +15,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramEndReason
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.service.BadRequestException
 import uk.gov.justice.hmpps.prison.service.ConflictingRequestException
@@ -34,6 +35,7 @@ class PrisonTransferService(
   private val caseNoteTransferService: CaseNoteTransferService,
   private val offenderBookingRepository: OffenderBookingRepository,
   private val agencyInternalLocationRepository: AgencyInternalLocationRepository,
+  private val agencyLocationRepository: AgencyLocationRepository,
   private val activityTransferService: ActivityTransferService,
   private val courtHearingsService: CourtHearingsService,
   private val transformer: OffenderTransformer,
@@ -55,9 +57,9 @@ class PrisonTransferService(
       externalMovementService.updateMovementsForTransfer(
         request = request, booking = booking, lastMovement = transferMovement
       ).also { movement ->
-        this.statusReason = MovementType.ADM.code + "-" + movement.movementReason.code
+        statusReason = "${movement.movementType.code}-${movement.movementReason.code}"
         bedAssignmentTransferService.createBedHistory(
-          booking = this, cellLocation = cellLocation, receiveTime = movement.movementTime
+          booking = this, cellLocation = cellLocation, receiveTime = movement.movementTime, reasonCode = MovementType.ADM.code
         )
         trustAccountService.createTrustAccount(
           booking = this, lastMovement = transferMovement, movementReason = movement.movementReason
@@ -83,15 +85,38 @@ class PrisonTransferService(
   fun transferViaCourtFromDifferentPrison(
     booking: OffenderBooking,
     request: RequestForCourtTransferIn,
-    movement: ExternalMovement
+    toCourtMovement: ExternalMovement
   ): InmateDetail {
-    activityTransferService.endActivitiesAndWaitlist(
-      booking,
-      movement.fromAgency,
-      request.dateTime.toLocalDate(),
-      OffenderProgramEndReason.TRF.code
-    )
-    // TODO
+    val reception =
+      getCellLocation(null, request.agencyId).getOrThrow()
+    val toAgency = getAgencyLocation(request.agencyId).getOrThrow()
+
+    with(booking) {
+      inOutStatus = MovementDirection.IN.name
+      livingUnitMv = null // TODO - is this required if different prison
+      assignedLivingUnit = reception
+      location = toAgency
+      externalMovementService.updateMovementsForCourtTransferToDifferentPrison(
+        movementDateTime = request.dateTime,
+        booking = booking,
+        lastMovement = toCourtMovement,
+        toAgency = toAgency,
+        commentText = request.commentText
+      ).also { createdMovement ->
+        statusReason = "${createdMovement.movementType.code}-${createdMovement.movementReason.code}"
+        bedAssignmentTransferService.createBedHistory(
+          booking = this, cellLocation = reception, receiveTime = createdMovement.movementTime
+        )
+        activityTransferService.endActivitiesAndWaitlist(
+          booking,
+          toCourtMovement.fromAgency,
+          createdMovement.movementDate,
+          OffenderProgramEndReason.TRF.code
+        )
+        iepTransferService.resetLevelForPrison(booking = this, transferMovement = createdMovement)
+        caseNoteTransferService.createGenerateAdmissionNote(booking = this, transferMovement = createdMovement)
+      }
+    }
     return transformer.transform(booking)
   }
 
@@ -108,7 +133,12 @@ class PrisonTransferService(
       livingUnitMv = null
       statusReason = MovementType.CRT.code + "-" + (request.movementReasonCode ?: toCourtMovement.movementReason.code)
       externalMovementService.updateMovementsForCourtTransferToSamePrison(
-        request = request, booking = booking, lastMovement = toCourtMovement, courtEvent = courtEvent
+        movementReasonCode = request.movementReasonCode,
+        movementDateTime = request.dateTime,
+        booking = booking,
+        lastMovement = toCourtMovement,
+        courtEvent = courtEvent,
+        commentText = request.commentText
       )
     }
 
@@ -125,11 +155,22 @@ class PrisonTransferService(
   }
 
   private fun getCellLocation(cellLocation: String?, prison: AgencyLocation): Result<AgencyInternalLocation> {
-    val internalLocationCode = cellLocation ?: "${prison.id}-RECP"
+    return getCellLocation(cellLocation, prison.id)
+  }
+
+  private fun getCellLocation(cellLocation: String?, prisonCode: String): Result<AgencyInternalLocation> {
+    val internalLocationCode = cellLocation ?: "$prisonCode-RECP"
     return agencyInternalLocationRepository.findOneByDescriptionAndAgencyId(
-      internalLocationCode, prison.id
+      internalLocationCode, prisonCode
     ).map { success(it) }
       .orElse(failure(EntityNotFoundException.withMessage("$internalLocationCode cell location not found")))
+  }
+
+  private fun getAgencyLocation(prisonId: String): Result<AgencyLocation> {
+    return agencyLocationRepository.findById(
+      prisonId
+    ).map { success(it) }
+      .orElse(failure(EntityNotFoundException.withMessage("$prisonId agency not found")))
   }
 }
 

@@ -222,7 +222,7 @@ internal class ExternalMovementTransferServiceTest {
     }
   }
 
-  @DisplayName("updateMovementsForCourtTransfer")
+  @DisplayName("updateMovementsForCourtTransferToSamePrison")
   @Nested
   inner class UpdateMovementsForCourtTransferToSamePrison {
     val movementType = MovementType().apply { code = "CRT"; description = "Court" }
@@ -256,7 +256,14 @@ internal class ExternalMovementTransferServiceTest {
       @Test
       internal fun `should make any active movements inactive and write to database`() {
         assertThat(booking.externalMovements.first().isActive).isTrue
-        service.updateMovementsForCourtTransferToSamePrison(request, booking, bookingLastMovementCourt, null)
+        service.updateMovementsForCourtTransferToSamePrison(
+          movementReasonCode = request.movementReasonCode,
+          movementDateTime = request.dateTime,
+          commentText = request.commentText,
+          booking = booking,
+          lastMovement = bookingLastMovementCourt,
+          courtEvent = null
+        )
         assertThat(booking.externalMovements.first().isActive).isFalse
 
         verify(entityManager).flush()
@@ -265,14 +272,28 @@ internal class ExternalMovementTransferServiceTest {
       @Test
       internal fun `should create a new transfer movement`() {
         assertThat(booking.externalMovements).hasSize(1)
-        service.updateMovementsForCourtTransferToSamePrison(request, booking, bookingLastMovementCourt, null)
+        service.updateMovementsForCourtTransferToSamePrison(
+          movementReasonCode = request.movementReasonCode,
+          movementDateTime = request.dateTime,
+          commentText = request.commentText,
+          booking = booking,
+          lastMovement = bookingLastMovementCourt,
+          courtEvent = null
+        )
         assertThat(booking.externalMovements).hasSize(2)
       }
 
       @Test
       internal fun `new movement should specify the movement from court to prison`() {
         val movement =
-          service.updateMovementsForCourtTransferToSamePrison(request, booking, bookingLastMovementCourt, null)
+          service.updateMovementsForCourtTransferToSamePrison(
+            movementReasonCode = request.movementReasonCode,
+            movementDateTime = request.dateTime,
+            commentText = request.commentText,
+            booking = booking,
+            lastMovement = bookingLastMovementCourt,
+            courtEvent = null
+          )
         assertThat(movement.toAgency).isEqualTo(fromPrison)
         assertThat(movement.fromAgency).isEqualTo(toCourt)
       }
@@ -280,7 +301,14 @@ internal class ExternalMovementTransferServiceTest {
       @Test
       internal fun `new movement will contain reason and comment`() {
         val movement =
-          service.updateMovementsForCourtTransferToSamePrison(request, booking, bookingLastMovementCourt, null)
+          service.updateMovementsForCourtTransferToSamePrison(
+            movementReasonCode = request.movementReasonCode,
+            movementDateTime = request.dateTime,
+            commentText = request.commentText,
+            booking = booking,
+            lastMovement = bookingLastMovementCourt,
+            courtEvent = null
+          )
         assertThat(movement.commentText).isEqualTo("😩")
         assertThat(movement.movementReason).isEqualTo(movementReasonCourt)
       }
@@ -288,7 +316,14 @@ internal class ExternalMovementTransferServiceTest {
       @Test
       internal fun `new movement will contain movement time from receive time`() {
         val movement =
-          service.updateMovementsForCourtTransferToSamePrison(request, booking, bookingLastMovementCourt, null)
+          service.updateMovementsForCourtTransferToSamePrison(
+            movementReasonCode = request.movementReasonCode,
+            movementDateTime = request.dateTime,
+            commentText = request.commentText,
+            booking = booking,
+            lastMovement = bookingLastMovementCourt,
+            courtEvent = null
+          )
         assertThat(movement.movementDate).isEqualTo(LocalDateTime.parse("2022-04-20T10:00:00").toLocalDate())
         assertThat(movement.movementTime).isEqualTo(LocalDateTime.parse("2022-04-20T10:00:00"))
       }
@@ -296,8 +331,9 @@ internal class ExternalMovementTransferServiceTest {
       @Test
       internal fun `new movement will contain now when no receive time`() {
         val movement = service.updateMovementsForCourtTransferToSamePrison(
-          RequestForCourtTransferIn().apply { agencyId = "LEI"; commentText = "😩" },
-          booking, bookingLastMovementCourt, null
+          movementReasonCode = null,
+          movementDateTime = null, commentText = "😩",
+          booking = booking, lastMovement = bookingLastMovementCourt, courtEvent = null
         )
         assertThat(movement.movementDate).isEqualTo(LocalDate.now())
         assertThat(movement.movementTime).isCloseTo(LocalDateTime.now(), within(5, ChronoUnit.SECONDS))
@@ -306,7 +342,14 @@ internal class ExternalMovementTransferServiceTest {
       @Test
       internal fun `new movement will be an IN direction`() {
         val movement =
-          service.updateMovementsForCourtTransferToSamePrison(request, booking, bookingLastMovementCourt, null)
+          service.updateMovementsForCourtTransferToSamePrison(
+            movementReasonCode = request.movementReasonCode,
+            movementDateTime = request.dateTime,
+            commentText = request.commentText,
+            booking = booking,
+            lastMovement = bookingLastMovementCourt,
+            courtEvent = null
+          )
         assertThat(movement.movementDirection).isEqualTo(MovementDirection.IN)
       }
     }
@@ -320,7 +363,7 @@ internal class ExternalMovementTransferServiceTest {
       @BeforeEach
       internal fun setUp() {
         whenever(movementTypeRepository.findById(MovementType.ADM)).thenReturn(Optional.ofNullable(movementType))
-        whenever(movementReasonRepository.findById(MovementReason.pk("INT"))).thenReturn(
+        whenever(movementReasonRepository.findById(MovementReason.pk("CRT"))).thenReturn(
           Optional.ofNullable(
             movementReasonCourt
           )
@@ -338,7 +381,14 @@ internal class ExternalMovementTransferServiceTest {
         whenever(movementReasonRepository.findById(MovementReason.pk("CRT"))).thenReturn(Optional.empty())
 
         assertThrows<EntityNotFoundException> {
-          service.updateMovementsForCourtTransferToSamePrison(request, booking, bookingLastMovement, null)
+          service.updateMovementsForCourtTransferToSamePrison(
+            movementReasonCode = request.movementReasonCode,
+            movementDateTime = request.dateTime,
+            commentText = request.commentText,
+            booking = booking,
+            lastMovement = bookingLastMovementCourt,
+            courtEvent = null
+          )
         }
       }
 
@@ -347,7 +397,14 @@ internal class ExternalMovementTransferServiceTest {
         whenever(movementTypeRepository.findById(MovementType.CRT)).thenReturn(Optional.empty())
 
         assertThrows<EntityNotFoundException> {
-          service.updateMovementsForCourtTransferToSamePrison(request, booking, bookingLastMovement, null)
+          service.updateMovementsForCourtTransferToSamePrison(
+            movementReasonCode = request.movementReasonCode,
+            movementDateTime = request.dateTime,
+            commentText = request.commentText,
+            booking = booking,
+            lastMovement = bookingLastMovementCourt,
+            courtEvent = null
+          )
         }
       }
 
@@ -355,11 +412,12 @@ internal class ExternalMovementTransferServiceTest {
       internal fun `will throw exception if receive time is in the future`() {
         assertThatThrownBy {
           service.updateMovementsForCourtTransferToSamePrison(
-            RequestForCourtTransferIn().apply {
-              dateTime = LocalDateTime.now().plusHours(1); commentText = "😩"
-            },
-            booking, bookingLastMovement,
-            null
+            movementReasonCode = "CRT",
+            movementDateTime = LocalDateTime.now().plusHours(1),
+            commentText = request.commentText,
+            booking = booking,
+            lastMovement = bookingLastMovementCourt,
+            courtEvent = null
           )
         }
           .isInstanceOf(BadRequestException::class.java)
@@ -370,11 +428,12 @@ internal class ExternalMovementTransferServiceTest {
       internal fun `will throw exception if receive time before previous movement`() {
         assertThatThrownBy {
           service.updateMovementsForCourtTransferToSamePrison(
-            RequestForCourtTransferIn().apply {
-              dateTime = bookingLastMovement.movementTime.minusHours(1)
-            },
-            booking, bookingLastMovement,
-            null
+            movementReasonCode = null,
+            movementDateTime = bookingLastMovement.movementTime.minusHours(1),
+            commentText = request.commentText,
+            booking = booking,
+            lastMovement = bookingLastMovementCourt,
+            courtEvent = null
           )
         }
           .isInstanceOf(BadRequestException::class.java)

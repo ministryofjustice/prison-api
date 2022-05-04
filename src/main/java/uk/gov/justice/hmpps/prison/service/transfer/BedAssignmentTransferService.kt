@@ -4,7 +4,6 @@ import org.springframework.stereotype.Service
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory.BedAssignmentHistoryPK
-import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository
 import java.time.LocalDateTime
@@ -14,7 +13,8 @@ class BedAssignmentTransferService(private val bedAssignmentHistoriesRepository:
   fun createBedHistory(
     booking: OffenderBooking,
     cellLocation: AgencyInternalLocation,
-    receiveTime: LocalDateTime
+    receiveTime: LocalDateTime,
+    reasonCode: String? = null
   ): BedAssignmentHistory =
     bedAssignmentHistoriesRepository.save(
       BedAssignmentHistory
@@ -27,7 +27,7 @@ class BedAssignmentTransferService(private val bedAssignmentHistoriesRepository:
         /* livingUnitId = */ cellLocation.locationId,
         /* assignmentDate = */ receiveTime.toLocalDate(),
         /* assignmentDateTime = */ receiveTime,
-        /* assignmentReason = */ MovementType.ADM.code,
+        /* assignmentReason = */ reasonCode,
         /* assignmentEndDate = */ null,
         /* assignmentEndDateTime = */ null
       )
