@@ -30,6 +30,9 @@ import java.util.Objects;
 @Builder
 @Table(name = "OFFENDER_TEAM_ASSIGNMENTS")
 @Entity
+/*
+ * NB: This entity is only partially mapped - just enough to allow workflow tasks to be called
+ */
 public class OffenderTeamAssignment extends AuditableEntity {
 
     public static final String AUTO_TRANSFER_FROM_COURT_OR_TAP = "AUTO_TRN";
@@ -55,7 +58,7 @@ public class OffenderTeamAssignment extends AuditableEntity {
     @Exclude
     private Team team;
 
-    @Column(name = "ASSIGNNMENT_DATE")
+    @Column(name = "ASSIGNMENT_DATE")
     private LocalDate assignmentDate;
 
     @Override

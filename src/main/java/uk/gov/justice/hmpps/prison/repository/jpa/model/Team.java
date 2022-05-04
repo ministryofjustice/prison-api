@@ -22,6 +22,9 @@ import java.util.Objects;
 @Table(name = "TEAMS")
 @ToString(of = {"id", "code", "description"})
 @Entity
+/*
+ * NB: This entity is only partially mapped - just enough to allow workflow tasks to be called
+ */
 public class Team extends AuditableEntity {
     @Id
     @Column(name = "TEAM_ID")
