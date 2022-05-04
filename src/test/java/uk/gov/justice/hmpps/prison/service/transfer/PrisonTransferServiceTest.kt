@@ -139,13 +139,6 @@ internal class PrisonTransferServiceTest {
             lastMovement = bookingLastMovement
           )
         ).thenReturn(newMovement)
-        whenever(
-          externalMovementService.updateMovementsForTransfer(
-            request,
-            booking,
-            lastMovement = bookingLastMovement
-          )
-        ).thenReturn(newMovement)
       }
 
       @Test
