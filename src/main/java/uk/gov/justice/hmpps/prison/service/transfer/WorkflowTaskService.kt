@@ -9,7 +9,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Team
 import uk.gov.justice.hmpps.prison.repository.storedprocs.OffenderAdminProcs
 import java.sql.Date
-import java.sql.Timestamp
+import java.time.format.DateTimeFormatter
 
 interface WorkflowTaskService {
   fun createTaskAutomaticTransfer(booking: OffenderBooking, movement: ExternalMovement, team: Team)
@@ -31,7 +31,7 @@ class WorkflowTaskSPService(val createWorkflowTask: OffenderAdminProcs.CreateWor
       .addValue("p_offender_book_id", offenderBookingId)
       .addValue("p_movement_rsn_code", movementReasonCode)
       .addValue("p_movement_date", Date.valueOf(movementDate))
-      .addValue("p_movement_time", Timestamp.valueOf(movementTime))
+      .addValue("p_movement_time", movementTime.format(DateTimeFormatter.ofPattern("HH:mm")))
       .addValue("p_old_caseload_id", oldCaseloadId)
       .addValue("p_new_caseload_id", newCaseloadId)
       .addValue("p_team_id", teamId)
