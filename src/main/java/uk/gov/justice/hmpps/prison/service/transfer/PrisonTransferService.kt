@@ -38,6 +38,7 @@ class PrisonTransferService(
   private val agencyLocationRepository: AgencyLocationRepository,
   private val activityTransferService: ActivityTransferService,
   private val courtHearingsService: CourtHearingsService,
+  private val teamWorkflowNotificationService: TeamWorkflowNotificationService,
   private val transformer: OffenderTransformer,
 ) {
   fun transferFromPrison(offenderNo: String, request: RequestToTransferIn): InmateDetail {
@@ -96,25 +97,27 @@ class PrisonTransferService(
       livingUnitMv = null // TODO - is this required if different prison
       assignedLivingUnit = reception
       location = toAgency
-      externalMovementService.updateMovementsForCourtTransferToDifferentPrison(
-        movementDateTime = request.dateTime,
-        booking = booking,
-        lastMovement = toCourtMovement,
-        toAgency = toAgency,
-        commentText = request.commentText
-      ).also { createdMovement ->
-        statusReason = "${createdMovement.movementType.code}-${createdMovement.movementReason.code}"
-        bedAssignmentTransferService.createBedHistory(
-          booking = this, cellLocation = reception, receiveTime = createdMovement.movementTime
-        )
-        activityTransferService.endActivitiesAndWaitlist(
-          booking,
-          toCourtMovement.fromAgency,
-          createdMovement.movementDate,
-          OffenderProgramEndReason.TRF.code
-        )
-        iepTransferService.resetLevelForPrison(booking = this, transferMovement = createdMovement)
-        caseNoteTransferService.createGenerateAdmissionNote(booking = this, transferMovement = createdMovement)
+      teamWorkflowNotificationService.sendTransferViaCourtNotification(booking) {
+        externalMovementService.updateMovementsForCourtTransferToDifferentPrison(
+          movementDateTime = request.dateTime,
+          booking = booking,
+          lastMovement = toCourtMovement,
+          toAgency = toAgency,
+          commentText = request.commentText
+        ).also { createdMovement ->
+          statusReason = "${createdMovement.movementType.code}-${createdMovement.movementReason.code}"
+          bedAssignmentTransferService.createBedHistory(
+            booking = this, cellLocation = reception, receiveTime = createdMovement.movementTime
+          )
+          activityTransferService.endActivitiesAndWaitlist(
+            booking,
+            toCourtMovement.fromAgency,
+            createdMovement.movementDate,
+            OffenderProgramEndReason.TRF.code
+          )
+          iepTransferService.resetLevelForPrison(booking = this, transferMovement = createdMovement)
+          caseNoteTransferService.createGenerateAdmissionNote(booking = this, transferMovement = createdMovement)
+        }
       }
     }
     return transformer.transform(booking)
