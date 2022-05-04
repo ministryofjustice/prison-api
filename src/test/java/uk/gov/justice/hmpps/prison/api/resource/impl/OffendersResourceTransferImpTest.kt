@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.JsonNode
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.tuple
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -803,7 +802,6 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           }
 
           @Test
-          @Disabled
           internal fun `will create a new bed assignment history record with no reason code`() {
             val receiveDateTime = LocalDateTime.now().minusMinutes(2)
             assertThat(getBedAssignments(bookingId))
@@ -844,7 +842,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               )
               .containsExactly(
                 tuple("ADM", bookingInTime.toLocalDate(), LocalDate.now()), // admission to original prison
-                tuple("19", transferOutDateTime.toLocalDate(), LocalDate.now()), // assignment date should be set ( the court cell bed assignment )
+                tuple("19", transferOutDateTime.toLocalDate(), null), // trigger end_prev_bed_assg_hty will add an end date to the previous movement, but can't be tested
                 tuple(null, receiveDateTime.toLocalDate(), null), // as per nomis
               )
           }
@@ -1032,7 +1030,6 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           }
 
           @Test
-          @Disabled
           internal fun `will create a new bed assignment history record with no reason code`() {
             val receiveDateTime = LocalDateTime.now().minusMinutes(2)
             assertThat(getBedAssignments(bookingId))
@@ -1071,7 +1068,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
                 BedAssignmentHistory::getAssignmentEndDate
               )
               .containsExactly(
-                tuple("ADM", bookingInTime.toLocalDate(), LocalDate.now()), // original prison admission
+                tuple("ADM", bookingInTime.toLocalDate(), null), // trigger end_prev_bed_assg_hty will add an end date to the previous movement, but can't be tested
                 tuple(null, receiveDateTime.toLocalDate(), null),
               )
           }

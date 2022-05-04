@@ -161,10 +161,10 @@ class PrisonTransferService(
     return getCellLocation(cellLocation, prison.id)
   }
 
-  private fun getCellLocation(cellLocation: String?, prisonCode: String): Result<AgencyInternalLocation> {
-    val internalLocationCode = cellLocation ?: "$prisonCode-RECP"
+  private fun getCellLocation(cellLocation: String?, prisonId: String): Result<AgencyInternalLocation> {
+    val internalLocationCode = cellLocation ?: "$prisonId-RECP"
     return agencyInternalLocationRepository.findOneByDescriptionAndAgencyId(
-      internalLocationCode, prisonCode
+      internalLocationCode, prisonId
     ).map { success(it) }
       .orElse(failure(EntityNotFoundException.withMessage("$internalLocationCode cell location not found")))
   }
