@@ -19,6 +19,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.service.BadRequestException
 import uk.gov.justice.hmpps.prison.service.ConflictingRequestException
@@ -40,6 +41,7 @@ internal class PrisonTransferServiceTest {
   private val activityTransferService: ActivityTransferService = mock()
   private val courtHearingService: CourtHearingsService = mock()
   private val agencyInternalLocationRepository: AgencyInternalLocationRepository = mock()
+  private val agencyLocationRepository: AgencyLocationRepository = mock()
   private val transformer: OffenderTransformer = OffenderTransformer(Clock.systemDefaultZone())
 
   private val fromPrison = AgencyLocation().apply { description = "HMPS Brixton"; id = "BXI"; }
@@ -54,6 +56,16 @@ internal class PrisonTransferServiceTest {
     isActive = true
   }
 
+  private val bookingLastMovementCourt = ExternalMovement().apply {
+    fromAgency = fromPrison
+    toAgency = toPrison
+    movementType = MovementType().apply { code = "CRT"; description = "Court" }
+    movementReason = MovementReason().apply { code = "CRT"; description = "Court" }
+    movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
+    movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
+    isActive = true
+  }
+
   private val service = PrisonTransferService(
     externalMovementService,
     bedAssignmentTransferService,
@@ -62,6 +74,7 @@ internal class PrisonTransferServiceTest {
     caseNoteTransferService,
     offenderBookingRepository,
     agencyInternalLocationRepository,
+    agencyLocationRepository,
     activityTransferService,
     courtHearingService,
     transformer
@@ -109,9 +122,12 @@ internal class PrisonTransferServiceTest {
     inner class Success {
       private val newMovementReason =
         MovementReason().apply { code = "INT"; description = "Transfer In from Other Establishment" }
+      private val newMovementType =
+        MovementType().apply { code = "ADM"; description = "Admission" }
       private val newMovement = ExternalMovement().apply {
         movementTime = LocalDateTime.parse("2022-04-20T10:00:00")
         movementReason = newMovementReason
+        movementType = newMovementType
       }
 
       @BeforeEach
