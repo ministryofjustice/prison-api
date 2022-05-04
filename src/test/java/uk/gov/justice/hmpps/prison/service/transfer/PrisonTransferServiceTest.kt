@@ -194,7 +194,7 @@ internal class PrisonTransferServiceTest {
       internal fun `will request trust accounts are created`() {
         service.transferFromPrison("A1234AK", request)
 
-        verify(trustAccountService).createTrustAccount(booking, lastMovement = bookingLastMovement, newMovementReason)
+        verify(trustAccountService).createTrustAccount(booking, movementOut = bookingLastMovement, movementIn = newMovement)
       }
 
       @Test
