@@ -15,6 +15,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import uk.gov.justice.hmpps.prison.repository.FinanceRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
@@ -26,7 +27,9 @@ internal class TrustAccountServiceTest {
   lateinit var booking: OffenderBooking
   private val fromPrison = AgencyLocation().apply { description = "HMPS Brixton"; id = "BXI" }
   private val toPrison = AgencyLocation().apply { description = "HMPS Wandsworth"; id = "WWI" }
-  private val bookingLastMovement = ExternalMovement().apply {
+  private val toCourt = AgencyLocation().apply { description = "SHEFFIELD Crown Court"; id = "SHFCC" }
+
+  private val transferOutToPrison = ExternalMovement().apply {
     fromAgency = fromPrison
     toAgency = toPrison
     movementType = MovementType().apply { code = "TRN"; description = "Transfer" }
@@ -34,13 +37,44 @@ internal class TrustAccountServiceTest {
     movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
     movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
     isActive = true
+    movementDirection = MovementDirection.OUT
+  }
+  private val transferOutToCourt = ExternalMovement().apply {
+    fromAgency = fromPrison
+    toAgency = toCourt
+    movementType = MovementType().apply { code = "CRT"; description = "Court" }
+    movementReason = MovementReason().apply { code = "19"; description = "Witness" }
+    movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
+    movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
+    isActive = true
+    movementDirection = MovementDirection.OUT
+  }
+  private val transferInToPrison = ExternalMovement().apply {
+    fromAgency = fromPrison
+    toAgency = toPrison
+    movementType = MovementType().apply { code = "ADM"; description = "Admission" }
+    movementReason = MovementReason().apply { code = "INT"; description = "Inter prison transfer" }
+    movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
+    movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
+    isActive = true
+    movementDirection = MovementDirection.IN
+  }
+  private val transferInToPrisonViaCourt = ExternalMovement().apply {
+    fromAgency = fromPrison
+    toAgency = toPrison
+    movementType = MovementType().apply { code = "ADM"; description = "Admission" }
+    movementReason = MovementReason().apply { code = "TRNCRT"; description = "Transfer via court" }
+    movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
+    movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
+    isActive = true
+    movementDirection = MovementDirection.IN
   }
   val movementReason = MovementReason().apply { code = "INT"; description = "Transfer In from Other Establishment" }
 
   @BeforeEach
   internal fun setUp() {
     booking = OffenderBooking().apply {
-      externalMovements = mutableListOf(bookingLastMovement); bookingId = 99; rootOffender =
+      externalMovements = mutableListOf(transferOutToPrison); bookingId = 99; rootOffender =
         Offender().apply { id = 55L }
     }
   }
@@ -58,10 +92,32 @@ internal class TrustAccountServiceTest {
     @MockBean
     private lateinit var financeRepository: FinanceRepository
 
-    @Test
-    internal fun `will call store procedure to setup trust accounts`() {
-      trustAccountService.createTrustAccount(booking, bookingLastMovement, movementReason)
-      verify(financeRepository).createTrustAccount("WWI", 99L, 55L, "BXI", "INT", null, null, "WWI")
+    @Nested
+    @DisplayName("For prison to prison transfer BXI to WWI")
+    inner class PrisonToPrison {
+      @BeforeEach
+      internal fun setUp() {
+        trustAccountService.createTrustAccount(booking, transferOutToPrison, transferInToPrison)
+      }
+
+      @Test
+      internal fun `will call store procedure to setup trust accounts`() {
+        verify(financeRepository).createTrustAccount("WWI", 99L, 55L, "BXI", "INT", null, null, "WWI")
+      }
+    }
+
+    @Nested
+    @DisplayName("For prison to prison via court transfer BXI to Court to WWI")
+    inner class PrisonToPrisonViaCourt {
+      @BeforeEach
+      internal fun setUp() {
+        trustAccountService.createTrustAccount(booking, transferOutToCourt, transferInToPrisonViaCourt)
+      }
+
+      @Test
+      internal fun `will call store procedure to setup trust accounts`() {
+        verify(financeRepository).createTrustAccount("WWI", 99L, 55L, "BXI", "TRNCRT", null, null, "WWI")
+      }
     }
   }
 
@@ -79,7 +135,7 @@ internal class TrustAccountServiceTest {
 
     @Test
     internal fun `will do diddly squat`() {
-      trustAccountService.createTrustAccount(booking, bookingLastMovement, movementReason)
+      trustAccountService.createTrustAccount(booking, transferOutToPrison, transferInToPrison)
       verifyNoInteractions(financeRepository)
     }
   }
