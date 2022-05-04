@@ -56,6 +56,16 @@ internal class PrisonTransferServiceTest {
     isActive = true
   }
 
+  private val bookingLastMovementCourt = ExternalMovement().apply {
+    fromAgency = fromPrison
+    toAgency = toPrison
+    movementType = MovementType().apply { code = "CRT"; description = "Court" }
+    movementReason = MovementReason().apply { code = "CRT"; description = "Court" }
+    movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
+    movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
+    isActive = true
+  }
+
   private val service = PrisonTransferService(
     externalMovementService,
     bedAssignmentTransferService,
@@ -112,13 +122,23 @@ internal class PrisonTransferServiceTest {
     inner class Success {
       private val newMovementReason =
         MovementReason().apply { code = "INT"; description = "Transfer In from Other Establishment" }
+      private val newMovementType =
+        MovementType().apply { code = "ADM"; description = "Admission" }
       private val newMovement = ExternalMovement().apply {
         movementTime = LocalDateTime.parse("2022-04-20T10:00:00")
         movementReason = newMovementReason
+        movementType = newMovementType
       }
 
       @BeforeEach
       internal fun setUp() {
+        whenever(
+          externalMovementService.updateMovementsForTransfer(
+            request,
+            booking,
+            lastMovement = bookingLastMovement
+          )
+        ).thenReturn(newMovement)
         whenever(
           externalMovementService.updateMovementsForTransfer(
             request,
