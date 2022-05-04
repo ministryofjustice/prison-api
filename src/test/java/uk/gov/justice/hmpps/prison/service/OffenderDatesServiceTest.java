@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.OffenderKeyDates;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateOffenderDates;
+import uk.gov.justice.hmpps.prison.api.model.v1.Booking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Staff;
@@ -21,12 +22,14 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -165,13 +168,79 @@ public class OffenderDatesServiceTest {
             .hasMessage("Resource with id [staff] not found.");
     }
 
+    @Test
+    void getOffenderKeyDates_all_data_available() {
+        // Given
+        final var bookingId = 1L;
+        final var offenderBooking = OffenderBooking.builder()
+            .bookingId(bookingId)
+            .sentenceCalculations(List.of(
+                createSentenceCalculation()
+            ))
+            .build();
+        when(offenderBookingRepository.findById(bookingId)).thenReturn(Optional.of(offenderBooking));
+
+        // When
+        final var result = service.getOffenderKeyDates(bookingId);
+
+        // Then
+        assertEquals(result, createOffenderKeyDates());
+
+    }
+
+    public static SentenceCalculation createSentenceCalculation() {
+        return sentenceCalculation(
+            NOV_11_2021, NOV_11_2021, NOV_11_2021,
+            NOV_11_2021, NOV_11_2021, NOV_11_2021,
+            NOV_11_2021, NOV_11_2021, NOV_11_2021,
+            NOV_11_2021, NOV_11_2021, NOV_11_2021,
+            NOV_11_2021, NOV_11_2021, "11/00/00", "11/00/00");
+    }
+
     public static OffenderKeyDates createOffenderKeyDates() {
         return createOffenderKeyDates(
             NOV_11_2021, NOV_11_2021, NOV_11_2021,
             NOV_11_2021, NOV_11_2021, NOV_11_2021,
             NOV_11_2021, NOV_11_2021, NOV_11_2021,
             NOV_11_2021, NOV_11_2021, NOV_11_2021,
-            NOV_11_2021, NOV_11_2021, "11/00/00");
+            NOV_11_2021, NOV_11_2021, "11/00/00", "11/00/00");
+    }
+
+    public static SentenceCalculation sentenceCalculation(LocalDate homeDetentionCurfewEligibilityDate,
+                                                          LocalDate earlyTermDate,
+                                                          LocalDate midTermDate,
+                                                          LocalDate lateTermDate,
+                                                          LocalDate dtoPostRecallReleaseDate,
+                                                          LocalDate automaticReleaseDate,
+                                                          LocalDate conditionalReleaseDate,
+                                                          LocalDate paroleEligibilityDate,
+                                                          LocalDate nonParoleDate,
+                                                          LocalDate licenceExpiryDate,
+                                                          LocalDate postRecallReleaseDate,
+                                                          LocalDate sentenceExpiryDate,
+                                                          LocalDate topupSupervisionExpiryDate,
+                                                          LocalDate effectiveSentenceEndDate,
+                                                          String effectiveSentenceLength,
+                                                          String judiciallyImposedSentenceLength) {
+        return SentenceCalculation.builder()
+            .id(1L)
+            .hdcedCalculatedDate(homeDetentionCurfewEligibilityDate)
+            .etdCalculatedDate(earlyTermDate)
+            .mtdCalculatedDate(midTermDate)
+            .ltdCalculatedDate(lateTermDate)
+            .dprrdCalculatedDate(dtoPostRecallReleaseDate)
+            .ardCalculatedDate(automaticReleaseDate)
+            .crdCalculatedDate(conditionalReleaseDate)
+            .pedCalculatedDate(paroleEligibilityDate)
+            .npdCalculatedDate(nonParoleDate)
+            .ledCalculatedDate(licenceExpiryDate)
+            .prrdCalculatedDate(postRecallReleaseDate)
+            .sedCalculatedDate(sentenceExpiryDate)
+            .tusedCalculatedDate(topupSupervisionExpiryDate)
+            .effectiveSentenceEndDate(effectiveSentenceEndDate)
+            .effectiveSentenceLength(effectiveSentenceLength)
+            .judiciallyImposedSentenceLength(judiciallyImposedSentenceLength)
+            .build();
     }
 
     public static OffenderKeyDates createOffenderKeyDates(LocalDate homeDetentionCurfewEligibilityDate,
@@ -188,7 +257,8 @@ public class OffenderDatesServiceTest {
                                                           LocalDate sentenceExpiryDate,
                                                           LocalDate topupSupervisionExpiryDate,
                                                           LocalDate effectiveSentenceEndDate,
-                                                          String sentenceLength) {
+                                                          String sentenceLength,
+                                                          String judiciallyImposedSentenceLength) {
         return OffenderKeyDates.builder()
             .homeDetentionCurfewEligibilityDate(homeDetentionCurfewEligibilityDate)
             .earlyTermDate(earlyTermDate)
@@ -205,6 +275,7 @@ public class OffenderDatesServiceTest {
             .topupSupervisionExpiryDate(topupSupervisionExpiryDate)
             .effectiveSentenceEndDate(effectiveSentenceEndDate)
             .sentenceLength(sentenceLength)
+            .judiciallyImposedSentenceLength(judiciallyImposedSentenceLength)
             .build();
     }
 }
