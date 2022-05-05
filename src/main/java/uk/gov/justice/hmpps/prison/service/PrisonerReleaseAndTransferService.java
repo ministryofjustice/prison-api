@@ -805,73 +805,8 @@ public class PrisonerReleaseAndTransferService {
         return format("%05d", number);
     }
 
-    public InmateDetail courtTransferInV2(final String offenderNo, final RequestForCourtTransferIn requestForCourtTransferIn) {
-        return prisonTransferService.transferViaCourt(offenderNo, requestForCourtTransferIn);
-    }
-
     public InmateDetail courtTransferIn(final String offenderNo, final RequestForCourtTransferIn requestForCourtTransferIn) {
-
-        final OffenderBooking offenderBooking = this.getOffenderBooking(offenderNo);
-        if (!offenderBooking.getInOutStatus().equals("OUT")) {
-            throw new BadRequestException("Prisoner is not currently out");
-        }
-        final var latestExternalMovement = offenderBooking.getLastMovement().map(lm -> {
-            if (!lm.getMovementType().getCode().equals(CRT.getCode())) {
-                throw new BadRequestException("Latest movement not a court movement");
-            }
-
-            if (!lm.isActive()) {
-                throw new BadRequestException("Court transfer not active");
-            }
-            return lm;
-        }).orElseThrow(EntityNotFoundException.withMessage("No movements found"));
-
-        if (!requestForCourtTransferIn.getAgencyId().equals(latestExternalMovement.getFromAgency().getId())) {
-            throw new BadRequestException("Prisoner is not returning to the same prison");
-        }
-
-        offenderBooking.setInOutStatus(IN.name());
-        offenderBooking.setLivingUnitMv(null);
-
-
-        final MovementReason movementReason = getMovementReason(requestForCourtTransferIn.getMovementReasonCode(), latestExternalMovement.getMovementReason());
-
-        offenderBooking.setStatusReason(MovementType.CRT.getCode() + "-" + movementReason.getCode());
-        final LocalDateTime movementTime = getAndCheckMovementTime(requestForCourtTransferIn.getDateTime(), offenderBooking.getBookingId());
-        deactivatePreviousMovements(offenderBooking);
-
-        final ExternalMovement.ExternalMovementBuilder builder = ExternalMovement.builder()
-            .movementDate(movementTime.toLocalDate())
-            .movementTime(movementTime)
-            .movementType(movementTypeRepository.findById(CRT).orElseThrow(EntityNotFoundException.withMessage(format("No %s movement type found", MovementType.CRT))))
-            .movementReason(movementReason)
-            .movementDirection(MovementDirection.IN)
-            .fromAgency(latestExternalMovement.getToAgency())
-            .toAgency(latestExternalMovement.getFromAgency())
-            .active(true)
-            .commentText(requestForCourtTransferIn.getCommentText());
-
-        if (latestExternalMovement.getEventId() == null) {
-            offenderBooking.addExternalMovement(builder.build());
-        } else {
-            courtEventRepository
-                .findOneByOffenderBookingBookingIdAndParentCourtEventId(offenderBooking.getBookingId(), latestExternalMovement.getEventId())
-                .ifPresentOrElse(
-                    courtEvent -> {
-                        courtEvent.setEventStatus(eventStatusRepository.findById(EventStatus.COMPLETED).orElseThrow());
-
-                        offenderBooking.addExternalMovement(
-                            builder
-                                .eventId(courtEvent.getId())
-                                .parentEventId(courtEvent.getParentCourtEventId())
-                                .build());
-                    },
-                    () -> offenderBooking.addExternalMovement(builder.build())
-                );
-
-        }
-
-        return offenderTransformer.transform(offenderBooking);
+        return prisonTransferService.transferViaCourt(offenderNo, requestForCourtTransferIn);
     }
 
     public InmateDetail temporaryAbsenceArrival(final String offenderNo, final RequestForTemporaryAbsenceArrival requestForTemporaryAbsenceArrival) {
