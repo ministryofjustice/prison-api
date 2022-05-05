@@ -489,7 +489,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
   }
 
   @Nested
-  @DisplayName("PUT /{offenderNo}/court-transfer-in/v2")
+  @DisplayName("PUT /{offenderNo}/court-transfer-in")
   inner class CourtTransferIn {
     @Nested
     @DisplayName("Successful transfer in from court")
@@ -537,8 +537,8 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           @Test
           internal fun `will set the prisoner as active in`() {
             webTestClient.put()
-              .uri("/api/offenders/{nomsId}/court-transfer-in/v2", offenderNo)
-              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER_ALPHA")))
+              .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
+              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
               .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
               .accept(MediaType.APPLICATION_JSON)
               .body(
@@ -563,8 +563,8 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           @Test
           internal fun `can override movement reason`() {
             webTestClient.put()
-              .uri("/api/offenders/{nomsId}/court-transfer-in/v2", offenderNo)
-              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER_ALPHA")))
+              .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
+              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
               .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
               .accept(MediaType.APPLICATION_JSON)
               .body(
@@ -589,8 +589,8 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           @Test
           internal fun `cell remains unchanged from when the prisoner was transferred to court`() {
             webTestClient.put()
-              .uri("/api/offenders/{nomsId}/court-transfer-in/v2", offenderNo)
-              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER_ALPHA")))
+              .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
+              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
               .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
               .accept(MediaType.APPLICATION_JSON)
               .body(
@@ -626,8 +626,8 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               )
 
             webTestClient.put()
-              .uri("/api/offenders/{nomsId}/court-transfer-in/v2", offenderNo)
-              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER_ALPHA")))
+              .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
+              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
               .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
               .accept(MediaType.APPLICATION_JSON)
               .body(
@@ -673,8 +673,8 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               )
 
             webTestClient.put()
-              .uri("/api/offenders/{nomsId}/court-transfer-in/v2", offenderNo)
-              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER_ALPHA")))
+              .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
+              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
               .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
               .accept(MediaType.APPLICATION_JSON)
               .body(
@@ -710,8 +710,8 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           @Test
           internal fun `returning to a different prison is allowed`() {
             webTestClient.put()
-              .uri("/api/offenders/{nomsId}/court-transfer-in/v2", offenderNo)
-              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER_ALPHA")))
+              .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
+              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
               .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
               .accept(MediaType.APPLICATION_JSON)
               .body(
@@ -736,8 +736,8 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           @Test
           internal fun `by default transfer will be into reception`() {
             webTestClient.put()
-              .uri("/api/offenders/{nomsId}/court-transfer-in/v2", offenderNo)
-              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER_ALPHA")))
+              .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
+              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
               .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
               .accept(MediaType.APPLICATION_JSON)
               .body(
@@ -771,8 +771,8 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               )
 
             webTestClient.put()
-              .uri("/api/offenders/{nomsId}/court-transfer-in/v2", offenderNo)
-              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER_ALPHA")))
+              .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
+              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
               .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
               .accept(MediaType.APPLICATION_JSON)
               .body(
@@ -816,8 +816,8 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               )
 
             webTestClient.put()
-              .uri("/api/offenders/{nomsId}/court-transfer-in/v2", offenderNo)
-              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER_ALPHA")))
+              .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
+              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
               .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
               .accept(MediaType.APPLICATION_JSON)
               .body(
@@ -854,8 +854,8 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               .isEqualTo("Enhanced")
 
             webTestClient.put()
-              .uri("/api/offenders/{nomsId}/court-transfer-in/v2", offenderNo)
-              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER_ALPHA")))
+              .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
+              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
               .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
               .accept(MediaType.APPLICATION_JSON)
               .body(
@@ -889,8 +889,8 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               )
 
             webTestClient.put()
-              .uri("/api/offenders/{nomsId}/court-transfer-in/v2", offenderNo)
-              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER_ALPHA")))
+              .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
+              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
               .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
               .accept(MediaType.APPLICATION_JSON)
               .body(
@@ -1006,8 +1006,8 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           @Test
           internal fun `will set the prisoner as active in`() {
             webTestClient.put()
-              .uri("/api/offenders/{nomsId}/court-transfer-in/v2", offenderNo)
-              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER_ALPHA")))
+              .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
+              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
               .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
               .accept(MediaType.APPLICATION_JSON)
               .body(
@@ -1043,8 +1043,8 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               )
 
             webTestClient.put()
-              .uri("/api/offenders/{nomsId}/court-transfer-in/v2", offenderNo)
-              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER_ALPHA")))
+              .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
+              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
               .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
               .accept(MediaType.APPLICATION_JSON)
               .body(
@@ -1078,7 +1078,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
       @Nested
       @DisplayName("With a scheduled court appearance")
       open inner class WithCourtAppearance {
-        var courtHearingEventId: Long = 0
+        private var courtHearingEventId: Long = 0
         @BeforeEach
         internal fun setUp() {
           courtHearingEventId = createCourtHearing(bookingId)
@@ -1090,8 +1090,8 @@ class OffendersResourceTransferImpTest : ResourceTest() {
         internal fun `will complete scheduled appearance event`() {
           assertThat(getCourtHearings(bookingId)).extracting("eventStatus.code").containsExactly("COMP", "SCH")
           webTestClient.put()
-            .uri("/api/offenders/{nomsId}/court-transfer-in/v2", offenderNo)
-            .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER_ALPHA")))
+            .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
+            .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
             .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
             .accept(MediaType.APPLICATION_JSON)
             .body(
@@ -1186,7 +1186,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             .exchange()
             .expectStatus().isBadRequest
             .expectBody()
-            .jsonPath("userMessage").isEqualTo("Latest movement not a court movement")
+            .jsonPath("userMessage").isEqualTo("Latest movement not a court transfer")
         }
 
         @Test
