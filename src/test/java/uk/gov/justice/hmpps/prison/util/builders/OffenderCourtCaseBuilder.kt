@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.util
+package uk.gov.justice.hmpps.prison.util.builders
 
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LegalCaseType

@@ -1,6 +1,8 @@
-package uk.gov.justice.hmpps.prison.util
+package uk.gov.justice.hmpps.prison.util.builders
 
 import org.springframework.http.HttpHeaders
+import uk.gov.justice.hmpps.prison.util.JwtAuthenticationHelper
+import uk.gov.justice.hmpps.prison.util.JwtParameters
 import java.time.Duration
 import java.util.function.Consumer
 

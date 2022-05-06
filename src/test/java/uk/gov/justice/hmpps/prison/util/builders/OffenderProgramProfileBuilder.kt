@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.util
+package uk.gov.justice.hmpps.prison.util.builders
 
 import org.springframework.data.repository.findByIdOrNull
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramProfile
@@ -24,9 +24,13 @@ class OffenderProgramProfileBuilder(
       it.findByIdOrNull(prisonId) ?: throw BadRequestException("prison $prisonId not found")
     }
 
-    val offenderBooking = dataLoader.offenderBookingRepository.findByBookingId(offenderBookingId).orElseThrow(BadRequestException("booking $offenderBookingId not found"))
+    val offenderBooking = dataLoader.offenderBookingRepository.findByBookingId(offenderBookingId).orElseThrow(
+      BadRequestException("booking $offenderBookingId not found")
+    )
 
-    val courseActivity = dataLoader.courseActivityRepository.findByIdOrNull(courseActivityId) ?: throw BadRequestException("prison $prisonId not found")
+    val courseActivity = dataLoader.courseActivityRepository.findByIdOrNull(courseActivityId) ?: throw BadRequestException(
+      "prison $prisonId not found"
+    )
 
     val offenderProgramProfile =
       OffenderProgramProfile.builder().offenderBooking(offenderBooking).programStatus(programStatus)

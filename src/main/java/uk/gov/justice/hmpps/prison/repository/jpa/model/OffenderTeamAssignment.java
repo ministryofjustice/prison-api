@@ -10,6 +10,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString.Exclude;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.JoinColumnOrFormula;
+import org.hibernate.annotations.JoinColumnsOrFormulas;
+import org.hibernate.annotations.JoinFormula;
+import org.hibernate.annotations.NotFound;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -23,6 +27,9 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Objects;
 
+import static org.hibernate.annotations.NotFoundAction.IGNORE;
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTeamAssignmentFunction.FUNCTION_DOMAIN;
+
 @Getter
 @Setter
 @RequiredArgsConstructor
@@ -30,9 +37,6 @@ import java.util.Objects;
 @Builder
 @Table(name = "OFFENDER_TEAM_ASSIGNMENTS")
 @Entity
-/*
- * NB: This entity is only partially mapped - just enough to allow workflow tasks to be called
- */
 public class OffenderTeamAssignment extends AuditableEntity {
 
     public static final String AUTO_TRANSFER_FROM_COURT_OR_TAP = "AUTO_TRN";
@@ -50,8 +54,17 @@ public class OffenderTeamAssignment extends AuditableEntity {
         private OffenderBooking offenderBooking;
 
         @Column(name = "FUNCTION_TYPE", nullable = false)
-        private String functionType;
+        private String functionTypeCode;
     }
+
+    @ManyToOne
+    @NotFound(action = IGNORE)
+    @JoinColumnsOrFormulas(value = {
+        @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + FUNCTION_DOMAIN + "'", referencedColumnName = "domain")),
+        @JoinColumnOrFormula(column = @JoinColumn(name = "FUNCTION_TYPE", referencedColumnName = "code", nullable = false, insertable = false, updatable = false))
+    })
+    private OffenderTeamAssignmentFunction functionType;
+
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "TEAM_ID", nullable = false)
