@@ -9,7 +9,11 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.check
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.MediaType
@@ -26,13 +30,17 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection.IN
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection.OUT
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Team
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository
 import uk.gov.justice.hmpps.prison.service.DataLoaderRepository
+import uk.gov.justice.hmpps.prison.service.transfer.WorkflowTaskService
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderCourtCaseBuilder
+import uk.gov.justice.hmpps.prison.util.builders.OffenderTeamAssignmentBuilder
+import uk.gov.justice.hmpps.prison.util.builders.TeamBuilder
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -53,6 +61,13 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
   @Autowired
   private lateinit var dataLoader: DataLoaderRepository
+
+  @MockBean
+  private lateinit var workflowTaskService: WorkflowTaskService
+
+  private val team: Team by lazy {
+    dataLoader.load(TeamBuilder())
+  }
 
   @Nested
   @DisplayName("PUT /{offenderNo}/transfer-in")
@@ -500,7 +515,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
       @BeforeEach
       internal fun setUp() {
-        dataLoader.save(
+        dataLoader.load(
           OffenderBuilder().withBooking(
             OffenderBookingBuilder(
               prisonId = "LEI",
@@ -1014,7 +1029,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
                 BodyInserters.fromValue(
                   """
                   {
-                    "agencyId":"LEI",
+                    "agencyId":"MDI",
                     "commentText":"admitted",
                     "movementReasonCode":"CRT",
                     "dateTime": "${LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
@@ -1109,6 +1124,108 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           val courtHearingEVents = getCourtHearings(bookingId)
           assertThat(courtHearingEVents).extracting("eventStatus.code").containsExactly("COMP", "COMP")
           assertThat(getMovements(bookingId).last().eventId).isEqualTo(courtHearingEVents.last().id)
+        }
+      }
+    }
+
+    @Nested
+    @DisplayName("With a team assignment")
+    inner class WithTeamAssignment {
+      private lateinit var offenderNo: String
+      private var bookingId: Long = 0
+      private val bookingInTime = LocalDateTime.now().minusDays(1)
+      private lateinit var transferOutDateTime: LocalDateTime
+
+      @BeforeEach
+      internal fun setUp() {
+        dataLoader.load(
+          OffenderBuilder().withBooking(
+            OffenderBookingBuilder(
+              prisonId = "LEI",
+              bookingInTime = bookingInTime,
+              cellLocation = "LEI-RECP"
+            )
+              .withTeamAssignment(OffenderTeamAssignmentBuilder(team))
+          ),
+          webTestClient = webTestClient,
+          jwtAuthenticationHelper = jwtAuthenticationHelper
+        )
+          .also {
+            offenderNo = it.offenderNo
+            bookingId = it.bookingId
+          }
+
+        transferOutDateTime = transferOutToCourt(offenderNo, toLocation = "COURT1", shouldReleaseBed = false)
+      }
+
+      @Nested
+      @DisplayName("Returning to a different prison")
+      inner class DifferentPrison {
+        @Test
+        internal fun `will notify team of the automatic transfer`() {
+          val receiveDateTime = LocalDateTime.now()
+          webTestClient.put()
+            .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
+            .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
+            .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+            .accept(MediaType.APPLICATION_JSON)
+            .body(
+              BodyInserters.fromValue(
+                """
+                  {
+                    "agencyId":"MDI",
+                    "dateTime":"${receiveDateTime.format(DateTimeFormatter.ISO_DATE_TIME)}"
+                  }
+                """.trimIndent()
+              )
+            )
+            .exchange()
+            .expectStatus().isOk
+
+          // we can't test store procedure is called since we are running against H2, so next best thing is
+          // to assert service is called with the correct parameters that are passed to stored procedure
+          verify(workflowTaskService).createTaskAutomaticTransfer(
+            check {
+              assertThat(it.bookingId).isEqualTo(bookingId)
+            },
+            check {
+              assertThat(it.fromAgency.id).isEqualTo("LEI")
+              assertThat(it.toAgency.id).isEqualTo("MDI")
+              assertThat(it.movementReason.code).isEqualTo("TRNCRT")
+              assertThat(it.movementDate).isEqualTo(receiveDateTime.toLocalDate())
+              assertThat(it.movementTime).isEqualTo(receiveDateTime)
+            },
+            check {
+              assertThat(it.id).isEqualTo(team.id)
+            }
+          )
+        }
+      }
+      @Nested
+      @DisplayName("Returning to the same prison")
+      inner class SamePrison {
+        @Test
+        internal fun `will not notify team of a non transfer`() {
+          val receiveDateTime = LocalDateTime.now()
+          webTestClient.put()
+            .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
+            .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
+            .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+            .accept(MediaType.APPLICATION_JSON)
+            .body(
+              BodyInserters.fromValue(
+                """
+                  {
+                    "agencyId":"LEI",
+                    "dateTime":"${receiveDateTime.format(DateTimeFormatter.ISO_DATE_TIME)}"
+                  }
+                """.trimIndent()
+              )
+            )
+            .exchange()
+            .expectStatus().isOk
+
+          verifyNoInteractions(workflowTaskService)
         }
       }
     }
@@ -1402,7 +1519,9 @@ class OffendersResourceTransferImpTest : ResourceTest() {
     .exchange()
     .expectStatus().isOk
     .returnResult<RestResponsePage<CaseNote>>().responseBody.blockFirst()!!.content
-  private fun getCourtHearings(bookingId: Long) = courtEventRepository.findByOffenderBooking_BookingIdOrderByIdAsc(bookingId)
+
+  private fun getCourtHearings(bookingId: Long) =
+    courtEventRepository.findByOffenderBooking_BookingIdOrderByIdAsc(bookingId)
 }
 
 class RestResponsePage<T> @JsonCreator(mode = JsonCreator.Mode.PROPERTIES) constructor(

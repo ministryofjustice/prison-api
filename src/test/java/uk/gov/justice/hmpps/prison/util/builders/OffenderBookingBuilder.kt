@@ -25,6 +25,7 @@ class OffenderBookingBuilder(
   var pvoBalance: Int? = null,
   var programProfiles: List<OffenderProgramProfileBuilder> = emptyList(),
   var courtCases: List<OffenderCourtCaseBuilder> = emptyList(),
+  var teamAssignment: OffenderTeamAssignmentBuilder? = null,
 ) : WebClientEntityBuilder() {
 
   fun withIEPLevel(iepLevel: String): OffenderBookingBuilder {
@@ -45,6 +46,11 @@ class OffenderBookingBuilder(
 
   fun withCourtCases(vararg courtCases: OffenderCourtCaseBuilder): OffenderBookingBuilder {
     this.courtCases = courtCases.toList()
+    return this
+  }
+
+  fun withTeamAssignment(teamAssignment: OffenderTeamAssignmentBuilder): OffenderBookingBuilder {
+    this.teamAssignment = teamAssignment
     return this
   }
 
@@ -101,6 +107,9 @@ class OffenderBookingBuilder(
         it.save(offenderBookingId = inmateDetail.bookingId, prisonId = inmateDetail.agencyId, dataLoader = dataLoader)
       }
       this.courtCases.forEach {
+        it.save(offenderBookingId = inmateDetail.bookingId, dataLoader = dataLoader)
+      }
+      this.teamAssignment?.also {
         it.save(offenderBookingId = inmateDetail.bookingId, dataLoader = dataLoader)
       }
     }
