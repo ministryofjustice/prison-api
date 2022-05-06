@@ -16,9 +16,9 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramEndReason
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramProfile
 import uk.gov.justice.hmpps.prison.service.transfer.ActivityTransferService
-import uk.gov.justice.hmpps.prison.util.OffenderBookingBuilder
-import uk.gov.justice.hmpps.prison.util.OffenderBuilder
-import uk.gov.justice.hmpps.prison.util.OffenderProgramProfileBuilder
+import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
+import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
+import uk.gov.justice.hmpps.prison.util.builders.OffenderProgramProfileBuilder
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter

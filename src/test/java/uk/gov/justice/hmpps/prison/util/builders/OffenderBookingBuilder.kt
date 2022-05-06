@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.util
+package uk.gov.justice.hmpps.prison.util.builders
 
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -8,6 +8,7 @@ import uk.gov.justice.hmpps.prison.api.model.IepLevelAndComment
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.api.model.RequestForNewBooking
 import uk.gov.justice.hmpps.prison.service.DataLoaderRepository
+import uk.gov.justice.hmpps.prison.util.JwtAuthenticationHelper
 import java.time.LocalDateTime
 
 class OffenderBookingBuilder(

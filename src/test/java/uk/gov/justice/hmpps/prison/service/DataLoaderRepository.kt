@@ -12,7 +12,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCourtCaseRe
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProgramProfileRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
 import uk.gov.justice.hmpps.prison.util.JwtAuthenticationHelper
-import uk.gov.justice.hmpps.prison.util.OffenderBuilder
+import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
 import javax.transaction.Transactional
 
 @Service

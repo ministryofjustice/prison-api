@@ -30,9 +30,9 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistor
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository
 import uk.gov.justice.hmpps.prison.service.DataLoaderRepository
-import uk.gov.justice.hmpps.prison.util.OffenderBookingBuilder
-import uk.gov.justice.hmpps.prison.util.OffenderBuilder
-import uk.gov.justice.hmpps.prison.util.OffenderCourtCaseBuilder
+import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
+import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
+import uk.gov.justice.hmpps.prison.util.builders.OffenderCourtCaseBuilder
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter

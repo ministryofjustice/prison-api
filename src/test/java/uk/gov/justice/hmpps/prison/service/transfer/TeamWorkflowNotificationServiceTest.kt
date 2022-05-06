@@ -13,11 +13,13 @@ import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
+import uk.gov.justice.hmpps.prison.repository.jpa.model.InstitutionArea
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTeamAssignment
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Team
+import uk.gov.justice.hmpps.prison.repository.jpa.model.TeamCategory
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTeamAssignmentRepository
 import java.time.LocalDateTime
 import java.util.Optional
@@ -60,7 +62,7 @@ internal class TeamWorkflowNotificationServiceTest {
         verify(offenderTeamAssignmentRepository).findById(
           check {
             assertThat(it.offenderBooking).isEqualTo(booking)
-            assertThat(it.functionType).isEqualTo("AUTO_TRN")
+            assertThat(it.functionTypeCode).isEqualTo("AUTO_TRN")
           }
         )
       }
@@ -79,7 +81,18 @@ internal class TeamWorkflowNotificationServiceTest {
     @Nested
     @DisplayName("when offender has a team assignment")
     inner class WithTeam {
-      private val team = Team(99L, "Transfer team", "T123")
+      private val team = Team(
+        99L,
+        "Transfer team",
+        "T123",
+        TeamCategory("MANAGE", "Senior Management"),
+        1L,
+        true,
+        null,
+        InstitutionArea("KENT", "Kent"),
+        AgencyLocation().apply { id = "BXI"; description = "HMPS Brixton" },
+        2L
+      )
 
       @BeforeEach
       internal fun setUp() {
