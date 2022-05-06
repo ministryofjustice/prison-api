@@ -55,11 +55,13 @@ internal class PrisonTransferServiceTest {
   private val toCourt =
     AgencyLocation().apply { description = "Court1"; id = "CA"; type = AgencyLocationType.COURT_TYPE }
 
-  private val bookingLastMovement = getMovement()
+  private val bookingLastMovementTransfer = getMovement()
 
-  private val bookingLastMovementCourt = getMovement(toAgencyIn = toCourt, movementReasonCode = "CRT", movementTypeCode = "CRT")
+  private val bookingLastMovementCourt =
+    getMovement(toAgencyIn = toCourt, movementReasonCode = "CRT", movementTypeCode = "CRT")
 
-  private val bookingLastMovementCourtWithEventId = getMovement(toAgencyIn = toCourt, movementReasonCode = "CRT", movementTypeCode = "CRT", eventIdIn = 123)
+  private val bookingLastMovementCourtWithEventId =
+    getMovement(toAgencyIn = toCourt, movementReasonCode = "CRT", movementTypeCode = "CRT", eventIdIn = 123)
 
   private val service = PrisonTransferService(
     externalMovementService,
@@ -77,7 +79,13 @@ internal class PrisonTransferServiceTest {
   )
   lateinit var booking: OffenderBooking
 
-  private fun getMovement(movementTypeCode: String = "TRN", movementReasonCode: String = "TRN", toAgencyIn: AgencyLocation = toPrison, eventIdIn: Long? = null): ExternalMovement {
+  private fun getMovement(
+    movementTypeCode: String = "TRN",
+    movementReasonCode: String = "TRN",
+    toAgencyIn: AgencyLocation = toPrison,
+    eventIdIn: Long? = null,
+    active: Boolean = true
+  ): ExternalMovement {
     return ExternalMovement().apply {
       fromAgency = fromPrison
       toAgency = toAgencyIn
@@ -85,7 +93,7 @@ internal class PrisonTransferServiceTest {
       movementReason = MovementReason().apply { code = movementReasonCode; description = "Transfer" }
       movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
       movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
-      isActive = true
+      isActive = active
       eventId = eventIdIn
     }
   }
@@ -110,7 +118,7 @@ internal class PrisonTransferServiceTest {
     @BeforeEach
     internal fun setUp() {
       booking = OffenderBooking().apply {
-        externalMovements = mutableListOf(bookingLastMovement)
+        externalMovements = mutableListOf(bookingLastMovementTransfer)
         bookingId = 99
         inOutStatus = "TRN"
         isActive = false
@@ -153,7 +161,7 @@ internal class PrisonTransferServiceTest {
           externalMovementService.updateMovementsForTransfer(
             request,
             booking,
-            lastMovement = bookingLastMovement
+            lastMovement = bookingLastMovementTransfer
           )
         ).thenReturn(newMovement)
       }
@@ -185,7 +193,7 @@ internal class PrisonTransferServiceTest {
           externalMovementService.updateMovementsForTransfer(
             request,
             booking,
-            lastMovement = bookingLastMovement
+            lastMovement = bookingLastMovementTransfer
           )
         ).thenReturn(newMovement)
 
@@ -203,7 +211,11 @@ internal class PrisonTransferServiceTest {
       internal fun `will request movements are updated`() {
         service.transferFromPrison("A1234AK", request)
 
-        verify(externalMovementService).updateMovementsForTransfer(request, booking, lastMovement = bookingLastMovement)
+        verify(externalMovementService).updateMovementsForTransfer(
+          request,
+          booking,
+          lastMovement = bookingLastMovementTransfer
+        )
       }
 
       @Test
@@ -212,7 +224,7 @@ internal class PrisonTransferServiceTest {
 
         verify(trustAccountService).createTrustAccount(
           booking,
-          movementOut = bookingLastMovement,
+          movementOut = bookingLastMovementTransfer,
           movementIn = newMovement
         )
       }
@@ -254,7 +266,7 @@ internal class PrisonTransferServiceTest {
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
-            externalMovements = mutableListOf(bookingLastMovement)
+            externalMovements = mutableListOf(bookingLastMovementTransfer)
             bookingId = 99
             inOutStatus = "OUT"
             isActive = false
@@ -301,15 +313,7 @@ internal class PrisonTransferServiceTest {
         Optional.of(
           OffenderBooking().apply {
             externalMovements = mutableListOf(
-              ExternalMovement().apply {
-                fromAgency = fromPrison
-                toAgency = toPrison
-                movementType = MovementType().apply { code = "TRN"; description = "Transfer" }
-                movementReason = MovementReason().apply { code = "TRN"; description = "Transfer" }
-                movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
-                movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
-                isActive = false
-              }
+              getMovement(active = false)
             )
             bookingId = 99
             inOutStatus = "TRN"
@@ -334,15 +338,7 @@ internal class PrisonTransferServiceTest {
         Optional.of(
           OffenderBooking().apply {
             externalMovements = mutableListOf(
-              ExternalMovement().apply {
-                fromAgency = fromPrison
-                toAgency = toPrison
-                movementType = MovementType().apply { code = "ADM"; description = "Admission" }
-                movementReason = MovementReason().apply { code = "TRN"; description = "Transfer" }
-                movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
-                movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
-                isActive = true
-              }
+              bookingLastMovementCourt
             )
             bookingId = 99
             inOutStatus = "TRN"
@@ -549,7 +545,7 @@ internal class PrisonTransferServiceTest {
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
-            externalMovements = mutableListOf(bookingLastMovement)
+            externalMovements = mutableListOf(bookingLastMovementTransfer)
             bookingId = 99
             inOutStatus = "OUT"
             isActive = false
@@ -596,15 +592,7 @@ internal class PrisonTransferServiceTest {
         Optional.of(
           OffenderBooking().apply {
             externalMovements = mutableListOf(
-              ExternalMovement().apply {
-                fromAgency = fromPrison
-                toAgency = toPrison
-                movementType = MovementType().apply { code = "TRN"; description = "Transfer" }
-                movementReason = MovementReason().apply { code = "TRN"; description = "Transfer" }
-                movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
-                movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
-                isActive = false
-              }
+              getMovement(active = false)
             )
             bookingId = 99
             inOutStatus = "TRN"
@@ -624,21 +612,11 @@ internal class PrisonTransferServiceTest {
     }
 
     @Test
-    internal fun `will throw an exception if latest movement is not a transfer`() {
+    internal fun `will throw an exception if latest movement is not a court transfer`() {
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
-            externalMovements = mutableListOf(
-              ExternalMovement().apply {
-                fromAgency = fromPrison
-                toAgency = toPrison
-                movementType = MovementType().apply { code = "ADM"; description = "Admission" }
-                movementReason = MovementReason().apply { code = "TRN"; description = "Transfer" }
-                movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
-                movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
-                isActive = true
-              }
-            )
+            externalMovements = mutableListOf(bookingLastMovementTransfer)
             bookingId = 99
             inOutStatus = "TRN"
             isActive = false
