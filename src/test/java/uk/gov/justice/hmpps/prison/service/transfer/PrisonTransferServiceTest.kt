@@ -90,7 +90,7 @@ internal class PrisonTransferServiceTest {
       fromAgency = fromPrison
       toAgency = toAgencyIn
       movementType = MovementType().apply { code = movementTypeCode; description = "type description" }
-      movementReason = MovementReason().apply { code = movementReasonCode; description = "Transfer" }
+      movementReason = MovementReason().apply { code = movementReasonCode; description = "code description" }
       movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
       movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
       isActive = active
