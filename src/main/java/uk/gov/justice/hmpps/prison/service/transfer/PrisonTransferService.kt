@@ -94,7 +94,6 @@ class PrisonTransferService(
 
     with(booking) {
       inOutStatus = MovementDirection.IN.name
-      livingUnitMv = null // TODO - is this required if different prison
       assignedLivingUnit = reception
       location = toAgency
       teamWorkflowNotificationService.sendTransferViaCourtNotification(booking) {
@@ -136,7 +135,6 @@ class PrisonTransferService(
     }
     with(booking) {
       inOutStatus = MovementDirection.IN.name
-      livingUnitMv = null
       statusReason = MovementType.CRT.code + "-" + (request.movementReasonCode ?: toCourtMovement.movementReason.code)
       externalMovementService.updateMovementsForCourtTransferToSamePrison(
         movementReasonCode = request.movementReasonCode,
