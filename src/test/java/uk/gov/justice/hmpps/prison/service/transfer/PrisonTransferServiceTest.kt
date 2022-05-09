@@ -23,6 +23,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramEndReason
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
@@ -631,6 +632,241 @@ internal class PrisonTransferServiceTest {
       )
       assertThrows<BadRequestException> {
         service.transferViaCourt("A1234AK", requestCourtSamePrison)
+      }
+    }
+  }
+
+  @Nested
+  @DisplayName("transferFromCourtToDifferentPrison")
+  inner class TransferFromCourtToDifferentPrison {
+    private val requestCourtDifferentPrison = RequestForCourtTransferIn().apply {
+      this.commentText = "😎"
+      this.agencyId = toPrison.id
+      this.dateTime = LocalDateTime.parse("2022-04-19T00:00:00")
+    }
+
+    @BeforeEach
+    internal fun setUp() {
+      booking = OffenderBooking().apply {
+        externalMovements = mutableListOf(bookingLastMovementCourt)
+        bookingId = 99
+        inOutStatus = "OUT"
+        isActive = true
+        offender = Offender().apply {
+          firstName = "John"
+          lastName = "Smith"
+          birthDate = LocalDate.now().minusYears(30)
+          gender = Gender("M", "MALE")
+        }
+      }
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+        Optional.of(
+          booking
+        )
+      )
+      whenever(agencyInternalLocationRepository.findOneByDescriptionAndAgencyId("WWI-1-1", "WWI")).thenReturn(
+        Optional.of(
+          AgencyInternalLocation().apply {
+            this.description = "WWI-1-1"; this.agencyId = "WWI"; this.capacity = 4; this.currentOccupancy = 3
+          }
+        )
+      )
+      whenever(agencyInternalLocationRepository.findOneByDescriptionAndAgencyId("WWI-RECP", "WWI")).thenReturn(
+        Optional.of(
+          AgencyInternalLocation().apply {
+            this.description = "WWI-RECP"; this.agencyId = "WWI"; this.capacity = 4; this.currentOccupancy = 3
+          }
+        )
+      )
+    }
+
+    @Nested
+    inner class Success {
+      private val newMovementReason =
+        MovementReason().apply { code = "TRNCRT"; description = "Transfer Ifrom court" }
+      private val newMovementType =
+        MovementType().apply { code = "ADM"; description = "Admission" }
+      private val newMovement = ExternalMovement().apply {
+        movementTime = LocalDateTime.parse("2022-04-20T10:00:00")
+        movementDate = LocalDate.parse("2022-04-20")
+        movementReason = newMovementReason
+        movementType = newMovementType
+      }
+
+      @BeforeEach
+      internal fun setUp() {
+        whenever(
+          externalMovementService.updateMovementsForCourtTransferToDifferentPrison(
+            movementDateTime = requestCourtDifferentPrison.dateTime,
+            booking = booking,
+            lastMovement = bookingLastMovementCourt,
+            toAgency = toPrison,
+            commentText = requestCourtDifferentPrison.commentText
+          )
+        ).thenReturn(newMovement)
+
+        whenever(agencyLocationRepository.findById("WWI")).thenReturn(
+          Optional.of(
+            AgencyLocation().apply {
+              this.id = "WWI"
+              this.description = "HMPS Wandsworth"
+            }
+          )
+        )
+      }
+
+      @Test
+      internal fun `will change booking to in the new prison`() {
+        val details = service.transferViaCourt("A1234AK", requestCourtDifferentPrison)
+        assertThat(details.status).isEqualTo("ACTIVE IN")
+        assertThat(details.inOutStatus).isEqualTo("IN")
+        assertThat(details.assignedLivingUnit.description).isEqualTo("RECP")
+        assertThat(details.agencyId).isEqualTo("WWI")
+        assertThat(details.statusReason).isEqualTo("ADM-TRNCRT")
+      }
+
+      @Test
+      internal fun `will allocate reception cell`() {
+        val details = service.transferViaCourt("A1234AK", requestCourtDifferentPrison)
+        assertThat(details.assignedLivingUnit.description).isEqualTo("RECP")
+      }
+
+      @Test
+      internal fun `will request movements are updated`() {
+        service.transferViaCourt("A1234AK", requestCourtDifferentPrison)
+
+        verify(externalMovementService).updateMovementsForCourtTransferToDifferentPrison(
+          requestCourtDifferentPrison.dateTime,
+          booking,
+          lastMovement = bookingLastMovementCourt,
+          commentText = requestCourtDifferentPrison.commentText,
+          toAgency = toPrison
+        )
+      }
+
+      @Test
+      internal fun `will request trust accounts are created`() {
+        service.transferViaCourt("A1234AK", requestCourtDifferentPrison)
+
+        verify(trustAccountService).createTrustAccount(
+          booking,
+          movementOut = bookingLastMovementCourt,
+          movementIn = newMovement
+        )
+      }
+
+      @Test
+      internal fun `will request to end activities and wait list at previous prison`() {
+        service.transferViaCourt("A1234AK", requestCourtDifferentPrison)
+
+        verify(activityTransferService).endActivitiesAndWaitlist(
+          booking,
+          fromAgency = fromPrison,
+          endDate = newMovement.movementDate,
+          endReason = OffenderProgramEndReason.TRF.code
+        )
+      }
+
+      @Test
+      internal fun `will request IEP level is reset`() {
+        service.transferViaCourt("A1234AK", requestCourtDifferentPrison)
+
+        verify(iepTransferService).resetLevelForPrison(booking, newMovement)
+      }
+
+      @Test
+      internal fun `will request case note is created`() {
+        service.transferViaCourt("A1234AK", requestCourtDifferentPrison)
+
+        verify(caseNoteTransferService).createGenerateAdmissionNote(booking, newMovement)
+      }
+    }
+
+    @Nested
+    inner class Error {
+      @Test
+      internal fun `will throw exception of booking not found`() {
+        whenever(
+          offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(
+            "A1234AK",
+            1
+          )
+        ).thenReturn(Optional.empty())
+
+        assertThrows<EntityNotFoundException> {
+          service.transferViaCourt("A1234AK", requestCourtDifferentPrison)
+        }
+      }
+    }
+
+    @Test
+    internal fun `will throw an exception of the current location is not court transfer`() {
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+        Optional.of(
+          OffenderBooking().apply {
+            externalMovements = mutableListOf(bookingLastMovementTransfer)
+            bookingId = 99
+            inOutStatus = "OUT"
+            isActive = false
+            offender = Offender().apply {
+              firstName = "John"
+              lastName = "Smith"
+              birthDate = LocalDate.now().minusYears(30)
+              gender = Gender("M", "MALE")
+            }
+          }
+        )
+      )
+      assertThrows<BadRequestException> {
+        service.transferViaCourt("A1234AK", requestCourtDifferentPrison)
+      }
+    }
+
+    @Test
+    internal fun `will throw an exception if latest movement is not present at all`() {
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+        Optional.of(
+          OffenderBooking().apply {
+            externalMovements = mutableListOf()
+            bookingId = 99
+            inOutStatus = "OUT"
+            isActive = false
+            offender = Offender().apply {
+              firstName = "John"
+              lastName = "Smith"
+              birthDate = LocalDate.now().minusYears(30)
+              gender = Gender("M", "MALE")
+            }
+          }
+        )
+      )
+      assertThrows<EntityNotFoundException> {
+        service.transferViaCourt("A1234AK", requestCourtDifferentPrison)
+      }
+    }
+
+    @Test
+    internal fun `will throw an exception if latest movement is not active`() {
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+        Optional.of(
+          OffenderBooking().apply {
+            externalMovements = mutableListOf(
+              getMovement(active = false)
+            )
+            bookingId = 99
+            inOutStatus = "TRN"
+            isActive = false
+            offender = Offender().apply {
+              firstName = "John"
+              lastName = "Smith"
+              birthDate = LocalDate.now().minusYears(30)
+              gender = Gender("M", "MALE")
+            }
+          }
+        )
+      )
+      assertThrows<BadRequestException> {
+        service.transferViaCourt("A1234AK", requestCourtDifferentPrison)
       }
     }
   }
