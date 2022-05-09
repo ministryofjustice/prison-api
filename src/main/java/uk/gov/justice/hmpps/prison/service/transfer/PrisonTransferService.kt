@@ -55,6 +55,7 @@ class PrisonTransferService(
       assignedLivingUnit = cellLocation
       bookingEndDate = null
       location = transferMovement.toAgency
+      livingUnitMv = null
       externalMovementService.updateMovementsForTransfer(
         request = request, booking = booking, lastMovement = transferMovement
       ).also { movement ->
@@ -94,6 +95,7 @@ class PrisonTransferService(
 
     with(booking) {
       inOutStatus = MovementDirection.IN.name
+      livingUnitMv = null
       assignedLivingUnit = reception
       location = toAgency
       teamWorkflowNotificationService.sendTransferViaCourtNotification(booking) {
@@ -136,6 +138,7 @@ class PrisonTransferService(
     with(booking) {
       inOutStatus = MovementDirection.IN.name
       statusReason = MovementType.CRT.code + "-" + (request.movementReasonCode ?: toCourtMovement.movementReason.code)
+      livingUnitMv = null
       externalMovementService.updateMovementsForCourtTransferToSamePrison(
         movementReasonCode = request.movementReasonCode,
         movementDateTime = request.dateTime,

@@ -23,6 +23,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramEndReason
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
@@ -751,6 +752,18 @@ internal class PrisonTransferServiceTest {
           booking,
           movementOut = bookingLastMovementCourt,
           movementIn = newMovement
+        )
+      }
+
+      @Test
+      internal fun `will request to end activities and wait list at previous prison`() {
+        service.transferViaCourt("A1234AK", requestCourtDifferentPrison)
+
+        verify(activityTransferService).endActivitiesAndWaitlist(
+          booking,
+          fromAgency = fromPrison,
+          endDate = newMovement.movementDate,
+          endReason = OffenderProgramEndReason.TRF.code
         )
       }
 
