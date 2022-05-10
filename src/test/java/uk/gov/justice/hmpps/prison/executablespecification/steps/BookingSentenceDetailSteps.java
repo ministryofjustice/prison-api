@@ -77,8 +77,20 @@ public class BookingSentenceDetailSteps extends CommonSteps {
 
     @Step("Verify sentence expiry date")
     public void verifySentenceExpiryDate(final String sentenceEndDate) {
+        assertThat(true).isEqualTo(false);
         verifyLocalDate(sentenceDetail.getSentenceExpiryDate(), sentenceEndDate);
     }
+
+    @Step("Verify sentence expiry override date")
+    public void verifySentenceExpiryOverrideDate(final String sentenceEndDate) {
+        verifyLocalDate(sentenceDetail.getSentenceExpiryDate(), sentenceEndDate);
+    }
+
+    @Step("Verify sentence expiry calculated date")
+    public void verifySentenceExpiryCalculatedDate(final String sentenceEndDate) {
+        verifyLocalDate(sentenceDetail.getSentenceExpiryDate(), sentenceEndDate);
+    }
+
 
     @Step("Verify early term date")
     public void verifyEarlyTermDate(final String earlyTermDate) {

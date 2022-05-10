@@ -48,7 +48,7 @@ public class SentenceCalcDates extends BaseSentenceCalcDates {
     private LocalDate sentenceExpiryOverrideDate;
     @Schema(description = "LED (calculated) - date on which offender licence expires. (as calculated by NOMIS)", example = "2020-02-03")
     private LocalDate licenseExpiryCalculatedDate;
-    @Schema(description = "LED (override - date on which offender licence expires.", example = "2020-02-03")
+    @Schema(description = "LED (override) - date on which offender licence expires.", example = "2020-02-03")
     private LocalDate licenseExpiryOverrideDate;
     @Schema(description = "PED (calculated) - date on which offender is eligible for parole. (as calculated by NOMIS)", example = "2020-02-03")
     private LocalDate paroleEligibilityCalculatedDate;
