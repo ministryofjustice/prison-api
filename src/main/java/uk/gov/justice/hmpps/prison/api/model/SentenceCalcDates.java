@@ -42,6 +42,18 @@ public class SentenceCalcDates extends BaseSentenceCalcDates {
     private LocalDate dtoPostRecallReleaseDateOverride;
     @Schema(description = "Release date for non-DTO sentence (if applicable). This will be based on one of ARD, CRD, NPD or PRRD.", example = "2020-04-01")
     private LocalDate nonDtoReleaseDate;
+    @Schema(description = "SED (calculated) - date on which sentence expires. (as calculated by NOMIS)", example = "2020-02-03")
+    private LocalDate sentenceExpiryCalculatedDate;
+    @Schema(description = "SED (override) - date on which sentence expires.", example = "2020-02-03")
+    private LocalDate sentenceExpiryOverrideDate;
+    @Schema(description = "LED (calculated) - date on which offender licence expires. (as calculated by NOMIS)", example = "2020-02-03")
+    private LocalDate licenseExpiryCalculatedDate;
+    @Schema(description = "LED (override) - date on which offender licence expires.", example = "2020-02-03")
+    private LocalDate licenseExpiryOverrideDate;
+    @Schema(description = "PED (calculated) - date on which offender is eligible for parole. (as calculated by NOMIS)", example = "2020-02-03")
+    private LocalDate paroleEligibilityCalculatedDate;
+    @Schema(description = "PED (calculated) - date on which offender is eligible for parole. (as calculated by NOMIS)", example = "2020-02-03")
+    private LocalDate paroleEligibilityOverrideDate;
     @Schema(description = "Indicates which type of non-DTO release date is the effective release date. One of 'ARD', 'CRD', 'NPD' or 'PRRD'.", example = "CRD", required = true)
     private NonDtoReleaseDateType nonDtoReleaseDateType;
     @Schema(description = "Confirmed release date for offender.", example = "2020-04-20")
@@ -51,7 +63,7 @@ public class SentenceCalcDates extends BaseSentenceCalcDates {
     private LocalDate releaseDate;
 
     @Builder(builderMethodName = "sentenceCalcDatesBuilder")
-    public SentenceCalcDates(final LocalDate sentenceExpiryDate, final LocalDate automaticReleaseDate, final LocalDate conditionalReleaseDate, final LocalDate nonParoleDate, final LocalDate postRecallReleaseDate, final LocalDate licenceExpiryDate, final LocalDate homeDetentionCurfewEligibilityDate, final LocalDate paroleEligibilityDate, final LocalDate homeDetentionCurfewActualDate, final LocalDate actualParoleDate, final LocalDate releaseOnTemporaryLicenceDate, final LocalDate earlyRemovalSchemeEligibilityDate, final LocalDate earlyTermDate, final LocalDate midTermDate, final LocalDate lateTermDate, final LocalDate topupSupervisionExpiryDate, final LocalDate tariffDate, final LocalDate dtoPostRecallReleaseDate, final LocalDate tariffEarlyRemovalSchemeEligibilityDate, final LocalDate effectiveSentenceEndDate, @NotNull final Long bookingId, final LocalDate sentenceStartDate, final Integer additionalDaysAwarded, final LocalDate automaticReleaseOverrideDate, final LocalDate conditionalReleaseOverrideDate, final LocalDate nonParoleOverrideDate, final LocalDate postRecallReleaseOverrideDate, final LocalDate dtoPostRecallReleaseDateOverride, final LocalDate nonDtoReleaseDate, final NonDtoReleaseDateType nonDtoReleaseDateType, final LocalDate confirmedReleaseDate, final LocalDate releaseDate) {
+    public SentenceCalcDates(final LocalDate sentenceExpiryDate, final LocalDate automaticReleaseDate, final LocalDate conditionalReleaseDate, final LocalDate nonParoleDate, final LocalDate postRecallReleaseDate, final LocalDate licenceExpiryDate, final LocalDate homeDetentionCurfewEligibilityDate, final LocalDate paroleEligibilityDate, final LocalDate homeDetentionCurfewActualDate, final LocalDate actualParoleDate, final LocalDate releaseOnTemporaryLicenceDate, final LocalDate earlyRemovalSchemeEligibilityDate, final LocalDate earlyTermDate, final LocalDate midTermDate, final LocalDate lateTermDate, final LocalDate topupSupervisionExpiryDate, final LocalDate tariffDate, final LocalDate dtoPostRecallReleaseDate, final LocalDate tariffEarlyRemovalSchemeEligibilityDate, final LocalDate effectiveSentenceEndDate, @NotNull final Long bookingId, final LocalDate sentenceStartDate, final Integer additionalDaysAwarded, final LocalDate automaticReleaseOverrideDate, final LocalDate conditionalReleaseOverrideDate, final LocalDate nonParoleOverrideDate, final LocalDate postRecallReleaseOverrideDate, final LocalDate dtoPostRecallReleaseDateOverride, final LocalDate nonDtoReleaseDate, final LocalDate sentenceExpiryCalculatedDate, final LocalDate sentenceExpiryOverrideDate, final LocalDate licenseExpiryCalculatedDate, final LocalDate licenseExpiryOverrideDate, final LocalDate paroleEligibilityCalculatedDate, final LocalDate paroleEligibilityOverrideDate, final NonDtoReleaseDateType nonDtoReleaseDateType, final LocalDate confirmedReleaseDate, final LocalDate releaseDate) {
         super(sentenceExpiryDate, automaticReleaseDate, conditionalReleaseDate, nonParoleDate, postRecallReleaseDate, licenceExpiryDate, homeDetentionCurfewEligibilityDate, paroleEligibilityDate, homeDetentionCurfewActualDate, actualParoleDate, releaseOnTemporaryLicenceDate, earlyRemovalSchemeEligibilityDate, earlyTermDate, midTermDate, lateTermDate, topupSupervisionExpiryDate, tariffDate, dtoPostRecallReleaseDate, tariffEarlyRemovalSchemeEligibilityDate, effectiveSentenceEndDate);
         this.bookingId = bookingId;
         this.sentenceStartDate = sentenceStartDate;
@@ -62,6 +74,12 @@ public class SentenceCalcDates extends BaseSentenceCalcDates {
         this.postRecallReleaseOverrideDate = postRecallReleaseOverrideDate;
         this.dtoPostRecallReleaseDateOverride = dtoPostRecallReleaseDateOverride;
         this.nonDtoReleaseDate = nonDtoReleaseDate;
+        this.sentenceExpiryCalculatedDate = sentenceExpiryCalculatedDate;
+        this.sentenceExpiryOverrideDate = sentenceExpiryOverrideDate;
+        this.licenseExpiryCalculatedDate = licenseExpiryCalculatedDate;
+        this.licenseExpiryOverrideDate = licenseExpiryOverrideDate;
+        this.paroleEligibilityCalculatedDate = paroleEligibilityCalculatedDate;
+        this.paroleEligibilityOverrideDate = paroleEligibilityOverrideDate;
         this.nonDtoReleaseDateType = nonDtoReleaseDateType;
         this.confirmedReleaseDate = confirmedReleaseDate;
         this.releaseDate = releaseDate;
