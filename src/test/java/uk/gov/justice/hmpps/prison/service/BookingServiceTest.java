@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -7,7 +8,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.stubbing.OngoingStubbing;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -161,6 +161,8 @@ public class BookingServiceTest {
 
     private BookingService bookingService;
 
+    SecurityContext securityContext =mock(SecurityContext.class);
+
     @BeforeEach
     public void init() {
         bookingService = new BookingService(
@@ -184,6 +186,12 @@ public class BookingServiceTest {
                 offenderRestrictionRepository,
                 "1",
                 10);
+    }
+
+    @AfterEach
+    public void clearSecurityContext(){
+        when(securityContext.getAuthentication()).thenReturn(new TestAuthentication(("ROLE_IGNORE")));
+        SecurityContextHolder.setContext(securityContext);
     }
 
     @Test
@@ -243,8 +251,6 @@ public class BookingServiceTest {
 
     @Test
     public void verifyCanViewInactiveBookingInfo(){
-
-        SecurityContext securityContext = mock(SecurityContext.class);
         when(securityContext.getAuthentication()).thenReturn(new TestAuthentication(("ROLE_INACTIVE_BOOKINGS")));
         SecurityContextHolder.setContext(securityContext);
 
@@ -255,8 +261,6 @@ public class BookingServiceTest {
 
     @Test
     public void verifyCanViewRestrictedPatientBookingInfo(){
-
-        SecurityContext securityContext = mock(SecurityContext.class);
         when(securityContext.getAuthentication()).thenReturn(new TestAuthentication(("ROLE_POM")));
         SecurityContextHolder.setContext(securityContext);
 
