@@ -635,10 +635,16 @@ public class BookingService {
         if (agencyIds.isEmpty()) {
             throw EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId);
         }
-        var res = bookingRepository.verifyBookingAccess(bookingId, agencyIds);
-        if (!res && AuthenticationFacade.hasRoles("POM")) res = bookingRepository.verifyRestrictedPatientBookingAccess(bookingId, agencyIds,
-            REL.getCode() + "-" + DISCHARGE_TO_PSY_HOSPITAL.getCode());
-        if (!res) throw EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId);
+        var allowed = bookingRepository.verifyBookingAccess(bookingId, agencyIds);
+
+        if (!allowed && AuthenticationFacade.hasRoles("POM")) {
+            allowed = bookingRepository.verifyRestrictedPatientBookingAccess(
+                bookingId, agencyIds, REL.getCode() + "-" + DISCHARGE_TO_PSY_HOSPITAL.getCode()
+            );
+        }
+        if (!allowed) {
+            throw EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId);
+        }
     }
 
     public void checkBookingExists(final Long bookingId) {
