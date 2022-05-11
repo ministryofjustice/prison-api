@@ -119,6 +119,8 @@ import static java.util.Comparator.comparing;
 import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsLast;
 import static java.util.stream.Collectors.toList;
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason.DISCHARGE_TO_PSY_HOSPITAL;
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.REL;
 import static uk.gov.justice.hmpps.prison.service.ContactService.EXTERNAL_REL;
 
 /**
@@ -633,9 +635,10 @@ public class BookingService {
         if (agencyIds.isEmpty()) {
             throw EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId);
         }
-        if (!bookingRepository.verifyBookingAccess(bookingId, agencyIds)) {
-            throw EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId);
-        }
+        var res = bookingRepository.verifyBookingAccess(bookingId, agencyIds);
+        if (!res && AuthenticationFacade.hasRoles("POM")) res = bookingRepository.verifyRestrictedPatientBookingAccess(bookingId, agencyIds,
+            REL.getCode() + "-" + DISCHARGE_TO_PSY_HOSPITAL.getCode());
+        if (!res) throw EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId);
     }
 
     public void checkBookingExists(final Long bookingId) {

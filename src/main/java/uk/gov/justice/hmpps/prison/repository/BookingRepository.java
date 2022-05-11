@@ -154,11 +154,17 @@ public class BookingRepository extends RepositoryBase {
         SENTENCE_DETAIL_ROW_MAPPER = Collections.unmodifiableMap(builderMap);
     }
 
+    public boolean verifyRestrictedPatientBookingAccess(final Long bookingId, final Set<String> agencyIds, final String restrictedStatusCode) {
+        return verifyBookingAccess(bookingId, agencyIds, BookingRepositorySql.CHECK_RESTRICTED_PATIENT_BOOKING_AGENCIES.getSql(), Optional.ofNullable(restrictedStatusCode));
+    }
+
     public boolean verifyBookingAccess(final Long bookingId, final Set<String> agencyIds) {
+      return verifyBookingAccess(bookingId, agencyIds, BookingRepositorySql.CHECK_BOOKING_AGENCIES.getSql(), Optional.empty());
+    }
+
+    private boolean verifyBookingAccess(final Long bookingId, final Set<String> agencyIds, final String initialSql, final Optional<String> restrictedStatusCode){
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
         Objects.requireNonNull(agencyIds, "agencyIds is a required parameter");
-
-        final var initialSql = BookingRepositorySql.CHECK_BOOKING_AGENCIES.getSql();
 
         Long response;
 
@@ -166,9 +172,10 @@ public class BookingRepository extends RepositoryBase {
             log.debug("Verifying access for booking [{}] in caseloads {}", bookingId, agencyIds);
 
             response = jdbcTemplate.queryForObject(
-                    initialSql,
-                    createParams("bookingId", bookingId, "agencyIds", agencyIds),
-                    Long.class);
+                initialSql,
+                restrictedStatusCode.isEmpty() ? createParams("bookingId", bookingId, "agencyIds", agencyIds) :
+                    createParams("bookingId", bookingId, "agencyIds", agencyIds, "restrictedStatusReason", restrictedStatusCode.get()),
+                Long.class);
         } catch (final EmptyResultDataAccessException ex) {
             response = null;
         }

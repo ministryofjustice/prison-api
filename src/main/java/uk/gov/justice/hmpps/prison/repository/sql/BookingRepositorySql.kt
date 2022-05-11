@@ -382,6 +382,20 @@ enum class BookingRepositorySql(val sql: String) {
     """
   ),
 
+  CHECK_RESTRICTED_PATIENT_BOOKING_AGENCIES(
+    """
+          SELECT ob.OFFENDER_BOOK_ID
+                FROM OFFENDER_BOOKINGS ob
+                JOIN OFFENDER_EXTERNAL_MOVEMENTS oem ON oem.OFFENDER_BOOK_ID = ob.OFFENDER_BOOK_ID
+                WHERE ob.OFFENDER_BOOK_ID = :bookingId
+                  AND ob.STATUS_REASON = :restrictedStatusReason
+                  AND oem.MOVEMENT_SEQ = (SELECT MAX(oem2.MOVEMENT_SEQ) 
+                                          FROM OFFENDER_EXTERNAL_MOVEMENTS oem2 
+                                          WHERE oem2.OFFENDER_BOOK_ID = :bookingId)
+        AND oem.FROM_AGY_LOC_ID IN (:agencyIds) 
+    """
+  ),
+
   CHECK_BOOKING_AGENCIES(
     """
         SELECT OFFENDER_BOOK_ID

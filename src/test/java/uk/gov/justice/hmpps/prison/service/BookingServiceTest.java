@@ -7,9 +7,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.OngoingStubbing;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.BookingActivity;
@@ -25,7 +31,6 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetailDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerm;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeDetail;
-import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentDetail;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
@@ -90,7 +95,10 @@ import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -106,6 +114,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -230,6 +239,33 @@ public class BookingServiceTest {
         verify(authenticationFacade).isOverrideRole(
                 "SYSTEM_USER", "GLOBAL_SEARCH"
         );
+    }
+
+    @Test
+    public void verifyCanViewInactiveBookingInfo(){
+
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(new TestAuthentication(("ROLE_INACTIVE_BOOKINGS")));
+        SecurityContextHolder.setContext(securityContext);
+
+        when(agencyService.getAgencyIds()).thenReturn(new HashSet<>(Arrays.asList("MDI")));
+        when(bookingRepository.verifyBookingAccess(1L, Set.of("MDI", "OUT", "TRN"))).thenReturn(true);
+        bookingService.verifyBookingAccess(1L, "");
+    }
+
+    @Test
+    public void verifyCanViewRestrictedPatientBookingInfo(){
+
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(new TestAuthentication(("ROLE_POM")));
+        SecurityContextHolder.setContext(securityContext);
+
+
+        when(agencyService.getAgencyIds()).thenReturn(Set.of("MDI"));
+        when(bookingRepository.verifyBookingAccess(any(), any())).thenReturn(false);
+        when(bookingRepository.verifyRestrictedPatientBookingAccess(any(), any(), any())).thenReturn(true);
+
+        bookingService.verifyBookingAccess(1L, "");
     }
 
     @Test
@@ -1576,6 +1612,63 @@ public class BookingServiceTest {
             final var summary = bookingService.getBookingVisitsSummary(-1L);
             assertThat(summary.getStartDateTime()).isNull();
             assertThat(summary.getHasVisits()).isFalse();
+        }
+    }
+
+    public class TestAuthentication implements Authentication{
+        private List<String> roles;
+        public TestAuthentication(String... roles){
+            this.roles = Arrays.stream(roles).toList();
+        }
+
+        @Override
+        public Collection<? extends GrantedAuthority> getAuthorities() {
+            return roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+        }
+
+        @Override
+        public Object getCredentials() {
+            return null;
+        }
+
+        @Override
+        public Object getDetails() {
+            return null;
+        }
+
+        @Override
+        public Object getPrincipal() {
+            return null;
+        }
+
+        @Override
+        public boolean isAuthenticated() {
+            return false;
+        }
+
+        @Override
+        public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
+
+        }
+
+        @Override
+        public boolean equals(Object another) {
+            return false;
+        }
+
+        @Override
+        public String toString() {
+            return null;
+        }
+
+        @Override
+        public int hashCode() {
+            return 0;
+        }
+
+        @Override
+        public String getName() {
+            return null;
         }
     }
 }

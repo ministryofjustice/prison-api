@@ -3,6 +3,8 @@ package uk.gov.justice.hmpps.prison.repository;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
@@ -11,6 +13,10 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
+import org.springframework.test.context.jdbc.SqlConfig;
+import org.springframework.test.context.jdbc.SqlConfig.TransactionMode;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.NewAppointment;
@@ -21,6 +27,11 @@ import uk.gov.justice.hmpps.prison.api.model.VisitDetails;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentDefaults;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentDetails;
 import uk.gov.justice.hmpps.prison.api.support.Order;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 import uk.gov.justice.hmpps.prison.service.support.PayableAttendanceOutcomeDto;
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs;
@@ -34,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -611,5 +623,18 @@ public class BookingRepositoryTest {
                                 .build()
 
                 );
+    }
+
+    @Test
+    @Sql(scripts = {"/sql/restrictedPatients_create.sql"},
+        executionPhase = ExecutionPhase.BEFORE_TEST_METHOD,
+        config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
+    @Sql(scripts = {"/sql/restrictedPatients_clean.sql"},
+        executionPhase = ExecutionPhase.AFTER_TEST_METHOD,
+        config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
+    public void testRestrictedPatientAccess(){
+        assertThat(repository.verifyRestrictedPatientBookingAccess(
+            1176157L, Set.of("MDI"), "REL-HP"
+        )).isEqualTo(true);
     }
 }
