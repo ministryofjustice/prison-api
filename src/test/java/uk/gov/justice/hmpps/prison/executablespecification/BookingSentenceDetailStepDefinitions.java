@@ -38,6 +38,16 @@ public class BookingSentenceDetailStepDefinitions extends AbstractStepDefinition
         bookingSentenceDetail.verifySentenceExpiryDate(sentenceExpiryDate);
     }
 
+    @And("^sentence expiry calculated date matches \"([^\"]*)\"$")
+    public void sentenceExpiryCalculatedDateMatches(final String sentenceExpiryCalculatedDate) {
+        bookingSentenceDetail.verifySentenceExpiryCalculatedDate(sentenceExpiryCalculatedDate);
+    }
+
+    @And("^sentence expiry override date matches \"([^\"]*)\"$")
+    public void sentenceExpiryOverrideDateMatches(final String sentenceExpiryOverrideDate) {
+        bookingSentenceDetail.verifySentenceExpiryOverrideDate(sentenceExpiryOverrideDate);
+    }
+
     @And("^early term date matches \"([^\"]*)\"$")
     public void earlyTermDateMatches(final String earlyTermDate) {
         bookingSentenceDetail.verifyEarlyTermDate(earlyTermDate);
@@ -103,9 +113,29 @@ public class BookingSentenceDetailStepDefinitions extends AbstractStepDefinition
         bookingSentenceDetail.verifyParoleEligibilityDate(paroleEligibilityDate);
     }
 
+    @And("^parole eligibility calculated date matches \"([^\"]*)\"$")
+    public void paroleEligibilityCalculatedDateMatches(final String paroleEligibilityCalculatedDate) {
+        bookingSentenceDetail.verifyParoleEligibilityCalculatedDate(paroleEligibilityCalculatedDate);
+    }
+
+    @And("^parole eligibility override date matches \"([^\"]*)\"$")
+    public void paroleEligibilityOverrideDateMatches(final String paroleEligibilityOverrideDate) {
+        bookingSentenceDetail.verifyParoleEligibilityOverrideDate(paroleEligibilityOverrideDate);
+    }
+
     @And("^licence expiry date matches \"([^\"]*)\"$")
     public void licenceExpiryDateMatches(final String licenceExpiryDate) {
         bookingSentenceDetail.verifyLicenceExpiryDate(licenceExpiryDate);
+    }
+
+    @And("^licence expiry override date matches \"([^\"]*)\"$")
+    public void licenceExpiryOverrideDateMatches(final String licenceExpiryOverrideDate) {
+        bookingSentenceDetail.verifyLicenceExpiryOverrideDate(licenceExpiryOverrideDate);
+    }
+
+    @And("^licence expiry calculated date matches \"([^\"]*)\"$")
+    public void licenceExpiryCalculatedDateMatches(final String licenceExpiryCalculatedDate) {
+        bookingSentenceDetail.verifyLicenceExpiryCalculatedDate(licenceExpiryCalculatedDate);
     }
 
     @And("^non-DTO release date matches \"([^\"]*)\"$")

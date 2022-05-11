@@ -77,20 +77,18 @@ public class BookingSentenceDetailSteps extends CommonSteps {
 
     @Step("Verify sentence expiry date")
     public void verifySentenceExpiryDate(final String sentenceEndDate) {
-        assertThat(true).isEqualTo(false);
         verifyLocalDate(sentenceDetail.getSentenceExpiryDate(), sentenceEndDate);
     }
 
     @Step("Verify sentence expiry override date")
-    public void verifySentenceExpiryOverrideDate(final String sentenceEndDate) {
-        verifyLocalDate(sentenceDetail.getSentenceExpiryDate(), sentenceEndDate);
+    public void verifySentenceExpiryOverrideDate(final String sentenceExpiryOverrideDate) {
+        verifyLocalDate(sentenceDetail.getSentenceExpiryOverrideDate(), sentenceExpiryOverrideDate);
     }
 
     @Step("Verify sentence expiry calculated date")
-    public void verifySentenceExpiryCalculatedDate(final String sentenceEndDate) {
-        verifyLocalDate(sentenceDetail.getSentenceExpiryDate(), sentenceEndDate);
+    public void verifySentenceExpiryCalculatedDate(final String sentenceExpiryCalculatedDate) {
+        verifyLocalDate(sentenceDetail.getSentenceExpiryCalculatedDate(), sentenceExpiryCalculatedDate);
     }
-
 
     @Step("Verify early term date")
     public void verifyEarlyTermDate(final String earlyTermDate) {
@@ -157,6 +155,16 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         verifyLocalDate(sentenceDetail.getParoleEligibilityDate(), paroleEligibilityDate);
     }
 
+    @Step("Verify parole eligibility override date")
+    public void verifyParoleEligibilityOverrideDate(final String paroleEligibilityOverrideDate) {
+        verifyLocalDate(sentenceDetail.getParoleEligibilityOverrideDate(), paroleEligibilityOverrideDate);
+    }
+
+    @Step("Verify parole eligibility calculated date")
+    public void verifyParoleEligibilityCalculatedDate(final String paroleEligibilityCalculatedDate) {
+        verifyLocalDate(sentenceDetail.getParoleEligibilityCalculatedDate(), paroleEligibilityCalculatedDate);
+    }
+
     @Step("Verify home detention curfew actual date")
     public void verifyHomeDetentionCurfewActualDate(final String homeDetentionCurfewActualDate) {
         verifyLocalDate(sentenceDetail.getHomeDetentionCurfewActualDate(), homeDetentionCurfewActualDate);
@@ -180,6 +188,16 @@ public class BookingSentenceDetailSteps extends CommonSteps {
     @Step("Verify licence expiry date")
     public void verifyLicenceExpiryDate(final String licenceExpiryDate) {
         verifyLocalDate(sentenceDetail.getLicenceExpiryDate(), licenceExpiryDate);
+    }
+
+    @Step("Verify licence expiry override date")
+    public void verifyLicenceExpiryOverrideDate(final String licenseExpiryOverrideDate) {
+        verifyLocalDate(sentenceDetail.getLicenseExpiryOverrideDate(), licenseExpiryOverrideDate);
+    }
+
+    @Step("Verify licence expiry calculated date")
+    public void verifyLicenceExpiryCalculatedDate(final String licenseExpiryCalculatedDate) {
+        verifyLocalDate(sentenceDetail.getLicenseExpiryCalculatedDate(), licenseExpiryCalculatedDate);
     }
 
     @Step("Verify non-DTO release date")
