@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  hmpps: ministryofjustice/hmpps@3.14
+  hmpps: ministryofjustice/hmpps@5.0
 
 executor: &executor
   executor:
@@ -106,7 +106,7 @@ workflows:
           filters:
             tags:
               ignore: /.*/
-      - hmpps/build_docker:
+      - hmpps/build_multiplatform_docker:
           name: build_docker
           filters:
             branches:
