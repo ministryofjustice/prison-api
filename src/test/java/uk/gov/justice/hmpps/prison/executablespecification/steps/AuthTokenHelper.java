@@ -47,7 +47,8 @@ public class AuthTokenHelper {
         REF_DATA_MAINTAINER,
         REF_DATA_MAINTAINER_NO_WRITE,
         UNAUTHORISED_USER,
-        CRD_USER
+        CRD_USER,
+        OFFENCE_MAINTAINER,
     }
 
 
@@ -81,6 +82,7 @@ public class AuthTokenHelper {
         tokens.put(String.valueOf(AuthToken.REF_DATA_MAINTAINER_NO_WRITE), createRefDataMaintainerUser(false));
         tokens.put(String.valueOf(AuthToken.UNAUTHORISED_USER), createUnauthorisedUser());
         tokens.put(String.valueOf(AuthToken.CRD_USER), createReleaseDatesCalculatorUser());
+        tokens.put(String.valueOf(AuthToken.OFFENCE_MAINTAINER), someClientUser("ROLE_OFFENCE_MAINTAINER"));
     }
 
     public String getToken() {
