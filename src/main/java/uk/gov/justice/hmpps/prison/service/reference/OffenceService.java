@@ -10,11 +10,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.HOCodeDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenceDto;
+import uk.gov.justice.hmpps.prison.api.model.StatuteDto;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.HOCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Statute;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.HOCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenceRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.StatuteRepository;
 import uk.gov.justice.hmpps.prison.service.EntityAlreadyExistsException;
 
 import static java.lang.String.format;
@@ -27,6 +29,7 @@ import static java.lang.String.format;
 public class OffenceService {
     private final OffenceRepository repository;
     private final HOCodeRepository hoCodeRepository;
+    private final StatuteRepository statuteRepository;
 
     public Page<OffenceDto> getOffences(final boolean activeOnly, Pageable pageable) {
         return convertToPaginatedDto(activeOnly ? repository.findAllByActive(true, pageable)
@@ -57,6 +60,20 @@ public class OffenceService {
             .expiryDate(hoCodeDto.getExpiryDate())
             .build();
         hoCodeRepository.save(hoCode);
+    }
+
+    @Transactional
+    public void createStatute(final StatuteDto statuteDto) {
+        statuteRepository.findById(statuteDto.getCode()).ifPresent(h -> {
+            throw new EntityAlreadyExistsException(format("Statute with code %s already exists", statuteDto.getCode()));
+        });
+        final var statute = Statute.builder()
+            .code(statuteDto.getCode())
+            .description(statuteDto.getDescription())
+            .legislatingBodyCode(statuteDto.getLegislatingBodyCode())
+            .active(statuteDto.getActiveFlag() != null && statuteDto.getActiveFlag().equals("Y"))
+            .build();
+        statuteRepository.save(statute);
     }
 
     private PageImpl<OffenceDto> convertToPaginatedDto(final Page<Offence> pageOfOffences, final Pageable pageable) {

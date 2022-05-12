@@ -20,7 +20,7 @@ public class StatuteDto {
     @Schema(required = true, description = "Statute code description", example = "Statute RV98")
     private String description;
 
-    @Schema(required = true, description = "Legislating Body Code")
+    @Schema(required = true, description = "Legislating Body Code", example = "UK")
     private String legislatingBodyCode;
 
     @Schema(required = true, description = "Active Y/N", example = "Y")
