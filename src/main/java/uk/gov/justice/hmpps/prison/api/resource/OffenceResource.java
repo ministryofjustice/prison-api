@@ -105,14 +105,14 @@ public class OffenceResource {
     }
 
     @PostMapping("/ho-code")
-    @Operation(summary = "Create a Home Office Code record", description = "Requires OFFENCE_MAINTAINER role")
+    @Operation(summary = "Create a Home Office Notifiable Offence Code record", description = "Requires OFFENCE_MAINTAINER role")
     @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "HO Code created successfully"),
-        @ApiResponse(responseCode = "409", description = "A record already exists with the supplied HO Code", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "201", description = "Home Office Notifiable Offence Code created successfully"),
+        @ApiResponse(responseCode = "409", description = "A record already exists with the same Home Office Notifiable Offence Code", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @PreAuthorize("hasRole('OFFENCE_MAINTAINER') and hasAuthority('SCOPE_write')")
     public ResponseEntity<Void> createHomeOfficeCode(@RequestBody final HOCodeDto hoCodeDto) {
-        log.info("Request received to create hoCode: {}", hoCodeDto.getCode());
+        log.info("Request received to create a Home Office Notifiable Offence Code: {}", hoCodeDto.getCode());
         service.createHomeOfficeCode(hoCodeDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

@@ -48,7 +48,7 @@ public class OffenceService {
     @Transactional
     public void createHomeOfficeCode(final HOCodeDto hoCodeDto) {
         hoCodeRepository.findById(hoCodeDto.getCode()).ifPresent(h -> {
-            throw new EntityAlreadyExistsException(format("HO Code with code %s already exists", hoCodeDto.getCode()));
+            throw new EntityAlreadyExistsException(format("Home Office Notifiable Offence Code %s already exists", hoCodeDto.getCode()));
         });
         final var hoCode = HOCode.builder()
             .code(hoCodeDto.getCode())
