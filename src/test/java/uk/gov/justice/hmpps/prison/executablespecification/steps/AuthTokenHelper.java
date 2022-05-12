@@ -47,7 +47,8 @@ public class AuthTokenHelper {
         REF_DATA_MAINTAINER,
         REF_DATA_MAINTAINER_NO_WRITE,
         UNAUTHORISED_USER,
-        OFFENCE_MAINTAINER, CRD_USER
+        CRD_USER,
+        OFFENCE_MAINTAINER,
     }
 
 
