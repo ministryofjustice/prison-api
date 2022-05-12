@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.HOCodeDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenceDto;
-import uk.gov.justice.hmpps.prison.core.HasWriteScope;
+import uk.gov.justice.hmpps.prison.api.model.StatuteDto;
 import uk.gov.justice.hmpps.prison.service.reference.OffenceService;
 
 import javax.validation.constraints.NotBlank;
@@ -114,6 +114,19 @@ public class OffenceResource {
     public ResponseEntity<Void> createHomeOfficeCode(@RequestBody final HOCodeDto hoCodeDto) {
         log.info("Request received to create a Home Office Notifiable Offence Code: {}", hoCodeDto.getCode());
         service.createHomeOfficeCode(hoCodeDto);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PostMapping("/statute")
+    @Operation(summary = "Create a Statute", description = "Requires OFFENCE_MAINTAINER role")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Statute created successfully"),
+        @ApiResponse(responseCode = "409", description = "A record already exists with the same Home Office Notifiable Offence Code", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @PreAuthorize("hasRole('OFFENCE_MAINTAINER') and hasAuthority('SCOPE_write')")
+    public ResponseEntity<Void> createStatute(@RequestBody final StatuteDto statuteDto) {
+        log.info("Request received to create a statute with code: {}", statuteDto.getCode());
+        service.createStatute(statuteDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
