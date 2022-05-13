@@ -42,7 +42,7 @@ public class Offence {
     @EqualsAndHashCode
     public static class PK implements Serializable {
         private String code;
-        private Statute statute;
+        private String statute;
     }
 
     @Id
