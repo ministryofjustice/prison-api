@@ -176,7 +176,7 @@ public class OffenceResourceTest extends ResourceTest {
     }
 
     @Nested
-    @DisplayName("Tests creation and  update of an offence")
+    @DisplayName("Tests creation and update of an offence")
     public class CreateOrUpdateOffenceTests {
         private final String maintainerToken = authTokenHelper.getToken(AuthToken.OFFENCE_MAINTAINER);
         private final StatuteDto statuteDto = StatuteDto
