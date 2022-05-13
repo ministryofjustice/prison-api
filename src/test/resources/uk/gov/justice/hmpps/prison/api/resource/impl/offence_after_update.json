@@ -1,0 +1,47 @@
+{
+  "content": [
+    {
+      "code": "M5",
+      "description": "Manslaughter Old UPDATED",
+      "statuteCode": {
+        "code": "RC86",
+        "description": "Statute RC86",
+        "legislatingBodyCode": "LG1",
+        "activeFlag": "Y"
+      },
+      "hoCode": {
+        "code": "815/90",
+        "description": "Ho Code 815/90",
+        "activeFlag": "Y"
+      },
+      "severityRanking": "700",
+      "activeFlag": "N",
+      "expiryDate": "2020-10-13"
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "unsorted": false,
+      "sorted": true,
+      "empty": false
+    },
+    "offset": 0,
+    "pageNumber": 0,
+    "pageSize": 10,
+    "paged": true,
+    "unpaged": false
+  },
+  "totalPages": 1,
+  "last": true,
+  "totalElements": 1,
+  "size": 10,
+  "number": 0,
+  "sort": {
+    "unsorted": false,
+    "sorted": true,
+    "empty": false
+  },
+  "numberOfElements": 1,
+  "first": true,
+  "empty": false
+}
