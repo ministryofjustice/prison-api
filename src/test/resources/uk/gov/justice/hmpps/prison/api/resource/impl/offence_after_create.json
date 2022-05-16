@@ -1,0 +1,46 @@
+{
+  "content": [
+    {
+      "code": "2XX",
+      "description": "2XX Description",
+      "statuteCode": {
+        "code": "9235",
+        "description": "9235",
+        "legislatingBodyCode": "UK",
+        "activeFlag": "Y"
+      },
+      "hoCode": {
+        "code": "923/99",
+        "description": "923/99",
+        "activeFlag": "Y"
+      },
+      "severityRanking": "58",
+      "activeFlag": "Y"
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "unsorted": false,
+      "sorted": true,
+      "empty": false
+    },
+    "offset": 0,
+    "pageNumber": 0,
+    "pageSize": 10,
+    "paged": true,
+    "unpaged": false
+  },
+  "totalPages": 1,
+  "last": true,
+  "totalElements": 1,
+  "size": 10,
+  "number": 0,
+  "sort": {
+    "unsorted": false,
+    "sorted": true,
+    "empty": false
+  },
+  "numberOfElements": 1,
+  "first": true,
+  "empty": false
+}

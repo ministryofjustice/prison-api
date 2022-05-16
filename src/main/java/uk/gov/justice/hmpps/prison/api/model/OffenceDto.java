@@ -31,7 +31,7 @@ public class OffenceDto {
     @NotBlank
     private StatuteDto statuteCode;
 
-    @Schema(required = true, description = "HO code", example = "825/99")
+    @Schema(description = "HO code", example = "825/99")
     private HOCodeDto hoCode;
 
     @Schema(required = true, description = "Severity Ranking", example = "5")

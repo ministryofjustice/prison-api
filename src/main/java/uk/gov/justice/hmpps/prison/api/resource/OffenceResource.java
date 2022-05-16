@@ -21,6 +21,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -128,5 +129,32 @@ public class OffenceResource {
         log.info("Request received to create a statute with code: {}", statuteDto.getCode());
         service.createStatute(statuteDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PostMapping("/offence")
+    @Operation(summary = "Create a offence", description = "Requires OFFENCE_MAINTAINER role")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Offence created successfully"),
+        @ApiResponse(responseCode = "404", description = "A dependent resource is missing (either the statute or the home office code doesnt exist)", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "409", description = "A record already exists with the same Offence Code", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @PreAuthorize("hasRole('OFFENCE_MAINTAINER') and hasAuthority('SCOPE_write')")
+    public ResponseEntity<Void> createOffence(@RequestBody final OffenceDto offenceDto) {
+        log.info("Request received to create a offence with code: {}", offenceDto.getCode());
+        service.createOffence(offenceDto);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PutMapping("/offence")
+    @Operation(summary = "Update a offence", description = "Requires OFFENCE_MAINTAINER role")
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "Offence updated successfully"),
+        @ApiResponse(responseCode = "404", description = "A dependent resource is missing (either the offence or the home office code doesnt exist)", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @PreAuthorize("hasRole('OFFENCE_MAINTAINER') and hasAuthority('SCOPE_write')")
+    public ResponseEntity<Void> updateOffence(@RequestBody final OffenceDto offenceDto) {
+        log.info("Request received to update a offence with code: {}", offenceDto.getCode());
+        service.updateOffence(offenceDto);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
