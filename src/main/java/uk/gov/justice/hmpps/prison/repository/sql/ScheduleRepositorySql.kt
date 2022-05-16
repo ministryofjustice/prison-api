@@ -84,7 +84,7 @@ enum class ScheduleRepositorySql(val sql: String) {
         AND OCA.CRS_SCH_ID = CS.CRS_SCH_ID
                 WHERE CA.AGY_LOC_ID = :agencyId
         AND (OPP.OFFENDER_PROGRAM_STATUS = 'ALLOC'
-                OR (OPP.OFFENDER_PROGRAM_STATUS = 'END' AND OPP.OFFENDER_END_DATE >= CS.SCHEDULE_DATE))
+                OR (OPP.OFFENDER_PROGRAM_STATUS = 'END' AND OPP.OFFENDER_END_DATE >= :toDate))
         AND (COALESCE(OPP.SUSPENDED_FLAG, 'N')) IN (:includeSuspended)
         AND CA.ACTIVE_FLAG = 'Y'
         AND CA.COURSE_ACTIVITY_TYPE IS NOT NULL
