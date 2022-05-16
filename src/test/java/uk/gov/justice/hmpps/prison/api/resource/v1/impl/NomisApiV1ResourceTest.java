@@ -39,6 +39,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.anyString;
@@ -84,8 +85,14 @@ public class NomisApiV1ResourceTest {
         createTransaction.setType("type");
         createTransaction.setClientTransactionId("transId");
 
-        final var transfer = nomisApiV1Resource.createTransaction("client", "previous", "nomis", createTransaction);
+        final var transfer = nomisApiV1Resource.createTransaction("client", "previous", "nomis", createTransaction, false);
         assertThat(transfer).isEqualTo(new Transaction("someId"));
+    }
+
+    @Test
+    public void createTransaction_disabled() {
+        assertThatThrownBy(() -> nomisApiV1Resource.createTransaction("client", "previous", "nomis", null, true))
+            .isInstanceOf(RuntimeException.class).hasMessage("SDI-147: Create transaction currently disabled during unilink testing");
     }
 
     @Test
