@@ -150,6 +150,4 @@ tasks {
       jvmTarget = "17"
     }
   }
-
-  named("test") { dependsOn("testIntegration", "testWithSchemaNomis") }
 }

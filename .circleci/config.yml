@@ -28,7 +28,7 @@ jobs:
           key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
       - restore_cache:
           key: gradle-cache-{{ checksum "build.gradle.kts" }}
-      - run: ./gradlew check --exclude-task testIntegration --exclude-task testWithSchemaNomis
+      - run: ./gradlew check
       - save_cache:
           key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
           paths:
