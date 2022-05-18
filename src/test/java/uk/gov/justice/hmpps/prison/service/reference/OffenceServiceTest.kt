@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service.reference
 
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -8,6 +9,9 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import uk.gov.justice.hmpps.prison.api.model.HOCodeDto
 import uk.gov.justice.hmpps.prison.api.model.OffenceDto
 import uk.gov.justice.hmpps.prison.api.model.StatuteDto
@@ -241,6 +245,37 @@ internal class OffenceServiceTest {
             .build()
         )
       }
+    }
+  }
+
+  @Nested
+  @DisplayName("Get offences related tests")
+  inner class GetOffencesTest {
+    @Test
+    internal fun `Fetch offences where the code starts  with the passed string`() {
+      val pageable: Pageable = PageRequest.of(0, 20)
+      val statute = Statute("STA1", "STA1-desc", "UK", true)
+      val offence = Offence("ACODE", statute, null, "A-Desc", null, true, null, null, null)
+      val offences = listOf(offence)
+      whenever(offenceRepository.findAllByCodeStartsWithIgnoreCase("A", pageable)).thenReturn(PageImpl(offences))
+
+      val offencesReturned = service.getOffencesThatStartWith("A", pageable)
+
+      assertThat(offencesReturned).containsOnly(
+        OffenceDto.builder()
+          .code("ACODE")
+          .description("A-Desc")
+          .activeFlag("Y")
+          .statuteCode(
+            StatuteDto.builder()
+              .code("STA1")
+              .description("STA1-desc")
+              .legislatingBodyCode("UK")
+              .activeFlag("Y")
+              .build()
+          )
+          .build()
+      )
     }
   }
 }

@@ -1,0 +1,114 @@
+{
+  "content": [
+    {
+      "code": "M1",
+      "description": "Actual bodily harm",
+      "statuteCode": {
+        "code": "RC86",
+        "description": "Statute RC86",
+        "legislatingBodyCode": "LG1",
+        "activeFlag": "Y"
+      },
+      "hoCode": {
+        "code": "815/90",
+        "description": "Ho Code 815/90",
+        "activeFlag": "Y"
+      },
+      "severityRanking": "500",
+      "activeFlag": "Y"
+    },
+    {
+      "code": "M2",
+      "description": "Common assault",
+      "statuteCode": {
+        "code": "RC86",
+        "description": "Statute RC86",
+        "legislatingBodyCode": "LG1",
+        "activeFlag": "Y"
+      },
+      "hoCode": {
+        "code": "815/90",
+        "description": "Ho Code 815/90",
+        "activeFlag": "Y"
+      },
+      "severityRanking": "400",
+      "activeFlag": "Y"
+    },
+    {
+      "code": "M3",
+      "description": "Attempted Murder",
+      "statuteCode": {
+        "code": "RC86",
+        "description": "Statute RC86",
+        "legislatingBodyCode": "LG1",
+        "activeFlag": "Y"
+      },
+      "hoCode": {
+        "code": "815/90",
+        "description": "Ho Code 815/90",
+        "activeFlag": "Y"
+      },
+      "severityRanking": "600",
+      "activeFlag": "Y"
+    },
+    {
+      "code": "M4",
+      "description": "Manslaughter",
+      "statuteCode": {
+        "code": "RC86",
+        "description": "Statute RC86",
+        "legislatingBodyCode": "LG1",
+        "activeFlag": "Y"
+      },
+      "hoCode": {
+        "code": "815/90",
+        "description": "Ho Code 815/90",
+        "activeFlag": "Y"
+      },
+      "severityRanking": "700",
+      "activeFlag": "Y"
+    },
+    {
+      "code": "M5",
+      "description": "Manslaughter Old",
+      "statuteCode": {
+        "code": "RC86",
+        "description": "Statute RC86",
+        "legislatingBodyCode": "LG1",
+        "activeFlag": "Y"
+      },
+      "hoCode": {
+        "code": "815/90",
+        "description": "Ho Code 815/90",
+        "activeFlag": "Y"
+      },
+      "severityRanking": "700",
+      "activeFlag": "N"
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "unsorted": false,
+      "sorted": true,
+      "empty": false
+    },
+    "offset": 0,
+    "pageNumber": 0,
+    "pageSize": 20,
+    "paged": true,
+    "unpaged": false
+  },
+  "last": true,
+  "totalElements": 5,
+  "totalPages": 1,
+  "size": 20,
+  "number": 0,
+  "sort": {
+    "unsorted": false,
+    "sorted": true,
+    "empty": false
+  },
+  "first": true,
+  "numberOfElements": 5,
+  "empty": false
+}

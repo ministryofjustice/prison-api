@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -67,6 +68,21 @@ public class OffenceResource {
         @ParameterObject @PageableDefault(sort = {"code"}, direction = Sort.Direction.ASC) final Pageable pageable) {
 
         return service.getOffences(false, pageable);
+    }
+
+    @GetMapping("/code/{offenceCode}")
+    @Operation(summary = "Paged List of all offences where the offence code starts with the passed in offenceCode param")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    public Page<OffenceDto> getOffences(
+        @Parameter(required = true, example = "AA1256A", description = "The offence code")
+        @PathVariable("offenceCode")
+        final String offenceCode,
+        @ParameterObject @PageableDefault(sort = {"code"}, direction = Sort.Direction.ASC) final Pageable pageable) {
+        log.info("Request received to fetch offences that start with offenceCode {}", offenceCode);
+        return service.getOffencesThatStartWith(offenceCode, pageable);
     }
 
     @GetMapping("/ho-code")

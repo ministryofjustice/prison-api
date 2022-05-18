@@ -18,6 +18,8 @@ import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.io.Serializable;
@@ -35,6 +37,12 @@ import java.util.List;
 @ToString
 @IdClass(Offence.PK.class)
 @BatchSize(size = 25)
+@NamedEntityGraph(name = "offence-entity-graph",
+    attributeNodes = {
+        @NamedAttributeNode("statute"),
+        @NamedAttributeNode("hoCode"),
+    }
+)
 public class Offence {
 
     @NoArgsConstructor
