@@ -38,6 +38,10 @@ public class OffenceService {
             : offenceRepository.findAll(pageable), pageable);
     }
 
+    public Page<OffenceDto> getOffencesThatStartWith(final String codeStartsWith, Pageable pageable) {
+        return convertToPaginatedDto(offenceRepository.findAllByCodeStartsWithIgnoreCase(codeStartsWith, pageable), pageable);
+    }
+
     public Page<OffenceDto> findOffences(final String offenceDescription, Pageable pageable) {
         return convertToPaginatedDto(offenceRepository.findAllByDescriptionLike("%" + offenceDescription + "%", pageable), pageable);
     }

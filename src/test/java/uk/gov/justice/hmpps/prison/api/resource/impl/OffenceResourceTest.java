@@ -101,6 +101,22 @@ public class OffenceResourceTest extends ResourceTest {
 
             assertThatJsonFileAndStatus(response, 200, "paged_searched_for_offences.json");
         }
+
+        @Test
+        public void testCanFindOffencesByOffenceCode() {
+            final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
+
+            final var httpEntity = createHttpEntity(token, null);
+
+            final var response = testRestTemplate.exchange(
+                "/api/offences/code/m?size=20",
+                HttpMethod.GET,
+                httpEntity,
+                new ParameterizedTypeReference<String>() {
+                });
+
+            assertThatJsonFileAndStatus(response, 200, "paged_offences_start_with_m.json");
+        }
     }
 
     @Nested
