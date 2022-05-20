@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.api.model.adjudications;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
