@@ -8,6 +8,10 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
+import org.springframework.test.context.jdbc.SqlConfig;
+import org.springframework.test.context.jdbc.SqlConfig.TransactionMode;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.Adjudication;
@@ -125,13 +129,28 @@ public class AdjudicationsRepositoryTest {
 
     @Test
     public void retrieveAdjudicationsForOffender() {
-
         val results = repository.findAdjudications(AdjudicationSearchCriteria.builder()
             .offenderNumber("A1181GG")
             .pageRequest(new PageRequest(0L, 10L))
             .build());
 
         assertThat(results.getItems()).containsExactly(LATEST_ADJUDICATION, MIDDLE_ADJUDICATION, EARLIEST_ADJUDICATION);
+    }
+
+    @Sql(scripts = {"/sql/adjudicationHistorySort_init.sql"},
+        executionPhase = ExecutionPhase.BEFORE_TEST_METHOD,
+        config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
+    @Sql(scripts = {"/sql/adjudicationHistorySort_clean.sql"},
+        executionPhase = ExecutionPhase.AFTER_TEST_METHOD,
+        config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
+    @Test
+    public void adjudicationsHistorySortTest(){
+        val results = repository.findAdjudications(AdjudicationSearchCriteria.builder()
+            .offenderNumber("A1181GG")
+            .pageRequest(new PageRequest(0L, 10L))
+            .build());
+
+       assertThat(results.getItems().stream().filter(f -> f.getAdjudicationNumber() == -3001L).findFirst().get().getAdjudicationCharges().get(0).getFindingCode()).isEqualTo("PROVED");
     }
 
     @Test

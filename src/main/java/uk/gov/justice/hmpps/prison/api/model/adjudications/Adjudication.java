@@ -34,4 +34,5 @@ public class Adjudication {
     @Schema(description = "Charges made as part of the adjudication")
     @Singular
     private List<AdjudicationCharge> adjudicationCharges;
+
 }
