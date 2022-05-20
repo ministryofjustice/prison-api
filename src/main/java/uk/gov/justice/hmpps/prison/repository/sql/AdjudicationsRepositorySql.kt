@@ -95,7 +95,7 @@ enum class AdjudicationsRepositorySql(val sql: String) {
   FIND_LATEST_ADJUDICATIONS_FOR_OFFENDER(
     """
         SELECT  AIP.OIC_INCIDENT_ID   ADJUDICATION_NUMBER
-        ,		AI.REPORT_TIME
+        ,		COALESCE(OH.HEARING_TIME,AI.REPORT_TIME) AS REPORT_TIME
         ,       AI.AGENCY_INCIDENT_ID
         ,       AL.AGY_LOC_ID         AGENCY_ID
         ,       AIC.OIC_CHARGE_ID
@@ -103,7 +103,6 @@ enum class AdjudicationsRepositorySql(val sql: String) {
         ,       OO.OIC_OFFENCE_CODE   OFFENCE_CODE
         ,       AIP.PARTY_SEQ
         ,       OHR.FINDING_CODE
-        ,       COALESCE(OH.HEARING_TIME,AI.REPORT_TIME) AS SORT_TIME
         FROM  AGENCY_INCIDENTS AI
               INNER JOIN AGENCY_INCIDENT_PARTIES AIP ON AIP.AGENCY_INCIDENT_ID = AI.AGENCY_INCIDENT_ID  AND AIP.INCIDENT_ROLE = 'S'
               INNER JOIN AGENCY_LOCATIONS AL ON AL.AGY_LOC_ID = AI.AGY_LOC_ID

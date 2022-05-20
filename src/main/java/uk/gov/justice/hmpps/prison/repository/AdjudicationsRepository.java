@@ -170,9 +170,8 @@ public class AdjudicationsRepository extends RepositoryBase {
 
     private Adjudication toAdjudication(List<AdjudicationChargeDto> charges) {
 
-        val sortedCharges =
-            charges.stream().sorted(comparing(AdjudicationChargeDto::getSortTime).reversed()).collect(toList());
-        val firstCharge = sortedCharges.get(0);
+        val firstCharge = charges.get(0);
+        val convertedCharges = charges.stream().map(this::toCharge).collect(toList());
 
         return Adjudication.builder()
                 .agencyIncidentId(firstCharge.getAgencyIncidentId())
@@ -180,7 +179,7 @@ public class AdjudicationsRepository extends RepositoryBase {
                 .agencyId(firstCharge.getAgencyId())
                 .adjudicationNumber(firstCharge.getAdjudicationNumber())
                 .reportTime(firstCharge.getReportTime())
-                .adjudicationCharges(sortedCharges.stream().map(this::toCharge).collect(toList()))
+                .adjudicationCharges(convertedCharges)
                 .build();
     }
 
