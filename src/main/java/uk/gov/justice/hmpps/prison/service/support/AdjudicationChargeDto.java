@@ -26,4 +26,5 @@ public class AdjudicationChargeDto {
     private String oicChargeId;
     private long partySeq;
     private String findingCode;
+    private LocalDateTime sortTime;
 }
