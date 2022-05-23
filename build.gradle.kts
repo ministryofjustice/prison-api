@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.1.7-beta"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.2.0-beta"
   kotlin("plugin.spring") version "1.6.21"
   kotlin("plugin.jpa") version "1.6.21"
   kotlin("plugin.lombok") version "1.6.21"
@@ -89,7 +89,7 @@ dependencies {
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
   testImplementation("org.glassfish:javax.el:3.0.0")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.0.32")
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.0.33")
 
   testCompileOnly("org.projectlombok:lombok:1.18.24")
 }
