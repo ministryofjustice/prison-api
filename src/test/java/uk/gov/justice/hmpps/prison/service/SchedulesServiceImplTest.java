@@ -9,6 +9,8 @@ import uk.gov.justice.hmpps.prison.api.model.PrisonerSchedule;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import uk.gov.justice.hmpps.prison.repository.ScheduleRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.PrisonerActivitiesCount;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.PrisonerActivitiesCountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ScheduledActivityRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 
@@ -18,7 +20,6 @@ import java.time.LocalTime;
 import java.time.Month;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,11 +57,13 @@ class SchedulesServiceImplTest {
     @Mock
     private ScheduledActivityRepository scheduledActivityRepository;
 
+    @Mock
+    private PrisonerActivitiesCountRepository prisonerActivitiesCountRepository;
+
     private SchedulesService schedulesService;
 
     private final static LocalDate DATE = LocalDate.of(2018, Month.AUGUST, 31);
     private final static LocalDateTime TIME_1000 = LocalDateTime.of(DATE, LocalTime.of(10, 0));
-    private final static LocalDateTime TIME_1040 = LocalDateTime.of(DATE, LocalTime.of(10, 40));
     private final static int MAX_BATCH_SIZE = 500;
 
     @BeforeEach
@@ -73,6 +76,7 @@ class SchedulesServiceImplTest {
                 scheduleRepository,
                 authenticationFacade,
                 scheduledActivityRepository,
+                prisonerActivitiesCountRepository,
                 MAX_BATCH_SIZE
         );
     }
@@ -280,5 +284,14 @@ class SchedulesServiceImplTest {
         schedulesService.getActivitiesByEventIds("LEI", eventIds);
 
         verify(scheduledActivityRepository,  times(2)).findAllByEventIdIn(any());
+    }
+
+    @Test
+    void getCountActivities() {
+        when(prisonerActivitiesCountRepository.getCountActivities(any(), any(), any(), any())).thenReturn(new PrisonerActivitiesCount(4,5));
+        final var startDate = LocalDate.parse("2022-02-23");
+        final var endDate = LocalDate.parse("2022-04-23");
+        schedulesService.getCountActivities("MDI", startDate, endDate, List.of(TimeSlot.AM, TimeSlot.ED));
+        verify(prisonerActivitiesCountRepository).getCountActivities("MDI", startDate, endDate, List.of("AM", "ED"));
     }
 }

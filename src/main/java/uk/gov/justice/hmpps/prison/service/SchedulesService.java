@@ -15,6 +15,8 @@ import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import uk.gov.justice.hmpps.prison.repository.ScheduleRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.PrisonerActivitiesCount;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.PrisonerActivitiesCountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ScheduledActivityRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
@@ -45,6 +47,7 @@ public class SchedulesService {
     private final ScheduleRepository scheduleRepository;
     private final AuthenticationFacade authenticationFacade;
     private final ScheduledActivityRepository scheduledActivityRepository;
+    private final PrisonerActivitiesCountRepository prisonerActivitiesCountRepository;
 
     private int maxBatchSize;
 
@@ -56,6 +59,7 @@ public class SchedulesService {
                             final ScheduleRepository scheduleRepository,
                             final AuthenticationFacade authenticationFacade,
                             final ScheduledActivityRepository scheduledActivityRepository,
+                            final PrisonerActivitiesCountRepository prisonerActivitiesCountRepository,
                             @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.locationService = locationService;
         this.inmateService = inmateService;
@@ -64,6 +68,7 @@ public class SchedulesService {
         this.scheduleRepository = scheduleRepository;
         this.authenticationFacade = authenticationFacade;
         this.scheduledActivityRepository = scheduledActivityRepository;
+        this.prisonerActivitiesCountRepository = prisonerActivitiesCountRepository;
         this.maxBatchSize = maxBatchSize;
     }
 
@@ -173,6 +178,13 @@ public class SchedulesService {
         final var activities = scheduleRepository.getAllActivitiesAtAgency(agencyId, startDate, endDate, orderByFields, order, includeSuspended);
 
         return filterByTimeSlot(timeSlot, activities);
+    }
+
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    public PrisonerActivitiesCount getCountActivities(String agencyId, LocalDate fromDate, LocalDate toDate, List<TimeSlot> timeSlots) {
+        final var startDate = fromDate == null ? LocalDate.now() : fromDate;
+        final var endDate = toDate == null ? startDate : toDate;
+        return prisonerActivitiesCountRepository.getCountActivities(agencyId, startDate, endDate, timeSlots.stream().map(Enum::name).toList());
     }
 
     private List<PrisonerSchedule> getPrisonerSchedules(final Long locationId, final String usage, final String sortFields, final Order sortOrder, final LocalDate day) {
