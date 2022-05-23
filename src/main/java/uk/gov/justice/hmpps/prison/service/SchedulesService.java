@@ -182,9 +182,7 @@ public class SchedulesService {
 
     @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public PrisonerActivitiesCount getCountActivities(String agencyId, LocalDate fromDate, LocalDate toDate, List<TimeSlot> timeSlots) {
-        final var startDate = fromDate == null ? LocalDate.now() : fromDate;
-        final var endDate = toDate == null ? startDate : toDate;
-        return prisonerActivitiesCountRepository.getCountActivities(agencyId, startDate, endDate, timeSlots.stream().map(Enum::name).toList());
+        return prisonerActivitiesCountRepository.getCountActivities(agencyId, fromDate, toDate, timeSlots.stream().map(Enum::name).toList());
     }
 
     private List<PrisonerSchedule> getPrisonerSchedules(final Long locationId, final String usage, final String sortFields, final Order sortOrder, final LocalDate day) {

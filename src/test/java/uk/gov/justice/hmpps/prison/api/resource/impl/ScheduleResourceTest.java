@@ -282,6 +282,32 @@ public class ScheduleResourceTest extends ResourceTest {
             assertThat(response.getStatusCodeValue()).isEqualTo(400);
         }
         @Test
+        public void testCountActivitiesMissingFromDate() {
+            final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+            final var response = testRestTemplate.exchange(
+                "/api/schedules/LEI/count-activities?timeSlot=AM&toDate=",
+                HttpMethod.GET,
+                createHttpEntity(token, ""),
+                ErrorResponse.class);
+
+            assertThat(response.getBody().getUserMessage()).contains("Required request parameter 'fromDate'");
+            assertThat(response.getStatusCodeValue()).isEqualTo(400);
+        }
+        @Test
+        public void testCountActivitiesMissingToDate() {
+            final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+            final var response = testRestTemplate.exchange(
+                "/api/schedules/LEI/count-activities?timeSlot=AM&fromDate=2022-02-20&toDate",
+                HttpMethod.GET,
+                createHttpEntity(token, ""),
+                ErrorResponse.class);
+
+            assertThat(response.getBody().getUserMessage()).contains("Required request parameter 'toDate'");
+            assertThat(response.getStatusCodeValue()).isEqualTo(400);
+        }
+        @Test
         public void testCountActivitiesNoPermissions() {
             final var token = authTokenHelper.getToken(AuthToken.NO_CASELOAD_USER);
 
