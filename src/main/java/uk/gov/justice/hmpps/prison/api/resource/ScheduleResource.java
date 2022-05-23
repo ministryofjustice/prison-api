@@ -22,6 +22,7 @@ import uk.gov.justice.hmpps.prison.api.model.PrisonerSchedule;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledAppointmentDto;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.PrisonerActivitiesCount;
 import uk.gov.justice.hmpps.prison.service.AppointmentsService;
 import uk.gov.justice.hmpps.prison.service.SchedulesService;
 
@@ -106,6 +107,20 @@ public class ScheduleResource {
     @GetMapping("/{agencyId}/activities-by-date-range")
     public List<PrisonerSchedule> getActivitiesAtAllLocationsByDateRange(@PathVariable("agencyId") @Parameter(description = "The prison.", required = true) final String agencyId, @RequestParam(value = "fromDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "From date of whereabouts list, default today") final LocalDate fromDate, @RequestParam(value = "toDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "To Date of whereabouts list, default from date") final LocalDate toDate, @RequestParam(value = "timeSlot", required = false) @Parameter(description = "AM, PM or ED") final TimeSlot timeSlot, @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>cellLocation or lastName</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder, @RequestParam(value = "includeSuspended", required = false) @Parameter(description = "Include suspended scheduled activity - defaults to false") final boolean includeSuspended) {
         return schedulesService.getActivitiesAtAllLocations(agencyId, fromDate, toDate, timeSlot, sortFields, sortOrder, includeSuspended);
+    }
+
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Get all Prisoner activities for given date.", description = "Get count of suspended prisoner activities for given date range")
+    @GetMapping("/{agencyId}/count-activities")
+    public PrisonerActivitiesCount getCountActivitiesByDateRange(@PathVariable("agencyId") @Parameter(description = "The prison.", required = true, example = "MDI") final String agencyId,
+                                                                 @RequestParam(value = "fromDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "From date of whereabouts list, default today") final LocalDate fromDate,
+                                                                 @RequestParam(value = "toDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "To Date of whereabouts list, default from date") final LocalDate toDate,
+                                                                 @RequestParam(value = "timeSlots", required = true) @Parameter(description = "List of one or more of AM, PM or ED") @NotEmpty final List<TimeSlot> timeSlots) {
+        return schedulesService.getCountActivities(agencyId, fromDate, toDate, timeSlots);
     }
 
     @Operation

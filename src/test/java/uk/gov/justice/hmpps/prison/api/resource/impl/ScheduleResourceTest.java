@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -7,6 +8,7 @@ import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerSchedule;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.PrisonerActivitiesCount;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -264,6 +266,48 @@ public class ScheduleResourceTest extends ResourceTest {
         assertThat(response.getStatusCodeValue()).isEqualTo(404);
     }
 
+    @Nested
+    public class CountActivities {
+        @Test
+        public void testCountActivitiesMissingTimeslot() {
+            final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+            final var response = testRestTemplate.exchange(
+                "/api/schedules/LEI/count-activities?timeSlot=AM&fromDate=2017-09-11&toDate=2017-09-12",
+                HttpMethod.GET,
+                createHttpEntity(token, ""),
+                ErrorResponse.class);
+
+            assertThat(response.getBody().getUserMessage()).contains("Required request parameter 'timeSlots'");
+            assertThat(response.getStatusCodeValue()).isEqualTo(400);
+        }
+        @Test
+        public void testCountActivitiesNoPermissions() {
+            final var token = authTokenHelper.getToken(AuthToken.NO_CASELOAD_USER);
+
+            final var response = testRestTemplate.exchange(
+                "/api/schedules/LEI/count-activities?timeSlots=AM&fromDate=2017-09-11&toDate=2017-09-12",
+                HttpMethod.GET,
+                createHttpEntity(token, ""),
+                ErrorResponse.class);
+
+            assertThat(response.getBody().getUserMessage()).contains("Resource with id [LEI] not found");
+            assertThat(response.getStatusCodeValue()).isEqualTo(404);
+        }
+        @Test
+        public void testCountActivities() {
+            final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+            final var response = testRestTemplate.exchange(
+                "/api/schedules/LEI/count-activities?timeSlots=AM&fromDate=2017-09-11&toDate=2017-09-28",
+                HttpMethod.GET,
+                createHttpEntity(token, ""),
+                PrisonerActivitiesCount.class);
+
+            assertThat(response.getStatusCodeValue()).isEqualTo(200);
+            assertThat(response.getBody()).isEqualTo(new PrisonerActivitiesCount(36, 4));
+        }
+    }
 
     private List<Long> getLocationIdsNoSchedules() {
         return List.of(108582L, 108583L);
