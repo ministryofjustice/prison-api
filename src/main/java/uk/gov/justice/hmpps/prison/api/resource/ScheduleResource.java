@@ -119,9 +119,9 @@ public class ScheduleResource {
     @Operation(summary = "Get all Prisoner activities for given date.", description = "Get count of suspended prisoner activities for given date range")
     @GetMapping("/{agencyId}/count-activities")
     public PrisonerActivitiesCount getCountActivitiesByDateRange(@PathVariable("agencyId") @Parameter(description = "The prison.", required = true, example = "MDI") final String agencyId,
-                                                                 @RequestParam(value = "fromDate", required = true) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "From date of whereabouts list") @NotNull final LocalDate fromDate,
-                                                                 @RequestParam(value = "toDate", required = true) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "To Date of whereabouts list") @NotNull final LocalDate toDate,
-                                                                 @RequestParam(value = "timeSlots", required = true) @Parameter(description = "List of one or more of AM, PM or ED") @NotEmpty final List<TimeSlot> timeSlots) {
+                                                                 @RequestParam(value = "fromDate") @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "From date of whereabouts list") @NotNull final LocalDate fromDate,
+                                                                 @RequestParam(value = "toDate") @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "To Date of whereabouts list") @NotNull final LocalDate toDate,
+                                                                 @RequestParam(value = "timeSlots") @Parameter(description = "List of one or more of AM, PM or ED") @NotEmpty final List<TimeSlot> timeSlots) {
         return schedulesService.getCountActivities(agencyId, fromDate, toDate, timeSlots);
     }
 
