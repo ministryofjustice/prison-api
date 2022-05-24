@@ -33,7 +33,7 @@ class PrisonerActivitiesCountRepositoryTest {
         LocalDate.parse("2017-09-28"),
         listOf(TimeSlot.AM.name, TimeSlot.PM.name)
       )
-      assertThat(counts).isEqualTo(PrisonerActivitiesCount(68, 4))
+      assertThat(counts).isEqualTo(PrisonerActivitiesCount(76, 8))
     }
 
     @Test

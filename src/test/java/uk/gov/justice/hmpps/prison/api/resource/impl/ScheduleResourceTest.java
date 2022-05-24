@@ -331,7 +331,7 @@ public class ScheduleResourceTest extends ResourceTest {
                 PrisonerActivitiesCount.class);
 
             assertThat(response.getStatusCodeValue()).isEqualTo(200);
-            assertThat(response.getBody()).isEqualTo(new PrisonerActivitiesCount(36, 4));
+            assertThat(response.getBody()).isEqualTo(new PrisonerActivitiesCount(44, 8));
         }
     }
 
