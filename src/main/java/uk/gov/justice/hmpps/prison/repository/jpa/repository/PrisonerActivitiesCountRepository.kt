@@ -8,9 +8,10 @@ import javax.persistence.Id
 
 interface PrisonerActivitiesCountRepository : CrudRepository<PrisonerActivitiesCount, Long> {
   /*
-   * Note that have to use START_TIME below rather than CS.SLOT_CATEGORY_CODE since there is no guarantee that the
-   * latter is populated correctly and indeed in the production database is often PM / ED when the start time is in the
-   * morning
+   * Note that have to use START_TIME to calculate the time period rather than CS.SLOT_CATEGORY_CODE since there is no
+   * guarantee that the latter is populated correctly and indeed in the production database is often PM / ED when the
+   * start time is in the morning.
+   * This query also restricts to prisoners with an active booking at any prison.
   */
   @Query(
     """
@@ -28,10 +29,9 @@ interface PrisonerActivitiesCountRepository : CrudRepository<PrisonerActivitiesC
           AND CS.SCHEDULE_DATE >= :startDate
           AND CS.SCHEDULE_DATE <= :endDate
         WHERE CA.AGY_LOC_ID = :agencyId 
-          AND OB.AGY_LOC_ID = :agencyId
           AND OPP.AGY_LOC_ID = :agencyId
           AND (OPP.OFFENDER_PROGRAM_STATUS = 'ALLOC'
-             OR (OPP.OFFENDER_PROGRAM_STATUS = 'END' AND OPP.OFFENDER_END_DATE >= :startDate))
+             OR (OPP.OFFENDER_PROGRAM_STATUS = 'END' AND OPP.OFFENDER_END_DATE >= :endDate))
           AND CA.ACTIVE_FLAG = 'Y'
           AND CA.COURSE_ACTIVITY_TYPE IS NOT NULL
           AND CS.CATCH_UP_CRS_SCH_ID IS NULL
