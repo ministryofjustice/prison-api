@@ -8,6 +8,7 @@ import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -99,6 +100,12 @@ public class CalcDateRangesTest {
         assertThat(CalcDateRanges.eventStartsInTimeslot(data.getStartDateTime(), data.timeSlot)).isEqualTo(data.result);
     }
 
+    @ParameterizedTest
+    @MethodSource
+    public void testEventStartsInTimeslots(EventStartsInTimeslotsData data) {
+      assertThat(CalcDateRanges.eventStartsInTimeslots(data.getStartDateTime(), data.timeSlots)).isEqualTo(data.result);
+    }
+
     private static Stream<EventStartsInTimeslotData> testEventStartsInTimeslot() {
         return Stream.of(
             new EventStartsInTimeslotData(0, 0, null, true),
@@ -124,9 +131,26 @@ public class CalcDateRangesTest {
         );
     }
 
+    private static Stream<EventStartsInTimeslotsData> testEventStartsInTimeslots() {
+        return Stream.concat(testEventStartsInTimeslot().map(s -> new EventStartsInTimeslotsData(s.hour, s.minute, s.timeSlot == null ? null : Set.of(s.timeSlot), s.result)),
+            Stream.of(
+                new EventStartsInTimeslotsData(0, 0, Set.of(), true),
+                new EventStartsInTimeslotsData(11, 59, Set.of(TimeSlot.AM, TimeSlot.PM), true),
+                new EventStartsInTimeslotsData(11, 59, Set.of(TimeSlot.PM, TimeSlot.ED), false),
+                new EventStartsInTimeslotsData(17, 59, Set.of(TimeSlot.PM, TimeSlot.ED), true)
+            )
+        );
+    }
+
     private record EventStartsInTimeslotData(int hour, int minute, TimeSlot timeSlot, boolean result) {
-      public LocalDateTime getStartDateTime() {
-       return LocalDateTime.of(2018, 10, 5, hour, minute, 0);
-      }
+        public LocalDateTime getStartDateTime() {
+            return LocalDateTime.of(2018, 10, 5, hour, minute, 0);
+        }
+    }
+
+    private record EventStartsInTimeslotsData(int hour, int minute, Set<TimeSlot> timeSlots, boolean result) {
+        public LocalDateTime getStartDateTime() {
+           return LocalDateTime.of(2018, 10, 5, hour, minute, 0);
+        }
     }
 }
