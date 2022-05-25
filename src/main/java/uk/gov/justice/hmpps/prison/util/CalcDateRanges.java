@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Comparator;
+import java.util.Set;
 
 import static java.time.temporal.ChronoUnit.YEARS;
 
@@ -68,12 +69,15 @@ public class CalcDateRanges {
     }
 
     public static boolean eventStartsInTimeslot(final LocalDateTime start, final TimeSlot timeSlot) {
-        final var midday = midday(start.toLocalDate());
-        final var evening = evening(start.toLocalDate());
-        return timeSlot == null
-                || (timeSlot == TimeSlot.AM && start.isBefore(midday))
-                || (timeSlot == TimeSlot.PM && !start.isBefore(midday) && start.isBefore(evening))
-                || (timeSlot == TimeSlot.ED && !start.isBefore(evening));
+        return timeSlot == null || eventStartsInTimeslots(start, Set.of(timeSlot));
+    }
+
+    public static boolean eventStartsInTimeslots(final LocalDateTime start, final Set<TimeSlot> timeSlots) {
+        final var hourOfDay = start.getHour();
+        return timeSlots == null || timeSlots.isEmpty()
+            || (timeSlots.contains(TimeSlot.AM) && hourOfDay < 12)
+            || (timeSlots.contains(TimeSlot.PM) && hourOfDay >= 12 && hourOfDay < 17)
+            || (timeSlots.contains(TimeSlot.ED) && hourOfDay >= 17);
     }
 
     private static LocalDateTime midday(final LocalDate date) {
