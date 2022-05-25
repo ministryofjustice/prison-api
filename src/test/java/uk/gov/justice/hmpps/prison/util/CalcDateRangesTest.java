@@ -1,11 +1,14 @@
 package uk.gov.justice.hmpps.prison.util;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -90,27 +93,40 @@ public class CalcDateRangesTest {
         assertThat(CalcDateRanges.startTimeToTimeSlot(LocalDateTime.of(dummy, LocalTime.of(23, 59)))).isEqualTo(TimeSlot.ED);
     }
 
-    @Test
-    public void testEventStartsInTimeslot() {
-        final var dummy = LocalDate.of(2018, 10, 5);
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(0, 0)), TimeSlot.AM)).isTrue();
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(11, 59)), TimeSlot.AM)).isTrue();
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(12, 0)), TimeSlot.PM)).isTrue();
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(16, 59)), TimeSlot.PM)).isTrue();
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(17, 0)), TimeSlot.ED)).isTrue();
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(23, 59)), TimeSlot.ED)).isTrue();
+    @ParameterizedTest
+    @MethodSource
+    public void testEventStartsInTimeslot(EventStartsInTimeslotData data) {
+        assertThat(CalcDateRanges.eventStartsInTimeslot(data.getStartDateTime(), data.timeSlot)).isEqualTo(data.result);
+    }
 
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(0, 0)), TimeSlot.PM)).isFalse();
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(0, 0)), TimeSlot.ED)).isFalse();
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(11, 59)), TimeSlot.PM)).isFalse();
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(11, 59)), TimeSlot.ED)).isFalse();
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(12, 0)), TimeSlot.ED)).isFalse();
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(12, 0)), TimeSlot.AM)).isFalse();
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(16, 59)), TimeSlot.ED)).isFalse();
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(16, 59)), TimeSlot.AM)).isFalse();
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(17, 0)), TimeSlot.PM)).isFalse();
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(17, 0)), TimeSlot.AM)).isFalse();
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(23, 59)), TimeSlot.PM)).isFalse();
-        assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(23, 59)), TimeSlot.AM)).isFalse();
+    private static Stream<EventStartsInTimeslotData> testEventStartsInTimeslot() {
+        return Stream.of(
+            new EventStartsInTimeslotData(0, 0, null, true),
+            new EventStartsInTimeslotData(0, 0, TimeSlot.AM, true),
+            new EventStartsInTimeslotData(11, 59, TimeSlot.AM, true),
+            new EventStartsInTimeslotData(12, 0, TimeSlot.PM, true),
+            new EventStartsInTimeslotData(16, 59, TimeSlot.PM, true),
+            new EventStartsInTimeslotData(17, 0, TimeSlot.ED, true),
+            new EventStartsInTimeslotData(23, 59, TimeSlot.ED, true),
+
+            new EventStartsInTimeslotData(0, 0, TimeSlot.PM, false),
+            new EventStartsInTimeslotData(0, 0, TimeSlot.ED, false),
+            new EventStartsInTimeslotData(11, 59, TimeSlot.PM, false),
+            new EventStartsInTimeslotData(11, 59, TimeSlot.ED, false),
+            new EventStartsInTimeslotData(12, 0, TimeSlot.ED, false),
+            new EventStartsInTimeslotData(12, 0, TimeSlot.AM, false),
+            new EventStartsInTimeslotData(16, 59, TimeSlot.ED, false),
+            new EventStartsInTimeslotData(16, 59, TimeSlot.AM, false),
+            new EventStartsInTimeslotData(17, 0, TimeSlot.PM, false),
+            new EventStartsInTimeslotData(17, 0, TimeSlot.AM, false),
+            new EventStartsInTimeslotData(23, 59, TimeSlot.PM, false),
+            new EventStartsInTimeslotData(23, 59, TimeSlot.AM, false)
+        );
+    }
+
+    private record EventStartsInTimeslotData(int hour, int minute, TimeSlot timeSlot, boolean result) {
+      public LocalDateTime getStartDateTime() {
+       return LocalDateTime.of(2018, 10, 5, hour, minute, 0);
+      }
     }
 }
