@@ -1,7 +1,9 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
+import com.google.gson.Gson;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
@@ -14,10 +16,13 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ScheduleResourceTest extends ResourceTest {
+    @Autowired
+    private Gson gson;
 
     @Test
     public void testThatScheduleActivities_IsReturnForAllActivityLocations() {
@@ -274,8 +279,8 @@ public class ScheduleResourceTest extends ResourceTest {
 
             final var response = testRestTemplate.exchange(
                 "/api/schedules/LEI/count-activities?timeSlot=AM&fromDate=2017-09-11&toDate=2017-09-12",
-                HttpMethod.GET,
-                createHttpEntity(token, ""),
+                HttpMethod.POST,
+                createHttpEntity(token, null),
                 ErrorResponse.class);
 
             assertThat(response.getBody().getUserMessage()).contains("Required request parameter 'timeSlots'");
@@ -287,8 +292,8 @@ public class ScheduleResourceTest extends ResourceTest {
 
             final var response = testRestTemplate.exchange(
                 "/api/schedules/LEI/count-activities?timeSlot=AM&toDate=",
-                HttpMethod.GET,
-                createHttpEntity(token, ""),
+                HttpMethod.POST,
+                createHttpEntity(token, null),
                 ErrorResponse.class);
 
             assertThat(response.getBody().getUserMessage()).contains("Required request parameter 'fromDate'");
@@ -300,8 +305,8 @@ public class ScheduleResourceTest extends ResourceTest {
 
             final var response = testRestTemplate.exchange(
                 "/api/schedules/LEI/count-activities?timeSlot=AM&fromDate=2022-02-20&toDate",
-                HttpMethod.GET,
-                createHttpEntity(token, ""),
+                HttpMethod.POST,
+                createHttpEntity(token, null),
                 ErrorResponse.class);
 
             assertThat(response.getBody().getUserMessage()).contains("Required request parameter 'toDate'");
@@ -313,8 +318,8 @@ public class ScheduleResourceTest extends ResourceTest {
 
             final var response = testRestTemplate.exchange(
                 "/api/schedules/LEI/count-activities?timeSlots=AM&fromDate=2017-09-11&toDate=2017-09-12",
-                HttpMethod.GET,
-                createHttpEntity(token, ""),
+                HttpMethod.POST,
+                createHttpEntity(token, "{}"),
                 ErrorResponse.class);
 
             assertThat(response.getBody().getUserMessage()).contains("Resource with id [LEI] not found");
@@ -326,12 +331,18 @@ public class ScheduleResourceTest extends ResourceTest {
 
             final var response = testRestTemplate.exchange(
                 "/api/schedules/LEI/count-activities?timeSlots=AM&fromDate=2017-09-11&toDate=2017-09-28",
-                HttpMethod.GET,
-                createHttpEntity(token, ""),
-                PrisonerActivitiesCount.class);
+                HttpMethod.POST,
+                createHttpEntity(token, gson.toJson(Map.of(
+                    "-1", "5", // these will be ignored as -1 is only in the afternoon
+                    "-6", "5" // these will be included in the not recorded count
+                ))),
+                String.class);
 
-            assertThat(response.getStatusCodeValue()).isEqualTo(200);
-            assertThat(response.getBody()).isEqualTo(new PrisonerActivitiesCount(44, 8));
+            assertThatOKResponseContainsJson(response, gson.toJson(Map.of(
+                "total", 40,
+                "suspended", 4,
+                "notRecorded", 35
+            )));
         }
     }
 

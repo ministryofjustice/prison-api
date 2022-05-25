@@ -31,6 +31,8 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -117,12 +119,13 @@ public class ScheduleResource {
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Get all Prisoner activities for given date.", description = "Get count of suspended prisoner activities for given date range")
-    @GetMapping("/{agencyId}/count-activities")
+    @PostMapping("/{agencyId}/count-activities")
     public PrisonerActivitiesCount getCountActivitiesByDateRange(@PathVariable("agencyId") @Parameter(description = "The prison.", required = true, example = "MDI") final String agencyId,
                                                                  @RequestParam(value = "fromDate") @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "From date of whereabouts list") @NotNull final LocalDate fromDate,
                                                                  @RequestParam(value = "toDate") @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "To Date of whereabouts list") @NotNull final LocalDate toDate,
-                                                                 @RequestParam(value = "timeSlots") @Parameter(description = "List of one or more of AM, PM or ED") @NotEmpty final List<TimeSlot> timeSlots) {
-        return schedulesService.getCountActivities(agencyId, fromDate, toDate, timeSlots);
+                                                                 @RequestParam(value = "timeSlots") @Parameter(description = "Set of one or more of AM, PM or ED") @NotEmpty final Set<TimeSlot> timeSlots,
+                                                                 @RequestBody @Parameter(description = "Map of booking IDs to their occurrence counts") final Map<Long, Long> attendanceCounts) {
+        return schedulesService.getCountActivities(agencyId, fromDate, toDate, timeSlots, attendanceCounts);
     }
 
     @Operation
