@@ -17,6 +17,7 @@ import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import uk.gov.justice.hmpps.prison.repository.ScheduleRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.PrisonerActivitiesCount;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.PrisonerActivitiesCountRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.PrisonerActivity;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ScheduledActivityRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
@@ -29,6 +30,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -49,7 +53,7 @@ public class SchedulesService {
     private final ScheduledActivityRepository scheduledActivityRepository;
     private final PrisonerActivitiesCountRepository prisonerActivitiesCountRepository;
 
-    private int maxBatchSize;
+    private final int maxBatchSize;
 
 
     public SchedulesService(final LocationService locationService,
@@ -181,8 +185,16 @@ public class SchedulesService {
     }
 
     @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
-    public PrisonerActivitiesCount getCountActivities(String agencyId, LocalDate fromDate, LocalDate toDate, List<TimeSlot> timeSlots) {
-        return prisonerActivitiesCountRepository.getCountActivities(agencyId, fromDate, toDate, timeSlots.stream().map(Enum::name).toList());
+    public PrisonerActivitiesCount getCountActivities(String agencyId, LocalDate fromDate, LocalDate toDate, Set<TimeSlot> timeSlots, Map<Long, Long> attendanceCounts) {
+        final var activities = prisonerActivitiesCountRepository.getActivities(agencyId, fromDate, toDate);
+        final var activitiesInTimeSlots = activities.stream()
+            .filter(p -> CalcDateRanges.eventStartsInTimeslots(p.getStartTime(), timeSlots)).toList();
+
+        final var total = activitiesInTimeSlots.size();
+        final var suspended = activitiesInTimeSlots.stream().filter(p -> "Y".equals(p.getSuspended())).count();
+        final var bookingIds = activitiesInTimeSlots.stream().map(PrisonerActivity::getBookingId).collect(Collectors.toSet());
+        final var relevantAttendanceCounts = attendanceCounts.entrySet().stream().filter(a -> bookingIds.contains(a.getKey())).map(Entry::getValue).reduce(0L, Long::sum);
+        return new PrisonerActivitiesCount(total, suspended, total - relevantAttendanceCounts);
     }
 
     private List<PrisonerSchedule> getPrisonerSchedules(final Long locationId, final String usage, final String sortFields, final Order sortOrder, final LocalDate day) {

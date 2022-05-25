@@ -3,10 +3,11 @@ package uk.gov.justice.hmpps.prison.repository.jpa.repository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
 import java.time.LocalDate
+import java.time.LocalDateTime
 import javax.persistence.Entity
 import javax.persistence.Id
 
-interface PrisonerActivitiesCountRepository : CrudRepository<PrisonerActivitiesCount, Long> {
+interface PrisonerActivitiesCountRepository : CrudRepository<PrisonerActivity, Long> {
   /*
    * Note that have to use START_TIME to calculate the time period rather than CS.SLOT_CATEGORY_CODE since there is no
    * guarantee that the latter is populated correctly and indeed in the production database is often PM / ED when the
@@ -16,8 +17,9 @@ interface PrisonerActivitiesCountRepository : CrudRepository<PrisonerActivitiesC
   @Query(
     """
         SELECT 
-          COUNT(*) as total,
-          COUNT(CASE WHEN OPP.SUSPENDED_FLAG = 'Y' THEN 1 END) as suspended
+          OPP.OFFENDER_BOOK_ID AS booking_id,
+          OPP.SUSPENDED_FLAG AS suspended,
+          CS.START_TIME as start_time
          FROM OFFENDER_PROGRAM_PROFILES OPP
         INNER JOIN OFFENDER_BOOKINGS OB ON OB.OFFENDER_BOOK_ID = OPP.OFFENDER_BOOK_ID 
           AND OB.ACTIVE_FLAG = 'Y' 
@@ -35,9 +37,6 @@ interface PrisonerActivitiesCountRepository : CrudRepository<PrisonerActivitiesC
           AND CA.ACTIVE_FLAG = 'Y'
           AND CA.COURSE_ACTIVITY_TYPE IS NOT NULL
           AND CS.CATCH_UP_CRS_SCH_ID IS NULL
-          AND (('AM' IN (:timeSlots) AND TO_CHAR(CS.START_TIME, 'HH24') < 12) OR
-               ('PM' IN (:timeSlots) AND TO_CHAR(CS.START_TIME, 'HH24') >= 12 AND TO_CHAR(CS.START_TIME, 'HH24') < 17) OR
-               ('ED' IN (:timeSlots) AND TO_CHAR(CS.START_TIME, 'HH24') >= 17))
           AND (TO_CHAR(CS.SCHEDULE_DATE, 'DY'), CS.SLOT_CATEGORY_CODE) NOT IN
             (SELECT OE.EXCLUDE_DAY, COALESCE(OE.SLOT_CATEGORY_CODE, CS.SLOT_CATEGORY_CODE)
                FROM OFFENDER_EXCLUDE_ACTS_SCHDS OE
@@ -45,13 +44,14 @@ interface PrisonerActivitiesCountRepository : CrudRepository<PrisonerActivitiesC
   """,
     nativeQuery = true
   )
-  fun getCountActivities(
+  fun getActivities(
     agencyId: String,
     startDate: LocalDate,
     endDate: LocalDate,
-    timeSlots: List<String>,
-  ): PrisonerActivitiesCount
+  ): List<PrisonerActivity>
 }
 
 @Entity
-data class PrisonerActivitiesCount(@Id val total: Long, val suspended: Long)
+data class PrisonerActivity(@Id val bookingId: Long, val suspended: String?, val startTime: LocalDateTime)
+
+data class PrisonerActivitiesCount(val total: Long, val suspended: Long, val notRecorded: Long)
