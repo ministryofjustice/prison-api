@@ -115,7 +115,7 @@ public class CaseNoteService {
     }
 
     @Transactional
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public CaseNote createCaseNote(final Long bookingId, @NotNull @Valid @CaseNoteTypeSubTypeValid final NewCaseNote caseNote, final String username) {
         final var userDetail = staffUserAccountRepository.findById(username).orElseThrow(EntityNotFoundException.withId(username));
         final var booking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
