@@ -1,11 +1,17 @@
 package uk.gov.justice.hmpps.prison.security;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.slf4j.MDC;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import uk.gov.justice.hmpps.prison.web.config.AuthAwareAuthenticationToken;
+
+import java.util.Set;
 
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,8 +66,27 @@ public class AuthenticationFacadeTest {
         assertThat(authenticationFacade.getProxyUserAuthenticationSource()).isEqualTo(NONE);
     }
 
+    @ParameterizedTest
+    @CsvSource({
+        "ROLE_SYSTEM_USER,true",
+        "SYSTEM_USER,true",
+        "SYSTEMUSER,false"
+    })
+    public void hasRolesTest(String role, boolean expected) {
+        setAuthentication("auth", false, Set.of(
+            new SimpleGrantedAuthority("ROLE_SYSTEM_USER")
+        ));
+
+        assertThat(authenticationFacade.hasRoles(role)).isEqualTo(expected);
+        assertThat(authenticationFacade.isOverrideRole(role)).isEqualTo(expected);
+    }
+
     private void setAuthentication(final String source, boolean proxyUser) {
-        final Authentication auth = new AuthAwareAuthenticationToken(mock(Jwt.class), "client", source, emptySet());
+        setAuthentication(source, proxyUser, emptySet());
+    }
+
+    private void setAuthentication(final String source, boolean proxyUser, Set<GrantedAuthority> authoritySet) {
+        final Authentication auth = new AuthAwareAuthenticationToken(mock(Jwt.class), "client", source, authoritySet);
         SecurityContextHolder.getContext().setAuthentication(auth);
         if (proxyUser) {
             MDC.put(PROXY_USER, "client");
