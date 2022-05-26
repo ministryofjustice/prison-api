@@ -18,9 +18,9 @@ import java.time.LocalDate
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(AuthenticationFacade::class, AuditorAwareImpl::class)
-class PrisonerActivitiesCountRepositoryTest {
+class ScheduledActivityRepositoryTest {
   @Autowired
-  private lateinit var repository: PrisonerActivitiesCountRepository
+  private lateinit var repository: ScheduledActivityRepository
 
   @Nested
   inner class getCountActivities {

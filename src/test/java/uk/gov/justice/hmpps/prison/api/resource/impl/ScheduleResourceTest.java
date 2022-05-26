@@ -339,9 +339,9 @@ public class ScheduleResourceTest extends ResourceTest {
                 String.class);
 
             assertThatOKResponseContainsJson(response, gson.toJson(Map.of(
-                "total", 40,
-                "suspended", 4,
-                "notRecorded", 35
+                "total", 44,
+                "suspended", 8,
+                "notRecorded", 34
             )));
         }
     }
