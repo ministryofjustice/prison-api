@@ -16,7 +16,6 @@ import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import uk.gov.justice.hmpps.prison.repository.ScheduleRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.PrisonerActivitiesCount;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.PrisonerActivitiesCountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.PrisonerActivity;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ScheduledActivityRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
@@ -51,7 +50,6 @@ public class SchedulesService {
     private final ScheduleRepository scheduleRepository;
     private final AuthenticationFacade authenticationFacade;
     private final ScheduledActivityRepository scheduledActivityRepository;
-    private final PrisonerActivitiesCountRepository prisonerActivitiesCountRepository;
 
     private final int maxBatchSize;
 
@@ -63,7 +61,6 @@ public class SchedulesService {
                             final ScheduleRepository scheduleRepository,
                             final AuthenticationFacade authenticationFacade,
                             final ScheduledActivityRepository scheduledActivityRepository,
-                            final PrisonerActivitiesCountRepository prisonerActivitiesCountRepository,
                             @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.locationService = locationService;
         this.inmateService = inmateService;
@@ -72,7 +69,6 @@ public class SchedulesService {
         this.scheduleRepository = scheduleRepository;
         this.authenticationFacade = authenticationFacade;
         this.scheduledActivityRepository = scheduledActivityRepository;
-        this.prisonerActivitiesCountRepository = prisonerActivitiesCountRepository;
         this.maxBatchSize = maxBatchSize;
     }
 
@@ -186,7 +182,7 @@ public class SchedulesService {
 
     @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public PrisonerActivitiesCount getCountActivities(String agencyId, LocalDate fromDate, LocalDate toDate, Set<TimeSlot> timeSlots, Map<Long, Long> attendanceCounts) {
-        final var activities = prisonerActivitiesCountRepository.getActivities(agencyId, fromDate, toDate);
+        final var activities = scheduledActivityRepository.getActivities(agencyId, fromDate, toDate);
         final var activitiesInTimeSlots = activities.stream()
             .filter(p -> CalcDateRanges.eventStartsInTimeslots(p.getStartTime(), timeSlots)).toList();
 
