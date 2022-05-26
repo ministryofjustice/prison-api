@@ -57,15 +57,11 @@ public class AuthenticationFacade {
     }
 
     public static boolean hasRoles(final String... allowedRoles) {
-        final var roles = Arrays.stream(allowedRoles)
-                .map(r -> RegExUtils.replaceFirst(r, "ROLE_", ""))
-                .toList();
-
-        return hasMatchingRole(roles, SecurityContextHolder.getContext().getAuthentication());
+        return hasMatchingRole(getRoles(allowedRoles), SecurityContextHolder.getContext().getAuthentication());
     }
 
     public boolean isOverrideRole(final String... overrideRoles) {
-        final var roles = Arrays.asList(overrideRoles.length > 0 ? overrideRoles : new String[]{"SYSTEM_USER"});
+        final var roles = overrideRoles.length > 0 ? getRoles(overrideRoles) : List.of("SYSTEM_USER");
         return hasMatchingRole(roles, getAuthentication());
     }
 
@@ -78,5 +74,9 @@ public class AuthenticationFacade {
     private Object getUserPrincipal() {
         final var auth = getAuthentication();
         return auth != null ? auth.getPrincipal() : null;
+    }
+
+    private static List<String> getRoles(String... roles){
+        return Arrays.stream(roles).map(r -> RegExUtils.replaceFirst(r, "ROLE_", "")).toList();
     }
 }
