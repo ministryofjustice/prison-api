@@ -34,6 +34,7 @@ import uk.gov.justice.hmpps.prison.api.model.StatuteDto;
 import uk.gov.justice.hmpps.prison.service.reference.OffenceService;
 
 import javax.validation.constraints.NotBlank;
+import java.util.List;
 
 
 @RestController
@@ -76,7 +77,7 @@ public class OffenceResource {
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    public Page<OffenceDto> getOffences(
+    public Page<OffenceDto> getOffencesThatStartWith(
         @Parameter(required = true, example = "AA1256A", description = "The offence code")
         @PathVariable("offenceCode")
         final String offenceCode,
@@ -122,55 +123,53 @@ public class OffenceResource {
     }
 
     @PostMapping("/ho-code")
-    @Operation(summary = "Create a Home Office Notifiable Offence Code record", description = "Requires OFFENCE_MAINTAINER role")
+    @Operation(summary = "Create Home Office Notifiable Offence Code records if they dont already exist", description = "Requires OFFENCE_MAINTAINER role")
     @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Home Office Notifiable Offence Code created successfully"),
-        @ApiResponse(responseCode = "409", description = "A record already exists with the same Home Office Notifiable Offence Code", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "201", description = "Home Office Notifiable Offence Codes created successfully"),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @PreAuthorize("hasRole('OFFENCE_MAINTAINER') and hasAuthority('SCOPE_write')")
-    public ResponseEntity<Void> createHomeOfficeCode(@RequestBody final HOCodeDto hoCodeDto) {
-        log.info("Request received to create a Home Office Notifiable Offence Code: {}", hoCodeDto.getCode());
-        service.createHomeOfficeCode(hoCodeDto);
+    public ResponseEntity<Void> createHomeOfficeCodes(@RequestBody final List<HOCodeDto> hoCodes) {
+        log.info("Request received to create Home Office Notifiable Offence Codes");
+        service.createHomeOfficeCodes(hoCodes);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PostMapping("/statute")
-    @Operation(summary = "Create a Statute", description = "Requires OFFENCE_MAINTAINER role")
+    @Operation(summary = "Create statutes if they dont already exist", description = "Requires OFFENCE_MAINTAINER role")
     @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Statute created successfully"),
-        @ApiResponse(responseCode = "409", description = "A record already exists with the same Home Office Notifiable Offence Code", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "201", description = "Statutes created successfully"),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @PreAuthorize("hasRole('OFFENCE_MAINTAINER') and hasAuthority('SCOPE_write')")
-    public ResponseEntity<Void> createStatute(@RequestBody final StatuteDto statuteDto) {
-        log.info("Request received to create a statute with code: {}", statuteDto.getCode());
-        service.createStatute(statuteDto);
+    public ResponseEntity<Void> createStatute(@RequestBody final List<StatuteDto> statutes) {
+        log.info("Request received to create a statutes");
+        service.createStatutes(statutes);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PostMapping("/offence")
-    @Operation(summary = "Create a offence", description = "Requires OFFENCE_MAINTAINER role")
+    @Operation(summary = "Create offences", description = "Requires OFFENCE_MAINTAINER role")
     @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Offence created successfully"),
+        @ApiResponse(responseCode = "201", description = "Offences created successfully"),
         @ApiResponse(responseCode = "404", description = "A dependent resource is missing (either the statute or the home office code doesnt exist)", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "409", description = "A record already exists with the same Offence Code", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "409", description = "A record already exists for a passed in offence", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @PreAuthorize("hasRole('OFFENCE_MAINTAINER') and hasAuthority('SCOPE_write')")
-    public ResponseEntity<Void> createOffence(@RequestBody final OffenceDto offenceDto) {
-        log.info("Request received to create a offence with code: {}", offenceDto.getCode());
-        service.createOffence(offenceDto);
+    public ResponseEntity<Void> createOffences(@RequestBody final List<OffenceDto> offences) {
+        log.info("Request received to create offences ");
+        service.createOffences(offences);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PutMapping("/offence")
-    @Operation(summary = "Update a offence", description = "Requires OFFENCE_MAINTAINER role")
+    @Operation(summary = "Update offences", description = "Requires OFFENCE_MAINTAINER role")
     @ApiResponses({
         @ApiResponse(responseCode = "204", description = "Offence updated successfully"),
         @ApiResponse(responseCode = "404", description = "A dependent resource is missing (either the offence or the home office code doesnt exist)", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @PreAuthorize("hasRole('OFFENCE_MAINTAINER') and hasAuthority('SCOPE_write')")
-    public ResponseEntity<Void> updateOffence(@RequestBody final OffenceDto offenceDto) {
-        log.info("Request received to update a offence with code: {}", offenceDto.getCode());
-        service.updateOffence(offenceDto);
+    public ResponseEntity<Void> updateOffences(@RequestBody final  List<OffenceDto> offences) {
+        log.info("Request received to update offences");
+        service.updateOffences(offences);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

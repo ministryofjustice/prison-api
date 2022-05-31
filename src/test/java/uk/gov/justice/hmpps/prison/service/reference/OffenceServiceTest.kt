@@ -8,6 +8,7 @@ import org.junit.jupiter.api.assertThrows
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
@@ -41,30 +42,19 @@ internal class OffenceServiceTest {
   @DisplayName("HO Codes related tests")
   inner class HOCodesTest {
     @Test
-    internal fun `Will create a new HO Code`() {
-      service.createHomeOfficeCode(
-        HOCodeDto.builder()
-          .code("2XX")
-          .description("2XX Description")
-          .build()
-      )
+    internal fun `Will create a new HO Code and skip any HO Codes that already exist`() {
+      val existingHoCodeDto = HOCodeDto.builder().code("1XX").build()
+      val existingHoCode = HOCode.builder().code("1XX").build()
+      val newHoCodeDto = HOCodeDto.builder().code("2XX").description("2XX Description").build()
+      val newHoCode = HOCode.builder().code("2XX").description("2XX Description").build()
 
-      verify(hoCodeRepository, times(1)).save(
-        HOCode.builder()
-          .code("2XX")
-          .description("2XX Description")
-          .build()
-      )
-    }
+      whenever(hoCodeRepository.findById("1XX")).thenReturn(Optional.of(existingHoCode))
+      service.createHomeOfficeCodes(listOf(existingHoCodeDto, newHoCodeDto))
 
-    @Test
-    internal fun `Will fail when trying to create a HO Code if HO Code already exists`() {
-      val hoCode = HOCode.builder().code("2XX").build()
-      whenever(hoCodeRepository.findById("2XX")).thenReturn(Optional.of(hoCode))
-
-      assertThrows<EntityAlreadyExistsException> {
-        service.createHomeOfficeCode(HOCodeDto.builder().code("2XX").build())
-      }
+      verify(hoCodeRepository, times(1)).findById("2XX")
+      verify(hoCodeRepository, times(1)).findById("1XX")
+      verify(hoCodeRepository, times(1)).save(newHoCode)
+      verifyNoMoreInteractions(hoCodeRepository)
     }
   }
 
@@ -72,30 +62,19 @@ internal class OffenceServiceTest {
   @DisplayName("Statutes related tests")
   inner class StatutesTest {
     @Test
-    internal fun `Will create a new Statute`() {
-      service.createStatute(
-        StatuteDto.builder()
-          .code("2XX")
-          .description("2XX Description")
-          .build()
-      )
+    internal fun `Will create a new Statute and skip any Statutes that already exist`() {
+      val existingStatuteDto = StatuteDto.builder().code("1XX").build()
+      val existingStatute = Statute.builder().code("1XX").build()
+      val newStatuteDto = StatuteDto.builder().code("2XX").description("2XX Description").build()
+      val newStatute = Statute.builder().code("2XX").description("2XX Description").build()
 
-      verify(statuteRepository, times(1)).save(
-        Statute.builder()
-          .code("2XX")
-          .description("2XX Description")
-          .build()
-      )
-    }
+      whenever(statuteRepository.findById("1XX")).thenReturn(Optional.of(existingStatute))
+      service.createStatutes(listOf(existingStatuteDto, newStatuteDto))
 
-    @Test
-    internal fun `Will fail when trying to create a Statute if the code already exists`() {
-      val statute = Statute.builder().code("2XX").build()
-      whenever(statuteRepository.findById("2XX")).thenReturn(Optional.of(statute))
-
-      assertThrows<EntityAlreadyExistsException> {
-        service.createStatute(StatuteDto.builder().code("2XX").build())
-      }
+      verify(statuteRepository, times(1)).findById("2XX")
+      verify(statuteRepository, times(1)).findById("1XX")
+      verify(statuteRepository, times(1)).save(newStatute)
+      verifyNoMoreInteractions(statuteRepository)
     }
   }
 
@@ -111,12 +90,14 @@ internal class OffenceServiceTest {
     internal fun `Will create a new Offence`() {
       whenever(statuteRepository.findById("STA1")).thenReturn(Optional.of(statute))
 
-      service.createOffence(
-        OffenceDto.builder()
-          .code("2XX")
-          .statuteCode(StatuteDto.builder().code("STA1").build())
-          .description("2XX Description")
-          .build()
+      service.createOffences(
+        listOf(
+          OffenceDto.builder()
+            .code("2XX")
+            .statuteCode(StatuteDto.builder().code("STA1").build())
+            .description("2XX Description")
+            .build()
+        )
       )
 
       verify(offenceRepository, times(1)).save(
@@ -135,11 +116,13 @@ internal class OffenceServiceTest {
       whenever(statuteRepository.findById("STA1")).thenReturn(Optional.of(statute))
 
       assertThrows<EntityAlreadyExistsException> {
-        service.createOffence(
-          OffenceDto.builder()
-            .code("2XX")
-            .statuteCode(StatuteDto.builder().code("STA1").build())
-            .build()
+        service.createOffences(
+          listOf(
+            OffenceDto.builder()
+              .code("2XX")
+              .statuteCode(StatuteDto.builder().code("STA1").build())
+              .build()
+          )
         )
       }
     }
@@ -150,11 +133,13 @@ internal class OffenceServiceTest {
       whenever(statuteRepository.findById("STA1")).thenReturn(Optional.empty())
 
       assertThrows<EntityNotFoundException> {
-        service.createOffence(
-          OffenceDto.builder()
-            .code("2XX")
-            .statuteCode(StatuteDto.builder().code("STA1").build())
-            .build()
+        service.createOffences(
+          listOf(
+            OffenceDto.builder()
+              .code("2XX")
+              .statuteCode(StatuteDto.builder().code("STA1").build())
+              .build()
+          )
         )
       }
     }
@@ -166,12 +151,14 @@ internal class OffenceServiceTest {
       whenever(hoCodeRepository.findById("HO1")).thenReturn(Optional.empty())
 
       assertThrows<EntityNotFoundException> {
-        service.createOffence(
-          OffenceDto.builder()
-            .code("2XX")
-            .hoCode(HOCodeDto.builder().code("HO1").build())
-            .statuteCode(StatuteDto.builder().code("STA1").build())
-            .build()
+        service.createOffences(
+          listOf(
+            OffenceDto.builder()
+              .code("2XX")
+              .hoCode(HOCodeDto.builder().code("HO1").build())
+              .statuteCode(StatuteDto.builder().code("STA1").build())
+              .build()
+          )
         )
       }
     }
@@ -191,16 +178,18 @@ internal class OffenceServiceTest {
       whenever(offenceRepository.findById(PK("2XX", "STA1"))).thenReturn(Optional.of(offence))
       val expiryDate = LocalDate.of(2020, 1, 1)
 
-      service.updateOffence(
-        OffenceDto.builder()
-          .code("2XX")
-          .statuteCode(StatuteDto.builder().code("STA1").build())
-          .description("2XX Update")
-          .severityRanking("99")
-          .listSequence(99)
-          .activeFlag("N")
-          .expiryDate(expiryDate)
-          .build()
+      service.updateOffences(
+        listOf(
+          OffenceDto.builder()
+            .code("2XX")
+            .statuteCode(StatuteDto.builder().code("STA1").build())
+            .description("2XX Update")
+            .severityRanking("99")
+            .listSequence(99)
+            .activeFlag("N")
+            .expiryDate(expiryDate)
+            .build()
+        )
       )
 
       verify(offenceRepository, times(1)).save(
@@ -220,11 +209,13 @@ internal class OffenceServiceTest {
       whenever(offenceRepository.findById(PK("2XX", "STA1"))).thenReturn(Optional.empty())
 
       assertThrows<EntityNotFoundException> {
-        service.updateOffence(
-          OffenceDto.builder()
-            .code("2XX")
-            .statuteCode(StatuteDto.builder().code("STA1").build())
-            .build()
+        service.updateOffences(
+          listOf(
+            OffenceDto.builder()
+              .code("2XX")
+              .statuteCode(StatuteDto.builder().code("STA1").build())
+              .build()
+          )
         )
       }
     }
@@ -237,12 +228,14 @@ internal class OffenceServiceTest {
       whenever(hoCodeRepository.findById("HO1")).thenReturn(Optional.empty())
 
       assertThrows<EntityNotFoundException> {
-        service.updateOffence(
-          OffenceDto.builder()
-            .code("2XX")
-            .hoCode(HOCodeDto.builder().code("HO1").build())
-            .statuteCode(StatuteDto.builder().code("STA1").build())
-            .build()
+        service.updateOffences(
+          listOf(
+            OffenceDto.builder()
+              .code("2XX")
+              .hoCode(HOCodeDto.builder().code("HO1").build())
+              .statuteCode(StatuteDto.builder().code("STA1").build())
+              .build()
+          )
         )
       }
     }
