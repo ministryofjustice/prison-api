@@ -17,6 +17,7 @@ import uk.gov.justice.hmpps.prison.api.model.StatuteDto;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class OffenceResourceTest extends ResourceTest {
     @Nested
@@ -131,26 +132,11 @@ public class OffenceResourceTest extends ResourceTest {
                 .code("123/45")
                 .description("123/45")
                 .build();
-            final var httpEntity = createHttpEntity(maintainerToken, hoCodeDto);
+            final var httpEntity = createHttpEntity(maintainerToken, List.of(hoCodeDto));
 
             final var response = postRequest(httpEntity, "/api/offences/ho-code");
 
             assertThatStatus(response, 201);
-        }
-
-        @Test
-        public void testDuplicateWriteHoCode() {
-            final var hoCodeDto = HOCodeDto
-                .builder()
-                .code("123/99")
-                .description("123/99")
-                .build();
-            final var httpEntity = createHttpEntity(maintainerToken, hoCodeDto);
-
-            final var response = postRequest(httpEntity, "/api/offences/ho-code");
-            assertThatStatus(response, 201);
-            final var duplicateResponse = postRequest(httpEntity, "/api/offences/ho-code");
-            assertThatStatus(duplicateResponse, 409);
         }
     }
 
@@ -167,27 +153,11 @@ public class OffenceResourceTest extends ResourceTest {
                 .description("123/45")
                 .legislatingBodyCode("UK")
                 .build();
-            final var httpEntity = createHttpEntity(maintainerToken, statuteDto);
+            final var httpEntity = createHttpEntity(maintainerToken, List.of(statuteDto));
 
             final var response = postRequest(httpEntity, "/api/offences/statute");
 
             assertThatStatus(response, 201);
-        }
-
-        @Test
-        public void testDuplicateWriteStatute() {
-            final var statuteDto = StatuteDto
-                .builder()
-                .code("123/99")
-                .description("123/99")
-                .legislatingBodyCode("UK")
-                .build();
-            final var httpEntity = createHttpEntity(maintainerToken, statuteDto);
-
-            final var response = postRequest(httpEntity, "/api/offences/statute");
-            assertThatStatus(response, 201);
-            final var duplicateResponse = postRequest(httpEntity, "/api/offences/statute");
-            assertThatStatus(duplicateResponse, 409);
         }
     }
 
@@ -224,9 +194,9 @@ public class OffenceResourceTest extends ResourceTest {
             config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
         @Test
         public void testCreateOffence() {
-            final var statuteHttpEntity = createHttpEntity(maintainerToken, statuteDto);
-            final var offenceHttpEntity = createHttpEntity(maintainerToken, offenceDto);
-            final var hoCodeEntity = createHttpEntity(maintainerToken, hoCodeDto);
+            final var statuteHttpEntity = createHttpEntity(maintainerToken, List.of(statuteDto));
+            final var offenceHttpEntity = createHttpEntity(maintainerToken, List.of(offenceDto));
+            final var hoCodeEntity = createHttpEntity(maintainerToken, List.of(hoCodeDto));
             postRequest(statuteHttpEntity, "/api/offences/statute");
             postRequest(hoCodeEntity, "/api/offences/ho-code");
 
@@ -257,7 +227,7 @@ public class OffenceResourceTest extends ResourceTest {
                 .activeFlag("N")
                 .expiryDate(LocalDate.of(2020, 10, 13))
                 .build();
-            final var offenceHttpEntity = createHttpEntity(maintainerToken, offenceDto);
+            final var offenceHttpEntity = createHttpEntity(maintainerToken, List.of(offenceDto));
 
             final var response = putRequest(offenceHttpEntity);
             assertThatStatus(response, 204);

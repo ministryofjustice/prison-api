@@ -21,6 +21,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.StatuteRepository;
 import uk.gov.justice.hmpps.prison.service.EntityAlreadyExistsException;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 
+import java.util.List;
+
 import static java.lang.String.format;
 
 @Service
@@ -55,10 +57,16 @@ public class OffenceService {
     }
 
     @Transactional
-    public void createHomeOfficeCode(final HOCodeDto hoCodeDto) {
-        hoCodeRepository.findById(hoCodeDto.getCode()).ifPresent(h -> {
-            throw new EntityAlreadyExistsException(format("Home Office Notifiable Offence Code %s already exists", hoCodeDto.getCode()));
-        });
+    public void createHomeOfficeCodes(final List<HOCodeDto> hoCodes) {
+        hoCodes.forEach(hoCodeDto ->
+            hoCodeRepository.findById(hoCodeDto.getCode()).ifPresentOrElse(
+                h -> log.info(format("Home Office Notifiable Offence Code %s already exists - skipping", hoCodeDto.getCode())),
+                () -> createHomeOfficeCode(hoCodeDto)
+            )
+        );
+    }
+
+    private void createHomeOfficeCode(HOCodeDto hoCodeDto) {
         final var hoCode = HOCode.builder()
             .code(hoCodeDto.getCode())
             .description(hoCodeDto.getDescription())
@@ -69,10 +77,16 @@ public class OffenceService {
     }
 
     @Transactional
-    public void createStatute(final StatuteDto statuteDto) {
-        statuteRepository.findById(statuteDto.getCode()).ifPresent(h -> {
-            throw new EntityAlreadyExistsException(format("Statute with code %s already exists", statuteDto.getCode()));
-        });
+    public void createStatutes(final List<StatuteDto> statutes) {
+        statutes.forEach(statuteDto ->
+            statuteRepository.findById(statuteDto.getCode()).ifPresentOrElse(
+                s -> log.info(format("Statute with code %s already exists - skipping", statuteDto.getCode())),
+                () -> createStatute(statuteDto)
+            )
+        );
+    }
+
+    private void createStatute(StatuteDto statuteDto) {
         final var statute = Statute.builder()
             .code(statuteDto.getCode())
             .description(statuteDto.getDescription())
@@ -83,7 +97,12 @@ public class OffenceService {
     }
 
     @Transactional
-    public void createOffence(final OffenceDto offenceDto) {
+    public void createOffences(final List<OffenceDto> offences) {
+        offences.forEach(this::createOffence
+        );
+    }
+
+    private void createOffence(OffenceDto offenceDto) {
         final var statute = statuteRepository.findById(offenceDto.getStatuteCode().getCode()).orElseThrow(
             EntityNotFoundException.withMessage("The statute with code %s doesnt exist", offenceDto.getStatuteCode().getCode())
         );
@@ -106,7 +125,11 @@ public class OffenceService {
     }
 
     @Transactional
-    public void updateOffence(final OffenceDto offenceDto) {
+    public void updateOffences(final List<OffenceDto> offences) {
+        offences.forEach(this::updateOffence);
+    }
+
+    private void updateOffence(OffenceDto offenceDto) {
         final var offence = offenceRepository.findById(new PK(offenceDto.getCode(), offenceDto.getStatuteCode().getCode())).orElseThrow(
             EntityNotFoundException.withMessage("The offence with code %s doesnt exist", offenceDto.getCode())
         );
