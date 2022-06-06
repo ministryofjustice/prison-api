@@ -273,6 +273,7 @@ public class SchedulesService {
                         .firstName(activity.getFirstName())
                         .lastName(activity.getLastName())
                         .comment(activity.getDescription())
+                        .suspended("Y".equals(activity.getSuspended()))
                         .build())
                 .toList();
     }

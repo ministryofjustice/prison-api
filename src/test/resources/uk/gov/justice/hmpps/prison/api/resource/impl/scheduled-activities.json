@@ -12,6 +12,7 @@
     "eventStatus": "EDUC",
     "comment": "Woodwork",
     "startTime": "2017-09-11T13:00:00",
-    "endTime": "2017-09-11T15:00:00"
+    "endTime": "2017-09-11T15:00:00",
+    "suspended": false
   }
 ]
