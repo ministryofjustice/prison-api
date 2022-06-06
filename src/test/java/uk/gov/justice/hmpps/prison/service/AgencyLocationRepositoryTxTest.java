@@ -15,7 +15,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepos
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 
 @ActiveProfiles("test")
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@SpringBootTest
 @Transactional
 @WithAnonymousUser
 public class AgencyLocationRepositoryTxTest {
