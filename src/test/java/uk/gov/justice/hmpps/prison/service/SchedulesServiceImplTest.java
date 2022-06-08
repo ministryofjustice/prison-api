@@ -285,43 +285,49 @@ class SchedulesServiceImplTest {
 
     @Test
     void getCountActivities() {
-       when(scheduledActivityRepository.getActivities(any(), any(), any())).thenReturn(List.of(
-           new PrisonerActivityImpl(-1L, "Y", LocalDateTime.parse("2022-02-23T10:20:30")),
-           // null is not suspended
-           new PrisonerActivityImpl(-1L, null, LocalDateTime.parse("2022-02-23T10:20:30")),
-           new PrisonerActivityImpl(-2L, "N", LocalDateTime.parse("2022-02-23T10:20:30")),
-           // afternoon slot so won't be counted
-           new PrisonerActivityImpl(-3L, "N", LocalDateTime.parse("2022-02-23T12:00:00")),
-           // evening slot so should be counted
-           new PrisonerActivityImpl(-1L, "N", LocalDateTime.parse("2022-02-23T17:05:00"))
-       ));
-       final var startDate = LocalDate.parse("2022-02-23");
-       final var endDate = LocalDate.parse("2022-04-23");
-       final var counts = schedulesService.getCountActivities("MDI", startDate, endDate, Set.of(TimeSlot.AM, TimeSlot.ED), Map.of());
-       assertThat(counts).isEqualTo(new PrisonerActivitiesCount(4, 1, 4));
-       verify(scheduledActivityRepository).getActivities("MDI", startDate, endDate);
+        when(scheduledActivityRepository.getActivities(any(), any(), any())).thenReturn(List.of(
+            new PrisonerActivityImpl(-1L, "Y", "ALLOC", null, null, "2022-02-23T10:20:30"),
+            // null is not suspended
+            new PrisonerActivityImpl(-1L, null, "ALLOC", null, null, "2022-02-23T10:20:30"),
+            new PrisonerActivityImpl(-2L, "N", "ALLOC", null,null, "2022-02-23T10:20:30"),
+            // afternoon slot so won't be counted
+            new PrisonerActivityImpl(-3L, "N", "ALLOC", null,null, "2022-02-23T12:00:00"),
+            // evening slot so will be counted
+            new PrisonerActivityImpl(-1L, "N", "ALLOC", null,null, "2022-02-23T17:05:00"),
+            // end date of program same as schedule date so will be counted
+            new PrisonerActivityImpl(-4L, "N", "END", "2022-03-05", "2022-03-05", "2022-02-23T10:20:30"),
+            // end date of program after schedule date so will be counted
+            new PrisonerActivityImpl(-5L, "N", "END", "2022-03-26", "2022-03-05", "2022-02-23T10:20:30"),
+            // end date of program before schedule date so won't be counted
+            new PrisonerActivityImpl(-6L, "N", "END", "2022-03-04", "2022-03-05", "2022-02-23T10:20:30")
+        ));
+        final var startDate = LocalDate.parse("2022-02-23");
+        final var endDate = LocalDate.parse("2022-04-23");
+        final var counts = schedulesService.getCountActivities("MDI", startDate, endDate, Set.of(TimeSlot.AM, TimeSlot.ED), Map.of());
+        assertThat(counts).isEqualTo(new PrisonerActivitiesCount(6, 1, 6));
+        verify(scheduledActivityRepository).getActivities("MDI", startDate, endDate);
     }
 
     @Test
     void getCountActivities_notRecorded() {
-       when(scheduledActivityRepository.getActivities(any(), any(), any())).thenReturn(List.of(
-           new PrisonerActivityImpl(-1L, "Y", LocalDateTime.parse("2022-02-23T10:20:30")),
-           // null is not suspended
-           new PrisonerActivityImpl(-1L, null, LocalDateTime.parse("2022-02-23T10:20:30")),
-           new PrisonerActivityImpl(-2L, "N", LocalDateTime.parse("2022-02-23T10:20:30")),
-           // afternoon slot so won't be counted
-           new PrisonerActivityImpl(-3L, "N", LocalDateTime.parse("2022-02-23T12:00:00")),
-           // evening slot so should be counted
-           new PrisonerActivityImpl(-4L, "N", LocalDateTime.parse("2022-02-23T17:05:00"))
-       ));
-       final var startDate = LocalDate.parse("2022-02-23");
-       final var endDate = LocalDate.parse("2022-04-23");
-       final var attendances = Map.of(
-           -1L, 2L, // booking -1 has 2 scheduled attendances so will cancel each other out
-           -4L, 1L, // booking -4 has 1 scheduled attendance
-           -5L, 10L); // booking -5 doesn't have any scheduled attendances so will be ignored
-       final var counts = schedulesService.getCountActivities("MDI", startDate, endDate, Set.of(TimeSlot.AM, TimeSlot.ED), attendances);
-       assertThat(counts).isEqualTo(new PrisonerActivitiesCount(4, 1, 1));
-       verify(scheduledActivityRepository).getActivities("MDI", startDate, endDate);
+        when(scheduledActivityRepository.getActivities(any(), any(), any())).thenReturn(List.of(
+            new PrisonerActivityImpl(-1L, "Y", "END", "2022-02-23", "2022-02-20", "2022-02-23T10:20:30"),
+            // null is not suspended
+            new PrisonerActivityImpl(-1L, null, "ALLOC", null, null, "2022-02-23T10:20:30"),
+            new PrisonerActivityImpl(-2L, "N", "ALLOC", "2022-02-23", null, "2022-02-23T10:20:30"),
+            // afternoon slot so won't be counted
+            new PrisonerActivityImpl(-3L, "N", "ALLOC", "2022-02-23", null,"2022-02-23T12:00:00"),
+            // evening slot so should be counted
+            new PrisonerActivityImpl(-4L, "N", "ALLOC", "2022-02-23", null,"2022-02-23T17:05:00")
+        ));
+        final var startDate = LocalDate.parse("2022-02-23");
+        final var endDate = LocalDate.parse("2022-04-23");
+        final var attendances = Map.of(
+            -1L, 2L, // booking -1 has 2 scheduled attendances so will cancel each other out
+            -4L, 1L, // booking -4 has 1 scheduled attendance
+            -5L, 10L); // booking -5 doesn't have any scheduled attendances so will be ignored
+        final var counts = schedulesService.getCountActivities("MDI", startDate, endDate, Set.of(TimeSlot.AM, TimeSlot.ED), attendances);
+        assertThat(counts).isEqualTo(new PrisonerActivitiesCount(4, 1, 1));
+        verify(scheduledActivityRepository).getActivities("MDI", startDate, endDate);
     }
 }

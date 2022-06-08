@@ -15,7 +15,10 @@ public interface ScheduledActivityRepository extends CrudRepository<ScheduledAct
             SELECT
               OPP.OFFENDER_BOOK_ID AS bookingId,
               OPP.SUSPENDED_FLAG AS suspended,
-              CS.START_TIME as startTime
+              OPP.OFFENDER_PROGRAM_STATUS as programStatus,
+              OPP.OFFENDER_END_DATE AS programEndDate,
+              CS.SCHEDULE_DATE as scheduleDate,
+              CS.START_TIME AS startTime
              FROM OFFENDER_PROGRAM_PROFILES OPP
             INNER JOIN OFFENDER_BOOKINGS OB ON OB.OFFENDER_BOOK_ID = OPP.OFFENDER_BOOK_ID
               AND OB.ACTIVE_FLAG = 'Y'
@@ -29,7 +32,7 @@ public interface ScheduledActivityRepository extends CrudRepository<ScheduledAct
             WHERE CA.AGY_LOC_ID = :agencyId
               AND OPP.AGY_LOC_ID = :agencyId
               AND (OPP.OFFENDER_PROGRAM_STATUS = 'ALLOC'
-                 OR (OPP.OFFENDER_PROGRAM_STATUS = 'END' AND OPP.OFFENDER_END_DATE >= :endDate))
+                 OR (OPP.OFFENDER_PROGRAM_STATUS = 'END' AND OPP.OFFENDER_END_DATE >= :startDate))
               AND CA.ACTIVE_FLAG = 'Y'
               AND CA.COURSE_ACTIVITY_TYPE IS NOT NULL
               AND CS.CATCH_UP_CRS_SCH_ID IS NULL

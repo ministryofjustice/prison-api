@@ -181,16 +181,24 @@ public class SchedulesService {
     }
 
     @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
-    public PrisonerActivitiesCount getCountActivities(String agencyId, LocalDate fromDate, LocalDate toDate, Set<TimeSlot> timeSlots, Map<Long, Long> attendanceCounts) {
+    public PrisonerActivitiesCount getCountActivities(final String agencyId, final LocalDate fromDate, final LocalDate toDate, final Set<TimeSlot> timeSlots, final Map<Long, Long> attendanceCounts) {
         final var activities = scheduledActivityRepository.getActivities(agencyId, fromDate, toDate);
         final var activitiesInTimeSlots = activities.stream()
-            .filter(p -> CalcDateRanges.eventStartsInTimeslots(p.getStartTime(), timeSlots)).toList();
+            .filter(p -> CalcDateRanges.eventStartsInTimeslots(p.getStartTime(), timeSlots) && programHasnotEnded(p))
+            .toList();
 
         final var total = activitiesInTimeSlots.size();
         final var suspended = activitiesInTimeSlots.stream().filter(p -> "Y".equals(p.getSuspended())).count();
         final var bookingIds = activitiesInTimeSlots.stream().map(PrisonerActivity::getBookingId).collect(Collectors.toSet());
         final var relevantAttendanceCounts = attendanceCounts.entrySet().stream().filter(a -> bookingIds.contains(a.getKey())).map(Entry::getValue).reduce(0L, Long::sum);
         return new PrisonerActivitiesCount(total, suspended, total - relevantAttendanceCounts);
+    }
+
+    private boolean programHasnotEnded(final PrisonerActivity activity) {
+        // SQL ensures that the activity happens after the start date parameter, now need to check that the offender
+        // program hasn't ended. END indicates that the program has ended, in which case the end date will also be populated
+        return !"END".equals(activity.getProgramStatus()) ||
+            (activity.getProgramEndDate() != null && !activity.getScheduleDate().isAfter(activity.getProgramEndDate()));
     }
 
     private List<PrisonerSchedule> getPrisonerSchedules(final Long locationId, final String usage, final String sortFields, final Order sortOrder, final LocalDate day) {
