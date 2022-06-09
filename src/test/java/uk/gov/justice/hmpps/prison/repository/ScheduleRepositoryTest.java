@@ -23,6 +23,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -214,7 +215,7 @@ public class ScheduleRepositoryTest {
     public void testThatScheduledActivities_FromVariousActivityLocationsAreReturned() {
         final var date = LocalDate.parse("2015-12-11");
         final var toDate = LocalDate.now();
-        final var results = repository.getAllActivitiesAtAgency("LEI", date, toDate, "lastName,startTime", Order.ASC, true);
+        final var results = repository.getAllActivitiesAtAgency("LEI", date, toDate, "lastName,startTime", Order.ASC, true, false);
 
         assertThat(results).extracting("locationId").contains(-25L, -26L, -27L);
     }
@@ -223,29 +224,44 @@ public class ScheduleRepositoryTest {
     public void testGetAllActivitiesAtAgency() {
         final var date = LocalDate.parse("2015-12-11");
         final var toDate = LocalDate.now();
-        final var results = repository.getAllActivitiesAtAgency("LEI", date, toDate, "lastName,startTime", Order.ASC, true);
+        final var results = repository.getAllActivitiesAtAgency("LEI", date, toDate, "lastName,startTime", Order.ASC, true, false);
         assertThat(results).hasSize(91);
 
-
-        results.forEach(result -> {
-            // Check activities are returned for expected locations
-            assertThat(List.of(-26L, -27L, -25L)).contains(result.getLocationId());
-
-            // Check activities are of the expected types
-            assertThat(List.of("CHAP", "EDUC")).contains(result.getEvent());
+        assertThat(results).extracting(PrisonerSchedule::getLocationId).containsOnly(-26L, -27L, -25L);
+        assertThat(results).extracting(PrisonerSchedule::getEvent).containsOnly("CHAP", "EDUC");
 
             // Check the offenders returned have the expected booking ids
             // -35L is someone at a different agency (simulating being transferred)
             // but who was allocated to a program at LEI during the specified time period
             // -40L is someone with a suspended schedule
-            assertThat(List.of(-1L, -2L, -3L, -4L, -5L, -6L, -35L, -40L)).contains(result.getBookingId());
-
+        assertThat(results).extracting(PrisonerSchedule::getBookingId).containsOnly(-1L, -2L, -3L, -4L, -5L, -6L, -35L, -40L);
             // Get offender cell locations. -1L and -3L share a cell.
-            assertThat(List.of("LEI-A-1-1", "LEI-A-1-2", "LEI-H-1-5", "LEI-A-1", "LEI-A-1-10", "MDI-1-1-001", "SYI-A-2-1")).contains(result.getCellLocation());
+        assertThat(results).extracting(PrisonerSchedule::getCellLocation).containsOnly("LEI-A-1-1", "LEI-A-1-2", "LEI-H-1-5", "LEI-A-1", "LEI-A-1-10", "MDI-1-1-001", "SYI-A-2-1");
 
-            // Assert it return both suspended and not suspended
-            assertThat(List.of(true, false)).contains(result.getSuspended());
-        });
+        // Assert it return both suspended and not suspended
+        assertThat(results).extracting(PrisonerSchedule::getSuspended).containsOnly(true, false);
+    }
+
+    @Test
+    public void testGetAllActivitiesAtAgencySuspendedOnly() {
+        final var date = LocalDate.parse("2015-12-11");
+        final var toDate = LocalDate.now();
+        final var results = repository.getAllActivitiesAtAgency("LEI", date, toDate, "lastName,startTime", Order.ASC, true, true);
+        assertThat(results).hasSize(10);
+
+        assertThat(results).extracting(PrisonerSchedule::getLocationId).containsOnly(-27L);
+        assertThat(results).extracting(PrisonerSchedule::getEvent).containsOnly("EDUC");
+
+        // Check the offenders returned have the expected booking ids
+        // -35L is someone at a different agency (simulating being transferred)
+        // but who was allocated to a program at LEI during the specified time period
+        // -40L is someone with a suspended schedule
+        assertThat(results).extracting(PrisonerSchedule::getBookingId).containsOnly(-6L, -40L);
+        // Get offender cell locations. -1L and -3L share a cell.
+        assertThat(results).extracting(PrisonerSchedule::getCellLocation).containsOnly("LEI-A-1-2", "SYI-A-2-1");
+
+        // Assert it only suspended
+        assertThat(results).extracting(PrisonerSchedule::getSuspended).containsOnly( true);
     }
 
     @Test
@@ -253,11 +269,11 @@ public class ScheduleRepositoryTest {
         final var fromDate = LocalDate.of(2017, 9, 11);
         final var toDate = LocalDate.of(2017, 9, 12);
 
-        final var activities = repository.getAllActivitiesAtAgency("LEI", fromDate, toDate, "lastName,startTime", Order.ASC, false);
+        final var activities = repository.getAllActivitiesAtAgency("LEI", fromDate, toDate, "lastName,startTime", Order.ASC, false, false);
 
         assertThat(Objects.requireNonNull(activities)
                 .stream()
-                .flatMap(event -> List.of(event.getStartTime(), event.getEndTime()).stream())
+                .flatMap(event -> Stream.of(event.getStartTime(), event.getEndTime()))
                 .allMatch(date -> date.toLocalDate().isEqual(fromDate) || date.toLocalDate().isEqual(toDate)))
                 .isTrue();
     }
@@ -276,7 +292,6 @@ public class ScheduleRepositoryTest {
     public void testSuspendedActivity_Returned() {
         final var fromDate = LocalDate.of(1985, 1, 1);
         final var toDate = LocalDate.of(1985, 1, 1);
-
         final var activities = repository.getActivitiesAtLocation(-27L, fromDate, toDate, "lastName,startTime", Order.ASC, true);
 
         assertThat(activities).hasSize(1);

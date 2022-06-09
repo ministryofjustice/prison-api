@@ -22,19 +22,24 @@ public class ScheduleRepository extends RepositoryBase {
     private static final DataClassByColumnRowMapper<PrisonerScheduleDto> EVENT_ROW_MAPPER = new DataClassByColumnRowMapper<>(PrisonerScheduleDto.class);
 
 
-    public List<PrisonerSchedule> getAllActivitiesAtAgency(final String agencyId, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order, boolean includeSuspended) {
+    public List<PrisonerSchedule> getAllActivitiesAtAgency(final String agencyId, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order, final boolean includeSuspended, final boolean onlySuspended) {
         final var initialSql = ScheduleRepositorySql.GET_ALL_ACTIVITIES_AT_AGENCY.getSql();
 
         final var sql = queryBuilderFactory.getQueryBuilder(initialSql, EVENT_ROW_MAPPER.getFieldMap())
                 .addOrderBy(order, orderByFields)
                 .build();
 
+        final Set<String> suspended;
+        if (onlySuspended) suspended = Set.of("Y");
+        else if (includeSuspended) suspended = Set.of("Y", "N");
+        else suspended = Set.of("N");
+
         final var schedules = jdbcTemplate.query(
                 sql,
                 createParams("agencyId", agencyId,
                         "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
                         "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate)),
-                        "includeSuspended", includeSuspended ? Set.of("Y", "N") : Set.of("N")),
+                        "includeSuspended", suspended),
                 EVENT_ROW_MAPPER);
         return schedules.stream().map(PrisonerScheduleDto::toPrisonerSchedule).collect(Collectors.toList());
     }
