@@ -175,8 +175,17 @@ public class SchedulesService {
         final var orderByFields = StringUtils.defaultString(sortFields, "lastName");
         final var order = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);
 
-        final var activities = scheduleRepository.getAllActivitiesAtAgency(agencyId, startDate, endDate, orderByFields, order, includeSuspended);
+        final var activities = scheduleRepository.getAllActivitiesAtAgency(agencyId, startDate, endDate, orderByFields, order, includeSuspended, false);
 
+        return filterByTimeSlot(timeSlot, activities);
+    }
+
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    public List<PrisonerSchedule> getSuspendedActivitiesAtAllLocations(final String agencyId, final LocalDate fromDate, final LocalDate toDate, final TimeSlot timeSlot) {
+        final var startDate = fromDate == null ? LocalDate.now() : fromDate;
+        final var endDate = toDate == null ? startDate : toDate;
+
+        final var activities = scheduleRepository.getAllActivitiesAtAgency(agencyId, startDate, endDate, "lastName", Order.ASC, true, true);
         return filterByTimeSlot(timeSlot, activities);
     }
 

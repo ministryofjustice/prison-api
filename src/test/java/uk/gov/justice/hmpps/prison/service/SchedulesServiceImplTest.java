@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -123,45 +124,136 @@ class SchedulesServiceImplTest {
         assertThat(results.get(0).getOffenderNo()).isEqualTo("A10");
     }
 
-    @Test
-    void testGeActivitiesAtAllLocations_callsTheRepositoryWithTheCorrectParameters() {
-        final var today = LocalDate.now();
-        final var sortFields = "lastName,startTime";
+    @Nested
+    class getActivitiesAtAllLocations {
+        @Test
+        void testGeActivitiesAtAllLocations_callsTheRepositoryWithTheCorrectParameters() {
+            final var today = LocalDate.now();
+            final var sortFields = "lastName,startTime";
 
-        schedulesService.getActivitiesAtAllLocations("LEI", today, null, TimeSlot.AM, sortFields, Order.ASC, true);
+            schedulesService.getActivitiesAtAllLocations("LEI", today, null, TimeSlot.AM, sortFields, Order.ASC, true);
 
-        verify(scheduleRepository).getAllActivitiesAtAgency("LEI", today, today, sortFields, Order.ASC, true);
-    }
+            verify(scheduleRepository).getAllActivitiesAtAgency("LEI", today, today, sortFields, Order.ASC, true, false);
+        }
 
-    @Test
-    void testGeActivitiesAtAllLocations_appliesTimeSlotFiltering() {
-        final var today = LocalDate.now();
+        @Test
+        void testGeActivitiesAtAllLocations_appliesTimeSlotFiltering() {
+            final var today = LocalDate.now();
 
-        when(scheduleRepository.getAllActivitiesAtAgency(eq("LEI"), eq(today), eq(today), eq("lastName"), eq(Order.ASC), eq(false)))
+            when(scheduleRepository.getAllActivitiesAtAgency(eq("LEI"), eq(today), eq(today), eq("lastName"), eq(Order.ASC), eq(false), eq(false)))
                 .thenReturn(List.of(
-                        PrisonerSchedule
-                                .builder()
-                                .startTime(LocalDateTime.now().withHour(23))
-                                .endTime(LocalDateTime.now().withHour(23))
-                                .locationId(3L)
-                                .bookingId(1L)
-                                .eventLocationId(3L)
-                                .eventId(2L)
-                                .build(),
-                        PrisonerSchedule
-                                .builder()
-                                .startTime(LocalDateTime.now().withHour(11))
-                                .endTime(LocalDateTime.now().withHour(11))
-                                .locationId(3L)
-                                .bookingId(1L)
-                                .eventLocationId(3L)
-                                .eventId(3L)
-                                .build()
+                    PrisonerSchedule
+                        .builder()
+                        .startTime(LocalDateTime.now().withHour(23))
+                        .endTime(LocalDateTime.now().withHour(23))
+                        .locationId(3L)
+                        .bookingId(1L)
+                        .eventLocationId(3L)
+                        .eventId(2L)
+                        .build(),
+                    PrisonerSchedule
+                        .builder()
+                        .startTime(LocalDateTime.now().withHour(11))
+                        .endTime(LocalDateTime.now().withHour(11))
+                        .locationId(3L)
+                        .bookingId(1L)
+                        .eventLocationId(3L)
+                        .eventId(3L)
+                        .build()
                 ));
 
-        final var activities = schedulesService.getActivitiesAtAllLocations("LEI", today, null, TimeSlot.AM, null, Order.ASC, false);
+            final var activities = schedulesService.getActivitiesAtAllLocations("LEI", today, null, TimeSlot.AM, null, Order.ASC, false);
 
-        assertThat(activities).hasSize(1);
+            assertThat(activities).hasSize(1);
+        }
+
+        @Test
+        void testGeActivitiesAtAllLocations_CallsTheRepositoryWithTheCorrectParameters() {
+            final var from = LocalDate.now();
+            final var to = LocalDate.now().plusDays(1);
+
+            final var sortFields = "lastName,startTime";
+
+            schedulesService.getActivitiesAtAllLocations("LEI", from, to, TimeSlot.AM, sortFields, Order.ASC, false);
+
+            verify(scheduleRepository).getAllActivitiesAtAgency("LEI", from, to, sortFields, Order.ASC, false, false);
+        }
+
+        @Test
+        void testGeActivitiesAtAllLocations_UseFromDate_WhenToDateIsNull() {
+            final var from = LocalDate.now().plusDays(-10);
+            final var sortFields = "lastName,startTime";
+
+            schedulesService.getActivitiesAtAllLocations("LEI", from, null, TimeSlot.AM, sortFields, Order.ASC, false);
+
+            verify(scheduleRepository).getAllActivitiesAtAgency("LEI", from, from, sortFields, Order.ASC, false, false);
+        }
+    }
+
+    @Nested
+    class getSuspendedActivitiesAtAllLocations {
+        @Test
+        void testGeActivitiesAtAllLocations_callsTheRepositoryWithTheCorrectParameters() {
+            final var today = LocalDate.now();
+            final var sortFields = "lastName";
+
+            schedulesService.getSuspendedActivitiesAtAllLocations("LEI", today, null, TimeSlot.AM);
+
+            verify(scheduleRepository).getAllActivitiesAtAgency("LEI", today, today, sortFields, Order.ASC, true, true);
+        }
+
+        @Test
+        void testGeActivitiesAtAllLocations_appliesTimeSlotFiltering() {
+            final var today = LocalDate.now();
+
+            when(scheduleRepository.getAllActivitiesAtAgency(eq("LEI"), eq(today), eq(today), eq("lastName"), eq(Order.ASC), eq(true), eq(true)))
+                .thenReturn(List.of(
+                    PrisonerSchedule
+                        .builder()
+                        .startTime(LocalDateTime.now().withHour(23))
+                        .endTime(LocalDateTime.now().withHour(23))
+                        .locationId(3L)
+                        .bookingId(1L)
+                        .eventLocationId(3L)
+                        .eventId(2L)
+                        .build(),
+                    PrisonerSchedule
+                        .builder()
+                        .startTime(LocalDateTime.now().withHour(11))
+                        .endTime(LocalDateTime.now().withHour(11))
+                        .locationId(3L)
+                        .bookingId(1L)
+                        .eventLocationId(3L)
+                        .eventId(3L)
+                        .build()
+                ));
+
+            final var activities = schedulesService.getSuspendedActivitiesAtAllLocations("LEI", today, null, TimeSlot.AM);
+
+            assertThat(activities).hasSize(1);
+        }
+
+        @Test
+        void testGeActivitiesAtAllLocations_CallsTheRepositoryWithTheCorrectParameters() {
+            final var from = LocalDate.now();
+            final var to = LocalDate.now().plusDays(1);
+
+            final var sortFields = "lastName";
+
+            schedulesService.getSuspendedActivitiesAtAllLocations("LEI", from, to, TimeSlot.AM);
+
+            verify(scheduleRepository).getAllActivitiesAtAgency("LEI", from, to, sortFields, Order.ASC, true, true);
+        }
+
+        @Test
+        void testGeActivitiesAtAllLocations_UseFromDate_WhenToDateIsNull() {
+            final var from = LocalDate.now().plusDays(-10);
+            final var sortFields = "lastName";
+
+            schedulesService.getSuspendedActivitiesAtAllLocations("LEI", from, null, TimeSlot.AM);
+
+            verify(scheduleRepository).getAllActivitiesAtAgency("LEI", from, from, sortFields, Order.ASC, true, true);
+        }
     }
 
     @Test
@@ -203,28 +295,6 @@ class SchedulesServiceImplTest {
         schedulesService.getExternalTransfers("LEI", offenders, LocalDate.now());
 
         verify(scheduleRepository, times(2)).getExternalTransfers(any(), anyList(), any());
-    }
-
-    @Test
-    void testGeActivitiesAtAllLocations_CallsTheRepositoryWithTheCorrectParameters() {
-        final var from = LocalDate.now();
-        final var to = LocalDate.now().plusDays(1);
-
-        final var sortFields = "lastName,startTime";
-
-        schedulesService.getActivitiesAtAllLocations("LEI", from, to, TimeSlot.AM, sortFields, Order.ASC, false);
-
-        verify(scheduleRepository).getAllActivitiesAtAgency("LEI", from, to, sortFields, Order.ASC, false);
-    }
-
-    @Test
-    void testGeActivitiesAtAllLocations_UseFromDate_WhenToDateIsNull() {
-        final var from = LocalDate.now().plusDays(-10);
-        final var sortFields = "lastName,startTime";
-
-        schedulesService.getActivitiesAtAllLocations("LEI", from, null, TimeSlot.AM, sortFields, Order.ASC, false);
-
-        verify(scheduleRepository).getAllActivitiesAtAgency("LEI", from, from, sortFields, Order.ASC, false);
     }
 
     @Test

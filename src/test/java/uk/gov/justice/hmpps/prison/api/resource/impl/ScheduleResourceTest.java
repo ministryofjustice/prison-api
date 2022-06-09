@@ -59,6 +59,23 @@ public class ScheduleResourceTest extends ResourceTest {
     }
 
     @Test
+    public void testThatScheduleSuspendedActivitiesByDateRange_ReturnsData() {
+        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
+
+        final var response = testRestTemplate.exchange(
+                "/api/schedules/LEI/suspended-activities-by-date-range?timeSlot=PM&fromDate=1985-01-01",
+                HttpMethod.GET,
+                createHttpEntity(token, ""),
+                new ParameterizedTypeReference<List<PrisonerSchedule>>() {
+                });
+
+        final var activities = response.getBody();
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(200);
+        assertThat(activities).isNotEmpty();
+    }
+
+    @Test
     public void testThatSuspendedActivity_IsReturned() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER);
 
