@@ -41,9 +41,11 @@ public class ScheduleRepository extends RepositoryBase {
                         "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate)),
                         "includeSuspended", suspended),
                 EVENT_ROW_MAPPER);
-        return schedules.stream().map(PrisonerScheduleDto::toPrisonerSchedule).collect(Collectors.toList());
+        return schedules.stream()
+            .filter(PrisonerScheduleDto::programHasntEnded)
+            .map(PrisonerScheduleDto::toPrisonerSchedule)
+            .collect(Collectors.toList());
     }
-
 
     public List<PrisonerSchedule> getActivitiesAtLocation(final Long locationId, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order, boolean includeSuspended) {
         final var initialSql = ScheduleRepositorySql.GET_ACTIVITIES_AT_ONE_LOCATION.getSql();

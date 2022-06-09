@@ -1,6 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.model
+
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot
 import java.math.BigDecimal
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 data class PrisonerScheduleDto(
@@ -29,6 +31,9 @@ data class PrisonerScheduleDto(
   val timeSlot: TimeSlot?,
   val locationCode: String?,
   val suspended: Boolean?,
+  val programStatus: String?,
+  val programEndDate: LocalDate?,
+  val scheduleDate: LocalDate?,
 ) {
   fun toPrisonerSchedule() = PrisonerSchedule(
     this.offenderNo,
@@ -57,4 +62,9 @@ data class PrisonerScheduleDto(
     this.locationCode,
     this.suspended,
   )
+
+  fun programHasntEnded(): Boolean =
+    // SQL ensures that the activity happens after the start date parameter, now need to check that the offender
+    // program hasn't ended. END indicates that the program has ended, in which case the end date will also be populated
+    programStatus != "END" || programEndDate == null || scheduleDate == null || programEndDate >= scheduleDate
 }
