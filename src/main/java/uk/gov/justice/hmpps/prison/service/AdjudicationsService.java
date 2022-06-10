@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+import uk.gov.justice.hmpps.prison.api.model.AdjudicationCreationRequestData;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication;
@@ -107,20 +108,45 @@ public class AdjudicationsService {
         return offenceCodes;
     }
 
+    @VerifyOffenderAccess
+    public AdjudicationCreationRequestData generateAdjudicationCreationData(@NotNull final String offenderNo) {
+        final var offenderBookingEntry = bookingRepository.findByOffenderNomsIdAndBookingSequence(offenderNo, 1)
+            .orElseThrow(() -> EntityNotFoundException.withMessage(format("Could not find a current booking for Offender No %s", offenderNo)));
+        final var adjudicationNumber = adjudicationsRepository.getNextAdjudicationNumber();
+        return AdjudicationCreationRequestData.builder()
+            .bookingId(offenderBookingEntry.getBookingId())
+            .adjudicationNumber(adjudicationNumber)
+            .build();
+    }
+
     @Transactional
     @VerifyOffenderAccess
-    public AdjudicationDetail createAdjudication(@NotNull final String offenderNo, @NotNull @Valid final NewAdjudication adjudication) {
-        final var reporterName = authenticationFacade.getCurrentUsername();
-        final var currentDateTime = LocalDateTime.now(clock);
+    public AdjudicationDetail createAdjudication(@NotNull final String offenderNo,
+                                                 @NotNull @Valid final NewAdjudication adjudication) {
+        var currentDateTime = LocalDateTime.now(clock);
+        if (adjudication.getReportedDateTime() != null) {
+            currentDateTime = adjudication.getReportedDateTime();
+        }
         final var incidentDateTime = adjudication.getIncidentTime();
 
         final var offenceCodes = offenceCodesFrom(adjudication.getOffenceCodes());
 
+        var reporterName = authenticationFacade.getCurrentUsername();
+        if (adjudication.getReporterName() != null) {
+            reporterName = adjudication.getReporterName();
+        }
+        String finalReporterName = reporterName;
         final var reporter = staffUserAccountRepository.findById(reporterName)
-            .orElseThrow(() -> new RuntimeException(format("User not found %s", reporterName)));
+            .orElseThrow(() -> new RuntimeException(format("User not found %s", finalReporterName)));
 
-        final var offenderBookingEntry = bookingRepository.findByOffenderNomsIdAndBookingSequence(offenderNo, 1)
-            .orElseThrow(() -> new RuntimeException(format("Could not find a current booking for Offender No %s", offenderNo)));
+        OffenderBooking offenderBookingEntry;
+        if (adjudication.getBookingId() != null) {
+            offenderBookingEntry = bookingRepository.findByBookingId(adjudication.getBookingId())
+                .orElseThrow(() -> new RuntimeException(format("Could not find the booking with id %d", adjudication.getBookingId())));
+        } else {
+            offenderBookingEntry = bookingRepository.findByOffenderNomsIdAndBookingSequence(offenderNo, 1)
+                .orElseThrow(() -> new RuntimeException(format("Could not find a current booking for Offender No %s", offenderNo)));
+        }
         final var incidentType = incidentTypeRepository.findById(AdjudicationIncidentType.GOVERNORS_REPORT)
             .orElseThrow(() -> new RuntimeException("Incident type not available"));
         final var actionCode = actionCodeRepository.findById(AdjudicationActionCode.PLACED_ON_REPORT)
@@ -146,7 +172,20 @@ public class AdjudicationsService {
             .lockFlag(Adjudication.LOCK_FLAG_UNLOCKED)
             .staffReporter(reporter.getStaff())
             .build();
-        final var adjudicationNumber = adjudicationsRepository.getNextAdjudicationNumber();
+
+        Long adjudicationNumber;
+        if (adjudication.getAdjudicationNumber() != null) {
+            // Check it doesn't already exist
+            final var existingAdjudicationParty = adjudicationsRepository.findByParties_AdjudicationNumber(adjudication.getAdjudicationNumber());
+            if (existingAdjudicationParty.isPresent()) {
+                throw EntityNotFoundException.withMessage(format("Adjudication with number %d already exists", adjudication.getAdjudicationNumber()));
+            }
+            // Note that we can't check whether this is a valid adjudication number as they are allocated in batches
+            adjudicationNumber = adjudication.getAdjudicationNumber();
+        } else {
+            adjudicationNumber = adjudicationsRepository.getNextAdjudicationNumber();
+        }
+
         final var offenderAdjudicationEntry = AdjudicationParty.builder()
             .id(new AdjudicationParty.PK(adjudicationToCreate, 1L))
             .adjudicationNumber(adjudicationNumber)
