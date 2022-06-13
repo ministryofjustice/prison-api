@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.2.1"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.2.2"
   kotlin("plugin.spring") version "1.6.21"
   kotlin("plugin.jpa") version "1.6.21"
   kotlin("plugin.lombok") version "1.6.21"
@@ -40,8 +40,8 @@ dependencies {
 
   implementation("javax.annotation:javax.annotation-api:1.3.2")
   implementation("javax.xml.bind:jaxb-api:2.3.1")
-  implementation("com.sun.xml.bind:jaxb-impl:3.0.2")
-  implementation("com.sun.xml.bind:jaxb-core:3.0.2")
+  implementation("com.sun.xml.bind:jaxb-impl:4.0.0")
+  implementation("com.sun.xml.bind:jaxb-core:4.0.0")
   implementation("javax.activation:activation:1.1.1")
 
   implementation("commons-codec:commons-codec:1.15")
@@ -58,7 +58,7 @@ dependencies {
   implementation("org.apache.commons:commons-lang3:3.12.0")
   implementation("commons-io:commons-io:2.11.0")
   implementation("org.apache.commons:commons-text:1.9")
-  implementation("com.oracle.database.jdbc:ojdbc10:19.14.0.0")
+  implementation("com.oracle.database.jdbc:ojdbc10:19.15.0.0.1")
 
   compileOnly("org.projectlombok:lombok:1.18.24")
 
