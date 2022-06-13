@@ -59,11 +59,9 @@ import static org.mockito.Mockito.when;
 public class AdjudicationsServiceTest {
     private static final String EXAMPLE_NOMS_ID = "A1234BB";
     private static final Long EXAMPLE_ADJUDICATION_NUMBER = 3L;
-    private static final List<String> EXAMPLE_VICTIM_STAFF_USERNAMES = List.of("NGK33Y", "NGK34Y");
-    private static final List<String> EXAMPLE_VICTIM_OFFENDER_IDS = List.of("A5015DY", "G1835UN");
-    private static final List<String> EXAMPLE_CONNECTED_OFFENDER_IDS = List.of("G0662GG", "A5060DY");
     private static final String EXAMPLE_OFFENCE_CHARGE_CODE = "51:12A";
     private static final String EXAMPLE_CURRENT_USERNAME = "USER_1";
+    private static final String EXAMPLE_REPORTER_USERNAME = "JA123";
     private static final String EXAMPLE_REPORTER_FIRST_NAME = "JANE";
     private static final String EXAMPLE_REPORTER_LAST_NAME = "SMITH";
     private static final String EXAMPLE_LOCATION_DESCRIPTION = "Kitchen Diner";
@@ -124,8 +122,43 @@ public class AdjudicationsServiceTest {
     }
 
     @Nested
-    public class CreateAdjudication {
+    public class PrepareAdjudicationCreationData {
+        @Test
+        public void makesCallToRepositoryToGetNextAdjudicationNumber() {
+            final var exampleBooking = new MockDataProvider().generateOffenderBooking();
+            when(bookingRepository.findByOffenderNomsIdAndBookingSequence(EXAMPLE_NOMS_ID, 1)).thenReturn(Optional.of(exampleBooking));
+            when(adjudicationsRepository.getNextAdjudicationNumber()).thenReturn(EXAMPLE_ADJUDICATION_NUMBER);
 
+            service.generateAdjudicationCreationData(EXAMPLE_NOMS_ID);
+
+            verify(adjudicationsRepository).getNextAdjudicationNumber();
+        }
+
+        @Test
+        public void returnsCorrectData() {
+            final var exampleBooking = new MockDataProvider().generateOffenderBooking();
+            when(bookingRepository.findByOffenderNomsIdAndBookingSequence(EXAMPLE_NOMS_ID, 1)).thenReturn(Optional.of(exampleBooking));
+            when(adjudicationsRepository.getNextAdjudicationNumber()).thenReturn(EXAMPLE_ADJUDICATION_NUMBER);
+
+            final var returnData = service.generateAdjudicationCreationData(EXAMPLE_NOMS_ID);
+
+            assertThat(returnData.getAdjudicationNumber()).isEqualTo(EXAMPLE_ADJUDICATION_NUMBER);
+            assertThat(returnData.getBookingId()).isEqualTo(exampleBooking.getBookingId());
+        }
+
+        @Test
+        public void withOffenderMissingBookingThrowsNotFoundException() {
+            when(bookingRepository.findByOffenderNomsIdAndBookingSequence(EXAMPLE_NOMS_ID, 1)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() ->
+                service.generateAdjudicationCreationData(EXAMPLE_NOMS_ID))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find a current booking for Offender No A1234BB");
+        }
+    }
+
+    @Nested
+    public class CreateAdjudication {
         @Test
         public void makesCallToRepositoryWithCorrectData() {
             final var mockDataProvider = new MockDataProvider();
@@ -134,12 +167,14 @@ public class AdjudicationsServiceTest {
 
             final var newAdjudication = generateNewAdjudicationRequest(
                 mockDataProvider.booking.getOffender().getNomsId(),
+                mockDataProvider.booking.getBookingId(),
+                mockDataProvider.reporter.getUsername(),
                 mockDataProvider.internalLocation.getLocationId());
 
             final Adjudication expectedAdjudication = getExampleAdjudication(mockDataProvider, newAdjudication);
             final AdjudicationParty expectedOffenderParty = addExampleAdjudicationParty(mockDataProvider, expectedAdjudication);
 
-            when(adjudicationsRepository.findByParties_AdjudicationNumber(any())).thenReturn(Optional.of(expectedAdjudication));
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(any())).thenReturn(Optional.empty(), Optional.of(expectedAdjudication));
 
             service.createAdjudication(newAdjudication.getOffenderNo(), newAdjudication);
 
@@ -160,6 +195,8 @@ public class AdjudicationsServiceTest {
 
             final var newAdjudication = generateNewAdjudicationRequest(
                 mockDataProvider.booking.getOffender().getNomsId(),
+                mockDataProvider.booking.getBookingId(),
+                mockDataProvider.reporter.getUsername(),
                 mockDataProvider.internalLocation.getLocationId());
 
             final var expectedReturnedAdjudication = AdjudicationDetail.builder()
@@ -181,7 +218,7 @@ public class AdjudicationsServiceTest {
             final Adjudication expectedAdjudication = getExampleAdjudication(mockDataProvider, newAdjudication);
             addExampleAdjudicationParty(mockDataProvider, expectedAdjudication);
 
-            when(adjudicationsRepository.findByParties_AdjudicationNumber(any())).thenReturn(Optional.of(expectedAdjudication));
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(any())).thenReturn(Optional.empty(), Optional.of(expectedAdjudication));
 
             final var returnedAdjudication = service.createAdjudication(newAdjudication.getOffenderNo(), newAdjudication);
 
@@ -196,12 +233,14 @@ public class AdjudicationsServiceTest {
 
             final var newAdjudication = generateNewAdjudicationRequest(
                 mockDataProvider.booking.getOffender().getNomsId(),
+                mockDataProvider.booking.getBookingId(),
+                mockDataProvider.reporter.getUsername(),
                 mockDataProvider.internalLocation.getLocationId());
 
             final Adjudication expectedAdjudication = getExampleAdjudication(mockDataProvider, newAdjudication);
             addExampleAdjudicationParty(mockDataProvider, expectedAdjudication);
 
-            when(adjudicationsRepository.findByParties_AdjudicationNumber(any())).thenReturn(Optional.of(expectedAdjudication));
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(any())).thenReturn(Optional.empty(), Optional.of(expectedAdjudication));
 
             service.createAdjudication(newAdjudication.getOffenderNo(), newAdjudication);
 
@@ -224,6 +263,8 @@ public class AdjudicationsServiceTest {
 
             final var newAdjudication = generateNewAdjudicationRequest(
                 mockDataProvider.booking.getOffender().getNomsId(),
+                mockDataProvider.booking.getBookingId(),
+                mockDataProvider.reporter.getUsername(),
                 mockDataProvider.internalLocation.getLocationId());
 
             assertThatThrownBy(() ->
@@ -242,6 +283,8 @@ public class AdjudicationsServiceTest {
 
             final var newAdjudication = generateNewAdjudicationRequest(
                 mockDataProvider.booking.getOffender().getNomsId(),
+                mockDataProvider.booking.getBookingId(),
+                mockDataProvider.reporter.getUsername(),
                 mockDataProvider.internalLocation.getLocationId());
 
             assertThatThrownBy(() ->
@@ -251,13 +294,11 @@ public class AdjudicationsServiceTest {
 
             verifyNoMoreInteractions(telemetryClient);
         }
-
     }
 
 
     @Nested
     public class CreateAdjudication_WithOptionalData {
-
         @Test
         public void makesCallToRepositoryWithCorrectData() {
             final var mockDataProvider = new MockDataProvider();
@@ -266,12 +307,14 @@ public class AdjudicationsServiceTest {
 
             final var newAdjudication = generateNewAdjudicationRequest_WithOptionalData(
                 mockDataProvider.booking.getOffender().getNomsId(),
+                mockDataProvider.booking.getBookingId(),
+                mockDataProvider.reporter.getUsername(),
                 mockDataProvider.internalLocation.getLocationId());
 
             final Adjudication expectedAdjudication = getExampleAdjudication(mockDataProvider, newAdjudication);
             final AdjudicationParty expectedOffenderParty = addExampleAdjudicationParty_WithOptionalData(mockDataProvider, expectedAdjudication);
 
-            when(adjudicationsRepository.findByParties_AdjudicationNumber(any())).thenReturn(Optional.of(expectedAdjudication));
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(any())).thenReturn(Optional.empty(), Optional.of(expectedAdjudication));
 
             service.createAdjudication(newAdjudication.getOffenderNo(), newAdjudication);
 
@@ -292,6 +335,8 @@ public class AdjudicationsServiceTest {
 
             final var newAdjudication = generateNewAdjudicationRequest_WithOptionalData(
                 mockDataProvider.booking.getOffender().getNomsId(),
+                mockDataProvider.booking.getBookingId(),
+                mockDataProvider.reporter.getUsername(),
                 mockDataProvider.internalLocation.getLocationId());
 
             final var expectedReturnedAdjudication = AdjudicationDetail.builder()
@@ -313,7 +358,7 @@ public class AdjudicationsServiceTest {
             final Adjudication expectedAdjudication = getExampleAdjudication(mockDataProvider, newAdjudication);
             addExampleAdjudicationParty_WithOptionalData(mockDataProvider, expectedAdjudication);
 
-            when(adjudicationsRepository.findByParties_AdjudicationNumber(any())).thenReturn(Optional.of(expectedAdjudication));
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(any())).thenReturn(Optional.empty(), Optional.of(expectedAdjudication));
 
             final var returnedAdjudication = service.createAdjudication(newAdjudication.getOffenderNo(), newAdjudication);
 
@@ -322,7 +367,6 @@ public class AdjudicationsServiceTest {
 
         @Nested
         public class OffenceCodes {
-
             @Test
             public void withDuplicateOffenceCodesReturnsCorrectly() {
                 final var mockDataProvider = new MockDataProvider();
@@ -336,6 +380,8 @@ public class AdjudicationsServiceTest {
 
                 final var newAdjudication = generateNewAdjudicationRequest_WithOptionalData(
                     mockDataProvider.booking.getOffender().getNomsId(),
+                    mockDataProvider.booking.getBookingId(),
+                    mockDataProvider.reporter.getUsername(),
                     mockDataProvider.internalLocation.getLocationId());
 
                 newAdjudication.setOffenceCodes(List.of(EXAMPLE_OFFENCE_CHARGE_CODE, EXAMPLE_OFFENCE_CHARGE_CODE));
@@ -343,7 +389,7 @@ public class AdjudicationsServiceTest {
                 final Adjudication expectedAdjudication = getExampleAdjudication(mockDataProvider, newAdjudication);
                 addExampleAdjudicationParty(mockDataProvider, expectedAdjudication);
 
-                when(adjudicationsRepository.findByParties_AdjudicationNumber(any())).thenReturn(Optional.of(expectedAdjudication));
+                when(adjudicationsRepository.findByParties_AdjudicationNumber(any())).thenReturn(Optional.empty(), Optional.of(expectedAdjudication));
 
                 final var returnedAdjudication = service.createAdjudication(newAdjudication.getOffenderNo(), newAdjudication);
 
@@ -354,14 +400,15 @@ public class AdjudicationsServiceTest {
             public void withInvalidOffenceCodesThrowsRuntimeException() {
                 final var mockDataProvider = new MockDataProvider();
 
-                // We only need 2 mocks to perform the validation
-                when(authenticationFacade.getCurrentUsername()).thenReturn(EXAMPLE_CURRENT_USERNAME);
+                // We only need 1 mock to perform the validation
                 when(offenceTypeRepository.findByOffenceCodeIn(any())).thenReturn(List.of(
                     mockDataProvider.offenceType
                 ));
 
                 final var newAdjudication = generateNewAdjudicationRequest_WithOptionalData(
                     mockDataProvider.booking.getOffender().getNomsId(),
+                    mockDataProvider.booking.getBookingId(),
+                    mockDataProvider.reporter.getUsername(),
                     mockDataProvider.internalLocation.getLocationId());
 
                 newAdjudication.setOffenceCodes(List.of(EXAMPLE_OFFENCE_CHARGE_CODE, "51:99"));
@@ -749,6 +796,8 @@ public class AdjudicationsServiceTest {
     private Adjudication generateExampleAdjudication(final MockDataProvider mockDataProvider, final long adjudicationNumber) {
         final var newAdjudication = generateNewAdjudicationRequest(
             mockDataProvider.booking.getOffender().getNomsId(),
+            mockDataProvider.booking.getBookingId(),
+            mockDataProvider.reporter.getUsername(),
             mockDataProvider.internalLocation.getLocationId());
 
         final var adjudication = getExampleAdjudication(mockDataProvider, newAdjudication);
@@ -760,6 +809,8 @@ public class AdjudicationsServiceTest {
     private Adjudication generateExampleAdjudication_WithOptionalData(final MockDataProvider mockDataProvider, final long adjudicationNumber) {
         final var newAdjudication = generateNewAdjudicationRequest(
             mockDataProvider.booking.getOffender().getNomsId(),
+            mockDataProvider.booking.getBookingId(),
+            mockDataProvider.reporter.getUsername(),
             mockDataProvider.internalLocation.getLocationId());
 
         final var adjudication = getExampleAdjudication(mockDataProvider, newAdjudication);
@@ -836,9 +887,13 @@ public class AdjudicationsServiceTest {
         return expectedOffenderParty;
     }
 
-    private NewAdjudication generateNewAdjudicationRequest(final String offenderNo, final Long internalLocationId) {
+    private NewAdjudication generateNewAdjudicationRequest(final String offenderNo, final Long bookingId, final String reporterName, final Long internalLocationId) {
         return NewAdjudication.builder()
             .offenderNo(offenderNo)
+            .adjudicationNumber(EXAMPLE_ADJUDICATION_NUMBER)
+            .bookingId(bookingId)
+            .reporterName(reporterName)
+            .reportedDateTime(now)
             .agencyId(EXAMPLE_AGENCY_ID)
             .incidentTime(EXAMPLE_INCIDENT_TIME)
             .incidentLocationId(internalLocationId)
@@ -846,27 +901,18 @@ public class AdjudicationsServiceTest {
             .build();
     }
 
-    private NewAdjudication generateNewAdjudicationRequest_WithOptionalData(final String offenderNo, final Long internalLocationId) {
+    private NewAdjudication generateNewAdjudicationRequest_WithOptionalData(final String offenderNo, final Long bookingId, final String reporterName, final Long internalLocationId) {
         return NewAdjudication.builder()
             .offenderNo(offenderNo)
+            .adjudicationNumber(EXAMPLE_ADJUDICATION_NUMBER)
+            .bookingId(bookingId)
+            .reporterName(reporterName)
+            .reportedDateTime(now)
             .agencyId(EXAMPLE_AGENCY_ID)
             .incidentTime(EXAMPLE_INCIDENT_TIME)
             .incidentLocationId(internalLocationId)
             .statement(EXAMPLE_STATEMENT)
             .offenceCodes(List.of(EXAMPLE_OFFENCE_CHARGE_CODE))
-            .build();
-    }
-
-    private NewAdjudication generateNewAdjudicationRequest_WithAncillaryAdjudications(final String offenderNo, final Long internalLocationId) {
-        return NewAdjudication.builder()
-            .offenderNo(offenderNo)
-            .agencyId(EXAMPLE_AGENCY_ID)
-            .incidentTime(EXAMPLE_INCIDENT_TIME)
-            .incidentLocationId(internalLocationId)
-            .statement(EXAMPLE_STATEMENT)
-            .victimStaffUsernames(EXAMPLE_VICTIM_STAFF_USERNAMES)
-            .victimOffenderIds(EXAMPLE_VICTIM_OFFENDER_IDS)
-            .connectedOffenderIds(EXAMPLE_CONNECTED_OFFENDER_IDS)
             .build();
     }
 
@@ -909,12 +955,11 @@ public class AdjudicationsServiceTest {
             when(incidentTypeRepository.findById(AdjudicationIncidentType.GOVERNORS_REPORT)).thenReturn(Optional.of(incidentType));
             when(actionCodeRepository.findById(AdjudicationActionCode.PLACED_ON_REPORT)).thenReturn(Optional.of(actionCode));
             when(authenticationFacade.getCurrentUsername()).thenReturn(EXAMPLE_CURRENT_USERNAME);
-            when(staffUserAccountRepository.findById(EXAMPLE_CURRENT_USERNAME)).thenReturn(Optional.of(reporter));
-            when(bookingRepository.findByOffenderNomsIdAndBookingSequence(booking.getOffender().getNomsId(), 1)).thenReturn(Optional.of(booking));
+            when(staffUserAccountRepository.findById(EXAMPLE_REPORTER_USERNAME)).thenReturn(Optional.of(reporter));
+            when(bookingRepository.findByBookingId(booking.getBookingId())).thenReturn(Optional.of(booking));
             if (validAgency && validLocation) {
                 when(internalLocationRepository.findOneByLocationId(internalLocation.getLocationId())).thenReturn(Optional.of(internalLocation));
                 when(agencyLocationRepository.findById(agencyDetails.getId())).thenReturn(Optional.of(agencyDetails));
-                when(adjudicationsRepository.getNextAdjudicationNumber()).thenReturn(EXAMPLE_ADJUDICATION_NUMBER);
             } else {
                 if (!validLocation) {
                     when(internalLocationRepository.findOneByLocationId(internalLocation.getLocationId())).thenReturn(Optional.empty());
@@ -930,7 +975,7 @@ public class AdjudicationsServiceTest {
 
         private StaffUserAccount generateReporter() {
             return StaffUserAccount.builder()
-                .username("JA123")
+                .username(EXAMPLE_REPORTER_USERNAME)
                 .staff(Staff.builder()
                     .staffId(234L)
                     .firstName(EXAMPLE_REPORTER_FIRST_NAME)
@@ -939,7 +984,7 @@ public class AdjudicationsServiceTest {
                 .build();
         }
 
-        private OffenderBooking generateOffenderBooking() {
+        public OffenderBooking generateOffenderBooking() {
             return OffenderBooking.builder()
                 .bookingId(345L)
                 .offender(Offender.builder()
