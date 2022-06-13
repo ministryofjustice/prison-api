@@ -8,10 +8,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.StaffDetail;
 import uk.gov.justice.hmpps.prison.repository.CaseLoadRepository;
 import uk.gov.justice.hmpps.prison.repository.StaffRepository;
-import uk.gov.justice.hmpps.prison.repository.UserRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.RoleRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRoleRepository;
 
 import java.time.LocalDate;
@@ -49,17 +46,11 @@ public class StaffServiceImplTest {
     @Mock
     private UserCaseloadRoleRepository userCaseloadRoleRepository;
 
-    @Mock
-    private UserCaseloadRepository userCaseloadRepository;
-
-    @Mock
-    private RoleRepository roleRepository;
-
     private StaffService staffService;
 
     @BeforeEach
     public void init() {
-        staffService = new StaffService(staffRepository, staffUserAccountRepository, caseLoadRepository, userCaseloadRoleRepository, roleRepository, userCaseloadRepository);
+        staffService = new StaffService(staffRepository, staffUserAccountRepository, caseLoadRepository, userCaseloadRoleRepository);
     }
 
     @Test
@@ -94,9 +85,7 @@ public class StaffServiceImplTest {
         when(staffRepository.findByStaffId(ID_NONE)).thenReturn(getValidStaffDetails(ID_NONE));
         when(staffRepository.findEmailAddressesForStaffId(ID_NONE)).thenReturn(emptyList);
 
-        assertThatThrownBy(() -> {
-            final var addresses = staffService.getStaffEmailAddresses(ID_NONE);
-        }).isInstanceOf(NoContentException.class);
+        assertThatThrownBy(() -> staffService.getStaffEmailAddresses(ID_NONE)).isInstanceOf(NoContentException.class);
 
         verify(staffRepository, times(1)).findByStaffId(ID_NONE);
         verify(staffRepository, times(1)).findEmailAddressesForStaffId(ID_NONE);
@@ -106,9 +95,7 @@ public class StaffServiceImplTest {
     public void testInvalidId() throws EntityNotFoundException, NoContentException {
         when(staffRepository.findByStaffId(ID_BAD)).thenThrow(EntityNotFoundException.withId(ID_BAD));
 
-        assertThatThrownBy(() -> {
-            final var addresses = staffService.getStaffEmailAddresses(ID_BAD);
-        }).isInstanceOf(EntityNotFoundException.class);
+        assertThatThrownBy(() -> staffService.getStaffEmailAddresses(ID_BAD)).isInstanceOf(EntityNotFoundException.class);
 
         verify(staffRepository, times(1)).findByStaffId(ID_BAD);
     }

@@ -3,12 +3,9 @@ package uk.gov.justice.hmpps.prison.service;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.justice.hmpps.prison.api.model.StaffUserRole;
-
-import javax.persistence.EntityManager;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
@@ -89,30 +86,4 @@ public class AccessRoleMaintenanceIntTest {
                 .build()
         );
     }
-
-    @Test
-    @WithMockUser(username = "ITAG_USER", roles = {"MAINTAIN_ACCESS_ROLES"})
-    public void addAndRemoveRoleFromStaffMember() {
-        var roles = staffService.getStaffRoles(-4L);
-        assertThat(roles).hasSize(3);
-
-        final var addedRole = staffService.addStaffRole(-4L, "NWEB", "LICENCE_CA");
-        roles = staffService.getStaffRoles(-4L);
-        assertThat(roles).hasSize(4);
-
-        staffService.removeStaffRole(-4L, "NWEB", "LICENCE_CA");
-        assertThat(addedRole).usingRecursiveComparison().isEqualTo(
-            StaffUserRole.builder()
-                .roleId(-100L)
-                .roleCode("LICENCE_CA")
-                .roleName("Case Admin")
-                .caseloadId("NWEB")
-                .username("API_TEST_USER")
-                .staffId(-4L)
-                .build());
-
-        roles = staffService.getStaffRoles(-4L);
-        assertThat(roles).hasSize(3);
-    }
-
 }
