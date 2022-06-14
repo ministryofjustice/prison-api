@@ -108,6 +108,7 @@ public class AdjudicationsService {
         return offenceCodes;
     }
 
+    @Transactional
     @VerifyOffenderAccess
     public AdjudicationCreationRequestData generateAdjudicationCreationData(@NotNull final String offenderNo) {
         final var offenderBookingEntry = bookingRepository.findByOffenderNomsIdAndBookingSequence(offenderNo, 1)
