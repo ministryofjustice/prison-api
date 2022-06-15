@@ -18,7 +18,7 @@ public class CopyProcs {
             super(dataSource, errorCodeTranslator);
             withSchemaName("OMS_OWNER")
                     .withCatalogName("OMKCOPY")
-                    .withProcedureName("COPY_BOOK_DATA")
+                    .withProcedureName("COPY_BOOKING_DATA")
                     .withoutProcedureColumnMetaDataAccess()
                     .withNamedBinding()
                     .declareParameters(
