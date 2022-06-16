@@ -119,6 +119,7 @@ import static java.util.Comparator.comparing;
 import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsLast;
 import static java.util.stream.Collectors.toList;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static uk.gov.justice.hmpps.prison.service.ContactService.EXTERNAL_REL;
 
 /**
@@ -608,7 +609,7 @@ public class BookingService {
     private void validateScheduledEventsRequest(final LocalDate fromDate, final LocalDate toDate) {
         // Validate date range
         if (Objects.nonNull(fromDate) && Objects.nonNull(toDate) && toDate.isBefore(fromDate)) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Invalid date range: toDate is before fromDate.");
+            throw new HttpClientErrorException(BAD_REQUEST, "Invalid date range: toDate is before fromDate.");
         }
     }
 
@@ -702,6 +703,22 @@ public class BookingService {
         final var appointments = getBookingAppointments(bookingId, from, to, null, null);
         return Stream.of(activities, visits, appointments)
                 .flatMap(Collection::stream)
+                .sorted(startTimeComparator)
+                .toList();
+    }
+
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    public List<ScheduledEvent> getScheduledEvents(final Long bookingId, final LocalDate from, final LocalDate to) {
+        final var fromDate = from == null ? now() : from;
+        final var toDate = to == null ? fromDate : to;
+        if (fromDate.isBefore(now())) throw new HttpClientErrorException(BAD_REQUEST, "Invalid date range: fromDate is before today.");
+
+        final var activities = getBookingActivities(bookingId, fromDate, toDate, null, null);
+        final var visits = getBookingVisits(bookingId, fromDate, toDate, null, null);
+        final var appointments = getBookingAppointments(bookingId, fromDate, toDate, null, null);
+        return Stream.of(activities, visits, appointments)
+                .flatMap(Collection::stream)
+                .filter(e -> "SCH".equals(e.getEventStatus()))
                 .sorted(startTimeComparator)
                 .toList();
     }
@@ -1028,7 +1045,7 @@ public class BookingService {
     private List<OffenderSentenceDetailDto> offenderSentenceSummaries(final String agencyId, final Set<String> caseloads, final boolean filterByCaseloads) {
         final var query = buildAgencyQuery(agencyId, authenticationFacade.getCurrentUsername());
         if (StringUtils.isEmpty(query) && caseloads.isEmpty()) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Request must be restricted to either a caseload, agency or list of offenders");
+            throw new HttpClientErrorException(BAD_REQUEST, "Request must be restricted to either a caseload, agency or list of offenders");
         }
         return bookingRepository.getOffenderSentenceSummary(query, caseloads, filterByCaseloads, isViewInactiveBookings());
     }

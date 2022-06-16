@@ -430,34 +430,110 @@ public class BookingServiceTest {
         verify(bookingRepository).getBookingVisitBalances(bookingId);
     }
 
-    @Test
-    public void getEvents_CallsBookingRepository() {
-        final var bookingId = -1L;
-        final var from = LocalDate.parse("2019-02-03");
-        final var to = LocalDate.parse("2019-03-03");
-        bookingService.getEvents(bookingId, from, to);
-        verify(bookingRepository).getBookingActivities(bookingId, from, to, "startTime", Order.ASC);
-        verify(bookingRepository).getBookingVisits(bookingId, from, to, "startTime", Order.ASC);
-        verify(bookingRepository).getBookingAppointments(bookingId, from, to, "startTime", Order.ASC);
+    @Nested
+    public class getEvents {
+        @Test
+        public void getEvents_CallsBookingRepository() {
+            final var bookingId = -1L;
+            final var from = LocalDate.parse("2019-02-03");
+            final var to = LocalDate.parse("2019-03-03");
+            bookingService.getEvents(bookingId, from, to);
+            verify(bookingRepository).getBookingActivities(bookingId, from, to, "startTime", Order.ASC);
+            verify(bookingRepository).getBookingVisits(bookingId, from, to, "startTime", Order.ASC);
+            verify(bookingRepository).getBookingAppointments(bookingId, from, to, "startTime", Order.ASC);
+        }
+
+        @Test
+        public void getEvents_SortsAndCombinesNullsLast() {
+            final var bookingId = -1L;
+            final var from = LocalDate.parse("2019-02-03");
+            final var to = LocalDate.parse("2019-03-03");
+            when(bookingRepository.getBookingActivities(anyLong(), any(), any(), anyString(), any())).thenReturn(
+                List.of(createEvent("act", "10:11:12"),
+                    createEvent("act", "08:59:50"))
+            );
+            when(bookingRepository.getBookingVisits(anyLong(), any(), any(), anyString(), any())).thenReturn(
+                List.of(createEvent("vis", null))
+            );
+            when(bookingRepository.getBookingAppointments(anyLong(), any(), any(), anyString(), any())).thenReturn(
+                List.of(createEvent("app", "09:02:03"))
+            );
+            final var events = bookingService.getEvents(bookingId, from, to);
+            assertThat(events).extracting(ScheduledEvent::getEventType).containsExactly("act08:59:50", "app09:02:03", "act10:11:12", "visnull");
+        }
     }
 
-    @Test
-    public void getEvents_SortsAndCombinesNullsLast() {
-        final var bookingId = -1L;
-        final var from = LocalDate.parse("2019-02-03");
-        final var to = LocalDate.parse("2019-03-03");
-        when(bookingRepository.getBookingActivities(anyLong(), any(), any(), anyString(), any())).thenReturn(
+    @Nested
+    public class getScheduledEvents {
+        @Test
+        public void getScheduledEvents_CallsBookingRepository() {
+            final var bookingId = -1L;
+            final var from = LocalDate.now();
+            final var to = from.plusDays(1);
+            bookingService.getScheduledEvents(bookingId, from, to);
+            verify(bookingRepository).getBookingActivities(bookingId, from, to, "startTime", Order.ASC);
+            verify(bookingRepository).getBookingVisits(bookingId, from, to, "startTime", Order.ASC);
+            verify(bookingRepository).getBookingAppointments(bookingId, from, to, "startTime", Order.ASC);
+        }
+
+        @Test
+        public void getScheduledEvents_MustBeInFuture() {
+            final var bookingId = -1L;
+            final var from = LocalDate.parse("2019-05-05");
+            final var to = from.plusDays(1);
+            assertThatThrownBy(() -> bookingService.getScheduledEvents(bookingId, from, to))
+                .isInstanceOf(HttpClientErrorException.class).hasMessage("400 Invalid date range: fromDate is before today.");
+        }
+
+        @Test
+        public void getScheduledEvents_DefaultsToToday() {
+            final var bookingId = -1L;
+            bookingService.getScheduledEvents(bookingId, null, null);
+            verify(bookingRepository).getBookingActivities(bookingId, LocalDate.now(), LocalDate.now(), "startTime", Order.ASC);
+        }
+
+        @Test
+        public void getScheduledEvents_FiltersOutNonScheduledEvents() {
+            final var bookingId = -1L;
+            when(bookingRepository.getBookingActivities(anyLong(), any(), any(), anyString(), any())).thenReturn(
+                List.of(
+                    ScheduledEvent.builder().bookingId(-1L).eventType("act").eventStatus("SCH").build(),
+                    ScheduledEvent.builder().bookingId(-2L).eventType("act").eventStatus("CANC").build()
+                )
+            );
+            when(bookingRepository.getBookingVisits(anyLong(), any(), any(), anyString(), any())).thenReturn(
+                List.of(
+                    ScheduledEvent.builder().bookingId(-3L).eventType("vis").eventStatus("SCH").build(),
+                    ScheduledEvent.builder().bookingId(-4L).eventType("vis").eventStatus("EXP").build()
+                )
+            );
+            when(bookingRepository.getBookingAppointments(anyLong(), any(), any(), anyString(), any())).thenReturn(
+                List.of(
+                    ScheduledEvent.builder().bookingId(-5L).eventType("app").eventStatus("SCH").build(),
+                    ScheduledEvent.builder().bookingId(-6L).eventType("app").eventStatus("CANC").build()
+                    )
+            );
+            final var events = bookingService.getScheduledEvents(bookingId, null, null);
+            assertThat(events).extracting(ScheduledEvent::getEventStatus).containsOnly("SCH");
+        }
+
+        @Test
+        public void getScheduledEvents_SortsAndCombinesNullsLast() {
+            final var bookingId = -1L;
+            final var from = LocalDate.now();
+            when(bookingRepository.getBookingActivities(anyLong(), any(), any(), anyString(), any())).thenReturn(
                 List.of(createEvent("act", "10:11:12"),
-                        createEvent("act", "08:59:50"))
-        );
-        when(bookingRepository.getBookingVisits(anyLong(), any(), any(), anyString(), any())).thenReturn(
+                    createEvent("act", "08:59:50"))
+            );
+            when(bookingRepository.getBookingVisits(anyLong(), any(), any(), anyString(), any())).thenReturn(
                 List.of(createEvent("vis", null))
-        );
-        when(bookingRepository.getBookingAppointments(anyLong(), any(), any(), anyString(), any())).thenReturn(
+            );
+            when(bookingRepository.getBookingAppointments(anyLong(), any(), any(), anyString(), any())).thenReturn(
                 List.of(createEvent("app", "09:02:03"))
-        );
-        final var events = bookingService.getEvents(bookingId, from, to);
-        assertThat(events).extracting(ScheduledEvent::getEventType).containsExactly("act08:59:50", "app09:02:03", "act10:11:12", "visnull");
+            );
+            final var events = bookingService.getScheduledEvents(bookingId, from, null);
+            assertThat(events).extracting(ScheduledEvent::getEventType).containsExactly("act08:59:50", "app09:02:03", "act10:11:12", "visnull");
+        }
     }
 
     @Test
@@ -1287,6 +1363,7 @@ public class BookingServiceTest {
     private ScheduledEvent createEvent(final String type, final String time) {
         return ScheduledEvent.builder().bookingId(-1L)
                 .startTime(Optional.ofNullable(time).map(t -> "2019-01-02T" + t).map(LocalDateTime::parse).orElse(null))
+                .eventStatus("SCH")
                 .eventType(type + time).build();
     }
 
