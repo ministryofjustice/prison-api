@@ -498,6 +498,7 @@ public class PrisonerReleaseAndTransferService {
             .assignmentReason(ADM.getCode())
             .offenderBooking(booking)
             .build());
+        entityManager.flush();
         log.info("+-+New booking Id: "+booking.getBookingId());
         log.info("+-+Profile size: "+booking.getProfileDetails().size());
         previousBooking.ifPresent(oldBooking -> copyTableRepository.findByOperationCodeAndMovementTypeAndActiveAndExpiryDateIsNull("COP", ADM.getCode(), true)
@@ -515,7 +516,7 @@ public class PrisonerReleaseAndTransferService {
                     }
                 }
             ));
-            entityManager.refresh(booking);
+        entityManager.refresh(booking);
         log.info("+-+New booking Id after refresh: "+booking.getBookingId());
         log.info("+-+Profile size after refresh: "+booking.getProfileDetails().size());
 
