@@ -498,7 +498,9 @@ public class PrisonerReleaseAndTransferService {
             .assignmentReason(ADM.getCode())
             .offenderBooking(booking)
             .build());
-
+        entityManager.flush();
+        log.info("+-+New booking Id: "+booking.getBookingId());
+        log.info("+-+Profile size: "+booking.getProfileDetails().size());
         previousBooking.ifPresent(oldBooking -> copyTableRepository.findByOperationCodeAndMovementTypeAndActiveAndExpiryDateIsNull("COP", ADM.getCode(), true)
             .stream().findFirst().ifPresent(
                 ct -> {
@@ -509,9 +511,14 @@ public class PrisonerReleaseAndTransferService {
                             .addValue("p_old_book_id", oldBooking.getBookingId())
                             .addValue("p_new_book_id", booking.getBookingId());
                         copyBookData.execute(params);
+                        log.info("+-+Old booking Id: "+oldBooking.getBookingId());
+                        log.info("+-+Old booking profile size: "+oldBooking.getProfileDetails().size());
                     }
                 }
             ));
+        entityManager.refresh(booking);
+        log.info("+-+New booking Id after refresh: "+booking.getBookingId());
+        log.info("+-+Profile size after refresh: "+booking.getProfileDetails().size());
 
         if (requestForNewBooking.isYouthOffender()) {
             // set youth status
