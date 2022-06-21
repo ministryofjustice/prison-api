@@ -109,24 +109,6 @@ public class UserRepository extends RepositoryBase {
         return getUsersByCaseload(UserRepositorySql.FIND_USERS_BY_CASELOAD, nameFilter, accessRoles, status, pageRequest, caseload, activeCaseload, null);
     }
 
-
-    public Page<UserDetail> findUsers(final List<String> accessRoles, final NameFilter nameFilter, final Status status, final String caseload, final String activeCaseload, final PageRequest pageRequest) {
-        Validate.notNull(pageRequest, "Page request details are required.");
-
-        if (StringUtils.isNotBlank(caseload))
-            return findUsersByCaseload(caseload, accessRoles, nameFilter, status, activeCaseload, pageRequest);
-
-        return getUsersByCaseload(UserRepositorySql.FIND_USERS, nameFilter, accessRoles, status, pageRequest, null, activeCaseload, null);
-    }
-
-
-    public Page<UserDetail> getUsersAsLocalAdministrator(final String laaUsername, final List<String> accessRoles, final NameFilter nameFilter, final Status status, final PageRequest pageRequest) {
-        Validate.notBlank(laaUsername, "A username is required.");
-        Validate.notNull(pageRequest, "Page request details are required.");
-
-        return getUsersByCaseload(UserRepositorySql.FIND_USERS_AVAILABLE_TO_LAA_USER, nameFilter, accessRoles, status, pageRequest, null, null, laaUsername);
-    }
-
     private Page<UserDetail> getUsersByCaseload(final UserRepositorySql query, final NameFilter nameFilter, final List<String> accessRoles, final Status status, final PageRequest pageRequest, final String caseload, final String activeCaseload, final String laaUsername) {
 
         final var baseSql = new StringBuilder();

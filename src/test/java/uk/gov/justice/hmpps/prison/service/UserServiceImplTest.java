@@ -7,23 +7,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.UserDetail;
-import uk.gov.justice.hmpps.prison.api.support.Order;
-import uk.gov.justice.hmpps.prison.api.support.PageRequest;
-import uk.gov.justice.hmpps.prison.api.support.Status;
 import uk.gov.justice.hmpps.prison.repository.UserRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRoleRepository;
-import uk.gov.justice.hmpps.prison.service.filters.NameFilter;
 
-import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.anyList;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.refEq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -50,42 +42,6 @@ public class UserServiceImplTest {
     @BeforeEach
     public void init() {
         userService = new UserService(caseLoadService, userRepository, userCaseloadRoleRepository, userCaseloadRepository, API_CASELOAD_ID, 100);
-    }
-
-    @Test
-    public void testGetUsers() {
-        final var pr = new PageRequest("lastName,firstName", Order.ASC, 0L, 10L);  //the default if non provided
-        final var nameFilterDto = new NameFilter("A");
-        userService.getUsers("A", List.of(ROLE_CODE), Status.ALL, "CASE", "LOAD", null);
-
-        verify(userRepository).findUsers(eq(List.of(ROLE_CODE)), refEq(nameFilterDto), eq(Status.ALL), eq("CASE"), eq("LOAD"), refEq(pr));
-    }
-
-    @Test
-    public void testGetUsersWithFullNameSearch() {
-        final var pr = new PageRequest("lastName,firstName", Order.ASC, 0L, 10L);  //the default if non provided
-        final var nameFilterDto = new NameFilter("Brown James");
-        userService.getUsers("Brown James", List.of(ROLE_CODE), Status.ALL, null, null, null);
-
-        verify(userRepository).findUsers(eq(List.of(ROLE_CODE)), refEq(nameFilterDto), eq(Status.ALL), isNull(), isNull(), refEq(pr));
-    }
-
-    @Test
-    public void testGetUsersFilterActive() {
-        final var pr = new PageRequest("lastName,firstName", Order.ASC, 0L, 10L);  //the default if non provided
-        final var nameFilterDto = new NameFilter("A");
-        userService.getUsers("A", List.of(ROLE_CODE), Status.ACTIVE, null, null, null);
-
-        verify(userRepository).findUsers(eq(List.of(ROLE_CODE)), refEq(nameFilterDto), eq(Status.ACTIVE), isNull(), isNull(), refEq(pr));
-    }
-
-    @Test
-    public void testGetUsersFilterInactive() {
-        final var pr = new PageRequest("lastName,firstName", Order.ASC, 0L, 10L);  //the default if non provided
-        final var nameFilterDto = new NameFilter("A");
-        userService.getUsers("A", List.of(ROLE_CODE), Status.INACTIVE, null, null, null);
-
-        verify(userRepository).findUsers(eq(List.of(ROLE_CODE)), refEq(nameFilterDto), eq(Status.INACTIVE), isNull(), isNull(), refEq(pr));
     }
 
     @Test
