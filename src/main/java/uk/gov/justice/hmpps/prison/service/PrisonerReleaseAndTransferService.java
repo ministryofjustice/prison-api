@@ -503,7 +503,7 @@ public class PrisonerReleaseAndTransferService {
             .offenderBooking(booking)
             .build());
 
-
+        entityManager.flush();
         previousBooking.ifPresent(oldBooking -> copyTableRepository.findByOperationCodeAndMovementTypeAndActiveAndExpiryDateIsNull("COP", ADM.getCode(), true)
             .stream().findFirst().ifPresent(
                 ct -> {
