@@ -1,8 +1,8 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.2.3"
-  kotlin("plugin.spring") version "1.6.21"
-  kotlin("plugin.jpa") version "1.6.21"
-  kotlin("plugin.lombok") version "1.6.21"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.3.0-beta"
+  kotlin("plugin.spring") version "1.7.0"
+  kotlin("plugin.jpa") version "1.7.0"
+  kotlin("plugin.lombok") version "1.7.0"
 }
 
 configurations {
@@ -64,7 +64,7 @@ dependencies {
 
   // Temporarily keep at 2.5.1 until can switch to h2 instead (tests break anyway with 2.6.1)
   runtimeOnly("org.hsqldb:hsqldb:2.5.1")
-  runtimeOnly("org.flywaydb:flyway-core:8.5.12")
+  runtimeOnly("org.flywaydb:flyway-core:8.5.13")
 
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
@@ -89,20 +89,20 @@ dependencies {
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
   testImplementation("org.glassfish:javax.el:3.0.0")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.0.33")
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.1")
 
   testCompileOnly("org.projectlombok:lombok:1.18.24")
 }
 
 java {
-  toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+  toolchain.languageVersion.set(JavaLanguageVersion.of(18))
 }
 
 tasks {
   withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {
       freeCompilerArgs = listOf("-Xjvm-default=all")
-      jvmTarget = "17"
+      jvmTarget = "18"
     }
   }
 
@@ -147,7 +147,7 @@ tasks {
 
   withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {
-      jvmTarget = "17"
+      jvmTarget = "18"
     }
   }
 }
