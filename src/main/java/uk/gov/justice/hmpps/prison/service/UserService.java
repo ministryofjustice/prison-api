@@ -11,16 +11,12 @@ import uk.gov.justice.hmpps.prison.api.model.CaseLoad;
 import uk.gov.justice.hmpps.prison.api.model.CaseloadUpdate;
 import uk.gov.justice.hmpps.prison.api.model.UserDetail;
 import uk.gov.justice.hmpps.prison.api.model.UserRole;
-import uk.gov.justice.hmpps.prison.api.support.Page;
-import uk.gov.justice.hmpps.prison.api.support.PageRequest;
-import uk.gov.justice.hmpps.prison.api.support.Status;
 import uk.gov.justice.hmpps.prison.repository.UserRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.UserCaseload;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.UserCaseloadId;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRoleFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRoleRepository;
-import uk.gov.justice.hmpps.prison.service.filters.NameFilter;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -150,34 +146,5 @@ public class UserService {
                 .caseload(caseloadId)
                 .numUsersEnabled(caseloadsAdded.size())
                 .build();
-    }
-
-    public Page<UserDetail> getUsersAsLocalAdministrator(final String laaUsername, final String nameFilter, final List<String> accessRoles, final Status status, final PageRequest pageRequest) {
-
-        final var pageWithDefaults = getPageRequestDefaultLastNameOrder(pageRequest);
-
-        return userRepository
-                .getUsersAsLocalAdministrator(laaUsername, accessRoles, new NameFilter(nameFilter), status, pageWithDefaults);
-    }
-
-    private PageRequest getPageRequestDefaultLastNameOrder(final PageRequest pageRequest) {
-        var pageWithDefaults = pageRequest;
-        if (pageWithDefaults == null) {
-            pageWithDefaults = new PageRequest("lastName,firstName");
-        } else {
-            if (pageWithDefaults.getOrderBy() == null) {
-                pageWithDefaults = new PageRequest("lastName,firstName", pageWithDefaults.getOrder(), pageWithDefaults.getOffset(), pageWithDefaults.getLimit());
-            }
-        }
-        return pageWithDefaults;
-    }
-
-    @PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES_ADMIN')")
-    public Page<UserDetail> getUsers(final String nameFilter, final List<String> accessRoles, final Status status, final String caseload, final String activeCaseload, final PageRequest pageRequest) {
-
-        final var pageWithDefaults = getPageRequestDefaultLastNameOrder(pageRequest);
-
-        return userRepository
-            .findUsers(accessRoles, new NameFilter(nameFilter), status, caseload, activeCaseload, pageWithDefaults);
     }
 }

@@ -111,39 +111,6 @@ enum class UserRepositorySql(val sql: String) {
     """
   ),
 
-  FIND_USERS(
-    """
-        SELECT SM.STAFF_ID,
-        SUA.USERNAME,
-        SM.FIRST_NAME,
-        SM.LAST_NAME,
-        SM.STATUS ACCOUNT_STATUS,
-        SUA.WORKING_CASELOAD_ID ACTIVE_CASE_LOAD_ID
-                FROM STAFF_USER_ACCOUNTS SUA
-        INNER JOIN STAFF_MEMBERS SM ON SUA.STAFF_ID = SM.STAFF_ID
-        
-        WHERE (:status = 'ALL' or SM.STATUS = :status)
-          AND (:activeCaseloadId is null or SUA.WORKING_CASELOAD_ID = :activeCaseloadId)
-    """
-  ),
-
-  FIND_USERS_AVAILABLE_TO_LAA_USER(
-    """
-        SELECT SM.STAFF_ID,
-        SUA.USERNAME,
-        SM.FIRST_NAME,
-        SM.LAST_NAME,
-        SM.STATUS ACCOUNT_STATUS,
-        SUA.WORKING_CASELOAD_ID ACTIVE_CASE_LOAD_ID
-                FROM STAFF_USER_ACCOUNTS SUA
-        INNER JOIN STAFF_MEMBERS SM ON SUA.STAFF_ID = SM.STAFF_ID
-                INNER JOIN LAA_GENERAL_USERS LAAG ON SUA.USERNAME = LAAG.USERNAME AND ACTIVE_FLAG = :activeFlag
-        INNER JOIN LAA_ADMINISTRATORS LAAA ON LAAA.USERNAME = :laaUsername AND LAAA.ACTIVE_FLAG = :activeFlag and LAAG.LOCAL_AUTHORITY_CODE = LAAA.LOCAL_AUTHORITY_CODE
-        
-        WHERE (:status = 'ALL' or SM.STATUS = :status) 
-    """
-  ),
-
   NAME_FILTER_QUERY_TEMPLATE(" AND (FIRST_NAME LIKE :searchTerm OR LAST_NAME LIKE :searchTerm OR SUA.USERNAME LIKE :searchTerm)"),
 
   FULL_NAME_FILTER_QUERY_TEMPLATE(" AND ((FIRST_NAME LIKE :firstName AND LAST_NAME LIKE :surname) OR (LAST_NAME LIKE :firstName AND FIRST_NAME LIKE :surname))"),
