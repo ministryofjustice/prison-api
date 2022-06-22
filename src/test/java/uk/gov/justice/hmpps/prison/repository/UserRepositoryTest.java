@@ -181,49 +181,6 @@ public class UserRepositoryTest {
         assertThat(usersByCaseload.getItems()).isEmpty();
     }
 
-//    @Test
-//    public void testFindLocalAdministratorUsersByCaseload() {
-//
-//        final var page = userRepository.getUsersAsLocalAdministrator("LAA_USER", null, new NameFilter(null), Status.ALL, new PageRequest("last_name", Order.ASC, 0L, 5L));
-//        final var items = page.getItems();
-//
-//        assertThat(items).hasSize(3);
-//        assertThat(items).extracting("username").first().isEqualTo("CA_USER");
-//    }
-
-//    @Test
-//    public void testFindLocalAdministratorUsersByActiveStatus() {
-//
-//        final var page = userRepository.getUsersAsLocalAdministrator("LAA_USER", null, new NameFilter(null), Status.ACTIVE, new PageRequest("last_name", Order.ASC, 0L, 5L));
-//        final var items = page.getItems();
-//
-//        assertThat(items).hasSize(3);
-//        assertThat(items).extracting("username").first().isEqualTo("CA_USER");
-//    }
-
-//    @Test
-//    public void testFindLocalAdministratorUsersByInactiveStatus() {
-//
-//        final var page = userRepository.getUsersAsLocalAdministrator("LAA_USER", null, new NameFilter(null), Status.INACTIVE, new PageRequest("last_name", Order.ASC, 0L, 5L));
-//        final var items = page.getItems();
-//
-//        assertThat(items).hasSize(0);
-//    }
-
-//    @Test
-//    public void testFindLocalAdministratorUsersByCaseloadAndNameFilter() {
-//        final var usersByCaseload = userRepository.getUsersAsLocalAdministrator("LAA_USER", null, new NameFilter("ITAG_USER"), Status.ALL, new PageRequest());
-//
-//        assertThat(usersByCaseload.getItems()).extracting("username").containsOnly("ITAG_USER");
-//    }
-
-//    @Test
-//    public void testFindLocalAdministratorUsersByCaseloadAndAccessRoleFilter() {
-//
-//        final var usersByCaseload = userRepository.getUsersAsLocalAdministrator("LAA_USER", List.of("OMIC_ADMIN"), new NameFilter("User"), Status.ALL, new PageRequest());
-//
-//        assertThat(usersByCaseload.getItems()).extracting("username").contains("ITAG_USER");
-//    }
 
     @Test
     public void testUpdateWorkingCaseLoad() {
