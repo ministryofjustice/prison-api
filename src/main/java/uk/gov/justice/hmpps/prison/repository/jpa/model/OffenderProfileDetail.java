@@ -5,13 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.NotFound;
 
 import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
@@ -26,30 +27,31 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @AllArgsConstructor
 @Entity
 @Table(name = "OFFENDER_PROFILE_DETAILS")
-@IdClass(OffenderProfileDetail.PK.class)
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(of = { "id" }, callSuper = false)
+@ToString(of =  {"id", "code" })
 public class OffenderProfileDetail extends AuditableEntity {
 
+    @EmbeddedId
+    private PK id;
+
+    @Data
     @NoArgsConstructor
     @AllArgsConstructor
     @EqualsAndHashCode
+    @Embeddable
     public static class PK implements Serializable {
+        @ManyToOne(optional = false, fetch = FetchType.LAZY)
+        @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
         private OffenderBooking offenderBooking;
+
+        @ManyToOne(optional = false)
+        @NotFound(action = IGNORE)
+        @JoinColumn(name = "PROFILE_TYPE", nullable = false)
         private ProfileType type;
+
+        @Column(name = "PROFILE_SEQ", nullable = false)
         private Integer sequence;
     }
-    @Id
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
-    private OffenderBooking offenderBooking;
-    @Id
-    @ManyToOne(optional = false)
-    @NotFound(action = IGNORE)
-    @JoinColumn(name = "PROFILE_TYPE", nullable = false)
-    private ProfileType type;
-    @Id
-    @Column(name = "PROFILE_SEQ", nullable = false)
-    private Integer sequence;
 
     @ManyToOne(optional = false)
     @JoinColumns(value = {

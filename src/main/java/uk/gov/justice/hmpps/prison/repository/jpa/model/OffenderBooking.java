@@ -23,6 +23,7 @@ import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
 import uk.gov.justice.hmpps.prison.api.support.BookingAdjustmentType;
 import uk.gov.justice.hmpps.prison.api.support.SentenceAdjustmentType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord.BookingAndSequence;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail.PK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.KeyDateValues;
 import uk.gov.justice.hmpps.prison.service.support.NonDtoReleaseDate;
 
@@ -83,7 +84,7 @@ public class OffenderBooking extends AuditableEntity {
     @Exclude
     private Offender offender;
 
-    @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "id.offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude
     private List<OffenderProfileDetail> profileDetails = new ArrayList<>();
@@ -141,7 +142,7 @@ public class OffenderBooking extends AuditableEntity {
 
     @Column(name = "ACTIVE_FLAG", nullable = false)
     @Default
-    @Type(type = "yes_no")
+    @Type(type="yes_no")
     private boolean active = false;
 
     @OrderBy("effectiveDate ASC")
@@ -456,14 +457,12 @@ public class OffenderBooking extends AuditableEntity {
 
     public void add(final ProfileType profileType, final ProfileCode code) {
         profileDetails.stream()
-            .filter(pd -> profileType.equals(pd.getType()))
-            .max(Comparator.comparing(op -> op.getSequence()))
+            .filter(pd -> profileType.equals(pd.getId().getType()))
+            .max(Comparator.comparing(op -> op.getId().getSequence()))
             .ifPresentOrElse(
                 y -> y.setCode(code)
                 , () -> profileDetails.add(OffenderProfileDetail.builder()
-                    .offenderBooking(this)
-                    .type(profileType)
-                    .sequence(1)
+                    .id(new PK(this, profileType, 1))
                     .caseloadType("INST")
                     .code(code)
                     .listSequence(profileType.getListSequence())
@@ -485,14 +484,14 @@ public class OffenderBooking extends AuditableEntity {
     public List<OffenderProfileDetail> getActiveProfileDetails() {
         return profileDetails.stream()
             .filter(pd -> {
-                final var profileType = pd.getType();
+                final var profileType = pd.getId().getType();
                 return profileType.getCategory().equals("PI") && (profileType.isActive() || profileType.getType().equals("RELF"));
             })
             .collect(
-                Collectors.groupingBy(pd -> pd.getType())
+                Collectors.groupingBy(pd -> pd.getId().getType())
             ).entrySet().stream()
             .flatMap(pd -> pd.getValue().stream()
-                .max(Comparator.comparing(op -> op.getSequence()))
+                .max(Comparator.comparing(op -> op.getId().getSequence()))
                 .stream())
             .toList();
     }
@@ -595,7 +594,7 @@ public class OffenderBooking extends AuditableEntity {
         final var now = LocalDateTime.now();
         final var offenderIepLevel = OffenderIepLevel.builder()
             .offenderBooking(this)
-            .sequence(getLatestIepLevel().map(s -> s.getSequence() + 1).orElse(1L))
+            .sequence(getLatestIepLevel().map(s -> s.getSequence()+1).orElse(1L))
             .iepLevel(iepLevel)
             .comment(comment)
             .iepDate(iepDateTime != null ? iepDateTime.toLocalDate() : now.toLocalDate())
@@ -633,7 +632,6 @@ public class OffenderBooking extends AuditableEntity {
             .filter(s -> "LICENCE".equals(s.getCalculationType().getCategory()))
             .toList();
     }
-
     public SentenceAdjustmentDetail getSentenceAdjustmentDetail() {
 
         return SentenceAdjustmentDetail.builder()
