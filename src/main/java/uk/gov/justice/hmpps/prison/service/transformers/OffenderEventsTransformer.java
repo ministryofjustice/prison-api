@@ -178,7 +178,7 @@ public class OffenderEventsTransformer {
                 case "OFF_HEALTH_PROB_UPD" -> offenderEvent = maternityStatusUpdatedEventOf(xtag);
                 case "OFF_RECEP_OASYS" -> offenderEvent = offenderMovementReceptionEventOf(xtag);
                 case "OFF_DISCH_OASYS" -> offenderEvent = offenderMovementDischargeEventOf(xtag);
-                case "M1_RESULT", "M1_UPD_RESULT" -> offenderEvent = externalMovementRecordEventOf(xtag);
+                case "M1_RESULT", "M1_UPD_RESULT" -> offenderEvent = externalMovementRecordEventOf(xtag, Optional.of(externalMovementEventOf(xtag)));
                 case "OFF_UPD_OASYS" -> offenderEvent = !Strings.isNullOrEmpty(xtag.getContent().getP_offender_book_id()) ?
                     offenderBookingChangedEventOf(xtag) :
                     offenderDetailsChangedEventOf(xtag);
@@ -218,6 +218,7 @@ public class OffenderEventsTransformer {
                 case "OFF_PROF_DETAIL_INS" -> offenderEvent = offenderProfileDetailInsertedEventOf(xtag);
                 case "OFF_PROF_DETAIL_UPD" -> offenderEvent = offenderProfileUpdatedEventOf(xtag);
                 case "S2_RESULT" -> offenderEvent = sentenceDatesChangedEventOf(xtag);
+                case "SENTENCING-CHANGED" -> offenderEvent = sentencingChangedEventOf(xtag);
                 case "A2_CALLBACK" -> offenderEvent = hearingDateChangedEventOf(xtag);
                 case "A2_RESULT" -> offenderEvent = "Y".equals(xtag.getContent().getP_delete_flag()) ?
                     hearingResultDeletedEventOf(xtag) :
@@ -252,6 +253,7 @@ public class OffenderEventsTransformer {
                 case "BED_ASSIGNMENT_HISTORY-INSERTED" -> offenderEvent = offenderBedAssignmentEventOf(xtag);
                 case "CONFIRMED_RELEASE_DATE-CHANGED" -> offenderEvent = confirmedReleaseDateOf(xtag);
                 case "OFFENDER-INSERTED", "OFFENDER-UPDATED", "OFFENDER-DELETED" -> offenderEvent = offenderUpdatedOf(xtag);
+                case "EXTERNAL_MOVEMENT-CHANGED" -> offenderEvent = externalMovementRecordEventOf(xtag, Optional.empty());
                 default -> offenderEvent = OffenderEvent.builder()
                     .eventType(xtag.getEventType())
                     .eventDatetime(xtag.getNomisTimestamp())
@@ -547,6 +549,16 @@ public class OffenderEventsTransformer {
             .build();
     }
 
+    private OffenderEvent sentencingChangedEventOf(final Xtag xtag) {
+        return OffenderEvent.builder()
+            .eventType(xtag.getEventType())
+            .eventDatetime(xtag.getNomisTimestamp())
+            .bookingId(longOf(xtag.getContent().getP_offender_book_id()))
+            .offenderIdDisplay(xtag.getContent().getP_offender_id_display())
+            .nomisEventType(xtag.getEventType())
+            .build();
+    }
+
     private OffenderEvent offenderProfileUpdatedEventOf(final Xtag xtag) {
         return OffenderEvent.builder()
             .eventType("OFFENDER_PROFILE_DETAILS-UPDATED")
@@ -811,9 +823,9 @@ public class OffenderEventsTransformer {
             .build();
     }
 
-    public OffenderEvent externalMovementRecordEventOf(final Xtag xtag) {
+    public OffenderEvent externalMovementRecordEventOf(final Xtag xtag, Optional<String> overrideEventType) {
         return OffenderEvent.builder()
-            .eventType(externalMovementEventOf(xtag))
+            .eventType(overrideEventType.orElse(xtag.getEventType()))
             .eventDatetime(xtag.getNomisTimestamp())
             .bookingId(longOf(xtag.getContent().getP_offender_book_id()))
             .movementSeq(longOf(xtag.getContent().getP_movement_seq()))
