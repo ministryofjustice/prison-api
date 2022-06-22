@@ -16,7 +16,6 @@ import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.stream.Collectors;
 
 import static uk.gov.justice.hmpps.prison.util.DateTimeConverter.getAge;
 
@@ -59,8 +58,8 @@ public class OffenderTransformer {
             .profileInformation(latestBooking.getActiveProfileDetails().stream()
                 .filter(pd -> pd.getCode() != null)
                 .map(pd -> ProfileInformation.builder()
-                    .type(pd.getId().getType().getType())
-                    .question(pd.getId().getType().getDescription())
+                    .type(pd.getType().getType())
+                    .question(pd.getType().getDescription())
                     .resultValue(pd.getCode().getDescription())
                     .build()).toList())
             .build()
