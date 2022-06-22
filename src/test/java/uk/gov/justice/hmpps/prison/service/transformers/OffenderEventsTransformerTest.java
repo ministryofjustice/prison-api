@@ -10,6 +10,7 @@ import uk.gov.justice.hmpps.prison.service.xtag.XtagContent;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -98,7 +99,12 @@ public class OffenderEventsTransformerTest {
                         .p_from_agy_loc_id("BARBECUE")
                         .p_to_agy_loc_id("SAUCE")
                         .build()
-        ).build())).extracting("fromAgencyLocationId", "toAgencyLocationId").containsOnly("BARBECUE", "SAUCE");
+        ).build(), Optional.of(OffenderEventsTransformer.externalMovementEventOf(Xtag.builder().content(
+                XtagContent.builder()
+                        .p_from_agy_loc_id("BARBECUE")
+                        .p_to_agy_loc_id("SAUCE")
+                        .build()
+        ).build())))).extracting("fromAgencyLocationId", "toAgencyLocationId").containsOnly("BARBECUE", "SAUCE");
     }
 
     @Test
@@ -203,6 +209,62 @@ public class OffenderEventsTransformerTest {
         assertThat(event.getEventDatetime()).isEqualTo(now);
 
     }
+
+    @Test
+    public void externalMovementChangedCorrectlyMapped() {
+        final var now = LocalDateTime.now();
+
+        final var event = offenderEventsTransformer.offenderEventOf(Xtag
+            .builder()
+            .eventType("EXTERNAL_MOVEMENT-CHANGED")
+            .nomisTimestamp(now)
+            .content(XtagContent
+                .builder()
+                    .p_offender_book_id("232")
+                    .p_from_agy_loc_id("MDI")
+                    .p_to_agy_loc_id("HOSP")
+                    .p_direction_code("OUT")
+                    .p_movement_type("REL")
+                    .p_movement_reason_code("HP")
+                    .p_movement_seq("1")
+                    .p_movement_date("2019-02-14")
+                    .p_movement_time("2019-02-14 10:11:12")
+                .build())
+            .build());
+
+        assertThat(event.getEventType()).isEqualTo("EXTERNAL_MOVEMENT-CHANGED");
+        assertThat(event.getBookingId()).isEqualTo(232L);
+        assertThat(event.getMovementSeq()).isEqualTo(1);
+        assertThat(event.getNomisEventType()).isEqualTo("EXTERNAL_MOVEMENT-CHANGED");
+        assertThat(event.getEventDatetime()).isEqualTo(now);
+        assertThat(event.getFromAgencyLocationId()).isEqualTo("MDI");
+        assertThat(event.getToAgencyLocationId()).isEqualTo("HOSP");
+        assertThat(event.getDirectionCode()).isEqualTo("OUT");
+        assertThat(event.getMovementReasonCode()).isEqualTo("HP");
+        assertThat(event.getMovementType()).isEqualTo("REL");
+    }
+
+    @Test
+    public void sentencingChangedCorrectlyMapped() {
+        final var now = LocalDateTime.now();
+
+        final var event = offenderEventsTransformer.offenderEventOf(Xtag
+            .builder()
+            .eventType("SENTENCING-CHANGED")
+            .nomisTimestamp(now)
+            .content(XtagContent
+                .builder()
+                .p_offender_book_id("2322322")
+                .p_offender_id_display("A1234AA")
+                .build())
+            .build());
+
+        assertThat(event.getEventType()).isEqualTo("SENTENCING-CHANGED");
+        assertThat(event.getBookingId()).isEqualTo(2322322L);
+        assertThat(event.getEventDatetime()).isEqualTo(now);
+        assertThat(event.getOffenderIdDisplay()).isEqualTo("A1234AA");
+    }
+
     @Test
     public void confirmedReleaseDateChangeMappedCorrectly() {
         final var now = LocalDateTime.now();
