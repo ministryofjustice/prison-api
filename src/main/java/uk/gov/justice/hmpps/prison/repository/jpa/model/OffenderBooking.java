@@ -83,7 +83,7 @@ public class OffenderBooking extends AuditableEntity {
     @Exclude
     private Offender offender;
 
-    @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude
     private List<OffenderProfileDetail> profileDetails = new ArrayList<>();
