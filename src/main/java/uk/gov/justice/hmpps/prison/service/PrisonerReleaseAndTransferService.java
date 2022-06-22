@@ -38,6 +38,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementTypeAndReason.Pk
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCaseNote;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImprisonmentStatus;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
@@ -55,6 +56,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderIndividualS
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderNoPayPeriodRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderPayStatusRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProfileDetailRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProgramProfileRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
@@ -72,6 +74,7 @@ import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
 import javax.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
@@ -127,6 +130,7 @@ public class PrisonerReleaseAndTransferService {
     private final CourtEventRepository courtEventRepository;
     private final OffenderIndividualScheduleRepository offenderIndividualScheduleRepository;
     private final ReferenceCodeRepository<EventStatus> eventStatusRepository;
+    private final OffenderProfileDetailRepository offenderProfileDetailRepository;
 
     private final PrisonTransferService prisonTransferService;
 
@@ -499,6 +503,7 @@ public class PrisonerReleaseAndTransferService {
             .offenderBooking(booking)
             .build());
 
+        entityManager.flush();
         previousBooking.ifPresent(oldBooking -> copyTableRepository.findByOperationCodeAndMovementTypeAndActiveAndExpiryDateIsNull("COP", ADM.getCode(), true)
             .stream().findFirst().ifPresent(
                 ct -> {
@@ -512,6 +517,7 @@ public class PrisonerReleaseAndTransferService {
                     }
                 }
             ));
+        entityManager.refresh(booking);
 
         if (requestForNewBooking.isYouthOffender()) {
             // set youth status
@@ -557,7 +563,10 @@ public class PrisonerReleaseAndTransferService {
     private void setYouthStatus(final OffenderBooking booking) {
         final var profileType = profileTypeRepository.findByTypeAndCategoryAndActive("YOUTH", "PI", true).orElseThrow(EntityNotFoundException.withId("YOUTH"));
         final var profileCode = profileCodeRepository.findById(new ProfileCode.PK(profileType, "Y")).orElseThrow(EntityNotFoundException.withMessage("Profile Code for YOUTH and Y not found"));
-        booking.add(profileType, profileCode);
+        List<OffenderProfileDetail> profileDetails = offenderProfileDetailRepository.findByOffenderBookingBookingIdAndTypeAndSequence(booking.getBookingId(), profileType, profileCode.getListSequence());
+        if (profileDetails.isEmpty()) {
+            booking.add(profileType, profileCode);
+        }
     }
 
     public InmateDetail transferInPrisoner(final String prisonerIdentifier, final RequestToTransferIn requestToTransferIn) {
