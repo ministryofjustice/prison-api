@@ -1,0 +1,23 @@
+spring:
+  jpa:
+    show-sql: true
+
+  datasource:
+    url: jdbc:oracle:thin:@localhost:1521:CNOMT3
+    username: API_PROXY_USER
+    password: r9KDvw37g13
+
+    hikari:
+      maximum-pool-size: 2
+
+  flyway:
+    enabled: false
+    locations:
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: "https://sign-in-dev.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json"
+
+server.shutdown: immediate
