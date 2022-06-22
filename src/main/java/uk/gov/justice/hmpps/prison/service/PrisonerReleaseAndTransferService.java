@@ -517,6 +517,7 @@ public class PrisonerReleaseAndTransferService {
                     }
                 }
             ));
+        entityManager.refresh(booking);
 
         if (requestForNewBooking.isYouthOffender()) {
             // set youth status
