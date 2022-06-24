@@ -624,7 +624,7 @@ public class BookingResourceIntTest extends ResourceTest {
             String.class, -6L);
 
         assertThatStatus(response, 400);
-        assertThat(response.getBody()).contains("Page index must not be less than zero!");
+        assertThat(response.getBody()).contains("Page index must not be less than zero");
     }
 
     @Test
@@ -636,7 +636,7 @@ public class BookingResourceIntTest extends ResourceTest {
             String.class, -6L);
 
         assertThatStatus(response, 400);
-        assertThat(response.getBody()).contains("Page size must not be less than one!");
+        assertThat(response.getBody()).contains("Page size must not be less than one");
     }
 
     @Test
