@@ -460,7 +460,7 @@ public class OffenderBooking extends AuditableEntity {
             .filter(pd -> profileType.equals(pd.getId().getType()))
             .max(Comparator.comparing(op -> op.getId().getSequence()))
             .ifPresentOrElse(
-                y -> y.setCode(code)
+                y -> y.setProfileCode(code)
                 , () -> profileDetails.add(OffenderProfileDetail.builder()
                     .id(new PK(this, profileType, 1))
                     .caseloadType("INST")
