@@ -32,7 +32,7 @@ public class ResourceServerConfiguration extends WebSecurityConfigurerAdapter {
                         "/health/**", "/info", "/ping", "/h2-console/**",
                         "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**",
                         "/swagger-resources", "/swagger-resources/configuration/ui",
-                        "/swagger-resources/configuration/security").permitAll()
+                        "/swagger-resources/configuration/security", "/api/restore-info").permitAll()
                     .anyRequest().authenticated()
                 ).oauth2ResourceServer()
                     .jwt().jwtAuthenticationConverter(new AuthAwareAuthenticationConverter());
