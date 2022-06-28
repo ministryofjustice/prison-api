@@ -24,8 +24,8 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetailDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerm;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
+import uk.gov.justice.hmpps.prison.api.model.PersonalCareNeed;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeDetail;
-import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentDetail;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
@@ -45,6 +45,9 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtOrder;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.DisciplinaryAction;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.HealthProblemCode;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.HealthProblemStatus;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.HealthProblemType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.IepLevel;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.KeyDateAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LegalCaseType;
@@ -58,6 +61,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderContactPerson;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderHealthProblem;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIepLevel;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPropertyContainer;
@@ -79,6 +83,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPers
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRestrictionRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationRepository;
@@ -149,6 +154,12 @@ public class BookingServiceTest {
     private CaseloadToAgencyMappingService caseloadToAgencyMappingService;
     @Mock
     private CaseLoadService caseLoadService;
+    @Mock
+    private ReferenceCodeRepository<HealthProblemType> healthProblemTypeReferenceCodeRepository;
+    @Mock
+    private ReferenceCodeRepository<HealthProblemCode> healthProblemCodeReferenceCodeRepository;
+    @Mock
+    private ReferenceCodeRepository<HealthProblemStatus> healthProblemStatusReferenceCodeRepository;
 
     private BookingService bookingService;
 
@@ -173,7 +184,9 @@ public class BookingServiceTest {
                 offenderSentenceRepository,
                 availablePrisonIepLevelRepository,
                 offenderRestrictionRepository,
-                "1",
+                healthProblemTypeReferenceCodeRepository,
+                healthProblemCodeReferenceCodeRepository,
+                healthProblemStatusReferenceCodeRepository, "1",
                 10);
     }
 
@@ -1653,6 +1666,116 @@ public class BookingServiceTest {
             final var summary = bookingService.getBookingVisitsSummary(-1L);
             assertThat(summary.getStartDateTime()).isNull();
             assertThat(summary.getHasVisits()).isFalse();
+        }
+    }
+
+    @Nested
+    class addPersonalCareNeed{
+        private static final HealthProblemType PROBLEM_TYPE = new HealthProblemType("DISAB", null);
+        private static final HealthProblemCode PROBLEM_CODE = new HealthProblemCode("D", null, HealthProblemType.HEALTH, "DISAB");
+        private static final HealthProblemCode PROBLEM_CODE_WITH_DIFFERENT_PARENT = new HealthProblemCode("ASTH", null, HealthProblemType.HEALTH, "PHY");
+
+        private static final HealthProblemStatus PROBLEM_STATUS = new HealthProblemStatus("ON", null);
+
+        private OffenderBooking booking = OffenderBooking.builder()
+            .bookingId(1L)
+            .location(AgencyLocation.builder().id("MDI").type(AgencyLocationType.PRISON_TYPE).build())
+            .offender(Offender.builder().nomsId("any noms id").build())
+            .build();
+
+
+        private final PersonalCareNeed personalCareNeed =  PersonalCareNeed.builder()
+                .problemType("DISAB")
+                .problemCode("D")
+                .problemStatus("ON")
+                .problemDescription("Disability")
+                .commentText(null)
+                .startDate(LocalDate.of(2021, 1, 1))
+                .endDate(LocalDate.of(2022, 9, 28))
+                .build();
+
+
+        @Test
+        void canAddPersonalCareNeed() {
+            when(offenderRepository.getNextOffenderHealthProblemId()).thenReturn(5L);
+            when(offenderBookingRepository.findById(1L)).thenReturn(Optional.of(booking));
+            when(healthProblemTypeReferenceCodeRepository.findById(HealthProblemType.pk("DISAB"))).thenReturn(Optional.of(PROBLEM_TYPE));
+            when(healthProblemCodeReferenceCodeRepository.findById(HealthProblemCode.pk("D"))).thenReturn(Optional.of(PROBLEM_CODE));
+            when(healthProblemStatusReferenceCodeRepository.findById(HealthProblemStatus.pk("ON"))).thenReturn(Optional.of(PROBLEM_STATUS));
+
+
+            final var result = bookingService.addPersonalCareNeed(1L, personalCareNeed);
+            assertThat(result).isEqualTo(personalCareNeed);
+            assertThat(booking.getOffenderHealthProblems().get(0)).usingRecursiveComparison().isEqualTo(OffenderHealthProblem
+                    .builder()
+                    .caseloadType("INST")
+                    .description("Disability")
+                    .id(5L)
+                    .offenderBooking(booking)
+                    .problemCode(PROBLEM_CODE)
+                    .problemType(PROBLEM_TYPE)
+                    .problemStatus(PROBLEM_STATUS)
+                    .startDate(LocalDate.of(2021, 1, 1))
+                    .endDate(LocalDate.of(2022, 9, 28))
+                    .build());
+        }
+
+        @Test
+        void invalidProblemCode() {
+            when(offenderRepository.getNextOffenderHealthProblemId()).thenReturn(5L);
+            when(offenderBookingRepository.findById(1L)).thenReturn(Optional.of(booking));
+            when(healthProblemTypeReferenceCodeRepository.findById(HealthProblemType.pk("DISAB"))).thenReturn(Optional.of(PROBLEM_TYPE));
+            when(healthProblemCodeReferenceCodeRepository.findById(HealthProblemCode.pk("D"))).thenReturn(Optional.of(PROBLEM_CODE_WITH_DIFFERENT_PARENT));
+            when(healthProblemStatusReferenceCodeRepository.findById(HealthProblemStatus.pk("ON"))).thenReturn(Optional.of(PROBLEM_STATUS));
+
+            assertThatThrownBy(() -> bookingService.addPersonalCareNeed(1L, personalCareNeed))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("Problem code has incorrect type");
+        }
+
+        @Test
+        void invalidOffenderBookingId() {
+            when(offenderRepository.getNextOffenderHealthProblemId()).thenReturn(5L);
+            when(offenderBookingRepository.findById(1L)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> bookingService.addPersonalCareNeed(1L, personalCareNeed))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage("Resource with id [1] not found.");
+        }
+
+        @Test
+        void invalidProblemType() {
+            when(offenderRepository.getNextOffenderHealthProblemId()).thenReturn(5L);
+            when(offenderBookingRepository.findById(1L)).thenReturn(Optional.of(booking));
+            when(healthProblemTypeReferenceCodeRepository.findById(HealthProblemType.pk("DISAB"))).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> bookingService.addPersonalCareNeed(1L, personalCareNeed))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage("Resource with id [DISAB] not found.");
+        }
+
+        @Test
+        void invalidProblemStatus() {
+            when(offenderRepository.getNextOffenderHealthProblemId()).thenReturn(5L);
+            when(offenderBookingRepository.findById(1L)).thenReturn(Optional.of(booking));
+            when(healthProblemTypeReferenceCodeRepository.findById(HealthProblemType.pk("DISAB"))).thenReturn(Optional.of(PROBLEM_TYPE));
+            when(healthProblemCodeReferenceCodeRepository.findById(HealthProblemCode.pk("D"))).thenReturn(Optional.of(PROBLEM_CODE));
+            when(healthProblemStatusReferenceCodeRepository.findById(HealthProblemStatus.pk("ON"))).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> bookingService.addPersonalCareNeed(1L, personalCareNeed))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage("Resource with id [ON] not found.");
+        }
+        @Test
+        void missingProblemCode() {
+            when(offenderRepository.getNextOffenderHealthProblemId()).thenReturn(5L);
+            when(offenderBookingRepository.findById(1L)).thenReturn(Optional.of(booking));
+            when(healthProblemTypeReferenceCodeRepository.findById(HealthProblemType.pk("DISAB"))).thenReturn(Optional.of(PROBLEM_TYPE));
+            when(healthProblemCodeReferenceCodeRepository.findById(HealthProblemCode.pk("D"))).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> bookingService.addPersonalCareNeed(1L, personalCareNeed))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage("Resource with id [D] not found.");
         }
     }
 }

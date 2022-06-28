@@ -12,7 +12,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +38,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetailDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
+import uk.gov.justice.hmpps.prison.api.model.PersonalCareNeed;
 import uk.gov.justice.hmpps.prison.api.model.PrisonDetails;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerBookingSummary;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeDetail;
@@ -65,8 +65,12 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AvailablePrisonIepLevel.PK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Caseload;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.GlobalVisitorRestriction;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.HealthProblemCode;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.HealthProblemStatus;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.HealthProblemType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderContactPerson;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderHealthProblem;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImage;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
@@ -80,6 +84,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPers
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRestrictionRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationRepository;
@@ -156,6 +161,9 @@ public class BookingService {
     private final AuthenticationFacade authenticationFacade;
     private final String defaultIepLevel;
     private final int maxBatchSize;
+    private final ReferenceCodeRepository<HealthProblemType> healthProblemTypeReferenceCodeRepository;
+    private final ReferenceCodeRepository<HealthProblemCode> healthProblemCodeReferenceCodeRepository;
+    private final ReferenceCodeRepository<HealthProblemStatus> healthProblemStatusReferenceCodeRepository;
 
     public BookingService(final BookingRepository bookingRepository,
                           final OffenderBookingRepository offenderBookingRepository,
@@ -175,8 +183,13 @@ public class BookingService {
                           final OffenderSentenceRepository offenderSentenceRepository,
                           final AvailablePrisonIepLevelRepository availablePrisonIepLevelRepository,
                           final OffenderRestrictionRepository offenderRestrictionRepository,
-                          @Value("${api.bookings.iepLevel.default:Unknown}") final String defaultIepLevel,
-                          @Value("${batch.max.size:1000}") final int maxBatchSize) {
+                          final ReferenceCodeRepository<HealthProblemType> healthProblemTypeReferenceCodeRepository,
+                          final ReferenceCodeRepository<HealthProblemCode> healthProblemCodeReferenceCodeRepository,
+                          final ReferenceCodeRepository<HealthProblemStatus> healthProblemStatusReferenceCodeRepository,
+                          @Value("${api.bookings.iepLevel.default:Unknown}")
+                          final String defaultIepLevel,
+                          @Value("${batch.max.size:1000}")
+                          final int maxBatchSize) {
         this.bookingRepository = bookingRepository;
         this.offenderBookingRepository = offenderBookingRepository;
         this.offenderRepository = offenderRepository;
@@ -195,6 +208,9 @@ public class BookingService {
         this.offenderSentenceRepository = offenderSentenceRepository;
         this.availablePrisonIepLevelRepository = availablePrisonIepLevelRepository;
         this.offenderRestrictionRepository = offenderRestrictionRepository;
+        this.healthProblemTypeReferenceCodeRepository = healthProblemTypeReferenceCodeRepository;
+        this.healthProblemCodeReferenceCodeRepository = healthProblemCodeReferenceCodeRepository;
+        this.healthProblemStatusReferenceCodeRepository = healthProblemStatusReferenceCodeRepository;
         this.defaultIepLevel = defaultIepLevel;
         this.maxBatchSize = maxBatchSize;
     }
@@ -1170,5 +1186,37 @@ public class BookingService {
         final var visit = bookingRepository.getBookingVisitNext(bookingId, LocalDateTime.now());
         final var count = visitInformationRepository.countByBookingId(bookingId);
         return new VisitSummary(visit.map(VisitDetails::getStartTime).orElse(null), count > 0);
+    }
+
+    @Transactional
+    @VerifyBookingAccess
+    public PersonalCareNeed addPersonalCareNeed(final Long bookingId, final PersonalCareNeed personalCareNeed) {
+
+        final var nextId = offenderRepository.getNextOffenderHealthProblemId();
+        final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
+        final var caseloadType = offenderBooking.getLocation().getType().getCode();
+        final var problemType = healthProblemTypeReferenceCodeRepository.findById(HealthProblemType.pk(personalCareNeed.getProblemType())).orElseThrow(EntityNotFoundException.withId(personalCareNeed.getProblemType()));
+        final var problemCode = healthProblemCodeReferenceCodeRepository.findById(HealthProblemCode.pk(personalCareNeed.getProblemCode())).orElseThrow(EntityNotFoundException.withId(personalCareNeed.getProblemCode()));
+        final var problemStatus = healthProblemStatusReferenceCodeRepository.findById(HealthProblemStatus.pk(personalCareNeed.getProblemStatus())).orElseThrow(EntityNotFoundException.withId(personalCareNeed.getProblemStatus()));
+
+        if(!problemCode.hasParent(problemType)){
+                throw BadRequestException.withMessage("Problem code has incorrect type");
+        }
+
+        final var offenderHealthProblem = OffenderHealthProblem.builder()
+            .id(nextId)
+            .offenderBooking(offenderBooking)
+            .caseloadType(caseloadType)
+            .problemType(problemType)
+            .problemCode(problemCode)
+            .problemStatus(problemStatus)
+            .description(personalCareNeed.getProblemDescription())
+            .startDate(personalCareNeed.getStartDate())
+            .endDate(personalCareNeed.getEndDate())
+            .build();
+
+        offenderBooking.add(offenderHealthProblem);
+
+        return personalCareNeed;
     }
 }

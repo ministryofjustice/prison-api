@@ -29,4 +29,7 @@ public interface OffenderRepository extends JpaRepository<Offender, Long> {
     @Query(value =
         "select o from Offender o join o.bookings ob join ob.images oi WHERE oi.captureDateTime > :start")
     Page<Offender> getOffendersWithImagesCapturedAfter(@Param("start") LocalDateTime start, Pageable pageable);
+
+    @Query(value = "SELECT OFFENDER_HEALTH_PROBLEM_ID.nextval FROM dual", nativeQuery = true)
+    Long getNextOffenderHealthProblemId();
 }

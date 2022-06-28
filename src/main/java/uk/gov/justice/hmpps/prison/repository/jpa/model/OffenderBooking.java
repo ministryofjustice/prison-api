@@ -15,6 +15,7 @@ import org.hibernate.annotations.Type;
 import uk.gov.justice.hmpps.prison.api.model.BookingAdjustment;
 import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
 import uk.gov.justice.hmpps.prison.api.model.LegalStatus;
+import uk.gov.justice.hmpps.prison.api.model.OffenderHealthProblems;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
 import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentDetail;
@@ -101,6 +102,11 @@ public class OffenderBooking extends AuditableEntity {
     @Default
     @Exclude
     private List<OffenderCourtCase> courtCases = new ArrayList<>();
+
+    @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
+    @Default
+    @Exclude
+    private List<OffenderHealthProblem> offenderHealthProblems = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
@@ -363,6 +369,11 @@ public class OffenderBooking extends AuditableEntity {
 
     public SentenceCalcDates getSentenceCalcDates() {
         return getSentenceCalcDates(getLatestCalculation());
+    }
+
+    public void add(final OffenderHealthProblem offenderHealthProblem) {
+        offenderHealthProblems.add(offenderHealthProblem);
+        offenderHealthProblem.setOffenderBooking(this);
     }
 
     public record DerivedKeyDates(NonDtoReleaseDate nonDtoReleaseDate, LocalDate releaseDate) {
