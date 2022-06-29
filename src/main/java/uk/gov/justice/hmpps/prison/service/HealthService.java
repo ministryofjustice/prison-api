@@ -51,7 +51,7 @@ public class HealthService {
         this.maxBatchSize = maxBatchSize;
     }
 
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public PersonalCareNeeds getPersonalCareNeeds(final Long bookingId, final List<String> problemTypes) {
         final var problemTypesMap = QueryParamHelper.splitTypes(problemTypes);
 
@@ -64,7 +64,7 @@ public class HealthService {
         return new PersonalCareNeeds(returnList);
     }
 
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<PersonalCareNeeds> getPersonalCareNeeds(final List<String> offenderNos, final List<String> problemTypes) {
         final var problemTypesMap = QueryParamHelper.splitTypes(problemTypes);
 

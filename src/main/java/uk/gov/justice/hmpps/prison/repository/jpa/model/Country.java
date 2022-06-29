@@ -17,7 +17,7 @@ public class Country extends ReferenceCode {
     }
 
     public Country(final String code, final String description, final int sequence) {
-        super(COUNTRY, code, description, sequence,true);
+        super(COUNTRY, code, description, sequence, true);
     }
 
     public static ReferenceCode.Pk pk(final String code) {

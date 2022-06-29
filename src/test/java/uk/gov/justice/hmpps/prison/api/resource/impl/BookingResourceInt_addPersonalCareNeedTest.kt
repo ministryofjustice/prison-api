@@ -1,11 +1,13 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
+import org.hamcrest.core.StringContains.containsString
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.web.reactive.function.BodyInserters
+
 
 @WithMockUser
 class BookingResourceInt_addPersonalCareNeedTest : ResourceTest() {
@@ -27,7 +29,7 @@ class BookingResourceInt_addPersonalCareNeedTest : ResourceTest() {
                 {                  
                   "problemType":"BSCAN",
                   "problemCode": "BSC6.0",
-                  "problemDescription": "Offender had an a x-ray",
+                  "commentText": "Offender had an a x-ray",
                   "startDate": "2022-06-20T09:00:00",
                   "endDate": null,
                   "problemStatus": "ON"
@@ -87,6 +89,30 @@ class BookingResourceInt_addPersonalCareNeedTest : ResourceTest() {
         .jsonPath("personalCareNeeds[1].startDate").isEqualTo("2022-06-20")
         .jsonPath("personalCareNeeds[1].endDate").isEqualTo(null)
         .jsonPath("personalCareNeeds[1].problemStatus").isEqualTo("ON")
+    }
+
+    @Test
+    fun `will check for missing inputs values`() {
+
+      webTestClient.post()
+        .uri("/api/bookings/-1/personal-care-needs")
+        .headers(setAuthorisation(listOf("ROLE_MAINTAIN_HEALTH_PROBLEMS")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .accept(MediaType.APPLICATION_JSON)
+        .body(
+          BodyInserters.fromValue(
+            """
+                {}
+            """.trimIndent()
+          )
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("userMessage").value(containsString("Field: startDate - must not be null"))
+        .jsonPath("userMessage").value(containsString("Field: commentText - must not be null"))
+        .jsonPath("userMessage").value(containsString("Field: problemStatus - must not be null"))
+        .jsonPath("userMessage").value(containsString("Field: problemCode - must not be null"))
     }
   }
 }

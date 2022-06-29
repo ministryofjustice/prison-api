@@ -8,6 +8,7 @@ import org.hibernate.annotations.JoinFormula;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
@@ -22,7 +23,7 @@ public class HealthProblemCode extends ReferenceCode {
         return new ReferenceCode.Pk(HEALTH_PBLM, code);
     }
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumnsOrFormulas(value = {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "PARENT_DOMAIN", referencedColumnName = "domain")),
         @JoinColumnOrFormula(column = @JoinColumn(name = "PARENT_CODE", referencedColumnName = "code"))
