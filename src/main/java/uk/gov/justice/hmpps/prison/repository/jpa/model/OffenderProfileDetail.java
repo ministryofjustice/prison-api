@@ -61,6 +61,13 @@ public class OffenderProfileDetail extends AuditableEntity {
     @NotFound(action = IGNORE)
     private ProfileCode code;
 
+    public void setProfileCode(ProfileCode code) {
+        this.profileCode = code.getId().getCode();
+    }
+
+    @Column(name = "PROFILE_CODE")
+    private String profileCode;
+
     @Column(name = "CASELOAD_TYPE")
     private String caseloadType;
 

@@ -509,6 +509,9 @@ public class PrisonerReleaseAndTransferService {
                             .addValue("p_old_book_id", oldBooking.getBookingId())
                             .addValue("p_new_book_id", booking.getBookingId());
                         copyBookData.execute(params);
+                        entityManager.flush();
+                        // booking needs reloading since SP has just updated it
+                        entityManager.refresh(booking);
                     }
                 }
             ));
