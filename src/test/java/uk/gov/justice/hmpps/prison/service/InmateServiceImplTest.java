@@ -98,6 +98,9 @@ public class InmateServiceImplTest {
     @Mock
     private ExternalMovementRepository externalMovementRepository;
 
+    @Mock
+    private HealthService healthService;
+
     @Captor
     private ArgumentCaptor<List<Long>> bookingIdsArgument;
 
@@ -106,7 +109,7 @@ public class InmateServiceImplTest {
     @BeforeEach
     public void init() {
         serviceToTest = new InmateService(repository, caseLoadService, inmateAlertService,
-                referenceDomainService, bookingService, agencyService, userService, authenticationFacade,
+                referenceDomainService, bookingService, agencyService, healthService, userService, authenticationFacade,
                 telemetryClient, "WING", 100, offenderAssessmentService, offenderLanguageRepository, offenderRepository, externalMovementRepository, null);
     }
 
@@ -366,56 +369,6 @@ public class InmateServiceImplTest {
     }
 
     @Test
-    public void testGetPersonalCareNeedsByProblemTypeAndSubtype() {
-        final var problemTypes = List.of("DISAB+RM", "DISAB+RC", "MATSTAT");
-        final var personalCareNeedsAll = List.of(
-                PersonalCareNeed.builder().problemType("DISAB").problemCode("MI").problemStatus("ON").startDate(LocalDate.parse("2019-01-02")).build(),
-                PersonalCareNeed.builder().problemType("DISAB").problemCode("RM").problemStatus("ON").startDate(LocalDate.parse("2019-01-02")).build(),
-                PersonalCareNeed.builder().problemType("MATSTAT").problemCode("ACCU9").problemStatus("ON").startDate(LocalDate.parse("2019-01-02")).build()
-        );
-        final var personalCareNeeds = new PersonalCareNeeds(
-                List.of(
-                        PersonalCareNeed.builder().problemType("DISAB").problemCode("RM").problemStatus("ON").startDate(LocalDate.parse("2019-01-02")).build(),
-                        PersonalCareNeed.builder().problemType("MATSTAT").problemCode("ACCU9").problemStatus("ON").startDate(LocalDate.parse("2019-01-02")).build()
-                )
-        );
-
-        when(repository.findPersonalCareNeeds(anyLong(), anySet())).thenReturn(personalCareNeedsAll);
-
-        final var response = serviceToTest.getPersonalCareNeeds(1L, problemTypes);
-
-        verify(repository).findPersonalCareNeeds(1L, Set.of("DISAB", "MATSTAT"));
-        assertThat(response).isEqualTo(personalCareNeeds);
-    }
-
-    @Test
-    public void testGetPersonalCareNeedsSplitByOffender() {
-        final var problemTypes = List.of("DISAB+RM", "DISAB+RC", "MATSTAT");
-
-        final var aaMat = PersonalCareNeed.builder().problemType("MATSTAT").problemCode("ACCU9")
-                .startDate(LocalDate.parse("2010-06-21")).offenderNo("A1234AA").build();
-        final var aaDisab = PersonalCareNeed.builder().problemType("DISAB").problemCode("RM")
-                .startDate(LocalDate.parse("2010-06-21")).offenderNo("A1234AA").build();
-        final var abDisab = PersonalCareNeed.builder().problemType("DISAB").problemCode("RC")
-                .startDate(LocalDate.parse("2010-06-22")).offenderNo("A1234AB").build();
-        final var acDisab = PersonalCareNeed.builder().problemType("DISAB").problemCode("RM")
-                .startDate(LocalDate.parse("2010-06-22")).offenderNo("A1234AC").build();
-        final var adDisab = PersonalCareNeed.builder().problemType("DISAB").problemCode("ND")
-                .startDate(LocalDate.parse("2010-06-24")).offenderNo("A1234AD").build();
-
-        when(repository.findPersonalCareNeeds(anyList(), anySet())).thenReturn(
-                List.of(aaMat, aaDisab, abDisab, acDisab, adDisab));
-
-        final var response = serviceToTest.getPersonalCareNeeds(List.of("A1234AA"), problemTypes);
-
-        verify(repository).findPersonalCareNeeds(List.of("A1234AA"), Set.of("DISAB", "MATSTAT"));
-        assertThat(response).containsExactly(
-                new PersonalCareNeeds("A1234AA", List.of(aaMat, aaDisab)),
-                new PersonalCareNeeds("A1234AB", List.of(abDisab)),
-                new PersonalCareNeeds("A1234AC", List.of(acDisab)));
-    }
-
-    @Test
     public void testGetReasonableAdjustmentsByType() {
         final var types = List.of("PEEP", "WHEELCHR_ACC");
         final var reasonableAdjustments = List.of(
@@ -499,6 +452,7 @@ public class InmateServiceImplTest {
         when(repository.findInmateAliases(anyLong(), anyString(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(repository.getOffenderIdentifiersByOffenderId(anyLong())).thenReturn(List.of());
         when(externalMovementRepository.findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(any())).thenReturn(buildMovementReleased("REL",""));
+        when(healthService.getPersonalCareNeeds(anyLong(), anyList())).thenReturn(new PersonalCareNeeds("A1234BC", List.of()));
 
         final var inmateDetail = serviceToTest.findOffender("S1234AA", true, false);
 
@@ -518,6 +472,7 @@ public class InmateServiceImplTest {
         when(repository.findInmateAliases(anyLong(), anyString(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(repository.getOffenderIdentifiersByOffenderId(anyLong())).thenReturn(List.of());
         when(externalMovementRepository.findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(any())).thenReturn(buildMovementTransferred("REL",""));
+        when(healthService.getPersonalCareNeeds(anyLong(), anyList())).thenReturn(new PersonalCareNeeds("A1234BC", List.of()));
 
         final var inmateDetail = serviceToTest.findOffender("S1234AA", true, false);
 
@@ -538,6 +493,7 @@ public class InmateServiceImplTest {
         when(repository.findInmateAliases(anyLong(), anyString(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(repository.getOffenderIdentifiersByOffenderId(anyLong())).thenReturn(List.of());
         when(externalMovementRepository.findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(any())).thenReturn(buildMovementReleased("TAP","Temporary Absence"));
+        when(healthService.getPersonalCareNeeds(anyLong(), anyList())).thenReturn(new PersonalCareNeeds("A1234BC", List.of()));
 
         final var inmateDetail = serviceToTest.findOffender("S1234AA", true, false);
 
@@ -557,6 +513,7 @@ public class InmateServiceImplTest {
         when(repository.findInmateAliases(anyLong(), anyString(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(repository.getOffenderIdentifiersByOffenderId(anyLong())).thenReturn(List.of());
         when(externalMovementRepository.findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(any())).thenReturn(buildMovementReleasedWithNullFromAgency("TAP","Temporary Absence"));
+        when(healthService.getPersonalCareNeeds(anyLong(), anyList())).thenReturn(new PersonalCareNeeds("A1234BC", List.of()));
 
         final var inmateDetail = serviceToTest.findOffender("S1234AA", true, false);
 
@@ -576,6 +533,7 @@ public class InmateServiceImplTest {
         when(inmateAlertService.getInmateAlerts(anyLong(), any(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(repository.findInmateAliases(anyLong(), anyString(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(repository.getOffenderIdentifiersByOffenderId(anyLong())).thenReturn(List.of());
+        when(healthService.getPersonalCareNeeds(anyLong(), anyList())).thenReturn(new PersonalCareNeeds("A1234BC", List.of()));
 
         final var inmateDetail = serviceToTest.findOffender("S1234AA", true, false);
 
@@ -616,6 +574,7 @@ public class InmateServiceImplTest {
         when(repository.getImprisonmentStatus(anyLong())).thenReturn(Optional.of(imprisonmentStatus));
         when(repository.findInmateAliases(anyLong(), anyString(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(bookingService.getBookingIEPSummary(anyLong(),anyBoolean())).thenReturn(PrivilegeSummary.builder().build());
+        when(healthService.getPersonalCareNeeds(anyLong(), anyList())).thenReturn(new PersonalCareNeeds("A1234BC", List.of()));
 
 
         final var inmateDetail = serviceToTest.findInmate(-1L, true, false);

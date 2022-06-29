@@ -11,13 +11,13 @@ import org.springframework.web.reactive.function.BodyInserters
 class BookingResourceInt_addPersonalCareNeedTest : ResourceTest() {
 
   @Nested
-  @DisplayName("POST /offender-health-problems")
+  @DisplayName("POST /personal-care-needs")
   inner class CreateOffenderHealthProblem {
 
     @Test
     fun `requires correct role`() {
       webTestClient.post()
-        .uri("/api/bookings/-1/offender-health-problems")
+        .uri("/api/bookings/-1/personal-care-needs")
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .headers(setAuthorisation(listOf()))
         .accept(MediaType.APPLICATION_JSON)
@@ -42,7 +42,7 @@ class BookingResourceInt_addPersonalCareNeedTest : ResourceTest() {
     @Test
     fun `requires authorization`() {
       webTestClient.post()
-        .uri("/api/offender-health-problems")
+        .uri("/api/personal-care-needs")
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
@@ -52,7 +52,7 @@ class BookingResourceInt_addPersonalCareNeedTest : ResourceTest() {
     @Test
     fun `will create the offender health problem`() {
       webTestClient.post()
-        .uri("/api/bookings/-1/offender-health-problems")
+        .uri("/api/bookings/-1/personal-care-needs")
         .headers(setAuthorisation(listOf("ROLE_MAINTAIN_HEALTH_PROBLEMS")))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .accept(MediaType.APPLICATION_JSON)
@@ -60,9 +60,8 @@ class BookingResourceInt_addPersonalCareNeedTest : ResourceTest() {
           BodyInserters.fromValue(
             """
                 {                  
-                  "problemType": "DISAB",
                   "problemCode": "D",
-                  "problemDescription": "Offender had an a x-ray",
+                  "commentText": "Offender had an a x-ray",
                   "startDate": "2022-06-20",
                   "endDate": null,
                   "problemStatus": "ON"
@@ -73,12 +72,21 @@ class BookingResourceInt_addPersonalCareNeedTest : ResourceTest() {
         .exchange()
         .expectStatus().isCreated
         .expectBody()
-        .jsonPath("problemType").isEqualTo("DISAB")
-        .jsonPath("problemCode").isEqualTo("D")
-        .jsonPath("problemDescription").isEqualTo("Offender had an a x-ray")
-        .jsonPath("startDate").isEqualTo("2022-06-20")
-        .jsonPath("endDate").isEqualTo(null)
-        .jsonPath("problemStatus").isEqualTo("ON")
+
+      webTestClient.get()
+        .uri("/api/bookings/-1/personal-care-needs?type=DISAB")
+        .headers(setAuthorisation(listOf("ROLE_MAINTAIN_HEALTH_PROBLEMS")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("personalCareNeeds[1].problemType").isEqualTo("DISAB")
+        .jsonPath("personalCareNeeds[1].problemCode").isEqualTo("D")
+        .jsonPath("personalCareNeeds[1].commentText").isEqualTo("Offender had an a x-ray")
+        .jsonPath("personalCareNeeds[1].startDate").isEqualTo("2022-06-20")
+        .jsonPath("personalCareNeeds[1].endDate").isEqualTo(null)
+        .jsonPath("personalCareNeeds[1].problemStatus").isEqualTo("ON")
     }
   }
 }

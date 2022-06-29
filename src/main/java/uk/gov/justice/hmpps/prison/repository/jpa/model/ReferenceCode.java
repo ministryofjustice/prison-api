@@ -52,20 +52,12 @@ public abstract class ReferenceCode implements Serializable {
     @Column(name = "LIST_SEQ")
     private Integer listSequence;
 
-    private String parentDomain;
-
-    private String parentCode;
-
     @Column(name = "ACTIVE_FLAG")
     @Type(type="yes_no")
     private boolean active;
 
     public ReferenceCode(final String domain, final String code, final String description) {
-        this(domain, code, description, 99, null, null, true);
-    }
-
-    public boolean hasParent(final ReferenceCode referenceCode){
-        return parentDomain.equals(referenceCode.domain) && parentCode.equals(referenceCode.code);
+        this(domain, code, description, 99, true);
     }
 
     public static String getDescriptionOrNull(final ReferenceCode referenceCode) {

@@ -9,18 +9,17 @@ import lombok.ToString;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
-import org.hibernate.annotations.NotFound;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.time.LocalDate;
-
-import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
 
 @Data
@@ -34,7 +33,9 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 public class OffenderHealthProblem {
 
     @Id
-    @Column(name = "OFFENDER_HEALTH_PROBLEM_ID", nullable = false)
+    @SequenceGenerator(name = "OFFENDER_HEALTH_PROBLEM_ID", sequenceName = "OFFENDER_HEALTH_PROBLEM_ID", allocationSize = 1)
+    @GeneratedValue(generator = "OFFENDER_HEALTH_PROBLEM_ID")
+    @Column(name = "OFFENDER_HEALTH_PROBLEM_ID")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -42,7 +43,6 @@ public class OffenderHealthProblem {
     private OffenderBooking offenderBooking;
 
     @ManyToOne
-    @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + HealthProblemType.HEALTH + "'", referencedColumnName = "domain")),
         @JoinColumnOrFormula(column = @JoinColumn(name = "PROBLEM_TYPE", referencedColumnName = "code"))
@@ -50,7 +50,6 @@ public class OffenderHealthProblem {
     private HealthProblemType problemType;
 
     @ManyToOne
-    @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + HealthProblemCode.HEALTH_PBLM + "'", referencedColumnName = "domain")),
         @JoinColumnOrFormula(column = @JoinColumn(name = "PROBLEM_CODE", referencedColumnName = "code"))
@@ -58,7 +57,6 @@ public class OffenderHealthProblem {
     private HealthProblemCode problemCode;
 
     @ManyToOne
-    @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + HealthProblemStatus.HEALTH_STS + "'", referencedColumnName = "domain")),
         @JoinColumnOrFormula(column = @JoinColumn(name = "PROBLEM_STATUS", referencedColumnName = "code"))
@@ -66,7 +64,7 @@ public class OffenderHealthProblem {
     private HealthProblemStatus problemStatus;
 
     @Column(name = "DESCRIPTION", nullable = true)
-    private String description;
+    private String commentText;
 
     @Column(name = "START_DATE", nullable = true)
     private LocalDate startDate;

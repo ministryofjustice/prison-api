@@ -100,6 +100,7 @@ public class InmateService {
     private final OffenderRepository offenderRepository;
     private final ExternalMovementRepository externalMovementRepository;
     private final OffenderImageRepository offenderImageRepository;
+    private final HealthService healthService;
     private final TelemetryClient telemetryClient;
 
     private final String locationTypeGranularity;
@@ -110,6 +111,7 @@ public class InmateService {
                          final ReferenceDomainService referenceDomainService,
                          final BookingService bookingService,
                          final AgencyService agencyService,
+                         final HealthService healthService,
                          final UserService userService,
                          final AuthenticationFacade authenticationFacade,
                          final TelemetryClient telemetryClient,
@@ -124,6 +126,7 @@ public class InmateService {
         this.caseLoadService = caseLoadService;
         this.inmateAlertService = inmateAlertService;
         this.referenceDomainService = referenceDomainService;
+        this.healthService = healthService;
         this.telemetryClient = telemetryClient;
         this.locationTypeGranularity = locationTypeGranularity;
         this.bookingService = bookingService;
@@ -238,7 +241,7 @@ public class InmateService {
                 inmate.setAliases(repository.findInmateAliases(bookingId, "createDate", Order.ASC, 0, 100).getItems());
                 inmate.setPrivilegeSummary(bookingService.getBookingIEPSummary(bookingId, false));
                 inmate.setSentenceDetail(bookingService.getBookingSentenceCalcDates(bookingId));
-                inmate.setPersonalCareNeeds(getPersonalCareNeeds(bookingId, List.of("DISAB", "MATSTAT", "PHY", "PSYCH", "SC")).getPersonalCareNeeds());
+                inmate.setPersonalCareNeeds(healthService.getPersonalCareNeeds(bookingId, List.of("DISAB", "MATSTAT", "PHY", "PSYCH", "SC")).getPersonalCareNeeds());
 
                 repository.getImprisonmentStatus(bookingId).ifPresent(status -> {
                     inmate.setLegalStatus(status.getLegalStatus());
@@ -382,44 +385,6 @@ public class InmateService {
     @VerifyBookingAccess
     public List<PhysicalMark> getPhysicalMarks(final Long bookingId) {
         return repository.findPhysicalMarks(bookingId);
-    }
-
-    @VerifyBookingAccess
-    public PersonalCareNeeds getPersonalCareNeeds(final Long bookingId, final List<String> problemTypes) {
-        final var problemTypesMap = QueryParamHelper.splitTypes(problemTypes);
-
-        final var personalCareNeeds = repository.findPersonalCareNeeds(bookingId, problemTypesMap.keySet());
-        final var returnList = personalCareNeeds.stream().filter((personalCareNeed) -> {
-            final var subTypes = problemTypesMap.get(personalCareNeed.getProblemType());
-            // will be null if not in map, otherwise will be empty if type in map with no sub type set
-            return subTypes != null && (subTypes.isEmpty() || subTypes.contains(personalCareNeed.getProblemCode()));
-        }).toList();
-        return new PersonalCareNeeds(returnList);
-    }
-
-    @VerifyBookingAccess
-    public List<PersonalCareNeeds> getPersonalCareNeeds(final List<String> offenderNos, final List<String> problemTypes) {
-        final var problemTypesMap = QueryParamHelper.splitTypes(problemTypes);
-
-        // firstly need to exclude any problem sub types not interested in
-        final var personalCareNeeds = Lists.partition(offenderNos, maxBatchSize)
-                .stream()
-                .map(offenders -> repository.findPersonalCareNeeds(offenders, problemTypesMap.keySet()))
-                .flatMap(List::stream);
-
-        // then transform list into map where keys are the offender no and values list of needs for the offender
-        final var map = personalCareNeeds.filter((personalCareNeed) -> {
-            final var subTypes = problemTypesMap.get(personalCareNeed.getProblemType());
-            // will be null if not in map, otherwise will be empty if type in map with no sub type set
-            return subTypes != null && (subTypes.isEmpty() || subTypes.contains(personalCareNeed.getProblemCode()));
-        }).collect(Collectors.toMap(
-                PersonalCareNeed::getOffenderNo,
-                List::of,
-                (a, b) -> Stream.of(a, b).flatMap(Collection::stream).toList(),
-                TreeMap::new));
-
-        // then convert back into list where every entry is for a single offender
-        return map.entrySet().stream().map(e -> new PersonalCareNeeds(e.getKey(), e.getValue())).toList();
     }
 
     @VerifyBookingAccess
