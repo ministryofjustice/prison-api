@@ -8,7 +8,6 @@ import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.web.reactive.function.BodyInserters
 
-
 @WithMockUser
 class BookingResourceInt_addPersonalCareNeedTest : ResourceTest() {
 
