@@ -483,6 +483,7 @@ public class OffenderBooking extends AuditableEntity {
 
     public List<OffenderProfileDetail> getActiveProfileDetails() {
         return profileDetails.stream()
+            .filter(pd -> Objects.nonNull(pd.getCode()))
             .filter(pd -> {
                 final var profileType = pd.getId().getType();
                 return profileType.getCategory().equals("PI") && (profileType.isActive() || profileType.getType().equals("RELF"));
