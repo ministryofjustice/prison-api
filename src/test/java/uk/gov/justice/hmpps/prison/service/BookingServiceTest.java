@@ -24,8 +24,8 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetailDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerm;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
+import uk.gov.justice.hmpps.prison.api.model.PersonalCareNeed;
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeDetail;
-import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentDetail;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
@@ -45,6 +45,9 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtOrder;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.DisciplinaryAction;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.HealthProblemCode;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.HealthProblemStatus;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.HealthProblemType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.IepLevel;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.KeyDateAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LegalCaseType;
@@ -58,6 +61,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderContactPerson;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderHealthProblem;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIepLevel;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPropertyContainer;
@@ -79,6 +83,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPers
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRestrictionRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationRepository;
@@ -172,8 +177,7 @@ public class BookingServiceTest {
                 authenticationFacade,
                 offenderSentenceRepository,
                 availablePrisonIepLevelRepository,
-                offenderRestrictionRepository,
-                "1",
+                offenderRestrictionRepository,"1",
                 10);
     }
 
@@ -1634,7 +1638,7 @@ public class BookingServiceTest {
     }
 
     @Nested
-    class getBookingVisitsSummary {
+    class GetBookingVisitsSummary {
         @Test
         void hasVisits() {
             when(visitInformationRepository.countByBookingId(anyLong())).thenReturn(5L);
@@ -1655,4 +1659,5 @@ public class BookingServiceTest {
             assertThat(summary.getHasVisits()).isFalse();
         }
     }
+
 }

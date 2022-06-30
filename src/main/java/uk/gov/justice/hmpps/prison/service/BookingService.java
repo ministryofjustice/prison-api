@@ -12,7 +12,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -175,8 +174,10 @@ public class BookingService {
                           final OffenderSentenceRepository offenderSentenceRepository,
                           final AvailablePrisonIepLevelRepository availablePrisonIepLevelRepository,
                           final OffenderRestrictionRepository offenderRestrictionRepository,
-                          @Value("${api.bookings.iepLevel.default:Unknown}") final String defaultIepLevel,
-                          @Value("${batch.max.size:1000}") final int maxBatchSize) {
+                          @Value("${api.bookings.iepLevel.default:Unknown}")
+                          final String defaultIepLevel,
+                          @Value("${batch.max.size:1000}")
+                          final int maxBatchSize) {
         this.bookingRepository = bookingRepository;
         this.offenderBookingRepository = offenderBookingRepository;
         this.offenderRepository = offenderRepository;

@@ -105,6 +105,11 @@ public class OffenderBooking extends AuditableEntity {
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude
+    private List<OffenderHealthProblem> offenderHealthProblems = new ArrayList<>();
+
+    @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
+    @Default
+    @Exclude
     @BatchSize(size = 25)
     private List<CourtOrder> courtOrders = new ArrayList<>();
 
@@ -363,6 +368,11 @@ public class OffenderBooking extends AuditableEntity {
 
     public SentenceCalcDates getSentenceCalcDates() {
         return getSentenceCalcDates(getLatestCalculation());
+    }
+
+    public void add(final OffenderHealthProblem offenderHealthProblem) {
+        offenderHealthProblems.add(offenderHealthProblem);
+        offenderHealthProblem.setOffenderBooking(this);
     }
 
     public record DerivedKeyDates(NonDtoReleaseDate nonDtoReleaseDate, LocalDate releaseDate) {
