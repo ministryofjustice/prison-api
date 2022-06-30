@@ -30,6 +30,23 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @EqualsAndHashCode(of = { "id" }, callSuper = false)
 @ToString(of =  {"id", "code" })
 public class OffenderProfileDetail extends AuditableEntity {
+    @SuppressWarnings("unused")
+    public static class OffenderProfileDetailBuilder {
+        private ProfileCode code;
+        private String profileCode;
+
+        public OffenderProfileDetailBuilder code(ProfileCode code) {
+            this.code = code;
+            this.profileCode(code.getId().getCode());
+            return this;
+        }
+        public OffenderProfileDetailBuilder profileCode(String profileCode) {
+            this.profileCode = profileCode;
+            return this;
+        }
+
+    }
+
 
     @EmbeddedId
     private PK id;

@@ -6,6 +6,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
@@ -1019,6 +1020,21 @@ public class OffendersResourceTest extends ResourceTest {
             "A9880GH"
         );
         assertThatJsonFileAndStatus(response, 200, "first_new_booking_prisoner.json");
+
+        webTestClient.get()
+            .uri("/api/offenders/{offenderNo}", "A9880GH")
+            .headers(
+                setAuthorisation(
+                    List.of("ROLE_SYSTEM_USER")
+                )
+            )
+            .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+            .accept(MediaType.APPLICATION_JSON)
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath("profileInformation[0].type").isEqualTo("YOUTH")
+            .jsonPath("profileInformation[0].resultValue").isEqualTo("Yes");
 
         final var releaseBody = createHttpEntity(token, Map.of("movementReasonCode", "CR", "commentText", "released prisoner today"));
 
