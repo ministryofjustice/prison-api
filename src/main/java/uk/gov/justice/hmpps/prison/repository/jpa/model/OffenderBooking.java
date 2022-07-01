@@ -105,6 +105,11 @@ public class OffenderBooking extends AuditableEntity {
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude
+    private List<OffenderHealthProblem> offenderHealthProblems = new ArrayList<>();
+
+    @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
+    @Default
+    @Exclude
     @BatchSize(size = 25)
     private List<CourtOrder> courtOrders = new ArrayList<>();
 
@@ -365,6 +370,11 @@ public class OffenderBooking extends AuditableEntity {
         return getSentenceCalcDates(getLatestCalculation());
     }
 
+    public void add(final OffenderHealthProblem offenderHealthProblem) {
+        offenderHealthProblems.add(offenderHealthProblem);
+        offenderHealthProblem.setOffenderBooking(this);
+    }
+
     public record DerivedKeyDates(NonDtoReleaseDate nonDtoReleaseDate, LocalDate releaseDate) {
     }
 
@@ -460,7 +470,7 @@ public class OffenderBooking extends AuditableEntity {
             .filter(pd -> profileType.equals(pd.getId().getType()))
             .max(Comparator.comparing(op -> op.getId().getSequence()))
             .ifPresentOrElse(
-                y -> y.setCode(code)
+                y -> y.setProfileCode(code)
                 , () -> profileDetails.add(OffenderProfileDetail.builder()
                     .id(new PK(this, profileType, 1))
                     .caseloadType("INST")
@@ -483,6 +493,7 @@ public class OffenderBooking extends AuditableEntity {
 
     public List<OffenderProfileDetail> getActiveProfileDetails() {
         return profileDetails.stream()
+            .filter(pd -> Objects.nonNull(pd.getCode()))
             .filter(pd -> {
                 final var profileType = pd.getId().getType();
                 return profileType.getCategory().equals("PI") && (profileType.isActive() || profileType.getType().equals("RELF"));

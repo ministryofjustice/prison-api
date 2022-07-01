@@ -44,6 +44,7 @@ import uk.gov.justice.hmpps.prison.api.model.Contact;
 import uk.gov.justice.hmpps.prison.api.model.ContactDetail;
 import uk.gov.justice.hmpps.prison.api.model.CourtCase;
 import uk.gov.justice.hmpps.prison.api.model.CreateAlert;
+import uk.gov.justice.hmpps.prison.api.model.CreatePersonalCareNeed;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.IepLevelAndComment;
 import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
@@ -60,6 +61,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenceHistoryDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifier;
 import uk.gov.justice.hmpps.prison.api.model.OffenderNonAssociationDetails;
 import uk.gov.justice.hmpps.prison.api.model.OffenderRelationship;
+import uk.gov.justice.hmpps.prison.api.model.PersonalCareNeed;
 import uk.gov.justice.hmpps.prison.api.model.PersonalCareNeeds;
 import uk.gov.justice.hmpps.prison.api.model.PhysicalAttributes;
 import uk.gov.justice.hmpps.prison.api.model.PhysicalCharacteristic;
@@ -100,6 +102,7 @@ import uk.gov.justice.hmpps.prison.service.CaseNoteService;
 import uk.gov.justice.hmpps.prison.service.ContactService;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 import uk.gov.justice.hmpps.prison.service.FinanceService;
+import uk.gov.justice.hmpps.prison.service.HealthService;
 import uk.gov.justice.hmpps.prison.service.ImageService;
 import uk.gov.justice.hmpps.prison.service.IncidentService;
 import uk.gov.justice.hmpps.prison.service.InmateAlertService;
@@ -136,6 +139,7 @@ public class BookingResource {
     private final AuthenticationFacade authenticationFacade;
     private final BookingService bookingService;
     private final InmateService inmateService;
+    private final HealthService healthService;
     private final CaseNoteService caseNoteService;
     private final InmateAlertService inmateAlertService;
     private final BedAssignmentHistoryService bedAssignmentHistoryService;
@@ -731,8 +735,35 @@ public class BookingResource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Personal Care Needs", description = "Personal Care Need")
     @GetMapping("/{bookingId}/personal-care-needs")
-    public PersonalCareNeeds getPersonalCareNeeds(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId, @RequestParam(value = "type", required = false) @NotEmpty(message = "problemTypes: must not be empty") @Parameter(description = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) final List<String> problemTypes) {
-        return inmateService.getPersonalCareNeeds(bookingId, problemTypes);
+    public PersonalCareNeeds getPersonalCareNeeds(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId, @RequestParam(value = "type", required = false) @NotEmpty(message = "type: must not be empty") @Parameter(description = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) final List<String> problemTypes) {
+        return healthService.getPersonalCareNeeds(bookingId, problemTypes);
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Personal Care Needs  - POST version to allow for large numbers of offenders", description = "Personal Care Needs")
+    @PostMapping("/offenderNo/personal-care-needs")
+    public List<PersonalCareNeeds> getPersonalCareNeeds(@RequestBody @NotEmpty(message = "offenderNo: must not be empty") @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderNos, @RequestParam(value = "type", required = false) @NotEmpty(message = "type: must not be empty") @Parameter(description = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) final List<String> problemTypes) {
+        return healthService.getPersonalCareNeeds(offenderNos, problemTypes);
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "If successful the Personal Care Need is returned."),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Personal Care Needs", description = "Personal Care Need")
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/{bookingId}/personal-care-needs")
+    @ProxyUser
+    @PreAuthorize("hasRole('MAINTAIN_HEALTH_PROBLEMS') and hasAuthority('SCOPE_write')")
+    public void addPersonalCareNeed(
+        @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
+        @Valid @NotNull @RequestBody final CreatePersonalCareNeed createPersonalCareNeed) {
+        healthService.addPersonalCareNeed(bookingId, createPersonalCareNeed);
     }
 
     @ApiResponses({
@@ -744,17 +775,6 @@ public class BookingResource {
     @GetMapping("/{bookingId}/military-records")
     public MilitaryRecords getMilitaryRecords(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
         return bookingService.getMilitaryRecords(bookingId);
-    }
-
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Personal Care Needs  - POST version to allow for large numbers of offenders", description = "Personal Care Needs")
-    @PostMapping("/offenderNo/personal-care-needs")
-    public List<PersonalCareNeeds> getPersonalCareNeeds(@RequestBody @NotEmpty(message = "offenderNo: must not be empty") @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderNos, @RequestParam(value = "type", required = false) @NotEmpty(message = "problemTypes: must not be empty") @Parameter(description = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) final List<String> problemTypes) {
-        return inmateService.getPersonalCareNeeds(offenderNos, problemTypes);
     }
 
     @ApiResponses({

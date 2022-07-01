@@ -1003,39 +1003,6 @@ public class OffendersResourceTest extends ResourceTest {
     }
 
     @Test
-    public void testReceiveAPrisonerAsNewBookingForFirstTime() {
-        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
-
-        final var body = Map.of("prisonId", "SYI", "fromLocationId", "COURT1", "movementReasonCode", "24", "youthOffender", "true", "imprisonmentStatus", "CUR_ORA", "cellLocation", "SYI-A-1-1");
-
-        final var newBookingEntity = createHttpEntity(token, body);
-
-        final var response =  testRestTemplate.exchange(
-            "/api/offenders/{nomsId}/booking",
-            POST,
-            newBookingEntity,
-            new ParameterizedTypeReference<String>() {
-            },
-            "A9880GH"
-        );
-        assertThatJsonFileAndStatus(response, 200, "first_new_booking_prisoner.json");
-
-        final var releaseBody = createHttpEntity(token, Map.of("movementReasonCode", "CR", "commentText", "released prisoner today"));
-
-        final var releaseResponse =  testRestTemplate.exchange(
-            "/api/offenders/{nomsId}/release",
-            PUT,
-            releaseBody,
-            new ParameterizedTypeReference<String>() {
-            },
-            "A9880GH"
-        );
-
-        assertThat(releaseResponse.getStatusCodeValue()).isEqualTo(200);
-    }
-
-
-    @Test
     public void testCannotTransferInPrisonerNotOut() {
         final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
 
