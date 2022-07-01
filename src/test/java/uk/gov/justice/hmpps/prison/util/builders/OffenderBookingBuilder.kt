@@ -10,13 +10,13 @@ import uk.gov.justice.hmpps.prison.api.model.RequestForNewBooking
 import uk.gov.justice.hmpps.prison.service.DataLoaderRepository
 import uk.gov.justice.hmpps.prison.util.JwtAuthenticationHelper
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 class OffenderBookingBuilder(
   var prisonId: String = "MDI",
-  var bookingInTime: LocalDateTime = LocalDateTime.now(),
+  var bookingInTime: LocalDateTime = LocalDateTime.now().minusDays(1),
   var fromLocationId: String = "OUT",
   var movementReasonCode: String = "N",
-  var youthOffender: Boolean = false,
   var cellLocation: String? = null,
   var imprisonmentStatus: String = "SENT03",
   var iepLevel: String? = null,
@@ -26,6 +26,8 @@ class OffenderBookingBuilder(
   var programProfiles: List<OffenderProgramProfileBuilder> = emptyList(),
   var courtCases: List<OffenderCourtCaseBuilder> = emptyList(),
   var teamAssignment: OffenderTeamAssignmentBuilder? = null,
+  var profileDetails: List<OffenderProfileDetailsBuilder> = emptyList(),
+  var released: Boolean = false
 ) : WebClientEntityBuilder() {
 
   fun withIEPLevel(iepLevel: String): OffenderBookingBuilder {
@@ -54,6 +56,11 @@ class OffenderBookingBuilder(
     return this
   }
 
+  fun withProfileDetails(vararg profileDetails: OffenderProfileDetailsBuilder): OffenderBookingBuilder {
+    this.profileDetails = profileDetails.toList()
+    return this
+  }
+
   fun save(
     webTestClient: WebTestClient,
     jwtAuthenticationHelper: JwtAuthenticationHelper,
@@ -64,7 +71,7 @@ class OffenderBookingBuilder(
     val request =
       RequestForNewBooking.builder().bookingInTime(bookingInTime).cellLocation(cellLocation)
         .fromLocationId(fromLocationId).imprisonmentStatus(imprisonmentStatus).movementReasonCode(movementReasonCode)
-        .prisonId(prisonId).youthOffender(youthOffender).build()
+        .prisonId(prisonId).build()
 
     return webTestClient.post()
       .uri("/api/offenders/{offenderNo}/booking", offenderNo)
@@ -82,6 +89,33 @@ class OffenderBookingBuilder(
       .exchange()
       .expectStatus().isOk
       .returnResult<InmateDetail>().responseBody.blockFirst()!!.also {
+      if (released) {
+        webTestClient.put()
+          .uri("/api/offenders/{nomsId}/release", offenderNo)
+          .headers(
+            setAuthorisation(
+              jwtAuthenticationHelper = jwtAuthenticationHelper,
+              roles = listOf("ROLE_RELEASE_PRISONER")
+            )
+          )
+          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+          .accept(MediaType.APPLICATION_JSON)
+          .body(
+            BodyInserters.fromValue(
+              """
+          {
+            "movementReasonCode":"CR",
+            "commentText":"released prisoner today",
+            "movementTime": "${LocalDateTime.now().minusHours(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
+            
+          }
+              """.trimIndent()
+            )
+          )
+          .exchange()
+          .expectStatus().isOk
+      }
+    }.also {
       this.iepLevel?.run {
         webTestClient.post()
           .uri("/api/bookings/{bookingId}/iepLevels", it.bookingId)
@@ -110,6 +144,9 @@ class OffenderBookingBuilder(
         it.save(offenderBookingId = inmateDetail.bookingId, dataLoader = dataLoader)
       }
       this.teamAssignment?.also {
+        it.save(offenderBookingId = inmateDetail.bookingId, dataLoader = dataLoader)
+      }
+      this.profileDetails.forEach {
         it.save(offenderBookingId = inmateDetail.bookingId, dataLoader = dataLoader)
       }
     }

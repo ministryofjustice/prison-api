@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -62,10 +61,10 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileCodeReposito
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileTypeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
-import uk.gov.justice.hmpps.prison.repository.storedprocs.CopyProcs.CopyBookData;
 import uk.gov.justice.hmpps.prison.repository.storedprocs.OffenderAdminProcs.GenerateNewBookingNo;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
+import uk.gov.justice.hmpps.prison.service.createbooking.CopyPreviousBookingService;
 import uk.gov.justice.hmpps.prison.service.transfer.PrisonTransferService;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
 
@@ -120,7 +119,7 @@ public class PrisonerReleaseAndTransferService {
     private final StaffUserAccountRepository staffUserAccountRepository;
     private final GenerateNewBookingNo generateNewBookingNo;
     private final CopyTableRepository copyTableRepository;
-    private final CopyBookData copyBookData;
+    private final CopyPreviousBookingService copyPreviousBookingService;
     private final OffenderTransformer offenderTransformer;
     private final OffenderProgramProfileRepository offenderProgramProfileRepository;
     private final EntityManager entityManager;
@@ -487,7 +486,7 @@ public class PrisonerReleaseAndTransferService {
         deactivatePreviousMovements(booking);
 
         // Generate the external movement in
-        createInMovement(booking, movementReason, fromLocation, receivedPrison, receiveTime, "New Booking");
+        final var movement = createInMovement(booking, movementReason, fromLocation, receivedPrison, receiveTime, "New Booking");
 
         //Create Bed History
         bedAssignmentHistoriesRepository.save(BedAssignmentHistory.builder()
@@ -502,17 +501,10 @@ public class PrisonerReleaseAndTransferService {
         previousBooking.ifPresent(oldBooking -> copyTableRepository.findByOperationCodeAndMovementTypeAndActiveAndExpiryDateIsNull("COP", ADM.getCode(), true)
             .stream().findFirst().ifPresent(
                 ct -> {
-                    if (env.acceptsProfiles(Profiles.of("nomis"))) {
-                        final var params = new MapSqlParameterSource()
-                            .addValue("p_move_type", ADM.getCode())
-                            .addValue("p_move_reason", movementReason.getCode())
-                            .addValue("p_old_book_id", oldBooking.getBookingId())
-                            .addValue("p_new_book_id", booking.getBookingId());
-                        copyBookData.execute(params);
-                        entityManager.flush();
-                        // booking needs reloading since SP has just updated it
-                        entityManager.refresh(booking);
-                    }
+                    copyPreviousBookingService.copyKeyDataFromPreviousBooking(booking, oldBooking, movement);
+                    entityManager.flush();
+                    // booking needs reloading since booking has been amended by copyPreviousBookingService
+                    entityManager.refresh(booking);
                 }
             ));
 
@@ -642,18 +634,21 @@ public class PrisonerReleaseAndTransferService {
             .build());
     }
 
-    private void createInMovement(final OffenderBooking booking, final MovementReason movementReason, final AgencyLocation fromLocation, final AgencyLocation toLocation, final LocalDateTime movementTime, final String commentText) {
-        booking.addExternalMovement(ExternalMovement.builder()
+    private ExternalMovement createInMovement(final OffenderBooking booking, final MovementReason movementReason, final AgencyLocation fromLocation, final AgencyLocation toLocation, final LocalDateTime movementTime, final String commentText) {
+        final ExternalMovement movement = ExternalMovement.builder()
             .movementDate(movementTime.toLocalDate())
             .movementTime(movementTime)
-            .movementType(movementTypeRepository.findById(MovementType.ADM).orElseThrow(EntityNotFoundException.withMessage(format("No %s movement type found", MovementType.ADM))))
+            .movementType(movementTypeRepository.findById(ADM).orElseThrow(EntityNotFoundException.withMessage(format("No %s movement type found", ADM))))
             .movementReason(movementReason)
-            .movementDirection(MovementDirection.IN)
+            .movementDirection(IN)
             .fromAgency(fromLocation)
             .toAgency(toLocation)
             .active(true)
             .commentText(commentText)
-            .build());
+            .build();
+        booking.addExternalMovement(movement);
+
+        return movement;
     }
 
     private void checkMovementTypes(final String movementCode, final String reasonCode) {

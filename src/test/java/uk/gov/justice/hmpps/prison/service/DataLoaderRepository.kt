@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service
 
+import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Service
 import org.springframework.test.web.reactive.server.WebTestClient
 import uk.gov.justice.hmpps.prison.repository.BookingRepository
@@ -34,6 +35,7 @@ class DataLoaderRepository(
   val courtCaseStatusRepository: ReferenceCodeRepository<CaseStatus>,
   val institutionAreaRepository: ReferenceCodeRepository<InstitutionArea>,
   val teamCategoryRepository: ReferenceCodeRepository<TeamCategory>,
+  val jdbcTemplate: JdbcTemplate,
 ) {
   @Transactional
   fun load(
