@@ -6,7 +6,6 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
@@ -1002,54 +1001,6 @@ public class OffendersResourceTest extends ResourceTest {
 
         assertThat(releaseResponse.getStatusCodeValue()).isEqualTo(200);
     }
-
-    @Test
-    public void testReceiveAPrisonerAsNewBookingForFirstTime() {
-        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
-
-        final var body = Map.of("prisonId", "SYI", "fromLocationId", "COURT1", "movementReasonCode", "24", "youthOffender", "true", "imprisonmentStatus", "CUR_ORA", "cellLocation", "SYI-A-1-1");
-
-        final var newBookingEntity = createHttpEntity(token, body);
-
-        final var response =  testRestTemplate.exchange(
-            "/api/offenders/{nomsId}/booking",
-            POST,
-            newBookingEntity,
-            new ParameterizedTypeReference<String>() {
-            },
-            "A9880GH"
-        );
-        assertThatJsonFileAndStatus(response, 200, "first_new_booking_prisoner.json");
-
-        webTestClient.get()
-            .uri("/api/offenders/{offenderNo}", "A9880GH")
-            .headers(
-                setAuthorisation(
-                    List.of("ROLE_SYSTEM_USER")
-                )
-            )
-            .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-            .accept(MediaType.APPLICATION_JSON)
-            .exchange()
-            .expectStatus().isOk()
-            .expectBody()
-            .jsonPath("profileInformation[0].type").isEqualTo("YOUTH")
-            .jsonPath("profileInformation[0].resultValue").isEqualTo("Yes");
-
-        final var releaseBody = createHttpEntity(token, Map.of("movementReasonCode", "CR", "commentText", "released prisoner today"));
-
-        final var releaseResponse =  testRestTemplate.exchange(
-            "/api/offenders/{nomsId}/release",
-            PUT,
-            releaseBody,
-            new ParameterizedTypeReference<String>() {
-            },
-            "A9880GH"
-        );
-
-        assertThat(releaseResponse.getStatusCodeValue()).isEqualTo(200);
-    }
-
 
     @Test
     public void testCannotTransferInPrisonerNotOut() {
