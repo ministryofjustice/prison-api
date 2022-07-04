@@ -89,6 +89,24 @@ class OffenderBookingBuilder(
       .exchange()
       .expectStatus().isOk
       .returnResult<InmateDetail>().responseBody.blockFirst()!!.also {
+      this.iepLevel?.run {
+        webTestClient.post()
+          .uri("/api/bookings/{bookingId}/iepLevels", it.bookingId)
+          .headers(
+            setAuthorisation(
+              jwtAuthenticationHelper = jwtAuthenticationHelper,
+              roles = listOf("ROLE_MAINTAIN_IEP")
+            )
+          )
+          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+          .accept(MediaType.APPLICATION_JSON)
+          .body(
+            BodyInserters.fromValue(IepLevelAndComment.builder().iepLevel(iepLevel).comment(iepLevelComment).build())
+          )
+          .exchange()
+          .expectStatus().is2xxSuccessful
+      }
+    }.also {
       if (released) {
         webTestClient.put()
           .uri("/api/offenders/{nomsId}/release", offenderNo)
@@ -114,24 +132,6 @@ class OffenderBookingBuilder(
           )
           .exchange()
           .expectStatus().isOk
-      }
-    }.also {
-      this.iepLevel?.run {
-        webTestClient.post()
-          .uri("/api/bookings/{bookingId}/iepLevels", it.bookingId)
-          .headers(
-            setAuthorisation(
-              jwtAuthenticationHelper = jwtAuthenticationHelper,
-              roles = listOf("ROLE_MAINTAIN_IEP")
-            )
-          )
-          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-          .accept(MediaType.APPLICATION_JSON)
-          .body(
-            BodyInserters.fromValue(IepLevelAndComment.builder().iepLevel(iepLevel).comment(iepLevelComment).build())
-          )
-          .exchange()
-          .expectStatus().is2xxSuccessful
       }
     }.also { inmateDetail ->
       this.voBalance?.run {
