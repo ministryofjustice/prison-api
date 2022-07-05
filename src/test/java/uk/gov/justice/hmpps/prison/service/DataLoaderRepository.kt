@@ -18,9 +18,9 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProgramProf
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTeamAssignmentRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.TeamRepository
-import uk.gov.justice.hmpps.prison.util.builders.BuilderContext
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
 import uk.gov.justice.hmpps.prison.util.builders.TeamBuilder
+import uk.gov.justice.hmpps.prison.util.builders.TestDataContext
 import javax.transaction.Transactional
 
 @Service
@@ -48,16 +48,16 @@ class DataLoaderTransaction {
   @Transactional
   fun load(
     offenderBuilder: OffenderBuilder,
-    builderContext: BuilderContext,
+    testDataContext: TestDataContext,
   ) =
-    offenderBuilder.save(builderContext)
+    offenderBuilder.save(testDataContext)
 
   @Transactional
   fun load(
     teamBuilder: TeamBuilder,
-    builderContext: BuilderContext,
+    testDataContext: TestDataContext,
   ) =
     teamBuilder.save(
-      dataLoader = builderContext.dataLoader
+      dataLoader = testDataContext.dataLoader
     )
 }

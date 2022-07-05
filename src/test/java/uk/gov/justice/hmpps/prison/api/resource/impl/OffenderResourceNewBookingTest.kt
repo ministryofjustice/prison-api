@@ -114,7 +114,7 @@ class OffenderResourceNewBookingTest : ResourceTest() {
 
       @Test
       internal fun `400 when offender is inactive but not OUT, for instance currently being transferred`() {
-        val offenderNo = createActiveBooking(prisonId = "MDI").also { builderContext.transferOut(it) }
+        val offenderNo = createActiveBooking(prisonId = "MDI").also { testDataContext.transferOut(it) }
 
         // when booking is created then the request is rejected
         webTestClient.post()
@@ -382,7 +382,7 @@ class OffenderResourceNewBookingTest : ResourceTest() {
       internal fun setUp() {
         OffenderBuilder(
           bookingBuilders = arrayOf()
-        ).save(builderContext).also {
+        ).save(testDataContext).also {
           offenderNo = it.offenderNo
         }
       }
@@ -544,7 +544,7 @@ class OffenderResourceNewBookingTest : ResourceTest() {
             prisonId = "LEI",
             released = true,
           ).withProfileDetails(OffenderProfileDetailsBuilder("Y", ProfileType.YOUTH))
-        ).save(builderContext).also {
+        ).save(testDataContext).also {
           offenderNo = it.offenderNo
         }
       }
@@ -700,7 +700,7 @@ class OffenderResourceNewBookingTest : ResourceTest() {
             prisonId = "LEI",
             released = true,
           ).withProfileDetails(OffenderProfileDetailsBuilder("N", ProfileType.YOUTH))
-        ).save(builderContext).also {
+        ).save(testDataContext).also {
           offenderNo = it.offenderNo
         }
       }
@@ -921,7 +921,7 @@ class OffenderResourceNewBookingTest : ResourceTest() {
           .returnResult(InmateDetail::class.java)
           .responseBody.blockFirst()!!.bookingId
 
-        assertThat(builderContext.getMovements(bookingId))
+        assertThat(testDataContext.getMovements(bookingId))
           .extracting(
             ExternalMovement::getMovementSequence,
             ExternalMovement::getMovementDirection,
@@ -961,7 +961,7 @@ class OffenderResourceNewBookingTest : ResourceTest() {
           .returnResult(InmateDetail::class.java)
           .responseBody.blockFirst()!!.bookingId
 
-        assertThat(builderContext.getBedAssignments(bookingId))
+        assertThat(testDataContext.getBedAssignments(bookingId))
           .extracting(
             BedAssignmentHistory::getAssignmentReason,
             BedAssignmentHistory::getAssignmentDate,
@@ -978,7 +978,7 @@ class OffenderResourceNewBookingTest : ResourceTest() {
 
       @Test
       internal fun `will reset IEP level back to default for prison`() {
-        assertThat(builderContext.getCurrentIEP(offenderNo))
+        assertThat(testDataContext.getCurrentIEP(offenderNo))
           .extracting(PrivilegeSummary::getIepLevel)
           .isEqualTo("Enhanced")
 
@@ -1004,7 +1004,7 @@ class OffenderResourceNewBookingTest : ResourceTest() {
           .exchange()
           .expectStatus().isOk
 
-        assertThat(builderContext.getCurrentIEP(offenderNo))
+        assertThat(testDataContext.getCurrentIEP(offenderNo))
           .extracting(PrivilegeSummary::getIepLevel)
           .isEqualTo("Entry")
       }
@@ -1035,7 +1035,7 @@ class OffenderResourceNewBookingTest : ResourceTest() {
           .returnResult(InmateDetail::class.java)
           .responseBody.blockFirst()!!.bookingId
 
-        assertThat(builderContext.getCaseNotes(bookingId))
+        assertThat(testDataContext.getCaseNotes(bookingId))
           .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getText)
           .contains(
             tuple(
@@ -1052,12 +1052,12 @@ class OffenderResourceNewBookingTest : ResourceTest() {
     OffenderBookingBuilder(
       prisonId = prisonId,
     )
-  ).save(builderContext).offenderNo
+  ).save(testDataContext).offenderNo
 
   fun createInactiveBooking(iepLevel: String = "ENH"): String = OffenderBuilder().withBooking(
     OffenderBookingBuilder(
       prisonId = "MDI",
       released = true
     ).withIEPLevel(iepLevel)
-  ).save(builderContext).offenderNo
+  ).save(testDataContext).offenderNo
 }

@@ -33,8 +33,8 @@ class OffenderBuilder(
   }
 
   fun save(
-    builderContext: BuilderContext
-  ): InmateDetail = save(builderContext.webTestClient, builderContext.jwtAuthenticationHelper, builderContext.dataLoader)
+    testDataContext: TestDataContext
+  ): InmateDetail = save(testDataContext.webTestClient, testDataContext.jwtAuthenticationHelper, testDataContext.dataLoader)
   private fun save(
     webTestClient: WebTestClient,
     jwtAuthenticationHelper: JwtAuthenticationHelper,
