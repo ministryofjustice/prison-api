@@ -12,8 +12,10 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import uk.gov.justice.hmpps.prison.PrisonApiServer;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
+import uk.gov.justice.hmpps.prison.service.DataLoaderRepository;
 import uk.gov.justice.hmpps.prison.util.JwtAuthenticationHelper;
 import uk.gov.justice.hmpps.prison.util.JwtParameters;
+import uk.gov.justice.hmpps.prison.util.builders.BuilderContext;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -30,6 +32,8 @@ import static org.springframework.core.ResolvableType.forType;
 @ActiveProfiles(value = "test")
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = PrisonApiServer.class)
 public abstract class ResourceTest {
+    @Autowired
+    private DataLoaderRepository dataLoader;
 
     @Autowired
     protected TestRestTemplate testRestTemplate;
@@ -42,6 +46,10 @@ public abstract class ResourceTest {
 
     @Autowired
     protected AuthTokenHelper authTokenHelper;
+
+    protected BuilderContext getBuilderContext() {
+        return new BuilderContext(webTestClient, jwtAuthenticationHelper, dataLoader);
+    }
 
     protected HttpEntity<?> createHttpEntity(final String bearerToken, final Object body) {
         return createHttpEntity(bearerToken, body, Collections.emptyMap());

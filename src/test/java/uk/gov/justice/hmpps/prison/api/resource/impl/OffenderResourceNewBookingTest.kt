@@ -20,7 +20,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository
-import uk.gov.justice.hmpps.prison.service.DataLoaderRepository
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderProfileDetailsBuilder
@@ -30,9 +29,6 @@ import java.time.format.DateTimeFormatter
 
 @WithMockUser
 class OffenderResourceNewBookingTest : ResourceTest() {
-  @Autowired
-  private lateinit var dataLoader: DataLoaderRepository
-
   @Autowired
   private lateinit var externalMovementRepository: ExternalMovementRepository
 
@@ -391,11 +387,7 @@ class OffenderResourceNewBookingTest : ResourceTest() {
       internal fun setUp() {
         OffenderBuilder(
           bookingBuilders = arrayOf()
-        ).save(
-          webTestClient = webTestClient,
-          jwtAuthenticationHelper = jwtAuthenticationHelper,
-          dataLoader = dataLoader
-        ).also {
+        ).save(builderContext).also {
           offenderNo = it.offenderNo
         }
       }
@@ -557,11 +549,7 @@ class OffenderResourceNewBookingTest : ResourceTest() {
             prisonId = "LEI",
             released = true,
           ).withProfileDetails(OffenderProfileDetailsBuilder("Y", ProfileType.YOUTH))
-        ).save(
-          webTestClient = webTestClient,
-          jwtAuthenticationHelper = jwtAuthenticationHelper,
-          dataLoader = dataLoader
-        ).also {
+        ).save(builderContext).also {
           offenderNo = it.offenderNo
         }
       }
@@ -717,11 +705,7 @@ class OffenderResourceNewBookingTest : ResourceTest() {
             prisonId = "LEI",
             released = true,
           ).withProfileDetails(OffenderProfileDetailsBuilder("N", ProfileType.YOUTH))
-        ).save(
-          webTestClient = webTestClient,
-          jwtAuthenticationHelper = jwtAuthenticationHelper,
-          dataLoader = dataLoader
-        ).also {
+        ).save(builderContext).also {
           offenderNo = it.offenderNo
         }
       }
@@ -1073,22 +1057,14 @@ class OffenderResourceNewBookingTest : ResourceTest() {
     OffenderBookingBuilder(
       prisonId = prisonId,
     )
-  ).save(
-    webTestClient = webTestClient,
-    jwtAuthenticationHelper = jwtAuthenticationHelper,
-    dataLoader = dataLoader
-  ).offenderNo
+  ).save(builderContext).offenderNo
 
   fun createInactiveBooking(iepLevel: String = "ENH"): String = OffenderBuilder().withBooking(
     OffenderBookingBuilder(
       prisonId = "MDI",
       released = true
     ).withIEPLevel(iepLevel)
-  ).save(
-    webTestClient = webTestClient,
-    jwtAuthenticationHelper = jwtAuthenticationHelper,
-    dataLoader = dataLoader
-  ).offenderNo
+  ).save(builderContext).offenderNo
 
   private fun getMovements(bookingId: Long) = externalMovementRepository.findAllByOffenderBooking_BookingId(bookingId)
   private fun getBedAssignments(bookingId: Long) =

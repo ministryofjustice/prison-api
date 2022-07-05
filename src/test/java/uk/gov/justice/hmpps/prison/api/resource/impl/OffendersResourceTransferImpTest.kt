@@ -34,7 +34,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Team
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository
-import uk.gov.justice.hmpps.prison.service.DataLoaderRepository
+import uk.gov.justice.hmpps.prison.service.DataLoaderTransaction
 import uk.gov.justice.hmpps.prison.service.transfer.WorkflowTaskService
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
@@ -60,13 +60,13 @@ class OffendersResourceTransferImpTest : ResourceTest() {
   private lateinit var courtEventRepository: CourtEventRepository
 
   @Autowired
-  private lateinit var dataLoader: DataLoaderRepository
+  private lateinit var dataLoaderTransaction: DataLoaderTransaction
 
   @MockBean
   private lateinit var workflowTaskService: WorkflowTaskService
 
   private val team: Team by lazy {
-    dataLoader.load(TeamBuilder())
+    dataLoaderTransaction.load(TeamBuilder(), builderContext)
   }
 
   @Nested
@@ -86,11 +86,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             prisonId = "LEI",
             bookingInTime = bookingInTime
           ).withIEPLevel("ENH").withInitialVoBalances(2, 8)
-        ).save(
-          webTestClient = webTestClient,
-          jwtAuthenticationHelper = jwtAuthenticationHelper,
-          dataLoader = dataLoader
-        ).also {
+        ).save(builderContext).also {
           offenderNo = it.offenderNo
           bookingId = it.bookingId
         }
@@ -377,11 +373,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               prisonId = "LEI",
               bookingInTime = LocalDateTime.now().minusDays(1)
             )
-          ).save(
-            webTestClient = webTestClient,
-            jwtAuthenticationHelper = jwtAuthenticationHelper,
-            dataLoader = dataLoader
-          ).offenderNo
+          ).save(builderContext).offenderNo
       }
 
       @Test
@@ -515,7 +507,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
       @BeforeEach
       internal fun setUp() {
-        dataLoader.load(
+        dataLoaderTransaction.load(
           OffenderBuilder().withBooking(
             OffenderBookingBuilder(
               prisonId = "LEI",
@@ -526,8 +518,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               .withInitialVoBalances(2, 8)
               .withCourtCases(OffenderCourtCaseBuilder())
           ),
-          webTestClient = webTestClient,
-          jwtAuthenticationHelper = jwtAuthenticationHelper
+          builderContext
         )
           .also {
             offenderNo = it.offenderNo
@@ -1138,7 +1129,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
       @BeforeEach
       internal fun setUp() {
-        dataLoader.load(
+        dataLoaderTransaction.load(
           OffenderBuilder().withBooking(
             OffenderBookingBuilder(
               prisonId = "LEI",
@@ -1147,8 +1138,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             )
               .withTeamAssignment(OffenderTeamAssignmentBuilder(team))
           ),
-          webTestClient = webTestClient,
-          jwtAuthenticationHelper = jwtAuthenticationHelper
+          builderContext
         )
           .also {
             offenderNo = it.offenderNo
@@ -1243,11 +1233,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             bookingInTime = LocalDateTime.now().minusDays(10),
             cellLocation = "LEI-RECP"
           ).withIEPLevel("ENH").withInitialVoBalances(2, 8)
-        ).save(
-          webTestClient = webTestClient,
-          jwtAuthenticationHelper = jwtAuthenticationHelper,
-          dataLoader = dataLoader
-        ).also {
+        ).save(builderContext).also {
           offenderNo = it.offenderNo
         }
       }
@@ -1452,7 +1438,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
   }
 
   fun createCourtHearing(bookingId: Long): Long {
-    val courtCase = dataLoader.offenderCourtCaseRepository.findAllByOffenderBooking_BookingId(bookingId).first()
+    val courtCase = builderContext.dataLoader.offenderCourtCaseRepository.findAllByOffenderBooking_BookingId(bookingId).first()
 
     return webTestClient.post()
       .uri("/api/bookings/{bookingId}/court-cases/{courtCaseId}/prison-to-court-hearings", bookingId, courtCase.id)
