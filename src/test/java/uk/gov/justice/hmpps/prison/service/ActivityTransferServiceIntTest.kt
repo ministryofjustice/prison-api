@@ -62,7 +62,7 @@ class ActivityTransferServiceIntTest : ResourceTest() {
               courseActivityId = -5
             )
           )
-      ).save(builderContext).also {
+      ).save(testDataContext).also {
         offenderNo = it.offenderNo
         bookingId = it.bookingId
       }
@@ -73,8 +73,8 @@ class ActivityTransferServiceIntTest : ResourceTest() {
       val testEndDate = LocalDate.of(2022, 10, 1)
       transferOutToCourt(offenderNo, "COURT1", true)
 
-      val offenderBooking = builderContext.dataLoader.offenderBookingRepository.findByBookingId(bookingId).orElseThrow()
-      val prison = builderContext.dataLoader.agencyLocationRepository.findById("LEI").orElseThrow()
+      val offenderBooking = testDataContext.dataLoader.offenderBookingRepository.findByBookingId(bookingId).orElseThrow()
+      val prison = testDataContext.dataLoader.agencyLocationRepository.findById("LEI").orElseThrow()
 
       assertThat(
         getActiveActivities(
@@ -121,7 +121,7 @@ class ActivityTransferServiceIntTest : ResourceTest() {
     prison: AgencyLocation,
     testEndDate: LocalDate
   ): List<OffenderProgramProfile> =
-    builderContext.dataLoader.offenderProgramProfileRepository.findActiveActivitiesForBookingAtPrison(
+    testDataContext.dataLoader.offenderProgramProfileRepository.findActiveActivitiesForBookingAtPrison(
       offenderBooking, prison, testEndDate
     )
 
@@ -129,7 +129,7 @@ class ActivityTransferServiceIntTest : ResourceTest() {
     offenderBooking: OffenderBooking,
     prison: AgencyLocation
   ): List<OffenderProgramProfile> =
-    builderContext.dataLoader.offenderProgramProfileRepository.findActiveWaitListActivitiesForBookingAtPrison(
+    testDataContext.dataLoader.offenderProgramProfileRepository.findActiveWaitListActivitiesForBookingAtPrison(
       offenderBooking, prison
     )
 

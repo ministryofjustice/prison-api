@@ -29,13 +29,13 @@ internal fun randomName(): String {
   }.joinToString("")
 }
 
-data class BuilderContext(
+data class TestDataContext(
   val webTestClient: WebTestClient,
   val jwtAuthenticationHelper: JwtAuthenticationHelper,
   val dataLoader: DataLoaderRepository
 )
 
-fun BuilderContext.transferOut(offenderNo: String, toLocation: String = "MDI") {
+fun TestDataContext.transferOut(offenderNo: String, toLocation: String = "MDI") {
   webTestClient.put()
     .uri("/api/offenders/{nomsId}/transfer-out", offenderNo)
     .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
@@ -65,7 +65,7 @@ fun BuilderContext.transferOut(offenderNo: String, toLocation: String = "MDI") {
     .jsonPath("assignedLivingUnit.description").doesNotExist()
 }
 
-fun BuilderContext.release(offenderNo: String) {
+fun TestDataContext.release(offenderNo: String) {
   webTestClient.put()
     .uri("/api/offenders/{nomsId}/release", offenderNo)
     .headers(setAuthorisation(listOf("ROLE_RELEASE_PRISONER")))
@@ -94,7 +94,7 @@ fun BuilderContext.release(offenderNo: String) {
     .jsonPath("assignedLivingUnit.description").doesNotExist()
 }
 
-fun BuilderContext.transferOutToCourt(offenderNo: String, toLocation: String, shouldReleaseBed: Boolean = false, courtHearingEventId: Long? = null): LocalDateTime {
+fun TestDataContext.transferOutToCourt(offenderNo: String, toLocation: String, shouldReleaseBed: Boolean = false, courtHearingEventId: Long? = null): LocalDateTime {
   val movementTime = LocalDateTime.now().minusHours(1)
   val request = RequestToTransferOutToCourt(
     /* toLocation = */ toLocation,
@@ -123,7 +123,7 @@ fun BuilderContext.transferOutToCourt(offenderNo: String, toLocation: String, sh
   return movementTime
 }
 
-private fun BuilderContext.setAuthorisation(roles: List<String>): Consumer<HttpHeaders> {
+private fun TestDataContext.setAuthorisation(roles: List<String>): Consumer<HttpHeaders> {
   return Consumer { httpHeaders: HttpHeaders ->
     httpHeaders.add(
       "Authorization",
@@ -132,7 +132,7 @@ private fun BuilderContext.setAuthorisation(roles: List<String>): Consumer<HttpH
   }
 }
 
-fun BuilderContext.validToken(roles: List<String?>?): String? {
+fun TestDataContext.validToken(roles: List<String?>?): String? {
   return this.jwtAuthenticationHelper.createJwt(
     JwtParameters.builder()
       .username("ITAG_USER")
@@ -143,7 +143,7 @@ fun BuilderContext.validToken(roles: List<String?>?): String? {
   )
 }
 
-fun BuilderContext.createCourtHearing(bookingId: Long): Long {
+fun TestDataContext.createCourtHearing(bookingId: Long): Long {
   val courtCase = this.dataLoader.offenderCourtCaseRepository.findAllByOffenderBooking_BookingId(bookingId).first()
 
   return webTestClient.post()
@@ -169,11 +169,11 @@ fun BuilderContext.createCourtHearing(bookingId: Long): Long {
     .returnResult<CourtHearing>().responseBody.blockFirst()?.id!!
 }
 
-fun BuilderContext.getMovements(bookingId: Long): List<ExternalMovement> = this.dataLoader.externalMovementRepository.findAllByOffenderBooking_BookingId(bookingId)
-fun BuilderContext.getBedAssignments(bookingId: Long): List<BedAssignmentHistory> =
+fun TestDataContext.getMovements(bookingId: Long): List<ExternalMovement> = this.dataLoader.externalMovementRepository.findAllByOffenderBooking_BookingId(bookingId)
+fun TestDataContext.getBedAssignments(bookingId: Long): List<BedAssignmentHistory> =
   this.dataLoader.bedAssignmentHistoriesRepository.findAllByBedAssignmentHistoryPKOffenderBookingId(bookingId)
 
-fun BuilderContext.getCurrentIEP(offenderNo: String) = webTestClient.get()
+fun TestDataContext.getCurrentIEP(offenderNo: String) = webTestClient.get()
   .uri("/api/offenders/{offenderNo}/iepSummary", offenderNo)
   .headers(
     setAuthorisation(
@@ -186,7 +186,7 @@ fun BuilderContext.getCurrentIEP(offenderNo: String) = webTestClient.get()
   .expectStatus().isOk
   .returnResult<PrivilegeSummary>().responseBody.blockFirst()!!
 
-fun BuilderContext.getVOBalanceDetails(offenderNo: String) = webTestClient.get()
+fun TestDataContext.getVOBalanceDetails(offenderNo: String) = webTestClient.get()
   .uri("/api/bookings/offenderNo/{offenderNo}/visit/balances", offenderNo)
   .headers(
     setAuthorisation(
@@ -199,7 +199,7 @@ fun BuilderContext.getVOBalanceDetails(offenderNo: String) = webTestClient.get()
   .expectStatus().isOk
   .returnResult<VisitBalances>().responseBody.blockFirst()!!
 
-fun BuilderContext.getCaseNotes(bookingId: Long): List<CaseNote> = webTestClient.get()
+fun TestDataContext.getCaseNotes(bookingId: Long): List<CaseNote> = webTestClient.get()
   .uri("/api/bookings/{bookingId}/caseNotes?size=999", bookingId)
   .headers(
     setAuthorisation(
@@ -212,5 +212,5 @@ fun BuilderContext.getCaseNotes(bookingId: Long): List<CaseNote> = webTestClient
   .expectStatus().isOk
   .returnResult<RestResponsePage<CaseNote>>().responseBody.blockFirst()!!.content
 
-fun BuilderContext.getCourtHearings(bookingId: Long): List<CourtEvent> =
+fun TestDataContext.getCourtHearings(bookingId: Long): List<CourtEvent> =
   this.dataLoader.courtEventRepository.findByOffenderBooking_BookingIdOrderByIdAsc(bookingId)
