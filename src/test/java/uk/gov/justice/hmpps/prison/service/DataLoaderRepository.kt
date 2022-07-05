@@ -8,7 +8,10 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.InstitutionArea
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LegalCaseType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.TeamCategory
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourseActivityRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCourtCaseRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProgramProfileRepository
@@ -34,6 +37,9 @@ class DataLoaderRepository(
   val courtCaseStatusRepository: ReferenceCodeRepository<CaseStatus>,
   val institutionAreaRepository: ReferenceCodeRepository<InstitutionArea>,
   val teamCategoryRepository: ReferenceCodeRepository<TeamCategory>,
+  val externalMovementRepository: ExternalMovementRepository,
+  val bedAssignmentHistoriesRepository: BedAssignmentHistoriesRepository,
+  val courtEventRepository: CourtEventRepository,
   val jdbcTemplate: JdbcTemplate,
 )
 
