@@ -2,7 +2,6 @@ package uk.gov.justice.hmpps.prison.service
 
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Service
-import org.springframework.test.web.reactive.server.WebTestClient
 import uk.gov.justice.hmpps.prison.repository.BookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus
 import uk.gov.justice.hmpps.prison.repository.jpa.model.InstitutionArea
@@ -16,7 +15,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProgramProf
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTeamAssignmentRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.TeamRepository
-import uk.gov.justice.hmpps.prison.util.JwtAuthenticationHelper
+import uk.gov.justice.hmpps.prison.util.builders.BuilderContext
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
 import uk.gov.justice.hmpps.prison.util.builders.TeamBuilder
 import javax.transaction.Transactional
@@ -36,24 +35,23 @@ class DataLoaderRepository(
   val institutionAreaRepository: ReferenceCodeRepository<InstitutionArea>,
   val teamCategoryRepository: ReferenceCodeRepository<TeamCategory>,
   val jdbcTemplate: JdbcTemplate,
-) {
+)
+
+@Service
+class DataLoaderTransaction {
   @Transactional
   fun load(
     offenderBuilder: OffenderBuilder,
-    webTestClient: WebTestClient,
-    jwtAuthenticationHelper: JwtAuthenticationHelper
+    builderContext: BuilderContext,
   ) =
-    offenderBuilder.save(
-      webTestClient = webTestClient,
-      jwtAuthenticationHelper = jwtAuthenticationHelper,
-      dataLoader = this
-    )
+    offenderBuilder.save(builderContext)
 
   @Transactional
   fun load(
     teamBuilder: TeamBuilder,
+    builderContext: BuilderContext,
   ) =
     teamBuilder.save(
-      dataLoader = this
+      dataLoader = builderContext.dataLoader
     )
 }

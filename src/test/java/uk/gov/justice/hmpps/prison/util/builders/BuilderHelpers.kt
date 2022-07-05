@@ -1,4 +1,8 @@
-package uk.gov.justice.hmpps.prison.util
+package uk.gov.justice.hmpps.prison.util.builders
+
+import org.springframework.test.web.reactive.server.WebTestClient
+import uk.gov.justice.hmpps.prison.service.DataLoaderRepository
+import uk.gov.justice.hmpps.prison.util.JwtAuthenticationHelper
 
 internal fun randomName(): String {
   // return random name between 3 and 10 characters long
@@ -6,3 +10,9 @@ internal fun randomName(): String {
     ('a' + (Math.random() * 26).toInt())
   }.joinToString("")
 }
+
+data class BuilderContext(
+  val webTestClient: WebTestClient,
+  val jwtAuthenticationHelper: JwtAuthenticationHelper,
+  val dataLoader: DataLoaderRepository
+)
