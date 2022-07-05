@@ -18,12 +18,9 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
-import org.springframework.test.web.reactive.server.returnResult
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.api.model.CaseNote
-import uk.gov.justice.hmpps.prison.api.model.CourtHearing
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary
-import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOutToCourt
 import uk.gov.justice.hmpps.prison.api.model.VisitBalances
 import uk.gov.justice.hmpps.prison.exception.CustomErrorCodes
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory
@@ -31,9 +28,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection.IN
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection.OUT
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Team
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository
 import uk.gov.justice.hmpps.prison.service.DataLoaderTransaction
 import uk.gov.justice.hmpps.prison.service.transfer.WorkflowTaskService
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
@@ -41,6 +35,16 @@ import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderCourtCaseBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderTeamAssignmentBuilder
 import uk.gov.justice.hmpps.prison.util.builders.TeamBuilder
+import uk.gov.justice.hmpps.prison.util.builders.createCourtHearing
+import uk.gov.justice.hmpps.prison.util.builders.getBedAssignments
+import uk.gov.justice.hmpps.prison.util.builders.getCaseNotes
+import uk.gov.justice.hmpps.prison.util.builders.getCourtHearings
+import uk.gov.justice.hmpps.prison.util.builders.getCurrentIEP
+import uk.gov.justice.hmpps.prison.util.builders.getMovements
+import uk.gov.justice.hmpps.prison.util.builders.getVOBalanceDetails
+import uk.gov.justice.hmpps.prison.util.builders.release
+import uk.gov.justice.hmpps.prison.util.builders.transferOut
+import uk.gov.justice.hmpps.prison.util.builders.transferOutToCourt
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -50,15 +54,6 @@ import java.time.format.DateTimeFormatter
  */
 @WithMockUser
 class OffendersResourceTransferImpTest : ResourceTest() {
-  @Autowired
-  private lateinit var externalMovementRepository: ExternalMovementRepository
-
-  @Autowired
-  private lateinit var bedAssignmentHistoriesRepository: BedAssignmentHistoriesRepository
-
-  @Autowired
-  private lateinit var courtEventRepository: CourtEventRepository
-
   @Autowired
   private lateinit var dataLoaderTransaction: DataLoaderTransaction
 
@@ -91,7 +86,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           bookingId = it.bookingId
         }
 
-        transferOut(offenderNo, "MDI")
+        builderContext.transferOut(offenderNo, "MDI")
       }
 
       @Test
@@ -155,7 +150,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
       @Test
       internal fun `will create a new movement and deactivate the transfer out`() {
-        assertThat(getMovements(bookingId))
+        assertThat(builderContext.getMovements(bookingId))
           .extracting(
             ExternalMovement::getMovementSequence,
             ExternalMovement::getMovementDirection,
@@ -186,7 +181,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           .exchange()
           .expectStatus().isOk
 
-        assertThat(getMovements(bookingId))
+        assertThat(builderContext.getMovements(bookingId))
           .extracting(
             ExternalMovement::getMovementSequence,
             ExternalMovement::getMovementDirection,
@@ -201,7 +196,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
       @Test
       internal fun `will create a new bed assignment history record`() {
-        assertThat(getBedAssignments(bookingId))
+        assertThat(builderContext.getBedAssignments(bookingId))
           .extracting(
             BedAssignmentHistory::getAssignmentReason,
             BedAssignmentHistory::getAssignmentDate,
@@ -231,7 +226,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           .exchange()
           .expectStatus().isOk
 
-        assertThat(getBedAssignments(bookingId))
+        assertThat(builderContext.getBedAssignments(bookingId))
           .extracting(
             BedAssignmentHistory::getAssignmentReason,
             BedAssignmentHistory::getAssignmentDate,
@@ -245,7 +240,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
       @Test
       internal fun `will reset IEP level back to default for prison`() {
-        assertThat(getCurrentIEP(offenderNo))
+        assertThat(builderContext.getCurrentIEP(offenderNo))
           .extracting(PrivilegeSummary::getIepLevel)
           .isEqualTo("Enhanced")
 
@@ -269,7 +264,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           .exchange()
           .expectStatus().isOk
 
-        assertThat(getCurrentIEP(offenderNo))
+        assertThat(builderContext.getCurrentIEP(offenderNo))
           .extracting(PrivilegeSummary::getIepLevel)
           .isEqualTo("Entry")
       }
@@ -281,12 +276,12 @@ class OffendersResourceTransferImpTest : ResourceTest() {
         // This was part of change SDU-187 that was reverted from production due to issues
         // If this change is implemented then we would need to port this functionality as well
 
-        assertThat(getCurrentIEP(offenderNo))
+        assertThat(builderContext.getCurrentIEP(offenderNo))
           .extracting(PrivilegeSummary::getIepLevel)
           .isEqualTo("Enhanced")
 
         // vo balance exists with no adjustments
-        assertThat(getVOBalanceDetails(offenderNo))
+        assertThat(builderContext.getVOBalanceDetails(offenderNo))
           .extracting(VisitBalances::getRemainingPvo, VisitBalances::getLatestIepAdjustDate)
           .containsExactly(8, null)
 
@@ -311,14 +306,14 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           .expectStatus().isOk
 
         // vo balance exists with no adjustments
-        assertThat(getVOBalanceDetails(offenderNo))
+        assertThat(builderContext.getVOBalanceDetails(offenderNo))
           .extracting(VisitBalances::getRemainingPvo, VisitBalances::getLatestIepAdjustDate)
           .containsExactly(8, null)
       }
 
       @Test
       internal fun `will create a transfer in case note`() {
-        assertThat(getCaseNotes(bookingId))
+        assertThat(builderContext.getCaseNotes(bookingId))
           .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getText)
           .contains(
             tuple(
@@ -348,7 +343,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           .exchange()
           .expectStatus().isOk
 
-        assertThat(getCaseNotes(bookingId))
+        assertThat(builderContext.getCaseNotes(bookingId))
           .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getText)
           .contains(
             tuple(
@@ -378,7 +373,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
       @Test
       internal fun `cannot transfer a prisoner in to a full cell`() {
-        transferOut(offenderNo, "MDI")
+        builderContext.transferOut(offenderNo, "MDI")
 
         webTestClient.put()
           .uri("/api/offenders/{nomsId}/transfer-in", offenderNo)
@@ -437,7 +432,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
       @Test
       internal fun `cannot transfer with a time in the future`() {
-        transferOut(offenderNo, "MDI")
+        builderContext.transferOut(offenderNo, "MDI")
 
         webTestClient.put()
           .uri("/api/offenders/{nomsId}/transfer-in", offenderNo)
@@ -466,7 +461,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
       @Test
       internal fun `cannot transfer with a time before transfer out time`() {
-        transferOut(offenderNo, "MDI")
+        builderContext.transferOut(offenderNo, "MDI")
 
         webTestClient.put()
           .uri("/api/offenders/{nomsId}/transfer-in", offenderNo)
@@ -533,7 +528,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
         @BeforeEach
         internal fun setUp() {
-          transferOutDateTime = transferOutToCourt(offenderNo, toLocation = "COURT1", shouldReleaseBed = true)
+          transferOutDateTime = builderContext.transferOutToCourt(offenderNo, toLocation = "COURT1", shouldReleaseBed = true)
         }
 
         @Nested
@@ -620,7 +615,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
           @Test
           internal fun `will create a new movement and deactivate the transfer to court out`() {
-            assertThat(getMovements(bookingId))
+            assertThat(builderContext.getMovements(bookingId))
               .extracting(
                 ExternalMovement::getMovementSequence,
                 ExternalMovement::getMovementDirection,
@@ -651,7 +646,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               .exchange()
               .expectStatus().isOk
 
-            assertThat(getMovements(bookingId))
+            assertThat(builderContext.getMovements(bookingId))
               .extracting(
                 ExternalMovement::getMovementSequence,
                 ExternalMovement::getMovementDirection,
@@ -667,7 +662,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           @Test
           internal fun `will not record any bed history changes`() {
             val receiveDateTime = LocalDateTime.now().minusMinutes(2)
-            assertThat(getBedAssignments(bookingId))
+            assertThat(builderContext.getBedAssignments(bookingId))
               .extracting(
                 BedAssignmentHistory::getAssignmentReason,
                 BedAssignmentHistory::getAssignmentDate,
@@ -697,7 +692,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               .exchange()
               .expectStatus().isOk
 
-            assertThat(getBedAssignments(bookingId))
+            assertThat(builderContext.getBedAssignments(bookingId))
               .extracting(
                 BedAssignmentHistory::getAssignmentReason,
                 BedAssignmentHistory::getAssignmentDate,
@@ -765,7 +760,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
           @Test
           internal fun `will create a new movement and deactivate the transfer out`() {
-            assertThat(getMovements(bookingId))
+            assertThat(builderContext.getMovements(bookingId))
               .extracting(
                 ExternalMovement::getMovementSequence,
                 ExternalMovement::getMovementDirection,
@@ -794,7 +789,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               .exchange()
               .expectStatus().isOk
 
-            assertThat(getMovements(bookingId))
+            assertThat(builderContext.getMovements(bookingId))
               .extracting(
                 ExternalMovement::getMovementSequence,
                 ExternalMovement::getMovementDirection,
@@ -810,7 +805,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           @Test
           internal fun `will create a new bed assignment history record with no reason code`() {
             val receiveDateTime = LocalDateTime.now().minusMinutes(2)
-            assertThat(getBedAssignments(bookingId))
+            assertThat(builderContext.getBedAssignments(bookingId))
               .extracting(
                 BedAssignmentHistory::getAssignmentReason,
                 BedAssignmentHistory::getAssignmentDate,
@@ -840,7 +835,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               .exchange()
               .expectStatus().isOk
 
-            assertThat(getBedAssignments(bookingId))
+            assertThat(builderContext.getBedAssignments(bookingId))
               .extracting(
                 BedAssignmentHistory::getAssignmentReason,
                 BedAssignmentHistory::getAssignmentDate,
@@ -855,7 +850,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
           @Test
           internal fun `will reset IEP level back to default for prison`() {
-            assertThat(getCurrentIEP(offenderNo))
+            assertThat(builderContext.getCurrentIEP(offenderNo))
               .extracting(PrivilegeSummary::getIepLevel)
               .isEqualTo("Enhanced")
 
@@ -877,14 +872,14 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               .exchange()
               .expectStatus().isOk
 
-            assertThat(getCurrentIEP(offenderNo))
+            assertThat(builderContext.getCurrentIEP(offenderNo))
               .extracting(PrivilegeSummary::getIepLevel)
               .isEqualTo("Entry")
           }
 
           @Test
           internal fun `will create a transfer via court case note`() {
-            assertThat(getCaseNotes(bookingId))
+            assertThat(builderContext.getCaseNotes(bookingId))
               .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getText)
               .contains(
                 tuple(
@@ -912,7 +907,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               .exchange()
               .expectStatus().isOk
 
-            assertThat(getCaseNotes(bookingId))
+            assertThat(builderContext.getCaseNotes(bookingId))
               .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getText)
               .contains(
                 tuple(
@@ -932,7 +927,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
         @BeforeEach
         internal fun setUp() {
-          transferOutDateTime = transferOutToCourt(offenderNo, toLocation = "COURT1", shouldReleaseBed = false)
+          transferOutDateTime = builderContext.transferOutToCourt(offenderNo, toLocation = "COURT1", shouldReleaseBed = false)
         }
 
         @Nested
@@ -965,7 +960,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
           @Test
           internal fun `will not record any bed history changes`() {
-            assertThat(getBedAssignments(bookingId))
+            assertThat(builderContext.getBedAssignments(bookingId))
               .extracting(
                 BedAssignmentHistory::getAssignmentReason,
                 BedAssignmentHistory::getAssignmentDate,
@@ -994,7 +989,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               .exchange()
               .expectStatus().isOk
 
-            assertThat(getBedAssignments(bookingId))
+            assertThat(builderContext.getBedAssignments(bookingId))
               .extracting(
                 BedAssignmentHistory::getAssignmentReason,
                 BedAssignmentHistory::getAssignmentDate,
@@ -1038,7 +1033,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           @Test
           internal fun `will create a new bed assignment history record with no reason code`() {
             val receiveDateTime = LocalDateTime.now().minusMinutes(2)
-            assertThat(getBedAssignments(bookingId))
+            assertThat(builderContext.getBedAssignments(bookingId))
               .extracting(
                 BedAssignmentHistory::getAssignmentReason,
                 BedAssignmentHistory::getAssignmentDate,
@@ -1067,7 +1062,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               .exchange()
               .expectStatus().isOk
 
-            assertThat(getBedAssignments(bookingId))
+            assertThat(builderContext.getBedAssignments(bookingId))
               .extracting(
                 BedAssignmentHistory::getAssignmentReason,
                 BedAssignmentHistory::getAssignmentDate,
@@ -1087,14 +1082,14 @@ class OffendersResourceTransferImpTest : ResourceTest() {
         private var courtHearingEventId: Long = 0
         @BeforeEach
         internal fun setUp() {
-          courtHearingEventId = createCourtHearing(bookingId)
-          assertThat(getCourtHearings(bookingId)).extracting("eventStatus.code").containsExactly("SCH")
-          transferOutToCourt(offenderNo = offenderNo, toLocation = "COURT1", false, courtHearingEventId)
+          courtHearingEventId = builderContext.createCourtHearing(bookingId)
+          assertThat(builderContext.getCourtHearings(bookingId)).extracting("eventStatus.code").containsExactly("SCH")
+          builderContext.transferOutToCourt(offenderNo = offenderNo, toLocation = "COURT1", false, courtHearingEventId)
         }
 
         @Test
         internal fun `will complete scheduled appearance event`() {
-          assertThat(getCourtHearings(bookingId)).extracting("eventStatus.code").containsExactly("COMP", "SCH")
+          assertThat(builderContext.getCourtHearings(bookingId)).extracting("eventStatus.code").containsExactly("COMP", "SCH")
           webTestClient.put()
             .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
             .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
@@ -1112,9 +1107,9 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             )
             .exchange()
             .expectStatus().isOk
-          val courtHearingEVents = getCourtHearings(bookingId)
+          val courtHearingEVents = builderContext.getCourtHearings(bookingId)
           assertThat(courtHearingEVents).extracting("eventStatus.code").containsExactly("COMP", "COMP")
-          assertThat(getMovements(bookingId).last().eventId).isEqualTo(courtHearingEVents.last().id)
+          assertThat(builderContext.getMovements(bookingId).last().eventId).isEqualTo(courtHearingEVents.last().id)
         }
       }
     }
@@ -1145,7 +1140,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             bookingId = it.bookingId
           }
 
-        transferOutDateTime = transferOutToCourt(offenderNo, toLocation = "COURT1", shouldReleaseBed = false)
+        transferOutDateTime = builderContext.transferOutToCourt(offenderNo, toLocation = "COURT1", shouldReleaseBed = false)
       }
 
       @Nested
@@ -1268,7 +1263,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
         @Test
         internal fun `cannot transfer in when not previously transferred to court`() {
-          release(offenderNo)
+          builderContext.release(offenderNo)
           webTestClient.put()
             .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
             .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
@@ -1294,7 +1289,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
         @Test
         internal fun `cannot transfer with a time in the future`() {
-          transferOutToCourt(offenderNo, toLocation = "COURT1", shouldReleaseBed = false)
+          builderContext.transferOutToCourt(offenderNo, toLocation = "COURT1", shouldReleaseBed = false)
 
           webTestClient.put()
             .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
@@ -1321,7 +1316,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
         @Test
         internal fun `cannot transfer with a time before transfer out time`() {
-          val transferOutDateTime = transferOutToCourt(offenderNo, toLocation = "COURT1", shouldReleaseBed = false)
+          val transferOutDateTime = builderContext.transferOutToCourt(offenderNo, toLocation = "COURT1", shouldReleaseBed = false)
 
           webTestClient.put()
             .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
@@ -1348,166 +1343,6 @@ class OffendersResourceTransferImpTest : ResourceTest() {
       }
     }
   }
-
-  fun transferOut(offenderNo: String, toLocation: String) {
-    webTestClient.put()
-      .uri("/api/offenders/{nomsId}/transfer-out", offenderNo)
-      .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
-      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-      .accept(MediaType.APPLICATION_JSON)
-      .body(
-        BodyInserters.fromValue(
-          """
-          {
-            "transferReasonCode":"NOTR",
-            "commentText":"transferred prisoner today",
-            "toLocation":"$toLocation",
-            "movementTime": "${LocalDateTime.now().minusHours(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
-            
-          }
-          """.trimIndent()
-        )
-      )
-      .exchange()
-      .expectStatus().isOk
-      .expectBody()
-      .jsonPath("inOutStatus").isEqualTo("TRN")
-      .jsonPath("status").isEqualTo("INACTIVE TRN")
-      .jsonPath("lastMovementTypeCode").isEqualTo("TRN")
-      .jsonPath("lastMovementReasonCode").isEqualTo("NOTR")
-      .jsonPath("assignedLivingUnit.agencyId").isEqualTo("TRN")
-      .jsonPath("assignedLivingUnit.description").doesNotExist()
-  }
-
-  fun release(offenderNo: String) {
-    webTestClient.put()
-      .uri("/api/offenders/{nomsId}/release", offenderNo)
-      .headers(setAuthorisation(listOf("ROLE_RELEASE_PRISONER")))
-      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-      .accept(MediaType.APPLICATION_JSON)
-      .body(
-        BodyInserters.fromValue(
-          """
-          {
-            "movementReasonCode":"CR",
-            "commentText":"released prisoner today",
-            "movementTime": "${LocalDateTime.now().minusHours(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
-            
-          }
-          """.trimIndent()
-        )
-      )
-      .exchange()
-      .expectStatus().isOk
-      .expectBody()
-      .jsonPath("inOutStatus").isEqualTo("OUT")
-      .jsonPath("status").isEqualTo("INACTIVE OUT")
-      .jsonPath("lastMovementTypeCode").isEqualTo("REL")
-      .jsonPath("lastMovementReasonCode").isEqualTo("CR")
-      .jsonPath("assignedLivingUnit.agencyId").isEqualTo("OUT")
-      .jsonPath("assignedLivingUnit.description").doesNotExist()
-  }
-
-  fun transferOutToCourt(offenderNo: String, toLocation: String, shouldReleaseBed: Boolean = false, courtHearingEventId: Long? = null): LocalDateTime {
-    val movementTime = LocalDateTime.now().minusHours(1)
-    val request = RequestToTransferOutToCourt(
-      /* toLocation = */ toLocation,
-      /* movementTime = */ movementTime,
-      /* escortType = */ null,
-      /* transferReasonCode = */ "19",
-      /* commentText = */ "court appearance",
-      /* shouldReleaseBed = */ shouldReleaseBed,
-      /* courtEventId = */ courtHearingEventId
-    )
-    webTestClient.put()
-      .uri("/api/offenders/{nomsId}/court-transfer-out", offenderNo)
-      .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER_ALPHA")))
-      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-      .accept(MediaType.APPLICATION_JSON)
-      .body(BodyInserters.fromValue(request))
-      .exchange()
-      .expectStatus().isOk
-      .expectBody()
-      .jsonPath("inOutStatus").isEqualTo("OUT")
-      .jsonPath("status").isEqualTo("ACTIVE OUT")
-      .jsonPath("lastMovementTypeCode").isEqualTo("CRT")
-      .jsonPath("lastMovementReasonCode").isEqualTo("19")
-      .jsonPath("assignedLivingUnit.agencyId").isEqualTo("LEI")
-
-    return movementTime
-  }
-
-  fun createCourtHearing(bookingId: Long): Long {
-    val courtCase = builderContext.dataLoader.offenderCourtCaseRepository.findAllByOffenderBooking_BookingId(bookingId).first()
-
-    return webTestClient.post()
-      .uri("/api/bookings/{bookingId}/court-cases/{courtCaseId}/prison-to-court-hearings", bookingId, courtCase.id)
-      .headers(setAuthorisation(listOf("ROLE_COURT_HEARING_MAINTAINER")))
-      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-      .accept(MediaType.APPLICATION_JSON)
-      .body(
-        BodyInserters.fromValue(
-          """
-          {
-            "fromPrisonLocation":"LEI",
-            "toCourtLocation":"COURT1",
-            "courtHearingDateTime": "${LocalDateTime.now().plusHours(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}",
-            "comments":"court appearance"
-            
-          }
-          """.trimIndent()
-        )
-      )
-      .exchange()
-      .expectStatus().isCreated
-      .returnResult<CourtHearing>().responseBody.blockFirst()?.id!!
-  }
-
-  private fun getMovements(bookingId: Long) = externalMovementRepository.findAllByOffenderBooking_BookingId(bookingId)
-  private fun getBedAssignments(bookingId: Long) =
-    bedAssignmentHistoriesRepository.findAllByBedAssignmentHistoryPKOffenderBookingId(bookingId)
-
-  private fun getCurrentIEP(offenderNo: String) = webTestClient.get()
-    .uri("/api/offenders/{offenderNo}/iepSummary", offenderNo)
-    .headers(
-      setAuthorisation(
-        listOf("ROLE_SYSTEM_USER")
-      )
-    )
-    .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-    .accept(MediaType.APPLICATION_JSON)
-    .exchange()
-    .expectStatus().isOk
-    .returnResult<PrivilegeSummary>().responseBody.blockFirst()!!
-
-  private fun getVOBalanceDetails(offenderNo: String) = webTestClient.get()
-    .uri("/api/bookings/offenderNo/{offenderNo}/visit/balances", offenderNo)
-    .headers(
-      setAuthorisation(
-        listOf("ROLE_SYSTEM_USER")
-      )
-    )
-    .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-    .accept(MediaType.APPLICATION_JSON)
-    .exchange()
-    .expectStatus().isOk
-    .returnResult<VisitBalances>().responseBody.blockFirst()!!
-
-  private fun getCaseNotes(bookingId: Long) = webTestClient.get()
-    .uri("/api/bookings/{bookingId}/caseNotes?size=999", bookingId)
-    .headers(
-      setAuthorisation(
-        listOf("ROLE_SYSTEM_USER")
-      )
-    )
-    .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-    .accept(MediaType.APPLICATION_JSON)
-    .exchange()
-    .expectStatus().isOk
-    .returnResult<RestResponsePage<CaseNote>>().responseBody.blockFirst()!!.content
-
-  private fun getCourtHearings(bookingId: Long) =
-    courtEventRepository.findByOffenderBooking_BookingIdOrderByIdAsc(bookingId)
 }
 
 class RestResponsePage<T> @JsonCreator(mode = JsonCreator.Mode.PROPERTIES) constructor(

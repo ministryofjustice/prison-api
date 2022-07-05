@@ -7,33 +7,28 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
-import org.springframework.test.web.reactive.server.returnResult
-import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.api.model.CaseNote
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderProfileDetailsBuilder
 import uk.gov.justice.hmpps.prison.util.builders.ProfileType
+import uk.gov.justice.hmpps.prison.util.builders.getBedAssignments
+import uk.gov.justice.hmpps.prison.util.builders.getCaseNotes
+import uk.gov.justice.hmpps.prison.util.builders.getCurrentIEP
+import uk.gov.justice.hmpps.prison.util.builders.getMovements
+import uk.gov.justice.hmpps.prison.util.builders.transferOut
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @WithMockUser
 class OffenderResourceNewBookingTest : ResourceTest() {
-  @Autowired
-  private lateinit var externalMovementRepository: ExternalMovementRepository
-
-  @Autowired
-  private lateinit var bedAssignmentHistoriesRepository: BedAssignmentHistoriesRepository
 
   @Nested
   @DisplayName("POST /offenders/{offenderNo}/booking")
@@ -119,7 +114,7 @@ class OffenderResourceNewBookingTest : ResourceTest() {
 
       @Test
       internal fun `400 when offender is inactive but not OUT, for instance currently being transferred`() {
-        val offenderNo = createActiveBooking(prisonId = "MDI").also { transferOut(it) }
+        val offenderNo = createActiveBooking(prisonId = "MDI").also { builderContext.transferOut(it) }
 
         // when booking is created then the request is rejected
         webTestClient.post()
@@ -926,7 +921,7 @@ class OffenderResourceNewBookingTest : ResourceTest() {
           .returnResult(InmateDetail::class.java)
           .responseBody.blockFirst()!!.bookingId
 
-        assertThat(getMovements(bookingId))
+        assertThat(builderContext.getMovements(bookingId))
           .extracting(
             ExternalMovement::getMovementSequence,
             ExternalMovement::getMovementDirection,
@@ -966,7 +961,7 @@ class OffenderResourceNewBookingTest : ResourceTest() {
           .returnResult(InmateDetail::class.java)
           .responseBody.blockFirst()!!.bookingId
 
-        assertThat(getBedAssignments(bookingId))
+        assertThat(builderContext.getBedAssignments(bookingId))
           .extracting(
             BedAssignmentHistory::getAssignmentReason,
             BedAssignmentHistory::getAssignmentDate,
@@ -983,7 +978,7 @@ class OffenderResourceNewBookingTest : ResourceTest() {
 
       @Test
       internal fun `will reset IEP level back to default for prison`() {
-        assertThat(getCurrentIEP(offenderNo))
+        assertThat(builderContext.getCurrentIEP(offenderNo))
           .extracting(PrivilegeSummary::getIepLevel)
           .isEqualTo("Enhanced")
 
@@ -1009,7 +1004,7 @@ class OffenderResourceNewBookingTest : ResourceTest() {
           .exchange()
           .expectStatus().isOk
 
-        assertThat(getCurrentIEP(offenderNo))
+        assertThat(builderContext.getCurrentIEP(offenderNo))
           .extracting(PrivilegeSummary::getIepLevel)
           .isEqualTo("Entry")
       }
@@ -1040,7 +1035,7 @@ class OffenderResourceNewBookingTest : ResourceTest() {
           .returnResult(InmateDetail::class.java)
           .responseBody.blockFirst()!!.bookingId
 
-        assertThat(getCaseNotes(bookingId))
+        assertThat(builderContext.getCaseNotes(bookingId))
           .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getText)
           .contains(
             tuple(
@@ -1065,64 +1060,4 @@ class OffenderResourceNewBookingTest : ResourceTest() {
       released = true
     ).withIEPLevel(iepLevel)
   ).save(builderContext).offenderNo
-
-  private fun getMovements(bookingId: Long) = externalMovementRepository.findAllByOffenderBooking_BookingId(bookingId)
-  private fun getBedAssignments(bookingId: Long) =
-    bedAssignmentHistoriesRepository.findAllByBedAssignmentHistoryPKOffenderBookingId(bookingId)
-
-  private fun getCurrentIEP(offenderNo: String) = webTestClient.get()
-    .uri("/api/offenders/{offenderNo}/iepSummary", offenderNo)
-    .headers(
-      setAuthorisation(
-        listOf("ROLE_SYSTEM_USER")
-      )
-    )
-    .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-    .accept(MediaType.APPLICATION_JSON)
-    .exchange()
-    .expectStatus().isOk
-    .returnResult<PrivilegeSummary>().responseBody.blockFirst()!!
-
-  private fun getCaseNotes(bookingId: Long) = webTestClient.get()
-    .uri("/api/bookings/{bookingId}/caseNotes?size=999", bookingId)
-    .headers(
-      setAuthorisation(
-        listOf("ROLE_SYSTEM_USER")
-      )
-    )
-    .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-    .accept(MediaType.APPLICATION_JSON)
-    .exchange()
-    .expectStatus().isOk
-    .returnResult<RestResponsePage<CaseNote>>().responseBody.blockFirst()!!.content
-
-  private fun transferOut(offenderNo: String, toLocation: String = "LEI") {
-    webTestClient.put()
-      .uri("/api/offenders/{nomsId}/transfer-out", offenderNo)
-      .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
-      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-      .accept(MediaType.APPLICATION_JSON)
-      .body(
-        BodyInserters.fromValue(
-          """
-          {
-            "transferReasonCode":"NOTR",
-            "commentText":"transferred prisoner today",
-            "toLocation":"$toLocation",
-            "movementTime": "${LocalDateTime.now().minusHours(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
-            
-          }
-          """.trimIndent()
-        )
-      )
-      .exchange()
-      .expectStatus().isOk
-      .expectBody()
-      .jsonPath("inOutStatus").isEqualTo("TRN")
-      .jsonPath("status").isEqualTo("INACTIVE TRN")
-      .jsonPath("lastMovementTypeCode").isEqualTo("TRN")
-      .jsonPath("lastMovementReasonCode").isEqualTo("NOTR")
-      .jsonPath("assignedLivingUnit.agencyId").isEqualTo("TRN")
-      .jsonPath("assignedLivingUnit.description").doesNotExist()
-  }
 }
