@@ -3,7 +3,6 @@ package uk.gov.justice.hmpps.prison.api.resource.impl
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.tuple
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -17,8 +16,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
-import uk.gov.justice.hmpps.prison.util.builders.OffenderProfileDetailsBuilder
-import uk.gov.justice.hmpps.prison.util.builders.ProfileType
 import uk.gov.justice.hmpps.prison.util.builders.getBedAssignments
 import uk.gov.justice.hmpps.prison.util.builders.getCaseNotes
 import uk.gov.justice.hmpps.prison.util.builders.getCurrentIEP
@@ -466,7 +463,6 @@ class OffenderResourceNewBookingTest : ResourceTest() {
       }
 
       @Test
-      @Disabled("TODO: fix this test")
       internal fun `will create a new booking and mark as NOT a youth offender when booked in as an ADULT`() {
         // Given offender has no existing booking record
         webTestClient.get()
@@ -543,7 +539,8 @@ class OffenderResourceNewBookingTest : ResourceTest() {
           OffenderBookingBuilder(
             prisonId = "LEI",
             released = true,
-          ).withProfileDetails(OffenderProfileDetailsBuilder("Y", ProfileType.YOUTH))
+            youthOffender = true,
+          )
         ).save(testDataContext).also {
           offenderNo = it.offenderNo
         }
@@ -625,7 +622,6 @@ class OffenderResourceNewBookingTest : ResourceTest() {
       }
 
       @Test
-      @Disabled("This is the defect that needs fixing")
       internal fun `will create a new booking and mark as NOT a youth offender when booked in as an ADULT`() {
         // Given offender has previous inactive booking record
         webTestClient.get()
@@ -699,7 +695,8 @@ class OffenderResourceNewBookingTest : ResourceTest() {
           OffenderBookingBuilder(
             prisonId = "LEI",
             released = true,
-          ).withProfileDetails(OffenderProfileDetailsBuilder("N", ProfileType.YOUTH))
+            youthOffender = false,
+          )
         ).save(testDataContext).also {
           offenderNo = it.offenderNo
         }
