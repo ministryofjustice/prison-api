@@ -381,9 +381,7 @@ public class PrisonerReleaseAndTransferService {
             .offenderBooking(booking)
             .build());
 
-        if (requestToRecall.isYouthOffender()) {
-            setYouthStatus(booking);
-        }
+        setYouthStatus(booking, requestToRecall.isYouthOffender());
 
         if (env.acceptsProfiles(Profiles.of("nomis"))) { // check is running on a real NOMIS db
             // Create Trust Account
@@ -508,10 +506,7 @@ public class PrisonerReleaseAndTransferService {
                 }
             ));
 
-        if (requestForNewBooking.isYouthOffender()) {
-            // set youth status
-            setYouthStatus(booking);
-        }
+       setYouthStatus(booking, requestForNewBooking.isYouthOffender());
 
         if (env.acceptsProfiles(Profiles.of("nomis"))) { // check is running on a real NOMIS db
             // Create Trust Account
@@ -549,9 +544,10 @@ public class PrisonerReleaseAndTransferService {
         generateAdmissionNote(booking, fromLocation, receivedPrison, receiveTime, movementReason);
     }
 
-    private void setYouthStatus(final OffenderBooking booking) {
+    private void setYouthStatus(final OffenderBooking booking, final boolean isYouthOffender) {
+        final var flag = isYouthOffender ? "Y" : "N";
         final var profileType = profileTypeRepository.findByTypeAndCategoryAndActive("YOUTH", "PI", true).orElseThrow(EntityNotFoundException.withId("YOUTH"));
-        final var profileCode = profileCodeRepository.findById(new ProfileCode.PK(profileType, "Y")).orElseThrow(EntityNotFoundException.withMessage("Profile Code for YOUTH and Y not found"));
+        final var profileCode = profileCodeRepository.findById(new ProfileCode.PK(profileType, flag)).orElseThrow(EntityNotFoundException.withMessage("Profile Code for YOUTH and %s not found".formatted(flag)));
         booking.add(profileType, profileCode);
     }
 

@@ -26,8 +26,8 @@ class OffenderBookingBuilder(
   var programProfiles: List<OffenderProgramProfileBuilder> = emptyList(),
   var courtCases: List<OffenderCourtCaseBuilder> = emptyList(),
   var teamAssignment: OffenderTeamAssignmentBuilder? = null,
-  var profileDetails: List<OffenderProfileDetailsBuilder> = emptyList(),
-  var released: Boolean = false
+  var released: Boolean = false,
+  var youthOffender: Boolean = false,
 ) : WebClientEntityBuilder() {
 
   fun withIEPLevel(iepLevel: String): OffenderBookingBuilder {
@@ -56,11 +56,6 @@ class OffenderBookingBuilder(
     return this
   }
 
-  fun withProfileDetails(vararg profileDetails: OffenderProfileDetailsBuilder): OffenderBookingBuilder {
-    this.profileDetails = profileDetails.toList()
-    return this
-  }
-
   fun save(
     webTestClient: WebTestClient,
     jwtAuthenticationHelper: JwtAuthenticationHelper,
@@ -71,7 +66,7 @@ class OffenderBookingBuilder(
     val request =
       RequestForNewBooking.builder().bookingInTime(bookingInTime).cellLocation(cellLocation)
         .fromLocationId(fromLocationId).imprisonmentStatus(imprisonmentStatus).movementReasonCode(movementReasonCode)
-        .prisonId(prisonId).build()
+        .prisonId(prisonId).youthOffender(youthOffender).build()
 
     return webTestClient.post()
       .uri("/api/offenders/{offenderNo}/booking", offenderNo)
@@ -144,9 +139,6 @@ class OffenderBookingBuilder(
         it.save(offenderBookingId = inmateDetail.bookingId, dataLoader = dataLoader)
       }
       this.teamAssignment?.also {
-        it.save(offenderBookingId = inmateDetail.bookingId, dataLoader = dataLoader)
-      }
-      this.profileDetails.forEach {
         it.save(offenderBookingId = inmateDetail.bookingId, dataLoader = dataLoader)
       }
     }
