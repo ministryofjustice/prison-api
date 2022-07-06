@@ -150,13 +150,13 @@ public class InmateServiceImplTest {
             AssessmentDto.builder().reviewSupLevelType("HI").calcSupLevelType("HI").bookingId(10L).offenderNo("OFFENDER10").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.APRIL, 4)).cellSharingAlertFlag(true).assessmentCreateLocation("LEI").approvalDate(LocalDate.of(2018, Month.JUNE, 5)).assessmentSeq(2).build(),
             AssessmentDto.builder().reviewSupLevelType("STANDARD").calcSupLevelType("STANDARD").bookingId(10L).offenderNo("OFFENDER10").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.APRIL, 1)).cellSharingAlertFlag(true).assessmentCreateLocation("LPI").approvalDate(LocalDate.of(2018, Month.OCTOBER, 5)).assessmentSeq(1).build(),
             AssessmentDto.builder().bookingId(11L).calcSupLevelType("STANDARD").overridedSupLevelType("STANDARD").offenderNo("OFFENDER11").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.MAY, 7)).cellSharingAlertFlag(true).assessmentCreateLocation("EXI").assessmentSeq(2).build(),
-            AssessmentDto.builder().bookingId(11L).calcSupLevelType("HI").offenderNo("OFFENDER12").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.MAY, 6)).cellSharingAlertFlag(true).assessmentSeq(1).build(),
+            AssessmentDto.builder().bookingId(11L).calcSupLevelType("HI").offenderNo("OFFENDER11").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.MAY, 6)).cellSharingAlertFlag(true).assessmentSeq(1).build(),
             AssessmentDto.builder().bookingId(12L).calcSupLevelType("HI").overridedSupLevelType("HI").offenderNo("OFFENDER12").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.MAY, 6)).cellSharingAlertFlag(true).assessmentSeq(1).build(),
-            AssessmentDto.builder().bookingId(12L).calcSupLevelType("STANDARD").offenderNo("OFFENDER11").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.MAY, 7)).cellSharingAlertFlag(true).assessmentCreateLocation("EXI").assessmentSeq(2).build()
+            AssessmentDto.builder().bookingId(12L).calcSupLevelType("STANDARD").offenderNo("OFFENDER12").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.MAY, 7)).cellSharingAlertFlag(true).assessmentCreateLocation("EXI").assessmentSeq(2).build()
         );
         when(repository.findAssessmentsByOffenderNo(Arrays.asList("OFFENDER10", "OFFENDER11", "OFFENDER12"), "THECODE", Collections.emptySet(), true, true)).thenReturn(data);
 
-        final var assessments = serviceToTest.getInmatesAssessmentsByCode(Arrays.asList("OFFENDER10", "OFFENDER11"), "THECODE", true, true, true, true);
+        final var assessments = serviceToTest.getInmatesAssessmentsByCode(Arrays.asList("OFFENDER10", "OFFENDER11","OFFENDER12"), "THECODE", true, true, true, true);
 
         //tests reviewed csra
         assertThat(assessments.stream().filter(f -> f.getBookingId() == 10L).findFirst().get().getClassificationCode()).isEqualTo("HI");
