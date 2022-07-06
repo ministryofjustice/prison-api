@@ -482,10 +482,18 @@ public class InmateService {
                 InmatesHelper.createMapOfBookings(assessments).values().forEach(assessmentForBooking -> {
 
                     if (mostRecentOnly) {
-                        final var firstAssessment = createAssessment(assessmentForBooking.get(0));
-                        // The first is the most recent date / seq for each booking (where cellSharingAlertFlag = Y if a CSRA)
-                        if (!csra || validCsra(firstAssessment)) {
-                            results.add(firstAssessment);
+                        if(!csra){
+                           results.add(createAssessment(assessmentForBooking.get(0)));
+                        }else {
+                            final var firstAssessment = createAssessment(
+                                assessmentForBooking
+                                    .stream().filter(assessmentDto -> isCalculatedCsra(assessmentDto) || isReviewedCsra(assessmentDto))
+                                    .findFirst()
+                                    .orElse(assessmentForBooking.get(0))
+                            );
+                            if (validCsra(firstAssessment)) {
+                                results.add(firstAssessment);
+                            }
                         }
                     } else {
                         assessmentForBooking.stream().map(this::createAssessment).filter(a -> !csra || validCsra(a)).forEach(results::add);
@@ -499,6 +507,16 @@ public class InmateService {
     private boolean validCsra(final Assessment firstAssessment) {
         return (firstAssessment.isCellSharingAlertFlag() && !"PEND".equals(firstAssessment.getClassificationCode()));
     }
+
+    private boolean isReviewedCsra(final AssessmentDto assessmentDto) {
+        return (assessmentDto.getReviewSupLevelType() != null && !"PEND".equals(assessmentDto.getReviewSupLevelTypeDesc()));
+    }
+
+    private boolean isCalculatedCsra(final AssessmentDto assessmentDto) {
+        return (assessmentDto.getCalcSupLevelType() != null && !"PEND".equals(assessmentDto.getCalcSupLevelTypeDesc()))
+            && assessmentDto.getOverridedSupLevelType() == null;
+    }
+
 
     @VerifyAgencyAccess
     public List<OffenderCategorise> getOffenderCategorisations(final String agencyId, final Set<Long> bookingIds, final boolean latestOnly) {
