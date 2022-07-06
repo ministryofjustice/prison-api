@@ -3,7 +3,6 @@ package uk.gov.justice.hmpps.prison.api.resource.impl
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.tuple
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -17,8 +16,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
-import uk.gov.justice.hmpps.prison.util.builders.OffenderProfileDetailsBuilder
-import uk.gov.justice.hmpps.prison.util.builders.ProfileType
 import uk.gov.justice.hmpps.prison.util.builders.getBedAssignments
 import uk.gov.justice.hmpps.prison.util.builders.getCaseNotes
 import uk.gov.justice.hmpps.prison.util.builders.getCurrentIEP
@@ -114,7 +111,7 @@ class OffenderResourceNewBookingTest : ResourceTest() {
 
       @Test
       internal fun `400 when offender is inactive but not OUT, for instance currently being transferred`() {
-        val offenderNo = createActiveBooking(prisonId = "MDI").also { builderContext.transferOut(it) }
+        val offenderNo = createActiveBooking(prisonId = "MDI").also { testDataContext.transferOut(it) }
 
         // when booking is created then the request is rejected
         webTestClient.post()
@@ -382,7 +379,7 @@ class OffenderResourceNewBookingTest : ResourceTest() {
       internal fun setUp() {
         OffenderBuilder(
           bookingBuilders = arrayOf()
-        ).save(builderContext).also {
+        ).save(testDataContext).also {
           offenderNo = it.offenderNo
         }
       }
@@ -466,7 +463,6 @@ class OffenderResourceNewBookingTest : ResourceTest() {
       }
 
       @Test
-      @Disabled("TODO: fix this test")
       internal fun `will create a new booking and mark as NOT a youth offender when booked in as an ADULT`() {
         // Given offender has no existing booking record
         webTestClient.get()
@@ -543,8 +539,9 @@ class OffenderResourceNewBookingTest : ResourceTest() {
           OffenderBookingBuilder(
             prisonId = "LEI",
             released = true,
-          ).withProfileDetails(OffenderProfileDetailsBuilder("Y", ProfileType.YOUTH))
-        ).save(builderContext).also {
+            youthOffender = true,
+          )
+        ).save(testDataContext).also {
           offenderNo = it.offenderNo
         }
       }
@@ -625,7 +622,6 @@ class OffenderResourceNewBookingTest : ResourceTest() {
       }
 
       @Test
-      @Disabled("This is the defect that needs fixing")
       internal fun `will create a new booking and mark as NOT a youth offender when booked in as an ADULT`() {
         // Given offender has previous inactive booking record
         webTestClient.get()
@@ -699,8 +695,9 @@ class OffenderResourceNewBookingTest : ResourceTest() {
           OffenderBookingBuilder(
             prisonId = "LEI",
             released = true,
-          ).withProfileDetails(OffenderProfileDetailsBuilder("N", ProfileType.YOUTH))
-        ).save(builderContext).also {
+            youthOffender = false,
+          )
+        ).save(testDataContext).also {
           offenderNo = it.offenderNo
         }
       }
@@ -921,7 +918,7 @@ class OffenderResourceNewBookingTest : ResourceTest() {
           .returnResult(InmateDetail::class.java)
           .responseBody.blockFirst()!!.bookingId
 
-        assertThat(builderContext.getMovements(bookingId))
+        assertThat(testDataContext.getMovements(bookingId))
           .extracting(
             ExternalMovement::getMovementSequence,
             ExternalMovement::getMovementDirection,
@@ -961,7 +958,7 @@ class OffenderResourceNewBookingTest : ResourceTest() {
           .returnResult(InmateDetail::class.java)
           .responseBody.blockFirst()!!.bookingId
 
-        assertThat(builderContext.getBedAssignments(bookingId))
+        assertThat(testDataContext.getBedAssignments(bookingId))
           .extracting(
             BedAssignmentHistory::getAssignmentReason,
             BedAssignmentHistory::getAssignmentDate,
@@ -978,7 +975,7 @@ class OffenderResourceNewBookingTest : ResourceTest() {
 
       @Test
       internal fun `will reset IEP level back to default for prison`() {
-        assertThat(builderContext.getCurrentIEP(offenderNo))
+        assertThat(testDataContext.getCurrentIEP(offenderNo))
           .extracting(PrivilegeSummary::getIepLevel)
           .isEqualTo("Enhanced")
 
@@ -1004,7 +1001,7 @@ class OffenderResourceNewBookingTest : ResourceTest() {
           .exchange()
           .expectStatus().isOk
 
-        assertThat(builderContext.getCurrentIEP(offenderNo))
+        assertThat(testDataContext.getCurrentIEP(offenderNo))
           .extracting(PrivilegeSummary::getIepLevel)
           .isEqualTo("Entry")
       }
@@ -1035,7 +1032,7 @@ class OffenderResourceNewBookingTest : ResourceTest() {
           .returnResult(InmateDetail::class.java)
           .responseBody.blockFirst()!!.bookingId
 
-        assertThat(builderContext.getCaseNotes(bookingId))
+        assertThat(testDataContext.getCaseNotes(bookingId))
           .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getText)
           .contains(
             tuple(
@@ -1052,12 +1049,12 @@ class OffenderResourceNewBookingTest : ResourceTest() {
     OffenderBookingBuilder(
       prisonId = prisonId,
     )
-  ).save(builderContext).offenderNo
+  ).save(testDataContext).offenderNo
 
   fun createInactiveBooking(iepLevel: String = "ENH"): String = OffenderBuilder().withBooking(
     OffenderBookingBuilder(
       prisonId = "MDI",
       released = true
     ).withIEPLevel(iepLevel)
-  ).save(builderContext).offenderNo
+  ).save(testDataContext).offenderNo
 }
