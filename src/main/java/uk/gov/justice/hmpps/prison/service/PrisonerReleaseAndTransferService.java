@@ -66,6 +66,7 @@ import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.createbooking.CopyPreviousBookingService;
 import uk.gov.justice.hmpps.prison.service.transfer.PrisonTransferService;
+import uk.gov.justice.hmpps.prison.service.transfer.TrustAccountService;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
 
 import javax.persistence.EntityManager;
@@ -128,6 +129,8 @@ public class PrisonerReleaseAndTransferService {
     private final ReferenceCodeRepository<EventStatus> eventStatusRepository;
 
     private final PrisonTransferService prisonTransferService;
+
+    private final TrustAccountService trustAccountService;
 
     private final Environment env;
 
@@ -368,7 +371,7 @@ public class PrisonerReleaseAndTransferService {
         deactivatePreviousMovements(booking);
 
         // Generate the external movement in
-        createInMovement(booking, movementReason, fromLocation, prisonToRecallTo, receiveTime, "Recall");
+        var movement = createInMovement(booking, movementReason, fromLocation, prisonToRecallTo, receiveTime, "Recall");
         booking.setStatusReason(ADM.getCode() + "-" + movementReason.getCode());
 
         //Create Bed History
@@ -383,11 +386,7 @@ public class PrisonerReleaseAndTransferService {
 
         setYouthStatus(booking, requestToRecall.isYouthOffender());
 
-        if (env.acceptsProfiles(Profiles.of("nomis"))) { // check is running on a real NOMIS db
-            // Create Trust Account
-            financeRepository.createTrustAccount(prisonToRecallTo.getId(), booking.getBookingId(), booking.getRootOffender().getId(), fromLocation.getId(),
-                movementReason.getCode(), null, null, prisonToRecallTo.getId());
-        }
+        trustAccountService.createTrustAccount(booking, fromLocation, movement);
 
         // Create IEP levels
         availablePrisonIepLevelRepository.findByAgencyLocation_IdAndDefaultIep(prisonToRecallTo.getId(), true)
@@ -506,13 +505,9 @@ public class PrisonerReleaseAndTransferService {
                 }
             ));
 
-       setYouthStatus(booking, requestForNewBooking.isYouthOffender());
+        setYouthStatus(booking, requestForNewBooking.isYouthOffender());
 
-        if (env.acceptsProfiles(Profiles.of("nomis"))) { // check is running on a real NOMIS db
-            // Create Trust Account
-            financeRepository.createTrustAccount(receivedPrison.getId(), booking.getBookingId(), booking.getRootOffender().getId(), fromLocation.getId(),
-                movementReason.getCode(), null, null, receivedPrison.getId());
-        }
+        trustAccountService.createTrustAccount(booking, fromLocation, movement);
 
         // Create IEP levels
         availablePrisonIepLevelRepository.findByAgencyLocation_IdAndDefaultIep(receivedPrison.getId(), true)

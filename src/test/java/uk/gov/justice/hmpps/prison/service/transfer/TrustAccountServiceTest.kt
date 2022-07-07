@@ -97,7 +97,7 @@ internal class TrustAccountServiceTest {
     inner class PrisonToPrison {
       @BeforeEach
       internal fun setUp() {
-        trustAccountService.createTrustAccount(booking, transferOutToPrison, transferInToPrison)
+        trustAccountService.createTrustAccount(booking, transferOutToPrison.fromAgency, transferInToPrison)
       }
 
       @Test
@@ -111,7 +111,7 @@ internal class TrustAccountServiceTest {
     inner class PrisonToPrisonViaCourt {
       @BeforeEach
       internal fun setUp() {
-        trustAccountService.createTrustAccount(booking, transferOutToCourt, transferInToPrisonViaCourt)
+        trustAccountService.createTrustAccount(booking, transferOutToCourt.fromAgency, transferInToPrisonViaCourt)
       }
 
       @Test
@@ -135,7 +135,7 @@ internal class TrustAccountServiceTest {
 
     @Test
     internal fun `will do diddly squat`() {
-      trustAccountService.createTrustAccount(booking, transferOutToPrison, transferInToPrison)
+      trustAccountService.createTrustAccount(booking, transferOutToPrison.fromAgency, transferInToPrison)
       verifyNoInteractions(financeRepository)
     }
   }

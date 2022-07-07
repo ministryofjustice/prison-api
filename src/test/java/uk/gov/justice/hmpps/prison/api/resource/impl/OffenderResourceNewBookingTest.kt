@@ -6,6 +6,9 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.check
+import org.mockito.kotlin.verify
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import uk.gov.justice.hmpps.prison.api.model.CaseNote
@@ -14,6 +17,7 @@ import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
+import uk.gov.justice.hmpps.prison.service.transfer.TrustAccountService
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
 import uk.gov.justice.hmpps.prison.util.builders.getBedAssignments
@@ -26,6 +30,9 @@ import java.time.format.DateTimeFormatter
 
 @WithMockUser
 class OffenderResourceNewBookingTest : ResourceTest() {
+
+  @MockBean
+  private lateinit var trustAccountService: TrustAccountService
 
   @Nested
   @DisplayName("POST /offenders/{offenderNo}/booking")
@@ -1041,6 +1048,49 @@ class OffenderResourceNewBookingTest : ResourceTest() {
               "Offender admitted to MOORLAND for reason: Recall From Intermittent Custody from Court 1."
             )
           )
+      }
+
+      @Test
+      internal fun `will create trust accounts`() {
+        val inmate = webTestClient.post()
+          .uri("/api/offenders/{offenderNo}/booking", offenderNo)
+          .headers(
+            setAuthorisation(
+              listOf("ROLE_BOOKING_CREATE")
+            )
+          )
+          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+          .bodyValue(
+            """
+            {
+               "prisonId": "MDI", 
+               "fromLocationId": "COURT1", 
+               "movementReasonCode": "24", 
+               "imprisonmentStatus": "CUR_ORA"
+            }
+            """.trimIndent()
+          )
+          .accept(MediaType.APPLICATION_JSON)
+          .exchange()
+          .expectStatus().isOk
+          .returnResult(InmateDetail::class.java)
+          .responseBody.blockFirst()!!
+
+        // since this calls a NOMIS store procedure the best we can do
+        // is check the service was called with the correct parameters
+        verify(trustAccountService).createTrustAccount(
+          check {
+            assertThat(it.bookingId).isEqualTo(inmate.bookingId)
+            assertThat(it.rootOffender.id).isEqualTo(inmate.rootOffenderId)
+          },
+          check {
+            assertThat(it.id).isEqualTo("COURT1")
+          },
+          check {
+            assertThat(it.toAgency.id).isEqualTo("MDI")
+            assertThat(it.movementReason.code).isEqualTo("24")
+          }
+        )
       }
     }
   }
