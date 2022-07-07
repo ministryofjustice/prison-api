@@ -64,7 +64,7 @@ class PrisonTransferService(
           booking = this, cellLocation = cellLocation, receiveTime = movement.movementTime, reasonCode = MovementType.ADM.code
         )
         trustAccountService.createTrustAccount(
-          booking = this, movementOut = transferMovement, movementIn = movement
+          booking = this, fromAgency = transferMovement.fromAgency, movementIn = movement
         )
         iepTransferService.resetLevelForPrison(booking = this, transferMovement = movement)
         caseNoteTransferService.createGenerateAdmissionNote(booking = this, transferMovement = movement)
@@ -117,7 +117,7 @@ class PrisonTransferService(
             OffenderProgramEndReason.TRF.code
           )
           trustAccountService.createTrustAccount(
-            booking = this, movementOut = toCourtMovement, movementIn = createdMovement
+            booking = this, fromAgency = toCourtMovement.fromAgency, movementIn = createdMovement
           )
           iepTransferService.resetLevelForPrison(booking = this, transferMovement = createdMovement)
           caseNoteTransferService.createGenerateAdmissionNote(booking = this, transferMovement = createdMovement)
