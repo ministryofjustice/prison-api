@@ -1092,6 +1092,35 @@ class OffenderResourceNewBookingTest : ResourceTest() {
           }
         )
       }
+
+      @Test
+      internal fun `will assign a unique book number`() {
+        val inmate = webTestClient.post()
+          .uri("/api/offenders/{offenderNo}/booking", offenderNo)
+          .headers(
+            setAuthorisation(
+              listOf("ROLE_BOOKING_CREATE")
+            )
+          )
+          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+          .bodyValue(
+            """
+            {
+               "prisonId": "MDI", 
+               "fromLocationId": "COURT1", 
+               "movementReasonCode": "24", 
+               "imprisonmentStatus": "CUR_ORA"
+            }
+            """.trimIndent()
+          )
+          .accept(MediaType.APPLICATION_JSON)
+          .exchange()
+          .expectStatus().isOk
+          .returnResult(InmateDetail::class.java)
+          .responseBody.blockFirst()!!
+
+        assertThat(inmate.bookingNo).matches("^\\d{5}[A-Z]\$")
+      }
     }
   }
 
