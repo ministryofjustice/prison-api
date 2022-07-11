@@ -3,8 +3,6 @@ package uk.gov.justice.hmpps.prison.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.core.env.Environment;
-import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -19,7 +17,6 @@ import uk.gov.justice.hmpps.prison.api.model.RequestToTransferIn;
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOut;
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOutToCourt;
 import uk.gov.justice.hmpps.prison.exception.CustomErrorCodes;
-import uk.gov.justice.hmpps.prison.repository.FinanceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory;
@@ -61,10 +58,10 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileCodeReposito
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileTypeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
-import uk.gov.justice.hmpps.prison.repository.storedprocs.OffenderAdminProcs.GenerateNewBookingNo;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.createbooking.CopyPreviousBookingService;
+import uk.gov.justice.hmpps.prison.service.transfer.BookNumberGenerationService;
 import uk.gov.justice.hmpps.prison.service.transfer.PrisonTransferService;
 import uk.gov.justice.hmpps.prison.service.transfer.TrustAccountService;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
@@ -73,7 +70,6 @@ import javax.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.Random;
 
 import static java.lang.String.format;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection.IN;
@@ -111,14 +107,14 @@ public class PrisonerReleaseAndTransferService {
     private final OffenderNoPayPeriodRepository offenderNoPayPeriodRepository;
     private final OffenderPayStatusRepository offenderPayStatusRepository;
     private final AvailablePrisonIepLevelRepository availablePrisonIepLevelRepository;
-    private final FinanceRepository financeRepository;
     private final ImprisonmentStatusRepository imprisonmentStatusRepository;
     private final ReferenceCodeRepository<CaseNoteType> caseNoteTypeReferenceCodeRepository;
     private final ReferenceCodeRepository<CaseNoteSubType> caseNoteSubTypeReferenceCodeRepository;
     private final ProfileCodeRepository profileCodeRepository;
     private final ProfileTypeRepository profileTypeRepository;
     private final StaffUserAccountRepository staffUserAccountRepository;
-    private final GenerateNewBookingNo generateNewBookingNo;
+
+    private final BookNumberGenerationService bookNumberGenerationService;
     private final CopyTableRepository copyTableRepository;
     private final CopyPreviousBookingService copyPreviousBookingService;
     private final OffenderTransformer offenderTransformer;
@@ -131,8 +127,6 @@ public class PrisonerReleaseAndTransferService {
     private final PrisonTransferService prisonTransferService;
 
     private final TrustAccountService trustAccountService;
-
-    private final Environment env;
 
     public InmateDetail releasePrisoner(final String prisonerIdentifier, final RequestToReleasePrisoner requestToReleasePrisoner, RequestToDischargePrisoner requestToDischargePrisoner) {
         final OffenderBooking booking = getAndCheckOffenderBooking(prisonerIdentifier, requestToDischargePrisoner != null);
@@ -275,7 +269,7 @@ public class PrisonerReleaseAndTransferService {
         final var toLocation = agencyLocationRepository.findByIdAndTypeAndActiveAndDeactivationDateIsNull(requestToTransferOutToCourt.getToLocation(), agencyLocationType, true).orElseThrow(EntityNotFoundException.withMessage(format("No %s agency found", requestToTransferOutToCourt.getToLocation())));
 
         createOutMovement(booking, CRT, movementReason, booking.getLocation(), toLocation, transferDateTime, requestToTransferOutToCourt.getCommentText(), requestToTransferOutToCourt.getEscortType(), requestToTransferOutToCourt.getCourtEventId());
-        Optional.ofNullable(requestToTransferOutToCourt.getCourtEventId()).ifPresent(id -> createScheduleCourtHearingInEvent(markCourtEventComplete(booking, id)));
+        Optional.ofNullable(requestToTransferOutToCourt.getCourtEventId()).ifPresent(id -> createScheduleCourtHearingInEvent(markCourtEventComplete(id)));
         if (requestToTransferOutToCourt.isShouldReleaseBed()) {
             updateBedAssignmentHistory(booking, transferDateTime);
             booking.setLivingUnitMv(null);
@@ -300,7 +294,7 @@ public class PrisonerReleaseAndTransferService {
         return offenderTransformer.transform(booking);
     }
 
-    private CourtEvent createScheduleCourtHearingInEvent(CourtEvent parentEvent) {
+    private void createScheduleCourtHearingInEvent(CourtEvent parentEvent) {
         var returnToPrisonScheduledEvent = CourtEvent
             .builder()
             .courtEventType(parentEvent.getCourtEventType())
@@ -313,10 +307,10 @@ public class PrisonerReleaseAndTransferService {
             .parentCourtEventId(parentEvent.getId())
             .startTime(parentEvent.getStartTime())
             .build();
-        return courtEventRepository.save(returnToPrisonScheduledEvent);
+        courtEventRepository.save(returnToPrisonScheduledEvent);
     }
 
-    private CourtEvent markCourtEventComplete(OffenderBooking booking, Long id) {
+    private CourtEvent markCourtEventComplete(Long id) {
         var courtEvent = courtEventRepository.findById(id).orElseThrow(EntityNotFoundException.withMessage(format("No court event found for %s", id)));
         courtEvent.setEventStatus(eventStatusRepository.findById(EventStatus.COMPLETED).orElseThrow());
         return courtEvent;
@@ -448,7 +442,7 @@ public class PrisonerReleaseAndTransferService {
 
         final var receiveTime = getAndCheckMovementTime(requestForNewBooking.getBookingInTime(), previousBooking.map(OffenderBooking::getBookingId).orElse(null));
 
-        final var bookNumber = env.acceptsProfiles(Profiles.of("nomis")) ? generateNewBookingNo.executeFunction(String.class) : getRandomNumberString() + "D"; // TODO replace PL/SQL SP
+        final var bookNumber = bookNumberGenerationService.generateBookNumber();
 
         offender.getBookings().forEach(OffenderBooking::incBookingSequence);
 
@@ -783,16 +777,6 @@ public class PrisonerReleaseAndTransferService {
         programProfiles.forEach(profile -> profile.setEndDate(LocalDate.now()));
     }
 
-
-    public static String getRandomNumberString() {
-        // It will generate 5 digit random Number.
-        // from 0 to 99999
-        Random rnd = new Random();
-        int number = rnd.nextInt(99999);
-
-        // this will convert any number sequence into 6 character.
-        return format("%05d", number);
-    }
 
     public InmateDetail courtTransferIn(final String offenderNo, final RequestForCourtTransferIn requestForCourtTransferIn) {
         return prisonTransferService.transferViaCourt(offenderNo, requestForCourtTransferIn);
