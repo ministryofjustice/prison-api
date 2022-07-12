@@ -2,11 +2,22 @@ package uk.gov.justice.hmpps.prison.api.resource.impl;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
+import org.springframework.test.context.jdbc.SqlConfig;
+import org.springframework.test.context.jdbc.SqlConfig.TransactionMode;
 
 import java.util.List;
 import java.util.Map;
 
 public class BookingResourceCountImplIntTest extends ResourceTest {
+
+    @Sql(scripts = {"/sql/addingHealthProblems_init.sql"},
+        executionPhase = ExecutionPhase.BEFORE_TEST_METHOD,
+        config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
+    @Sql(scripts = {"/sql/addingHealthProblems_clean.sql"},
+        executionPhase = ExecutionPhase.AFTER_TEST_METHOD,
+        config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
 
     @Test
     public void countPersonalCareNeedsForOffenders() {
