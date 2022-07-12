@@ -26,8 +26,8 @@ class OffenderBookingBuilder(
   var programProfiles: List<OffenderProgramProfileBuilder> = emptyList(),
   var courtCases: List<OffenderCourtCaseBuilder> = emptyList(),
   var teamAssignment: OffenderTeamAssignmentBuilder? = null,
-  var profileDetails: List<OffenderProfileDetailsBuilder> = emptyList(),
-  var released: Boolean = false
+  var released: Boolean = false,
+  var youthOffender: Boolean = false,
 ) : WebClientEntityBuilder() {
 
   fun withIEPLevel(iepLevel: String): OffenderBookingBuilder {
@@ -56,11 +56,6 @@ class OffenderBookingBuilder(
     return this
   }
 
-  fun withProfileDetails(vararg profileDetails: OffenderProfileDetailsBuilder): OffenderBookingBuilder {
-    this.profileDetails = profileDetails.toList()
-    return this
-  }
-
   fun save(
     webTestClient: WebTestClient,
     jwtAuthenticationHelper: JwtAuthenticationHelper,
@@ -71,7 +66,7 @@ class OffenderBookingBuilder(
     val request =
       RequestForNewBooking.builder().bookingInTime(bookingInTime).cellLocation(cellLocation)
         .fromLocationId(fromLocationId).imprisonmentStatus(imprisonmentStatus).movementReasonCode(movementReasonCode)
-        .prisonId(prisonId).build()
+        .prisonId(prisonId).youthOffender(youthOffender).build()
 
     return webTestClient.post()
       .uri("/api/offenders/{offenderNo}/booking", offenderNo)
@@ -89,6 +84,24 @@ class OffenderBookingBuilder(
       .exchange()
       .expectStatus().isOk
       .returnResult<InmateDetail>().responseBody.blockFirst()!!.also {
+      this.iepLevel?.run {
+        webTestClient.post()
+          .uri("/api/bookings/{bookingId}/iepLevels", it.bookingId)
+          .headers(
+            setAuthorisation(
+              jwtAuthenticationHelper = jwtAuthenticationHelper,
+              roles = listOf("ROLE_MAINTAIN_IEP")
+            )
+          )
+          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+          .accept(MediaType.APPLICATION_JSON)
+          .body(
+            BodyInserters.fromValue(IepLevelAndComment.builder().iepLevel(iepLevel).comment(iepLevelComment).build())
+          )
+          .exchange()
+          .expectStatus().is2xxSuccessful
+      }
+    }.also {
       if (released) {
         webTestClient.put()
           .uri("/api/offenders/{nomsId}/release", offenderNo)
@@ -115,24 +128,6 @@ class OffenderBookingBuilder(
           .exchange()
           .expectStatus().isOk
       }
-    }.also {
-      this.iepLevel?.run {
-        webTestClient.post()
-          .uri("/api/bookings/{bookingId}/iepLevels", it.bookingId)
-          .headers(
-            setAuthorisation(
-              jwtAuthenticationHelper = jwtAuthenticationHelper,
-              roles = listOf("ROLE_MAINTAIN_IEP")
-            )
-          )
-          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-          .accept(MediaType.APPLICATION_JSON)
-          .body(
-            BodyInserters.fromValue(IepLevelAndComment.builder().iepLevel(iepLevel).comment(iepLevelComment).build())
-          )
-          .exchange()
-          .expectStatus().is2xxSuccessful
-      }
     }.also { inmateDetail ->
       this.voBalance?.run {
         dataLoader.bookingRepository.createBookingVisitOrderBalances(inmateDetail.bookingId, voBalance, pvoBalance)
@@ -144,9 +139,6 @@ class OffenderBookingBuilder(
         it.save(offenderBookingId = inmateDetail.bookingId, dataLoader = dataLoader)
       }
       this.teamAssignment?.also {
-        it.save(offenderBookingId = inmateDetail.bookingId, dataLoader = dataLoader)
-      }
-      this.profileDetails.forEach {
         it.save(offenderBookingId = inmateDetail.bookingId, dataLoader = dataLoader)
       }
     }

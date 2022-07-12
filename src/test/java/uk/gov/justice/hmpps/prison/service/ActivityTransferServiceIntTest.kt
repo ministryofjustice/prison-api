@@ -29,9 +29,6 @@ import java.time.format.DateTimeFormatter
 @WithMockUser
 class ActivityTransferServiceIntTest : ResourceTest() {
   @Autowired
-  private lateinit var dataLoader: DataLoaderRepository
-
-  @Autowired
   private lateinit var transferService: ActivityTransferService
 
   @Nested
@@ -65,11 +62,7 @@ class ActivityTransferServiceIntTest : ResourceTest() {
               courseActivityId = -5
             )
           )
-      ).save(
-        webTestClient = webTestClient,
-        jwtAuthenticationHelper = jwtAuthenticationHelper,
-        dataLoader = dataLoader
-      ).also {
+      ).save(testDataContext).also {
         offenderNo = it.offenderNo
         bookingId = it.bookingId
       }
@@ -80,8 +73,8 @@ class ActivityTransferServiceIntTest : ResourceTest() {
       val testEndDate = LocalDate.of(2022, 10, 1)
       transferOutToCourt(offenderNo, "COURT1", true)
 
-      val offenderBooking = dataLoader.offenderBookingRepository.findByBookingId(bookingId).orElseThrow()
-      val prison = dataLoader.agencyLocationRepository.findById("LEI").orElseThrow()
+      val offenderBooking = testDataContext.dataLoader.offenderBookingRepository.findByBookingId(bookingId).orElseThrow()
+      val prison = testDataContext.dataLoader.agencyLocationRepository.findById("LEI").orElseThrow()
 
       assertThat(
         getActiveActivities(
@@ -128,7 +121,7 @@ class ActivityTransferServiceIntTest : ResourceTest() {
     prison: AgencyLocation,
     testEndDate: LocalDate
   ): List<OffenderProgramProfile> =
-    dataLoader.offenderProgramProfileRepository.findActiveActivitiesForBookingAtPrison(
+    testDataContext.dataLoader.offenderProgramProfileRepository.findActiveActivitiesForBookingAtPrison(
       offenderBooking, prison, testEndDate
     )
 
@@ -136,7 +129,7 @@ class ActivityTransferServiceIntTest : ResourceTest() {
     offenderBooking: OffenderBooking,
     prison: AgencyLocation
   ): List<OffenderProgramProfile> =
-    dataLoader.offenderProgramProfileRepository.findActiveWaitListActivitiesForBookingAtPrison(
+    testDataContext.dataLoader.offenderProgramProfileRepository.findActiveWaitListActivitiesForBookingAtPrison(
       offenderBooking, prison
     )
 

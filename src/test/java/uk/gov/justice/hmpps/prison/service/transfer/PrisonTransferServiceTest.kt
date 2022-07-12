@@ -225,7 +225,7 @@ internal class PrisonTransferServiceTest {
 
         verify(trustAccountService).createTrustAccount(
           booking,
-          movementOut = bookingLastMovementTransfer,
+          fromAgency = bookingLastMovementTransfer.fromAgency,
           movementIn = newMovement
         )
       }
@@ -750,7 +750,7 @@ internal class PrisonTransferServiceTest {
 
         verify(trustAccountService).createTrustAccount(
           booking,
-          movementOut = bookingLastMovementCourt,
+          fromAgency = bookingLastMovementCourt.fromAgency,
           movementIn = newMovement
         )
       }

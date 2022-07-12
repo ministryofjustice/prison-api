@@ -8,7 +8,6 @@ import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.api.model.RequestToCreate
 import uk.gov.justice.hmpps.prison.service.DataLoaderRepository
 import uk.gov.justice.hmpps.prison.util.JwtAuthenticationHelper
-import uk.gov.justice.hmpps.prison.util.randomName
 import java.time.LocalDate
 
 class OffenderBuilder(
@@ -34,6 +33,9 @@ class OffenderBuilder(
   }
 
   fun save(
+    testDataContext: TestDataContext
+  ): InmateDetail = save(testDataContext.webTestClient, testDataContext.jwtAuthenticationHelper, testDataContext.dataLoader)
+  private fun save(
     webTestClient: WebTestClient,
     jwtAuthenticationHelper: JwtAuthenticationHelper,
     dataLoader: DataLoaderRepository,
