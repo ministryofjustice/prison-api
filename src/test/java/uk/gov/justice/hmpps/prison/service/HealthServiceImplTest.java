@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.CreatePersonalCareNeed;
+import uk.gov.justice.hmpps.prison.api.model.PersonalCareCounterDto;
 import uk.gov.justice.hmpps.prison.api.model.PersonalCareNeed;
 import uk.gov.justice.hmpps.prison.api.model.PersonalCareNeeds;
 import uk.gov.justice.hmpps.prison.repository.InmateRepository;
@@ -20,6 +21,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderHealthProblem;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderHealthProblemRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 
 import java.time.LocalDate;
@@ -29,6 +31,7 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anySet;
@@ -40,10 +43,13 @@ public class HealthServiceImplTest {
 
     @Mock
     private InmateRepository inmateRepository;
+
     @Mock
     private ReferenceCodeRepository<HealthProblemCode> healthProblemCodeReferenceCodeRepository;
     @Mock
     private ReferenceCodeRepository<HealthProblemStatus> healthProblemStatusReferenceCodeRepository;
+    @Mock
+    private OffenderHealthProblemRepository offenderHealthProblemRepository;
     @Mock
     private OffenderBookingRepository offenderBookingRepository;
 
@@ -56,7 +62,7 @@ public class HealthServiceImplTest {
             inmateRepository,
             healthProblemCodeReferenceCodeRepository,
             healthProblemStatusReferenceCodeRepository,
-            100
+            offenderHealthProblemRepository, 100
         );
     }
 
@@ -111,6 +117,65 @@ public class HealthServiceImplTest {
             new PersonalCareNeeds("A1234AB", List.of(abDisab)),
             new PersonalCareNeeds("A1234AC", List.of(acDisab)));
     }
+
+    @DisplayName("count personal care needs between dates split by offender")
+    @Test
+    public void countPersonalCareNeedsSplitByOffender() {
+        final var problemType = "DISAB";
+
+        final var abDisab = OffenderHealthProblem.builder()
+            .offenderBooking(OffenderBooking.builder().offender(Offender.builder().nomsId("A1234AB").build()).build())
+            .caseloadType("CASELOAD_TYPE")
+            .problemType(new HealthProblemType(problemType, "Desc"))
+            .startDate(LocalDate.parse("2022-06-21"))
+            .build();
+
+        final var aaDisab1 = OffenderHealthProblem.builder()
+            .offenderBooking(OffenderBooking.builder().offender(Offender.builder().nomsId("A1234AA").build()).build())
+            .caseloadType("CASELOAD_TYPE")
+            .problemType(new HealthProblemType(problemType, "Desc"))
+            .startDate(LocalDate.parse("2022-06-21"))
+            .build();
+
+        final var aaDisab2 = OffenderHealthProblem.builder()
+            .offenderBooking(OffenderBooking.builder().offender(Offender.builder().nomsId("A1234AA").build()).build())
+            .caseloadType("CASELOAD_TYPE")
+            .problemType(new HealthProblemType(problemType, "Desc"))
+            .startDate(LocalDate.parse("2022-06-22"))
+            .build();
+        final var aaDisab3 = OffenderHealthProblem.builder()
+            .offenderBooking(OffenderBooking.builder().offender(Offender.builder().nomsId("A1234AA").build()).build())
+            .caseloadType("CASELOAD_TYPE")
+            .problemType(new HealthProblemType(problemType, "Desc"))
+            .startDate(LocalDate.parse("2022-06-22"))
+            .build();
+        final var aaDisab4 = OffenderHealthProblem.builder()
+            .offenderBooking(OffenderBooking.builder().offender(Offender.builder().nomsId("A1234AA").build()).build())
+            .caseloadType("CASELOAD_TYPE")
+            .problemType(new HealthProblemType(problemType, "Desc"))
+            .startDate(LocalDate.parse("2022-06-22"))
+            .build();
+
+        when(offenderHealthProblemRepository.findAllByOffenderBookingOffenderNomsIdInAndProblemTypeCodeAndStartDateAfterAndStartDateBefore(anyList(), any(), any(), any())).thenReturn(
+            List.of(abDisab, aaDisab1, aaDisab2, aaDisab3, aaDisab4));
+
+        final var response = serviceToTest.countPersonalCareNeedsByOffenderNoAndProblemTypeBetweenDates(
+            List.of("A1234AA","A1234AB"),
+            problemType,
+            LocalDate.of(2022, 02, 02),
+            LocalDate.of(2022, 03, 03));
+
+        verify(offenderHealthProblemRepository).findAllByOffenderBookingOffenderNomsIdInAndProblemTypeCodeAndStartDateAfterAndStartDateBefore(
+            List.of("A1234AA","A1234AB"),
+            problemType,
+            LocalDate.of(2022, 02, 02),
+            LocalDate.of(2022, 03, 03));
+        assertThat(response).containsExactly(
+            new PersonalCareCounterDto("A1234AA", 4),
+            new PersonalCareCounterDto("A1234AB", 1));
+
+    }
+
 
     @Nested
     class AddPersonalCareNeed {

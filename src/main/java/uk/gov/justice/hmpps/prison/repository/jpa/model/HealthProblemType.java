@@ -8,7 +8,7 @@ import javax.persistence.Entity;
 @Entity
 @DiscriminatorValue(HealthProblemType.HEALTH)
 @NoArgsConstructor
-public class HealthProblemType extends ReferenceCode {
+public class  HealthProblemType extends ReferenceCode {
 
     public static final String HEALTH = "HEALTH";
 
