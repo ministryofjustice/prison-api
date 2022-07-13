@@ -954,7 +954,6 @@ public class AdjudicationsServiceTest {
         private void setupMocksInternal(final boolean offenceCodeRequested, final boolean validAgency, final boolean validLocation) {
             when(incidentTypeRepository.findById(AdjudicationIncidentType.GOVERNORS_REPORT)).thenReturn(Optional.of(incidentType));
             when(actionCodeRepository.findById(AdjudicationActionCode.PLACED_ON_REPORT)).thenReturn(Optional.of(actionCode));
-            when(authenticationFacade.getCurrentUsername()).thenReturn(EXAMPLE_CURRENT_USERNAME);
             when(staffUserAccountRepository.findById(EXAMPLE_REPORTER_USERNAME)).thenReturn(Optional.of(reporter));
             when(bookingRepository.findByBookingId(booking.getBookingId())).thenReturn(Optional.of(booking));
             if (validAgency && validLocation) {
@@ -1016,7 +1015,7 @@ public class AdjudicationsServiceTest {
         }
 
         public String getReporterUsername() {
-            return EXAMPLE_CURRENT_USERNAME;
+            return EXAMPLE_REPORTER_USERNAME;
         }
 
         public String getOffenderNo() {

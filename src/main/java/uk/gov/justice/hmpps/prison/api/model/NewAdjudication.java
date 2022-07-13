@@ -27,21 +27,20 @@ public class NewAdjudication {
     @NotBlank
     private String offenderNo;
 
-    // The following 4 props will be made complusory when the calling API is updated
-    @Schema(description = "Adjudication number. This must be the value returned by an adjudication creation request", example = "123456")
-    // @NotNull
+    @Schema(required = true, description = "Adjudication number. This must be the value returned by an adjudication creation request", example = "123456")
+    @NotNull
     private Long adjudicationNumber;
 
-    @Schema(description = "Booking number", example = "123456")
-    // @NotNull
+    @Schema(required = true, description = "Booking number", example = "123456")
+    @NotNull
     private Long bookingId;
 
-    @Schema(description = "The user name of the reporter", example = "G12345")
-    // @NotBlank
+    @Schema(required = true, description = "The user name of the reporter", example = "G12345")
+    @NotBlank
     private String reporterName;
 
-    @Schema(description = "When the adjudication was reported", example = "15-06-2020T09:03:11")
-    // @NotNull
+    @Schema(required = true, description = "When the adjudication was reported", example = "15-06-2020T09:03:11")
+    @NotNull
     private LocalDateTime reportedDateTime;
 
     @Schema(required = true, description = "When the incident took place", example = "15-06-2020T09:03:11")
