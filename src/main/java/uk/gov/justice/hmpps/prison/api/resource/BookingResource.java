@@ -756,7 +756,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Personal Care Needs Counter - POST version to allow to count heath problem by type for large numbers of offenders", description = "Personal Care Needs")
-    @PostMapping("/offenderNo/count-personal-care-needs")
+    @PostMapping("/offenderNo/personal-care-needs/count")
     public List<PersonalCareCounterDto> countPersonalCareNeeds(@RequestBody @NotEmpty(message = "offenderNo: must not be empty") @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderNos,
                                                                @RequestParam(value = "type") @NotEmpty(message = "type: must not be empty") @Parameter(description = "problem type", example = "DISAB", required = true) final String problemType,
                                                                @RequestParam(value = "fromStartDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Personal needs care must be on or after this date (in YYYY-MM-DD format).") final LocalDate fromStartDate,
