@@ -14,28 +14,13 @@ configurations {
   }
 }
 
-// spring boot configuration specifies the version of selenium so need to override for serenity to work properly
-ext["selenium.version"] = "4.1.1"
-
-// SDI-261: Pin versions to prevent issue with useLatestVersions
-
-// Problem with hibernate-core 5.6.7.Final which was causing issue with 'startingWith'
-// https://github.com/spring-projects/spring-data-jpa/issues/2472
-// https://hibernate.atlassian.net/browse/HHH-15142
-// Temporarily revert to 5.6.5.Final until fixed
-val hibernateCoreVersion by extra("5.6.5.Final")
-
 // Temporarily kept at 4.3 due to bug in 4.4 parser
 val jsqlParserVersion by extra("4.3")
 
 // Temporarily keep at 2.5.1 until can switch to h2 instead (tests break anyway with 2.6.1)
 val hsqldbVersion by extra("2.5.1")
 
-// groovy errors with latest version
-val restAssuredVersion by extra("4.5.1")
-
-// Temporarily keep at 3.2.2 as seems to bring in groovy incompatibilites by upgrading to 3.2.4
-val serenityVersion by extra("3.2.2")
+ext["rest-assured.version"] = "5.1.1"
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
@@ -51,8 +36,6 @@ dependencies {
   developmentOnly("org.springframework.boot:spring-boot-devtools")
 
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
-
-  implementation("org.hibernate:hibernate-core:$hibernateCoreVersion")
 
   implementation("javax.annotation:javax.annotation-api:1.3.2")
   implementation("javax.xml.bind:jaxb-api:2.3.1")
@@ -82,9 +65,9 @@ dependencies {
 
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
-  testImplementation("io.rest-assured:rest-assured:$restAssuredVersion")
-  testImplementation("io.rest-assured:json-schema-validator:$restAssuredVersion")
-  testImplementation("io.rest-assured:spring-mock-mvc:$restAssuredVersion")
+  testImplementation("io.rest-assured:rest-assured:5.1.1")
+  testImplementation("io.rest-assured:json-schema-validator:5.1.1")
+  testImplementation("io.rest-assured:spring-mock-mvc:5.1.1")
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("com.google.code.gson:gson:2.9.0")
   testImplementation("org.powermock:powermock-api-mockito2:2.0.9")
@@ -93,10 +76,10 @@ dependencies {
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.35.0")
 
-  testImplementation("net.serenity-bdd:serenity-core:$serenityVersion")
-  testImplementation("net.serenity-bdd:serenity-junit:$serenityVersion")
-  testImplementation("net.serenity-bdd:serenity-spring:$serenityVersion")
-  testImplementation("net.serenity-bdd:serenity-cucumber:$serenityVersion")
+  testImplementation("net.serenity-bdd:serenity-core:3.2.5")
+  testImplementation("net.serenity-bdd:serenity-junit:3.2.5")
+  testImplementation("net.serenity-bdd:serenity-spring:3.2.5")
+  testImplementation("net.serenity-bdd:serenity-cucumber:3.2.5")
   testImplementation("com.paulhammant:ngwebdriver:1.1.6")
   testImplementation("org.slf4j:slf4j-api:1.7.36")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
