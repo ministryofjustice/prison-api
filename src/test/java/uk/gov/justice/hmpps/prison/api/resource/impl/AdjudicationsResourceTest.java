@@ -196,55 +196,6 @@ public class AdjudicationsResourceTest extends ResourceTest  {
     }
 
     @Nested
-    public class CreateAdjudicationWithoutCreationRequestData {
-
-        @Test
-        public void returnsExpectedValue() {
-            final var token = validToken(List.of("ROLE_MAINTAIN_ADJUDICATIONS"));
-            final var body = Map.of(
-                "offenderNo", "A1234AE",
-                "agencyId", "MDI",
-                "incidentTime", "2021-01-04T10:12:44",
-                "incidentLocationId", -31L,
-                "statement", "Example statement");
-
-            final var httpEntity = createHttpEntity(token, body);
-
-            final var response = testRestTemplate.exchange(
-                "/api/adjudications/adjudication",
-                HttpMethod.POST,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                });
-
-            assertThatJsonFileAndStatus(response, 201, "new_adjudication.json");
-        }
-
-        @Test
-        public void returnsExpectedValue_WithOptionalData() {
-            final var token = validToken(List.of("ROLE_MAINTAIN_ADJUDICATIONS"));
-            final var body = Map.of(
-                "offenderNo", "A1234AE",
-                "agencyId", "MDI",
-                "incidentTime", "2021-01-04T10:12:44",
-                "incidentLocationId", -31L,
-                "statement", "Example statement",
-                "offenceCodes", List.of("51:8D"));
-
-            final var httpEntity = createHttpEntity(token, body);
-
-            final var response = testRestTemplate.exchange(
-                "/api/adjudications/adjudication",
-                HttpMethod.POST,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                });
-
-            assertThatJsonFileAndStatus(response, 201, "new_adjudication_with_optional_data.json");
-        }
-    }
-
-    @Nested
     public class UpdateAdjudication {
 
         @Test

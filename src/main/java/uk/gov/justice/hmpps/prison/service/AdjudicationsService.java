@@ -124,30 +124,17 @@ public class AdjudicationsService {
     @VerifyOffenderAccess
     public AdjudicationDetail createAdjudication(@NotNull final String offenderNo,
                                                  @NotNull @Valid final NewAdjudication adjudication) {
-        var currentDateTime = LocalDateTime.now(clock);
-        if (adjudication.getReportedDateTime() != null) {
-            currentDateTime = adjudication.getReportedDateTime();
-        }
+        final var currentDateTime = adjudication.getReportedDateTime();
         final var incidentDateTime = adjudication.getIncidentTime();
 
         final var offenceCodes = offenceCodesFrom(adjudication.getOffenceCodes());
 
-        var reporterName = authenticationFacade.getCurrentUsername();
-        if (adjudication.getReporterName() != null) {
-            reporterName = adjudication.getReporterName();
-        }
-        String finalReporterName = reporterName;
+        final var reporterName = adjudication.getReporterName();
         final var reporter = staffUserAccountRepository.findById(reporterName)
-            .orElseThrow(() -> new RuntimeException(format("User not found %s", finalReporterName)));
+            .orElseThrow(() -> new RuntimeException(format("User not found %s", reporterName)));
 
-        OffenderBooking offenderBookingEntry;
-        if (adjudication.getBookingId() != null) {
-            offenderBookingEntry = bookingRepository.findByBookingId(adjudication.getBookingId())
+        final var offenderBookingEntry = bookingRepository.findByBookingId(adjudication.getBookingId())
                 .orElseThrow(() -> new RuntimeException(format("Could not find the booking with id %d", adjudication.getBookingId())));
-        } else {
-            offenderBookingEntry = bookingRepository.findByOffenderNomsIdAndBookingSequence(offenderNo, 1)
-                .orElseThrow(() -> new RuntimeException(format("Could not find a current booking for Offender No %s", offenderNo)));
-        }
         final var incidentType = incidentTypeRepository.findById(AdjudicationIncidentType.GOVERNORS_REPORT)
             .orElseThrow(() -> new RuntimeException("Incident type not available"));
         final var actionCode = actionCodeRepository.findById(AdjudicationActionCode.PLACED_ON_REPORT)
@@ -174,17 +161,12 @@ public class AdjudicationsService {
             .staffReporter(reporter.getStaff())
             .build();
 
-        Long adjudicationNumber;
-        if (adjudication.getAdjudicationNumber() != null) {
-            // Check it doesn't already exist
-            final var existingAdjudicationParty = adjudicationsRepository.findByParties_AdjudicationNumber(adjudication.getAdjudicationNumber());
-            if (existingAdjudicationParty.isPresent()) {
-                throw EntityNotFoundException.withMessage(format("Adjudication with number %d already exists", adjudication.getAdjudicationNumber()));
-            }
-            // Note that we can't check whether this is a valid adjudication number as they are allocated in batches
-            adjudicationNumber = adjudication.getAdjudicationNumber();
-        } else {
-            adjudicationNumber = adjudicationsRepository.getNextAdjudicationNumber();
+        // Check it doesn't already exist
+        // Note that we can't check whether this is a valid adjudication number as they are allocated in batches
+        final var adjudicationNumber = adjudication.getAdjudicationNumber();
+        final var existingAdjudicationParty = adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber);
+        if (existingAdjudicationParty.isPresent()) {
+            throw EntityNotFoundException.withMessage(format("Adjudication with number %d already exists", adjudicationNumber));
         }
 
         final var offenderAdjudicationEntry = AdjudicationParty.builder()
@@ -209,7 +191,7 @@ public class AdjudicationsService {
 
         final var updatedAdjudication = adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber).get();
 
-        trackAdjudicationCreated(updatedAdjudication);
+        trackAdjudicationCreated(updatedAdjudication, reporterName);
 
         return AdjudicationsTransformer.transformToDto(updatedAdjudication);
     }
@@ -289,9 +271,9 @@ public class AdjudicationsService {
         }
     }
 
-    private void trackAdjudicationCreated(final Adjudication createdAdjudication) {
+    private void trackAdjudicationCreated(final Adjudication createdAdjudication, String reporterName) {
         final Map<String, String> logMap = new HashMap<>();
-        logMap.put("reporterUsername", authenticationFacade.getCurrentUsername());
+        logMap.put("reporterUsername", reporterName);
         logMap.put("offenderNo", createdAdjudication.getOffenderParty()
             .map(AdjudicationParty::getOffenderBooking)
             .map(OffenderBooking::getOffender)
