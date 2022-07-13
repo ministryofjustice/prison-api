@@ -7,17 +7,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.CreatePersonalCareNeed;
+import uk.gov.justice.hmpps.prison.api.model.PersonalCareCounterDto;
 import uk.gov.justice.hmpps.prison.api.model.PersonalCareNeed;
 import uk.gov.justice.hmpps.prison.api.model.PersonalCareNeeds;
 import uk.gov.justice.hmpps.prison.repository.InmateRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.HealthProblemCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.HealthProblemStatus;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.HealthProblemType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderHealthProblem;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderHealthProblemRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.TreeMap;
@@ -36,18 +38,21 @@ public class HealthService {
     private final InmateRepository inmateRepository;
     private final ReferenceCodeRepository<HealthProblemCode> healthProblemCodeReferenceCodeRepository;
     private final ReferenceCodeRepository<HealthProblemStatus> healthProblemStatusReferenceCodeRepository;
+    private final OffenderHealthProblemRepository offenderHealthProblemRepository;
     private final int maxBatchSize;
 
     public HealthService(final OffenderBookingRepository offenderBookingRepository,
                          final InmateRepository inmateRepository,
                          final ReferenceCodeRepository<HealthProblemCode> healthProblemCodeReferenceCodeRepository,
                          final ReferenceCodeRepository<HealthProblemStatus> healthProblemStatusReferenceCodeRepository,
+                         OffenderHealthProblemRepository offenderHealthProblemRepository,
                          @Value("${batch.max.size:1000}") final int maxBatchSize
     ) {
         this.offenderBookingRepository = offenderBookingRepository;
         this.inmateRepository = inmateRepository;
         this.healthProblemCodeReferenceCodeRepository = healthProblemCodeReferenceCodeRepository;
         this.healthProblemStatusReferenceCodeRepository = healthProblemStatusReferenceCodeRepository;
+        this.offenderHealthProblemRepository = offenderHealthProblemRepository;
         this.maxBatchSize = maxBatchSize;
     }
 
@@ -87,6 +92,19 @@ public class HealthService {
 
         // then convert back into list where every entry is for a single offender
         return map.entrySet().stream().map(e -> new PersonalCareNeeds(e.getKey(), e.getValue())).toList();
+    }
+
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    public List<PersonalCareCounterDto> countPersonalCareNeedsByOffenderNoAndProblemTypeBetweenDates(
+        final List<String> offenderNos,
+        final String problemType,
+        final LocalDate startDate,
+        final LocalDate endDate) {
+        final var personalCareNeeds = offenderHealthProblemRepository.findAllByOffenderBookingOffenderNomsIdInAndProblemTypeCodeAndStartDateAfterAndStartDateBefore(offenderNos, problemType, startDate, endDate);
+
+        return personalCareNeeds.stream().collect(
+                Collectors.groupingBy(o -> o.getOffenderBooking().getOffender().getNomsId()))
+            .entrySet().stream().map(e -> new PersonalCareCounterDto(e.getKey(), e.getValue().size())).toList();
     }
 
     @Transactional
