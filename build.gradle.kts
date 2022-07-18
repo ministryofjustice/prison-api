@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.3.2"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.3.3"
   kotlin("plugin.spring") version "1.7.0"
   kotlin("plugin.jpa") version "1.7.0"
   kotlin("plugin.lombok") version "1.7.0"
@@ -61,7 +61,7 @@ dependencies {
   compileOnly("org.projectlombok:lombok:1.18.24")
 
   runtimeOnly("org.hsqldb:hsqldb:$hsqldbVersion")
-  runtimeOnly("org.flywaydb:flyway-core:8.5.13")
+  runtimeOnly("org.flywaydb:flyway-core")
 
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
