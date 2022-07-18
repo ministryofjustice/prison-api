@@ -199,7 +199,6 @@ public class PrisonerReleaseAndTransferService {
             lastMovement.setMovementReason(movementReasonRepository.findById(DISCHARGE_TO_PSY_HOSPITAL).orElseThrow(EntityNotFoundException.withMessage(format("No movement reason %s found", DISCHARGE_TO_PSY_HOSPITAL))));
             lastMovement.setToAgency(toLocation);
             lastMovement.setCommentText(commentText);
-            lastMovement.setFromAgency(agencyLocationRepository.findById(requestToDischargePrisoner.getSupportingPrisonId()).orElseThrow(EntityNotFoundException.withMessage(format("No %s agency found", requestToDischargePrisoner.getSupportingPrisonId()))));
             offenderBooking.setStatusReason(REL.getCode() + "-" + DISCHARGE_TO_PSY_HOSPITAL.getCode());
         } else {
             releasePrisoner(prisonerIdentifier, RequestToReleasePrisoner.builder()
