@@ -32,12 +32,11 @@ public class RequestToDischargePrisoner {
     @Length(max = 240, message = "Comments size is a maximum of 240 characters")
     private String commentText;
 
-    @Schema(description = "Supporting Prison for POM, can be null if prisoner is already in a prison", example = "MDI")
+    @Schema(description = "Supporting Prison for POM, can be null if prisoner is already in a prison, for prisoners already released this field will be ignored", example = "MDI")
     @Length(max = 3, message = "Prison ID is 3 character code")
-    @NotNull
     private String supportingPrisonId;
 
-    @Schema(description = "Where the prisoner has moved from e.g. court, can be null if prisoner is already in prison", example = "SHEFCC")
+    @Schema(description = "Where the prisoner has moved from e.g. court, can be null if prisoner is already in prison, for prisoners already in prison this field will be ignored", example = "SHEFCC")
     @Length(max = 6, message = "From location")
     private String fromLocationId;
 }
