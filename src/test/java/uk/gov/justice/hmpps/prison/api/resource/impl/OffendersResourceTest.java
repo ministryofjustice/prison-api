@@ -15,14 +15,20 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
 
 import java.math.BigDecimal;
-import java.time.*;
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.http.HttpMethod.*;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpMethod.PUT;
 import static uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.PRISON_API_USER;
 
 @ContextConfiguration(classes = OffendersResourceTest.TestClock.class)
@@ -627,7 +633,7 @@ public class OffendersResourceTest extends ResourceTest {
 
         assertThatOKResponseContainsJson(response, """
               {
-                  "locationDescription": "Outside - released from SHREWSBURY (HMP)",
+                  "locationDescription": "Outside - released from SHREWSBURY",
                   "latestLocationId": "SYI"
               }
             """);
