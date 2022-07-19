@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM openjdk:18-slim AS builder
+FROM --platform=$BUILDPLATFORM eclipse-temurin:18-jre-jammy AS builder
 
 ARG BUILD_NUMBER
 ENV BUILD_NUMBER ${BUILD_NUMBER:-1_0_0}
@@ -7,7 +7,7 @@ WORKDIR /app
 ADD . .
 RUN ./gradlew --no-daemon assemble
 
-FROM openjdk:18-slim
+FROM eclipse-temurin:18-jre-jammy
 LABEL maintainer="HMPPS Digital Studio <info@digital.justice.gov.uk>"
 
 ARG BUILD_NUMBER
