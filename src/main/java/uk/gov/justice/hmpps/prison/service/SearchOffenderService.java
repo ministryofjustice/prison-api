@@ -57,7 +57,10 @@ public class SearchOffenderService {
         final var bookings = bookingsPage.getItems();
         final var bookingIds = bookings.stream().map(OffenderBooking::getBookingId).toList();
 
-        log.info("Searching for offenders, Found {} offenders, page size {}", bookingsPage.getTotalRecords(), bookingsPage.getItems().size());
+        log.info("Prisoner search with request: {} returned {} records, first page {}",
+            request,
+            bookingsPage.getTotalRecords(),
+            bookingsPage.getItems().stream().map(OffenderBooking::getOffenderNo).collect(Collectors.joining(",")));
 
         if (!CollectionUtils.isEmpty(bookingIds)) {
             if (request.isReturnAlerts()) {
