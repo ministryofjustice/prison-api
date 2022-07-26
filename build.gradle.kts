@@ -149,7 +149,7 @@ tasks {
 
   // Since Gradle 7.5 `--add-opens` is not automatically added to test workers. This broke a test in `InfoIntTest` because ehcache v2 uses reflection to retrieve the heap size.
   // As we add `--add-opens` to the JVM args in `run.sh` it seems safe to also add these to the test workers.
-  // For more info. on the Gradle change see https://docs.gradle.org/current/userguide/upgrading_version_7.html#removes_implicit_add_opens_for_test_workers
+  // For more info. on the Gradle change see https://docs.gradle.org/7.5/userguide/upgrading_version_7.html#removes_implicit_add_opens_for_test_workers
   withType<Test> {
     jvmArgs(listOf("--add-opens=java.base/java.lang=ALL-UNNAMED", "--add-opens=java.base/java.util=ALL-UNNAMED"))
   }
