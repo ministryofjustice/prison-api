@@ -156,17 +156,18 @@ public class HealthServiceImplTest {
             .startDate(LocalDate.parse("2022-06-22"))
             .build();
 
-        when(offenderHealthProblemRepository.findAllByOffenderBookingOffenderNomsIdInAndProblemTypeCodeAndStartDateAfterAndStartDateBefore(anyList(), any(), any(), any())).thenReturn(
+        when(offenderHealthProblemRepository.findAllByOffenderBookingOffenderNomsIdInAndOffenderBookingBookingSequenceAndProblemTypeCodeAndStartDateAfterAndStartDateBefore(anyList(),any(), any(), any(), any())).thenReturn(
             List.of(abDisab, aaDisab1, aaDisab2, aaDisab3, aaDisab4));
 
         final var response = serviceToTest.countPersonalCareNeedsByOffenderNoAndProblemTypeBetweenDates(
-            List.of("A1234AA","A1234AB"),
+            List.of("A1234AA", "A1234AB"),
             problemType,
             LocalDate.of(2022, 02, 02),
             LocalDate.of(2022, 03, 03));
 
-        verify(offenderHealthProblemRepository).findAllByOffenderBookingOffenderNomsIdInAndProblemTypeCodeAndStartDateAfterAndStartDateBefore(
-            List.of("A1234AA","A1234AB"),
+        verify(offenderHealthProblemRepository).findAllByOffenderBookingOffenderNomsIdInAndOffenderBookingBookingSequenceAndProblemTypeCodeAndStartDateAfterAndStartDateBefore(
+            List.of("A1234AA", "A1234AB"),
+            1,
             problemType,
             LocalDate.of(2022, 02, 02),
             LocalDate.of(2022, 03, 03));
