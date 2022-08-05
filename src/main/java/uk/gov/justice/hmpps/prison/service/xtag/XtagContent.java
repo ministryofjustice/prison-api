@@ -100,4 +100,13 @@ public class XtagContent {
     private String p_new_record;
     private String p_record_deleted;
     private String p_timestamp;
+
+    private String p_event_id;
+    private String p_start_time;
+    private String p_end_time;
+    private String p_event_class;
+    private String p_event_type;
+    private String p_event_sub_type;
+    private String p_event_status;
+    private String p_agy_loc_id;
 }

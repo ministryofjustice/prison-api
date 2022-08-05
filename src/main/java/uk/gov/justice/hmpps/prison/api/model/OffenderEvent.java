@@ -21,6 +21,14 @@ public class OffenderEvent {
     private String eventType;
     private LocalDateTime eventDatetime;
 
+    private Long scheduleEventId;
+    private LocalDateTime scheduledStartTime;
+    private LocalDateTime scheduledEndTime;
+    private String scheduleEventClass;
+    private String scheduleEventType;
+    private String scheduleEventSubType;
+    private String scheduleEventStatus;
+
     private Long rootOffenderId;
     private Long offenderId;
     private Long aliasOffenderId;

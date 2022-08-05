@@ -598,9 +598,7 @@ public class OffendersResourceTest extends ResourceTest {
         final var dischargeRequest = Map.of(
             "hospitalLocationCode", "HAZLWD",
             "dischargeTime", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
-            "commentText", "Discharged to Psychiatric hospital",
-            "supportingPrisonId", "LEI",
-            "fromLocationId", "COURT1");
+            "commentText", "Discharged to Psychiatric hospital");
         final var dischargeEntity = createHttpEntity(token, dischargeRequest);
 
         final var dischargeResponse =  testRestTemplate.exchange(
@@ -635,8 +633,8 @@ public class OffendersResourceTest extends ResourceTest {
 
         assertThatOKResponseContainsJson(response, """
               {
-                  "locationDescription": "Outside - released from LEEDS",
-                  "latestLocationId": "LEI"
+                  "locationDescription": "Outside - released from SHREWSBURY",
+                  "latestLocationId": "SYI"
               }
             """);
 
