@@ -20,16 +20,16 @@ public class OffenderEventsTransformerTest {
 
     private static final String NOT_A_CASE_NOTE = "NOT_A_CASE_NOTE";
     private static final String CASE_NOTE_JSON = "{\"case_note\":{\"id\":61342651,\"contact_datetime\":\"1819-02-20 14:09:00\"\n" +
-            ",\"source\":{\"code\":\"INST\"\n" +
-            ",\"desc\":\"Prison\"\n" +
-            "},\"type\":{\"code\":\"GEN\"\n" +
-            ",\"desc\":\"General\"\n" +
-            "},\"sub_type\":{\"code\":\"OSE\"\n" +
-            ",\"desc\":\"\"\n" +
-            "},\"staff_member\":{\"id\":483079,\"name\":\"White, Barry\"\n" +
-            ",\"userid\":\"QWU90D\"\n" +
-            "},\"text\":\"[redacted]stice.gov.uk \\n\\u260F 01811 8055 (Direct \\u2013 22222) \\u#### N/A [redacted]\"\n" +
-            ",\"amended\":false}}";
+        ",\"source\":{\"code\":\"INST\"\n" +
+        ",\"desc\":\"Prison\"\n" +
+        "},\"type\":{\"code\":\"GEN\"\n" +
+        ",\"desc\":\"General\"\n" +
+        "},\"sub_type\":{\"code\":\"OSE\"\n" +
+        ",\"desc\":\"\"\n" +
+        "},\"staff_member\":{\"id\":483079,\"name\":\"White, Barry\"\n" +
+        ",\"userid\":\"QWU90D\"\n" +
+        "},\"text\":\"[redacted]stice.gov.uk \\n\\u260F 01811 8055 (Direct \\u2013 22222) \\u#### N/A [redacted]\"\n" +
+        ",\"amended\":false}}";
     private OffenderEventsTransformer offenderEventsTransformer = new OffenderEventsTransformer(mock(TypesTransformer.class));
 
     @Test
@@ -95,15 +95,15 @@ public class OffenderEventsTransformerTest {
 
         final var transformer = new OffenderEventsTransformer(null);
         assertThat(transformer.externalMovementRecordEventOf(Xtag.builder().content(
-                XtagContent.builder()
-                        .p_from_agy_loc_id("BARBECUE")
-                        .p_to_agy_loc_id("SAUCE")
-                        .build()
+            XtagContent.builder()
+                .p_from_agy_loc_id("BARBECUE")
+                .p_to_agy_loc_id("SAUCE")
+                .build()
         ).build(), Optional.of(OffenderEventsTransformer.externalMovementEventOf(Xtag.builder().content(
-                XtagContent.builder()
-                        .p_from_agy_loc_id("BARBECUE")
-                        .p_to_agy_loc_id("SAUCE")
-                        .build()
+            XtagContent.builder()
+                .p_from_agy_loc_id("BARBECUE")
+                .p_to_agy_loc_id("SAUCE")
+                .build()
         ).build())))).extracting("fromAgencyLocationId", "toAgencyLocationId").containsOnly("BARBECUE", "SAUCE");
     }
 
@@ -112,9 +112,9 @@ public class OffenderEventsTransformerTest {
         final var transformer = new OffenderEventsTransformer(mock(TypesTransformer.class));
 
         assertThat(transformer.caseNoteEventTypeOf(OffenderEvent.builder()
-                .eventType("CASE_NOTE")
-                .eventData1(CASE_NOTE_JSON)
-                .build())).isEqualTo("GEN-OSE");
+            .eventType("CASE_NOTE")
+            .eventData1(CASE_NOTE_JSON)
+            .build())).isEqualTo("GEN-OSE");
     }
 
     @Test
@@ -122,9 +122,9 @@ public class OffenderEventsTransformerTest {
         final var transformer = new OffenderEventsTransformer(mock(TypesTransformer.class));
 
         assertThat(transformer.caseNoteEventTypeOf(OffenderEvent.builder()
-                .eventType(NOT_A_CASE_NOTE)
-                .eventData1(CASE_NOTE_JSON)
-                .build())).isEqualTo(NOT_A_CASE_NOTE);
+            .eventType(NOT_A_CASE_NOTE)
+            .eventData1(CASE_NOTE_JSON)
+            .build())).isEqualTo(NOT_A_CASE_NOTE);
     }
 
     @Test
@@ -132,9 +132,9 @@ public class OffenderEventsTransformerTest {
         final var transformer = new OffenderEventsTransformer(mock(TypesTransformer.class));
 
         assertThat(transformer.caseNoteIdOf(OffenderEvent.builder()
-                .eventType("CASE_NOTE")
-                .eventData1(CASE_NOTE_JSON)
-                .build())).isEqualTo(61342651);
+            .eventType("CASE_NOTE")
+            .eventData1(CASE_NOTE_JSON)
+            .build())).isEqualTo(61342651);
     }
 
     @Test
@@ -142,9 +142,9 @@ public class OffenderEventsTransformerTest {
         final var transformer = new OffenderEventsTransformer(mock(TypesTransformer.class));
 
         assertThat(transformer.caseNoteIdOf(OffenderEvent.builder()
-                .eventType(NOT_A_CASE_NOTE)
-                .eventData1(CASE_NOTE_JSON)
-                .build())).isNull();
+            .eventType(NOT_A_CASE_NOTE)
+            .eventData1(CASE_NOTE_JSON)
+            .build())).isNull();
     }
 
     @Test
@@ -160,27 +160,28 @@ public class OffenderEventsTransformerTest {
     @Test
     public void S2_RESULT_IsMappedTo_SENTENCE_DATES_CHANGED() {
         final var event = offenderEventsTransformer.offenderEventOf(Xtag
+            .builder()
+            .eventType("S2_RESULT")
+            .content(XtagContent
                 .builder()
-                .eventType("S2_RESULT")
-                .content(XtagContent
-                        .builder()
-                        .p_offender_book_id("99")
-                        .p_offender_sent_calculation_id("88")
-                        .build())
-                .build());
+                .p_offender_book_id("99")
+                .p_offender_sent_calculation_id("88")
+                .build())
+            .build());
 
         assertThat(event.getEventType()).isEqualTo("SENTENCE_DATES-CHANGED");
     }
+
     @Test
     public void OFF_SENT_OASYS_IsMappedTo_SENTENCE_CALCULATION_DATES_CHANGED() {
         final var event = offenderEventsTransformer.offenderEventOf(Xtag
+            .builder()
+            .eventType("OFF_SENT_OASYS")
+            .content(XtagContent
                 .builder()
-                .eventType("OFF_SENT_OASYS")
-                .content(XtagContent
-                        .builder()
-                        .p_offender_book_id("99")
-                        .build())
-                .build());
+                .p_offender_book_id("99")
+                .build())
+            .build());
 
         assertThat(event.getEventType()).isEqualTo("SENTENCE_CALCULATION_DATES-CHANGED");
     }
@@ -190,16 +191,16 @@ public class OffenderEventsTransformerTest {
         final var now = LocalDateTime.now();
 
         final var event = offenderEventsTransformer.offenderEventOf(Xtag
+            .builder()
+            .eventType("BED_ASSIGNMENT_HISTORY-INSERTED")
+            .nomisTimestamp(now)
+            .content(XtagContent
                 .builder()
-                .eventType("BED_ASSIGNMENT_HISTORY-INSERTED")
-                .nomisTimestamp(now)
-                .content(XtagContent
-                        .builder()
-                        .p_offender_book_id("99")
-                        .p_bed_assign_seq("1")
-                        .p_living_unit_id("34123412")
-                        .build())
-                .build());
+                .p_offender_book_id("99")
+                .p_bed_assign_seq("1")
+                .p_living_unit_id("34123412")
+                .build())
+            .build());
 
         assertThat(event.getEventType()).isEqualTo("BED_ASSIGNMENT_HISTORY-INSERTED");
         assertThat(event.getBookingId()).isEqualTo(99L);
@@ -220,15 +221,15 @@ public class OffenderEventsTransformerTest {
             .nomisTimestamp(now)
             .content(XtagContent
                 .builder()
-                    .p_offender_book_id("232")
-                    .p_from_agy_loc_id("MDI")
-                    .p_to_agy_loc_id("HOSP")
-                    .p_direction_code("OUT")
-                    .p_movement_type("REL")
-                    .p_movement_reason_code("HP")
-                    .p_movement_seq("1")
-                    .p_movement_date("2019-02-14")
-                    .p_movement_time("2019-02-14 10:11:12")
+                .p_offender_book_id("232")
+                .p_from_agy_loc_id("MDI")
+                .p_to_agy_loc_id("HOSP")
+                .p_direction_code("OUT")
+                .p_movement_type("REL")
+                .p_movement_reason_code("HP")
+                .p_movement_seq("1")
+                .p_movement_date("2019-02-14")
+                .p_movement_time("2019-02-14 10:11:12")
                 .build())
             .build());
 
@@ -270,17 +271,81 @@ public class OffenderEventsTransformerTest {
         final var now = LocalDateTime.now();
 
         final var event = offenderEventsTransformer.offenderEventOf(Xtag
+            .builder()
+            .eventType("CONFIRMED_RELEASE_DATE-CHANGED")
+            .nomisTimestamp(now)
+            .content(XtagContent
                 .builder()
-                .eventType("CONFIRMED_RELEASE_DATE-CHANGED")
-                .nomisTimestamp(now)
-                .content(XtagContent
-                        .builder()
-                        .p_offender_book_id("99")
-                        .build())
-                .build());
+                .p_offender_book_id("99")
+                .build())
+            .build());
 
         assertThat(event.getEventType()).isEqualTo("CONFIRMED_RELEASE_DATE-CHANGED");
         assertThat(event.getBookingId()).isEqualTo(99L);
         assertThat(event.getEventDatetime()).isEqualTo(now);
+    }
+
+    @Test
+    public void offenderIndividualScheduledEventMappedCorrectly() {
+        final var now = LocalDateTime.now();
+
+        final var event = offenderEventsTransformer.offenderEventOf(Xtag
+            .builder()
+            .eventType("SCHEDULE_INT_APP-CHANGED")
+            .nomisTimestamp(now)
+            .content(XtagContent
+                .builder()
+                .p_agy_loc_id("LEI")
+                .p_event_id("2362162")
+                .p_event_date("2022-07-19")
+                .p_event_status("SCH")
+                .p_offender_book_id("52303")
+                .p_event_sub_type("CALA")
+                .p_start_time("16:00:00")
+                .p_end_time("16:30:00")
+                .p_event_class("INT_MOV")
+                .p_event_type("APP")
+                .build())
+            .build());
+
+        assertThat(event.getEventType()).isEqualTo("APPOINTMENT_CHANGED");
+        assertThat(event.getBookingId()).isEqualTo(52303L);
+        assertThat(event.getEventDatetime()).isEqualTo(now);
+        assertThat(event.getAgencyLocationId()).isEqualTo("LEI");
+        assertThat(event.getScheduleEventId()).isEqualTo(2362162);
+        assertThat(event.getScheduledStartTime()).isEqualTo(LocalDateTime.of(2022, 7, 19, 16,0,0));
+        assertThat(event.getScheduledEndTime()).isEqualTo(LocalDateTime.of(2022, 7, 19, 16,30,0));
+        assertThat(event.getScheduleEventStatus()).isEqualTo("SCH");
+        assertThat(event.getScheduleEventType()).isEqualTo("APP");
+        assertThat(event.getScheduleEventSubType()).isEqualTo("CALA");
+        assertThat(event.getScheduleEventClass()).isEqualTo("INT_MOV");
+    }
+
+    @Test
+    public void offenderIndividualScheduledEventMappedCorrectlyWhenEndDateMissing() {
+        final var now = LocalDateTime.now();
+
+        final var event = offenderEventsTransformer.offenderEventOf(Xtag
+            .builder()
+            .eventType("SCHEDULE_INT_APP-CHANGED")
+            .nomisTimestamp(now)
+            .content(XtagContent
+                .builder()
+                .p_agy_loc_id("LEI")
+                .p_event_id("2362162")
+                .p_event_date("2022-07-19")
+                .p_event_status("SCH")
+                .p_offender_book_id("52303")
+                .p_event_sub_type("CALA")
+                .p_start_time("16:00:00")
+                .p_event_class("INT_MOV")
+                .p_event_type("APP")
+                .build())
+            .build());
+
+        assertThat(event.getEventType()).isEqualTo("APPOINTMENT_CHANGED");
+        assertThat(event.getBookingId()).isEqualTo(52303L);
+        assertThat(event.getScheduledStartTime()).isEqualTo(LocalDateTime.of(2022, 7, 19, 16,0,0));
+        assertThat(event.getScheduledEndTime()).isNull();
     }
 }
