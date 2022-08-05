@@ -176,6 +176,7 @@ public class OffenderEventsTransformer {
                 case "P1_RESULT", "BOOK_UPD_OASYS" -> offenderEvent = bookingNumberEventOf(xtag);
                 case "OFF_HEALTH_PROB_INS" -> offenderEvent = maternityStatusInsertedEventOf(xtag);
                 case "OFF_HEALTH_PROB_UPD" -> offenderEvent = maternityStatusUpdatedEventOf(xtag);
+                case "SCHEDULE_INT_APP-CHANGED" -> offenderEvent = offenderIndividualScheduleChanged(xtag);
                 case "OFF_RECEP_OASYS" -> offenderEvent = offenderMovementReceptionEventOf(xtag);
                 case "OFF_DISCH_OASYS" -> offenderEvent = offenderMovementDischargeEventOf(xtag);
                 case "M1_RESULT", "M1_UPD_RESULT" -> offenderEvent = externalMovementRecordEventOf(xtag, Optional.of(externalMovementEventOf(xtag)));
@@ -433,6 +434,24 @@ public class OffenderEventsTransformer {
             .sentenceSeq(longOf(xtag.getContent().getP_sentence_seq()))
             .conditionCode(xtag.getContent().getP_condition_code())
             .offenderSentenceConditionId(longOf(xtag.getContent().getP_offender_sent_calculation_id()))
+            .nomisEventType(xtag.getEventType())
+            .build();
+    }
+
+    private OffenderEvent offenderIndividualScheduleChanged(final Xtag xtag) {
+        return OffenderEvent.builder()
+            .eventType("APPOINTMENT_CHANGED")
+            .eventDatetime(xtag.getNomisTimestamp())
+            .bookingId(longOf(xtag.getContent().getP_offender_book_id()))
+
+            .scheduleEventId(longOf(xtag.getContent().getP_event_id()))
+            .scheduledStartTime(localDateTimeOf(xtag.getContent().getP_event_date(), xtag.getContent().getP_start_time()) )
+            .scheduledEndTime(xtag.getContent().getP_end_time() == null ? null : localDateTimeOf(xtag.getContent().getP_event_date(), xtag.getContent().getP_end_time()) )
+            .scheduleEventClass(xtag.getContent().getP_event_class())
+            .scheduleEventType(xtag.getContent().getP_event_type())
+            .scheduleEventSubType(xtag.getContent().getP_event_sub_type())
+            .scheduleEventStatus(xtag.getContent().getP_event_status())
+            .agencyLocationId(xtag.getContent().getP_agy_loc_id())
             .nomisEventType(xtag.getEventType())
             .build();
     }
