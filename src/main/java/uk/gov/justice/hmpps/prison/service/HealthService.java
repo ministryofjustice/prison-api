@@ -112,6 +112,9 @@ public class HealthService {
     @VerifyBookingAccess
     public void addPersonalCareNeed(final Long bookingId, final CreatePersonalCareNeed createPersonalCareNeed) {
         final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
+        if (!offenderBooking.isActive()) {
+            throw BadRequestException.withId(bookingId);
+        }
         final var caseloadType = offenderBooking.getLocation().getType().getCode();
         final var problemCode = healthProblemCodeReferenceCodeRepository.findById(HealthProblemCode.pk(createPersonalCareNeed.getProblemCode())).orElseThrow(EntityNotFoundException.withId(createPersonalCareNeed.getProblemCode()));
         final var problemStatus = healthProblemStatusReferenceCodeRepository.findById(HealthProblemStatus.pk(createPersonalCareNeed.getProblemStatus())).orElseThrow(EntityNotFoundException.withId(createPersonalCareNeed.getProblemStatus()));
