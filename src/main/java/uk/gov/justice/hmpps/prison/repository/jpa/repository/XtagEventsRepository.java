@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface XtagEventsRepository {
     List<XtagEventNonJpa> findAll(OffenderEventsFilter oeFilter);
+    List<XtagEventNonJpa> findTest(OffenderEventsFilter oeFilter, boolean useEnq);
 }
