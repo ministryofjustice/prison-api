@@ -209,6 +209,19 @@ public class XtagEventsServiceTest {
         assertThat(actual).isEqualTo(aSummerDate);
     }
 
+    @Test
+    public void findTest() {
+        final var filter = OffenderEventsFilter.builder().from(LocalDateTime.now()).to(LocalDateTime.now()).build();
+        final var xTagEvent = XtagEventNonJpa.builder().build();
+        when(repository.findTest(Mockito.any(OffenderEventsFilter.class), Mockito.eq(true))).thenReturn(List.of(xTagEvent));
+        when(transformer.offenderEventOf(Mockito.any(XtagEventNonJpa.class))).thenReturn(
+                OffenderEvent.builder().eventType("ALERT-DELETED").offenderId(1L).build());
+
+        final var offenderEventList = service.findTest(filter, true);
+
+        assertThat(offenderEventList).extracting("offenderId").containsExactly(1L);
+    }
+
     private void assertEventIsDecoratedWithOffenderDisplayNoUsingOffenderId(String eventName) {
         final var filter = OffenderEventsFilter.builder().from(LocalDateTime.now()).to(LocalDateTime.now()).build();
         final var offender = Offender.builder().nomsId("A2345GB").id(1L).build();

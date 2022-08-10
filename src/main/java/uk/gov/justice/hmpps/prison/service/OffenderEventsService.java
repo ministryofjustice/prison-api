@@ -55,6 +55,19 @@ public class OffenderEventsService {
         return getFilteredOffenderEvents(oeFilter, maybeSortBy);
     }
 
+    @PreAuthorize("hasRole('PRISON_OFFENDER_EVENTS')")
+    public Optional<List<OffenderEvent>> getTestEvents(
+            final Optional<LocalDateTime> maybeFrom,
+            final Optional<LocalDateTime> maybeTo,
+            final Optional<Set<String>> maybeTypeFilter,
+            final boolean useEnq) {
+        final var from = fromOrDefault(maybeFrom, maybeTo);
+        final var to = toOrDefault(maybeTo, from);
+
+        final var oeFilter = OffenderEventsFilter.builder().from(from).to(to).types(maybeTypeFilter).build();
+        return getTestEvents(oeFilter, useEnq);
+    }
+
     private LocalDateTime toOrDefault(final Optional<LocalDateTime> maybeTo, final LocalDateTime from) {
         return maybeTo.orElse(from.plusDays(1));
     }
@@ -83,7 +96,27 @@ public class OffenderEventsService {
                 .filter(oe -> typeFilter.isEmpty() || typeFilter.contains(oe.getEventType()))
                 .sorted(sortFunctionOf(maybeSortBy))
                 .toList());
+    }
 
+    private Optional<List<OffenderEvent>> getTestEvents(final OffenderEventsFilter oeFilter, final boolean useEnq) {
+
+        final var offenderEvents = Optional.of(offenderEventsRepository.findAll(oeFilter))
+                .map(ev -> ev.stream()
+                        .map(offenderEventsTransformer::offenderEventOf)
+                        .toList())
+                .orElse(Collections.emptyList());
+
+        final var xtagEvents = xtagEventsService.findTest(oeFilter, useEnq);
+
+        final var typeFilter = oeFilter.getTypes()
+                .map(types -> types.stream().map(String::toUpperCase).collect(Collectors.toSet()))
+                .orElse(ImmutableSet.of());
+
+        final List<OffenderEvent> allEvents = ImmutableList.<OffenderEvent>builder().addAll(offenderEvents).addAll(xtagEvents).build();
+
+        return Optional.of(allEvents.stream()
+                .filter(oe -> typeFilter.isEmpty() || typeFilter.contains(oe.getEventType()))
+                .toList());
     }
 
     private Comparator<? super OffenderEvent> sortFunctionOf(final Optional<OffenderEventsController.SortTypes> maybeSortBy) {

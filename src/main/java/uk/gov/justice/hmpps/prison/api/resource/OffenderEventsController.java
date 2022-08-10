@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
@@ -9,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,14 +26,13 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @Slf4j
 @RestController
 @Validated
-@RequestMapping(value = "${api.base.path}/events", produces = "application/json")
 @AllArgsConstructor
 @Tag(name = "events")
 public class OffenderEventsController {
 
     private final OffenderEventsService offenderEventsService;
 
-    @GetMapping
+    @GetMapping(value = "${api.base.path}/events", produces = "application/json")
     @ResponseBody
     @Operation(summary = "Get events", description = "**from** and **to** query params are optional.\n" +
             "An awful lot of events occur every day. To guard against unintentionally heavy queries, the following rules are applied:\n" +
@@ -45,6 +44,19 @@ public class OffenderEventsController {
                                                          final @RequestParam("type") Optional<Set<String>> maybeTypeFilter,
                                                          final @RequestParam("sortBy") Optional<SortTypes> maybeSortBy) {
         return offenderEventsService.getEvents(maybeFrom, maybeTo, maybeTypeFilter, maybeSortBy)
+                .map(events -> new ResponseEntity<>(events, HttpStatus.OK))
+                .orElse(new ResponseEntity<>(NOT_FOUND));
+    }
+
+    @GetMapping(value = "${api.base.path}/test-events", produces = "application/json")
+    @ResponseBody
+    @Hidden
+    public ResponseEntity<List<OffenderEvent>> getTestEvents(
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) final @RequestParam("from") Optional<LocalDateTime> maybeFrom,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) final @RequestParam("to") Optional<LocalDateTime> maybeTo,
+            final @RequestParam("type") Optional<Set<String>> maybeTypeFilter,
+            final @RequestParam("useEnq") boolean useEnq) {
+        return offenderEventsService.getTestEvents(maybeFrom, maybeTo, maybeTypeFilter, useEnq)
                 .map(events -> new ResponseEntity<>(events, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(NOT_FOUND));
     }

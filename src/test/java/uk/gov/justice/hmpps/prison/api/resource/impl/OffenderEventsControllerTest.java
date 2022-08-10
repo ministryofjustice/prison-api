@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static java.lang.String.format;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.springframework.core.ResolvableType.forType;
@@ -129,6 +130,22 @@ public class OffenderEventsControllerTest extends ResourceTest {
         assertThat(responseEntity.getBody()).isSortedAccordingTo(Comparator.comparing(OffenderEvent::getEventDatetime));
     }
 
+    @Test
+    public void canAccessTestEvents() {
+        final var from = LocalDateTime.of(2018, 10, 29, 15, 30);
+        final var to = from.plusMinutes(5L);
+
+        final var filter = OffenderEventsFilter.builder().from(from).to(to).build();
+        when(xtagEventsService.findTest(ArgumentMatchers.eq(filter), ArgumentMatchers.eq(true))).thenReturn(someXtagEvents(from));
+
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_PRISON_OFFENDER_EVENTS"), null);
+
+        final var responseEntity = testRestTemplate.exchange(format("/api/test-events?from=%s&to=%s&useEnq=true", filter.getFrom().toString(), filter.getTo().toString()), HttpMethod.GET, requestEntity, String.class);
+
+        assertThatStatus(responseEntity, 200);
+        assertThatJson(responseEntity.getBody()).isArray().hasSize(7);
+    }
+
     private List<OffenderEvent> someXtagEventsSmaller(final LocalDateTime now) {
         return ImmutableList.of(
                 OffenderEvent.builder()
@@ -179,12 +196,12 @@ public class OffenderEventsControllerTest extends ResourceTest {
                         .build());
     }
 
-    <T> void assertThatJsonFile(final String response, final String jsonFile) {
+    void assertThatJsonFile(final String response, final String jsonFile) {
         final var responseAsJson = getBodyAsJsonContent(response);
         assertThat(responseAsJson).isEqualToJson(jsonFile);
     }
 
     private <T> JsonContent<T> getBodyAsJsonContent(final String response) {
-        return new JsonContent<T>(getClass(), forType(String.class), Objects.requireNonNull(response));
+        return new JsonContent<>(getClass(), forType(String.class), Objects.requireNonNull(response));
     }
 }

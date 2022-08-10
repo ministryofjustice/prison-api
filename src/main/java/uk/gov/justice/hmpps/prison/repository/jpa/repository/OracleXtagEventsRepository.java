@@ -13,7 +13,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Repository
@@ -70,7 +69,7 @@ public class OracleXtagEventsRepository implements XtagEventsRepository {
         } catch (final SQLException e) {
             log.error(e.getMessage());
         } catch (final Throwable t) {
-            log.error("Caught throwable building XtagEventNonJpa {}. Will return empty and continue! : {} {}",xtagEventNonJpaWithoutOracleTypes, t.getMessage(), t.getStackTrace());
+            log.error("Caught throwable building XtagEventNonJpa {}. Will return empty and continue! : {} {}", xtagEventNonJpaWithoutOracleTypes, t.getMessage(), t.getStackTrace());
         }
         return Optional.empty();
     }
@@ -81,5 +80,11 @@ public class OracleXtagEventsRepository implements XtagEventsRepository {
         return results.stream().filter(Optional::isPresent).map(Optional::get).toList();
     }
 
-
+    public List<XtagEventNonJpa> findTest(final OffenderEventsFilter f, final boolean useEnq) {
+        final String sql = String.format(
+                "select * from XTAG.XTAG_LISTENER_TAB where q_name = 'XTAG_OUT' and %s between ? and ?",
+                useEnq ? "enq_time" : "deq_time");
+        final var results = jdbcTemplate.query(sql, (rs, rowNum) -> xtagEventOf(rs), Timestamp.valueOf(f.getFrom()), Timestamp.valueOf(f.getTo()));
+        return results.stream().filter(Optional::isPresent).map(Optional::get).toList();
+    }
 }
