@@ -365,7 +365,7 @@ public class OffenderEventsTransformerTest {
                 .p_event_id("2323")
                 .p_event_date("2022-08-23")
                 .p_offender_book_id("434")
-                .p_offender_id_display("ME_GEN")
+                .p_offender_id_display("AF123")
                 .p_audit_module_name("transfer")
                 .build())
             .build());
@@ -376,7 +376,7 @@ public class OffenderEventsTransformerTest {
         assertThat(event.getAgencyLocationId()).isEqualTo("MDI");
         assertThat(event.getIepSeq()).isEqualTo(3);
         assertThat(event.getIepLevel()).isEqualTo("STD");
-        assertThat(event.getOffenderIdDisplay()).isEqualTo("ME_GEN");
+        assertThat(event.getOffenderIdDisplay()).isEqualTo("AF123");
         assertThat(event.getAgencyLocationId()).isEqualTo("MDI");
         assertThat(event.getAuditModuleName()).isEqualTo("transfer");
     }
