@@ -109,4 +109,8 @@ public class XtagContent {
     private String p_event_sub_type;
     private String p_event_status;
     private String p_agy_loc_id;
+
+    private String p_iep_level_seq;
+    private String p_iep_level;
+    private String p_audit_module_name;
 }
