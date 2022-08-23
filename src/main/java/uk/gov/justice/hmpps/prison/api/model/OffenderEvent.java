@@ -100,5 +100,10 @@ public class OffenderEvent {
     private String fromAgencyLocationId;
     private String toAgencyLocationId;
 
+    // iep data
+    private Long iepSeq;
+    private String iepLevel;
+
     private String nomisEventType;
+    private String auditModuleName;
 }

@@ -255,6 +255,7 @@ public class OffenderEventsTransformer {
                 case "CONFIRMED_RELEASE_DATE-CHANGED" -> offenderEvent = confirmedReleaseDateOf(xtag);
                 case "OFFENDER-INSERTED", "OFFENDER-UPDATED", "OFFENDER-DELETED" -> offenderEvent = offenderUpdatedOf(xtag);
                 case "EXTERNAL_MOVEMENT-CHANGED" -> offenderEvent = externalMovementRecordEventOf(xtag, Optional.empty());
+                case "OFFENDER_IEP_LEVEL-UPDATED" -> offenderEvent = iepUpdatedEventOf(xtag);
                 default -> offenderEvent = OffenderEvent.builder()
                     .eventType(xtag.getEventType())
                     .eventDatetime(xtag.getNomisTimestamp())
@@ -945,6 +946,20 @@ public class OffenderEventsTransformer {
             .eventDatetime(xtag.getNomisTimestamp())
             .offenderId(longOf(xtag.getContent().getP_offender_id()))
             .offenderIdDisplay(xtag.getContent().getP_offender_id_display())
+            .build();
+    }
+
+    private OffenderEvent iepUpdatedEventOf(final Xtag xtag) {
+        return OffenderEvent.builder()
+            .eventType("IEP_UPSERTED")
+            .eventDatetime(xtag.getNomisTimestamp())
+            .bookingId(longOf(xtag.getContent().getP_offender_book_id()))
+            .offenderIdDisplay(xtag.getContent().getP_offender_id_display())
+            .agencyLocationId(xtag.getContent().getP_agy_loc_id())
+            .iepSeq(longOf(xtag.getContent().getP_iep_level_seq()))
+            .iepLevel(xtag.getContent().getP_iep_level())
+            .nomisEventType(xtag.getEventType())
+            .auditModuleName(xtag.getContent().getP_audit_module_name())
             .build();
     }
 
