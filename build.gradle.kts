@@ -81,7 +81,6 @@ dependencies {
   testImplementation("net.serenity-bdd:serenity-spring:3.3.2")
   testImplementation("net.serenity-bdd:serenity-cucumber:3.3.2")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
-  testImplementation("org.slf4j:slf4j-api:2.0.0")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
   testImplementation("org.glassfish:javax.el:3.0.0")
