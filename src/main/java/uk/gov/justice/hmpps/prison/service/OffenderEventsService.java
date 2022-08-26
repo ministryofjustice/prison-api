@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.service;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
+@Slf4j
 public class OffenderEventsService {
 
     private static final Comparator<uk.gov.justice.hmpps.prison.api.model.OffenderEvent> BY_OFFENDER_EVENT_TIMESTAMP =
@@ -85,6 +87,7 @@ public class OffenderEventsService {
                 .orElse(Collections.emptyList());
 
         final var xtagEvents = xtagEventsService.findAll(oeFilter);
+        log.info("Found {} xtag events", xtagEvents.size());
 
         final var typeFilter = oeFilter.getTypes()
                 .map(types -> types.stream().map(String::toUpperCase).collect(Collectors.toSet()))
