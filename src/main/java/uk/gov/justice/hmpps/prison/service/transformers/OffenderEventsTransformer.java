@@ -452,6 +452,7 @@ public class OffenderEventsTransformer {
             .scheduleEventType(xtag.getContent().getP_event_type())
             .scheduleEventSubType(xtag.getContent().getP_event_sub_type())
             .scheduleEventStatus(xtag.getContent().getP_event_status())
+            .recordDeleted("Y".equals(xtag.getContent().getP_record_deleted()))
             .agencyLocationId(xtag.getContent().getP_agy_loc_id())
             .nomisEventType(xtag.getEventType())
             .build();
