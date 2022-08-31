@@ -305,7 +305,7 @@ public class OffenderEventsTransformerTest {
                 .p_end_time("16:30:00")
                 .p_event_class("INT_MOV")
                 .p_event_type("APP")
-                .p_record_deleted("Y")
+                .p_delete_flag("Y")
                 .build())
             .build());
 

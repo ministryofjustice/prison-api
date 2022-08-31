@@ -29,8 +29,6 @@ public class OffenderEvent {
     private String scheduleEventSubType;
     private String scheduleEventStatus;
     private Boolean recordDeleted;
-    private String recordDeletedString;
-    private String deleteFlag;
 
     private Long rootOffenderId;
     private Long offenderId;
