@@ -33,6 +33,8 @@ public class PrisonPeriod {
 
     @Default
     private List<MovementDate> movementDates = new ArrayList<>();
+    @Default
+    private List<String> prisons = new ArrayList<>();
 
     @JsonIgnore
     public Optional<MovementDate> getLastMovement() {

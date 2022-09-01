@@ -240,6 +240,7 @@ public class Offender extends AuditableEntity {
                     PrisonPeriod.builder()
                         .bookingId(e.getKey().getBookingId())
                         .bookNumber(e.getKey().getBookNumber())
+                        .prisons(getAdmissionPrisons(e.getValue()))
                         .movementDates(buildMovements(e.getValue()))
                         .build())
                 .collect(toList())
@@ -302,6 +303,14 @@ public class Offender extends AuditableEntity {
         }
 
         return newEntry ? Optional.of(newMovement) : Optional.empty();
+    }
+
+    private List<String> getAdmissionPrisons(List<ExternalMovement> externalMovements) {
+        return externalMovements.stream()
+            .filter(m -> m.getMovementType().getCode().equals("ADM"))
+            .map(m -> m.getToAgency().getId())
+            .distinct()
+            .toList();
     }
 
     private void outward(final ExternalMovement m, final MovementDate md) {

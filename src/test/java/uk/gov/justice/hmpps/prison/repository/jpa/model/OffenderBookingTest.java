@@ -123,6 +123,7 @@ public class OffenderBookingTest {
                     .movementDirection(MovementDirection.IN)
                     .movementReason(new MovementReason("B", "Recall"))
                     .movementTime(LocalDateTime.of(2019, 1, 4, 9, 30))
+                    .toAgency(AgencyLocation.builder().id("WWI").build())
                     .build());
 
 
@@ -137,6 +138,7 @@ public class OffenderBookingTest {
                     .movementDirection(MovementDirection.IN)
                     .movementReason(new MovementReason("25", "Awaiting Sentence"))
                     .movementTime(LocalDateTime.of(2020, 1, 4, 9, 30))
+                    .toAgency(AgencyLocation.builder().id("MDI").build())
                     .build());
             booking2.addExternalMovement(
                 ExternalMovement.builder()
@@ -186,6 +188,7 @@ public class OffenderBookingTest {
                     .movementDirection(MovementDirection.IN)
                     .movementReason(new MovementReason("B", "Recall"))
                     .movementTime(LocalDateTime.of(2021, 1, 4, 9, 30))
+                    .toAgency(AgencyLocation.builder().id("MDI").build())
                     .build());
             booking3.addExternalMovement(
                 ExternalMovement.builder()
@@ -213,12 +216,78 @@ public class OffenderBookingTest {
 
             assertThat(prisonerInPrisonSummary.getPrisonPeriod().get(0).getEntryDate()).isEqualTo(LocalDateTime.of(2019, 1, 4, 9, 30));
             assertThat(prisonerInPrisonSummary.getPrisonPeriod().get(0).getReleaseDate()).isEqualTo(LocalDateTime.of(2019, 2, 28, 15, 30));
+            assertThat(prisonerInPrisonSummary.getPrisonPeriod().get(0).getPrisons()).containsExactly("WWI");
 
             assertThat(prisonerInPrisonSummary.getPrisonPeriod().get(1).getEntryDate()).isEqualTo(LocalDateTime.of(2020, 1, 4, 9, 30));
             assertThat(prisonerInPrisonSummary.getPrisonPeriod().get(1).getReleaseDate()).isEqualTo(LocalDateTime.of(2020, 2, 28, 15, 30));
+            assertThat(prisonerInPrisonSummary.getPrisonPeriod().get(1).getPrisons()).containsExactly("MDI");
 
             assertThat(prisonerInPrisonSummary.getPrisonPeriod().get(2).getEntryDate()).isEqualTo(LocalDateTime.of(2021, 1, 4, 9, 30));
             assertThat(prisonerInPrisonSummary.getPrisonPeriod().get(2).getReleaseDate()).isEqualTo(LocalDateTime.of(2021, 2, 28, 15, 30));
+            assertThat(prisonerInPrisonSummary.getPrisonPeriod().get(2).getPrisons()).containsExactly("MDI");
+
+        }
+
+        @DisplayName(value = "prison periods include transferred prisons")
+        @Test
+        void IncludesTransferredPrisons() {
+
+            final var offender = Offender.builder()
+                .nomsId("A1234AA")
+                .build();
+
+            offender.setRootOffender(offender);
+            final var booking1 = OffenderBooking.builder()
+                .bookingId(12345L)
+                .bookNumber("R1234K")
+                .build();
+
+            booking1.addExternalMovement(
+                ExternalMovement.builder()
+                    .movementType(new MovementType("ADM", "Admission"))
+                    .movementDirection(MovementDirection.IN)
+                    .movementReason(new MovementReason("B", "Recall"))
+                    .movementTime(LocalDateTime.of(2019, 1, 4, 9, 30))
+                    .toAgency(AgencyLocation.builder().id("MDI").build())
+                    .build());
+            booking1.addExternalMovement(
+                ExternalMovement.builder()
+                    .movementType(new MovementType("TRN", "Transfer"))
+                    .movementDirection(MovementDirection.OUT)
+                    .movementReason(new MovementReason("NOTR", "Transfer"))
+                    .movementTime(LocalDateTime.of(2019, 1, 5, 12, 15))
+                    .fromAgency(AgencyLocation.builder().id("MDI").build())
+                    .toAgency(AgencyLocation.builder().id("WWI").build())
+                    .build());
+            booking1.addExternalMovement(
+                ExternalMovement.builder()
+                    .movementType(new MovementType("ADM", "Admission"))
+                    .movementDirection(MovementDirection.IN)
+                    .movementReason(new MovementReason("INT", "Transfer"))
+                    .movementTime(LocalDateTime.of(2019, 1, 7, 10, 00))
+                    .fromAgency(AgencyLocation.builder().id("MDI").build())
+                    .toAgency(AgencyLocation.builder().id("WWI").build())
+                    .build());
+            booking1.addExternalMovement(
+                ExternalMovement.builder()
+                    .movementType(new MovementType("REL", "Release"))
+                    .movementDirection(MovementDirection.OUT)
+                    .movementReason(new MovementReason("CR", "Conditional Release"))
+                    .movementTime(LocalDateTime.of(2019, 2, 28, 15, 30))
+                    .fromAgency(AgencyLocation.builder().id("WWI").build())
+                    .toAgency(AgencyLocation.builder().id("OUT").build())
+                    .build());
+
+            offender.addBooking(booking1);
+            final var prisonerInPrisonSummary = offender.getPrisonerInPrisonSummary();
+
+            assertThat(prisonerInPrisonSummary.getPrisonPeriod().get(0).getBookNumber()).isEqualTo("R1234K");
+
+            assertThat(prisonerInPrisonSummary.getPrisonPeriod().get(0).getMovementDates()).hasSize(1);
+
+            assertThat(prisonerInPrisonSummary.getPrisonPeriod().get(0).getEntryDate()).isEqualTo(LocalDateTime.of(2019, 1, 4, 9, 30));
+            assertThat(prisonerInPrisonSummary.getPrisonPeriod().get(0).getReleaseDate()).isEqualTo(LocalDateTime.of(2019, 2, 28, 15, 30));
+            assertThat(prisonerInPrisonSummary.getPrisonPeriod().get(0).getPrisons()).containsExactly("MDI", "WWI");
 
         }
     }
