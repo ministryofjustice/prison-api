@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.4.2"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.4.3-beta"
   kotlin("plugin.spring") version "1.7.10"
   kotlin("plugin.jpa") version "1.7.10"
   kotlin("plugin.lombok") version "1.7.10"
@@ -56,7 +56,7 @@ dependencies {
   implementation("org.apache.commons:commons-lang3:3.12.0")
   implementation("commons-io:commons-io:2.11.0")
   implementation("org.apache.commons:commons-text:1.9")
-  implementation("com.oracle.database.jdbc:ojdbc10:19.15.0.0.1")
+  implementation("com.oracle.database.jdbc:ojdbc10:19.16.0.0")
 
   compileOnly("org.projectlombok:lombok:1.18.24")
 
