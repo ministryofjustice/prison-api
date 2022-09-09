@@ -18,9 +18,6 @@ import static java.net.HttpURLConnection.HTTP_OK;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class OffenderFinePaymentResourceImplIntTest extends ResourceTest {
-
-    public static final Logger LOG = LoggerFactory.getLogger(OffenderFinePaymentResourceImplIntTest.class);
-
     @Test
     public void getOffenderSentencesWithOffenceInformation() {
         final var requestEntity = createHttpEntityWithBearerAuthorisation("RO_USER", List.of("ROLE_VIEW_PRISONER_DATA"), Map.of());
@@ -30,8 +27,6 @@ public class OffenderFinePaymentResourceImplIntTest extends ResourceTest {
             requestEntity,
             new ParameterizedTypeReference<String>() {
             });
-
-        LOG.error("HERER" + response.getBody());
 
         assertThatJsonFileAndStatus(response, HttpStatus.OK.value(), "offender-fine-payments.json");
     }
