@@ -30,6 +30,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenceHistoryDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderContact;
 import uk.gov.justice.hmpps.prison.api.model.OffenderContacts;
+import uk.gov.justice.hmpps.prison.api.model.OffenderFinePaymentDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderRestriction;
 import uk.gov.justice.hmpps.prison.api.model.OffenderRestrictions;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences;
@@ -66,6 +67,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Caseload;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.GlobalVisitorRestriction;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderContactPerson;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderFinePayment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImage;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
@@ -76,6 +78,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AvailablePrisonIepL
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPersonsRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderFinePaymentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRestrictionRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRepository;
@@ -150,6 +153,7 @@ public class BookingService {
     private final StaffUserAccountRepository staffUserAccountRepository;
     private final OffenderBookingTransformer offenderBookingTransformer;
     private final OffenderSentenceRepository offenderSentenceRepository;
+    private final OffenderFinePaymentRepository offenderFinePaymentRepository;
     private final AvailablePrisonIepLevelRepository availablePrisonIepLevelRepository;
     private final OffenderTransformer offenderTransformer;
     private final AuthenticationFacade authenticationFacade;
@@ -172,6 +176,7 @@ public class BookingService {
                           final OffenderTransformer offenderTransformer,
                           final AuthenticationFacade authenticationFacade,
                           final OffenderSentenceRepository offenderSentenceRepository,
+                          final OffenderFinePaymentRepository offenderFinePaymentRepository,
                           final AvailablePrisonIepLevelRepository availablePrisonIepLevelRepository,
                           final OffenderRestrictionRepository offenderRestrictionRepository,
                           @Value("${api.bookings.iepLevel.default:Unknown}")
@@ -194,6 +199,7 @@ public class BookingService {
         this.offenderTransformer = offenderTransformer;
         this.authenticationFacade = authenticationFacade;
         this.offenderSentenceRepository = offenderSentenceRepository;
+        this.offenderFinePaymentRepository = offenderFinePaymentRepository;
         this.availablePrisonIepLevelRepository = availablePrisonIepLevelRepository;
         this.offenderRestrictionRepository = offenderRestrictionRepository;
         this.defaultIepLevel = defaultIepLevel;
@@ -849,6 +855,14 @@ public class BookingService {
         final var offenderSentences = offenderSentenceRepository.findByOffenderBooking_BookingId_AndCalculationType_CalculationTypeNotLikeAndCalculationType_CategoryNot(bookingId, "%AGG%", "LICENCE");
         return offenderSentences.stream()
             .map(OffenderSentence::getSentenceAndOffenceDetail)
+            .collect(toList());
+    }
+
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
+    public List<OffenderFinePaymentDto> getOffenderFinePayments(final Long bookingId) {
+        final var offenderFinePayments = offenderFinePaymentRepository.findByOffenderBooking_BookingId(bookingId);
+        return offenderFinePayments.stream()
+            .map(OffenderFinePayment::getOffenderFinePaymentDto)
             .collect(toList());
     }
 

@@ -266,6 +266,8 @@ public class OffenderSentenceResourceImplIntTest extends ResourceTest {
             new ParameterizedTypeReference<String>() {
             });
 
+        System.err.println(response.getBody());
+
         assertThatJsonFileAndStatus(response, HttpStatus.OK.value(), "sentences-and-offences-details.json");
     }
 

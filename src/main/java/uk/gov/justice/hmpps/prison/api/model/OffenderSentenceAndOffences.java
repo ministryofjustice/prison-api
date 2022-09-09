@@ -58,4 +58,7 @@ public class OffenderSentenceAndOffences {
 
     @Schema(description = "The offences related to this sentence (will usually only have one offence per sentence)")
     private List<OffenderOffence> offences;
+
+    @Schema(description = "The amount of fine related to the sentence and offence")
+    private Double fineAmount;
 }

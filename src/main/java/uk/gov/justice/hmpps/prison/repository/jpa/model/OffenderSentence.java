@@ -150,6 +150,7 @@ public class OffenderSentence extends AuditableEntity {
             .sentenceCalculationType(calculationType.getCalculationType())
             .sentenceTypeDescription(calculationType.getDescription())
             .sentenceDate(sentenceDate)
+            .fineAmount(fineAmount)
             .terms(terms == null ? null : terms
                 .stream()
                 .map(term -> OffenderSentenceTerm.builder()
@@ -165,6 +166,7 @@ public class OffenderSentence extends AuditableEntity {
                 .map(OffenderSentenceCharge::getOffenderCharge)
                 .map(OffenderCharge::getOffenceDetail)
                 .toList())
+
             .build();
     }
 }

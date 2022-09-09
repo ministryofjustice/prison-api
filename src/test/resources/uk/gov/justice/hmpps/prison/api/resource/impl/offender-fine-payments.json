@@ -1,0 +1,20 @@
+[
+  {
+    "bookingId": -20,
+    "sequence": 1,
+    "paymentDate": "2022-01-01",
+    "paymentAmount": 10.00
+  },
+  {
+    "bookingId": -20,
+    "sequence": 2,
+    "paymentDate": "2022-01-02",
+    "paymentAmount": 99.99
+  },
+  {
+    "bookingId": -20,
+    "sequence": 3,
+    "paymentDate": "2022-01-03",
+    "paymentAmount": 1080.11
+  }
+]
