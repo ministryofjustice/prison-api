@@ -11,19 +11,22 @@
     "sentenceCalculationType": "ADIMP_ORA",
     "sentenceTypeDescription": "ORA CJA03 Standard Determinate Sentence",
     "sentenceDate": "2017-06-21",
-    "terms": [{
-      "years": 3,
-      "months": 0,
-      "weeks": 0,
-      "days": 0,
-      "code": "IMP"
-    },{
-      "years": 3,
-      "months": 0,
-      "weeks": 0,
-      "days": 0,
-      "code": "IMP"
-    }],
+    "terms": [
+      {
+        "years": 3,
+        "months": 0,
+        "weeks": 0,
+        "days": 0,
+        "code": "IMP"
+      },
+      {
+        "years": 3,
+        "months": 0,
+        "weeks": 0,
+        "days": 0,
+        "code": "IMP"
+      }
+    ],
     "offences": [
       {
         "offenderChargeId": -10,
@@ -31,12 +34,13 @@
         "offenceEndDate": "2015-01-25",
         "offenceCode": "RC86355",
         "offenceDescription": "Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury",
-        "indicators":[
+        "indicators": [
           "S15/CJIB",
           "SOR"
         ]
       }
-    ]
+    ],
+    "fineAmount": 100.15
   },
   {
     "bookingId": -20,
@@ -57,17 +61,19 @@
         "weeks": 0,
         "days": 0,
         "code": "IMP"
-    }],
+      }
+    ],
     "offences": [
       {
         "offenderChargeId": -9,
         "offenceCode": "RC86355",
         "offenceDescription": "Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury",
-        "indicators":[
+        "indicators": [
           "S15/CJIB",
           "SOR"
         ]
       }
-    ]
+    ],
+    "fineAmount": 20.5
   }
 ]
