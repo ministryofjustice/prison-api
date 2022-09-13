@@ -112,20 +112,20 @@ public class OffenderBookingTest {
 
             booking1.addExternalMovement(
                 ExternalMovement.builder()
-                    .movementType(new MovementType("REL", "Release"))
-                    .movementDirection(MovementDirection.OUT)
-                    .movementReason(new MovementReason("CR", "Conditional Release"))
-                    .movementTime(LocalDateTime.of(2019, 2, 28, 15, 30))
-                    .build()
-            );
-            booking1.addExternalMovement(
-                ExternalMovement.builder()
                     .movementType(new MovementType("ADM", "Admission"))
                     .movementDirection(MovementDirection.IN)
                     .movementReason(new MovementReason("B", "Recall"))
                     .movementTime(LocalDateTime.of(2019, 1, 4, 9, 30))
                     .toAgency(AgencyLocation.builder().id("WWI").build())
                     .build());
+            booking1.addExternalMovement(
+                ExternalMovement.builder()
+                    .movementType(new MovementType("REL", "Release"))
+                    .movementDirection(MovementDirection.OUT)
+                    .movementReason(new MovementReason("CR", "Conditional Release"))
+                    .movementTime(LocalDateTime.of(2019, 2, 28, 15, 30))
+                    .build()
+            );
 
 
             final var booking2 = OffenderBooking.builder()
@@ -144,16 +144,16 @@ public class OffenderBookingTest {
             booking2.addExternalMovement(
                 ExternalMovement.builder()
                     .movementType(new MovementType("TAP", "Temp Ab"))
-                    .movementDirection(MovementDirection.IN)
+                    .movementDirection(MovementDirection.OUT)
                     .movementReason(new MovementReason("C4", "Wedding"))
-                    .movementTime(LocalDateTime.of(2020, 1, 15, 15, 30))
+                    .movementTime(LocalDateTime.of(2020, 1, 15, 9, 30))
                     .build());
             booking2.addExternalMovement(
                 ExternalMovement.builder()
                     .movementType(new MovementType("TAP", "Temp Ab"))
-                    .movementDirection(MovementDirection.OUT)
+                    .movementDirection(MovementDirection.IN)
                     .movementReason(new MovementReason("C4", "Wedding"))
-                    .movementTime(LocalDateTime.of(2020, 1, 15, 9, 30))
+                    .movementTime(LocalDateTime.of(2020, 1, 15, 15, 30))
                     .build());
             booking2.addExternalMovement(
                 ExternalMovement.builder()
@@ -171,10 +171,11 @@ public class OffenderBookingTest {
 
             booking3.addExternalMovement(
                 ExternalMovement.builder()
-                    .movementType(new MovementType("CRT", "Court"))
+                    .movementType(new MovementType("ADM", "Admission"))
                     .movementDirection(MovementDirection.IN)
-                    .movementReason(new MovementReason("CRT", "Court Appearance"))
-                    .movementTime(LocalDateTime.of(2021, 1, 15, 15, 30))
+                    .movementReason(new MovementReason("B", "Recall"))
+                    .movementTime(LocalDateTime.of(2021, 1, 4, 9, 30))
+                    .toAgency(AgencyLocation.builder().id("MDI").build())
                     .build());
             booking3.addExternalMovement(
                 ExternalMovement.builder()
@@ -185,11 +186,10 @@ public class OffenderBookingTest {
                     .build());
             booking3.addExternalMovement(
                 ExternalMovement.builder()
-                    .movementType(new MovementType("ADM", "Admission"))
+                    .movementType(new MovementType("CRT", "Court"))
                     .movementDirection(MovementDirection.IN)
-                    .movementReason(new MovementReason("B", "Recall"))
-                    .movementTime(LocalDateTime.of(2021, 1, 4, 9, 30))
-                    .toAgency(AgencyLocation.builder().id("MDI").build())
+                    .movementReason(new MovementReason("CRT", "Court Appearance"))
+                    .movementTime(LocalDateTime.of(2021, 1, 15, 15, 30))
                     .build());
             booking3.addExternalMovement(
                 ExternalMovement.builder()
