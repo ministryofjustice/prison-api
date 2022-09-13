@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.5.0-beta"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.5.0"
   kotlin("plugin.spring") version "1.7.10"
   kotlin("plugin.jpa") version "1.7.10"
   kotlin("plugin.lombok") version "1.7.10"
@@ -65,9 +65,9 @@ dependencies {
 
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
-  testImplementation("io.rest-assured:rest-assured:5.1.1")
-  testImplementation("io.rest-assured:json-schema-validator:5.1.1")
-  testImplementation("io.rest-assured:spring-mock-mvc:5.1.1")
+  testImplementation("io.rest-assured:rest-assured:5.2.0")
+  testImplementation("io.rest-assured:json-schema-validator:5.2.0")
+  testImplementation("io.rest-assured:spring-mock-mvc:5.2.0")
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("com.google.code.gson:gson:2.9.1")
   testImplementation("org.powermock:powermock-api-mockito2:2.0.9")
@@ -76,10 +76,10 @@ dependencies {
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.35.0")
 
-  testImplementation("net.serenity-bdd:serenity-core:3.3.2")
-  testImplementation("net.serenity-bdd:serenity-junit:3.3.2")
-  testImplementation("net.serenity-bdd:serenity-spring:3.3.2")
-  testImplementation("net.serenity-bdd:serenity-cucumber:3.3.2")
+  testImplementation("net.serenity-bdd:serenity-core:3.3.4")
+  testImplementation("net.serenity-bdd:serenity-junit:3.3.4")
+  testImplementation("net.serenity-bdd:serenity-spring:3.3.4")
+  testImplementation("net.serenity-bdd:serenity-cucumber:3.3.4")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
