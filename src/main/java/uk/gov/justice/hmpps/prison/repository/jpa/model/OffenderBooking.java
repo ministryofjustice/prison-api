@@ -513,7 +513,6 @@ public class OffenderBooking extends AuditableEntity {
     }
 
     public ExternalMovement addExternalMovement(final ExternalMovement externalMovement) {
-        externalMovement.setMovementSequence(getNextMovementSequence());
         externalMovement.setOffenderBooking(this);
         externalMovements.add(externalMovement);
         return externalMovement;
@@ -555,10 +554,6 @@ public class OffenderBooking extends AuditableEntity {
 
     public Long getNextImprisonmentStatusSequence() {
         return getImprisonmentStatusesRecentFirst().stream().findFirst().map(OffenderImprisonmentStatus::getImprisonStatusSeq).orElse(0L) + 1;
-    }
-
-    public Long getNextMovementSequence() {
-        return getLastMovement().map(ExternalMovement::getMovementSequence).orElse(0L) + 1;
     }
 
     public void setPreviousMovementsToInactive() {

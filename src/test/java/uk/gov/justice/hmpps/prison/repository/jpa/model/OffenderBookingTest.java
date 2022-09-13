@@ -112,6 +112,7 @@ public class OffenderBookingTest {
 
             booking1.addExternalMovement(
                 ExternalMovement.builder()
+                    .movementSequence(2L)
                     .movementType(new MovementType("REL", "Release"))
                     .movementDirection(MovementDirection.OUT)
                     .movementReason(new MovementReason("CR", "Conditional Release"))
@@ -120,6 +121,7 @@ public class OffenderBookingTest {
             );
             booking1.addExternalMovement(
                 ExternalMovement.builder()
+                    .movementSequence(1L)
                     .movementType(new MovementType("ADM", "Admission"))
                     .movementDirection(MovementDirection.IN)
                     .movementReason(new MovementReason("B", "Recall"))
@@ -135,6 +137,7 @@ public class OffenderBookingTest {
 
             booking2.addExternalMovement(
                 ExternalMovement.builder()
+                    .movementSequence(1L)
                     .movementType(new MovementType("ADM", "Admission"))
                     .movementDirection(MovementDirection.IN)
                     .movementReason(new MovementReason("25", "Awaiting Sentence"))
@@ -143,6 +146,7 @@ public class OffenderBookingTest {
                     .build());
             booking2.addExternalMovement(
                 ExternalMovement.builder()
+                    .movementSequence(3L)
                     .movementType(new MovementType("TAP", "Temp Ab"))
                     .movementDirection(MovementDirection.IN)
                     .movementReason(new MovementReason("C4", "Wedding"))
@@ -150,6 +154,7 @@ public class OffenderBookingTest {
                     .build());
             booking2.addExternalMovement(
                 ExternalMovement.builder()
+                    .movementSequence(2L)
                     .movementType(new MovementType("TAP", "Temp Ab"))
                     .movementDirection(MovementDirection.OUT)
                     .movementReason(new MovementReason("C4", "Wedding"))
@@ -157,6 +162,7 @@ public class OffenderBookingTest {
                     .build());
             booking2.addExternalMovement(
                 ExternalMovement.builder()
+                    .movementSequence(4L)
                     .movementType(new MovementType("REL", "Release"))
                     .movementDirection(MovementDirection.OUT)
                     .movementReason(new MovementReason("BL", "Bailed"))
@@ -171,6 +177,7 @@ public class OffenderBookingTest {
 
             booking3.addExternalMovement(
                 ExternalMovement.builder()
+                    .movementSequence(3L)
                     .movementType(new MovementType("CRT", "Court"))
                     .movementDirection(MovementDirection.IN)
                     .movementReason(new MovementReason("CRT", "Court Appearance"))
@@ -178,6 +185,7 @@ public class OffenderBookingTest {
                     .build());
             booking3.addExternalMovement(
                 ExternalMovement.builder()
+                    .movementSequence(2L)
                     .movementType(new MovementType("CRT", "Court"))
                     .movementDirection(MovementDirection.OUT)
                     .movementReason(new MovementReason("CRT", "Court Appearance"))
@@ -185,6 +193,7 @@ public class OffenderBookingTest {
                     .build());
             booking3.addExternalMovement(
                 ExternalMovement.builder()
+                    .movementSequence(1L)
                     .movementType(new MovementType("ADM", "Admission"))
                     .movementDirection(MovementDirection.IN)
                     .movementReason(new MovementReason("B", "Recall"))
@@ -193,6 +202,7 @@ public class OffenderBookingTest {
                     .build());
             booking3.addExternalMovement(
                 ExternalMovement.builder()
+                    .movementSequence(4L)
                     .movementType(new MovementType("REL", "Release"))
                     .movementDirection(MovementDirection.OUT)
                     .movementReason(new MovementReason("HP", "Hospital"))
@@ -245,6 +255,7 @@ public class OffenderBookingTest {
 
             booking1.addExternalMovement(
                 ExternalMovement.builder()
+                    .movementSequence(1L)
                     .movementType(new MovementType("ADM", "Admission"))
                     .movementDirection(MovementDirection.IN)
                     .movementReason(new MovementReason("B", "Recall"))
@@ -253,6 +264,7 @@ public class OffenderBookingTest {
                     .build());
             booking1.addExternalMovement(
                 ExternalMovement.builder()
+                    .movementSequence(2L)
                     .movementType(new MovementType("TRN", "Transfer"))
                     .movementDirection(MovementDirection.OUT)
                     .movementReason(new MovementReason("NOTR", "Transfer"))
@@ -262,6 +274,7 @@ public class OffenderBookingTest {
                     .build());
             booking1.addExternalMovement(
                 ExternalMovement.builder()
+                    .movementSequence(3L)
                     .movementType(new MovementType("ADM", "Admission"))
                     .movementDirection(MovementDirection.IN)
                     .movementReason(new MovementReason("INT", "Transfer"))
@@ -271,6 +284,7 @@ public class OffenderBookingTest {
                     .build());
             booking1.addExternalMovement(
                 ExternalMovement.builder()
+                    .movementSequence(4L)
                     .movementType(new MovementType("REL", "Release"))
                     .movementDirection(MovementDirection.OUT)
                     .movementReason(new MovementReason("CR", "Conditional Release"))
@@ -313,6 +327,7 @@ public class OffenderBookingTest {
             // A straight forward booking and release - needed to have >1 bookings to trigger the comparator
             booking1.addExternalMovement(
                 ExternalMovement.builder()
+                    .movementSequence(1L)
                     .movementType(new MovementType("ADM", "Admission"))
                     .movementDirection(MovementDirection.IN)
                     .movementReason(new MovementReason("I", "In"))
@@ -321,6 +336,7 @@ public class OffenderBookingTest {
                     .build());
             booking1.addExternalMovement(
                 ExternalMovement.builder()
+                    .movementSequence(2L)
                     .movementType(new MovementType("REL", "Release"))
                     .movementDirection(MovementDirection.OUT)
                     .movementReason(new MovementReason("AR", "Actual Release"))
@@ -333,6 +349,7 @@ public class OffenderBookingTest {
             // Previously this caused null PrisonPeriod.entryDate which blows up the comparator at the end of OffenderBooking#getPrisonerInPrisonSummary
             booking2.addExternalMovement(
                 ExternalMovement.builder()
+                    .movementSequence(1L)
                     .movementType(new MovementType("ADM", "Admission"))
                     .movementDirection(MovementDirection.IN)
                     .movementReason(new MovementReason("I", "In"))
@@ -341,6 +358,7 @@ public class OffenderBookingTest {
                     .build());
             booking2.addExternalMovement(
                 ExternalMovement.builder()
+                    .movementSequence(2L)
                     .movementType(new MovementType("TAP", "Temporary Absence"))
                     .movementDirection(MovementDirection.OUT)
                     .movementReason(new MovementReason("C5", "C5"))
@@ -349,6 +367,7 @@ public class OffenderBookingTest {
                     .build());
             booking2.addExternalMovement(
                 ExternalMovement.builder()
+                    .movementSequence(3L)
                     .movementType(new MovementType("TAP", "Admission"))
                     .movementDirection(MovementDirection.IN)
                     .movementReason(new MovementReason("C5", "C5"))
@@ -357,6 +376,7 @@ public class OffenderBookingTest {
                     .build());
             booking2.addExternalMovement(
                 ExternalMovement.builder()
+                    .movementSequence(4L)
                     .movementType(new MovementType("REL", "Release"))
                     .movementDirection(MovementDirection.OUT)
                     .movementReason(new MovementReason("AR", "Actual Release"))
