@@ -216,7 +216,7 @@ public class Offender extends AuditableEntity {
         final var externalMovements = new ArrayList<ExternalMovement>();
         bookings.forEach(b -> externalMovements.addAll(b.getExternalMovements()));
         return externalMovements.stream()
-            .sorted(Comparator.comparing(ExternalMovement::getMovementTime))
+            .sorted(Comparator.comparing(ExternalMovement::getMovementSequence))
             .toList();
     }
 

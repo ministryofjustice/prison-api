@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 public class OffenderBookingTest {
     private static final OffenderCourtCase ACTIVE_COURT_CASE = OffenderCourtCase.builder()
@@ -111,20 +112,20 @@ public class OffenderBookingTest {
 
             booking1.addExternalMovement(
                 ExternalMovement.builder()
-                    .movementType(new MovementType("REL", "Release"))
-                    .movementDirection(MovementDirection.OUT)
-                    .movementReason(new MovementReason("CR", "Conditional Release"))
-                    .movementTime(LocalDateTime.of(2019, 2, 28, 15, 30))
-                    .build()
-            );
-            booking1.addExternalMovement(
-                ExternalMovement.builder()
                     .movementType(new MovementType("ADM", "Admission"))
                     .movementDirection(MovementDirection.IN)
                     .movementReason(new MovementReason("B", "Recall"))
                     .movementTime(LocalDateTime.of(2019, 1, 4, 9, 30))
                     .toAgency(AgencyLocation.builder().id("WWI").build())
                     .build());
+            booking1.addExternalMovement(
+                ExternalMovement.builder()
+                    .movementType(new MovementType("REL", "Release"))
+                    .movementDirection(MovementDirection.OUT)
+                    .movementReason(new MovementReason("CR", "Conditional Release"))
+                    .movementTime(LocalDateTime.of(2019, 2, 28, 15, 30))
+                    .build()
+            );
 
 
             final var booking2 = OffenderBooking.builder()
@@ -143,16 +144,16 @@ public class OffenderBookingTest {
             booking2.addExternalMovement(
                 ExternalMovement.builder()
                     .movementType(new MovementType("TAP", "Temp Ab"))
-                    .movementDirection(MovementDirection.IN)
+                    .movementDirection(MovementDirection.OUT)
                     .movementReason(new MovementReason("C4", "Wedding"))
-                    .movementTime(LocalDateTime.of(2020, 1, 15, 15, 30))
+                    .movementTime(LocalDateTime.of(2020, 1, 15, 9, 30))
                     .build());
             booking2.addExternalMovement(
                 ExternalMovement.builder()
                     .movementType(new MovementType("TAP", "Temp Ab"))
-                    .movementDirection(MovementDirection.OUT)
+                    .movementDirection(MovementDirection.IN)
                     .movementReason(new MovementReason("C4", "Wedding"))
-                    .movementTime(LocalDateTime.of(2020, 1, 15, 9, 30))
+                    .movementTime(LocalDateTime.of(2020, 1, 15, 15, 30))
                     .build());
             booking2.addExternalMovement(
                 ExternalMovement.builder()
@@ -170,10 +171,11 @@ public class OffenderBookingTest {
 
             booking3.addExternalMovement(
                 ExternalMovement.builder()
-                    .movementType(new MovementType("CRT", "Court"))
+                    .movementType(new MovementType("ADM", "Admission"))
                     .movementDirection(MovementDirection.IN)
-                    .movementReason(new MovementReason("CRT", "Court Appearance"))
-                    .movementTime(LocalDateTime.of(2021, 1, 15, 15, 30))
+                    .movementReason(new MovementReason("B", "Recall"))
+                    .movementTime(LocalDateTime.of(2021, 1, 4, 9, 30))
+                    .toAgency(AgencyLocation.builder().id("MDI").build())
                     .build());
             booking3.addExternalMovement(
                 ExternalMovement.builder()
@@ -184,11 +186,10 @@ public class OffenderBookingTest {
                     .build());
             booking3.addExternalMovement(
                 ExternalMovement.builder()
-                    .movementType(new MovementType("ADM", "Admission"))
+                    .movementType(new MovementType("CRT", "Court"))
                     .movementDirection(MovementDirection.IN)
-                    .movementReason(new MovementReason("B", "Recall"))
-                    .movementTime(LocalDateTime.of(2021, 1, 4, 9, 30))
-                    .toAgency(AgencyLocation.builder().id("MDI").build())
+                    .movementReason(new MovementReason("CRT", "Court Appearance"))
+                    .movementTime(LocalDateTime.of(2021, 1, 15, 15, 30))
                     .build());
             booking3.addExternalMovement(
                 ExternalMovement.builder()
@@ -288,6 +289,91 @@ public class OffenderBookingTest {
             assertThat(prisonerInPrisonSummary.getPrisonPeriod().get(0).getEntryDate()).isEqualTo(LocalDateTime.of(2019, 1, 4, 9, 30));
             assertThat(prisonerInPrisonSummary.getPrisonPeriod().get(0).getReleaseDate()).isEqualTo(LocalDateTime.of(2019, 2, 28, 15, 30));
             assertThat(prisonerInPrisonSummary.getPrisonPeriod().get(0).getPrisons()).containsExactly("MDI", "WWI");
+
+        }
+
+        @DisplayName(value = "handles TAPs with dates out of sync")
+        @Test
+        void HandleOutOfSyncTaps() {
+
+            final var offender = Offender.builder()
+                .nomsId("A1234AA")
+                .build();
+
+            offender.setRootOffender(offender);
+            final var booking1 = OffenderBooking.builder()
+                .bookingId(54321L)
+                .bookNumber("R4312K")
+                .build();
+            final var booking2 = OffenderBooking.builder()
+                .bookingId(12345L)
+                .bookNumber("R1234K")
+                .build();
+
+            // A straight forward booking and release - needed to have >1 bookings to trigger the comparator
+            booking1.addExternalMovement(
+                ExternalMovement.builder()
+                    .movementType(new MovementType("ADM", "Admission"))
+                    .movementDirection(MovementDirection.IN)
+                    .movementReason(new MovementReason("I", "In"))
+                    .movementTime(LocalDateTime.of(2018, 1, 4, 9, 30))
+                    .toAgency(AgencyLocation.builder().id("MDI").build())
+                    .build());
+            booking1.addExternalMovement(
+                ExternalMovement.builder()
+                    .movementType(new MovementType("REL", "Release"))
+                    .movementDirection(MovementDirection.OUT)
+                    .movementReason(new MovementReason("AR", "Actual Release"))
+                    .movementTime(LocalDateTime.of(2018, 2, 28, 15, 30))
+                    .fromAgency(AgencyLocation.builder().id("MDI").build())
+                    .toAgency(AgencyLocation.builder().id("OUT").build())
+                    .build());
+
+            // This booking has the TAP dates out of order - as seen in real data
+            // Previously this caused null PrisonPeriod.entryDate which blows up the comparator at the end of OffenderBooking#getPrisonerInPrisonSummary
+            booking2.addExternalMovement(
+                ExternalMovement.builder()
+                    .movementType(new MovementType("ADM", "Admission"))
+                    .movementDirection(MovementDirection.IN)
+                    .movementReason(new MovementReason("I", "In"))
+                    .movementTime(LocalDateTime.of(2019, 1, 4, 9, 30))
+                    .toAgency(AgencyLocation.builder().id("MDI").build())
+                    .build());
+            booking2.addExternalMovement(
+                ExternalMovement.builder()
+                    .movementType(new MovementType("TAP", "Temporary Absence"))
+                    .movementDirection(MovementDirection.OUT)
+                    .movementReason(new MovementReason("C5", "C5"))
+                    .movementTime(LocalDateTime.of(2019, 1, 7, 12, 15))
+                    .fromAgency(AgencyLocation.builder().id("MDI").build())
+                    .build());
+            booking2.addExternalMovement(
+                ExternalMovement.builder()
+                    .movementType(new MovementType("TAP", "Admission"))
+                    .movementDirection(MovementDirection.IN)
+                    .movementReason(new MovementReason("C5", "C5"))
+                    .movementTime(LocalDateTime.of(2019, 1, 5, 10, 00))
+                    .toAgency(AgencyLocation.builder().id("MDI").build())
+                    .build());
+            booking2.addExternalMovement(
+                ExternalMovement.builder()
+                    .movementType(new MovementType("REL", "Release"))
+                    .movementDirection(MovementDirection.OUT)
+                    .movementReason(new MovementReason("AR", "Actual Release"))
+                    .movementTime(LocalDateTime.of(2019, 2, 28, 15, 30))
+                    .fromAgency(AgencyLocation.builder().id("MDI").build())
+                    .toAgency(AgencyLocation.builder().id("OUT").build())
+                    .build());
+
+            offender.addBooking(booking1);
+            offender.addBooking(booking2);
+
+            assertThatNoException().isThrownBy(() -> {
+                final var prisonerInPrisonSummary = offender.getPrisonerInPrisonSummary();
+
+                assertThat(prisonerInPrisonSummary.getPrisonPeriod().get(1).getEntryDate()).isNotNull();
+                assertThat(prisonerInPrisonSummary.getPrisonPeriod().get(1).getReleaseDate()).isNotNull();
+            });
 
         }
     }
