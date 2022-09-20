@@ -53,9 +53,9 @@ public class OffenderEventsTransformer {
 
     @Autowired
     public OffenderEventsTransformer(final TypesTransformer typesTransformer,
-                                     @Value("${jms.events.start")
+                                     @Value("${jms.events.start}")
                                      final String  startString,
-                                     @Value("${jms.events.end")
+                                     @Value("${jms.events.end}")
                                      final String  endString ) {
         this.typesTransformer = typesTransformer;
         this.objectMapper = new ObjectMapper()
