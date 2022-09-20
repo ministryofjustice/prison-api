@@ -144,6 +144,7 @@ Feature: Booking Details
     When an offender booking assessment information POST request is made with offender numbers "" and "CSR"
     Then bad request response is received from booking assessments API with message "List of Offender Ids must be provided"
 
+  @broken
   Scenario: Request for CSRAs for multiple offenders (using post request which allows large sets of offenders)
     When an offender booking CSRA information POST request is made with offender numbers "A1234AA,A1234AB,A1234AC,A1234AD,A1234AE,A1234AF,A1234AG,A1234AP,NEXIST"
     Then correct results are returned as for single assessment
