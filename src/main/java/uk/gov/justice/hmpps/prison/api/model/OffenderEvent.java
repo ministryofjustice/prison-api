@@ -105,6 +105,9 @@ public class OffenderEvent {
     private Long iepSeq;
     private String iepLevel;
 
+    // visit data
+    private Long visitId;
+
     private String nomisEventType;
     private String auditModuleName;
 }
