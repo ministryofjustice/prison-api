@@ -203,7 +203,7 @@ public class OffenderDatesServiceTest {
             NOV_11_2021, NOV_11_2021, NOV_11_2021,
             NOV_11_2021, NOV_11_2021, NOV_11_2021,
             NOV_11_2021, NOV_11_2021, NOV_11_2021,
-            NOV_11_2021, NOV_11_2021, "11/00/00", "11/00/00");
+            NOV_11_2021, NOV_11_2021, "11/00/00");
     }
 
     public static SentenceCalculation sentenceCalculation(LocalDate homeDetentionCurfewEligibilityDate,
@@ -257,8 +257,7 @@ public class OffenderDatesServiceTest {
                                                           LocalDate sentenceExpiryDate,
                                                           LocalDate topupSupervisionExpiryDate,
                                                           LocalDate effectiveSentenceEndDate,
-                                                          String sentenceLength,
-                                                          String judiciallyImposedSentenceLength) {
+                                                          String sentenceLength) {
         return OffenderKeyDates.builder()
             .homeDetentionCurfewEligibilityDate(homeDetentionCurfewEligibilityDate)
             .earlyTermDate(earlyTermDate)
@@ -275,7 +274,6 @@ public class OffenderDatesServiceTest {
             .topupSupervisionExpiryDate(topupSupervisionExpiryDate)
             .effectiveSentenceEndDate(effectiveSentenceEndDate)
             .sentenceLength(sentenceLength)
-            .judiciallyImposedSentenceLength(judiciallyImposedSentenceLength)
             .build();
     }
 }
