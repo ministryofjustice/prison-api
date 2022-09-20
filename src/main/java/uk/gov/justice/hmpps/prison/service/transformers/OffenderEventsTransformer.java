@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import oracle.sql.RAW;
 import oracle.sql.STRUCT;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.justice.hmpps.prison.api.model.OffenderEvent;
 import uk.gov.justice.hmpps.prison.service.xtag.Xtag;
@@ -47,9 +48,15 @@ public class OffenderEventsTransformer {
 
     private final TypesTransformer typesTransformer;
     private final ObjectMapper objectMapper;
+    private final LocalDateTime start;
+    private final LocalDateTime end;
 
     @Autowired
-    public OffenderEventsTransformer(final TypesTransformer typesTransformer) {
+    public OffenderEventsTransformer(final TypesTransformer typesTransformer,
+                                     @Value("${jms.events.start")
+                                     final String  startString,
+                                     @Value("${jms.events.end")
+                                     final String  endString ) {
         this.typesTransformer = typesTransformer;
         this.objectMapper = new ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -58,6 +65,8 @@ public class OffenderEventsTransformer {
             .setSerializationInclusion(JsonInclude.Include.NON_ABSENT)
             .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
             .registerModules(new Jdk8Module(), new JavaTimeModule());
+        this.start = LocalDateTime.parse(startString);
+        this.end = LocalDateTime.parse(endString);
     }
 
     public static LocalDateTime xtagFudgedTimestampOf(final LocalDateTime xtagEnqueueTime) {
@@ -163,6 +172,10 @@ public class OffenderEventsTransformer {
     public OffenderEvent offenderEventOf(final Xtag xtag) {
         if (xtag == null || xtag.getEventType() == null) {
             log.warn("Bad xtag: {}", xtag);
+            return null;
+        }
+        var nomisTimestamp = xtag.getNomisTimestamp();
+        if ( !nomisTimestamp.isBefore(start) && nomisTimestamp.isBefore(end)) {
             return null;
         }
 
