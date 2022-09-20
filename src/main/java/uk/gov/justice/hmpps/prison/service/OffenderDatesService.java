@@ -101,8 +101,8 @@ public class OffenderDatesService {
             .effectiveSentenceEndDate(sentenceCalculation.getEffectiveSentenceEndDate())
             .sentenceLength(sentenceCalculation.getEffectiveSentenceLength())
             .judiciallyImposedSentenceLength(sentenceCalculation.getJudiciallyImposedSentenceLength())
-            .rotl(sentenceCalculation.getRotlOverridedDate())
-            .ersed(sentenceCalculation.getErsedOverridedDate())
+            .releaseOnTemporaryLicenceDate(sentenceCalculation.getRotlOverridedDate())
+            .earlyRemovalSchemeEligibilityDate(sentenceCalculation.getErsedOverridedDate())
             .comment(sentenceCalculation.getComments())
             .reasonCode(sentenceCalculation.getReasonCode())
             .build();
