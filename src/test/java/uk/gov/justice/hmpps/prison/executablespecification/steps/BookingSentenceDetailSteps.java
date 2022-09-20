@@ -192,12 +192,12 @@ public class BookingSentenceDetailSteps extends CommonSteps {
 
     @Step("Verify licence expiry override date")
     public void verifyLicenceExpiryOverrideDate(final String licenseExpiryOverrideDate) {
-        verifyLocalDate(sentenceDetail.getLicenseExpiryOverrideDate(), licenseExpiryOverrideDate);
+        verifyLocalDate(sentenceDetail.getLicenceExpiryOverrideDate(), licenseExpiryOverrideDate);
     }
 
     @Step("Verify licence expiry calculated date")
     public void verifyLicenceExpiryCalculatedDate(final String licenseExpiryCalculatedDate) {
-        verifyLocalDate(sentenceDetail.getLicenseExpiryCalculatedDate(), licenseExpiryCalculatedDate);
+        verifyLocalDate(sentenceDetail.getLicenceExpiryCalculatedDate(), licenseExpiryCalculatedDate);
     }
 
     @Step("Verify non-DTO release date")

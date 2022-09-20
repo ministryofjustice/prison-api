@@ -1040,6 +1040,16 @@ public class BookingService {
                         .effectiveSentenceEndDate(os.getEffectiveSentenceEndDate())
                         .dtoPostRecallReleaseDate(os.getDtoPostRecallReleaseDate())
                         .dtoPostRecallReleaseDateOverride(os.getDtoPostRecallReleaseDateOverride())
+                        .sentenceExpiryCalculatedDate(os.getSentenceExpiryCalculatedDate())
+                        .sentenceExpiryOverrideDate(os.getSentenceExpiryOverrideDate())
+                        .licenceExpiryCalculatedDate(os.getLicenceExpiryCalculatedDate())
+                        .licenceExpiryOverrideDate(os.getLicenceExpiryOverrideDate())
+                        .paroleEligibilityCalculatedDate(os.getParoleEligibilityCalculatedDate())
+                        .paroleEligibilityOverrideDate(os.getParoleEligibilityOverrideDate())
+                        .topupSupervisionExpiryCalculatedDate(os.getTopupSupervisionExpiryCalculatedDate())
+                        .topupSupervisionExpiryOverrideDate(os.getTopupSupervisionExpiryOverrideDate())
+                        .homeDetentionCurfewEligibilityCalculatedDate(os.getHomeDetentionCurfewEligibilityCalculatedDate())
+                        .homeDetentionCurfewEligibilityOverrideDate(os.getHomeDetentionCurfewEligibilityOverrideDate())
                         .build())
                 .build();
     }
