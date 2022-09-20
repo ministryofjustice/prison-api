@@ -27,23 +27,3 @@ Feature: User Details and Roles
       | API_TEST_USER       | KW_ADMIN,OMIC_ADMIN  |
       | NO_CASELOAD_USER    | VIEW_PRISONER_DATA,LICENCE_RO |
 
-  Scenario: A list of staff users by usernames can be retrieved
-    Given a user has a token name of "ADMIN_TOKEN"
-    When a request for users with usernames "JBRIEN,RENEGADE" is made
-    Then a list of users is returned with usernames "JBRIEN,RENEGADE"
-
-  Scenario: A list of staff users by LAA and namefilter can be retrieved
-    Given a user has a token name of "LAA_USER"
-    When a request for users by local administrator with namefilter "User" and role "" is made
-    Then a list of users is returned with usernames "ITAG_USER,CA_USER,RO_USER"
-
-  Scenario: A list of users by LAA access and namefilter can be retrieved
-    Given a user has a token name of "LAA_USER"
-    When a request for users by local administrator with namefilter "User" and role "OMIC_ADMIN" is made
-    Then a list of users is returned with usernames "ITAG_USER"
-
-  Scenario: A list of staff users by inactive LAA cannot be retrieved
-    Given a user has a token name of "PRISON_API_USER"
-    When a request for users by local administrator with namefilter "User" and role "" is made
-    Then a list of users is returned with usernames ""
-
