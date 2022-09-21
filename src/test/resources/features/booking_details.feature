@@ -129,7 +129,7 @@ Feature: Booking Details
     Then resource not found response is received from booking assessments API
 
   Scenario: Request for CSR assessment information for multiple offenders
-    When an offender booking assessment information request is made with offender numbers "A1234AA,A1234AB,A1234AC,A1234AD,A1234AE,A1234AF,A1234AG,A1234AP,NEXIST" and "CSR" and latest="false" and active="true"
+    When an offender booking assessment information request is made with offender numbers "A1234AA,A1234AB,A1234AC,A1234AE,A1234AF,A1234AG,A1234AP,NEXIST" and "CSR" and latest="false" and active="true"
     Then correct results are returned as for single assessment
 
   Scenario: Request for category assessment information for multiple offenders
@@ -137,7 +137,7 @@ Feature: Booking Details
     Then full category history is returned
 
   Scenario: Request for CSR assessment information for multiple offenders (using post request which allows large sets of offenders)
-    When an offender booking assessment information POST request is made with offender numbers "A1234AA,A1234AB,A1234AC,A1234AD,A1234AE,A1234AF,A1234AG,A1234AP,NEXIST" and "CSR"
+    When an offender booking assessment information POST request is made with offender numbers "A1234AA,A1234AB,A1234AC,A1234AE,A1234AF,A1234AG,A1234AP,NEXIST" and "CSR"
     Then correct results are returned as for single assessment
 
   Scenario: Request for assessment information with empty list of offenders (using post request which allows large sets of offenders)
@@ -145,7 +145,7 @@ Feature: Booking Details
     Then bad request response is received from booking assessments API with message "List of Offender Ids must be provided"
 
   Scenario: Request for CSRAs for multiple offenders (using post request which allows large sets of offenders)
-    When an offender booking CSRA information POST request is made with offender numbers "A1234AA,A1234AB,A1234AC,A1234AD,A1234AE,A1234AF,A1234AG,A1234AP,NEXIST"
+    When an offender booking CSRA information POST request is made with offender numbers "A1234AA,A1234AB,A1234AC,A1234AE,A1234AF,A1234AG,A1234AP,NEXIST"
     Then correct results are returned as for single assessment
 
   Scenario: Request for offenders who need to be categorised
