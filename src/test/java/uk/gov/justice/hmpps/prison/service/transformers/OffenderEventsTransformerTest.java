@@ -409,4 +409,34 @@ public class OffenderEventsTransformerTest {
         assertThat(event.getAgencyLocationId()).isEqualTo("MDI");
         assertThat(event.getAuditModuleName()).isEqualTo("transfer");
     }
+
+    @Test
+    public void visitCancelledMappedCorrectly() {
+        final var now = LocalDateTime.now();
+
+        final var event = offenderEventsTransformer.offenderEventOf(Xtag
+            .builder()
+            .eventType("OFFENDER_VISIT-UPDATED")
+            .nomisTimestamp(now)
+            .content(XtagContent
+                .builder()
+                .p_agy_loc_id("MDI")
+                .p_offender_visit_id("4")
+                .p_event_id("2323")
+                .p_event_date("2022-08-23")
+                .p_offender_book_id("434")
+                .p_offender_id_display("AF123")
+                .p_audit_module_name("visit_screen")
+                .build())
+            .build());
+
+        assertThat(event.getEventType()).isEqualTo("VISIT_CANCELLED");
+        assertThat(event.getBookingId()).isEqualTo(434L);
+        assertThat(event.getEventDatetime()).isEqualTo(now);
+        assertThat(event.getAgencyLocationId()).isEqualTo("MDI");
+        assertThat(event.getVisitId()).isEqualTo(4);
+        assertThat(event.getOffenderIdDisplay()).isEqualTo("AF123");
+        assertThat(event.getAgencyLocationId()).isEqualTo("MDI");
+        assertThat(event.getAuditModuleName()).isEqualTo("visit_screen");
+    }
 }

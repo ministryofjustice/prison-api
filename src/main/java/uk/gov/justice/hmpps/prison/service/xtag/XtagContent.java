@@ -112,6 +112,8 @@ public class XtagContent {
 
     private String p_iep_level_seq;
     private String p_iep_level;
+
+    private String p_offender_visit_id;
     private String p_audit_module_name;
 
     @Override
@@ -201,6 +203,7 @@ public class XtagContent {
         if (p_agy_loc_id != null) sb.append(", p_agy_loc_id=").append(p_agy_loc_id);
         if (p_iep_level_seq != null) sb.append(", p_iep_level_seq=").append(p_iep_level_seq);
         if (p_iep_level != null) sb.append(", p_iep_level=").append(p_iep_level);
+        if (p_offender_visit_id != null) sb.append(", p_offender_visit_id=").append(p_offender_visit_id);
         if (p_audit_module_name != null) sb.append(", p_audit_module_name=").append(p_audit_module_name);
         return "{" + chop(sb.toString()) + "}";
     }
