@@ -3,5 +3,5 @@
 generic-service:
   env:
     SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: "https://sign-in-preprod.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json"
-    JMS_EVENTS_START: 2022-10-04T11:04:17
+    JMS_EVENTS_START: 2022-10-03T09:04:17
     JMS_EVENTS_END: 2023-10-03T00:00:00
