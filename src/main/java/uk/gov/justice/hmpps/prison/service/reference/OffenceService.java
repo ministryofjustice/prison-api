@@ -10,20 +10,26 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.HOCodeDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenceDto;
+import uk.gov.justice.hmpps.prison.api.model.OffenceToScheduleMappingDto;
 import uk.gov.justice.hmpps.prison.api.model.StatuteDto;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.HOCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offence.PK;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenceIndicator;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Statute;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.HOCodeRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenceIndicatorRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StatuteRepository;
 import uk.gov.justice.hmpps.prison.service.EntityAlreadyExistsException;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.StreamSupport;
 
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toMap;
 
 @Service
 @Validated
@@ -34,6 +40,7 @@ public class OffenceService {
     private final OffenceRepository offenceRepository;
     private final HOCodeRepository hoCodeRepository;
     private final StatuteRepository statuteRepository;
+    private final OffenceIndicatorRepository offenceIndicatorRepository;
 
     public Page<OffenceDto> getOffences(final boolean activeOnly, Pageable pageable) {
         return convertToPaginatedDto(activeOnly ? offenceRepository.findAllByActive(true, pageable)
@@ -156,5 +163,29 @@ public class OffenceService {
         return new PageImpl<>(offences, pageable, pageOfOffences.getTotalElements());
     }
 
+    @Transactional
+    public void linkOffencesToSchedules(final List<OffenceToScheduleMappingDto> offencesToSchedules) {
+        final var offenceIds = offencesToSchedules.stream().map(o -> new PK(o.getOffenceCode(), o.getStatuteCode())).toList();
+        final var offences = offenceRepository.findAllById(offenceIds);
 
+        final var offencesByCode = StreamSupport.stream(offences.spliterator(), true)
+            .collect(toMap(Offence::getCode, Function.identity()));
+
+        final var offenceIndicators = offencesToSchedules.stream()
+            .filter(o -> offencesByCode.containsKey(o.getOffenceCode()))
+            .map(o -> OffenceIndicator.builder()
+                .offence(offencesByCode.get(o.getOffenceCode()))
+                .indicatorCode(o.getSchedule().getCode())
+                .build()
+            ).toList();
+
+        offenceIndicatorRepository.saveAll(offenceIndicators);
+    }
+
+    @Transactional
+    public void unlinkOffencesFromSchedules(final List<OffenceToScheduleMappingDto> offencesToSchedules) {
+        offencesToSchedules.forEach(o ->
+            offenceIndicatorRepository.deleteByIndicatorCodeAndOffence_Code(o.getSchedule().getCode(), o.getOffenceCode())
+        );
+    }
 }

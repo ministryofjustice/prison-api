@@ -15,12 +15,16 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import uk.gov.justice.hmpps.prison.api.model.HOCodeDto
 import uk.gov.justice.hmpps.prison.api.model.OffenceDto
+import uk.gov.justice.hmpps.prison.api.model.OffenceToScheduleMappingDto
+import uk.gov.justice.hmpps.prison.api.model.Schedule.SCHEDULE_15
 import uk.gov.justice.hmpps.prison.api.model.StatuteDto
 import uk.gov.justice.hmpps.prison.repository.jpa.model.HOCode
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offence
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offence.PK
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenceIndicator
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Statute
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.HOCodeRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenceIndicatorRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenceRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StatuteRepository
 import uk.gov.justice.hmpps.prison.service.EntityAlreadyExistsException
@@ -32,10 +36,12 @@ internal class OffenceServiceTest {
   private val offenceRepository: OffenceRepository = mock()
   private val hoCodeRepository: HOCodeRepository = mock()
   private val statuteRepository: StatuteRepository = mock()
+  private val offenceIndicatorRepository: OffenceIndicatorRepository = mock()
   private val service = OffenceService(
     offenceRepository,
     hoCodeRepository,
     statuteRepository,
+    offenceIndicatorRepository,
   )
 
   @Nested
@@ -268,6 +274,45 @@ internal class OffenceServiceTest {
               .build()
           )
           .build()
+      )
+    }
+  }
+
+  @Nested
+  @DisplayName("Link and unlink offences from schedules tests")
+  inner class LinkAndUnlinkOffencesTest {
+    @Test
+    internal fun `Link offences to schedules`() {
+      val mappingDto1 = OffenceToScheduleMappingDto("COML025", SCHEDULE_15)
+      val mappingDto2 = OffenceToScheduleMappingDto("COML026", SCHEDULE_15)
+      val mappingDtos = listOf(mappingDto1, mappingDto2)
+      val murderOffence = Offence.builder()
+        .code("COML025")
+        .description("Murder")
+        .build()
+      val pks = mappingDtos.map { PK(it.offenceCode, it.statuteCode) }
+      whenever(offenceRepository.findAllById(pks)).thenReturn(listOf(murderOffence))
+
+      service.linkOffencesToSchedules(mappingDtos)
+
+      verify(offenceIndicatorRepository, times(1)).saveAll(
+        listOf(
+          OffenceIndicator.builder()
+            .offence(murderOffence)
+            .indicatorCode(SCHEDULE_15.code)
+            .build()
+        )
+      )
+    }
+
+    @Test
+    internal fun `Unlink offences from schedules`() {
+      val mappingDto = OffenceToScheduleMappingDto("COML025", SCHEDULE_15)
+      service.unlinkOffencesFromSchedules(listOf(mappingDto))
+
+      verify(offenceIndicatorRepository, times(1)).deleteByIndicatorCodeAndOffence_Code(
+        mappingDto.schedule.code,
+        mappingDto.offenceCode
       )
     }
   }

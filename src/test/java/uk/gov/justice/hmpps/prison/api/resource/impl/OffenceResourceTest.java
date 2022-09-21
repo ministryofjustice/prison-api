@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
@@ -18,6 +19,7 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 public class OffenceResourceTest extends ResourceTest {
     @Nested
@@ -241,6 +243,47 @@ public class OffenceResourceTest extends ResourceTest {
 
             assertThatJsonFileAndStatus(getResponse, 200, "offence_after_update.json");
         }
+    }
+
+    @Nested
+    @DisplayName("Tests linking and unlinking of offences to schedules")
+    public class LinkOffencesToSchedulesTests {
+        private final String maintainerTokenSchedule = authTokenHelper.getToken(AuthToken.UPDATE_OFFENCE_SCHEDULES);
+
+        @Sql(scripts = {"/sql/create_offence_data.sql"},
+            executionPhase = ExecutionPhase.BEFORE_TEST_METHOD,
+            config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
+        @Sql(scripts = {"/sql/clean_offences.sql"},
+            executionPhase = ExecutionPhase.AFTER_TEST_METHOD,
+            config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
+        @Test
+        public void testLinkAndUnlinkingOffences() {
+            String offenceToScheduleMappings = "[" +
+                "{ \"offenceCode\": \"COML025\", \"schedule\": \"SCHEDULE_15\" }," +
+                "{ \"offenceCode\": \"STAT001\", \"schedule\": \"SCHEDULE_13\" }," +
+                "{ \"offenceCode\": \"RC86355\", \"schedule\": \"SCHEDULE_13\" }" +
+                "]";
+            final var offencesToSchedules = createHttpEntity(maintainerTokenSchedule, offenceToScheduleMappings);
+            final var response = postRequest(offencesToSchedules, "/api/offences/link-to-schedule");
+            assertThatStatus(response, 201);
+
+            final var requestEntity = createHttpEntityWithBearerAuthorisation("RO_USER", List.of("ROLE_VIEW_PRISONER_DATA"), Map.of());
+            final var bookingResponse = getBookingResponse(requestEntity);
+            assertThatJsonFileAndStatus(bookingResponse, HttpStatus.OK.value(), "sentences-and-offences-details-with-schedule.json");
+
+            final var unlinkingResponse = postRequest(offencesToSchedules, "/api/offences/unlink-from-schedule");
+            assertThatStatus(unlinkingResponse, 200);
+            final var bookingResponseAfterUnlinking = getBookingResponse(requestEntity);
+            assertThatJsonFileAndStatus(bookingResponseAfterUnlinking, HttpStatus.OK.value(), "sentences-and-offences-details.json");
+        }
+    }
+
+    private ResponseEntity<String> getBookingResponse(HttpEntity<?> requestEntity) {
+        return testRestTemplate.exchange("/api/offender-sentences/booking/-20/sentences-and-offences",
+            HttpMethod.GET,
+            requestEntity,
+            new ParameterizedTypeReference<>() {
+            });
     }
 
     private ResponseEntity<String> postRequest(HttpEntity<?> httpEntity, String url) {

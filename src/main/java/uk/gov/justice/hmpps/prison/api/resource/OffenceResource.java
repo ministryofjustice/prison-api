@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.HOCodeDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenceDto;
+import uk.gov.justice.hmpps.prison.api.model.OffenceToScheduleMappingDto;
 import uk.gov.justice.hmpps.prison.api.model.StatuteDto;
 import uk.gov.justice.hmpps.prison.service.reference.OffenceService;
 
@@ -171,5 +172,29 @@ public class OffenceResource {
         log.info("Request received to update offences");
         service.updateOffences(offences);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PostMapping("/link-to-schedule")
+    @Operation(summary = "Link offence to schedule", description = "Requires UPDATE_OFFENCE_SCHEDULES role")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Offences linked to schedules successfully"),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @PreAuthorize("hasRole('UPDATE_OFFENCE_SCHEDULES') and hasAuthority('SCOPE_write')")
+    public ResponseEntity<Void> linkOffencesToSchedules(@RequestBody final List<OffenceToScheduleMappingDto> offencesToSchedules) {
+        log.info("Request received to link offences to schedules");
+        service.linkOffencesToSchedules(offencesToSchedules);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PostMapping("/unlink-from-schedule")
+    @Operation(summary = "Unlink offence from schedule", description = "Requires UPDATE_OFFENCE_SCHEDULES role")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Offences linked to schedules successfully"),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @PreAuthorize("hasRole('UPDATE_OFFENCE_SCHEDULES') and hasAuthority('SCOPE_write')")
+    public ResponseEntity<Void> unlinkOffencesFromSchedules(@RequestBody final List<OffenceToScheduleMappingDto> offencesToSchedules) {
+        log.info("Request received to unlink offences from schedules");
+        service.unlinkOffencesFromSchedules(offencesToSchedules);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }
