@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
+import uk.gov.justice.hmpps.prison.api.model.OffenderCalculatedKeyDates;
 import uk.gov.justice.hmpps.prison.api.model.OffenderKeyDates;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateOffenderDates;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
@@ -62,7 +63,7 @@ public class OffenderDatesResource {
     @GetMapping("/{bookingId}")
     @PreAuthorize("hasRole('RELEASE_DATES_CALCULATOR')")
     @ProxyUser
-    public ResponseEntity<OffenderKeyDates> getOffenderKeyDates(@PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId) {
+    public ResponseEntity<OffenderCalculatedKeyDates> getOffenderKeyDates(@PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId) {
         return ResponseEntity.status(HttpStatus.OK)
             .body(offenderDatesService.getOffenderKeyDates(bookingId));
     }

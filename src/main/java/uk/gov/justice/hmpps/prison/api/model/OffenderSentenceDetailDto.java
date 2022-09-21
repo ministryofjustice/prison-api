@@ -131,7 +131,32 @@ public class OffenderSentenceDetailDto {
     private LocalDate tariffEarlyRemovalSchemeEligibilityDate;
 
     @Schema(description = "Effective sentence end date", example = "2020-02-03")
+
     private LocalDate effectiveSentenceEndDate;
+    @Schema(description = "SED (calculated) - date on which sentence expires. (as calculated by NOMIS)", example = "2020-02-03")
+    private LocalDate sentenceExpiryCalculatedDate;
+    @Schema(description = "SED (override) - date on which sentence expires.", example = "2020-02-03")
+    private LocalDate sentenceExpiryOverrideDate;
+    @Schema(description = "LED (calculated) - date on which offender licence expires. (as calculated by NOMIS)", example = "2020-02-03")
+    private LocalDate licenceExpiryCalculatedDate;
+    @Schema(description = "LED (override) - date on which offender licence expires.", example = "2020-02-03")
+    private LocalDate licenceExpiryOverrideDate;
+    @Schema(description = "PED (calculated) - date on which offender is eligible for parole.", example = "2020-02-03")
+    private LocalDate paroleEligibilityCalculatedDate;
+    @Schema(description = "PED (override) - date on which offender is eligible for parole.", example = "2020-02-03")
+    private LocalDate paroleEligibilityOverrideDate;
+
+    @Schema(description = "TUSED (calculated) - top-up supervision expiry date for offender.", example = "2020-02-03")
+    private LocalDate topupSupervisionExpiryCalculatedDate;
+
+    @Schema(description = "TUSED (override) - top-up supervision expiry date for offender.", example = "2020-02-03")
+    private LocalDate topupSupervisionExpiryOverrideDate;
+
+    @Schema(description = "HDCED (calculated) - date on which offender will be eligible for home detention curfew.", example = "2020-02-03")
+    private LocalDate homeDetentionCurfewEligibilityCalculatedDate;
+
+    @Schema(description = "HDCED (override) - date on which offender will be eligible for home detention curfew.", example = "2020-02-03")
+    private LocalDate homeDetentionCurfewEligibilityOverrideDate;
 
     @Schema(required = true, description = "Offender Unique Reference (NOMSID)", example = "A1234AA")
     @NotBlank

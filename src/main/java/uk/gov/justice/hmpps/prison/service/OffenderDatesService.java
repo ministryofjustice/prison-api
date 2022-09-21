@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.gov.justice.hmpps.prison.api.model.OffenderCalculatedKeyDates;
 import uk.gov.justice.hmpps.prison.api.model.OffenderKeyDates;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateOffenderDates;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
@@ -65,8 +66,7 @@ public class OffenderDatesService {
                 .tusedCalculatedDate(keyDatesFromPayload.getTopupSupervisionExpiryDate())
                 .effectiveSentenceEndDate(keyDatesFromPayload.getEffectiveSentenceEndDate())
                 .effectiveSentenceLength(keyDatesFromPayload.getSentenceLength())
-                .judiciallyImposedSentenceLength(keyDatesFromPayload.getJudiciallyImposedSentenceLength() != null ?
-                    keyDatesFromPayload.getJudiciallyImposedSentenceLength() : keyDatesFromPayload.getSentenceLength())
+                .judiciallyImposedSentenceLength(keyDatesFromPayload.getSentenceLength())
                 .build();
         offenderBooking.addSentenceCalculation(sentenceCalculation);
 
@@ -80,11 +80,11 @@ public class OffenderDatesService {
         return offenderBooking.getSentenceCalcDates(Optional.of(sentenceCalculation));
     }
 
-    public OffenderKeyDates getOffenderKeyDates(Long bookingId) {
+    public OffenderCalculatedKeyDates getOffenderKeyDates(Long bookingId) {
         final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
         final var sentenceCalculation = offenderBooking.getLatestCalculation().orElseThrow(EntityNotFoundException.withId(bookingId));;
 
-        return OffenderKeyDates.builder()
+        return OffenderCalculatedKeyDates.offenderCalculatedKeyDates()
             .homeDetentionCurfewEligibilityDate(sentenceCalculation.getHomeDetentionCurfewEligibilityDate())
             .earlyTermDate(sentenceCalculation.getEarlyTermDate())
             .midTermDate(sentenceCalculation.getMidTermDate())
@@ -101,6 +101,10 @@ public class OffenderDatesService {
             .effectiveSentenceEndDate(sentenceCalculation.getEffectiveSentenceEndDate())
             .sentenceLength(sentenceCalculation.getEffectiveSentenceLength())
             .judiciallyImposedSentenceLength(sentenceCalculation.getJudiciallyImposedSentenceLength())
+            .releaseOnTemporaryLicenceDate(sentenceCalculation.getRotlOverridedDate())
+            .earlyRemovalSchemeEligibilityDate(sentenceCalculation.getErsedOverridedDate())
+            .comment(sentenceCalculation.getComments())
+            .reasonCode(sentenceCalculation.getReasonCode())
             .build();
     }
 }
