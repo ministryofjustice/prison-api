@@ -2,7 +2,6 @@ package uk.gov.justice.hmpps.prison.service;
 
 import com.google.common.collect.ImmutableMap;
 import com.microsoft.applicationinsights.TelemetryClient;
-import io.swagger.v3.oas.annotations.media.Schema;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,7 +10,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCalculatedKeyDates;
 import uk.gov.justice.hmpps.prison.api.model.OffenderKeyDates;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateOffenderDates;
-import uk.gov.justice.hmpps.prison.api.model.v1.Booking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Staff;
@@ -31,7 +29,6 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
