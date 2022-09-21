@@ -2,11 +2,13 @@ package uk.gov.justice.hmpps.prison.service;
 
 import com.google.common.collect.ImmutableMap;
 import com.microsoft.applicationinsights.TelemetryClient;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.justice.hmpps.prison.api.model.OffenderCalculatedKeyDates;
 import uk.gov.justice.hmpps.prison.api.model.OffenderKeyDates;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateOffenderDates;
 import uk.gov.justice.hmpps.prison.api.model.v1.Booking;
@@ -184,7 +186,7 @@ public class OffenderDatesServiceTest {
         final var result = service.getOffenderKeyDates(bookingId);
 
         // Then
-        assertEquals(result, createOffenderKeyDates());
+        assertEquals(result, createOffenderCalculatedKeyDates());
 
     }
 
@@ -194,7 +196,8 @@ public class OffenderDatesServiceTest {
             NOV_11_2021, NOV_11_2021, NOV_11_2021,
             NOV_11_2021, NOV_11_2021, NOV_11_2021,
             NOV_11_2021, NOV_11_2021, NOV_11_2021,
-            NOV_11_2021, NOV_11_2021, "11/00/00", "11/00/00");
+            NOV_11_2021, NOV_11_2021, "11/00/00",
+            "11/00/00", NOV_11_2021, NOV_11_2021, "Comments", "NEW");
     }
 
     public static OffenderKeyDates createOffenderKeyDates() {
@@ -204,6 +207,16 @@ public class OffenderDatesServiceTest {
             NOV_11_2021, NOV_11_2021, NOV_11_2021,
             NOV_11_2021, NOV_11_2021, NOV_11_2021,
             NOV_11_2021, NOV_11_2021, "11/00/00");
+    }
+
+    public static OffenderCalculatedKeyDates createOffenderCalculatedKeyDates() {
+        return createOffenderCalculatedKeyDates(
+            NOV_11_2021, NOV_11_2021, NOV_11_2021,
+            NOV_11_2021, NOV_11_2021, NOV_11_2021,
+            NOV_11_2021, NOV_11_2021, NOV_11_2021,
+            NOV_11_2021, NOV_11_2021, NOV_11_2021,
+            NOV_11_2021, NOV_11_2021, "11/00/00",
+            "11/00/00", NOV_11_2021, NOV_11_2021, "Comments", "NEW");
     }
 
     public static SentenceCalculation sentenceCalculation(LocalDate homeDetentionCurfewEligibilityDate,
@@ -221,7 +234,12 @@ public class OffenderDatesServiceTest {
                                                           LocalDate topupSupervisionExpiryDate,
                                                           LocalDate effectiveSentenceEndDate,
                                                           String effectiveSentenceLength,
-                                                          String judiciallyImposedSentenceLength) {
+                                                          String judiciallyImposedSentenceLength,
+                                                          LocalDate earlyRemovalSchemeEligibilityDate,
+                                                          LocalDate releaseOnTemporaryLicenceDate,
+                                                          String comment,
+                                                          String reasonCode) {
+
         return SentenceCalculation.builder()
             .id(1L)
             .hdcedCalculatedDate(homeDetentionCurfewEligibilityDate)
@@ -240,6 +258,10 @@ public class OffenderDatesServiceTest {
             .effectiveSentenceEndDate(effectiveSentenceEndDate)
             .effectiveSentenceLength(effectiveSentenceLength)
             .judiciallyImposedSentenceLength(judiciallyImposedSentenceLength)
+            .ersedOverridedDate(earlyRemovalSchemeEligibilityDate)
+            .rotlOverridedDate(releaseOnTemporaryLicenceDate)
+            .comments(comment)
+            .reasonCode(reasonCode)
             .build();
     }
 
@@ -274,6 +296,50 @@ public class OffenderDatesServiceTest {
             .topupSupervisionExpiryDate(topupSupervisionExpiryDate)
             .effectiveSentenceEndDate(effectiveSentenceEndDate)
             .sentenceLength(sentenceLength)
+            .build();
+    }
+
+    public static OffenderCalculatedKeyDates createOffenderCalculatedKeyDates(LocalDate homeDetentionCurfewEligibilityDate,
+                                                                             LocalDate earlyTermDate,
+                                                                             LocalDate midTermDate,
+                                                                             LocalDate lateTermDate,
+                                                                             LocalDate dtoPostRecallReleaseDate,
+                                                                             LocalDate automaticReleaseDate,
+                                                                             LocalDate conditionalReleaseDate,
+                                                                             LocalDate paroleEligibilityDate,
+                                                                             LocalDate nonParoleDate,
+                                                                             LocalDate licenceExpiryDate,
+                                                                             LocalDate postRecallReleaseDate,
+                                                                             LocalDate sentenceExpiryDate,
+                                                                             LocalDate topupSupervisionExpiryDate,
+                                                                             LocalDate effectiveSentenceEndDate,
+                                                                             String sentenceLength,
+                                                                             String judiciallyImposedSentenceLength,
+                                                                             LocalDate earlyRemovalSchemeEligibilityDate,
+                                                                             LocalDate releaseOnTemporaryLicenceDate,
+                                                                             String comment,
+                                                                             String reasonCode) {
+        return OffenderCalculatedKeyDates.offenderCalculatedKeyDates()
+            .homeDetentionCurfewEligibilityDate(homeDetentionCurfewEligibilityDate)
+            .earlyTermDate(earlyTermDate)
+            .midTermDate(midTermDate)
+            .lateTermDate(lateTermDate)
+            .dtoPostRecallReleaseDate(dtoPostRecallReleaseDate)
+            .automaticReleaseDate(automaticReleaseDate)
+            .conditionalReleaseDate(conditionalReleaseDate)
+            .paroleEligibilityDate(paroleEligibilityDate)
+            .nonParoleDate(nonParoleDate)
+            .licenceExpiryDate(licenceExpiryDate)
+            .postRecallReleaseDate(postRecallReleaseDate)
+            .sentenceExpiryDate(sentenceExpiryDate)
+            .topupSupervisionExpiryDate(topupSupervisionExpiryDate)
+            .effectiveSentenceEndDate(effectiveSentenceEndDate)
+            .sentenceLength(sentenceLength)
+            .judiciallyImposedSentenceLength(judiciallyImposedSentenceLength)
+            .earlyRemovalSchemeEligibilityDate(earlyRemovalSchemeEligibilityDate)
+            .releaseOnTemporaryLicenceDate(releaseOnTemporaryLicenceDate)
+            .comment(comment)
+            .reasonCode(reasonCode)
             .build();
     }
 }
