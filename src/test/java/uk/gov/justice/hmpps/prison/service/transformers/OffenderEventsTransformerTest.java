@@ -19,22 +19,25 @@ import static org.mockito.Mockito.mock;
 public class OffenderEventsTransformerTest {
 
     private static final String NOT_A_CASE_NOTE = "NOT_A_CASE_NOTE";
-    private static final String CASE_NOTE_JSON = "{\"case_note\":{\"id\":61342651,\"contact_datetime\":\"1819-02-20 14:09:00\"\n" +
-        ",\"source\":{\"code\":\"INST\"\n" +
-        ",\"desc\":\"Prison\"\n" +
-        "},\"type\":{\"code\":\"GEN\"\n" +
-        ",\"desc\":\"General\"\n" +
-        "},\"sub_type\":{\"code\":\"OSE\"\n" +
-        ",\"desc\":\"\"\n" +
-        "},\"staff_member\":{\"id\":483079,\"name\":\"White, Barry\"\n" +
-        ",\"userid\":\"QWU90D\"\n" +
-        "},\"text\":\"[redacted]stice.gov.uk \\n\\u260F 01811 8055 (Direct \\u2013 22222) \\u#### N/A [redacted]\"\n" +
-        ",\"amended\":false}}";
-    private OffenderEventsTransformer offenderEventsTransformer = new OffenderEventsTransformer(mock(TypesTransformer.class));
+    private static final String CASE_NOTE_JSON = """
+            {"case_note":{"id":61342651,"contact_datetime":"1819-02-20 14:09:00"
+            ,"source":{"code":"INST"
+            ,"desc":"Prison"
+            },"type":{"code":"GEN"
+            ,"desc":"General"
+            },"sub_type":{"code":"OSE"
+            ,"desc":""
+            },"staff_member":{"id":483079,"name":"White, Barry"
+            ,"userid":"QWU90D"
+            },"text":"[redacted]stice.gov.uk \\n\\u260F 01811 8055 (Direct \\u2013 22222) \\u#### N/A [redacted]"
+            ,"amended":false}}""";
+    private final OffenderEventsTransformer offenderEventsTransformer = new OffenderEventsTransformer(mock(TypesTransformer.class),
+            "2022-10-05T13:00:05", "2022-10-05T13:00:08");
 
     @Test
     public void canDeserializeIntoXtagContent() {
-        final var transformer = new OffenderEventsTransformer(mock(TypesTransformer.class));
+        final var transformer = new OffenderEventsTransformer(mock(TypesTransformer.class),
+                "2022-10-05T13:00:05", "2022-10-05T13:00:08");
 
         assertThat(transformer.xtagContentOf(ImmutableMap.of("x", "y"))).isNotNull();
     }
@@ -93,7 +96,8 @@ public class OffenderEventsTransformerTest {
     @Test
     public void externalMovementRecordEventOfHandlesAgyLocIdsAsStrings() {
 
-        final var transformer = new OffenderEventsTransformer(null);
+        final var transformer = new OffenderEventsTransformer(null,
+                "2022-10-05T13:00:05", "2022-10-05T13:00:08");
         assertThat(transformer.externalMovementRecordEventOf(Xtag.builder().content(
             XtagContent.builder()
                 .p_from_agy_loc_id("BARBECUE")
@@ -109,7 +113,8 @@ public class OffenderEventsTransformerTest {
 
     @Test
     public void canCorrectlyDecodeCaseNoteEventTypes() {
-        final var transformer = new OffenderEventsTransformer(mock(TypesTransformer.class));
+        final var transformer = new OffenderEventsTransformer(mock(TypesTransformer.class),
+                "2022-10-05T13:00:05", "2022-10-05T13:00:08");
 
         assertThat(transformer.caseNoteEventTypeOf(OffenderEvent.builder()
             .eventType("CASE_NOTE")
@@ -119,7 +124,8 @@ public class OffenderEventsTransformerTest {
 
     @Test
     public void nonCaseNoteEventTypesAreNotDecoded() {
-        final var transformer = new OffenderEventsTransformer(mock(TypesTransformer.class));
+        final var transformer = new OffenderEventsTransformer(mock(TypesTransformer.class),
+                "2022-10-05T13:00:05", "2022-10-05T13:00:08");
 
         assertThat(transformer.caseNoteEventTypeOf(OffenderEvent.builder()
             .eventType(NOT_A_CASE_NOTE)
@@ -129,7 +135,8 @@ public class OffenderEventsTransformerTest {
 
     @Test
     public void canCorrectlyDecodeCaseNoteId() {
-        final var transformer = new OffenderEventsTransformer(mock(TypesTransformer.class));
+        final var transformer = new OffenderEventsTransformer(mock(TypesTransformer.class),
+                "2022-10-05T13:00:05", "2022-10-05T13:00:08");
 
         assertThat(transformer.caseNoteIdOf(OffenderEvent.builder()
             .eventType("CASE_NOTE")
@@ -139,7 +146,8 @@ public class OffenderEventsTransformerTest {
 
     @Test
     public void nonCaseNoteIdsAreNotDecoded() {
-        final var transformer = new OffenderEventsTransformer(mock(TypesTransformer.class));
+        final var transformer = new OffenderEventsTransformer(mock(TypesTransformer.class),
+                "2022-10-05T13:00:05", "2022-10-05T13:00:08");
 
         assertThat(transformer.caseNoteIdOf(OffenderEvent.builder()
             .eventType(NOT_A_CASE_NOTE)
@@ -149,19 +157,23 @@ public class OffenderEventsTransformerTest {
 
     @Test
     public void unknownEventTypesAreHandledAppropriately() {
-        final var transformer = new OffenderEventsTransformer(mock(TypesTransformer.class));
+        final var transformer = new OffenderEventsTransformer(mock(TypesTransformer.class),
+                "2022-10-05T13:00:05", "2022-10-05T13:00:08");
 
         assertThat(transformer.offenderEventOf((Xtag) null)).isNull();
         assertThat(transformer.offenderEventOf(Xtag.builder().build())).isNull();
-        assertThat(transformer.offenderEventOf(Xtag.builder().eventType("meh").build())).isNotNull();
+        assertThat(transformer.offenderEventOf(Xtag.builder()
+                .eventType("meh")
+                .nomisTimestamp(LocalDateTime.parse("2022-10-05T13:00:08.000"))
+                .build())).isNotNull();
     }
-
 
     @Test
     public void S2_RESULT_IsMappedTo_SENTENCE_DATES_CHANGED() {
         final var event = offenderEventsTransformer.offenderEventOf(Xtag
             .builder()
             .eventType("S2_RESULT")
+            .nomisTimestamp(LocalDateTime.parse("2022-10-05T13:00:04.999"))
             .content(XtagContent
                 .builder()
                 .p_offender_book_id("99")
@@ -173,10 +185,25 @@ public class OffenderEventsTransformerTest {
     }
 
     @Test
+    public void timestampInJMSRangeIsIgnored() {
+        assertThat(offenderEventsTransformer.offenderEventOf(Xtag
+                .builder()
+                .eventType("S2_RESULT")
+                .nomisTimestamp(LocalDateTime.parse("2022-10-05T13:00:05"))
+                .build())).isNull();
+        assertThat(offenderEventsTransformer.offenderEventOf(Xtag
+                .builder()
+                .eventType("S2_RESULT")
+                .nomisTimestamp(LocalDateTime.parse("2022-10-05T13:00:07.999"))
+                .build())).isNull();
+    }
+
+    @Test
     public void OFF_SENT_OASYS_IsMappedTo_SENTENCE_CALCULATION_DATES_CHANGED() {
         final var event = offenderEventsTransformer.offenderEventOf(Xtag
             .builder()
             .eventType("OFF_SENT_OASYS")
+            .nomisTimestamp(LocalDateTime.parse("2022-10-05T13:00:08"))
             .content(XtagContent
                 .builder()
                 .p_offender_book_id("99")
