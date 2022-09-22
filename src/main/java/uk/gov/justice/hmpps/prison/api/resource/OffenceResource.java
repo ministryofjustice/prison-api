@@ -178,7 +178,8 @@ public class OffenceResource {
     @Operation(summary = "Link offence to schedule", description = "Requires UPDATE_OFFENCE_SCHEDULES role")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Offences linked to schedules successfully"),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.")
+    })
     @PreAuthorize("hasRole('UPDATE_OFFENCE_SCHEDULES') and hasAuthority('SCOPE_write')")
     public ResponseEntity<Void> linkOffencesToSchedules(@RequestBody final List<OffenceToScheduleMappingDto> offencesToSchedules) {
         log.info("Request received to link offences to schedules");
@@ -189,8 +190,9 @@ public class OffenceResource {
     @PostMapping("/unlink-from-schedule")
     @Operation(summary = "Unlink offence from schedule", description = "Requires UPDATE_OFFENCE_SCHEDULES role")
     @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Offences linked to schedules successfully"),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+        @ApiResponse(responseCode = "200", description = "Offences unlinked from schedules successfully"),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.")
+    })
     @PreAuthorize("hasRole('UPDATE_OFFENCE_SCHEDULES') and hasAuthority('SCOPE_write')")
     public ResponseEntity<Void> unlinkOffencesFromSchedules(@RequestBody final List<OffenceToScheduleMappingDto> offencesToSchedules) {
         log.info("Request received to unlink offences from schedules");

@@ -281,20 +281,23 @@ internal class OffenceServiceTest {
   @Nested
   @DisplayName("Link and unlink offences from schedules tests")
   inner class LinkAndUnlinkOffencesTest {
+    private val murderOffence = Offence.builder()
+      .code("COML025")
+      .description("Murder")
+      .build()
     @Test
     internal fun `Link offences to schedules`() {
       val mappingDto1 = OffenceToScheduleMappingDto("COML025", SCHEDULE_15)
       val mappingDto2 = OffenceToScheduleMappingDto("COML026", SCHEDULE_15)
       val mappingDtos = listOf(mappingDto1, mappingDto2)
-      val murderOffence = Offence.builder()
-        .code("COML025")
-        .description("Murder")
-        .build()
+
       val pks = mappingDtos.map { PK(it.offenceCode, it.statuteCode) }
       whenever(offenceRepository.findAllById(pks)).thenReturn(listOf(murderOffence))
+      whenever(offenceIndicatorRepository.countByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML025")).thenReturn(0)
 
       service.linkOffencesToSchedules(mappingDtos)
 
+      verify(offenceIndicatorRepository, times(1)).countByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML025")
       verify(offenceIndicatorRepository, times(1)).saveAll(
         listOf(
           OffenceIndicator.builder()
@@ -303,6 +306,37 @@ internal class OffenceServiceTest {
             .build()
         )
       )
+      verifyNoMoreInteractions(offenceIndicatorRepository)
+    }
+
+    @Test
+    internal fun `Attempting to link offences to schedules where the offence is already linked will be ignored (no duplicate records should be created)`() {
+      val mappingDto1 = OffenceToScheduleMappingDto("COML025", SCHEDULE_15)
+      val mappingDto2 = OffenceToScheduleMappingDto("COML026", SCHEDULE_15)
+      val mappingDtos = listOf(mappingDto1, mappingDto2)
+      val manslaughterOffence = Offence.builder()
+        .code("COML026")
+        .description("Manslaughter")
+        .build()
+
+      val pks = mappingDtos.map { PK(it.offenceCode, it.statuteCode) }
+      whenever(offenceRepository.findAllById(pks)).thenReturn(listOf(murderOffence, manslaughterOffence))
+      whenever(offenceIndicatorRepository.countByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML025")).thenReturn(1)
+      whenever(offenceIndicatorRepository.countByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML026")).thenReturn(0)
+
+      service.linkOffencesToSchedules(mappingDtos)
+
+      verify(offenceIndicatorRepository, times(1)).countByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML025")
+      verify(offenceIndicatorRepository, times(1)).countByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML026")
+      verify(offenceIndicatorRepository, times(1)).saveAll(
+        listOf(
+          OffenceIndicator.builder()
+            .offence(manslaughterOffence)
+            .indicatorCode(SCHEDULE_15.code)
+            .build()
+        )
+      )
+      verifyNoMoreInteractions(offenceIndicatorRepository)
     }
 
     @Test

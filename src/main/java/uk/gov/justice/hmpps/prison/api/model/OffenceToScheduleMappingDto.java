@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -25,6 +26,7 @@ public class OffenceToScheduleMappingDto {
     @Schema(required = true, description = "Schedule type", example = "SCHEDULE_15")
     private Schedule schedule;
 
+    @JsonIgnore
     public String getStatuteCode() {
         return this.offenceCode.substring(0, 4);
     }

@@ -171,13 +171,16 @@ public class OffenceService {
         final var offencesByCode = StreamSupport.stream(offences.spliterator(), true)
             .collect(toMap(Offence::getCode, Function.identity()));
 
+        // Filter out any if the offence doesn't exist + filter out if the offence_indicator already exists (no duplicates)
         final var offenceIndicators = offencesToSchedules.stream()
             .filter(o -> offencesByCode.containsKey(o.getOffenceCode()))
             .map(o -> OffenceIndicator.builder()
                 .offence(offencesByCode.get(o.getOffenceCode()))
                 .indicatorCode(o.getSchedule().getCode())
                 .build()
-            ).toList();
+            )
+            .filter(oi -> offenceIndicatorRepository.countByIndicatorCodeAndOffence_Code(oi.getIndicatorCode(), oi.getOffence().getCode()) == 0L)
+            .toList();
 
         offenceIndicatorRepository.saveAll(offenceIndicators);
     }
