@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.HOCodeDto;
@@ -180,11 +181,11 @@ public class OffenceResource {
         @ApiResponse(responseCode = "201", description = "Offences linked to schedules successfully"),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.")
     })
-    @PreAuthorize("hasRole('UPDATE_OFFENCE_SCHEDULES') and hasAuthority('SCOPE_write')")
-    public ResponseEntity<Void> linkOffencesToSchedules(@RequestBody final List<OffenceToScheduleMappingDto> offencesToSchedules) {
+    @PreAuthorize("hasRole('UPDATE_OFFENCE_SCHEDULES')")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void linkOffencesToSchedules(@RequestBody final List<OffenceToScheduleMappingDto> offencesToSchedules) {
         log.info("Request received to link offences to schedules");
         service.linkOffencesToSchedules(offencesToSchedules);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PostMapping("/unlink-from-schedule")
@@ -193,10 +194,9 @@ public class OffenceResource {
         @ApiResponse(responseCode = "200", description = "Offences unlinked from schedules successfully"),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.")
     })
-    @PreAuthorize("hasRole('UPDATE_OFFENCE_SCHEDULES') and hasAuthority('SCOPE_write')")
-    public ResponseEntity<Void> unlinkOffencesFromSchedules(@RequestBody final List<OffenceToScheduleMappingDto> offencesToSchedules) {
+    @PreAuthorize("hasRole('UPDATE_OFFENCE_SCHEDULES')")
+    public void unlinkOffencesFromSchedules(@RequestBody final List<OffenceToScheduleMappingDto> offencesToSchedules) {
         log.info("Request received to unlink offences from schedules");
         service.unlinkOffencesFromSchedules(offencesToSchedules);
-        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }
