@@ -30,6 +30,7 @@ import java.util.stream.StreamSupport;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 
 @Service
 @Validated
@@ -165,7 +166,7 @@ public class OffenceService {
 
     @Transactional
     public void linkOffencesToSchedules(final List<OffenceToScheduleMappingDto> offencesToSchedules) {
-        final var offenceIds = offencesToSchedules.stream().map(o -> new PK(o.getOffenceCode(), o.getStatuteCode())).toList();
+        final var offenceIds = offencesToSchedules.stream().map(o -> new PK(o.getOffenceCode(), o.getStatuteCode())).collect(toSet());
         final var offences = offenceRepository.findAllById(offenceIds);
 
         final var offencesByCode = StreamSupport.stream(offences.spliterator(), true)
@@ -179,7 +180,7 @@ public class OffenceService {
                 .indicatorCode(o.getSchedule().getCode())
                 .build()
             )
-            .filter(oi -> offenceIndicatorRepository.countByIndicatorCodeAndOffence_Code(oi.getIndicatorCode(), oi.getOffence().getCode()) == 0L)
+            .filter(oi -> !offenceIndicatorRepository.existsByIndicatorCodeAndOffence_Code(oi.getIndicatorCode(), oi.getOffence().getCode()))
             .toList();
 
         offenceIndicatorRepository.saveAll(offenceIndicators);

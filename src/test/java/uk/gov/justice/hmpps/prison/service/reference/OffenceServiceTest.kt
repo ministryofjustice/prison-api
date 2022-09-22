@@ -293,11 +293,11 @@ internal class OffenceServiceTest {
 
       val pks = mappingDtos.map { PK(it.offenceCode, it.statuteCode) }
       whenever(offenceRepository.findAllById(pks)).thenReturn(listOf(murderOffence))
-      whenever(offenceIndicatorRepository.countByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML025")).thenReturn(0)
+      whenever(offenceIndicatorRepository.existsByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML025")).thenReturn(false)
 
       service.linkOffencesToSchedules(mappingDtos)
 
-      verify(offenceIndicatorRepository, times(1)).countByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML025")
+      verify(offenceIndicatorRepository, times(1)).existsByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML025")
       verify(offenceIndicatorRepository, times(1)).saveAll(
         listOf(
           OffenceIndicator.builder()
@@ -321,13 +321,13 @@ internal class OffenceServiceTest {
 
       val pks = mappingDtos.map { PK(it.offenceCode, it.statuteCode) }
       whenever(offenceRepository.findAllById(pks)).thenReturn(listOf(murderOffence, manslaughterOffence))
-      whenever(offenceIndicatorRepository.countByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML025")).thenReturn(1)
-      whenever(offenceIndicatorRepository.countByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML026")).thenReturn(0)
+      whenever(offenceIndicatorRepository.existsByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML025")).thenReturn(true)
+      whenever(offenceIndicatorRepository.existsByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML026")).thenReturn(false)
 
       service.linkOffencesToSchedules(mappingDtos)
 
-      verify(offenceIndicatorRepository, times(1)).countByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML025")
-      verify(offenceIndicatorRepository, times(1)).countByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML026")
+      verify(offenceIndicatorRepository, times(1)).existsByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML025")
+      verify(offenceIndicatorRepository, times(1)).existsByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML026")
       verify(offenceIndicatorRepository, times(1)).saveAll(
         listOf(
           OffenceIndicator.builder()
