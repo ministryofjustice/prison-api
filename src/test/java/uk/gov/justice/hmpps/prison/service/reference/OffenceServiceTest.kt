@@ -291,7 +291,7 @@ internal class OffenceServiceTest {
       val mappingDto2 = OffenceToScheduleMappingDto("COML026", SCHEDULE_15)
       val mappingDtos = listOf(mappingDto1, mappingDto2)
 
-      val pks = mappingDtos.map { PK(it.offenceCode, it.statuteCode) }
+      val pks = mappingDtos.map { PK(it.offenceCode, it.statuteCode) }.toSet()
       whenever(offenceRepository.findAllById(pks)).thenReturn(listOf(murderOffence))
       whenever(offenceIndicatorRepository.existsByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML025")).thenReturn(false)
 
@@ -319,7 +319,7 @@ internal class OffenceServiceTest {
         .description("Manslaughter")
         .build()
 
-      val pks = mappingDtos.map { PK(it.offenceCode, it.statuteCode) }
+      val pks = mappingDtos.map { PK(it.offenceCode, it.statuteCode) }.toSet()
       whenever(offenceRepository.findAllById(pks)).thenReturn(listOf(murderOffence, manslaughterOffence))
       whenever(offenceIndicatorRepository.existsByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML025")).thenReturn(true)
       whenever(offenceIndicatorRepository.existsByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML026")).thenReturn(false)
