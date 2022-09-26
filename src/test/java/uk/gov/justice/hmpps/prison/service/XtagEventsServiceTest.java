@@ -210,6 +210,19 @@ public class XtagEventsServiceTest {
     }
 
     @Test
+    public void ignoresNullEvents() {
+        final var filter = OffenderEventsFilter.builder().from(LocalDateTime.now()).to(LocalDateTime.now()).build();
+
+        final var xTagEvent = XtagEventNonJpa.builder().build();
+        when(repository.findAll(Mockito.any(OffenderEventsFilter.class))).thenReturn(List.of(xTagEvent));
+        when(transformer.offenderEventOf(Mockito.any(XtagEventNonJpa.class))).thenReturn(null);
+
+        final var offenderEventList = service.findAll(filter);
+
+        assertThat(offenderEventList).isEmpty();
+    }
+
+    @Test
     public void findTest() {
         final var filter = OffenderEventsFilter.builder().from(LocalDateTime.now()).to(LocalDateTime.now()).build();
         final var xTagEvent = XtagEventNonJpa.builder().build();

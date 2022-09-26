@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Transactional(readOnly = true)
@@ -33,6 +34,7 @@ public class XtagEventsService {
     public List<OffenderEvent> findAll(final OffenderEventsFilter oeFilter) {
         return xtagEventsRepository.findAll(fudgedXtagFilterOf(oeFilter)).stream()
                 .map(offenderEventsTransformer::offenderEventOf)
+                .filter(Objects::nonNull)
                 .map(this::addAdditionalEventData)
                 .toList();
     }
@@ -41,6 +43,7 @@ public class XtagEventsService {
     public List<OffenderEvent> findTest(final OffenderEventsFilter oeFilter, final boolean useEnq) {
         return xtagEventsRepository.findTest(fudgedXtagFilterOf(oeFilter), useEnq).stream()
                 .map(offenderEventsTransformer::offenderEventOf)
+                .filter(Objects::nonNull)
                 .map(this::addAdditionalEventData)
                 .toList();
     }
