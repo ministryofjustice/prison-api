@@ -61,9 +61,9 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRep
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.createbooking.CopyPreviousBookingService;
-import uk.gov.justice.hmpps.prison.service.transfer.BookNumberGenerationService;
-import uk.gov.justice.hmpps.prison.service.transfer.PrisonTransferService;
-import uk.gov.justice.hmpps.prison.service.transfer.TrustAccountService;
+import uk.gov.justice.hmpps.prison.service.receiveandtransfer.BookNumberGenerationService;
+import uk.gov.justice.hmpps.prison.service.receiveandtransfer.PrisonTransferService;
+import uk.gov.justice.hmpps.prison.service.receiveandtransfer.TrustAccountService;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
 
 import javax.persistence.EntityManager;

@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.service.transfer
+package uk.gov.justice.hmpps.prison.service.receiveandtransfer
 
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
