@@ -44,4 +44,14 @@ public class OffenderResourceImplIntTest_getAdjudications extends ResourceTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
+
+    @Test
+    public void returns404ForViewAdjudicationsRole() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ROLE_VIEW_ADJUDICATIONS", List.of(), Map.of());
+
+        final var response = testRestTemplate.exchange(
+            "/api/offenders/A1234AA/adjudications", HttpMethod.GET, requestEntity, ErrorResponse.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
 }
