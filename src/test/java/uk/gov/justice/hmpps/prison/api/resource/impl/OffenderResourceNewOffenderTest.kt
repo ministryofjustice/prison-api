@@ -21,12 +21,37 @@ class OffenderResourceNewOffenderTest : ResourceTest() {
   @Nested
   @DisplayName("POST /offenders")
   inner class NewOffender {
-    lateinit var existingPrisoner: InmateDetail
+
+    @Nested
+    inner class Authorisation {
+      @Test
+      fun `should return 401 when user does not even have token`() {
+        webTestClient.post().uri("/api/offenders")
+          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+          .bodyValue(requestToCreate()).accept(MediaType.APPLICATION_JSON).exchange()
+          .expectStatus().isUnauthorized
+      }
+      @Test
+      fun `should return 403 when user does not have any roles`() {
+        webTestClient.post().uri("/api/offenders").headers(setAuthorisation(listOf()))
+          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+          .bodyValue(requestToCreate()).accept(MediaType.APPLICATION_JSON).exchange()
+          .expectStatus().isForbidden
+      }
+      @Test
+      fun `should return 403 when user does not have required role`() {
+        webTestClient.post().uri("/api/offenders").headers(setAuthorisation(listOf("ROLE_BANANAS")))
+          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+          .bodyValue(requestToCreate()).accept(MediaType.APPLICATION_JSON).exchange()
+          .expectStatus().isForbidden
+      }
+    }
 
     @Nested
     @DisplayName("when new offender is created")
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class Success {
+      lateinit var existingPrisoner: InmateDetail
 
       @BeforeAll
       internal fun createExistingOffender() {
@@ -127,6 +152,7 @@ class OffenderResourceNewOffenderTest : ResourceTest() {
           ).accept(MediaType.APPLICATION_JSON).exchange()
           .expectStatus().isOk
       }
+
       @Test
       internal fun `prisoner with similar names and dob allowed`() {
         webTestClient.post().uri("/api/offenders").headers(setAuthorisation(listOf("ROLE_BOOKING_CREATE")))
@@ -317,13 +343,30 @@ class OffenderResourceNewOffenderTest : ResourceTest() {
 
           @Test
           internal fun `can not be older than 110 years old`() {
-            expectBadRequest(requestToCreate(dateOfBirth = LocalDate.now().minusYears(110).minusDays(1))).jsonPath("$.developerMessage")
-              .isEqualTo("Date of birth must be between ${LocalDate.now().minusYears(110)} and ${LocalDate.now().minusYears(16)}")
+            expectBadRequest(
+              requestToCreate(
+                dateOfBirth = LocalDate.now().minusYears(110).minusDays(1)
+              )
+            ).jsonPath("$.developerMessage")
+              .isEqualTo(
+                "Date of birth must be between ${LocalDate.now().minusYears(110)} and ${
+                LocalDate.now().minusYears(16)
+                }"
+              )
           }
+
           @Test
           internal fun `can not be younger than 16 years old`() {
-            expectBadRequest(requestToCreate(dateOfBirth = LocalDate.now().minusYears(16).plusDays(1))).jsonPath("$.developerMessage")
-              .isEqualTo("Date of birth must be between ${LocalDate.now().minusYears(110)} and ${LocalDate.now().minusYears(16)}")
+            expectBadRequest(
+              requestToCreate(
+                dateOfBirth = LocalDate.now().minusYears(16).plusDays(1)
+              )
+            ).jsonPath("$.developerMessage")
+              .isEqualTo(
+                "Date of birth must be between ${LocalDate.now().minusYears(110)} and ${
+                LocalDate.now().minusYears(16)
+                }"
+              )
           }
         }
 
