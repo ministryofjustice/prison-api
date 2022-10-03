@@ -109,7 +109,6 @@ public class AdjudicationService {
     }
 
     public Page<Adjudication> findAdjudications(final AdjudicationSearchCriteria criteria) {
-        bookingService.getOffenderIdentifiers(criteria.getOffenderNumber());
         return repository.findAdjudications(criteria);
     }
 
