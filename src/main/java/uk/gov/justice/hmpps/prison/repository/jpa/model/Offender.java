@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString.Exclude;
+import lombok.With;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.BatchSize;
@@ -54,6 +55,7 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.Title.TITLE;
 @Entity
 @Table(name = "OFFENDERS")
 @BatchSize(size = 25)
+@With
 public class Offender extends AuditableEntity {
 
     @SequenceGenerator(name = "OFFENDER_ID", sequenceName = "OFFENDER_ID", allocationSize = 1)

@@ -82,7 +82,7 @@ import uk.gov.justice.hmpps.prison.service.OffenderAddressService;
 import uk.gov.justice.hmpps.prison.service.OffenderDamageObligationService;
 import uk.gov.justice.hmpps.prison.service.OffenderNonAssociationsService;
 import uk.gov.justice.hmpps.prison.service.OffenderTransactionHistoryService;
-import uk.gov.justice.hmpps.prison.service.PrisonerCreationService;
+import uk.gov.justice.hmpps.prison.service.receiveandtransfer.PrisonerCreationService;
 import uk.gov.justice.hmpps.prison.service.PrisonerReleaseAndTransferService;
 
 import javax.validation.Valid;
