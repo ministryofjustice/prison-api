@@ -1,9 +1,12 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.With;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,6 +16,7 @@ import java.util.List;
 @Data
 @EqualsAndHashCode
 @ToString
+@AllArgsConstructor
 public class NomsIdSequence {
 
     private static final List<String> EXCLUDED_SUFFIX = List.of("AB",
