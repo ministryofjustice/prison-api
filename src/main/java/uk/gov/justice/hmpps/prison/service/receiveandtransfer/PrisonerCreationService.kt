@@ -42,9 +42,9 @@ class PrisonerCreationService(
 ) {
   fun createPrisoner(requestToCreate: RequestToCreate): InmateDetail {
     val gender: Gender = gender(requestToCreate.gender).getOrThrow()
-    val ethnicity: Ethnicity? = ethnicity(requestToCreate.ethnicity)?.getOrThrow()
-    val title: Title? = title(requestToCreate.title)?.getOrThrow()
-    val suffix: Suffix? = suffix(requestToCreate.suffix)?.getOrThrow()
+    val ethnicity: Ethnicity? = ethnicity(requestToCreate.ethnicity).getOrThrow()
+    val title: Title? = title(requestToCreate.title).getOrThrow()
+    val suffix: Suffix? = suffix(requestToCreate.suffix).getOrThrow()
 
     val validPncNumber: String? = validPncNumber(requestToCreate.pncNumber)?.getOrThrow()
     val validCroNumber: String? = validCroNumber(requestToCreate.croNumber)?.getOrThrow()
@@ -95,28 +95,28 @@ class PrisonerCreationService(
     return PrisonerIdentifier().withId(currentSequence.prisonerIdentifier)
   }
 
-  private fun gender(code: String): Result<Gender> =
-    genderRepository.findByIdOrNull(ReferenceCode.Pk(Gender.SEX, code))?.let { success(it) } ?: failure(
-      EntityNotFoundException.withMessage("Gender $code not found")
-    )
+  private fun gender(code: String): Result<Gender> = getMandatoryReference(code, genderRepository, Gender.SEX)
 
-  private fun ethnicity(code: String?): Result<Ethnicity>? =
-    code?.takeIf { it.isNotBlank() }?.let {
-      ethnicityRepository.findByIdOrNull(ReferenceCode.Pk(Ethnicity.ETHNICITY, code))?.let { success(it) }
-        ?: failure(EntityNotFoundException.withMessage("Ethnicity $code not found"))
-    }
+  private fun title(code: String?): Result<Title?> = getOptionalReference(code, titleRepository, Title.TITLE)
 
-  private fun title(code: String?): Result<Title>? =
-    code?.takeIf { it.isNotBlank() }?.let {
-      titleRepository.findByIdOrNull(ReferenceCode.Pk(Title.TITLE, code))?.let { success(it) }
-        ?: failure(EntityNotFoundException.withMessage("Title $code not found"))
-    }
+  private fun suffix(code: String?): Result<Suffix?> = getOptionalReference(code, suffixRepository, Suffix.SUFFIX)
 
-  private fun suffix(code: String?): Result<Suffix>? =
-    code?.takeIf { it.isNotBlank() }?.let {
-      suffixRepository.findByIdOrNull(ReferenceCode.Pk(Suffix.SUFFIX, code))?.let { success(it) }
-        ?: failure(EntityNotFoundException.withMessage("Suffix $code not found"))
-    }
+  private fun ethnicity(code: String?): Result<Ethnicity?> = getOptionalReference(code, ethnicityRepository, Ethnicity.ETHNICITY)
+
+  private inline fun <reified T: ReferenceCode> getMandatoryReference(code: String, repository: ReferenceCodeRepository<T>, pk: String): Result<T> =
+    repository.findByIdOrNull(ReferenceCode.Pk(pk, code))
+      ?.let { success(it) }
+      ?: failure(EntityNotFoundException.withMessage("${T::class.java} $code not found"))
+
+  private inline fun <reified T: ReferenceCode> getOptionalReference(code: String?, repository: ReferenceCodeRepository<T>, pk: String): Result<T?> =
+    code?.takeIf { it.isNotBlank() }
+      ?.let {
+        repository.findByIdOrNull(ReferenceCode.Pk(pk, code))
+          ?.let { success(it) }
+          ?: failure(EntityNotFoundException.withMessage("${T::class.java} $code not found"))
+      }
+      ?: success(null)
+
 
   private fun validPncNumber(pncNumber: String?): Result<String>? =
     pncNumber?.takeIf { it.isNotBlank() }?.let { pnc ->
