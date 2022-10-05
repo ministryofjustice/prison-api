@@ -14,3 +14,9 @@ CVE-2022-25857
 # Suppression for snakeyaml 1.31 vulnerability as no current upgrade path available
 #   Can be suppressed as we we don't parse untrusted yaml
 CVE-2022-38752
+# Suppression for jackson databind 2.13.4 as no release for it yet
+#   Can be suppressed as UNWRAP_SINGLE_VALUE_ARRAYS is not enabled
+CVE-2022-42003
+# Suppression for jackson databind 2.13.3 as bundled with application insights
+#   Can be suppressed as don't parse untrusted json in application insights
+CVE-2022-42004
