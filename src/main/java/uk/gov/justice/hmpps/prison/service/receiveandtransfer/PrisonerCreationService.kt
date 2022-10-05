@@ -95,23 +95,23 @@ class PrisonerCreationService(
     return PrisonerIdentifier().withId(currentSequence.prisonerIdentifier)
   }
 
-  private fun gender(code: String): Result<Gender> = getMandatoryReference(code, genderRepository, Gender.SEX)
+  private fun gender(code: String): Result<Gender> = genderRepository.getMandatoryReference(code, Gender.SEX)
 
-  private fun title(code: String?): Result<Title?> = getOptionalReference(code, titleRepository, Title.TITLE)
+  private fun title(code: String?): Result<Title?> = titleRepository.getOptionalReference(code, Title.TITLE)
 
-  private fun suffix(code: String?): Result<Suffix?> = getOptionalReference(code, suffixRepository, Suffix.SUFFIX)
+  private fun suffix(code: String?): Result<Suffix?> = suffixRepository.getOptionalReference(code, Suffix.SUFFIX)
 
-  private fun ethnicity(code: String?): Result<Ethnicity?> = getOptionalReference(code, ethnicityRepository, Ethnicity.ETHNICITY)
+  private fun ethnicity(code: String?): Result<Ethnicity?> = ethnicityRepository.getOptionalReference(code, Ethnicity.ETHNICITY)
 
-  private inline fun <reified T: ReferenceCode> getMandatoryReference(code: String, repository: ReferenceCodeRepository<T>, pk: String): Result<T> =
-    repository.findByIdOrNull(ReferenceCode.Pk(pk, code))
+  private inline fun <reified T: ReferenceCode> ReferenceCodeRepository<T>.getMandatoryReference(code: String, pk: String): Result<T> =
+    findByIdOrNull(ReferenceCode.Pk(pk, code))
       ?.let { success(it) }
       ?: failure(EntityNotFoundException.withMessage("${T::class.java} $code not found"))
 
-  private inline fun <reified T: ReferenceCode> getOptionalReference(code: String?, repository: ReferenceCodeRepository<T>, pk: String): Result<T?> =
+  private inline fun <reified T: ReferenceCode> ReferenceCodeRepository<T>.getOptionalReference(code: String?, pk: String): Result<T?> =
     code?.takeIf { it.isNotBlank() }
       ?.let {
-        repository.findByIdOrNull(ReferenceCode.Pk(pk, code))
+        findByIdOrNull(ReferenceCode.Pk(pk, code))
           ?.let { success(it) }
           ?: failure(EntityNotFoundException.withMessage("${T::class.java} $code not found"))
       }
