@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString.Exclude;
+import lombok.With;
 import org.hibernate.Hibernate;
 import org.springframework.data.annotation.CreatedDate;
 
@@ -32,6 +33,7 @@ import java.util.Objects;
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @IdClass(OffenderImprisonmentStatus.PK.class)
+@With
 public class OffenderImprisonmentStatus extends AuditableEntity {
 
     @Data
