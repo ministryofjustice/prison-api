@@ -7,12 +7,5 @@
     "offenderIdDisplay": "G0913VR",
     "caseNoteId": 47004051,
     "agencyLocationId": "LEI"
-  },
-  {
-    "eventType": "BOOKING_NUMBER-CHANGED",
-    "eventDatetime": "2019-01-30T22:30:01",
-    "rootOffenderId": -1001,
-    "offenderId": -1001,
-    "nomisEventType": "BOOK_UPD_OASYS"
   }
 ]
