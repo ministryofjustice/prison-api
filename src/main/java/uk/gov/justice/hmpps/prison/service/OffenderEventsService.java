@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.service;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,15 +33,12 @@ public class OffenderEventsService {
 
     private final OffenderEventsTransformer offenderEventsTransformer;
     private final OffenderEventsRepository offenderEventsRepository;
-    private final XtagEventsService xtagEventsService;
 
     @Autowired
     public OffenderEventsService(final OffenderEventsTransformer offenderEventsTransformer,
-                                 final OffenderEventsRepository offenderEventsRepository,
-                                 final XtagEventsService xtagEventsService) {
+                                 final OffenderEventsRepository offenderEventsRepository) {
         this.offenderEventsTransformer = offenderEventsTransformer;
         this.offenderEventsRepository = offenderEventsRepository;
-        this.xtagEventsService = xtagEventsService;
     }
 
     @PreAuthorize("hasRole('PRISON_OFFENDER_EVENTS')")
@@ -80,22 +76,17 @@ public class OffenderEventsService {
 
     private Optional<List<OffenderEvent>> getFilteredOffenderEvents(final OffenderEventsFilter oeFilter, final Optional<OffenderEventsController.SortTypes> maybeSortBy) {
 
-        final var offenderEvents = Optional.ofNullable(offenderEventsRepository.findAll(oeFilter))
+        final var offenderEvents = Optional.of(offenderEventsRepository.findAll(oeFilter))
                 .map(ev -> ev.stream()
                         .map(offenderEventsTransformer::offenderEventOf)
                         .toList())
                 .orElse(Collections.emptyList());
 
-        final var xtagEvents = xtagEventsService.findAll(oeFilter);
-        log.info("Found {} xtag events", xtagEvents.size());
-
         final var typeFilter = oeFilter.getTypes()
                 .map(types -> types.stream().map(String::toUpperCase).collect(Collectors.toSet()))
                 .orElse(ImmutableSet.of());
 
-        final List<OffenderEvent> allEvents = ImmutableList.<OffenderEvent>builder().addAll(offenderEvents).addAll(xtagEvents).build();
-
-        return Optional.of(allEvents.stream()
+        return Optional.of(offenderEvents.stream()
                 .filter(oe -> typeFilter.isEmpty() || typeFilter.contains(oe.getEventType()))
                 .sorted(sortFunctionOf(maybeSortBy))
                 .toList());
@@ -109,15 +100,11 @@ public class OffenderEventsService {
                         .toList())
                 .orElse(Collections.emptyList());
 
-        final var xtagEvents = xtagEventsService.findTest(oeFilter, useEnq);
-
         final var typeFilter = oeFilter.getTypes()
                 .map(types -> types.stream().map(String::toUpperCase).collect(Collectors.toSet()))
                 .orElse(ImmutableSet.of());
 
-        final List<OffenderEvent> allEvents = ImmutableList.<OffenderEvent>builder().addAll(offenderEvents).addAll(xtagEvents).build();
-
-        return Optional.of(allEvents.stream()
+        return Optional.of(offenderEvents.stream()
                 .filter(oe -> typeFilter.isEmpty() || typeFilter.contains(oe.getEventType()))
                 .toList());
     }
