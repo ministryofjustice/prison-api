@@ -14,6 +14,7 @@ import java.util.Properties;
 import static java.lang.String.format;
 import static uk.gov.justice.hmpps.prison.security.AuthSource.NOMIS;
 import static uk.gov.justice.hmpps.prison.util.MdcUtility.IP_ADDRESS;
+import static uk.gov.justice.hmpps.prison.util.MdcUtility.NOMIS_CONTEXT;
 import static uk.gov.justice.hmpps.prison.util.MdcUtility.PROXY_USER;
 import static uk.gov.justice.hmpps.prison.util.MdcUtility.REQUEST_URI;
 import static uk.gov.justice.hmpps.prison.util.MdcUtility.USER_ID_HEADER;
@@ -107,7 +108,7 @@ public class OracleConnectionAspect extends AbstractConnectionAspect {
                 nomis_context.set_context('AUDIT_USER_ID', '%s');
                 nomis_context.set_client_nomis_context('%s', '%s', '%s', '%s');
                 END;""",
-                AppModuleName.PRISON_API,
+                MDC.get(NOMIS_CONTEXT),
                 MDC.get(USER_ID_HEADER),
                 MDC.get(USER_ID_HEADER),
                 MDC.get(IP_ADDRESS),
