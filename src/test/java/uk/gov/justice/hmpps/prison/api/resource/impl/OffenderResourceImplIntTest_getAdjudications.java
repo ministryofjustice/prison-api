@@ -6,7 +6,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
 
 import java.util.List;
 import java.util.Map;
@@ -16,42 +15,47 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 public class OffenderResourceImplIntTest_getAdjudications extends ResourceTest {
 
     @Test
-    public void shouldReturnListOfAdjudications() {
-        final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
-
-        final var request = createHttpEntity(token, null);
+    public void shouldReturnListOfAdjudicationsForUserWithCaseload() {
 
         final var response = testRestTemplate.exchange(
             "/api/offenders/A1234AA/adjudications",
             HttpMethod.GET,
-            request,
+            createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of()),
             new ParameterizedTypeReference<String>() {
             });
 
-        final var json = getBodyAsJsonContent(response);
-
-        Assertions.assertThat(json).extractingJsonPathArrayValue("results").hasSizeGreaterThan(0);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        final var json = getBodyAsJsonContent(response);
+        assertThat(json).extractingJsonPathArrayValue("results").isNotEmpty();
+        assertThat(json).extractingJsonPathArrayValue("offences").isNotEmpty();
+        assertThat(json).extractingJsonPathArrayValue("agencies").isNotEmpty();
     }
 
     @Test
     public void shouldReturn404WhenNoPrivileges() {
         // run with user that doesn't have access to the caseload
-        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER_ADM", List.of(), Map.of());
 
         final var response = testRestTemplate.exchange(
-            "/api/offenders/A1234AA/adjudications", HttpMethod.GET, requestEntity, ErrorResponse.class);
+            "/api/offenders/A1234AA/adjudications",
+            HttpMethod.GET,
+            createHttpEntityWithBearerAuthorisation("ITAG_USER_ADM", List.of(), Map.of()), ErrorResponse.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test
-    public void returns404ForViewAdjudicationsRole() {
-        final var requestEntity = createHttpEntityWithBearerAuthorisation("ROLE_VIEW_ADJUDICATIONS", List.of(), Map.of());
+    public void shouldReturnListOfAdjudicationsForViewAdjudicationsRole() {
 
         final var response = testRestTemplate.exchange(
-            "/api/offenders/A1234AA/adjudications", HttpMethod.GET, requestEntity, ErrorResponse.class);
+            "/api/offenders/A1234AA/adjudications",
+            HttpMethod.GET,
+            createHttpEntityWithBearerAuthorisation("ITAG_USER_ADM", List.of("ROLE_VIEW_ADJUDICATIONS"), Map.of()),
+            new ParameterizedTypeReference<String>() {
+            }
+        );
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        final var json = getBodyAsJsonContent(response);
+        Assertions.assertThat(json).extractingJsonPathArrayValue("results").isNotEmpty();
     }
 }
