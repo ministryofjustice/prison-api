@@ -31,7 +31,7 @@ public class RequestForNewBooking {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime bookingInTime;
 
-    @Schema(description = "Where the prisoner has moved from (default OUT)", example = "OUT")
+    @Schema(description = "Where the prisoner has moved from (default OUT)", example = "SHEFCC")
     @Length(max = 6, message = "From location")
     private String fromLocationId;
 
