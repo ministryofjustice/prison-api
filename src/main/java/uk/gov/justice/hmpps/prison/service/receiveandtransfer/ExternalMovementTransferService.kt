@@ -139,6 +139,44 @@ class ExternalMovementTransferService(
     }
   }
 
+  fun updateMovementsForNewBooking(
+    booking: OffenderBooking,
+    movementReasonCode: String,
+    fromLocation: AgencyLocation,
+    prison: AgencyLocation,
+    receiveDateTime: LocalDateTime,
+    commentText: String
+  ): ExternalMovement {
+    val movementReason = getMovementReasonForNewBooking(movementReasonCode).getOrThrow()
+    val movementType = getAdmissionMovementType().getOrThrow()
+
+    return with(booking) {
+      setPreviousMovementsToInactive().also { entityManager.flush() }
+      addExternalMovement(
+        ExternalMovement(
+          /* offenderBooking = */ booking,
+          /* movementSequence = */ null,
+          /* movementDate = */ receiveDateTime.toLocalDate(),
+          /* reportingDate = */ null,
+          /* movementTime = */ receiveDateTime,
+          /* eventId = */ null,
+          /* parentEventId = */ null,
+          /* arrestAgencyLocation = */ null,
+          /* fromAgency = */ fromLocation,
+          /* toAgency = */ prison, // the passed in agency in the request is just for validation
+          /* active = */ true,
+          /* escortText = */ null,
+          /* commentText = */ commentText,
+          /* toCity = */ null,
+          /* fromCity = */ null,
+          /* movementReason = */ movementReason,
+          /* movementDirection = */ MovementDirection.IN,
+          /* movementType = */ movementType
+        )
+      )
+    }
+  }
+
   private fun getAdmissionMovementType(): Result<MovementType> =
     movementTypeRepository.findByIdOrNull(MovementType.ADM)?.let { success(it) } ?: failure(
       EntityNotFoundException.withMessage("No ${MovementType.ADM} movement type found")
@@ -160,12 +198,17 @@ class ExternalMovementTransferService(
       ?: throw EntityNotFoundException.withMessage("No movement reason $movementReasonCode found")
   }
 
-  private fun getReceiveDateTime(movementTime: LocalDateTime?, booking: OffenderBooking): Result<LocalDateTime> {
+  private fun getMovementReasonForNewBooking(movementReasonCode: String): Result<MovementReason> =
+    movementReasonRepository.findByIdOrNull(MovementReason.pk(movementReasonCode))
+      ?.let { success(it) }
+      ?: failure(EntityNotFoundException.withMessage("No movement reason $movementReasonCode found"))
+
+  fun getReceiveDateTime(movementTime: LocalDateTime?, booking: OffenderBooking?): Result<LocalDateTime> {
     val now = LocalDateTime.now()
     return movementTime?.let {
       return if (movementTime.isAfter(now)) {
         failure(BadRequestException("Transfer cannot be done in the future"))
-      } else if (booking.hasMovementsAfter(movementTime)) {
+      } else if (booking?.hasMovementsAfter(movementTime) == true) {
         failure(BadRequestException("Movement cannot be before the previous active movement"))
       } else {
         success(movementTime)

@@ -177,6 +177,7 @@ public class PrisonerReleaseAndTransferService {
 
         if (prisoner.getBookings().isEmpty()) {
             log.debug("Prisoner booking not yet created, need to create one");
+            // TODO check if this is ever used before we remove newBooking method
             newBooking(prisonerIdentifier, RequestForNewBooking.builder()
                 .bookingInTime(requestToDischargePrisoner.getDischargeTime())
                 .fromLocationId(requestToDischargePrisoner.getFromLocationId())
