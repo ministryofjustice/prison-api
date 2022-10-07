@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.5.1-beta"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.5.4"
   kotlin("plugin.spring") version "1.7.10"
   kotlin("plugin.jpa") version "1.7.10"
   kotlin("plugin.lombok") version "1.7.10"
@@ -39,8 +39,8 @@ dependencies {
 
   implementation("javax.annotation:javax.annotation-api:1.3.2")
   implementation("javax.xml.bind:jaxb-api:2.3.1")
-  implementation("com.sun.xml.bind:jaxb-impl:4.0.0")
-  implementation("com.sun.xml.bind:jaxb-core:4.0.0")
+  implementation("com.sun.xml.bind:jaxb-impl:4.0.1")
+  implementation("com.sun.xml.bind:jaxb-core:4.0.1")
   implementation("javax.activation:activation:1.1.1")
 
   implementation("commons-codec:commons-codec:1.15")
@@ -48,14 +48,14 @@ dependencies {
   implementation("net.sf.ehcache:ehcache:2.10.9.2")
   implementation("com.zaxxer:HikariCP:5.0.1")
 
-  implementation("io.swagger:swagger-annotations:1.6.6")
+  implementation("io.swagger:swagger-annotations:1.6.7")
   implementation("org.springdoc:springdoc-openapi-ui:1.6.11")
   implementation("org.springdoc:springdoc-openapi-kotlin:1.6.11")
   implementation("org.springdoc:springdoc-openapi-data-rest:1.6.11")
 
   implementation("org.apache.commons:commons-lang3:3.12.0")
   implementation("commons-io:commons-io:2.11.0")
-  implementation("org.apache.commons:commons-text:1.9")
+  implementation("org.apache.commons:commons-text:1.10.0")
   implementation("com.oracle.database.jdbc:ojdbc10:19.16.0.0")
 
   compileOnly("org.projectlombok:lombok:1.18.24")
@@ -84,7 +84,7 @@ dependencies {
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
   testImplementation("org.glassfish:javax.el:3.0.0")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.2")
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.3")
 
   testCompileOnly("org.projectlombok:lombok:1.18.24")
 }

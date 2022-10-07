@@ -26,10 +26,12 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.HOCodeDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenceDto;
+import uk.gov.justice.hmpps.prison.api.model.OffenceToScheduleMappingDto;
 import uk.gov.justice.hmpps.prison.api.model.StatuteDto;
 import uk.gov.justice.hmpps.prison.service.reference.OffenceService;
 
@@ -171,5 +173,30 @@ public class OffenceResource {
         log.info("Request received to update offences");
         service.updateOffences(offences);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PostMapping("/link-to-schedule")
+    @Operation(summary = "Link offence to schedule", description = "Requires UPDATE_OFFENCE_SCHEDULES role")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Offences linked to schedules successfully"),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.")
+    })
+    @PreAuthorize("hasRole('UPDATE_OFFENCE_SCHEDULES')")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void linkOffencesToSchedules(@RequestBody final List<OffenceToScheduleMappingDto> offencesToSchedules) {
+        log.info("Request received to link offences to schedules");
+        service.linkOffencesToSchedules(offencesToSchedules);
+    }
+
+    @PostMapping("/unlink-from-schedule")
+    @Operation(summary = "Unlink offence from schedule", description = "Requires UPDATE_OFFENCE_SCHEDULES role")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Offences unlinked from schedules successfully"),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.")
+    })
+    @PreAuthorize("hasRole('UPDATE_OFFENCE_SCHEDULES')")
+    public void unlinkOffencesFromSchedules(@RequestBody final List<OffenceToScheduleMappingDto> offencesToSchedules) {
+        log.info("Request received to unlink offences from schedules");
+        service.unlinkOffencesFromSchedules(offencesToSchedules);
     }
 }

@@ -82,7 +82,8 @@ import uk.gov.justice.hmpps.prison.service.OffenderAddressService;
 import uk.gov.justice.hmpps.prison.service.OffenderDamageObligationService;
 import uk.gov.justice.hmpps.prison.service.OffenderNonAssociationsService;
 import uk.gov.justice.hmpps.prison.service.OffenderTransactionHistoryService;
-import uk.gov.justice.hmpps.prison.service.PrisonerCreationService;
+import uk.gov.justice.hmpps.prison.service.receiveandtransfer.BookingIntoPrisonService;
+import uk.gov.justice.hmpps.prison.service.receiveandtransfer.PrisonerCreationService;
 import uk.gov.justice.hmpps.prison.service.PrisonerReleaseAndTransferService;
 
 import javax.validation.Valid;
@@ -118,6 +119,7 @@ public class OffenderResource {
     private final OffenderTransactionHistoryService offenderTransactionHistoryService;
     private final MovementsService movementsService;
     private final OffenderNonAssociationsService offenderNonAssociationsService;
+    private final BookingIntoPrisonService bookingIntoPrisonService;
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
@@ -225,7 +227,7 @@ public class OffenderResource {
     public InmateDetail newBooking(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestForNewBooking requestForNewBooking) {
-        return prisonerReleaseAndTransferService.newBooking(offenderNo, requestForNewBooking);
+        return bookingIntoPrisonService.newBooking(offenderNo, requestForNewBooking);
     }
 
     @ApiResponses({

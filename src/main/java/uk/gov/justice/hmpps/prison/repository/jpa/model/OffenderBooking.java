@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString.Exclude;
+import lombok.With;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.ListIndexBase;
@@ -65,6 +66,7 @@ import static java.util.stream.Collectors.toList;
 @Entity
 @Table(name = "OFFENDER_BOOKINGS")
 @BatchSize(size = 25)
+@With
 public class OffenderBooking extends AuditableEntity {
 
     @SequenceGenerator(name = "OFFENDER_BOOK_ID", sequenceName = "OFFENDER_BOOK_ID", allocationSize = 1)
@@ -262,6 +264,10 @@ public class OffenderBooking extends AuditableEntity {
 
     @Column(name = "IN_OUT_STATUS", nullable = false)
     private String inOutStatus;
+
+    public boolean isOut() {
+        return inOutStatus.equals("OUT");
+    }
 
     @Column(name = "ADMISSION_REASON")
     private String admissionReason;

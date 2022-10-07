@@ -61,9 +61,9 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRep
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.createbooking.CopyPreviousBookingService;
-import uk.gov.justice.hmpps.prison.service.transfer.BookNumberGenerationService;
-import uk.gov.justice.hmpps.prison.service.transfer.PrisonTransferService;
-import uk.gov.justice.hmpps.prison.service.transfer.TrustAccountService;
+import uk.gov.justice.hmpps.prison.service.receiveandtransfer.BookNumberGenerationService;
+import uk.gov.justice.hmpps.prison.service.receiveandtransfer.PrisonTransferService;
+import uk.gov.justice.hmpps.prison.service.receiveandtransfer.TrustAccountService;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
 
 import javax.persistence.EntityManager;
@@ -177,6 +177,7 @@ public class PrisonerReleaseAndTransferService {
 
         if (prisoner.getBookings().isEmpty()) {
             log.debug("Prisoner booking not yet created, need to create one");
+            // TODO check if this is ever used before we remove newBooking method
             newBooking(prisonerIdentifier, RequestForNewBooking.builder()
                 .bookingInTime(requestToDischargePrisoner.getDischargeTime())
                 .fromLocationId(requestToDischargePrisoner.getFromLocationId())

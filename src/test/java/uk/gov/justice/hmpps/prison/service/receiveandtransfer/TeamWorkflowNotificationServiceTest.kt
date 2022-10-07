@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.service.transfer
+package uk.gov.justice.hmpps.prison.service.receiveandtransfer
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach

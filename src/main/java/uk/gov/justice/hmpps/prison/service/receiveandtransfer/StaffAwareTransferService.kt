@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.service.transfer
+package uk.gov.justice.hmpps.prison.service.receiveandtransfer
 
 import org.springframework.data.repository.findByIdOrNull
 import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount

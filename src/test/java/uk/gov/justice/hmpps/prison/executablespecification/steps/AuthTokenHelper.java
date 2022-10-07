@@ -49,6 +49,7 @@ public class AuthTokenHelper {
         UNAUTHORISED_USER,
         CRD_USER,
         OFFENCE_MAINTAINER,
+        UPDATE_OFFENCE_SCHEDULES,
     }
 
 
@@ -83,6 +84,7 @@ public class AuthTokenHelper {
         tokens.put(String.valueOf(AuthToken.UNAUTHORISED_USER), createUnauthorisedUser());
         tokens.put(String.valueOf(AuthToken.CRD_USER), createReleaseDatesCalculatorUser());
         tokens.put(String.valueOf(AuthToken.OFFENCE_MAINTAINER), someClientUser("ROLE_OFFENCE_MAINTAINER"));
+        tokens.put(String.valueOf(AuthToken.UPDATE_OFFENCE_SCHEDULES), someClientUser("ROLE_UPDATE_OFFENCE_SCHEDULES"));
     }
 
     public String getToken() {

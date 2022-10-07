@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.service.transfer
+package uk.gov.justice.hmpps.prison.service.receiveandtransfer
 
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested

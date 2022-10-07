@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.service.transfer
+package uk.gov.justice.hmpps.prison.service.receiveandtransfer
 
 import org.springframework.stereotype.Service
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation

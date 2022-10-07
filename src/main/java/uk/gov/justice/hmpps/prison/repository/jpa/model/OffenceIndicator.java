@@ -16,6 +16,8 @@ public class OffenceIndicator {
 
     @Id
     @Column(name = "OFFENCE_INDICATOR_ID", nullable = false)
+    @SequenceGenerator(name = "OFFENCE_INDICATOR_ID", sequenceName = "OFFENCE_INDICATOR_ID", allocationSize = 1)
+    @GeneratedValue(generator = "OFFENCE_INDICATOR_ID")
     private Long offenceIndicatorId;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
