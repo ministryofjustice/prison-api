@@ -41,7 +41,6 @@ public class AdjudicationService {
     private final AdjudicationsRepository repository;
     private final AgencyRepository agencyRepository;
     private final LocationRepository locationRepository;
-    private final BookingService bookingService;
 
     @Value("${api.cutoff.adjudication.months:3}")
     private int adjudicationCutoffDefault;
@@ -61,7 +60,7 @@ public class AdjudicationService {
         val establishmentFinder = establishmentFinder();
 
         val hearings = detail.getHearings().stream()
-            .<Hearing>map(hearing -> {
+            .map(hearing -> {
                 val location = locationFinder.apply(hearing.getInternalLocationId());
                 val establishment = establishmentFinder.apply(location.getAgencyId());
                 return enrich(hearing, location, establishment);
