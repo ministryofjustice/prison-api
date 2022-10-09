@@ -15,7 +15,7 @@ import java.time.format.DateTimeFormatter
 class OffenderBookingBuilder(
   var prisonId: String = "MDI",
   var bookingInTime: LocalDateTime = LocalDateTime.now().minusDays(1),
-  var fromLocationId: String = "OUT",
+  var fromLocationId: String? = null,
   var movementReasonCode: String = "N",
   var cellLocation: String? = null,
   var imprisonmentStatus: String = "SENT03",
