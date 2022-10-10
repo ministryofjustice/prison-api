@@ -5,6 +5,10 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.ArgumentMatchers.anyLong
+import org.mockito.ArgumentMatchers.anyString
+import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.springframework.beans.factory.annotation.Autowired
@@ -69,6 +73,16 @@ internal class TrustAccountServiceTest {
     isActive = true
     movementDirection = MovementDirection.IN
   }
+  private val transferInToAwaitHospital = ExternalMovement().apply {
+    fromAgency = toPrison
+    toAgency = toPrison
+    movementType = MovementType().apply { code = "ADM"; description = "Admission" }
+    movementReason = MovementReason().apply { code = MovementReason.AWAIT_REMOVAL_TO_PSY_HOSPITAL.code; description = "Await removal to hospital" }
+    movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
+    movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
+    isActive = true
+    movementDirection = MovementDirection.IN
+  }
   val movementReason = MovementReason().apply { code = "INT"; description = "Transfer In from Other Establishment" }
 
   @BeforeEach
@@ -117,6 +131,20 @@ internal class TrustAccountServiceTest {
       @Test
       internal fun `will call store procedure to setup trust accounts`() {
         verify(financeRepository).createTrustAccount("WWI", 99L, 55L, "BXI", "TRNCRT", null, null, "WWI")
+      }
+    }
+
+    @Nested
+    @DisplayName("For admission to prison to await removal to hospital")
+    inner class AdmissionToPrisonAwaitHospital {
+      @BeforeEach
+      internal fun setUp() {
+        trustAccountService.createTrustAccount(booking, transferInToAwaitHospital.fromAgency, transferInToAwaitHospital)
+      }
+
+      @Test
+      internal fun `will not call store procedure to setup trust accounts`() {
+        verify(financeRepository, never()).createTrustAccount(anyString(), anyLong(), anyLong(), anyString(), anyString(), anyOrNull(), anyOrNull(), anyString())
       }
     }
   }
