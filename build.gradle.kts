@@ -75,7 +75,7 @@ dependencies {
   testImplementation("org.powermock:powermock-module-junit4:2.0.9")
 
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.35.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.36.0")
 
   testImplementation("net.serenity-bdd:serenity-core:3.3.4")
   testImplementation("net.serenity-bdd:serenity-junit:3.3.4")
