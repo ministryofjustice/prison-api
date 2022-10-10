@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service
 import uk.gov.justice.hmpps.prison.repository.FinanceRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 
 interface TrustAccountService {
@@ -24,6 +25,8 @@ class TrustAccountSPService(val financeRepository: FinanceRepository) : TrustAcc
     fromAgency: AgencyLocation,
     movementIn: ExternalMovement
   ) {
+    if (doesNotRequireTrustAccount(movementIn)) return
+
     financeRepository.createTrustAccount(
       movementIn.toAgency.id,
       booking.bookingId,
@@ -35,6 +38,9 @@ class TrustAccountSPService(val financeRepository: FinanceRepository) : TrustAcc
       movementIn.toAgency.id
     )
   }
+
+  private fun doesNotRequireTrustAccount(movementIn: ExternalMovement): Boolean =
+    movementIn.movementReason.code.equals(MovementReason.AWAIT_REMOVAL_TO_PSY_HOSPITAL.code)
 }
 
 @Service
