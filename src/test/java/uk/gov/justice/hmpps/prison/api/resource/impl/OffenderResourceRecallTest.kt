@@ -584,6 +584,46 @@ class OffenderResourceRecallTest : ResourceTest() {
       }
 
       @Test
+      internal fun `will set imprisonment status when supplied`() {
+        webTestClient.put()
+          .uri("/api/offenders/{offenderNo}/recall", offenderNo)
+          .headers(
+            setAuthorisation(
+              listOf("ROLE_TRANSFER_PRISONER")
+            )
+          )
+          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+          .bodyValue(
+            """
+            {
+               "prisonId": "SYI", 
+               "cellLocation": "SYI-A-1-1",     
+               "imprisonmentStatus": "CUR_ORA", 
+               "movementReasonCode": "24" 
+            }
+            """.trimIndent()
+          )
+          .accept(MediaType.APPLICATION_JSON)
+          .exchange()
+          .expectStatus().isOk
+
+        // then we have an active booking with original status
+        webTestClient.get()
+          .uri("/api/offenders/{offenderNo}", offenderNo)
+          .headers(
+            setAuthorisation(
+              listOf("ROLE_SYSTEM_USER")
+            )
+          )
+          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+          .accept(MediaType.APPLICATION_JSON)
+          .exchange()
+          .expectStatus().isOk
+          .expectBody()
+          .jsonPath("imprisonmentStatus").isEqualTo("CUR_ORA")
+      }
+
+      @Test
       internal fun `will by default place prisoner in reception`() {
         webTestClient.put()
           .uri("/api/offenders/{offenderNo}/recall", offenderNo)
