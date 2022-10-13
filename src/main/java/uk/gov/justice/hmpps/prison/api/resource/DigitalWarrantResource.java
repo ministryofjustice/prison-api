@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.OffenderFinePaymentDto;
@@ -45,9 +46,10 @@ public class DigitalWarrantResource {
     @Operation(summary = "Create a court case")
     @PostMapping("/booking/{bookingId}/court-case")
     @PreAuthorize("hasRole('MANAGE_DIGITAL_WARRANT') and hasAuthority('SCOPE_write')")
-    public ResponseEntity<Long> createCourtCase(@PathVariable("bookingId") @Parameter(description = "The required booking id (mandatory)", required = true) final Long bookingId,
+    @ResponseStatus(HttpStatus.CREATED)
+    public Long createCourtCase(@PathVariable("bookingId") @Parameter(description = "The required booking id (mandatory)", required = true) final Long bookingId,
                                                @RequestBody final CourtCase courtCase) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(digitalWarrantService.createCourtCase(bookingId, courtCase));
+        return digitalWarrantService.createCourtCase(bookingId, courtCase);
     }
 
     @ApiResponses({
@@ -56,9 +58,10 @@ public class DigitalWarrantResource {
     @Operation(summary = "Create a Court case offence")
     @PostMapping("/booking/{bookingId}/offence")
     @PreAuthorize("hasRole('MANAGE_DIGITAL_WARRANT') and hasAuthority('SCOPE_write')")
-    public ResponseEntity<Long> createOffence(@PathVariable("bookingId") @Parameter(description = "The required booking id (mandatory)", required = true) final Long bookingId,
+    @ResponseStatus(HttpStatus.CREATED)
+    public Long createOffence(@PathVariable("bookingId") @Parameter(description = "The required booking id (mandatory)", required = true) final Long bookingId,
                                                 @RequestBody final Offence offence) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(digitalWarrantService.createOffenderOffence(bookingId, offence));
+        return digitalWarrantService.createOffenderOffence(bookingId, offence);
     }
 
     @ApiResponses({
@@ -67,8 +70,9 @@ public class DigitalWarrantResource {
     @Operation(summary = "Create a sentence")
     @PostMapping("/booking/{bookingId}/sentence")
     @PreAuthorize("hasRole('MANAGE_DIGITAL_WARRANT') and hasAuthority('SCOPE_write')")
-    public ResponseEntity<Integer> createSentence(@PathVariable("bookingId") @Parameter(description = "The required booking id (mandatory)", required = true) final Long bookingId,
+    @ResponseStatus(HttpStatus.CREATED)
+    public Integer createSentence(@PathVariable("bookingId") @Parameter(description = "The required booking id (mandatory)", required = true) final Long bookingId,
                                                 @RequestBody final Sentence sentence) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(digitalWarrantService.createOffenderSentence(bookingId, sentence));
+        return digitalWarrantService.createOffenderSentence(bookingId, sentence);
     }
 }
