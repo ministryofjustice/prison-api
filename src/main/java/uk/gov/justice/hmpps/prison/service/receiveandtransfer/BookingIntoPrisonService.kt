@@ -178,6 +178,7 @@ class BookingIntoPrisonService(
       ).also { movement ->
         bedAssignmentTransferService.createBedHistory(booking, cellOrReception, receiveTime, MovementType.ADM.code)
         booking.resetYouthStatus(isYouthOffender)
+        booking.statusReason = "${movement.movementType.code}-$movementReasonCode"
         trustAccountService.createTrustAccount(booking, fromLocation, movement)
         iepTransferService.resetLevelForPrison(booking, movement)
         caseNoteTransferService.createGenerateAdmissionNote(booking, movement)
