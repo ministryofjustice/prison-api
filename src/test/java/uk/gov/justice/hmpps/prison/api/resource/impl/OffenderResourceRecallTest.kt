@@ -102,6 +102,9 @@ class OffenderResourceRecallTest : ResourceTest() {
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
           .expectStatus().isOk
+          .expectBody()
+          .jsonPath("bookingNo")
+          .doesNotExist()
 
         // when recall is requested
         webTestClient.put()
@@ -283,7 +286,6 @@ class OffenderResourceRecallTest : ResourceTest() {
             """
             {
                "prisonId": "SYI", 
-               "recallTime": "2020-01-01T12:00:00",
                "fromLocationId": "COURT1", 
                "movementReasonCode": "24", 
                "youthOffender": "true", 

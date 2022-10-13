@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.api.model.RequestForNewBooking
+import uk.gov.justice.hmpps.prison.api.model.RequestToRecall
 import uk.gov.justice.hmpps.prison.exception.CustomErrorCodes
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation
@@ -30,6 +31,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeReposi
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.findByIdAndDeactivationDateIsNullOrNull
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.findByIdAndTypeAndActiveAndDeactivationDateIsNullOrNull
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.findByOffenderNomsIdAndBookingSequenceOrNull
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.findByStatusAndActiveOrNull
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.findByTypeAndCategoryAndActiveOrNull
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.findOffenderByNomsIdOrNull
@@ -111,7 +113,7 @@ class BookingIntoPrisonService(
       entityManager.flush()
       val fromLocation = fromLocation(requestForNewBooking.fromLocationId).getOrThrow()
 
-      externalMovementTransferService.updateMovementsForNewBooking(
+      externalMovementTransferService.updateMovementsForNewOrRecalledBooking(
         booking = newBooking,
         movementReasonCode = requestForNewBooking.movementReasonCode,
         fromLocation = fromLocation,
@@ -137,20 +139,63 @@ class BookingIntoPrisonService(
     }.let { offenderTransformer.transform(it) }
   }
 
+  fun recallPrisoner(prisonerIdentifier: String, requestToRecall: RequestToRecall): InmateDetail {
+    val booking = previousInactiveBooking(prisonerIdentifier).getOrThrow()
+    with(requestToRecall) {
+      val prison = prison(prisonId).getOrThrow()
+      val cellOrReception =
+        cellOrReceptionCode(prisonId, cellLocation).let { cellOrLocationWithSpace(it, prison).getOrThrow() }
+
+      booking.inOutStatus = MovementDirection.IN.name
+      booking.isActive = true
+      booking.bookingStatus = "O"
+      booking.assignedLivingUnit = cellOrReception
+      booking.bookingEndDate = null
+      booking.location = prison
+
+      val fromLocation = fromLocation(fromLocationId).getOrThrow()
+      val receiveTime =
+        externalMovementTransferService.getReceiveDateTime(recallTime, booking)
+          .getOrThrow()
+
+      imprisonmentStatus?.let { imprisonmentStatus(imprisonmentStatus).getOrThrow() }
+        ?.also {
+          booking.setImprisonmentStatus(
+            OffenderImprisonmentStatus()
+              .withAgyLocId(prison.id)
+              .withImprisonmentStatus(it),
+            receiveTime
+          )
+        }
+
+      externalMovementTransferService.updateMovementsForNewOrRecalledBooking(
+        booking = booking,
+        movementReasonCode = movementReasonCode,
+        fromLocation = fromLocation,
+        prison = prison,
+        receiveDateTime = receiveTime,
+        commentText = "Recall"
+      ).also { movement ->
+        bedAssignmentTransferService.createBedHistory(booking, cellOrReception, receiveTime, MovementType.ADM.code)
+        booking.resetYouthStatus(isYouthOffender)
+        trustAccountService.createTrustAccount(booking, fromLocation, movement)
+        iepTransferService.resetLevelForPrison(booking, movement)
+        caseNoteTransferService.createGenerateAdmissionNote(booking, movement)
+      }
+      return offenderTransformer.transform(booking)
+    }
+  }
+
   private fun offender(prisonerIdentifier: String): Result<Offender> =
     offenderRepository.findOffenderByNomsIdOrNull(prisonerIdentifier)?.let { success(it) }
       ?: failure(EntityNotFoundException.withMessage("No prisoner found for prisoner number $prisonerIdentifier"))
 
-  private fun previousInactiveBooking(offender: Offender): Result<OffenderBooking?> {
-    return offender.latestBookingOrNull?.let {
-      if (it.isActive) {
-        return failure(BadRequestException("Prisoner is currently active"))
-      } else if (!it.isOut) {
-        return failure(BadRequestException("Prisoner is not currently OUT"))
-      }
-      return success(it)
-    } ?: success(null)
-  }
+  private fun previousInactiveBooking(prisonerIdentifier: String): Result<OffenderBooking> =
+    offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceOrNull(prisonerIdentifier, 1)?.inActiveOut()
+      ?: failure(EntityNotFoundException.withMessage("No bookings found for prisoner number $prisonerIdentifier"))
+
+  private fun previousInactiveBooking(offender: Offender): Result<OffenderBooking?> =
+    offender.latestBookingOrNull?.inActiveOut() ?: success(null)
 
   private fun fromLocation(location: String?): Result<AgencyLocation> = location?.takeIf { it.isNotBlank() }?.let {
     agencyLocationRepository.findByIdAndDeactivationDateIsNullOrNull(it)?.let { location -> success(location) }
@@ -227,3 +272,12 @@ private fun CopyTableRepository.shouldCopyForAdmission(): Boolean =
 
 private val Offender.latestBookingOrNull: OffenderBooking?
   get() = this.latestBooking.orElse(null)
+
+private fun OffenderBooking.inActiveOut(): Result<OffenderBooking> {
+  if (this.isActive) {
+    return failure(BadRequestException("Prisoner is currently active"))
+  } else if (!this.isOut) {
+    return failure(BadRequestException("Prisoner is not currently OUT"))
+  }
+  return success(this)
+}
