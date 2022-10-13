@@ -17,16 +17,22 @@ import java.time.LocalDate;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Offence {
 
+    @Schema(description = "The offence code of the office in the court case")
     private String offenceCode;
 
+    @Schema(description = "The offence statute of the office in the court case")
     private String offenceStatue;
 
+    @Schema(description = "The date of the offence")
     private LocalDate offenceDate;
 
+    @Schema(description = "The offence end date")
     private LocalDate offenceEndDate;
 
+    @Schema(description = "Was the verdict guilty or not guilty")
     private boolean guilty;
 
+    @Schema(description = "The id of the court case")
     private Long courtCaseId;
 
 }
