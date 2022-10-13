@@ -137,7 +137,7 @@ public class OffenderSentence extends AuditableEntity {
         var sentenceDate = courtOrder == null ? null : courtOrder.getCourtDate();
 
         return OffenderSentenceAndOffences.builder()
-            .bookingId(offenderBooking.getBookingId())
+            .bookingId(id.offenderBookingId)
             .sentenceSequence(id.sequence)
             .lineSequence(lineSequence)
             .caseSequence(courtCase == null ? null : courtCase.getCaseSeq())
