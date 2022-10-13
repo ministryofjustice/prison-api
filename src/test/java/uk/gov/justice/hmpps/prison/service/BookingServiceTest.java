@@ -1393,7 +1393,7 @@ public class BookingServiceTest {
         when(offenderSentenceRepository.findByOffenderBooking_BookingId_AndCalculationType_CalculationTypeNotLikeAndCalculationType_CategoryNot(bookingId, "%AGG%", "LICENCE"))
             .thenReturn(
                 List.of(OffenderSentence.builder()
-                        .offenderBooking(OffenderBooking.builder().bookingId(-99L).build())
+                        .id(new OffenderSentence.PK(-99L, 1))
                         .calculationType(SentenceCalcType.builder().build()
                     ).build()
                 )
