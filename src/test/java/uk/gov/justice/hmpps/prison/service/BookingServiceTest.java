@@ -1404,6 +1404,7 @@ public class BookingServiceTest {
         assertThat(sentencesAndOffences).containsExactly(
             OffenderSentenceAndOffences.builder()
                 .bookingId(-99L)
+                .sentenceSequence(1)
                 .build()
         );
     }
