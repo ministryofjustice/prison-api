@@ -52,7 +52,7 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
 
         final var responseEntity = testRestTemplate
             .exchange(
-                "/api/digital-warrant/booking/-20/court-case",
+                "/api/digital-warrant/booking/-59/court-case",
                 HttpMethod.POST,
                 requestEntity,
                 String.class
@@ -80,13 +80,13 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
                 .offenceDate(LocalDate.of(2022, 10, 10))
                 .offenceEndDate(LocalDate.of(2022, 10, 12))
                 .guilty(false)
-                .courtCaseId(-20L)
+                .courtCaseId(-59L)
                 .build()
         );
 
         final var responseEntity = testRestTemplate
             .exchange(
-                "/api/digital-warrant/booking/-20/offence",
+                "/api/digital-warrant/booking/-59/offence",
                 HttpMethod.POST,
                 requestEntity,
                 String.class
@@ -101,7 +101,7 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
         assertThat(created.getDateOfOffence()).isEqualTo(LocalDate.of(2022, 10, 10));
         assertThat(created.getEndDate()).isEqualTo(LocalDate.of(2022, 10, 12));
         assertThat(created.getResultCodeOne().getDescription()).isEqualTo("Not Guilty");
-        assertThat(created.getOffenderCourtCase().getId()).isEqualTo(-20);
+        assertThat(created.getOffenderCourtCase().getId()).isEqualTo(-59L);
     }
 
 
@@ -120,14 +120,14 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
                 .months(2)
                 .weeks(3)
                 .days(4)
-                .offenderChargeId(-10L)
-                .courtCaseId(-20L)
+                .offenderChargeId(-11L)
+                .courtCaseId(-59L)
                 .build()
         );
 
         final var responseEntity = testRestTemplate
             .exchange(
-                "/api/digital-warrant/booking/-20/sentence",
+                "/api/digital-warrant/booking/-59/sentence",
                 HttpMethod.POST,
                 requestEntity,
                 String.class
@@ -135,7 +135,7 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
 
         assertThatStatus(responseEntity, 201);
 
-        OffenderSentence created = offenderSentenceRepository.findById(new OffenderSentence.PK(-20L, Integer.valueOf(Objects.requireNonNull(responseEntity.getBody())))).orElseGet(() -> fail("Sentence was not created."));
+        OffenderSentence created = offenderSentenceRepository.findById(new OffenderSentence.PK(-59L, Integer.valueOf(Objects.requireNonNull(responseEntity.getBody())))).orElseGet(() -> fail("Sentence was not created."));
 
         assertThat(created.getTerms().size()).isEqualTo(1);
         assertThat(created.getTerms().get(0).getYears()).isEqualTo(1);
@@ -145,10 +145,10 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
         assertThat(created.getTerms().get(0).getSentenceTermCode()).isEqualTo("IMP");
 
         assertThat(created.getSentenceStartDate()).isEqualTo(LocalDate.of(2022, 10, 10));
-        assertThat(created.getCourtCase().getId()).isEqualTo(-20L);
+        assertThat(created.getCourtCase().getId()).isEqualTo(-59L);
 
         assertThat(created.getOffenderSentenceCharges().size()).isEqualTo(1);
-        assertThat(created.getOffenderSentenceCharges().get(0).getOffenderCharge().getId()).isEqualTo(-10L);
+        assertThat(created.getOffenderSentenceCharges().get(0).getOffenderCharge().getId()).isEqualTo(-11L);
 
         assertThat(created.getCalculationType().getCalculationType()).isEqualTo("ADIMP_ORA");
         assertThat(created.getCalculationType().getCategory()).isEqualTo("2003");
@@ -171,7 +171,7 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
 
         final var courtResponseEntity = testRestTemplate
             .exchange(
-                "/api/digital-warrant/booking/-20/court-case",
+                "/api/digital-warrant/booking/-60/court-case",
                 HttpMethod.POST,
                 courtRequestEntity,
                 String.class
@@ -193,7 +193,7 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
 
         final var offenceResponseEntity = testRestTemplate
             .exchange(
-                "/api/digital-warrant/booking/-20/offence",
+                "/api/digital-warrant/booking/-60/offence",
                 HttpMethod.POST,
                 offenceRequestEntity,
                 String.class
@@ -219,13 +219,13 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
 
         final var sentenceResponseEntity = testRestTemplate
             .exchange(
-                "/api/digital-warrant/booking/-20/sentence",
+                "/api/digital-warrant/booking/-60/sentence",
                 HttpMethod.POST,
                 sentenceRequestEntity,
                 String.class
             );
 
-        OffenderSentence sentence = offenderSentenceRepository.findById(new OffenderSentence.PK(-20L, Integer.valueOf(Objects.requireNonNull(sentenceResponseEntity.getBody())))).orElseGet(() -> fail("Sentence was not created."));
+        OffenderSentence sentence = offenderSentenceRepository.findById(new OffenderSentence.PK(-60L, Integer.valueOf(Objects.requireNonNull(sentenceResponseEntity.getBody())))).orElseGet(() -> fail("Sentence was not created."));
 
         assertThat(sentence.getCalculationType().getCalculationType()).isEqualTo("ADIMP_ORA");
         assertThat(sentence.getCalculationType().getCategory()).isEqualTo("2003");
