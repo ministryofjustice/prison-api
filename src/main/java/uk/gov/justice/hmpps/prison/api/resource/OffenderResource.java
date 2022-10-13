@@ -211,7 +211,7 @@ public class OffenderResource {
     public InmateDetail recallPrisoner(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToRecall requestToRecall) {
-        return prisonerReleaseAndTransferService.recallPrisoner(offenderNo, requestToRecall);
+        return bookingIntoPrisonService.recallPrisoner(offenderNo, requestToRecall);
     }
 
     @ApiResponses({

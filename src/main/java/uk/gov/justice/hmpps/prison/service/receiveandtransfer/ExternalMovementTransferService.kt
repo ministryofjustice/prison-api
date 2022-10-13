@@ -69,7 +69,7 @@ class ExternalMovementTransferService(
     toAgency: AgencyLocation,
     commentText: String?
   ): ExternalMovement {
-    val movementReason = getMovementReasonForCourtTransfer(MovementReason.TRANSFER_VIA_COURT.code)
+    val movementReason = getMovementReason(MovementReason.TRANSFER_VIA_COURT.code).getOrThrow()
     val receiveDateTime = getReceiveDateTime(movementDateTime, booking).getOrThrow()
     val movementType = getAdmissionMovementType().getOrThrow()
 
@@ -108,7 +108,7 @@ class ExternalMovementTransferService(
     courtEvent: CourtEvent?,
     commentText: String?
   ): ExternalMovement {
-    val movementReason = getMovementReasonForCourtTransfer(movementReasonCode ?: lastMovement.movementReason.code)
+    val movementReason = getMovementReason(movementReasonCode ?: lastMovement.movementReason.code).getOrThrow()
     val receiveDateTime = getReceiveDateTime(movementDateTime, booking).getOrThrow()
     val movementType = getCourtMovementType().getOrThrow() // not an admission as only returning from court
 
@@ -139,7 +139,7 @@ class ExternalMovementTransferService(
     }
   }
 
-  fun updateMovementsForNewBooking(
+  fun updateMovementsForNewOrRecalledBooking(
     booking: OffenderBooking,
     movementReasonCode: String,
     fromLocation: AgencyLocation,
@@ -147,7 +147,7 @@ class ExternalMovementTransferService(
     receiveDateTime: LocalDateTime,
     commentText: String
   ): ExternalMovement {
-    val movementReason = getMovementReasonForNewBooking(movementReasonCode).getOrThrow()
+    val movementReason = getMovementReason(movementReasonCode).getOrThrow()
     val movementType = getAdmissionMovementType().getOrThrow()
 
     return with(booking) {
@@ -193,12 +193,7 @@ class ExternalMovementTransferService(
       ?: return failure(EntityNotFoundException.withMessage("No movement reason INT found"))
   }
 
-  private fun getMovementReasonForCourtTransfer(movementReasonCode: String): MovementReason {
-    return movementReasonRepository.findByIdOrNull(MovementReason.pk(movementReasonCode))
-      ?: throw EntityNotFoundException.withMessage("No movement reason $movementReasonCode found")
-  }
-
-  private fun getMovementReasonForNewBooking(movementReasonCode: String): Result<MovementReason> =
+  private fun getMovementReason(movementReasonCode: String): Result<MovementReason> =
     movementReasonRepository.findByIdOrNull(MovementReason.pk(movementReasonCode))
       ?.let { success(it) }
       ?: failure(EntityNotFoundException.withMessage("No movement reason $movementReasonCode found"))

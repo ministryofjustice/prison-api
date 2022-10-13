@@ -102,6 +102,9 @@ class OffenderResourceRecallTest : ResourceTest() {
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
           .expectStatus().isOk
+          .expectBody()
+          .jsonPath("bookingNo")
+          .doesNotExist()
 
         // when recall is requested
         webTestClient.put()
@@ -283,7 +286,6 @@ class OffenderResourceRecallTest : ResourceTest() {
             """
             {
                "prisonId": "SYI", 
-               "recallTime": "2020-01-01T12:00:00",
                "fromLocationId": "COURT1", 
                "movementReasonCode": "24", 
                "youthOffender": "true", 
@@ -510,6 +512,73 @@ class OffenderResourceRecallTest : ResourceTest() {
 
         assertThat(testDataContext.getMovements(bookingId).last().fromAgency.id)
           .isEqualTo("OUT")
+      }
+
+      @Test
+      internal fun `will recall prisoner`() {
+        val lastBookingId = webTestClient.get()
+          .uri("/api/offenders/{offenderNo}", offenderNo)
+          .headers(
+            setAuthorisation(
+              listOf("ROLE_SYSTEM_USER")
+            )
+          )
+          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+          .accept(MediaType.APPLICATION_JSON)
+          .exchange()
+          .expectStatus().isOk
+          .returnResult(InmateDetail::class.java)
+          .responseBody
+          .blockFirst()!!.bookingId
+
+        // when recall is requested
+        webTestClient.put()
+          .uri("/api/offenders/{offenderNo}/recall", offenderNo)
+          .headers(
+            setAuthorisation(
+              listOf("ROLE_TRANSFER_PRISONER")
+            )
+          )
+          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+          .bodyValue(
+            """
+            {
+               "prisonId": "MDI", 
+               "movementReasonCode": "24" 
+            }
+            """.trimIndent()
+          )
+          .accept(MediaType.APPLICATION_JSON)
+          .exchange()
+          .expectStatus().isOk
+          .expectBody()
+          .jsonPath("inOutStatus").isEqualTo("IN")
+          .jsonPath("status").isEqualTo("ACTIVE IN")
+          .jsonPath("lastMovementTypeCode").isEqualTo("ADM")
+          .jsonPath("lastMovementReasonCode").isEqualTo("24")
+          .jsonPath("activeFlag").isEqualTo(true)
+          .jsonPath("agencyId").isEqualTo("MDI")
+          .jsonPath("bookingId").isEqualTo(lastBookingId)
+
+        webTestClient.get()
+          .uri("/api/offenders/{offenderNo}", offenderNo)
+          .headers(
+            setAuthorisation(
+              listOf("ROLE_SYSTEM_USER")
+            )
+          )
+          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+          .accept(MediaType.APPLICATION_JSON)
+          .exchange()
+          .expectStatus().isOk
+          .expectBody()
+          .jsonPath("inOutStatus").isEqualTo("IN")
+          .jsonPath("status").isEqualTo("ACTIVE IN")
+          .jsonPath("lastMovementTypeCode").isEqualTo("ADM")
+          .jsonPath("lastMovementReasonCode").isEqualTo("24")
+          .jsonPath("activeFlag").isEqualTo(true)
+          .jsonPath("agencyId").isEqualTo("MDI")
+          .jsonPath("bookingId").isEqualTo(lastBookingId)
       }
 
       @Test
