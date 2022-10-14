@@ -83,6 +83,7 @@ import uk.gov.justice.hmpps.prison.service.OffenderDamageObligationService;
 import uk.gov.justice.hmpps.prison.service.OffenderNonAssociationsService;
 import uk.gov.justice.hmpps.prison.service.OffenderTransactionHistoryService;
 import uk.gov.justice.hmpps.prison.service.receiveandtransfer.BookingIntoPrisonService;
+import uk.gov.justice.hmpps.prison.service.receiveandtransfer.PrisonTransferService;
 import uk.gov.justice.hmpps.prison.service.receiveandtransfer.PrisonerCreationService;
 import uk.gov.justice.hmpps.prison.service.PrisonerReleaseAndTransferService;
 
@@ -120,6 +121,7 @@ public class OffenderResource {
     private final MovementsService movementsService;
     private final OffenderNonAssociationsService offenderNonAssociationsService;
     private final BookingIntoPrisonService bookingIntoPrisonService;
+    private final PrisonTransferService prisonTransferService;
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
@@ -272,7 +274,7 @@ public class OffenderResource {
     public InmateDetail transferInPrisoner(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToTransferIn requestToTransferIn) {
-        return prisonerReleaseAndTransferService.transferInPrisoner(offenderNo, requestToTransferIn);
+        return prisonTransferService.transferFromPrison(offenderNo, requestToTransferIn);
     }
 
     @ApiResponses({
@@ -288,7 +290,7 @@ public class OffenderResource {
     public InmateDetail courtTransferIn(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestForCourtTransferIn requestForCourtTransferIn) {
-        return prisonerReleaseAndTransferService.courtTransferIn(offenderNo, requestForCourtTransferIn);
+        return prisonTransferService.transferViaCourt(offenderNo, requestForCourtTransferIn);
     }
 
     @ApiResponses({

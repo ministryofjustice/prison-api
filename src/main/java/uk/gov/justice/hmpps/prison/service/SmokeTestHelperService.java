@@ -8,6 +8,7 @@ import uk.gov.justice.hmpps.prison.api.model.RequestToReleasePrisoner;
 import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
+import uk.gov.justice.hmpps.prison.service.receiveandtransfer.BookingIntoPrisonService;
 
 import java.time.LocalDateTime;
 
@@ -18,13 +19,15 @@ public class SmokeTestHelperService {
 
     private final BookingService bookingService;
     private final PrisonerReleaseAndTransferService prisonerReleaseAndTransferService;
+    private final BookingIntoPrisonService bookingIntoPrisonService;
     private final OffenderBookingRepository offenderBookingRepository;
 
     public SmokeTestHelperService(BookingService bookingService, OffenderBookingRepository offenderBookingRepository,
-                                  PrisonerReleaseAndTransferService prisonerReleaseAndTransferService) {
+                                  PrisonerReleaseAndTransferService prisonerReleaseAndTransferService, BookingIntoPrisonService bookingIntoPrisonService) {
         this.bookingService = bookingService;
         this.offenderBookingRepository = offenderBookingRepository;
         this.prisonerReleaseAndTransferService = prisonerReleaseAndTransferService;
+        this.bookingIntoPrisonService = bookingIntoPrisonService;
     }
 
     @Transactional
@@ -66,6 +69,6 @@ public class SmokeTestHelperService {
             .movementReasonCode("24")
             .imprisonmentStatus("CUR_ORA")
             .build();
-        prisonerReleaseAndTransferService.recallPrisoner(offenderNo, requestToRecall);
+        bookingIntoPrisonService.recallPrisoner(offenderNo, requestToRecall);
     }
 }

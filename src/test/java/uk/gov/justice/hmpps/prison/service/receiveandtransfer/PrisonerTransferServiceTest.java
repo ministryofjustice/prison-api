@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.service;
+package uk.gov.justice.hmpps.prison.service.receiveandtransfer;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,6 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.transaction.TestTransaction;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.RequestForCourtTransferIn;
+import uk.gov.justice.hmpps.prison.service.TestClock;
 
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
@@ -30,13 +31,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ContextConfiguration(classes = TestClock.class)
 @ActiveProfiles("test")
 @Transactional
-public class PrisonerReleaseAndTransferServiceTest {
+public class PrisonerTransferServiceTest {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
-    PrisonerReleaseAndTransferService prisonerReleaseAndTransferService;
+    PrisonTransferService prisonerReleaseAndTransferService;
 
     @Autowired
     EntityManager entityManager;
@@ -53,7 +54,7 @@ public class PrisonerReleaseAndTransferServiceTest {
     public void scheduledPrisonerReturnFromCourt() {
         RequestForCourtTransferIn requestForCourtTransferIn = new RequestForCourtTransferIn();
         requestForCourtTransferIn.setAgencyId("BXI");
-        InmateDetail inmateDetail = prisonerReleaseAndTransferService.courtTransferIn(OFFENDER_NO, requestForCourtTransferIn);
+        InmateDetail inmateDetail = prisonerReleaseAndTransferService.transferViaCourt(OFFENDER_NO, requestForCourtTransferIn);
         TestTransaction.flagForCommit();
         TestTransaction.end();
         List<Map<String, Object>> offenderBookings = jdbcTemplate.queryForList("select * from OFFENDER_BOOKINGS where OFFENDER_BOOK_ID=1176156");
@@ -85,7 +86,7 @@ public class PrisonerReleaseAndTransferServiceTest {
     public void unscheduledPrisonerReturnFromCourt() {
         RequestForCourtTransferIn requestForCourtTransferIn = new RequestForCourtTransferIn();
         requestForCourtTransferIn.setAgencyId("BXI");
-        InmateDetail inmateDetail = prisonerReleaseAndTransferService.courtTransferIn(OFFENDER_NO, requestForCourtTransferIn);
+        InmateDetail inmateDetail = prisonerReleaseAndTransferService.transferViaCourt(OFFENDER_NO, requestForCourtTransferIn);
         TestTransaction.flagForCommit();
         TestTransaction.end();
         List<Map<String, Object>> offenderBookings = jdbcTemplate.queryForList("select * from OFFENDER_BOOKINGS where OFFENDER_BOOK_ID=1176156");
