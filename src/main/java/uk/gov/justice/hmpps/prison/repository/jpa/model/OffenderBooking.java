@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString.Exclude;
+import lombok.With;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.ListIndexBase;
@@ -65,6 +66,7 @@ import static java.util.stream.Collectors.toList;
 @Entity
 @Table(name = "OFFENDER_BOOKINGS")
 @BatchSize(size = 25)
+@With
 public class OffenderBooking extends AuditableEntity {
 
     @SequenceGenerator(name = "OFFENDER_BOOK_ID", sequenceName = "OFFENDER_BOOK_ID", allocationSize = 1)
@@ -263,6 +265,10 @@ public class OffenderBooking extends AuditableEntity {
     @Column(name = "IN_OUT_STATUS", nullable = false)
     private String inOutStatus;
 
+    public boolean isOut() {
+        return inOutStatus.equals("OUT");
+    }
+
     @Column(name = "ADMISSION_REASON")
     private String admissionReason;
 
@@ -331,9 +337,11 @@ public class OffenderBooking extends AuditableEntity {
                     .postRecallReleaseDate(sc.getPrrdCalculatedDate())
                     .postRecallReleaseOverrideDate(sc.getPrrdOverridedDate())
                     .licenceExpiryDate(sc.getLicenceExpiryDate())
-                    .licenseExpiryCalculatedDate(sc.getLedCalculatedDate())
-                    .licenseExpiryOverrideDate(sc.getLedOverridedDate())
+                    .licenceExpiryCalculatedDate(sc.getLedCalculatedDate())
+                    .licenceExpiryOverrideDate(sc.getLedOverridedDate())
                     .homeDetentionCurfewEligibilityDate(sc.getHomeDetentionCurfewEligibilityDate())
+                    .homeDetentionCurfewEligibilityOverrideDate(sc.getHdcedOverridedDate())
+                    .homeDetentionCurfewEligibilityCalculatedDate(sc.getHdcedCalculatedDate())
                     .paroleEligibilityDate(sc.getParoleEligibilityDate())
                     .paroleEligibilityCalculatedDate(sc.getPedCalculatedDate())
                     .paroleEligibilityOverrideDate(sc.getPedOverridedDate())
@@ -346,6 +354,8 @@ public class OffenderBooking extends AuditableEntity {
                     .midTermDate(sc.getMidTermDate())
                     .lateTermDate(sc.getLateTermDate())
                     .topupSupervisionExpiryDate(sc.getTopupSupervisionExpiryDate())
+                    .topupSupervisionExpiryCalculatedDate(sc.getTusedCalculatedDate())
+                    .topupSupervisionExpiryOverrideDate(sc.getTusedOverridedDate())
                     .tariffDate(sc.getTariffDate())
                     .dtoPostRecallReleaseDate(sc.getDprrdCalculatedDate())
                     .dtoPostRecallReleaseDateOverride(sc.getDprrdOverridedDate())

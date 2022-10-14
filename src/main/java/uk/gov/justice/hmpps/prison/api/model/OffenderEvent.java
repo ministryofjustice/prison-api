@@ -28,6 +28,7 @@ public class OffenderEvent {
     private String scheduleEventType;
     private String scheduleEventSubType;
     private String scheduleEventStatus;
+    private Boolean recordDeleted;
 
     private Long rootOffenderId;
     private Long offenderId;
@@ -100,5 +101,13 @@ public class OffenderEvent {
     private String fromAgencyLocationId;
     private String toAgencyLocationId;
 
+    // iep data
+    private Long iepSeq;
+    private String iepLevel;
+
+    // visit data
+    private Long visitId;
+
     private String nomisEventType;
+    private String auditModuleName;
 }

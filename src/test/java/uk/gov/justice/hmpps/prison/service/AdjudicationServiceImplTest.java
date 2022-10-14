@@ -39,13 +39,11 @@ public class AdjudicationServiceImplTest {
     private LocationRepository locationRepository;
     @Mock
     private AgencyRepository agencyRepository;
-    @Mock
-    private BookingService bookingService;
     private AdjudicationService adjudicationService;
 
     @BeforeEach
     public void setup() {
-        adjudicationService = new AdjudicationService(adjudicationsRepository, agencyRepository, locationRepository, bookingService);
+        adjudicationService = new AdjudicationService(adjudicationsRepository, agencyRepository, locationRepository);
     }
 
     @Test
@@ -58,8 +56,6 @@ public class AdjudicationServiceImplTest {
         when(adjudicationsRepository.findAdjudications(any())).thenReturn(expectedResult);
 
         assertThat(adjudicationService.findAdjudications(criteria)).isEqualTo(expectedResult);
-
-        verify(bookingService).getOffenderIdentifiers(criteria.getOffenderNumber());
     }
 
     @Test

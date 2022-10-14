@@ -149,6 +149,14 @@ public class BookingSentenceDetailSteps extends CommonSteps {
     public void verifyHomeDetentionCurfewEligibilityDate(final String homeDetentionCurfewEligibilityDate) {
         verifyLocalDate(sentenceDetail.getHomeDetentionCurfewEligibilityDate(), homeDetentionCurfewEligibilityDate);
     }
+    @Step("Verify home detention curfew eligibility calculated date")
+    public void verifyHomeDetentionCurfewEligibilityCalculatedDate(final String homeDetentionCurfewEligibilityCalculatedDate) {
+        verifyLocalDate(sentenceDetail.getHomeDetentionCurfewEligibilityCalculatedDate(), homeDetentionCurfewEligibilityCalculatedDate);
+    }
+    @Step("Verify home detention curfew eligibility override date")
+    public void verifyHomeDetentionCurfewEligibilityOverrideDate(final String homeDetentionCurfewEligibilityOverrideDate) {
+        verifyLocalDate(sentenceDetail.getHomeDetentionCurfewEligibilityOverrideDate(), homeDetentionCurfewEligibilityOverrideDate);
+    }
 
     @Step("Verify parole eligibility date")
     public void verifyParoleEligibilityDate(final String paroleEligibilityDate) {
@@ -192,12 +200,12 @@ public class BookingSentenceDetailSteps extends CommonSteps {
 
     @Step("Verify licence expiry override date")
     public void verifyLicenceExpiryOverrideDate(final String licenseExpiryOverrideDate) {
-        verifyLocalDate(sentenceDetail.getLicenseExpiryOverrideDate(), licenseExpiryOverrideDate);
+        verifyLocalDate(sentenceDetail.getLicenceExpiryOverrideDate(), licenseExpiryOverrideDate);
     }
 
     @Step("Verify licence expiry calculated date")
     public void verifyLicenceExpiryCalculatedDate(final String licenseExpiryCalculatedDate) {
-        verifyLocalDate(sentenceDetail.getLicenseExpiryCalculatedDate(), licenseExpiryCalculatedDate);
+        verifyLocalDate(sentenceDetail.getLicenceExpiryCalculatedDate(), licenseExpiryCalculatedDate);
     }
 
     @Step("Verify non-DTO release date")
@@ -233,6 +241,14 @@ public class BookingSentenceDetailSteps extends CommonSteps {
     @Step("Verify topup supervision expiry date")
     public void verifyTopupSupervisionExpiryDate(final String topupSupervisionExpiryDate) {
         verifyLocalDate(sentenceDetail.getTopupSupervisionExpiryDate(), topupSupervisionExpiryDate);
+    }
+    @Step("Verify topup supervision expiry calculated date")
+    public void verifyTopupSupervisionExpiryCalculatedDate(final String topupSupervisionExpiryCalculatedDate) {
+        verifyLocalDate(sentenceDetail.getTopupSupervisionExpiryCalculatedDate(), topupSupervisionExpiryCalculatedDate);
+    }
+    @Step("Verify topup supervision expiry override date")
+    public void verifyTopupSupervisionExpiryOverrideDate(final String topupSupervisionExpiryOverrideDate) {
+        verifyLocalDate(sentenceDetail.getTopupSupervisionExpiryOverrideDate(), topupSupervisionExpiryOverrideDate);
     }
 
     @Step("Verify detention training order post-recall release date")

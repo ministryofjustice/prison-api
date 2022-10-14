@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString.Exclude;
+import lombok.With;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.BatchSize;
@@ -54,6 +55,7 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.Title.TITLE;
 @Entity
 @Table(name = "OFFENDERS")
 @BatchSize(size = 25)
+@With
 public class Offender extends AuditableEntity {
 
     @SequenceGenerator(name = "OFFENDER_ID", sequenceName = "OFFENDER_ID", allocationSize = 1)
@@ -216,7 +218,7 @@ public class Offender extends AuditableEntity {
         final var externalMovements = new ArrayList<ExternalMovement>();
         bookings.forEach(b -> externalMovements.addAll(b.getExternalMovements()));
         return externalMovements.stream()
-            .sorted(Comparator.comparing(ExternalMovement::getMovementTime))
+            .sorted(Comparator.comparing(ExternalMovement::getMovementSequence))
             .toList();
     }
 
@@ -240,6 +242,7 @@ public class Offender extends AuditableEntity {
                     PrisonPeriod.builder()
                         .bookingId(e.getKey().getBookingId())
                         .bookNumber(e.getKey().getBookNumber())
+                        .prisons(getAdmissionPrisons(e.getValue()))
                         .movementDates(buildMovements(e.getValue()))
                         .build())
                 .collect(toList())
@@ -302,6 +305,14 @@ public class Offender extends AuditableEntity {
         }
 
         return newEntry ? Optional.of(newMovement) : Optional.empty();
+    }
+
+    private List<String> getAdmissionPrisons(List<ExternalMovement> externalMovements) {
+        return externalMovements.stream()
+            .filter(m -> m.getMovementType().getCode().equals("ADM"))
+            .map(m -> m.getToAgency().getId())
+            .distinct()
+            .toList();
     }
 
     private void outward(final ExternalMovement m, final MovementDate md) {

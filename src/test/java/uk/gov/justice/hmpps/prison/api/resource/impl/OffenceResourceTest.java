@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.api.resource.impl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -13,13 +14,22 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.jdbc.SqlConfig.TransactionMode;
 import uk.gov.justice.hmpps.prison.api.model.HOCodeDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenceDto;
+import uk.gov.justice.hmpps.prison.api.model.OffenceToScheduleMappingDto;
+import uk.gov.justice.hmpps.prison.api.model.Schedule;
 import uk.gov.justice.hmpps.prison.api.model.StatuteDto;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenceIndicatorRepository;
 
 import java.time.LocalDate;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 public class OffenceResourceTest extends ResourceTest {
+
+    @Autowired
+    private OffenceIndicatorRepository offenceIndicatorRepository;
     @Nested
     @DisplayName("Tests for all the GET end points")
     public class GeneralOffencesTests {
@@ -243,6 +253,44 @@ public class OffenceResourceTest extends ResourceTest {
         }
     }
 
+    @Nested
+    @DisplayName("Tests linking and unlinking of offences to schedules")
+    public class LinkOffencesToSchedulesTests {
+        @Sql(scripts = {"/sql/create_offence_data.sql"},
+            executionPhase = ExecutionPhase.BEFORE_TEST_METHOD,
+            config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
+        @Sql(scripts = {"/sql/clean_offences.sql"},
+            executionPhase = ExecutionPhase.AFTER_TEST_METHOD,
+            config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
+        @Test
+        public void testLinkAndUnlinkingOffences() {
+            List<OffenceToScheduleMappingDto> mappingDtos = List.of(
+                getMappingDto("COML025", Schedule.SCHEDULE_15),
+                getMappingDto("STAT001", Schedule.SCHEDULE_13),
+                getMappingDto("RC86355", Schedule.SCHEDULE_13)
+            );
+            linkOffencesToSchedules(mappingDtos);
+
+            assertTrue(doesMappingExist(Schedule.SCHEDULE_15, "COML025"));
+            assertTrue(doesMappingExist(Schedule.SCHEDULE_13, "STAT001"));
+            assertTrue(doesMappingExist(Schedule.SCHEDULE_13, "RC86355"));
+
+            unlinkOffencesFromSchedules(mappingDtos);
+
+            assertFalse(doesMappingExist(Schedule.SCHEDULE_15, "COML025"));
+            assertFalse(doesMappingExist(Schedule.SCHEDULE_13, "STAT001"));
+            assertFalse(doesMappingExist(Schedule.SCHEDULE_13, "RC86355"));
+        }
+
+        private boolean doesMappingExist(Schedule schedule, String offenceCode) {
+            return offenceIndicatorRepository.existsByIndicatorCodeAndOffence_Code(schedule.getCode(), offenceCode);
+        }
+
+        private OffenceToScheduleMappingDto getMappingDto(String offenceCode, Schedule schedule) {
+            return OffenceToScheduleMappingDto.builder().offenceCode(offenceCode).schedule(schedule).build();
+        }
+    }
+
     private ResponseEntity<String> postRequest(HttpEntity<?> httpEntity, String url) {
         return testRestTemplate.exchange(
             url,
@@ -250,6 +298,22 @@ public class OffenceResourceTest extends ResourceTest {
             httpEntity,
             new ParameterizedTypeReference<>() {
             });
+    }
+
+    private void linkOffencesToSchedules(List<OffenceToScheduleMappingDto> mappings) {
+        webTestClient.post().uri("/api/offences/link-to-schedule")
+            .headers(setAuthorisation(List.of("ROLE_UPDATE_OFFENCE_SCHEDULES")))
+            .bodyValue(mappings)
+            .exchange()
+            .expectStatus().isCreated();
+    }
+
+    private void unlinkOffencesFromSchedules(List<OffenceToScheduleMappingDto> mappings) {
+        webTestClient.post().uri("/api/offences/unlink-from-schedule")
+            .headers(setAuthorisation(List.of("ROLE_UPDATE_OFFENCE_SCHEDULES")))
+            .bodyValue(mappings)
+            .exchange()
+            .expectStatus().isOk();
     }
 
     private ResponseEntity<String> putRequest(HttpEntity<?> httpEntity) {

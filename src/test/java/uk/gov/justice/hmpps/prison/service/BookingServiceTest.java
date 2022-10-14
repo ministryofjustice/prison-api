@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderFinePayment;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +19,7 @@ import uk.gov.justice.hmpps.prison.api.model.IepLevelAndComment;
 import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecord;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
+import uk.gov.justice.hmpps.prison.api.model.OffenderFinePaymentDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOffence;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
@@ -80,6 +82,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocat
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AvailablePrisonIepLevelRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPersonsRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderFinePaymentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRestrictionRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRepository;
@@ -93,6 +96,7 @@ import uk.gov.justice.hmpps.prison.service.support.PayableAttendanceOutcomeDto;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderBookingTransformer;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -150,6 +154,9 @@ public class BookingServiceTest {
     private AvailablePrisonIepLevelRepository availablePrisonIepLevelRepository;
     @Mock
     private OffenderSentenceRepository offenderSentenceRepository;
+
+    @Mock
+    private OffenderFinePaymentRepository offenderFinePaymentRepository;
     @Mock
     private CaseloadToAgencyMappingService caseloadToAgencyMappingService;
     @Mock
@@ -176,6 +183,7 @@ public class BookingServiceTest {
                 offenderTransformer,
                 authenticationFacade,
                 offenderSentenceRepository,
+                offenderFinePaymentRepository,
                 availablePrisonIepLevelRepository,
                 offenderRestrictionRepository,"1",
                 10);
@@ -1506,6 +1514,32 @@ public class BookingServiceTest {
                         .indicators(List.of("INDICATOR"))
                         .build()
                 ))
+                .build()
+        );
+    }
+
+    @Test
+    void getOffenderFinePayments() {
+        final var bookingId = -1L;
+        when(offenderFinePaymentRepository.findByOffenderBooking_BookingId(bookingId))
+            .thenReturn(
+                List.of(OffenderFinePayment.builder()
+                    .offenderBooking(OffenderBooking.builder().bookingId(-99L).build())
+                    .sequence(5)
+                    .paymentDate(LocalDate.of(2022, 1, 1))
+                    .paymentAmount(new BigDecimal("9.99"))
+                    .build()
+                )
+            );
+
+        final var sentencesAndOffences = bookingService.getOffenderFinePayments(bookingId);
+
+        assertThat(sentencesAndOffences).containsExactly(
+            OffenderFinePaymentDto.builder()
+                .bookingId(-99L)
+                .sequence(5)
+                .paymentDate(LocalDate.of(2022, 1, 1))
+                .paymentAmount(new BigDecimal("9.99"))
                 .build()
         );
     }

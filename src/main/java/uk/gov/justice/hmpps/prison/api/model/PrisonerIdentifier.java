@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.With;
 
 @Schema(description = "Prisoner Identifier")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -17,6 +18,7 @@ import lombok.ToString;
 @EqualsAndHashCode
 @Data
 @ToString
+@With
 public class PrisonerIdentifier {
     @Schema(description = "Prisoner Identifier", example = "A1234AA", required = true)
     private String id;

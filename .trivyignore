@@ -7,3 +7,16 @@ CVE-2020-36518
 # org.eclipse.jetty:jetty-server (app.jar) │ CVE-2022-2191 │ HIGH     │ 9.4.39.v20210325  │ 11.0.10, 10.0.10 │ SslConnection does not release pooled ByteBuffers in case of │
 # doesn't appear in the jar file, but re-bundled instead in eh-cache so not a denial of service vulnerability for us
 CVE-2022-2191
+#
+# Suppression for snakeyaml 1.30 vulnerability as bundled with application insights so can't be upgraded easily
+#   Can be suppressed as we we don't parse untrusted yaml
+CVE-2022-25857
+# Suppression for snakeyaml 1.31 vulnerability as no current upgrade path available
+#   Can be suppressed as we we don't parse untrusted yaml
+CVE-2022-38752
+# Suppression for jackson databind 2.13.4 as no release for it yet
+#   Can be suppressed as UNWRAP_SINGLE_VALUE_ARRAYS is not enabled
+CVE-2022-42003
+# Suppression for jackson databind 2.13.3 as bundled with application insights
+#   Can be suppressed as don't parse untrusted json in application insights
+CVE-2022-42004

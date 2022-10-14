@@ -187,6 +187,15 @@ public class HealthServiceImplTest {
 
         private OffenderBooking booking = OffenderBooking.builder()
             .bookingId(1L)
+            .active(true)
+            .bookingSequence(1)
+            .location(AgencyLocation.builder().id("MDI").type(AgencyLocationType.PRISON_TYPE).build())
+            .offender(Offender.builder().nomsId("any noms id").build())
+            .build();
+        private OffenderBooking notActiveBooking = OffenderBooking.builder()
+            .bookingId(1L)
+            .active(false)
+            .bookingSequence(1)
             .location(AgencyLocation.builder().id("MDI").type(AgencyLocationType.PRISON_TYPE).build())
             .offender(Offender.builder().nomsId("any noms id").build())
             .build();
@@ -255,6 +264,14 @@ public class HealthServiceImplTest {
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("Resource with id [D] not found.");
         }
+        @DisplayName("not active booking")
+        @Test
+        void notActiveBooking() {
+            when(offenderBookingRepository.findById(1L)).thenReturn(Optional.of(notActiveBooking));
+            assertThatThrownBy(() -> serviceToTest.addPersonalCareNeed(1L, personalCareNeed))
+                .isInstanceOf(BadRequestException.class);
+                }
+
     }
 
 }

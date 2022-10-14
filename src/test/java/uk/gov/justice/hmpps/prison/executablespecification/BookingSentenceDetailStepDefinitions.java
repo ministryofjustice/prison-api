@@ -107,6 +107,14 @@ public class BookingSentenceDetailStepDefinitions extends AbstractStepDefinition
     public void homeDetentionCurfewEligibilityDateMatches(final String homeDetentionCurfewEligibilityDate) {
         bookingSentenceDetail.verifyHomeDetentionCurfewEligibilityDate(homeDetentionCurfewEligibilityDate);
     }
+    @And("^home detention curfew eligibility calculated date matches \"([^\"]*)\"$")
+    public void homeDetentionCurfewEligibilityCalculatedDateMatches(final String homeDetentionCurfewEligibilityCalculatedDate) {
+        bookingSentenceDetail.verifyHomeDetentionCurfewEligibilityCalculatedDate(homeDetentionCurfewEligibilityCalculatedDate);
+    }
+    @And("^home detention curfew eligibility override date matches \"([^\"]*)\"$")
+    public void homeDetentionCurfewEligibilityOverrideDateMatches(final String homeDetentionCurfewEligibilityOverrideDate) {
+        bookingSentenceDetail.verifyHomeDetentionCurfewEligibilityOverrideDate(homeDetentionCurfewEligibilityOverrideDate);
+    }
 
     @And("^parole eligibility date matches \"([^\"]*)\"$")
     public void paroleEligibilityDateMatches(final String paroleEligibilityDate) {
@@ -187,6 +195,16 @@ public class BookingSentenceDetailStepDefinitions extends AbstractStepDefinition
     @And("^topup supervision expiry date matches \"([^\"]*)\"$")
     public void topupSupervisionExpiryDateMatches(final String topupSupervisionExpiryDate) {
         bookingSentenceDetail.verifyTopupSupervisionExpiryDate(topupSupervisionExpiryDate);
+    }
+
+    @And("^topup supervision expiry date calculated matches \"([^\"]*)\"$")
+    public void topupSupervisionExpiryCalculatedDateMatches(final String topupSupervisionExpiryCalculatedDate) {
+        bookingSentenceDetail.verifyTopupSupervisionExpiryCalculatedDate(topupSupervisionExpiryCalculatedDate);
+    }
+
+    @And("^topup supervision expiry date override matches \"([^\"]*)\"$")
+    public void topupSupervisionExpiryOverrideDateMatches(final String topupSupervisionExpiryOverrideDate) {
+        bookingSentenceDetail.verifyTopupSupervisionExpiryOverrideDate(topupSupervisionExpiryOverrideDate);
     }
 
     @And("^release date matches \"([^\"]*)\"$")

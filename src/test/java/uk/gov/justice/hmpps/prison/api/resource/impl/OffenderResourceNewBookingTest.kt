@@ -17,7 +17,7 @@ import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
-import uk.gov.justice.hmpps.prison.service.transfer.TrustAccountService
+import uk.gov.justice.hmpps.prison.service.receiveandtransfer.TrustAccountService
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
 import uk.gov.justice.hmpps.prison.util.builders.getBedAssignments
@@ -178,6 +178,37 @@ class OffenderResourceNewBookingTest : ResourceTest() {
           .expectBody()
           .jsonPath("userMessage")
           .isEqualTo("ZZZ is not a valid from location")
+      }
+      @Test
+      internal fun `404 (possibly incorrectly) when trying to book in from the OUT location (even though this the default when no supplied)`() {
+        val offenderNo = createInactiveBooking()
+
+        // when booking is created then the request is rejected
+        webTestClient.post()
+          .uri("/api/offenders/{offenderNo}/booking", offenderNo)
+          .headers(
+            setAuthorisation(
+              listOf("ROLE_BOOKING_CREATE")
+            )
+          )
+          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+          .bodyValue(
+            """
+            {
+               "prisonId": "SYI", 
+               "fromLocationId": "OUT", 
+               "movementReasonCode": "24", 
+               "imprisonmentStatus": "CUR_ORA", 
+               "cellLocation": "SYI-A-1-1"     
+            }
+            """.trimIndent()
+          )
+          .accept(MediaType.APPLICATION_JSON)
+          .exchange()
+          .expectStatus().isNotFound
+          .expectBody()
+          .jsonPath("userMessage")
+          .isEqualTo("OUT is not a valid from location")
       }
 
       @Test

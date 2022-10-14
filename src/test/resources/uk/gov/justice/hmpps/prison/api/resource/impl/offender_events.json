@@ -16,40 +16,5 @@
     "offenderIdDisplay": "G0913VQ",
     "caseNoteId": 47004057,
     "agencyLocationId": "MDI"
-  },
-  {
-    "eventType": "OFFENDER_DETAILS-CHANGED",
-    "eventDatetime": "2018-10-29T15:30:05",
-    "rootOffenderId": -1002,
-    "offenderId": -1002,
-    "nomisEventType": "OFF_UPD_OASYS"
-  },
-  {
-    "eventType": "OFFENDER_DETAILS-CHANGED",
-    "eventDatetime": "2018-10-29T15:30:04",
-    "rootOffenderId": -1001,
-    "offenderId": -1001,
-    "nomisEventType": "OFF_UPD_OASYS"
-  },
-  {
-    "eventType": "OFFENDER_MOVEMENT-DISCHARGE",
-    "eventDatetime": "2018-10-29T15:30:03",
-    "rootOffenderId": -1001,
-    "offenderId": -1001,
-    "nomisEventType": "OFF_DISCH_OASYS"
-  },
-  {
-    "eventType": "OFFENDER_MOVEMENT-RECEPTION",
-    "eventDatetime": "2018-10-29T15:30:02",
-    "rootOffenderId": -1001,
-    "offenderId": -1001,
-    "nomisEventType": "OFF_RECEP_OASYS"
-  },
-  {
-    "eventType": "BOOKING_NUMBER-CHANGED",
-    "eventDatetime": "2018-10-29T15:30:01",
-    "rootOffenderId": -1001,
-    "offenderId": -1001,
-    "nomisEventType": "BOOK_UPD_OASYS"
   }
 ]

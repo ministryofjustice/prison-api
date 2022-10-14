@@ -1,7 +1,7 @@
 package uk.gov.justice.hmpps.prison.service;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
+@Slf4j
 public class OffenderEventsService {
 
     private static final Comparator<uk.gov.justice.hmpps.prison.api.model.OffenderEvent> BY_OFFENDER_EVENT_TIMESTAMP =
@@ -32,15 +33,12 @@ public class OffenderEventsService {
 
     private final OffenderEventsTransformer offenderEventsTransformer;
     private final OffenderEventsRepository offenderEventsRepository;
-    private final XtagEventsService xtagEventsService;
 
     @Autowired
     public OffenderEventsService(final OffenderEventsTransformer offenderEventsTransformer,
-                                 final OffenderEventsRepository offenderEventsRepository,
-                                 final XtagEventsService xtagEventsService) {
+                                 final OffenderEventsRepository offenderEventsRepository) {
         this.offenderEventsTransformer = offenderEventsTransformer;
         this.offenderEventsRepository = offenderEventsRepository;
-        this.xtagEventsService = xtagEventsService;
     }
 
     @PreAuthorize("hasRole('PRISON_OFFENDER_EVENTS')")
@@ -55,6 +53,19 @@ public class OffenderEventsService {
         return getFilteredOffenderEvents(oeFilter, maybeSortBy);
     }
 
+    @PreAuthorize("hasRole('PRISON_OFFENDER_EVENTS')")
+    public Optional<List<OffenderEvent>> getTestEvents(
+            final Optional<LocalDateTime> maybeFrom,
+            final Optional<LocalDateTime> maybeTo,
+            final Optional<Set<String>> maybeTypeFilter,
+            final boolean useEnq) {
+        final var from = fromOrDefault(maybeFrom, maybeTo);
+        final var to = toOrDefault(maybeTo, from);
+
+        final var oeFilter = OffenderEventsFilter.builder().from(from).to(to).types(maybeTypeFilter).build();
+        return getTestEvents(oeFilter, useEnq);
+    }
+
     private LocalDateTime toOrDefault(final Optional<LocalDateTime> maybeTo, final LocalDateTime from) {
         return maybeTo.orElse(from.plusDays(1));
     }
@@ -65,25 +76,37 @@ public class OffenderEventsService {
 
     private Optional<List<OffenderEvent>> getFilteredOffenderEvents(final OffenderEventsFilter oeFilter, final Optional<OffenderEventsController.SortTypes> maybeSortBy) {
 
-        final var offenderEvents = Optional.ofNullable(offenderEventsRepository.findAll(oeFilter))
+        final var offenderEvents = Optional.of(offenderEventsRepository.findAll(oeFilter))
                 .map(ev -> ev.stream()
                         .map(offenderEventsTransformer::offenderEventOf)
                         .toList())
                 .orElse(Collections.emptyList());
 
-        final var xtagEvents = xtagEventsService.findAll(oeFilter);
+        final var typeFilter = oeFilter.getTypes()
+                .map(types -> types.stream().map(String::toUpperCase).collect(Collectors.toSet()))
+                .orElse(ImmutableSet.of());
+
+        return Optional.of(offenderEvents.stream()
+                .filter(oe -> typeFilter.isEmpty() || typeFilter.contains(oe.getEventType()))
+                .sorted(sortFunctionOf(maybeSortBy))
+                .toList());
+    }
+
+    private Optional<List<OffenderEvent>> getTestEvents(final OffenderEventsFilter oeFilter, final boolean useEnq) {
+
+        final var offenderEvents = Optional.of(offenderEventsRepository.findAll(oeFilter))
+                .map(ev -> ev.stream()
+                        .map(offenderEventsTransformer::offenderEventOf)
+                        .toList())
+                .orElse(Collections.emptyList());
 
         final var typeFilter = oeFilter.getTypes()
                 .map(types -> types.stream().map(String::toUpperCase).collect(Collectors.toSet()))
                 .orElse(ImmutableSet.of());
 
-        final List<OffenderEvent> allEvents = ImmutableList.<OffenderEvent>builder().addAll(offenderEvents).addAll(xtagEvents).build();
-
-        return Optional.of(allEvents.stream()
+        return Optional.of(offenderEvents.stream()
                 .filter(oe -> typeFilter.isEmpty() || typeFilter.contains(oe.getEventType()))
-                .sorted(sortFunctionOf(maybeSortBy))
                 .toList());
-
     }
 
     private Comparator<? super OffenderEvent> sortFunctionOf(final Optional<OffenderEventsController.SortTypes> maybeSortBy) {

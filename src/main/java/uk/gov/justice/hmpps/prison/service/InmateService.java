@@ -191,6 +191,7 @@ public class InmateService {
     }
 
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @Transactional // route to primary in live so that we can get the latest data after a trigger
     public InmateDetail findOffender(final String offenderNo, final boolean extraInfo, final boolean csraSummary) {
         final var inmate = repository.findOffender(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
         return getOffenderDetails(inmate, extraInfo, csraSummary);
@@ -432,6 +433,7 @@ public class InmateService {
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @Transactional // route to primary in live so that we can get the latest data after a trigger
     public InmateDetail getBasicInmateDetail(final Long bookingId) {
         return repository.getBasicInmateDetail(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
     }

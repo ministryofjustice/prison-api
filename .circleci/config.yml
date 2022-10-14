@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  hmpps: ministryofjustice/hmpps@5.1
+  hmpps: ministryofjustice/hmpps@6.0
 
 executor:
   &executor
@@ -184,11 +184,10 @@ workflows:
       - hmpps/trivy_latest_scan:
           context:
             - hmpps-common-vars
-      # currently disabled as no support for jdk 18 or kotlin 1.7
-      # - hmpps/veracode_pipeline_scan:
-      #   context:
-      #     - hmpps-common-vars
-      #     - veracode-credentials
+      - hmpps/veracode_pipeline_scan:
+          context:
+            - hmpps-common-vars
+            - veracode-credentials
   security-weekly:
     triggers:
       - schedule:
