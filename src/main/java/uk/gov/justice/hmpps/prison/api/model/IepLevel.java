@@ -16,7 +16,7 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 @NoArgsConstructor
 public class IepLevel {
-    @Schema(description = "The IEP level. Must be one of the reference data values in domain 'IEP_LEVEL'. Typically BAS (Basic), ENH (Enhanced), ENT (Entry) or STD (Standard)", required = true, example = "BAS")
+    @Schema(description = "The IEP level. Must be one of the reference data values in domain 'IEP_LEVEL'. Typically BAS (Basic), ENH (Enhanced), or STD (Standard)", required = true, example = "BAS")
     @NotBlank(message = "The IEP level must not be blank")
     private String iepLevel;
 
@@ -26,4 +26,7 @@ public class IepLevel {
 
     @Schema(description = "Sequence Order of IEP", example = "1")
     private Integer sequence;
+
+    @Schema(description = "Indicates this is the default level for this prison", example = "false", type = "Boolean")
+    private boolean defaultLevel;
 }
