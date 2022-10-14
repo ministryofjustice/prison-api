@@ -83,6 +83,7 @@ import uk.gov.justice.hmpps.prison.service.OffenderDamageObligationService;
 import uk.gov.justice.hmpps.prison.service.OffenderNonAssociationsService;
 import uk.gov.justice.hmpps.prison.service.OffenderTransactionHistoryService;
 import uk.gov.justice.hmpps.prison.service.receiveandtransfer.BookingIntoPrisonService;
+import uk.gov.justice.hmpps.prison.service.receiveandtransfer.PrisonTransferService;
 import uk.gov.justice.hmpps.prison.service.receiveandtransfer.PrisonerCreationService;
 import uk.gov.justice.hmpps.prison.service.PrisonerReleaseAndTransferService;
 
@@ -120,6 +121,7 @@ public class OffenderResource {
     private final MovementsService movementsService;
     private final OffenderNonAssociationsService offenderNonAssociationsService;
     private final BookingIntoPrisonService bookingIntoPrisonService;
+    private final PrisonTransferService prisonTransferService;
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
@@ -204,7 +206,7 @@ public class OffenderResource {
         @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to recall a prisoner.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "*** BETA *** Recalls a prisoner into prison. TRANSFER_PRISONER role")
+    @Operation(summary = "Recalls a prisoner into prison. TRANSFER_PRISONER role")
     @PutMapping("/{offenderNo}/recall")
     @PreAuthorize("hasRole('TRANSFER_PRISONER') and hasAuthority('SCOPE_write')")
     @ProxyUser
@@ -272,7 +274,7 @@ public class OffenderResource {
     public InmateDetail transferInPrisoner(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToTransferIn requestToTransferIn) {
-        return prisonerReleaseAndTransferService.transferInPrisoner(offenderNo, requestToTransferIn);
+        return prisonTransferService.transferFromPrison(offenderNo, requestToTransferIn);
     }
 
     @ApiResponses({
@@ -288,7 +290,7 @@ public class OffenderResource {
     public InmateDetail courtTransferIn(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestForCourtTransferIn requestForCourtTransferIn) {
-        return prisonerReleaseAndTransferService.courtTransferIn(offenderNo, requestForCourtTransferIn);
+        return prisonTransferService.transferViaCourt(offenderNo, requestForCourtTransferIn);
     }
 
     @ApiResponses({

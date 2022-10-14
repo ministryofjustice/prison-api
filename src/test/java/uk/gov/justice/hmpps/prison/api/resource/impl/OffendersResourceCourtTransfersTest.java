@@ -10,7 +10,7 @@ import uk.gov.justice.hmpps.prison.api.model.RequestForCourtTransferIn;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
 import uk.gov.justice.hmpps.prison.service.BadRequestException;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
-import uk.gov.justice.hmpps.prison.service.PrisonerReleaseAndTransferService;
+import uk.gov.justice.hmpps.prison.service.receiveandtransfer.PrisonTransferService;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -24,7 +24,7 @@ import static org.springframework.http.HttpMethod.PUT;
 public class OffendersResourceCourtTransfersTest extends ResourceTest {
 
     @MockBean
-    PrisonerReleaseAndTransferService prisonerReleaseAndTransferService;
+    PrisonTransferService prisonTransferService;
 
     @Test
     public void updateCourtTransferInTest() {
@@ -38,7 +38,7 @@ public class OffendersResourceCourtTransfersTest extends ResourceTest {
         );
         InmateDetail inmateDetail = new InmateDetail();
 
-        Mockito.when(prisonerReleaseAndTransferService.courtTransferIn(Mockito.eq(prisonerNo), Mockito.any(RequestForCourtTransferIn.class)))
+        Mockito.when(prisonTransferService.transferViaCourt(Mockito.eq(prisonerNo), Mockito.any(RequestForCourtTransferIn.class)))
             .thenReturn(inmateDetail);
 
         final var courtReturnEntity = createHttpEntity(token, courtReturnRequest);
@@ -66,7 +66,7 @@ public class OffendersResourceCourtTransfersTest extends ResourceTest {
             "dateTime", now.minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
         );
 
-        Mockito.when(prisonerReleaseAndTransferService.courtTransferIn(Mockito.eq(prisonerNo), Mockito.any(RequestForCourtTransferIn.class)))
+        Mockito.when(prisonTransferService.transferViaCourt(Mockito.eq(prisonerNo), Mockito.any(RequestForCourtTransferIn.class)))
             .thenThrow(new BadRequestException("Latest movement not a court movement"));
 
         final var courtReturnEntity = createHttpEntity(token, courtReturnRequest);
@@ -94,7 +94,7 @@ public class OffendersResourceCourtTransfersTest extends ResourceTest {
             "dateTime", now.minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
         );
 
-        Mockito.when(prisonerReleaseAndTransferService.courtTransferIn(Mockito.eq(prisonerNo), Mockito.any(RequestForCourtTransferIn.class)))
+        Mockito.when(prisonTransferService.transferViaCourt(Mockito.eq(prisonerNo), Mockito.any(RequestForCourtTransferIn.class)))
             .thenThrow(EntityNotFoundException.withMessage(format("No bookings found for prisoner number %s", prisonerNo)));
 
         final var courtReturnEntity = createHttpEntity(token, courtReturnRequest);
