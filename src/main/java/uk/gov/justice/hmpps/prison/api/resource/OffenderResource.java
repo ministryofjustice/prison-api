@@ -206,7 +206,7 @@ public class OffenderResource {
         @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to recall a prisoner.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "*** BETA *** Recalls a prisoner into prison. TRANSFER_PRISONER role")
+    @Operation(summary = "Recalls a prisoner into prison. TRANSFER_PRISONER role")
     @PutMapping("/{offenderNo}/recall")
     @PreAuthorize("hasRole('TRANSFER_PRISONER') and hasAuthority('SCOPE_write')")
     @ProxyUser

@@ -22,8 +22,10 @@ public class SmokeTestHelperService {
     private final BookingIntoPrisonService bookingIntoPrisonService;
     private final OffenderBookingRepository offenderBookingRepository;
 
-    public SmokeTestHelperService(BookingService bookingService, OffenderBookingRepository offenderBookingRepository,
-                                  PrisonerReleaseAndTransferService prisonerReleaseAndTransferService, BookingIntoPrisonService bookingIntoPrisonService) {
+    public SmokeTestHelperService(BookingService bookingService,
+                                  OffenderBookingRepository offenderBookingRepository,
+                                  PrisonerReleaseAndTransferService prisonerReleaseAndTransferService,
+                                  BookingIntoPrisonService bookingIntoPrisonService) {
         this.bookingService = bookingService;
         this.offenderBookingRepository = offenderBookingRepository;
         this.prisonerReleaseAndTransferService = prisonerReleaseAndTransferService;
