@@ -130,6 +130,11 @@ public class ExternalMovement extends AuditableEntity {
     })
     private MovementType movementType;
 
+    @Column(name = "TO_ADDRESS_ID")
+    private Long toAddressId;
+
+    @Column(name = "FROM_ADDRESS_ID")
+    private Long fromAddressId;
 
     public String calculateReleaseLocationDescription() {
         return REL.getCode().equals(getMovementType().getCode())

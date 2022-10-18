@@ -56,7 +56,9 @@ class ExternalMovementTransferService(
           /* fromCity = */ null,
           /* movementReason = */ movementReason,
           /* movementDirection = */ MovementDirection.IN,
-          /* movementType = */ movementType
+          /* movementType = */ movementType,
+          /* toAddressId = */ null,
+          /* fromAddressId = */ null,
         )
       )
     }
@@ -94,7 +96,9 @@ class ExternalMovementTransferService(
           /* fromCity = */ null,
           /* movementReason = */ movementReason,
           /* movementDirection = */ MovementDirection.IN,
-          /* movementType = */ movementType
+          /* movementType = */ movementType,
+          /* toAddressId = */ null,
+          /* fromAddressId = */ null,
         )
       )
     }
@@ -133,7 +137,9 @@ class ExternalMovementTransferService(
           /* fromCity = */ null,
           /* movementReason = */ movementReason,
           /* movementDirection = */ MovementDirection.IN,
-          /* movementType = */ movementType
+          /* movementType = */ movementType,
+          /* toAddressId = */ null,
+          /* fromAddressId = */ null,
         )
       )
     }
@@ -171,7 +177,9 @@ class ExternalMovementTransferService(
           /* fromCity = */ null,
           /* movementReason = */ movementReason,
           /* movementDirection = */ MovementDirection.IN,
-          /* movementType = */ movementType
+          /* movementType = */ movementType,
+          /* toAddressId = */ null,
+          /* fromAddressId = */ null,
         )
       )
     }
