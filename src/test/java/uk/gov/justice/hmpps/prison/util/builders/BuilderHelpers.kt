@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.util.builders
 
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -9,11 +10,16 @@ import uk.gov.justice.hmpps.prison.api.model.CaseNote
 import uk.gov.justice.hmpps.prison.api.model.CourtHearing
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOutToCourt
+import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOutToTemporaryAbsence
 import uk.gov.justice.hmpps.prison.api.model.VisitBalances
 import uk.gov.justice.hmpps.prison.api.resource.impl.RestResponsePage
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent
+import uk.gov.justice.hmpps.prison.repository.jpa.model.EscortAgencyType
+import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIndividualSchedule
 import uk.gov.justice.hmpps.prison.service.DataLoaderRepository
 import uk.gov.justice.hmpps.prison.util.JwtAuthenticationHelper
 import uk.gov.justice.hmpps.prison.util.JwtParameters
@@ -123,6 +129,40 @@ fun TestDataContext.transferOutToCourt(offenderNo: String, toLocation: String, s
   return movementTime
 }
 
+fun TestDataContext.transferOutToTemporaryAbsence(
+  offenderNo: String,
+  toLocation: String,
+  shouldReleaseBed: Boolean = false,
+  tapIndividualScheduleEventId: Long? = null
+): LocalDateTime {
+  val movementTime = LocalDateTime.now().minusHours(1)
+  val request = RequestToTransferOutToTemporaryAbsence(
+    /* toLocation = */ toLocation,
+    /* movementTime = */ movementTime,
+    /* escortType = */ null,
+    /* transferReasonCode = */ "C3",
+    /* commentText = */ "day release",
+    /* shouldReleaseBed = */ shouldReleaseBed,
+    /* courtEventId = */ tapIndividualScheduleEventId
+  )
+  webTestClient.put()
+    .uri("/api/offenders/{nomsId}/temporary-absence-out", offenderNo)
+    .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER_ALPHA")))
+    .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+    .accept(MediaType.APPLICATION_JSON)
+    .body(BodyInserters.fromValue(request))
+    .exchange()
+    .expectStatus().isOk
+    .expectBody()
+    .jsonPath("inOutStatus").isEqualTo("OUT")
+    .jsonPath("status").isEqualTo("ACTIVE OUT")
+    .jsonPath("lastMovementTypeCode").isEqualTo("TAP")
+    .jsonPath("lastMovementReasonCode").isEqualTo("C3")
+    .jsonPath("assignedLivingUnit.agencyId").isEqualTo("LEI")
+
+  return movementTime
+}
+
 private fun TestDataContext.setAuthorisation(roles: List<String>): Consumer<HttpHeaders> {
   return Consumer { httpHeaders: HttpHeaders ->
     httpHeaders.add(
@@ -140,6 +180,32 @@ fun TestDataContext.validToken(roles: List<String?>?): String? {
       .roles(roles)
       .expiryTime(Duration.ofDays((365 * 10).toLong()))
       .build()
+  )
+}
+
+fun TestDataContext.createScheduledTemporaryAbsence(
+  bookingId: Long,
+  toAddressId: Long,
+  startTime: LocalDateTime,
+): OffenderIndividualSchedule = this.dataLoader.offenderBookingRepository.findByIdOrNull(bookingId)!!.let {
+  this.dataLoader.scheduleRepository.save(
+    OffenderIndividualSchedule()
+      .withEventDate(startTime.toLocalDate())
+      .withStartTime(startTime)
+      .withEventClass(OffenderIndividualSchedule.EventClass.EXT_MOV)
+      .withEventType("TAP")
+      .withEventSubType("ET")
+      .withEventStatus(this.dataLoader.eventStatusRepository.findById(EventStatus.SCHEDULED_APPROVED).orElseThrow())
+      .withEscortAgencyType(
+        this.dataLoader.escortAgencyTypeRepository.findByIdOrNull(
+          EscortAgencyType.pk("L")
+        )
+      )
+      .withFromLocation(it.location)
+      .withToAddressOwnerClass("CORP")
+      .withToAddressId(toAddressId)
+      .withMovementDirection(MovementDirection.OUT)
+      .withOffenderBooking(it)
   )
 }
 
@@ -214,3 +280,6 @@ fun TestDataContext.getCaseNotes(bookingId: Long): List<CaseNote> = webTestClien
 
 fun TestDataContext.getCourtHearings(bookingId: Long): List<CourtEvent> =
   this.dataLoader.courtEventRepository.findByOffenderBooking_BookingIdOrderByIdAsc(bookingId)
+
+fun TestDataContext.getScheduledMovements(bookingId: Long): List<OffenderIndividualSchedule> =
+  this.dataLoader.scheduleRepository.findByOffenderBooking_BookingIdOrderByIdAsc(bookingId)

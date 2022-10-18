@@ -4,6 +4,8 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Service
 import uk.gov.justice.hmpps.prison.repository.BookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus
+import uk.gov.justice.hmpps.prison.repository.jpa.model.EscortAgencyType
+import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus
 import uk.gov.justice.hmpps.prison.repository.jpa.model.InstitutionArea
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LegalCaseType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.TeamCategory
@@ -14,6 +16,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepositor
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCourtCaseRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderIndividualScheduleRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProgramProfileRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTeamAssignmentRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
@@ -31,6 +34,9 @@ class DataLoaderRepository(
   val offenderBookingRepository: OffenderBookingRepository,
   val offenderProgramProfileRepository: OffenderProgramProfileRepository,
   val offenderCourtCaseRepository: OffenderCourtCaseRepository,
+  val scheduleRepository: OffenderIndividualScheduleRepository,
+  var eventStatusRepository: ReferenceCodeRepository<EventStatus>,
+  var escortAgencyTypeRepository: ReferenceCodeRepository<EscortAgencyType>,
   val teamRepository: TeamRepository,
   val offenderTeamAssignmentRepository: OffenderTeamAssignmentRepository,
   val legalCourtCaseTypeRepository: ReferenceCodeRepository<LegalCaseType>,
@@ -60,4 +66,9 @@ class DataLoaderTransaction {
     teamBuilder.save(
       dataLoader = testDataContext.dataLoader
     )
+
+  @Transactional
+  fun <T> save(operation: () -> T) = operation()
+  @Transactional
+  fun <T> get(operation: () -> T) = operation()
 }
