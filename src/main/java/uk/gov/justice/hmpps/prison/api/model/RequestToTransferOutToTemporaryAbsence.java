@@ -20,12 +20,11 @@ import java.time.LocalDateTime;
 @ToString
 public class RequestToTransferOutToTemporaryAbsence {
 
-    @Schema(required = true, description = "The city to be released to.", example = "18248")
-    @NotBlank(message = "The to city must be provided.")
+    @Schema(description = "The city to be released to. Not required if scheduleEventId is present", example = "18248")
     @Size(max = 12, message = "To city must be a maximum of 12 characters.")
     private String toCity;
 
-    @Schema(required = true, description = "The time the movement occurred, if not supplied it will be the current time. Note: Time can be in the past but not before the last movement", example = "2020-03-24T12:13:40")
+    @Schema(description = "The time the movement occurred, if not supplied it will be the current time. Note: Time can be in the past but not before the last movement", example = "2020-03-24T12:13:40")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime movementTime;
 
