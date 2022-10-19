@@ -12,10 +12,12 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import uk.gov.justice.hmpps.prison.api.model.RequestForCourtTransferIn
+import uk.gov.justice.hmpps.prison.api.model.RequestForTemporaryAbsenceArrival
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferIn
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType
+import uk.gov.justice.hmpps.prison.repository.jpa.model.City
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Gender
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
@@ -31,6 +33,7 @@ import uk.gov.justice.hmpps.prison.service.BadRequestException
 import uk.gov.justice.hmpps.prison.service.ConflictingRequestException
 import uk.gov.justice.hmpps.prison.service.CourtHearingsService
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
+import uk.gov.justice.hmpps.prison.service.PrisonToPrisonMoveSchedulingService
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer
 import java.time.Clock
 import java.time.LocalDate
@@ -46,6 +49,7 @@ internal class PrisonTransferServiceTest {
   private val offenderBookingRepository: OffenderBookingRepository = mock()
   private val activityTransferService: ActivityTransferService = mock()
   private val courtHearingService: CourtHearingsService = mock()
+  private val prisonToPrisonMoveSchedulingService: PrisonToPrisonMoveSchedulingService = mock()
   private val agencyInternalLocationRepository: AgencyInternalLocationRepository = mock()
   private val agencyLocationRepository: AgencyLocationRepository = mock()
   private val teamWorkflowNotificationService: TeamWorkflowNotificationService = mock()
@@ -55,6 +59,7 @@ internal class PrisonTransferServiceTest {
   private val toPrison = AgencyLocation().apply { description = "HMPS Wandsworth"; id = "WWI" }
   private val toCourt =
     AgencyLocation().apply { description = "Court1"; id = "CA"; type = AgencyLocationType.COURT_TYPE }
+  private val toCity = City().apply { description = "London"; code = "LON" }
 
   private val bookingLastMovementTransfer = getMovement()
 
@@ -63,6 +68,12 @@ internal class PrisonTransferServiceTest {
 
   private val bookingLastMovementCourtWithEventId =
     getMovement(toAgencyIn = toCourt, movementReasonCode = "CRT", movementTypeCode = "CRT", eventIdIn = 123)
+
+  private val bookingLastMovementTAP =
+    getMovement(toCityIn = toCity, movementReasonCode = "C3", movementTypeCode = "TAP")
+
+  private val bookingLastMovementTAPWithEventId =
+    getMovement(toCityIn = toCity, movementReasonCode = "C3", movementTypeCode = "TAP", eventIdIn = 123)
 
   private val service = PrisonTransferService(
     externalMovementService,
@@ -75,6 +86,7 @@ internal class PrisonTransferServiceTest {
     agencyLocationRepository,
     activityTransferService,
     courtHearingService,
+    prisonToPrisonMoveSchedulingService,
     teamWorkflowNotificationService,
     transformer,
   )
@@ -83,13 +95,15 @@ internal class PrisonTransferServiceTest {
   private fun getMovement(
     movementTypeCode: String = "TRN",
     movementReasonCode: String = "TRN",
-    toAgencyIn: AgencyLocation = toPrison,
+    toAgencyIn: AgencyLocation? = toPrison,
+    toCityIn: City? = null,
     eventIdIn: Long? = null,
     active: Boolean = true
   ): ExternalMovement {
     return ExternalMovement().apply {
       fromAgency = fromPrison
       toAgency = toAgencyIn
+      toCity = toCityIn
       movementType = MovementType().apply { code = movementTypeCode; description = "type description" }
       movementReason = MovementReason().apply { code = movementReasonCode; description = "code description" }
       movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
@@ -542,7 +556,7 @@ internal class PrisonTransferServiceTest {
     }
 
     @Test
-    internal fun `will throw an exception of the current location is not transfer`() {
+    internal fun `will throw an exception of the current movement is not court out`() {
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
@@ -800,7 +814,7 @@ internal class PrisonTransferServiceTest {
     }
 
     @Test
-    internal fun `will throw an exception of the current location is not court transfer`() {
+    internal fun `will throw an exception of the current movement is not court transfer`() {
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
@@ -867,6 +881,489 @@ internal class PrisonTransferServiceTest {
       )
       assertThrows<BadRequestException> {
         service.transferViaCourt("A1234AK", requestCourtDifferentPrison)
+      }
+    }
+  }
+
+  @Nested
+  @DisplayName("transferInAfterTemporaryAbsenceToSamePrison")
+  inner class TransferInAfterTemporaryAbsenceToSamePrison {
+    private val requestTapArrivalPrison = RequestForTemporaryAbsenceArrival().apply {
+      this.commentText = "😎"
+      this.agencyId = fromPrison.id
+      this.movementReasonCode = "C3"
+      this.dateTime = LocalDateTime.parse("2022-04-19T00:00:00")
+    }
+
+    private val movementSamePrisonTime = LocalDateTime.parse("2022-04-20T10:00:00")
+
+    @BeforeEach
+    internal fun setUp() {
+      booking = OffenderBooking().apply {
+        externalMovements = mutableListOf(bookingLastMovementTAP)
+        bookingId = 99
+        inOutStatus = "OUT"
+        isActive = true
+        location = fromPrison
+        statusReason = "TAP-C3"
+        offender = Offender().apply {
+          firstName = "John"
+          lastName = "Smith"
+          birthDate = LocalDate.now().minusYears(30)
+          gender = Gender("M", "MALE")
+        }
+      }
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+        Optional.of(
+          booking
+        )
+      )
+      whenever(agencyInternalLocationRepository.findOneByDescriptionAndAgencyId("WWI-1-1", "WWI")).thenReturn(
+        Optional.of(
+          AgencyInternalLocation().apply {
+            this.description = "WWI-1-1"; this.agencyId = "WWI"; this.capacity = 4; this.currentOccupancy = 3
+          }
+        )
+      )
+    }
+
+    @Nested
+    inner class Success {
+      private val newMovementReason =
+        MovementReason().apply { code = "C3"; description = "Funeral" }
+      private val newMovementType =
+        MovementType().apply { code = "TAP"; description = "Temporary Absence" }
+      private val newMovement = ExternalMovement().apply {
+        movementTime = movementSamePrisonTime
+        movementReason = newMovementReason
+        movementType = newMovementType
+      }
+
+      @BeforeEach
+      internal fun setUp() {
+        whenever(
+          externalMovementService.updateMovementsForTransferInAfterTemporaryAbsenceToSamePrison(
+            "C3",
+            movementSamePrisonTime,
+            booking,
+            lastMovement = bookingLastMovementTAP,
+            scheduleEvent = null,
+            commentText = "😎"
+          )
+        ).thenReturn(newMovement)
+      }
+
+      @Test
+      internal fun `will request movements are updated`() {
+        service.transferInAfterTemporaryAbsence("A1234AK", requestTapArrivalPrison)
+
+        verify(externalMovementService).updateMovementsForTransferInAfterTemporaryAbsenceToSamePrison(
+          requestTapArrivalPrison.movementReasonCode,
+          requestTapArrivalPrison.dateTime,
+          booking,
+          lastMovement = bookingLastMovementTAP,
+          scheduleEvent = null,
+          commentText = requestTapArrivalPrison.commentText
+        )
+      }
+
+      @Test
+      internal fun `will request scheduled events are updated if event id present`() {
+        val bookingWithCourtEventId = OffenderBooking().apply {
+          externalMovements = mutableListOf(bookingLastMovementTAPWithEventId)
+          bookingId = 99
+          inOutStatus = "OUT"
+          isActive = true
+          location = fromPrison
+          statusReason = "TAP-C3"
+          offender = Offender().apply {
+            firstName = "John"
+            lastName = "Smith"
+            birthDate = LocalDate.now().minusYears(30)
+            gender = Gender("M", "MALE")
+          }
+        }
+
+        whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+          Optional.of(
+            bookingWithCourtEventId
+          )
+        )
+
+        whenever(
+          externalMovementService.updateMovementsForTransferInAfterTemporaryAbsenceToSamePrison(
+            movementReasonCode = requestTapArrivalPrison.movementReasonCode,
+            movementDateTime = requestTapArrivalPrison.dateTime,
+            booking = bookingWithCourtEventId,
+            lastMovement = bookingLastMovementCourtWithEventId,
+            scheduleEvent = null,
+            commentText = requestTapArrivalPrison.commentText
+          )
+        ).thenReturn(newMovement)
+        service.transferInAfterTemporaryAbsence("A1234AK", requestTapArrivalPrison)
+
+        verify(prisonToPrisonMoveSchedulingService).completeScheduledChildHearingEvent(booking.bookingId, 123)
+      }
+
+      @Test
+      internal fun `will not request schedule events are updated if event id present`() {
+        service.transferInAfterTemporaryAbsence("A1234AK", requestTapArrivalPrison)
+        verifyNoInteractions(prisonToPrisonMoveSchedulingService)
+      }
+
+      @Test
+      internal fun `will update booking status`() {
+        val inmateDetails = service.transferInAfterTemporaryAbsence("A1234AK", requestTapArrivalPrison)
+        with(inmateDetails) {
+          assertThat(inOutStatus).isEqualTo(MovementDirection.IN.name)
+          assertThat(statusReason).isEqualTo("TAP-C3")
+        }
+      }
+    }
+
+    @Nested
+    inner class Error {
+      @Test
+      internal fun `will throw exception of booking not found`() {
+        whenever(
+          offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(
+            "A1234AK",
+            1
+          )
+        ).thenReturn(Optional.empty())
+
+        assertThrows<EntityNotFoundException> {
+          service.transferInAfterTemporaryAbsence("A1234AK", requestTapArrivalPrison)
+        }
+      }
+    }
+
+    @Test
+    internal fun `will throw an exception of the current movement is not a TAP out`() {
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+        Optional.of(
+          OffenderBooking().apply {
+            externalMovements = mutableListOf(bookingLastMovementTransfer)
+            bookingId = 99
+            inOutStatus = "OUT"
+            isActive = false
+            offender = Offender().apply {
+              firstName = "John"
+              lastName = "Smith"
+              birthDate = LocalDate.now().minusYears(30)
+              gender = Gender("M", "MALE")
+            }
+          }
+        )
+      )
+      assertThrows<BadRequestException> {
+        service.transferInAfterTemporaryAbsence("A1234AK", requestTapArrivalPrison)
+      }
+    }
+
+    @Test
+    internal fun `will throw an exception if latest movement is not present at all`() {
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+        Optional.of(
+          OffenderBooking().apply {
+            externalMovements = mutableListOf()
+            bookingId = 99
+            inOutStatus = "OUT"
+            isActive = true
+            offender = Offender().apply {
+              firstName = "John"
+              lastName = "Smith"
+              birthDate = LocalDate.now().minusYears(30)
+              gender = Gender("M", "MALE")
+            }
+          }
+        )
+      )
+      assertThrows<EntityNotFoundException> {
+        service.transferInAfterTemporaryAbsence("A1234AK", requestTapArrivalPrison)
+      }
+    }
+
+    @Test
+    internal fun `will throw an exception if latest movement is not active`() {
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+        Optional.of(
+          OffenderBooking().apply {
+            externalMovements = mutableListOf(
+              getMovement(active = false)
+            )
+            bookingId = 99
+            inOutStatus = "TRN"
+            isActive = false
+            offender = Offender().apply {
+              firstName = "John"
+              lastName = "Smith"
+              birthDate = LocalDate.now().minusYears(30)
+              gender = Gender("M", "MALE")
+            }
+          }
+        )
+      )
+      assertThrows<BadRequestException> {
+        service.transferInAfterTemporaryAbsence("A1234AK", requestTapArrivalPrison)
+      }
+    }
+
+    @Test
+    internal fun `will throw an exception if latest movement is not a TAP out`() {
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+        Optional.of(
+          OffenderBooking().apply {
+            externalMovements = mutableListOf(bookingLastMovementTransfer)
+            bookingId = 99
+            inOutStatus = "TRN"
+            isActive = false
+            offender = Offender().apply {
+              firstName = "John"
+              lastName = "Smith"
+              birthDate = LocalDate.now().minusYears(30)
+              gender = Gender("M", "MALE")
+            }
+          }
+        )
+      )
+      assertThrows<BadRequestException> {
+        service.transferInAfterTemporaryAbsence("A1234AK", requestTapArrivalPrison)
+      }
+    }
+  }
+
+  @Nested
+  @DisplayName("transferInAfterTemporaryAbsenceFromDifferentPrison")
+  inner class TransferInAfterTemporaryAbsenceFromDifferentPrison {
+    private val requestTAPArrivalDifferentPrison = RequestForTemporaryAbsenceArrival().apply {
+      this.commentText = "😎"
+      this.agencyId = toPrison.id
+      this.dateTime = LocalDateTime.parse("2022-04-19T00:00:00")
+    }
+
+    @BeforeEach
+    internal fun setUp() {
+      booking = OffenderBooking().apply {
+        externalMovements = mutableListOf(bookingLastMovementTAP)
+        bookingId = 99
+        inOutStatus = "OUT"
+        isActive = true
+        offender = Offender().apply {
+          firstName = "John"
+          lastName = "Smith"
+          birthDate = LocalDate.now().minusYears(30)
+          gender = Gender("M", "MALE")
+        }
+      }
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+        Optional.of(
+          booking
+        )
+      )
+      whenever(agencyInternalLocationRepository.findOneByDescriptionAndAgencyId("WWI-1-1", "WWI")).thenReturn(
+        Optional.of(
+          AgencyInternalLocation().apply {
+            this.description = "WWI-1-1"; this.agencyId = "WWI"; this.capacity = 4; this.currentOccupancy = 3
+          }
+        )
+      )
+      whenever(agencyInternalLocationRepository.findOneByDescriptionAndAgencyId("WWI-RECP", "WWI")).thenReturn(
+        Optional.of(
+          AgencyInternalLocation().apply {
+            this.description = "WWI-RECP"; this.agencyId = "WWI"; this.capacity = 4; this.currentOccupancy = 3
+          }
+        )
+      )
+    }
+
+    @Nested
+    inner class Success {
+      private val newMovementReason =
+        MovementReason().apply { code = "TRNTAP"; description = "Transfer via TAP" }
+      private val newMovementType =
+        MovementType().apply { code = "ADM"; description = "Admission" }
+      private val newMovement = ExternalMovement().apply {
+        movementTime = LocalDateTime.parse("2022-04-20T10:00:00")
+        movementDate = LocalDate.parse("2022-04-20")
+        movementReason = newMovementReason
+        movementType = newMovementType
+      }
+
+      @BeforeEach
+      internal fun setUp() {
+        whenever(
+          externalMovementService.updateMovementsForTransferInAfterTemporaryAbsenceToDifferentPrison(
+            movementDateTime = requestTAPArrivalDifferentPrison.dateTime,
+            booking = booking,
+            lastMovement = bookingLastMovementTAP,
+            toAgency = toPrison,
+            commentText = requestTAPArrivalDifferentPrison.commentText
+          )
+        ).thenReturn(newMovement)
+
+        whenever(agencyLocationRepository.findById("WWI")).thenReturn(
+          Optional.of(
+            AgencyLocation().apply {
+              this.id = "WWI"
+              this.description = "HMPS Wandsworth"
+            }
+          )
+        )
+      }
+
+      @Test
+      internal fun `will change booking to in the new prison`() {
+        val details = service.transferInAfterTemporaryAbsence("A1234AK", requestTAPArrivalDifferentPrison)
+        assertThat(details.status).isEqualTo("ACTIVE IN")
+        assertThat(details.inOutStatus).isEqualTo("IN")
+        assertThat(details.assignedLivingUnit.description).isEqualTo("RECP")
+        assertThat(details.agencyId).isEqualTo("WWI")
+        assertThat(details.statusReason).isEqualTo("ADM-TRNTAP")
+      }
+
+      @Test
+      internal fun `will allocate reception cell`() {
+        val details = service.transferInAfterTemporaryAbsence("A1234AK", requestTAPArrivalDifferentPrison)
+        assertThat(details.assignedLivingUnit.description).isEqualTo("RECP")
+      }
+
+      @Test
+      internal fun `will request movements are updated`() {
+        service.transferInAfterTemporaryAbsence("A1234AK", requestTAPArrivalDifferentPrison)
+
+        verify(externalMovementService).updateMovementsForTransferInAfterTemporaryAbsenceToDifferentPrison(
+          requestTAPArrivalDifferentPrison.dateTime,
+          booking,
+          lastMovement = bookingLastMovementTAP,
+          commentText = requestTAPArrivalDifferentPrison.commentText,
+          toAgency = toPrison
+        )
+      }
+
+      @Test
+      internal fun `will request trust accounts are created`() {
+        service.transferInAfterTemporaryAbsence("A1234AK", requestTAPArrivalDifferentPrison)
+
+        verify(trustAccountService).createTrustAccount(
+          booking,
+          fromAgency = bookingLastMovementCourt.fromAgency,
+          movementIn = newMovement
+        )
+      }
+
+      @Test
+      internal fun `will request to end activities and wait list at previous prison`() {
+        service.transferInAfterTemporaryAbsence("A1234AK", requestTAPArrivalDifferentPrison)
+
+        verify(activityTransferService).endActivitiesAndWaitlist(
+          booking,
+          fromAgency = fromPrison,
+          endDate = newMovement.movementDate,
+          endReason = OffenderProgramEndReason.TRF.code
+        )
+      }
+
+      @Test
+      internal fun `will request IEP level is reset`() {
+        service.transferInAfterTemporaryAbsence("A1234AK", requestTAPArrivalDifferentPrison)
+
+        verify(iepTransferService).resetLevelForPrison(booking, newMovement)
+      }
+
+      @Test
+      internal fun `will request case note is created`() {
+        service.transferInAfterTemporaryAbsence("A1234AK", requestTAPArrivalDifferentPrison)
+
+        verify(caseNoteTransferService).createGenerateAdmissionNote(booking, newMovement)
+      }
+    }
+
+    @Nested
+    inner class Error {
+      @Test
+      internal fun `will throw exception of booking not found`() {
+        whenever(
+          offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(
+            "A1234AK",
+            1
+          )
+        ).thenReturn(Optional.empty())
+
+        assertThrows<EntityNotFoundException> {
+          service.transferInAfterTemporaryAbsence("A1234AK", requestTAPArrivalDifferentPrison)
+        }
+      }
+    }
+
+    @Test
+    internal fun `will throw an exception if the current movement is not a TAP out`() {
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+        Optional.of(
+          OffenderBooking().apply {
+            externalMovements = mutableListOf(bookingLastMovementTransfer)
+            bookingId = 99
+            inOutStatus = "OUT"
+            isActive = false
+            offender = Offender().apply {
+              firstName = "John"
+              lastName = "Smith"
+              birthDate = LocalDate.now().minusYears(30)
+              gender = Gender("M", "MALE")
+            }
+          }
+        )
+      )
+      assertThrows<BadRequestException> {
+        service.transferInAfterTemporaryAbsence("A1234AK", requestTAPArrivalDifferentPrison)
+      }
+    }
+
+    @Test
+    internal fun `will throw an exception if latest movement is not present at all`() {
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+        Optional.of(
+          OffenderBooking().apply {
+            externalMovements = mutableListOf()
+            bookingId = 99
+            inOutStatus = "OUT"
+            isActive = false
+            offender = Offender().apply {
+              firstName = "John"
+              lastName = "Smith"
+              birthDate = LocalDate.now().minusYears(30)
+              gender = Gender("M", "MALE")
+            }
+          }
+        )
+      )
+      assertThrows<EntityNotFoundException> {
+        service.transferInAfterTemporaryAbsence("A1234AK", requestTAPArrivalDifferentPrison)
+      }
+    }
+
+    @Test
+    internal fun `will throw an exception if latest movement is not active`() {
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+        Optional.of(
+          OffenderBooking().apply {
+            externalMovements = mutableListOf(
+              getMovement(active = false)
+            )
+            bookingId = 99
+            inOutStatus = "TRN"
+            isActive = false
+            offender = Offender().apply {
+              firstName = "John"
+              lastName = "Smith"
+              birthDate = LocalDate.now().minusYears(30)
+              gender = Gender("M", "MALE")
+            }
+          }
+        )
+      )
+      assertThrows<BadRequestException> {
+        service.transferInAfterTemporaryAbsence("A1234AK", requestTAPArrivalDifferentPrison)
       }
     }
   }

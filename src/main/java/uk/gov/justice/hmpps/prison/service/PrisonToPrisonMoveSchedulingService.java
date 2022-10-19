@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,8 +23,10 @@ import uk.gov.justice.hmpps.prison.service.transformers.AgencyTransformer;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus.COMPLETED;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus.SCHEDULED_APPROVED;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection.OUT;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIndividualSchedule.EventClass.EXT_MOV;
@@ -194,5 +197,13 @@ public class PrisonToPrisonMoveSchedulingService {
 
     private void checkIsAssociated(final Long bookingId, final OffenderIndividualSchedule scheduledMove) {
         checkArgument(scheduledMove.getOffenderBooking().getBookingId().equals(bookingId), "Booking with id %s not associated with the supplied move id %s.", bookingId, scheduledMove.getId());
+    }
+
+    public Optional<OffenderIndividualSchedule> completeScheduledChildHearingEvent(@Nullable Long bookingId, long parentEventId) {
+        return scheduleRepository.findOneByOffenderBookingBookingIdAndParentEventId(bookingId, parentEventId)
+            .map(scheduleEvent -> {
+                scheduleEvent.setEventStatus(eventStatusRepository.findById(COMPLETED).orElseThrow());
+                return scheduleEvent;
+            });
     }
 }

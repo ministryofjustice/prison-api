@@ -11,4 +11,7 @@ public interface OffenderIndividualScheduleRepository extends CrudRepository<Off
     Optional<OffenderIndividualSchedule> findOneByParentEventId(Long parentEventId);
 
     List<OffenderIndividualSchedule> findByOffenderBooking_BookingIdOrderByIdAsc(final Long bookingId);
+
+    Optional<OffenderIndividualSchedule> findOneByOffenderBookingBookingIdAndParentEventId(Long bookingId, Long parentEventId);
+
 }

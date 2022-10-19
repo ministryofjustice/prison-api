@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.RequestForNewBooking;
-import uk.gov.justice.hmpps.prison.api.model.RequestForTemporaryAbsenceArrival;
 import uk.gov.justice.hmpps.prison.api.model.RequestToDischargePrisoner;
 import uk.gov.justice.hmpps.prison.api.model.RequestToReleasePrisoner;
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOut;
@@ -106,71 +105,6 @@ public class PrisonerReleaseAndTransferService {
     private final OffenderIndividualScheduleRepository offenderIndividualScheduleRepository;
     private final ReferenceCodeRepository<EventStatus> eventStatusRepository;
     private final BookingIntoPrisonService bookingIntoPrisonService;
-
-    public InmateDetail temporaryAbsenceArrival(final String offenderNo, final RequestForTemporaryAbsenceArrival requestForTemporaryAbsenceArrival) {
-
-        final OffenderBooking offenderBooking = this.getOffenderBooking(offenderNo);
-        if (!offenderBooking.getInOutStatus().equals("OUT")) {
-            throw new BadRequestException("Prisoner is not currently out");
-        }
-        final var latestExternalMovement = offenderBooking.getLastMovement().map(lm -> {
-            if (!lm.getMovementType().getCode().equals(TAP.getCode())) {
-                throw new BadRequestException("Latest movement not a temporary absence");
-            }
-
-            if (!lm.isActive()) {
-                throw new BadRequestException("Temporary absence transfer not active");
-            }
-            return lm;
-        }).orElseThrow(EntityNotFoundException.withMessage("No movements found"));
-
-        if (!requestForTemporaryAbsenceArrival.getAgencyId().equals(latestExternalMovement.getFromAgency().getId())) {
-            throw new BadRequestException("Prisoner is not returning to the same prison");
-        }
-
-        offenderBooking.setInOutStatus(IN.name());
-        offenderBooking.setLivingUnitMv(null);
-
-        deactivatePreviousMovements(offenderBooking);
-
-        final MovementReason movementReason = getMovementReason(requestForTemporaryAbsenceArrival.getMovementReasonCode(), latestExternalMovement.getMovementReason());
-
-        final LocalDateTime movementTime = getAndCheckMovementTime(requestForTemporaryAbsenceArrival.getDateTime(), offenderBooking.getBookingId());
-
-        final ExternalMovement.ExternalMovementBuilder builder = ExternalMovement.builder()
-            .movementDate(movementTime.toLocalDate())
-            .movementTime(movementTime)
-            .movementType(movementTypeRepository.findById(TAP).orElseThrow(EntityNotFoundException.withMessage(format("No %s movement type found", MovementType.TAP))))
-            .movementReason(movementReason)
-            .movementDirection(MovementDirection.IN)
-            .fromAgency(latestExternalMovement.getToAgency())
-            .fromCity(latestExternalMovement.getToCity())
-            .toAgency(latestExternalMovement.getFromAgency())
-            .active(true)
-            .commentText(requestForTemporaryAbsenceArrival.getCommentText());
-
-        if (latestExternalMovement.getEventId() == null) {
-            offenderBooking.addExternalMovement(builder.build());
-        } else {
-            offenderIndividualScheduleRepository
-                .findOneByParentEventId(latestExternalMovement.getEventId())
-                .ifPresentOrElse(
-                    event -> {
-                        event.setEventStatus(eventStatusRepository.findById(EventStatus.COMPLETED).orElseThrow());
-
-                        offenderBooking.addExternalMovement(
-                            builder
-                                .eventId(event.getId())
-                                .parentEventId(event.getParentEventId())
-                                .build());
-                    },
-                    () -> offenderBooking.addExternalMovement(builder.build())
-                );
-
-        }
-
-        return offenderTransformer.transform(offenderBooking);
-    }
 
 
     public InmateDetail releasePrisoner(final String prisonerIdentifier, final RequestToReleasePrisoner requestToReleasePrisoner, RequestToDischargePrisoner requestToDischargePrisoner) {
@@ -657,8 +591,4 @@ public class PrisonerReleaseAndTransferService {
     }
 
 
-    private MovementReason getMovementReason(final String movementReasonCode, final MovementReason defaultMovementReason) {
-        if (movementReasonCode == null) return defaultMovementReason;
-        return movementReasonRepository.findById(MovementReason.pk(movementReasonCode)).orElseThrow(EntityNotFoundException.withMessage(format("No movement reason %s found", movementReasonCode)));
-    }
 }
