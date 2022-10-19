@@ -322,7 +322,7 @@ public class OffenderResource {
     public InmateDetail temporaryAbsenceArrival(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestForTemporaryAbsenceArrival requestForTemporaryAbsenceArrival) {
-        return prisonerReleaseAndTransferService.temporaryAbsenceArrival(offenderNo, requestForTemporaryAbsenceArrival);
+        return prisonTransferService.transferInAfterTemporaryAbsence(offenderNo, requestForTemporaryAbsenceArrival);
     }
 
     @ApiResponses({

@@ -10,6 +10,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIndividualSchedule
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
 import uk.gov.justice.hmpps.prison.service.BadRequestException
@@ -144,6 +145,86 @@ class ExternalMovementTransferService(
       )
     }
   }
+  fun updateMovementsForTransferInAfterTemporaryAbsenceToSamePrison(
+    movementReasonCode: String?,
+    movementDateTime: LocalDateTime?,
+    booking: OffenderBooking,
+    lastMovement: ExternalMovement,
+    scheduleEvent: OffenderIndividualSchedule?,
+    commentText: String?
+  ): ExternalMovement {
+    val movementReason = getMovementReason(movementReasonCode ?: lastMovement.movementReason.code).getOrThrow()
+    val receiveDateTime = getReceiveDateTime(movementDateTime, booking).getOrThrow()
+    val movementType = getTAPMovementType().getOrThrow()
+
+    return with(booking) {
+      setPreviousMovementsToInactive().also { entityManager.flush() }
+      addExternalMovement(
+        ExternalMovement(
+          /* offenderBooking = */ booking,
+          /* movementSequence = */ null,
+          /* movementDate = */ receiveDateTime.toLocalDate(),
+          /* reportingDate = */ null,
+          /* movementTime = */ receiveDateTime,
+          /* eventId = */ scheduleEvent?.id,
+          /* parentEventId = */ scheduleEvent?.parentEventId,
+          /* arrestAgencyLocation = */ null,
+          /* fromAgency = */ lastMovement.toAgency,
+          /* toAgency = */ lastMovement.fromAgency,
+          /* active = */ true,
+          /* escortText = */ null,
+          /* commentText = */ commentText,
+          /* toCity = */ null,
+          /* fromCity = */ lastMovement.toCity,
+          /* movementReason = */ movementReason,
+          /* movementDirection = */ MovementDirection.IN,
+          /* movementType = */ movementType,
+          /* toAddressId = */ null,
+          /* fromAddressId = */ lastMovement.toAddressId,
+        )
+      )
+    }
+  }
+
+  fun updateMovementsForTransferInAfterTemporaryAbsenceToDifferentPrison(
+    movementDateTime: LocalDateTime?,
+    booking: OffenderBooking,
+    lastMovement: ExternalMovement,
+    toAgency: AgencyLocation,
+    commentText: String?
+  ): ExternalMovement {
+    val movementReason = getMovementReason(MovementReason.TRANSFER_VIA_TAP.code).getOrThrow()
+    val receiveDateTime = getReceiveDateTime(movementDateTime, booking).getOrThrow()
+    val movementType = getAdmissionMovementType().getOrThrow()
+
+    return with(booking) {
+      setPreviousMovementsToInactive().also { entityManager.flush() }
+      addExternalMovement(
+        ExternalMovement(
+          /* offenderBooking = */ booking,
+          /* movementSequence = */ null,
+          /* movementDate = */ receiveDateTime.toLocalDate(),
+          /* reportingDate = */ null,
+          /* movementTime = */ receiveDateTime,
+          /* eventId = */ null,
+          /* parentEventId = */ null,
+          /* arrestAgencyLocation = */ null,
+          /* fromAgency = */ lastMovement.fromAgency,
+          /* toAgency = */ toAgency, // the passed in agency in the request is just for validation
+          /* active = */ true,
+          /* escortText = */ null,
+          /* commentText = */ commentText,
+          /* toCity = */ null,
+          /* fromCity = */ lastMovement.toCity,
+          /* movementReason = */ movementReason,
+          /* movementDirection = */ MovementDirection.IN,
+          /* movementType = */ movementType,
+          /* toAddressId = */ null,
+          /* fromAddressId = */ lastMovement.toAddressId,
+        )
+      )
+    }
+  }
 
   fun updateMovementsForNewOrRecalledBooking(
     booking: OffenderBooking,
@@ -193,6 +274,10 @@ class ExternalMovementTransferService(
   private fun getCourtMovementType(): Result<MovementType> =
     movementTypeRepository.findByIdOrNull(MovementType.CRT)?.let { success(it) } ?: failure(
       EntityNotFoundException.withMessage("No ${MovementType.CRT} movement type found")
+    )
+  private fun getTAPMovementType(): Result<MovementType> =
+    movementTypeRepository.findByIdOrNull(MovementType.TAP)?.let { success(it) } ?: failure(
+      EntityNotFoundException.withMessage("No ${MovementType.TAP} movement type found")
     )
 
   private fun getMovementReasonForPrisonTransfer(): Result<MovementReason> {

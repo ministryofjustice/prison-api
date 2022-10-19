@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.JsonNode
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.tuple
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -1398,14 +1397,14 @@ class OffendersResourceTransferImpTest : ResourceTest() {
       @DisplayName("When bed is released")
       inner class BedReleased {
         private lateinit var transferOutDateTime: LocalDateTime
-        private val toAddressId = 18248
+        private val toCityId = "18248"
 
         @BeforeEach
         internal fun setUp() {
           transferOutDateTime =
             testDataContext.transferOutToTemporaryAbsence(
               offenderNo,
-              toLocation = "$toAddressId",
+              toLocation = toCityId,
               shouldReleaseBed = true
             )
 
@@ -1465,7 +1464,6 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           }
 
           @Test
-          @Disabled("BROKEN, should be fixed")
           internal fun `when override movement reason booking status field is updated to the new reason`() {
             temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "LEI", movementReasonCode = "C6"))
               .expectBody()
@@ -1480,14 +1478,13 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           }
 
           @Test
-          @Disabled("BROKEN, should be fixed")
-          internal fun `from address should taken from to OUT address`() {
+          internal fun `from city should be taken from the city transferred to`() {
             temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "LEI", movementReasonCode = null))
               .expectBody()
               .jsonPath("inOutStatus").isEqualTo("IN")
               .jsonPath("agencyId").isEqualTo("LEI")
 
-            assertThat(lastMovement(bookingId)?.fromAddressId).isEqualTo(toAddressId)
+            assertThat(dataLoaderTransaction.get { lastMovement(bookingId).fromCity?.code }).isEqualTo(toCityId)
           }
 
           @Test
@@ -1571,7 +1568,6 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
         @Nested
         @DisplayName("Returning to a different prison")
-        @Disabled("Not implemented yet")
         inner class DifferentPrison {
           @Test
           internal fun `returning to a different prison is allowed`() {
@@ -1627,6 +1623,13 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           }
 
           @Test
+          internal fun `from city should be taken from the city transferred to`() {
+            temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "MDI"))
+
+            assertThat(dataLoaderTransaction.get { lastMovement(bookingId).fromCity?.code }).isEqualTo(toCityId)
+          }
+
+          @Test
           internal fun `will create a new bed assignment history record with no reason code`() {
             val receiveDateTime = LocalDateTime.now().minusMinutes(2)
             assertThat(testDataContext.getBedAssignments(bookingId))
@@ -1637,7 +1640,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               )
               .containsExactly(
                 tuple("ADM", bookingInTime.toLocalDate(), LocalDate.now()),
-                tuple("19", transferOutDateTime.toLocalDate(), null),
+                tuple("C3", transferOutDateTime.toLocalDate(), null),
               )
 
             temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "MDI", dateTime = receiveDateTime))
@@ -1651,7 +1654,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               .containsExactly(
                 tuple("ADM", bookingInTime.toLocalDate(), LocalDate.now()), // admission to original prison
                 tuple(
-                  "19",
+                  "C3",
                   transferOutDateTime.toLocalDate(),
                   null
                 ), // trigger end_prev_bed_assg_hty will add an end date to the previous movement, but can't be tested
@@ -1767,7 +1770,6 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
         @Nested
         @DisplayName("Returning to a different prison")
-        @Disabled("Not implemented yet")
         inner class DifferentPrison {
           @Test
           internal fun `will set the prisoner as active in`() {
@@ -1820,13 +1822,14 @@ class OffendersResourceTransferImpTest : ResourceTest() {
       @DisplayName("With a scheduled temporary absence")
       open inner class WithScheduledTAP {
         private var scheduledEventId: Long = 0
+        private var addressId: Long = -22
 
         @BeforeEach
         internal fun setUp() {
           scheduledEventId = dataLoaderTransaction.save {
             testDataContext.createScheduledTemporaryAbsence(
               bookingId,
-              -22, // corporate address
+              addressId, // corporate address
               LocalDateTime.now().minusDays(1),
             ).id
           }
@@ -1850,6 +1853,13 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           val scheduledTAPEvents = testDataContext.getScheduledMovements(bookingId)
           assertThat(scheduledTAPEvents).extracting("eventStatus.code").containsExactly("COMP", "COMP")
           assertThat(testDataContext.getMovements(bookingId).last().eventId).isEqualTo(scheduledTAPEvents.last().id)
+        }
+
+        @Test
+        internal fun `from addressId should taken from to OUT addressId`() {
+          temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "LEI"))
+
+          assertThat(lastMovement(bookingId).fromAddressId).isEqualTo(addressId)
         }
       }
 
@@ -1892,7 +1902,6 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
       @Nested
       @DisplayName("Returning to a different prison")
-      @Disabled("Not implemented yet")
       inner class DifferentPrison {
         @Test
         internal fun `will notify team of the automatic transfer`() {
@@ -1993,7 +2002,6 @@ class OffendersResourceTransferImpTest : ResourceTest() {
         }
 
         @Test
-        @Disabled("BROKEN - live bug - needs fixing")
         internal fun `cannot arrive with a time before transfer out time`() {
           val transferOutDateTime =
             testDataContext.transferOutToTemporaryAbsence(offenderNo, toLocation = "18248", shouldReleaseBed = false)
