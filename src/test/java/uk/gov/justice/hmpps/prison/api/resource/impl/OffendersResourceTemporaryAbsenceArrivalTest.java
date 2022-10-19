@@ -10,7 +10,7 @@ import uk.gov.justice.hmpps.prison.api.model.RequestForTemporaryAbsenceArrival;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
 import uk.gov.justice.hmpps.prison.service.BadRequestException;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
-import uk.gov.justice.hmpps.prison.service.PrisonerReleaseAndTransferService;
+import uk.gov.justice.hmpps.prison.service.receiveandtransfer.PrisonTransferService;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -24,7 +24,7 @@ import static org.springframework.http.HttpMethod.PUT;
 public class OffendersResourceTemporaryAbsenceArrivalTest extends ResourceTest {
 
     @MockBean
-    PrisonerReleaseAndTransferService prisonerReleaseAndTransferService;
+    PrisonTransferService prisonTransferService;
 
     @Test
     public void updateTemporaryAbsenceArrivalTest() {
@@ -38,7 +38,7 @@ public class OffendersResourceTemporaryAbsenceArrivalTest extends ResourceTest {
         );
         InmateDetail inmateDetail = new InmateDetail();
 
-        Mockito.when(prisonerReleaseAndTransferService.temporaryAbsenceArrival(Mockito.eq(prisonerNo), Mockito.any(RequestForTemporaryAbsenceArrival.class)))
+        Mockito.when(prisonTransferService.transferInAfterTemporaryAbsence(Mockito.eq(prisonerNo), Mockito.any(RequestForTemporaryAbsenceArrival.class)))
             .thenReturn(inmateDetail);
 
         final var temporaryAbsenceEntity = createHttpEntity(token, requestForTemporaryAbsenceArrival);
@@ -66,7 +66,7 @@ public class OffendersResourceTemporaryAbsenceArrivalTest extends ResourceTest {
             "dateTime", now.minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
         );
 
-        Mockito.when(prisonerReleaseAndTransferService.temporaryAbsenceArrival(Mockito.eq(prisonerNo), Mockito.any(RequestForTemporaryAbsenceArrival.class)))
+        Mockito.when(prisonTransferService.transferInAfterTemporaryAbsence(Mockito.eq(prisonerNo), Mockito.any(RequestForTemporaryAbsenceArrival.class)))
             .thenThrow(new BadRequestException("Latest movement not a temporary absence movement"));
 
         final var temporaryAbsenceEntity = createHttpEntity(token, requestForTemporaryAbsenceArrival);
@@ -94,7 +94,7 @@ public class OffendersResourceTemporaryAbsenceArrivalTest extends ResourceTest {
             "dateTime", now.minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
         );
 
-        Mockito.when(prisonerReleaseAndTransferService.temporaryAbsenceArrival(Mockito.eq(prisonerNo), Mockito.any(RequestForTemporaryAbsenceArrival.class)))
+        Mockito.when(prisonTransferService.transferInAfterTemporaryAbsence(Mockito.eq(prisonerNo), Mockito.any(RequestForTemporaryAbsenceArrival.class)))
             .thenThrow(EntityNotFoundException.withMessage(format("No bookings found for prisoner number %s", prisonerNo)));
 
         final var temporaryAbsenceEntity = createHttpEntity(token, requestForTemporaryAbsenceArrival);
