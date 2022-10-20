@@ -18,6 +18,7 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
+import org.springframework.test.web.reactive.server.StatusAssertions
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.api.model.CaseNote
 import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary
@@ -36,15 +37,18 @@ import uk.gov.justice.hmpps.prison.util.builders.OffenderCourtCaseBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderTeamAssignmentBuilder
 import uk.gov.justice.hmpps.prison.util.builders.TeamBuilder
 import uk.gov.justice.hmpps.prison.util.builders.createCourtHearing
+import uk.gov.justice.hmpps.prison.util.builders.createScheduledTemporaryAbsence
 import uk.gov.justice.hmpps.prison.util.builders.getBedAssignments
 import uk.gov.justice.hmpps.prison.util.builders.getCaseNotes
 import uk.gov.justice.hmpps.prison.util.builders.getCourtHearings
 import uk.gov.justice.hmpps.prison.util.builders.getCurrentIEP
 import uk.gov.justice.hmpps.prison.util.builders.getMovements
+import uk.gov.justice.hmpps.prison.util.builders.getScheduledMovements
 import uk.gov.justice.hmpps.prison.util.builders.getVOBalanceDetails
 import uk.gov.justice.hmpps.prison.util.builders.release
 import uk.gov.justice.hmpps.prison.util.builders.transferOut
 import uk.gov.justice.hmpps.prison.util.builders.transferOutToCourt
+import uk.gov.justice.hmpps.prison.util.builders.transferOutToTemporaryAbsence
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -528,7 +532,8 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
         @BeforeEach
         internal fun setUp() {
-          transferOutDateTime = testDataContext.transferOutToCourt(offenderNo, toLocation = "COURT1", shouldReleaseBed = true)
+          transferOutDateTime =
+            testDataContext.transferOutToCourt(offenderNo, toLocation = "COURT1", shouldReleaseBed = true)
         }
 
         @Nested
@@ -843,7 +848,11 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               )
               .containsExactly(
                 tuple("ADM", bookingInTime.toLocalDate(), LocalDate.now()), // admission to original prison
-                tuple("19", transferOutDateTime.toLocalDate(), null), // trigger end_prev_bed_assg_hty will add an end date to the previous movement, but can't be tested
+                tuple(
+                  "19",
+                  transferOutDateTime.toLocalDate(),
+                  null
+                ), // trigger end_prev_bed_assg_hty will add an end date to the previous movement, but can't be tested
                 tuple(null, receiveDateTime.toLocalDate(), null), // as per nomis
               )
           }
@@ -927,7 +936,8 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
         @BeforeEach
         internal fun setUp() {
-          transferOutDateTime = testDataContext.transferOutToCourt(offenderNo, toLocation = "COURT1", shouldReleaseBed = false)
+          transferOutDateTime =
+            testDataContext.transferOutToCourt(offenderNo, toLocation = "COURT1", shouldReleaseBed = false)
         }
 
         @Nested
@@ -1069,7 +1079,11 @@ class OffendersResourceTransferImpTest : ResourceTest() {
                 BedAssignmentHistory::getAssignmentEndDate
               )
               .containsExactly(
-                tuple("ADM", bookingInTime.toLocalDate(), null), // trigger end_prev_bed_assg_hty will add an end date to the previous movement, but can't be tested
+                tuple(
+                  "ADM",
+                  bookingInTime.toLocalDate(),
+                  null
+                ), // trigger end_prev_bed_assg_hty will add an end date to the previous movement, but can't be tested
                 tuple(null, receiveDateTime.toLocalDate(), null),
               )
           }
@@ -1080,6 +1094,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
       @DisplayName("With a scheduled court appearance")
       open inner class WithCourtAppearance {
         private var courtHearingEventId: Long = 0
+
         @BeforeEach
         internal fun setUp() {
           courtHearingEventId = testDataContext.createCourtHearing(bookingId)
@@ -1089,7 +1104,8 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
         @Test
         internal fun `will complete scheduled appearance event`() {
-          assertThat(testDataContext.getCourtHearings(bookingId)).extracting("eventStatus.code").containsExactly("COMP", "SCH")
+          assertThat(testDataContext.getCourtHearings(bookingId)).extracting("eventStatus.code")
+            .containsExactly("COMP", "SCH")
           webTestClient.put()
             .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
             .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
@@ -1140,7 +1156,8 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             bookingId = it.bookingId
           }
 
-        transferOutDateTime = testDataContext.transferOutToCourt(offenderNo, toLocation = "COURT1", shouldReleaseBed = false)
+        transferOutDateTime =
+          testDataContext.transferOutToCourt(offenderNo, toLocation = "COURT1", shouldReleaseBed = false)
       }
 
       @Nested
@@ -1186,6 +1203,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           )
         }
       }
+
       @Nested
       @DisplayName("Returning to the same prison")
       inner class SamePrison {
@@ -1316,7 +1334,8 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
         @Test
         internal fun `cannot transfer with a time before transfer out time`() {
-          val transferOutDateTime = testDataContext.transferOutToCourt(offenderNo, toLocation = "COURT1", shouldReleaseBed = false)
+          val transferOutDateTime =
+            testDataContext.transferOutToCourt(offenderNo, toLocation = "COURT1", shouldReleaseBed = false)
 
           webTestClient.put()
             .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
@@ -1343,6 +1362,699 @@ class OffendersResourceTransferImpTest : ResourceTest() {
       }
     }
   }
+
+  @Nested
+  @DisplayName("PUT /{offenderNo}/temporary-absence-arrival")
+  inner class TAPTransferIn {
+    @Nested
+    @DisplayName("Successful transfer in from temporary absence")
+    inner class Success {
+      private lateinit var offenderNo: String
+      private var bookingId: Long = 0
+      private val bookingInTime = LocalDateTime.now().minusDays(1)
+
+      @BeforeEach
+      internal fun setUp() {
+        dataLoaderTransaction.load(
+          OffenderBuilder().withBooking(
+            OffenderBookingBuilder(
+              prisonId = "LEI",
+              bookingInTime = bookingInTime,
+              cellLocation = "LEI-RECP"
+            )
+              .withIEPLevel("ENH")
+              .withInitialVoBalances(2, 8)
+          ),
+          testDataContext
+        )
+          .also {
+            offenderNo = it.offenderNo
+            bookingId = it.bookingId
+          }
+      }
+
+      @Nested
+      @DisplayName("When bed is released")
+      inner class BedReleased {
+        private lateinit var transferOutDateTime: LocalDateTime
+        private val toCityId = "18248"
+
+        @BeforeEach
+        internal fun setUp() {
+          transferOutDateTime =
+            testDataContext.transferOutToTemporaryAbsence(
+              offenderNo,
+              toLocation = toCityId,
+              shouldReleaseBed = true
+            )
+
+          getOffender(offenderNo)
+            .isOk
+            .expectBody()
+            .jsonPath("inOutStatus").isEqualTo("OUT")
+            .jsonPath("status").isEqualTo("ACTIVE OUT")
+            .jsonPath("agencyId").isEqualTo("LEI")
+            .jsonPath("statusReason").isEqualTo("TAP-C3")
+        }
+
+        @Nested
+        @DisplayName("Returning back to the same prison")
+        inner class SamePrison {
+
+          @Test
+          internal fun `will set the prisoner as active in`() {
+            temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "LEI"))
+              .expectBody()
+              .jsonPath("inOutStatus").isEqualTo("IN")
+              .jsonPath("status").isEqualTo("ACTIVE IN")
+              .jsonPath("agencyId").isEqualTo("LEI")
+
+            getOffender(offenderNo)
+              .isOk
+              .expectBody()
+              .jsonPath("inOutStatus").isEqualTo("IN")
+              .jsonPath("status").isEqualTo("ACTIVE IN")
+              .jsonPath("agencyId").isEqualTo("LEI")
+          }
+
+          @Test
+          internal fun `default movement reason is taken from out movement`() {
+            temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "LEI", movementReasonCode = null))
+              .expectBody()
+              .jsonPath("inOutStatus").isEqualTo("IN")
+              .jsonPath("agencyId").isEqualTo("LEI")
+
+            getOffender(offenderNo)
+              .isOk
+              .expectBody()
+              .jsonPath("inOutStatus").isEqualTo("IN")
+              .jsonPath("agencyId").isEqualTo("LEI")
+              .jsonPath("lastMovementTypeCode").isEqualTo("TAP")
+              .jsonPath("lastMovementReasonCode").isEqualTo("C3")
+          }
+
+          @Test
+          internal fun `can override movement reason`() {
+            temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "LEI", movementReasonCode = "C6"))
+              .expectBody()
+              .jsonPath("inOutStatus").isEqualTo("IN")
+              .jsonPath("agencyId").isEqualTo("LEI")
+
+            assertThat(dataLoaderTransaction.get { lastMovement(bookingId).movementReason?.code }).isEqualTo("C6")
+          }
+
+          @Test
+          internal fun `when override movement reason booking status field is updated to the new reason`() {
+            temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "LEI", movementReasonCode = "C6"))
+              .expectBody()
+              .jsonPath("inOutStatus").isEqualTo("IN")
+              .jsonPath("agencyId").isEqualTo("LEI")
+
+            getOffender(offenderNo)
+              .isOk
+              .expectBody()
+              .jsonPath("lastMovementTypeCode").isEqualTo("TAP")
+              .jsonPath("lastMovementReasonCode").isEqualTo("C6")
+          }
+
+          @Test
+          internal fun `from city should be taken from the city transferred to`() {
+            temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "LEI", movementReasonCode = null))
+              .expectBody()
+              .jsonPath("inOutStatus").isEqualTo("IN")
+              .jsonPath("agencyId").isEqualTo("LEI")
+
+            assertThat(dataLoaderTransaction.get { lastMovement(bookingId).fromCity?.code }).isEqualTo(toCityId)
+          }
+
+          @Test
+          internal fun `cell remains unchanged from when the prisoner was released on TAP`() {
+            temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "LEI"))
+              .expectBody()
+              .jsonPath("inOutStatus").isEqualTo("IN")
+              .jsonPath("agencyId").isEqualTo("LEI")
+
+            getOffender(offenderNo)
+              .isOk
+              .expectBody()
+              .jsonPath("inOutStatus").isEqualTo("IN")
+              .jsonPath("agencyId").isEqualTo("LEI")
+              .jsonPath("assignedLivingUnit.agencyId").isEqualTo("LEI")
+              .jsonPath("assignedLivingUnit.description").isEqualTo("TAP") // as set when bed was released
+          }
+
+          @Test
+          internal fun `will create a new movement and deactivate the release on TAP out`() {
+            assertThat(testDataContext.getMovements(bookingId))
+              .extracting(
+                ExternalMovement::getMovementSequence,
+                ExternalMovement::getMovementDirection,
+                ExternalMovement::isActive
+              )
+              .containsExactly(
+                tuple(1L, IN, false),
+                tuple(2L, OUT, true),
+              )
+
+            temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "LEI"))
+              .expectBody()
+              .jsonPath("inOutStatus").isEqualTo("IN")
+              .jsonPath("agencyId").isEqualTo("LEI")
+
+            assertThat(testDataContext.getMovements(bookingId))
+              .extracting(
+                ExternalMovement::getMovementSequence,
+                ExternalMovement::getMovementDirection,
+                ExternalMovement::isActive
+              )
+              .containsExactly(
+                tuple(1L, IN, false),
+                tuple(2L, OUT, false),
+                tuple(3L, IN, true),
+              )
+          }
+
+          @Test
+          internal fun `will not record any bed history changes`() {
+            val receiveDateTime = LocalDateTime.now().minusMinutes(2)
+            assertThat(testDataContext.getBedAssignments(bookingId))
+              .extracting(
+                BedAssignmentHistory::getAssignmentReason,
+                BedAssignmentHistory::getAssignmentDate,
+                BedAssignmentHistory::getAssignmentEndDate
+              )
+              .containsExactly(
+                tuple("ADM", bookingInTime.toLocalDate(), transferOutDateTime.toLocalDate()),
+                tuple("C3", transferOutDateTime.toLocalDate(), null),
+              )
+
+            temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "LEI", dateTime = receiveDateTime))
+              .expectBody()
+              .jsonPath("inOutStatus").isEqualTo("IN")
+              .jsonPath("agencyId").isEqualTo("LEI")
+
+            assertThat(testDataContext.getBedAssignments(bookingId))
+              .extracting(
+                BedAssignmentHistory::getAssignmentReason,
+                BedAssignmentHistory::getAssignmentDate,
+                BedAssignmentHistory::getAssignmentEndDate
+              )
+              .containsExactly(
+                tuple("ADM", bookingInTime.toLocalDate(), transferOutDateTime.toLocalDate()),
+                tuple("C3", transferOutDateTime.toLocalDate(), null),
+              )
+          }
+        }
+
+        @Nested
+        @DisplayName("Returning to a different prison")
+        inner class DifferentPrison {
+          @Test
+          internal fun `returning to a different prison is allowed`() {
+            temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "MDI"))
+              .expectBody()
+              .jsonPath("inOutStatus").isEqualTo("IN")
+              .jsonPath("status").isEqualTo("ACTIVE IN")
+              .jsonPath("agencyId").isEqualTo("MDI")
+              .jsonPath("lastMovementTypeCode").isEqualTo("ADM")
+              .jsonPath("lastMovementReasonCode").isEqualTo("TRNTAP")
+
+            getOffender(offenderNo)
+              .isOk
+              .expectBody()
+              .jsonPath("lastMovementTypeCode").isEqualTo("ADM")
+              .jsonPath("lastMovementReasonCode").isEqualTo("TRNTAP")
+          }
+
+          @Test
+          internal fun `by default transfer will be into reception`() {
+            temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "MDI"))
+              .expectBody()
+              .jsonPath("assignedLivingUnit.agencyId").isEqualTo("MDI")
+              .jsonPath("assignedLivingUnit.description").isEqualTo("RECP")
+          }
+
+          @Test
+          internal fun `will create a new movement and deactivate the transfer out`() {
+            assertThat(testDataContext.getMovements(bookingId))
+              .extracting(
+                ExternalMovement::getMovementSequence,
+                ExternalMovement::getMovementDirection,
+                ExternalMovement::isActive
+              )
+              .containsExactly(
+                tuple(1L, IN, false),
+                tuple(2L, OUT, true),
+              )
+
+            temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "MDI"))
+
+            assertThat(testDataContext.getMovements(bookingId))
+              .extracting(
+                ExternalMovement::getMovementSequence,
+                ExternalMovement::getMovementDirection,
+                ExternalMovement::isActive
+              )
+              .containsExactly(
+                tuple(1L, IN, false),
+                tuple(2L, OUT, false), // updated false
+                tuple(3L, IN, true), // new created transfer in event
+              )
+          }
+
+          @Test
+          internal fun `from city should be taken from the city transferred to`() {
+            temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "MDI"))
+
+            assertThat(dataLoaderTransaction.get { lastMovement(bookingId).fromCity?.code }).isEqualTo(toCityId)
+          }
+
+          @Test
+          internal fun `will create a new bed assignment history record with no reason code`() {
+            val receiveDateTime = LocalDateTime.now().minusMinutes(2)
+            assertThat(testDataContext.getBedAssignments(bookingId))
+              .extracting(
+                BedAssignmentHistory::getAssignmentReason,
+                BedAssignmentHistory::getAssignmentDate,
+                BedAssignmentHistory::getAssignmentEndDate
+              )
+              .containsExactly(
+                tuple("ADM", bookingInTime.toLocalDate(), LocalDate.now()),
+                tuple("C3", transferOutDateTime.toLocalDate(), null),
+              )
+
+            temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "MDI", dateTime = receiveDateTime))
+
+            assertThat(testDataContext.getBedAssignments(bookingId))
+              .extracting(
+                BedAssignmentHistory::getAssignmentReason,
+                BedAssignmentHistory::getAssignmentDate,
+                BedAssignmentHistory::getAssignmentEndDate
+              )
+              .containsExactly(
+                tuple("ADM", bookingInTime.toLocalDate(), LocalDate.now()), // admission to original prison
+                tuple(
+                  "C3",
+                  transferOutDateTime.toLocalDate(),
+                  null
+                ), // trigger end_prev_bed_assg_hty will add an end date to the previous movement, but can't be tested
+                tuple(null, receiveDateTime.toLocalDate(), null), // as per nomis
+              )
+          }
+
+          @Test
+          internal fun `will reset IEP level back to default for prison`() {
+            assertThat(testDataContext.getCurrentIEP(offenderNo))
+              .extracting(PrivilegeSummary::getIepLevel)
+              .isEqualTo("Enhanced")
+
+            temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "MDI"))
+
+            assertThat(testDataContext.getCurrentIEP(offenderNo))
+              .extracting(PrivilegeSummary::getIepLevel)
+              .isEqualTo("Entry")
+          }
+
+          @Test
+          internal fun `will create a transfer via TAP note`() {
+            assertThat(testDataContext.getCaseNotes(bookingId))
+              .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getText)
+              .contains(
+                tuple(
+                  "TRANSFER",
+                  "FROMTOL",
+                  "Offender admitted to LEEDS for reason: Unconvicted Remand from OUTSIDE."
+                )
+              )
+
+            temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "MDI"))
+
+            assertThat(testDataContext.getCaseNotes(bookingId))
+              .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getText)
+              .contains(
+                tuple(
+                  "TRANSFER",
+                  "FROMTOL",
+                  "Offender admitted to MOORLAND for reason: Transfer Via Temporary Release from LEEDS."
+                )
+              )
+          }
+        }
+      }
+
+      @Nested
+      @DisplayName("When bed is not released")
+      inner class BedNotReleased {
+        private lateinit var transferOutDateTime: LocalDateTime
+
+        @BeforeEach
+        internal fun setUp() {
+          transferOutDateTime =
+            testDataContext.transferOutToTemporaryAbsence(offenderNo, toLocation = "18248", shouldReleaseBed = false)
+
+          getOffender(offenderNo)
+            .isOk
+            .expectBody()
+            .jsonPath("inOutStatus").isEqualTo("OUT")
+            .jsonPath("status").isEqualTo("ACTIVE OUT")
+            .jsonPath("agencyId").isEqualTo("LEI")
+            .jsonPath("statusReason").isEqualTo("TAP-C3")
+        }
+
+        @Nested
+        @DisplayName("Returning back to the same prison")
+        inner class SamePrison {
+
+          @Test
+          internal fun `cell remains unchanged from when the prisoner was released to TAP`() {
+            temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "LEI"))
+              .expectBody()
+              .jsonPath("inOutStatus").isEqualTo("IN")
+              .jsonPath("status").isEqualTo("ACTIVE IN")
+              .jsonPath("agencyId").isEqualTo("LEI")
+              .jsonPath("assignedLivingUnit.agencyId").isEqualTo("LEI")
+              .jsonPath("assignedLivingUnit.description").isEqualTo("RECP")
+
+            getOffender(offenderNo)
+              .isOk
+              .expectBody()
+              .jsonPath("assignedLivingUnit.agencyId").isEqualTo("LEI")
+              .jsonPath("assignedLivingUnit.description").isEqualTo("RECP")
+          }
+
+          @Test
+          internal fun `will not record any bed history changes`() {
+            assertThat(testDataContext.getBedAssignments(bookingId))
+              .extracting(
+                BedAssignmentHistory::getAssignmentReason,
+                BedAssignmentHistory::getAssignmentDate,
+                BedAssignmentHistory::getAssignmentEndDate
+              )
+              .containsExactly(
+                tuple("ADM", bookingInTime.toLocalDate(), null),
+              )
+
+            temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "LEI"))
+
+            assertThat(testDataContext.getBedAssignments(bookingId))
+              .extracting(
+                BedAssignmentHistory::getAssignmentReason,
+                BedAssignmentHistory::getAssignmentDate,
+                BedAssignmentHistory::getAssignmentEndDate
+              )
+              .containsExactly(
+                tuple("ADM", bookingInTime.toLocalDate(), null),
+              )
+          }
+        }
+
+        @Nested
+        @DisplayName("Returning to a different prison")
+        inner class DifferentPrison {
+          @Test
+          internal fun `will set the prisoner as active in`() {
+            temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "MDI"))
+              .expectBody()
+              .jsonPath("inOutStatus").isEqualTo("IN")
+              .jsonPath("status").isEqualTo("ACTIVE IN")
+
+            getOffender(offenderNo)
+              .isOk
+              .expectBody()
+              .jsonPath("inOutStatus").isEqualTo("IN")
+              .jsonPath("status").isEqualTo("ACTIVE IN")
+          }
+
+          @Test
+          internal fun `will create a new bed assignment history record with no reason code`() {
+            val receiveDateTime = LocalDateTime.now().minusMinutes(2)
+            assertThat(testDataContext.getBedAssignments(bookingId))
+              .extracting(
+                BedAssignmentHistory::getAssignmentReason,
+                BedAssignmentHistory::getAssignmentDate,
+                BedAssignmentHistory::getAssignmentEndDate
+              )
+              .containsExactly(
+                tuple("ADM", bookingInTime.toLocalDate(), null),
+              )
+
+            temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "MDI"))
+
+            assertThat(testDataContext.getBedAssignments(bookingId))
+              .extracting(
+                BedAssignmentHistory::getAssignmentReason,
+                BedAssignmentHistory::getAssignmentDate,
+                BedAssignmentHistory::getAssignmentEndDate
+              )
+              .containsExactly(
+                tuple(
+                  "ADM",
+                  bookingInTime.toLocalDate(),
+                  null
+                ), // trigger end_prev_bed_assg_hty will add an end date to the previous movement, but can't be tested
+                tuple(null, receiveDateTime.toLocalDate(), null),
+              )
+          }
+        }
+      }
+
+      @Nested
+      @DisplayName("With a scheduled temporary absence")
+      open inner class WithScheduledTAP {
+        private var scheduledEventId: Long = 0
+        private var addressId: Long = -22
+
+        @BeforeEach
+        internal fun setUp() {
+          scheduledEventId = dataLoaderTransaction.save {
+            testDataContext.createScheduledTemporaryAbsence(
+              bookingId,
+              addressId, // corporate address
+              LocalDateTime.now().minusDays(1),
+            ).id
+          }
+          assertThat(testDataContext.getScheduledMovements(bookingId)).extracting("eventStatus.code")
+            .containsExactly("SCH")
+          testDataContext.transferOutToTemporaryAbsence(
+            offenderNo,
+            toLocation = "18248",
+            shouldReleaseBed = false,
+            scheduledEventId
+          )
+        }
+
+        @Test
+        internal fun `will complete scheduled movement event`() {
+          assertThat(testDataContext.getScheduledMovements(bookingId)).extracting("eventStatus.code")
+            .containsExactly("COMP", "SCH")
+
+          temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "LEI"))
+
+          val scheduledTAPEvents = testDataContext.getScheduledMovements(bookingId)
+          assertThat(scheduledTAPEvents).extracting("eventStatus.code").containsExactly("COMP", "COMP")
+          assertThat(testDataContext.getMovements(bookingId).last().eventId).isEqualTo(scheduledTAPEvents.last().id)
+        }
+
+        @Test
+        internal fun `from addressId should taken from to OUT addressId`() {
+          temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "LEI"))
+
+          assertThat(lastMovement(bookingId).fromAddressId).isEqualTo(addressId)
+        }
+      }
+
+      private fun temporaryAbsenceArrival(body: String) = temporaryAbsenceArrival(offenderNo, body).isOk
+    }
+
+    @Nested
+    @DisplayName("With a team assignment")
+    inner class WithTeamAssignment {
+      private lateinit var offenderNo: String
+      private var bookingId: Long = 0
+      private val bookingInTime = LocalDateTime.now().minusDays(1)
+      private lateinit var transferOutDateTime: LocalDateTime
+
+      @BeforeEach
+      internal fun setUp() {
+        dataLoaderTransaction.load(
+          OffenderBuilder().withBooking(
+            OffenderBookingBuilder(
+              prisonId = "LEI",
+              bookingInTime = bookingInTime,
+              cellLocation = "LEI-RECP"
+            )
+              .withTeamAssignment(OffenderTeamAssignmentBuilder(team))
+          ),
+          testDataContext
+        )
+          .also {
+            offenderNo = it.offenderNo
+            bookingId = it.bookingId
+          }
+
+        transferOutDateTime =
+          testDataContext.transferOutToTemporaryAbsence(
+            offenderNo,
+            toLocation = "18248",
+            shouldReleaseBed = false,
+          )
+      }
+
+      @Nested
+      @DisplayName("Returning to a different prison")
+      inner class DifferentPrison {
+        @Test
+        internal fun `will notify team of the automatic transfer`() {
+          val receiveDateTime = LocalDateTime.now()
+
+          temporaryAbsenceArrival(
+            offenderNo,
+            temporaryAbsenceArrivalRequest(agencyId = "MDI", dateTime = receiveDateTime)
+          ).isOk
+
+          // we can't test store procedure is called since we are running against H2, so next best thing is
+          // to assert service is called with the correct parameters that are passed to stored procedure
+          verify(workflowTaskService).createTaskAutomaticTransfer(
+            check {
+              assertThat(it.bookingId).isEqualTo(bookingId)
+            },
+            check {
+              assertThat(it.fromAgency.id).isEqualTo("LEI")
+              assertThat(it.toAgency.id).isEqualTo("MDI")
+              assertThat(it.movementReason.code).isEqualTo("TRNTAP")
+              assertThat(it.movementDate).isEqualTo(receiveDateTime.toLocalDate())
+              assertThat(it.movementTime).isEqualTo(receiveDateTime)
+            },
+            check {
+              assertThat(it.id).isEqualTo(team.id)
+            }
+          )
+        }
+      }
+
+      @Nested
+      @DisplayName("Returning to the same prison")
+      inner class SamePrison {
+        @Test
+        internal fun `will not notify team of a non transfer`() {
+          val receiveDateTime = LocalDateTime.now()
+
+          temporaryAbsenceArrival(
+            offenderNo,
+            temporaryAbsenceArrivalRequest(agencyId = "LEI", dateTime = receiveDateTime)
+          ).isOk
+
+          verifyNoInteractions(workflowTaskService)
+        }
+      }
+    }
+
+    @Nested
+    @DisplayName("Failed to transfer in")
+    inner class Failed {
+      private lateinit var offenderNo: String
+
+      @BeforeEach
+      internal fun setUp() {
+        OffenderBuilder().withBooking(
+          OffenderBookingBuilder(
+            prisonId = "LEI",
+            bookingInTime = LocalDateTime.now().minusDays(10),
+            cellLocation = "LEI-RECP"
+          ).withIEPLevel("ENH").withInitialVoBalances(2, 8)
+        ).save(testDataContext).also {
+          offenderNo = it.offenderNo
+        }
+      }
+
+      @Nested
+      @DisplayName("Returning back to the same prison")
+      inner class SamePrison {
+        @Test
+        internal fun `cannot arrive when not already out on TAP`() {
+          temporaryAbsenceArrival(offenderNo, temporaryAbsenceArrivalRequest(agencyId = "LEI"))
+            .isBadRequest
+            .expectBody()
+            .jsonPath("userMessage").isEqualTo("Prisoner is not currently out")
+        }
+
+        @Test
+        internal fun `cannot arrive when not previously out on TAP`() {
+          testDataContext.release(offenderNo)
+
+          temporaryAbsenceArrival(offenderNo, temporaryAbsenceArrivalRequest(agencyId = "LEI"))
+            .isBadRequest
+            .expectBody()
+            .jsonPath("userMessage").isEqualTo("Latest movement not a temporary absence")
+        }
+
+        @Test
+        internal fun `cannot arrive with a time in the future`() {
+          testDataContext.transferOutToTemporaryAbsence(offenderNo, toLocation = "18248", shouldReleaseBed = false)
+
+          temporaryAbsenceArrival(
+            offenderNo,
+            temporaryAbsenceArrivalRequest(agencyId = "LEI", dateTime = LocalDateTime.now().plusMinutes(2))
+          )
+            .isBadRequest
+            .expectBody()
+            .jsonPath("userMessage").isEqualTo("Transfer cannot be done in the future")
+        }
+
+        @Test
+        internal fun `cannot arrive with a time before transfer out time`() {
+          val transferOutDateTime =
+            testDataContext.transferOutToTemporaryAbsence(offenderNo, toLocation = "18248", shouldReleaseBed = false)
+
+          temporaryAbsenceArrival(
+            offenderNo,
+            temporaryAbsenceArrivalRequest(agencyId = "LEI", dateTime = transferOutDateTime.minusHours(2))
+          )
+            .isBadRequest
+            .expectBody()
+            .jsonPath("userMessage").isEqualTo("Movement cannot be before the previous active movement")
+        }
+      }
+    }
+
+    private fun temporaryAbsenceArrival(offenderNo: String, body: String) = webTestClient.put()
+      .uri("/api/offenders/{nomsId}/temporary-absence-arrival", offenderNo)
+      .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .accept(MediaType.APPLICATION_JSON)
+      .body(BodyInserters.fromValue(body))
+      .exchange()
+      .expectStatus()
+
+    private fun temporaryAbsenceArrivalRequest(
+      agencyId: String = "LEI",
+      commentText: String = "admitted",
+      movementReasonCode: String? = null,
+      dateTime: LocalDateTime = LocalDateTime.now().minusMinutes(2)
+    ) = """
+                  {
+                    "agencyId":"$agencyId",
+                    "commentText":"$commentText",
+                    ${movementReasonCode?.let { """ "movementReasonCode":"$it", """ } ?: ""}
+                    "dateTime": "${dateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
+                  }
+    """.trimIndent()
+  }
+
+  private fun getOffender(offenderNo: String): StatusAssertions =
+    webTestClient.get()
+      .uri("/api/offenders/{offenderNo}", offenderNo)
+      .headers(
+        setAuthorisation(
+          listOf("ROLE_SYSTEM_USER")
+        )
+      )
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .accept(MediaType.APPLICATION_JSON)
+      .exchange()
+      .expectStatus()
+
+  private fun lastMovement(bookingId: Long) = testDataContext.getMovements(bookingId).find { it.isActive }!!
 }
 
 class RestResponsePage<T> @JsonCreator(mode = JsonCreator.Mode.PROPERTIES) constructor(

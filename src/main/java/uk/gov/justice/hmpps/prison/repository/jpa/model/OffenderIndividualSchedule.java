@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.With;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
@@ -33,6 +34,7 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.TransferCancellat
 @Data
 @Entity
 @Builder
+@With
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
@@ -112,6 +114,12 @@ public class OffenderIndividualSchedule extends AuditableEntity {
             @JoinColumnOrFormula(column = @JoinColumn(name = "OUTCOME_REASON_CODE", referencedColumnName = "code"))
     })
     private TransferCancellationReason cancellationReason;
+
+    @Column(name = "TO_ADDRESS_ID")
+    private Long toAddressId;
+
+    @Column(name = "TO_ADDRESS_OWNER_CLASS")
+    private String toAddressOwnerClass;
 
     public LocalDateTime getEventDateTime() {
         return eventDate.atTime(startTime.toLocalTime());

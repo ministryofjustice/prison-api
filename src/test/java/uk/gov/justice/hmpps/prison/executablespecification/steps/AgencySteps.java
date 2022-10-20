@@ -257,6 +257,7 @@ public class AgencySteps extends CommonSteps {
             assertThat(actualThis.getIepLevel()).isEqualTo(expectedThis.getIepLevel());
             assertThat(actualThis.getIepDescription()).isEqualTo(expectedThis.getIepDescription());
             assertThat(actualThis.getSequence()).isEqualTo(expectedThis.getSequence());
+            assertThat(actualThis.isDefaultLevel()).isEqualTo(expectedThis.isDefaultLevel());
         }
         assertThat(actualIterator.hasNext()).as("Too many actual events").isFalse();
     }

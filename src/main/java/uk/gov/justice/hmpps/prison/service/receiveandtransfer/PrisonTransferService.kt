@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.api.model.RequestForCourtTransferIn
+import uk.gov.justice.hmpps.prison.api.model.RequestForTemporaryAbsenceArrival
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferIn
 import uk.gov.justice.hmpps.prison.exception.CustomErrorCodes
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation
@@ -13,6 +14,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIndividualSchedule
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramEndReason
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository
@@ -21,6 +23,7 @@ import uk.gov.justice.hmpps.prison.service.BadRequestException
 import uk.gov.justice.hmpps.prison.service.ConflictingRequestException
 import uk.gov.justice.hmpps.prison.service.CourtHearingsService
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
+import uk.gov.justice.hmpps.prison.service.PrisonToPrisonMoveSchedulingService
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer
 import kotlin.Result.Companion.failure
 import kotlin.Result.Companion.success
@@ -38,6 +41,7 @@ class PrisonTransferService(
   private val agencyLocationRepository: AgencyLocationRepository,
   private val activityTransferService: ActivityTransferService,
   private val courtHearingsService: CourtHearingsService,
+  private val prisonToPrisonMoveSchedulingService: PrisonToPrisonMoveSchedulingService,
   private val teamWorkflowNotificationService: TeamWorkflowNotificationService,
   private val transformer: OffenderTransformer,
 ) {
@@ -152,8 +156,82 @@ class PrisonTransferService(
     return transformer.transform(booking)
   }
 
-  fun transferViaTemporaryAbsence(): InmateDetail {
-    TODO()
+  fun transferInAfterTemporaryAbsence(offenderNo: String, request: RequestForTemporaryAbsenceArrival): InmateDetail {
+
+    val booking = getLatestOffenderBooking(offenderNo).flatMap { it.assertIsOut() }.getOrThrow()
+    val transferMovement = booking.getLatestMovement().flatMap { it.assertIsActiveTAPTransfer() }.getOrThrow()
+
+    return if (request.agencyId.equals(transferMovement.fromAgency.id)) transferInAfterTemporaryAbsenceFromSamePrison(
+      booking, request, transferMovement
+    ) else transferInAfterTemporaryAbsenceFromDifferentPrison(booking, request, transferMovement)
+  }
+
+  fun transferInAfterTemporaryAbsenceFromSamePrison(
+    booking: OffenderBooking,
+    request: RequestForTemporaryAbsenceArrival,
+    releaseTAPMovement: ExternalMovement
+  ): InmateDetail {
+    val scheduleEvent: OffenderIndividualSchedule? = releaseTAPMovement.eventId?.let {
+      prisonToPrisonMoveSchedulingService.completeScheduledChildHearingEvent(booking.bookingId, it).orElse(null)
+    }
+    with(booking) {
+      inOutStatus = MovementDirection.IN.name
+      statusReason = MovementType.TAP.code + "-" + (request.movementReasonCode ?: releaseTAPMovement.movementReason.code)
+      livingUnitMv = null
+      externalMovementService.updateMovementsForTransferInAfterTemporaryAbsenceToSamePrison(
+        movementReasonCode = request.movementReasonCode,
+        movementDateTime = request.dateTime,
+        booking = booking,
+        lastMovement = releaseTAPMovement,
+        scheduleEvent = scheduleEvent,
+        commentText = request.commentText
+      )
+    }
+
+    return transformer.transform(booking)
+  }
+
+  fun transferInAfterTemporaryAbsenceFromDifferentPrison(
+    booking: OffenderBooking,
+    request: RequestForTemporaryAbsenceArrival,
+    releaseTAPMovement: ExternalMovement
+  ): InmateDetail {
+    val reception =
+      getCellLocation(null, request.agencyId).getOrThrow()
+    val toAgency = getAgencyLocation(request.agencyId).getOrThrow()
+
+    with(booking) {
+      inOutStatus = MovementDirection.IN.name
+      livingUnitMv = null
+      assignedLivingUnit = reception
+      location = toAgency
+      teamWorkflowNotificationService.sendTransferViaCourtNotification(booking) {
+        externalMovementService.updateMovementsForTransferInAfterTemporaryAbsenceToDifferentPrison(
+          movementDateTime = request.dateTime,
+          booking = booking,
+          lastMovement = releaseTAPMovement,
+          toAgency = toAgency,
+          commentText = request.commentText
+        ).also { createdMovement ->
+          statusReason = "${createdMovement.movementType.code}-${createdMovement.movementReason.code}"
+          bedAssignmentTransferService.createBedHistory(
+            booking = this, cellLocation = reception, receiveTime = createdMovement.movementTime
+          )
+          activityTransferService.endActivitiesAndWaitlist(
+            booking,
+            releaseTAPMovement.fromAgency,
+            createdMovement.movementDate,
+            OffenderProgramEndReason.TRF.code
+          )
+          trustAccountService.createTrustAccount(
+            booking = this, fromAgency = releaseTAPMovement.fromAgency, movementIn = createdMovement
+          )
+          iepTransferService.resetLevelForPrison(booking = this, transferMovement = createdMovement)
+          caseNoteTransferService.createGenerateAdmissionNote(booking = this, transferMovement = createdMovement)
+        }
+      }
+    }
+    return transformer.transform(booking)
   }
 
   private fun getLatestOffenderBooking(offenderNo: String): Result<OffenderBooking> {
@@ -182,7 +260,6 @@ class PrisonTransferService(
 }
 
 private fun OffenderBooking.isBeingTransferred() = this.inOutStatus == "TRN"
-private fun OffenderBooking.isOut() = this.inOutStatus == "OUT"
 private fun OffenderBooking.assertIsBeingTransferred(): Result<OffenderBooking> = if (!isBeingTransferred()) {
   failure(BadRequestException("Prisoner is not currently being transferred"))
 } else {
@@ -221,9 +298,20 @@ private fun ExternalMovement.assertIsActiveCourtTransfer(): Result<ExternalMovem
 
   return success(this)
 }
+private fun ExternalMovement.assertIsActiveTAPTransfer(): Result<ExternalMovement> {
+  if (!this.isTAPTransfer()) {
+    return failure(BadRequestException("Latest movement not a temporary absence"))
+  }
+  if (!this.isActive) {
+    return failure(BadRequestException("Transfer not active"))
+  }
+
+  return success(this)
+}
 
 private fun ExternalMovement.isTransfer() = this.movementType.code == MovementType.TRN.code
 private fun ExternalMovement.isCourtTransfer() = this.movementType.code == MovementType.CRT.code
+private fun ExternalMovement.isTAPTransfer() = this.movementType.code == MovementType.TAP.code
 private fun AgencyInternalLocation.assertHasSpaceInCell(): Result<AgencyInternalLocation> = if (this.hasSpace(true)) {
   success(this)
 } else {

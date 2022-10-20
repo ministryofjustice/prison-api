@@ -130,11 +130,12 @@ Feature: Agencies
       | locationId | description    | userDescription    |
       | -25        | Chapel         | Chapel             |
 
+@wip
   Scenario: Retrieve IEP levels for an agency
     When a request is submitted to retrieve IEP levels for agency "LEI"
     Then the returned IEP levels are as follows:
-      | iepLevel | iepDescription | sequence |
-      | BAS      | Basic          | 1        |
-      | ENT      | Entry          | 2        |
-      | STD      | Standard       | 3        |
-      | ENH      | Enhanced       | 4        |
+      | iepLevel | iepDescription | sequence | defaultLevel |
+      | BAS      | Basic          | 1        | false        |
+      | ENT      | Entry          | 2        | true         |
+      | STD      | Standard       | 3        | false        |
+      | ENH      | Enhanced       | 4        | false        |
