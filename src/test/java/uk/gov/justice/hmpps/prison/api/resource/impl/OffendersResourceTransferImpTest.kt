@@ -1623,10 +1623,10 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           }
 
           @Test
-          internal fun `from city should be taken from the city transferred to`() {
+          internal fun `from city will not be set since it is a transfer`() {
             temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "MDI"))
 
-            assertThat(dataLoaderTransaction.get { lastMovement(bookingId).fromCity?.code }).isEqualTo(toCityId)
+            assertThat(dataLoaderTransaction.get { lastMovement(bookingId).fromCity }).isNull()
           }
 
           @Test
@@ -1820,7 +1820,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
       @Nested
       @DisplayName("With a scheduled temporary absence")
-      open inner class WithScheduledTAP {
+      inner class WithScheduledTAP {
         private var scheduledEventId: Long = 0
         private var addressId: Long = -22
 
@@ -1843,23 +1843,60 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           )
         }
 
-        @Test
-        internal fun `will complete scheduled movement event`() {
-          assertThat(testDataContext.getScheduledMovements(bookingId)).extracting("eventStatus.code")
-            .containsExactly("COMP", "SCH")
+        @Nested
+        inner class SamePrison {
+          @Test
+          internal fun `will complete scheduled movement event`() {
+            assertThat(testDataContext.getScheduledMovements(bookingId)).extracting("eventStatus.code")
+              .containsExactly("COMP", "SCH")
 
-          temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "LEI"))
+            temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "LEI"))
 
-          val scheduledTAPEvents = testDataContext.getScheduledMovements(bookingId)
-          assertThat(scheduledTAPEvents).extracting("eventStatus.code").containsExactly("COMP", "COMP")
-          assertThat(testDataContext.getMovements(bookingId).last().eventId).isEqualTo(scheduledTAPEvents.last().id)
+            val scheduledTAPEvents = testDataContext.getScheduledMovements(bookingId)
+            assertThat(scheduledTAPEvents).extracting("eventStatus.code").containsExactly("COMP", "COMP")
+            assertThat(testDataContext.getMovements(bookingId).last().eventId).isEqualTo(scheduledTAPEvents.last().id)
+          }
+
+          @Test
+          internal fun `from addressId should taken from the OUT addressId`() {
+            temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "LEI"))
+
+            assertThat(lastMovement(bookingId).fromAddressId).isEqualTo(addressId)
+          }
+
+          @Test
+          internal fun `from agency will not be set`() {
+            temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "LEI"))
+
+            assertThat(dataLoaderTransaction.get { lastMovement(bookingId).fromAgency }).isNull()
+          }
         }
+        @Nested
+        inner class DifferentPrison {
+          @Test
+          internal fun `will not complete scheduled movement event`() {
+            assertThat(testDataContext.getScheduledMovements(bookingId)).extracting("eventStatus.code")
+              .containsExactly("COMP", "SCH")
 
-        @Test
-        internal fun `from addressId should taken from to OUT addressId`() {
-          temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "LEI"))
+            temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "MDI"))
 
-          assertThat(lastMovement(bookingId).fromAddressId).isEqualTo(addressId)
+            val scheduledTAPEvents = testDataContext.getScheduledMovements(bookingId)
+            assertThat(scheduledTAPEvents).extracting("eventStatus.code").containsExactly("COMP", "SCH")
+          }
+
+          @Test
+          internal fun `from addressId will not be populated since this is a transfer`() {
+            temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "MDI"))
+
+            assertThat(lastMovement(bookingId).fromAddressId).isNull()
+          }
+
+          @Test
+          internal fun `from agency will be taken from OUT movement`() {
+            temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "MDI"))
+
+            assertThat(dataLoaderTransaction.get { lastMovement(bookingId).fromAgency.id }).isEqualTo("LEI")
+          }
         }
       }
 
