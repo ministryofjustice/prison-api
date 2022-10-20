@@ -1858,14 +1858,14 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           }
 
           @Test
-          internal fun `from addressId should taken from to OUT addressId`() {
+          internal fun `from addressId should taken from the OUT addressId`() {
             temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "LEI"))
 
             assertThat(lastMovement(bookingId).fromAddressId).isEqualTo(addressId)
           }
 
           @Test
-          internal fun `from from agency will not be set`() {
+          internal fun `from agency will not be set`() {
             temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "LEI"))
 
             assertThat(dataLoaderTransaction.get { lastMovement(bookingId).fromAgency }).isNull()
@@ -1892,7 +1892,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           }
 
           @Test
-          internal fun `from from agency will taken from OUT movement`() {
+          internal fun `from agency will be taken from OUT movement`() {
             temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "MDI"))
 
             assertThat(dataLoaderTransaction.get { lastMovement(bookingId).fromAgency.id }).isEqualTo("LEI")
