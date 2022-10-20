@@ -215,12 +215,12 @@ class ExternalMovementTransferService(
           /* escortText = */ null,
           /* commentText = */ commentText,
           /* toCity = */ null,
-          /* fromCity = */ lastMovement.toCity,
+          /* fromCity = */ null,
           /* movementReason = */ movementReason,
           /* movementDirection = */ MovementDirection.IN,
           /* movementType = */ movementType,
           /* toAddressId = */ null,
-          /* fromAddressId = */ lastMovement.toAddressId,
+          /* fromAddressId = */ null,
         )
       )
     }

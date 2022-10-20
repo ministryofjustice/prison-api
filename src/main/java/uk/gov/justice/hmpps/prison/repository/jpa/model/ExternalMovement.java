@@ -11,6 +11,7 @@ import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.Type;
 
+import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
@@ -134,6 +135,7 @@ public class ExternalMovement extends AuditableEntity {
     private Long toAddressId;
 
     @Column(name = "FROM_ADDRESS_ID")
+    @Nullable
     private Long fromAddressId;
 
     public String calculateReleaseLocationDescription() {
