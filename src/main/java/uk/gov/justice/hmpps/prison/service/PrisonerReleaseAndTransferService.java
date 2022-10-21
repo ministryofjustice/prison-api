@@ -20,6 +20,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteSubType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.City;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.EscortAgencyType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection;
@@ -436,6 +437,7 @@ public class PrisonerReleaseAndTransferService {
             .toAgency(offenderIndividualSchedule.getToLocation())
             .toAddressId(offenderIndividualSchedule.getToAddressId()) // other types locations could be supported in the future
             .escortText(escortText)
+            .escortCode(Optional.ofNullable(offenderIndividualSchedule.getEscortAgencyType()).map(EscortAgencyType::getCode).orElse(null))
             .active(true)
             .commentText(commentText)
             .eventId(offenderIndividualSchedule.getId())
