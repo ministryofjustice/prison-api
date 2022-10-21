@@ -94,6 +94,9 @@ public class ExternalMovement extends AuditableEntity {
     @Column(name = "ESCORT_TEXT")
     private String escortText;
 
+    @Column(name = "ESCORT_Code")
+    private String escortCode;
+
     @Column(name = "COMMENT_TEXT")
     private String commentText;
 

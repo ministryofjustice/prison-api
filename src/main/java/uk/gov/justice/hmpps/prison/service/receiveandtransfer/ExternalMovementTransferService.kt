@@ -52,6 +52,7 @@ class ExternalMovementTransferService(
           /* toAgency = */ lastMovement.toAgency,
           /* active = */ true,
           /* escortText = */ null,
+          /* escortCode = */ null,
           /* commentText = */ request.commentText,
           /* toCity = */ null,
           /* fromCity = */ null,
@@ -92,6 +93,7 @@ class ExternalMovementTransferService(
           /* toAgency = */ toAgency, // the passed in agency in the request is just for validation
           /* active = */ true,
           /* escortText = */ null,
+          /* escortCode = */ null,
           /* commentText = */ commentText,
           /* toCity = */ null,
           /* fromCity = */ null,
@@ -133,6 +135,7 @@ class ExternalMovementTransferService(
           /* toAgency = */ lastMovement.fromAgency,
           /* active = */ true,
           /* escortText = */ null,
+          /* escortCode = */ null,
           /* commentText = */ commentText,
           /* toCity = */ null,
           /* fromCity = */ null,
@@ -173,6 +176,7 @@ class ExternalMovementTransferService(
           /* toAgency = */ lastMovement.fromAgency,
           /* active = */ true,
           /* escortText = */ null,
+          /* escortCode = */ lastMovement.escortCode,
           /* commentText = */ commentText,
           /* toCity = */ null,
           /* fromCity = */ lastMovement.toCity,
@@ -213,6 +217,7 @@ class ExternalMovementTransferService(
           /* toAgency = */ toAgency, // the passed in agency in the request is just for validation
           /* active = */ true,
           /* escortText = */ null,
+          /* escortCode = */ null,
           /* commentText = */ commentText,
           /* toCity = */ null,
           /* fromCity = */ null,
@@ -253,6 +258,7 @@ class ExternalMovementTransferService(
           /* toAgency = */ prison, // the passed in agency in the request is just for validation
           /* active = */ true,
           /* escortText = */ null,
+          /* escortCode = */ null,
           /* commentText = */ commentText,
           /* toCity = */ null,
           /* fromCity = */ null,

@@ -1865,6 +1865,13 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           }
 
           @Test
+          internal fun `escort type should be taken from the OUT movement (which is taken from schedule)`() {
+            temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "LEI"))
+
+            assertThat(lastMovement(bookingId).escortCode).isEqualTo("L")
+          }
+
+          @Test
           internal fun `from agency will not be set`() {
             temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "LEI"))
 
