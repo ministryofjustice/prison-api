@@ -5,12 +5,9 @@ import org.springframework.stereotype.Service;
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.CourtCase;
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Offence;
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Sentence;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtOrder;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LegalCaseType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offence.PK;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenceResult;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence;
@@ -34,8 +31,6 @@ import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 import javax.transaction.Transactional;
 
 import java.util.Comparator;
-
-import static java.util.Arrays.asList;
 
 @Service
 public class DigitalWarrantService {
