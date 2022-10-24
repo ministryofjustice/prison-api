@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
 
 import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -24,32 +26,29 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of = { "offenderBooking", "sequence", "termSequence" }, callSuper = false)
+@EqualsAndHashCode(of = { "id" }, callSuper = false)
 @Table(name = "OFFENDER_SENTENCE_TERMS")
-@IdClass(SentenceTerm.PK.class)
 public class SentenceTerm extends AuditableEntity {
 
     @NoArgsConstructor
     @AllArgsConstructor
     @EqualsAndHashCode
+    @Embeddable
     public static class PK implements Serializable {
-        private OffenderBooking offenderBooking;
+        @Column(name = "OFFENDER_BOOK_ID", nullable = false)
+        private Long offenderBookingId;
+        @Column(name = "SENTENCE_SEQ", nullable = false)
         private Integer sequence;
+        @Column(name = "TERM_SEQ", nullable = false)
         private Integer termSequence;
     }
 
-    @Id
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
+    @EmbeddedId
+    private SentenceTerm.PK id;
+
+    @ManyToOne
+    @JoinColumn(name = "OFFENDER_BOOK_ID", insertable = false, updatable = false)
     private OffenderBooking offenderBooking;
-
-    @Id
-    @Column(name = "SENTENCE_SEQ")
-    private Integer sequence;
-
-    @Id
-    @Column(name = "TERM_SEQ")
-    private Integer termSequence;
 
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
@@ -80,6 +79,14 @@ public class SentenceTerm extends AuditableEntity {
 
     @Column(name = "LIFE_SENTENCE_FLAG")
     private String lifeSentenceFlag;
+
+    public Integer getTermSequence() {
+        return id.termSequence;
+    }
+
+    public Integer getSequence() {
+        return id.sequence;
+    }
 
     public OffenderSentenceTerms getSentenceSummary() {
         return OffenderSentenceTerms.builder()
