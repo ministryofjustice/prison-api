@@ -20,3 +20,6 @@ CVE-2022-42003
 # Suppression for jackson databind 2.13.3 as bundled with application insights
 #   Can be suppressed as don't parse untrusted json in application insights
 CVE-2022-42004
+# Suppression for apache common-text 1.9 as bundled with application insights
+#   can be suppressed for the time being as it will be fixed in next version of application insights
+CVE-2022-42889

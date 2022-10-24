@@ -29,7 +29,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @WithMockUser
-class OffenderResourceNewBookingTest : ResourceTest() {
+class OffenderResourceIntTest_newBooking : ResourceTest() {
 
   @MockBean
   private lateinit var trustAccountService: TrustAccountService

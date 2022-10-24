@@ -16,6 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.transaction.TestTransaction;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.RequestForTemporaryAbsenceArrival;
+import uk.gov.justice.hmpps.prison.service.receiveandtransfer.PrisonTransferService;
 
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
@@ -36,7 +37,7 @@ public class TemporaryAbsenceArrivalServiceTest {
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
-    PrisonerReleaseAndTransferService prisonerReleaseAndTransferService;
+    PrisonTransferService prisonTransferService;
 
     @Autowired
     EntityManager entityManager;
@@ -53,7 +54,7 @@ public class TemporaryAbsenceArrivalServiceTest {
     public void scheduledPrisonerReturnFromTemporaryAbsence() {
         RequestForTemporaryAbsenceArrival requestForTemporaryAbsenceArrival = new RequestForTemporaryAbsenceArrival();
         requestForTemporaryAbsenceArrival.setAgencyId("BXI");
-        InmateDetail inmateDetail = prisonerReleaseAndTransferService.temporaryAbsenceArrival(OFFENDER_NO, requestForTemporaryAbsenceArrival);
+        InmateDetail inmateDetail = prisonTransferService.transferInAfterTemporaryAbsence(OFFENDER_NO, requestForTemporaryAbsenceArrival);
         TestTransaction.flagForCommit();
         TestTransaction.end();
         List<Map<String, Object>> offenderBookings = jdbcTemplate.queryForList("select * from OFFENDER_BOOKINGS where OFFENDER_BOOK_ID=1176156");
@@ -85,7 +86,7 @@ public class TemporaryAbsenceArrivalServiceTest {
     public void unscheduledPrisonerReturnFromTemporaryAbsence() {
         RequestForTemporaryAbsenceArrival requestForTemporaryAbsenceArrival = new RequestForTemporaryAbsenceArrival();
         requestForTemporaryAbsenceArrival.setAgencyId("BXI");
-        InmateDetail inmateDetail = prisonerReleaseAndTransferService.temporaryAbsenceArrival(OFFENDER_NO, requestForTemporaryAbsenceArrival);
+        InmateDetail inmateDetail = prisonTransferService.transferInAfterTemporaryAbsence(OFFENDER_NO, requestForTemporaryAbsenceArrival);
         TestTransaction.flagForCommit();
         TestTransaction.end();
         List<Map<String, Object>> offenderBookings = jdbcTemplate.queryForList("select * from OFFENDER_BOOKINGS where OFFENDER_BOOK_ID=1176156");

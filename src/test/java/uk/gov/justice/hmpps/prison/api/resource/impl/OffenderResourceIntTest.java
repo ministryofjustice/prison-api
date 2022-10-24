@@ -6,11 +6,9 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.IncidentCase;
-import uk.gov.justice.hmpps.prison.exception.CustomErrorCodes;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
 
@@ -31,8 +29,8 @@ import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpMethod.PUT;
 import static uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.PRISON_API_USER;
 
-@ContextConfiguration(classes = OffendersResourceTest.TestClock.class)
-public class OffendersResourceTest extends ResourceTest {
+@ContextConfiguration(classes = OffenderResourceIntTest.TestClock.class)
+public class OffenderResourceIntTest extends ResourceTest {
 
     @TestConfiguration
     static class TestClock {
@@ -641,191 +639,6 @@ public class OffendersResourceTest extends ResourceTest {
     }
 
     @Test
-    public void testCanCreateANewPrisonerAndBooking() {
-        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
-
-        final var body = Map.of(
-            "pncNumber", "03/11964Z",
-            "lastName", "Janus",
-            "firstName", "Jayne",
-            "middleName1", "Sarah",
-            "middleName2", "Mia",
-            "title", "MRS",
-            "dateOfBirth", LocalDate.of(2001, 10, 30).format(DateTimeFormatter.ISO_LOCAL_DATE),
-            "gender", "F",
-            "ethnicity", "W1");
-
-        final var entity = createHttpEntity(token, body);
-
-        final var response =  testRestTemplate.exchange(
-            "/api/offenders",
-            POST,
-            entity,
-            new ParameterizedTypeReference<String>() {
-            }
-        );
-
-        final var offenderNo = new Gson().fromJson(response.getBody(), Map.class).get("offenderNo");
-
-        final var newBookingBody = Map.of("prisonId", "SYI", "fromLocationId", "COURT1", "movementReasonCode", "24", "youthOffender", "true", "imprisonmentStatus", "CUR_ORA", "cellLocation", "SYI-A-1-1");
-        final var newBookingEntity = createHttpEntity(token, newBookingBody);
-
-        final var newBookingResponse =  testRestTemplate.exchange(
-            "/api/offenders/{nomsId}/booking",
-            POST,
-            newBookingEntity,
-            new ParameterizedTypeReference<String>() {
-            },
-            offenderNo
-        );
-        assertThatJsonFileAndStatus(newBookingResponse, 200, "new_offender_and_booking.json");
-
-        final var releaseBody = createHttpEntity(token, Map.of("movementReasonCode", "CR", "commentText", "released prisoner today"));
-
-        final var releaseResponse =  testRestTemplate.exchange(
-            "/api/offenders/{nomsId}/release",
-            PUT,
-            releaseBody,
-            new ParameterizedTypeReference<String>() {
-            },
-            offenderNo
-        );
-
-        assertThat(releaseResponse.getStatusCodeValue()).isEqualTo(200);
-
-    }
-
-    @Test
-    public void testNewBookingRejectedIfCellAtCapacity() {
-        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
-
-        final var body = Map.of(
-            "pncNumber", "03/11965Z",
-            "lastName", "BookedInto",
-            "firstName", "FullCell",
-            "title", "MR",
-            "dateOfBirth", LocalDate.of(2001, 10, 30).format(DateTimeFormatter.ISO_LOCAL_DATE),
-            "gender", "M",
-            "ethnicity", "W1");
-
-        final var entity = createHttpEntity(token, body);
-
-        final var response =  testRestTemplate.exchange(
-            "/api/offenders",
-            POST,
-            entity,
-            new ParameterizedTypeReference<String>() {
-            }
-        );
-
-        final var offenderNo = new Gson().fromJson(response.getBody(), Map.class).get("offenderNo");
-
-        final var newBookingBody = Map.of("prisonId", "MDI", "fromLocationId", "COURT1", "movementReasonCode", "24", "youthOffender", "false", "imprisonmentStatus", "CUR_ORA", "cellLocation", "MDI-FULL");
-        final var newBookingEntity = createHttpEntity(token, newBookingBody);
-
-        final var newBookingResponse =  testRestTemplate.exchange(
-            "/api/offenders/{nomsId}/booking",
-            POST,
-            newBookingEntity,
-            new ParameterizedTypeReference<String>() {
-            },
-            offenderNo
-        );
-        assertThatStatus(newBookingResponse, 409);
-    }
-
-
-    @Test
-    public void testCannotCreateNewPrisonerWithExistingPNC() {
-        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
-
-        final var body = Map.of(
-            "pncNumber", "98/1234567L",
-            "lastName", "d'Arras",
-            "firstName", "Mathias",
-            "middleName1", "Hector",
-            "middleName2", "Sausage-Hausen",
-            "title", "MR",
-            "suffix", "JR",
-            "dateOfBirth", LocalDate.of(2000, 10, 17).format(DateTimeFormatter.ISO_LOCAL_DATE),
-            "gender", "M",
-            "ethnicity", "M1");
-
-        final var entity = createHttpEntity(token, body);
-
-        final var response =  testRestTemplate.exchange(
-            "/api/offenders",
-            POST,
-            entity,
-            ErrorResponse.class
-        );
-
-        final var error = response.getBody();
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(400);
-        assertThat(error.getErrorCode()).isEqualTo(CustomErrorCodes.PRISONER_ALREADY_EXIST);
-        assertThat(error.getUserMessage()).contains("Prisoner with PNC 1998/1234567L already exists with ID A1234AD");
-    }
-
-    @Test
-    public void testCannotCreateNewPrisonerWithExistingCRO() {
-        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
-
-        final var body = Map.of(
-            "croNumber", "CRO112234",
-            "lastName", "d'Arras",
-            "firstName", "Mathias",
-            "middleName1", "Hector",
-            "middleName2", "Sausage-Hausen",
-            "title", "MR",
-            "suffix", "JR",
-            "dateOfBirth", LocalDate.of(2000, 10, 17).format(DateTimeFormatter.ISO_LOCAL_DATE),
-            "gender", "M",
-            "ethnicity", "M1");
-
-        final var entity = createHttpEntity(token, body);
-
-        final var response =  testRestTemplate.exchange(
-            "/api/offenders",
-            POST,
-            entity,
-            ErrorResponse.class
-        );
-
-        final var error = response.getBody();
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(400);
-        assertThat(error.getErrorCode()).isEqualTo(CustomErrorCodes.PRISONER_ALREADY_EXIST);
-        assertThat(error.getUserMessage()).contains("Prisoner with CRO CRO112234 already exists with ID A1234AC");
-    }
-
-
-    @Test
-    public void testCannotCreateNewPrisonerWithSameNames() {
-        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
-
-        final var body = Map.of(
-            "lastName", "Andrews",
-            "firstName", "Anthony",
-            "dateOfBirth", LocalDate.of(1964, 12, 1).format(DateTimeFormatter.ISO_LOCAL_DATE),
-            "gender", "M");
-
-        final var entity = createHttpEntity(token, body);
-
-        final var response =  testRestTemplate.exchange(
-            "/api/offenders",
-            POST,
-            entity,
-            ErrorResponse.class
-        );
-
-        final var error = response.getBody();
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(400);
-        assertThat(error.getUserMessage()).contains("Prisoner with lastname ANDREWS, firstname ANTHONY and dob 1964-12-01 already exists with ID A1234AF");
-    }
-
-    @Test
     public void testCanReleaseAPrisoner() {
         final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
 
@@ -868,159 +681,6 @@ public class OffendersResourceTest extends ResourceTest {
 
         assertThat(response.getStatusCodeValue()).isEqualTo(400);
         assertThat(error.getUserMessage()).contains("Prisoner is not currently active");
-    }
-
-    @Test
-    public void testRecallAPrisoner() {
-        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
-
-        final var body = Map.of("prisonId", "SYI", "fromLocationId", "COURT1", "movementReasonCode", "24", "youthOffender", "true", "imprisonmentStatus", "CUR_ORA", "cellLocation", "SYI-A-1-1");
-
-        final var recallEntity = createHttpEntity(token, body);
-
-        final var response =  testRestTemplate.exchange(
-            "/api/offenders/{nomsId}/recall",
-            PUT,
-            recallEntity,
-            new ParameterizedTypeReference<String>() {
-            },
-            "Z0022ZZ"
-        );
-
-        assertThatJsonFileAndStatus(response, 200, "recalled_prisoner.json");
-
-        final var releaseBody = createHttpEntity(token, Map.of("movementReasonCode", "CR", "commentText", "released prisoner today"));
-
-        final var releaseResponse =  testRestTemplate.exchange(
-            "/api/offenders/{nomsId}/release",
-            PUT,
-            releaseBody,
-            new ParameterizedTypeReference<String>() {
-            },
-            "Z0022ZZ"
-        );
-
-        assertThat(releaseResponse.getStatusCodeValue()).isEqualTo(200);
-    }
-
-    @Test
-    public void testRecallAPrisonerFailsIfLocationAtCapacity() {
-        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
-
-        final var body = Map.of("prisonId", "MDI", "fromLocationId", "COURT1", "movementReasonCode", "24", "youthOffender", "true", "imprisonmentStatus", "CUR_ORA", "cellLocation", "MDI-FULL");
-
-        final var recallEntity = createHttpEntity(token, body);
-
-        final var recallResponse =  testRestTemplate.exchange(
-            "/api/offenders/{nomsId}/recall",
-            PUT,
-            recallEntity,
-            new ParameterizedTypeReference<String>() {
-            },
-            "Z0022ZZ"
-        );
-
-        assertThat(recallResponse.getStatusCodeValue()).isEqualTo(409);
-    }
-
-    @Test
-    public void testRecallAPrisonerDoesNotUpdateImprisonmentStatusIfNotSupplied() {
-        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
-
-        final var body = Map.of("prisonId", "SYI", "fromLocationId", "COURT1", "movementReasonCode", "24", "youthOffender", "true", "cellLocation", "SYI-A-1-1");
-
-        final var recallEntity = createHttpEntity(token, body);
-
-        final var recallResponse =  testRestTemplate.exchange(
-            "/api/offenders/{nomsId}/recall",
-            PUT,
-            recallEntity,
-            new ParameterizedTypeReference<String>() {
-            },
-            "Z0020ZZ"
-        );
-
-        assertThat(recallResponse.getStatusCodeValue()).isEqualTo(200);
-
-        final var httpEntity = createHttpEntity(token, null);
-
-        final var response = testRestTemplate.exchange(
-            "/api/offenders/{nomsId}",
-            GET,
-            httpEntity,
-            new ParameterizedTypeReference<String>() {
-            },
-            "Z0020ZZ");
-
-        assertThatJsonFileAndStatus(response, 200, "recalled_prisoner_original_imprisonment_status.json");
-
-        final var releaseBody = createHttpEntity(token, Map.of("movementReasonCode", "CR", "commentText", "released prisoner today"));
-
-        final var releaseResponse =  testRestTemplate.exchange(
-            "/api/offenders/{nomsId}/release",
-            PUT,
-            releaseBody,
-            new ParameterizedTypeReference<String>() {
-            },
-            "Z0020ZZ"
-        );
-
-        assertThat(releaseResponse.getStatusCodeValue()).isEqualTo(200);
-    }
-
-    @Test
-    public void testReceiveAPrisonerAsNewBooking() {
-        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
-
-        final var body = Map.of("prisonId", "SYI", "fromLocationId", "COURT1", "movementReasonCode", "24", "youthOffender", "true", "imprisonmentStatus", "CUR_ORA", "cellLocation", "SYI-A-1-1");
-
-        final var newBookingEntity = createHttpEntity(token, body);
-
-        final var response =  testRestTemplate.exchange(
-            "/api/offenders/{nomsId}/booking",
-            POST,
-            newBookingEntity,
-            new ParameterizedTypeReference<String>() {
-            },
-            "Z0022ZZ"
-        );
-        assertThatJsonFileAndStatus(response, 200, "new_booking_prisoner.json");
-
-        final var releaseBody = createHttpEntity(token, Map.of("movementReasonCode", "CR", "commentText", "released prisoner today"));
-
-        final var releaseResponse =  testRestTemplate.exchange(
-            "/api/offenders/{nomsId}/release",
-            PUT,
-            releaseBody,
-            new ParameterizedTypeReference<String>() {
-            },
-            "Z0022ZZ"
-        );
-
-        assertThat(releaseResponse.getStatusCodeValue()).isEqualTo(200);
-    }
-
-    @Test
-    public void testCannotTransferInPrisonerNotOut() {
-        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
-
-        final var tranferInRequest = Map.of("commentText", "admitted",
-            "cellLocation", "MDI-1-3-022");
-
-        final var transferInEntity = createHttpEntity(token, tranferInRequest);
-
-        final var transferInResponse =  testRestTemplate.exchange(
-            "/api/offenders/{nomsId}/transfer-in",
-            PUT,
-            transferInEntity,
-            ErrorResponse.class,
-            OFFENDER_NUMBER
-        );
-
-        final var error = transferInResponse.getBody();
-
-        assertThat(transferInResponse.getStatusCodeValue()).isEqualTo(400);
-        assertThat(error.getUserMessage()).contains("Prisoner is not currently being transferred");
     }
 
     @Test
@@ -1112,10 +772,5 @@ public class OffendersResourceTest extends ResourceTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-    }
-
-    private ResponseEntity<String> listAllOffendersUsingHeaders(final Map<String, String> headers) {
-        final var requestEntity = createHttpEntity(authTokenHelper.getToken(PRISON_API_USER), null, headers);
-        return testRestTemplate.exchange("/api/offenders/ids", GET, requestEntity, String.class);
     }
 }

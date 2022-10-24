@@ -8,6 +8,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ImprisonmentStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImprisonmentStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
+import uk.gov.justice.hmpps.prison.service.receiveandtransfer.BookingIntoPrisonService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -29,7 +30,9 @@ public class SmokeTestHelperServiceTest {
     private final BookingService bookingService = mock(BookingService.class);
     private final OffenderBookingRepository offenderBookingRepository = mock(OffenderBookingRepository.class);
     private final PrisonerReleaseAndTransferService prisonerReleaseAndTransferService = mock(PrisonerReleaseAndTransferService.class);
-    private final SmokeTestHelperService smokeTestHelperService = new SmokeTestHelperService(bookingService, offenderBookingRepository, prisonerReleaseAndTransferService);
+
+    private final BookingIntoPrisonService bookingIntoPrisonService = mock(BookingIntoPrisonService.class);
+    private final SmokeTestHelperService smokeTestHelperService = new SmokeTestHelperService(bookingService, offenderBookingRepository, prisonerReleaseAndTransferService, bookingIntoPrisonService);
 
     private final static String SOME_OFFENDER_NO = "A1060AA";
     private final static long SOME_BOOKING_ID = 11L;

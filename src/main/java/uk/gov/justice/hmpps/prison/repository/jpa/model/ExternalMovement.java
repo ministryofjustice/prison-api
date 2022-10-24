@@ -11,6 +11,7 @@ import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.Type;
 
+import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
@@ -93,6 +94,9 @@ public class ExternalMovement extends AuditableEntity {
     @Column(name = "ESCORT_TEXT")
     private String escortText;
 
+    @Column(name = "ESCORT_Code")
+    private String escortCode;
+
     @Column(name = "COMMENT_TEXT")
     private String commentText;
 
@@ -130,6 +134,12 @@ public class ExternalMovement extends AuditableEntity {
     })
     private MovementType movementType;
 
+    @Column(name = "TO_ADDRESS_ID")
+    private Long toAddressId;
+
+    @Column(name = "FROM_ADDRESS_ID")
+    @Nullable
+    private Long fromAddressId;
 
     public String calculateReleaseLocationDescription() {
         return REL.getCode().equals(getMovementType().getCode())

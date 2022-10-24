@@ -12,10 +12,12 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderOffence;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -36,6 +38,8 @@ public class OffenderCharge extends AuditableEntity {
 
     @Id
     @Column(name = "OFFENDER_CHARGE_ID", nullable = false)
+    @SequenceGenerator(name = "OFFENDER_CHARGE_ID", sequenceName = "OFFENDER_CHARGE_ID", allocationSize = 1)
+    @GeneratedValue(generator = "OFFENDER_CHARGE_ID")
     private Long id;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
