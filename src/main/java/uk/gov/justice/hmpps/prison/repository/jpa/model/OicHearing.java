@@ -13,6 +13,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @EqualsAndHashCode(callSuper=false)
@@ -32,6 +34,24 @@ public class OicHearing extends AuditableEntity {
 
     @Column(name = "OIC_INCIDENT_ID", nullable = false)
     private Long adjudicationNumber;
+
+    @Column(name = "SCHEDULE_DATE", nullable = false)
+    private LocalDate scheduleDate;
+
+    @Column(name = "SCHEDULE_TIME", nullable = false)
+    private LocalDateTime scheduleTime;
+
+    @Column(name = "HEARING_DATE", nullable = false)
+    private LocalDate hearingDate;
+
+    @Column(name = "HEARING_TIME", nullable = false)
+    private LocalDateTime hearingTime;
+
+    @Column(name = "INTERNAL_LOCATION_ID", nullable = false)
+    private Long internalLocationId;
+
+    @Column(name = "OIC_HEARING_TYPE", nullable = false, length = 12)
+    private String oicHearingType;
 
     /*
         //columns to map in new entity

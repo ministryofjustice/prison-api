@@ -1,15 +1,17 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.repository;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearing;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @DataJpaTest
@@ -19,13 +21,25 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @WithMockUser
 class OicHearingRepositoryTest {
 
+    @Autowired
+    private OicHearingRepository oicHearingRepository;
+
     @Test
     void createHearing() {
-        throw new NotImplementedException("implement me");
+        var hearing = OicHearing.builder().build();
+        var result = oicHearingRepository.save(hearing);
+
+        assertThat(result.getOicHearingId()).isNotNull();
+        assertThat(oicHearingRepository.findById(result.getOicHearingId())).isNotEmpty();
     }
 
     @Test
     void deleteHearing() {
-        throw new NotImplementedException("implement me");
+        var toSave = oicHearingRepository.save(OicHearing.builder().build());
+        var toDelete = oicHearingRepository.findById(toSave.getOicHearingId());
+        assertThat(toDelete).isNotEmpty();
+
+        oicHearingRepository.delete(toDelete.get());
+        assertThat(oicHearingRepository.findById(toDelete.get().getOicHearingId())).isEmpty();
     }
 }

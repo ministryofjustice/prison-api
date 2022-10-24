@@ -12,6 +12,7 @@ import org.mockito.hamcrest.MockitoHamcrest;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
+import uk.gov.justice.hmpps.prison.api.model.OicHearingRequest;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationActionCode;
@@ -25,6 +26,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AudtableEntityUtils;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearing;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Staff;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationOffenceTypeRepository;
@@ -32,11 +34,13 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationReposit
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OicHearingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 
 import javax.persistence.EntityManager;
+import javax.validation.ValidationException;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -51,6 +55,7 @@ import static java.time.Instant.ofEpochMilli;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -96,6 +101,8 @@ public class AdjudicationsServiceTest {
     private AdjudicationsPartyService adjudicationsPartyService;
     @Mock
     private EntityManager entityManager;
+    @Mock
+    private OicHearingRepository oicHearingRepository;
 
     private AdjudicationsService service;
 
@@ -118,7 +125,8 @@ public class AdjudicationsServiceTest {
             clock,
             entityManager,
             BATCH_SIZE,
-            adjudicationsPartyService
+            adjudicationsPartyService,
+            oicHearingRepository
             );
     }
 
@@ -784,34 +792,118 @@ public class AdjudicationsServiceTest {
     @Nested
     public class AdjudicationHearings {
 
+        private final OicHearingRequest oicHearingRequest =
+            OicHearingRequest.builder()
+                .hearingLocationId(3L)
+                .dateTimeOfHearing(LocalDateTime.now()).build();
+
         @Test
         public void createHearing() {
-            throw new NotImplementedException("implement me");
+
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(1L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().build()
+                ));
+
+            when(internalLocationRepository.findOneByLocationId(3L)).thenReturn(
+                Optional.of(AgencyInternalLocation.builder().build())
+            );
+
+            when(oicHearingRepository.save(
+                OicHearing.builder()
+                    .internalLocationId(oicHearingRequest.getHearingLocationId())
+                    .adjudicationNumber(1L)
+                    .hearingDate(oicHearingRequest.getDateTimeOfHearing().toLocalDate())
+                    .scheduleDate(oicHearingRequest.getDateTimeOfHearing().toLocalDate())
+                    .hearingTime(oicHearingRequest.getDateTimeOfHearing())
+                    .oicHearingType("TODO")
+                    .scheduleTime(oicHearingRequest.getDateTimeOfHearing()).build()
+            )).thenReturn(
+                OicHearing.builder()
+                    .oicHearingId(1L)
+                    .internalLocationId(oicHearingRequest.getHearingLocationId())
+                    .hearingTime(oicHearingRequest.getDateTimeOfHearing()).build()
+            );
+
+            var response = service.createOicHearing(1L, oicHearingRequest);
+
+            assertThat(response.getHearingId()).isNotNull();
+            assertThat(response.getHearingLocationId()).isEqualTo(3L);
+            assertThat(response.getDateTimeOfHearing()).isEqualTo(oicHearingRequest.getDateTimeOfHearing());
+
+            verify(oicHearingRepository, atLeastOnce()).save(any());
         }
 
         @Test
         public void createHearingReturnsEntityNotFound () {
-            throw new NotImplementedException("implement me");
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.empty());
+
+            assertThatThrownBy(() ->
+                service.createOicHearing(2L, oicHearingRequest))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find adjudication number 2");
+
         }
 
         @Test
-        public void createHearingInvalidData () {
-            throw new NotImplementedException("implement me");
+        public void createHearingInvalidLocationId () {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(1L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().build()
+                ));
+
+            assertThatThrownBy(() ->
+                service.createOicHearing(1L, oicHearingRequest))
+                .isInstanceOf(ValidationException.class)
+                .hasMessageContaining("Invalid hearing location id 3");
         }
 
         @Test
         public void deleteHearing() {
-            throw new NotImplementedException("implement me");
+
+            var oicHearingToDelete =  OicHearing.builder().oicHearingId(1L).build();
+
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(1L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().build()
+                ));
+
+            when(oicHearingRepository.findById(1L)).thenReturn(
+              Optional.of(oicHearingToDelete)
+            );
+
+            service.deleteOicHearing(1L, 1L);
+            verify(oicHearingRepository, atLeastOnce()).delete(oicHearingToDelete);
         }
 
         @Test
         public void deleteHearingAdjudicationNotFound () {
-            throw new NotImplementedException("implement me");
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.empty());
+
+            assertThatThrownBy(() ->
+                service.deleteOicHearing(2L, 1L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find adjudication number 2");
+
         }
 
         @Test
         public void deleteHearingHearingNotFound () {
-            throw new NotImplementedException("implement me");
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(1L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().build()
+                ));
+
+            when(oicHearingRepository.findById(2L)).thenReturn(
+                Optional.empty()
+            );
+
+            assertThatThrownBy(() ->
+                service.deleteOicHearing(1L, 2L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find oic hearingId 2 for adjudication number 1");
         }
 
     }

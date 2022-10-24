@@ -109,21 +109,6 @@ public class AdjudicationsServiceIntTest {
         }
     }
 
-    @Nested
-    public class AdjudicationHearings {
-
-        @Test
-        public void createHearing() {
-            throw new NotImplementedException("implement me");
-        }
-
-        @Test
-        public void deleteHearing () {
-            throw new NotImplementedException("implement me");
-        }
-    }
-
-
     private String generateMessageWith4001Chars() {
         final String stringWith10Chars = "ABCDE12345";
         final StringBuilder textWith4001Chars = new StringBuilder(4010);

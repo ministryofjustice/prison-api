@@ -407,14 +407,16 @@ public class AdjudicationsResourceTest extends ResourceTest  {
 
         final String token = validToken(List.of("ROLE_MAINTAIN_ADJUDICATIONS"));
         final String invalidToken = validToken(List.of("ROLE_SYSTEM_USER"));
-        final HttpEntity<?> validRequest = createHttpEntity(token, Map.of("",""));
-        final HttpEntity<?> invalidRoleRequest = createHttpEntity(invalidToken, Map.of());
+        final HttpEntity<?> validRequest = createHttpEntity(token, Map.of("dateTimeOfHearing","2022-10-24T10:12:44", "hearingLocationId", "-31"));
+        final HttpEntity<?> invalidRequest = createHttpEntity(token, Map.of("dateTimeOfHearing","not a date time", "hearingLocationId", "-31"));
+        final HttpEntity<?> invalidLocationRequest = createHttpEntity(token, Map.of("dateTimeOfHearing","2022-10-24T10:12:44", "hearingLocationId", "1"));
+        final HttpEntity<?> invalidRoleRequest = createHttpEntity(invalidToken, Map.of("dateTimeOfHearing","2022-10-24T10:12:44", "hearingLocationId", "1"));
 
 
         @Test
         public void createHearingReturns403 () {
             final var response = testRestTemplate.exchange(
-                "/api/adjudications/adjudication/1/hearing",
+                "/api/adjudications/adjudication/-9/hearing",
                 HttpMethod.POST,
                 invalidRoleRequest,
                 new ParameterizedTypeReference<String>() {
@@ -425,7 +427,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         @Test
         public void createHearingReturns404() {
             final var response = testRestTemplate.exchange(
-                "/api/adjudications/adjudication/1/hearing",
+                "/api/adjudications/adjudication/99/hearing",
                 HttpMethod.POST,
                 validRequest,
                 new ParameterizedTypeReference<String>() {
@@ -437,9 +439,21 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         @Test
         public void createHearingReturns400() {
             final var response = testRestTemplate.exchange(
-                "/api/adjudications/adjudication/1/hearing",
+                "/api/adjudications/adjudication/-9/hearing",
                 HttpMethod.POST,
-                validRequest,
+                invalidRequest,
+                new ParameterizedTypeReference<String>() {
+                });
+
+            assertThatStatus(response, 400);
+        }
+
+        @Test
+        public void createHearingReturns400forLocationId() {
+            final var response = testRestTemplate.exchange(
+                "/api/adjudications/adjudication/-9/hearing",
+                HttpMethod.POST,
+                invalidLocationRequest,
                 new ParameterizedTypeReference<String>() {
                 });
 
@@ -449,7 +463,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         @Test
         public void createHearing() {
             final var response = testRestTemplate.exchange(
-                "/api/adjudications/adjudication/1/hearing",
+                "/api/adjudications/adjudication/-9/hearing",
                 HttpMethod.POST,
                 validRequest,
                 new ParameterizedTypeReference<String>() {
@@ -461,7 +475,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         @Test
         public void deleteHearingReturns403 () {
             final var response = testRestTemplate.exchange(
-                "/api/adjudications/adjudication/1/hearing/1",
+                "/api/adjudications/adjudication/-9/hearing/1",
                 HttpMethod.DELETE,
                 invalidRoleRequest,
                 new ParameterizedTypeReference<String>() {
@@ -473,7 +487,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         @Test
         public void deleteHearingReturns404() {
             final var response = testRestTemplate.exchange(
-                "/api/adjudications/adjudication/1/hearing/1",
+                "/api/adjudications/adjudication/99/hearing/1",
                 HttpMethod.DELETE,
                 validRequest,
                 new ParameterizedTypeReference<String>() {
@@ -483,9 +497,22 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         }
 
         @Test
+        public void deleteHearingReturns404dueToNoHearing() {
+            final var response = testRestTemplate.exchange(
+                "/api/adjudications/adjudication/-9/hearing/2",
+                HttpMethod.DELETE,
+                validRequest,
+                new ParameterizedTypeReference<String>() {
+                });
+
+            assertThatStatus(response, 404);
+        }
+
+
+        @Test
         public void deleteHearing() {
             final var response = testRestTemplate.exchange(
-                "/api/adjudications/adjudication/1/hearing/1",
+                "/api/adjudications/adjudication/-9/hearing/1",
                 HttpMethod.DELETE,
                 validRequest,
                 new ParameterizedTypeReference<String>() {
