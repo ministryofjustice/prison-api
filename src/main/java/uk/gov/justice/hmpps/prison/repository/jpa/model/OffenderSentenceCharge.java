@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -22,33 +24,32 @@ import java.io.Serializable;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of = { "offenderBooking", "sentenceSequence", "offenderCharge" }, callSuper = false)
+@EqualsAndHashCode(of = { "id" }, callSuper = false)
 @Table(name = "OFFENDER_SENTENCE_CHARGES")
-@IdClass(OffenderSentenceCharge.PK.class)
 @BatchSize(size = 25)
 public class OffenderSentenceCharge extends AuditableEntity {
 
     @NoArgsConstructor
     @AllArgsConstructor
     @EqualsAndHashCode
+    @Embeddable
     public static class PK implements Serializable {
-        private OffenderBooking offenderBooking;
+        @Column(name = "OFFENDER_BOOK_ID", nullable = false)
+        private Long offenderBookingId;
+        @Column(name = "SENTENCE_SEQ", nullable = false)
         private Integer sentenceSequence;
-        private OffenderCharge offenderCharge;
+        @Column(name = "OFFENDER_CHARGE_ID", nullable = false)
+        private Long offenderChargeId;
     }
 
-    @Id
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
+    @EmbeddedId
+    private OffenderSentenceCharge.PK id;
+
+    @ManyToOne
+    @JoinColumn(name = "OFFENDER_BOOK_ID", insertable = false, updatable = false)
     private OffenderBooking offenderBooking;
 
-    @Id
-    @Column(name = "SENTENCE_SEQ")
-    private Integer sentenceSequence;
-
-
-    @Id
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "OFFENDER_CHARGE_ID", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "OFFENDER_CHARGE_ID", insertable = false, updatable = false)
     private OffenderCharge offenderCharge;
 }

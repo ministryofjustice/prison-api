@@ -8,8 +8,12 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.BatchSize;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerm;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory.BedAssignmentHistoryPK;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -32,9 +36,8 @@ import java.util.stream.Collectors;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of = {"offenderBooking", "sequence"}, callSuper = false)
+@EqualsAndHashCode(of = {"id"}, callSuper = false)
 @Table(name = "OFFENDER_SENTENCES")
-@IdClass(OffenderSentence.PK.class)
 @NamedEntityGraph(name = "sentence-entity-graph",
     attributeNodes = {
         @NamedAttributeNode(value = "offenderSentenceCharges", subgraph = "offender-sentence-charge-subgraph"),
@@ -62,19 +65,20 @@ public class OffenderSentence extends AuditableEntity {
     @NoArgsConstructor
     @AllArgsConstructor
     @EqualsAndHashCode
+    @Embeddable
     public static class PK implements Serializable {
-        private OffenderBooking offenderBooking;
+        @Column(name = "OFFENDER_BOOK_ID", nullable = false)
+        private Long offenderBookingId;
+        @Column(name = "SENTENCE_SEQ", nullable = false)
         private Integer sequence;
     }
 
-    @Id
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
-    private OffenderBooking offenderBooking;
+    @EmbeddedId
+    private OffenderSentence.PK id;
 
-    @Id
-    @Column(name = "SENTENCE_SEQ")
-    private Integer sequence;
+    @ManyToOne
+    @JoinColumn(name = "OFFENDER_BOOK_ID", insertable = false, updatable = false)
+    private OffenderBooking offenderBooking;
 
     @Column(name = "CONSEC_TO_SENTENCE_SEQ")
     private Integer consecutiveToSentenceSequence;
@@ -126,12 +130,15 @@ public class OffenderSentence extends AuditableEntity {
     @BatchSize(size = 25)
     private List<OffenderSentenceCharge> offenderSentenceCharges;
 
+    public Integer getSequence() {
+        return id.sequence;
+    }
     public OffenderSentenceAndOffences getSentenceAndOffenceDetail() {
         var sentenceDate = courtOrder == null ? null : courtOrder.getCourtDate();
 
         return OffenderSentenceAndOffences.builder()
-            .bookingId(offenderBooking.getBookingId())
-            .sentenceSequence(sequence)
+            .bookingId(id.offenderBookingId)
+            .sentenceSequence(id.sequence)
             .lineSequence(lineSequence)
             .caseSequence(courtCase == null ? null : courtCase.getCaseSeq())
             .caseReference(courtCase == null ? null : courtCase.getCaseInfoNumber())
