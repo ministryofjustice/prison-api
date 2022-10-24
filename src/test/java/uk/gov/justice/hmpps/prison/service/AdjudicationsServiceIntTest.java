@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,6 +108,21 @@ public class AdjudicationsServiceIntTest {
                 .statement("A statement");
         }
     }
+
+    @Nested
+    public class AdjudicationHearings {
+
+        @Test
+        public void createHearing() {
+            throw new NotImplementedException("implement me");
+        }
+
+        @Test
+        public void deleteHearing () {
+            throw new NotImplementedException("implement me");
+        }
+    }
+
 
     private String generateMessageWith4001Chars() {
         final String stringWith10Chars = "ABCDE12345";

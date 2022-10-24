@@ -1,8 +1,10 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 
 import java.util.List;
@@ -399,4 +401,98 @@ public class AdjudicationsResourceTest extends ResourceTest  {
             assertThatStatus(response, 403);
         }
     }
+
+    @Nested
+    public class AdjudicationHearings {
+
+        final String token = validToken(List.of("ROLE_MAINTAIN_ADJUDICATIONS"));
+        final String invalidToken = validToken(List.of("ROLE_SYSTEM_USER"));
+        final HttpEntity<?> validRequest = createHttpEntity(token, Map.of("",""));
+        final HttpEntity<?> invalidRoleRequest = createHttpEntity(invalidToken, Map.of());
+
+
+        @Test
+        public void createHearingReturns403 () {
+            final var response = testRestTemplate.exchange(
+                "/api/adjudications/adjudication/1/hearing",
+                HttpMethod.POST,
+                invalidRoleRequest,
+                new ParameterizedTypeReference<String>() {
+                });
+
+            assertThatStatus(response, 403);
+        }
+        @Test
+        public void createHearingReturns404() {
+            final var response = testRestTemplate.exchange(
+                "/api/adjudications/adjudication/1/hearing",
+                HttpMethod.POST,
+                validRequest,
+                new ParameterizedTypeReference<String>() {
+                });
+
+            assertThatStatus(response, 404);
+        }
+
+        @Test
+        public void createHearingReturns400() {
+            final var response = testRestTemplate.exchange(
+                "/api/adjudications/adjudication/1/hearing",
+                HttpMethod.POST,
+                validRequest,
+                new ParameterizedTypeReference<String>() {
+                });
+
+            assertThatStatus(response, 400);
+        }
+
+        @Test
+        public void createHearing() {
+            final var response = testRestTemplate.exchange(
+                "/api/adjudications/adjudication/1/hearing",
+                HttpMethod.POST,
+                validRequest,
+                new ParameterizedTypeReference<String>() {
+                });
+
+            assertThatStatus(response, 201);
+        }
+
+        @Test
+        public void deleteHearingReturns403 () {
+            final var response = testRestTemplate.exchange(
+                "/api/adjudications/adjudication/1/hearing/1",
+                HttpMethod.DELETE,
+                invalidRoleRequest,
+                new ParameterizedTypeReference<String>() {
+                });
+
+            assertThatStatus(response, 403);
+        }
+
+        @Test
+        public void deleteHearingReturns404() {
+            final var response = testRestTemplate.exchange(
+                "/api/adjudications/adjudication/1/hearing/1",
+                HttpMethod.DELETE,
+                validRequest,
+                new ParameterizedTypeReference<String>() {
+                });
+
+            assertThatStatus(response, 404);
+        }
+
+        @Test
+        public void deleteHearing() {
+            final var response = testRestTemplate.exchange(
+                "/api/adjudications/adjudication/1/hearing/1",
+                HttpMethod.DELETE,
+                validRequest,
+                new ParameterizedTypeReference<String>() {
+                });
+
+            assertThatStatus(response, 200);
+        }
+    }
+
 }

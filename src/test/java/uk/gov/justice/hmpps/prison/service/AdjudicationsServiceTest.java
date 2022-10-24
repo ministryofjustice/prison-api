@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import com.microsoft.applicationinsights.TelemetryClient;
+import org.apache.commons.lang3.NotImplementedException;
 import org.assertj.core.matcher.AssertionMatcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -778,6 +779,41 @@ public class AdjudicationsServiceTest {
                     .build()
             );
         }
+    }
+
+    @Nested
+    public class AdjudicationHearings {
+
+        @Test
+        public void createHearing() {
+            throw new NotImplementedException("implement me");
+        }
+
+        @Test
+        public void createHearingReturnsEntityNotFound () {
+            throw new NotImplementedException("implement me");
+        }
+
+        @Test
+        public void createHearingInvalidData () {
+            throw new NotImplementedException("implement me");
+        }
+
+        @Test
+        public void deleteHearing() {
+            throw new NotImplementedException("implement me");
+        }
+
+        @Test
+        public void deleteHearingAdjudicationNotFound () {
+            throw new NotImplementedException("implement me");
+        }
+
+        @Test
+        public void deleteHearingHearingNotFound () {
+            throw new NotImplementedException("implement me");
+        }
+
     }
 
     private static <T> T assertArgThat(final Consumer<T> assertions) {
