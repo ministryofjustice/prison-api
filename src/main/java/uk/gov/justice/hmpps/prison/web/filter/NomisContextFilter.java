@@ -36,6 +36,7 @@ public class NomisContextFilter implements Filter {
         MDC.put(NOMIS_CONTEXT, PRISON_API.name());
         final var req = (HttpServletRequest) request;
         if ("true".equals(req.getHeader("no-event-propagation"))) {
+            log.info("no-event-propagation header detected, using MERGE context.");
             MDC.put(NOMIS_CONTEXT, MERGE.name());
         }
         chain.doFilter(request, response);
