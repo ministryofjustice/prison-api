@@ -31,7 +31,7 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
 @WithMockUser
-class OffenderResourceRecallTest : ResourceTest() {
+class OffenderResourceIntTest_recall : ResourceTest() {
 
   @MockBean
   private lateinit var trustAccountService: TrustAccountService
