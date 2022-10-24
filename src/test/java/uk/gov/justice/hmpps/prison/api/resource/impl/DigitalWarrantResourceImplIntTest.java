@@ -60,7 +60,7 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
 
         assertThatStatus(responseEntity, 201);
 
-        OffenderCourtCase created = offenderCourtCaseRepository.findById(Long.valueOf(Objects.requireNonNull(responseEntity.getBody()))).orElseGet(() -> fail("Coudn't find created court case"));
+        var created = offenderCourtCaseRepository.findById(Long.valueOf(Objects.requireNonNull(responseEntity.getBody()))).orElseGet(() -> fail("Coudn't find created court case"));
 
         assertThat(created.getAgencyLocation().getDescription()).isEqualTo("BIRMINGHAM");
         assertThat(created.getCaseSeq()).isEqualTo(2);
@@ -94,7 +94,7 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
 
         assertThatStatus(responseEntity, 201);
 
-        OffenderCharge created = offenderChargeRepository.findById(Long.valueOf(Objects.requireNonNull(responseEntity.getBody()))).orElseGet(() -> fail("Offence was not created."));
+        var created = offenderChargeRepository.findById(Long.valueOf(Objects.requireNonNull(responseEntity.getBody()))).orElseGet(() -> fail("Offence was not created."));
 
         assertThat(created.getOffence().getStatute().getCode()).isEqualTo("RV98");
         assertThat(created.getOffence().getCode()).isEqualTo("RV98011");
@@ -146,6 +146,8 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
 
         assertThat(created.getSentenceStartDate()).isEqualTo(LocalDate.of(2022, 10, 10));
         assertThat(created.getCourtCase().getId()).isEqualTo(-59L);
+
+        assertThat(created.getCourtOrder().getCourtDate()).isEqualTo(LocalDate.of(2022, 10, 10));
 
         assertThat(created.getOffenderSentenceCharges().size()).isEqualTo(1);
         assertThat(created.getOffenderSentenceCharges().get(0).getOffenderCharge().getId()).isEqualTo(-11L);
@@ -234,6 +236,5 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
         assertThat(sentence.getOffenderSentenceCharges().get(0).getOffenderCharge().getOffence().getCode()).isEqualTo("RV98011");
 
         assertThat(sentence.getCourtCase().getCaseInfoNumber()).isEqualTo("ABC123");
-
     }
 }
