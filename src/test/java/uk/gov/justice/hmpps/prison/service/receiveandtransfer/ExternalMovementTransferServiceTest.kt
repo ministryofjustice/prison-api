@@ -744,7 +744,7 @@ internal class ExternalMovementTransferServiceTest {
       }
 
       @Test
-      internal fun `new movement should specify the movement from TAP visited place to prison`() {
+      internal fun `new movement should only specify the prison they originated from`() {
         val movement =
           service.updateMovementsForTransferInAfterTemporaryAbsenceToDifferentPrison(
             movementDateTime = dateTime,
@@ -754,9 +754,8 @@ internal class ExternalMovementTransferServiceTest {
             commentText = commentText,
           )
         assertThat(movement.toAgency).isEqualTo(toPrison)
-        assertThat(movement.fromAddressId).isEqualTo(bookingLastMovementForTAP.toAddressId)
-        // in reality either addressId or City would be set but for this test the last movement has both set
-        assertThat(movement.fromCity).isEqualTo(bookingLastMovementForTAP.toCity)
+        assertThat(movement.fromAddressId).isNull()
+        assertThat(movement.fromCity).isNull()
       }
 
       @Test
