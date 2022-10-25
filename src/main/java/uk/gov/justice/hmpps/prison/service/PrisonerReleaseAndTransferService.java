@@ -519,7 +519,9 @@ public class PrisonerReleaseAndTransferService {
     }
 
     private String getReleaseNoteText(final MovementReason movementReason, final AgencyLocation fromLocation, final AgencyLocation toLocation) {
-        if (movementReason.getCode().equals(DISCHARGE_TO_PSY_HOSPITAL.getCode())) {
+        if (movementReason.getCode().equals(DISCHARGE_TO_PSY_HOSPITAL.getCode())
+            && !toLocation.getId().equals("OUT")
+        ) {
             return format("Transferred from %s for reason: Moved to psychiatric hospital %s.", fromLocation.getDescription(), toLocation.getDescription());
         }
         return format("Released from %s for reason: %s.", fromLocation.getDescription(), movementReason.getDescription());
