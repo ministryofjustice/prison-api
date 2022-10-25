@@ -1,14 +1,17 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
 import com.google.gson.Gson;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
+import uk.gov.justice.hmpps.prison.api.model.CaseNote;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.IncidentCase;
+import uk.gov.justice.hmpps.prison.api.model.Movement;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
 
@@ -529,10 +532,26 @@ public class OffenderResourceIntTest extends ResourceTest {
             offenderNo
         );
         assertThatJsonFileAndStatus(dischargeResponse, 200, "discharged_from_court.json");
+
+        final var caseNotes =  testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/case-notes/v2?sort=id,asc",
+            GET,
+            createEmptyHttpEntity(AuthToken.GLOBAL_SEARCH),
+            new ParameterizedTypeReference<RestResponsePage<CaseNote>>() {
+            },
+            offenderNo
+        );
+
+        assertThat(caseNotes.getBody().getContent())
+            .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getAgencyId, CaseNote::getText)
+            .containsExactly(
+                Tuple.tuple("TRANSFER", "FROMTOL", "LEI", "Offender admitted to LEEDS for reason: Awaiting Removal to Psychiatric Hospital from Court 1."),
+                Tuple.tuple("PRISON", "RELEASE", "LEI", "Transferred from LEEDS for reason: Moved to psychiatric hospital Arnold Lodge.")
+            );
     }
 
     @Test
-    public void testCanMovePrisonerFromPrisonToHospital() {
+    public void testCanAdjustReleasedPrisonerFromPrisonToHospital() {
         final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
 
         final var body = Map.of(
@@ -636,6 +655,103 @@ public class OffenderResourceIntTest extends ResourceTest {
               }
             """);
 
+        final var caseNotes =  testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/case-notes/v2?sort=id,asc",
+            GET,
+            createEmptyHttpEntity(AuthToken.GLOBAL_SEARCH),
+            new ParameterizedTypeReference<RestResponsePage<CaseNote>>() {
+            },
+            offenderNo
+        );
+
+        // TODO Possibly a bug - shows that case notes do not reflect the adjusted movement to hospital
+        assertThat(caseNotes.getBody().getContent())
+            .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getAgencyId, CaseNote::getText)
+            .containsExactly(
+                Tuple.tuple("TRANSFER", "FROMTOL", "SYI", "Offender admitted to SHREWSBURY for reason: Recall From Intermittent Custody from Court 1."),
+                Tuple.tuple("PRISON", "RELEASE", "SYI", "Released from SHREWSBURY for reason: Conditional Release (CJA91) -SH Term>1YR.")
+            );
+    }
+
+    @Test
+    public void testCanReleasePrisonerFromPrisonToHospitalInNomis() {
+        final var token = authTokenHelper.getToken(AuthToken.CREATE_BOOKING_USER);
+
+        final var body = Map.of(
+            "lastName", "FromNomis",
+            "firstName", "ReleasedToHospital",
+            "dateOfBirth", LocalDate.of(2000, 10, 17).format(DateTimeFormatter.ISO_LOCAL_DATE),
+            "gender", "M",
+            "ethnicity", "M1");
+
+        final var entity = createHttpEntity(token, body);
+
+        final var createResponse = testRestTemplate.exchange(
+            "/api/offenders",
+            POST,
+            entity,
+            new ParameterizedTypeReference<String>() {
+            }
+        );
+
+        final var offenderNo = new Gson().fromJson(createResponse.getBody(), Map.class).get("offenderNo");
+
+        final var newBookingBody = Map.of("prisonId", "SYI", "fromLocationId", "COURT1", "movementReasonCode", "24", "youthOffender", "true", "imprisonmentStatus", "CUR_ORA", "cellLocation", "SYI-A-1-1");
+        final var newBookingEntity = createHttpEntity(token, newBookingBody);
+
+        final var newBookingResponse = testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/booking",
+            POST,
+            newBookingEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            offenderNo
+        );
+        assertThat(newBookingResponse.getStatusCodeValue()).isEqualTo(200);
+
+        final var bookingId = new BigDecimal(new Gson().fromJson(newBookingResponse.getBody(), Map.class).get("bookingId").toString()).toBigInteger().longValue();
+        final var releaseBody = createHttpEntity(token, Map.of("movementReasonCode", "HP", "commentText", "released prisoner to hospital in NOMIS"));
+
+        final var releaseResponse = testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/release",
+            PUT,
+            releaseBody,
+            new ParameterizedTypeReference<String>() {
+            },
+            offenderNo
+        );
+
+        assertThat(releaseResponse.getStatusCodeValue()).isEqualTo(200);
+
+        final var lastMovement =  testRestTemplate.exchange(
+            "/api/bookings/{bookingId}/movement/{sequenceNumber}",
+            GET,
+            createHttpEntity(token, null),
+            new ParameterizedTypeReference<Movement>() {
+            },
+            bookingId, 2
+        );
+
+        assertThat(lastMovement.getBody().getFromAgency()).isEqualTo("SYI");
+        assertThat(lastMovement.getBody().getToAgency()).isEqualTo("OUT");
+        assertThat(lastMovement.getBody().getMovementType()).isEqualTo("REL");
+        assertThat(lastMovement.getBody().getMovementReason()).isEqualTo("Final Discharge To Hospital-Psychiatric");
+
+        final var caseNotes =  testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/case-notes/v2?sort=id,asc",
+            GET,
+            createEmptyHttpEntity(AuthToken.GLOBAL_SEARCH),
+            new ParameterizedTypeReference<RestResponsePage<CaseNote>>() {
+            },
+            offenderNo
+        );
+
+        assertThat(caseNotes.getBody().getContent())
+            .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getAgencyId, CaseNote::getText)
+            .containsExactly(
+                Tuple.tuple("TRANSFER", "FROMTOL", "SYI", "Offender admitted to SHREWSBURY for reason: Recall From Intermittent Custody from Court 1."),
+                Tuple.tuple("PRISON", "RELEASE", "SYI", "Released from SHREWSBURY for reason: Final Discharge To Hospital-Psychiatric.")
+            );
     }
 
     @Test
@@ -659,6 +775,21 @@ public class OffenderResourceIntTest extends ResourceTest {
         );
 
         assertThatJsonFileAndStatus(response, 200, "released_prisoner.json");
+
+        final var caseNotes =  testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/case-notes/v2?sort=id,asc",
+            GET,
+            createEmptyHttpEntity(AuthToken.GLOBAL_SEARCH),
+            new ParameterizedTypeReference<RestResponsePage<CaseNote>>() {
+            },
+            prisonerNo
+        );
+
+        assertThat(caseNotes.getBody().getContent())
+            .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getAgencyId, CaseNote::getText)
+            .containsExactly(
+                Tuple.tuple("PRISON", "RELEASE", "WAI", "Released from THE WEARE for reason: Conditional Release (CJA91) -SH Term>1YR.")
+            );
     }
 
     @Test

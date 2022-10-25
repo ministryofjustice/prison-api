@@ -127,7 +127,7 @@ public class PrisonerReleaseAndTransferService {
         createOutMovement(booking, REL, movementReason, supportingPrison, toLocation, releaseDateTime, requestToReleasePrisoner.getCommentText(), null);
 
         // generate the release case note
-        generateReleaseNote(booking, releaseDateTime, movementReason);
+        generateReleaseNote(booking, releaseDateTime, movementReason, toLocation);
 
         updateBedAssignmentHistory(booking, releaseDateTime);
 
@@ -499,12 +499,12 @@ public class PrisonerReleaseAndTransferService {
         return optionalOffenderBooking.orElseThrow(EntityNotFoundException.withMessage(format("No bookings found for prisoner number %s", prisonerIdentifier)));
     }
 
-    private void generateReleaseNote(final OffenderBooking booking, final LocalDateTime releaseDateTime, final MovementReason movementReason) {
+    private void generateReleaseNote(final OffenderBooking booking, final LocalDateTime releaseDateTime, final MovementReason movementReason, AgencyLocation toLocation) {
         final var currentUsername = authenticationFacade.getCurrentUsername();
         final var userDetail = staffUserAccountRepository.findById(currentUsername).orElseThrow(EntityNotFoundException.withId(currentUsername));
 
         final var newCaseNote = OffenderCaseNote.builder()
-            .caseNoteText(format("Released from %s for reason: %s.", booking.getLocation().getDescription(), movementReason.getDescription()))
+            .caseNoteText(getReleaseNoteText(movementReason, booking.getLocation(), toLocation))
             .agencyLocation(booking.getLocation())
             .type(caseNoteTypeReferenceCodeRepository.findById(CaseNoteType.pk("PRISON")).orElseThrow(EntityNotFoundException.withId("PRISON")))
             .subType(caseNoteSubTypeReferenceCodeRepository.findById(CaseNoteSubType.pk("RELEASE")).orElseThrow(EntityNotFoundException.withId("RELEASE")))
@@ -516,6 +516,15 @@ public class PrisonerReleaseAndTransferService {
             .offenderBooking(booking)
             .build();
         caseNoteRepository.save(newCaseNote);
+    }
+
+    private String getReleaseNoteText(final MovementReason movementReason, final AgencyLocation fromLocation, final AgencyLocation toLocation) {
+        if (movementReason.getCode().equals(DISCHARGE_TO_PSY_HOSPITAL.getCode())
+            && !toLocation.getId().equals("OUT")
+        ) {
+            return format("Transferred from %s for reason: Moved to psychiatric hospital %s.", fromLocation.getDescription(), toLocation.getDescription());
+        }
+        return format("Released from %s for reason: %s.", fromLocation.getDescription(), movementReason.getDescription());
     }
 
     private void updateBedAssignmentHistory(final OffenderBooking booking, final LocalDateTime releaseDateTime) {
