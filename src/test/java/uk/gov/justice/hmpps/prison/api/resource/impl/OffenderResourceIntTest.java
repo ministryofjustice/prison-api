@@ -545,7 +545,7 @@ public class OffenderResourceIntTest extends ResourceTest {
             .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getAgencyId, CaseNote::getText)
             .containsExactly(
                 Tuple.tuple("TRANSFER", "FROMTOL", "LEI", "Offender admitted to LEEDS for reason: Awaiting Removal to Psychiatric Hospital from Court 1."),
-                Tuple.tuple("PRISON", "RELEASE", "LEI", "Released from LEEDS for reason: Final Discharge To Hospital-Psychiatric.")
+                Tuple.tuple("PRISON", "RELEASE", "LEI", "Transferred from LEEDS for reason: Moved to psychiatric hospital Arnold Lodge.")
             );
     }
 
