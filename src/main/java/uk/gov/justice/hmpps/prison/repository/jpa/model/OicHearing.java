@@ -9,12 +9,16 @@ import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
+
 
 @Data
 @EqualsAndHashCode(callSuper=false)
@@ -25,6 +29,14 @@ import java.time.LocalDateTime;
 @Table(name = "OIC_HEARINGS")
 @ToString(of = {"oicHearingId"})
 public class OicHearing extends AuditableEntity {
+
+    public enum OicHearingStatus {
+        SCH,EXP,CAN
+    }
+
+    public enum OicHearingType {
+        INAD_YOI, INAD_ADULT, GOV_ADULT, GOV_YOI, GOV
+    }
 
     @Id
     @Column(name = "OIC_HEARING_ID", nullable = false)
@@ -50,49 +62,12 @@ public class OicHearing extends AuditableEntity {
     @Column(name = "INTERNAL_LOCATION_ID", nullable = false)
     private Long internalLocationId;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "OIC_HEARING_TYPE", nullable = false, length = 12)
-    private String oicHearingType;
+    private OicHearingType oicHearingType;
 
-    /*
-        //columns to map in new entity
+    @Enumerated(EnumType.STRING)
+    @Column(name = "EVENT_STATUS", nullable = false, length = 12)
+    private OicHearingStatus eventStatus;
 
-    OIC_HEARING_ID NUMBER(10,0),
-    OIC_HEARING_TYPE VARCHAR2(12),
-    OIC_INCIDENT_ID NUMBER(10,0),
-    SCHEDULE_DATE DATE,
-    SCHEDULE_TIME DATE,
-    HEARING_DATE DATE,
-    HEARING_TIME DATE,
-    HEARING_STAFF_ID NUMBER(10,0),
-    VISIT_JUSTICE_TEXT VARCHAR2(40),
-    COMMENT_TEXT VARCHAR2(240),
-    TAPE_NUMBER VARCHAR2(12),
-
-    -- moved these from bottom section seem specific
-    INTERNAL_LOCATION_ID NUMBER(10,0),
-    REPRESENTATIVE_TEXT VARCHAR2(240), //seems to be around who attends hearings.  not sure we capture any of this
-    EVENT_STATUS VARCHAR2(12) DEFAULT 'SCH',
-
-    //comes from AuditableEntry
-
-    CREATE_DATETIME TIMESTAMP DEFAULT systimestamp ,
-    CREATE_USER_ID VARCHAR2(32) DEFAULT USER,
-    MODIFY_DATETIME TIMESTAMP,
-    MODIFY_USER_ID VARCHAR2(32),
-
-    //discover these, mix of audit and non audit fields
-    ???
-    EVENT_ID NUMBER(10,0),
-
-    ??audit related not captured above
-    AUDIT_TIMESTAMP TIMESTAMP,
-    AUDIT_USER_ID VARCHAR2(32),
-    AUDIT_MODULE_NAME VARCHAR2(65),
-    AUDIT_CLIENT_USER_ID VARCHAR2(64),
-    AUDIT_CLIENT_IP_ADDRESS VARCHAR2(39),
-    AUDIT_CLIENT_WORKSTATION_NAME VARCHAR2(64),
-    AUDIT_ADDITIONAL_INFO VARCHAR2(256),
-    ??
-
-     */
 }

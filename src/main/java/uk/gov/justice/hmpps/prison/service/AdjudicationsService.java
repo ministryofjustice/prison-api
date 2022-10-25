@@ -3,7 +3,6 @@ package uk.gov.justice.hmpps.prison.service;
 import com.google.common.collect.Lists;
 import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +23,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationParty;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearing;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearing.OicHearingStatus;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearing.OicHearingType;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationOffenceTypeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
@@ -41,7 +42,6 @@ import javax.validation.Valid;
 import javax.validation.ValidationException;
 import javax.validation.constraints.NotNull;
 import java.time.Clock;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -268,6 +268,8 @@ public class AdjudicationsService {
         final var hearingTime = oicHearingRequest.getDateTimeOfHearing();
 
         final var oicHearing = OicHearing.builder()
+            .eventStatus(OicHearingStatus.SCH)
+            .oicHearingType(oicHearingRequest.getOicHearingType())
             .adjudicationNumber(adjudicationNumber)
             .hearingDate(hearingDate)
             .hearingTime(hearingTime)

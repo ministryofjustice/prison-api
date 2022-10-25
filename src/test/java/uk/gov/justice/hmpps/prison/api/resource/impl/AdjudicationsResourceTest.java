@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.ParameterizedTypeReference;
@@ -407,10 +406,11 @@ public class AdjudicationsResourceTest extends ResourceTest  {
 
         final String token = validToken(List.of("ROLE_MAINTAIN_ADJUDICATIONS"));
         final String invalidToken = validToken(List.of("ROLE_SYSTEM_USER"));
-        final HttpEntity<?> validRequest = createHttpEntity(token, Map.of("dateTimeOfHearing","2022-10-24T10:12:44", "hearingLocationId", "-31"));
-        final HttpEntity<?> invalidRequest = createHttpEntity(token, Map.of("dateTimeOfHearing","not a date time", "hearingLocationId", "-31"));
-        final HttpEntity<?> invalidLocationRequest = createHttpEntity(token, Map.of("dateTimeOfHearing","2022-10-24T10:12:44", "hearingLocationId", "1"));
-        final HttpEntity<?> invalidRoleRequest = createHttpEntity(invalidToken, Map.of("dateTimeOfHearing","2022-10-24T10:12:44", "hearingLocationId", "1"));
+        final HttpEntity<?> validRequest = createHttpEntity(token, Map.of("dateTimeOfHearing","2022-10-24T10:12:44", "hearingLocationId", "-31", "oicHearingType", "GOV_ADULT"));
+        final HttpEntity<?> invalidRequest = createHttpEntity(token, Map.of("dateTimeOfHearing","not a date time", "hearingLocationId", "-31", "oicHearingType", "GOV_ADULT"));
+        final HttpEntity<?> invalidLocationRequest = createHttpEntity(token, Map.of("dateTimeOfHearing","2022-10-24T10:12:44", "hearingLocationId", "1", "oicHearingType", "GOV_ADULT"));
+        final HttpEntity<?> invalidRoleRequest = createHttpEntity(invalidToken, Map.of("dateTimeOfHearing","2022-10-24T10:12:44", "hearingLocationId", "1", "oicHearingType", "GOV_ADULT"));
+        final HttpEntity<?> invalidTypeRequest = createHttpEntity(token, Map.of("dateTimeOfHearing","2022-10-24T10:12:44", "hearingLocationId", "-31", "oicHearingType", "WRONG"));
 
 
         @Test
@@ -512,7 +512,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         @Test
         public void deleteHearing() {
             final var response = testRestTemplate.exchange(
-                "/api/adjudications/adjudication/-9/hearing/1",
+                "/api/adjudications/adjudication/-9/hearing/-4",
                 HttpMethod.DELETE,
                 validRequest,
                 new ParameterizedTypeReference<String>() {

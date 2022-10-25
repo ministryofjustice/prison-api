@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.service;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

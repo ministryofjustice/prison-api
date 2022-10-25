@@ -1,7 +1,6 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import com.microsoft.applicationinsights.TelemetryClient;
-import org.apache.commons.lang3.NotImplementedException;
 import org.assertj.core.matcher.AssertionMatcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -27,6 +26,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AudtableEntityUtils;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearing;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearing.OicHearingStatus;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearing.OicHearingType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Staff;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationOffenceTypeRepository;
@@ -66,7 +67,6 @@ public class AdjudicationsServiceTest {
     private static final String EXAMPLE_NOMS_ID = "A1234BB";
     private static final Long EXAMPLE_ADJUDICATION_NUMBER = 3L;
     private static final String EXAMPLE_OFFENCE_CHARGE_CODE = "51:12A";
-    private static final String EXAMPLE_CURRENT_USERNAME = "USER_1";
     private static final String EXAMPLE_REPORTER_USERNAME = "JA123";
     private static final String EXAMPLE_REPORTER_FIRST_NAME = "JANE";
     private static final String EXAMPLE_REPORTER_LAST_NAME = "SMITH";
@@ -795,7 +795,19 @@ public class AdjudicationsServiceTest {
         private final OicHearingRequest oicHearingRequest =
             OicHearingRequest.builder()
                 .hearingLocationId(3L)
+                .oicHearingType(OicHearingType.GOV)
                 .dateTimeOfHearing(LocalDateTime.now()).build();
+
+        private final OicHearing expectedMockCallOnSave =
+            OicHearing.builder()
+            .internalLocationId(oicHearingRequest.getHearingLocationId())
+            .adjudicationNumber(1L)
+            .hearingDate(oicHearingRequest.getDateTimeOfHearing().toLocalDate())
+            .scheduleDate(oicHearingRequest.getDateTimeOfHearing().toLocalDate())
+            .hearingTime(oicHearingRequest.getDateTimeOfHearing())
+            .oicHearingType(OicHearingType.GOV)
+            .eventStatus(OicHearingStatus.SCH)
+            .scheduleTime(oicHearingRequest.getDateTimeOfHearing()).build();
 
         @Test
         public void createHearing() {
@@ -809,16 +821,7 @@ public class AdjudicationsServiceTest {
                 Optional.of(AgencyInternalLocation.builder().build())
             );
 
-            when(oicHearingRepository.save(
-                OicHearing.builder()
-                    .internalLocationId(oicHearingRequest.getHearingLocationId())
-                    .adjudicationNumber(1L)
-                    .hearingDate(oicHearingRequest.getDateTimeOfHearing().toLocalDate())
-                    .scheduleDate(oicHearingRequest.getDateTimeOfHearing().toLocalDate())
-                    .hearingTime(oicHearingRequest.getDateTimeOfHearing())
-                    .oicHearingType("TODO")
-                    .scheduleTime(oicHearingRequest.getDateTimeOfHearing()).build()
-            )).thenReturn(
+            when(oicHearingRepository.save(expectedMockCallOnSave)).thenReturn(
                 OicHearing.builder()
                     .oicHearingId(1L)
                     .internalLocationId(oicHearingRequest.getHearingLocationId())
