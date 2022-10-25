@@ -1,12 +1,14 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
 import com.google.gson.Gson;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
+import uk.gov.justice.hmpps.prison.api.model.CaseNote;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.IncidentCase;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
@@ -529,6 +531,22 @@ public class OffenderResourceIntTest extends ResourceTest {
             offenderNo
         );
         assertThatJsonFileAndStatus(dischargeResponse, 200, "discharged_from_court.json");
+
+        final var caseNotes =  testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/case-notes/v2?sort=id,asc",
+            GET,
+            createEmptyHttpEntity(AuthToken.GLOBAL_SEARCH),
+            new ParameterizedTypeReference<RestResponsePage<CaseNote>>() {
+            },
+            offenderNo
+        );
+
+        assertThat(caseNotes.getBody().getContent())
+            .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getAgencyId, CaseNote::getText)
+            .containsExactly(
+                Tuple.tuple("TRANSFER", "FROMTOL", "LEI", "Offender admitted to LEEDS for reason: Awaiting Removal to Psychiatric Hospital from Court 1."),
+                Tuple.tuple("PRISON", "RELEASE", "LEI", "Released from LEEDS for reason: Final Discharge To Hospital-Psychiatric.")
+            );
     }
 
     @Test
@@ -636,6 +654,22 @@ public class OffenderResourceIntTest extends ResourceTest {
               }
             """);
 
+
+        final var caseNotes =  testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/case-notes/v2?sort=id,asc",
+            GET,
+            createEmptyHttpEntity(AuthToken.GLOBAL_SEARCH),
+            new ParameterizedTypeReference<RestResponsePage<CaseNote>>() {
+            },
+            offenderNo
+        );
+
+        assertThat(caseNotes.getBody().getContent())
+            .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getAgencyId, CaseNote::getText)
+            .containsExactly(
+                Tuple.tuple("TRANSFER", "FROMTOL", "SYI", "Offender admitted to SHREWSBURY for reason: Recall From Intermittent Custody from Court 1."),
+                Tuple.tuple("PRISON", "RELEASE", "SYI", "Released from SHREWSBURY for reason: Conditional Release (CJA91) -SH Term>1YR.")
+            );
     }
 
     @Test
