@@ -865,7 +865,8 @@ public class AdjudicationsServiceTest {
         @Test
         public void deleteHearing() {
 
-            var oicHearingToDelete =  OicHearing.builder().oicHearingId(1L).build();
+            var oicHearingToDelete =  OicHearing.builder().oicHearingId(1L)
+                .adjudicationNumber(1L).build();
 
             when(adjudicationsRepository.findByParties_AdjudicationNumber(1L))
                 .thenReturn(Optional.of(
@@ -907,6 +908,25 @@ public class AdjudicationsServiceTest {
                 service.deleteOicHearing(1L, 2L))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Could not find oic hearingId 2 for adjudication number 1");
+        }
+
+        @Test
+        public void deleteHearingHearingIsNotRelatedToAdjudication () {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(1L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().build()
+                ));
+
+            when(oicHearingRepository.findById(2L)).thenReturn(
+                Optional.of(OicHearing.builder()
+                    .adjudicationNumber(2L).build())
+            );
+
+            assertThatThrownBy(() ->
+                service.deleteOicHearing(1L, 2L))
+                .isInstanceOf(ValidationException.class)
+                .hasMessageContaining("oic hearingId 2 is not linked to adjudication number 1");
+
         }
 
     }

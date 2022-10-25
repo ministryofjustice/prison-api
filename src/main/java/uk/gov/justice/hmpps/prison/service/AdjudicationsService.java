@@ -46,6 +46,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -294,6 +295,9 @@ public class AdjudicationsService {
 
         final var hearingToDelete = oicHearingRepository.findById(hearingId)
             .orElseThrow(EntityNotFoundException.withMessage(format("Could not find oic hearingId %d for adjudication number %d", hearingId, adjudicationNumber)));
+
+        if(!Objects.equals(hearingToDelete.getAdjudicationNumber(), adjudicationNumber))
+            throw new ValidationException(format("oic hearingId %d is not linked to adjudication number %d", hearingId, adjudicationNumber));
 
         oicHearingRepository.delete(hearingToDelete);
     }

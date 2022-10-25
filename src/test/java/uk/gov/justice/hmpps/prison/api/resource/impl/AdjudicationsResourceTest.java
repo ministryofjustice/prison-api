@@ -520,6 +520,17 @@ public class AdjudicationsResourceTest extends ResourceTest  {
             assertThatStatus(response, 404);
         }
 
+        @Test
+        public void deleteHearingInvalidRequest() {
+            final var response = testRestTemplate.exchange(
+                "/api/adjudications/adjudication/-5/hearing/-4",
+                HttpMethod.DELETE,
+                validRequest,
+                new ParameterizedTypeReference<String>() {
+                });
+
+            assertThatStatus(response, 400);
+        }
 
         @Test
         public void deleteHearing() {
