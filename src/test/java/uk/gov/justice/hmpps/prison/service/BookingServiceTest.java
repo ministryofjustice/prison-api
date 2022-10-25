@@ -1393,7 +1393,7 @@ public class BookingServiceTest {
         when(offenderSentenceRepository.findByOffenderBooking_BookingId_AndCalculationType_CalculationTypeNotLikeAndCalculationType_CategoryNot(bookingId, "%AGG%", "LICENCE"))
             .thenReturn(
                 List.of(OffenderSentence.builder()
-                        .offenderBooking(OffenderBooking.builder().bookingId(-99L).build())
+                        .id(new OffenderSentence.PK(-99L, 1))
                         .calculationType(SentenceCalcType.builder().build()
                     ).build()
                 )
@@ -1404,6 +1404,7 @@ public class BookingServiceTest {
         assertThat(sentencesAndOffences).containsExactly(
             OffenderSentenceAndOffences.builder()
                 .bookingId(-99L)
+                .sentenceSequence(1)
                 .build()
         );
     }
@@ -1414,8 +1415,7 @@ public class BookingServiceTest {
         when(offenderSentenceRepository.findByOffenderBooking_BookingId_AndCalculationType_CalculationTypeNotLikeAndCalculationType_CategoryNot(bookingId, "%AGG%", "LICENCE"))
             .thenReturn(
                 List.of(OffenderSentence.builder()
-                        .offenderBooking(OffenderBooking.builder().bookingId(-98L).build())
-                        .sequence(2)
+                        .id(new OffenderSentence.PK(-98L, 2))
                         .lineSequence(5L)
                         .consecutiveToSentenceSequence(1)
                         .status("A")

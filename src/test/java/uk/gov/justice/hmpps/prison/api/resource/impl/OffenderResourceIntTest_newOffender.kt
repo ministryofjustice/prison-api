@@ -16,7 +16,7 @@ import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
 @WithMockUser
-class OffenderResourceNewOffenderTest : ResourceTest() {
+class OffenderResourceIntTest_newOffender : ResourceTest() {
 
   @Nested
   @DisplayName("POST /offenders")
