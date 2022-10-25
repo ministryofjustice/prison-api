@@ -449,6 +449,18 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         }
 
         @Test
+        public void createHearingReturns400forOicHearingType() {
+            final var response = testRestTemplate.exchange(
+                "/api/adjudications/adjudication/-9/hearing",
+                HttpMethod.POST,
+                invalidTypeRequest,
+                new ParameterizedTypeReference<String>() {
+                });
+
+            assertThatStatus(response, 400);
+        }
+
+        @Test
         public void createHearingReturns400forLocationId() {
             final var response = testRestTemplate.exchange(
                 "/api/adjudications/adjudication/-9/hearing",
