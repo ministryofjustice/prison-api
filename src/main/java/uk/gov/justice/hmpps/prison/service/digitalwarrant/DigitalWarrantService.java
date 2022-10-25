@@ -5,11 +5,9 @@ import org.springframework.stereotype.Service;
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.CourtCase;
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Offence;
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Sentence;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtOrder;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LegalCaseType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offence.PK;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenceResult;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence;
@@ -17,6 +15,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentenceCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalcType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtOrderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenceResultRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
@@ -32,8 +31,6 @@ import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 import javax.transaction.Transactional;
 
 import java.util.Comparator;
-
-import static java.util.Arrays.asList;
 
 @Service
 public class DigitalWarrantService {
@@ -61,14 +58,17 @@ public class DigitalWarrantService {
     @Autowired
     private SentenceTermRepository sentenceTermRepository;
 
+    @Autowired
+    private CourtOrderRepository courtOrderRepository;
+
     @Transactional
     public Long createCourtCase(Long bookingId, CourtCase courtCase) {
-        AgencyLocation agency = agencyLocationRepository.findById(courtCase.getAgencyId()).orElseThrow(EntityNotFoundException.withId(courtCase.getAgencyId()));
-        LegalCaseType legalCaseType = legalCaseTypeReferenceCodeRepository.findById(LegalCaseType.pk(courtCase.getCaseType())).orElseThrow(EntityNotFoundException.withId(courtCase.getCaseType()));
-        OffenderBooking booking = offenderBookingRepository.findByBookingId(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
+        var agency = agencyLocationRepository.findById(courtCase.getAgencyId()).orElseThrow(EntityNotFoundException.withId(courtCase.getAgencyId()));
+        var legalCaseType = legalCaseTypeReferenceCodeRepository.findById(LegalCaseType.pk(courtCase.getCaseType())).orElseThrow(EntityNotFoundException.withId(courtCase.getCaseType()));
+        var booking = offenderBookingRepository.findByBookingId(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
 
-        Long sequence = offenderCourtCaseRepository.findAllByOffenderBooking_BookingId(bookingId).stream().max(Comparator.comparing(OffenderCourtCase::getCaseSeq)).map(occ -> occ.getCaseSeq() + 1).orElse(1L);
-        OffenderCourtCase offenderCourtCase = OffenderCourtCase.builder()
+        var sequence = offenderCourtCaseRepository.findAllByOffenderBooking_BookingId(bookingId).stream().max(Comparator.comparing(OffenderCourtCase::getCaseSeq)).map(occ -> occ.getCaseSeq() + 1).orElse(1L);
+        var offenderCourtCase = OffenderCourtCase.builder()
             .caseInfoNumber(courtCase.getCaseInfoNumber())
             .legalCaseType(legalCaseType)
             .agencyLocation(agency)
@@ -82,13 +82,13 @@ public class DigitalWarrantService {
 
     @Transactional
     public Long createOffenderOffence(Long bookingId, Offence offenderOffence) {
-        uk.gov.justice.hmpps.prison.repository.jpa.model.Offence offence = offenceRepository.findById((new PK(offenderOffence.getOffenceCode(), offenderOffence.getOffenceStatue()))).orElseThrow(EntityNotFoundException.withId(offenderOffence.getOffenceCode() + " " + offenderOffence.getOffenceStatue()));
-        OffenderCourtCase courtCase = offenderCourtCaseRepository.findById(offenderOffence.getCourtCaseId()).orElseThrow(EntityNotFoundException.withId(offenderOffence.getCourtCaseId()));
-        OffenderBooking booking = offenderBookingRepository.findByBookingId(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
-        String offenceResultCode = offenderOffence.isGuilty() ? OffenceResultRepository.IMPRISONMENT : OffenceResultRepository.NOT_GUILTY;
-        OffenceResult result = offenceResultRepository.findById(offenceResultCode).orElseThrow(EntityNotFoundException.withId(offenceResultCode));
+        var offence = offenceRepository.findById((new PK(offenderOffence.getOffenceCode(), offenderOffence.getOffenceStatue()))).orElseThrow(EntityNotFoundException.withId(offenderOffence.getOffenceCode() + " " + offenderOffence.getOffenceStatue()));
+        var courtCase = offenderCourtCaseRepository.findById(offenderOffence.getCourtCaseId()).orElseThrow(EntityNotFoundException.withId(offenderOffence.getCourtCaseId()));
+        var booking = offenderBookingRepository.findByBookingId(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
+        var offenceResultCode = offenderOffence.isGuilty() ? OffenceResultRepository.IMPRISONMENT : OffenceResultRepository.NOT_GUILTY;
+        var result = offenceResultRepository.findById(offenceResultCode).orElseThrow(EntityNotFoundException.withId(offenceResultCode));
 
-        OffenderCharge offenderCharge = OffenderCharge.builder()
+        var offenderCharge = OffenderCharge.builder()
             .offence(offence)
             .dateOfOffence(offenderOffence.getOffenceDate())
             .endDate(offenderOffence.getOffenceEndDate())
@@ -103,25 +103,38 @@ public class DigitalWarrantService {
 
     @Transactional
     public Integer createOffenderSentence(Long bookingId, Sentence sentence) {
-        OffenderCourtCase courtCase = offenderCourtCaseRepository.findById(sentence.getCourtCaseId()).orElseThrow(EntityNotFoundException.withId(sentence.getCourtCaseId()));
-        OffenderBooking booking = offenderBookingRepository.findByBookingId(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
-        OffenderCharge offenderCharge = offenderChargeRepository.findById(sentence.getOffenderChargeId()).orElseThrow(EntityNotFoundException.withId(sentence.getOffenderChargeId()));
-        SentenceCalcType sentenceCalcType = sentenceCalcTypeRepository.findById(new SentenceCalcType.PK(sentence.getSentenceType(), sentence.getSentenceCategory())).orElseThrow(EntityNotFoundException.withId(sentence.getSentenceType() + " " + sentence.getSentenceCategory()));
+        var courtCase = offenderCourtCaseRepository.findById(sentence.getCourtCaseId()).orElseThrow(EntityNotFoundException.withMessage("Court not found with id " + sentence.getCourtCaseId()));
+        var booking = offenderBookingRepository.findByBookingId(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
+        var offenderCharge = offenderChargeRepository.findById(sentence.getOffenderChargeId()).orElseThrow(EntityNotFoundException.withId(sentence.getOffenderChargeId()));
+        var sentenceCalcType = sentenceCalcTypeRepository.findById(new SentenceCalcType.PK(sentence.getSentenceType(), sentence.getSentenceCategory())).orElseThrow(EntityNotFoundException.withId(sentence.getSentenceType() + " " + sentence.getSentenceCategory()));
 
-        //TODO is this the correct way to set sequence?
-        Integer sequence = offenderSentenceRepository.findByOffenderBooking_BookingId(bookingId).stream().max(Comparator.comparing(OffenderSentence::getSequence)).map(os -> os.getSequence() + 1).orElse(1);
 
-        OffenderSentence offenderSentence = OffenderSentence.builder()
+        var courtOrder = CourtOrder.builder()
+            .courtCase(courtCase)
+            .issuingCourt(courtCase.getAgencyLocation())
+            .courtDate(sentence.getSentenceDate())
+            .offenderBooking(booking)
+            .orderType("AUTO")
+            .build();
+
+        courtOrder = courtOrderRepository.save(courtOrder);
+
+        var sequence = offenderSentenceRepository.findByOffenderBooking_BookingId(bookingId).stream().max(Comparator.comparing(OffenderSentence::getSequence)).map(os -> os.getSequence() + 1).orElse(1);
+
+        var offenderSentence = OffenderSentence.builder()
             .id(new OffenderSentence.PK(booking.getBookingId(), sequence))
             .calculationType(sentenceCalcType)
             .sentenceStartDate(sentence.getSentenceDate())
             .courtCase(courtCase)
+            .courtOrder(courtOrder)
             .status("A")
         .build();
 
+
         offenderSentence =  offenderSentenceRepository.save(offenderSentence);
 
-        SentenceTerm term = SentenceTerm.builder()
+
+        var term = SentenceTerm.builder()
             .days(sentence.getDays())
             .weeks(sentence.getWeeks())
             .months(sentence.getMonths())
@@ -133,7 +146,7 @@ public class DigitalWarrantService {
 
         sentenceTermRepository.save(term);
 
-        OffenderSentenceCharge offenderSentenceCharge = OffenderSentenceCharge.builder()
+        var offenderSentenceCharge = OffenderSentenceCharge.builder()
             .id(new OffenderSentenceCharge.PK(booking.getBookingId(), offenderSentence.getSequence(), offenderCharge.getId()))
             .build();
 
@@ -141,4 +154,5 @@ public class DigitalWarrantService {
 
         return offenderSentence.getSequence();
     }
+
 }
