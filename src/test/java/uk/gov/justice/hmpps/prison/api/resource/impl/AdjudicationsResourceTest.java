@@ -3,8 +3,8 @@ package uk.gov.justice.hmpps.prison.api.resource.impl;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 
 import java.util.List;
 import java.util.Map;
@@ -404,144 +404,127 @@ public class AdjudicationsResourceTest extends ResourceTest  {
     @Nested
     public class AdjudicationHearings {
 
-        final String token = validToken(List.of("ROLE_MAINTAIN_ADJUDICATIONS"));
-        final String invalidToken = validToken(List.of("ROLE_SYSTEM_USER"));
-        final HttpEntity<?> validRequest = createHttpEntity(token, Map.of("dateTimeOfHearing","2022-10-24T10:12:44", "hearingLocationId", "-31", "oicHearingType", "GOV_ADULT"));
-        final HttpEntity<?> invalidRequest = createHttpEntity(token, Map.of("dateTimeOfHearing","not a date time", "hearingLocationId", "-31", "oicHearingType", "GOV_ADULT"));
-        final HttpEntity<?> invalidLocationRequest = createHttpEntity(token, Map.of("dateTimeOfHearing","2022-10-24T10:12:44", "hearingLocationId", "1", "oicHearingType", "GOV_ADULT"));
-        final HttpEntity<?> invalidRoleRequest = createHttpEntity(invalidToken, Map.of("dateTimeOfHearing","2022-10-24T10:12:44", "hearingLocationId", "1", "oicHearingType", "GOV_ADULT"));
-        final HttpEntity<?> invalidTypeRequest = createHttpEntity(token, Map.of("dateTimeOfHearing","2022-10-24T10:12:44", "hearingLocationId", "-31", "oicHearingType", "WRONG"));
+        final List<String> valid = List.of("ROLE_MAINTAIN_ADJUDICATIONS");
+        final List<String> invalid = List.of("ROLE_SYSTEM_USER");
+        final Map validRequest = Map.of("dateTimeOfHearing","2022-10-24T10:12:44", "hearingLocationId", "-31", "oicHearingType", "GOV_ADULT");
+        final Map invalidRequest = Map.of("dateTimeOfHearing","not a date time", "hearingLocationId", "-31", "oicHearingType", "GOV_ADULT");
+        final Map invalidLocationRequest = Map.of("dateTimeOfHearing","2022-10-24T10:12:44", "hearingLocationId", "1", "oicHearingType", "GOV_ADULT");
+        final Map invalidTypeRequest = Map.of("dateTimeOfHearing","2022-10-24T10:12:44", "hearingLocationId", "-31", "oicHearingType", "WRONG");
 
 
         @Test
         public void createHearingReturns403ForInvalidRoles () {
-            final var response = testRestTemplate.exchange(
-                "/api/adjudications/adjudication/-9/hearing",
-                HttpMethod.POST,
-                invalidRoleRequest,
-                new ParameterizedTypeReference<String>() {
-                });
-
-            assertThatStatus(response, 403);
+            webTestClient.post()
+                .uri("/api/adjudications/adjudication/-9/hearing")
+                .headers(setAuthorisation(invalid))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .bodyValue(validRequest)
+                .exchange()
+                .expectStatus().isForbidden();
         }
         @Test
         public void createHearingReturns404DueToNoAdjudication() {
-            final var response = testRestTemplate.exchange(
-                "/api/adjudications/adjudication/99/hearing",
-                HttpMethod.POST,
-                validRequest,
-                new ParameterizedTypeReference<String>() {
-                });
-
-            assertThatStatus(response, 404);
+            webTestClient.post()
+                .uri( "/api/adjudications/adjudication/99/hearing")
+                .headers(setAuthorisation(valid))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .bodyValue(validRequest)
+                .exchange()
+                .expectStatus().isNotFound();
         }
 
         @Test
         public void createHearingReturns400() {
-            final var response = testRestTemplate.exchange(
-                "/api/adjudications/adjudication/-9/hearing",
-                HttpMethod.POST,
-                invalidRequest,
-                new ParameterizedTypeReference<String>() {
-                });
-
-            assertThatStatus(response, 400);
+            webTestClient.post()
+                .uri("/api/adjudications/adjudication/-9/hearing")
+                .headers(setAuthorisation(valid))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .bodyValue(invalidRequest)
+                .exchange()
+                .expectStatus().isBadRequest();
         }
 
         @Test
         public void createHearingReturns400forOicHearingType() {
-            final var response = testRestTemplate.exchange(
-                "/api/adjudications/adjudication/-9/hearing",
-                HttpMethod.POST,
-                invalidTypeRequest,
-                new ParameterizedTypeReference<String>() {
-                });
-
-            assertThatStatus(response, 400);
+            webTestClient.post()
+                .uri("/api/adjudications/adjudication/-9/hearing")
+                .headers(setAuthorisation(valid))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .bodyValue(invalidTypeRequest)
+                .exchange()
+                .expectStatus().isBadRequest();
         }
 
         @Test
         public void createHearingReturns400forLocationId() {
-            final var response = testRestTemplate.exchange(
-                "/api/adjudications/adjudication/-9/hearing",
-                HttpMethod.POST,
-                invalidLocationRequest,
-                new ParameterizedTypeReference<String>() {
-                });
-
-            assertThatStatus(response, 400);
+            webTestClient.post()
+                .uri("/api/adjudications/adjudication/-9/hearing")
+                .headers(setAuthorisation(valid))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .bodyValue(invalidLocationRequest)
+                .exchange()
+                .expectStatus().isBadRequest();
         }
 
         @Test
         public void createHearing() {
-            final var response = testRestTemplate.exchange(
-                "/api/adjudications/adjudication/-9/hearing",
-                HttpMethod.POST,
-                validRequest,
-                new ParameterizedTypeReference<String>() {
-                });
-
-            assertThatStatus(response, 201);
+            webTestClient.post()
+                .uri("/api/adjudications/adjudication/-9/hearing")
+                .headers(setAuthorisation(valid))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .bodyValue(validRequest)
+                .exchange()
+                .expectStatus().isCreated();
         }
 
         @Test
         public void deleteHearingReturns403DueToInvalidRoles () {
-            final var response = testRestTemplate.exchange(
-                "/api/adjudications/adjudication/-9/hearing/1",
-                HttpMethod.DELETE,
-                invalidRoleRequest,
-                new ParameterizedTypeReference<String>() {
-                });
-
-            assertThatStatus(response, 403);
+            webTestClient.delete()
+                .uri("/api/adjudications/adjudication/-9/hearing/1")
+                .headers(setAuthorisation(invalid))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .exchange()
+                .expectStatus().isForbidden();
         }
 
         @Test
         public void deleteHearingReturns404DueToNoAdjudication() {
-            final var response = testRestTemplate.exchange(
-                "/api/adjudications/adjudication/99/hearing/1",
-                HttpMethod.DELETE,
-                validRequest,
-                new ParameterizedTypeReference<String>() {
-                });
-
-            assertThatStatus(response, 404);
+            webTestClient.delete()
+                .uri("/api/adjudications/adjudication/99/hearing/1")
+                .headers(setAuthorisation(valid))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .exchange()
+                .expectStatus().isNotFound();
         }
 
         @Test
         public void deleteHearingReturns404DueToNoHearing() {
-            final var response = testRestTemplate.exchange(
-                "/api/adjudications/adjudication/-9/hearing/2",
-                HttpMethod.DELETE,
-                validRequest,
-                new ParameterizedTypeReference<String>() {
-                });
-
-            assertThatStatus(response, 404);
+            webTestClient.delete()
+                .uri("/api/adjudications/adjudication/-9/hearing/2")
+                .headers(setAuthorisation(valid))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .exchange()
+                .expectStatus().isNotFound();
         }
 
         @Test
         public void deleteHearingInvalidRequestAsHearingDoesNotBelongToAdjudication() {
-            final var response = testRestTemplate.exchange(
-                "/api/adjudications/adjudication/-5/hearing/-4",
-                HttpMethod.DELETE,
-                validRequest,
-                new ParameterizedTypeReference<String>() {
-                });
-
-            assertThatStatus(response, 400);
+            webTestClient.delete()
+                .uri("/api/adjudications/adjudication/-5/hearing/-4")
+                .headers(setAuthorisation(valid))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .exchange()
+                .expectStatus().isBadRequest();
         }
 
         @Test
         public void deleteHearing() {
-            final var response = testRestTemplate.exchange(
-                "/api/adjudications/adjudication/-9/hearing/-4",
-                HttpMethod.DELETE,
-                validRequest,
-                new ParameterizedTypeReference<String>() {
-                });
-
-            assertThatStatus(response, 200);
+            webTestClient.delete()
+                .uri("/api/adjudications/adjudication/-9/hearing/-4")
+                .headers(setAuthorisation(valid))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .exchange()
+                .expectStatus().isOk();
         }
     }
 

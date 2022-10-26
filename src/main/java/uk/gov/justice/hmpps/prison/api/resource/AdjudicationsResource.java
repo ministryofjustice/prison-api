@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationCreationRequestData;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
@@ -132,14 +133,12 @@ public class AdjudicationsResource {
     @PostMapping("/adjudication/{adjudicationNumber}/hearing")
     @ProxyUser
     @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS') and hasAuthority('SCOPE_write')")
-    public ResponseEntity<OicHearingResponse> createOicHearing(
+    @ResponseStatus(HttpStatus.CREATED)
+    public OicHearingResponse createOicHearing(
         @Valid @RequestBody @Parameter(description = "OIC hearing to save", required = true) final OicHearingRequest oicHearingRequest,
         @PathVariable("adjudicationNumber") final Long adjudicationNumber
         ) {
-        var oicHearing = adjudicationsService.createOicHearing(adjudicationNumber, oicHearingRequest);
-        return ResponseEntity
-            .status(HttpStatus.CREATED)
-            .body(oicHearing);
+        return adjudicationsService.createOicHearing(adjudicationNumber, oicHearingRequest);
     }
 
     @ApiResponses({
