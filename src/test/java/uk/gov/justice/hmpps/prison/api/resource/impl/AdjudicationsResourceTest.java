@@ -414,7 +414,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
 
 
         @Test
-        public void createHearingReturns403 () {
+        public void createHearingReturns403ForInvalidRoles () {
             final var response = testRestTemplate.exchange(
                 "/api/adjudications/adjudication/-9/hearing",
                 HttpMethod.POST,
@@ -425,7 +425,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
             assertThatStatus(response, 403);
         }
         @Test
-        public void createHearingReturns404() {
+        public void createHearingReturns404DueToNoAdjudication() {
             final var response = testRestTemplate.exchange(
                 "/api/adjudications/adjudication/99/hearing",
                 HttpMethod.POST,
@@ -485,7 +485,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         }
 
         @Test
-        public void deleteHearingReturns403 () {
+        public void deleteHearingReturns403DueToInvalidRoles () {
             final var response = testRestTemplate.exchange(
                 "/api/adjudications/adjudication/-9/hearing/1",
                 HttpMethod.DELETE,
@@ -497,7 +497,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         }
 
         @Test
-        public void deleteHearingReturns404() {
+        public void deleteHearingReturns404DueToNoAdjudication() {
             final var response = testRestTemplate.exchange(
                 "/api/adjudications/adjudication/99/hearing/1",
                 HttpMethod.DELETE,
@@ -509,7 +509,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         }
 
         @Test
-        public void deleteHearingReturns404dueToNoHearing() {
+        public void deleteHearingReturns404DueToNoHearing() {
             final var response = testRestTemplate.exchange(
                 "/api/adjudications/adjudication/-9/hearing/2",
                 HttpMethod.DELETE,
@@ -521,7 +521,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         }
 
         @Test
-        public void deleteHearingInvalidRequest() {
+        public void deleteHearingInvalidRequestAsHearingDoesNotBelongToAdjudication() {
             final var response = testRestTemplate.exchange(
                 "/api/adjudications/adjudication/-5/hearing/-4",
                 HttpMethod.DELETE,
