@@ -803,11 +803,9 @@ public class AdjudicationsServiceTest {
             .internalLocationId(oicHearingRequest.getHearingLocationId())
             .adjudicationNumber(1L)
             .hearingDate(oicHearingRequest.getDateTimeOfHearing().toLocalDate())
-            .scheduleDate(oicHearingRequest.getDateTimeOfHearing().toLocalDate())
             .hearingTime(oicHearingRequest.getDateTimeOfHearing())
             .oicHearingType(OicHearingType.GOV)
-            .eventStatus(OicHearingStatus.SCH)
-            .scheduleTime(oicHearingRequest.getDateTimeOfHearing()).build();
+            .eventStatus(OicHearingStatus.SCH).build();
 
         @Test
         public void createHearing() {

@@ -47,12 +47,6 @@ public class OicHearing extends AuditableEntity {
     @Column(name = "OIC_INCIDENT_ID", nullable = false)
     private Long adjudicationNumber;
 
-    @Column(name = "SCHEDULE_DATE", nullable = false)
-    private LocalDate scheduleDate;
-
-    @Column(name = "SCHEDULE_TIME", nullable = false)
-    private LocalDateTime scheduleTime;
-
     @Column(name = "HEARING_DATE", nullable = false)
     private LocalDate hearingDate;
 
