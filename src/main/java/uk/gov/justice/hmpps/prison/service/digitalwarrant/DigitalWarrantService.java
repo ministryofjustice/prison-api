@@ -5,9 +5,15 @@ import org.springframework.stereotype.Service;
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.CourtCase;
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Offence;
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Sentence;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtOrder;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LegalCaseType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offence.PK;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenceResult;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence;
@@ -15,6 +21,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentenceCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalcType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtOrderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenceResultRepository;
@@ -52,6 +59,14 @@ public class DigitalWarrantService {
     private OffenderSentenceChargeRepository offenderSentenceChargeRepository;
     @Autowired
     private ReferenceCodeRepository<LegalCaseType> legalCaseTypeReferenceCodeRepository;
+
+    @Autowired
+    private ReferenceCodeRepository<MovementReason> movementReasonReferenceCodeRepository;
+
+    @Autowired
+    private ReferenceCodeRepository<CaseStatus> caseStatusReferenceCodeRepository;
+    @Autowired
+    private ReferenceCodeRepository<EventStatus> eventStatusReferenceCodeRepository;
     @Autowired
     private OffenceResultRepository offenceResultRepository;
 
@@ -61,11 +76,15 @@ public class DigitalWarrantService {
     @Autowired
     private CourtOrderRepository courtOrderRepository;
 
+    @Autowired
+    private CourtEventRepository courtEventRepository;
+
     @Transactional
     public Long createCourtCase(Long bookingId, CourtCase courtCase) {
-        var agency = agencyLocationRepository.findById(courtCase.getAgencyId()).orElseThrow(EntityNotFoundException.withId(courtCase.getAgencyId()));
-        var legalCaseType = legalCaseTypeReferenceCodeRepository.findById(LegalCaseType.pk(courtCase.getCaseType())).orElseThrow(EntityNotFoundException.withId(courtCase.getCaseType()));
-        var booking = offenderBookingRepository.findByBookingId(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
+        var agency = agencyLocationRepository.findById(courtCase.getAgencyId()).orElseThrow(EntityNotFoundException.withIdAndClass(courtCase.getAgencyId(), CourtCase.class));
+        var legalCaseType = legalCaseTypeReferenceCodeRepository.findById(LegalCaseType.pk(courtCase.getCaseType())).orElseThrow(EntityNotFoundException.withIdAndClass(courtCase.getCaseType(), LegalCaseType.class));
+        var booking = offenderBookingRepository.findByBookingId(bookingId).orElseThrow(EntityNotFoundException.withIdAndClass(bookingId, OffenderBooking.class));
+        var caseStatus = caseStatusReferenceCodeRepository.findById(CaseStatus.pk("A")).orElseThrow(EntityNotFoundException.withIdAndClass(bookingId, CaseStatus.class));
 
         var sequence = offenderCourtCaseRepository.findAllByOffenderBooking_BookingId(bookingId).stream().max(Comparator.comparing(OffenderCourtCase::getCaseSeq)).map(occ -> occ.getCaseSeq() + 1).orElse(1L);
         var offenderCourtCase = OffenderCourtCase.builder()
@@ -75,18 +94,33 @@ public class DigitalWarrantService {
             .beginDate(courtCase.getBeginDate())
             .offenderBooking(booking)
             .caseSeq(sequence)
+            .caseStatus(caseStatus)
             .build();
+
+        var movementReason = movementReasonReferenceCodeRepository.findById(MovementReason.pk(courtCase.getHearingType())).orElseThrow(EntityNotFoundException.withIdAndClass(courtCase.getCaseType(), MovementReason.class));
+        var eventStatus = eventStatusReferenceCodeRepository.findById(EventStatus.COMPLETED).orElseThrow(EntityNotFoundException.withIdAndClass(EventStatus.COMPLETED.getCode(), EventStatus.class));
+        var courtEvent = CourtEvent.builder()
+            .offenderBooking(booking)
+            .courtEventType(movementReason)
+            .eventStatus(eventStatus)
+            .startTime(courtCase.getBeginDate().atTime(10, 0))
+            .eventDate(courtCase.getBeginDate())
+            .courtLocation(agency)
+            .offenderCourtCase(offenderCourtCase)
+            .build();
+
+        courtEventRepository.save(courtEvent);
 
         return offenderCourtCaseRepository.save(offenderCourtCase).getId();
     }
 
     @Transactional
     public Long createOffenderOffence(Long bookingId, Offence offenderOffence) {
-        var offence = offenceRepository.findById((new PK(offenderOffence.getOffenceCode(), offenderOffence.getOffenceStatue()))).orElseThrow(EntityNotFoundException.withId(offenderOffence.getOffenceCode() + " " + offenderOffence.getOffenceStatue()));
-        var courtCase = offenderCourtCaseRepository.findById(offenderOffence.getCourtCaseId()).orElseThrow(EntityNotFoundException.withId(offenderOffence.getCourtCaseId()));
-        var booking = offenderBookingRepository.findByBookingId(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
+        var offence = offenceRepository.findById((new PK(offenderOffence.getOffenceCode(), offenderOffence.getOffenceStatue()))).orElseThrow(EntityNotFoundException.withIdAndClass(offenderOffence.getOffenceCode() + " " + offenderOffence.getOffenceStatue(), Offence.class));
+        var courtCase = offenderCourtCaseRepository.findById(offenderOffence.getCourtCaseId()).orElseThrow(EntityNotFoundException.withIdAndClass(offenderOffence.getCourtCaseId(), OffenderCourtCase.class));
+        var booking = offenderBookingRepository.findByBookingId(bookingId).orElseThrow(EntityNotFoundException.withIdAndClass(bookingId, OffenderBooking.class));
         var offenceResultCode = offenderOffence.isGuilty() ? OffenceResultRepository.IMPRISONMENT : OffenceResultRepository.NOT_GUILTY;
-        var result = offenceResultRepository.findById(offenceResultCode).orElseThrow(EntityNotFoundException.withId(offenceResultCode));
+        var result = offenceResultRepository.findById(offenceResultCode).orElseThrow(EntityNotFoundException.withIdAndClass(offenceResultCode, OffenceResult.class));
 
         var offenderCharge = OffenderCharge.builder()
             .offence(offence)
@@ -96,6 +130,7 @@ public class DigitalWarrantService {
             .offenderBooking(booking)
             .resultCodeOne(result)
             .mostSeriousFlag("N")
+            .pleaCode("G")
             .build();
 
         return offenderChargeRepository.save(offenderCharge).getId();
@@ -103,11 +138,10 @@ public class DigitalWarrantService {
 
     @Transactional
     public Integer createOffenderSentence(Long bookingId, Sentence sentence) {
-        var courtCase = offenderCourtCaseRepository.findById(sentence.getCourtCaseId()).orElseThrow(EntityNotFoundException.withMessage("Court not found with id " + sentence.getCourtCaseId()));
-        var booking = offenderBookingRepository.findByBookingId(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
-        var offenderCharge = offenderChargeRepository.findById(sentence.getOffenderChargeId()).orElseThrow(EntityNotFoundException.withId(sentence.getOffenderChargeId()));
-        var sentenceCalcType = sentenceCalcTypeRepository.findById(new SentenceCalcType.PK(sentence.getSentenceType(), sentence.getSentenceCategory())).orElseThrow(EntityNotFoundException.withId(sentence.getSentenceType() + " " + sentence.getSentenceCategory()));
-
+        var courtCase = offenderCourtCaseRepository.findById(sentence.getCourtCaseId()).orElseThrow(EntityNotFoundException.withIdAndClass(sentence.getCourtCaseId(), CourtCase.class));
+        var booking = offenderBookingRepository.findByBookingId(bookingId).orElseThrow(EntityNotFoundException.withIdAndClass(bookingId, OffenderBooking.class));
+        var offenderCharge = offenderChargeRepository.findById(sentence.getOffenderChargeId()).orElseThrow(EntityNotFoundException.withIdAndClass(sentence.getOffenderChargeId(), OffenderCharge.class));
+        var sentenceCalcType = sentenceCalcTypeRepository.findById(new SentenceCalcType.PK(sentence.getSentenceType(), sentence.getSentenceCategory())).orElseThrow(EntityNotFoundException.withIdAndClass(sentence.getSentenceType() + " " + sentence.getSentenceCategory(), SentenceCalcType.class));
 
         var courtOrder = CourtOrder.builder()
             .courtCase(courtCase)
@@ -123,6 +157,7 @@ public class DigitalWarrantService {
 
         var offenderSentence = OffenderSentence.builder()
             .id(new OffenderSentence.PK(booking.getBookingId(), sequence))
+            .lineSequence(Long.valueOf(sequence))
             .calculationType(sentenceCalcType)
             .sentenceStartDate(sentence.getSentenceDate())
             .courtCase(courtCase)
@@ -130,9 +165,7 @@ public class DigitalWarrantService {
             .status("A")
         .build();
 
-
         offenderSentence =  offenderSentenceRepository.save(offenderSentence);
-
 
         var term = SentenceTerm.builder()
             .days(sentence.getDays())
@@ -151,6 +184,20 @@ public class DigitalWarrantService {
             .build();
 
         offenderSentenceChargeRepository.save(offenderSentenceCharge);
+
+        var movementReason = movementReasonReferenceCodeRepository.findById(MovementReason.SENTENCING).orElseThrow(EntityNotFoundException.withIdAndClass(MovementReason.SENTENCING.getCode(), MovementReason.class));
+        var eventStatus = eventStatusReferenceCodeRepository.findById(EventStatus.COMPLETED).orElseThrow(EntityNotFoundException.withIdAndClass(EventStatus.COMPLETED.getCode(), EventStatus.class));
+        var courtEvent = CourtEvent.builder()
+            .offenderBooking(booking)
+            .courtEventType(movementReason)
+            .eventStatus(eventStatus)
+            .startTime(sentence.getSentenceDate().atTime(10, 0))
+            .eventDate(sentence.getSentenceDate())
+            .courtLocation(courtCase.getAgencyLocation())
+            .offenderCourtCase(courtCase)
+            .build();
+
+        courtEventRepository.save(courtEvent);
 
         return offenderSentence.getSequence();
     }

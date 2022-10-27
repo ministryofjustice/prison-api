@@ -19,6 +19,8 @@ public class MovementReason extends ReferenceCode {
     public static final ReferenceCode.Pk AWAIT_REMOVAL_TO_PSY_HOSPITAL = new ReferenceCode.Pk(REASON, "O");
     public static final ReferenceCode.Pk CONDITIONAL_RELEASE = new ReferenceCode.Pk(REASON, "CR");
 
+    public static final ReferenceCode.Pk SENTENCING = new ReferenceCode.Pk(REASON, "SENT");
+
     public MovementReason(final String code, final String description) {
         super(REASON, code, description);
     }
