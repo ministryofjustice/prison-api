@@ -162,7 +162,6 @@ public class DigitalWarrantService {
             .courtDate(sentence.getSentenceDate())
             .offenderBooking(booking)
             .orderType("AUTO")
-            //TODO ORDER STATUS
             .build();
 
         courtOrder = courtOrderRepository.save(courtOrder);
