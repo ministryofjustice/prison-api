@@ -7,6 +7,7 @@ import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Offence;
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Sentence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEventCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtOrder;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LegalCaseType;
@@ -21,6 +22,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentenceCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalcType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventChargeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtOrderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenceRepository;
@@ -79,6 +81,8 @@ public class DigitalWarrantService {
     @Autowired
     private CourtEventRepository courtEventRepository;
 
+    @Autowired
+    private CourtEventChargeRepository courtEventChargeRepository;
     @Transactional
     public Long createCourtCase(Long bookingId, CourtCase courtCase) {
         var agency = agencyLocationRepository.findById(courtCase.getAgencyId()).orElseThrow(EntityNotFoundException.withIdAndClass(courtCase.getAgencyId(), CourtCase.class));
@@ -133,7 +137,16 @@ public class DigitalWarrantService {
             .pleaCode("G")
             .build();
 
-        return offenderChargeRepository.save(offenderCharge).getId();
+        offenderCharge = offenderChargeRepository.save(offenderCharge);
+
+        var courtEventCharge = CourtEventCharge.builder()
+            .offenderCharge(offenderCharge)
+            .courtEvent(courtCase.getCourtEvents().get(0))
+            .build();
+
+        courtEventChargeRepository.save(courtEventCharge);
+
+        return offenderCharge.getId();
     }
 
     @Transactional
@@ -149,6 +162,7 @@ public class DigitalWarrantService {
             .courtDate(sentence.getSentenceDate())
             .offenderBooking(booking)
             .orderType("AUTO")
+            //TODO ORDER STATUS
             .build();
 
         courtOrder = courtOrderRepository.save(courtOrder);
@@ -198,6 +212,13 @@ public class DigitalWarrantService {
             .build();
 
         courtEventRepository.save(courtEvent);
+
+        var courtEventCharge = CourtEventCharge.builder()
+            .offenderCharge(offenderCharge)
+            .courtEvent(courtEvent)
+            .build();
+
+        courtEventChargeRepository.save(courtEventCharge);
 
         return offenderSentence.getSequence();
     }
