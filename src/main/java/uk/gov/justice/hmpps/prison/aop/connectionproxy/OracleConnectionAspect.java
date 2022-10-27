@@ -50,8 +50,6 @@ public class OracleConnectionAspect extends AbstractConnectionAspect {
             } catch (SQLException e) {
                 log.warn("Failed to set context for proxy user {}", MDC.get(PROXY_USER));
             }
-        } else {
-            setContextAuditModuleOnly(pooledConnection);
         }
 
         setDefaultSchema(pooledConnection);
@@ -100,17 +98,6 @@ public class OracleConnectionAspect extends AbstractConnectionAspect {
             try (final var ps = conn.prepareStatement(format("ALTER SESSION SET CURRENT_SCHEMA=%s", defaultSchema))) {
                 ps.execute();
             }
-        }
-    }
-
-    private void setContextAuditModuleOnly(final Connection conn) throws SQLException {
-        final var sql = format("""
-                BEGIN
-                nomis_context.set_context('AUDIT_MODULE_NAME','%s');
-                END;""",
-            MDC.get(NOMIS_CONTEXT));
-        try (final var ps = conn.prepareStatement(sql)) {
-            ps.execute();
         }
     }
 
