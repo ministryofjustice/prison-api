@@ -200,6 +200,7 @@ enum class ScheduleRepositorySql(val sql: String) {
                 LEFT JOIN REFERENCE_CODES RC2 ON RC2.CODE = OIS.EVENT_SUB_TYPE AND RC2.DOMAIN = 'INT_SCH_RSN'
         WHERE OIS.TO_INTERNAL_LOCATION_ID = :locationId
         AND OIS.EVENT_TYPE = 'APP'
+        AND OIS.EVENT_STATUS = 'SCH'
         AND OIS.EVENT_DATE >= TRUNC(COALESCE(:fromDate, OIS.EVENT_DATE))
         AND TRUNC(OIS.EVENT_DATE) <= COALESCE(:toDate, OIS.EVENT_DATE)
     """
