@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.prison.api.model.ApprovalStatus;
+import uk.gov.justice.hmpps.prison.api.model.BaseSentenceCalcDates;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.HdcChecks;
 import uk.gov.justice.hmpps.prison.api.model.HomeDetentionCurfew;
@@ -31,6 +32,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceCalc;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
+import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.BookingService;
 import uk.gov.justice.hmpps.prison.service.curfews.OffenderCurfewService;
@@ -70,6 +72,7 @@ public class OffenderSentenceResource {
         </ul>
         """)
     @GetMapping
+    @SlowReportQuery
     public List<OffenderSentenceDetail> getOffenderSentences(@RequestParam(value = "agencyId", required = false) @Parameter(description = "agency/prison to restrict results, if none provided current active caseload will be used, unless offenderNo list is specified") final String agencyId, @RequestParam(value = "offenderNo", required = false) @Parameter(description = "a list of offender numbers to search.") final List<String> offenderNos) {
         return bookingService.getOffenderSentencesSummary(
                 agencyId,
@@ -83,7 +86,8 @@ public class OffenderSentenceResource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of offenders eligible for HDC", description = "Version 1")
     @GetMapping("/home-detention-curfew-candidates")
-    public List<OffenderSentenceCalc> getOffenderSentencesHomeDetentionCurfewCandidates() {
+    @SlowReportQuery
+    public List<OffenderSentenceCalc<BaseSentenceCalcDates>> getOffenderSentencesHomeDetentionCurfewCandidates() {
         return offenderCurfewService.getHomeDetentionCurfewCandidates(authenticationFacade.getCurrentUsername());
     }
 
@@ -104,6 +108,7 @@ public class OffenderSentenceResource {
     })
     @Operation(summary = "Retrieve the latest Home Detention Curfew status for a list of offender booking identifiers")
     @PostMapping("/home-detention-curfews/latest")
+    @SlowReportQuery
     public List<HomeDetentionCurfew> getBatchLatestHomeDetentionCurfew(@RequestBody @Parameter(description = "A list of booking ids", required = true) final List<Long> bookingIds) {
         validateBookingIdList(bookingIds);
         return offenderCurfewService.getBatchLatestHomeDetentionCurfew(bookingIds);
@@ -166,6 +171,7 @@ public class OffenderSentenceResource {
             @ApiResponse(responseCode = "200", description = "The list of offenders is returned.")})
     @Operation(summary = "Retrieves list of offenders (with associated sentence detail) - POST version to allow large offender lists.", description = "Retrieves list of offenders (with associated sentence detail) - POST version to allow large offender lists.")
     @PostMapping
+    @SlowReportQuery
     public List<OffenderSentenceDetail> postOffenderSentences(@RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderNos) {
         validateOffenderList(offenderNos);
 
@@ -178,6 +184,7 @@ public class OffenderSentenceResource {
             @ApiResponse(responseCode = "200", description = "The list of offenders is returned.")})
     @Operation(summary = "Retrieves list of offenders (with associated sentence detail) - POST version using booking id lists.", description = "Retrieves list of offenders (with associated sentence detail) - POST version using booking id lists.")
     @PostMapping("/bookings")
+    @SlowReportQuery
     public List<OffenderSentenceDetail> postOffenderSentencesBookings(@RequestBody @Parameter(description = "The required booking ids (mandatory)", required = true) final List<Long> bookingIds) {
         validateOffenderList(bookingIds);
         return bookingService.getBookingSentencesSummary(bookingIds);

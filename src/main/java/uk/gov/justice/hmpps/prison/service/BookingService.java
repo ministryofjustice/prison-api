@@ -983,8 +983,7 @@ public class BookingService {
 
     private List<OffenderSentenceDetail> getOffenderSentenceDetails(final List<OffenderSentenceDetailDto> offenderSentenceSummary) {
         final var offenderSentenceDetails = offenderSentenceSummary.stream()
-                .map(this::mapper)
-                .collect(toList());
+            .map(this::mapper).toList();
 
         offenderSentenceDetails.forEach(s -> calcDerivedDates(s.getSentenceDetail()));
 

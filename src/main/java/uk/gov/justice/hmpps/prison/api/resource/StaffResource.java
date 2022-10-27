@@ -22,6 +22,7 @@ import uk.gov.justice.hmpps.prison.api.model.StaffLocationRole;
 import uk.gov.justice.hmpps.prison.api.model.StaffRole;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
+import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.service.StaffService;
 import uk.gov.justice.hmpps.prison.service.support.GetStaffRoleRequest;
 
@@ -78,6 +79,7 @@ public class StaffResource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Get staff members within agency who are currently assigned the specified role.", description = "Get staff members within agency who are currently assigned the specified role.")
     @GetMapping("/roles/{agencyId}/role/{role}")
+    @SlowReportQuery
     public ResponseEntity<List<StaffLocationRole>> getStaffByAgencyRole(
             @PathVariable("agencyId") @Parameter(description = "The agency (prison) id.", required = true) final String agencyId, @PathVariable("role") @Parameter(description = "The staff role.", required = true) final String role, @RequestParam(value = "nameFilter", required = false) @Parameter(description = "Filter results by first name and/or last name of staff member. Supplied filter term is matched to start of staff member's first and last name.") final String nameFilter, @RequestParam(value = "staffId", required = false) @Parameter(description = "The staff id of a staff member.") final Long staffId, @RequestParam(value = "activeOnly", required = false, defaultValue = "true") @Parameter(description = "Filters results by activeOnly staff members.") final Boolean activeOnly,
             @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of role records.") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of role records returned.") final Long pageLimit, @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>firstName, lastName</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {

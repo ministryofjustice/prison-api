@@ -35,6 +35,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderCategorise;
 import uk.gov.justice.hmpps.prison.api.support.AssessmentStatusType;
 import uk.gov.justice.hmpps.prison.api.support.CategoryInformationType;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
+import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.service.InmateService;
 import uk.gov.justice.hmpps.prison.service.OffenderAssessmentService;
 
@@ -67,6 +68,7 @@ public class OffenderAssessmentResource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Offender assessment detail for multiple offenders.")
     @GetMapping("/{assessmentCode}")
+    @SlowReportQuery
     public List<Assessment> getOffenderAssessmentsAssessmentCode(@PathVariable("assessmentCode") @Parameter(description = "Assessment Type Code", required = true) final String assessmentCode, @RequestBody @NotEmpty @RequestParam("offenderNo") @Parameter(description = "The required offender numbers", required = true) final List<String> offenderList, @RequestParam(value = "latestOnly", required = false, defaultValue = "true") @Parameter(description = "Returns only assessments for the current sentence if true, otherwise assessments for all previous sentences are included") final Boolean latestOnly, @RequestParam(value = "activeOnly", required = false, defaultValue = "true") @Parameter(description = "Returns only active assessments if true, otherwise inactive and pending assessments are included") final Boolean activeOnly, @RequestParam(value = "mostRecentOnly", required = false) @Parameter(description = "Returns only the last assessment per sentence if true, otherwise all assessments for the booking are included") final Boolean mostRecentOnly) {
 
         return applyDefaultsAndGetAssessmentsByCode(assessmentCode, offenderList, latestOnly, activeOnly, mostRecentOnly);
@@ -76,6 +78,7 @@ public class OffenderAssessmentResource {
             @ApiResponse(responseCode = "200", description = "The assessment list is returned.")})
     @Operation(summary = "Retrieves Offender assessment details for multiple offenders - POST version to allow large offender lists.")
     @PostMapping("/{assessmentCode}")
+    @SlowReportQuery
     public List<Assessment> postOffenderAssessmentsAssessmentCode(@PathVariable("assessmentCode") @Parameter(description = "Assessment Type Code", required = true) final String assessmentCode, @RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderList, @RequestParam(value = "latestOnly", required = false, defaultValue = "true") @Parameter(description = "Returns only assessments for the current sentence if true, otherwise assessments for all previous sentences are included") final Boolean latestOnly, @RequestParam(value = "activeOnly", required = false, defaultValue = "true") @Parameter(description = "Returns only active assessments if true, otherwise inactive and pending assessments are included") final Boolean activeOnly, @RequestParam(value = "mostRecentOnly", required = false) @Parameter(description = "Returns only the last assessment per sentence if true, otherwise all assessments for the booking are included") final Boolean mostRecentOnly) {
         validateOffenderList(offenderList);
 
@@ -94,6 +97,7 @@ public class OffenderAssessmentResource {
             @ApiResponse(responseCode = "200", description = "The CSRA assessment list is returned, 1 per offender.")})
     @Operation(summary = "Retrieves Offender CRSAs for multiple offenders - POST version to allow large offender lists.")
     @PostMapping("/csra/list")
+    @SlowReportQuery
     public List<Assessment> postOffenderAssessmentsCsraList(@RequestBody @NotEmpty @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderList) {
         validateOffenderList(offenderList);
         return inmateService.getInmatesAssessmentsByCode(offenderList, null, true, true, true, true);
@@ -103,6 +107,7 @@ public class OffenderAssessmentResource {
         @ApiResponse(responseCode = "200", description = "The current CSRA rating for each offender.")})
     @Operation(summary = "Retrieves CSRA ratings for multiple offenders - POST version to allow large offender lists.")
     @PostMapping("/csra/rating")
+    @SlowReportQuery
     public List<AssessmentClassification> postOffenderAssessmentsCsraRatings(@RequestBody @NotEmpty @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderList) {
         validateOffenderList(offenderList);
         return offenderAssessmentService.getOffendersAssessmentRatings(offenderList);
@@ -133,6 +138,7 @@ public class OffenderAssessmentResource {
         @ApiResponse(responseCode = "400", description = "Invalid request - e.g. no offender numbers provided.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Returns assessment information on Offenders at a prison.")
     @GetMapping("/assessments")
+    @SlowReportQuery
     public List<Assessment> getAssessments(@RequestParam("offenderNo") @Parameter(description = "The required offender numbers Ids (mandatory)", required = true) final List<String> offenderList, @RequestParam(value = "latestOnly", required = false, defaultValue = "true") @Parameter(description = "Returns only assessments for the current sentence if true, otherwise assessments for all previous sentences are included") final Boolean latestOnly, @RequestParam(value = "activeOnly", required = false, defaultValue = "true") @Parameter(description = "Returns only active assessments if true, otherwise inactive and pending assessments are included") final Boolean activeOnly, @RequestParam(value = "mostRecentOnly", required = false) @Parameter(description = "Returns only the last assessment per sentence if true, otherwise all assessments for the booking are included") final Boolean mostRecentOnly) {
         final var latest = latestOnly == null || latestOnly;
         final var active = activeOnly == null || activeOnly;
@@ -143,6 +149,7 @@ public class OffenderAssessmentResource {
 
     @Operation(summary = "Returns category information on Offenders at a prison.")
     @GetMapping("/category/{agencyId}")
+    @SlowReportQuery
     public List<OffenderCategorise> getOffenderCategorisations(@PathVariable("agencyId") @Parameter(description = "Prison id", required = true) final String agencyId, @NotNull(message = "Categorisation type must not be null") @RequestParam("type") @Parameter(description = "Indicates which type of category information is required." +
             "<li>UNCATEGORISED: Offenders who need to be categorised,</li>" +
             "<li>CATEGORISED: Offenders who have an approved categorisation,</li>" +
@@ -162,6 +169,7 @@ public class OffenderAssessmentResource {
             @ApiResponse(responseCode = "200", description = "The list of offenders with categorisation details is returned if categorisation record exists and their create agency is in the caseload")})
     @Operation(summary = "Returns Categorisation details for supplied Offenders - POST version to allow large offender lists.", description = "Categorisation details for supplied Offenders where agencyId is their create agency and is in the caseload")
     @PostMapping("/category/{agencyId}")
+    @SlowReportQuery
     public List<OffenderCategorise> getOffenderCategorisations(@PathVariable("agencyId") @Parameter(description = "Prison id", required = true) final String agencyId, @RequestBody @Parameter(description = "The required booking Ids (mandatory)", required = true) final Set<Long> bookingIds, @RequestParam(value = "latestOnly", required = false, defaultValue = "true") @Parameter(description = "Only get the latest category for each booking") final Boolean latestOnly) {
         final var latest = latestOnly == null || latestOnly;
         return inmateService.getOffenderCategorisations(agencyId, bookingIds, latest);
@@ -171,6 +179,7 @@ public class OffenderAssessmentResource {
             @ApiResponse(responseCode = "200", description = "The list of offenders with categorisation details is returned if categorisation record exists")})
     @Operation(summary = "Returns Categorisation details for supplied Offenders - POST version to allow large offender lists.", description = "Categorisation details for all supplied Offenders using SYSTEM access")
     @PostMapping("/category")
+    @SlowReportQuery
     public List<OffenderCategorise> getOffenderCategorisationsSystem(@RequestBody @Parameter(description = "The required booking Ids (mandatory)", required = true) final Set<Long> bookingIds, @RequestParam(value = "latestOnly", required = false, defaultValue = "true") @Parameter(description = "Only get the latest category for each booking") final Boolean latestOnly) {
         final var latest = latestOnly == null || latestOnly;
         return inmateService.getOffenderCategorisationsSystem(bookingIds, latest);

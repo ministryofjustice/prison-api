@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.OffenderActivitySummary;
 import uk.gov.justice.hmpps.prison.api.model.OffenderAttendance;
+import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.service.OffenderActivitiesService;
 
 import java.time.LocalDate;
@@ -41,6 +42,7 @@ public class OffenderActivitiesResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "The activities that this offender has been allocated to.", description = "This includes suspended activities")
     @GetMapping("/{offenderNo}/activities-history")
+    @SlowReportQuery
     public Page<OffenderActivitySummary> getRecentStartedActivities(@PathVariable("offenderNo") @Parameter(description = "The offenderNo of the prisoner", required = true) final String offenderNo,
                                                                     @RequestParam(value = "earliestEndDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Only include activities that have not ended or have an end date after the given date", example = "1970-01-02") final LocalDate earliestEndDate,
                                                                     @ParameterObject @PageableDefault(size = 20) final Pageable pageable
@@ -52,6 +54,7 @@ public class OffenderActivitiesResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "The activities that this offender attended over a time period.")
     @GetMapping("/{offenderNo}/attendance-history")
+    @SlowReportQuery
     public Page<OffenderAttendance> getHistoricalAttendances(@PathVariable("offenderNo") @Parameter(description = "The offenderNo of the prisoner", required = true) final String offenderNo,
                                                              @RequestParam(value = "fromDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Only include attendences on or after this date", example = "2021-01-02", required = true) final LocalDate earliestActivityDate,
                                                              @RequestParam(value = "toDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Only include attendences on or before this date", example = "2021-05-27", required = true) final LocalDate latestActivityDate,
