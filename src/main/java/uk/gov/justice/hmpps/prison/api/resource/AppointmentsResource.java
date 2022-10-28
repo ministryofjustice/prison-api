@@ -57,6 +57,7 @@ public class AppointmentsResource {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{appointmentId}")
     @HasWriteScope
+    @ProxyUser
     public void deleteAppointment(
         @PathVariable("appointmentId")
         @Parameter(description = "The unique identifier for the appointment", required = true)
@@ -73,6 +74,7 @@ public class AppointmentsResource {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PostMapping("/delete")
     @HasWriteScope
+    @ProxyUser
     public void deleteAppointments(
         @Parameter(description = "The unique identifier for the appointment", required = true)
         @NotNull @RequestBody List<Long> appointmentIds
