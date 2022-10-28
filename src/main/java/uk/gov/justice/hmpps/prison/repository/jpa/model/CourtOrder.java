@@ -61,4 +61,6 @@ public class CourtOrder extends AuditableEntity {
     private String orderType;
 
     private LocalDate courtDate;
+
+    private String orderStatus;
 }

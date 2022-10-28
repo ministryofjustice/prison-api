@@ -93,6 +93,10 @@ public class CourtEvent extends AuditableEntity {
     })
     private EventStatus eventStatus;
 
+    @ManyToOne(optional = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "OUTCOME_REASON_CODE", nullable = true)
+    private OffenceResult outcomeReasonCode;
+
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "AGY_LOC_ID", nullable = false)
     private AgencyLocation courtLocation;
@@ -133,6 +137,9 @@ public class CourtEvent extends AuditableEntity {
         this.startTime = dateTime;
     }
 
+    public void setOutcomeReasonCode(OffenceResult offenceResult) {
+        this.outcomeReasonCode = offenceResult;
+    }
     public void setEventStatus(EventStatus eventStatus) {
         this.eventStatus = eventStatus;
     }
