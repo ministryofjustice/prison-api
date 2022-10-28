@@ -133,15 +133,20 @@ public class DigitalWarrantService {
             .offenderCourtCase(courtCase)
             .offenderBooking(booking)
             .resultCodeOne(result)
+            .resultCodeOneIndicator("F")
             .mostSeriousFlag("N")
             .pleaCode("G")
             .build();
 
         offenderCharge = offenderChargeRepository.save(offenderCharge);
 
+        var courtEvent = courtCase.getCourtEvents().get(0);
+        courtEvent.setOutcomeReasonCode(result);
+        courtEventRepository.save(courtEvent);
+        
         var courtEventCharge = CourtEventCharge.builder()
             .offenderCharge(offenderCharge)
-            .courtEvent(courtCase.getCourtEvents().get(0))
+            .courtEvent(courtEvent)
             .build();
 
         courtEventChargeRepository.save(courtEventCharge);
@@ -162,6 +167,7 @@ public class DigitalWarrantService {
             .courtDate(sentence.getSentenceDate())
             .offenderBooking(booking)
             .orderType("AUTO")
+            .orderStatus("A")
             .build();
 
         courtOrder = courtOrderRepository.save(courtOrder);

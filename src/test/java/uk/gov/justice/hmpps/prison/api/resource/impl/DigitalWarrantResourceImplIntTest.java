@@ -103,6 +103,8 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
         assertThat(created.getEndDate()).isEqualTo(LocalDate.of(2022, 10, 12));
         assertThat(created.getResultCodeOne().getDescription()).isEqualTo("Not Guilty");
         assertThat(created.getOffenderCourtCase().getId()).isEqualTo(-59L);
+
+        assertThat(created.getOffenderCourtCase().getCourtEvents().get(0).getOutcomeReasonCode().getDescription()).isEqualTo("Not Guilty");
     }
 
 
