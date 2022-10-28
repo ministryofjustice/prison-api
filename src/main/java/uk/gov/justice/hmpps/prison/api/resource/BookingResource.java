@@ -89,6 +89,7 @@ import uk.gov.justice.hmpps.prison.api.model.adjudications.ProvenAdjudicationSum
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
+import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CaseNoteFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
@@ -161,6 +162,7 @@ public class BookingResource {
     @Operation(summary = "Prisoners Booking Summary ", description = "Returns data that is available to the users caseload privileges, at least one attribute of a prisonId, bookingId or offenderNo must be specified")
     @GetMapping("/v2")
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
+    @SlowReportQuery
     public Page<PrisonerBookingSummary> getPrisonerBookingsV2(
         @RequestParam(value = "prisonId", required = false) @Parameter(description = "Filter by prison Id", example = "MDI") final String prisonId,
         @RequestParam(value = "bookingId", required = false) @Parameter(description = "Filter by a list of booking ids") final List<Long> bookingIds,
@@ -217,6 +219,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Offender detail.", description = "Offender detail for offenders")
     @PostMapping("/offenders")
+    @SlowReportQuery
     public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(@RequestBody @Parameter(description = "The offenderNo of offender", required = true) final Set<String> offenders, @RequestParam(value = "activeOnly", required = false, defaultValue = "true") @Parameter(description = "Returns only Offender details with an active booking if true, otherwise Offenders without an active booking are included") final Boolean activeOnly) {
         final var active = activeOnly == null || activeOnly;
         return inmateService.getBasicInmateDetailsForOffenders(offenders, active);
@@ -229,6 +232,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Basic offender details by booking ids - POST version to allow for large numbers", description = "Basic offender details by booking ids")
     @PostMapping("/offenders/{agencyId}/list")
+    @SlowReportQuery
     public List<InmateBasicDetails> getBasicInmateDetailsByBookingIds(@PathVariable("agencyId") @Parameter(description = "The prison where the offenders are booked - the response is restricted to bookings at this prison", required = true) final String caseload, @RequestBody @Parameter(description = "The bookingIds to identify the offenders", required = true) final Set<Long> bookingIds) {
         return inmateService.getBasicInmateDetailsByBookingIds(caseload, bookingIds);
     }
@@ -240,6 +244,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "All scheduled activities for offender.", description = "All scheduled activities for offender.")
     @GetMapping("/{bookingId}/activities")
+    @SlowReportQuery
     public ResponseEntity<List<ScheduledEvent>> getBookingActivities(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId, @RequestParam(value = "fromDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Returned activities must be scheduled on or after this date (in YYYY-MM-DD format).") final LocalDate fromDate, @RequestParam(value = "toDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Returned activities must be scheduled on or before this date (in YYYY-MM-DD format).") final LocalDate toDate, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of activity records.") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of activity records returned.") final Long pageLimit, @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>eventDate, startTime, endTime, eventLocation</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
         final var activities = bookingService.getBookingActivities(
             bookingId,
@@ -262,6 +267,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Today's scheduled activities for offender.", description = "Today's scheduled activities for offender.")
     @GetMapping("/{bookingId}/activities/today")
+    @SlowReportQuery
     public List<ScheduledEvent> getBookingActivitiesForToday(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId, @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>eventDate, startTime, endTime, eventLocation</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
         final var today = LocalDate.now();
 
@@ -389,12 +395,14 @@ public class BookingResource {
 
     @Operation(summary = "Get alerts for a list of offenders at a prison")
     @PostMapping("/offenderNo/{agencyId}/alerts")
+    @SlowReportQuery
     public List<Alert> getAlertsByOffenderNosAtAgency(@PathVariable("agencyId") @Parameter(description = "The prison where the offenders are booked", required = true) final String agencyId, @RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderNos) {
         return inmateAlertService.getInmateAlertsByOffenderNosAtAgency(agencyId, offenderNos);
     }
 
     @Operation(summary = "Get alerts for a list of offenders. Requires VIEW_PRISONER_DATA role")
     @PostMapping("/offenderNo/alerts")
+    @SlowReportQuery
     public List<Alert> getAlertsByOffenderNos(@RequestBody @NotEmpty(message = "A minimum of one offender number is required") @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderNos) {
         return inmateAlertService.getInmateAlertsByOffenderNos(offenderNos, true, "bookingId,alertId", Order.ASC);
     }
@@ -447,6 +455,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @GetMapping("/{bookingId}/caseNotes")
     @VerifyBookingAccess
+    @SlowReportQuery
     public Page<CaseNote> getOffenderCaseNotes(@PathVariable("bookingId") @Parameter(description = "The booking id of offender", example = "23412312", required = true) final Long bookingId,
                                                @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "start contact date to search from", example = "2021-02-03") final LocalDate from,
                                                @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "end contact date to search up to (including this date)", example = "2021-02-04") final LocalDate to,
@@ -509,6 +518,7 @@ public class BookingResource {
         description = "Deprecated - use Incentives API to get IEP summary, requires MAINTAIN_IEP",
         deprecated = true, hidden = true)
     @GetMapping("/offenders/iepSummary")
+    @SlowReportQuery
     public Collection<PrivilegeSummary> getBookingIEPSummaryForOffenders(@RequestParam("bookings") @Parameter(description = "The booking ids of offender", required = true) final List<Long> bookings, @RequestParam(value = "withDetails", required = false, defaultValue = "false") @Parameter(description = "Toggle to return IEP detail entries in response (or not).", required = true) final boolean withDetails) {
         return bookingService.getBookingIEPSummary(bookings, withDetails).values();
 
@@ -523,6 +533,7 @@ public class BookingResource {
         description = "Deprecated - use Incentives API to get IEP summary, requires MAINTAIN_IEP",
         deprecated = true, hidden = true)
     @PostMapping("/iepSummary")
+    @SlowReportQuery
     public Collection<PrivilegeSummary> getBookingIEPSummaryDetailForBookingIds(@NotNull @RequestBody @Parameter(description = "The booking ids of prisoners", required = true) final List<Long> bookings) {
         return bookingService.getBookingIEPSummary(bookings, true).values();
 
@@ -535,6 +546,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Image detail (without image data).", description = "Image detail (without image data).")
     @GetMapping("/{bookingId}/image")
+    @SlowReportQuery
     public ImageDetail getMainImageForBookings(@PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId) {
         return inmateService.getMainBookingImage(bookingId);
     }
@@ -558,6 +570,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.")})
     @Operation(summary = "Image data (as bytes).", description = "Image data (as bytes).")
     @GetMapping(value = "/{bookingId}/image/data", produces = "image/jpeg")
+    @SlowReportQuery
     public ResponseEntity<byte[]> getMainBookingImageData(@PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId, @RequestParam(value = "fullSizeImage", defaultValue = "false", required = false) @Parameter(description = "Return full size image") final boolean fullSizeImage) {
         final var mainBookingImage = inmateService.getMainBookingImage(bookingId);
         return imageService.getImageContent(mainBookingImage.getImageId(), fullSizeImage)
@@ -579,6 +592,7 @@ public class BookingResource {
         </ul>
         """)
     @GetMapping("/{bookingId}/sentenceDetail")
+    @SlowReportQuery
     public SentenceCalcDates getBookingSentenceDetail(
         @RequestHeader(value = "version", defaultValue = "1.0", required = false) @Parameter(description = "Version of Sentence Calc Dates, 1.0 is default") final String version,
         @PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId) {
@@ -679,6 +693,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Get Offender main offence detail.", description = "Post version to allow specifying a large number of bookingIds.")
     @PostMapping("/mainOffence")
+    @SlowReportQuery
     public List<OffenceDetail> getMainOffence(@RequestBody @Parameter(description = "The bookingIds to identify the offenders", required = true) final Set<Long> bookingIds) {
         return bookingService.getMainOffenceDetails(bookingIds);
     }
@@ -691,6 +706,7 @@ public class BookingResource {
     @Operation(summary = "Offence history.", description = "All Offences recorded for this offender.")
     @GetMapping("/offenderNo/{offenderNo}/offenceHistory")
     @PreAuthorize("hasAnyRole('SYSTEM_USER','VIEW_PRISONER_DATA','CREATE_CATEGORISATION','APPROVE_CATEGORISATION')")
+    @SlowReportQuery
     public List<OffenceHistoryDetail> getOffenceHistory(@PathVariable("offenderNo") @Parameter(description = "The offender number", required = true) final String offenderNo, @RequestParam(value = "convictionsOnly", required = false, defaultValue = "true") @Parameter(description = "include offences with convictions only") final boolean convictionsOnly) {
         return bookingService.getOffenceHistory(offenderNo, convictionsOnly);
     }
@@ -928,6 +944,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Count of case notes", description = "Count of case notes")
     @GetMapping("/{bookingId}/caseNotes/{type}/{subType}/count")
+    @SlowReportQuery
     public CaseNoteCount getCaseNoteCount(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId, @PathVariable("type") @Parameter(description = "Case note type.", required = true) final String type, @PathVariable("subType") @Parameter(description = "Case note sub-type.", required = true) final String subType, @RequestParam(value = "fromDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Only case notes occurring on or after this date (in YYYY-MM-DD format) will be considered.") final LocalDate fromDate, @RequestParam(value = "toDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Only case notes occurring on or before this date (in YYYY-MM-DD format) will be considered.") final LocalDate toDate) {
         return caseNoteService.getCaseNoteCount(
             bookingId,
@@ -957,6 +974,7 @@ public class BookingResource {
     @Operation(summary = "Offender proven adjudications count")
     @PostMapping("/proven-adjudications")
     @PreAuthorize("hasRole('VIEW_ADJUDICATIONS')")
+    @SlowReportQuery
     public List<ProvenAdjudicationSummary> getProvenAdjudicationSummaryForBookings(
         @RequestParam(value = "adjudicationCutoffDate", required = false)
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
@@ -991,6 +1009,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "visits with visitor list for offender.", description = "visits with visitor list for offender.")
     @GetMapping("/{bookingId}/visits-with-visitors")
+    @SlowReportQuery
     public Page<VisitWithVisitors> getBookingVisitsWithVisitor(
         @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
         @RequestParam(value = "fromDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Returned visits must be scheduled on or after this date (in YYYY-MM-DD format).") final LocalDate fromDate,
@@ -1041,6 +1060,7 @@ public class BookingResource {
     @Operation(summary = "Balances visit orders and privilege visit orders for offender.", description = "Balances visit orders and privilege visit orders for offender.")
     @GetMapping("/offenderNo/{offenderNo}/visit/balances")
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @SlowReportQuery
     public VisitBalances getBookingVisitBalances(
         @PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", required = true) final String offenderNo,
         @RequestParam(value = "allowNoContent", required = false) @Parameter(description = "Allow no content (204) response if no data rather than returning a not found (404)") final boolean allowNoContent
@@ -1072,6 +1092,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "The next visit for the offender.", description = "The next visit for the offender. Will return 200 with no body if no next visit is scheduled")
     @GetMapping("/{bookingId}/visits/next")
+    @SlowReportQuery
     public VisitDetails getBookingVisitsNext(
         @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
         @RequestParam(value = "withVisitors", required = false, defaultValue = "false") @Parameter(description = "Toggle to return Visitors in response (or not).") final boolean withVisitors) {
@@ -1085,6 +1106,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "The summary of the visits for the offender.", description = "Will return whether there are any visits and also the date of the next scheduled visit")
     @GetMapping("/{bookingId}/visits/summary")
+    @SlowReportQuery
     public VisitSummary getBookingVisitsSummary(
         @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
         return bookingService.getBookingVisitsSummary(bookingId);
@@ -1224,6 +1246,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Gets cell history for an offender booking", description = "Default sort order is by assignment date descending")
     @GetMapping("/{bookingId}/cell-history")
+    @SlowReportQuery
     public Page<BedAssignment> getBedAssignmentsHistory(@PathVariable("bookingId") @Parameter(description = "The offender booking linked to the court hearings.", required = true) final Long bookingId,
                                                         @RequestParam(value = "page", required = false, defaultValue = "0") @Parameter(description = "The page number to return. Index starts at 0") final Integer page,
                                                         @RequestParam(value = "size", required = false, defaultValue = "20") @Parameter(description = "The number of results per page. Defaults to 20.") final Integer size) {

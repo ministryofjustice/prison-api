@@ -2,7 +2,6 @@ package uk.gov.justice.hmpps.prison.api.resource;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -27,6 +26,7 @@ import uk.gov.justice.hmpps.prison.api.model.PrisonerDetail;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerDetailSearchCriteria;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
+import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.service.GlobalSearchService;
 
 import java.time.LocalDate;
@@ -49,6 +49,7 @@ public class PrisonerResource {
     @Operation(summary = "List of offenders matching specified criteria.", description = "List of offenders matching specified criteria.")
     @GetMapping
     @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH')")
+    @SlowReportQuery
     public ResponseEntity<List<PrisonerDetail>> getPrisoners(
             @RequestParam(value = "includeAliases", required = false, defaultValue = "false") @Parameter(description = "If true the result set should include a row for every matched alias.  If the request includes some combination of firstName, lastName and dateOfBirth then this will be a subset of the OFFENDERS records for one or more offenders. Otherwise it will be every OFFENDERS record for each match on the other search criteria. Default is false.") final boolean includeAliases,
             @RequestParam(value = "offenderNo", required = false) @Parameter(description = "List of offender NOMS numbers. NOMS numbers have the format:<b>ANNNNAA</b>") final List<String> offenderNos,
@@ -127,6 +128,7 @@ public class PrisonerResource {
     @Operation(summary = "List of offenders matching specified criteria. (POST version)", description = "List of offenders matching specified criteria.")
     @PostMapping
     @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH')")
+    @SlowReportQuery
     public ResponseEntity<List<PrisonerDetail>> getPrisoners(@RequestBody @Parameter(required = true) final PrisonerDetailSearchCriteria criteria,
                                                              @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of prisoner records.") final Long pageOffset,
                                                              @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of prisoner records returned.") final Long pageLimit,

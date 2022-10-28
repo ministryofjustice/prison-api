@@ -7,6 +7,14 @@ spring:
     hikari:
       maximum-pool-size: 2
 
+  replica:
+    datasource:
+      url: jdbc:hsqldb:mem:nomis-db;sql.syntax_ora=true;get_column_name=false;shutdown=false;sql.nulls_first=false;sql.nulls_order=false
+      username: sa
+      password:
+      hikari:
+        maximum-pool-size: 2
+
   jpa:
     show-sql: true
 

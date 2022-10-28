@@ -65,6 +65,7 @@ import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSearchRes
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
+import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation.Status;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CaseNoteFilter;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
@@ -443,6 +444,7 @@ public class OffenderResource {
     @Operation(summary = "Return a list of alerts for all booking for a given offender No.", description = "System or cat tool access only")
     @GetMapping("/{offenderNo}/alerts/v2")
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "CREATE_CATEGORISATION", "APPROVE_CATEGORISATION"})
+    @SlowReportQuery
     public List<Alert> getAlertsForAllBookingByOffenderNo(
         @PathVariable("offenderNo") @Parameter(description = "Noms ID or Prisoner number", required = true, example = "A1234AA") @NotNull final String offenderNo,
         @RequestParam(value = "alertCodes", required = false) @Parameter(description = "Comma separated list of alertCodes to filter by", example = "XA,RSS") final String alertCodes,
@@ -457,6 +459,7 @@ public class OffenderResource {
 
     @Operation(summary = "Return a list of offender nos across the estate for which an alert has recently been created or changed", description = "This query is slow and can take several minutes")
     @GetMapping("/alerts/candidates")
+    @SlowReportQuery
     public ResponseEntity<List<String>> getAlertCandidates(@RequestParam("fromDateTime") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @Parameter(description = "A recent timestamp that indicates the earliest time to consider. NOTE More than a few days in the past can result in huge amounts of data.", required = true, example = "2019-11-22T03:00") @NotNull final LocalDateTime fromDateTime, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first offender in returned list.") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "1000", required = false) @Parameter(description = "Requested limit to number of offenders returned.") final Long pageLimit) {
         return alertService.getAlertCandidates(fromDateTime,
             nvl(pageOffset, 0L),
@@ -468,6 +471,7 @@ public class OffenderResource {
     @Operation(summary = "Offender case notes", description = "Retrieve an offenders case notes for latest booking")
     @GetMapping("/{offenderNo}/case-notes/v2")
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @SlowReportQuery
     public Page<CaseNote> getOffenderCaseNotes(@PathVariable("offenderNo") @Parameter(description = "Noms ID or Prisoner number (also called offenderNo)", required = true, example = "A1234AA") final String offenderNo,
                                                @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DATE) @Parameter(description = "start contact date to search from", example = "2021-02-03") final LocalDate from,
                                                @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DATE) @Parameter(description = "end contact date to search up to (including this date)", example = "2021-02-04") final LocalDate to,
@@ -613,6 +617,7 @@ public class OffenderResource {
         description = "Transactions are returned in order of entryDate descending and sequence ascending).<br/>" +
             "All transaction amounts are represented as pence values.")
     @GetMapping("/{offenderNo}/transaction-history")
+    @SlowReportQuery
     public ResponseEntity<List<OffenderTransactionHistoryDto>> getTransactionsHistory(
         @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo,
         @Parameter(name = "account_code", description = "Account code", example = "spends", schema = @Schema(implementation = String.class, allowableValues = {"spends","cash","savings"})) @RequestParam(value = "account_code", required = false) final String accountCode,

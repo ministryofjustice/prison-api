@@ -78,7 +78,7 @@ public class OffenderCurfewService {
         this.referenceDomainService = referenceDomainService;
     }
 
-    public List<OffenderSentenceCalc> getHomeDetentionCurfewCandidates(final String username) {
+    public List<OffenderSentenceCalc<BaseSentenceCalcDates>> getHomeDetentionCurfewCandidates(final String username) {
 
         final var agencyIds = agencyIdsFor(username);
 

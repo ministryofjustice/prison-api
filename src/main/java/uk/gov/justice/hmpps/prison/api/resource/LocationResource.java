@@ -20,6 +20,7 @@ import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.api.support.Order;
+import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 import uk.gov.justice.hmpps.prison.service.LocationService;
@@ -53,6 +54,7 @@ public class LocationResource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of offenders at location.", description = "List of offenders at location.")
     @GetMapping("/description/{locationPrefix}/inmates")
+    @SlowReportQuery
     public ResponseEntity<List<OffenderBooking>> getOffendersAtLocationDescription(
             @PathVariable("locationPrefix") @Parameter(required = true) final String locationPrefix,
             @RequestParam(value = "keywords", required = false) @Parameter(description = "offender name or id to match") final String keywords,
@@ -127,6 +129,7 @@ public class LocationResource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of offenders at location.", description = "List of offenders at location.")
     @GetMapping("/{locationId}/inmates")
+    @SlowReportQuery
     public ResponseEntity<List<OffenderBooking>> getOffendersAtLocation(@PathVariable("locationId") @Parameter(description = "The location id of location", required = true) final Long locationId, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of inmate records.") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of inmate records returned.") final Long pageLimit, @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, or assignedLivingUnitId</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
         final var inmates = locationService.getInmatesFromLocation(
                 locationId,

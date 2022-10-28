@@ -41,7 +41,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static java.lang.String.format;
@@ -53,7 +52,6 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -76,17 +74,16 @@ public class InmateAlertServiceImplTest {
 
     private InmateAlertService service;
 
-    private final int MAX_MATCH_SIZE = 10;
-
     @BeforeEach
     public void setUp() {
+        final int MAX_MATCH_SIZE = 10;
         service = new InmateAlertService(
-                inmateAlertRepository,
-                offenderAlertRepository,
-                authenticationFacade,
-                telemetryClient,
-                referenceDomainService,
-                MAX_MATCH_SIZE);
+            inmateAlertRepository,
+            offenderAlertRepository,
+            authenticationFacade,
+            telemetryClient,
+            referenceDomainService,
+            MAX_MATCH_SIZE);
     }
 
     @Test
@@ -142,18 +139,16 @@ public class InmateAlertServiceImplTest {
 
     @Test
     public void testAlertDate_SevenDaysInThePastThrowsException() {
-        assertThat(catchThrowable(() -> {
-            service.createNewAlert(-1L, CreateAlert
-                    .builder().alertDate(LocalDate.now().minusDays(8)).build());
-        })).as("Alert date cannot go back more than seven days.").isInstanceOf(IllegalArgumentException.class);
+        assertThat(catchThrowable(() -> service.createNewAlert(-1L, CreateAlert
+            .builder().alertDate(LocalDate.now().minusDays(8)).build())))
+            .as("Alert date cannot go back more than seven days.").isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void testAlertDate_InTheFutureThrowsException() {
-        assertThat(catchThrowable(() -> {
-            service.createNewAlert(-1L, CreateAlert
-                    .builder().alertDate(LocalDate.now().plusDays(1)).build());
-        })).as("Alert date cannot be in the future.").isInstanceOf(IllegalArgumentException.class);
+        assertThat(catchThrowable(() -> service.createNewAlert(-1L, CreateAlert
+            .builder().alertDate(LocalDate.now().plusDays(1)).build())))
+            .as("Alert date cannot be in the future.").isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

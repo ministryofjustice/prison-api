@@ -6,11 +6,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 import uk.gov.justice.hmpps.prison.web.config.RoutingDataSource;
-
-import java.util.Arrays;
 
 @Aspect
 @Component
@@ -18,28 +14,13 @@ import java.util.Arrays;
 @Slf4j
 public class ReadOnlyRouteInterceptor {
 
-    @Around("@within(transactional)")
-    public Object annotatedTransaction(ProceedingJoinPoint proceedingJoinPoint, Transactional transactional) throws Throwable {
-
-        var tx = Arrays.stream(proceedingJoinPoint.getSignature().getDeclaringType().getMethods())
-                .filter(m -> m.getName().equals(proceedingJoinPoint.getSignature().getName()))
-                .findFirst()
-                .map(m -> m.getAnnotation(Transactional.class)).orElse(transactional);
-
-        log.trace("Transaction Pointcut: {}.{}() - Transaction Read Only = {}",
-                proceedingJoinPoint.getSignature().getDeclaringTypeName(),
-                proceedingJoinPoint.getSignature().getName(), tx.readOnly());
+    @Around("@annotation(uk.gov.justice.hmpps.prison.core.SlowReportQuery)")
+    public Object annotatedEndpoint(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
+        log.debug("SlowReportQuery Pointcut: {}.{}(), Routing database call to the REPLICA",
+            proceedingJoinPoint.getSignature().getDeclaringTypeName(),
+            proceedingJoinPoint.getSignature().getName());
         try {
-            if (TransactionSynchronizationManager.isActualTransactionActive()) {
-                log.trace("Transaction already active, skipping ...");
-            } else {
-                if (tx.readOnly()) {
-                    RoutingDataSource.setReplicaRoute();
-                    log.trace("Routing database call to the replica");
-                } else {
-                    log.trace("Routing database call to the master");
-                }
-            }
+            RoutingDataSource.setReplicaRoute();
             return proceedingJoinPoint.proceed();
         } finally {
             RoutingDataSource.clearRoute();
