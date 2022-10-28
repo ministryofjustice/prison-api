@@ -86,7 +86,7 @@ class BookingResourceInt_addPersonalCareNeedTest : ResourceTest() {
         .jsonPath("personalCareNeeds[1].problemCode").isEqualTo("D")
         .jsonPath("personalCareNeeds[1].commentText").isEqualTo("Offender had an a x-ray")
         .jsonPath("personalCareNeeds[1].startDate").isEqualTo("2022-06-20")
-        .jsonPath("personalCareNeeds[1].endDate").isEqualTo(null)
+        .jsonPath("personalCareNeeds[1].endDate").doesNotExist()
         .jsonPath("personalCareNeeds[1].problemStatus").isEqualTo("ON")
     }
 

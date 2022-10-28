@@ -151,6 +151,6 @@ tasks {
   // As we add `--add-opens` to the JVM args in `run.sh` it seems safe to also add these to the test workers.
   // For more info. on the Gradle change see https://docs.gradle.org/7.5/userguide/upgrading_version_7.html#removes_implicit_add_opens_for_test_workers
   withType<Test> {
-    jvmArgs(listOf("--add-opens=java.base/java.lang=ALL-UNNAMED", "--add-opens=java.base/java.util=ALL-UNNAMED", "--add-opens=java.xml/jdk.xml.internal=ALL-UNNAMED"))
+    jvmArgs(listOf("-Xmx1280m", "--add-opens=java.base/java.lang=ALL-UNNAMED", "--add-opens=java.base/java.util=ALL-UNNAMED", "--add-opens=java.xml/jdk.xml.internal=ALL-UNNAMED"))
   }
 }

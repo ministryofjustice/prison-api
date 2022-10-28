@@ -17,6 +17,10 @@ public class RoutingDataSource extends AbstractRoutingDataSource {
         ctx.set(Route.REPLICA);
     }
 
+    public static boolean isReplica() {
+        return ctx.get() == Route.REPLICA;
+    }
+
     @Override
     protected Object determineCurrentLookupKey() {
         return ctx.get();

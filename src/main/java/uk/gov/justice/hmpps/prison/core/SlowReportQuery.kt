@@ -1,5 +1,7 @@
 package uk.gov.justice.hmpps.prison.core
 
+import org.springframework.stereotype.Component
+
 /**
  * A custom annotation to indicate that this API call is slow or frequent (i.e. uses a lot of database resources) <b>and
  * read-only</b>: therefore the Replica readonly database should be accessed, not the primary.
@@ -11,4 +13,5 @@ package uk.gov.justice.hmpps.prison.core
  */
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
+@Component
 annotation class SlowReportQuery

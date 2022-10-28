@@ -6,8 +6,6 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.web.config.RoutingDataSource;
 
 @Aspect
@@ -16,18 +14,13 @@ import uk.gov.justice.hmpps.prison.web.config.RoutingDataSource;
 @Slf4j
 public class ReadOnlyRouteInterceptor {
 
-    @Around("@target(slowReportQuery)")
-    public Object annotatedTransaction(ProceedingJoinPoint proceedingJoinPoint, SlowReportQuery slowReportQuery) throws Throwable {
-        log.debug("SlowReportQuery Pointcut: {}.{}() ",
+    @Around("@annotation(uk.gov.justice.hmpps.prison.core.SlowReportQuery)")
+    public Object annotatedEndpoint(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
+        log.debug("SlowReportQuery Pointcut: {}.{}(), Routing database call to the REPLICA",
             proceedingJoinPoint.getSignature().getDeclaringTypeName(),
             proceedingJoinPoint.getSignature().getName());
         try {
-            if (TransactionSynchronizationManager.isActualTransactionActive()) {
-                log.debug("SlowReportQuery: Transaction already active, skipping ...");
-            } else {
-                RoutingDataSource.setReplicaRoute();
-                log.debug("SlowReportQuery: Routing database call to the replica");
-            }
+            RoutingDataSource.setReplicaRoute();
             return proceedingJoinPoint.proceed();
         } finally {
             RoutingDataSource.clearRoute();

@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.annotation.Aspect;
 import org.slf4j.MDC;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
+import uk.gov.justice.hmpps.prison.web.config.RoutingDataSource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -28,9 +29,9 @@ public class OracleConnectionAspect extends AbstractConnectionAspect {
     private final String defaultSchema;
 
     public OracleConnectionAspect(
-            final AuthenticationFacade authenticationFacade,
-            final RoleConfigurer roleConfigurer,
-            final String defaultSchema) {
+        final AuthenticationFacade authenticationFacade,
+        final RoleConfigurer roleConfigurer,
+        final String defaultSchema) {
 
         this.authenticationFacade = authenticationFacade;
         this.roleConfigurer = roleConfigurer;
@@ -40,10 +41,12 @@ public class OracleConnectionAspect extends AbstractConnectionAspect {
     @Override
     protected Connection openProxySessionIfIdentifiedAuthentication(final Connection pooledConnection) throws SQLException {
         final var proxyUserAuthSource = authenticationFacade.getProxyUserAuthenticationSource();
-        if (proxyUserAuthSource == NOMIS ) {
+        if (proxyUserAuthSource == NOMIS) {
             log.trace("Configuring Oracle Proxy Session for NOMIS user {}", pooledConnection);
+            assertNotSlow();
             return openAndConfigureProxySessionForConnection(pooledConnection);
         } else if (StringUtils.isNotBlank(MDC.get(PROXY_USER))) {
+            assertNotSlow();
             // If proxy user is set - try to set the context - allow it to fail and carry on
             try {
                 setContext(pooledConnection);
@@ -54,6 +57,12 @@ public class OracleConnectionAspect extends AbstractConnectionAspect {
 
         setDefaultSchema(pooledConnection);
         return pooledConnection;
+    }
+
+    private void assertNotSlow() {
+        if (RoutingDataSource.isReplica()) {
+            throw new RuntimeException("Found a non read-only transaction annotated with @SlowReportQuery");
+        }
     }
 
     private Connection openAndConfigureProxySessionForConnection(final Connection pooledConnection) throws SQLException {
@@ -108,12 +117,9 @@ public class OracleConnectionAspect extends AbstractConnectionAspect {
                 nomis_context.set_context('AUDIT_USER_ID', '%s');
                 nomis_context.set_client_nomis_context('%s', '%s', '%s', '%s');
                 END;""",
-                MDC.get(NOMIS_CONTEXT),
-                MDC.get(USER_ID_HEADER),
-                MDC.get(USER_ID_HEADER),
-                MDC.get(IP_ADDRESS),
-                "API",
-                MDC.get(REQUEST_URI));
+            MDC.get(NOMIS_CONTEXT),
+            MDC.get(USER_ID_HEADER),
+            MDC.get(USER_ID_HEADER), MDC.get(IP_ADDRESS), "API", MDC.get(REQUEST_URI));
         try (final var ps = conn.prepareStatement(sql)) {
             ps.execute();
         }
