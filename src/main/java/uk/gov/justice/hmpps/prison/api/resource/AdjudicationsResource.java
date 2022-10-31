@@ -142,19 +142,38 @@ public class AdjudicationsResource {
     }
 
     @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Oic Hearing updated"),
+        @ApiResponse(responseCode = "403", description = "The client is not authorised for this operation"),
+        @ApiResponse(responseCode = "400", description = "Invalid request - ie missing hearing location or date, or the hearing does not belong to the adjudication", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "No match was found for the adjudication number", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
+    })
+    @Operation(summary = "Amends an OIC hearing", description = "Requires MAINTAIN_ADJUDICATIONS access and write scope")
+    @PutMapping("/adjudication/{adjudicationNumber}/hearing/{oicHearingId}")
+    @ProxyUser
+    @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS') and hasAuthority('SCOPE_write')")
+    @ResponseStatus(HttpStatus.OK)
+    public void amendOicHearing(
+        @Valid @RequestBody @Parameter(description = "OIC hearing to amend", required = true) final OicHearingRequest oicHearingRequest,
+        @PathVariable("adjudicationNumber") final Long adjudicationNumber,
+        @PathVariable("oicHearingId") final Long oicHearingId
+    ) {
+        adjudicationsService.amendOicHearing(adjudicationNumber, oicHearingId, oicHearingRequest);
+    }
+
+    @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Hearing was deleted"),
         @ApiResponse(responseCode = "403", description = "The client is not authorised for this operation"),
         @ApiResponse(responseCode = "400", description = "Invalid request - the hearing does not belong to the adjudication", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "No match was found for the adjudication number or hearing id", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
     })
     @Operation(summary = "deletes an OIC hearing", description = "Requires MAINTAIN_ADJUDICATIONS access and write scope")
-    @DeleteMapping("/adjudication/{adjudicationNumber}/hearing/{hearingId}")
+    @DeleteMapping("/adjudication/{adjudicationNumber}/hearing/{oicHearingId}")
     @ProxyUser
     @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS') and hasAuthority('SCOPE_write')")
     public void deleteOicHearing(
         @PathVariable("adjudicationNumber") final Long adjudicationNumber,
-        @PathVariable("hearingId") final Long hearingId
+        @PathVariable("oicHearingId") final Long oicHearingId
     ) {
-        adjudicationsService.deleteOicHearing(adjudicationNumber, hearingId);
+        adjudicationsService.deleteOicHearing(adjudicationNumber, oicHearingId);
     }
 }
