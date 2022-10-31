@@ -58,6 +58,10 @@ public class CourtOrder extends AuditableEntity {
     @JoinColumn(name = "ISSUING_AGY_LOC_ID", nullable = false)
     private AgencyLocation issuingCourt;
 
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "EVENT_ID", nullable = false)
+    private CourtEvent courtEvent;
+
     private String orderType;
 
     private LocalDate courtDate;
