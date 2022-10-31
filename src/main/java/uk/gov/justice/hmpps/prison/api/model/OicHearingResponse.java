@@ -18,9 +18,9 @@ import java.time.LocalDateTime;
 @Builder(toBuilder = true)
 public class OicHearingResponse {
 
-    @Schema(required = true, description = "nomis hearing id")
+    @Schema(required = true, description = "nomis oic hearing id")
     @NotNull
-    private Long hearingId;
+    private Long oicHearingId;
 
     @Schema(required = true, description = "When the hearing is scheduled for", example = "15-06-2020T09:03:11")
     @NotNull

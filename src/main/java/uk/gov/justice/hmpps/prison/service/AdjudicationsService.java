@@ -24,7 +24,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearing;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearing.OicHearingStatus;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearing.OicHearingType;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationOffenceTypeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
@@ -262,8 +261,7 @@ public class AdjudicationsService {
         adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber)
             .orElseThrow(EntityNotFoundException.withMessage(format("Could not find adjudication number %d", adjudicationNumber)));
 
-        internalLocationRepository.findOneByLocationId(oicHearingRequest.getHearingLocationId())
-            .orElseThrow(() -> new ValidationException(format("Invalid hearing location id %d", oicHearingRequest.getHearingLocationId())));
+        oicHearingLocationValidation(oicHearingRequest.getHearingLocationId());
 
         final var hearingDate = oicHearingRequest.getDateTimeOfHearing().toLocalDate();
         final var hearingTime = oicHearingRequest.getDateTimeOfHearing();
@@ -279,7 +277,7 @@ public class AdjudicationsService {
         final var savedOicHearing = oicHearingRepository.save(oicHearing);
 
         return OicHearingResponse.builder()
-            .hearingId(savedOicHearing.getOicHearingId())
+            .oicHearingId(savedOicHearing.getOicHearingId())
             .dateTimeOfHearing(savedOicHearing.getHearingTime())
             .hearingLocationId(savedOicHearing.getInternalLocationId())
             .build();
@@ -287,17 +285,44 @@ public class AdjudicationsService {
 
     @Transactional
     @VerifyOffenderAccess
-    public void deleteOicHearing(final Long adjudicationNumber, final long hearingId) {
+    public void amendOicHearing(final Long adjudicationNumber, final long oicHearingId, final OicHearingRequest oicHearingRequest) {
+        final var hearingToAmend = getWithValidationChecks(adjudicationNumber, oicHearingId);
+        oicHearingLocationValidation(oicHearingRequest.getHearingLocationId());
+
+        final var hearingDate = oicHearingRequest.getDateTimeOfHearing().toLocalDate();
+        final var hearingTime = oicHearingRequest.getDateTimeOfHearing();
+
+        hearingToAmend.setHearingDate(hearingDate);
+        hearingToAmend.setHearingTime(hearingTime);
+        hearingToAmend.setOicHearingType(oicHearingRequest.getOicHearingType());
+        hearingToAmend.setInternalLocationId(oicHearingRequest.getHearingLocationId());
+
+        oicHearingRepository.save(hearingToAmend);
+    }
+
+    @Transactional
+    @VerifyOffenderAccess
+    public void deleteOicHearing(final Long adjudicationNumber, final long oicHearingId) {
+        final var hearingToDelete = getWithValidationChecks(adjudicationNumber, oicHearingId);
+        oicHearingRepository.delete(hearingToDelete);
+    }
+
+    private void oicHearingLocationValidation(final Long hearingLocationId){
+        internalLocationRepository.findOneByLocationId(hearingLocationId)
+            .orElseThrow(() -> new ValidationException(format("Invalid hearing location id %d", hearingLocationId)));
+    }
+
+    private OicHearing getWithValidationChecks(final Long adjudicationNumber, final long hearingId){
         adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber)
             .orElseThrow(EntityNotFoundException.withMessage(format("Could not find adjudication number %d", adjudicationNumber)));
 
-        final var hearingToDelete = oicHearingRepository.findById(hearingId)
+        final var hearing = oicHearingRepository.findById(hearingId)
             .orElseThrow(EntityNotFoundException.withMessage(format("Could not find oic hearingId %d for adjudication number %d", hearingId, adjudicationNumber)));
 
-        if(!Objects.equals(hearingToDelete.getAdjudicationNumber(), adjudicationNumber))
+        if(!Objects.equals(hearing.getAdjudicationNumber(), adjudicationNumber))
             throw new ValidationException(format("oic hearingId %d is not linked to adjudication number %d", hearingId, adjudicationNumber));
 
-        oicHearingRepository.delete(hearingToDelete);
+        return hearing;
     }
 
     private void addOffenceCharges(AdjudicationParty adjudicationPartyToUpdate, List<AdjudicationOffenceType> offenceCodes) {

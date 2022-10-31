@@ -478,6 +478,83 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         }
 
         @Test
+        public void amendHearingReturns403ForInvalidRoles () {
+            webTestClient.put()
+                .uri("/api/adjudications/adjudication/-9/hearing/-4")
+                .headers(setAuthorisation(invalid))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .bodyValue(validRequest)
+                .exchange()
+                .expectStatus().isForbidden();
+        }
+        @Test
+        public void amendHearingReturns404DueToNoAdjudication() {
+            webTestClient.put()
+                .uri( "/api/adjudications/adjudication/99/hearing/-4")
+                .headers(setAuthorisation(valid))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .bodyValue(validRequest)
+                .exchange()
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void amendHearingReturns400() {
+            webTestClient.put()
+                .uri("/api/adjudications/adjudication/-9/hearing/-4")
+                .headers(setAuthorisation(valid))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .bodyValue(invalidRequest)
+                .exchange()
+                .expectStatus().isBadRequest();
+        }
+
+        @Test
+        public void amendHearingReturns400forOicHearingType() {
+            webTestClient.put()
+                .uri("/api/adjudications/adjudication/-9/hearing/-4")
+                .headers(setAuthorisation(valid))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .bodyValue(invalidTypeRequest)
+                .exchange()
+                .expectStatus().isBadRequest();
+        }
+
+        @Test
+        public void amendHearingReturns400forLocationId() {
+            webTestClient.put()
+                .uri("/api/adjudications/adjudication/-9/hearing/-4")
+                .headers(setAuthorisation(valid))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .bodyValue(invalidLocationRequest)
+                .exchange()
+                .expectStatus().isBadRequest();
+        }
+
+        @Test
+        public void amendHearingInvalidRequestAsHearingDoesNotBelongToAdjudication() {
+            webTestClient.put()
+                .uri("/api/adjudications/adjudication/-5/hearing/-4")
+                .headers(setAuthorisation(valid))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .bodyValue(validRequest)
+                .exchange()
+                .expectStatus().isBadRequest();
+        }
+
+        @Test
+        public void amendHearing() {
+            webTestClient.put()
+                .uri("/api/adjudications/adjudication/-9/hearing/-4")
+                .headers(setAuthorisation(valid))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .bodyValue(validRequest)
+                .exchange()
+                .expectStatus().isOk();
+        }
+
+
+        @Test
         public void deleteHearingReturns403DueToInvalidRoles () {
             webTestClient.delete()
                 .uri("/api/adjudications/adjudication/-9/hearing/1")
