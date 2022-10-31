@@ -143,7 +143,7 @@ public class DigitalWarrantService {
         var courtEvent = courtCase.getCourtEvents().get(0);
         courtEvent.setOutcomeReasonCode(result);
         courtEventRepository.save(courtEvent);
-        
+
         var courtEventCharge = CourtEventCharge.builder()
             .offenderCharge(offenderCharge)
             .courtEvent(courtEvent)
@@ -160,6 +160,7 @@ public class DigitalWarrantService {
         var booking = offenderBookingRepository.findByBookingId(bookingId).orElseThrow(EntityNotFoundException.withIdAndClass(bookingId, OffenderBooking.class));
         var offenderCharge = offenderChargeRepository.findById(sentence.getOffenderChargeId()).orElseThrow(EntityNotFoundException.withIdAndClass(sentence.getOffenderChargeId(), OffenderCharge.class));
         var sentenceCalcType = sentenceCalcTypeRepository.findById(new SentenceCalcType.PK(sentence.getSentenceType(), sentence.getSentenceCategory())).orElseThrow(EntityNotFoundException.withIdAndClass(sentence.getSentenceType() + " " + sentence.getSentenceCategory(), SentenceCalcType.class));
+        var courtEvent = courtCase.getCourtEvents().get(0);
 
         var courtOrder = CourtOrder.builder()
             .courtCase(courtCase)
@@ -168,6 +169,7 @@ public class DigitalWarrantService {
             .offenderBooking(booking)
             .orderType("AUTO")
             .orderStatus("A")
+            .courtEvent(courtEvent)
             .build();
 
         courtOrder = courtOrderRepository.save(courtOrder);
@@ -204,26 +206,29 @@ public class DigitalWarrantService {
 
         offenderSentenceChargeRepository.save(offenderSentenceCharge);
 
-        var movementReason = movementReasonReferenceCodeRepository.findById(MovementReason.SENTENCING).orElseThrow(EntityNotFoundException.withIdAndClass(MovementReason.SENTENCING.getCode(), MovementReason.class));
-        var eventStatus = eventStatusReferenceCodeRepository.findById(EventStatus.COMPLETED).orElseThrow(EntityNotFoundException.withIdAndClass(EventStatus.COMPLETED.getCode(), EventStatus.class));
-        var courtEvent = CourtEvent.builder()
-            .offenderBooking(booking)
-            .courtEventType(movementReason)
-            .eventStatus(eventStatus)
-            .startTime(sentence.getSentenceDate().atTime(10, 0))
-            .eventDate(sentence.getSentenceDate())
-            .courtLocation(courtCase.getAgencyLocation())
-            .offenderCourtCase(courtCase)
-            .build();
-
-        courtEventRepository.save(courtEvent);
-
-        var courtEventCharge = CourtEventCharge.builder()
-            .offenderCharge(offenderCharge)
-            .courtEvent(courtEvent)
-            .build();
-
-        courtEventChargeRepository.save(courtEventCharge);
+        /* TODO Removing this for now. It's unnecessary to add another event here. */
+//        var movementReason = movementReasonReferenceCodeRepository.findById(MovementReason.SENTENCING).orElseThrow(EntityNotFoundException.withIdAndClass(MovementReason.SENTENCING.getCode(), MovementReason.class));
+//        var eventStatus = eventStatusReferenceCodeRepository.findById(EventStatus.COMPLETED).orElseThrow(EntityNotFoundException.withIdAndClass(EventStatus.COMPLETED.getCode(), EventStatus.class));
+//        var result = offenceResultRepository.findById(OffenceResultRepository.IMPRISONMENT).orElseThrow(EntityNotFoundException.withIdAndClass(OffenceResultRepository.IMPRISONMENT, OffenceResult.class));
+//        var courtEvent = CourtEvent.builder()
+//            .offenderBooking(booking)
+//            .courtEventType(movementReason)
+//            .eventStatus(eventStatus)
+//            .startTime(sentence.getSentenceDate().atTime(10, 0))
+//            .eventDate(sentence.getSentenceDate())
+//            .courtLocation(courtCase.getAgencyLocation())
+//            .offenderCourtCase(courtCase)
+//            .outcomeReasonCode(result)
+//            .build();
+//
+//        courtEventRepository.save(courtEvent);
+//
+//        var courtEventCharge = CourtEventCharge.builder()
+//            .offenderCharge(offenderCharge)
+//            .courtEvent(courtEvent)
+//            .build();
+//
+//        courtEventChargeRepository.save(courtEventCharge);
 
         return offenderSentence.getSequence();
     }
