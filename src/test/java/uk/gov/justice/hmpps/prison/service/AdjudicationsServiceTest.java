@@ -925,6 +925,23 @@ public class AdjudicationsServiceTest {
         }
 
         @Test
+        public void amendHearingHearingNotFound () {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(1L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().build()
+                ));
+
+            when(oicHearingRepository.findById(2L)).thenReturn(
+                Optional.empty()
+            );
+
+            assertThatThrownBy(() ->
+                service.amendOicHearing(1L, 2L, oicHearingRequest))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find oic hearingId 2 for adjudication number 1");
+        }
+
+        @Test
         public void amendHearingInvalidLocationId () {
             when(adjudicationsRepository.findByParties_AdjudicationNumber(1L))
                 .thenReturn(Optional.of(
