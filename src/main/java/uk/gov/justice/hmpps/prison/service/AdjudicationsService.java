@@ -258,9 +258,6 @@ public class AdjudicationsService {
     @Transactional
     @VerifyOffenderAccess
     public OicHearingResponse createOicHearing(final Long adjudicationNumber, final OicHearingRequest oicHearingRequest) {
-        adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber)
-            .orElseThrow(EntityNotFoundException.withMessage(format("Could not find adjudication number %d", adjudicationNumber)));
-
         oicHearingLocationValidation(oicHearingRequest.getHearingLocationId());
 
         final var hearingDate = oicHearingRequest.getDateTimeOfHearing().toLocalDate();
