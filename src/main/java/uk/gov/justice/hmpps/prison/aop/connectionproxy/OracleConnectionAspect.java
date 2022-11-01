@@ -43,7 +43,7 @@ public class OracleConnectionAspect extends AbstractConnectionAspect {
     @Override
     protected Connection openProxySessionIfIdentifiedAuthentication(final Connection pooledConnection) throws SQLException {
         if (!RoutingDataSource.isReplica()) {
-            clearContext((pooledConnection));
+            clearContext(pooledConnection);
         }
         if (proxyUserEndpointAndUserSignedIntoNomis()) {
             log.trace("Configuring Oracle Proxy Session for NOMIS user {}", pooledConnection);
