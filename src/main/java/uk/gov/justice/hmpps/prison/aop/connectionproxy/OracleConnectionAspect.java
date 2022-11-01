@@ -145,6 +145,7 @@ public class OracleConnectionAspect extends AbstractConnectionAspect {
             MDC.get(USER_ID_HEADER),
             MDC.get(USER_ID_HEADER), MDC.get(IP_ADDRESS), "API", MDC.get(REQUEST_URI));
         try (final var ps = conn.prepareStatement(sql)) {
+            log.info("Setting NOMIS context with sql {}", sql);
             ps.execute();
         }
     }
@@ -156,6 +157,7 @@ public class OracleConnectionAspect extends AbstractConnectionAspect {
                 END;""",
             callAuditModuleText());
         try (final var ps = conn.prepareStatement(sql)) {
+            log.info("Setting NOMIS context with sql {}", sql);
             ps.execute();
         }
     }
