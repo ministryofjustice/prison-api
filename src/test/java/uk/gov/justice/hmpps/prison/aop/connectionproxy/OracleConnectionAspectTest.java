@@ -1,8 +1,13 @@
 package uk.gov.justice.hmpps.prison.aop.connectionproxy;
 
 import oracle.jdbc.driver.OracleConnection;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.MockedStatic;
+import org.slf4j.MDC;
 import uk.gov.justice.hmpps.prison.security.AuthSource;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 
@@ -16,10 +21,13 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.justice.hmpps.prison.util.MdcUtility.PROXY_USER;
+import static uk.gov.justice.hmpps.prison.util.MdcUtility.SUPPRESS_XTAG_EVENTS;
 
 class OracleConnectionAspectTest {
 
@@ -33,56 +41,123 @@ class OracleConnectionAspectTest {
 
     private final OracleConnectionAspect connectionAspect = new OracleConnectionAspect(authenticationFacade, roleConfigurer, defaultSchema);
 
-    @Test
-    void openProxySessionIfIdentifiedAuthentication_nomisUser_opensProxyConnection() throws SQLException {
-        configureMocks(AuthSource.NOMIS);
+    private MockedStatic<MDC> mockMdc;
 
-        connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection);
-
-        ArgumentCaptor<Properties> propertiesCaptor = ArgumentCaptor.forClass(Properties.class);
-        verify(proxyConnection).openProxySession(eq(OracleConnection.PROXYTYPE_USER_NAME), propertiesCaptor.capture());
-        assertThat(propertiesCaptor.getValue().get((OracleConnection.PROXY_USER_NAME))).isEqualTo("some user name");
+    @BeforeEach
+    void init() {
+        mockMdc = mockStatic(MDC.class);
     }
 
-    @Test
-    void openProxySessionIfIdentifiedAuthentication_nomisUser_setSchemaAndContext() throws SQLException {
-        configureMocks(AuthSource.NOMIS);
-
-        connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection);
-
-        ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
-        verify(pooledConnection, times(2)).prepareStatement(sqlCaptor.capture());
-        assertThat(sqlCaptor.getAllValues().get(0)).contains("ALTER SESSION SET CURRENT_SCHEMA");
-        assertThat(sqlCaptor.getAllValues().get(1)).contains("nomis_context.set_context");
+    @AfterEach
+    void close() {
+        mockMdc.close();
     }
 
-    @Test
-    void openProxySessionIfIdentifiedAuthentication_notANomisUser_doesntOpenProxyConnection() throws SQLException {
-        configureMocks(AuthSource.NONE);
+    @Nested
+    class OpenProxySessionIfIdentifiedAuthentication {
 
-        connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection);
+        @Nested
+        class NomisUser {
 
-        verify(proxyConnection, never()).openProxySession(eq(OracleConnection.PROXYTYPE_USER_NAME), any(Properties.class));
+            @Test
+            void opensProxyConnection() throws SQLException {
+                configureMocks(AuthSource.NOMIS, "");
+
+                connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection);
+
+                ArgumentCaptor<Properties> propertiesCaptor = ArgumentCaptor.forClass(Properties.class);
+                verify(proxyConnection).openProxySession(eq(OracleConnection.PROXYTYPE_USER_NAME), propertiesCaptor.capture());
+                assertThat(propertiesCaptor.getValue().get((OracleConnection.PROXY_USER_NAME))).isEqualTo("some user name");
+            }
+
+            @Test
+            void setSchemaAndContext() throws SQLException {
+                configureMocks(AuthSource.NOMIS, "");
+
+                connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection);
+
+                ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
+                verify(pooledConnection, times(3)).prepareStatement(sqlCaptor.capture());
+                assertThat(sqlCaptor.getAllValues().get(0)).contains("nomis_context.close_session()");
+                assertThat(sqlCaptor.getAllValues().get(1)).contains("ALTER SESSION SET CURRENT_SCHEMA");
+                assertThat(sqlCaptor.getAllValues().get(2)).contains("nomis_context.set_client_nomis_context");
+            }
+
+        }
+
+        @Nested
+        class ProxyUser {
+            @Test
+            void doesntOpenProxyConnection() throws SQLException {
+                configureMocks(AuthSource.NONE, "some_user");
+
+                connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection);
+
+                verify(proxyConnection, never()).openProxySession(eq(OracleConnection.PROXYTYPE_USER_NAME), any(Properties.class));
+            }
+
+            @Test
+            void setSchemaAndContext() throws SQLException {
+                configureMocks(AuthSource.NONE, "some_user");
+
+                connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection);
+
+                ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
+                verify(pooledConnection, times(3)).prepareStatement(sqlCaptor.capture());
+                assertThat(sqlCaptor.getAllValues().get(0)).contains("nomis_context.close_session()");
+                assertThat(sqlCaptor.getAllValues().get(1)).contains("nomis_context.set_client_nomis_context");
+                assertThat(sqlCaptor.getAllValues().get(2)).contains("ALTER SESSION SET CURRENT_SCHEMA");
+            }
+        }
+
+        @Nested
+        class NotNomisOrProxyUser {
+            @Test
+            void doesntOpenProxyConnection() throws SQLException {
+                configureMocks(AuthSource.NONE, "");
+
+                connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection);
+
+                verify(proxyConnection, never()).openProxySession(eq(OracleConnection.PROXYTYPE_USER_NAME), any(Properties.class));
+            }
+
+            @Test
+            void dontSuppressEvents_thenDontSetContextAuditModule() throws SQLException {
+                configureMocks(AuthSource.NONE, "");
+
+                connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection);
+
+                ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
+                verify(pooledConnection, times(2)).prepareStatement(sqlCaptor.capture());
+                assertThat(sqlCaptor.getAllValues().get(0)).contains("nomis_context.close_session()");
+                assertThat(sqlCaptor.getAllValues().get(1)).doesNotContain("nomis_context.set_context('AUDIT_MODULE_NAME'");
+                assertThat(sqlCaptor.getAllValues().get(1)).contains("ALTER SESSION SET CURRENT_SCHEMA");
+            }
+
+            @Test
+            void suppressEvents_thenSetContextAuditModuleToMerge() throws SQLException {
+                configureMocks(AuthSource.NONE, "");
+                when(MDC.get(SUPPRESS_XTAG_EVENTS)).thenReturn("true");
+
+                connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection);
+
+                ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
+                verify(pooledConnection, times(3)).prepareStatement(sqlCaptor.capture());
+                assertThat(sqlCaptor.getAllValues().get(0)).contains("nomis_context.close_session()");
+                assertThat(sqlCaptor.getAllValues().get(1)).doesNotContain("nomis_context.set_client_nomis_context");
+                assertThat(sqlCaptor.getAllValues().get(1)).contains("nomis_context.set_context('AUDIT_MODULE_NAME', 'MERGE')");
+                assertThat(sqlCaptor.getAllValues().get(2)).contains("ALTER SESSION SET CURRENT_SCHEMA");
+            }
+        }
     }
 
-    @Test
-    void openProxySessionIfIdentifiedAuthentication_notANomisUser_setSchemaButNotContext() throws SQLException {
-        configureMocks(AuthSource.NONE);
-
-        connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection);
-
-        ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
-        verify(pooledConnection, times(1)).prepareStatement(sqlCaptor.capture());
-        assertThat(sqlCaptor.getAllValues().get(0)).contains("ALTER SESSION SET CURRENT_SCHEMA");
-    }
-
-    private void configureMocks(AuthSource authSource) throws SQLException {
+    private void configureMocks(AuthSource authSource, String proxyUser) throws SQLException {
         when(authenticationFacade.getProxyUserAuthenticationSource()).thenReturn(authSource);
         when(authenticationFacade.getCurrentUsername()).thenReturn("some user name");
         when(pooledConnection.unwrap(Connection.class)).thenReturn(proxyConnection);
         when(proxyConnection.prepareStatement(anyString())).thenReturn(proxyPreparedStatement);
         when(pooledConnection.prepareStatement(anyString())).thenReturn(pooledPreparedStatement);
-
+        when(MDC.get(PROXY_USER)).thenReturn(proxyUser);
+        when(MDC.get(SUPPRESS_XTAG_EVENTS)).thenReturn("false");
     }
-
 }

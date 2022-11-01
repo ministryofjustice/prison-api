@@ -13,14 +13,12 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
-import static uk.gov.justice.hmpps.prison.aop.connectionproxy.AppModuleName.MERGE;
-import static uk.gov.justice.hmpps.prison.aop.connectionproxy.AppModuleName.PRISON_API;
-import static uk.gov.justice.hmpps.prison.util.MdcUtility.NOMIS_CONTEXT;
+import static uk.gov.justice.hmpps.prison.util.MdcUtility.SUPPRESS_XTAG_EVENTS;
 
 
 @Component
 @Slf4j
-public class NomisContextFilter implements Filter {
+public class EventPropagationFilter implements Filter {
 
     @Override
     public void init(final FilterConfig filterConfig) {
@@ -33,13 +31,18 @@ public class NomisContextFilter implements Filter {
             final ServletResponse response,
             final FilterChain chain) throws IOException, ServletException {
 
-        MDC.put(NOMIS_CONTEXT, PRISON_API.name());
-        final var req = (HttpServletRequest) request;
-        if ("true".equals(req.getHeader("no-event-propagation"))) {
-            log.info("no-event-propagation header detected, using MERGE context.");
-            MDC.put(NOMIS_CONTEXT, MERGE.name());
+        try {
+            var suppress = "false";
+            final var req = (HttpServletRequest) request;
+            if ("true".equals(req.getHeader("no-event-propagation"))) {
+                log.info("no-event-propagation header detected, flagging XTag events for suppression.");
+                suppress = "true";
+            }
+            MDC.put(SUPPRESS_XTAG_EVENTS, suppress);
+            chain.doFilter(request, response);
+        } finally {
+            MDC.remove(SUPPRESS_XTAG_EVENTS);
         }
-        chain.doFilter(request, response);
     }
 
     @Override

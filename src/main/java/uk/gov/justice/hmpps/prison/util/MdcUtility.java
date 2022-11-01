@@ -13,7 +13,7 @@ public class MdcUtility {
     public static final String PROXY_USER = "proxy-user";
     public static final String IP_ADDRESS = "clientIpAddress";
     public static final String REQUEST_URI = "request-url";
-    public static final String NOMIS_CONTEXT = "nomis-context";
+    public static final String SUPPRESS_XTAG_EVENTS = "suppress-xtag-events";
 
     public static boolean isLoggingAllowed() {
         return !"true".equals(MDC.get(SKIP_LOGGING));
