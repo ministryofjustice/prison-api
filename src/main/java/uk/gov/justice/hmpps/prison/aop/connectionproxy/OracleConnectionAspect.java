@@ -42,6 +42,9 @@ public class OracleConnectionAspect extends AbstractConnectionAspect {
 
     @Override
     protected Connection openProxySessionIfIdentifiedAuthentication(final Connection pooledConnection) throws SQLException {
+        if (!RoutingDataSource.isReplica()) {
+            clearContext((pooledConnection));
+        }
         if (proxyUserEndpointAndUserSignedIntoNomis()) {
             log.trace("Configuring Oracle Proxy Session for NOMIS user {}", pooledConnection);
             assertNotSlow();
@@ -57,11 +60,18 @@ public class OracleConnectionAspect extends AbstractConnectionAspect {
             }
         }
         else if ("true".equals(MDC.get(SUPPRESS_XTAG_EVENTS))) {
+            assertNotSlow();
             setContextAuditModuleOnly(pooledConnection);
         }
 
         setDefaultSchema(pooledConnection);
         return pooledConnection;
+    }
+
+    private void clearContext(Connection conn) throws SQLException {
+        try (final var ps = conn.prepareStatement("BEGIN nomis_context.close_session(); END;")) {
+            ps.execute();
+        }
     }
 
     private boolean proxyUserEndpointAndUserSignedIntoNomis() {

@@ -77,9 +77,10 @@ class OracleConnectionAspectTest {
                 connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection);
 
                 ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
-                verify(pooledConnection, times(2)).prepareStatement(sqlCaptor.capture());
-                assertThat(sqlCaptor.getAllValues().get(0)).contains("ALTER SESSION SET CURRENT_SCHEMA");
-                assertThat(sqlCaptor.getAllValues().get(1)).contains("nomis_context.set_client_nomis_context");
+                verify(pooledConnection, times(3)).prepareStatement(sqlCaptor.capture());
+                assertThat(sqlCaptor.getAllValues().get(0)).contains("nomis_context.close_session()");
+                assertThat(sqlCaptor.getAllValues().get(1)).contains("ALTER SESSION SET CURRENT_SCHEMA");
+                assertThat(sqlCaptor.getAllValues().get(2)).contains("nomis_context.set_client_nomis_context");
             }
 
         }
@@ -102,9 +103,10 @@ class OracleConnectionAspectTest {
                 connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection);
 
                 ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
-                verify(pooledConnection, times(2)).prepareStatement(sqlCaptor.capture());
-                assertThat(sqlCaptor.getAllValues().get(0)).contains("nomis_context.set_client_nomis_context");
-                assertThat(sqlCaptor.getAllValues().get(1)).contains("ALTER SESSION SET CURRENT_SCHEMA");
+                verify(pooledConnection, times(3)).prepareStatement(sqlCaptor.capture());
+                assertThat(sqlCaptor.getAllValues().get(0)).contains("nomis_context.close_session()");
+                assertThat(sqlCaptor.getAllValues().get(1)).contains("nomis_context.set_client_nomis_context");
+                assertThat(sqlCaptor.getAllValues().get(2)).contains("ALTER SESSION SET CURRENT_SCHEMA");
             }
         }
 
@@ -126,9 +128,10 @@ class OracleConnectionAspectTest {
                 connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection);
 
                 ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
-                verify(pooledConnection, times(1)).prepareStatement(sqlCaptor.capture());
-                assertThat(sqlCaptor.getAllValues().get(0)).doesNotContain("nomis_context.set_context('AUDIT_MODULE_NAME'");
-                assertThat(sqlCaptor.getAllValues().get(0)).contains("ALTER SESSION SET CURRENT_SCHEMA");
+                verify(pooledConnection, times(2)).prepareStatement(sqlCaptor.capture());
+                assertThat(sqlCaptor.getAllValues().get(0)).contains("nomis_context.close_session()");
+                assertThat(sqlCaptor.getAllValues().get(1)).doesNotContain("nomis_context.set_context('AUDIT_MODULE_NAME'");
+                assertThat(sqlCaptor.getAllValues().get(1)).contains("ALTER SESSION SET CURRENT_SCHEMA");
             }
 
             @Test
@@ -139,10 +142,11 @@ class OracleConnectionAspectTest {
                 connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection);
 
                 ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
-                verify(pooledConnection, times(2)).prepareStatement(sqlCaptor.capture());
-                assertThat(sqlCaptor.getAllValues().get(0)).doesNotContain("nomis_context.set_client_nomis_context");
-                assertThat(sqlCaptor.getAllValues().get(0)).contains("nomis_context.set_context('AUDIT_MODULE_NAME', 'MERGE')");
-                assertThat(sqlCaptor.getAllValues().get(1)).contains("ALTER SESSION SET CURRENT_SCHEMA");
+                verify(pooledConnection, times(3)).prepareStatement(sqlCaptor.capture());
+                assertThat(sqlCaptor.getAllValues().get(0)).contains("nomis_context.close_session()");
+                assertThat(sqlCaptor.getAllValues().get(1)).doesNotContain("nomis_context.set_client_nomis_context");
+                assertThat(sqlCaptor.getAllValues().get(1)).contains("nomis_context.set_context('AUDIT_MODULE_NAME', 'MERGE')");
+                assertThat(sqlCaptor.getAllValues().get(2)).contains("ALTER SESSION SET CURRENT_SCHEMA");
             }
         }
     }
