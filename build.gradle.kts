@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.5.6"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.5.7-beta"
   kotlin("plugin.spring") version "1.7.20"
   kotlin("plugin.jpa") version "1.7.20"
   kotlin("plugin.lombok") version "1.7.20"
@@ -77,15 +77,15 @@ dependencies {
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.36.0")
 
-  testImplementation("net.serenity-bdd:serenity-core:3.3.8")
-  testImplementation("net.serenity-bdd:serenity-junit:3.3.8")
-  testImplementation("net.serenity-bdd:serenity-spring:3.3.8")
-  testImplementation("net.serenity-bdd:serenity-cucumber:3.3.8")
+  testImplementation("net.serenity-bdd:serenity-core:3.3.10")
+  testImplementation("net.serenity-bdd:serenity-junit:3.3.10")
+  testImplementation("net.serenity-bdd:serenity-spring:3.3.10")
+  testImplementation("net.serenity-bdd:serenity-cucumber:3.3.10")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
   testImplementation("org.glassfish:javax.el:3.0.0")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.6")
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.7")
 
   testCompileOnly("org.projectlombok:lombok:1.18.24")
 }
