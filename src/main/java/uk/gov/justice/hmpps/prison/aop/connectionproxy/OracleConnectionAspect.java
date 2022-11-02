@@ -65,12 +65,6 @@ public class OracleConnectionAspect extends AbstractConnectionAspect {
         return pooledConnection;
     }
 
-    private void clearContext(Connection conn) throws SQLException {
-        try (final var ps = conn.prepareStatement("BEGIN nomis_context.close_session(); END;")) {
-            ps.execute();
-        }
-    }
-
     private boolean proxyUserEndpointAndUserSignedIntoNomis() {
         final var proxyUserAuthSource = authenticationFacade.getProxyUserAuthenticationSource();
         return proxyUserAuthSource == NOMIS;
