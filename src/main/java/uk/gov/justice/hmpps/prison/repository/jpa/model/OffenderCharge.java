@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.BatchSize;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOffence;
 
@@ -107,6 +108,10 @@ public class OffenderCharge extends AuditableEntity {
 
     public boolean isActive() {
         return ACTIVE.equals(chargeStatus);
+    }
+
+    public void setMostSeriousFlag(String mostSeriousFlag) {
+        this.mostSeriousFlag = mostSeriousFlag;
     }
 
     public OffenderOffence getOffenceDetail() {
