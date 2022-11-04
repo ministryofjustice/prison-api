@@ -10,6 +10,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEventCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtOrder;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ImprisonmentStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LegalCaseType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offence.PK;
@@ -17,6 +18,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenceResult;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImprisonmentStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentenceCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalcType;
@@ -25,11 +27,13 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepos
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventChargeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtOrderRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ImprisonmentStatusRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenceResultRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderChargeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCourtCaseRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImprisonmentStatusRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceChargeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
@@ -39,6 +43,7 @@ import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 
 import javax.transaction.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 
 @Service
@@ -83,6 +88,13 @@ public class DigitalWarrantService {
 
     @Autowired
     private CourtEventChargeRepository courtEventChargeRepository;
+
+    @Autowired
+    private OffenderImprisonmentStatusRepository offenderImprisonmentStatusRepository;
+
+    @Autowired
+    private ImprisonmentStatusRepository imprisonmentStatusRepository;
+
     @Transactional
     public Long createCourtCase(Long bookingId, CourtCase courtCase) {
         var agency = agencyLocationRepository.findById(courtCase.getAgencyId()).orElseThrow(EntityNotFoundException.withIdAndClass(courtCase.getAgencyId(), CourtCase.class));
@@ -125,6 +137,9 @@ public class DigitalWarrantService {
         var booking = offenderBookingRepository.findByBookingId(bookingId).orElseThrow(EntityNotFoundException.withIdAndClass(bookingId, OffenderBooking.class));
         var offenceResultCode = offenderOffence.isGuilty() ? OffenceResultRepository.IMPRISONMENT : OffenceResultRepository.NOT_GUILTY;
         var result = offenceResultRepository.findById(offenceResultCode).orElseThrow(EntityNotFoundException.withIdAndClass(offenceResultCode, OffenceResult.class));
+        var otherCharges = offenderChargeRepository.findByOffenderBooking_BookingId(bookingId);
+        var mostSeriousCharge = otherCharges.stream().filter(charge -> charge.getMostSeriousFlag().equals("Y")).findFirst();
+        var mostSerious = mostSeriousCharge.map(charge -> offence.isMoreSeriousThan(charge.getOffence())).orElse(true);
 
         var offenderCharge = OffenderCharge.builder()
             .offence(offence)
@@ -134,23 +149,16 @@ public class DigitalWarrantService {
             .offenderBooking(booking)
             .resultCodeOne(result)
             .resultCodeOneIndicator("F")
-            .mostSeriousFlag("N")
+            .mostSeriousFlag(mostSerious ? "Y" : "N")
             .pleaCode("G")
             .build();
 
         offenderCharge = offenderChargeRepository.save(offenderCharge);
 
-        var courtEvent = courtCase.getCourtEvents().get(0);
-        courtEvent.setOutcomeReasonCode(result);
-        courtEventRepository.save(courtEvent);
-
-        var courtEventCharge = CourtEventCharge.builder()
-            .offenderCharge(offenderCharge)
-            .courtEvent(courtEvent)
-            .build();
-
-        courtEventChargeRepository.save(courtEventCharge);
-
+        if (mostSerious && mostSeriousCharge.isPresent()) {
+            mostSeriousCharge.get().setMostSeriousFlag("N");
+            offenderChargeRepository.save(mostSeriousCharge.get());
+        }
         return offenderCharge.getId();
     }
 
@@ -160,7 +168,29 @@ public class DigitalWarrantService {
         var booking = offenderBookingRepository.findByBookingId(bookingId).orElseThrow(EntityNotFoundException.withIdAndClass(bookingId, OffenderBooking.class));
         var offenderCharge = offenderChargeRepository.findById(sentence.getOffenderChargeId()).orElseThrow(EntityNotFoundException.withIdAndClass(sentence.getOffenderChargeId(), OffenderCharge.class));
         var sentenceCalcType = sentenceCalcTypeRepository.findById(new SentenceCalcType.PK(sentence.getSentenceType(), sentence.getSentenceCategory())).orElseThrow(EntityNotFoundException.withIdAndClass(sentence.getSentenceType() + " " + sentence.getSentenceCategory(), SentenceCalcType.class));
-        var courtEvent = courtCase.getCourtEvents().get(0);
+
+        var movementReason = movementReasonReferenceCodeRepository.findById(MovementReason.SENTENCING).orElseThrow(EntityNotFoundException.withIdAndClass(MovementReason.SENTENCING.getCode(), MovementReason.class));
+        var eventStatus = eventStatusReferenceCodeRepository.findById(EventStatus.COMPLETED).orElseThrow(EntityNotFoundException.withIdAndClass(EventStatus.COMPLETED.getCode(), EventStatus.class));
+        var result = offenceResultRepository.findById(OffenceResultRepository.IMPRISONMENT).orElseThrow(EntityNotFoundException.withIdAndClass(OffenceResultRepository.IMPRISONMENT, OffenceResult.class));
+        var courtEvent = CourtEvent.builder()
+            .offenderBooking(booking)
+            .courtEventType(movementReason)
+            .eventStatus(eventStatus)
+            .startTime(sentence.getSentenceDate().atTime(10, 0))
+            .eventDate(sentence.getSentenceDate())
+            .courtLocation(courtCase.getAgencyLocation())
+            .offenderCourtCase(courtCase)
+            .outcomeReasonCode(result)
+            .build();
+
+        courtEventRepository.save(courtEvent);
+
+        var courtEventCharge = CourtEventCharge.builder()
+            .offenderCharge(offenderCharge)
+            .courtEvent(courtEvent)
+            .build();
+
+        courtEventChargeRepository.save(courtEventCharge);
 
         var courtOrder = CourtOrder.builder()
             .courtCase(courtCase)
@@ -206,29 +236,14 @@ public class DigitalWarrantService {
 
         offenderSentenceChargeRepository.save(offenderSentenceCharge);
 
-        /* TODO Removing this for now. It's unnecessary to add another event here. */
-//        var movementReason = movementReasonReferenceCodeRepository.findById(MovementReason.SENTENCING).orElseThrow(EntityNotFoundException.withIdAndClass(MovementReason.SENTENCING.getCode(), MovementReason.class));
-//        var eventStatus = eventStatusReferenceCodeRepository.findById(EventStatus.COMPLETED).orElseThrow(EntityNotFoundException.withIdAndClass(EventStatus.COMPLETED.getCode(), EventStatus.class));
-//        var result = offenceResultRepository.findById(OffenceResultRepository.IMPRISONMENT).orElseThrow(EntityNotFoundException.withIdAndClass(OffenceResultRepository.IMPRISONMENT, OffenceResult.class));
-//        var courtEvent = CourtEvent.builder()
-//            .offenderBooking(booking)
-//            .courtEventType(movementReason)
-//            .eventStatus(eventStatus)
-//            .startTime(sentence.getSentenceDate().atTime(10, 0))
-//            .eventDate(sentence.getSentenceDate())
-//            .courtLocation(courtCase.getAgencyLocation())
-//            .offenderCourtCase(courtCase)
-//            .outcomeReasonCode(result)
-//            .build();
-//
-//        courtEventRepository.save(courtEvent);
-//
-//        var courtEventCharge = CourtEventCharge.builder()
-//            .offenderCharge(offenderCharge)
-//            .courtEvent(courtEvent)
-//            .build();
-//
-//        courtEventChargeRepository.save(courtEventCharge);
+        var status = imprisonmentStatusRepository.findByStatusAndActive(sentence.getSentenceType(), true).orElseThrow(EntityNotFoundException.withIdAndClass(sentence.getSentenceType(), ImprisonmentStatus.class));
+        booking.setImprisonmentStatus(
+            OffenderImprisonmentStatus.builder()
+                .imprisonmentStatus(status)
+                .agyLocId(booking.getLocation().getId())
+                .build(),
+            LocalDateTime.now()
+        );
 
         return offenderSentence.getSequence();
     }

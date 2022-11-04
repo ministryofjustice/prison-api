@@ -72,7 +72,7 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
     @Test
     @Transactional(readOnly = true)
     public void offence_success() {
-        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody(
+        var requestEntity = createHttpEntityWithBearerAuthorisationAndBody(
             "RO_USER",
             List.of("ROLE_MANAGE_DIGITAL_WARRANT"),
             Offence.builder()
@@ -85,7 +85,7 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
                 .build()
         );
 
-        final var responseEntity = testRestTemplate
+        var responseEntity = testRestTemplate
             .exchange(
                 "/api/digital-warrant/booking/-59/offence",
                 HttpMethod.POST,
@@ -104,7 +104,9 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
         assertThat(created.getResultCodeOne().getDescription()).isEqualTo("Not Guilty");
         assertThat(created.getOffenderCourtCase().getId()).isEqualTo(-59L);
 
-        assertThat(created.getOffenderCourtCase().getCourtEvents().get(0).getOutcomeReasonCode().getDescription()).isEqualTo("Not Guilty");
+        var lessSeriousCharge = offenderChargeRepository.findById(-11L).get();
+        assertThat(created.getMostSeriousFlag()).isEqualTo("Y");
+        assertThat(lessSeriousCharge.getMostSeriousFlag()).isEqualTo("N");
     }
 
 
@@ -151,13 +153,18 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
         assertThat(created.getCourtCase().getId()).isEqualTo(-59L);
 
         assertThat(created.getCourtOrder().getCourtDate()).isEqualTo(LocalDate.of(2022, 10, 10));
-        assertThat(created.getCourtOrder().getCourtEvent()).isNotNull();
+
 
         assertThat(created.getOffenderSentenceCharges().size()).isEqualTo(1);
         assertThat(created.getOffenderSentenceCharges().get(0).getOffenderCharge().getId()).isEqualTo(-11L);
 
         assertThat(created.getCalculationType().getCalculationType()).isEqualTo("ADIMP_ORA");
         assertThat(created.getCalculationType().getCategory()).isEqualTo("2003");
+
+        assertThat(created.getCourtOrder().getCourtEvent().getOutcomeReasonCode().getDescription()).isEqualTo("Imprisonment");
+
+        assertThat(created.getOffenderBooking().getActiveImprisonmentStatus().get().getImprisonmentStatus().getDescription()).isEqualTo("ORA CJA03 Standard Determinate Sentence");
+
     }
 
     @Test
