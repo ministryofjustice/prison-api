@@ -236,7 +236,10 @@ public class DigitalWarrantService {
 
         offenderSentenceChargeRepository.save(offenderSentenceCharge);
 
-        var status = imprisonmentStatusRepository.findByStatusAndActive(sentence.getSentenceType(), true).orElseThrow(EntityNotFoundException.withIdAndClass(sentence.getSentenceType(), ImprisonmentStatus.class));
+        var status = imprisonmentStatusRepository.findByStatusAndActive(sentence.getSentenceType(), true)
+            .orElseGet(() -> imprisonmentStatusRepository.findByStatusAndActive(ImprisonmentStatusRepository.ADULT_IMPRISONMENT_WITHOUT_OPTION, true)
+                .orElseThrow(EntityNotFoundException.withIdAndClass(sentence.getSentenceType(), ImprisonmentStatus.class)));
+
         booking.setImprisonmentStatus(
             OffenderImprisonmentStatus.builder()
                 .imprisonmentStatus(status)
