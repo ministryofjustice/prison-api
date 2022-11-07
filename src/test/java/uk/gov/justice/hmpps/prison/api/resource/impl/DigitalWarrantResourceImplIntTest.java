@@ -118,8 +118,8 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
             "RO_USER",
             List.of("ROLE_MANAGE_DIGITAL_WARRANT"),
             Sentence.builder()
-                .sentenceType("ADIMP_ORA")
-                .sentenceCategory("2003")
+                .sentenceType("ADIMP")
+                .sentenceCategory("2020")
                 .sentenceDate(LocalDate.of(2022, 10, 10))
                 .years(1)
                 .months(2)
@@ -158,12 +158,12 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
         assertThat(created.getOffenderSentenceCharges().size()).isEqualTo(1);
         assertThat(created.getOffenderSentenceCharges().get(0).getOffenderCharge().getId()).isEqualTo(-11L);
 
-        assertThat(created.getCalculationType().getCalculationType()).isEqualTo("ADIMP_ORA");
-        assertThat(created.getCalculationType().getCategory()).isEqualTo("2003");
+        assertThat(created.getCalculationType().getCalculationType()).isEqualTo("ADIMP");
+        assertThat(created.getCalculationType().getCategory()).isEqualTo("2020");
 
         assertThat(created.getCourtOrder().getCourtEvent().getOutcomeReasonCode().getDescription()).isEqualTo("Imprisonment");
 
-        assertThat(created.getOffenderBooking().getActiveImprisonmentStatus().get().getImprisonmentStatus().getDescription()).isEqualTo("ORA CJA03 Standard Determinate Sentence");
+        assertThat(created.getOffenderBooking().getActiveImprisonmentStatus().get().getImprisonmentStatus().getStatus()).isEqualTo("SENT03");
 
     }
 
@@ -248,5 +248,6 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
         assertThat(sentence.getOffenderSentenceCharges().get(0).getOffenderCharge().getOffence().getCode()).isEqualTo("RV98011");
 
         assertThat(sentence.getCourtCase().getCaseInfoNumber()).isEqualTo("ABC123");
+        assertThat(sentence.getOffenderBooking().getActiveImprisonmentStatus().get().getImprisonmentStatus().getStatus()).isEqualTo("ADIMP_ORA");
     }
 }
