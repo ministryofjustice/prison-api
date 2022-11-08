@@ -155,7 +155,7 @@ class OracleConnectionAspectTest {
       }
 
       @Test
-      fun `should return context clearing connection`() {
+      fun `should return resettable context connection`() {
         val conn = connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection)
 
         assertThat(conn).isExactlyInstanceOf(ResettableContextConnection::class.java)
@@ -201,12 +201,10 @@ class OracleConnectionAspectTest {
       }
 
       @Test
-      fun `should open resettable connection if suppress Xtags`() {
-        whenever(MDC.get(MdcUtility.SUPPRESS_XTAG_EVENTS)).thenReturn("true")
+      fun `should return resettable context connection`() {
+        val conn = connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection)
 
-        connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection)
-
-        verify(nomisConfigurer).setDefaultSchema(any<ResettableContextConnection>())
+        assertThat(conn).isExactlyInstanceOf(ResettableContextConnection::class.java)
       }
 
       @Test
