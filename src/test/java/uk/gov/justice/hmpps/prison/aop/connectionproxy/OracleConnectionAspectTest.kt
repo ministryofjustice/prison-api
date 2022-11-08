@@ -8,6 +8,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.anyBoolean
 import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.ArgumentMatchers.eq
@@ -17,7 +18,6 @@ import org.mockito.Mockito.never
 import org.mockito.kotlin.any
 import org.mockito.kotlin.check
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.slf4j.MDC
@@ -32,7 +32,7 @@ import java.sql.SQLException
 class OracleConnectionAspectTest {
   private val authenticationFacade = mock<AuthenticationFacade>()
   private val roleConfigurer = mock<RoleConfigurer>()
-  private val defaultSchema = "some default schema"
+  private val nomisConfigurer = mock<NomisConfigurer>()
   private val pooledConnection = mock<Connection>()
   private val pooledPreparedStatement = mock<PreparedStatement>()
   private val oracleConnection = mock<OracleConnection>()
@@ -40,7 +40,7 @@ class OracleConnectionAspectTest {
   private var mockMdc: MockedStatic<MDC>? = null
   private var mockRoutingDataSource: MockedStatic<RoutingDataSource>? = null
 
-  private val connectionAspect = OracleConnectionAspect(authenticationFacade, roleConfigurer, defaultSchema)
+  private val connectionAspect = OracleConnectionAspect(authenticationFacade, roleConfigurer, nomisConfigurer)
 
   @BeforeEach
   fun init() {
@@ -87,15 +87,8 @@ class OracleConnectionAspectTest {
       fun `should set Nomis context and schema`() {
         connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection)
 
-        verify(pooledConnection).prepareStatement("ALTER SESSION SET CURRENT_SCHEMA=some default schema")
-        verify(pooledConnection).prepareStatement(
-          check {
-            assertThat(it).contains("nomis_context.set_context('AUDIT_MODULE_NAME', 'PRISON_API')")
-            assertThat(it).contains("nomis_context.set_context('AUDIT_USER_ID', 'some user name');")
-            assertThat(it).contains("nomis_context.set_client_nomis_context('some user name', 'some IP', 'API', 'some URI');")
-          }
-        )
-        verify(pooledPreparedStatement, times(2)).execute()
+        verify(nomisConfigurer).setDefaultSchema(any<ProxySessionClosingConnection>())
+        verify(nomisConfigurer).setNomisContext(any<ProxySessionClosingConnection>(), eq("some user name"), eq("some IP"), eq("some URI"), eq("APP"), eq(false))
       }
 
       @Test
@@ -104,11 +97,7 @@ class OracleConnectionAspectTest {
 
         connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection)
 
-        verify(pooledConnection).prepareStatement(
-          check {
-            assertThat(it).contains("nomis_context.set_context('AUDIT_MODULE_NAME', 'MERGE')")
-          }
-        )
+        verify(nomisConfigurer).setNomisContext(any<ProxySessionClosingConnection>(), eq("some user name"), eq("some IP"), eq("some URI"), eq("APP"), eq(true))
       }
 
       @Test
@@ -152,15 +141,8 @@ class OracleConnectionAspectTest {
       fun `should set Nomis context and schema`() {
         connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection)
 
-        verify(pooledConnection).prepareStatement(
-          check {
-            assertThat(it).contains("nomis_context.set_context('AUDIT_MODULE_NAME', 'PRISON_API')")
-            assertThat(it).contains("nomis_context.set_context('AUDIT_USER_ID', 'some user name');")
-            assertThat(it).contains("nomis_context.set_client_nomis_context('some user name', 'some IP', 'API', 'some URI');")
-          }
-        )
-        verify(pooledConnection).prepareStatement("ALTER SESSION SET CURRENT_SCHEMA=some default schema")
-        verify(pooledPreparedStatement, times(2)).execute()
+        verify(nomisConfigurer).setDefaultSchema(any<ResettableContextConnection>())
+        verify(nomisConfigurer).setNomisContext(any<ResettableContextConnection>(), eq("some user name"), eq("some IP"), eq("some URI"), eq("APP"), eq(false))
       }
 
       @Test
@@ -169,18 +151,14 @@ class OracleConnectionAspectTest {
 
         connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection)
 
-        verify(pooledConnection).prepareStatement(
-          check {
-            assertThat(it).contains("nomis_context.set_context('AUDIT_MODULE_NAME', 'MERGE')")
-          }
-        )
+        verify(nomisConfigurer).setNomisContext(any<ResettableContextConnection>(), eq("some user name"), eq("some IP"), eq("some URI"), eq("APP"), eq(true))
       }
 
       @Test
-      fun `should return original connection`() {
+      fun `should return resettable context connection`() {
         val conn = connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection)
 
-        assertThat(conn).isEqualTo(pooledConnection)
+        assertThat(conn).isExactlyInstanceOf(ResettableContextConnection::class.java)
       }
 
       @Test
@@ -193,7 +171,7 @@ class OracleConnectionAspectTest {
     }
 
     @Nested
-    inner class SupppressXtagEventsForNonProxyUser {
+    inner class SupppressXtagEvents {
       @BeforeEach
       fun `set up mocks`() {
         configureMocks(AuthSource.NONE, "")
@@ -218,15 +196,15 @@ class OracleConnectionAspectTest {
       fun `should set Nomis context and schema`() {
         connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection)
 
-        verify(pooledConnection).prepareStatement(
-          check {
-            assertThat(it).contains("nomis_context.set_context('AUDIT_MODULE_NAME', 'MERGE')")
-            assertThat(it).doesNotContain("nomis_context.set_context('AUDIT_USER_ID'")
-            assertThat(it).doesNotContain("nomis_context.set_client_nomis_context(")
-          }
-        )
-        verify(pooledConnection).prepareStatement("ALTER SESSION SET CURRENT_SCHEMA=some default schema")
-        verify(pooledPreparedStatement, times(2)).execute()
+        verify(nomisConfigurer).setSuppressXtagEvents(any<ResettableContextConnection>())
+        verify(nomisConfigurer).setDefaultSchema(any<ResettableContextConnection>())
+      }
+
+      @Test
+      fun `should return resettable context connection`() {
+        val conn = connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection)
+
+        assertThat(conn).isExactlyInstanceOf(ResettableContextConnection::class.java)
       }
 
       @Test
@@ -263,14 +241,8 @@ class OracleConnectionAspectTest {
       fun `should set schema but not Nomis context`() {
         connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection)
 
-        verify(pooledConnection).prepareStatement(
-          check {
-            assertThat(it).contains("ALTER SESSION SET CURRENT_SCHEMA=some default schema")
-            assertThat(it).doesNotContain("nomis_context.set_context")
-            assertThat(it).doesNotContain("nomis_context.set_client_nomis_context(")
-          }
-        )
-        verify(pooledPreparedStatement).execute()
+        verify(nomisConfigurer).setDefaultSchema(pooledConnection)
+        verify(nomisConfigurer, never()).setNomisContext(any(), anyString(), anyString(), anyString(), anyString(), anyBoolean())
       }
 
       @Test
@@ -279,15 +251,14 @@ class OracleConnectionAspectTest {
 
         connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection)
 
-        verify(pooledConnection).prepareStatement("ALTER SESSION SET CURRENT_SCHEMA=some default schema")
-        verify(pooledPreparedStatement).execute()
+        verify(nomisConfigurer).setDefaultSchema(pooledConnection)
       }
     }
   }
 
   @Throws(SQLException::class)
   private fun configureMocks(authSource: AuthSource, proxyUser: String) {
-    whenever(authenticationFacade.proxyUserAuthenticationSource).thenReturn(authSource)
+    whenever(authenticationFacade.authenticationSource).thenReturn(authSource)
     whenever(authenticationFacade.currentUsername).thenReturn(proxyUser)
     whenever(pooledConnection.unwrap(Connection::class.java)).thenReturn(oracleConnection)
     whenever(oracleConnection.prepareStatement(anyString())).thenReturn(oraclePreparedStatement)
