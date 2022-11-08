@@ -7,10 +7,8 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import uk.gov.justice.hmpps.prison.aop.connectionproxy.OracleConnectionAspect;
 import uk.gov.justice.hmpps.prison.aop.connectionproxy.RoleConfigurer;
 import uk.gov.justice.hmpps.prison.aop.connectionproxy.RolePasswordSupplier;
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 
 
 @Profile("connection-proxy")
@@ -33,14 +31,6 @@ public class ConnectionProxyAopConfiguration {
 
     @Value("${oracle.tag.role.name}")
     private String tagUser;
-
-    @Bean
-    public OracleConnectionAspect oracleProxyConnectionAspect(
-            final AuthenticationFacade authenticationFacade,
-            final RoleConfigurer roleConfigurer
-    ) {
-        return new OracleConnectionAspect(authenticationFacade, roleConfigurer, defaultSchema);
-    }
 
     @Bean
     public RoleConfigurer roleConfigurer(final RolePasswordSupplier rolePasswordSupplier) {
