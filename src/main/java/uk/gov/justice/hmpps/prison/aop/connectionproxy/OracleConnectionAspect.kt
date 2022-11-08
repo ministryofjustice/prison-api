@@ -4,6 +4,7 @@ import oracle.jdbc.driver.OracleConnection
 import org.aspectj.lang.annotation.Aspect
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 import uk.gov.justice.hmpps.prison.security.AuthSource
 import uk.gov.justice.hmpps.prison.security.AuthSource.NOMIS
@@ -19,6 +20,7 @@ import java.util.Properties
 
 @Aspect
 @Component
+@Profile("connection-proxy")
 class OracleConnectionAspect(
   private val authenticationFacade: AuthenticationFacade,
   private val roleConfigurer: RoleConfigurer,
