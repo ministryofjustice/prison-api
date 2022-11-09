@@ -65,8 +65,8 @@ public class OffenderFixedTermRecallServiceTest {
 
         final var bookingId = 1L;
         final var returnToCustodyDate = LocalDate.now();
+        final var recallLength = 14;
 
-        int recallLength = 14;
         when(repository.findById(bookingId)).thenReturn(Optional.of(OffenderFixedTermRecall.builder()
             .returnToCustodyDate(returnToCustodyDate)
             .recallLength(recallLength)
