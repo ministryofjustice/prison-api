@@ -46,6 +46,7 @@ import uk.gov.justice.hmpps.prison.api.model.CourtCase;
 import uk.gov.justice.hmpps.prison.api.model.CreateAlert;
 import uk.gov.justice.hmpps.prison.api.model.CreatePersonalCareNeed;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
+import uk.gov.justice.hmpps.prison.api.model.FixedTermRecallDetails;
 import uk.gov.justice.hmpps.prison.api.model.IepLevelAndComment;
 import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
 import uk.gov.justice.hmpps.prison.api.model.IncidentCase;
@@ -153,7 +154,7 @@ public class BookingResource {
     private final MovementsService movementsService;
     private final AppointmentsService appointmentsService;
     private final OffenderNonAssociationsService offenderNonAssociationsService;
-    private final OffenderFixedTermRecallService returnToCustodyService;
+    private final OffenderFixedTermRecallService fixedTermRecallService;
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
@@ -1260,9 +1261,20 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Gets the return to custody date for a booking")
+    @Operation(summary = "Gets the return to custody date for a booking", description = "Do not use - replaced with /fixed-term-recalls", deprecated = true, hidden = true)
     @GetMapping("/{bookingId}/return-to-custody")
     public ReturnToCustodyDate getReturnToCustodyDate(@PathVariable("bookingId") @Parameter(description = "The offender booking linked to the return to custody date.", required = true) final Long bookingId) {
-        return returnToCustodyService.getReturnToCustodyDate(bookingId);
+        return fixedTermRecallService.getReturnToCustodyDate(bookingId);
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "No Fixed Term Recall exists for this booking", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Gets the Fixed Term Recall details for a booking")
+    @GetMapping("/{bookingId}/fixed-term-recall")
+    public FixedTermRecallDetails getFixedTermRecallDetails(@PathVariable("bookingId") @Parameter(description = "The offenders bookingID", required = true) final Long bookingId) {
+        return fixedTermRecallService.getFixedTermRecallDetails(bookingId);
     }
 }
