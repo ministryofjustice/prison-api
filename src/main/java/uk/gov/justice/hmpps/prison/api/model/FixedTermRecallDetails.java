@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @EqualsAndHashCode
 public class FixedTermRecallDetails {
 
-    @Schema(description = "the booking id")
+    @Schema(description = "The booking id")
     private Long bookingId;
 
     @Schema(description = "The date the offender returned to custody")
