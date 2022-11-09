@@ -21,6 +21,6 @@ public class FixedTermRecallDetails {
     @Schema(description = "The date the offender returned to custody")
     private LocalDate returnToCustodyDate;
 
-    @Schema(description = "The date the offender returned to custody")
+    @Schema(description = "The length of the fixed term recall")
     private Integer recallLength;
 }
