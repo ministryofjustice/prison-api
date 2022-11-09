@@ -7,6 +7,7 @@ import lombok.Builder.Default;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.With;
 import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.Column;
@@ -30,9 +31,10 @@ import java.util.List;
 @Entity
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @Table(name = "ORDERS")
+@With
 public class CourtOrder extends AuditableEntity {
 
     @Id

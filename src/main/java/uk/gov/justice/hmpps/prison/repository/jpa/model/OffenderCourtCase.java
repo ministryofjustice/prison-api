@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
+import lombok.With;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.JoinColumnOrFormula;
@@ -41,14 +42,14 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.LegalCaseType.LEG
 
 @Getter
 @Setter
-@RequiredArgsConstructor
 @Entity
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "OFFENDER_CASES")
 @ToString
 @BatchSize(size = 25)
+@With
 public class OffenderCourtCase extends AuditableEntity {
 
     private static final String ACTIVE = "active";

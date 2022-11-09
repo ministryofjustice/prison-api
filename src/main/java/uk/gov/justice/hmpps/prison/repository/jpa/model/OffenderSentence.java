@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.With;
 import org.hibernate.annotations.BatchSize;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerm;
@@ -36,6 +37,7 @@ import java.util.stream.Collectors;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@With
 @EqualsAndHashCode(of = {"id"}, callSuper = false)
 @Table(name = "OFFENDER_SENTENCES")
 @NamedEntityGraph(name = "sentence-entity-graph",
