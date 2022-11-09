@@ -81,8 +81,8 @@ public class InmateRepository extends RepositoryBase {
     public final static String QUERY_OPERATOR_AND = "and:";
     public final static String QUERY_OPERATOR_OR = "or:";
 
-    private final static Set<String> standardCategoryCodes = Set.of("B", "C", "D");
-    private final static Set<String> validCategoryCodes = Set.of("B", "C", "D", "U");
+    private final static Set<String> standardCategoryCodes = Set.of("B", "C", "D", "R", "S", "T");
+    private final static Set<String> validCategoryCodes = Set.of("B", "C", "D", "U", "R", "S", "T");
     private final static Set<String> validAssessStatus = Set.of("A", "P");
 
     private static final Map<String, FieldMapper> OFFENDER_BOOKING_MAPPING = new ImmutableMap.Builder<String, FieldMapper>()
