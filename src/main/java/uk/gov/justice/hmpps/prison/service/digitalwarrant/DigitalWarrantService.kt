@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.service.digitalwarrant
 
 import org.springframework.stereotype.Service
+import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Charge
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.CourtCase
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Sentence
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus
@@ -92,19 +93,19 @@ class DigitalWarrantService(
   }
 
   @Transactional
-  fun createOffenderOffence(bookingId: Long?, offenderOffence: uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Offence): Long {
-    val offence = offenceRepository.findById(Offence.PK(offenderOffence.offenceCode, offenderOffence.offenceStatue)).orElseThrow(EntityNotFoundException.withIdAndClass(offenderOffence.offenceCode + " " + offenderOffence.offenceStatue, uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Offence::class.java))
-    val courtCase = offenderCourtCaseRepository.findById(offenderOffence.courtCaseId).orElseThrow(EntityNotFoundException.withIdAndClass(offenderOffence.courtCaseId, OffenderCourtCase::class.java))
+  fun createCharge(bookingId: Long?, charge: Charge): Long {
+    val offence = offenceRepository.findById(Offence.PK(charge.offenceCode, charge.offenceStatue)).orElseThrow(EntityNotFoundException.withIdAndClass(charge.offenceCode + " " + charge.offenceStatue, Charge::class.java))
+    val courtCase = offenderCourtCaseRepository.findById(charge.courtCaseId).orElseThrow(EntityNotFoundException.withIdAndClass(charge.courtCaseId, OffenderCourtCase::class.java))
     val booking = offenderBookingRepository.findByBookingId(bookingId).orElseThrow(EntityNotFoundException.withIdAndClass(bookingId!!, OffenderBooking::class.java))
-    val offenceResultCode = if (offenderOffence.isGuilty) OffenceResultRepository.IMPRISONMENT else OffenceResultRepository.NOT_GUILTY
+    val offenceResultCode = if (charge.isGuilty) OffenceResultRepository.IMPRISONMENT else OffenceResultRepository.NOT_GUILTY
     val result = offenceResultRepository.findById(offenceResultCode).orElseThrow(EntityNotFoundException.withIdAndClass(offenceResultCode, OffenceResult::class.java))
     val otherCharges = offenderChargeRepository.findByOffenderBooking_BookingId(bookingId)
     val mostSeriousCharge = otherCharges.stream().filter { charge: OffenderCharge -> charge.mostSeriousFlag == "Y" }.findFirst()
-    val mostSerious = mostSeriousCharge.map { charge: OffenderCharge -> offence.isMoreSeriousThan(charge.offence) }.orElse(true)
+    val mostSerious = mostSeriousCharge.map { mostSerious: OffenderCharge -> offence.isMoreSeriousThan(mostSerious.offence) }.orElse(true)
     var offenderCharge = OffenderCharge()
       .withOffence(offence)
-      .withDateOfOffence(offenderOffence.offenceDate)
-      .withEndDate(offenderOffence.offenceEndDate)
+      .withDateOfOffence(charge.offenceDate)
+      .withEndDate(charge.offenceEndDate)
       .withOffenderCourtCase(courtCase)
       .withOffenderBooking(booking)
       .withResultCodeOne(result)

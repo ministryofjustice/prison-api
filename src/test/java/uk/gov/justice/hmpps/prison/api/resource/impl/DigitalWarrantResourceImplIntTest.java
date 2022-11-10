@@ -5,11 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.CourtCase;
-import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Offence;
+import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Charge;
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Sentence;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderChargeRepository;
@@ -75,7 +72,7 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
         var requestEntity = createHttpEntityWithBearerAuthorisationAndBody(
             "RO_USER",
             List.of("ROLE_MANAGE_DIGITAL_WARRANT"),
-            Offence.builder()
+            Charge.builder()
                 .offenceCode("RV98011")
                 .offenceStatue("RV98")
                 .offenceDate(LocalDate.of(2022, 10, 10))
@@ -195,7 +192,7 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
         final var offenceRequestEntity = createHttpEntityWithBearerAuthorisationAndBody(
             "RO_USER",
             List.of("ROLE_MANAGE_DIGITAL_WARRANT"),
-            Offence.builder()
+            Charge.builder()
                 .offenceCode("RV98011")
                 .offenceStatue("RV98")
                 .offenceDate(LocalDate.of(2022, 10, 10))

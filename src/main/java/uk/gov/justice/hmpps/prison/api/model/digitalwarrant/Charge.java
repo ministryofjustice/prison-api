@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Offence {
+public class Charge {
 
     @Schema(description = "The offence code of the office in the court case")
     private String offenceCode;
