@@ -5,11 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.CourtCase;
-import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Offence;
+import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Charge;
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Sentence;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderChargeRepository;
@@ -71,11 +68,11 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
 
     @Test
     @Transactional(readOnly = true)
-    public void offence_success() {
+    public void charge_success() {
         var requestEntity = createHttpEntityWithBearerAuthorisationAndBody(
             "RO_USER",
             List.of("ROLE_MANAGE_DIGITAL_WARRANT"),
-            Offence.builder()
+            Charge.builder()
                 .offenceCode("RV98011")
                 .offenceStatue("RV98")
                 .offenceDate(LocalDate.of(2022, 10, 10))
@@ -87,7 +84,7 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
 
         var responseEntity = testRestTemplate
             .exchange(
-                "/api/digital-warrant/booking/-59/offence",
+                "/api/digital-warrant/booking/-59/charge",
                 HttpMethod.POST,
                 requestEntity,
                 String.class
@@ -192,10 +189,10 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
             );
 
 
-        final var offenceRequestEntity = createHttpEntityWithBearerAuthorisationAndBody(
+        final var chargeRequestEntity = createHttpEntityWithBearerAuthorisationAndBody(
             "RO_USER",
             List.of("ROLE_MANAGE_DIGITAL_WARRANT"),
-            Offence.builder()
+            Charge.builder()
                 .offenceCode("RV98011")
                 .offenceStatue("RV98")
                 .offenceDate(LocalDate.of(2022, 10, 10))
@@ -205,11 +202,11 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
                 .build()
         );
 
-        final var offenceResponseEntity = testRestTemplate
+        final var chargeResponseEntity = testRestTemplate
             .exchange(
-                "/api/digital-warrant/booking/-60/offence",
+                "/api/digital-warrant/booking/-60/charge",
                 HttpMethod.POST,
-                offenceRequestEntity,
+                chargeRequestEntity,
                 String.class
             );
 
@@ -226,7 +223,7 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
                 .months(2)
                 .weeks(3)
                 .days(4)
-                .offenderChargeId(Long.valueOf(Objects.requireNonNull(offenceResponseEntity.getBody())))
+                .offenderChargeId(Long.valueOf(Objects.requireNonNull(chargeResponseEntity.getBody())))
                 .courtCaseId(Long.valueOf(Objects.requireNonNull(courtResponseEntity.getBody())))
                 .build()
         );

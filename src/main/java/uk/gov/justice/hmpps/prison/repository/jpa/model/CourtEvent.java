@@ -6,7 +6,9 @@ import lombok.Builder.Default;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import lombok.With;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
@@ -55,6 +57,7 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason.RE
 @Table(name = "COURT_EVENTS")
 @ToString(exclude = {"offenderBooking", "offenderCourtCase"})
 @Slf4j
+@With
 public class CourtEvent extends AuditableEntity {
 
     @SequenceGenerator(name = "EVENT_ID", sequenceName = "EVENT_ID", allocationSize = 1)
