@@ -1,15 +1,22 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
-import lombok.*;
-import org.hibernate.annotations.BatchSize;
-import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences;
-import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerm;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import uk.gov.justice.hmpps.prison.api.model.FixedTermRecallDetails;
 import uk.gov.justice.hmpps.prison.api.model.ReturnToCustodyDate;
 
-import javax.persistence.*;
-import java.io.Serializable;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.Table;
 import java.time.LocalDate;
-import java.util.List;
 
 @Getter
 @Entity
@@ -32,10 +39,21 @@ public class OffenderFixedTermRecall extends AuditableEntity {
     @Column(name = "RETURN_TO_CUSTODY_DATE")
     private LocalDate returnToCustodyDate;
 
+    @Column(name = "RECALL_LENGTH")
+    private Integer recallLength;
+
     public ReturnToCustodyDate mapToReturnToCustody() {
         return ReturnToCustodyDate.builder()
             .bookingId(offenderBooking.getBookingId())
             .returnToCustodyDate(returnToCustodyDate)
+            .build();
+    }
+
+    public FixedTermRecallDetails mapToFixedTermRecallDetails() {
+        return FixedTermRecallDetails.builder()
+            .bookingId(offenderBooking.getBookingId())
+            .returnToCustodyDate(returnToCustodyDate)
+            .recallLength(recallLength)
             .build();
     }
 }

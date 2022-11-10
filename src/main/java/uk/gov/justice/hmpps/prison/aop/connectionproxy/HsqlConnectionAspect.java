@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.aop.connectionproxy;
 
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.Aspect;
+import org.slf4j.MDC;
 import org.springframework.util.Assert;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 
@@ -9,6 +10,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import static uk.gov.justice.hmpps.prison.security.AuthSource.NOMIS;
+import static uk.gov.justice.hmpps.prison.util.MdcUtility.PROXY_USER;
 
 @Aspect
 @Slf4j
@@ -21,8 +23,9 @@ public class HsqlConnectionAspect extends AbstractConnectionAspect {
 
     @Override
     protected Connection openProxySessionIfIdentifiedAuthentication(final Connection pooledConnection) throws SQLException {
-        final var proxyUserAuthSource = authenticationFacade.getProxyUserAuthenticationSource();
-        if (proxyUserAuthSource == NOMIS) {
+        final var userAuthSource = authenticationFacade.getAuthenticationSource();
+        final var proxyUser = MDC.get(PROXY_USER);
+        if (userAuthSource == NOMIS && !proxyUser.isBlank()) {
             log.trace("Configuring Hsql Proxy Session.");
             return openAndConfigureProxySessionForConnection(pooledConnection);
         }

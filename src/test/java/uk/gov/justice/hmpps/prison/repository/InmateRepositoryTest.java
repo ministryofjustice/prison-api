@@ -781,6 +781,17 @@ public class InmateRepositoryTest {
     }
 
     @Test
+    public void testGetRecategoriseStandardFemaleCodeResults() {
+        final var list = repository.getRecategorise("MDI", LocalDate.of(2019, 6, 7));
+
+        assertThat(list)
+            .extracting("offenderNo", "bookingId", "firstName", "lastName", "category", "nextReviewDate", "assessmentSeq", "assessStatus")
+            .contains(
+                Tuple.tuple("A1180HL", -55L, "JOHN JAMES", "HARRIS JONES", "R", LocalDate.of(2019, 6, 8), 1, "P")
+            );
+    }
+
+    @Test
     @Transactional
     public void testGetRecategoriseRemovesNonStandardCatA() {
         final var possibly_38_39_40_41 = repository.getRecategorise("SYI", LocalDate.of(2019, 6, 30));
