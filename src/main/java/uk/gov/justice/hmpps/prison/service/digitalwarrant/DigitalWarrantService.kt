@@ -1,15 +1,19 @@
 package uk.gov.justice.hmpps.prison.service.digitalwarrant
 
 import org.springframework.stereotype.Service
+import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Adjustment
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Charge
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.CourtCase
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Sentence
+import uk.gov.justice.hmpps.prison.api.support.BookingAdjustmentType
+import uk.gov.justice.hmpps.prison.api.support.SentenceAdjustmentType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEventCharge
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtOrder
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ImprisonmentStatus
+import uk.gov.justice.hmpps.prison.repository.jpa.model.KeyDateAdjustment
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LegalCaseType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offence
@@ -20,6 +24,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImprisonmentStatus
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentenceCharge
+import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceAdjustment
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalcType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository
@@ -32,6 +37,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenceResultReposi
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderChargeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCourtCaseRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdjustmentRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceChargeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
@@ -60,7 +67,9 @@ class DigitalWarrantService(
   private val courtOrderRepository: CourtOrderRepository,
   private val courtEventRepository: CourtEventRepository,
   private val courtEventChargeRepository: CourtEventChargeRepository,
-  private val imprisonmentStatusRepository: ImprisonmentStatusRepository
+  private val imprisonmentStatusRepository: ImprisonmentStatusRepository,
+  private val bookingAdjustmentRepository: OffenderKeyDateAdjustmentRepository,
+  private val sentenceAdjustmentRepository: OffenderSentenceAdjustmentRepository,
 ) {
 
   @Transactional
@@ -184,5 +193,32 @@ class DigitalWarrantService(
       LocalDateTime.now()
     )
     return offenderSentence.sequence
+  }
+
+  @Transactional
+  fun createAdjustment(bookingId: Long, adjustment: Adjustment): Long {
+    val booking = offenderBookingRepository.findByBookingId(bookingId).orElseThrow(EntityNotFoundException.withIdAndClass(bookingId, OffenderBooking::class.java))
+    if (adjustment.sequence == null) {
+      return bookingAdjustmentRepository.save(
+        KeyDateAdjustment()
+          .withOffenderBooking(booking)
+          .withActive(true)
+          .withAdjustFromDate(adjustment.from)
+          .withAdjustToDate(adjustment.to)
+          .withAdjustDays(adjustment.days)
+          .withSentenceAdjustCode(BookingAdjustmentType.valueOf(adjustment.type).code)
+      ).id
+    } else {
+      return sentenceAdjustmentRepository.save(
+        SentenceAdjustment()
+          .withOffenderBooking(booking)
+          .withActive(true)
+          .withAdjustFromDate(adjustment.from)
+          .withAdjustToDate(adjustment.to)
+          .withAdjustDays(adjustment.days)
+          .withSentenceAdjustCode(SentenceAdjustmentType.valueOf(adjustment.type).code)
+          .withSentenceSeq(adjustment.sequence)
+      ).id
+    }
   }
 }

@@ -6,14 +6,17 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.With;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.time.LocalDate;
 
@@ -24,10 +27,13 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id", callSuper = false)
 @Table(name = "OFFENDER_KEY_DATE_ADJUSTS")
+@With
 public class KeyDateAdjustment extends AuditableEntity {
 
     @Id
     @Column(name = "OFFENDER_KEY_DATE_ADJUST_ID", nullable = false)
+    @SequenceGenerator(name = "OFFENDER_KEY_DATE_ADJUST_ID", sequenceName = "OFFENDER_KEY_DATE_ADJUST_ID", allocationSize = 1)
+    @GeneratedValue(generator = "OFFENDER_KEY_DATE_ADJUST_ID")
     private Long id;
 
     @Column(name = "SENTENCE_ADJUST_CODE", nullable = false)
