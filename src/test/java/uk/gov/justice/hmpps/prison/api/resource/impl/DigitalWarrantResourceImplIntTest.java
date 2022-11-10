@@ -68,7 +68,7 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
 
     @Test
     @Transactional(readOnly = true)
-    public void offence_success() {
+    public void charge_success() {
         var requestEntity = createHttpEntityWithBearerAuthorisationAndBody(
             "RO_USER",
             List.of("ROLE_MANAGE_DIGITAL_WARRANT"),
@@ -84,7 +84,7 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
 
         var responseEntity = testRestTemplate
             .exchange(
-                "/api/digital-warrant/booking/-59/offence",
+                "/api/digital-warrant/booking/-59/charge",
                 HttpMethod.POST,
                 requestEntity,
                 String.class
@@ -189,7 +189,7 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
             );
 
 
-        final var offenceRequestEntity = createHttpEntityWithBearerAuthorisationAndBody(
+        final var chargeRequestEntity = createHttpEntityWithBearerAuthorisationAndBody(
             "RO_USER",
             List.of("ROLE_MANAGE_DIGITAL_WARRANT"),
             Charge.builder()
@@ -202,11 +202,11 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
                 .build()
         );
 
-        final var offenceResponseEntity = testRestTemplate
+        final var chargeResponseEntity = testRestTemplate
             .exchange(
-                "/api/digital-warrant/booking/-60/offence",
+                "/api/digital-warrant/booking/-60/charge",
                 HttpMethod.POST,
-                offenceRequestEntity,
+                chargeRequestEntity,
                 String.class
             );
 
@@ -223,7 +223,7 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
                 .months(2)
                 .weeks(3)
                 .days(4)
-                .offenderChargeId(Long.valueOf(Objects.requireNonNull(offenceResponseEntity.getBody())))
+                .offenderChargeId(Long.valueOf(Objects.requireNonNull(chargeResponseEntity.getBody())))
                 .courtCaseId(Long.valueOf(Objects.requireNonNull(courtResponseEntity.getBody())))
                 .build()
         );
