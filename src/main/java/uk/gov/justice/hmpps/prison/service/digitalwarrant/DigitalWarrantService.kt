@@ -1,11 +1,41 @@
 package uk.gov.justice.hmpps.prison.service.digitalwarrant
 
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.CourtCase
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Sentence
-import uk.gov.justice.hmpps.prison.repository.jpa.model.*
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.*
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEventCharge
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtOrder
+import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ImprisonmentStatus
+import uk.gov.justice.hmpps.prison.repository.jpa.model.LegalCaseType
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Offence
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenceResult
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImprisonmentStatus
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentenceCharge
+import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalcType
+import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventChargeRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtOrderRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ImprisonmentStatusRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenceRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenceResultRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderChargeRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCourtCaseRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceChargeRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.SentenceCalcTypeRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.SentenceTermRepository
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 import java.time.LocalDateTime
 import javax.transaction.Transactional
@@ -29,7 +59,8 @@ class DigitalWarrantService(
   private val courtOrderRepository: CourtOrderRepository,
   private val courtEventRepository: CourtEventRepository,
   private val courtEventChargeRepository: CourtEventChargeRepository,
-  private val imprisonmentStatusRepository: ImprisonmentStatusRepository) {
+  private val imprisonmentStatusRepository: ImprisonmentStatusRepository
+) {
 
   @Transactional
   fun createCourtCase(bookingId: Long, courtCase: CourtCase): Long {
