@@ -1,8 +1,8 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.5.7"
-  kotlin("plugin.spring") version "1.7.20"
-  kotlin("plugin.jpa") version "1.7.20"
-  kotlin("plugin.lombok") version "1.7.20"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.6.0-beta"
+  kotlin("plugin.spring") version "1.7.21"
+  kotlin("plugin.jpa") version "1.7.21"
+  kotlin("plugin.lombok") version "1.7.21"
 }
 
 configurations {
@@ -48,7 +48,7 @@ dependencies {
   implementation("net.sf.ehcache:ehcache:2.10.9.2")
   implementation("com.zaxxer:HikariCP:5.0.1")
 
-  implementation("io.swagger:swagger-annotations:1.6.8")
+  implementation("io.swagger:swagger-annotations:1.6.9")
   implementation("org.springdoc:springdoc-openapi-ui:1.6.12")
   implementation("org.springdoc:springdoc-openapi-kotlin:1.6.12")
   implementation("org.springdoc:springdoc-openapi-data-rest:1.6.12")
@@ -70,17 +70,17 @@ dependencies {
   testImplementation("io.rest-assured:spring-mock-mvc:5.2.0")
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("com.google.code.gson:gson:2.10")
-  testImplementation("org.mockito:mockito-inline:4.8.1")
+  testImplementation("org.mockito:mockito-inline:4.9.0")
   testImplementation("org.powermock:powermock-api-mockito2:2.0.9")
   testImplementation("org.powermock:powermock-module-junit4:2.0.9")
 
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.36.0")
 
-  testImplementation("net.serenity-bdd:serenity-core:3.3.10")
-  testImplementation("net.serenity-bdd:serenity-junit:3.3.10")
-  testImplementation("net.serenity-bdd:serenity-spring:3.3.10")
-  testImplementation("net.serenity-bdd:serenity-cucumber:3.3.10")
+  testImplementation("net.serenity-bdd:serenity-core:3.4.2")
+  testImplementation("net.serenity-bdd:serenity-junit:3.4.2")
+  testImplementation("net.serenity-bdd:serenity-spring:3.4.2")
+  testImplementation("net.serenity-bdd:serenity-cucumber:3.4.2")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
