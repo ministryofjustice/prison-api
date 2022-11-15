@@ -806,6 +806,8 @@ public class AdjudicationsServiceTest {
             .adjudicationNumber(1L)
             .hearingDate(oicHearingRequest.getDateTimeOfHearing().toLocalDate())
             .hearingTime(oicHearingRequest.getDateTimeOfHearing())
+            .scheduleDate(oicHearingRequest.getDateTimeOfHearing().toLocalDate())
+            .scheduleTime(oicHearingRequest.getDateTimeOfHearing())
             .oicHearingType(OicHearingType.GOV)
             .eventStatus(OicHearingStatus.SCH).build();
 

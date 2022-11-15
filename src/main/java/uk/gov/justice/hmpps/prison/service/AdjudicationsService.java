@@ -272,6 +272,8 @@ public class AdjudicationsService {
             .adjudicationNumber(adjudicationNumber)
             .hearingDate(hearingDate)
             .hearingTime(hearingTime)
+            .scheduleDate(hearingDate)
+            .scheduleTime(hearingTime)
             .internalLocationId(oicHearingRequest.getHearingLocationId()).build();
 
         final var savedOicHearing = oicHearingRepository.save(oicHearing);
