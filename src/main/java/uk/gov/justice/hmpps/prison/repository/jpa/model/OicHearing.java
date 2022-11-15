@@ -53,6 +53,12 @@ public class OicHearing extends AuditableEntity {
     @Column(name = "HEARING_TIME", nullable = false)
     private LocalDateTime hearingTime;
 
+    @Column(name = "SCHEDULE_DATE")
+    private LocalDate scheduleDate;
+
+    @Column(name = "SCHEDULE_TIME")
+    private LocalDateTime scheduleTime;
+
     @Column(name = "INTERNAL_LOCATION_ID", nullable = false)
     private Long internalLocationId;
 
