@@ -134,7 +134,6 @@ public class MovementResource {
 
     @Operation
     @PostMapping("/offenders")
-    @SlowReportQuery
     public List<Movement> getMovementsByOffenders(@RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderNumbers,
                                                   @RequestParam(value = "movementTypes", required = false) @Parameter(description = "movement type codes to filter by") final List<String> movementTypes,
                                                   @RequestParam(value = "latestOnly", required = false, defaultValue = "true") @Parameter(description = "Returns only latest movement for the offenders specified") final Boolean latestOnly,
