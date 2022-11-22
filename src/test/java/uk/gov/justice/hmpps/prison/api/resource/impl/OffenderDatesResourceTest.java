@@ -43,7 +43,7 @@ public class OffenderDatesResourceTest extends ResourceTest {
                 LocalDate.of(2021, 11, 4), LocalDate.of(2021, 11, 5), LocalDate.of(2021, 11, 6),
                 LocalDate.of(2021, 11, 7), LocalDate.of(2021, 11, 8), LocalDate.of(2021, 11, 9),
                 LocalDate.of(2021, 11, 10), LocalDate.of(2021, 11, 11), LocalDate.of(2021, 11, 12),
-                LocalDate.of(2021, 11, 13), LocalDate.of(2021, 11, 14), "11/00/00"))
+                LocalDate.of(2021, 11, 13),  LocalDate.of(2021, 11, 14), LocalDate.of(2021, 11, 15), "11/00/00"))
             .submissionUser("ITAG_USER")
             .calculationUuid(UUID.randomUUID())
             .build();

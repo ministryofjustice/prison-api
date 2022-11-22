@@ -66,6 +66,7 @@ public class OffenderDatesService {
                 .tusedCalculatedDate(keyDatesFromPayload.getTopupSupervisionExpiryDate())
                 .effectiveSentenceEndDate(keyDatesFromPayload.getEffectiveSentenceEndDate())
                 .effectiveSentenceLength(keyDatesFromPayload.getSentenceLength())
+                .ersedOverridedDate(keyDatesFromPayload.getEarlyRemovalSchemeEligibilityDate())
                 .judiciallyImposedSentenceLength(keyDatesFromPayload.getSentenceLength())
                 .build();
         offenderBooking.addSentenceCalculation(sentenceCalculation);

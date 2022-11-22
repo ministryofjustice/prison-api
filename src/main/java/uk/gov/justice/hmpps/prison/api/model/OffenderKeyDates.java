@@ -56,6 +56,9 @@ public class OffenderKeyDates {
     @Schema(description = "TUSED - top-up supervision expiry date for offender.", example = "2020-02-03")
     private LocalDate topupSupervisionExpiryDate;
 
+    @Schema(description = "ERSED - Early Removal Scheme Eligibility Date", example = "2020-02-03")
+    private LocalDate earlyRemovalSchemeEligibilityDate;
+
     @Schema(required = true, description = "Effective sentence end date.", example = "2020-02-03")
     private LocalDate effectiveSentenceEndDate;
 
