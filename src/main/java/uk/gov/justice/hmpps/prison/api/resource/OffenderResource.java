@@ -82,6 +82,8 @@ import uk.gov.justice.hmpps.prison.service.InmateService;
 import uk.gov.justice.hmpps.prison.service.MovementsService;
 import uk.gov.justice.hmpps.prison.service.OffenderAddressService;
 import uk.gov.justice.hmpps.prison.service.OffenderDamageObligationService;
+import uk.gov.justice.hmpps.prison.service.OffenderLocation;
+import uk.gov.justice.hmpps.prison.service.OffenderLocationService;
 import uk.gov.justice.hmpps.prison.service.OffenderNonAssociationsService;
 import uk.gov.justice.hmpps.prison.service.OffenderTransactionHistoryService;
 import uk.gov.justice.hmpps.prison.service.receiveandtransfer.BookingIntoPrisonService;
@@ -124,6 +126,7 @@ public class OffenderResource {
     private final OffenderNonAssociationsService offenderNonAssociationsService;
     private final BookingIntoPrisonService bookingIntoPrisonService;
     private final PrisonTransferService prisonTransferService;
+    private final OffenderLocationService offenderLocationService;
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
@@ -730,5 +733,25 @@ public class OffenderResource {
 
         final var booking = bookingService.getLatestBookingByOffenderNo(offenderNo);
         return bookingService.getScheduledEvents(booking.getBookingId(), fromDate, toDate);
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Housing location for prisoner", description = """
+        <p>Housing location split out into different levels for a prisoner, or an empty response if the prisoner is not currently in a prison.</p>
+        <p>There will be either 3 or 4 levels returned depending on the layout in NOMIS.
+        Level 1 is the top level, so normally a wing or a house block and level 3 / 4 will be the individual cell.</p>
+        <p>This endpoint returns the prison levels as recorded in NOMIS and may not accurately reflect the physical layout of the prison.
+        For example Bristol has wings, spurs and landings, but this endpoint will only return wings and landings as spurs are not mapped in NOMIS.
+        This endpoint will therefore also return different information from Whereabouts API as that service re-maps the NOMIS layout to include spurs etc.</p>
+        """)
+    @GetMapping("/{offenderNo}/housing-location")
+    public OffenderLocation getHousingLocation(
+        @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo) {
+        final var booking = bookingService.getLatestBookingByOffenderNo(offenderNo);
+        return offenderLocationService.getOffenderLocation(booking.getBookingId(), booking);
     }
 }
