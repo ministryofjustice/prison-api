@@ -22,7 +22,7 @@ dependencyCheck {
 val jsqlParserVersion by extra("4.3")
 
 // Temporarily keep at 2.5.1 until can switch to h2 instead (tests break anyway with 2.6.1)
-val hsqldbVersion by extra("2.7.1")
+val hsqldbVersion by extra("2.5.1")
 
 ext["rest-assured.version"] = "5.1.1"
 
