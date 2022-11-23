@@ -14,6 +14,10 @@ configurations {
   }
 }
 
+dependencyCheck {
+  suppressionFiles.add("dependency-check-suppress-h2.xml")
+}
+
 // Temporarily kept at 4.3 due to bug in 4.4 parser
 val jsqlParserVersion by extra("4.3")
 

@@ -26,3 +26,5 @@ CVE-2022-42004
 # Suppression for apache common-text 1.9 as bundled with application insights
 #   can be suppressed for the time being as it will be fixed in next version of application insights
 CVE-2022-42889
+# Suppression for hsqldb vulnerability as don't run hsqldb in production
+CVE-2022-41853
