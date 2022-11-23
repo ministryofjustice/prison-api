@@ -58,7 +58,7 @@ class OffenderResourceIntTest_getHousingLocation : ResourceTest() {
       OffenderBookingBuilder(cellLocation = "LEI-A-1-10", prisonId = "LEI")
     ).save(testDataContext).offenderNo
 
-    val location = webTestClient.get()
+    webTestClient.get()
       .uri("/api/offenders/{offenderNo}/housing-location", offenderNo)
       .headers(
         setAuthorisation(
@@ -73,5 +73,30 @@ class OffenderResourceIntTest_getHousingLocation : ResourceTest() {
       .jsonPath("levels[*].level").isEqualTo(JSONArray().also { it.addAll(listOf(1, 2, 3)) })
       .jsonPath("levels[*].code").isEqualTo(JSONArray().also { it.addAll(listOf("A", "1", "10")) })
       .jsonPath("levels[*].type").isEqualTo(JSONArray().also { it.addAll(listOf("WING", "LAND", "CELL")) })
+      .jsonPath("levels[*].description").isEqualTo(JSONArray().also { it.addAll(listOf("Block A", "Landing A/1", "Cell 10")) })
+  }
+
+  @Test
+  internal fun `response with levels for offender in reception`() {
+    val offenderNo = OffenderBuilder().withBooking(
+      OffenderBookingBuilder(cellLocation = "LEI-RECP", prisonId = "LEI")
+    ).save(testDataContext).offenderNo
+
+    webTestClient.get()
+      .uri("/api/offenders/{offenderNo}/housing-location", offenderNo)
+      .headers(
+        setAuthorisation(
+          listOf("ROLE_SYSTEM_USER")
+        )
+      )
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .accept(MediaType.APPLICATION_JSON)
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("levels[*].level").isEqualTo(JSONArray().also { it.addAll(listOf(1)) })
+      .jsonPath("levels[*].code").isEqualTo(JSONArray().also { it.addAll(listOf("RECP")) })
+      .jsonPath("levels[0].type").doesNotExist()
+      .jsonPath("levels[*].description").isEqualTo(JSONArray().also { it.addAll(listOf("RECP")) })
   }
 }
