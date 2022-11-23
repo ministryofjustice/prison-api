@@ -746,6 +746,7 @@ public class OffenderResource {
         Level 1 is the top level, so normally a wing or a house block and level 3 / 4 will be the individual cell.</p>
         <p>This endpoint returns the prison levels as recorded in NOMIS and may not accurately reflect the physical layout of the prison.
         For example Bristol has wings, spurs and landings, but this endpoint will only return wings and landings as spurs are not mapped in NOMIS.
+        Another example is Moorland where 5-1-B-014 in NOMIS is Wing 5, Landing 1, Cell B and Cell 014, whereas in reality it should be Houseblock 5, Spur 1, Wing B and Cell 014 instead.
         This endpoint will therefore also return different information from Whereabouts API as that service re-maps the NOMIS layout to include spurs etc.</p>
         """)
     @GetMapping("/{offenderNo}/housing-location")
