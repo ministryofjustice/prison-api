@@ -67,6 +67,9 @@ public class OffenderContact {
     @Schema(description = "List of emails associated with the contact")
     private List<Email> emails;
 
+    @Schema(description = "List of phone numbers associated with the contact")
+    private List<Telephone> phones;
+
     @Schema(description = "List of restrictions associated with the contact")
     private List<VisitorRestriction> restrictions;
 
