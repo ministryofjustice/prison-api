@@ -906,6 +906,7 @@ public class BookingService {
                                 .bookingId(oc.getOffenderBooking().getBookingId())
                                 .emails(oc.getPerson().getEmails().stream().map(email ->
                                         Email.builder().email(email.getInternetAddress()).build()).collect(toList()))
+                                .phones(AddressTransformer.translatePhones(oc.getPerson().getPhones()))
                                 .middleName(WordUtils.capitalizeFully(oc.getPerson().getMiddleName()))
                                 .restrictions(mergeGlobalAndStandardRestrictions(oc))
                                 .active(oc.isActive())
