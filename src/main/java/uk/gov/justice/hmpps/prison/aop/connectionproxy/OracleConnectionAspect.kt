@@ -28,7 +28,7 @@ class OracleConnectionAspect(
 ) : AbstractConnectionAspect() {
 
   @Throws(SQLException::class)
-  public override fun openProxySessionIfIdentifiedAuthentication(pooledConnection: Connection): Connection =
+  public override fun configureNomisConnection(pooledConnection: Connection): Connection =
     with(pooledConnection) {
       when {
         isNomisProxyUser() -> openProxySessionConnection()
@@ -40,7 +40,7 @@ class OracleConnectionAspect(
 
   @Throws(SQLException::class)
   private fun Connection.openProxySessionConnection(): Connection {
-    log.info("Configuring Oracle Proxy Session for NOMIS user {}", this)
+    log.info("Configuring Oracle Proxy Session")
     assertNotSlow()
     this.openProxySessionForCurrentUsername()
       .also { oracleConnection -> roleConfigurer.setRoleForConnection(oracleConnection) }
@@ -61,13 +61,12 @@ class OracleConnectionAspect(
     return (this.unwrap(Connection::class.java) as OracleConnection)
       .also { oracleConnection ->
         oracleConnection.openProxySession(OracleConnection.PROXYTYPE_USER_NAME, info)
-        log.debug("Proxy Connection for {} successful", currentUsername)
       }
   }
 
   @Throws(SQLException::class)
   private fun Connection.openResettableContextConnection(): Connection {
-    log.info("Configuring session for client credentials user {}", this)
+    log.info("Configuring session for client credentials user")
     assertNotSlow()
     return ResettableContextConnection(this)
       .also { connection ->
@@ -78,7 +77,7 @@ class OracleConnectionAspect(
 
   @Throws(SQLException::class)
   private fun Connection.openXtagsSuppressingConnection(): Connection {
-    log.info("Configuring session for no user suppressing XTag events {}", this)
+    log.info("Configuring session to suppress XTag events")
     assertNotSlow()
     return ResettableContextConnection(this)
       .also { connection ->

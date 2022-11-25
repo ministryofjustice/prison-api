@@ -66,7 +66,7 @@ class OracleConnectionAspectTest {
 
       @Test
       fun `should open proxy connection`() {
-        connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection)
+        connectionAspect.configureNomisConnection(pooledConnection)
 
         verify(oracleConnection).openProxySession(
           eq(OracleConnection.PROXYTYPE_USER_NAME),
@@ -78,14 +78,14 @@ class OracleConnectionAspectTest {
 
       @Test
       fun `should configure role`() {
-        connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection)
+        connectionAspect.configureNomisConnection(pooledConnection)
 
         verify(roleConfigurer).setRoleForConnection(oracleConnection)
       }
 
       @Test
       fun `should set Nomis context and schema`() {
-        connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection)
+        connectionAspect.configureNomisConnection(pooledConnection)
 
         verify(nomisConfigurer).setDefaultSchema(any<ProxySessionClosingConnection>())
         verify(nomisConfigurer).setNomisContext(any<ProxySessionClosingConnection>(), eq("some user name"), eq("some IP"), eq("some URI"), eq("APP"), eq(false))
@@ -95,14 +95,14 @@ class OracleConnectionAspectTest {
       fun `should suppress Xtag events`() {
         whenever(MDC.get(MdcUtility.SUPPRESS_XTAG_EVENTS)).thenReturn("true")
 
-        connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection)
+        connectionAspect.configureNomisConnection(pooledConnection)
 
         verify(nomisConfigurer).setNomisContext(any<ProxySessionClosingConnection>(), eq("some user name"), eq("some IP"), eq("some URI"), eq("APP"), eq(true))
       }
 
       @Test
       fun `should return proxy connection`() {
-        val conn = connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection)
+        val conn = connectionAspect.configureNomisConnection(pooledConnection)
 
         assertThat(conn).isExactlyInstanceOf(ProxySessionClosingConnection::class.java)
       }
@@ -111,7 +111,7 @@ class OracleConnectionAspectTest {
       fun `should throw if replica`() {
         whenever(RoutingDataSource.isReplica()).thenReturn(true)
 
-        assertThatThrownBy { connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection) }
+        assertThatThrownBy { connectionAspect.configureNomisConnection(pooledConnection) }
           .isInstanceOf(RuntimeException::class.java)
       }
     }
@@ -125,21 +125,21 @@ class OracleConnectionAspectTest {
 
       @Test
       fun `should not open proxy connection`() {
-        connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection)
+        connectionAspect.configureNomisConnection(pooledConnection)
 
         verify(oracleConnection, never()).openProxySession(anyInt(), any())
       }
 
       @Test
       fun `should not configure role`() {
-        connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection)
+        connectionAspect.configureNomisConnection(pooledConnection)
 
         verify(roleConfigurer, never()).setRoleForConnection(any())
       }
 
       @Test
       fun `should set Nomis context and schema`() {
-        connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection)
+        connectionAspect.configureNomisConnection(pooledConnection)
 
         verify(nomisConfigurer).setDefaultSchema(any<ResettableContextConnection>())
         verify(nomisConfigurer).setNomisContext(any<ResettableContextConnection>(), eq("some user name"), eq("some IP"), eq("some URI"), eq("APP"), eq(false))
@@ -149,14 +149,14 @@ class OracleConnectionAspectTest {
       fun `should suppress Xtag events`() {
         whenever(MDC.get(MdcUtility.SUPPRESS_XTAG_EVENTS)).thenReturn("true")
 
-        connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection)
+        connectionAspect.configureNomisConnection(pooledConnection)
 
         verify(nomisConfigurer).setNomisContext(any<ResettableContextConnection>(), eq("some user name"), eq("some IP"), eq("some URI"), eq("APP"), eq(true))
       }
 
       @Test
       fun `should return resettable context connection`() {
-        val conn = connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection)
+        val conn = connectionAspect.configureNomisConnection(pooledConnection)
 
         assertThat(conn).isExactlyInstanceOf(ResettableContextConnection::class.java)
       }
@@ -165,7 +165,7 @@ class OracleConnectionAspectTest {
       fun `should throw if replica`() {
         whenever(RoutingDataSource.isReplica()).thenReturn(true)
 
-        assertThatThrownBy { connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection) }
+        assertThatThrownBy { connectionAspect.configureNomisConnection(pooledConnection) }
           .isInstanceOf(RuntimeException::class.java)
       }
     }
@@ -180,21 +180,21 @@ class OracleConnectionAspectTest {
 
       @Test
       fun `should not open proxy connection`() {
-        connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection)
+        connectionAspect.configureNomisConnection(pooledConnection)
 
         verify(oracleConnection, never()).openProxySession(eq(OracleConnection.PROXYTYPE_USER_NAME), any())
       }
 
       @Test
       fun `should not configure role`() {
-        connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection)
+        connectionAspect.configureNomisConnection(pooledConnection)
 
         verify(roleConfigurer, never()).setRoleForConnection(any())
       }
 
       @Test
       fun `should set Nomis context and schema`() {
-        connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection)
+        connectionAspect.configureNomisConnection(pooledConnection)
 
         verify(nomisConfigurer).setSuppressXtagEvents(any<ResettableContextConnection>())
         verify(nomisConfigurer).setDefaultSchema(any<ResettableContextConnection>())
@@ -202,7 +202,7 @@ class OracleConnectionAspectTest {
 
       @Test
       fun `should return resettable context connection`() {
-        val conn = connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection)
+        val conn = connectionAspect.configureNomisConnection(pooledConnection)
 
         assertThat(conn).isExactlyInstanceOf(ResettableContextConnection::class.java)
       }
@@ -211,7 +211,7 @@ class OracleConnectionAspectTest {
       fun `should throw if replica`() {
         whenever(RoutingDataSource.isReplica()).thenReturn(true)
 
-        assertThatThrownBy { connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection) }
+        assertThatThrownBy { connectionAspect.configureNomisConnection(pooledConnection) }
           .isInstanceOf(RuntimeException::class.java)
       }
     }
@@ -225,21 +225,21 @@ class OracleConnectionAspectTest {
 
       @Test
       fun `should not open proxy connection`() {
-        connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection)
+        connectionAspect.configureNomisConnection(pooledConnection)
 
         verify(oracleConnection, never()).openProxySession(eq(OracleConnection.PROXYTYPE_USER_NAME), any())
       }
 
       @Test
       fun `should not configure role`() {
-        connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection)
+        connectionAspect.configureNomisConnection(pooledConnection)
 
         verify(roleConfigurer, never()).setRoleForConnection(any())
       }
 
       @Test
       fun `should set schema but not Nomis context`() {
-        connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection)
+        connectionAspect.configureNomisConnection(pooledConnection)
 
         verify(nomisConfigurer).setDefaultSchema(pooledConnection)
         verify(nomisConfigurer, never()).setNomisContext(any(), anyString(), anyString(), anyString(), anyString(), anyBoolean())
@@ -249,7 +249,7 @@ class OracleConnectionAspectTest {
       fun `should not throw if replica`() {
         whenever(RoutingDataSource.isReplica()).thenReturn(true)
 
-        connectionAspect.openProxySessionIfIdentifiedAuthentication(pooledConnection)
+        connectionAspect.configureNomisConnection(pooledConnection)
 
         verify(nomisConfigurer).setDefaultSchema(pooledConnection)
       }

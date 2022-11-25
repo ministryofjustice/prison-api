@@ -33,7 +33,7 @@ public class ProxyUserAspect {
         var proxyUser = authenticationFacade.getCurrentUsername();
         try {
             if (proxyUser != null) {
-                log.debug("Proxying User: {} for {}->{}", proxyUser,
+                log.info("Proxying User: {} for {}->{}", proxyUser,
                         joinPoint.getSignature().getDeclaringTypeName(),
                         joinPoint.getSignature().getName());
 

@@ -9,7 +9,7 @@ class ProxySessionClosingConnection(private val connection: Connection) : Connec
 
   @Throws(SQLException::class)
   override fun close() {
-    log.debug("Closing proxy connection {}", this)
+    log.info("Closing proxy connection")
     (connection.unwrap(Connection::class.java) as OracleConnection)
       .also { oracleConnection ->
         closeSession(oracleConnection)
