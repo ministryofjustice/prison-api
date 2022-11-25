@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.6.0-beta"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.7.0-beta"
   kotlin("plugin.spring") version "1.7.21"
   kotlin("plugin.jpa") version "1.7.21"
   kotlin("plugin.lombok") version "1.7.21"
@@ -53,9 +53,9 @@ dependencies {
   implementation("com.zaxxer:HikariCP:5.0.1")
 
   implementation("io.swagger:swagger-annotations:1.6.9")
-  implementation("org.springdoc:springdoc-openapi-ui:1.6.12")
-  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.12")
-  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.12")
+  implementation("org.springdoc:springdoc-openapi-ui:1.6.13")
+  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.13")
+  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.13")
 
   implementation("org.apache.commons:commons-lang3:3.12.0")
   implementation("commons-io:commons-io:2.11.0")
@@ -70,9 +70,9 @@ dependencies {
 
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
-  testImplementation("io.rest-assured:rest-assured:5.2.0")
-  testImplementation("io.rest-assured:json-schema-validator:5.2.0")
-  testImplementation("io.rest-assured:spring-mock-mvc:5.2.0")
+  testImplementation("io.rest-assured:rest-assured:5.3.0")
+  testImplementation("io.rest-assured:json-schema-validator:5.3.0")
+  testImplementation("io.rest-assured:spring-mock-mvc:5.3.0")
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("com.google.code.gson:gson:2.10")
   testImplementation("org.mockito:mockito-inline:4.9.0")
@@ -90,7 +90,7 @@ dependencies {
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
   testImplementation("org.glassfish:javax.el:3.0.0")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.7")
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.9")
 
   testCompileOnly("org.projectlombok:lombok:1.18.24")
 }
