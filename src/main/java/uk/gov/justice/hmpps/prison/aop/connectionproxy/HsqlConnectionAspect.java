@@ -22,7 +22,7 @@ public class HsqlConnectionAspect extends AbstractConnectionAspect {
     }
 
     @Override
-    protected Connection openProxySessionIfIdentifiedAuthentication(final Connection pooledConnection) throws SQLException {
+    protected Connection configureNomisConnection(final Connection pooledConnection) throws SQLException {
         final var userAuthSource = authenticationFacade.getAuthenticationSource();
         final var proxyUser = MDC.get(PROXY_USER);
         if (userAuthSource == NOMIS && !proxyUser.isBlank()) {
