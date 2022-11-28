@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static java.lang.String.format;
-import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.core.ResolvableType.forType;
 
@@ -112,21 +111,6 @@ public class OffenderEventsControllerTest extends ResourceTest {
         final var responseEntity = testRestTemplate.exchange(format("/api/events?from=%s&to=%s&sortBy=%s", filter.getFrom().toString(), filter.getTo().toString(), "TIMESTAMP_ASC"), HttpMethod.GET, requestEntity, new ParameterizedTypeReference<List<OffenderEvent>>() {});
 
         assertThat(responseEntity.getBody()).isSortedAccordingTo(Comparator.comparing(OffenderEvent::getEventDatetime));
-    }
-
-    @Test
-    public void canAccessTestEvents() {
-        final var from = LocalDateTime.of(2018, 10, 29, 15, 30);
-        final var to = from.plusMinutes(5L);
-
-        final var filter = OffenderEventsFilter.builder().from(from).to(to).build();
-
-        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_PRISON_OFFENDER_EVENTS"), null);
-
-        final var responseEntity = testRestTemplate.exchange(format("/api/test-events?from=%s&to=%s&useEnq=true", filter.getFrom().toString(), filter.getTo().toString()), HttpMethod.GET, requestEntity, String.class);
-
-        assertThatStatus(responseEntity, 200);
-        assertThatJson(responseEntity.getBody()).isArray().hasSize(2);
     }
 
     void assertThatJsonFile(final String response, final String jsonFile) {
