@@ -8,7 +8,7 @@ class ResettableContextConnection(private val connection: Connection) : Connecti
 
   @Throws(SQLException::class)
   override fun close() {
-    log.debug("Closing context clearing connection {}", this)
+    log.info("Closing resettable context connection")
     resetContext()
     connection.close()
   }

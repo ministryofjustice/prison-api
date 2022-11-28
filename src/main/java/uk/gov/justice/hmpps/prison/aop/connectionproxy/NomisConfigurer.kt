@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.aop.connectionproxy
 
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import uk.gov.justice.hmpps.prison.aop.connectionproxy.AppModuleName.MERGE
@@ -34,7 +33,6 @@ class NomisConfigurer(@Value("\${oracle.default.schema}") private val defaultSch
       END;
     """
       .trimIndent()
-      .also { sql -> log.info("Setting NOMIS context to: $sql") }
       .let { sql -> conn.run(sql) }
   }
 
@@ -46,7 +44,6 @@ class NomisConfigurer(@Value("\${oracle.default.schema}") private val defaultSch
       END;
     """
       .trimIndent()
-      .also { sql -> log.info("Setting NOMIS context to: $sql") }
       .let { sql -> conn.run(sql) }
   }
 
@@ -55,9 +52,5 @@ class NomisConfigurer(@Value("\${oracle.default.schema}") private val defaultSch
     if (defaultSchema.isNotBlank()) {
       conn.run("ALTER SESSION SET CURRENT_SCHEMA=$defaultSchema")
     }
-  }
-
-  companion object {
-    val log = LoggerFactory.getLogger(this::class.java)!!
   }
 }
