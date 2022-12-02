@@ -108,8 +108,8 @@ class OffenderResourceIntTest_newOffender : ResourceTest() {
         assertThat(prisoner.offenderId).isNotNull
         assertThat(prisoner.offenderId).isEqualTo(prisoner.rootOffenderId)
         assertThat(prisoner.dateOfBirth).isEqualTo(LocalDate.parse("1995-10-04"))
-        assertThat(prisoner.identifiers).anyMatch { it.type == "PNC" && it.value == "2007/61835T" }
-        assertThat(prisoner.identifiers).anyMatch { it.type == "CRO" && it.value == "163984/21E" }
+        assertThat(prisoner.identifiers).anyMatch { it.type == "PNC" && it.value == "2007/61835T" && it.whenCreated != null }
+        assertThat(prisoner.identifiers).anyMatch { it.type == "CRO" && it.value == "163984/21E" && it.whenCreated != null }
         assertThat(prisoner.physicalAttributes.sexCode).isEqualTo("F")
         assertThat(prisoner.physicalAttributes.gender).isEqualTo("Female")
         assertThat(prisoner.physicalAttributes.ethnicity).isEqualTo("Mixed: White and Asian")

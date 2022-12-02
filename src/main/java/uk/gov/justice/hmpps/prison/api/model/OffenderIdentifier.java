@@ -7,6 +7,7 @@ import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * Offender Identifier
@@ -40,7 +41,10 @@ public class OffenderIdentifier {
     @Schema(description = "Related caseload type", example = "GENERAL")
     private String caseloadType;
 
-    public OffenderIdentifier(@NotBlank String type, @NotBlank String value, String offenderNo, Long bookingId, String issuedAuthorityText, LocalDate issuedDate, String caseloadType) {
+    @Schema(description = "Creation date and time", example = "2018-01-21 15:00:00")
+    private LocalDateTime whenCreated;
+
+    public OffenderIdentifier(@NotBlank String type, @NotBlank String value, String offenderNo, Long bookingId, String issuedAuthorityText, LocalDate issuedDate, String caseloadType, LocalDateTime whenCreated) {
         this.type = type;
         this.value = value;
         this.offenderNo = offenderNo;
@@ -48,6 +52,7 @@ public class OffenderIdentifier {
         this.issuedAuthorityText = issuedAuthorityText;
         this.issuedDate = issuedDate;
         this.caseloadType = caseloadType;
+        this.whenCreated = whenCreated;
     }
 
     public OffenderIdentifier() {
