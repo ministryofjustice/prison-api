@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -173,16 +174,20 @@ public class PrisonerReleaseAndTransferService {
 
         final var offenderBooking = getOffenderBooking(prisonerIdentifier);
         final var lastMovement = offenderBooking.getLastMovement().orElse(null);
-        final var commentText = "Psychiatric Hospital Discharge to " + toLocation.getDescription();
+        final var psychiatricComment = "Psychiatric Hospital Discharge to " + toLocation.getDescription();
         if (lastMovement != null && REL.getCode().equals(lastMovement.getMovementType().getCode())) {
+            final var existingComment = StringUtils.trimToNull(lastMovement.getCommentText());
+            final var commentText = existingComment != null ? existingComment + ". " + psychiatricComment :
+                psychiatricComment;
             // just update the external movement
             lastMovement.setMovementReason(movementReasonRepository.findById(DISCHARGE_TO_PSY_HOSPITAL).orElseThrow(EntityNotFoundException.withMessage(format("No movement reason %s found", DISCHARGE_TO_PSY_HOSPITAL))));
             lastMovement.setToAgency(toLocation);
-            lastMovement.setCommentText(commentText);
+            // commentText has a max length of 240, so ensure that we don't blow that limit
+            lastMovement.setCommentText(StringUtils.left(commentText, 240));
             offenderBooking.setStatusReason(REL.getCode() + "-" + DISCHARGE_TO_PSY_HOSPITAL.getCode());
         } else {
             releasePrisoner(prisonerIdentifier, RequestToReleasePrisoner.builder()
-                .commentText(commentText)
+                .commentText(psychiatricComment)
                 .releaseTime(requestToDischargePrisoner.getDischargeTime())
                 .movementReasonCode(DISCHARGE_TO_PSY_HOSPITAL.getCode())
                 .toLocationCode(toLocation.getId())
