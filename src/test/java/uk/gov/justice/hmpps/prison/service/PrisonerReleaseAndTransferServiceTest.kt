@@ -134,7 +134,8 @@ internal class PrisonerReleaseAndTransferServiceTest {
     @Test
     internal fun `existing booking with last movement as release - no comment`() {
       service.dischargeToHospital(
-        "A2345C", RequestToDischargePrisoner(
+        "A2345C",
+        RequestToDischargePrisoner(
           "BMARSH", null, "comment text", "MDI", "MDI"
         )
       )
@@ -147,7 +148,8 @@ internal class PrisonerReleaseAndTransferServiceTest {
       movement.commentText = "       "
 
       service.dischargeToHospital(
-        "A2345C", RequestToDischargePrisoner(
+        "A2345C",
+        RequestToDischargePrisoner(
           "BMARSH", null, "comment text", "MDI", "MDI"
         )
       )
@@ -159,7 +161,8 @@ internal class PrisonerReleaseAndTransferServiceTest {
     internal fun `existing booking with last movement as release - small comment`() {
       movement.commentText = "Some comment"
       service.dischargeToHospital(
-        "A2345C", RequestToDischargePrisoner(
+        "A2345C",
+        RequestToDischargePrisoner(
           "BMARSH", null, "comment text", "MDI", "MDI"
         )
       )
@@ -171,7 +174,8 @@ internal class PrisonerReleaseAndTransferServiceTest {
     internal fun `existing booking with last movement as release - long comment`() {
       movement.commentText = "Some comment".repeat(19)
       service.dischargeToHospital(
-        "A2345C", RequestToDischargePrisoner(
+        "A2345C",
+        RequestToDischargePrisoner(
           "BMARSH", null, "comment text", "MDI", "MDI"
         )
       )
