@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.7.0-beta"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.7.1"
   kotlin("plugin.spring") version "1.7.21"
   kotlin("plugin.jpa") version "1.7.21"
   kotlin("plugin.lombok") version "1.7.21"
@@ -60,7 +60,7 @@ dependencies {
   implementation("org.apache.commons:commons-lang3:3.12.0")
   implementation("commons-io:commons-io:2.11.0")
   implementation("org.apache.commons:commons-text:1.10.0")
-  implementation("com.oracle.database.jdbc:ojdbc10:19.16.0.0")
+  implementation("com.oracle.database.jdbc:ojdbc10:19.17.0.0")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
   compileOnly("org.projectlombok:lombok:1.18.24")
@@ -82,10 +82,10 @@ dependencies {
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.36.0")
 
-  testImplementation("net.serenity-bdd:serenity-core:3.4.2")
-  testImplementation("net.serenity-bdd:serenity-junit:3.4.2")
-  testImplementation("net.serenity-bdd:serenity-spring:3.4.2")
-  testImplementation("net.serenity-bdd:serenity-cucumber:3.4.2")
+  testImplementation("net.serenity-bdd:serenity-core:3.4.3")
+  testImplementation("net.serenity-bdd:serenity-junit:3.4.3")
+  testImplementation("net.serenity-bdd:serenity-spring:3.4.3")
+  testImplementation("net.serenity-bdd:serenity-cucumber:3.4.3")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
