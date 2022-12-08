@@ -1,8 +1,8 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.7.1"
-  kotlin("plugin.spring") version "1.7.21"
-  kotlin("plugin.jpa") version "1.7.21"
-  kotlin("plugin.lombok") version "1.7.21"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.7.2-beta-1"
+  kotlin("plugin.spring") version "1.7.22"
+  kotlin("plugin.jpa") version "1.7.22"
+  kotlin("plugin.lombok") version "1.7.22"
 }
 
 configurations {
