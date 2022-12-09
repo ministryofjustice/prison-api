@@ -40,6 +40,7 @@ class PrisonerCreationServiceTest {
       offenderRepository = mock(),
       offenderTransformer = mock(),
       prisonerRepository = prisonerRepository,
+      bookingIntoPrisonService = mock(),
     )
   }
 
