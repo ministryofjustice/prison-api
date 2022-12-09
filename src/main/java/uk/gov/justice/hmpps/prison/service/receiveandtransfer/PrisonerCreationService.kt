@@ -39,6 +39,7 @@ class PrisonerCreationService(
   private val offenderRepository: OffenderRepository,
   private val offenderTransformer: OffenderTransformer,
   private val prisonerRepository: PrisonerRepository,
+  private val bookingIntoPrisonService: BookingIntoPrisonService,
 ) {
   fun createPrisoner(requestToCreate: RequestToCreate): InmateDetail {
     val gender: Gender = gender(requestToCreate.gender).getOrThrow()
@@ -72,11 +73,14 @@ class PrisonerCreationService(
         .withLastNameSoundex(Soundex().soundex(lastName))
     ).also { newPrisoner ->
       newPrisoner.rootOffenderId = newPrisoner.id
+      newPrisoner.rootOffender = newPrisoner
       validPncNumber?.let { newPrisoner.addIdentifier("PNC", it) }
       validCroNumber?.let { newPrisoner.addIdentifier("CRO", it) }
     }
 
-    return offenderTransformer.transform(prisoner)
+    return prisoner.takeIf { requestToCreate.booking != null }
+      ?.let { bookingIntoPrisonService.newBooking(it, requestToCreate.booking) }
+      ?: offenderTransformer.transform(prisoner)
   }
 
   fun getNextPrisonerIdentifier(): PrisonerIdentifier {

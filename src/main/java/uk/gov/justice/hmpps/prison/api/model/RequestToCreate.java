@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -74,5 +75,8 @@ public class RequestToCreate {
     @Schema(description = "The offender's CRO (Criminal Records Office) number.")
     @Size(max = 20)
     private String croNumber;
+
+    @Schema(description = "Optional prison booking data for the offender.", requiredMode = RequiredMode.NOT_REQUIRED)
+    private RequestForNewBooking booking;
 
 }
