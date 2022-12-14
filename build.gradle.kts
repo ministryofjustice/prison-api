@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.7.2-beta-1"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.7.4"
   kotlin("plugin.spring") version "1.7.22"
   kotlin("plugin.jpa") version "1.7.22"
   kotlin("plugin.lombok") version "1.7.22"
@@ -82,10 +82,10 @@ dependencies {
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.36.0")
 
-  testImplementation("net.serenity-bdd:serenity-core:3.4.3")
-  testImplementation("net.serenity-bdd:serenity-junit:3.4.3")
-  testImplementation("net.serenity-bdd:serenity-spring:3.4.3")
-  testImplementation("net.serenity-bdd:serenity-cucumber:3.4.3")
+  testImplementation("net.serenity-bdd:serenity-core:3.5.0")
+  testImplementation("net.serenity-bdd:serenity-junit:3.5.0")
+  testImplementation("net.serenity-bdd:serenity-spring:3.5.0")
+  testImplementation("net.serenity-bdd:serenity-cucumber:3.5.0")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
