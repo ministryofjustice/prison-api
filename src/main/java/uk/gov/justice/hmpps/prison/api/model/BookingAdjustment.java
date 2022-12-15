@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.With;
 import uk.gov.justice.hmpps.prison.api.support.BookingAdjustmentType;
 
 import java.time.LocalDate;
@@ -14,6 +15,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 @Data
+@With
 public class BookingAdjustment {
     @Schema(description = "Adjustment type", allowableValues = "SPECIAL_REMISSION, ADDITIONAL_DAYS_AWARDED, RESTORED_ADDITIONAL_DAYS_AWARDED, UNLAWFULLY_AT_LARGE, LAWFULLY_AT_LARGE")
     private BookingAdjustmentType type;

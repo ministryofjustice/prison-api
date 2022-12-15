@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.With;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
 
 import javax.persistence.Column;
@@ -27,6 +28,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = { "id" }, callSuper = false)
+@With
 @Table(name = "OFFENDER_SENTENCE_TERMS")
 public class SentenceTerm extends AuditableEntity {
 

@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.web.config
 
 import io.swagger.v3.oas.models.Components
 import io.swagger.v3.oas.models.OpenAPI
+import io.swagger.v3.oas.models.Operation
 import io.swagger.v3.oas.models.info.Contact
 import io.swagger.v3.oas.models.info.Info
 import io.swagger.v3.oas.models.info.License
@@ -12,9 +13,13 @@ import io.swagger.v3.oas.models.security.SecurityRequirement
 import io.swagger.v3.oas.models.security.SecurityScheme
 import io.swagger.v3.oas.models.servers.Server
 import org.springdoc.core.customizers.OpenApiCustomiser
+import org.springdoc.core.customizers.OperationCustomizer
 import org.springframework.boot.info.BuildProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.stereotype.Component
+import org.springframework.web.method.HandlerMethod
+import uk.gov.justice.hmpps.prison.core.SlowReportQuery
 
 @Configuration
 class OpenApiConfiguration(buildProperties: BuildProperties) {
@@ -50,6 +55,10 @@ class OpenApiConfiguration(buildProperties: BuildProperties) {
             
             All times sent to the API should be sent in local time without the timezone e.g. YYYY-MM-DDTHH:MM:SS.
             All times returned in responses will be in Europe / London local time unless otherwise stated.
+            
+            Some endpoints are described as using the Replica database, a read-only copy of the live database which at
+            time of writing lags by < 1 second up to approximately 2 seconds. These endpoints are not suitable for use
+            by services reacting to events or refreshing web pages where a change has just been made.
             """
         )
         .contact(Contact().name("HMPPS Digital Studio").email("feedback@digital.justice.gov.uk"))
@@ -75,5 +84,15 @@ class OpenApiConfiguration(buildProperties: BuildProperties) {
         }
       }
     }
+  }
+}
+
+@Component
+class SlowReportQueryCustomizer : OperationCustomizer {
+  override fun customize(operation: Operation, handlerMethod: HandlerMethod): Operation {
+    handlerMethod.getMethodAnnotation(SlowReportQuery::class.java)?.let {
+      operation.description("${operation.description ?: ""}<p>This endpoint uses the REPLICA database.</p>")
+    }
+    return operation
   }
 }

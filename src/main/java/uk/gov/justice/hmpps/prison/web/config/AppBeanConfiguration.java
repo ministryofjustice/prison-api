@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.module.kotlin.KotlinModule;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +20,7 @@ public class AppBeanConfiguration {
     public Jackson2ObjectMapperBuilderCustomizer objectMapperBuilder() {
         return builder -> builder
                 .dateFormat(new StdDateFormat())
-                .modules(new JavaTimeModule())
+                .modules(new JavaTimeModule(), new KotlinModule.Builder().build())
                 .featuresToDisable(
                         SerializationFeature.INDENT_OUTPUT,
                         DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,

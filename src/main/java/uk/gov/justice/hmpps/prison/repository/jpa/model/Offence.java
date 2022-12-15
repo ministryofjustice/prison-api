@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Type;
 
@@ -26,6 +27,8 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.apache.commons.lang3.StringUtils.isNumeric;
 
 @AllArgsConstructor
 @Builder
@@ -87,4 +90,9 @@ public class Offence {
     @BatchSize(size = 25)
     private List<OffenceIndicator> offenceIndicators = new ArrayList<>();
 
+    public boolean isMoreSeriousThan(Offence other) {
+        return isNumeric(this.getSeverityRanking()) && isNumeric(other.getSeverityRanking()) &&
+            //Smaller number is more severe
+            Long.parseLong(this.getSeverityRanking()) < Long.parseLong(other.getSeverityRanking());
+    }
 }

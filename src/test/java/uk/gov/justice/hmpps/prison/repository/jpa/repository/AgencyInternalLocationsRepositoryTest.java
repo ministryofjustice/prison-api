@@ -6,6 +6,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.LivingUnitReferenceCode;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -43,7 +44,7 @@ public class AgencyInternalLocationsRepositoryTest {
 
         final var locations = repository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive("SYI", "CELL", true);
 
-        final var actual = locations.stream().filter(l -> l.getLocationId().equals(expected.getLocationId())).findFirst().get();
+        final var actual = locations.stream().filter(l -> l.getLocationId().equals(expected.getLocationId())).findFirst().orElseThrow();
         assertThat(actual).isEqualTo(expected);
     }
 
@@ -52,9 +53,17 @@ public class AgencyInternalLocationsRepositoryTest {
         final var location = repository.findByLocationCodeAndAgencyId("CSWAP", "LEI")
                 .stream()
                 .findFirst()
-                .get();
+                .orElseThrow();
 
         assertThat(location.getDescription()).isEqualTo("LEI-CSWAP");
+    }
+
+    @Test
+    public void findLivingUnit() {
+        final var location = repository.findOneByLocationId(-200L).orElseThrow();
+
+        assertThat(location.getLocationType()).isEqualTo("WING");
+        assertThat(location.getLivingUnit()).isEqualTo(new LivingUnitReferenceCode("WING", "Wing"));
     }
 
 }

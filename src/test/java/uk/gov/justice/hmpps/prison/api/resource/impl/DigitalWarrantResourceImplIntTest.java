@@ -4,16 +4,20 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.transaction.annotation.Transactional;
+import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Adjustment;
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.CourtCase;
-import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Offence;
+import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Charge;
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Sentence;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase;
+import uk.gov.justice.hmpps.prison.api.support.BookingAdjustmentType;
+import uk.gov.justice.hmpps.prison.api.support.SentenceAdjustmentType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.KeyDateAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderChargeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCourtCaseRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRepository;
 
 import java.time.LocalDate;
@@ -35,6 +39,12 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
 
     @Autowired
     private OffenderBookingRepository offenderBookingRepository;
+
+    @Autowired
+    private OffenderSentenceAdjustmentRepository offenderSentenceAdjustmentRepository;
+
+    @Autowired
+    private OffenderKeyDateAdjustmentRepository offenderKeyDateAdjustmentRepository;
     @Test
     @Transactional(readOnly = true)
     public void createCourtCase_success() {
@@ -44,6 +54,7 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
             CourtCase.builder()
                 .agencyId("BMI")
                 .caseType("A")
+                .hearingType("FE")
                 .caseInfoNumber("ABC123")
                 .beginDate(LocalDate.of(2022, 10, 12))
                 .build()
@@ -60,7 +71,7 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
 
         assertThatStatus(responseEntity, 201);
 
-        OffenderCourtCase created = offenderCourtCaseRepository.findById(Long.valueOf(Objects.requireNonNull(responseEntity.getBody()))).orElseGet(() -> fail("Coudn't find created court case"));
+        var created = offenderCourtCaseRepository.findById(Long.valueOf(Objects.requireNonNull(responseEntity.getBody()))).orElseGet(() -> fail("Coudn't find created court case"));
 
         assertThat(created.getAgencyLocation().getDescription()).isEqualTo("BIRMINGHAM");
         assertThat(created.getCaseSeq()).isEqualTo(2);
@@ -70,11 +81,11 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
 
     @Test
     @Transactional(readOnly = true)
-    public void offence_success() {
-        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody(
+    public void charge_success() {
+        var requestEntity = createHttpEntityWithBearerAuthorisationAndBody(
             "RO_USER",
             List.of("ROLE_MANAGE_DIGITAL_WARRANT"),
-            Offence.builder()
+            Charge.builder()
                 .offenceCode("RV98011")
                 .offenceStatue("RV98")
                 .offenceDate(LocalDate.of(2022, 10, 10))
@@ -84,9 +95,9 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
                 .build()
         );
 
-        final var responseEntity = testRestTemplate
+        var responseEntity = testRestTemplate
             .exchange(
-                "/api/digital-warrant/booking/-59/offence",
+                "/api/digital-warrant/booking/-59/charge",
                 HttpMethod.POST,
                 requestEntity,
                 String.class
@@ -94,7 +105,7 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
 
         assertThatStatus(responseEntity, 201);
 
-        OffenderCharge created = offenderChargeRepository.findById(Long.valueOf(Objects.requireNonNull(responseEntity.getBody()))).orElseGet(() -> fail("Offence was not created."));
+        var created = offenderChargeRepository.findById(Long.valueOf(Objects.requireNonNull(responseEntity.getBody()))).orElseGet(() -> fail("Offence was not created."));
 
         assertThat(created.getOffence().getStatute().getCode()).isEqualTo("RV98");
         assertThat(created.getOffence().getCode()).isEqualTo("RV98011");
@@ -102,6 +113,10 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
         assertThat(created.getEndDate()).isEqualTo(LocalDate.of(2022, 10, 12));
         assertThat(created.getResultCodeOne().getDescription()).isEqualTo("Not Guilty");
         assertThat(created.getOffenderCourtCase().getId()).isEqualTo(-59L);
+
+        var lessSeriousCharge = offenderChargeRepository.findById(-11L).get();
+        assertThat(created.getMostSeriousFlag()).isEqualTo("Y");
+        assertThat(lessSeriousCharge.getMostSeriousFlag()).isEqualTo("N");
     }
 
 
@@ -113,8 +128,8 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
             "RO_USER",
             List.of("ROLE_MANAGE_DIGITAL_WARRANT"),
             Sentence.builder()
-                .sentenceType("ADIMP_ORA")
-                .sentenceCategory("2003")
+                .sentenceType("ADIMP")
+                .sentenceCategory("2020")
                 .sentenceDate(LocalDate.of(2022, 10, 10))
                 .years(1)
                 .months(2)
@@ -137,6 +152,7 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
 
         OffenderSentence created = offenderSentenceRepository.findById(new OffenderSentence.PK(-59L, Integer.valueOf(Objects.requireNonNull(responseEntity.getBody())))).orElseGet(() -> fail("Sentence was not created."));
 
+        assertThat(created.getSequence()).isEqualTo(2);
         assertThat(created.getTerms().size()).isEqualTo(1);
         assertThat(created.getTerms().get(0).getYears()).isEqualTo(1);
         assertThat(created.getTerms().get(0).getMonths()).isEqualTo(2);
@@ -147,13 +163,92 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
         assertThat(created.getSentenceStartDate()).isEqualTo(LocalDate.of(2022, 10, 10));
         assertThat(created.getCourtCase().getId()).isEqualTo(-59L);
 
+        assertThat(created.getCourtOrder().getCourtDate()).isEqualTo(LocalDate.of(2022, 10, 10));
+
+
         assertThat(created.getOffenderSentenceCharges().size()).isEqualTo(1);
         assertThat(created.getOffenderSentenceCharges().get(0).getOffenderCharge().getId()).isEqualTo(-11L);
 
-        assertThat(created.getCalculationType().getCalculationType()).isEqualTo("ADIMP_ORA");
-        assertThat(created.getCalculationType().getCategory()).isEqualTo("2003");
+        assertThat(created.getCalculationType().getCalculationType()).isEqualTo("ADIMP");
+        assertThat(created.getCalculationType().getCategory()).isEqualTo("2020");
+
+        assertThat(created.getCourtOrder().getCourtEvent().getOutcomeReasonCode().getDescription()).isEqualTo("Imprisonment");
+
+        assertThat(created.getOffenderBooking().getActiveImprisonmentStatus().get().getImprisonmentStatus().getStatus()).isEqualTo("SENT03");
+
     }
 
+
+    @Test
+    @Transactional(readOnly = true)
+    public void sentenceAdjustment_success() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody(
+            "RO_USER",
+            List.of("ROLE_MANAGE_DIGITAL_WARRANT"),
+            Adjustment.builder()
+                .days(10)
+                .from(LocalDate.of(2022, 10, 1))
+                .to(LocalDate.of(2022, 11, 1))
+                .days(30)
+                .sequence(1)
+                .type(SentenceAdjustmentType.REMAND.name())
+                .build()
+        );
+
+        final var responseEntity = testRestTemplate
+            .exchange(
+                "/api/digital-warrant/booking/-59/adjustment",
+                HttpMethod.POST,
+                requestEntity,
+                String.class
+            );
+
+        assertThatStatus(responseEntity, 201);
+
+        SentenceAdjustment created = offenderSentenceAdjustmentRepository.findById(Long.valueOf(Objects.requireNonNull(responseEntity.getBody()))).orElseGet(() -> fail("Adjustment was not created."));
+
+        assertThat(created.getAdjustDays()).isEqualTo(30);
+        assertThat(created.getAdjustFromDate()).isEqualTo(LocalDate.of(2022, 10, 1));
+        assertThat(created.getAdjustToDate()).isEqualTo(LocalDate.of(2022, 11, 1));
+        assertThat(created.getSentenceAdjustCode()).isEqualTo("RX");
+        assertThat(created.getOffenderBooking().getBookingId()).isEqualTo(-59L);
+        assertThat(created.getSentenceSeq()).isEqualTo(1);
+
+    }
+    @Test
+    @Transactional(readOnly = true)
+    public void bookingAdjustment_success() {
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody(
+            "RO_USER",
+            List.of("ROLE_MANAGE_DIGITAL_WARRANT"),
+            Adjustment.builder()
+                .days(10)
+                .from(LocalDate.of(2022, 10, 1))
+                .to(LocalDate.of(2022, 11, 1))
+                .days(30)
+                .type(BookingAdjustmentType.UNLAWFULLY_AT_LARGE.name())
+                .build()
+        );
+
+        final var responseEntity = testRestTemplate
+            .exchange(
+                "/api/digital-warrant/booking/-59/adjustment",
+                HttpMethod.POST,
+                requestEntity,
+                String.class
+            );
+
+        assertThatStatus(responseEntity, 201);
+
+        KeyDateAdjustment created = offenderKeyDateAdjustmentRepository.findById(Long.valueOf(Objects.requireNonNull(responseEntity.getBody()))).orElseGet(() -> fail("Adjustment was not created."));
+
+        assertThat(created.getAdjustDays()).isEqualTo(30);
+        assertThat(created.getAdjustFromDate()).isEqualTo(LocalDate.of(2022, 10, 1));
+        assertThat(created.getAdjustToDate()).isEqualTo(LocalDate.of(2022, 11, 1));
+        assertThat(created.getSentenceAdjustCode()).isEqualTo("UAL");
+        assertThat(created.getOffenderBooking().getBookingId()).isEqualTo(-59L);
+
+    }
     @Test
     @Transactional(readOnly = true)
     public void courtCaseOffenceAndSentence_success() {
@@ -163,6 +258,7 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
             CourtCase.builder()
                 .agencyId("BMI")
                 .caseType("A")
+                .hearingType("FE")
                 .caseInfoNumber("ABC123")
                 .beginDate(LocalDate.of(2022, 10, 12))
                 .build()
@@ -178,10 +274,10 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
             );
 
 
-        final var offenceRequestEntity = createHttpEntityWithBearerAuthorisationAndBody(
+        final var chargeRequestEntity = createHttpEntityWithBearerAuthorisationAndBody(
             "RO_USER",
             List.of("ROLE_MANAGE_DIGITAL_WARRANT"),
-            Offence.builder()
+            Charge.builder()
                 .offenceCode("RV98011")
                 .offenceStatue("RV98")
                 .offenceDate(LocalDate.of(2022, 10, 10))
@@ -191,11 +287,11 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
                 .build()
         );
 
-        final var offenceResponseEntity = testRestTemplate
+        final var chargeResponseEntity = testRestTemplate
             .exchange(
-                "/api/digital-warrant/booking/-60/offence",
+                "/api/digital-warrant/booking/-60/charge",
                 HttpMethod.POST,
-                offenceRequestEntity,
+                chargeRequestEntity,
                 String.class
             );
 
@@ -212,7 +308,7 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
                 .months(2)
                 .weeks(3)
                 .days(4)
-                .offenderChargeId(Long.valueOf(Objects.requireNonNull(offenceResponseEntity.getBody())))
+                .offenderChargeId(Long.valueOf(Objects.requireNonNull(chargeResponseEntity.getBody())))
                 .courtCaseId(Long.valueOf(Objects.requireNonNull(courtResponseEntity.getBody())))
                 .build()
         );
@@ -234,6 +330,6 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
         assertThat(sentence.getOffenderSentenceCharges().get(0).getOffenderCharge().getOffence().getCode()).isEqualTo("RV98011");
 
         assertThat(sentence.getCourtCase().getCaseInfoNumber()).isEqualTo("ABC123");
-
+        assertThat(sentence.getOffenderBooking().getActiveImprisonmentStatus().get().getImprisonmentStatus().getStatus()).isEqualTo("ADIMP_ORA");
     }
 }

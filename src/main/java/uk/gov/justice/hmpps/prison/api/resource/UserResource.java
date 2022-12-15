@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,9 +26,9 @@ import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.api.model.UserDetail;
 import uk.gov.justice.hmpps.prison.api.model.UserRole;
-import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
+import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.CaseLoadService;
 import uk.gov.justice.hmpps.prison.service.CaseNoteService;
@@ -80,6 +79,7 @@ public class UserResource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of caseloads accessible to current user.", description = "List of caseloads accessible to current user.")
     @GetMapping("/me/caseLoads")
+    @SlowReportQuery
     public List<CaseLoad> getMyCaseLoads(@RequestParam(value = "allCaseloads", required = false, defaultValue = "false") @Parameter(description = "If set to true then all caseloads are returned") final boolean allCaseloads) {
         return userService.getCaseLoads(authenticationFacade.getCurrentUsername(), allCaseloads);
     }
@@ -91,7 +91,7 @@ public class UserResource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of all case note types (with sub-types) accessible to current user (and based on working caseload).", description = "List of all case note types (with sub-types) accessible to current user (and based on working caseload).")
     @GetMapping("/me/caseNoteTypes")
-    public List<ReferenceCode> getMyCaseNoteTypes(@RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>code, activeFlag, description</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
+    public List<ReferenceCode> getMyCaseNoteTypes() {
         final var currentCaseLoad =
                 caseLoadService.getWorkingCaseLoadForUser(authenticationFacade.getCurrentUsername());
 
@@ -106,6 +106,7 @@ public class UserResource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of locations accessible to current user.", description = "List of locations accessible to current user.")
     @GetMapping("/me/locations")
+    @SlowReportQuery
     public List<Location> getMyLocations() {
         return locationService.getUserLocations(authenticationFacade.getCurrentUsername());
     }
@@ -149,6 +150,7 @@ public class UserResource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "User detail.", description = "User detail.")
     @GetMapping("/{username}")
+    @SlowReportQuery
     public UserDetail getUserDetails(@PathVariable("username") @Parameter(description = "The username of the user.", required = true) final String username) {
         return userService.getUserByUsername(username.toUpperCase());
     }

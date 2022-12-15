@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.With;
 import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.Column;
@@ -25,6 +26,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = { "id" }, callSuper = false)
+@With
 @Table(name = "OFFENDER_SENTENCE_CHARGES")
 @BatchSize(size = 25)
 public class OffenderSentenceCharge extends AuditableEntity {

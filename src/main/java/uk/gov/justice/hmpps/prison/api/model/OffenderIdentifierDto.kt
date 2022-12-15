@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.model
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 data class OffenderIdentifierDto(
   val type: String?,
@@ -9,6 +10,7 @@ data class OffenderIdentifierDto(
   val issuedAuthorityText: String?,
   val issuedDate: LocalDate?,
   val caseloadType: String?,
+  val whenCreated: LocalDateTime
 ) {
   fun toOffenderIdentifier() = OffenderIdentifier(
     this.type,
@@ -18,5 +20,6 @@ data class OffenderIdentifierDto(
     this.issuedAuthorityText,
     this.issuedDate,
     this.caseloadType,
+    this.whenCreated
   )
 }

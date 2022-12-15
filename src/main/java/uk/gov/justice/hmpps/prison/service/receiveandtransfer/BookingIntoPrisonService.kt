@@ -74,7 +74,9 @@ class BookingIntoPrisonService(
   authenticationFacade = authenticationFacade
 ) {
   fun newBooking(prisonerIdentifier: String, requestForNewBooking: RequestForNewBooking): InmateDetail {
-    val offender = offender(prisonerIdentifier).getOrThrow()
+    return newBooking(offender(prisonerIdentifier).getOrThrow(), requestForNewBooking)
+  }
+  fun newBooking(offender: Offender, requestForNewBooking: RequestForNewBooking): InmateDetail {
     val previousBooking: OffenderBooking? = previousInactiveBooking(offender).getOrThrow()
     val imprisonmentStatus: ImprisonmentStatus =
       imprisonmentStatus(requestForNewBooking.imprisonmentStatus).getOrThrow()

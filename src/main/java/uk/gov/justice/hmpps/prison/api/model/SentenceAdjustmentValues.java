@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.With;
 import uk.gov.justice.hmpps.prison.api.support.SentenceAdjustmentType;
 
 import java.time.LocalDate;
@@ -14,6 +15,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 @Data
+@With
 public class SentenceAdjustmentValues {
     @Schema(description = "Sentence sequence", example = "1")
     private Integer sentenceSequence;

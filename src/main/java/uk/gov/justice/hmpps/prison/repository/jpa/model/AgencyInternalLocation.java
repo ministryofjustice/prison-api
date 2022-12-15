@@ -9,6 +9,10 @@ import lombok.ToString;
 import lombok.ToString.Exclude;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.JoinColumnOrFormula;
+import org.hibernate.annotations.JoinColumnsOrFormulas;
+import org.hibernate.annotations.JoinFormula;
+import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
@@ -19,6 +23,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.util.Objects;
+
+import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
 @Getter
 @ToString
@@ -44,6 +50,14 @@ public class AgencyInternalLocation {
 
     @Column(name = "INTERNAL_LOCATION_TYPE")
     private String locationType;
+
+    @ManyToOne
+    @NotFound(action = IGNORE)
+    @JoinColumnsOrFormulas(value = {
+        @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + LivingUnitReferenceCode.DOMAIN + "'", referencedColumnName = "domain")),
+        @JoinColumnOrFormula(column = @JoinColumn(name = "INTERNAL_LOCATION_TYPE", referencedColumnName = "code", insertable = false, updatable = false))
+    })
+    private LivingUnitReferenceCode livingUnit;
 
     @Column(name = "AGY_LOC_ID")
     private String agencyId;

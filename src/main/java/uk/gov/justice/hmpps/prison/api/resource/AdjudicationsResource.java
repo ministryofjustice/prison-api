@@ -8,21 +8,26 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationCreationRequestData;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
+import uk.gov.justice.hmpps.prison.api.model.OicHearingRequest;
+import uk.gov.justice.hmpps.prison.api.model.OicHearingResponse;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.service.AdjudicationsService;
@@ -116,5 +121,59 @@ public class AdjudicationsResource {
     @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS')")
     public List<AdjudicationDetail> getAdjudications(@Parameter(description = "The adjudication numbers", required = true, example = "[1,2,3]") @RequestBody final List<Long> adjudicationNumbers) {
         return adjudicationsService.getAdjudications(adjudicationNumbers);
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Created"),
+        @ApiResponse(responseCode = "403", description = "The client is not authorised for this operation"),
+        @ApiResponse(responseCode = "400", description = "Invalid request - ie missing hearing location or date", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "No match was found for the adjudication number", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
+    })
+    @Operation(summary = "Creates an OIC hearing", description = "Requires MAINTAIN_ADJUDICATIONS access and write scope")
+    @PostMapping("/adjudication/{adjudicationNumber}/hearing")
+    @ProxyUser
+    @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS') and hasAuthority('SCOPE_write')")
+    @ResponseStatus(HttpStatus.CREATED)
+    public OicHearingResponse createOicHearing(
+        @Valid @RequestBody @Parameter(description = "OIC hearing to save", required = true) final OicHearingRequest oicHearingRequest,
+        @PathVariable("adjudicationNumber") final Long adjudicationNumber
+        ) {
+        return adjudicationsService.createOicHearing(adjudicationNumber, oicHearingRequest);
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Oic Hearing updated"),
+        @ApiResponse(responseCode = "403", description = "The client is not authorised for this operation"),
+        @ApiResponse(responseCode = "400", description = "Invalid request - ie missing hearing location or date, or the hearing does not belong to the adjudication", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "No match was found for the adjudication number", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
+    })
+    @Operation(summary = "Amends an OIC hearing", description = "Requires MAINTAIN_ADJUDICATIONS access and write scope")
+    @PutMapping("/adjudication/{adjudicationNumber}/hearing/{oicHearingId}")
+    @ProxyUser
+    @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS') and hasAuthority('SCOPE_write')")
+    @ResponseStatus(HttpStatus.OK)
+    public void amendOicHearing(
+        @Valid @RequestBody @Parameter(description = "OIC hearing to amend", required = true) final OicHearingRequest oicHearingRequest,
+        @PathVariable("adjudicationNumber") final Long adjudicationNumber,
+        @PathVariable("oicHearingId") final Long oicHearingId
+    ) {
+        adjudicationsService.amendOicHearing(adjudicationNumber, oicHearingId, oicHearingRequest);
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Hearing was deleted"),
+        @ApiResponse(responseCode = "403", description = "The client is not authorised for this operation"),
+        @ApiResponse(responseCode = "400", description = "Invalid request - the hearing does not belong to the adjudication", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "No match was found for the adjudication number or hearing id", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
+    })
+    @Operation(summary = "deletes an OIC hearing", description = "Requires MAINTAIN_ADJUDICATIONS access and write scope")
+    @DeleteMapping("/adjudication/{adjudicationNumber}/hearing/{oicHearingId}")
+    @ProxyUser
+    @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS') and hasAuthority('SCOPE_write')")
+    public void deleteOicHearing(
+        @PathVariable("adjudicationNumber") final Long adjudicationNumber,
+        @PathVariable("oicHearingId") final Long oicHearingId
+    ) {
+        adjudicationsService.deleteOicHearing(adjudicationNumber, oicHearingId);
     }
 }

@@ -96,7 +96,7 @@ public class CourtEventCharge extends AuditableEntity {
     private String criminalJusticeInterventionsTeamCodeThree;
 
     @Builder
-    private CourtEventCharge(final OffenderCharge offenderCharge, final CourtEvent courtEvent) {
+    public CourtEventCharge(final OffenderCharge offenderCharge, final CourtEvent courtEvent) {
         Objects.requireNonNull(offenderCharge, "Offender Charge cannot be null.");
         Objects.requireNonNull(courtEvent, "Court Event cannot be null");
 

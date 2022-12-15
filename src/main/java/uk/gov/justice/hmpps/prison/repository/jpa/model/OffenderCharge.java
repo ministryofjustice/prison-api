@@ -6,6 +6,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.With;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.BatchSize;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOffence;
 
@@ -32,6 +34,7 @@ import java.util.stream.Collectors;
 @Table(name = "OFFENDER_CHARGES")
 @ToString(exclude = {"offenderBooking", "offenderCourtCase"})
 @BatchSize(size = 25)
+@With
 public class OffenderCharge extends AuditableEntity {
 
     private static final String ACTIVE = "A";
@@ -107,6 +110,10 @@ public class OffenderCharge extends AuditableEntity {
 
     public boolean isActive() {
         return ACTIVE.equals(chargeStatus);
+    }
+
+    public void setMostSeriousFlag(String mostSeriousFlag) {
+        this.mostSeriousFlag = mostSeriousFlag;
     }
 
     public OffenderOffence getOffenceDetail() {

@@ -906,6 +906,7 @@ public class BookingService {
                                 .bookingId(oc.getOffenderBooking().getBookingId())
                                 .emails(oc.getPerson().getEmails().stream().map(email ->
                                         Email.builder().email(email.getInternetAddress()).build()).collect(toList()))
+                                .phones(AddressTransformer.translatePhones(oc.getPerson().getPhones()))
                                 .middleName(WordUtils.capitalizeFully(oc.getPerson().getMiddleName()))
                                 .restrictions(mergeGlobalAndStandardRestrictions(oc))
                                 .active(oc.isActive())
@@ -983,8 +984,7 @@ public class BookingService {
 
     private List<OffenderSentenceDetail> getOffenderSentenceDetails(final List<OffenderSentenceDetailDto> offenderSentenceSummary) {
         final var offenderSentenceDetails = offenderSentenceSummary.stream()
-                .map(this::mapper)
-                .collect(toList());
+            .map(this::mapper).toList();
 
         offenderSentenceDetails.forEach(s -> calcDerivedDates(s.getSentenceDetail()));
 

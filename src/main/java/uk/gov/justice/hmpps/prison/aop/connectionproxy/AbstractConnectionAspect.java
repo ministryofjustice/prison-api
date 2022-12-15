@@ -25,7 +25,7 @@ public abstract class AbstractConnectionAspect {
         }
         final var pooledConnection = (Connection) joinPoint.proceed();
         try {
-            final var connectionToReturn = openProxySessionIfIdentifiedAuthentication(pooledConnection);
+            final var connectionToReturn = configureNomisConnection(pooledConnection);
 
             if (log.isTraceEnabled() && MdcUtility.isLoggingAllowed()) {
                 log.trace(
@@ -50,5 +50,5 @@ public abstract class AbstractConnectionAspect {
         }
     }
 
-    protected abstract Connection openProxySessionIfIdentifiedAuthentication(final Connection pooledConnection) throws SQLException;
+    protected abstract Connection configureNomisConnection(final Connection pooledConnection) throws SQLException;
 }

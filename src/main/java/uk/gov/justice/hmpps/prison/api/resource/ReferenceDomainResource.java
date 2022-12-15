@@ -28,6 +28,7 @@ import uk.gov.justice.hmpps.prison.api.model.ReferenceCodeInfo;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceDomain;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
+import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.service.CaseNoteService;
 import uk.gov.justice.hmpps.prison.service.ReferenceDomainService;
 
@@ -58,6 +59,7 @@ public class ReferenceDomainResource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of alert types (with alert codes).", description = "List of alert types (with alert codes).")
     @GetMapping("/alertTypes")
+    @SlowReportQuery
     public ResponseEntity<List<ReferenceCode>> getAlertTypes(@RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of alertType records.") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of alertType records returned.") final Long pageLimit, @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>code, description</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
         final var referenceCodes =
                 referenceDomainService.getAlertTypes(
@@ -78,6 +80,7 @@ public class ReferenceDomainResource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of case note source codes.", description = "List of case note source codes.")
     @GetMapping("/caseNoteSources")
+    @SlowReportQuery
     public ResponseEntity<List<ReferenceCode>> getCaseNoteSources(@RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of caseNoteSource records.") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of caseNoteSource records returned.") final Long pageLimit, @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>code, description</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
         final var caseNoteSources =
                 referenceDomainService.getCaseNoteSources(
@@ -96,6 +99,7 @@ public class ReferenceDomainResource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of all used case note types (with sub-types).", description = "List of all used case note types (with sub-types).")
     @GetMapping("/caseNoteTypes")
+    @SlowReportQuery
     public  List<ReferenceCode> getCaseNoteTypes() {
         return caseNoteService.getUsedCaseNoteTypesWithSubTypes();
     }
@@ -107,6 +111,7 @@ public class ReferenceDomainResource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of reference codes for reference domain paged.", description = "List of reference codes for reference domain paged. Please note this API has the incorrect name so the non-paged /domains/{domain}/codes version is preferred.")
     @GetMapping("/domains/{domain}")
+    @SlowReportQuery
     public ResponseEntity<List<ReferenceCode>> getReferenceCodesByDomain(@PathVariable("domain") @Parameter(description = "The domain identifier/name.", required = true) final String domain, @RequestParam(value = "withSubCodes", required = false, defaultValue = "false") @Parameter(description = "Specify whether or not to return reference codes with their associated sub-codes.") final boolean withSubCodes, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of domain records.") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of domain records returned.") final Long pageLimit, @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>code, description</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
         final var referenceCodes =
                 referenceDomainService.getReferenceCodesByDomain(
@@ -126,6 +131,7 @@ public class ReferenceDomainResource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of reference codes for reference domain.", description = "List of reference codes for reference domain ordered by code ascending. The list is an un-paged flat list")
     @GetMapping("/domains/{domain}/codes")
+    @SlowReportQuery
     public List<ReferenceCode> getReferenceCodesByDomain(@PathVariable("domain") @Parameter(description = "The domain identifier/name.", required = true) final String domain) {
         return referenceDomainService.getReferenceCodesByDomain(domain);
     }
@@ -137,6 +143,7 @@ public class ReferenceDomainResource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of all reference domains", description = "A reference domain can be used to retrieve all codes related to that domain. Ordered by domain ascending")
     @GetMapping("/domains")
+    @SlowReportQuery
     public List<ReferenceDomain> getAllReferenceDomains() {
         return referenceDomainService.getAllDomains();
     }
@@ -148,6 +155,7 @@ public class ReferenceDomainResource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Reference code detail for reference domain and code (with sub-codes).", description = "Reference code detail for reference domain and code (with sub-codes).")
     @GetMapping("/domains/{domain}/codes/{code}")
+    @SlowReportQuery
     public ReferenceCode getReferenceCodeByDomainAndCode(@PathVariable("domain") @Parameter(description = "The domain identifier/name.", required = true) final String domain, @PathVariable("code") @Parameter(description = "The reference code.", required = true) final String code, @RequestParam(value = "withSubCodes", required = false, defaultValue = "false") @Parameter(description = "Specify whether or not to return the reference code with its associated sub-codes.") final boolean withSubCodes) {
         return referenceDomainService
                 .getReferenceCodeByDomainAndCode(domain, code, withSubCodes).orElseThrow( () -> {
@@ -169,6 +177,7 @@ public class ReferenceDomainResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Reference code matching description ", description = "Wild card can be specified")
     @GetMapping("/domains/{domain}/reverse-lookup")
+    @SlowReportQuery
     public List<ReferenceCode> getReferenceCodeByDomainAndDescription(@PathVariable("domain") @Parameter(description = "The domain identifier/name.", required = true) final String domain,
                                                                       @RequestParam(value = "description") @Parameter(description = "decription of a reference code to find", required = true) final String description,
                                                                       @RequestParam(value = "wildcard", required = false, defaultValue = "false") @Parameter(description = "Specify whether or not to wild card the results") final boolean wildcard) {
@@ -209,9 +218,8 @@ public class ReferenceDomainResource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Get possible reason codes for created event.", description = "Get possible reason codes for created event.")
     @GetMapping("/scheduleReasons")
+    @SlowReportQuery
     public List<ReferenceCode> getScheduleReasons(@RequestParam("eventType") @Parameter(description = "Specify event type.", required = true) final String eventType) {
         return referenceDomainService.getScheduleReasons(eventType);
     }
-
-
 }

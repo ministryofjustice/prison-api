@@ -41,6 +41,7 @@ import uk.gov.justice.hmpps.prison.api.model.Telephone;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
+import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.service.AgencyService;
 import uk.gov.justice.hmpps.prison.service.LocationGroupService;
 
@@ -164,6 +165,7 @@ public class AgencyResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of active internal locations for agency.", description = "List of active internal locations for agency.")
     @GetMapping("/{agencyId}/locations")
+    @SlowReportQuery
     public List<Location> getAgencyLocations(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestParam(value = "eventType", required = false) @Parameter(description = "Restricts list of locations returned to those that can be used for the specified event type.") final String eventType, @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>description, userDescription</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
         return agencyService.getAgencyLocations(agencyId, eventType, sortFields, sortOrder);
     }
@@ -175,6 +177,7 @@ public class AgencyResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of active cells with capacity for agency.", description = "List of active cells with capacity for agency.")
     @GetMapping("/{agencyId}/cellsWithCapacity")
+    @SlowReportQuery
     public List<OffenderCell> getAgencyActiveCellsWithCapacity(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestParam(value = "attribute", required = false) @Parameter(description = "Restricts list of cells returned to those that have a specified attribute.") final String attribute) {
         return agencyService.getCellsWithCapacityInAgency(agencyId, attribute);
     }
@@ -230,6 +233,7 @@ public class AgencyResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of locations for agency where events (appointments, visits, activities) are being held.", description = "List of locations for agency where events (appointments, visits, activities) are being held.")
     @GetMapping("/{agencyId}/eventLocationsBooked")
+    @SlowReportQuery
     public List<Location> getAgencyEventLocationsBooked(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestParam("bookedOnDay") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Filter list to only return locations which prisoners will be attending on this day", required = true) final LocalDate date, @RequestParam(value = "timeSlot", required = false) @Parameter(description = "Only return locations which prisoners will be attending in this time slot (AM, PM or ED, and bookedOnDay must be specified)",  schema = @Schema(implementation = String.class, allowableValues = {"AM","PM","ED"})) final TimeSlot timeSlot) {
         return agencyService.getAgencyEventLocationsBooked(agencyId, date, timeSlot);
     }
@@ -252,6 +256,7 @@ public class AgencyResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of prison contact details.", description = "List of prison contact details.")
     @GetMapping("/prison")
+    @SlowReportQuery
     public List<PrisonContactDetail> getPrisonContactDetailList() {
         return agencyService.getPrisonContactDetail();
     }

@@ -1,8 +1,6 @@
 package uk.gov.justice.hmpps.prison.security;
 
 import org.apache.commons.lang3.RegExUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.MDC;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,9 +12,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static uk.gov.justice.hmpps.prison.util.MdcUtility.PROXY_USER;
 
 @Component
 public class AuthenticationFacade {
@@ -45,10 +40,9 @@ public class AuthenticationFacade {
     }
 
 
-    public AuthSource getProxyUserAuthenticationSource() {
+    public AuthSource getAuthenticationSource() {
         final var auth = getAuthentication();
         return Optional.ofNullable(auth).
-                filter(a -> StringUtils.isNotBlank(MDC.get(PROXY_USER))).
                 filter(AuthAwareAuthenticationToken.class::isInstance).
                 map(AuthAwareAuthenticationToken.class::cast).
                 filter(AbstractAuthenticationToken::isAuthenticated).

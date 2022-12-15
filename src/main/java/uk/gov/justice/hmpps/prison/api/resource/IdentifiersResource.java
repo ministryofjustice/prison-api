@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifier;
+import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.service.InmateService;
 
 import javax.validation.constraints.NotNull;
@@ -36,6 +37,7 @@ public class IdentifiersResource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Identifiers for a specified type and value", description = "Empty list will be returned for no matches")
     @GetMapping("/{type}/{value}")
+    @SlowReportQuery
     public List<OffenderIdentifier> getOffenderIdentifiersByTypeAndValue(@NotNull @PathVariable("type") @Parameter(description = "Identifier Type", example = "PNC", required = true) final String identifierType, @NotNull @PathVariable("value") @Parameter(description = "Identifier Value", example = "1234/XX", required = true) final String identifierValue) {
         return inmateService.getOffenderIdentifiersByTypeAndValue(identifierType, identifierValue);
     }

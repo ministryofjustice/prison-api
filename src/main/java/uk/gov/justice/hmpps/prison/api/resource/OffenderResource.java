@@ -65,6 +65,7 @@ import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSearchRes
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
+import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation.Status;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CaseNoteFilter;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
@@ -81,6 +82,8 @@ import uk.gov.justice.hmpps.prison.service.InmateService;
 import uk.gov.justice.hmpps.prison.service.MovementsService;
 import uk.gov.justice.hmpps.prison.service.OffenderAddressService;
 import uk.gov.justice.hmpps.prison.service.OffenderDamageObligationService;
+import uk.gov.justice.hmpps.prison.service.OffenderLocation;
+import uk.gov.justice.hmpps.prison.service.OffenderLocationService;
 import uk.gov.justice.hmpps.prison.service.OffenderNonAssociationsService;
 import uk.gov.justice.hmpps.prison.service.OffenderTransactionHistoryService;
 import uk.gov.justice.hmpps.prison.service.receiveandtransfer.BookingIntoPrisonService;
@@ -123,6 +126,7 @@ public class OffenderResource {
     private final OffenderNonAssociationsService offenderNonAssociationsService;
     private final BookingIntoPrisonService bookingIntoPrisonService;
     private final PrisonTransferService prisonTransferService;
+    private final OffenderLocationService offenderLocationService;
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
@@ -159,7 +163,7 @@ public class OffenderResource {
         @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to create a prisoner.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Creates a prisoner. BOOKING_CREATE role")
+    @Operation(summary = "Creates a prisoner and optional receives them into a prison by creating a new booking. BOOKING_CREATE role")
     @PostMapping
     @PreAuthorize("hasRole('BOOKING_CREATE') and hasAuthority('SCOPE_write')")
     @ProxyUser
@@ -457,6 +461,7 @@ public class OffenderResource {
 
     @Operation(summary = "Return a list of offender nos across the estate for which an alert has recently been created or changed", description = "This query is slow and can take several minutes")
     @GetMapping("/alerts/candidates")
+    @SlowReportQuery
     public ResponseEntity<List<String>> getAlertCandidates(@RequestParam("fromDateTime") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @Parameter(description = "A recent timestamp that indicates the earliest time to consider. NOTE More than a few days in the past can result in huge amounts of data.", required = true, example = "2019-11-22T03:00") @NotNull final LocalDateTime fromDateTime, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first offender in returned list.") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "1000", required = false) @Parameter(description = "Requested limit to number of offenders returned.") final Long pageLimit) {
         return alertService.getAlertCandidates(fromDateTime,
             nvl(pageOffset, 0L),
@@ -468,6 +473,7 @@ public class OffenderResource {
     @Operation(summary = "Offender case notes", description = "Retrieve an offenders case notes for latest booking")
     @GetMapping("/{offenderNo}/case-notes/v2")
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @SlowReportQuery
     public Page<CaseNote> getOffenderCaseNotes(@PathVariable("offenderNo") @Parameter(description = "Noms ID or Prisoner number (also called offenderNo)", required = true, example = "A1234AA") final String offenderNo,
                                                @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DATE) @Parameter(description = "start contact date to search from", example = "2021-02-03") final LocalDate from,
                                                @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DATE) @Parameter(description = "end contact date to search up to (including this date)", example = "2021-02-04") final LocalDate to,
@@ -613,6 +619,7 @@ public class OffenderResource {
         description = "Transactions are returned in order of entryDate descending and sequence ascending).<br/>" +
             "All transaction amounts are represented as pence values.")
     @GetMapping("/{offenderNo}/transaction-history")
+    @SlowReportQuery
     public ResponseEntity<List<OffenderTransactionHistoryDto>> getTransactionsHistory(
         @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo,
         @Parameter(name = "account_code", description = "Account code", example = "spends", schema = @Schema(implementation = String.class, allowableValues = {"spends","cash","savings"})) @RequestParam(value = "account_code", required = false) final String accountCode,
@@ -726,5 +733,26 @@ public class OffenderResource {
 
         final var booking = bookingService.getLatestBookingByOffenderNo(offenderNo);
         return bookingService.getScheduledEvents(booking.getBookingId(), fromDate, toDate);
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Housing location for prisoner", description = """
+        <p>Housing location split out into different levels for a prisoner, or an empty response if the prisoner is not currently in a prison.</p>
+        <p>There will be either 3 or 4 levels returned depending on the layout in NOMIS.
+        Level 1 is the top level, so normally a wing or a house block and level 3 / 4 will be the individual cell.</p>
+        <p>This endpoint returns the prison levels as recorded in NOMIS and may not accurately reflect the physical layout of the prison.
+        For example Bristol has wings, spurs and landings, but this endpoint will only return wings and landings as spurs are not mapped in NOMIS.
+        Another example is Moorland where 5-1-B-014 in NOMIS is Wing 5, Landing 1, Cell B and Cell 014, whereas in reality it should be Houseblock 5, Spur 1, Wing B and Cell 014 instead.
+        This endpoint will therefore also return different information from Whereabouts API as that service re-maps the NOMIS layout to include spurs etc.</p>
+        """)
+    @GetMapping("/{offenderNo}/housing-location")
+    public OffenderLocation getHousingLocation(
+        @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo) {
+        final var booking = bookingService.getLatestBookingByOffenderNo(offenderNo);
+        return offenderLocationService.getOffenderLocation(booking.getBookingId(), booking);
     }
 }

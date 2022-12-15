@@ -98,6 +98,7 @@ public class OffenderDatesServiceTest {
             .prrdCalculatedDate(keyDates.getPostRecallReleaseDate())
             .sedCalculatedDate(keyDates.getSentenceExpiryDate())
             .tusedCalculatedDate(keyDates.getTopupSupervisionExpiryDate())
+            .ersedOverridedDate(keyDates.getEarlyRemovalSchemeEligibilityDate())
             .effectiveSentenceEndDate(keyDates.getEffectiveSentenceEndDate())
             .effectiveSentenceLength(keyDates.getSentenceLength())
             .judiciallyImposedSentenceLength(keyDates.getSentenceLength())
@@ -203,7 +204,7 @@ public class OffenderDatesServiceTest {
             NOV_11_2021, NOV_11_2021, NOV_11_2021,
             NOV_11_2021, NOV_11_2021, NOV_11_2021,
             NOV_11_2021, NOV_11_2021, NOV_11_2021,
-            NOV_11_2021, NOV_11_2021, "11/00/00");
+            NOV_11_2021, NOV_11_2021, NOV_11_2021, "11/00/00");
     }
 
     public static OffenderCalculatedKeyDates createOffenderCalculatedKeyDates() {
@@ -212,8 +213,8 @@ public class OffenderDatesServiceTest {
             NOV_11_2021, NOV_11_2021, NOV_11_2021,
             NOV_11_2021, NOV_11_2021, NOV_11_2021,
             NOV_11_2021, NOV_11_2021, NOV_11_2021,
-            NOV_11_2021, NOV_11_2021, "11/00/00",
-            "11/00/00", NOV_11_2021, NOV_11_2021, "Comments", "NEW");
+            NOV_11_2021, NOV_11_2021, NOV_11_2021, "11/00/00",
+            "11/00/00", NOV_11_2021, "Comments", "NEW");
     }
 
     public static SentenceCalculation sentenceCalculation(LocalDate homeDetentionCurfewEligibilityDate,
@@ -275,6 +276,7 @@ public class OffenderDatesServiceTest {
                                                           LocalDate postRecallReleaseDate,
                                                           LocalDate sentenceExpiryDate,
                                                           LocalDate topupSupervisionExpiryDate,
+                                                          LocalDate earlyRemovalSchemeEligibilityDate,
                                                           LocalDate effectiveSentenceEndDate,
                                                           String sentenceLength) {
         return OffenderKeyDates.builder()
@@ -291,6 +293,7 @@ public class OffenderDatesServiceTest {
             .postRecallReleaseDate(postRecallReleaseDate)
             .sentenceExpiryDate(sentenceExpiryDate)
             .topupSupervisionExpiryDate(topupSupervisionExpiryDate)
+            .earlyRemovalSchemeEligibilityDate(earlyRemovalSchemeEligibilityDate)
             .effectiveSentenceEndDate(effectiveSentenceEndDate)
             .sentenceLength(sentenceLength)
             .build();
@@ -309,10 +312,10 @@ public class OffenderDatesServiceTest {
                                                                              LocalDate postRecallReleaseDate,
                                                                              LocalDate sentenceExpiryDate,
                                                                              LocalDate topupSupervisionExpiryDate,
+                                                                             LocalDate earlyRemovalSchemeEligibilityDate,
                                                                              LocalDate effectiveSentenceEndDate,
                                                                              String sentenceLength,
                                                                              String judiciallyImposedSentenceLength,
-                                                                             LocalDate earlyRemovalSchemeEligibilityDate,
                                                                              LocalDate releaseOnTemporaryLicenceDate,
                                                                              String comment,
                                                                              String reasonCode) {
@@ -330,10 +333,10 @@ public class OffenderDatesServiceTest {
             .postRecallReleaseDate(postRecallReleaseDate)
             .sentenceExpiryDate(sentenceExpiryDate)
             .topupSupervisionExpiryDate(topupSupervisionExpiryDate)
+            .earlyRemovalSchemeEligibilityDate(earlyRemovalSchemeEligibilityDate)
             .effectiveSentenceEndDate(effectiveSentenceEndDate)
             .sentenceLength(sentenceLength)
             .judiciallyImposedSentenceLength(judiciallyImposedSentenceLength)
-            .earlyRemovalSchemeEligibilityDate(earlyRemovalSchemeEligibilityDate)
             .releaseOnTemporaryLicenceDate(releaseOnTemporaryLicenceDate)
             .comment(comment)
             .reasonCode(reasonCode)

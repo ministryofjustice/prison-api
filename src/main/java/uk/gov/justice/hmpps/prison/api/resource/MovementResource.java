@@ -37,6 +37,7 @@ import uk.gov.justice.hmpps.prison.api.model.RollCount;
 import uk.gov.justice.hmpps.prison.api.model.TransferSummary;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
+import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.service.MovementsService;
 
 import javax.validation.Valid;
@@ -64,7 +65,9 @@ public class MovementResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Returns a list of recently released or moved offender nos and the associated timestamp.", description = "Returns a list of recently released or moved offender nos and the associated timestamp.")
     @GetMapping
-    public List<Movement> getRecentMovementsByDate(@RequestParam("fromDateTime") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @Parameter(description = "A timestamp that indicates the earliest record required", required = true) final LocalDateTime fromDateTime, @RequestParam(value = "movementDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "The date for which movements are searched, defaults to today") final LocalDate movementDate, @RequestParam(value = "agencyId", required = false) @Parameter(description = "Filter to just movements to or from this agency.") final String agencyId, @RequestParam(value = "movementTypes", required = false) @Parameter(description = "movement type codes to filter by, defaults to TRN, REL, ADM") final List<String> movementTypes) {
+    public List<Movement> getRecentMovementsByDate(@RequestParam("fromDateTime") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @Parameter(description = "A timestamp that indicates the earliest record required", required = true) final LocalDateTime fromDateTime,
+                                                   @RequestParam(value = "movementDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "The date for which movements are searched, defaults to today") final LocalDate movementDate,
+                                                   @RequestParam(value = "movementTypes", required = false) @Parameter(description = "movement type codes to filter by, defaults to TRN, REL, ADM") final List<String> movementTypes) {
         return movementsService.getRecentMovementsByDate(fromDateTime, movementDate, movementTypes);
     }
 
@@ -75,6 +78,7 @@ public class MovementResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Current establishment rollcount numbers.", description = "Current establishment rollcount numbers.")
     @GetMapping("/rollcount/{agencyId}")
+    @SlowReportQuery
     public List<RollCount> getRollcount(@PathVariable("agencyId") @Parameter(description = "The prison id", required = true) final String agencyId, @RequestParam(value = "unassigned", required = false, defaultValue = "false") @Parameter(description = "If false return data for prisoners in cell locations, if true return unassigned prisoners, i.e. those in non-cell locations.") final boolean unassigned) {
         return movementsService.getRollCount(agencyId, unassigned);
     }
@@ -86,6 +90,7 @@ public class MovementResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Rollcount movement numbers.", description = "Rollcount movement numbers.")
     @GetMapping("/rollcount/{agencyId}/movements")
+    @SlowReportQuery
     public MovementCount getRollcountMovements(@PathVariable("agencyId") @Parameter(description = "The prison id", required = true) final String agencyId, @RequestParam(value = "movementDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "The date for which movements are counted, default today.") final LocalDate movementDate) {
         return movementsService.getMovementCount(agencyId, movementDate);
     }
@@ -108,6 +113,7 @@ public class MovementResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Offenders who entered a prison during a time period.", description = "Offenders who entered a prison during a time period.")
     @GetMapping("/{agencyId}/in")
+    @SlowReportQuery
     public ResponseEntity<List<OffenderIn>> getMovementsIn(@PathVariable("agencyId") @Parameter(description = "The prison id", required = true) final String agencyId,
                                                            @RequestParam(value = "allMovements", required = false, defaultValue = "false") @Parameter(description = "Returns movements for inactive prisoners") final boolean allMovements,
                                                            @RequestParam("fromDateTime") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @Parameter(description = "fromDateTime", required = true) final LocalDateTime fromDate,
@@ -188,6 +194,7 @@ public class MovementResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Information on offenders currently out.", description = "Information on offenders currently out.")
     @GetMapping("/livingUnit/{livingUnitId}/currently-out")
+    @SlowReportQuery
     public List<OffenderOut> getOffendersCurrentlyOut(@PathVariable("livingUnitId") @Parameter(description = "The identifier of a living unit, otherwise known as an internal location.", required = true) final Long livingUnitId) {
         return movementsService.getOffendersCurrentlyOut(livingUnitId);
     }
@@ -211,6 +218,7 @@ public class MovementResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Information on scheduled court, transfer and release events, and confirmed movements between two dates/times for a specified number of agencies.", description = "Planned movements are recorded as events of type court, release or transfers/appointments. When these events are started they are actualised as external movements.")
     @GetMapping("/transfers")
+    @SlowReportQuery
     public TransferSummary getTransfers(@RequestParam("agencyId") @NotEmpty @Parameter(description = "One or more agencyId values eg.agencyId=LEI&agencyId=MDI", required = true) final List<String> agencyIds,
                                         @RequestParam("fromDateTime") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @Parameter(description = "From date and time ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS", required = true) final LocalDateTime fromDateTime, @RequestParam("toDateTime") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @Parameter(description = "To date and time in ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS", required = true) final LocalDateTime toDateTime,
                                         @RequestParam(value = "courtEvents", required = false, defaultValue = "false") @Parameter(description = "Set to true to include planned court events") final boolean courtEvents, @RequestParam(value = "releaseEvents", required = false, defaultValue = "false") @Parameter(description = "Set to true to include planned release events") final boolean releaseEvents,
@@ -236,6 +244,7 @@ public class MovementResource {
 
     @Operation(summary = "Get future court hearings for all offenders")
     @GetMapping("/upcomingCourtAppearances")
+    @SlowReportQuery
     public List<CourtEventBasic> getUpcomingCourtAppearances() {
         return movementsService.getUpcomingCourtAppearances();
     }

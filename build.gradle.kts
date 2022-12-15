@@ -1,8 +1,8 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.5.5"
-  kotlin("plugin.spring") version "1.7.10"
-  kotlin("plugin.jpa") version "1.7.10"
-  kotlin("plugin.lombok") version "1.7.10"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.7.4"
+  kotlin("plugin.spring") version "1.7.22"
+  kotlin("plugin.jpa") version "1.7.22"
+  kotlin("plugin.lombok") version "1.7.22"
 }
 
 configurations {
@@ -12,6 +12,10 @@ configurations {
     exclude(module = "c3p0")
     exclude(module = "tomcat-jdbc")
   }
+}
+
+dependencyCheck {
+  suppressionFiles.add("dependency-check-suppress-h2.xml")
 }
 
 // Temporarily kept at 4.3 due to bug in 4.4 parser
@@ -48,15 +52,16 @@ dependencies {
   implementation("net.sf.ehcache:ehcache:2.10.9.2")
   implementation("com.zaxxer:HikariCP:5.0.1")
 
-  implementation("io.swagger:swagger-annotations:1.6.7")
-  implementation("org.springdoc:springdoc-openapi-ui:1.6.11")
-  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.11")
-  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.11")
+  implementation("io.swagger:swagger-annotations:1.6.9")
+  implementation("org.springdoc:springdoc-openapi-ui:1.6.13")
+  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.13")
+  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.13")
 
   implementation("org.apache.commons:commons-lang3:3.12.0")
   implementation("commons-io:commons-io:2.11.0")
   implementation("org.apache.commons:commons-text:1.10.0")
-  implementation("com.oracle.database.jdbc:ojdbc10:19.16.0.0")
+  implementation("com.oracle.database.jdbc:ojdbc10:19.17.0.0")
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
   compileOnly("org.projectlombok:lombok:1.18.24")
 
@@ -65,27 +70,27 @@ dependencies {
 
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
-  testImplementation("io.rest-assured:rest-assured:5.2.0")
-  testImplementation("io.rest-assured:json-schema-validator:5.2.0")
-  testImplementation("io.rest-assured:spring-mock-mvc:5.2.0")
+  testImplementation("io.rest-assured:rest-assured:5.3.0")
+  testImplementation("io.rest-assured:json-schema-validator:5.3.0")
+  testImplementation("io.rest-assured:spring-mock-mvc:5.3.0")
   testImplementation("org.springframework.security:spring-security-test")
-  testImplementation("com.google.code.gson:gson:2.9.1")
-  testImplementation("org.mockito:mockito-inline:4.8.0")
+  testImplementation("com.google.code.gson:gson:2.10")
+  testImplementation("org.mockito:mockito-inline:4.9.0")
   testImplementation("org.powermock:powermock-api-mockito2:2.0.9")
   testImplementation("org.powermock:powermock-module-junit4:2.0.9")
 
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.36.0")
 
-  testImplementation("net.serenity-bdd:serenity-core:3.3.4")
-  testImplementation("net.serenity-bdd:serenity-junit:3.3.4")
-  testImplementation("net.serenity-bdd:serenity-spring:3.3.4")
-  testImplementation("net.serenity-bdd:serenity-cucumber:3.3.4")
+  testImplementation("net.serenity-bdd:serenity-core:3.5.0")
+  testImplementation("net.serenity-bdd:serenity-junit:3.5.0")
+  testImplementation("net.serenity-bdd:serenity-spring:3.5.0")
+  testImplementation("net.serenity-bdd:serenity-cucumber:3.5.0")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
   testImplementation("org.glassfish:javax.el:3.0.0")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.3")
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.9")
 
   testCompileOnly("org.projectlombok:lombok:1.18.24")
 }

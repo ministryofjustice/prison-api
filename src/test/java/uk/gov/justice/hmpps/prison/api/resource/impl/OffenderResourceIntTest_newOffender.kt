@@ -11,8 +11,11 @@ import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.returnResult
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
+import uk.gov.justice.hmpps.prison.api.model.RequestForNewBooking
 import uk.gov.justice.hmpps.prison.api.model.RequestToCreate
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
 @WithMockUser
@@ -108,8 +111,8 @@ class OffenderResourceIntTest_newOffender : ResourceTest() {
         assertThat(prisoner.offenderId).isNotNull
         assertThat(prisoner.offenderId).isEqualTo(prisoner.rootOffenderId)
         assertThat(prisoner.dateOfBirth).isEqualTo(LocalDate.parse("1995-10-04"))
-        assertThat(prisoner.identifiers).anyMatch { it.type == "PNC" && it.value == "2007/61835T" }
-        assertThat(prisoner.identifiers).anyMatch { it.type == "CRO" && it.value == "163984/21E" }
+        assertThat(prisoner.identifiers).anyMatch { it.type == "PNC" && it.value == "2007/61835T" && it.whenCreated != null }
+        assertThat(prisoner.identifiers).anyMatch { it.type == "CRO" && it.value == "163984/21E" && it.whenCreated != null }
         assertThat(prisoner.physicalAttributes.sexCode).isEqualTo("F")
         assertThat(prisoner.physicalAttributes.gender).isEqualTo("Female")
         assertThat(prisoner.physicalAttributes.ethnicity).isEqualTo("Mixed: White and Asian")
@@ -438,6 +441,230 @@ class OffenderResourceIntTest_newOffender : ResourceTest() {
         }
       }
     }
+
+    @Nested
+    @DisplayName("when booking is created with the offender")
+    inner class WithBooking {
+      @Nested
+      @DisplayName("when new offender is rejected")
+      inner class Failure {
+        @Test
+        internal fun `404 when trying to book in from a location that doesn't exist`() {
+          webTestClient.post().uri("/api/offenders").headers(setAuthorisation(listOf("ROLE_BOOKING_CREATE")))
+            .header("Content-Type", MediaType.APPLICATION_JSON_VALUE).bodyValue(
+              """
+            {
+              "lastName" : "Janvier",
+              "firstName" : "Lya",
+              "dateOfBirth" : "1993-08-04",
+              "gender" : "F",
+              "booking": {
+               "prisonId": "SYI", 
+               "fromLocationId": "ZZZ", 
+               "movementReasonCode": "24", 
+               "imprisonmentStatus": "CUR_ORA", 
+               "cellLocation": "SYI-A-1-1"     
+              }
+            }
+              """.trimIndent()
+            ).accept(MediaType.APPLICATION_JSON).exchange()
+            .expectStatus().isNotFound
+            .expectBody()
+            .jsonPath("userMessage")
+            .isEqualTo("ZZZ is not a valid from location")
+        }
+        @Test
+        internal fun `404 when trying to book in with an imprisonment status that doesn't exist`() {
+          webTestClient.post().uri("/api/offenders").headers(setAuthorisation(listOf("ROLE_BOOKING_CREATE")))
+            .header("Content-Type", MediaType.APPLICATION_JSON_VALUE).bodyValue(
+              """
+            {
+              "lastName" : "Janvier",
+              "firstName" : "Lya",
+              "dateOfBirth" : "1993-08-04",
+              "gender" : "F",
+              "booking": {
+               "prisonId": "SYI", 
+               "fromLocationId": "COURT1", 
+               "movementReasonCode": "24", 
+               "imprisonmentStatus": "ZZZ", 
+               "cellLocation": "SYI-A-1-1"     
+              }
+            }
+              """.trimIndent()
+            ).accept(MediaType.APPLICATION_JSON).exchange()
+            .expectStatus().isNotFound
+            .expectBody()
+            .jsonPath("userMessage")
+            .isEqualTo("No imprisonment status ZZZ found")
+        }
+
+        @Test
+        internal fun `404 when trying to book in to a prison that doesn't exist`() {
+          webTestClient.post().uri("/api/offenders").headers(setAuthorisation(listOf("ROLE_BOOKING_CREATE")))
+            .header("Content-Type", MediaType.APPLICATION_JSON_VALUE).bodyValue(
+              """
+            {
+              "lastName" : "Janvier",
+              "firstName" : "Lya",
+              "dateOfBirth" : "1993-08-04",
+              "gender" : "F",
+              "booking": {
+               "prisonId": "ZZZ", 
+               "fromLocationId": "COURT1", 
+               "movementReasonCode": "24", 
+               "imprisonmentStatus": "CUR_ORA", 
+               "cellLocation": "SYI-A-1-1"     
+              }
+            }
+              """.trimIndent()
+            ).accept(MediaType.APPLICATION_JSON).exchange()
+            .expectStatus().isNotFound
+            .expectBody()
+            .jsonPath("userMessage")
+            .isEqualTo("ZZZ prison not found")
+        }
+
+        @Test
+        internal fun `404 when trying to book in to a cell that doesn't exist`() {
+          webTestClient.post().uri("/api/offenders").headers(setAuthorisation(listOf("ROLE_BOOKING_CREATE")))
+            .header("Content-Type", MediaType.APPLICATION_JSON_VALUE).bodyValue(
+              """
+            {
+              "lastName" : "Janvier",
+              "firstName" : "Lya",
+              "dateOfBirth" : "1993-08-04",
+              "gender" : "F",
+              "booking": {
+               "prisonId": "SYI", 
+               "fromLocationId": "COURT1", 
+               "movementReasonCode": "24", 
+               "imprisonmentStatus": "CUR_ORA", 
+               "cellLocation": "SYI-BANANAS"     
+              }
+            }
+              """.trimIndent()
+            ).accept(MediaType.APPLICATION_JSON).exchange()
+            .expectStatus().isNotFound
+            .expectBody()
+            .jsonPath("userMessage")
+            .isEqualTo("SYI-BANANAS cell location not found")
+        }
+
+        @Test
+        internal fun `409 when trying to book in to a cell that is full`() {
+          webTestClient.post().uri("/api/offenders").headers(setAuthorisation(listOf("ROLE_BOOKING_CREATE")))
+            .header("Content-Type", MediaType.APPLICATION_JSON_VALUE).bodyValue(
+              """
+            {
+              "lastName" : "Janvier",
+              "firstName" : "Lya",
+              "dateOfBirth" : "1993-08-04",
+              "gender" : "F",
+              "booking": {
+               "prisonId": "MDI", 
+               "fromLocationId": "COURT1", 
+               "movementReasonCode": "24", 
+               "imprisonmentStatus": "CUR_ORA", 
+               "cellLocation": "MDI-FULL"     
+              }
+            }
+              """.trimIndent()
+            ).accept(MediaType.APPLICATION_JSON).exchange()
+            .expectStatus().isEqualTo(409)
+            .expectBody()
+            .jsonPath("userMessage")
+            .isEqualTo("The cell MDI-FULL does not have any available capacity")
+        }
+
+        @Test
+        internal fun `400 when trying to book in prisoner in the future (and return a slightly inaccurate message)`() {
+          webTestClient.post().uri("/api/offenders").headers(setAuthorisation(listOf("ROLE_BOOKING_CREATE")))
+            .header("Content-Type", MediaType.APPLICATION_JSON_VALUE).bodyValue(
+              """
+            {
+              "lastName" : "Janvier",
+              "firstName" : "Lya",
+              "dateOfBirth" : "1993-08-04",
+              "gender" : "F",
+              "booking": {
+               "prisonId": "MDI", 
+               "fromLocationId": "COURT1", 
+               "movementReasonCode": "24", 
+               "imprisonmentStatus": "CUR_ORA",
+               "bookingInTime": "${
+              LocalDateTime.now().plusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+              }"
+              }
+            }
+              """.trimIndent()
+            ).accept(MediaType.APPLICATION_JSON).exchange()
+            .expectStatus().isBadRequest
+            .expectBody()
+            .jsonPath("userMessage")
+            .isEqualTo("Transfer cannot be done in the future")
+        }
+      }
+
+      @Nested
+      @DisplayName("when offender and booking is created successfully")
+      inner class Success {
+        @Test
+        internal fun `will create and offender and booking record`() {
+          val createdPrisoner = webTestClient.post().uri("/api/offenders").headers(setAuthorisation(listOf("ROLE_BOOKING_CREATE")))
+            .header("Content-Type", MediaType.APPLICATION_JSON_VALUE).bodyValue(
+              """
+            {
+              "lastName" : "Deschamps",
+              "firstName" : "Lya",
+              "dateOfBirth" : "1992-06-04",
+              "gender" : "F",
+              "booking": {
+               "prisonId": "SYI", 
+               "fromLocationId": "COURT1", 
+               "movementReasonCode": "24", 
+               "youthOffender": "true", 
+               "imprisonmentStatus": "CUR_ORA", 
+               "cellLocation": "SYI-A-1-1"     
+              }
+            }
+              """.trimIndent()
+            ).accept(MediaType.APPLICATION_JSON).exchange()
+            .expectStatus().isOk.returnResult(InmateDetail::class.java).responseBody.blockFirst()!!
+
+          assertThat(createdPrisoner.offenderNo).isNotNull
+
+          val prisoner = webTestClient.get().uri("/api/offenders/${createdPrisoner.offenderNo}")
+            .headers(setAuthorisation(listOf("ROLE_BOOKING_CREATE")))
+            .header("Content-Type", MediaType.APPLICATION_JSON_VALUE).accept(MediaType.APPLICATION_JSON).exchange()
+            .expectStatus().isOk.returnResult(InmateDetail::class.java).responseBody.blockFirst()!!
+
+          assertThat(prisoner.offenderNo).isEqualTo(createdPrisoner.offenderNo)
+          assertThat(prisoner.lastName).isEqualTo("DESCHAMPS")
+          assertThat(prisoner.firstName).isEqualTo("LYA")
+          assertThat(prisoner.age).isEqualTo(ChronoUnit.YEARS.between(prisoner.dateOfBirth, LocalDate.now()).toInt())
+          assertThat(prisoner.isActiveFlag).isTrue
+          assertThat(prisoner.offenderId).isNotNull
+          assertThat(prisoner.offenderId).isEqualTo(prisoner.rootOffenderId)
+          assertThat(prisoner.dateOfBirth).isEqualTo(LocalDate.parse("1992-06-04"))
+          assertThat(prisoner.physicalAttributes.sexCode).isEqualTo("F")
+          assertThat(prisoner.physicalAttributes.gender).isEqualTo("Female")
+
+          assertThat(prisoner.bookingNo).isNotNull.isEqualTo(createdPrisoner.bookingNo)
+          assertThat(prisoner.bookingId).isNotNull.isEqualTo(createdPrisoner.bookingId)
+          assertThat(prisoner.profileInformation[0].type).isEqualTo("YOUTH")
+          assertThat(prisoner.profileInformation[0].resultValue).isEqualTo("Yes")
+          assertThat(prisoner.inOutStatus).isEqualTo("IN")
+          assertThat(prisoner.status).isEqualTo("ACTIVE IN")
+          assertThat(prisoner.lastMovementTypeCode).isEqualTo("ADM")
+          assertThat(prisoner.lastMovementReasonCode).isEqualTo("24")
+          assertThat(prisoner.agencyId).isEqualTo("SYI")
+          assertThat(prisoner.assignedLivingUnit.agencyId).isEqualTo("SYI")
+          assertThat(prisoner.assignedLivingUnit.description).isEqualTo("A-1-1")
+          assertThat(prisoner.imprisonmentStatus).isEqualTo("CUR_ORA")
+        }
+      }
+    }
   }
 
   fun expectBadRequest(body: Any): WebTestClient.BodyContentSpec =
@@ -463,6 +690,7 @@ private fun requestToCreate(
   gender: String? = "M",
   ethnicity: String? = "M1",
   croNumber: String? = "159049/05L",
+  booking: RequestForNewBooking? = null
 ) = RequestToCreate(
-  pncNumber, lastName, firstName, middleName1, middleName2, title, suffix, dateOfBirth, gender, ethnicity, croNumber
+  pncNumber, lastName, firstName, middleName1, middleName2, title, suffix, dateOfBirth, gender, ethnicity, croNumber, booking
 )

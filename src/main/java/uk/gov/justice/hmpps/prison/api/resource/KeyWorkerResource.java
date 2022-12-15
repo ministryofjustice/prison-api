@@ -21,6 +21,7 @@ import uk.gov.justice.hmpps.prison.api.model.KeyWorkerAllocationDetail;
 import uk.gov.justice.hmpps.prison.api.model.Keyworker;
 import uk.gov.justice.hmpps.prison.api.model.OffenderKeyWorker;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
+import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.service.keyworker.KeyWorkerAllocationService;
 
 import java.util.Collections;
@@ -44,6 +45,7 @@ public class KeyWorkerResource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Key workers available for allocation at specified agency.", description = "Key workers available for allocation at specified agency.")
     @GetMapping("/{agencyId}/available")
+    @SlowReportQuery
     public List<Keyworker> getAvailableKeyworkers(@PathVariable("agencyId") @Parameter(description = "The agency (prison) identifier.", required = true) final String agencyId) {
         return keyWorkerService.getAvailableKeyworkers(agencyId);
     }
@@ -79,6 +81,7 @@ public class KeyWorkerResource {
             @ApiResponse(responseCode = "200", description = "The allocations history list is returned.")})
     @Operation(summary = "Retrieves Specified prisoners allocation history - POST version to allow larger allocation lists.", description = "Retrieves Specified prisoners allocation history - POST version to allow larger allocation lists.")
     @PostMapping("/offenders/allocationHistory")
+    @SlowReportQuery
     public List<OffenderKeyWorker> postKeyWorkerOffendersAllocationHistory(@RequestBody @Parameter(description = "The required offender nos (mandatory)", required = true) final List<String> offenderNos) {
         return keyWorkerService.getAllocationHistoryByOffenderNos(offenderNos);
     }

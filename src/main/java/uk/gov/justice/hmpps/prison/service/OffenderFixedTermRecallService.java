@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.gov.justice.hmpps.prison.api.model.FixedTermRecallDetails;
 import uk.gov.justice.hmpps.prison.api.model.ReturnToCustodyDate;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderFixedTermRecall;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderFixedTermRecallRepository;
@@ -25,6 +26,13 @@ public class OffenderFixedTermRecallService {
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     public ReturnToCustodyDate getReturnToCustodyDate(final Long bookingId) {
         return repository.findById(bookingId).map(OffenderFixedTermRecall::mapToReturnToCustody)
+            .orElseThrow(EntityNotFoundException.withMessage(format("No fixed term recall found for booking %d", bookingId)));
+    }
+
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
+    public FixedTermRecallDetails getFixedTermRecallDetails(final Long bookingId) {
+        return repository.findById(bookingId)
+            .map(OffenderFixedTermRecall::mapToFixedTermRecallDetails)
             .orElseThrow(EntityNotFoundException.withMessage(format("No fixed term recall found for booking %d", bookingId)));
     }
 }
