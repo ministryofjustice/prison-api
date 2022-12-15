@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.executablespecification;
 
-import io.cucumber.java.DataTableType;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -11,7 +10,6 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingAlertSte
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingAliasSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingAssessmentSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingDetailSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingIEPSteps;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -19,8 +17,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -45,9 +41,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
 
     @Autowired
     private BookingDetailSteps bookingDetail;
-
-    @Autowired
-    private BookingIEPSteps bookingIEP;
 
     @Autowired
     private BookingAlertSteps bookingAlerts;
@@ -129,41 +122,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @And("^activeFlag of offender booking returned is \"(true|false)\"$")
     public void activeflagOfOffenderBookingReturnedIs(final boolean activeFlag) {
         bookingDetail.verifyOffenderActiveFlag(activeFlag);
-    }
-
-    @When("^an IEP summary only is requested for an offender with booking id \"([^\"]*)\"$")
-    public void anIEPSummaryOnlyIsRequestedForAnOffenderWithBookingId(final String bookingId) {
-        bookingIEP.getBookingIEPSummary(Long.valueOf(bookingId), false);
-    }
-
-    @When("^an IEP summary, with details, is requested for an offender with booking id \"([^\"]*)\"$")
-    public void anIEPSummaryWithDetailsIsRequestedForAnOffenderWithBookingId(final String bookingId) {
-        bookingIEP.getBookingIEPSummary(Long.valueOf(bookingId), true);
-    }
-
-    @Then("^IEP summary is returned with IEP level of \"([^\"]*)\"$")
-    public void iepSummaryIsReturnedWithIEPLevelOf(final String iepLevel) {
-        bookingIEP.verifyCurrentIEPLevel(iepLevel);
-    }
-
-    @And("^IEP summary contains \"([^\"]*)\" detail records$")
-    public void iepSummaryContainsDetailRecords(final String detailRecordCount) {
-        bookingIEP.verifyIEPDetailRecordCount(Integer.parseInt(detailRecordCount));
-    }
-
-    @And("^IEP days since review is correct for IEP date of \"([^\"]*)\"$")
-    public void iepDaysSinceReviewIsCorrectForIEPDateOf(final String iepDate) {
-        bookingIEP.verifyDaysSinceReview(iepDate);
-    }
-
-    @Then("^resource not found response is received from bookings IEP summary API$")
-    public void resourceNotFoundResponseIsReceivedFromBookingsIEPSummaryAPI() {
-        bookingIEP.verifyResourceNotFound();
-    }
-
-    @And("^user message in resource not found response from bookings IEP summary API is \"([^\"]*)\"$")
-    public void userMessageInResourceNotFoundResponseFromBookingsIEPSummaryAPIIs(final String expectedUserMessage) {
-        bookingIEP.verifyErrorUserMessage(expectedUserMessage);
     }
 
     @And("^gender matches \"([^\"]*)\"$")
@@ -459,29 +417,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingDetail.verifyImageBytesExists();
     }
 
-    @When("^a request for IEP summaries are made for the following booking ids \"([^\"]*)\"$")
-    public void aRequestForIEPSummariesAreMadeForTheFollowingBookingIds(final String bookings) {
-        final var bookingIds = Arrays.asList(bookings.split(","));
-        bookingIEP.getBookingIEPSummaryForOffenders(bookingIds, false);
-    }
-
-    @Then("^the response should contain an entry with \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\"$")
-    public void theResponseShouldContainAnEntryWith(final String bookingId, final String iepLevel, final String iepDetailCount, final String iepDate) {
-        bookingIEP.verifyIepEntry(Long.parseLong(bookingId), iepLevel, Integer.parseInt(iepDetailCount), LocalDate.parse(iepDate));
-    }
-
-    @When("^a request for IEP summaries are made for the following booking ids \"([^\"]*)\" including extra details$")
-    public void aRequestForIEPSummariesAreMadeForTheFollowingBookingIdsIncludingExtraDetails(final String bookings) {
-        final var bookingIds = Arrays.asList(bookings.split(","));
-        bookingIEP.getBookingIEPSummaryForOffenders(bookingIds, true);
-    }
-
-    @When("^a request for IEP summaries are made for the following booking ids \"([^\"]*)\" with POST$")
-    public void aRequestForIEPSummariesAreMadeForTheFollowingBookingIdsWithPost(final String bookings) {
-        final var bookingIds = Arrays.asList(bookings.split(","));
-        bookingIEP.getBookingIEPSummaryForBookingIds(bookingIds);
-    }
-
     @When("^a categorisation request is made for booking \"([^\"]*)\" with category \"([^\"]*)\" for committee \"([^\"]*)\"$")
     public void aCategorisationRequestIsMadeForBookingWithCategoryForCommitteeAt(final String bookingId, final String category, final String committee) {
         bookingAssessment.createCategorisation(Long.parseLong(bookingId), category, committee);
@@ -537,24 +472,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @Then("^\"([^\"]*)\" rows of basic inmate details are returned$")
     public void rowsOfBasicInmateDetailsAreReturned(final String count) {
         bookingDetail.verifyOffendersBasicCount(Integer.parseInt(count));
-    }
-
-    @DataTableType
-    public Alert alertEntry(Map<String, String> entry) {
-        return Alert.builder()
-            .offenderNo(entry.get("offenderNo"))
-            .bookingId(Long.valueOf(entry.get("bookingId")))
-            .alertId(Long.valueOf(entry.get("alertId")))
-            .alertType(entry.get("alertType"))
-            .alertTypeDescription(entry.get("alertTypeDescription"))
-            .alertCode(entry.get("alertCode"))
-            .alertCodeDescription(entry.get("alertCodeDescription"))
-            .comment(entry.get("comment"))
-            .dateCreated(convertTodayAndParse(entry.get("dateCreated")))
-            .dateExpires(convertTodayAndParse(entry.get("dateExpires")))
-            .expired(Boolean.parseBoolean(entry.get("expired")))
-            .active(Boolean.parseBoolean(entry.get("active")))
-            .build();
     }
 
     private LocalDate convertTodayAndParse(final String dateCreated) {
