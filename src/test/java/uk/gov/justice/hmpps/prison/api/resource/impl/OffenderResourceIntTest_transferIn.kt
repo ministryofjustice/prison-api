@@ -21,8 +21,6 @@ import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.reactive.server.StatusAssertions
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.api.model.CaseNote
-import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary
-import uk.gov.justice.hmpps.prison.api.model.VisitBalances
 import uk.gov.justice.hmpps.prison.exception.CustomErrorCodes
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
@@ -41,10 +39,8 @@ import uk.gov.justice.hmpps.prison.util.builders.createScheduledTemporaryAbsence
 import uk.gov.justice.hmpps.prison.util.builders.getBedAssignments
 import uk.gov.justice.hmpps.prison.util.builders.getCaseNotes
 import uk.gov.justice.hmpps.prison.util.builders.getCourtHearings
-import uk.gov.justice.hmpps.prison.util.builders.getCurrentIEP
 import uk.gov.justice.hmpps.prison.util.builders.getMovements
 import uk.gov.justice.hmpps.prison.util.builders.getScheduledMovements
-import uk.gov.justice.hmpps.prison.util.builders.getVOBalanceDetails
 import uk.gov.justice.hmpps.prison.util.builders.release
 import uk.gov.justice.hmpps.prison.util.builders.transferOut
 import uk.gov.justice.hmpps.prison.util.builders.transferOutToCourt
