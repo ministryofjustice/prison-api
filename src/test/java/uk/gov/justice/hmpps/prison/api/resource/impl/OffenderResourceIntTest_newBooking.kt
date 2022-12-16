@@ -13,6 +13,7 @@ import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import uk.gov.justice.hmpps.prison.api.model.CaseNote
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
+import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
@@ -21,6 +22,7 @@ import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
 import uk.gov.justice.hmpps.prison.util.builders.getBedAssignments
 import uk.gov.justice.hmpps.prison.util.builders.getCaseNotes
+import uk.gov.justice.hmpps.prison.util.builders.getCurrentIEP
 import uk.gov.justice.hmpps.prison.util.builders.getMovements
 import uk.gov.justice.hmpps.prison.util.builders.transferOut
 import java.time.LocalDateTime
@@ -1007,6 +1009,39 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
               null
             ),
           )
+      }
+
+      @Test
+      internal fun `will reset IEP level back to default for prison`() {
+        assertThat(testDataContext.getCurrentIEP(offenderNo))
+          .extracting(PrivilegeSummary::getIepLevel)
+          .isEqualTo("Enhanced")
+
+        webTestClient.post()
+          .uri("/api/offenders/{offenderNo}/booking", offenderNo)
+          .headers(
+            setAuthorisation(
+              listOf("ROLE_BOOKING_CREATE")
+            )
+          )
+          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+          .bodyValue(
+            """
+            {
+               "prisonId": "MDI", 
+               "fromLocationId": "COURT1", 
+               "movementReasonCode": "24", 
+               "imprisonmentStatus": "CUR_ORA" 
+            }
+            """.trimIndent()
+          )
+          .accept(MediaType.APPLICATION_JSON)
+          .exchange()
+          .expectStatus().isOk
+
+        assertThat(testDataContext.getCurrentIEP(offenderNo))
+          .extracting(PrivilegeSummary::getIepLevel)
+          .isEqualTo("Entry")
       }
 
       @Test
