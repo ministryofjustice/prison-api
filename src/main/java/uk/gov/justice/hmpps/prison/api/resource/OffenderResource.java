@@ -45,7 +45,6 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerIdentifier;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerInPrisonSummary;
-import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
 import uk.gov.justice.hmpps.prison.api.model.RequestForCourtTransferIn;
 import uk.gov.justice.hmpps.prison.api.model.RequestForNewBooking;
 import uk.gov.justice.hmpps.prison.api.model.RequestForTemporaryAbsenceArrival;
@@ -86,10 +85,10 @@ import uk.gov.justice.hmpps.prison.service.OffenderLocation;
 import uk.gov.justice.hmpps.prison.service.OffenderLocationService;
 import uk.gov.justice.hmpps.prison.service.OffenderNonAssociationsService;
 import uk.gov.justice.hmpps.prison.service.OffenderTransactionHistoryService;
+import uk.gov.justice.hmpps.prison.service.PrisonerReleaseAndTransferService;
 import uk.gov.justice.hmpps.prison.service.receiveandtransfer.BookingIntoPrisonService;
 import uk.gov.justice.hmpps.prison.service.receiveandtransfer.PrisonTransferService;
 import uk.gov.justice.hmpps.prison.service.receiveandtransfer.PrisonerCreationService;
-import uk.gov.justice.hmpps.prison.service.PrisonerReleaseAndTransferService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -576,20 +575,6 @@ public class OffenderResource {
         return ResponseEntity.ok()
             .headers(offenderNumbers.getPaginationHeaders())
             .body(offenderNumbers.getItems());
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Offenders IEP (Incentives & Earned Privileges) summary for the latest booking only.",
-        description = "Deprecated - use Incentives API to get IEP summary, requires MAINTAIN_IEP",
-        deprecated = true, hidden = true)
-    @GetMapping("/{offenderNo}/iepSummary")
-    public PrivilegeSummary getLatestBookingIEPSummaryForOffender(@NotNull @PathVariable("offenderNo") @Parameter(description = "offenderNo", required = true, example = "A1234AA") final String offenderNo, @RequestParam(value = "withDetails", required = false, defaultValue = "false") @Parameter(description = "Toggle to return IEP detail entries in response (or not).", required = true) final boolean withDetails) {
-        var booking = bookingService.getLatestBookingByOffenderNo(offenderNo);
-        return bookingService.getBookingIEPSummary(booking.getBookingId(), withDetails);
     }
 
     @ApiResponses({

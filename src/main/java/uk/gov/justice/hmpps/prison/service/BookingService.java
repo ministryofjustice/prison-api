@@ -22,7 +22,6 @@ import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.BookingActivity;
 import uk.gov.justice.hmpps.prison.api.model.CourtCase;
 import uk.gov.justice.hmpps.prison.api.model.Email;
-import uk.gov.justice.hmpps.prison.api.model.IepLevelAndComment;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecord;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
@@ -41,8 +40,6 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
 import uk.gov.justice.hmpps.prison.api.model.PrisonDetails;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerBookingSummary;
-import uk.gov.justice.hmpps.prison.api.model.PrivilegeDetail;
-import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
 import uk.gov.justice.hmpps.prison.api.model.PropertyContainer;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentDetail;
@@ -62,7 +59,6 @@ import uk.gov.justice.hmpps.prison.repository.BookingRepository;
 import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq;
 import uk.gov.justice.hmpps.prison.repository.SentenceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.AvailablePrisonIepLevel.PK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Caseload;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.GlobalVisitorRestriction;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
@@ -74,7 +70,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.RelationshipType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.KeyDateValues;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.AvailablePrisonIepLevelRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPersonsRepository;
@@ -101,7 +96,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -116,7 +110,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.time.LocalDate.now;
-import static java.time.temporal.ChronoUnit.DAYS;
 import static java.util.Comparator.comparing;
 import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsLast;
@@ -154,10 +147,8 @@ public class BookingService {
     private final OffenderBookingTransformer offenderBookingTransformer;
     private final OffenderSentenceRepository offenderSentenceRepository;
     private final OffenderFinePaymentRepository offenderFinePaymentRepository;
-    private final AvailablePrisonIepLevelRepository availablePrisonIepLevelRepository;
     private final OffenderTransformer offenderTransformer;
     private final AuthenticationFacade authenticationFacade;
-    private final String defaultIepLevel;
     private final int maxBatchSize;
 
     public BookingService(final BookingRepository bookingRepository,
@@ -177,10 +168,7 @@ public class BookingService {
                           final AuthenticationFacade authenticationFacade,
                           final OffenderSentenceRepository offenderSentenceRepository,
                           final OffenderFinePaymentRepository offenderFinePaymentRepository,
-                          final AvailablePrisonIepLevelRepository availablePrisonIepLevelRepository,
                           final OffenderRestrictionRepository offenderRestrictionRepository,
-                          @Value("${api.bookings.iepLevel.default:Unknown}")
-                          final String defaultIepLevel,
                           @Value("${batch.max.size:1000}")
                           final int maxBatchSize) {
         this.bookingRepository = bookingRepository;
@@ -200,9 +188,7 @@ public class BookingService {
         this.authenticationFacade = authenticationFacade;
         this.offenderSentenceRepository = offenderSentenceRepository;
         this.offenderFinePaymentRepository = offenderFinePaymentRepository;
-        this.availablePrisonIepLevelRepository = availablePrisonIepLevelRepository;
         this.offenderRestrictionRepository = offenderRestrictionRepository;
-        this.defaultIepLevel = defaultIepLevel;
         this.maxBatchSize = maxBatchSize;
     }
 
@@ -274,98 +260,6 @@ public class BookingService {
 
     private SentenceCalcDates emptySentenceCalcDates(final Long bookingId) {
         return SentenceCalcDates.sentenceCalcDatesBuilder().bookingId(bookingId).build();
-    }
-
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
-    public PrivilegeSummary getBookingIEPSummary(final Long bookingId, final boolean withDetails) {
-        final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
-        final var iepSummary = offenderBooking.getIepSummary(withDetails);
-
-        return iepSummary.orElseGet(() -> buildDefaultIep(bookingId, offenderBooking));
-    }
-
-    @VerifyBookingAccess(overrideRoles = "IEP_SYNC")
-    @Transactional
-    public void addIepLevel(final Long bookingId, @Valid final IepLevelAndComment iepLevel) {
-
-        final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
-
-        final var iep = availablePrisonIepLevelRepository.findById(new PK(iepLevel.getIepLevel(), offenderBooking.getLocation())).orElseThrow(
-            EntityNotFoundException.withMessage(format("IEP Level '%1$s' is not active for this booking's agency: Booking Id %2$d.", iepLevel.getIepLevel(), bookingId))
-        );
-
-        final var reviewerUsername = (StringUtils.isNotBlank(iepLevel.getReviewerUserName()) ? iepLevel.getReviewerUserName() : authenticationFacade.getCurrentUsername());
-
-        final var staff = staffUserAccountRepository.findById(reviewerUsername).orElseThrow(EntityNotFoundException.withId(reviewerUsername));
-
-        final var reviewTime = iepLevel.getReviewTime() != null ? iepLevel.getReviewTime() : LocalDateTime.now();
-
-        offenderBooking.addIepLevel(iep.getIepLevel(), iepLevel.getComment(), reviewTime, staff);
-    }
-
-    public Map<Long, PrivilegeSummary> getBookingIEPSummary(final List<Long> bookingIds, final boolean withDetails) {
-        if (withDetails || !isAllowedToViewAllPrisonerData(RESTRICTED_ALLOWED_ROLES)) {
-            bookingIds.forEach(this::verifyBookingAccess);
-        }
-        final Map<Long, PrivilegeSummary> mapOfEip = new HashMap<>();
-
-        final var bookingIdBatches = Lists.partition(bookingIds, maxBatchSize);
-        bookingIdBatches.forEach(bookingIdBatch -> {
-            final var mapOfIEPResults = bookingRepository.getBookingIEPDetailsByBookingIds(bookingIdBatch);
-            mapOfIEPResults.forEach((key, iepDetails) -> {
-
-                // Extract most recent detail from list
-                final var currentDetail = mostRecentDetail(iepDetails);
-
-                // Determine number of days since current detail became effective
-                final var daysSinceReview = daysSinceDetailBecameEffective(currentDetail);
-
-                mapOfEip.put(key, PrivilegeSummary.builder()
-                        .bookingId(currentDetail.getBookingId())
-                        .iepDate(currentDetail.getIepDate())
-                        .iepTime(currentDetail.getIepTime())
-                        .iepLevel(currentDetail.getIepLevel())
-                        .daysSinceReview(daysSinceReview)
-                        .iepDetails(withDetails ? iepDetails : Collections.emptyList())
-                        .build());
-            });
-        });
-
-        // If no IEP details exist for offender, cannot derive an IEP summary.
-        bookingIds.stream()
-                .filter(bookingId -> !mapOfEip.containsKey(bookingId))
-                .toList()
-                .forEach(bookingId -> {
-                    final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
-                    mapOfEip.put(bookingId, buildDefaultIep(bookingId, offenderBooking));
-                });
-
-        return mapOfEip;
-    }
-
-    private PrivilegeSummary buildDefaultIep(final Long bookingId, final OffenderBooking offenderBooking) {
-        final var now = LocalDateTime.now();
-        final var iepDefault = availablePrisonIepLevelRepository.findByAgencyLocation_IdAndDefaultIep(offenderBooking.getLocation().getId(), true)
-            .stream().findFirst()
-            .map(iep -> iep.getIepLevel().getDescription())
-            .orElse(defaultIepLevel);
-
-        return PrivilegeSummary.builder()
-            .bookingId(bookingId)
-            .iepLevel(iepDefault)
-            .iepDetails(Collections.emptyList())
-            .iepDate(now.toLocalDate())
-            .iepTime(now)
-            .daysSinceReview(0L)
-            .build();
-    }
-
-    private PrivilegeDetail mostRecentDetail(final List<PrivilegeDetail> iepDetails) {
-        return iepDetails.get(0);
-    }
-
-    private long daysSinceDetailBecameEffective(final PrivilegeDetail currentDetail) {
-        return DAYS.between(currentDetail.getIepDate(), now());
     }
 
     public Map<Long, List<String>> getBookingAlertSummary(final List<Long> bookingIds, final LocalDateTime now) {

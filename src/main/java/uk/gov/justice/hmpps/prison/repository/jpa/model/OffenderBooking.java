@@ -627,15 +627,13 @@ public class OffenderBooking extends AuditableEntity {
         return offenderIepLevel;
     }
 
-    public Optional<PrivilegeSummary> getIepSummary(boolean withDetails) {
+    public Optional<PrivilegeSummary> getIepSummary() {
         return getLatestIepLevel().map(iep -> PrivilegeSummary.builder()
             .bookingId(getBookingId())
             .iepDate(iep.getIepDate())
             .iepTime(iep.getIepDateTime())
             .iepLevel(iep.getIepLevel().getDescription())
             .daysSinceReview(DAYS.between(iep.getIepDate(), now()))
-            .iepDetails(withDetails ? iepLevels.stream().sorted(Comparator.comparing(OffenderIepLevel::getIepDate).thenComparing(OffenderIepLevel::getSequence).reversed())
-                .map(OffenderIepLevel::getPrivilegeDetail).toList() : Collections.emptyList())
             .build());
     }
 
