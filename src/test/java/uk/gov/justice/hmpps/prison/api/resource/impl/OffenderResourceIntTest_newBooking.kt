@@ -1012,39 +1012,6 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
       }
 
       @Test
-      internal fun `will reset IEP level back to default for prison`() {
-        assertThat(testDataContext.getCurrentIEP(offenderNo))
-          .extracting(PrivilegeSummary::getIepLevel)
-          .isEqualTo("Enhanced")
-
-        webTestClient.post()
-          .uri("/api/offenders/{offenderNo}/booking", offenderNo)
-          .headers(
-            setAuthorisation(
-              listOf("ROLE_BOOKING_CREATE")
-            )
-          )
-          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-          .bodyValue(
-            """
-            {
-               "prisonId": "MDI", 
-               "fromLocationId": "COURT1", 
-               "movementReasonCode": "24", 
-               "imprisonmentStatus": "CUR_ORA" 
-            }
-            """.trimIndent()
-          )
-          .accept(MediaType.APPLICATION_JSON)
-          .exchange()
-          .expectStatus().isOk
-
-        assertThat(testDataContext.getCurrentIEP(offenderNo))
-          .extracting(PrivilegeSummary::getIepLevel)
-          .isEqualTo("Entry")
-      }
-
-      @Test
       internal fun `will create admission case note`() {
         val bookingId = webTestClient.post()
           .uri("/api/offenders/{offenderNo}/booking", offenderNo)

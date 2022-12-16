@@ -469,28 +469,6 @@ class OffenderResourceIntTest_recall : ResourceTest() {
       }
 
       @Test
-      internal fun `will reset IEP level back to default for prison`() {
-        assertThat(testDataContext.getCurrentIEP(offenderNo))
-          .extracting(PrivilegeSummary::getIepLevel)
-          .isEqualTo("Enhanced")
-
-        recallOffender(
-          offenderNo,
-          """
-            {
-               "prisonId": "MDI", 
-               "movementReasonCode": "24" 
-            }
-          """.trimIndent()
-        )
-          .isOk
-
-        assertThat(testDataContext.getCurrentIEP(offenderNo))
-          .extracting(PrivilegeSummary::getIepLevel)
-          .isEqualTo("Entry")
-      }
-
-      @Test
       internal fun `will create admission case note`() {
         val bookingId = recallOffender(
           offenderNo,
