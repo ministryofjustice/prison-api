@@ -65,7 +65,6 @@ class BookingIntoPrisonService(
   private val profileTypeRepository: ProfileTypeRepository,
   private val profileCodeRepository: ProfileCodeRepository,
   private val trustAccountService: TrustAccountService,
-  private val iepTransferService: IEPTransferService,
   private val caseNoteTransferService: CaseNoteTransferService,
   staffUserAccountRepository: StaffUserAccountRepository,
   authenticationFacade: AuthenticationFacade
@@ -129,7 +128,6 @@ class BookingIntoPrisonService(
           newBooking.resetYouthStatus(requestForNewBooking.isYouthOffender)
         }
         trustAccountService.createTrustAccount(newBooking, fromLocation, movement)
-        iepTransferService.resetLevelForPrison(newBooking, movement)
         newBooking.setImprisonmentStatus(
           OffenderImprisonmentStatus()
             .withAgyLocId(prison.id)
@@ -182,7 +180,6 @@ class BookingIntoPrisonService(
         booking.resetYouthStatus(isYouthOffender)
         booking.statusReason = "${movement.movementType.code}-$movementReasonCode"
         trustAccountService.createTrustAccount(booking, fromLocation, movement)
-        iepTransferService.resetLevelForPrison(booking, movement)
         caseNoteTransferService.createGenerateAdmissionNote(booking, movement)
       }
       return offenderTransformer.transform(booking)

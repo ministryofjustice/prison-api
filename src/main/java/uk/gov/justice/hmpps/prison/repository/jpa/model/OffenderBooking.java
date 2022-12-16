@@ -611,22 +611,6 @@ public class OffenderBooking extends AuditableEntity {
             .max(Comparator.comparing(OffenderIepLevel::getIepDate).thenComparing(OffenderIepLevel::getSequence));
     }
 
-    public OffenderIepLevel addIepLevel(IepLevel iepLevel, String comment, final LocalDateTime iepDateTime, StaffUserAccount staff) {
-        final var now = LocalDateTime.now();
-        final var offenderIepLevel = OffenderIepLevel.builder()
-            .offenderBooking(this)
-            .sequence(getLatestIepLevel().map(s -> s.getSequence()+1).orElse(1L))
-            .iepLevel(iepLevel)
-            .comment(comment)
-            .iepDate(iepDateTime != null ? iepDateTime.toLocalDate() : now.toLocalDate())
-            .iepDateTime(iepDateTime != null ? iepDateTime : now)
-            .staffUser(staff)
-            .agencyLocation(getLocation())
-            .build();
-        iepLevels.add(offenderIepLevel);
-        return offenderIepLevel;
-    }
-
     public Optional<PrivilegeSummary> getIepSummary() {
         return getLatestIepLevel().map(iep -> PrivilegeSummary.builder()
             .bookingId(getBookingId())

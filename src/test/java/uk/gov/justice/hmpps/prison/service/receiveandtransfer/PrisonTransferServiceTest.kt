@@ -44,7 +44,6 @@ internal class PrisonTransferServiceTest {
   private val externalMovementService: ExternalMovementTransferService = mock()
   private val bedAssignmentTransferService: BedAssignmentTransferService = mock()
   private val trustAccountService: TrustAccountService = mock()
-  private val iepTransferService: IEPTransferService = mock()
   private val caseNoteTransferService: CaseNoteTransferService = mock()
   private val offenderBookingRepository: OffenderBookingRepository = mock()
   private val activityTransferService: ActivityTransferService = mock()
@@ -79,7 +78,6 @@ internal class PrisonTransferServiceTest {
     externalMovementService,
     bedAssignmentTransferService,
     trustAccountService,
-    iepTransferService,
     caseNoteTransferService,
     offenderBookingRepository,
     agencyInternalLocationRepository,
@@ -242,13 +240,6 @@ internal class PrisonTransferServiceTest {
           fromAgency = bookingLastMovementTransfer.fromAgency,
           movementIn = newMovement
         )
-      }
-
-      @Test
-      internal fun `will request IEP level is reset`() {
-        service.transferFromPrison("A1234AK", request)
-
-        verify(iepTransferService).resetLevelForPrison(booking, newMovement)
       }
 
       @Test
@@ -782,13 +773,6 @@ internal class PrisonTransferServiceTest {
       }
 
       @Test
-      internal fun `will request IEP level is reset`() {
-        service.transferViaCourt("A1234AK", requestCourtDifferentPrison)
-
-        verify(iepTransferService).resetLevelForPrison(booking, newMovement)
-      }
-
-      @Test
       internal fun `will request case note is created`() {
         service.transferViaCourt("A1234AK", requestCourtDifferentPrison)
 
@@ -1262,13 +1246,6 @@ internal class PrisonTransferServiceTest {
           endDate = newMovement.movementDate,
           endReason = OffenderProgramEndReason.TRF.code
         )
-      }
-
-      @Test
-      internal fun `will request IEP level is reset`() {
-        service.transferInAfterTemporaryAbsence("A1234AK", requestTAPArrivalDifferentPrison)
-
-        verify(iepTransferService).resetLevelForPrison(booking, newMovement)
       }
 
       @Test
