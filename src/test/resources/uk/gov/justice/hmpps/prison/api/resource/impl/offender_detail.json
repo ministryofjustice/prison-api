@@ -178,11 +178,6 @@
   "recall": true,
   "imprisonmentStatus": "SENT",
   "imprisonmentStatusDescription":"Adult Imprisonment Without Option",
-  "privilegeSummary": {
-    "bookingId": -2,
-    "iepLevel": "Basic",
-    "iepDate": "2017-09-06"
-  },
   "latestLocationId": "LEI",
   "locationDescription": "Leeds"
 }
