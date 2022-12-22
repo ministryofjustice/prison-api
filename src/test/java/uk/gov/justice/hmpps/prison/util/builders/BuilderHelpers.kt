@@ -6,7 +6,12 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.returnResult
 import org.springframework.web.reactive.function.BodyInserters
-import uk.gov.justice.hmpps.prison.api.model.*
+import uk.gov.justice.hmpps.prison.api.model.CaseNote
+import uk.gov.justice.hmpps.prison.api.model.CourtHearing
+import uk.gov.justice.hmpps.prison.api.model.InmateDetail
+import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOutToCourt
+import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOutToTemporaryAbsence
+import uk.gov.justice.hmpps.prison.api.model.VisitBalances
 import uk.gov.justice.hmpps.prison.api.resource.impl.RestResponsePage
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent
