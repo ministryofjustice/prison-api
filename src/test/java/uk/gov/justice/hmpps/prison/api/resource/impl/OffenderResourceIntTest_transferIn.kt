@@ -21,8 +21,6 @@ import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.reactive.server.StatusAssertions
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.api.model.CaseNote
-import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary
-import uk.gov.justice.hmpps.prison.api.model.VisitBalances
 import uk.gov.justice.hmpps.prison.exception.CustomErrorCodes
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
@@ -41,10 +39,8 @@ import uk.gov.justice.hmpps.prison.util.builders.createScheduledTemporaryAbsence
 import uk.gov.justice.hmpps.prison.util.builders.getBedAssignments
 import uk.gov.justice.hmpps.prison.util.builders.getCaseNotes
 import uk.gov.justice.hmpps.prison.util.builders.getCourtHearings
-import uk.gov.justice.hmpps.prison.util.builders.getCurrentIEP
 import uk.gov.justice.hmpps.prison.util.builders.getMovements
 import uk.gov.justice.hmpps.prison.util.builders.getScheduledMovements
-import uk.gov.justice.hmpps.prison.util.builders.getVOBalanceDetails
 import uk.gov.justice.hmpps.prison.util.builders.release
 import uk.gov.justice.hmpps.prison.util.builders.transferOut
 import uk.gov.justice.hmpps.prison.util.builders.transferOutToCourt
@@ -240,79 +236,6 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             tuple("ADM", bookingInTime.toLocalDate(), LocalDate.now()),
             tuple("ADM", LocalDate.now(), null),
           )
-      }
-
-      @Test
-      internal fun `will reset IEP level back to default for prison`() {
-        assertThat(testDataContext.getCurrentIEP(offenderNo))
-          .extracting(PrivilegeSummary::getIepLevel)
-          .isEqualTo("Enhanced")
-
-        webTestClient.put()
-          .uri("/api/offenders/{nomsId}/transfer-in", offenderNo)
-          .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
-          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-          .accept(MediaType.APPLICATION_JSON)
-          .body(
-            BodyInserters.fromValue(
-              """
-          {
-            "receiveTime": "${
-              LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-              }"
-            
-          }
-              """.trimIndent()
-            )
-          )
-          .exchange()
-          .expectStatus().isOk
-
-        assertThat(testDataContext.getCurrentIEP(offenderNo))
-          .extracting(PrivilegeSummary::getIepLevel)
-          .isEqualTo("Entry")
-      }
-
-      @Test
-      internal fun `will not create a visit order balance adjustment even though IEP levels has changed`() {
-        // Why is this odd test here?
-        // NOMIS was supposed to update the balance after an IEP was updated.
-        // This was part of change SDU-187 that was reverted from production due to issues
-        // If this change is implemented then we would need to port this functionality as well
-
-        assertThat(testDataContext.getCurrentIEP(offenderNo))
-          .extracting(PrivilegeSummary::getIepLevel)
-          .isEqualTo("Enhanced")
-
-        // vo balance exists with no adjustments
-        assertThat(testDataContext.getVOBalanceDetails(offenderNo))
-          .extracting(VisitBalances::getRemainingPvo, VisitBalances::getLatestIepAdjustDate)
-          .containsExactly(8, null)
-
-        webTestClient.put()
-          .uri("/api/offenders/{nomsId}/transfer-in", offenderNo)
-          .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
-          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-          .accept(MediaType.APPLICATION_JSON)
-          .body(
-            BodyInserters.fromValue(
-              """
-          {
-            "receiveTime": "${
-              LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-              }"
-            
-          }
-              """.trimIndent()
-            )
-          )
-          .exchange()
-          .expectStatus().isOk
-
-        // vo balance exists with no adjustments
-        assertThat(testDataContext.getVOBalanceDetails(offenderNo))
-          .extracting(VisitBalances::getRemainingPvo, VisitBalances::getLatestIepAdjustDate)
-          .containsExactly(8, null)
       }
 
       @Test
@@ -855,35 +778,6 @@ class OffendersResourceTransferImpTest : ResourceTest() {
                 ), // trigger end_prev_bed_assg_hty will add an end date to the previous movement, but can't be tested
                 tuple(null, receiveDateTime.toLocalDate(), null), // as per nomis
               )
-          }
-
-          @Test
-          internal fun `will reset IEP level back to default for prison`() {
-            assertThat(testDataContext.getCurrentIEP(offenderNo))
-              .extracting(PrivilegeSummary::getIepLevel)
-              .isEqualTo("Enhanced")
-
-            webTestClient.put()
-              .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
-              .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
-              .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-              .accept(MediaType.APPLICATION_JSON)
-              .body(
-                BodyInserters.fromValue(
-                  """
-                  {
-                    "agencyId":"MDI",
-                    "commentText":"admitted"
-                  }
-                  """.trimIndent()
-                )
-              )
-              .exchange()
-              .expectStatus().isOk
-
-            assertThat(testDataContext.getCurrentIEP(offenderNo))
-              .extracting(PrivilegeSummary::getIepLevel)
-              .isEqualTo("Entry")
           }
 
           @Test
@@ -1660,19 +1554,6 @@ class OffendersResourceTransferImpTest : ResourceTest() {
                 ), // trigger end_prev_bed_assg_hty will add an end date to the previous movement, but can't be tested
                 tuple(null, receiveDateTime.toLocalDate(), null), // as per nomis
               )
-          }
-
-          @Test
-          internal fun `will reset IEP level back to default for prison`() {
-            assertThat(testDataContext.getCurrentIEP(offenderNo))
-              .extracting(PrivilegeSummary::getIepLevel)
-              .isEqualTo("Enhanced")
-
-            temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "MDI"))
-
-            assertThat(testDataContext.getCurrentIEP(offenderNo))
-              .extracting(PrivilegeSummary::getIepLevel)
-              .isEqualTo("Entry")
           }
 
           @Test
