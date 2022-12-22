@@ -14,7 +14,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.NewAppointment;
-import uk.gov.justice.hmpps.prison.api.model.PrivilegeDetail;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
 import uk.gov.justice.hmpps.prison.api.model.VisitBalances;
 import uk.gov.justice.hmpps.prison.api.model.VisitDetails;
@@ -30,10 +29,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -552,64 +549,4 @@ public class BookingRepositoryTest {
         assertThat(repository.updateBookingAppointmentComment(id, "Don't care")).isFalse();
     }
 
-    @Test
-    public void testGetBookingIEPDetailsByBookingIds() {
-
-        final List<Long> bookingIds = new ArrayList<>();
-        bookingIds.add(-3L);
-
-        final var IEPDetails = repository.getBookingIEPDetailsByBookingIds(bookingIds);
-        assertThat(IEPDetails.get(-3L))
-                .asList()
-                .containsExactlyInAnyOrder(
-                        PrivilegeDetail.builder()
-                                .bookingId(-3L)
-                                .sequence(3L)
-                                .iepDate(LocalDate.of(2017, 10, 12))
-                                .iepTime(LocalDateTime.of(2017, 10, 12, 7, 53, 45))
-                                .agencyId("LEI")
-                                .iepLevel("Enhanced")
-                                .userId("ITAG_USER")
-                                .comments("Did not assault another inmate - data entry error.")
-                                .auditModuleName("PRISON_API")
-                                .build(),
-
-                        PrivilegeDetail.builder()
-                                .bookingId(-3L)
-                                .sequence(2L)
-                                .iepDate(LocalDate.of(2017, 10, 12))
-                                .iepTime(LocalDateTime.of(2017, 10, 12, 9, 44, 1))
-                                .agencyId("LEI")
-                                .iepLevel("Basic")
-                                .userId("ITAG_USER")
-                                .comments("Assaulted another inmate.")
-                                .auditModuleName("PRISON_API")
-                                .build(),
-
-                        PrivilegeDetail.builder()
-                                .bookingId(-3L)
-                                .sequence(4L)
-                                .iepDate(LocalDate.of(2017, 8, 22))
-                                .iepTime(LocalDateTime.of(2017, 8, 22, 18, 42, 35))
-                                .agencyId("LEI")
-                                .iepLevel("Standard")
-                                .userId("ITAG_USER")
-                                .comments("He has been a very good boy.")
-                                .auditModuleName("PRISON_API")
-                                .build(),
-
-                        PrivilegeDetail.builder()
-                                .bookingId(-3L)
-                                .sequence(1L)
-                                .iepDate(LocalDate.of(2017, 7, 4))
-                                .iepTime(LocalDateTime.of(2017, 7, 4, 12, 15, 42))
-                                .agencyId("LEI")
-                                .iepLevel("Entry")
-                                .userId(null)
-                                .comments(null)
-                                .auditModuleName("OIDOIEPS")
-                                .build()
-
-                );
-    }
 }

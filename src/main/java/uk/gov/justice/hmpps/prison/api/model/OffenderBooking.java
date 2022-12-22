@@ -71,9 +71,6 @@ public class OffenderBooking implements CategoryCodeAware {
     @Schema(description = "List of offender's alias names.")
     private List<String> aliases;
 
-    @Schema(description = "The IEP Level of the offender (UK Only)", example = "Basic")
-    private String iepLevel;
-
     @Schema(description = "The Cat A/B/C/D of the offender", example = "C", allowableValues = {"A","B","C","D","I","J"})
     private String categoryCode;
 

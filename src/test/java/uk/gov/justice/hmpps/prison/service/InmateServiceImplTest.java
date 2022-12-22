@@ -34,7 +34,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.LanguageReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderLanguage;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
@@ -110,8 +109,8 @@ public class InmateServiceImplTest {
         serviceToTest = new InmateService(repository, caseLoadService, inmateAlertService,
                 referenceDomainService, bookingService, agencyService, healthService, userService, authenticationFacade,
                 telemetryClient, "WING", 100, offenderAssessmentService, offenderLanguageRepository,
-            offenderRepository, externalMovementRepository, null,
-            offenderBookingRepository);
+            offenderRepository, externalMovementRepository, null
+        );
     }
 
     @Test
