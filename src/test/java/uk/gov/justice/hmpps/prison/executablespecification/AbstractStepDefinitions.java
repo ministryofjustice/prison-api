@@ -8,7 +8,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import uk.gov.justice.hmpps.prison.api.support.Order;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AddIepLevelSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AdjudicationSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AgencySteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
@@ -19,7 +18,6 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingAppointm
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingAssessmentSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingDetailSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingEventSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingIEPSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingSentenceDetailSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingVisitSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BulkAppointmentSteps;
@@ -105,11 +103,6 @@ abstract class AbstractStepDefinitions {
         @Bean
         public BookingSentenceDetailSteps bookingSentenceDetail() {
             return new BookingSentenceDetailSteps();
-        }
-
-        @Bean
-        public BookingIEPSteps bookingIEP() {
-            return new BookingIEPSteps();
         }
 
         @Bean
@@ -235,11 +228,6 @@ abstract class AbstractStepDefinitions {
         @Bean
         public BulkAppointmentSteps bulkAppointmentSteps() {
             return new BulkAppointmentSteps();
-        }
-
-        @Bean
-        public AddIepLevelSteps addIepLevelSteps() {
-            return new AddIepLevelSteps();
         }
 
         @Bean

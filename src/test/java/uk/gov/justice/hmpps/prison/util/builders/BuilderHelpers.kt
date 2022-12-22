@@ -8,10 +8,8 @@ import org.springframework.test.web.reactive.server.returnResult
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.api.model.CaseNote
 import uk.gov.justice.hmpps.prison.api.model.CourtHearing
-import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOutToCourt
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOutToTemporaryAbsence
-import uk.gov.justice.hmpps.prison.api.model.VisitBalances
 import uk.gov.justice.hmpps.prison.api.resource.impl.RestResponsePage
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent
@@ -238,32 +236,6 @@ fun TestDataContext.createCourtHearing(bookingId: Long): Long {
 fun TestDataContext.getMovements(bookingId: Long): List<ExternalMovement> = this.dataLoader.externalMovementRepository.findAllByOffenderBooking_BookingId(bookingId)
 fun TestDataContext.getBedAssignments(bookingId: Long): List<BedAssignmentHistory> =
   this.dataLoader.bedAssignmentHistoriesRepository.findAllByBedAssignmentHistoryPKOffenderBookingId(bookingId)
-
-fun TestDataContext.getCurrentIEP(offenderNo: String) = webTestClient.get()
-  .uri("/api/offenders/{offenderNo}/iepSummary", offenderNo)
-  .headers(
-    setAuthorisation(
-      listOf("ROLE_SYSTEM_USER")
-    )
-  )
-  .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-  .accept(MediaType.APPLICATION_JSON)
-  .exchange()
-  .expectStatus().isOk
-  .returnResult<PrivilegeSummary>().responseBody.blockFirst()!!
-
-fun TestDataContext.getVOBalanceDetails(offenderNo: String) = webTestClient.get()
-  .uri("/api/bookings/offenderNo/{offenderNo}/visit/balances", offenderNo)
-  .headers(
-    setAuthorisation(
-      listOf("ROLE_SYSTEM_USER")
-    )
-  )
-  .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-  .accept(MediaType.APPLICATION_JSON)
-  .exchange()
-  .expectStatus().isOk
-  .returnResult<VisitBalances>().responseBody.blockFirst()!!
 
 fun TestDataContext.getCaseNotes(bookingId: Long): List<CaseNote> = webTestClient.get()
   .uri("/api/bookings/{bookingId}/caseNotes?size=999", bookingId)

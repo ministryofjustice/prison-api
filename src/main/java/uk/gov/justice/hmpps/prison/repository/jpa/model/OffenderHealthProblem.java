@@ -23,7 +23,7 @@ import java.time.LocalDate;
 
 
 @Data
-@EqualsAndHashCode(callSuper=false, exclude = "charges")
+@EqualsAndHashCode(callSuper=false)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

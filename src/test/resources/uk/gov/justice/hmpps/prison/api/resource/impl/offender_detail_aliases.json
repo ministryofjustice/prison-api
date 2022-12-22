@@ -146,9 +146,5 @@
   "status": "ACTIVE IN",
   "legalStatus": "SENTENCED",
   "recall": false,
-  "imprisonmentStatus": "SENT",
-  "privilegeSummary": {
-    "bookingId": -9,
-    "iepLevel": "Entry"
-  }
+  "imprisonmentStatus": "SENT"
 }

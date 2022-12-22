@@ -47,7 +47,6 @@ import uk.gov.justice.hmpps.prison.api.model.CreateAlert;
 import uk.gov.justice.hmpps.prison.api.model.CreatePersonalCareNeed;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.FixedTermRecallDetails;
-import uk.gov.justice.hmpps.prison.api.model.IepLevelAndComment;
 import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
 import uk.gov.justice.hmpps.prison.api.model.IncidentCase;
 import uk.gov.justice.hmpps.prison.api.model.InmateBasicDetails;
@@ -69,7 +68,6 @@ import uk.gov.justice.hmpps.prison.api.model.PhysicalCharacteristic;
 import uk.gov.justice.hmpps.prison.api.model.PhysicalMark;
 import uk.gov.justice.hmpps.prison.api.model.PrisonDetails;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerBookingSummary;
-import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
 import uk.gov.justice.hmpps.prison.api.model.ProfileInformation;
 import uk.gov.justice.hmpps.prison.api.model.PropertyContainer;
 import uk.gov.justice.hmpps.prison.api.model.ReasonableAdjustments;
@@ -119,7 +117,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -480,63 +477,6 @@ public class BookingResource {
     @GetMapping("/{bookingId}/caseNotes/{caseNoteId}")
     public CaseNote getOffenderCaseNote(@PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId, @PathVariable("caseNoteId") @Parameter(description = "The case note id", required = true) final Long caseNoteId) {
         return caseNoteService.getCaseNote(bookingId, caseNoteId);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Offender IEP (Incentives & Earned Privileges) summary.",
-        description = "Deprecated - use Incentives API to get IEP summary, requires MAINTAIN_IEP",
-        deprecated = true, hidden = true)
-    @GetMapping("/{bookingId}/iepSummary")
-    public PrivilegeSummary getBookingIEPSummary(
-        @PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId,
-        @RequestParam(value = "withDetails", required = false, defaultValue = "false") @Parameter(description = "Toggle to return IEP detail entries in response (or not).") final boolean withDetails) {
-        return bookingService.getBookingIEPSummary(bookingId, withDetails);
-    }
-
-    @Operation(summary = "Add a new IEP (Incentives & Earned Privileges) level to an offender's booking.",
-        description = "Deprecated, should only be called by IEP Sync Service, use incentives API to add IEP review, required MAINTAIN_IEP or IEP_SYNC role",
-        deprecated = true, hidden = true)
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PostMapping("/{bookingId}/iepLevels")
-    @PreAuthorize("hasAnyRole('MAINTAIN_IEP','IEP_SYNC') and hasAuthority('SCOPE_write')")
-    @ProxyUser
-    public ResponseEntity<Void> addIepLevel(@PathVariable("bookingId") @Parameter(description = "The booking id of the offender", required = true) final Long bookingId, @RequestBody @Parameter(description = "The new IEP Level and accompanying comment (reason for change).", required = true) @NotNull final IepLevelAndComment iepLevel) {
-        bookingService.addIepLevel(bookingId, iepLevel);
-        return ResponseEntity.noContent().build();
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Offenders IEP (Incentives & Earned Privileges) summary.",
-        description = "Deprecated - use Incentives API to get IEP summary, requires MAINTAIN_IEP",
-        deprecated = true, hidden = true)
-    @GetMapping("/offenders/iepSummary")
-    @SlowReportQuery
-    public Collection<PrivilegeSummary> getBookingIEPSummaryForOffenders(@RequestParam("bookings") @Parameter(description = "The booking ids of offender", required = true) final List<Long> bookings, @RequestParam(value = "withDetails", required = false, defaultValue = "false") @Parameter(description = "Toggle to return IEP detail entries in response (or not).", required = true) final boolean withDetails) {
-        return bookingService.getBookingIEPSummary(bookings, withDetails).values();
-
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Prisoners IEP (Incentives & Earned Privileges) summary for a list of booking IDs",
-        description = "Deprecated - use Incentives API to get IEP summary, requires MAINTAIN_IEP",
-        deprecated = true, hidden = true)
-    @PostMapping("/iepSummary")
-    @SlowReportQuery
-    public Collection<PrivilegeSummary> getBookingIEPSummaryDetailForBookingIds(@NotNull @RequestBody @Parameter(description = "The booking ids of prisoners", required = true) final List<Long> bookings) {
-        return bookingService.getBookingIEPSummary(bookings, true).values();
-
     }
 
     @ApiResponses({

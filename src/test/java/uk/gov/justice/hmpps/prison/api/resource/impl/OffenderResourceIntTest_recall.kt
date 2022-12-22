@@ -14,7 +14,6 @@ import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.reactive.server.StatusAssertions
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
-import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
@@ -23,7 +22,6 @@ import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
 import uk.gov.justice.hmpps.prison.util.builders.getBedAssignments
 import uk.gov.justice.hmpps.prison.util.builders.getCaseNotes
-import uk.gov.justice.hmpps.prison.util.builders.getCurrentIEP
 import uk.gov.justice.hmpps.prison.util.builders.getMovements
 import uk.gov.justice.hmpps.prison.util.builders.transferOut
 import java.time.LocalDateTime
@@ -466,28 +464,6 @@ class OffenderResourceIntTest_recall : ResourceTest() {
               null
             ),
           )
-      }
-
-      @Test
-      internal fun `will reset IEP level back to default for prison`() {
-        assertThat(testDataContext.getCurrentIEP(offenderNo))
-          .extracting(PrivilegeSummary::getIepLevel)
-          .isEqualTo("Enhanced")
-
-        recallOffender(
-          offenderNo,
-          """
-            {
-               "prisonId": "MDI", 
-               "movementReasonCode": "24" 
-            }
-          """.trimIndent()
-        )
-          .isOk
-
-        assertThat(testDataContext.getCurrentIEP(offenderNo))
-          .extracting(PrivilegeSummary::getIepLevel)
-          .isEqualTo("Entry")
       }
 
       @Test

@@ -4,7 +4,6 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.returnResult
 import org.springframework.web.reactive.function.BodyInserters
-import uk.gov.justice.hmpps.prison.api.model.IepLevelAndComment
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.api.model.RequestForNewBooking
 import uk.gov.justice.hmpps.prison.service.DataLoaderRepository
@@ -84,24 +83,6 @@ class OffenderBookingBuilder(
       .exchange()
       .expectStatus().isOk
       .returnResult<InmateDetail>().responseBody.blockFirst()!!.also {
-      this.iepLevel?.run {
-        webTestClient.post()
-          .uri("/api/bookings/{bookingId}/iepLevels", it.bookingId)
-          .headers(
-            setAuthorisation(
-              jwtAuthenticationHelper = jwtAuthenticationHelper,
-              roles = listOf("ROLE_MAINTAIN_IEP")
-            )
-          )
-          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-          .accept(MediaType.APPLICATION_JSON)
-          .body(
-            BodyInserters.fromValue(IepLevelAndComment.builder().iepLevel(iepLevel).comment(iepLevelComment).build())
-          )
-          .exchange()
-          .expectStatus().is2xxSuccessful
-      }
-    }.also {
       if (released) {
         webTestClient.put()
           .uri("/api/offenders/{nomsId}/release", offenderNo)

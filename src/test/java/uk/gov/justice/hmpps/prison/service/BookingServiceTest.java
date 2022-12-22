@@ -7,7 +7,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderFinePayment;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,7 +14,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.BookingActivity;
 import uk.gov.justice.hmpps.prison.api.model.CourtCase;
-import uk.gov.justice.hmpps.prison.api.model.IepLevelAndComment;
 import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecord;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
@@ -26,8 +24,6 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetailDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerm;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
-import uk.gov.justice.hmpps.prison.api.model.PersonalCareNeed;
-import uk.gov.justice.hmpps.prison.api.model.PrivilegeDetail;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentDetail;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
@@ -41,16 +37,10 @@ import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.AvailablePrisonIepLevel;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.AvailablePrisonIepLevel.PK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtOrder;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.DisciplinaryAction;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.HealthProblemCode;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.HealthProblemStatus;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.HealthProblemType;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.IepLevel;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.KeyDateAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LegalCaseType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryBranch;
@@ -63,8 +53,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderContactPerson;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderHealthProblem;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIepLevel;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderFinePayment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPropertyContainer;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence;
@@ -74,7 +63,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.RelationshipType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalcType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitorInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.WarZone;
@@ -86,7 +74,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderFinePayment
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRestrictionRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationRepository;
@@ -101,7 +88,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -111,10 +97,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -184,8 +168,7 @@ public class BookingServiceTest {
                 authenticationFacade,
                 offenderSentenceRepository,
                 offenderFinePaymentRepository,
-                availablePrisonIepLevelRepository,
-                offenderRestrictionRepository,"1",
+                offenderRestrictionRepository,
                 10);
     }
 
@@ -260,34 +243,6 @@ public class BookingServiceTest {
     }
 
     @Test
-    public void givenValidBookingIdIepLevelAndComment_whenIepLevelAdded() {
-        final var bookingId = 1L;
-        final var iepLevelAndComment = IepLevelAndComment.builder().iepLevel("STD").comment("Comment").reviewerUserName("FRED").build();
-
-        final var leedsPrison = AgencyLocation.builder().id("LEI").build();
-        when(offenderBookingRepository.findById(bookingId)).thenReturn(Optional.of(OffenderBooking.builder().bookingId(bookingId).location(leedsPrison).build()));
-        when(availablePrisonIepLevelRepository.findById(eq(new PK(iepLevelAndComment.getIepLevel(), leedsPrison)))).thenReturn(Optional.of(AvailablePrisonIepLevel.builder().iepLevel(new IepLevel("STD", "Standard")).agencyLocation(leedsPrison).build()));
-        when(staffUserAccountRepository.findById("FRED")).thenReturn(Optional.of(StaffUserAccount.builder().username("FRED").build()));
-        bookingService.addIepLevel(bookingId, iepLevelAndComment);
-
-        verify(availablePrisonIepLevelRepository).findById(eq(new PK(iepLevelAndComment.getIepLevel(), leedsPrison)));
-    }
-
-    @Test
-    public void givenInvalidIepLevel_whenIepLevelAdded() {
-        final var bookingId = 1L;
-        final var iepLevelAndComment = IepLevelAndComment.builder().iepLevel("STD").comment("Comment").reviewerUserName("FRED").build();
-
-        final var leedsPrison = AgencyLocation.builder().id("LEI").build();
-        when(offenderBookingRepository.findById(bookingId)).thenReturn(Optional.of(OffenderBooking.builder().bookingId(bookingId).location(leedsPrison).build()));
-        when(availablePrisonIepLevelRepository.findById(eq(new PK(iepLevelAndComment.getIepLevel(), leedsPrison)))).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> bookingService.addIepLevel(bookingId, iepLevelAndComment))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage("IEP Level 'STD' is not active for this booking's agency: Booking Id 1.");
-    }
-
-    @Test
     public void testThatUpdateAttendanceIsCalledForEachBooking() {
         final var bookingIds = Set.of(1L, 2L, 3L);
         final var activityId = 2L;
@@ -321,116 +276,8 @@ public class BookingServiceTest {
         bookingIds.forEach(bookingId -> verify(bookingRepository).updateAttendance(bookingId, activityId, expectedOutcome, true, false));
     }
 
-    @Test
-    public void getBookingIEPSummary_singleBooking_withDetail_noPrivileges() {
-        assertThatThrownBy(() -> bookingService.getBookingIEPSummary(-1L, true))
-                .isInstanceOf(EntityNotFoundException.class);
-    }
 
-    @Test
-    public void getBookingIEPSummary_multipleBooking_withDetail_noPrivileges() {
-        assertThatThrownBy(() -> bookingService.getBookingIEPSummary(List.of(-1L, -2L), true))
-                .isInstanceOf(EntityNotFoundException.class);
-    }
 
-    @Test
-    public void getBookingIEPSummary_singleBooking_noPrivileges() {
-        assertThatThrownBy(() -> bookingService.getBookingIEPSummary(-1L, false))
-                .isInstanceOf(EntityNotFoundException.class);
-    }
-
-    @Test
-    public void getBookingIEPSummary_multipleBooking_noPrivileges() {
-        assertThatThrownBy(() -> bookingService.getBookingIEPSummary(List.of(-1L, -2L), false))
-                .isInstanceOf(EntityNotFoundException.class);
-    }
-
-    @Test
-    public void getBookingIEPSummary_returnOffenderCurrentIepLevel() {
-        when(offenderBookingRepository.findById(-1L))
-            .thenReturn(Optional.of(OffenderBooking.builder()
-                    .iepLevels(List.of(
-                        OffenderIepLevel.builder()
-                            .iepLevel(new IepLevel("", "Standard"))
-                            .iepDate(LocalDate.now().minusDays(1))
-                            .build()))
-                .build()));
-        final var result = bookingService.getBookingIEPSummary(-1L, false);
-        assertThat(result.getIepLevel()).isEqualTo("Standard");
-        assertThat(result.getDaysSinceReview()).isEqualTo(1L);
-    }
-
-    @Test
-    public void getBookingIEPSummary_offenderHasNoIepSummary() {
-        final var defaultIepLevel = "Standard";
-        when(offenderBookingRepository.findById(-1L))
-            .thenReturn(Optional.of(OffenderBooking.builder()
-                .location(AgencyLocation.builder().id("MDI").build())
-                .build()));
-        when(availablePrisonIepLevelRepository.findByAgencyLocation_IdAndDefaultIep("MDI", true))
-            .thenReturn(List.of(
-                AvailablePrisonIepLevel.builder().iepLevel(new IepLevel("", defaultIepLevel)).build()));
-        final var result = bookingService.getBookingIEPSummary(-1L, false);
-        assertThat(result.getIepLevel()).isEqualTo(defaultIepLevel);
-        assertThat(result.getDaysSinceReview()).isEqualTo(0L);
-    }
-
-    @Test
-    public void getBookingIEPSummary_multipleBooking_globalSearchUser() {
-        when(authenticationFacade.isOverrideRole(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(true);
-        when(bookingRepository.getBookingIEPDetailsByBookingIds(anyList())).thenReturn(Map.of(-5L, List.of(PrivilegeDetail.builder().iepDate(LocalDate.now()).build())));
-        when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.of(OffenderBooking.builder().location(AgencyLocation.builder().id("MDI").build()).build()));
-        assertThat(bookingService.getBookingIEPSummary(List.of(-1L, -2L), false)).containsKeys(-5L);
-    }
-
-    @Test
-    public void getBookingIEPSummary_multipleBooking_withDetail_systemUser() {
-        when(authenticationFacade.isOverrideRole()).thenReturn(true);
-        when(bookingRepository.getBookingIEPDetailsByBookingIds(anyList())).thenReturn(Map.of(-5L, List.of(PrivilegeDetail.builder().iepDate(LocalDate.now()).build())));
-        when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.of(OffenderBooking.builder().location(AgencyLocation.builder().id("MDI").build()).build()));
-        assertThat(bookingService.getBookingIEPSummary(List.of(-1L, -2L), true)).containsKeys(-5L);
-    }
-
-    @Test
-    public void getBookingIEPSummary_oneOffenderHasNoIepSummary() {
-        when(authenticationFacade.isOverrideRole()).thenReturn(true);
-        when(bookingRepository.getBookingIEPDetailsByBookingIds(anyList())).thenReturn(Map.of(-5L, List.of(PrivilegeDetail.builder().iepDate(LocalDate.now()).build())));
-
-        final var defaultIepLevel = "Standard";
-        when(offenderBookingRepository.findById(anyLong()))
-            .thenReturn(Optional.of(OffenderBooking.builder()
-                .location(AgencyLocation.builder().id("MDI").build())
-                .build()));
-        when(availablePrisonIepLevelRepository.findByAgencyLocation_IdAndDefaultIep("MDI", true))
-            .thenReturn(List.of(
-                AvailablePrisonIepLevel.builder().iepLevel(new IepLevel("", defaultIepLevel)).build()));
-
-        final var result = bookingService.getBookingIEPSummary(List.of(-1L, -2L), true);
-        assertThat(result.get(-1L).getIepLevel()).isEqualTo(defaultIepLevel);
-        assertThat(result.get(-1L).getDaysSinceReview()).isEqualTo(0L);
-    }
-
-    @Test
-    public void getBookingIEPSummary_multipleBooking_withDetail_onlyAccessToOneBooking() {
-        final Long bookingId = -1L;
-
-        final var agencyIds = Set.of("LEI");
-        when(agencyService.getAgencyIds()).thenReturn(agencyIds);
-        when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(true);
-
-        assertThatThrownBy(() -> bookingService.getBookingIEPSummary(List.of(-1L, -2L), true)).isInstanceOf(EntityNotFoundException.class);
-    }
-
-    @Test
-    public void getBookingIEPSummary_multipleBooking_withDetail_accessToBothBookings() {
-        final var agencyIds = Set.of("LEI");
-        when(agencyService.getAgencyIds()).thenReturn(agencyIds).thenReturn(agencyIds);
-        when(bookingRepository.verifyBookingAccess(anyLong(), any())).thenReturn(true).thenReturn(true);
-        when(bookingRepository.getBookingIEPDetailsByBookingIds(anyList())).thenReturn(Map.of(-5L, List.of(PrivilegeDetail.builder().iepDate(LocalDate.now()).build())));
-        when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.of(OffenderBooking.builder().location(AgencyLocation.builder().id("MDI").build()).build()));
-
-        assertThat(bookingService.getBookingIEPSummary(List.of(-1L, -2L), true)).containsKeys(-5L);
-    }
 
     @Test
     public void getBookingVisitBalances() {

@@ -34,7 +34,6 @@ class PrisonTransferService(
   private val externalMovementService: ExternalMovementTransferService,
   private val bedAssignmentTransferService: BedAssignmentTransferService,
   private val trustAccountService: TrustAccountService,
-  private val iepTransferService: IEPTransferService,
   private val caseNoteTransferService: CaseNoteTransferService,
   private val offenderBookingRepository: OffenderBookingRepository,
   private val agencyInternalLocationRepository: AgencyInternalLocationRepository,
@@ -70,7 +69,6 @@ class PrisonTransferService(
         trustAccountService.createTrustAccount(
           booking = this, fromAgency = transferMovement.fromAgency, movementIn = movement
         )
-        iepTransferService.resetLevelForPrison(booking = this, transferMovement = movement)
         caseNoteTransferService.createGenerateAdmissionNote(booking = this, transferMovement = movement)
       }
     }
@@ -123,7 +121,6 @@ class PrisonTransferService(
           trustAccountService.createTrustAccount(
             booking = this, fromAgency = toCourtMovement.fromAgency, movementIn = createdMovement
           )
-          iepTransferService.resetLevelForPrison(booking = this, transferMovement = createdMovement)
           caseNoteTransferService.createGenerateAdmissionNote(booking = this, transferMovement = createdMovement)
         }
       }
@@ -226,7 +223,6 @@ class PrisonTransferService(
           trustAccountService.createTrustAccount(
             booking = this, fromAgency = releaseTAPMovement.fromAgency, movementIn = createdMovement
           )
-          iepTransferService.resetLevelForPrison(booking = this, transferMovement = createdMovement)
           caseNoteTransferService.createGenerateAdmissionNote(booking = this, transferMovement = createdMovement)
         }
       }
