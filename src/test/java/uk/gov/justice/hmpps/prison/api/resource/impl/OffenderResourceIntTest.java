@@ -116,6 +116,23 @@ public class OffenderResourceIntTest extends ResourceTest {
     }
 
     @Test
+    public void testViewCaseNotesRoleCanRetrieveCaseNotesForOffender() {
+        final var token = authTokenHelper.getToken(AuthToken.VIEW_CASE_NOTES);
+
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+            "/api/offenders/{nomsId}/case-notes/v2",
+            GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            OFFENDER_NUMBER);
+
+        assertThatJsonFileAndStatus(response, 200, "casenotes.json");
+    }
+
+    @Test
     public void testCannotRetrieveCaseNotesForOffenderWithViewPrisonerData() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA);
 
