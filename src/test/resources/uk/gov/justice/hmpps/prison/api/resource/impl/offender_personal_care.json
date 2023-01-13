@@ -226,11 +226,5 @@
   "aliases": [],
   "status": "ACTIVE IN",
   "legalStatus": "SENTENCED",
-  "imprisonmentStatus": "SENT",
-  "privilegeSummary": {
-    "bookingId": -1,
-    "iepLevel": "Standard",
-    "iepDate": "2017-08-15",
-    "iepTime": "2017-08-15T16:04:35"
-  }
+  "imprisonmentStatus": "SENT"
 }

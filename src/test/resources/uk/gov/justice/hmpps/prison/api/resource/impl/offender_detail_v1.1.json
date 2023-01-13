@@ -130,11 +130,6 @@
       "sentenceStartDate": "2017-07-05"
     }
   ],
-  "privilegeSummary": {
-    "bookingId": -2,
-    "iepLevel": "Basic",
-    "iepDate": "2017-09-06"
-  },
   "status": "ACTIVE IN",
   "statusReason": "ADM-24",
   "lastMovementTypeCode": "ADM",

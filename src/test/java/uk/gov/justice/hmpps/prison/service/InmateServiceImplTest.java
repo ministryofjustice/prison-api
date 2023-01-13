@@ -34,10 +34,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.LanguageReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderLanguage;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderLanguageRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
@@ -93,8 +91,6 @@ public class InmateServiceImplTest {
     @Mock
     private OffenderRepository offenderRepository;
     @Mock
-    private OffenderBookingRepository offenderBookingRepository;
-    @Mock
     private ExternalMovementRepository externalMovementRepository;
 
     @Mock
@@ -110,8 +106,8 @@ public class InmateServiceImplTest {
         serviceToTest = new InmateService(repository, caseLoadService, inmateAlertService,
                 referenceDomainService, bookingService, agencyService, healthService, userService, authenticationFacade,
                 telemetryClient, "WING", 100, offenderAssessmentService, offenderLanguageRepository,
-            offenderRepository, externalMovementRepository, null,
-            offenderBookingRepository);
+            offenderRepository, externalMovementRepository, null
+        );
     }
 
     @Test
@@ -477,7 +473,6 @@ public class InmateServiceImplTest {
         when(repository.getOffenderIdentifiersByOffenderId(anyLong())).thenReturn(List.of());
         when(externalMovementRepository.findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(any())).thenReturn(buildMovementReleased("REL",""));
         when(healthService.getPersonalCareNeeds(anyLong(), anyList())).thenReturn(new PersonalCareNeeds("A1234BC", List.of()));
-        when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.of(uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking.builder().bookingId(-1L).build()));
 
         final var inmateDetail = serviceToTest.findOffender("S1234AA", true, false);
 
@@ -498,7 +493,6 @@ public class InmateServiceImplTest {
         when(repository.getOffenderIdentifiersByOffenderId(anyLong())).thenReturn(List.of());
         when(externalMovementRepository.findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(any())).thenReturn(buildMovementTransferred("REL",""));
         when(healthService.getPersonalCareNeeds(anyLong(), anyList())).thenReturn(new PersonalCareNeeds("A1234BC", List.of()));
-        when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.of(uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking.builder().bookingId(-1L).build()));
 
         final var inmateDetail = serviceToTest.findOffender("S1234AA", true, false);
 
@@ -520,7 +514,6 @@ public class InmateServiceImplTest {
         when(repository.getOffenderIdentifiersByOffenderId(anyLong())).thenReturn(List.of());
         when(externalMovementRepository.findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(any())).thenReturn(buildMovementReleased("TAP","Temporary Absence"));
         when(healthService.getPersonalCareNeeds(anyLong(), anyList())).thenReturn(new PersonalCareNeeds("A1234BC", List.of()));
-        when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.of(uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking.builder().bookingId(-1L).build()));
 
         final var inmateDetail = serviceToTest.findOffender("S1234AA", true, false);
 
@@ -541,7 +534,6 @@ public class InmateServiceImplTest {
         when(repository.getOffenderIdentifiersByOffenderId(anyLong())).thenReturn(List.of());
         when(externalMovementRepository.findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(any())).thenReturn(buildMovementReleasedWithNullFromAgency("TAP","Temporary Absence"));
         when(healthService.getPersonalCareNeeds(anyLong(), anyList())).thenReturn(new PersonalCareNeeds("A1234BC", List.of()));
-        when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.of(uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking.builder().bookingId(-1L).build()));
         final var inmateDetail = serviceToTest.findOffender("S1234AA", true, false);
 
         assertThat(inmateDetail.getLocationDescription()).isEqualTo("Outside");
@@ -561,7 +553,6 @@ public class InmateServiceImplTest {
         when(repository.findInmateAliases(anyLong(), anyString(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(repository.getOffenderIdentifiersByOffenderId(anyLong())).thenReturn(List.of());
         when(healthService.getPersonalCareNeeds(anyLong(), anyList())).thenReturn(new PersonalCareNeeds("A1234BC", List.of()));
-        when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.of(uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking.builder().bookingId(-1L).build()));
 
         final var inmateDetail = serviceToTest.findOffender("S1234AA", true, false);
 
@@ -602,7 +593,6 @@ public class InmateServiceImplTest {
         when(repository.getImprisonmentStatus(anyLong())).thenReturn(Optional.of(imprisonmentStatus));
         when(repository.findInmateAliases(anyLong(), anyString(), any(), anyLong(), anyLong())).thenReturn(new Page(List.of(), 0, 0, 0));
         when(healthService.getPersonalCareNeeds(anyLong(), anyList())).thenReturn(new PersonalCareNeeds("A1234BC", List.of()));
-        when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.of(uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking.builder().bookingId(-1L).build()));
 
         final var inmateDetail = serviceToTest.findInmate(-1L, true, false);
 

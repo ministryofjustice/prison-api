@@ -30,7 +30,6 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifier;
 import uk.gov.justice.hmpps.prison.api.model.PhysicalAttributes;
 import uk.gov.justice.hmpps.prison.api.model.PhysicalCharacteristic;
 import uk.gov.justice.hmpps.prison.api.model.PhysicalMark;
-import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
 import uk.gov.justice.hmpps.prison.api.model.ProfileInformation;
 import uk.gov.justice.hmpps.prison.api.model.ReasonableAdjustments;
 import uk.gov.justice.hmpps.prison.api.model.RecallCalc;
@@ -41,12 +40,9 @@ import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.repository.InmateRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImage;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderLanguage;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.AvailablePrisonIepLevelRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImageRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderLanguageRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
@@ -64,7 +60,6 @@ import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -102,7 +97,6 @@ public class InmateService {
     private final OffenderImageRepository offenderImageRepository;
     private final HealthService healthService;
     private final TelemetryClient telemetryClient;
-    private final OffenderBookingRepository offenderBookingRepository;
 
     private final String locationTypeGranularity;
 
@@ -122,8 +116,7 @@ public class InmateService {
                          final OffenderLanguageRepository offenderLanguageRepository,
                          final OffenderRepository offenderRepository,
                          final ExternalMovementRepository externalMovementRepository,
-                         final OffenderImageRepository offenderImageRepository,
-                         final OffenderBookingRepository offenderBookingRepository
+                         final OffenderImageRepository offenderImageRepository
                          ) {
         this.repository = repository;
         this.caseLoadService = caseLoadService;
@@ -142,7 +135,6 @@ public class InmateService {
         this.offenderRepository = offenderRepository;
         this.externalMovementRepository = externalMovementRepository;
         this.offenderImageRepository = offenderImageRepository;
-        this.offenderBookingRepository = offenderBookingRepository;
     }
 
     public List<InmateDto> findInmatesByLocation(final String username, final String agencyId, final List<Long> locations) {
@@ -244,7 +236,6 @@ public class InmateService {
             }
             if (extraInfo) {
                 inmate.setAliases(repository.findInmateAliases(bookingId, "createDate", Order.ASC, 0, 100).getItems());
-                inmate.setPrivilegeSummary(getBookingIEPSummary(bookingId));
                 inmate.setSentenceDetail(bookingService.getBookingSentenceCalcDates(bookingId));
                 inmate.setPersonalCareNeeds(healthService.getPersonalCareNeeds(bookingId, List.of("DISAB", "MATSTAT", "PHY", "PSYCH", "SC")).getPersonalCareNeeds());
 
@@ -283,11 +274,6 @@ public class InmateService {
             }
         }
         return inmate;
-    }
-
-    private PrivilegeSummary getBookingIEPSummary(final Long bookingId) {
-        final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
-        return offenderBooking.getIepSummary().orElse(null);
     }
 
 
