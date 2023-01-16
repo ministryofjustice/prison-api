@@ -184,10 +184,9 @@ public class AdjudicationsServiceTest {
             final AdjudicationParty expectedOffenderParty = addExampleAdjudicationParty(mockDataProvider, expectedAdjudication);
 
             when(adjudicationsRepository.findByParties_AdjudicationNumber(any())).thenReturn(Optional.empty(), Optional.of(expectedAdjudication));
+            when(adjudicationsRepository.getOicChargeId()).thenReturn(1L);
 
             service.createAdjudication(newAdjudication.getOffenderNo(), newAdjudication);
-
-            verify(adjudicationsRepository.getOicChargeId(), atLeastOnce());
 
             verify(adjudicationsRepository).save(assertArgThat(actualAdjudication -> {
                     assertThat(actualAdjudication).usingRecursiveComparison().ignoringFields("createUserId", "parties")
@@ -196,6 +195,8 @@ public class AdjudicationsServiceTest {
                         .contains(expectedOffenderParty);
                 }
             ));
+
+            verify(adjudicationsRepository.getOicChargeId(), atLeastOnce());
         }
 
         @Test
