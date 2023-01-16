@@ -6,5 +6,5 @@
   "incidentTime": "2021-01-04T10:12:44",
   "incidentLocationId": -31,
   "statement": "Example statement",
-  "createdByUserId": "ITAG_USER",
+  "createdByUserId": "ITAG_USER"
 }

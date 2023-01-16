@@ -196,7 +196,7 @@ public class AdjudicationsServiceTest {
                 }
             ));
 
-            verify(adjudicationsRepository.getOicChargeId(), atLeastOnce());
+            verify(adjudicationsRepository, atLeastOnce()).getOicChargeId();
         }
 
         @Test
