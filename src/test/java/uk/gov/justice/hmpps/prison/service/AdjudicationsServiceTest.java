@@ -187,6 +187,8 @@ public class AdjudicationsServiceTest {
 
             service.createAdjudication(newAdjudication.getOffenderNo(), newAdjudication);
 
+            verify(adjudicationsRepository.getOicChargeId(), atLeastOnce());
+
             verify(adjudicationsRepository).save(assertArgThat(actualAdjudication -> {
                     assertThat(actualAdjudication).usingRecursiveComparison().ignoringFields("createUserId", "parties")
                         .isEqualTo(expectedAdjudication);
