@@ -50,6 +50,9 @@ public class AdjudicationCharge extends AuditableEntity {
     @JoinColumn(name = "CHARGED_OIC_OFFENCE_ID")
     private AdjudicationOffenceType offenceType;
 
+    @Column(name = "OIC_CHARGE_ID", nullable = true)
+    private String oicChargeId;
+
     public Long getSequenceNumber() {
         return id.getChargeSeq();
     }

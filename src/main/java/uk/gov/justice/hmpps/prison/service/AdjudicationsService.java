@@ -345,6 +345,7 @@ public class AdjudicationsService {
                 adjudicationPartyToUpdate.getCharges().add(AdjudicationCharge.builder()
                     .id(new PK(adjudicationPartyToUpdate, sequenceNumber))
                     .offenceType(offenceCode)
+                    .oicChargeId(adjudicationsRepository.getOicChargeId()+"/"+(i+1))
                     .build());
             }
             // If we do not run these inserts one at a time Oracle errors as it is not able to correctly run the trigger
