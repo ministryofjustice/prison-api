@@ -7,13 +7,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import uk.gov.justice.hmpps.prison.api.model.Location;
-import uk.gov.justice.hmpps.prison.api.model.LocationGroup;
 import uk.gov.justice.hmpps.prison.test.PrisonApiClientException;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.util.StringUtils.commaDelimitedListToStringArray;
@@ -23,12 +20,9 @@ import static org.springframework.util.StringUtils.commaDelimitedListToStringArr
  */
 public class LocationsSteps extends CommonSteps {
     private static final String API_LOCATIONS = API_PREFIX + "locations";
-    private static final String GROUPS_API_URL = AgencySteps.API_AGENCY_URL + "/locations/groups";
-    private static final String GROUP_API_URL = API_LOCATIONS + "/groups/{agencyId}/{name}";
 
     private Location location;
     private List<Location> locationList;
-    private List<LocationGroup> groupList;
     private List<OffenderSearchSteps.OffenderBookingResponse> bookingList;
 
     @Step("Perform location search by location id")
@@ -68,31 +62,18 @@ public class LocationsSteps extends CommonSteps {
         }
     }
 
-    private void dispatchGroupsCall(final String agencyId) {
-        init();
-        try {
-            final var response = restTemplate.exchange(LocationsSteps.GROUPS_API_URL, HttpMethod.GET, createEntity(null, null),
-                    new ParameterizedTypeReference<List<LocationGroup>>() {
-                    }, agencyId);
-            groupList = response.getBody();
-        } catch (final PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
-
     @Override
     protected void init() {
         super.init();
 
         location = null;
         locationList = null;
-        groupList = null;
         bookingList = null;
     }
 
     public void verifyLocationList(final String expectedList) {
         assertThat(locationList).asList().extracting("locationPrefix")
-                .containsExactly(commaDelimitedListToStringArray(expectedList));
+                .containsExactly((Object)commaDelimitedListToStringArray(expectedList));
     }
 
     public void verifyLocationIdList(final String expectedList) {
