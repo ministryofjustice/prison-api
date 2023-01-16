@@ -17,7 +17,6 @@ import uk.gov.justice.hmpps.prison.api.model.BookingAdjustment;
 import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
 import uk.gov.justice.hmpps.prison.api.model.LegalStatus;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
-import uk.gov.justice.hmpps.prison.api.model.PrivilegeSummary;
 import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentDetail;
 import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentValues;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
@@ -46,7 +45,6 @@ import javax.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -54,8 +52,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.time.LocalDate.now;
-import static java.time.temporal.ChronoUnit.DAYS;
 import static java.util.stream.Collectors.toList;
 
 @Getter
@@ -219,13 +215,6 @@ public class OffenderBooking extends AuditableEntity {
     @Exclude
     @BatchSize(size = 25)
     private List<OffenderAlert> alerts = new ArrayList<>();
-
-    @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
-    @Default
-    @Exclude
-    @BatchSize(size = 25)
-    private List<OffenderIepLevel> iepLevels = new ArrayList<>();
-
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "ROOT_OFFENDER_ID", nullable = false)
@@ -606,21 +595,6 @@ public class OffenderBooking extends AuditableEntity {
         return image.transform();
     }
 
-    public Optional<OffenderIepLevel> getLatestIepLevel() {
-        return iepLevels.stream()
-            .max(Comparator.comparing(OffenderIepLevel::getIepDate).thenComparing(OffenderIepLevel::getSequence));
-    }
-
-    public Optional<PrivilegeSummary> getIepSummary() {
-        return getLatestIepLevel().map(iep -> PrivilegeSummary.builder()
-            .bookingId(getBookingId())
-            .iepDate(iep.getIepDate())
-            .iepTime(iep.getIepDateTime())
-            .iepLevel(iep.getIepLevel().getDescription())
-            .daysSinceReview(DAYS.between(iep.getIepDate(), now()))
-            .build());
-    }
-
     public List<String> getAlertCodes() {
         return alerts.stream().filter(OffenderAlert::isActive).map(OffenderAlert::getAlertType).collect(Collectors.toSet()).stream().toList();
     }
@@ -693,8 +667,7 @@ public class OffenderBooking extends AuditableEntity {
 
     public List<SentenceAdjustmentValues> getSentenceAdjustments() {
         List<String> sentenceAdjustmentCodes = Stream.of(
-            SentenceAdjustmentType.values()).map(SentenceAdjustmentType::getCode).collect(Collectors.toList()
-        );
+            SentenceAdjustmentType.values()).map(SentenceAdjustmentType::getCode).toList();
         return sentenceAdjustments
             .stream()
             .filter(sa -> sentenceAdjustmentCodes.contains(sa.getSentenceAdjustCode()))

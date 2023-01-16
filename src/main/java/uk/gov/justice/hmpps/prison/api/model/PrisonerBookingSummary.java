@@ -69,9 +69,6 @@ public class PrisonerBookingSummary implements Serializable {
     @Schema(description = "Convicted Status", name = "convictedStatus", example = "Convicted", allowableValues = {"Convicted","Remand"})
     private String convictedStatus;
 
-    @Schema(description = "IEP level of the prisoner", example = "Basic")
-    private String iepLevel;
-
     @Schema(description = "Description of living unit (e.g. cell) that prisoner is assigned to.", example = "MDI-1-1-3")
     private String assignedLivingUnitDesc;
 }

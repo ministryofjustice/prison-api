@@ -73,11 +73,5 @@
       "caseloadType": "INST"
     }
   ],
-  "status": "ACTIVE IN",
-  "privilegeSummary": {
-    "bookingId": -41,
-    "iepLevel": "Standard",
-    "iepDate": "2017-09-06",
-    "iepTime": "2017-09-06T09:44:01"
-  }
+  "status": "ACTIVE IN"
 }

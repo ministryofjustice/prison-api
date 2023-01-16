@@ -190,9 +190,6 @@ public class InmateDetail {
     @Schema(description = "The prisoner's imprisonment status description. Note: Only returned when requesting extra details", example="Serving Life Imprisonment")
     private String imprisonmentStatusDescription;
 
-    @Schema(description = "The prisoner's IEP Status. Note: Only returned when requesting extra details")
-    private PrivilegeSummary privilegeSummary;
-
     @Schema(description = "Date prisoner was received into the prison.", example="1980-01-01")
     private LocalDate receptionDate;
 
