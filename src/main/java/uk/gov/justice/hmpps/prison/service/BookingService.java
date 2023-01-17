@@ -705,7 +705,7 @@ public class BookingService {
                 )).orElseThrow(EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId));
     }
 
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<CourtCase> getOffenderCourtCases(final Long bookingId, final boolean activeOnly) {
         return offenderBookingRepository.findById(bookingId)
                 .map(booking -> activeOnly ? booking.getActiveCourtCases() : booking.getCourtCases())
