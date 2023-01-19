@@ -395,7 +395,6 @@ public class AdjudicationsServiceTest {
                     mockDataProvider.internalLocation.getLocationId());
 
                 newAdjudication.setOffenceCodes(List.of(EXAMPLE_OFFENCE_CHARGE_CODE, EXAMPLE_OFFENCE_CHARGE_CODE));
-                when(adjudicationsRepository.getOicChargeId()).thenReturn(1L);
 
                 final Adjudication expectedAdjudication = getExampleAdjudication(mockDataProvider, newAdjudication);
                 addExampleAdjudicationParty(mockDataProvider, expectedAdjudication);
@@ -405,7 +404,7 @@ public class AdjudicationsServiceTest {
                 final var returnedAdjudication = service.createAdjudication(newAdjudication.getOffenderNo(), newAdjudication);
 
                 assertThat(returnedAdjudication.getAdjudicationNumber()).isEqualTo(EXAMPLE_ADJUDICATION_NUMBER);
-                verify(adjudicationsRepository, atLeastOnce()).getOicChargeId();
+
             }
 
             @Test

@@ -14,10 +14,6 @@ public interface AdjudicationRepository extends CrudRepository<Adjudication, Lon
     // There isn't any JPA support for generating values for non-id columns - see JPA SPEC-113 (https://github.com/eclipse-ee4j/jpa-api/issues/113)
     @Query(value = "SELECT INCIDENT_ID.nextval FROM dual", nativeQuery = true)
     Long getNextAdjudicationNumber();
-
-    @Query(value = "SELECT OIC_CHARGE_ID.nextval FROM dual", nativeQuery = true)
-    Long getOicChargeId();
-
     Optional<Adjudication> findByParties_AdjudicationNumber(final Long adjudicationNumber);
     List<Adjudication> findByParties_AdjudicationNumberIn(final List<Long> adjudicationNumbers);
 }
