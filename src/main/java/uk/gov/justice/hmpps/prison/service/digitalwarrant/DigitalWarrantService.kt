@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.service.digitalwarrant
 
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Adjustment
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Charge
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.CourtCase
@@ -47,9 +48,9 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.SentenceCalcTypeRep
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.SentenceTermRepository
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 import java.time.LocalDateTime
-import javax.transaction.Transactional
 
 @Service
+@Transactional(readOnly = true)
 class DigitalWarrantService(
   private val offenderCourtCaseRepository: OffenderCourtCaseRepository,
   private val offenderChargeRepository: OffenderChargeRepository,
@@ -222,7 +223,7 @@ class DigitalWarrantService(
       ).id
     }
   }
-  @Transactional
+  
   fun getCourtDateResults(offenderId: String): List<CourtDateResult> {
     return courtEventChargeRepository.findByOffender(offenderId).map {
       val event = it.eventAndCharge.courtEvent

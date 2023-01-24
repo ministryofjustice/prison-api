@@ -87,7 +87,7 @@ public class DigitalWarrantResource {
     }
 
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "The court date results.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Integer.class))}),
+        @ApiResponse(responseCode = "200", description = "The court date results.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CourtDateResult.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Returns details of all court dates and the result of each.")
     @GetMapping("/court-date-results/{offenderId}")
