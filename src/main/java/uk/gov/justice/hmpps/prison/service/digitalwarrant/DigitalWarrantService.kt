@@ -247,6 +247,5 @@ class DigitalWarrantService(
     }
       .distinctBy { it.id }
       .sortedBy { it.date }
-
   }
 }
