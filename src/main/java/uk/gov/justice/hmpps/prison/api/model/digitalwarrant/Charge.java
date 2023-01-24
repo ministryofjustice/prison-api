@@ -18,7 +18,7 @@ import java.time.LocalDate;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @With
 public class Charge {
-
+    @Schema(description = "The id of the charge")
     private Long chargeId;
 
     @Schema(description = "The offence code of the office in the court case")
@@ -39,5 +39,6 @@ public class Charge {
     @Schema(description = "The id of the court case")
     private Long courtCaseId;
 
+    @Schema(description = "The sequence of the sentence from this charge")
     private Integer sentenceSequence;
 }
