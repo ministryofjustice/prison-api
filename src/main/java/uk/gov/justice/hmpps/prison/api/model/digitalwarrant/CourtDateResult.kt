@@ -21,7 +21,7 @@ data class CourtDateResult(
   val resultDescription: String?,
 
   @Schema(description = "The charge which is the subject of the court date")
-  val charge: Charge?,
+  val charge: Charge,
 
   @Schema(description = "The id of the booking this court date was linked to")
   val bookingId: Long?
