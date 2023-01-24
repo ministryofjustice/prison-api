@@ -223,7 +223,7 @@ class DigitalWarrantService(
       ).id
     }
   }
-  
+
   fun getCourtDateResults(offenderId: String): List<CourtDateResult> {
     return courtEventChargeRepository.findByOffender(offenderId).map {
       val event = it.eventAndCharge.courtEvent
