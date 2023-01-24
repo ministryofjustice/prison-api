@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,8 +23,11 @@ import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Adjustment;
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.CourtCase;
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Charge;
+import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.CourtDateResult;
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Sentence;
 import uk.gov.justice.hmpps.prison.service.digitalwarrant.DigitalWarrantService;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -81,4 +85,15 @@ public class DigitalWarrantResource {
                                   @RequestBody final Adjustment adjustment) {
         return digitalWarrantService.createAdjustment(bookingId, adjustment);
     }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "The court date results.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CourtDateResult.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Returns details of all court dates and the result of each.")
+    @GetMapping("/court-date-results/{offenderId}")
+    @PreAuthorize("hasRole('MANAGE_DIGITAL_WARRANT') and hasAuthority('SCOPE_read')")
+    public List<CourtDateResult> getCourtDateResults(@PathVariable("offenderId") @Parameter(description = "The required offender id (mandatory)", required = true) final String offenderId) {
+        return digitalWarrantService.getCourtDateResults(offenderId);
+    }
 }
+

@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.With;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Type;
@@ -46,6 +47,7 @@ import static org.apache.commons.lang3.StringUtils.isNumeric;
         @NamedAttributeNode("hoCode"),
     }
 )
+@With
 public class Offence {
 
     @NoArgsConstructor

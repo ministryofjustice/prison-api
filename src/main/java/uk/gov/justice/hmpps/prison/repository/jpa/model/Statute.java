@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.With;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
@@ -22,6 +23,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "STATUTES")
 @ToString
+@With
 public class Statute extends AuditableEntity{
 
     @Id

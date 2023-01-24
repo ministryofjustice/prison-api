@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.With;
 
 import java.time.LocalDate;
 
@@ -15,7 +16,10 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@With
 public class Charge {
+    @Schema(description = "The id of the charge")
+    private Long chargeId;
 
     @Schema(description = "The offence code of the office in the court case")
     private String offenceCode;
@@ -35,4 +39,6 @@ public class Charge {
     @Schema(description = "The id of the court case")
     private Long courtCaseId;
 
+    @Schema(description = "The sequence of the sentence from this charge")
+    private Integer sentenceSequence;
 }

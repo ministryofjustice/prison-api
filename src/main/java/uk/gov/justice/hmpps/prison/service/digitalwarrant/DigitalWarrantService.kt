@@ -1,9 +1,11 @@
 package uk.gov.justice.hmpps.prison.service.digitalwarrant
 
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Adjustment
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Charge
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.CourtCase
+import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.CourtDateResult
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Sentence
 import uk.gov.justice.hmpps.prison.api.support.BookingAdjustmentType
 import uk.gov.justice.hmpps.prison.api.support.SentenceAdjustmentType
@@ -46,9 +48,9 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.SentenceCalcTypeRep
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.SentenceTermRepository
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 import java.time.LocalDateTime
-import javax.transaction.Transactional
 
 @Service
+@Transactional(readOnly = true)
 class DigitalWarrantService(
   private val offenderCourtCaseRepository: OffenderCourtCaseRepository,
   private val offenderChargeRepository: OffenderChargeRepository,
@@ -220,5 +222,31 @@ class DigitalWarrantService(
           .withSentenceSeq(adjustment.sequence)
       ).id
     }
+  }
+
+  fun getCourtDateResults(offenderId: String): List<CourtDateResult> {
+    return courtEventChargeRepository.findByOffender(offenderId).map {
+      val event = it.eventAndCharge.courtEvent
+      val charge = it.eventAndCharge.offenderCharge
+      CourtDateResult(
+        event.id,
+        event.eventDate,
+        event.outcomeReasonCode?.code,
+        event.outcomeReasonCode?.description,
+        Charge(
+          charge.id,
+          charge.offence.code,
+          charge.offence.statute.code,
+          charge.dateOfOffence,
+          charge.endDate,
+          charge.pleaCode == "G",
+          charge.offenderCourtCase.id,
+          charge.offenderSentenceCharges.firstOrNull()?.offenderSentence?.sequence
+        ),
+        charge.offenderBooking.bookingId
+      )
+    }
+      .distinctBy { it.id }
+      .sortedBy { it.date }
   }
 }
