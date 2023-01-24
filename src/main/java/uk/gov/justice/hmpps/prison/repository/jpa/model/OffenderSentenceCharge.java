@@ -16,7 +16,9 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.io.Serializable;
 
@@ -54,4 +56,11 @@ public class OffenderSentenceCharge extends AuditableEntity {
     @ManyToOne
     @JoinColumn(name = "OFFENDER_CHARGE_ID", insertable = false, updatable = false)
     private OffenderCharge offenderCharge;
+
+    @ManyToOne
+    @JoinColumns({
+        @JoinColumn(name = "OFFENDER_BOOK_ID", referencedColumnName = "OFFENDER_BOOK_ID", insertable = false, updatable = false),
+        @JoinColumn(name = "SENTENCE_SEQ", referencedColumnName = "SENTENCE_SEQ", insertable = false, updatable = false)
+    })
+    private OffenderSentence offenderSentence;
 }

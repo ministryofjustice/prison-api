@@ -19,10 +19,13 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
@@ -107,6 +110,9 @@ public class OffenderCharge extends AuditableEntity {
 
     @Column(name = "MOST_SERIOUS_FLAG")
     private String mostSeriousFlag;
+
+    @OneToMany(mappedBy = "offenderCharge", fetch = FetchType.LAZY)
+    private List<OffenderSentenceCharge> offenderSentenceCharges = new ArrayList<>();
 
     public boolean isActive() {
         return ACTIVE.equals(chargeStatus);

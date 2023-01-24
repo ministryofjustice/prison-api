@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.With;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
@@ -18,6 +19,7 @@ import java.time.LocalDate;
 @Entity(name = "OFFENCE_RESULT_CODES")
 @EqualsAndHashCode(of = {"code"}, callSuper = false)
 @ToString(of = {"code", "description"})
+@With
 public class OffenceResult extends AuditableEntity {
 
     @Id

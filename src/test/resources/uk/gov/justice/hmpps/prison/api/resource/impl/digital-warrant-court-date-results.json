@@ -1,0 +1,19 @@
+[
+  {
+    "id":2,
+    "date":"2022-10-10",
+    "resultCode":"1002",
+    "resultDescription":"Imprisonment",
+    "charge":{
+      "chargeId":1000,
+      "offenceCode":"RV98011",
+      "offenceStatue":"RV98",
+      "offenceDate":"2022-10-10",
+      "offenceEndDate":"2022-10-12",
+      "guilty":true,
+      "courtCaseId":1,
+      "sentenceSequence": 1
+    },
+    "bookingId":-60
+  }
+]

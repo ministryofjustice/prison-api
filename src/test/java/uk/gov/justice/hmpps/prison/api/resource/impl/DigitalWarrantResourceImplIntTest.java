@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.api.resource.impl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Adjustment;
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.CourtCase;
@@ -331,5 +332,18 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
 
         assertThat(sentence.getCourtCase().getCaseInfoNumber()).isEqualTo("ABC123");
         assertThat(sentence.getOffenderBooking().getActiveImprisonmentStatus().get().getImprisonmentStatus().getStatus()).isEqualTo("ADIMP_ORA");
+
+
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_MANAGE_DIGITAL_WARRANT"), null);
+
+        final var responseEntity = testRestTemplate
+            .exchange(
+                "/api/digital-warrant/court-date-results/Z0020XY",
+                HttpMethod.GET,
+                requestEntity,
+                String.class
+            );
+
+        assertThatJsonFileAndStatus(responseEntity, HttpStatus.OK.value(), "digital-warrant-court-date-results.json");
     }
 }

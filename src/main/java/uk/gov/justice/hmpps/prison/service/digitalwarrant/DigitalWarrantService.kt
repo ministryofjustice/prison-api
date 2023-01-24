@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Adjustment
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Charge
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.CourtCase
+import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.CourtDateResult
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Sentence
 import uk.gov.justice.hmpps.prison.api.support.BookingAdjustmentType
 import uk.gov.justice.hmpps.prison.api.support.SentenceAdjustmentType
@@ -220,5 +221,32 @@ class DigitalWarrantService(
           .withSentenceSeq(adjustment.sequence)
       ).id
     }
+  }
+  @Transactional
+  fun getCourtDateResults(offenderId: String): List<CourtDateResult> {
+    return courtEventChargeRepository.findByOffender(offenderId).map {
+      val event = it.eventAndCharge.courtEvent
+      val charge = it.eventAndCharge.offenderCharge
+      CourtDateResult(
+        event.id,
+        event.eventDate,
+        event.outcomeReasonCode?.code,
+        event.outcomeReasonCode?.description,
+        Charge(
+          charge.id,
+          charge.offence.code,
+          charge.offence.statute.code,
+          charge.dateOfOffence,
+          charge.endDate,
+          charge.pleaCode == "G",
+          charge.offenderCourtCase.id,
+          charge.offenderSentenceCharges.firstOrNull()?.offenderSentence?.sequence
+        ),
+        charge.offenderBooking.bookingId
+      )
+    }
+      .distinctBy { it.id }
+      .sortedBy { it.date }
+
   }
 }

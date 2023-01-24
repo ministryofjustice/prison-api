@@ -124,11 +124,7 @@ public class OffenderSentence extends AuditableEntity {
     @Column(name = "LINE_SEQ")
     private Long lineSequence;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumns({
-        @JoinColumn(name = "OFFENDER_BOOK_ID", referencedColumnName = "OFFENDER_BOOK_ID"),
-        @JoinColumn(name = "SENTENCE_SEQ", referencedColumnName = "SENTENCE_SEQ")
-    })
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "offenderSentence")
     @BatchSize(size = 25)
     private List<OffenderSentenceCharge> offenderSentenceCharges;
 
