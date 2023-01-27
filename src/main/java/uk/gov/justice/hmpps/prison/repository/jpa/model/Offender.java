@@ -249,14 +249,18 @@ public class Offender extends AuditableEntity {
             )
             .build();
 
-        summary.getPrisonPeriod().forEach(
-            pp -> {
-                pp.setEntryDate(pp.getMovementDates().stream().findFirst()
-                    .filter( m -> "ADM".equals(m.getInwardType()) )
-                    .map(MovementDate::getDateInToPrison).orElse(null));
+        summary.getPrisonPeriod().forEach(pp -> {
+                final var noAdmission = pp.getMovementDates().stream().noneMatch(m -> "ADM".equals(m.getInwardType()));
+                pp.setEntryDate(pp.getMovementDates().stream()
+                    // if there is no admission then use the first movement as the entry date
+                    .filter(m -> noAdmission || "ADM".equals(m.getInwardType()))
+                    .findFirst()
+                    // if there is no date into prison then we fall back onto the date out of prison instead
+                    .map(m -> (m.getDateInToPrison() != null ? m.getDateInToPrison() : m.getDateOutOfPrison()))
+                    .orElse(null));
 
                 pp.setReleaseDate(pp.getLastMovement()
-                    .filter( m -> "REL".equals(m.getOutwardType()) )
+                    .filter(m -> "REL".equals(m.getOutwardType()))
                     .map(MovementDate::getDateOutOfPrison).orElse(null));
             }
         );
