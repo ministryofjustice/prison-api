@@ -3,7 +3,6 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
@@ -91,9 +90,8 @@ class OffenderBookingTest {
 
   @Nested
   internal inner class PrisonPeriod {
-    @DisplayName(value = "test returns a list of prison periods")
     @Test
-    fun ReturnsListOfPrisonPeriods() {
+    fun `test returns a list of prison periods`() {
       val offender = Offender.builder().nomsId("A1234AA").build().also { it.rootOffender = it }
       OffenderBooking.builder()
         .bookingId(12345L)
@@ -203,27 +201,22 @@ class OffenderBookingTest {
 
       with(offender.prisonerInPrisonSummary) {
         assertThat(prisonPeriod).hasSize(3)
-        assertThat(prisonPeriod[0].bookNumber).isEqualTo("R1234K")
-        assertThat(prisonPeriod[1].bookNumber).isEqualTo("R1234T")
-        assertThat(prisonPeriod[2].bookNumber).isEqualTo("R1234Q")
-        assertThat(prisonPeriod[0].movementDates).hasSize(1)
-        assertThat(prisonPeriod[1].movementDates).hasSize(2)
-        assertThat(prisonPeriod[2].movementDates).hasSize(1)
+
+        assertThat(prisonPeriod).extracting<String> { it.bookNumber }.containsExactly("R1234K", "R1234T", "R1234Q")
+        assertThat(prisonPeriod).extracting<Int> { it.movementDates.size }.containsExactly(1, 2, 1)
+        assertThat(prisonPeriod).extracting<List<String>> { it.prisons }.containsExactly(listOf("WWI"), listOf("MDI"), listOf("MDI"))
+
         assertThat(prisonPeriod[0].entryDate).isEqualTo(LocalDateTime.of(2019, 1, 4, 9, 30))
         assertThat(prisonPeriod[0].releaseDate).isEqualTo(LocalDateTime.of(2019, 2, 28, 15, 30))
-        assertThat(prisonPeriod[0].prisons).containsExactly("WWI")
         assertThat(prisonPeriod[1].entryDate).isEqualTo(LocalDateTime.of(2020, 1, 4, 9, 30))
         assertThat(prisonPeriod[1].releaseDate).isEqualTo(LocalDateTime.of(2020, 2, 28, 15, 30))
-        assertThat(prisonPeriod[1].prisons).containsExactly("MDI")
         assertThat(prisonPeriod[2].entryDate).isEqualTo(LocalDateTime.of(2021, 1, 4, 9, 30))
         assertThat(prisonPeriod[2].releaseDate).isEqualTo(LocalDateTime.of(2021, 2, 28, 15, 30))
-        assertThat(prisonPeriod[2].prisons).containsExactly("MDI")
       }
     }
 
-    @DisplayName(value = "cope with bad data and no admission")
     @Test
-    fun ReturnsListOfPrisonPeriodsWhenBadDataAndNoAdmission() {
+    fun `cope with bad data and no admission`() {
       val offender = Offender.builder().nomsId("A1234AA").build().also { it.rootOffender = it }
 
       OffenderBooking.builder()
@@ -232,12 +225,75 @@ class OffenderBookingTest {
         .build().also {
           offender.addBooking(it)
 
+          // booking has a single release - no admission
+          it.addExternalMovement(
+            ExternalMovement.builder()
+              .movementType(MovementType("REL", "Release"))
+              .movementDirection(MovementDirection.OUT)
+              .movementReason(MovementReason("CR", "Conditional Release"))
+              .movementTime(LocalDateTime.parse("2019-02-28T15:30"))
+              .build()
+          )
+        }
+      OffenderBooking.builder()
+        .bookingId(22345L)
+        .bookNumber("R2234K")
+        .build().also {
+          offender.addBooking(it)
+
+          // booking has a single release - no admission
+          it.addExternalMovement(
+            ExternalMovement.builder()
+              .movementType(MovementType("REL", "Release"))
+              .movementDirection(MovementDirection.OUT)
+              .movementReason(MovementReason("CR", "Conditional Release"))
+              .movementTime(LocalDateTime.parse("2019-02-28T16:30"))
+              .build()
+          )
+        }
+
+      with(offender.prisonerInPrisonSummary) {
+        assertThat(prisonPeriod).hasSize(2)
+        assertThat(prisonPeriod).extracting<String> { it.bookNumber }.containsExactly("R1234K", "R2234K")
+        assertThat(prisonPeriod[0].movementDates).hasSize(1)
+        assertThat(prisonPeriod[0].entryDate).isEqualTo(LocalDateTime.parse("2019-02-28T15:30"))
+        assertThat(prisonPeriod[0].releaseDate).isEqualTo(LocalDateTime.parse("2019-02-28T15:30"))
+      }
+    }
+
+    @Test
+    fun `cope with bad data and admission not as first record`() {
+      val offender = Offender.builder().nomsId("A1234AA").build().also { it.rootOffender = it }
+      OffenderBooking.builder()
+        .bookingId(12345L)
+        .bookNumber("R1234K")
+        .build().also {
+          offender.addBooking(it)
+
+          // first movement is a temporary absence
+          it.addExternalMovement(
+            ExternalMovement.builder()
+              .movementType(MovementType("TAP", "Temp Ab"))
+              .movementDirection(MovementDirection.IN)
+              .movementReason(MovementReason("C4", "Wedding"))
+              .movementTime(LocalDateTime.parse("2019-01-03T09:30"))
+              .build()
+          )
+          it.addExternalMovement(
+            ExternalMovement.builder()
+              .movementType(MovementType("TAP", "Temp Ab"))
+              .movementDirection(MovementDirection.OUT)
+              .movementReason(MovementReason("C4", "Wedding"))
+              .movementTime(LocalDateTime.parse("2019-01-03T14:30"))
+              .build()
+          )
+          // this movement is the admission so expect the start date for this one
           it.addExternalMovement(
             ExternalMovement.builder()
               .movementType(MovementType("ADM", "Admission"))
               .movementDirection(MovementDirection.IN)
               .movementReason(MovementReason("B", "Recall"))
-              .movementTime(LocalDateTime.of(2019, 1, 4, 9, 30))
+              .movementTime(LocalDateTime.parse("2019-01-04T09:30"))
               .toAgency(AgencyLocation.builder().id("WWI").build())
               .build()
           )
@@ -246,54 +302,13 @@ class OffenderBookingTest {
               .movementType(MovementType("REL", "Release"))
               .movementDirection(MovementDirection.OUT)
               .movementReason(MovementReason("CR", "Conditional Release"))
-              .movementTime(LocalDateTime.of(2019, 2, 28, 15, 30))
+              .movementTime(LocalDateTime.parse("2019-02-28T15:30"))
               .build()
           )
         }
-
       OffenderBooking.builder()
         .bookingId(12346L)
         .bookNumber("R1234T")
-        .build().also {
-          offender.addBooking(it)
-          it.addExternalMovement(
-            ExternalMovement.builder()
-              .movementType(MovementType("ADM", "Admission"))
-              .movementDirection(MovementDirection.IN)
-              .movementReason(MovementReason("25", "Awaiting Sentence"))
-              .movementTime(LocalDateTime.of(2020, 1, 4, 9, 30))
-              .toAgency(AgencyLocation.builder().id("MDI").build())
-              .build()
-          )
-          it.addExternalMovement(
-            ExternalMovement.builder()
-              .movementType(MovementType("TAP", "Temp Ab"))
-              .movementDirection(MovementDirection.OUT)
-              .movementReason(MovementReason("C4", "Wedding"))
-              .movementTime(LocalDateTime.of(2020, 1, 15, 9, 30))
-              .build()
-          )
-          it.addExternalMovement(
-            ExternalMovement.builder()
-              .movementType(MovementType("TAP", "Temp Ab"))
-              .movementDirection(MovementDirection.IN)
-              .movementReason(MovementReason("C4", "Wedding"))
-              .movementTime(LocalDateTime.of(2020, 1, 15, 15, 30))
-              .build()
-          )
-          it.addExternalMovement(
-            ExternalMovement.builder()
-              .movementType(MovementType("REL", "Release"))
-              .movementDirection(MovementDirection.OUT)
-              .movementReason(MovementReason("BL", "Bailed"))
-              .movementTime(LocalDateTime.of(2020, 2, 28, 15, 30))
-              .build()
-          )
-        }
-
-      OffenderBooking.builder()
-        .bookingId(12347L)
-        .bookNumber("R1234Q")
         .build().also {
           offender.addBooking(it)
 
@@ -301,186 +316,26 @@ class OffenderBookingTest {
             ExternalMovement.builder()
               .movementType(MovementType("ADM", "Admission"))
               .movementDirection(MovementDirection.IN)
-              .movementReason(MovementReason("B", "Recall"))
-              .movementTime(LocalDateTime.of(2021, 1, 4, 9, 30))
+              .movementReason(MovementReason("25", "Awaiting Sentence"))
+              .movementTime(LocalDateTime.parse("2020-01-04T09:30"))
               .toAgency(AgencyLocation.builder().id("MDI").build())
-              .build()
-          )
-          it.addExternalMovement(
-            ExternalMovement.builder()
-              .movementType(MovementType("CRT", "Court"))
-              .movementDirection(MovementDirection.OUT)
-              .movementReason(MovementReason("CRT", "Court Appearance"))
-              .movementTime(LocalDateTime.of(2021, 1, 15, 9, 30))
-              .build()
-          )
-          it.addExternalMovement(
-            ExternalMovement.builder()
-              .movementType(MovementType("CRT", "Court"))
-              .movementDirection(MovementDirection.IN)
-              .movementReason(MovementReason("CRT", "Court Appearance"))
-              .movementTime(LocalDateTime.of(2021, 1, 15, 15, 30))
-              .build()
-          )
-          it.addExternalMovement(
-            ExternalMovement.builder()
-              .movementType(MovementType("REL", "Release"))
-              .movementDirection(MovementDirection.OUT)
-              .movementReason(MovementReason("HP", "Hospital"))
-              .movementTime(LocalDateTime.of(2021, 2, 28, 15, 30))
               .build()
           )
         }
 
       with(offender.prisonerInPrisonSummary) {
-        assertThat(prisonPeriod).hasSize(3)
-        assertThat(prisonPeriod[0].bookNumber).isEqualTo("R1234K")
-        assertThat(prisonPeriod[1].bookNumber).isEqualTo("R1234T")
-        assertThat(prisonPeriod[2].bookNumber).isEqualTo("R1234Q")
-        assertThat(prisonPeriod[0].movementDates).hasSize(1)
-        assertThat(prisonPeriod[1].movementDates).hasSize(2)
-        assertThat(prisonPeriod[2].movementDates).hasSize(1)
-        assertThat(prisonPeriod[0].entryDate).isEqualTo(LocalDateTime.of(2019, 1, 4, 9, 30))
-        assertThat(prisonPeriod[0].releaseDate).isEqualTo(LocalDateTime.of(2019, 2, 28, 15, 30))
-        assertThat(prisonPeriod[0].prisons).containsExactly("WWI")
-        assertThat(prisonPeriod[1].entryDate).isEqualTo(LocalDateTime.of(2020, 1, 4, 9, 30))
-        assertThat(prisonPeriod[1].releaseDate).isEqualTo(LocalDateTime.of(2020, 2, 28, 15, 30))
-        assertThat(prisonPeriod[1].prisons).containsExactly("MDI")
-        assertThat(prisonPeriod[2].entryDate).isEqualTo(LocalDateTime.of(2021, 1, 4, 9, 30))
-        assertThat(prisonPeriod[2].releaseDate).isEqualTo(LocalDateTime.of(2021, 2, 28, 15, 30))
-        assertThat(prisonPeriod[2].prisons).containsExactly("MDI")
+        assertThat(prisonPeriod).hasSize(2)
+        assertThat(prisonPeriod).extracting<String> { it.bookNumber }.containsExactly("R1234K", "R1234T")
+        assertThat(prisonPeriod).extracting<Int> { it.movementDates.size }.containsExactly(2, 1)
+        assertThat(prisonPeriod[0].entryDate).isEqualTo(LocalDateTime.parse("2019-01-04T09:30"))
+        assertThat(prisonPeriod[0].releaseDate).isEqualTo(LocalDateTime.parse("2019-02-28T15:30"))
+        assertThat(prisonPeriod[1].entryDate).isEqualTo(LocalDateTime.parse("2020-01-04T09:30"))
+        assertThat(prisonPeriod[1].releaseDate).isNull()
       }
     }
 
-    @DisplayName(value = "cope with bad data and admission not as first record")
     @Test
-    fun ReturnsListOfPrisonPeriodsWhenBadDataAndAdmissionNotAsFirstRecord() {
-      val offender = Offender.builder()
-        .nomsId("A1234AA")
-        .build()
-      offender.rootOffender = offender
-      val it = OffenderBooking.builder()
-        .bookingId(12345L)
-        .bookNumber("R1234K")
-        .build()
-      it.addExternalMovement(
-        ExternalMovement.builder()
-          .movementType(MovementType("ADM", "Admission"))
-          .movementDirection(MovementDirection.IN)
-          .movementReason(MovementReason("B", "Recall"))
-          .movementTime(LocalDateTime.of(2019, 1, 4, 9, 30))
-          .toAgency(AgencyLocation.builder().id("WWI").build())
-          .build()
-      )
-      it.addExternalMovement(
-        ExternalMovement.builder()
-          .movementType(MovementType("REL", "Release"))
-          .movementDirection(MovementDirection.OUT)
-          .movementReason(MovementReason("CR", "Conditional Release"))
-          .movementTime(LocalDateTime.of(2019, 2, 28, 15, 30))
-          .build()
-      )
-      val booking2 = OffenderBooking.builder()
-        .bookingId(12346L)
-        .bookNumber("R1234T")
-        .build()
-      booking2.addExternalMovement(
-        ExternalMovement.builder()
-          .movementType(MovementType("ADM", "Admission"))
-          .movementDirection(MovementDirection.IN)
-          .movementReason(MovementReason("25", "Awaiting Sentence"))
-          .movementTime(LocalDateTime.of(2020, 1, 4, 9, 30))
-          .toAgency(AgencyLocation.builder().id("MDI").build())
-          .build()
-      )
-      booking2.addExternalMovement(
-        ExternalMovement.builder()
-          .movementType(MovementType("TAP", "Temp Ab"))
-          .movementDirection(MovementDirection.OUT)
-          .movementReason(MovementReason("C4", "Wedding"))
-          .movementTime(LocalDateTime.of(2020, 1, 15, 9, 30))
-          .build()
-      )
-      booking2.addExternalMovement(
-        ExternalMovement.builder()
-          .movementType(MovementType("TAP", "Temp Ab"))
-          .movementDirection(MovementDirection.IN)
-          .movementReason(MovementReason("C4", "Wedding"))
-          .movementTime(LocalDateTime.of(2020, 1, 15, 15, 30))
-          .build()
-      )
-      booking2.addExternalMovement(
-        ExternalMovement.builder()
-          .movementType(MovementType("REL", "Release"))
-          .movementDirection(MovementDirection.OUT)
-          .movementReason(MovementReason("BL", "Bailed"))
-          .movementTime(LocalDateTime.of(2020, 2, 28, 15, 30))
-          .build()
-      )
-      val booking3 = OffenderBooking.builder()
-        .bookingId(12347L)
-        .bookNumber("R1234Q")
-        .build()
-      booking3.addExternalMovement(
-        ExternalMovement.builder()
-          .movementType(MovementType("ADM", "Admission"))
-          .movementDirection(MovementDirection.IN)
-          .movementReason(MovementReason("B", "Recall"))
-          .movementTime(LocalDateTime.of(2021, 1, 4, 9, 30))
-          .toAgency(AgencyLocation.builder().id("MDI").build())
-          .build()
-      )
-      booking3.addExternalMovement(
-        ExternalMovement.builder()
-          .movementType(MovementType("CRT", "Court"))
-          .movementDirection(MovementDirection.OUT)
-          .movementReason(MovementReason("CRT", "Court Appearance"))
-          .movementTime(LocalDateTime.of(2021, 1, 15, 9, 30))
-          .build()
-      )
-      booking3.addExternalMovement(
-        ExternalMovement.builder()
-          .movementType(MovementType("CRT", "Court"))
-          .movementDirection(MovementDirection.IN)
-          .movementReason(MovementReason("CRT", "Court Appearance"))
-          .movementTime(LocalDateTime.of(2021, 1, 15, 15, 30))
-          .build()
-      )
-      booking3.addExternalMovement(
-        ExternalMovement.builder()
-          .movementType(MovementType("REL", "Release"))
-          .movementDirection(MovementDirection.OUT)
-          .movementReason(MovementReason("HP", "Hospital"))
-          .movementTime(LocalDateTime.of(2021, 2, 28, 15, 30))
-          .build()
-      )
-      offender.addBooking(booking2)
-      offender.addBooking(booking3)
-      offender.addBooking(it)
-
-      with(offender.prisonerInPrisonSummary) {
-        assertThat(prisonPeriod).hasSize(3)
-        assertThat(prisonPeriod[0].bookNumber).isEqualTo("R1234K")
-        assertThat(prisonPeriod[1].bookNumber).isEqualTo("R1234T")
-        assertThat(prisonPeriod[2].bookNumber).isEqualTo("R1234Q")
-        assertThat(prisonPeriod[0].movementDates).hasSize(1)
-        assertThat(prisonPeriod[1].movementDates).hasSize(2)
-        assertThat(prisonPeriod[2].movementDates).hasSize(1)
-        assertThat(prisonPeriod[0].entryDate).isEqualTo(LocalDateTime.of(2019, 1, 4, 9, 30))
-        assertThat(prisonPeriod[0].releaseDate).isEqualTo(LocalDateTime.of(2019, 2, 28, 15, 30))
-        assertThat(prisonPeriod[0].prisons).containsExactly("WWI")
-        assertThat(prisonPeriod[1].entryDate).isEqualTo(LocalDateTime.of(2020, 1, 4, 9, 30))
-        assertThat(prisonPeriod[1].releaseDate).isEqualTo(LocalDateTime.of(2020, 2, 28, 15, 30))
-        assertThat(prisonPeriod[1].prisons).containsExactly("MDI")
-        assertThat(prisonPeriod[2].entryDate).isEqualTo(LocalDateTime.of(2021, 1, 4, 9, 30))
-        assertThat(prisonPeriod[2].releaseDate).isEqualTo(LocalDateTime.of(2021, 2, 28, 15, 30))
-        assertThat(prisonPeriod[2].prisons).containsExactly("MDI")
-      }
-    }
-
-    @DisplayName(value = "prison periods include transferred prisons")
-    @Test
-    fun IncludesTransferredPrisons() {
+    fun `prison periods include transferred prisons`() {
       val offender = Offender.builder().nomsId("A1234AA").build().also { it.rootOffender = it }
 
       OffenderBooking.builder()
@@ -539,9 +394,8 @@ class OffenderBookingTest {
       }
     }
 
-    @DisplayName(value = "handles TAPs with dates out of sync")
     @Test
-    fun HandleOutOfSyncTaps() {
+    fun `handles TAPs with dates out of sync`() {
       val offender = Offender.builder().nomsId("A1234AA").build().also { it.rootOffender = it }
 
       OffenderBooking.builder()
