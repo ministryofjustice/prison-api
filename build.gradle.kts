@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.8.1"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.8.2-beta"
   kotlin("plugin.spring") version "1.8.0"
   kotlin("plugin.jpa") version "1.8.0"
   kotlin("plugin.lombok") version "1.8.0"
@@ -75,22 +75,22 @@ dependencies {
   testImplementation("io.rest-assured:spring-mock-mvc:5.3.0")
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("com.google.code.gson:gson:2.10.1")
-  testImplementation("org.mockito:mockito-inline:4.11.0")
+  testImplementation("org.mockito:mockito-inline:5.1.1")
   testImplementation("org.powermock:powermock-api-mockito2:2.0.9")
   testImplementation("org.powermock:powermock-module-junit4:2.0.9")
 
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.36.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.36.1")
 
-  testImplementation("net.serenity-bdd:serenity-core:3.5.1")
-  testImplementation("net.serenity-bdd:serenity-junit:3.5.1")
-  testImplementation("net.serenity-bdd:serenity-spring:3.5.1")
-  testImplementation("net.serenity-bdd:serenity-cucumber:3.5.1")
+  testImplementation("net.serenity-bdd:serenity-core:3.6.7")
+  testImplementation("net.serenity-bdd:serenity-junit:3.6.7")
+  testImplementation("net.serenity-bdd:serenity-spring:3.6.7")
+  testImplementation("net.serenity-bdd:serenity-cucumber:3.6.7")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
   testImplementation("org.glassfish:javax.el:3.0.0")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.10")
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.11")
 
   testCompileOnly("org.projectlombok:lombok:1.18.24")
 }
