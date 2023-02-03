@@ -4,6 +4,7 @@
     "date":"2022-10-10",
     "resultCode":"1002",
     "resultDescription":"Imprisonment",
+    "resultDispositionCode":"F",
     "charge":{
       "chargeId":1000,
       "offenceCode":"RV98011",

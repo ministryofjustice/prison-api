@@ -92,6 +92,7 @@ class DigitalWarrantServiceTest {
             date = null,
             resultCode = null,
             resultDescription = null,
+            resultDispositionCode = null,
             bookingId = 4,
             charge = Charge()
               .withChargeId(1)
@@ -146,6 +147,7 @@ class DigitalWarrantServiceTest {
                 OffenceResult()
                   .withCode("1002")
                   .withDescription("Imprisonment")
+                  .withDispositionCode("F")
               )
           )
         )
@@ -160,6 +162,7 @@ class DigitalWarrantServiceTest {
             date = LocalDate.of(2022, 1, 1),
             resultCode = "1002",
             resultDescription = "Imprisonment",
+            resultDispositionCode = "F",
             bookingId = 4,
             charge = Charge()
               .withChargeId(1)

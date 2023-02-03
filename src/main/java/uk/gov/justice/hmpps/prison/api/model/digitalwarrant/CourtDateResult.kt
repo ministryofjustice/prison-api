@@ -20,6 +20,9 @@ data class CourtDateResult(
   @Schema(description = "The result description of the court date")
   val resultDescription: String?,
 
+  @Schema(description = "The disposition code of the result of the court date")
+  val resultDispositionCode: String?,
+
   @Schema(description = "The charge which is the subject of the court date")
   val charge: Charge,
 
