@@ -233,6 +233,7 @@ class DigitalWarrantService(
         event.eventDate,
         event.outcomeReasonCode?.code,
         event.outcomeReasonCode?.description,
+        event.outcomeReasonCode?.dispositionCode,
         Charge(
           charge.id,
           charge.offence.code,
