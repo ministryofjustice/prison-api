@@ -28,3 +28,6 @@ CVE-2022-42004
 CVE-2022-42889
 # Suppression for hsqldb vulnerability as don't run hsqldb in production
 CVE-2022-41853
+# Suppression for spring-web 5.3.24 as bundled with spring boot
+#   can be suppressed as we are not using java serialization and deserialization explicitly
+CVE-2016-1000027
