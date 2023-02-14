@@ -3,10 +3,10 @@ package uk.gov.justice.hmpps.prison.service.digitalwarrant
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Adjustment
-import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Charge
-import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.CourtCase
+import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.WarrantCharge
+import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.WarrantCourtCase
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.CourtDateResult
-import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Sentence
+import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.WarrantSentence
 import uk.gov.justice.hmpps.prison.api.support.BookingAdjustmentType
 import uk.gov.justice.hmpps.prison.api.support.SentenceAdjustmentType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus
@@ -75,8 +75,8 @@ class DigitalWarrantService(
 ) {
 
   @Transactional
-  fun createCourtCase(bookingId: Long, courtCase: CourtCase): Long {
-    val agency = agencyLocationRepository.findById(courtCase.agencyId).orElseThrow(EntityNotFoundException.withIdAndClass(courtCase.agencyId, CourtCase::class.java))
+  fun createCourtCase(bookingId: Long, courtCase: WarrantCourtCase): Long {
+    val agency = agencyLocationRepository.findById(courtCase.agencyId).orElseThrow(EntityNotFoundException.withIdAndClass(courtCase.agencyId, WarrantCourtCase::class.java))
     val legalCaseType = legalCaseTypeReferenceCodeRepository.findById(LegalCaseType.pk(courtCase.caseType)).orElseThrow(EntityNotFoundException.withIdAndClass(courtCase.caseType, LegalCaseType::class.java))
     val booking = offenderBookingRepository.findByBookingId(bookingId).orElseThrow(EntityNotFoundException.withIdAndClass(bookingId, OffenderBooking::class.java))
     val caseStatus = caseStatusReferenceCodeRepository.findById(CaseStatus.pk("A")).orElseThrow(EntityNotFoundException.withIdAndClass("A", CaseStatus::class.java))
@@ -104,8 +104,8 @@ class DigitalWarrantService(
   }
 
   @Transactional
-  fun createCharge(bookingId: Long?, charge: Charge): Long {
-    val offence = offenceRepository.findById(Offence.PK(charge.offenceCode, charge.offenceStatue)).orElseThrow(EntityNotFoundException.withIdAndClass(charge.offenceCode + " " + charge.offenceStatue, Charge::class.java))
+  fun createCharge(bookingId: Long?, charge: WarrantCharge): Long {
+    val offence = offenceRepository.findById(Offence.PK(charge.offenceCode, charge.offenceStatue)).orElseThrow(EntityNotFoundException.withIdAndClass(charge.offenceCode + " " + charge.offenceStatue, WarrantCharge::class.java))
     val courtCase = offenderCourtCaseRepository.findById(charge.courtCaseId).orElseThrow(EntityNotFoundException.withIdAndClass(charge.courtCaseId, OffenderCourtCase::class.java))
     val booking = offenderBookingRepository.findByBookingId(bookingId).orElseThrow(EntityNotFoundException.withIdAndClass(bookingId!!, OffenderBooking::class.java))
     val offenceResultCode = if (charge.isGuilty) OffenceResultRepository.IMPRISONMENT else OffenceResultRepository.NOT_GUILTY
@@ -132,8 +132,8 @@ class DigitalWarrantService(
   }
 
   @Transactional
-  fun createOffenderSentence(bookingId: Long, sentence: Sentence): Int {
-    val courtCase = offenderCourtCaseRepository.findById(sentence.courtCaseId).orElseThrow(EntityNotFoundException.withIdAndClass(sentence.courtCaseId, CourtCase::class.java))
+  fun createOffenderSentence(bookingId: Long, sentence: WarrantSentence): Int {
+    val courtCase = offenderCourtCaseRepository.findById(sentence.courtCaseId).orElseThrow(EntityNotFoundException.withIdAndClass(sentence.courtCaseId, WarrantCourtCase::class.java))
     val booking = offenderBookingRepository.findByBookingId(bookingId).orElseThrow(EntityNotFoundException.withIdAndClass(bookingId, OffenderBooking::class.java))
     val offenderCharge = offenderChargeRepository.findById(sentence.offenderChargeId).orElseThrow(EntityNotFoundException.withIdAndClass(sentence.offenderChargeId, OffenderCharge::class.java))
     val sentenceCalcType = sentenceCalcTypeRepository.findById(SentenceCalcType.PK(sentence.sentenceType, sentence.sentenceCategory)).orElseThrow(EntityNotFoundException.withIdAndClass(sentence.sentenceType + " " + sentence.sentenceCategory, SentenceCalcType::class.java))
@@ -234,7 +234,7 @@ class DigitalWarrantService(
         event.outcomeReasonCode?.code,
         event.outcomeReasonCode?.description,
         event.outcomeReasonCode?.dispositionCode,
-        Charge(
+        WarrantCharge(
           charge.id,
           charge.offence.code,
           charge.offence.statute.code,

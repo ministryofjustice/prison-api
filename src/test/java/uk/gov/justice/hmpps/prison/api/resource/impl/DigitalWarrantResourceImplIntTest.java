@@ -6,9 +6,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Adjustment;
-import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.CourtCase;
-import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Charge;
-import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Sentence;
+import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.WarrantCourtCase;
+import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.WarrantCharge;
+import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.WarrantSentence;
 import uk.gov.justice.hmpps.prison.api.support.BookingAdjustmentType;
 import uk.gov.justice.hmpps.prison.api.support.SentenceAdjustmentType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.KeyDateAdjustment;
@@ -52,7 +52,7 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
         final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody(
             "ITAG_USER",
             List.of("ROLE_MANAGE_DIGITAL_WARRANT"),
-            CourtCase.builder()
+            WarrantCourtCase.builder()
                 .agencyId("BMI")
                 .caseType("A")
                 .hearingType("FE")
@@ -86,7 +86,7 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
         var requestEntity = createHttpEntityWithBearerAuthorisationAndBody(
             "RO_USER",
             List.of("ROLE_MANAGE_DIGITAL_WARRANT"),
-            Charge.builder()
+            WarrantCharge.builder()
                 .offenceCode("RV98011")
                 .offenceStatue("RV98")
                 .offenceDate(LocalDate.of(2022, 10, 10))
@@ -128,7 +128,7 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
         final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody(
             "RO_USER",
             List.of("ROLE_MANAGE_DIGITAL_WARRANT"),
-            Sentence.builder()
+            WarrantSentence.builder()
                 .sentenceType("ADIMP")
                 .sentenceCategory("2020")
                 .sentenceDate(LocalDate.of(2022, 10, 10))
@@ -256,7 +256,7 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
         final var courtRequestEntity = createHttpEntityWithBearerAuthorisationAndBody(
             "ITAG_USER",
             List.of("ROLE_MANAGE_DIGITAL_WARRANT"),
-            CourtCase.builder()
+            WarrantCourtCase.builder()
                 .agencyId("BMI")
                 .caseType("A")
                 .hearingType("FE")
@@ -278,7 +278,7 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
         final var chargeRequestEntity = createHttpEntityWithBearerAuthorisationAndBody(
             "RO_USER",
             List.of("ROLE_MANAGE_DIGITAL_WARRANT"),
-            Charge.builder()
+            WarrantCharge.builder()
                 .offenceCode("RV98011")
                 .offenceStatue("RV98")
                 .offenceDate(LocalDate.of(2022, 10, 10))
@@ -301,7 +301,7 @@ public class DigitalWarrantResourceImplIntTest extends ResourceTest {
         final var sentenceRequestEntity = createHttpEntityWithBearerAuthorisationAndBody(
             "RO_USER",
             List.of("ROLE_MANAGE_DIGITAL_WARRANT"),
-            Sentence.builder()
+            WarrantSentence.builder()
                 .sentenceType("ADIMP_ORA")
                 .sentenceCategory("2003")
                 .sentenceDate(LocalDate.of(2022, 10, 10))

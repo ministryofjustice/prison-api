@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Sentence {
+public class WarrantSentence {
 
     @Schema(description = "The type of sentence")
     private String sentenceType;

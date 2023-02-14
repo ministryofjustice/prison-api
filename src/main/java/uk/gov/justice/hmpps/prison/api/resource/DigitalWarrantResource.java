@@ -21,10 +21,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Adjustment;
-import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.CourtCase;
-import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Charge;
+import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.WarrantCourtCase;
+import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.WarrantCharge;
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.CourtDateResult;
-import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Sentence;
+import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.WarrantSentence;
 import uk.gov.justice.hmpps.prison.service.digitalwarrant.DigitalWarrantService;
 
 import java.util.List;
@@ -46,7 +46,7 @@ public class DigitalWarrantResource {
     @PreAuthorize("hasRole('MANAGE_DIGITAL_WARRANT') and hasAuthority('SCOPE_write')")
     @ResponseStatus(HttpStatus.CREATED)
     public Long createCourtCase(@PathVariable("bookingId") @Parameter(description = "The required booking id (mandatory)", required = true) final Long bookingId,
-                                               @RequestBody final CourtCase courtCase) {
+                                               @RequestBody final WarrantCourtCase courtCase) {
         return digitalWarrantService.createCourtCase(bookingId, courtCase);
     }
 
@@ -58,7 +58,7 @@ public class DigitalWarrantResource {
     @PreAuthorize("hasRole('MANAGE_DIGITAL_WARRANT') and hasAuthority('SCOPE_write')")
     @ResponseStatus(HttpStatus.CREATED)
     public Long createCharge(@PathVariable("bookingId") @Parameter(description = "The required booking id (mandatory)", required = true) final Long bookingId,
-                                                @RequestBody final Charge charge) {
+                                                @RequestBody final WarrantCharge charge) {
         return digitalWarrantService.createCharge(bookingId, charge);
     }
 
@@ -70,7 +70,7 @@ public class DigitalWarrantResource {
     @PreAuthorize("hasRole('MANAGE_DIGITAL_WARRANT') and hasAuthority('SCOPE_write')")
     @ResponseStatus(HttpStatus.CREATED)
     public Integer createSentence(@PathVariable("bookingId") @Parameter(description = "The required booking id (mandatory)", required = true) final Long bookingId,
-                                                @RequestBody final Sentence sentence) {
+                                                @RequestBody final WarrantSentence sentence) {
         return digitalWarrantService.createOffenderSentence(bookingId, sentence);
     }
 
