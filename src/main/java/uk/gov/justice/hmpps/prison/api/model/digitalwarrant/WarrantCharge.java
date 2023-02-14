@@ -17,7 +17,7 @@ import java.time.LocalDate;
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @With
-public class Charge {
+public class WarrantCharge {
     @Schema(description = "The id of the charge")
     private Long chargeId;
 

@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class CourtCase {
+public class WarrantCourtCase {
     @Schema(description = "The begin date", example = "2019-12-01")
     private LocalDate beginDate;
 

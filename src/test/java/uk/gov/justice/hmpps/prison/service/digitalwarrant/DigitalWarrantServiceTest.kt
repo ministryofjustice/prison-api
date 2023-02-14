@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
-import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Charge
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.CourtDateResult
+import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.WarrantCharge
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEventCharge
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offence
@@ -94,7 +94,7 @@ class DigitalWarrantServiceTest {
             resultDescription = null,
             resultDispositionCode = null,
             bookingId = 4,
-            charge = Charge()
+            charge = WarrantCharge()
               .withChargeId(1)
               .withOffenceCode("OFF")
               .withOffenceStatue("STAT")
@@ -164,7 +164,7 @@ class DigitalWarrantServiceTest {
             resultDescription = "Imprisonment",
             resultDispositionCode = "F",
             bookingId = 4,
-            charge = Charge()
+            charge = WarrantCharge()
               .withChargeId(1)
               .withOffenceCode("OFF")
               .withOffenceStatue("STAT")
