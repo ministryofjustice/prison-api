@@ -3,9 +3,9 @@ package uk.gov.justice.hmpps.prison.service.digitalwarrant
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Adjustment
+import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.CourtDateResult
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.WarrantCharge
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.WarrantCourtCase
-import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.CourtDateResult
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.WarrantSentence
 import uk.gov.justice.hmpps.prison.api.support.BookingAdjustmentType
 import uk.gov.justice.hmpps.prison.api.support.SentenceAdjustmentType
