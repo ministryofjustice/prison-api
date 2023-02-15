@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeSummaryRequest;
+import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeSummaryRequest.BookingFromDatePair;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageByBookingId;
 import uk.gov.justice.hmpps.prison.api.resource.CaseNoteResource;
 import uk.gov.justice.hmpps.prison.service.CaseNoteService;
@@ -38,5 +40,25 @@ public class CaseNoteResourceTest {
         when(caseNoteService.getCaseNoteUsageByBookingId(anyString(), anyString(), anyList(), any(), any(), anyInt())).thenReturn(usage);
         assertThat(caseNoteResource.getCaseNoteSummaryByBookingId(bookingIds, 2, null, null, "BOB", "SMITH")).isEqualTo(usage);
         verify(caseNoteService).getCaseNoteUsageByBookingId("BOB", "SMITH", bookingIds, null, null, 2);
+    }
+
+    @Test
+    public void getCaseNoteUsageByBookingIdTypeAndDate() {
+        final var usage = List.of(
+            new CaseNoteUsageByBookingId(-16, "POS", "IEP_ENC", 2, LocalDateTime.parse("2017-05-13T12:00")),
+            new CaseNoteUsageByBookingId(-16, "NEG", "IEP_WARN", 3, LocalDateTime.parse("2018-05-13T12:00")),
+            new CaseNoteUsageByBookingId(-17, "POS", "IEP_ENC", 1, LocalDateTime.parse("2018-05-13T12:00"))
+        );
+        when(caseNoteService.getCaseNoteUsageByBookingIdTypeAndDate(anyList(), anyList())).thenReturn(usage);
+        final var bookingDatePairs = List.of(
+            BookingFromDatePair.builder().bookingId(-16).fromDate(LocalDateTime.parse("2017-05-13T12:00")).build(),
+            BookingFromDatePair.builder().bookingId(-17).fromDate(LocalDateTime.parse("2018-05-13T12:00")).build()
+        );
+        final var types = List.of("POS", "NEG");
+        assertThat(caseNoteResource.getCaseNoteUsageSummaryByDates(CaseNoteTypeSummaryRequest.builder()
+            .types(types)
+            .bookingFromDateSelection(bookingDatePairs)
+            .build())).isEqualTo(usage);
+        verify(caseNoteService).getCaseNoteUsageByBookingIdTypeAndDate(types, bookingDatePairs);
     }
 }
