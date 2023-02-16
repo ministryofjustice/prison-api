@@ -114,6 +114,20 @@ public class CaseNoteRepositoryTest {
     }
 
     @Test
+    public void testGetCaseNoteUsageByBookingIdAndFromDate() {
+        final var types = List.of("POS", "NEG");
+        List<CaseNoteUsageByBookingId> results = repository.getCaseNoteUsageByBookingIdAndFromDate(types, -30, LocalDateTime.of(2017, 1, 1, 0, 0, 0));
+
+        assertThat(results).hasSize(1);
+        assertThat(results.get(0)).isEqualTo(CaseNoteUsageByBookingId.builder()
+            .bookingId(-30)
+            .latestCaseNote(LocalDateTime.of(2017,5,13,12,0,0))
+            .caseNoteType("NEG")
+            .caseNoteSubType("IEP_WARN")
+            .numCaseNotes(6)
+            .build());
+    }
+    @Test
     public void testCaseNoteTimes() {
         final long bookingId = -16;
         final var newCaseNote = newCaseNote();

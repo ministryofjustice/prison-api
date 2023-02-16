@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteEvent;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteStaffUsage;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteStaffUsageRequest;
+import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeSummaryRequest;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsage;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageByBookingId;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageRequest;
@@ -84,6 +85,15 @@ public class CaseNoteResource {
     @SlowReportQuery
     public List<CaseNoteUsage> getCaseNoteUsageSummaryByPost(@RequestBody @Parameter(required = true) final CaseNoteUsageRequest request) {
         return caseNoteService.getCaseNoteUsage(request.getType(), request.getSubType(), request.getOffenderNos(), request.getStaffId(), request.getAgencyId(), request.getFromDate(), request.getToDate(), ObjectUtils.defaultIfNull(request.getNumMonths(), 1));
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "The case note usage list is returned.")})
+    @Operation(summary = "Retrieves list of case notes grouped by types, bookings and from dates", description = "Retrieves list of case notes grouped by type/sub and offender")
+    @PostMapping("/usage-by-types")
+    @SlowReportQuery
+    public List<CaseNoteUsageByBookingId> getCaseNoteUsageSummaryByDates(@RequestBody @Parameter(required = true) final CaseNoteTypeSummaryRequest request) {
+        return caseNoteService.getCaseNoteUsageByBookingIdTypeAndDate(request.getTypes(), request.getBookingFromDateSelection());
     }
 
     @ApiResponses({
