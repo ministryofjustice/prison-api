@@ -1,0 +1,37 @@
+[
+  {
+    "bookingId": -16,
+    "caseNoteType": "POS",
+    "caseNoteSubType": "IEP_ENC",
+    "numCaseNotes": 2,
+    "latestCaseNote": "2017-05-13T12:00:00"
+  },
+  {
+    "bookingId": -16,
+    "caseNoteType": "NEG",
+    "caseNoteSubType": "IEP_WARN",
+    "numCaseNotes": 3,
+    "latestCaseNote": "2018-05-13T12:00:00"
+  },
+  {
+    "bookingId": -17,
+    "caseNoteType": "POS",
+    "caseNoteSubType": "IEP_ENC",
+    "numCaseNotes": 1,
+    "latestCaseNote": "2018-05-13T12:00:00"
+  },
+  {
+    "bookingId": -17,
+    "caseNoteType": "NEG",
+    "caseNoteSubType": "IEP_WARN",
+    "numCaseNotes": 2,
+    "latestCaseNote": "2018-05-13T12:00:00"
+  },
+  {
+    "bookingId": -18,
+    "caseNoteType": "POS",
+    "caseNoteSubType": "IEP_ENC",
+    "numCaseNotes": 1,
+    "latestCaseNote": "2018-05-13T12:00:00"
+  }
+]

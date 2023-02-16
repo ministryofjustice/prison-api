@@ -17,6 +17,7 @@ import uk.gov.justice.hmpps.prison.api.model.CaseNote;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteCount;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteEvent;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteStaffUsage;
+import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeSummaryRequest.BookingFromDatePair;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsage;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageByBookingId;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
@@ -233,6 +234,13 @@ public class CaseNoteService {
         final var deriveDates = new DeriveDates(fromDate, toDate, numMonths);
 
         return caseNoteRepository.getCaseNoteUsageByBookingId(type, subType, bookingIds, deriveDates.getFromDateToUse(), deriveDates.getToDateToUse());
+    }
+
+    public List<CaseNoteUsageByBookingId> getCaseNoteUsageByBookingIdTypeAndDate(@NotEmpty final List<String> types, @NotNull final List<BookingFromDatePair> bookingReviewDatePairs) {
+        return bookingReviewDatePairs.stream()
+            .map(b -> caseNoteRepository.getCaseNoteUsageByBookingIdAndFromDate(types, b.getBookingId(), b.getFromDate()))
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
     }
 
     public List<CaseNoteStaffUsage> getCaseNoteStaffUsage(final String type, final String subType, @NotEmpty final List<Integer> staffIds, final LocalDate fromDate, final LocalDate toDate, final int numMonths) {
