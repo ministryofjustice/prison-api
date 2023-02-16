@@ -16,8 +16,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.verify;
@@ -73,11 +71,15 @@ public class CaseNoteResourceIntTest extends ResourceTest {
         final var fromDate2 = LocalDateTime.of(2019,2,3,12,0,0);
         final var fromDate3 = LocalDateTime.of(2020,2,3,12,0,0);
 
-        final var dbResults = List.of(
+        final var dbResults1 = List.of(
             new CaseNoteUsageByBookingId(-16, "POS", "IEP_ENC", 2, LocalDateTime.parse("2017-05-13T12:00")),
-            new CaseNoteUsageByBookingId(-16, "NEG", "IEP_WARN", 3, LocalDateTime.parse("2018-05-13T12:00")),
+            new CaseNoteUsageByBookingId(-16, "NEG", "IEP_WARN", 3, LocalDateTime.parse("2018-05-13T12:00"))
+        );
+        final var dbResults2 = List.of(
             new CaseNoteUsageByBookingId(-17, "POS", "IEP_ENC", 1, LocalDateTime.parse("2018-05-13T12:00")),
-            new CaseNoteUsageByBookingId(-17, "NEG", "IEP_WARN", 2, LocalDateTime.parse("2018-05-13T12:00")),
+            new CaseNoteUsageByBookingId(-17, "NEG", "IEP_WARN", 2, LocalDateTime.parse("2018-05-13T12:00"))
+        );
+        final var dbResults3 = List.of(
             new CaseNoteUsageByBookingId(-18, "POS", "IEP_ENC", 1, LocalDateTime.parse("2018-05-13T12:00"))
         );
         final var bookingDatePairs = List.of(
@@ -87,7 +89,9 @@ public class CaseNoteResourceIntTest extends ResourceTest {
         );
 
         final var types = List.of("POS", "NEG");
-        when(caseNoteRepository.getCaseNoteUsageByBookingIdAndFromDate(anyList(), anyInt(), any())).thenReturn(dbResults);
+        when(caseNoteRepository.getCaseNoteUsageByBookingIdAndFromDate(types, -16, fromDate1)).thenReturn(dbResults1);
+        when(caseNoteRepository.getCaseNoteUsageByBookingIdAndFromDate(types, -17, fromDate2)).thenReturn(dbResults2);
+        when(caseNoteRepository.getCaseNoteUsageByBookingIdAndFromDate(types, -18, fromDate3)).thenReturn(dbResults3);
 
         final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of(), CaseNoteTypeSummaryRequest.builder()
             .types(types)
