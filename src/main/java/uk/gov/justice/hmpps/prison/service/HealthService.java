@@ -101,7 +101,7 @@ public class HealthService {
         final LocalDate startDate,
         final LocalDate endDate) {
         final var personalCareNeeds =
-            offenderHealthProblemRepository.findAllByOffenderBookingOffenderNomsIdInAndOffenderBookingBookingSequenceAndProblemTypeCodeAndStartDateAfterAndStartDateBefore(offenderNos, 1, problemType, startDate, endDate);
+            offenderHealthProblemRepository.findAllByOffenderBookingOffenderNomsIdInAndOffenderBookingBookingSequenceAndProblemTypeCodeAndStartDateBetween(offenderNos, 1, problemType, startDate, endDate);
 
         return personalCareNeeds.stream().collect(
                 Collectors.groupingBy(o -> o.getOffenderBooking().getOffender().getNomsId()))

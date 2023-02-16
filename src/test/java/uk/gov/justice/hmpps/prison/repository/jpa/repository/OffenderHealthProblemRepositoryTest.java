@@ -10,7 +10,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @DataJpaTest
@@ -21,10 +20,10 @@ public class OffenderHealthProblemRepositoryTest {
     private OffenderHealthProblemRepository repository;
 
     @Test
-    void findAllByOffenderBookingOffenderNomsIdInAndOffenderBookingBookingSequenceAndProblemTypeCodeAndStartDateAfterAndStartDateBefore() {
-        final var list = repository.findAllByOffenderBookingOffenderNomsIdInAndOffenderBookingBookingSequenceAndProblemTypeCodeAndStartDateAfterAndStartDateBefore( List.of("A1234AD"),1, "DISAB", LocalDate.of(2010, 06, 23), LocalDate.of(2010, 06, 26));
-        assertThat(list).extracting(o -> o.getOffenderBooking().getOffender().getNomsId(), o -> o.getProblemType().getCode()).containsOnly(tuple("A1234AD", "DISAB"));
-
+    void findAllByOffenderBookingOffenderNomsIdInAndOffenderBookingBookingSequenceAndProblemTypeCodeAndStartDateBetween() {
+        final var list = repository.findAllByOffenderBookingOffenderNomsIdInAndOffenderBookingBookingSequenceAndProblemTypeCodeAndStartDateBetween(List.of("A1234AD", "A1234AC"), 1, "DISAB", LocalDate.of(2010, 06, 22), LocalDate.of(2010, 06, 26));
+        assertThat(list.size() == 2).isTrue();
+        list.forEach(o -> assertThat(o.getProblemType().getCode().equals("DISAB")).isTrue());
     }
 
 }

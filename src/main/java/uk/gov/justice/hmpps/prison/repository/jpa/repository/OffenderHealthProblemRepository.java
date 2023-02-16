@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
 public interface OffenderHealthProblemRepository extends CrudRepository<OffenderHealthProblem, Long> {
 
-    List<OffenderHealthProblem> findAllByOffenderBookingOffenderNomsIdInAndOffenderBookingBookingSequenceAndProblemTypeCodeAndStartDateAfterAndStartDateBefore(List<String> nomisId, Integer bookingSequence, String problemTypeCode, LocalDate fromStartDate, LocalDate toStartDate);
+    List<OffenderHealthProblem> findAllByOffenderBookingOffenderNomsIdInAndOffenderBookingBookingSequenceAndProblemTypeCodeAndStartDateBetween(List<String> nomisId, Integer bookingSequence, String problemTypeCode, LocalDate fromStartDate, LocalDate toStartDate);
 
 
 }
