@@ -79,6 +79,25 @@ class DigitalWarrantServiceTest {
               ),
             CourtEvent()
               .withId(2)
+          ),
+          CourtEventCharge(
+            OffenderCharge()
+              .withId(5)
+              .withOffence(
+                Offence()
+                  .withCode("OFF")
+                  .withStatute(Statute().withCode("STAT"))
+              )
+              .withOffenderCourtCase(
+                OffenderCourtCase()
+                  .withId(3)
+              )
+              .withOffenderBooking(
+                OffenderBooking()
+                  .withBookingId(4)
+              ),
+            CourtEvent()
+              .withId(2)
           )
         )
       )
@@ -96,6 +115,23 @@ class DigitalWarrantServiceTest {
             bookingId = 4,
             charge = WarrantCharge()
               .withChargeId(1)
+              .withOffenceCode("OFF")
+              .withOffenceStatue("STAT")
+              .withOffenceDate(null)
+              .withOffenceEndDate(null)
+              .withGuilty(false)
+              .withCourtCaseId(3)
+              .withSentenceSequence(null)
+          ),
+          CourtDateResult(
+            id = 2,
+            date = null,
+            resultCode = null,
+            resultDescription = null,
+            resultDispositionCode = null,
+            bookingId = 4,
+            charge = WarrantCharge()
+              .withChargeId(5)
               .withOffenceCode("OFF")
               .withOffenceStatue("STAT")
               .withOffenceDate(null)
