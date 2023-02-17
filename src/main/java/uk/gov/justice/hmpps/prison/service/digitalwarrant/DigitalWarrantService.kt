@@ -247,7 +247,6 @@ class DigitalWarrantService(
         charge.offenderBooking.bookingId
       )
     }
-      .distinctBy { it.id }
       .sortedBy { it.date }
   }
 }
