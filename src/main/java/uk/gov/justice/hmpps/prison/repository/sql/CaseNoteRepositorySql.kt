@@ -43,7 +43,7 @@ enum class CaseNoteRepositorySql(val sql: String) {
         COUNT(*)          NUM_CASE_NOTES,
         MAX(CONTACT_TIME) LATEST_CASE_NOTE
         FROM OFFENDER_CASE_NOTES OCS
-        WHERE AUDIT_TIMESTAMP >= :fromDate
+        WHERE CONTACT_TIME >= :fromDate
         AND OFFENDER_BOOK_ID = :bookingId
         AND CASE_NOTE_TYPE IN (:types)
         GROUP BY CASE_NOTE_TYPE, CASE_NOTE_SUB_TYPE, OFFENDER_BOOK_ID
@@ -59,7 +59,7 @@ enum class CaseNoteRepositorySql(val sql: String) {
         COUNT(*) NUM_CASE_NOTES,
         MAX(OCS.CONTACT_TIME) LATEST_CASE_NOTE
                 FROM OFFENDER_CASE_NOTES OCS
-        WHERE OCS.CONTACT_TIME between :fromDate and :toDate
+        WHERE OCS.AUDIT_TIMESTAMP between :fromDate and :toDate
         AND STAFF_ID IN (:staffIds)
         AND CASE_NOTE_TYPE = COALESCE(:type, CASE_NOTE_TYPE)
         AND CASE_NOTE_SUB_TYPE = COALESCE(:subType, CASE_NOTE_SUB_TYPE)
