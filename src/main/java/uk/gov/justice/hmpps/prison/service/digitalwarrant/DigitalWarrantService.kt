@@ -243,6 +243,7 @@ class DigitalWarrantService(
           charge.endDate,
           charge.pleaCode == "G",
           charge.offenderCourtCase.id,
+          charge.offenderCourtCase.caseInfoNumber,
           charge.offenderSentenceCharges.firstOrNull()?.offenderSentence?.sequence
         ),
         charge.offenderBooking.bookingId
