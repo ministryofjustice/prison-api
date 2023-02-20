@@ -124,6 +124,7 @@ class DigitalWarrantServiceTest {
               .withOffenceEndDate(null)
               .withGuilty(false)
               .withCourtCaseId(3)
+              .withCourtCaseRef(null)
               .withSentenceSequence(null)
           ),
           CourtDateResult(
@@ -142,6 +143,7 @@ class DigitalWarrantServiceTest {
               .withOffenceEndDate(null)
               .withGuilty(false)
               .withCourtCaseId(3)
+              .withCourtCaseRef(null)
               .withSentenceSequence(null)
           )
         )
@@ -164,6 +166,7 @@ class DigitalWarrantServiceTest {
               .withOffenderCourtCase(
                 OffenderCourtCase()
                   .withId(3)
+                  .withCaseInfoNumber("TS1000")
               )
               .withOffenderBooking(
                 OffenderBooking()
@@ -214,6 +217,7 @@ class DigitalWarrantServiceTest {
               .withOffenceEndDate(LocalDate.of(2021, 6, 1))
               .withGuilty(true)
               .withCourtCaseId(3)
+              .withCourtCaseRef("TS1000")
               .withSentenceSequence(5)
           )
         )

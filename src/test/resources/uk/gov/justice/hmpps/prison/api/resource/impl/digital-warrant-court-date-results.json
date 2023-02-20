@@ -14,6 +14,7 @@
       "offenceEndDate":"2022-10-12",
       "guilty":true,
       "courtCaseId":1,
+      "courtCaseRef": "ABC123",
       "sentenceSequence": 1
     },
     "bookingId":-60
