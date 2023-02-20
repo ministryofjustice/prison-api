@@ -9,6 +9,7 @@
       "chargeId":1000,
       "offenceCode":"RV98011",
       "offenceStatue":"RV98",
+      "offenceDescription":"Cause exceed max permitted wt of artic' vehicle - No of axles/configuration (No MOT/Manufacturer's Plate)",
       "offenceDate":"2022-10-10",
       "offenceEndDate":"2022-10-12",
       "guilty":true,

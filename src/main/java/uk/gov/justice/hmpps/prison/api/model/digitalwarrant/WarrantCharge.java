@@ -27,6 +27,9 @@ public class WarrantCharge {
     @Schema(description = "The offence statute of the office in the court case")
     private String offenceStatue;
 
+    @Schema(description = "The offence description")
+    private String offenceDescription;
+
     @Schema(description = "The date of the offence")
     private LocalDate offenceDate;
 

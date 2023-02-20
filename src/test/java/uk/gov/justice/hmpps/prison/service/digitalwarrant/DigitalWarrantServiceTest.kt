@@ -68,6 +68,7 @@ class DigitalWarrantServiceTest {
                 Offence()
                   .withCode("OFF")
                   .withStatute(Statute().withCode("STAT"))
+                  .withDescription("An offence")
               )
               .withOffenderCourtCase(
                 OffenderCourtCase()
@@ -87,6 +88,7 @@ class DigitalWarrantServiceTest {
                 Offence()
                   .withCode("OFF")
                   .withStatute(Statute().withCode("STAT"))
+                  .withDescription("An offence")
               )
               .withOffenderCourtCase(
                 OffenderCourtCase()
@@ -117,6 +119,7 @@ class DigitalWarrantServiceTest {
               .withChargeId(1)
               .withOffenceCode("OFF")
               .withOffenceStatue("STAT")
+              .withOffenceDescription("An offence")
               .withOffenceDate(null)
               .withOffenceEndDate(null)
               .withGuilty(false)
@@ -134,6 +137,7 @@ class DigitalWarrantServiceTest {
               .withChargeId(5)
               .withOffenceCode("OFF")
               .withOffenceStatue("STAT")
+              .withOffenceDescription("An offence")
               .withOffenceDate(null)
               .withOffenceEndDate(null)
               .withGuilty(false)
@@ -155,6 +159,7 @@ class DigitalWarrantServiceTest {
                 Offence()
                   .withCode("OFF")
                   .withStatute(Statute().withCode("STAT"))
+                  .withDescription("An offence")
               )
               .withOffenderCourtCase(
                 OffenderCourtCase()
@@ -204,6 +209,7 @@ class DigitalWarrantServiceTest {
               .withChargeId(1)
               .withOffenceCode("OFF")
               .withOffenceStatue("STAT")
+              .withOffenceDescription("An offence")
               .withOffenceDate(LocalDate.of(2021, 1, 1))
               .withOffenceEndDate(LocalDate.of(2021, 6, 1))
               .withGuilty(true)
