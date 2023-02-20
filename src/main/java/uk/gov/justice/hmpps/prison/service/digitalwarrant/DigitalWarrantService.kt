@@ -238,6 +238,7 @@ class DigitalWarrantService(
           charge.id,
           charge.offence.code,
           charge.offence.statute.code,
+          charge.offence.description,
           charge.dateOfOffence,
           charge.endDate,
           charge.pleaCode == "G",
