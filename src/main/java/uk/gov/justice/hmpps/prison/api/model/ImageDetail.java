@@ -27,23 +27,23 @@ import java.time.LocalDate;
 @ToString
 public class ImageDetail {
 
-    @Schema(required = true, description = "Image ID")
+    @Schema(required = true, description = "Image ID", example = "2461788")
     @NotNull
     private Long imageId;
 
-    @Schema(required = true, description = "Date of image capture")
+    @Schema(required = true, description = "Date of image capture", example = "2008-08-27")
     @NotNull
     private LocalDate captureDate;
 
-    @Schema(required = true, description = "Image view information")
+    @Schema(required = true, description = "Image view information", example = "FACE")
     @NotBlank
     private String imageView;
 
-    @Schema(required = true, description = "Orientation of the image")
+    @Schema(required = true, description = "Orientation of the image", example = "FRONT")
     @NotBlank
     private String imageOrientation;
 
-    @Schema(required = true, description = "Image Type")
+    @Schema(required = true, description = "Image Type", example = "OFF_BKG")
     @NotBlank
     private String imageType;
 
