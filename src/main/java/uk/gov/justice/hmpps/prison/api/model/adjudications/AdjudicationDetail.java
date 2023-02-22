@@ -12,7 +12,7 @@ import java.util.List;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
-@Schema(description = "Detail about an individual Adjudication")
+@Schema(name = "IndividualAdjudication", description = "Detail about an individual Adjudication")
 @JsonInclude(NON_NULL)
 @Builder(toBuilder = true)
 @Data
