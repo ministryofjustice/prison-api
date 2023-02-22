@@ -47,9 +47,9 @@ import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.service.v1.NomisApiV1Service;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.SortedMap;
@@ -188,7 +188,7 @@ public class NomisApiV1Resource {
     @HasWriteScope
     @ProxyUser
     public Transfer transferTransaction(@RequestHeader(value = "X-Client-Name", required = false) @Parameter(name = "X-Client-Name", description = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") final String clientName, @Size(max = 3) @NotNull @PathVariable("previous_prison_id") @Parameter(name = "previous_prison_id", description = "Prison ID", example = "BMI", required = true) final String previousPrisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @Parameter(name = "noms_id", description = "Offender Noms Id", example = "A1417AE", required = true) final String nomsId,
-                                        @javax.validation.Valid @NotNull @RequestBody @Parameter(description = "Transaction Details", required = true) final CreateTransaction createTransaction) {
+                                        @jakarta.validation.Valid @NotNull @RequestBody @Parameter(description = "Transaction Details", required = true) final CreateTransaction createTransaction) {
 
         final var uniqueClientId = getUniqueClientId(clientName, createTransaction.getClientUniqueRef());
 
@@ -232,7 +232,7 @@ public class NomisApiV1Resource {
     public Transaction createTransaction(@RequestHeader(value = "X-Client-Name", required = false) @Parameter(name = "X-Client-Name", description = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") final String clientName,
                                          @Size(max = 3) @NotNull @PathVariable("prison_id") @Parameter(name = "prison_id", description = "Prison ID", example = "BMI", required = true) final String prisonId,
                                          @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @Parameter(name = "noms_id", description = "Offender Noms Id", example = "A1417AE", required = true) final String nomsId,
-                                         @javax.validation.Valid @NotNull @RequestBody @Parameter(description = "Transaction Details", required = true) final CreateTransaction createTransaction,
+                                         @jakarta.validation.Valid @NotNull @RequestBody @Parameter(description = "Transaction Details", required = true) final CreateTransaction createTransaction,
                                          @Parameter(hidden = true) @Value("${application.unilink.transactions.disabled:false}") final boolean transactionsDisabled
     ) {
         if (transactionsDisabled) throw new RuntimeException("SDI-147: Create transaction currently disabled during unilink testing");
@@ -306,7 +306,7 @@ public class NomisApiV1Resource {
     @PostMapping("/prison/{prison_id}/offenders/{noms_id}/payment")
     @HasWriteScope
     @ProxyUser
-    public PaymentResponse storePayment(@Size(max = 3) @NotNull @PathVariable("prison_id") @Parameter(name = "prison_id", description = "Prison ID", example = "BMI", required = true) final String prisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @Parameter(name = "noms_id", description = "Offender Noms Id", example = "A1417AE", required = true) final String nomsId, @javax.validation.Valid @NotNull @RequestBody @Parameter(description = "Transaction Details", required = true) final StorePaymentRequest payment) {
+    public PaymentResponse storePayment(@Size(max = 3) @NotNull @PathVariable("prison_id") @Parameter(name = "prison_id", description = "Prison ID", example = "BMI", required = true) final String prisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @Parameter(name = "noms_id", description = "Offender Noms Id", example = "A1417AE", required = true) final String nomsId, @jakarta.validation.Valid @NotNull @RequestBody @Parameter(description = "Transaction Details", required = true) final StorePaymentRequest payment) {
         return service.storePayment(prisonId, nomsId, payment.getType(), payment.getDescription(), payment.getAmountInPounds(), LocalDate.now(), payment.getClientTransactionId());
     }
 

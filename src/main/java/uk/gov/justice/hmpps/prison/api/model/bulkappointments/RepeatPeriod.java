@@ -1,6 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.model.bulkappointments;
 
-import javax.validation.ValidationException;
+import jakarta.validation.ValidationException;
 import java.time.LocalDateTime;
 
 public enum RepeatPeriod {

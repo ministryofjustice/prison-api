@@ -1,8 +1,8 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.Lob;
-import javax.persistence.SequenceGenerator;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Lob;
+import jakarta.persistence.SequenceGenerator;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,16 +11,17 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
 import org.hibernate.Hibernate;
-import org.hibernate.annotations.Type;
+import org.hibernate.type.YesNoConverter;
+import jakarta.persistence.Convert;
 import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -66,7 +67,7 @@ public class OffenderImage extends AuditableEntity {
     private Long sequence;
 
     @Column(name = "ACTIVE_FLAG")
-    @Type(type="yes_no")
+    @Convert(converter = YesNoConverter.class)
     private boolean active;
 
     @Lob

@@ -36,10 +36,10 @@ import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.transformers.AdjudicationsTransformer;
 
-import javax.persistence.EntityManager;
-import javax.validation.Valid;
-import javax.validation.ValidationException;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.EntityManager;
+import jakarta.validation.Valid;
+import jakarta.validation.ValidationException;
+import jakarta.validation.constraints.NotNull;
 import java.time.Clock;
 import java.util.HashMap;
 import java.util.HashSet;

@@ -103,7 +103,7 @@ public class LocationsSteps extends CommonSteps {
                     new ParameterizedTypeReference<List<OffenderSearchSteps.OffenderBookingResponse>>() {
                     });
 
-            assertThat(response.getStatusCode()).isEqualByComparingTo(HttpStatus.OK);
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             bookingList = response.getBody();
 
         } catch (final PrisonApiClientException ex) {

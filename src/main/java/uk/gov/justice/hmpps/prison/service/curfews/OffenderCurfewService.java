@@ -11,7 +11,6 @@ import uk.gov.justice.hmpps.prison.api.model.BaseSentenceCalcDates;
 import uk.gov.justice.hmpps.prison.api.model.HdcChecks;
 import uk.gov.justice.hmpps.prison.api.model.HomeDetentionCurfew;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceCalc;
-import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.repository.OffenderCurfewRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.BookingService;
@@ -20,7 +19,7 @@ import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 import uk.gov.justice.hmpps.prison.service.ReferenceDomainService;
 import uk.gov.justice.hmpps.prison.service.support.OffenderCurfew;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -137,22 +136,19 @@ public class OffenderCurfewService {
     }
 
     @Transactional
-    @HasWriteScope
-    @PreAuthorize("hasRole('SYSTEM_USER')")
+    @PreAuthorize("hasRole('SYSTEM_USER') and hasAuthority('SCOPE_write')")
     public void setHdcChecks(final long bookingId, @Valid final HdcChecks hdcChecks) {
         withCurrentCurfewState(bookingId).setHdcChecks(hdcChecks);
     }
 
     @Transactional
-    @HasWriteScope
-    @PreAuthorize("hasRole('SYSTEM_USER')")
+    @PreAuthorize("hasRole('SYSTEM_USER') and hasAuthority('SCOPE_write')")
     public void deleteHdcChecks(Long bookingId) {
         withCurrentCurfewState(bookingId).deleteHdcChecks();
     }
 
     @Transactional
-    @HasWriteScope
-    @PreAuthorize("hasRole('SYSTEM_USER')")
+    @PreAuthorize("hasRole('SYSTEM_USER') and hasAuthority('SCOPE_write')")
     public void setApprovalStatus(final long bookingId, @Valid final ApprovalStatus approvalStatus) {
 
         if (!referenceDomainService.isReferenceCodeActive(HDC_APPROVE_DOMAIN, approvalStatus.getApprovalStatus())) {
@@ -169,8 +165,7 @@ public class OffenderCurfewService {
     }
 
     @Transactional
-    @HasWriteScope
-    @PreAuthorize("hasRole('SYSTEM_USER')")
+    @PreAuthorize("hasRole('SYSTEM_USER') and hasAuthority('SCOPE_write')")
     public void deleteApprovalStatus(Long bookingId) {
         withCurrentCurfewState(bookingId).deleteApprovalStatus();
     }

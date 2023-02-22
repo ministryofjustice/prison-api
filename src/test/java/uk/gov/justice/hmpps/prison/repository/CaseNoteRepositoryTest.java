@@ -26,7 +26,7 @@ import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl;
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;

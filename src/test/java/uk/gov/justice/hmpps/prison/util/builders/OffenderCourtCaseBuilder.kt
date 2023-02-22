@@ -12,7 +12,7 @@ class OffenderCourtCaseBuilder(var courtId: String = "COURT1") {
     val court = dataLoader.agencyLocationRepository.findById(courtId).orElseThrow()
     val caseType = dataLoader.legalCourtCaseTypeRepository.findById(LegalCaseType.pk("A")).orElseThrow() // adult
     val caseStatus = dataLoader.courtCaseStatusRepository.findById(CaseStatus.pk("A")).orElseThrow() // active
-    val nextCaseSequence = dataLoader.offenderCourtCaseRepository.findAllByOffenderBooking_BookingId(offenderBookingId).size + 1L
+    val nextCaseSequence = dataLoader.offenderCourtCaseRepository.findAllByOffenderBooking_BookingId(offenderBookingId).size + 1
     val beginDate = LocalDate.now()
     return dataLoader.offenderCourtCaseRepository.save(
       OffenderCourtCase(

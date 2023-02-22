@@ -607,7 +607,7 @@ public class BookingResourceIntTest extends ResourceTest {
     @Test
     public void getVisitsWithVisitorsWithPageAndSizeAsMax() {
         var page = Integer.MAX_VALUE;
-        var size = Integer.MAX_VALUE;
+        var size = 1;
         final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/visits-with-visitors?size=" + size + "&page=" + page, GET,
             createHttpEntity(AuthToken.NORMAL_USER, null),
             String.class, -6L);

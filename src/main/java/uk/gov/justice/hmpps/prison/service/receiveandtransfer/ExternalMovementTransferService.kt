@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service.receiveandtransfer
 
+import jakarta.persistence.EntityManager
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferIn
@@ -17,7 +18,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeReposi
 import uk.gov.justice.hmpps.prison.service.BadRequestException
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 import java.time.LocalDateTime
-import javax.persistence.EntityManager
 import kotlin.Result.Companion.failure
 import kotlin.Result.Companion.success
 

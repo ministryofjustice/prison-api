@@ -174,10 +174,10 @@ public class OffenderBookingRepositoryTest {
     void saveOffenderCourtCases() {
         final var booking = repository.findById(-2L).orElseThrow();
 
-        assertThat(booking.getCourtCases()).extracting(OffenderCourtCase::getCaseSeq).containsOnly(1L);
+        assertThat(booking.getCourtCases()).extracting(OffenderCourtCase::getCaseSeq).containsOnly(1);
 
-        booking.add(offenderCourtCase(2L));
-        booking.add(offenderCourtCase(3L));
+        booking.add(offenderCourtCase(2));
+        booking.add(offenderCourtCase(3));
 
         repository.save(booking);
 
@@ -185,10 +185,10 @@ public class OffenderBookingRepositoryTest {
 
         final var persistedBooking = repository.findById(-2L).orElseThrow();
 
-        assertThat(persistedBooking.getCourtCases()).extracting(OffenderCourtCase::getCaseSeq).contains(1L, 2L, 3L);
+        assertThat(persistedBooking.getCourtCases()).extracting(OffenderCourtCase::getCaseSeq).contains(1, 2, 3);
     }
 
-    private OffenderCourtCase offenderCourtCase(final Long sequence) {
+    private OffenderCourtCase offenderCourtCase(final Integer sequence) {
         return OffenderCourtCase.builder()
                 .beginDate(LocalDate.EPOCH)
                 .caseSeq(sequence)
@@ -250,7 +250,7 @@ public class OffenderBookingRepositoryTest {
     @Test
     void findByOffenderNomsIdAndActive() {
         final var optionalOffenderBooking = repository.findByOffenderNomsIdAndActive("A1234AA", true);
-        //noinspection unchecked
+        //noinspection
         assertThat(optionalOffenderBooking).get().extracting(OffenderBooking::getBookingId, o -> o.getRootOffender().getId()).containsExactly(-1L, -1001L);
     }
 

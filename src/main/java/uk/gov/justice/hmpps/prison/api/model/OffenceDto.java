@@ -8,7 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offence;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDate;
 
 @Schema(description = "Offence")

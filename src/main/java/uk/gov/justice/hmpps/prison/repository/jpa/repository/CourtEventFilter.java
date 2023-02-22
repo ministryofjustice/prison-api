@@ -9,10 +9,10 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import java.time.LocalDate;
 
 @Getter
@@ -33,7 +33,7 @@ public class CourtEventFilter implements Specification<CourtEvent> {
         final ImmutableList.Builder<Predicate> predicateBuilder = ImmutableList.builder();
 
         if (bookingId != null) {
-            predicateBuilder.add(cb.equal(root.get("offenderBooking"), bookingId));
+            predicateBuilder.add(cb.equal(root.get("offenderBooking").get("bookingId"), bookingId));
         }
 
         if (fromDate != null) {

@@ -8,20 +8,19 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.With;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.annotations.BatchSize;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOffence;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -36,7 +35,6 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(of = { "id" }, callSuper = false)
 @Table(name = "OFFENDER_CHARGES")
 @ToString(exclude = {"offenderBooking", "offenderCourtCase"})
-@BatchSize(size = 25)
 @With
 public class OffenderCharge extends AuditableEntity {
 
@@ -61,7 +59,6 @@ public class OffenderCharge extends AuditableEntity {
         @JoinColumn(name="OFFENCE_CODE", referencedColumnName="OFFENCE_CODE"),
         @JoinColumn(name="STATUTE_CODE", referencedColumnName="STATUTE_CODE")
     })
-    @BatchSize(size = 25)
     private Offence offence;
 
     @Column(name = "NO_OF_OFFENCES")

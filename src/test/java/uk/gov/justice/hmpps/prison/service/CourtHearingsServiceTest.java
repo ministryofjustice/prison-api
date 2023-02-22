@@ -73,7 +73,7 @@ public class CourtHearingsServiceTest {
 
     private static final OffenderCourtCase ACTIVE_COURT_CASE = OffenderCourtCase.builder()
             .id(1L)
-            .caseSeq(1L)
+            .caseSeq(1)
             .caseStatus(ACTIVE_CASE_STATUS)
             .build();
 

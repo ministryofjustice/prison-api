@@ -40,7 +40,7 @@ public class UserDetailsServiceImpl implements UserDetailsService, Authenticatio
     }
 
     @Override
-    @Cacheable("loadUserByUsername")
+    @Cacheable(value = "loadUserByUsername", unless = "#result == null")
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
         final var nomisProfile = ProfileUtil.isNomisProfile(env);
 

@@ -7,16 +7,17 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.hibernate.annotations.Type;
+import org.hibernate.type.YesNoConverter;
+import jakarta.persistence.Convert;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDate;
 
@@ -52,11 +53,11 @@ public class ProfileCode extends AuditableEntity {
 
     @Column(name = "UPDATE_ALLOWED_FLAG", nullable = false)
     @Default
-    @Type(type="yes_no")
+    @Convert(converter = YesNoConverter.class)
     private boolean updateAllowed = true;
 
     @Column(name = "ACTIVE_FLAG", nullable = false)
-    @Type(type="yes_no")
+    @Convert(converter = YesNoConverter.class)
     @Default
     private boolean active = true;
 

@@ -18,8 +18,8 @@ import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.RequestForCourtTransferIn;
 import uk.gov.justice.hmpps.prison.service.TestClock;
 
-import javax.persistence.EntityManager;
-import javax.transaction.Transactional;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
 

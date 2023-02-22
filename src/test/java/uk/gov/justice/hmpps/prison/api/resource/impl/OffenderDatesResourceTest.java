@@ -154,7 +154,7 @@ public class OffenderDatesResourceTest extends ResourceTest {
         assertThat(response.getBody()).isEqualTo(
             ErrorResponse.builder()
                 .status(403)
-                .userMessage("Access is denied")
+                .userMessage("Access Denied")
                 .build());
     }
 

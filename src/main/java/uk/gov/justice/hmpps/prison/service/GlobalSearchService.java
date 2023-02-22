@@ -16,8 +16,8 @@ import uk.gov.justice.hmpps.prison.repository.InmateRepository;
 import uk.gov.justice.hmpps.prison.repository.PrisonerRepository;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.util.Collections;
 
 /**

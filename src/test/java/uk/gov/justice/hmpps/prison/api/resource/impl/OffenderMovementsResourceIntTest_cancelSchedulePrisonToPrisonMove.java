@@ -106,7 +106,7 @@ public class OffenderMovementsResourceIntTest_cancelSchedulePrisonToPrisonMove e
         assertThat(response.getBody()).isEqualTo(
                 ErrorResponse.builder()
                         .status(403)
-                        .userMessage("Access is denied")
+                        .userMessage("Access Denied")
                         .build());
     }
 

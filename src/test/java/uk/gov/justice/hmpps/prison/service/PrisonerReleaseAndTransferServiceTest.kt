@@ -2,6 +2,7 @@
 
 package uk.gov.justice.hmpps.prison.service
 
+import jakarta.persistence.EntityManager
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -43,7 +44,6 @@ import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
 import uk.gov.justice.hmpps.prison.service.receiveandtransfer.BookingIntoPrisonService
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer
 import java.util.Optional
-import javax.persistence.EntityManager
 
 internal class PrisonerReleaseAndTransferServiceTest {
   private val offenderBookingRepository: OffenderBookingRepository = mock()

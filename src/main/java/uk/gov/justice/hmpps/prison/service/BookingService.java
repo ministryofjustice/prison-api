@@ -91,7 +91,7 @@ import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
 import uk.gov.justice.hmpps.prison.service.transformers.PropertyContainerTransformer;
 import uk.gov.justice.hmpps.prison.service.validation.AttendanceTypesValid;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;

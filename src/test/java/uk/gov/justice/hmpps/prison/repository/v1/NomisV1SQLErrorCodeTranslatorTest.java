@@ -12,7 +12,7 @@ public class NomisV1SQLErrorCodeTranslatorTest {
     @Test
     public void customTranslate_errorCode() {
         final var accessException = translator.customTranslate("hello", "sql", new SQLException("reason", "state", 20040));
-        assertThat(accessException).hasMessage("Sum of sub account balances not equal to current balance; nested exception is java.sql.SQLException: reason");
+        assertThat(accessException).hasMessage("Sum of sub account balances not equal to current balance");
 
     }
 

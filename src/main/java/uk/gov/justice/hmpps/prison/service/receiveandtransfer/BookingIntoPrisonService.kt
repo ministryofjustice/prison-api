@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service.receiveandtransfer
 
+import jakarta.persistence.EntityManager
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -42,7 +43,6 @@ import uk.gov.justice.hmpps.prison.service.ConflictingRequestException
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 import uk.gov.justice.hmpps.prison.service.createbooking.CopyPreviousBookingService
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer
-import javax.persistence.EntityManager
 import kotlin.Result.Companion.failure
 import kotlin.Result.Companion.success
 

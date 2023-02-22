@@ -6,27 +6,26 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.With;
-import org.hibernate.annotations.BatchSize;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerm;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory.BedAssignmentHistoryPK;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedAttributeNode;
-import javax.persistence.NamedEntityGraph;
-import javax.persistence.NamedSubgraph;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.NamedSubgraph;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
@@ -101,7 +100,6 @@ public class OffenderSentence extends AuditableEntity {
         @JoinColumn(name = "SENTENCE_CALC_TYPE", referencedColumnName = "SENTENCE_CALC_TYPE"),
         @JoinColumn(name = "SENTENCE_CATEGORY", referencedColumnName = "SENTENCE_CATEGORY")
     })
-    @BatchSize(size = 25)
     private SentenceCalcType calculationType;
 
     @OneToMany(fetch = FetchType.LAZY)
@@ -109,7 +107,6 @@ public class OffenderSentence extends AuditableEntity {
         @JoinColumn(name = "OFFENDER_BOOK_ID", referencedColumnName = "OFFENDER_BOOK_ID"),
         @JoinColumn(name = "SENTENCE_SEQ", referencedColumnName = "SENTENCE_SEQ")
     })
-    @BatchSize(size = 25)
     private List<SentenceTerm> terms;
 
     @Column(name = "START_DATE")
@@ -125,7 +122,6 @@ public class OffenderSentence extends AuditableEntity {
     private Long lineSequence;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "offenderSentence")
-    @BatchSize(size = 25)
     private List<OffenderSentenceCharge> offenderSentenceCharges;
 
     public Integer getSequence() {

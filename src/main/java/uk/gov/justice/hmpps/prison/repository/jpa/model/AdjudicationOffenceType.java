@@ -2,7 +2,7 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import lombok.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Data
 @EqualsAndHashCode(callSuper=false)

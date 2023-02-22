@@ -10,7 +10,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderEmploymentR
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderEmploymentTransformer;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 @Service
 @RequiredArgsConstructor

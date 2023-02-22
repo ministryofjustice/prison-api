@@ -7,14 +7,14 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import java.io.Serializable;
 
 @Data
@@ -34,11 +34,11 @@ public class OffenderAssessmentItem extends AuditableEntity {
 
     @Id
     @Column(name = "ASSESSMENT_SEQ")
-    private Long assessmentSeq;
+    private Integer assessmentSeq;
 
     @Id
     @Column(name = "ITEM_SEQ")
-    private Long itemSeq;
+    private Integer itemSeq;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="ASSESSMENT_ID")
@@ -50,7 +50,7 @@ public class OffenderAssessmentItem extends AuditableEntity {
     @ToString
     public static class Pk implements Serializable {
         private Long bookingId;
-        private Long assessmentSeq;
-        private Long itemSeq;
+        private Integer assessmentSeq;
+        private Integer itemSeq;
     }
 }

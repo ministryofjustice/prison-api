@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service.receiveandtransfer
 
+import jakarta.persistence.EntityManager
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.assertj.core.api.Assertions.within
@@ -29,7 +30,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.Optional
-import javax.persistence.EntityManager
 
 internal class ExternalMovementTransferServiceTest {
   private val movementReasonRepository: ReferenceCodeRepository<MovementReason> = mock()

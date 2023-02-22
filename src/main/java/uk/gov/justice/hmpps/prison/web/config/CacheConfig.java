@@ -1,21 +1,24 @@
 package uk.gov.justice.hmpps.prison.web.config;
 
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.SizeOfPolicyConfiguration;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import org.ehcache.config.builders.CacheConfigurationBuilder;
+import org.ehcache.config.builders.ExpiryPolicyBuilder;
+import org.ehcache.config.builders.ResourcePoolsBuilder;
+import org.ehcache.jsr107.Eh107Configuration;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.CacheManager;
+import org.springframework.boot.autoconfigure.cache.JCacheManagerCustomizer;
 import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.cache.ehcache.EhCacheCacheManager;
-import org.springframework.cache.interceptor.CacheErrorHandler;
-import org.springframework.cache.interceptor.CacheResolver;
-import org.springframework.cache.interceptor.KeyGenerator;
-import org.springframework.cache.interceptor.SimpleCacheErrorHandler;
-import org.springframework.cache.interceptor.SimpleCacheResolver;
-import org.springframework.cache.interceptor.SimpleKeyGenerator;
+import org.springframework.cache.interceptor.SimpleKey;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.core.userdetails.UserDetails;
+import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
+import uk.gov.justice.hmpps.prison.api.model.ReferenceDomain;
+import uk.gov.justice.hmpps.prison.api.model.StaffDetail;
+import uk.gov.justice.hmpps.prison.api.support.Page;
+
+import java.time.Duration;
+import java.util.List;
 
 @Configuration
 @EnableCaching(proxyTargetClass = true)
@@ -41,62 +44,41 @@ public class CacheConfig implements CachingConfigurer {
     @Value("${cache.timeout.seconds.activity:3600}")
     private int activityTimeoutSeconds;
 
-    @Bean(destroyMethod = "shutdown")
-    public net.sf.ehcache.CacheManager ehCacheManager() {
-        final var config = new net.sf.ehcache.config.Configuration();
-        config.sizeOfPolicy(new SizeOfPolicyConfiguration().maxDepth(20_000));
-
-        config.addCache(config("referenceDomain", 500, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("referenceCodesByDomain", 1000, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("referenceCodeByDomainAndCode", 1000, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-
-        config.addCache(config("caseNoteTypesByCaseLoadType", 100, caseNoteTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("getCaseNoteTypesWithSubTypesByCaseLoadTypeAndActiveFlag", 100, caseNoteTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("usedCaseNoteTypesWithSubTypes", 100, caseNoteTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-
-        config.addCache(config("findByStaffId", 1000, userTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("findRolesByUsername", 1000, userTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("loadUserByUsername", 5000, userTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-
-        config.addCache(config("findByStaffIdAndStaffUserType", 1000, userTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("findAgenciesByUsername", 1000, agencyTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("findLocationsByAgencyAndType", 1000, locationTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config(GET_AGENCY_LOCATIONS_BOOKED, 500, activityTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-
-        return net.sf.ehcache.CacheManager.newInstance(config);
-    }
-
-    public static CacheConfiguration config(final String name, final int maxElements, final int timeoutSeconds, final MemoryStoreEvictionPolicy policy) {
-        return new CacheConfiguration().name(name)
-                .memoryStoreEvictionPolicy(policy)
-                .eternal(false)
-                .overflowToOffHeap(false)
-                .maxEntriesLocalHeap(maxElements)
-                .timeToLiveSeconds(timeoutSeconds)
-                .timeToIdleSeconds(timeoutSeconds);
-    }
-
     @Bean
-    @Override
-    public CacheManager cacheManager() {
-        return new EhCacheCacheManager(ehCacheManager());
+    public JCacheManagerCustomizer cacheConfiguration() {
+        return cm -> {
+            cm.createCache("referenceDomain", config(String.class, ReferenceDomain.class, 500, referenceDataTimeoutSeconds));
+            cm.enableStatistics("referenceDomain", true);
+            cm.createCache("referenceCodesByDomain", config(SimpleKey.class, Page.class, 1000, referenceDataTimeoutSeconds));
+            cm.enableStatistics("referenceCodesByDomain", true);
+            cm.createCache("referenceCodeByDomainAndCode", config(String.class, ReferenceCode.class, 1000, referenceDataTimeoutSeconds));
+            cm.enableStatistics("referenceCodeByDomainAndCode", true);
+
+            cm.createCache("caseNoteTypesByCaseLoadType", config(String.class, List.class, 100, caseNoteTimeoutSeconds));
+            cm.enableStatistics("caseNoteTypesByCaseLoadType", true);
+            cm.createCache("getCaseNoteTypesWithSubTypesByCaseLoadTypeAndActiveFlag", config(SimpleKey.class, List.class, 100, caseNoteTimeoutSeconds));
+            cm.enableStatistics("getCaseNoteTypesWithSubTypesByCaseLoadTypeAndActiveFlag", true);
+            cm.createCache("usedCaseNoteTypesWithSubTypes", config(SimpleKey.class, List.class, 100, caseNoteTimeoutSeconds));
+            cm.enableStatistics("usedCaseNoteTypesWithSubTypes", true);
+
+            cm.createCache("findByStaffId", config(Long.class, StaffDetail.class, 1000, userTimeoutSeconds));
+            cm.enableStatistics("findByStaffId", true);
+            cm.createCache("loadUserByUsername", config(String.class, UserDetails.class, 5000, userTimeoutSeconds));
+            cm.enableStatistics("loadUserByUsername", true);
+
+            cm.createCache("findAgenciesByUsername", config(String.class, List.class, 1000, userTimeoutSeconds));
+            cm.enableStatistics("findAgenciesByUsername", true);
+            cm.createCache("findByStaffIdAndStaffUserType", config(SimpleKey.class, UserDetails.class, 1000, userTimeoutSeconds));
+            cm.enableStatistics("findByStaffIdAndStaffUserType", true);
+            cm.createCache(GET_AGENCY_LOCATIONS_BOOKED, config(String.class, List.class, 500, activityTimeoutSeconds));
+            cm.enableStatistics(GET_AGENCY_LOCATIONS_BOOKED, true);
+        };
     }
 
-    @Bean
-    @Override
-    public KeyGenerator keyGenerator() {
-        return new SimpleKeyGenerator();
-    }
-
-    @Bean
-    @Override
-    public CacheResolver cacheResolver() {
-        return new SimpleCacheResolver(cacheManager());
-    }
-
-    @Bean
-    @Override
-    public CacheErrorHandler errorHandler() {
-        return new SimpleCacheErrorHandler();
+    public static <K, V> javax.cache.configuration.Configuration<K, V> config(Class<K> keyType, Class<V> valueType, final int maxElements, final int timeoutSeconds) {
+        return Eh107Configuration.fromEhcacheCacheConfiguration(
+            CacheConfigurationBuilder
+                .newCacheConfigurationBuilder(keyType, valueType, ResourcePoolsBuilder.heap(maxElements))
+                .withExpiry(ExpiryPolicyBuilder.timeToLiveExpiration(Duration.ofSeconds(timeoutSeconds))));
     }
 }
