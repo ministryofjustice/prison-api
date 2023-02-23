@@ -2,7 +2,7 @@ package uk.gov.justice.hmpps.prison.util;
 
 import org.apache.commons.lang3.StringUtils;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Azure provides ip addresses with a port, which we need to strip out before using.  Don't want to nobble IP6 addresses

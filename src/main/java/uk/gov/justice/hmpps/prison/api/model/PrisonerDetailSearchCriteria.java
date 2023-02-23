@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.With;
 
-import javax.validation.constraints.Max;
+import jakarta.validation.constraints.Max;
 import java.time.LocalDate;
 import java.util.List;
 

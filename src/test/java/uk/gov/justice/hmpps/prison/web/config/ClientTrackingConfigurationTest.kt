@@ -2,7 +2,6 @@ package uk.gov.justice.hmpps.prison.web.config
 
 import ch.qos.logback.classic.Level
 import com.microsoft.applicationinsights.web.internal.RequestTelemetryContext
-import com.microsoft.applicationinsights.web.internal.ThreadContext
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -52,7 +51,6 @@ class ClientTrackingConfigurationTest {
     val token = jwtAuthHelper.createJwt(JwtParameters.builder().username("bob").build())
     req.addHeader(HttpHeaders.AUTHORIZATION, "Bearer $token")
     clientTrackingInterceptor.preHandle(req, res, "null")
-    val insightTelemetry = ThreadContext.getRequestTelemetryContext().httpRequestTelemetry.properties
     assertThat(insightTelemetry).containsExactlyInAnyOrderEntriesOf(
       mapOf(
         "username" to "bob",
@@ -67,14 +65,12 @@ class ClientTrackingConfigurationTest {
     req.addHeader(HttpHeaders.AUTHORIZATION, "Bearer $token")
     val res = MockHttpServletResponse()
     clientTrackingInterceptor.preHandle(req, res, "null")
-    val insightTelemetry = ThreadContext.getRequestTelemetryContext().httpRequestTelemetry.properties
     assertThat(insightTelemetry).containsExactlyInAnyOrderEntriesOf(mapOf("clientId" to "prison-api-client"))
   }
 
   @Test
   fun `should cope with no authorisation`() {
     clientTrackingInterceptor.preHandle(req, res, "null")
-    val insightTelemetry = ThreadContext.getRequestTelemetryContext().httpRequestTelemetry.properties
     assertThat(insightTelemetry).isEmpty()
   }
 
@@ -87,7 +83,6 @@ class ClientTrackingConfigurationTest {
     clientTrackingInterceptor.preHandle(req, res, "null")
 
     // The lack of an exception here shows that a bad token does not prevent Telemetry
-    val insightTelemetry = ThreadContext.getRequestTelemetryContext().httpRequestTelemetry.properties
     assertThat(insightTelemetry).isEmpty()
     assertThat(logAppender.list).anyMatch { it.message.contains("problem decoding jwt") && it.level == Level.WARN }
   }

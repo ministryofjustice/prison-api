@@ -9,13 +9,14 @@ import lombok.Setter;
 import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Hibernate;
-import org.hibernate.annotations.Type;
+import org.hibernate.type.YesNoConverter;
+import jakarta.persistence.Convert;
 import uk.gov.justice.hmpps.prison.api.model.LegalStatus;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
@@ -50,7 +51,7 @@ public class ImprisonmentStatus extends AuditableEntity {
     private String sequence;
 
     @Column(name = "ACTIVE_FLAG", nullable = false)
-    @Type(type="yes_no")
+    @Convert(converter = YesNoConverter.class)
     @Default
     private boolean active = true;
 

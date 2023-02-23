@@ -22,7 +22,7 @@ import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMap
 import uk.gov.justice.hmpps.prison.repository.sql.CaseNoteRepositorySql;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.sql.Types;
 import java.time.LocalDate;
 import java.time.LocalDateTime;

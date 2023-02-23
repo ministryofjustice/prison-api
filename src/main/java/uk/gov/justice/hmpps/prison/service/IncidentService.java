@@ -8,7 +8,7 @@ import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.repository.IncidentCaseRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 

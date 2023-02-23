@@ -40,8 +40,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeReposi
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 
-import javax.persistence.EntityManager;
-import javax.validation.ValidationException;
+import jakarta.persistence.EntityManager;
+import jakarta.validation.ValidationException;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;

@@ -25,8 +25,8 @@ import uk.gov.justice.hmpps.prison.service.EntityAlreadyExistsException;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 import uk.gov.justice.hmpps.prison.service.NoContentException;
 
-import javax.persistence.EntityExistsException;
-import javax.validation.ValidationException;
+import jakarta.persistence.EntityExistsException;
+import jakarta.validation.ValidationException;
 import java.sql.SQLException;
 import java.util.stream.Collectors;
 

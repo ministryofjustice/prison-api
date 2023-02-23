@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.8.3"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.0.1"
   kotlin("plugin.spring") version "1.8.10"
   kotlin("plugin.jpa") version "1.8.10"
   kotlin("plugin.lombok") version "1.8.10"
@@ -53,14 +53,12 @@ dependencies {
   implementation("com.zaxxer:HikariCP:5.0.1")
 
   implementation("io.swagger:swagger-annotations:1.6.9")
-  implementation("org.springdoc:springdoc-openapi-ui:1.6.14")
-  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.14")
-  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.14")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
 
   implementation("org.apache.commons:commons-lang3:3.12.0")
   implementation("commons-io:commons-io:2.11.0")
   implementation("org.apache.commons:commons-text:1.10.0")
-  implementation("com.oracle.database.jdbc:ojdbc10:19.17.0.0")
+  implementation("com.oracle.database.jdbc:ojdbc10:19.18.0.0")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
   compileOnly("org.projectlombok:lombok:1.18.26")
@@ -87,10 +85,11 @@ dependencies {
   testImplementation("net.serenity-bdd:serenity-spring:3.6.12")
   testImplementation("net.serenity-bdd:serenity-cucumber:3.6.12")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
-  testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
-  testImplementation("io.jsonwebtoken:jjwt:0.9.1")
+  testImplementation("com.github.tomakehurst:wiremock-jre8-standalone:2.35.0")
+  testImplementation("io.jsonwebtoken:jjwt-impl:0.11.5")
+  testImplementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
   testImplementation("org.glassfish:javax.el:3.0.0")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.11")
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.12")
 
   testCompileOnly("org.projectlombok:lombok:1.18.26")
 }
