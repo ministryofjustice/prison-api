@@ -122,7 +122,7 @@ public class OffenderSentenceResource {
     @Operation(summary = "Set the HDC checks passed flag")
     @PutMapping("/booking/{bookingId}/home-detention-curfews/latest/checks-passed")
     @ProxyUser
-    public ResponseEntity<Void> setCurfewChecks(@PathVariable("bookingId") final Long bookingId, @RequestBody @javax.validation.Valid final HdcChecks hdcChecks) {
+    public ResponseEntity<Void> setCurfewChecks(@PathVariable("bookingId") final Long bookingId, @RequestBody @jakarta.validation.Valid final HdcChecks hdcChecks) {
         offenderCurfewService.setHdcChecks(bookingId, hdcChecks);
         return ResponseEntity.noContent().build();
     }
@@ -148,7 +148,7 @@ public class OffenderSentenceResource {
     @Operation(summary = "Set the HDC approval status")
     @PutMapping("/booking/{bookingId}/home-detention-curfews/latest/approval-status")
     @ProxyUser
-    public ResponseEntity<Void> setApprovalStatus(@PathVariable("bookingId") final Long bookingId, @RequestBody @javax.validation.Valid final ApprovalStatus approvalStatus) {
+    public ResponseEntity<Void> setApprovalStatus(@PathVariable("bookingId") final Long bookingId, @RequestBody @jakarta.validation.Valid final ApprovalStatus approvalStatus) {
 
         offenderCurfewService.setApprovalStatus(bookingId, approvalStatus);
         return ResponseEntity.noContent().build();

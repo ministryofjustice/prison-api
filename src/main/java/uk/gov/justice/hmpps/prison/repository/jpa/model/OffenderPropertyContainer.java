@@ -58,7 +58,7 @@ public class OffenderPropertyContainer {
             @JoinColumnOrFormula(column = @JoinColumn(name = "CONTAINER_CODE", referencedColumnName = "code"))
     })
     private PropertyContainer containerType;
-    
+
 
 
 }

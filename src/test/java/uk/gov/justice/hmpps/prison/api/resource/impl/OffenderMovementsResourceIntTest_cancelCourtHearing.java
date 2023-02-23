@@ -107,7 +107,7 @@ public class OffenderMovementsResourceIntTest_cancelCourtHearing extends Resourc
         assertThat(response.getBody()).isEqualTo(
                 ErrorResponse.builder()
                         .status(403)
-                        .userMessage("Access is denied")
+                        .userMessage("Access Denied")
                         .build());
     }
 
@@ -131,7 +131,7 @@ public class OffenderMovementsResourceIntTest_cancelCourtHearing extends Resourc
                 }).getBody();
 
         assertThat(courtHearings).isNotNull();
-        assertThat(courtHearings.getHearings().size()).isGreaterThanOrEqualTo(1);
+        assertThat(courtHearings.getHearings()).hasSizeGreaterThanOrEqualTo(1);
 
         return courtHearings.getHearings();
     }

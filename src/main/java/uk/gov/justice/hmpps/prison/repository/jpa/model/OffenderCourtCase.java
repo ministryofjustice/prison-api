@@ -64,7 +64,7 @@ public class OffenderCourtCase extends AuditableEntity {
     private OffenderBooking offenderBooking;
 
     @Column(name = "CASE_SEQ", nullable = false)
-    private Long caseSeq;
+    private Integer caseSeq;
 
     private LocalDate beginDate;
 

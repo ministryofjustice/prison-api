@@ -25,7 +25,7 @@ import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import static javax.persistence.EnumType.STRING;
+import static jakarta.persistence.EnumType.STRING;
 import static org.hibernate.annotations.NotFoundAction.EXCEPTION;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.EscortAgencyType.ESCORT_CODE;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus.EVENT_STS;

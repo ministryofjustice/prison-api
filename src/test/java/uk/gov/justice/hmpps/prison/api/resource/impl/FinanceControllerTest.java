@@ -104,7 +104,7 @@ public class FinanceControllerTest extends ResourceTest {
         final var responseEntity = testRestTemplate.exchange("/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings",
                 HttpMethod.POST, requestEntity, String.class, "LEI", "A1234AA");
 
-        assertThatJsonAndStatus(responseEntity, 403, "{\"status\":403,\"userMessage\":\"Access is denied\"}");
+        assertThatJsonAndStatus(responseEntity, 403, "{\"status\":403,\"userMessage\":\"Access Denied\"}");
     }
 
     @NotNull

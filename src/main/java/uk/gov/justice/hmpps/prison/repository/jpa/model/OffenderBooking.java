@@ -109,7 +109,6 @@ public class OffenderBooking extends AuditableEntity {
     @Exclude
     private List<CourtOrder> courtOrders = new ArrayList<>();
 
-    @ListIndexBase(1)
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Exclude
     private List<OffenderPropertyContainer> propertyContainers;

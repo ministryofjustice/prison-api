@@ -22,7 +22,7 @@ public class CourtCase {
     private Long id;
 
     @Schema(description = "The case sequence number for the offender", example = "1")
-    private Long caseSeq;
+    private Integer caseSeq;
 
     @Schema(description = "The begin date", example = "2019-12-01")
     private LocalDate beginDate;

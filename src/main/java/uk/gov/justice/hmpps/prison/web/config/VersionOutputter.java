@@ -1,7 +1,6 @@
 package uk.gov.justice.hmpps.prison.web.config;
 
 
-import com.microsoft.applicationinsights.extensibility.ContextInitializer;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;

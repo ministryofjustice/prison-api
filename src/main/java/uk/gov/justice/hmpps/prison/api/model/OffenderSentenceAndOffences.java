@@ -30,7 +30,7 @@ public class OffenderSentenceAndOffences {
     private Long lineSequence;
 
     @Schema(description = "Case sequence - a number representing the order of the case this sentence belongs to")
-    private Long caseSequence;
+    private Integer caseSequence;
 
     @Schema(description = "Case reference - a string identifying the case this sentence belongs to")
     private String caseReference;

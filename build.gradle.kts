@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.0.1"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.1.0"
   kotlin("plugin.spring") version "1.8.10"
   kotlin("plugin.jpa") version "1.8.10"
   kotlin("plugin.lombok") version "1.8.10"
@@ -49,7 +49,7 @@ dependencies {
 
   implementation("commons-codec:commons-codec:1.15")
   implementation("com.github.jsqlparser:jsqlparser:$jsqlParserVersion")
-  implementation("net.sf.ehcache:ehcache:2.10.9.2")
+  implementation("org.ehcache:ehcache:3.10.8")
   implementation("com.zaxxer:HikariCP:5.0.1")
 
   implementation("io.swagger:swagger-annotations:1.6.9")
@@ -90,6 +90,7 @@ dependencies {
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
   testImplementation("org.glassfish:javax.el:3.0.0")
   testImplementation("io.swagger.parser.v3:swagger-parser:2.1.12")
+  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.22.0")
 
   testCompileOnly("org.projectlombok:lombok:1.18.26")
 }
@@ -149,12 +150,5 @@ tasks {
     kotlinOptions {
       jvmTarget = "18"
     }
-  }
-
-  // Since Gradle 7.5 `--add-opens` is not automatically added to test workers. This broke a test in `InfoIntTest` because ehcache v2 uses reflection to retrieve the heap size.
-  // As we add `--add-opens` to the JVM args in `run.sh` it seems safe to also add these to the test workers.
-  // For more info. on the Gradle change see https://docs.gradle.org/7.5/userguide/upgrading_version_7.html#removes_implicit_add_opens_for_test_workers
-  withType<Test> {
-    jvmArgs(listOf("--add-opens=java.base/java.lang=ALL-UNNAMED", "--add-opens=java.base/java.util=ALL-UNNAMED", "--add-opens=java.xml/jdk.xml.internal=ALL-UNNAMED"))
   }
 }

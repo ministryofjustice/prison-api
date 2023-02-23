@@ -56,7 +56,7 @@ public class UserRepository extends RepositoryBase {
     }
 
 
-    @Cacheable("findByStaffIdAndStaffUserType")
+    @Cacheable(value = "findByStaffIdAndStaffUserType", unless = "#result == null")
     public Optional<UserDetail> findByStaffIdAndStaffUserType(final Long staffId, final String staffUserType) {
         Validate.notNull(staffId, "Staff id is required.");
         Validate.notBlank(staffUserType, "Staff user type is required.");

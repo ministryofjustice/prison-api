@@ -208,7 +208,7 @@ public class OffenderResourceIntTest_getOffenderAlerts extends ResourceTest {
         @DisplayName("returns partial alert data for each alert for each booking")
         void returnsImportantAlertDataForEachAlertForEachBooking() {
             final var response = testRestTemplate.exchange(
-                "/api/offenders/{offenderNo}/alerts/v2",
+                "/api/offenders/{offenderNo}/alerts/v2?sort=alertType,alertId,dateExpires",
                 GET,
                 createEmptyHttpEntity(AuthToken.VIEW_PRISONER_DATA),
                 new ParameterizedTypeReference<String>() {
@@ -246,7 +246,7 @@ public class OffenderResourceIntTest_getOffenderAlerts extends ResourceTest {
         @DisplayName("will return all alerts for all booking only when no filter")
         void willReturnAllActiveAlertsWhenNoFilter() {
             final var response = testRestTemplate.exchange(
-                "/api/offenders/{offenderNo}/alerts/v2",
+                "/api/offenders/{offenderNo}/alerts/v2?sort=alertType,alertId,dateExpires",
                 GET,
                 createEmptyHttpEntity(AuthToken.VIEW_PRISONER_DATA),
                 new ParameterizedTypeReference<String>() {
@@ -358,7 +358,7 @@ public class OffenderResourceIntTest_getOffenderAlerts extends ResourceTest {
         void canFilterByAlertCode() {
             //noinspection Convert2Diamond
             var jsonContent = getBodyAsJsonContent(testRestTemplate.exchange(
-                "/api/offenders/{offenderNo}/alerts/v2?alertCodes={alertCodes}",
+                "/api/offenders/{offenderNo}/alerts/v2?alertCodes={alertCodes}&sort=alertType,alertId",
                 GET,
                 createEmptyHttpEntity(AuthToken.VIEW_PRISONER_DATA),
                 new ParameterizedTypeReference<String>() {

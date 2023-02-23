@@ -68,8 +68,7 @@ public class ImageService {
             .map(offender -> new OffenderNumber(offender.getNomsId()));
     }
 
-    @PreAuthorize("hasRole('IMAGE_UPLOAD')")
-    @HasWriteScope
+    @PreAuthorize("hasRole('IMAGE_UPLOAD') and hasAuthority('SCOPE_write')")
     @Transactional
     public ImageDetail putImageForOffender(final String offenderNumber, final InputStream receivedImage) {
         // Uses a 4:3 aspect ratio - will distort square photos! Compact cameras and phones use 4:3 for portrait.

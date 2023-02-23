@@ -33,7 +33,7 @@ public class CourtEventFilter implements Specification<CourtEvent> {
         final ImmutableList.Builder<Predicate> predicateBuilder = ImmutableList.builder();
 
         if (bookingId != null) {
-            predicateBuilder.add(cb.equal(root.get("offenderBooking"), bookingId));
+            predicateBuilder.add(cb.equal(root.get("offenderBooking").get("bookingId"), bookingId));
         }
 
         if (fromDate != null) {

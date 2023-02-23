@@ -107,7 +107,7 @@ public class CaseNoteServiceImplIntTest {
     public void getCaseNotesEvents_wrongRole() {
 
         assertThatThrownBy(() -> caseNoteService.getCaseNotesEvents(List.of(), null, 5001L))
-                .hasMessage("Access is denied");
+                .hasMessage("Access Denied");
     }
 
     @Test
@@ -133,7 +133,7 @@ public class CaseNoteServiceImplIntTest {
     public void getCaseNotesEventsNoLimit_wrongRole() {
 
         assertThatThrownBy(() -> caseNoteService.getCaseNotesEvents(List.of(), null))
-                .hasMessage("Access is denied");
+                .hasMessage("Access Denied");
     }
 
     @Test

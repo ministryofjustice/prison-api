@@ -149,8 +149,8 @@ public class ControllerAdvice {
                 .build());
     }
 
-    @ExceptionHandler(javax.persistence.EntityNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleEntityNotFoundException(final javax.persistence.EntityNotFoundException e) {
+    @ExceptionHandler(jakarta.persistence.EntityNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleEntityNotFoundException(final jakarta.persistence.EntityNotFoundException e) {
         return ResponseEntity
             .status(HttpStatus.NOT_FOUND)
             .body(ErrorResponse

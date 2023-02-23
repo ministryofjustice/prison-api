@@ -26,7 +26,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import static javax.persistence.EnumType.STRING;
+import static jakarta.persistence.EnumType.STRING;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.City.CITY;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason.REASON;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.REL;

@@ -34,11 +34,11 @@ public class OffenderAssessmentItem extends AuditableEntity {
 
     @Id
     @Column(name = "ASSESSMENT_SEQ")
-    private Long assessmentSeq;
+    private Integer assessmentSeq;
 
     @Id
     @Column(name = "ITEM_SEQ")
-    private Long itemSeq;
+    private Integer itemSeq;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="ASSESSMENT_ID")
@@ -50,7 +50,7 @@ public class OffenderAssessmentItem extends AuditableEntity {
     @ToString
     public static class Pk implements Serializable {
         private Long bookingId;
-        private Long assessmentSeq;
-        private Long itemSeq;
+        private Integer assessmentSeq;
+        private Integer itemSeq;
     }
 }

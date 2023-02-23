@@ -194,7 +194,7 @@ public class ReferenceDomainResource {
     @PostMapping("/domains/{domain}/codes/{code}")
     @PreAuthorize("hasAnyRole('MAINTAIN_REF_DATA') and hasAuthority('SCOPE_write')")
     @ProxyUser
-    public ReferenceCode createReferenceCode(@Size(max = 12) @NotNull @PathVariable("domain") @Parameter(description = "The domain identifier/name.", required = true) final String domain, @Size(max = 12) @NotNull @PathVariable("code") @Parameter(description = "The reference code.", required = true) final String code, @RequestBody @javax.validation.Valid @NotNull @Parameter(description = "Reference Information", required = true) final ReferenceCodeInfo referenceData) {
+    public ReferenceCode createReferenceCode(@Size(max = 12) @NotNull @PathVariable("domain") @Parameter(description = "The domain identifier/name.", required = true) final String domain, @Size(max = 12) @NotNull @PathVariable("code") @Parameter(description = "The reference code.", required = true) final String code, @RequestBody @jakarta.validation.Valid @NotNull @Parameter(description = "Reference Information", required = true) final ReferenceCodeInfo referenceData) {
         return referenceDomainService.createReferenceCode(domain, code, referenceData);
     }
 
@@ -207,7 +207,7 @@ public class ReferenceDomainResource {
     @PutMapping("/domains/{domain}/codes/{code}")
     @PreAuthorize("hasAnyRole('MAINTAIN_REF_DATA') and hasAuthority('SCOPE_write')")
     @ProxyUser
-    public ReferenceCode updateReferenceCode(@Size(max = 12) @NotNull @PathVariable("domain") @Parameter(description = "The domain identifier/name.", required = true) final String domain, @Size(max = 12) @NotNull @PathVariable("code") @Parameter(description = "The reference code.", required = true) final String code, @javax.validation.Valid @NotNull @RequestBody @Parameter(description = "Reference Information", required = true) final ReferenceCodeInfo referenceData) {
+    public ReferenceCode updateReferenceCode(@Size(max = 12) @NotNull @PathVariable("domain") @Parameter(description = "The domain identifier/name.", required = true) final String domain, @Size(max = 12) @NotNull @PathVariable("code") @Parameter(description = "The reference code.", required = true) final String code, @jakarta.validation.Valid @NotNull @RequestBody @Parameter(description = "Reference Information", required = true) final ReferenceCodeInfo referenceData) {
         return referenceDomainService.updateReferenceCode(domain, code, referenceData);
     }
 
