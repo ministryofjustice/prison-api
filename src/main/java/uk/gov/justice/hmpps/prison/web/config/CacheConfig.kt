@@ -38,34 +38,34 @@ class CacheConfig : CachingConfigurer {
 
   @Bean
   fun cacheConfiguration(): JCacheManagerCustomizer = JCacheManagerCustomizer { cm: CacheManager ->
-    cm.createCacheAndEnableStatistics(
+    cm.createCache(
       "referenceDomain",
       String::class.java, ReferenceDomain::class.java, 500, referenceDataTimeoutSeconds
     )
-    cm.createCacheAndEnableStatistics(
+    cm.createCache(
       "referenceCodesByDomain",
       SimpleKey::class.java, Page::class.java, 1000, referenceDataTimeoutSeconds
     )
-    cm.createCacheAndEnableStatistics(
+    cm.createCache(
       "referenceCodeByDomainAndCode",
       String::class.java, ReferenceCode::class.java, 1000, referenceDataTimeoutSeconds
     )
-    cm.createCacheAndEnableStatistics(
+    cm.createCache(
       "getCaseNoteTypesWithSubTypesByCaseLoadTypeAndActiveFlag",
       SimpleKey::class.java, java.util.List::class.java, 100, caseNoteTimeoutSeconds
     )
-    cm.createCacheAndEnableStatistics(
+    cm.createCache(
       "usedCaseNoteTypesWithSubTypes",
       SimpleKey::class.java, java.util.List::class.java, 100, caseNoteTimeoutSeconds
     )
-    cm.createCacheAndEnableStatistics(
+    cm.createCache(
       "findByStaffId", java.lang.Long::class.java, StaffDetail::class.java, 1000, userTimeoutSeconds
     )
-    cm.createCacheAndEnableStatistics(
+    cm.createCache(
       "findAgenciesByUsername",
       String::class.java, java.util.List::class.java, 1000, agencyTimeoutSeconds
     )
-    cm.createCacheAndEnableStatistics(
+    cm.createCache(
       GET_AGENCY_LOCATIONS_BOOKED, String::class.java, java.util.List::class.java, 500, activityTimeoutSeconds
     )
   }
@@ -75,7 +75,7 @@ class CacheConfig : CachingConfigurer {
   }
 }
 
-private fun <K, V> CacheManager.createCacheAndEnableStatistics(
+private fun <K, V> CacheManager.createCache(
   cacheName: String,
   keyType: Class<K>,
   valueType: Class<V>,
@@ -89,5 +89,4 @@ private fun <K, V> CacheManager.createCacheAndEnableStatistics(
   )
 
   createCache(cacheName, configuration)
-  enableStatistics(cacheName, true)
 }
