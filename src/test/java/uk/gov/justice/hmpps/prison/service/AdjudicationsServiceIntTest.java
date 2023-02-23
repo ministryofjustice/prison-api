@@ -11,7 +11,7 @@ import uk.gov.justice.hmpps.prison.api.model.NewAdjudication.NewAdjudicationBuil
 import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication.UpdateAdjudicationBuilder;
 
-import javax.validation.ConstraintViolationException;
+import jakarta.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.stream.IntStream;
 

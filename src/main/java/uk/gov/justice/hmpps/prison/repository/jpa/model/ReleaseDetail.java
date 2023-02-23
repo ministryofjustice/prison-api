@@ -5,21 +5,21 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.Hibernate;
-import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
-import org.hibernate.annotations.Type;
+import org.hibernate.type.YesNoConverter;
+import jakarta.persistence.Convert;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.MapsId;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.util.Objects;
 
@@ -32,7 +32,6 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.TYPE
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "OFFENDER_RELEASE_DETAILS")
-@BatchSize(size = 25)
 public class ReleaseDetail extends AuditableEntity {
 
     @Id
@@ -77,7 +76,7 @@ public class ReleaseDetail extends AuditableEntity {
     private LocalDate dtoMidTermDate;
 
     @Column(name = "VERIFIED_FLAG")
-    @Type(type="yes_no")
+    @Convert(converter = YesNoConverter.class)
     private boolean verified;
 
     @Override

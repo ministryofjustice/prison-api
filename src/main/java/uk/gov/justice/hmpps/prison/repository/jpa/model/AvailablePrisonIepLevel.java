@@ -11,20 +11,20 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
 import org.hibernate.Hibernate;
-import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
-import org.hibernate.annotations.Type;
+import org.hibernate.type.YesNoConverter;
+import jakarta.persistence.Convert;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -37,7 +37,6 @@ import java.util.Objects;
 @IdClass(AvailablePrisonIepLevel.PK.class)
 @Table(name = "IEP_LEVELS")
 @ToString
-@BatchSize(size = 25)
 public class AvailablePrisonIepLevel extends AuditableEntity  {
 
     @NoArgsConstructor
@@ -68,7 +67,7 @@ public class AvailablePrisonIepLevel extends AuditableEntity  {
     private IepLevel iepLevel;
 
     @Column(name = "ACTIVE_FLAG", nullable = false)
-    @Type(type="yes_no")
+    @Convert(converter = YesNoConverter.class)
     @Default
     private boolean active = true;
 
@@ -76,7 +75,7 @@ public class AvailablePrisonIepLevel extends AuditableEntity  {
     private String expiryDate;
 
     @Column(name = "DEFAULT_FLAG", nullable = false)
-    @Type(type="yes_no")
+    @Convert(converter = YesNoConverter.class)
     private boolean defaultIep;
 
     @Override

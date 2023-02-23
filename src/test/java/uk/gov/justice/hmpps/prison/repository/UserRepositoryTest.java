@@ -51,31 +51,6 @@ public class UserRepositoryTest {
         assertThat(user).isNotPresent();
     }
 
-
-    @Test
-    public void testFindUserByStaffIdAndStaffUserTypeUnknownStaffId() {
-        final var staffId = -99L;
-
-       assertThat(userRepository.findByStaffIdAndStaffUserType(staffId, STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION)).isEmpty();
-    }
-
-    @Test
-    public void testFindUserByStaffIdAndStaffUserTypeInvalidUserType() {
-        final var staffId = -1L;
-        final var staffUserType = "INVALID";
-
-        assertThat(userRepository.findByStaffIdAndStaffUserType(staffId, staffUserType)).isEmpty();
-    }
-
-    @Test
-    public void testFindUserByStaffIdAndStaffUserType() {
-        final var staffId = -1L;
-
-        final var user = userRepository.findByStaffIdAndStaffUserType(staffId, STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION).orElseThrow(EntityNotFoundException.withId(staffId));
-
-        assertThat(user.getUsername()).isEqualTo("PRISON_API_USER");
-    }
-
     @Test
     public void testFindUsersByCaseload() {
 

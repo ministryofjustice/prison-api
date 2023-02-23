@@ -9,21 +9,21 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.With;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.Type;
+import org.hibernate.type.YesNoConverter;
+import jakarta.persistence.Convert;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedAttributeNode;
-import javax.persistence.NamedEntityGraph;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -40,7 +40,6 @@ import static org.apache.commons.lang3.StringUtils.isNumeric;
 @Table(name = "OFFENCES")
 @ToString
 @IdClass(Offence.PK.class)
-@BatchSize(size = 25)
 @NamedEntityGraph(name = "offence-entity-graph",
     attributeNodes = {
         @NamedAttributeNode("statute"),
@@ -78,7 +77,7 @@ public class Offence {
     private String severityRanking;
 
     @Column(name = "ACTIVE_FLAG")
-    @Type(type="yes_no")
+    @Convert(converter = YesNoConverter.class)
     private boolean active;
 
     @Column(name = "LIST_SEQ")
@@ -89,7 +88,6 @@ public class Offence {
 
     @OneToMany(mappedBy = "offence", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @Default
-    @BatchSize(size = 25)
     private List<OffenceIndicator> offenceIndicators = new ArrayList<>();
 
     public boolean isMoreSeriousThan(Offence other) {

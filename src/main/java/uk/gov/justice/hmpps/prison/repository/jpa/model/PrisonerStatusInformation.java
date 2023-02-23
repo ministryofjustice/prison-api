@@ -2,11 +2,12 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import lombok.Getter;
 import org.hibernate.annotations.Subselect;
-import org.hibernate.annotations.Type;
+import org.hibernate.type.YesNoConverter;
+import jakarta.persistence.Convert;
 import org.springframework.data.annotation.Immutable;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import java.time.LocalDate;
 
 @Entity
@@ -71,7 +72,7 @@ public class PrisonerStatusInformation {
     private String cellLocation;
     private LocalDate bookingBeginDate;
     private LocalDate admissionDate;
-    @Type(type="yes_no")
+    @Convert(converter = YesNoConverter.class)
     private boolean active;
     private String inOutStatus;
     private String bandCode;

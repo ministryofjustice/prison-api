@@ -39,7 +39,7 @@ public class ReferenceDataRepository extends RepositoryBase {
 
 
 
-    @Cacheable("referenceDomain")
+    @Cacheable(value = "referenceDomain", unless = "#result == null")
     public Optional<ReferenceDomain> getReferenceDomain(final String domain) {
         final var sql = ReferenceDataRepositorySql.FIND_REFERENCE_DOMAIN.getSql();
 
@@ -59,7 +59,7 @@ public class ReferenceDataRepository extends RepositoryBase {
 
 
 
-    @Cacheable(value = "referenceCodeByDomainAndCode", key = "#domain.concat('-').concat(#code).concat('-').concat(#withSubCodes)")
+    @Cacheable(value = "referenceCodeByDomainAndCode", key = "#domain.concat('-').concat(#code).concat('-').concat(#withSubCodes)", unless = "#result == null")
     public Optional<ReferenceCode> getReferenceCodeByDomainAndCode(final String domain, final String code, final boolean withSubCodes) {
         final Optional<ReferenceCode> referenceCode;
 
@@ -149,7 +149,7 @@ public class ReferenceDataRepository extends RepositoryBase {
     }
 
 
-    @Cacheable(value = "referenceCodesByDomain")
+    @Cacheable("referenceCodesByDomain")
     public Page<ReferenceCode> getReferenceCodesByDomain(final String domain, final boolean withSubCodes, final String orderBy, final Order order, final long offset, final long limit) {
         final Page<ReferenceCode> page;
 

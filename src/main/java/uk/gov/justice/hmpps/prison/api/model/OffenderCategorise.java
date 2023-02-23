@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import uk.gov.justice.hmpps.prison.api.support.CategorisationStatus;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 @Schema(description = "Prisoner with categorisation data")

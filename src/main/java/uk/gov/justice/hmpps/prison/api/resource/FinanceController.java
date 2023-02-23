@@ -22,10 +22,10 @@ import uk.gov.justice.hmpps.prison.api.model.TransferTransactionDetail;
 import uk.gov.justice.hmpps.prison.service.FinanceService;
 import uk.gov.justice.hmpps.prison.util.ResourceUtils;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 import static uk.gov.justice.hmpps.prison.api.resource.NomisApiV1Resource.NOMS_ID_REGEX_PATTERN;
 

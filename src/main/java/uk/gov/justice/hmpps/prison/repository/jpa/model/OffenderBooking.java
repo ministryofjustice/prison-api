@@ -10,9 +10,9 @@ import lombok.Setter;
 import lombok.ToString.Exclude;
 import lombok.With;
 import org.hibernate.Hibernate;
-import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.ListIndexBase;
-import org.hibernate.annotations.Type;
+import org.hibernate.type.YesNoConverter;
+import jakarta.persistence.Convert;
 import uk.gov.justice.hmpps.prison.api.model.BookingAdjustment;
 import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
 import uk.gov.justice.hmpps.prison.api.model.LegalStatus;
@@ -27,21 +27,21 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail.PK
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.KeyDateValues;
 import uk.gov.justice.hmpps.prison.service.support.NonDtoReleaseDate;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.OrderBy;
-import javax.persistence.OrderColumn;
-import javax.persistence.PrimaryKeyJoinColumn;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.OrderBy;
+import jakarta.persistence.OrderColumn;
+import jakarta.persistence.PrimaryKeyJoinColumn;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -61,7 +61,6 @@ import static java.util.stream.Collectors.toList;
 @AllArgsConstructor
 @Entity
 @Table(name = "OFFENDER_BOOKINGS")
-@BatchSize(size = 25)
 @With
 public class OffenderBooking extends AuditableEntity {
 
@@ -108,10 +107,8 @@ public class OffenderBooking extends AuditableEntity {
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude
-    @BatchSize(size = 25)
     private List<CourtOrder> courtOrders = new ArrayList<>();
 
-    @ListIndexBase(1)
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Exclude
     private List<OffenderPropertyContainer> propertyContainers;
@@ -145,7 +142,7 @@ public class OffenderBooking extends AuditableEntity {
 
     @Column(name = "ACTIVE_FLAG", nullable = false)
     @Default
-    @Type(type="yes_no")
+    @Convert(converter = YesNoConverter.class)
     private boolean active = false;
 
     @OrderBy("effectiveDate ASC")
@@ -157,13 +154,11 @@ public class OffenderBooking extends AuditableEntity {
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude
-    @BatchSize(size = 25)
     private List<ExternalMovement> externalMovements = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude
-    @BatchSize(size = 25)
     private List<OffenderImprisonmentStatus> imprisonmentStatuses = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
@@ -179,7 +174,6 @@ public class OffenderBooking extends AuditableEntity {
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude
-    @BatchSize(size = 25)
     private List<SentenceCalculation> sentenceCalculations = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
@@ -195,25 +189,21 @@ public class OffenderBooking extends AuditableEntity {
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude
-    @BatchSize(size = 25)
     private List<SentenceTerm> terms = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude
-    @BatchSize(size = 25)
     private List<OffenderSentence> sentences = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude
-    @BatchSize(size = 25)
     private List<OffenderImage> images = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude
-    @BatchSize(size = 25)
     private List<OffenderAlert> alerts = new ArrayList<>();
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)

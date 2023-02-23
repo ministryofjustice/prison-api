@@ -25,8 +25,8 @@ import uk.gov.justice.hmpps.prison.service.EntityAlreadyExistsException;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 import uk.gov.justice.hmpps.prison.service.NoContentException;
 
-import javax.persistence.EntityExistsException;
-import javax.validation.ValidationException;
+import jakarta.persistence.EntityExistsException;
+import jakarta.validation.ValidationException;
 import java.sql.SQLException;
 import java.util.stream.Collectors;
 
@@ -149,8 +149,8 @@ public class ControllerAdvice {
                 .build());
     }
 
-    @ExceptionHandler(javax.persistence.EntityNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleEntityNotFoundException(final javax.persistence.EntityNotFoundException e) {
+    @ExceptionHandler(jakarta.persistence.EntityNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleEntityNotFoundException(final jakarta.persistence.EntityNotFoundException e) {
         return ResponseEntity
             .status(HttpStatus.NOT_FOUND)
             .body(ErrorResponse

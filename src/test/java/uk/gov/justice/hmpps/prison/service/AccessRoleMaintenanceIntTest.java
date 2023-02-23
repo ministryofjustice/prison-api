@@ -17,7 +17,6 @@ public class AccessRoleMaintenanceIntTest {
     private StaffService staffService;
 
     @Test
-    @WithUserDetails("ITAG_USER")
     public void testGetSpecificRoles() {
         final var roles = staffService.getRolesByCaseload(-2L, "NWEB");
         assertThat(roles).containsExactly(
@@ -64,7 +63,6 @@ public class AccessRoleMaintenanceIntTest {
     }
 
     @Test
-    @WithUserDetails("API_TEST_USER")
     public void testGetAllRolesForStaffMember() {
         final var roles = staffService.getStaffRoles(-5L);
         assertThat(roles).containsExactly(

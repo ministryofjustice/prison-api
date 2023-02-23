@@ -3,7 +3,7 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 import lombok.*;
 import uk.gov.justice.hmpps.prison.api.model.OffenderFinePaymentDto;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;

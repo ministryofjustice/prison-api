@@ -50,8 +50,8 @@ public class OffenderAssessmentRepositoryTest {
             .isEqualTo(List.of(
                 OffenderAssessmentItem.builder()
                     .bookingId(-43L)
-                    .assessmentSeq(2L)
-                    .itemSeq(1L)
+                    .assessmentSeq(2)
+                    .itemSeq(1)
                     .assessmentAnswer(AssessmentEntry.builder()
                         .assessmentId(-22L)
                         .description(expectedAnswer1)
@@ -59,8 +59,8 @@ public class OffenderAssessmentRepositoryTest {
                     .build(),
                 OffenderAssessmentItem.builder()
                     .bookingId(-43L)
-                    .assessmentSeq(2L)
-                    .itemSeq(2L)
+                    .assessmentSeq(2)
+                    .itemSeq(2)
                     .assessmentAnswer(AssessmentEntry.builder()
                         .assessmentId(-28L)
                         .description(expectedAnswer2)
@@ -68,8 +68,8 @@ public class OffenderAssessmentRepositoryTest {
                     .build(),
                 OffenderAssessmentItem.builder()
                     .bookingId(-43L)
-                    .assessmentSeq(2L)
-                    .itemSeq(3L)
+                    .assessmentSeq(2)
+                    .itemSeq(3)
                     .assessmentAnswer(AssessmentEntry.builder()
                         .assessmentId(-32L)
                         .description(expectedAnswer3)

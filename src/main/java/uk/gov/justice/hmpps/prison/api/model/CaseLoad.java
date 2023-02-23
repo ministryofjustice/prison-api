@@ -9,7 +9,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
 @Schema(description = "Case Load")
 @JsonInclude(JsonInclude.Include.NON_NULL)

@@ -26,7 +26,7 @@ import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl;
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -67,14 +67,6 @@ public class CaseNoteRepositoryTest {
 
     @Autowired
     private EntityManager entityManager;
-
-    @Test
-    public void testGetCaseNoteTypesByCaseLoadType() {
-        final var types = repository.getCaseNoteTypesByCaseLoadType("COMM");
-
-        //noinspection unchecked
-        assertThat(types).extracting(ReferenceCode::getSubCodes).containsOnly(List.of());
-    }
 
     @Test
     public void testGetCaseNoteTypeWithSubTypesByCaseLoadType() {

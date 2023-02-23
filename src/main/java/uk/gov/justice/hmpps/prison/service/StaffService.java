@@ -22,7 +22,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRoleRep
 import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
 import uk.gov.justice.hmpps.prison.service.support.GetStaffRoleRequest;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.Comparator;
 import java.util.List;
 

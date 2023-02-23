@@ -2,8 +2,8 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import lombok.NoArgsConstructor;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
 
 @Entity
 @DiscriminatorValue(CaseNoteSubType.CASE_NOTE_SUB_TYPE)

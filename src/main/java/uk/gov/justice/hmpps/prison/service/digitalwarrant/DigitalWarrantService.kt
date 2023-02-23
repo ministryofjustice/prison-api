@@ -80,7 +80,7 @@ class DigitalWarrantService(
     val legalCaseType = legalCaseTypeReferenceCodeRepository.findById(LegalCaseType.pk(courtCase.caseType)).orElseThrow(EntityNotFoundException.withIdAndClass(courtCase.caseType, LegalCaseType::class.java))
     val booking = offenderBookingRepository.findByBookingId(bookingId).orElseThrow(EntityNotFoundException.withIdAndClass(bookingId, OffenderBooking::class.java))
     val caseStatus = caseStatusReferenceCodeRepository.findById(CaseStatus.pk("A")).orElseThrow(EntityNotFoundException.withIdAndClass("A", CaseStatus::class.java))
-    val sequence = offenderCourtCaseRepository.findAllByOffenderBooking_BookingId(bookingId).stream().max(Comparator.comparing { obj: OffenderCourtCase -> obj.caseSeq }).map { occ: OffenderCourtCase -> occ.caseSeq + 1 }.orElse(1L)
+    val sequence = offenderCourtCaseRepository.findAllByOffenderBooking_BookingId(bookingId).stream().max(Comparator.comparing { obj: OffenderCourtCase -> obj.caseSeq }).map { occ: OffenderCourtCase -> occ.caseSeq + 1 }.orElse(1)
     val offenderCourtCase = OffenderCourtCase()
       .withCaseInfoNumber(courtCase.caseInfoNumber)
       .withLegalCaseType(legalCaseType)

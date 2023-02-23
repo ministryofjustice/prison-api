@@ -307,7 +307,7 @@ public class BookingResourceImplIntTest extends ResourceTest {
         when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.of(OffenderBooking.builder()
                 .courtCases(List.of(OffenderCourtCase.builder()
                         .id(-1L)
-                        .caseSeq(-1L)
+                        .caseSeq(-1)
                         .beginDate(LocalDate.EPOCH)
                         .agencyLocation(AgencyLocation.builder()
                                 .id("MDI")
@@ -346,7 +346,7 @@ public class BookingResourceImplIntTest extends ResourceTest {
                 .courtCases(List.of(
                         OffenderCourtCase.builder()
                                 .id(-1L)
-                                .caseSeq(-1L)
+                                .caseSeq(-1)
                                 .beginDate(LocalDate.EPOCH)
                                 .agencyLocation(AgencyLocation.builder()
                                         .id("MDI")
@@ -373,7 +373,7 @@ public class BookingResourceImplIntTest extends ResourceTest {
                                 .build(),
                         OffenderCourtCase.builder()
                                 .id(-2L)
-                                .caseSeq(-2L)
+                                .caseSeq(-2)
                                 .beginDate(LocalDate.EPOCH)
                                 .agencyLocation(AgencyLocation.builder()
                                         .id("MDI")
