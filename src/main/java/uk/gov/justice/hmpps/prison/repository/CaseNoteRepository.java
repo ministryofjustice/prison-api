@@ -155,17 +155,6 @@ public class CaseNoteRepository extends RepositoryBase {
     }
 
 
-    @Cacheable("caseNoteTypesByCaseLoadType")
-    public List<ReferenceCode> getCaseNoteTypesByCaseLoadType(final String caseLoadType) {
-        final var sql = CaseNoteRepositorySql.GET_CASE_NOTE_TYPES_BY_CASELOAD_TYPE.getSql();
-
-        final var codes = jdbcTemplate.query(sql,
-            createParams("caseLoadType", caseLoadType),
-            REF_CODE_ROW_MAPPER);
-        return codes.stream().map(ReferenceCodeDto::toReferenceCode).toList();
-    }
-
-
     @Cacheable("getCaseNoteTypesWithSubTypesByCaseLoadTypeAndActiveFlag")
     public List<ReferenceCode> getCaseNoteTypesWithSubTypesByCaseLoadTypeAndActiveFlag(final String caseLoadType, final Boolean active) {
         final var sql = CaseNoteRepositorySql.GET_CASE_NOTE_TYPES_WITH_SUB_TYPES_BY_CASELOAD_TYPE.getSql();

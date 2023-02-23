@@ -55,28 +55,6 @@ public class UserRepository extends RepositoryBase {
         jdbcTemplate.update(sql, createParams("caseLoadId", caseLoadId, "username", username));
     }
 
-
-    @Cacheable(value = "findByStaffIdAndStaffUserType", unless = "#result == null")
-    public Optional<UserDetail> findByStaffIdAndStaffUserType(final Long staffId, final String staffUserType) {
-        Validate.notNull(staffId, "Staff id is required.");
-        Validate.notBlank(staffUserType, "Staff user type is required.");
-
-        final var sql = UserRepositorySql.FIND_USER_BY_STAFF_ID_STAFF_USER_TYPE.getSql();
-
-        UserDetailDto userDetail;
-
-        try {
-            userDetail = jdbcTemplate.queryForObject(
-                sql,
-                createParams("staffId", staffId, "staffUserType", staffUserType),
-                USER_DETAIL_ROW_MAPPER);
-        } catch (final EmptyResultDataAccessException ex) {
-            userDetail = null;
-        }
-
-        return Optional.ofNullable(userDetail).map(UserDetailDto::toUserDetail);
-    }
-
     public List<UserDetail> findAllUsersWithCaseload(final String caseloadId, final String missingCaseloadId) {
         Validate.notBlank(caseloadId, "An caseload id is required.");
 

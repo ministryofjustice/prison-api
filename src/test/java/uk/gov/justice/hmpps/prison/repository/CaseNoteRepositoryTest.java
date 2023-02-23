@@ -69,14 +69,6 @@ public class CaseNoteRepositoryTest {
     private EntityManager entityManager;
 
     @Test
-    public void testGetCaseNoteTypesByCaseLoadType() {
-        final var types = repository.getCaseNoteTypesByCaseLoadType("COMM");
-
-        //noinspection unchecked
-        assertThat(types).extracting(ReferenceCode::getSubCodes).containsOnly(List.of());
-    }
-
-    @Test
     public void testGetCaseNoteTypeWithSubTypesByCaseLoadType() {
         final var types = repository.getCaseNoteTypesWithSubTypesByCaseLoadTypeAndActiveFlag("COMM", true);
 
