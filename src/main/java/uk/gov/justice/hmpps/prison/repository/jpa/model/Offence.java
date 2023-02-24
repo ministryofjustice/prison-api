@@ -66,7 +66,7 @@ public class Offence {
     @JoinColumn(name = "STATUTE_CODE", nullable = false)
     private Statute statute;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "HO_CODE")
     private HOCode hoCode;
 
