@@ -53,7 +53,7 @@ public class ImageResource {
     private final ImageService imageService;
 
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(type = "string", format = "binary"))),
             @ApiResponse(responseCode = "404", description = "Requested resource not found."),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.")})
     @Operation(summary = "Image data (as bytes).", description = "Image data (as bytes).")
