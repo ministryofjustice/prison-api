@@ -32,5 +32,5 @@ public interface OffenderEducationRepository extends PagingAndSortingRepository<
             ORDER BY OE.startDate
         """
     )
-    List<OffenderEducation> findAllByNomisIdIn(@Param("nomsIds") Set<String> nomsIds);
+    List<OffenderEducation> findAllByNomisIdIn(@Param("nomsIds") List<String> nomsIds);
 }
