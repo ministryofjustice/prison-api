@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.repository;
 
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -92,6 +93,16 @@ public class OffenderEducationRepositoryTest {
         assertThat(educations.getTotalElements()).isEqualTo(2);
         assertThat(educations).hasSize(1);
         assertThat(education2).isEqualTo(educations.getContent().get(0));
+    }
+
+    @Test
+    void bulk_testExpectedNumberOfEducationsAreReturned() {
+        final var educations = repository.findAllByNomisIdIn(Set.of(offenderNumber));
+
+        assertThat(educations).hasSize(2);
+
+        assertThat(education1).isEqualTo(educations.get(0));
+        assertThat(education2).isEqualTo(educations.get(1));
     }
 
 }

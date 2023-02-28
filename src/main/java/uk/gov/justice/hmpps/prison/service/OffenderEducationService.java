@@ -1,5 +1,8 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,5 +26,13 @@ public class OffenderEducationService {
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public Page<Education> getOffenderEducations(@NotNull final String nomisId, final PageRequest pageRequest) {
         return repository.findAllByNomisId(nomisId, pageRequest).map(transformer::convert);
+    }
+
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    public List<Education> getOffenderEducations(@NotNull final Set<String> nomisIds) {
+        return repository.findAllByNomisIdIn(nomisIds)
+            .stream()
+            .map(transformer::convert)
+            .collect(Collectors.toList());
     }
 }
