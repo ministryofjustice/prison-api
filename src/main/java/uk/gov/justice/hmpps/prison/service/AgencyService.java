@@ -181,6 +181,7 @@ public class AgencyService {
     }
 
     public List<Agency> findAgenciesByUsername(final String username) {
+        if (StringUtils.isBlank(username)) return Collections.emptyList();
         final var agenciesByUsername = agencyRepository.findAgenciesByUsername(username);
         agenciesByUsername.forEach(a -> a.setDescription(LocationProcessor.formatLocation(a.getDescription())));
         return agenciesByUsername;
