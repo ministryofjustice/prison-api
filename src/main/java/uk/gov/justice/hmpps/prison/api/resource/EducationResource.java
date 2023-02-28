@@ -61,7 +61,7 @@ public class EducationResource {
     @PostMapping("/prisoners")
     @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH', 'VIEW_PRISONER_DATA')")
     public List<Education> getPrisonerEducationsInBulk(
-        @RequestBody @Parameter(description = "List of offender NOMS numbers. NOMS numbers have the format:<b>G0364GX</b>", required = true) final Set<String> offenderIds
+        @RequestBody @Parameter(description = "List of offender NOMS numbers. NOMS numbers have the format:<b>G0364GX</b>", required = true) final List<String> offenderIds
     ) {
         return offenderEducationService.getOffenderEducations(offenderIds);
     }
