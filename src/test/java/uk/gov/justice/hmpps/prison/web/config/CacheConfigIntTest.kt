@@ -81,6 +81,20 @@ class CacheConfigIntTest {
     }
 
     @Test
+    fun `test domain that is null won't cause cache to fall over in a heap`() {
+      assertThatThrownBy {
+        referenceDomainService.getReferenceCodesByDomain(null)
+      }.isInstanceOf(EntityNotFoundException::class.java)
+    }
+
+    @Test
+    fun `test domain that is blank won't cause cache to fall over in a heap`() {
+      assertThatThrownBy {
+        referenceDomainService.getReferenceCodesByDomain(" ")
+      }.isInstanceOf(EntityNotFoundException::class.java)
+    }
+
+    @Test
     fun `test domain that exist is added to cache`() {
       reset(referenceDataRepository)
 
@@ -122,6 +136,20 @@ class CacheConfigIntTest {
     }
 
     @Test
+    fun `test code that is null won't cause cache to fall over in a heap`() {
+      assertThatThrownBy {
+        referenceDomainService.getReferenceCodeByDomainAndCode("ALERT", null, false)
+      }.isInstanceOf(EntityNotFoundException::class.java)
+    }
+
+    @Test
+    fun `test code that is blank won't cause cache to fall over in a heap`() {
+      assertThatThrownBy {
+        referenceDomainService.getReferenceCodeByDomainAndCode("ALERT", " ", false)
+      }.isInstanceOf(EntityNotFoundException::class.java)
+    }
+
+    @Test
     fun `test code that exist is added to cache`() {
       val existingDomain = "AGY_LOC_TYPE"
       val code = referenceDomainService.getReferenceCodeByDomainAndCode(existingDomain, "INST", false)
@@ -139,6 +167,18 @@ class CacheConfigIntTest {
     @Test
     fun `test case load type that doesn't exist won't cause cache to fall over in a heap`() {
       val types = caseNoteService.getCaseNoteTypesWithSubTypesByCaseLoadType("NOT_EXISTS")
+      assertThat(types).isEmpty()
+    }
+
+    @Test
+    fun `test case load type that is null won't cause cache to fall over in a heap`() {
+      val types = caseNoteService.getCaseNoteTypesWithSubTypesByCaseLoadType(null)
+      assertThat(types).isEmpty()
+    }
+
+    @Test
+    fun `test case load type that is blank won't cause cache to fall over in a heap`() {
+      val types = caseNoteService.getCaseNoteTypesWithSubTypesByCaseLoadType("  ")
       assertThat(types).isEmpty()
     }
 
@@ -180,6 +220,13 @@ class CacheConfigIntTest {
     }
 
     @Test
+    fun `test staff that is null won't cause cache to fall over in a heap`() {
+      assertThatThrownBy {
+        staffService.getStaffDetail(null)
+      }.isInstanceOf(EntityNotFoundException::class.java)
+    }
+
+    @Test
     fun `test staff that exist is added to cache`() {
       val code = staffService.getStaffDetail(-1L)
       assertThat(code).isNotNull
@@ -200,6 +247,18 @@ class CacheConfigIntTest {
     }
 
     @Test
+    fun `test staff not present won't cause cache to fall over in a heap`() {
+      val agencies = agencyService.findAgenciesByUsername(null)
+      assertThat(agencies).isEmpty()
+    }
+
+    @Test
+    fun `test staff that is blank won't cause cache to fall over in a heap`() {
+      val agencies = agencyService.findAgenciesByUsername(" ")
+      assertThat(agencies).isEmpty()
+    }
+
+    @Test
     fun `test staff that exist is added to cache`() {
       val agencies = agencyService.findAgenciesByUsername("ITAG_USER")
       assertThat(agencies).isNotNull
@@ -216,6 +275,18 @@ class CacheConfigIntTest {
     @Test
     fun `test staff that doesn't exist won't cause cache to fall over in a heap`() {
       val agencies = agencyResource.getAgencyEventLocationsBooked("NOT_EXISTS", LocalDate.now(), null)
+      assertThat(agencies).isEmpty()
+    }
+
+    @Test
+    fun `test staff that is null won't cause cache to fall over in a heap`() {
+      val agencies = agencyResource.getAgencyEventLocationsBooked(null, LocalDate.now(), null)
+      assertThat(agencies).isEmpty()
+    }
+
+    @Test
+    fun `test staff that is blank won't cause cache to fall over in a heap`() {
+      val agencies = agencyResource.getAgencyEventLocationsBooked("  ", LocalDate.now(), null)
       assertThat(agencies).isEmpty()
     }
 
