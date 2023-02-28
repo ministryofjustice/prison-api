@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -87,6 +88,17 @@ public class OffenderEducationServiceTest {
 
         verify(transformer, times(1)).convert(education1);
         verify(transformer, times(1)).convert(education2);
+    }
 
+    @Test
+    public void getOffenderEducationsInBulk() {
+        final var educations = List.of(education1, education2);
+
+        when(repository.findAllByNomisIdIn(Set.of(nomisId))).thenReturn(educations);
+
+        service.getOffenderEducations(Set.of(nomisId));
+
+        verify(transformer, times(1)).convert(education1);
+        verify(transformer, times(1)).convert(education2);
     }
 }
