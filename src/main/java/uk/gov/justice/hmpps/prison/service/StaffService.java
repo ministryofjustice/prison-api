@@ -55,6 +55,7 @@ public class StaffService {
     }
 
     public StaffDetail getStaffDetail(@NotNull final Long staffId) {
+        if (staffId == null) throw new EntityNotFoundException("No staff id specified");
         return staffRepository.findByStaffId(staffId).orElseThrow(EntityNotFoundException.withId(staffId));
     }
 
