@@ -68,18 +68,18 @@ class DigitalWarrantServiceTest {
                 Offence()
                   .withCode("OFF")
                   .withStatute(Statute().withCode("STAT"))
-                  .withDescription("An offence")
+                  .withDescription("An offence"),
               )
               .withOffenderCourtCase(
                 OffenderCourtCase()
-                  .withId(3)
+                  .withId(3),
               )
               .withOffenderBooking(
                 OffenderBooking()
-                  .withBookingId(4)
+                  .withBookingId(4),
               ),
             CourtEvent()
-              .withId(2)
+              .withId(2),
           ),
           CourtEventCharge(
             OffenderCharge()
@@ -88,20 +88,20 @@ class DigitalWarrantServiceTest {
                 Offence()
                   .withCode("OFF")
                   .withStatute(Statute().withCode("STAT"))
-                  .withDescription("An offence")
+                  .withDescription("An offence"),
               )
               .withOffenderCourtCase(
                 OffenderCourtCase()
-                  .withId(3)
+                  .withId(3),
               )
               .withOffenderBooking(
                 OffenderBooking()
-                  .withBookingId(4)
+                  .withBookingId(4),
               ),
             CourtEvent()
-              .withId(2)
-          )
-        )
+              .withId(2),
+          ),
+        ),
       )
 
       val result = digitalWarrantService.getCourtDateResults(PRISONER_ID)
@@ -125,7 +125,7 @@ class DigitalWarrantServiceTest {
               .withGuilty(false)
               .withCourtCaseId(3)
               .withCourtCaseRef(null)
-              .withSentenceSequence(null)
+              .withSentenceSequence(null),
           ),
           CourtDateResult(
             id = 2,
@@ -144,9 +144,9 @@ class DigitalWarrantServiceTest {
               .withGuilty(false)
               .withCourtCaseId(3)
               .withCourtCaseRef(null)
-              .withSentenceSequence(null)
-          )
-        )
+              .withSentenceSequence(null),
+          ),
+        ),
       )
     }
 
@@ -161,16 +161,16 @@ class DigitalWarrantServiceTest {
                 Offence()
                   .withCode("OFF")
                   .withStatute(Statute().withCode("STAT"))
-                  .withDescription("An offence")
+                  .withDescription("An offence"),
               )
               .withOffenderCourtCase(
                 OffenderCourtCase()
                   .withId(3)
-                  .withCaseInfoNumber("TS1000")
+                  .withCaseInfoNumber("TS1000"),
               )
               .withOffenderBooking(
                 OffenderBooking()
-                  .withBookingId(4)
+                  .withBookingId(4),
               )
               .withDateOfOffence(LocalDate.of(2021, 1, 1))
               .withEndDate(LocalDate.of(2021, 6, 1))
@@ -180,9 +180,9 @@ class DigitalWarrantServiceTest {
                   OffenderSentenceCharge()
                     .withOffenderSentence(
                       OffenderSentence()
-                        .withId(OffenderSentence.PK(4, 5))
-                    )
-                )
+                        .withId(OffenderSentence.PK(4, 5)),
+                    ),
+                ),
               ),
             CourtEvent()
               .withId(2)
@@ -191,10 +191,10 @@ class DigitalWarrantServiceTest {
                 OffenceResult()
                   .withCode("1002")
                   .withDescription("Imprisonment")
-                  .withDispositionCode("F")
-              )
-          )
-        )
+                  .withDispositionCode("F"),
+              ),
+          ),
+        ),
       )
 
       val result = digitalWarrantService.getCourtDateResults(PRISONER_ID)
@@ -218,9 +218,9 @@ class DigitalWarrantServiceTest {
               .withGuilty(true)
               .withCourtCaseId(3)
               .withCourtCaseRef("TS1000")
-              .withSentenceSequence(5)
-          )
-        )
+              .withSentenceSequence(5),
+          ),
+        ),
       )
     }
   }

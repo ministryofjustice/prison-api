@@ -9,12 +9,12 @@ import java.util.function.Consumer
 abstract class WebClientEntityBuilder() {
   protected fun setAuthorisation(
     jwtAuthenticationHelper: JwtAuthenticationHelper,
-    roles: List<String>
+    roles: List<String>,
   ): Consumer<HttpHeaders> {
     return Consumer { httpHeaders: HttpHeaders ->
       httpHeaders.add(
         "Authorization",
-        "Bearer " + validToken(jwtAuthenticationHelper, roles)
+        "Bearer " + validToken(jwtAuthenticationHelper, roles),
       )
     }
   }
@@ -26,7 +26,7 @@ abstract class WebClientEntityBuilder() {
         .scope(java.util.List.of("read", "write"))
         .roles(roles)
         .expiryTime(Duration.ofDays((365 * 10).toLong()))
-        .build()
+        .build(),
     )
   }
 }

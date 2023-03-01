@@ -13,7 +13,7 @@ interface TrustAccountService {
   fun createTrustAccount(
     booking: OffenderBooking,
     fromAgency: AgencyLocation,
-    movementIn: ExternalMovement
+    movementIn: ExternalMovement,
   )
 }
 
@@ -23,7 +23,7 @@ class TrustAccountSPService(val financeRepository: FinanceRepository) : TrustAcc
   override fun createTrustAccount(
     booking: OffenderBooking,
     fromAgency: AgencyLocation,
-    movementIn: ExternalMovement
+    movementIn: ExternalMovement,
   ) {
     if (doesNotRequireTrustAccount(movementIn)) return
 
@@ -35,7 +35,7 @@ class TrustAccountSPService(val financeRepository: FinanceRepository) : TrustAcc
       movementIn.movementReason.code,
       null,
       null,
-      movementIn.toAgency.id
+      movementIn.toAgency.id,
     )
   }
 
@@ -53,7 +53,7 @@ class TrustAccountNoopService : TrustAccountService {
   override fun createTrustAccount(
     booking: OffenderBooking,
     fromAgency: AgencyLocation,
-    movementIn: ExternalMovement
+    movementIn: ExternalMovement,
   ) {
     log.warn("Not running against NOMIS database so will not create Trust accounts")
   }

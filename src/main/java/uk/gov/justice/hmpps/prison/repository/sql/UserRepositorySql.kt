@@ -6,7 +6,7 @@ enum class UserRepositorySql(val sql: String) {
         SELECT PROFILE_VALUE ROLE_PWD
         FROM %sSYSTEM_PROFILES
         WHERE PROFILE_TYPE = 'SYS' AND PROFILE_CODE = 'ROLE_PSWD'
-    """
+    """,
   ),
 
   FIND_USER_BY_USERNAME(
@@ -25,7 +25,7 @@ enum class UserRepositorySql(val sql: String) {
         ) THUMBNAIL_ID
         FROM STAFF_MEMBERS SM JOIN STAFF_USER_ACCOUNTS AUA ON SM.STAFF_ID = AUA.STAFF_ID
                 AND AUA.USERNAME = :username
-    """
+    """,
   ),
 
   FIND_USERS_BY_USERNAMES(
@@ -44,7 +44,7 @@ enum class UserRepositorySql(val sql: String) {
         ) THUMBNAIL_ID
         FROM STAFF_MEMBERS SM JOIN STAFF_USER_ACCOUNTS AUA ON SM.STAFF_ID = AUA.STAFF_ID
                 AND AUA.USERNAME IN (:usernames)
-    """
+    """,
   ),
 
   UPDATE_STAFF_ACTIVE_CASE_LOAD(
@@ -52,7 +52,7 @@ enum class UserRepositorySql(val sql: String) {
         UPDATE STAFF_USER_ACCOUNTS
                 SET WORKING_CASELOAD_ID = :caseLoadId
         WHERE USERNAME = :username
-    """
+    """,
   ),
 
   FIND_USER_BY_STAFF_ID_STAFF_USER_TYPE(
@@ -72,7 +72,7 @@ enum class UserRepositorySql(val sql: String) {
         INNER JOIN STAFF_USER_ACCOUNTS AUA ON SM.STAFF_ID = AUA.STAFF_ID
                 AND AUA.STAFF_ID = :staffId
         AND AUA.STAFF_USER_TYPE = :staffUserType
-    """
+    """,
   ),
 
   FIND_ACTIVE_STAFF_USERS_WITH_ACCESSIBLE_CASELOAD(
@@ -91,7 +91,7 @@ enum class UserRepositorySql(val sql: String) {
         AND NOT EXISTS (SELECT 1 FROM USER_ACCESSIBLE_CASELOADS UAC2
                 WHERE UAC2.USERNAME = SUA.USERNAME
                 AND UAC2.CASELOAD_ID = :missingCaseloadId)
-    """
+    """,
   ),
 
   FIND_USERS_BY_CASELOAD(
@@ -108,7 +108,7 @@ enum class UserRepositorySql(val sql: String) {
                 WHERE UAC.CASELOAD_ID = :caseloadId
                   AND (:status = 'ALL' or SM.STATUS = :status)
                   AND (:activeCaseloadId is null or SUA.WORKING_CASELOAD_ID = :activeCaseloadId)
-    """
+    """,
   ),
 
   NAME_FILTER_QUERY_TEMPLATE(" AND (FIRST_NAME LIKE :searchTerm OR LAST_NAME LIKE :searchTerm OR SUA.USERNAME LIKE :searchTerm)"),
@@ -124,6 +124,6 @@ enum class UserRepositorySql(val sql: String) {
       WHERE UAC.CASELOAD_ID = :apiCaseloadId
       AND RL.ROLE_TYPE =  :applicationType
       AND RL.ROLE_CODE = :roleCode_%d )
-    """
-  )
+    """,
+  ),
 }

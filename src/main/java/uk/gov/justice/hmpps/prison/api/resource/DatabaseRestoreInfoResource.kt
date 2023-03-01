@@ -21,7 +21,7 @@ class DatabaseRestoreInfoResource(private val service: DatabaseRestoreInfoServic
   @ApiResponses(
     ApiResponse(responseCode = "200", description = "OK"),
     ApiResponse(responseCode = "404", description = "No restore information found - this endpoint is only guaranteed to return information when run on pre-prod.", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
-    ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))])
+    ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
   )
   @Operation(summary = "The last restore date or not found is returned if no restore data available")
   @GetMapping

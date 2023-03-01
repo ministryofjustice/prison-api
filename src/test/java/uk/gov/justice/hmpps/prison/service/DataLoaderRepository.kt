@@ -64,11 +64,12 @@ class DataLoaderTransaction {
     testDataContext: TestDataContext,
   ) =
     teamBuilder.save(
-      dataLoader = testDataContext.dataLoader
+      dataLoader = testDataContext.dataLoader,
     )
 
   @Transactional
   fun <T> save(operation: () -> T) = operation()
+
   @Transactional
   fun <T> get(operation: () -> T) = operation()
 }

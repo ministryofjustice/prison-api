@@ -59,9 +59,8 @@ class OffenderBookingBuilder(
     webTestClient: WebTestClient,
     jwtAuthenticationHelper: JwtAuthenticationHelper,
     offenderNo: String,
-    dataLoader: DataLoaderRepository
+    dataLoader: DataLoaderRepository,
   ): InmateDetail {
-
     val request =
       RequestForNewBooking.builder().bookingInTime(bookingInTime).cellLocation(cellLocation)
         .fromLocationId(fromLocationId).imprisonmentStatus(imprisonmentStatus).movementReasonCode(movementReasonCode)
@@ -72,13 +71,13 @@ class OffenderBookingBuilder(
       .headers(
         setAuthorisation(
           jwtAuthenticationHelper = jwtAuthenticationHelper,
-          roles = listOf("ROLE_BOOKING_CREATE")
-        )
+          roles = listOf("ROLE_BOOKING_CREATE"),
+        ),
       )
       .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
       .accept(MediaType.APPLICATION_JSON)
       .body(
-        BodyInserters.fromValue(request)
+        BodyInserters.fromValue(request),
       )
       .exchange()
       .expectStatus().isOk
@@ -89,8 +88,8 @@ class OffenderBookingBuilder(
           .headers(
             setAuthorisation(
               jwtAuthenticationHelper = jwtAuthenticationHelper,
-              roles = listOf("ROLE_RELEASE_PRISONER")
-            )
+              roles = listOf("ROLE_RELEASE_PRISONER"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .accept(MediaType.APPLICATION_JSON)
@@ -103,8 +102,8 @@ class OffenderBookingBuilder(
             "movementTime": "${LocalDateTime.now().minusHours(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
             
           }
-              """.trimIndent()
-            )
+              """.trimIndent(),
+            ),
           )
           .exchange()
           .expectStatus().isOk

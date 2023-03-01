@@ -60,14 +60,21 @@ class PrisonTransferService(
       location = transferMovement.toAgency
       livingUnitMv = null
       externalMovementService.updateMovementsForTransfer(
-        request = request, booking = booking, lastMovement = transferMovement
+        request = request,
+        booking = booking,
+        lastMovement = transferMovement,
       ).also { movement ->
         statusReason = "${movement.movementType.code}-${movement.movementReason.code}"
         bedAssignmentTransferService.createBedHistory(
-          booking = this, cellLocation = cellLocation, receiveTime = movement.movementTime, reasonCode = MovementType.ADM.code
+          booking = this,
+          cellLocation = cellLocation,
+          receiveTime = movement.movementTime,
+          reasonCode = MovementType.ADM.code,
         )
         trustAccountService.createTrustAccount(
-          booking = this, fromAgency = transferMovement.fromAgency, movementIn = movement
+          booking = this,
+          fromAgency = transferMovement.fromAgency,
+          movementIn = movement,
         )
         caseNoteTransferService.createGenerateAdmissionNote(booking = this, transferMovement = movement)
       }
@@ -77,19 +84,24 @@ class PrisonTransferService(
   }
 
   fun transferViaCourt(offenderNo: String, request: RequestForCourtTransferIn): InmateDetail {
-
     val booking = getLatestOffenderBooking(offenderNo).flatMap { it.assertIsOut() }.getOrThrow()
     val transferMovement = booking.getLatestMovement().flatMap { it.assertIsActiveCourtTransfer() }.getOrThrow()
 
-    return if (request.agencyId.equals(transferMovement.fromAgency.id)) transferViaCourtFromSamePrison(
-      booking, request, transferMovement
-    ) else transferViaCourtFromDifferentPrison(booking, request, transferMovement)
+    return if (request.agencyId.equals(transferMovement.fromAgency.id)) {
+      transferViaCourtFromSamePrison(
+        booking,
+        request,
+        transferMovement,
+      )
+    } else {
+      transferViaCourtFromDifferentPrison(booking, request, transferMovement)
+    }
   }
 
   fun transferViaCourtFromDifferentPrison(
     booking: OffenderBooking,
     request: RequestForCourtTransferIn,
-    toCourtMovement: ExternalMovement
+    toCourtMovement: ExternalMovement,
   ): InmateDetail {
     val reception =
       getCellLocation(null, request.agencyId).getOrThrow()
@@ -106,20 +118,24 @@ class PrisonTransferService(
           booking = booking,
           lastMovement = toCourtMovement,
           toAgency = toAgency,
-          commentText = request.commentText
+          commentText = request.commentText,
         ).also { createdMovement ->
           statusReason = "${createdMovement.movementType.code}-${createdMovement.movementReason.code}"
           bedAssignmentTransferService.createBedHistory(
-            booking = this, cellLocation = reception, receiveTime = createdMovement.movementTime
+            booking = this,
+            cellLocation = reception,
+            receiveTime = createdMovement.movementTime,
           )
           activityTransferService.endActivitiesAndWaitlist(
             booking,
             toCourtMovement.fromAgency,
             createdMovement.movementDate,
-            OffenderProgramEndReason.TRF.code
+            OffenderProgramEndReason.TRF.code,
           )
           trustAccountService.createTrustAccount(
-            booking = this, fromAgency = toCourtMovement.fromAgency, movementIn = createdMovement
+            booking = this,
+            fromAgency = toCourtMovement.fromAgency,
+            movementIn = createdMovement,
           )
           caseNoteTransferService.createGenerateAdmissionNote(booking = this, transferMovement = createdMovement)
         }
@@ -131,7 +147,7 @@ class PrisonTransferService(
   fun transferViaCourtFromSamePrison(
     booking: OffenderBooking,
     request: RequestForCourtTransferIn,
-    toCourtMovement: ExternalMovement
+    toCourtMovement: ExternalMovement,
   ): InmateDetail {
     val courtEvent: CourtEvent? = toCourtMovement.eventId?.let {
       courtHearingsService.completeScheduledChildHearingEvent(booking.bookingId, it).orElse(null)
@@ -146,7 +162,7 @@ class PrisonTransferService(
         booking = booking,
         lastMovement = toCourtMovement,
         courtEvent = courtEvent,
-        commentText = request.commentText
+        commentText = request.commentText,
       )
     }
 
@@ -154,19 +170,24 @@ class PrisonTransferService(
   }
 
   fun transferInAfterTemporaryAbsence(offenderNo: String, request: RequestForTemporaryAbsenceArrival): InmateDetail {
-
     val booking = getLatestOffenderBooking(offenderNo).flatMap { it.assertIsOut() }.getOrThrow()
     val transferMovement = booking.getLatestMovement().flatMap { it.assertIsActiveTAPTransfer() }.getOrThrow()
 
-    return if (request.agencyId.equals(transferMovement.fromAgency.id)) transferInAfterTemporaryAbsenceFromSamePrison(
-      booking, request, transferMovement
-    ) else transferInAfterTemporaryAbsenceFromDifferentPrison(booking, request, transferMovement)
+    return if (request.agencyId.equals(transferMovement.fromAgency.id)) {
+      transferInAfterTemporaryAbsenceFromSamePrison(
+        booking,
+        request,
+        transferMovement,
+      )
+    } else {
+      transferInAfterTemporaryAbsenceFromDifferentPrison(booking, request, transferMovement)
+    }
   }
 
   fun transferInAfterTemporaryAbsenceFromSamePrison(
     booking: OffenderBooking,
     request: RequestForTemporaryAbsenceArrival,
-    releaseTAPMovement: ExternalMovement
+    releaseTAPMovement: ExternalMovement,
   ): InmateDetail {
     val scheduleEvent: OffenderIndividualSchedule? = releaseTAPMovement.eventId?.let {
       prisonToPrisonMoveSchedulingService.completeScheduledChildHearingEvent(booking.bookingId, it).orElse(null)
@@ -181,7 +202,7 @@ class PrisonTransferService(
         booking = booking,
         lastMovement = releaseTAPMovement,
         scheduleEvent = scheduleEvent,
-        commentText = request.commentText
+        commentText = request.commentText,
       )
     }
 
@@ -191,7 +212,7 @@ class PrisonTransferService(
   fun transferInAfterTemporaryAbsenceFromDifferentPrison(
     booking: OffenderBooking,
     request: RequestForTemporaryAbsenceArrival,
-    releaseTAPMovement: ExternalMovement
+    releaseTAPMovement: ExternalMovement,
   ): InmateDetail {
     val reception =
       getCellLocation(null, request.agencyId).getOrThrow()
@@ -208,20 +229,24 @@ class PrisonTransferService(
           booking = booking,
           lastMovement = releaseTAPMovement,
           toAgency = toAgency,
-          commentText = request.commentText
+          commentText = request.commentText,
         ).also { createdMovement ->
           statusReason = "${createdMovement.movementType.code}-${createdMovement.movementReason.code}"
           bedAssignmentTransferService.createBedHistory(
-            booking = this, cellLocation = reception, receiveTime = createdMovement.movementTime
+            booking = this,
+            cellLocation = reception,
+            receiveTime = createdMovement.movementTime,
           )
           activityTransferService.endActivitiesAndWaitlist(
             booking,
             releaseTAPMovement.fromAgency,
             createdMovement.movementDate,
-            OffenderProgramEndReason.TRF.code
+            OffenderProgramEndReason.TRF.code,
           )
           trustAccountService.createTrustAccount(
-            booking = this, fromAgency = releaseTAPMovement.fromAgency, movementIn = createdMovement
+            booking = this,
+            fromAgency = releaseTAPMovement.fromAgency,
+            movementIn = createdMovement,
           )
           caseNoteTransferService.createGenerateAdmissionNote(booking = this, transferMovement = createdMovement)
         }
@@ -242,14 +267,15 @@ class PrisonTransferService(
   private fun getCellLocation(cellLocation: String?, prisonId: String): Result<AgencyInternalLocation> {
     val internalLocationCode = cellLocation ?: "$prisonId-RECP"
     return agencyInternalLocationRepository.findOneByDescriptionAndAgencyId(
-      internalLocationCode, prisonId
+      internalLocationCode,
+      prisonId,
     ).map { success(it) }
       .orElse(failure(EntityNotFoundException.withMessage("$internalLocationCode cell location not found")))
   }
 
   private fun getAgencyLocation(prisonId: String): Result<AgencyLocation> {
     return agencyLocationRepository.findById(
-      prisonId
+      prisonId,
     ).map { success(it) }
       .orElse(failure(EntityNotFoundException.withMessage("$prisonId agency not found")))
   }
@@ -314,8 +340,8 @@ private fun AgencyInternalLocation.assertHasSpaceInCell(): Result<AgencyInternal
   failure(
     ConflictingRequestException.withMessage(
       "The cell ${this.description} does not have any available capacity",
-      CustomErrorCodes.NO_CELL_CAPACITY
-    )
+      CustomErrorCodes.NO_CELL_CAPACITY,
+    ),
   )
 }
 

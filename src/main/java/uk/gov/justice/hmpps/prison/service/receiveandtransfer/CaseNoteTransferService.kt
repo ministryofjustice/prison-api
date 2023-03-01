@@ -22,7 +22,7 @@ class CaseNoteTransferService(
   authenticationFacade: AuthenticationFacade,
 ) : StaffAwareTransferService(
   staffUserAccountRepository = staffUserAccountRepository,
-  authenticationFacade = authenticationFacade
+  authenticationFacade = authenticationFacade,
 ) {
   fun createGenerateAdmissionNote(booking: OffenderBooking, transferMovement: ExternalMovement) {
     val staff = getLoggedInStaff().getOrThrow().staff
@@ -44,7 +44,7 @@ class CaseNoteTransferService(
       /* author = */ staff,
       /* noteSourceCode = */ "AUTO",
       /* dateCreation = */ null,
-      /* timeCreation = */ null
+      /* timeCreation = */ null,
     )
 
     caseNoteRepository.save(caseNote)

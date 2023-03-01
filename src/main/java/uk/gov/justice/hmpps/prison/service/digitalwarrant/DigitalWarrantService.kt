@@ -192,7 +192,7 @@ class DigitalWarrantService(
       OffenderImprisonmentStatus()
         .withImprisonmentStatus(status)
         .withAgyLocId(booking.location.id),
-      LocalDateTime.now()
+      LocalDateTime.now(),
     )
     return offenderSentence.sequence
   }
@@ -208,7 +208,7 @@ class DigitalWarrantService(
           .withAdjustFromDate(adjustment.from)
           .withAdjustToDate(adjustment.to)
           .withAdjustDays(adjustment.days)
-          .withSentenceAdjustCode(BookingAdjustmentType.valueOf(adjustment.type).code)
+          .withSentenceAdjustCode(BookingAdjustmentType.valueOf(adjustment.type).code),
       ).id
     } else {
       return sentenceAdjustmentRepository.save(
@@ -219,7 +219,7 @@ class DigitalWarrantService(
           .withAdjustToDate(adjustment.to)
           .withAdjustDays(adjustment.days)
           .withSentenceAdjustCode(SentenceAdjustmentType.valueOf(adjustment.type).code)
-          .withSentenceSeq(adjustment.sequence)
+          .withSentenceSeq(adjustment.sequence),
       ).id
     }
   }
@@ -244,9 +244,9 @@ class DigitalWarrantService(
           charge.pleaCode == "G",
           charge.offenderCourtCase.id,
           charge.offenderCourtCase.caseInfoNumber,
-          charge.offenderSentenceCharges.firstOrNull()?.offenderSentence?.sequence
+          charge.offenderSentenceCharges.firstOrNull()?.offenderSentence?.sequence,
         ),
-        charge.offenderBooking.bookingId
+        charge.offenderBooking.bookingId,
       )
     }
       .sortedBy { it.date }

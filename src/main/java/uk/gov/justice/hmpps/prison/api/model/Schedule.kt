@@ -19,5 +19,6 @@ enum class Schedule(val code: String, val description: String) {
   SCHEDULE_15_ATTRACTS_LIFE("SCH15/CJIB/L", "Schedule 15 CJIB Applies, attracts Life"),
   SCHEDULE_17A_PART_1("SCH17A", "Schedule 17A Part 1 CT & Sentencing Bill"),
   SCHEDULE_17A_PART_2("SCH17A2", "Schedule 17A Part 2 CT & Sentencing Bill"),
-  SCHEDULE_19ZA("SCH19ZA", "Schedule 19ZA CT & Sentencing Bill");
+  SCHEDULE_19ZA("SCH19ZA", "Schedule 19ZA CT & Sentencing Bill"),
+  ;
 }

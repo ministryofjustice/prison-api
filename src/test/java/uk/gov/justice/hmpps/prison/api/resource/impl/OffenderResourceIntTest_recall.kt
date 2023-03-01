@@ -95,7 +95,7 @@ class OffenderResourceIntTest_recall : ResourceTest() {
         // when recall is requested
         recallOffender(
           offenderNo,
-          recallRequest()
+          recallRequest(),
         ).isNotFound
       }
 
@@ -112,7 +112,7 @@ class OffenderResourceIntTest_recall : ResourceTest() {
         // when recall is requested
         recallOffender(
           offenderNo,
-          recallRequest()
+          recallRequest(),
         ).isNotFound
       }
 
@@ -123,7 +123,7 @@ class OffenderResourceIntTest_recall : ResourceTest() {
         // when offender is recalled request is rejected
         recallOffender(
           offenderNo,
-          recallRequest()
+          recallRequest(),
         ).isBadRequest
           .expectBody()
           .jsonPath("userMessage")
@@ -137,7 +137,7 @@ class OffenderResourceIntTest_recall : ResourceTest() {
         // when offender is recalled request is rejected
         recallOffender(
           offenderNo,
-          recallRequest()
+          recallRequest(),
         ).isBadRequest
           .expectBody()
           .jsonPath("userMessage")
@@ -151,7 +151,7 @@ class OffenderResourceIntTest_recall : ResourceTest() {
         // when offender is recalled request is rejected
         recallOffender(
           offenderNo,
-          recallRequest(fromLocationId = "ZZZ")
+          recallRequest(fromLocationId = "ZZZ"),
         )
           .isNotFound
           .expectBody()
@@ -166,7 +166,7 @@ class OffenderResourceIntTest_recall : ResourceTest() {
         // when offender is recalled request is rejected
         recallOffender(
           offenderNo,
-          recallRequest(fromLocationId = "OUT")
+          recallRequest(fromLocationId = "OUT"),
         )
           .isNotFound
           .expectBody()
@@ -181,7 +181,7 @@ class OffenderResourceIntTest_recall : ResourceTest() {
         // when offender is recalled request is rejected
         recallOffender(
           offenderNo,
-          recallRequest(imprisonmentStatus = "ZZZ")
+          recallRequest(imprisonmentStatus = "ZZZ"),
         )
           .isNotFound
           .expectBody()
@@ -196,7 +196,7 @@ class OffenderResourceIntTest_recall : ResourceTest() {
         // when offender is recalled request is rejected
         recallOffender(
           offenderNo,
-          recallRequest(prisonId = "ZZZ")
+          recallRequest(prisonId = "ZZZ"),
         )
           .isNotFound
           .expectBody()
@@ -211,7 +211,7 @@ class OffenderResourceIntTest_recall : ResourceTest() {
         // when offender is recalled request is rejected
         recallOffender(
           offenderNo,
-          recallRequest(prisonId = "SYI", cellLocation = "SYI-BANANAS")
+          recallRequest(prisonId = "SYI", cellLocation = "SYI-BANANAS"),
         )
           .isNotFound
           .expectBody()
@@ -226,7 +226,7 @@ class OffenderResourceIntTest_recall : ResourceTest() {
         // when offender is recalled request is rejected
         recallOffender(
           offenderNo,
-          recallRequest(prisonId = "MDI", cellLocation = "MDI-FULL")
+          recallRequest(prisonId = "MDI", cellLocation = "MDI-FULL"),
         )
           .isEqualTo(409)
           .expectBody()
@@ -242,7 +242,7 @@ class OffenderResourceIntTest_recall : ResourceTest() {
         // when offender is recalled request is rejected
         recallOffender(
           offenderNo,
-          recallRequest(recallTime = twoMinutesInTheFuture)
+          recallRequest(recallTime = twoMinutesInTheFuture),
         )
           .isBadRequest
           .expectBody()
@@ -258,7 +258,7 @@ class OffenderResourceIntTest_recall : ResourceTest() {
         // when offender is recalled request is rejected
         recallOffender(
           offenderNo,
-          recallRequest(recallTime = twoMonthsInThePastBeforeLastRelease)
+          recallRequest(recallTime = twoMonthsInThePastBeforeLastRelease),
         )
           .isBadRequest
           .expectBody()
@@ -287,7 +287,7 @@ class OffenderResourceIntTest_recall : ResourceTest() {
                "prisonId": "MDI", 
                "movementReasonCode": "24" 
             }
-            """
+            """,
         ).inmate().bookingId
 
         assertThat(testDataContext.getMovements(bookingId).last().fromAgency.id)
@@ -306,7 +306,7 @@ class OffenderResourceIntTest_recall : ResourceTest() {
                "prisonId": "MDI", 
                "movementReasonCode": "24" 
             }
-            """
+            """,
         )
           .isOk
           .expectBody()
@@ -340,7 +340,7 @@ class OffenderResourceIntTest_recall : ResourceTest() {
                "cellLocation": "SYI-A-1-1",     
                "movementReasonCode": "24" 
             }
-            """
+            """,
         ).inmate().bookingId
 
         assertThat(testDataContext.getMovements(bookingId).last().toAgency.id)
@@ -360,7 +360,7 @@ class OffenderResourceIntTest_recall : ResourceTest() {
                "cellLocation": "SYI-A-1-1",     
                "movementReasonCode": "24" 
             }
-          """.trimIndent()
+          """.trimIndent(),
         ).isOk
 
         // then we have an active booking with original status
@@ -380,7 +380,7 @@ class OffenderResourceIntTest_recall : ResourceTest() {
                "imprisonmentStatus": "CUR_ORA", 
                "movementReasonCode": "24" 
             }
-          """.trimIndent()
+          """.trimIndent(),
         ).isOk
 
         // then we have an active booking with original status
@@ -398,7 +398,7 @@ class OffenderResourceIntTest_recall : ResourceTest() {
                "prisonId": "MDI", 
                "movementReasonCode": "24" 
             }
-          """.trimIndent()
+          """.trimIndent(),
         ).isOk
 
         // then we have an active booking with cell location set to reception
@@ -418,14 +418,14 @@ class OffenderResourceIntTest_recall : ResourceTest() {
                "cellLocation": "SYI-A-1-1",     
                "movementReasonCode": "24" 
             }
-            """
+            """,
         ).inmate().bookingId
 
         assertThat(testDataContext.getMovements(bookingId))
           .extracting(
             ExternalMovement::getMovementSequence,
             ExternalMovement::getMovementDirection,
-            ExternalMovement::isActive
+            ExternalMovement::isActive,
           )
           .containsExactly(
             tuple(1L, MovementDirection.IN, false),
@@ -448,20 +448,20 @@ class OffenderResourceIntTest_recall : ResourceTest() {
                "movementReasonCode": "24",
                "recallTime": "${bookingInTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
             }
-          """.trimIndent()
+          """.trimIndent(),
         ).inmate().bookingId
 
         assertThat(testDataContext.getBedAssignments(bookingId))
           .extracting(
             BedAssignmentHistory::getAssignmentReason,
             BedAssignmentHistory::getAssignmentDate,
-            BedAssignmentHistory::getAssignmentEndDate
+            BedAssignmentHistory::getAssignmentEndDate,
           )
           .contains(
             tuple(
               "ADM",
               bookingInTime.toLocalDate(),
-              null
+              null,
             ),
           )
       }
@@ -476,7 +476,7 @@ class OffenderResourceIntTest_recall : ResourceTest() {
                "prisonId": "MDI", 
                "movementReasonCode": "24" 
             }
-          """.trimIndent()
+          """.trimIndent(),
         ).inmate().bookingId
 
         val caseNote = testDataContext.getCaseNotes(bookingId).maxBy { it.creationDateTime }
@@ -495,7 +495,7 @@ class OffenderResourceIntTest_recall : ResourceTest() {
                "fromLocationId": "COURT1", 
                "movementReasonCode": "24" 
             }
-          """.trimIndent()
+          """.trimIndent(),
         ).inmate()
 
         // since this calls a NOMIS store procedure the best we can do
@@ -511,7 +511,7 @@ class OffenderResourceIntTest_recall : ResourceTest() {
           check {
             assertThat(it.toAgency.id).isEqualTo("MDI")
             assertThat(it.movementReason.code).isEqualTo("24")
-          }
+          },
         )
       }
     }
@@ -522,8 +522,8 @@ class OffenderResourceIntTest_recall : ResourceTest() {
       .uri("/api/offenders/{offenderNo}", offenderNo)
       .headers(
         setAuthorisation(
-          listOf("ROLE_SYSTEM_USER")
-        )
+          listOf("ROLE_SYSTEM_USER"),
+        ),
       )
       .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
       .accept(MediaType.APPLICATION_JSON)
@@ -533,7 +533,7 @@ class OffenderResourceIntTest_recall : ResourceTest() {
   fun createActiveBooking(prisonId: String = "MDI"): String = OffenderBuilder().withBooking(
     OffenderBookingBuilder(
       prisonId = prisonId,
-    )
+    ),
   ).save(testDataContext).offenderNo
 
   fun createPrisonerWithNoBooking(): String =
@@ -545,7 +545,7 @@ class OffenderResourceIntTest_recall : ResourceTest() {
         prisonId = "MDI",
         released = true,
         imprisonmentStatus = imprisonmentStatus,
-      ).withIEPLevel(iepLevel)
+      ).withIEPLevel(iepLevel),
     ).save(testDataContext).offenderNo
 
   private fun recallOffender(offenderNo: String, body: String): StatusAssertions =
@@ -553,12 +553,12 @@ class OffenderResourceIntTest_recall : ResourceTest() {
       .uri("/api/offenders/{offenderNo}/recall", offenderNo)
       .headers(
         setAuthorisation(
-          listOf("ROLE_TRANSFER_PRISONER")
-        )
+          listOf("ROLE_TRANSFER_PRISONER"),
+        ),
       )
       .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
       .bodyValue(
-        body.trimIndent()
+        body.trimIndent(),
       )
       .accept(MediaType.APPLICATION_JSON)
       .exchange()

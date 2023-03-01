@@ -21,8 +21,8 @@ class OffenderResourceIntTest_getHousingLocation : ResourceTest() {
       .uri("/api/offenders/{offenderNo}/housing-location", offenderNo)
       .headers(
         setAuthorisation(
-          listOf("ROLE_SYSTEM_USER")
-        )
+          listOf("ROLE_SYSTEM_USER"),
+        ),
       )
       .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
       .accept(MediaType.APPLICATION_JSON)
@@ -39,8 +39,8 @@ class OffenderResourceIntTest_getHousingLocation : ResourceTest() {
       .uri("/api/offenders/{offenderNo}/housing-location", offenderNo)
       .headers(
         setAuthorisation(
-          listOf("ROLE_SYSTEM_USER")
-        )
+          listOf("ROLE_SYSTEM_USER"),
+        ),
       )
       .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
       .accept(MediaType.APPLICATION_JSON)
@@ -55,15 +55,15 @@ class OffenderResourceIntTest_getHousingLocation : ResourceTest() {
   @Test
   internal fun `response with levels for offender`() {
     val offenderNo = OffenderBuilder().withBooking(
-      OffenderBookingBuilder(cellLocation = "LEI-A-1-10", prisonId = "LEI")
+      OffenderBookingBuilder(cellLocation = "LEI-A-1-10", prisonId = "LEI"),
     ).save(testDataContext).offenderNo
 
     webTestClient.get()
       .uri("/api/offenders/{offenderNo}/housing-location", offenderNo)
       .headers(
         setAuthorisation(
-          listOf("ROLE_SYSTEM_USER")
-        )
+          listOf("ROLE_SYSTEM_USER"),
+        ),
       )
       .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
       .accept(MediaType.APPLICATION_JSON)
@@ -79,15 +79,15 @@ class OffenderResourceIntTest_getHousingLocation : ResourceTest() {
   @Test
   internal fun `response with levels for offender in reception`() {
     val offenderNo = OffenderBuilder().withBooking(
-      OffenderBookingBuilder(cellLocation = "LEI-RECP", prisonId = "LEI")
+      OffenderBookingBuilder(cellLocation = "LEI-RECP", prisonId = "LEI"),
     ).save(testDataContext).offenderNo
 
     webTestClient.get()
       .uri("/api/offenders/{offenderNo}/housing-location", offenderNo)
       .headers(
         setAuthorisation(
-          listOf("ROLE_SYSTEM_USER")
-        )
+          listOf("ROLE_SYSTEM_USER"),
+        ),
       )
       .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
       .accept(MediaType.APPLICATION_JSON)

@@ -27,8 +27,8 @@ class OffenderCourtCaseBuilder(var courtId: String = "COURT1") {
         /* caseStatus = */ caseStatus,
         /* combinedCase = */ null,
         /* courtEvents = */ listOf(),
-        /* sentences = */ listOf()
-      )
+        /* sentences = */ listOf(),
+      ),
     )
   }
 }

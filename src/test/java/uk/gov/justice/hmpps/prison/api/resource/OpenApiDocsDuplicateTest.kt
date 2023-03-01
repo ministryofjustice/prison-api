@@ -10,7 +10,7 @@ class OpenApiDocsDuplicateTest {
   fun `Schemas need to have unique names - duplicates do not render correctly`() {
     val duplicates = findAnnotatedClasses(
       Schema::class.java,
-      arrayOf("uk.gov.justice.hmpps.prison.api")
+      arrayOf("uk.gov.justice.hmpps.prison.api"),
     ).filter {
       // This incorrectly displays the new Location schema in the v1 API but don't want to break possible codegen used by external parties
       it != uk.gov.justice.hmpps.prison.api.model.v1.Location::class.java

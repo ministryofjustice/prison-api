@@ -16,7 +16,7 @@ enum class LocationRepositorySql(val sql: String) {
         WHERE A.ACTIVE_FLAG = 'Y'
         AND A.INTERNAL_LOCATION_ID = :locationId
         AND SUA.USERNAME = :username
-    """
+    """,
   ),
 
   GET_LOCATION(
@@ -32,7 +32,7 @@ enum class LocationRepositorySql(val sql: String) {
         FROM AGENCY_INTERNAL_LOCATIONS A
         WHERE A.ACTIVE_FLAG = COALESCE(:activeFlag, A.ACTIVE_FLAG)
         AND A.INTERNAL_LOCATION_ID = :locationId
-    """
+    """,
   ),
 
   GET_LOCATION_GROUP_DATA(
@@ -50,7 +50,7 @@ enum class LocationRepositorySql(val sql: String) {
         AIL.AGY_LOC_ID = :agencyId                    AND
         AIL.ACTIVE_FLAG = 'Y'                         AND
                 AIL.PARENT_INTERNAL_LOCATION_ID IS NULL
-    """
+    """,
   ),
 
   GET_SUB_LOCATION_GROUP_DATA(
@@ -66,6 +66,6 @@ enum class LocationRepositorySql(val sql: String) {
         AIL.UNIT_TYPE IS NOT NULL                     AND
         AIL.ACTIVE_FLAG = 'Y'                         AND
                 AIL.PARENT_INTERNAL_LOCATION_ID IN (:parentLocationIds)
-    """
-  )
+    """,
+  ),
 }

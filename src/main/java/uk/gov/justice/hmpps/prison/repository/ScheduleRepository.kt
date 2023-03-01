@@ -28,19 +28,27 @@ class ScheduleRepository : RepositoryBase() {
       .addOrderBy(order, orderByFields)
       .build()
     val suspended =
-      if (onlySuspended) setOf("Y")
-      else if (includeSuspended) setOf("Y", "N")
-      else setOf("N")
+      if (onlySuspended) {
+        setOf("Y")
+      } else if (includeSuspended) {
+        setOf("Y", "N")
+      } else {
+        setOf("N")
+      }
 
     val schedules = jdbcTemplate.query(
       sql,
       createParams(
-        "agencyId", agencyId,
-        "fromDate", SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
-        "toDate", SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate)),
-        "includeSuspended", suspended,
+        "agencyId",
+        agencyId,
+        "fromDate",
+        SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
+        "toDate",
+        SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate)),
+        "includeSuspended",
+        suspended,
       ),
-      EVENT_ROW_MAPPER
+      EVENT_ROW_MAPPER,
     )
     return schedules.filter { it.programHasntEnded() }.toPrisonerSchedules()
   }
@@ -59,12 +67,16 @@ class ScheduleRepository : RepositoryBase() {
     val schedules = jdbcTemplate.query(
       sql,
       createParams(
-        "locationId", locationId,
-        "fromDate", SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
-        "toDate", SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate)),
-        "includeSuspended", if (includeSuspended) setOf("Y", "N") else setOf("N"),
+        "locationId",
+        locationId,
+        "fromDate",
+        SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
+        "toDate",
+        SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate)),
+        "includeSuspended",
+        if (includeSuspended) setOf("Y", "N") else setOf("N"),
       ),
-      EVENT_ROW_MAPPER
+      EVENT_ROW_MAPPER,
     )
     return schedules.toPrisonerSchedules()
   }
@@ -106,11 +118,14 @@ class ScheduleRepository : RepositoryBase() {
     val schedules = jdbcTemplate.query(
       sql,
       createParams(
-        "locationId", locationId,
-        "fromDate", SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
-        "toDate", SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate)),
+        "locationId",
+        locationId,
+        "fromDate",
+        SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
+        "toDate",
+        SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate)),
       ),
-      EVENT_ROW_MAPPER
+      EVENT_ROW_MAPPER,
     )
     return schedules.toPrisonerSchedules()
   }
@@ -119,10 +134,12 @@ class ScheduleRepository : RepositoryBase() {
     val schedules = jdbcTemplate.query(
       ScheduleRepositorySql.GET_VISITS.sql + ScheduleRepositorySql.AND_OFFENDER_NUMBERS.sql,
       createParams(
-        "offenderNos", offenderNo,
-        "date", SqlParameterValue(Types.DATE, DateTimeConverter.toDate(date)),
+        "offenderNos",
+        offenderNo,
+        "date",
+        SqlParameterValue(Types.DATE, DateTimeConverter.toDate(date)),
       ),
-      EVENT_ROW_MAPPER
+      EVENT_ROW_MAPPER,
     )
     return schedules.toPrisonerSchedules()
   }
@@ -131,10 +148,12 @@ class ScheduleRepository : RepositoryBase() {
     val schedules = jdbcTemplate.query(
       ScheduleRepositorySql.GET_APPOINTMENTS.sql + ScheduleRepositorySql.AND_OFFENDER_NUMBERS.sql,
       createParams(
-        "offenderNos", offenderNo,
-        "date", SqlParameterValue(Types.DATE, DateTimeConverter.toDate(date)),
+        "offenderNos",
+        offenderNo,
+        "date",
+        SqlParameterValue(Types.DATE, DateTimeConverter.toDate(date)),
       ),
-      EVENT_ROW_MAPPER
+      EVENT_ROW_MAPPER,
     )
     return schedules.toPrisonerSchedules()
   }
@@ -143,10 +162,12 @@ class ScheduleRepository : RepositoryBase() {
     val schedules = jdbcTemplate.query(
       ScheduleRepositorySql.GET_ACTIVITIES.sql + ScheduleRepositorySql.AND_OFFENDER_NUMBERS.sql,
       createParams(
-        "offenderNos", offenderNumbers,
-        "date", SqlParameterValue(Types.DATE, DateTimeConverter.toDate(date)),
+        "offenderNos",
+        offenderNumbers,
+        "date",
+        SqlParameterValue(Types.DATE, DateTimeConverter.toDate(date)),
       ),
-      EVENT_ROW_MAPPER
+      EVENT_ROW_MAPPER,
     )
     return schedules.toPrisonerSchedules()
   }
@@ -155,10 +176,12 @@ class ScheduleRepository : RepositoryBase() {
     val schedules = jdbcTemplate.query(
       ScheduleRepositorySql.GET_COURT_EVENTS.sql,
       createParams(
-        "offenderNos", offenderNumbers,
-        "date", SqlParameterValue(Types.DATE, DateTimeConverter.toDate(date)),
+        "offenderNos",
+        offenderNumbers,
+        "date",
+        SqlParameterValue(Types.DATE, DateTimeConverter.toDate(date)),
       ),
-      EVENT_ROW_MAPPER
+      EVENT_ROW_MAPPER,
     )
     return schedules.toPrisonerSchedules()
   }
@@ -166,16 +189,19 @@ class ScheduleRepository : RepositoryBase() {
   fun getExternalTransfers(
     agencyId: String?,
     offenderNumbers: List<String>?,
-    date: LocalDate?
+    date: LocalDate?,
   ): List<PrisonerSchedule> {
     val schedules = jdbcTemplate.query(
       ScheduleRepositorySql.GET_EXTERNAL_TRANSFERS.sql + ScheduleRepositorySql.AND_OFFENDER_NUMBERS.sql,
       createParams(
-        "offenderNos", offenderNumbers,
-        "agencyId", agencyId,
-        "date", SqlParameterValue(Types.DATE, DateTimeConverter.toDate(date)),
+        "offenderNos",
+        offenderNumbers,
+        "agencyId",
+        agencyId,
+        "date",
+        SqlParameterValue(Types.DATE, DateTimeConverter.toDate(date)),
       ),
-      EVENT_ROW_MAPPER
+      EVENT_ROW_MAPPER,
     )
     return schedules.toPrisonerSchedules()
   }

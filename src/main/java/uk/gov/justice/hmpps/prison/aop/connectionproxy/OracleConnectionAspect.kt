@@ -24,7 +24,7 @@ import java.util.Properties
 class OracleConnectionAspect(
   private val authenticationFacade: AuthenticationFacade,
   private val roleConfigurer: RoleConfigurer,
-  private val nomisConfigurer: NomisConfigurer
+  private val nomisConfigurer: NomisConfigurer,
 ) : AbstractConnectionAspect() {
 
   @Throws(SQLException::class)

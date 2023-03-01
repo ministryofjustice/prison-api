@@ -102,8 +102,8 @@ internal class OffenceServiceTest {
             .code("2XX")
             .statuteCode(StatuteDto.builder().code("STA1").build())
             .description("2XX Description")
-            .build()
-        )
+            .build(),
+        ),
       )
 
       verify(offenceRepository, times(1)).save(
@@ -111,7 +111,7 @@ internal class OffenceServiceTest {
           .code("2XX")
           .description("2XX Description")
           .statute(statute)
-          .build()
+          .build(),
       )
     }
 
@@ -127,8 +127,8 @@ internal class OffenceServiceTest {
             OffenceDto.builder()
               .code("2XX")
               .statuteCode(StatuteDto.builder().code("STA1").build())
-              .build()
-          )
+              .build(),
+          ),
         )
       }
     }
@@ -144,8 +144,8 @@ internal class OffenceServiceTest {
             OffenceDto.builder()
               .code("2XX")
               .statuteCode(StatuteDto.builder().code("STA1").build())
-              .build()
-          )
+              .build(),
+          ),
         )
       }
     }
@@ -163,8 +163,8 @@ internal class OffenceServiceTest {
               .code("2XX")
               .hoCode(HOCodeDto.builder().code("HO1").build())
               .statuteCode(StatuteDto.builder().code("STA1").build())
-              .build()
-          )
+              .build(),
+          ),
         )
       }
     }
@@ -194,8 +194,8 @@ internal class OffenceServiceTest {
             .listSequence(99)
             .activeFlag("N")
             .expiryDate(expiryDate)
-            .build()
-        )
+            .build(),
+        ),
       )
 
       verify(offenceRepository, times(1)).save(
@@ -206,7 +206,7 @@ internal class OffenceServiceTest {
           .listSequence(99)
           .active(false)
           .expiryDate(expiryDate)
-          .build()
+          .build(),
       )
     }
 
@@ -220,8 +220,8 @@ internal class OffenceServiceTest {
             OffenceDto.builder()
               .code("2XX")
               .statuteCode(StatuteDto.builder().code("STA1").build())
-              .build()
-          )
+              .build(),
+          ),
         )
       }
     }
@@ -240,8 +240,8 @@ internal class OffenceServiceTest {
               .code("2XX")
               .hoCode(HOCodeDto.builder().code("HO1").build())
               .statuteCode(StatuteDto.builder().code("STA1").build())
-              .build()
-          )
+              .build(),
+          ),
         )
       }
     }
@@ -271,9 +271,9 @@ internal class OffenceServiceTest {
               .description("STA1-desc")
               .legislatingBodyCode("UK")
               .activeFlag("Y")
-              .build()
+              .build(),
           )
-          .build()
+          .build(),
       )
     }
   }
@@ -285,6 +285,7 @@ internal class OffenceServiceTest {
       .code("COML025")
       .description("Murder")
       .build()
+
     @Test
     internal fun `Link offences to schedules`() {
       val mappingDto1 = OffenceToScheduleMappingDto("COML025", SCHEDULE_15)
@@ -303,8 +304,8 @@ internal class OffenceServiceTest {
           OffenceIndicator.builder()
             .offence(murderOffence)
             .indicatorCode(SCHEDULE_15.code)
-            .build()
-        )
+            .build(),
+        ),
       )
       verifyNoMoreInteractions(offenceIndicatorRepository)
     }
@@ -333,8 +334,8 @@ internal class OffenceServiceTest {
           OffenceIndicator.builder()
             .offence(manslaughterOffence)
             .indicatorCode(SCHEDULE_15.code)
-            .build()
-        )
+            .build(),
+        ),
       )
       verifyNoMoreInteractions(offenceIndicatorRepository)
     }
@@ -346,7 +347,7 @@ internal class OffenceServiceTest {
 
       verify(offenceIndicatorRepository, times(1)).deleteByIndicatorCodeAndOffence_Code(
         mappingDto.schedule.code,
-        mappingDto.offenceCode
+        mappingDto.offenceCode,
       )
     }
   }

@@ -72,7 +72,7 @@ class OracleConnectionAspectTest {
           eq(OracleConnection.PROXYTYPE_USER_NAME),
           check {
             assertThat(it[OracleConnection.PROXY_USER_NAME]).isEqualTo("some user name")
-          }
+          },
         )
       }
 

@@ -23,7 +23,7 @@ class OffenderBuilder(
   var ethnicity: String? = null,
   var bookingBuilders: Array<OffenderBookingBuilder> = Array(1) {
     OffenderBookingBuilder()
-  }
+  },
 
 ) : WebClientEntityBuilder() {
 
@@ -33,7 +33,7 @@ class OffenderBuilder(
   }
 
   fun save(
-    testDataContext: TestDataContext
+    testDataContext: TestDataContext,
   ): InmateDetail = save(testDataContext.webTestClient, testDataContext.jwtAuthenticationHelper, testDataContext.dataLoader)
   private fun save(
     webTestClient: WebTestClient,
@@ -50,13 +50,13 @@ class OffenderBuilder(
       .headers(
         setAuthorisation(
           jwtAuthenticationHelper = jwtAuthenticationHelper,
-          roles = listOf("ROLE_BOOKING_CREATE")
-        )
+          roles = listOf("ROLE_BOOKING_CREATE"),
+        ),
       )
       .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
       .accept(MediaType.APPLICATION_JSON)
       .body(
-        BodyInserters.fromValue(request)
+        BodyInserters.fromValue(request),
       )
       .exchange()
       .expectStatus().isOk
@@ -67,7 +67,7 @@ class OffenderBuilder(
         webTestClient = webTestClient,
         jwtAuthenticationHelper = jwtAuthenticationHelper,
         offenderNo = offender.offenderNo,
-        dataLoader = dataLoader
+        dataLoader = dataLoader,
       )
     }
       .lastOrNull() ?: offender

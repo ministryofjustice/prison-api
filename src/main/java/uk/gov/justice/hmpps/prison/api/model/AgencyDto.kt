@@ -8,7 +8,7 @@ data class AgencyDto(
   val agencyType: String?,
   val active: Boolean = true,
   val courtType: String?,
-  val deactivationDate: LocalDate?
+  val deactivationDate: LocalDate?,
 ) {
   fun toAgency() = Agency(
     this.agencyId,

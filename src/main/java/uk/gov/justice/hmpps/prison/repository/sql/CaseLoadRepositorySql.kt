@@ -13,7 +13,7 @@ enum class CaseLoadRepositorySql(val sql: String) {
         LEFT OUTER JOIN STAFF_USER_ACCOUNTS SUA on SC.USERNAME = SUA.USERNAME
         WHERE SC.USERNAME = :username
         ORDER BY CL.DESCRIPTION
-    """
+    """,
   ),
 
   FIND_CASE_LOADS_BY_STAFF_ID(
@@ -28,7 +28,7 @@ enum class CaseLoadRepositorySql(val sql: String) {
         INNER JOIN STAFF_USER_ACCOUNTS SUA on SC.USERNAME = SUA.USERNAME AND SUA.STAFF_USER_TYPE = :staffUserType
         WHERE SUA.STAFF_ID = :staffId AND CL.ACTIVE_FLAG = 'Y'
         ORDER BY CL.DESCRIPTION
-    """
+    """,
   ),
 
   FIND_CASE_LOAD_BY_ID(
@@ -39,7 +39,7 @@ enum class CaseLoadRepositorySql(val sql: String) {
         CL.CASELOAD_FUNCTION
         FROM CASELOADS CL
         WHERE CL.CASELOAD_ID = :caseLoadId
-    """
+    """,
   ),
 
   FIND_ACTIVE_CASE_LOAD_BY_USERNAME(
@@ -50,6 +50,6 @@ enum class CaseLoadRepositorySql(val sql: String) {
         CL.CASELOAD_FUNCTION
         FROM CASELOADS CL JOIN STAFF_USER_ACCOUNTS SUA on CL.CASELOAD_ID = SUA.WORKING_CASELOAD_ID
                 WHERE SUA.USERNAME = :username
-    """
-  )
+    """,
+  ),
 }

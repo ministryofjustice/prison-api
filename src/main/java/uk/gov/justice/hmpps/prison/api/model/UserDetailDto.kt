@@ -7,7 +7,7 @@ data class UserDetailDto(
   var lastName: String? = null,
   var thumbnailId: Long? = null,
   var activeCaseLoadId: String? = null,
-  var accountStatus: String? = null
+  var accountStatus: String? = null,
 ) {
   fun toUserDetail() = UserDetail(
     this.staffId,

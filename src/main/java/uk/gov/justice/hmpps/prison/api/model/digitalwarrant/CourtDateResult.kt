@@ -27,5 +27,5 @@ data class CourtDateResult(
   val charge: WarrantCharge,
 
   @Schema(description = "The id of the booking this court date was linked to")
-  val bookingId: Long?
+  val bookingId: Long?,
 )

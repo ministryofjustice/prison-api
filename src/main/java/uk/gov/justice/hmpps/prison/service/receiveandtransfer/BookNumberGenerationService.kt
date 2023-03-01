@@ -7,11 +7,13 @@ import uk.gov.justice.hmpps.prison.repository.storedprocs.OffenderAdminProcs.Gen
 interface BookNumberGenerationService {
   fun generateBookNumber(): String
 }
+
 @Service
 @Profile("nomis")
 class BookNumberGenerationSPService(val generateNewBookingNo: GenerateNewBookingNo) : BookNumberGenerationService {
   override fun generateBookNumber(): String = generateNewBookingNo.executeFunction(String::class.java)
 }
+
 @Service
 @Profile("!nomis")
 class BookNumberGenerationBasicService : BookNumberGenerationService {

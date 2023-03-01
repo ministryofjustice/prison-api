@@ -13,7 +13,7 @@ enum class OffenderCurfewRepositorySql(val sql: String) {
         WHERE     OB.active_flag = 'Y'
         AND OB.booking_seq = 1
         AND OB.agy_loc_id IN (:agencyLocationIds)
-    """
+    """,
   ),
 
   UPDATE_CURFEW_CHECKS_PASSED(
@@ -22,7 +22,7 @@ enum class OffenderCurfewRepositorySql(val sql: String) {
                 SET ASSESSMENT_DATE = :date,
         PASSED_FLAG = :checksPassed
                 WHERE OFFENDER_CURFEW_ID = :curfewId
-    """
+    """,
   ),
 
   UPDATE_CURFEW_CHECKS_PASSED_DATE(
@@ -30,7 +30,7 @@ enum class OffenderCurfewRepositorySql(val sql: String) {
         UPDATE OFFENDER_CURFEWS
                 SET ASSESSMENT_DATE = :date
         WHERE OFFENDER_CURFEW_ID = :curfewId
-    """
+    """,
   ),
 
   UPDATE_APPROVAL_STATUS(
@@ -39,7 +39,7 @@ enum class OffenderCurfewRepositorySql(val sql: String) {
                 SET DECISION_DATE = :date,
         APPROVAL_STATUS = :approvalStatus
                 WHERE OFFENDER_CURFEW_ID = :curfewId
-    """
+    """,
   ),
 
   UPDATE_APPROVAL_STATUS_DATE(
@@ -47,7 +47,7 @@ enum class OffenderCurfewRepositorySql(val sql: String) {
         UPDATE OFFENDER_CURFEWS
                 SET DECISION_DATE = :date
         WHERE OFFENDER_CURFEW_ID = :curfewId
-    """
+    """,
   ),
 
   CREATE_HDC_STATUS_TRACKING(
@@ -64,7 +64,7 @@ enum class OffenderCurfewRepositorySql(val sql: String) {
                 :statusCode,
                 sysdate
         )
-    """
+    """,
   ),
 
   CREATE_HDC_STATUS_REASON(
@@ -79,7 +79,7 @@ enum class OffenderCurfewRepositorySql(val sql: String) {
                 :hdcStatusTrackingId,
                 :statusReasonCode
         )
-    """
+    """,
   ),
 
   LATEST_HOME_DETENTION_CURFEW(
@@ -99,7 +99,7 @@ enum class OffenderCurfewRepositorySql(val sql: String) {
                         WHERE OFFENDER_BOOK_ID = :bookingId
                         ORDER BY OC.CREATE_DATETIME DESC, HST.HDC_STATUS_TRACKING_ID DESC, HSR.HDC_STATUS_REASON_ID DESC
                 ) WHERE ROWNUM = 1
-    """
+    """,
   ),
 
   LATEST_BATCH_HOME_DETENTION_CURFEW(
@@ -122,7 +122,7 @@ enum class OffenderCurfewRepositorySql(val sql: String) {
           LEFT JOIN hdc_status_trackings hst ON hst.offender_curfew_id = oc.offender_curfew_id AND hst.status_code IN ( :statusTrackingCodes )
           LEFT JOIN hdc_status_reasons hsr ON hst.hdc_status_tracking_id = hsr.hdc_status_tracking_id
           WHERE oc.offender_book_id = tbc.offender_book_id AND oc.offender_curfew_id = tbc.offender_curfew_id
-    """
+    """,
   ),
 
   UPDATE_HDC_STATUS_REASON(
@@ -135,7 +135,7 @@ enum class OffenderCurfewRepositorySql(val sql: String) {
                         WHERE OFFENDER_CURFEW_ID = :offenderCurfewId AND
                 STATUS_CODE = :hdcStatusTrackingCode
         )
-    """
+    """,
   ),
 
   FIND_HDC_STATUS_TRACKING(
@@ -144,7 +144,7 @@ enum class OffenderCurfewRepositorySql(val sql: String) {
                 FROM HDC_STATUS_TRACKINGS
                 WHERE OFFENDER_CURFEW_ID = :curfewId AND
         STATUS_CODE = :statusCode
-    """
+    """,
   ),
 
   DELETE_HDC_STATUS_TRACKINGS(
@@ -153,7 +153,7 @@ enum class OffenderCurfewRepositorySql(val sql: String) {
         FROM HDC_STATUS_TRACKINGS
                 WHERE OFFENDER_CURFEW_ID = :curfewId AND
         STATUS_CODE IN (:codes)
-    """
+    """,
   ),
 
   DELETE_HDC_STATUS_REASONS(
@@ -166,7 +166,7 @@ enum class OffenderCurfewRepositorySql(val sql: String) {
                         where OFFENDER_CURFEW_ID = :curfewId AND
                 STATUS_CODE IN (:codes)
         )
-    """
+    """,
   ),
 
   RESET_OFFENDER_CURFEW(
@@ -177,6 +177,6 @@ enum class OffenderCurfewRepositorySql(val sql: String) {
         DECISION_DATE = NULL,
         ASSESSMENT_DATE = NULL
         WHERE OFFENDER_CURFEW_ID = :curfewId
-    """
-  )
+    """,
+  ),
 }

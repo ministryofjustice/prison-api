@@ -32,7 +32,7 @@ class MovementResourceIntTest_createExternalMovement : ResourceTest() {
         .movementType("TRN")
         .movementReason("SEC")
         .directionCode(MovementDirection.OUT)
-        .build()
+        .build(),
     )
   }
 
@@ -53,7 +53,7 @@ class MovementResourceIntTest_createExternalMovement : ResourceTest() {
                        "directionCode": "OUT"
                     }
                     
-        """.trimIndent()
+        """.trimIndent(),
       )
       .exchange()
       .expectStatus().isUnauthorized
@@ -91,7 +91,7 @@ class MovementResourceIntTest_createExternalMovement : ResourceTest() {
           {
             "bookingId": 1134751
           }
-        """.trimIndent()
+        """.trimIndent(),
       )
       .exchange().expectStatus().isBadRequest
   }
@@ -111,7 +111,7 @@ class MovementResourceIntTest_createExternalMovement : ResourceTest() {
              "movementReason": "SEC",
              "directionCode": "OUT"
           }
-      """.trimIndent()
+      """.trimIndent(),
     )
     .exchange()
 }

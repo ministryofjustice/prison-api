@@ -14,14 +14,13 @@ class BedAssignmentTransferService(private val bedAssignmentHistoriesRepository:
     booking: OffenderBooking,
     cellLocation: AgencyInternalLocation,
     receiveTime: LocalDateTime,
-    reasonCode: String? = null
+    reasonCode: String? = null,
   ): BedAssignmentHistory =
     bedAssignmentHistoriesRepository.save(
-      BedAssignmentHistory
-      (
+      BedAssignmentHistory(
         /* bedAssignmentHistoryPK = */ BedAssignmentHistoryPK(
           /* offenderBookingId = */ booking.bookingId,
-          /* sequence = */ getNextSequence(booking)
+          /* sequence = */ getNextSequence(booking),
         ),
         /* offenderBooking = */ booking,
         /* livingUnitId = */ cellLocation.locationId,
@@ -29,8 +28,8 @@ class BedAssignmentTransferService(private val bedAssignmentHistoriesRepository:
         /* assignmentDateTime = */ receiveTime,
         /* assignmentReason = */ reasonCode,
         /* assignmentEndDate = */ null,
-        /* assignmentEndDateTime = */ null
-      )
+        /* assignmentEndDateTime = */ null,
+      ),
     )
 
   private fun getNextSequence(booking: OffenderBooking) = bedAssignmentHistoriesRepository.getMaxSeqForBookingId(booking.bookingId) + 1

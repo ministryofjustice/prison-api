@@ -28,7 +28,7 @@ internal class PrisonerScheduleDtoTest {
           programEndDate = LocalDate.parse("2022-05-01"),
           scheduleDate = null,
         )
-          .programHasntEnded()
+          .programHasntEnded(),
       ).isTrue
     }
 
@@ -39,7 +39,7 @@ internal class PrisonerScheduleDtoTest {
           programStatus = "END",
           programEndDate = LocalDate.parse("2022-05-01"),
           scheduleDate = LocalDate.parse("2022-05-01"),
-        ).programHasntEnded()
+        ).programHasntEnded(),
       ).isTrue
     }
 
@@ -50,7 +50,7 @@ internal class PrisonerScheduleDtoTest {
           programStatus = "END",
           programEndDate = LocalDate.parse("2022-05-02"),
           scheduleDate = LocalDate.parse("2022-05-01"),
-        ).programHasntEnded()
+        ).programHasntEnded(),
       ).isTrue
     }
 
@@ -61,7 +61,7 @@ internal class PrisonerScheduleDtoTest {
           programStatus = "END",
           programEndDate = LocalDate.parse("2022-05-01"),
           scheduleDate = LocalDate.parse("2022-05-02"),
-        ).programHasntEnded()
+        ).programHasntEnded(),
       ).isFalse
     }
   }

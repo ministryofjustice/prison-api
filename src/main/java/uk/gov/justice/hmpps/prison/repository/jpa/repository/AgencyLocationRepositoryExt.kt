@@ -9,5 +9,5 @@ fun AgencyLocationRepository.findByIdAndDeactivationDateIsNullOrNull(id: String)
 fun AgencyLocationRepository.findByIdAndTypeAndActiveAndDeactivationDateIsNullOrNull(
   id: String,
   type: AgencyLocationType,
-  active: Boolean
+  active: Boolean,
 ): AgencyLocation? = findByIdAndTypeAndActiveAndDeactivationDateIsNull(id, type, active).orElse(null)

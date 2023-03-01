@@ -36,7 +36,7 @@ internal fun randomName(): String {
 data class TestDataContext(
   val webTestClient: WebTestClient,
   val jwtAuthenticationHelper: JwtAuthenticationHelper,
-  val dataLoader: DataLoaderRepository
+  val dataLoader: DataLoaderRepository,
 )
 
 fun TestDataContext.transferOut(offenderNo: String, toLocation: String = "MDI") {
@@ -55,8 +55,8 @@ fun TestDataContext.transferOut(offenderNo: String, toLocation: String = "MDI") 
             "movementTime": "${LocalDateTime.now().minusHours(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
             
           }
-        """.trimIndent()
-      )
+        """.trimIndent(),
+      ),
     )
     .exchange()
     .expectStatus().isOk
@@ -84,8 +84,8 @@ fun TestDataContext.release(offenderNo: String) {
             "movementTime": "${LocalDateTime.now().minusHours(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
             
           }
-        """.trimIndent()
-      )
+        """.trimIndent(),
+      ),
     )
     .exchange()
     .expectStatus().isOk
@@ -107,7 +107,7 @@ fun TestDataContext.transferOutToCourt(offenderNo: String, toLocation: String, s
     /* transferReasonCode = */ "19",
     /* commentText = */ "court appearance",
     /* shouldReleaseBed = */ shouldReleaseBed,
-    /* courtEventId = */ courtHearingEventId
+    /* courtEventId = */ courtHearingEventId,
   )
   webTestClient.put()
     .uri("/api/offenders/{nomsId}/court-transfer-out", offenderNo)
@@ -131,7 +131,7 @@ fun TestDataContext.transferOutToTemporaryAbsence(
   offenderNo: String,
   toLocation: String,
   shouldReleaseBed: Boolean = false,
-  tapIndividualScheduleEventId: Long? = null
+  tapIndividualScheduleEventId: Long? = null,
 ): LocalDateTime {
   val movementTime = LocalDateTime.now().minusHours(1)
   val request = RequestToTransferOutToTemporaryAbsence(
@@ -141,7 +141,7 @@ fun TestDataContext.transferOutToTemporaryAbsence(
     /* transferReasonCode = */ "C3",
     /* commentText = */ "day release",
     /* shouldReleaseBed = */ shouldReleaseBed,
-    /* courtEventId = */ tapIndividualScheduleEventId
+    /* courtEventId = */ tapIndividualScheduleEventId,
   )
   webTestClient.put()
     .uri("/api/offenders/{nomsId}/temporary-absence-out", offenderNo)
@@ -165,7 +165,7 @@ private fun TestDataContext.setAuthorisation(roles: List<String>): Consumer<Http
   return Consumer { httpHeaders: HttpHeaders ->
     httpHeaders.add(
       "Authorization",
-      "Bearer " + this.validToken(roles)
+      "Bearer " + this.validToken(roles),
     )
   }
 }
@@ -177,7 +177,7 @@ fun TestDataContext.validToken(roles: List<String?>?): String? {
       .scope(listOf("read", "write"))
       .roles(roles)
       .expiryTime(Duration.ofDays((365 * 10).toLong()))
-      .build()
+      .build(),
   )
 }
 
@@ -196,14 +196,14 @@ fun TestDataContext.createScheduledTemporaryAbsence(
       .withEventStatus(this.dataLoader.eventStatusRepository.findById(EventStatus.SCHEDULED_APPROVED).orElseThrow())
       .withEscortAgencyType(
         this.dataLoader.escortAgencyTypeRepository.findByIdOrNull(
-          EscortAgencyType.pk("L")
-        )
+          EscortAgencyType.pk("L"),
+        ),
       )
       .withFromLocation(it.location)
       .withToAddressOwnerClass("CORP")
       .withToAddressId(toAddressId)
       .withMovementDirection(MovementDirection.OUT)
-      .withOffenderBooking(it)
+      .withOffenderBooking(it),
   )
 }
 
@@ -225,8 +225,8 @@ fun TestDataContext.createCourtHearing(bookingId: Long): Long {
             "comments":"court appearance"
             
           }
-        """.trimIndent()
-      )
+        """.trimIndent(),
+      ),
     )
     .exchange()
     .expectStatus().isCreated
@@ -241,8 +241,8 @@ fun TestDataContext.getCaseNotes(bookingId: Long): List<CaseNote> = webTestClien
   .uri("/api/bookings/{bookingId}/caseNotes?size=999", bookingId)
   .headers(
     setAuthorisation(
-      listOf("ROLE_SYSTEM_USER")
-    )
+      listOf("ROLE_SYSTEM_USER"),
+    ),
   )
   .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
   .accept(MediaType.APPLICATION_JSON)
