@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
-import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -22,6 +21,8 @@ import jakarta.persistence.IdClass;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
