@@ -56,7 +56,7 @@ import uk.gov.justice.hmpps.prison.service.support.InmatesHelper;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 import uk.gov.justice.hmpps.prison.service.support.ReferenceDomain;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;

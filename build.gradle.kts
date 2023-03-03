@@ -42,12 +42,6 @@ dependencies {
 
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
-  implementation("javax.annotation:javax.annotation-api:1.3.2")
-  implementation("javax.xml.bind:jaxb-api:2.3.1")
-  implementation("com.sun.xml.bind:jaxb-impl:4.0.2")
-  implementation("com.sun.xml.bind:jaxb-core:4.0.2")
-  implementation("javax.activation:activation:1.1.1")
-
   implementation("commons-codec:commons-codec:1.15")
   implementation("com.github.jsqlparser:jsqlparser:$jsqlParserVersion")
   implementation("org.ehcache:ehcache:3.10.8")
@@ -89,7 +83,6 @@ dependencies {
   testImplementation("com.github.tomakehurst:wiremock-jre8-standalone:2.35.0")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.11.5")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
-  testImplementation("org.glassfish:javax.el:3.0.0")
   testImplementation("io.swagger.parser.v3:swagger-parser:2.1.12")
   testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.23.1")
 

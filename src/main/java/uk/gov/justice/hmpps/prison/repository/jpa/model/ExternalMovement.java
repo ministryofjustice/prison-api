@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -12,7 +13,6 @@ import org.hibernate.annotations.JoinFormula;
 import org.hibernate.type.YesNoConverter;
 import jakarta.persistence.Convert;
 
-import javax.annotation.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
