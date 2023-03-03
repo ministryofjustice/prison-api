@@ -16,7 +16,7 @@ enum class CaseNoteRepositorySql(val sql: String) {
         %s
         GROUP BY CASE_NOTE_TYPE, CASE_NOTE_SUB_TYPE, O.OFFENDER_ID_DISPLAY
         ORDER BY O.OFFENDER_ID_DISPLAY
-    """
+    """,
   ),
 
   GROUP_BY_TYPES_AND_OFFENDERS_FOR_BOOKING(
@@ -32,7 +32,7 @@ enum class CaseNoteRepositorySql(val sql: String) {
         AND CASE_NOTE_TYPE = COALESCE(:type, CASE_NOTE_TYPE)
         AND CASE_NOTE_SUB_TYPE = COALESCE(:subType, CASE_NOTE_SUB_TYPE)
         GROUP BY CASE_NOTE_TYPE, CASE_NOTE_SUB_TYPE, OFFENDER_BOOK_ID
-    """
+    """,
   ),
 
   GROUP_BY_TYPES_FOR_BOOKING_FROM_DATE(
@@ -47,7 +47,7 @@ enum class CaseNoteRepositorySql(val sql: String) {
         AND OFFENDER_BOOK_ID = :bookingId
         AND CASE_NOTE_TYPE IN (:types)
         GROUP BY CASE_NOTE_TYPE, CASE_NOTE_SUB_TYPE, OFFENDER_BOOK_ID
-    """
+    """,
   ),
 
   GROUP_BY_TYPES_AND_STAFF(
@@ -64,7 +64,7 @@ enum class CaseNoteRepositorySql(val sql: String) {
         AND CASE_NOTE_TYPE = COALESCE(:type, CASE_NOTE_TYPE)
         AND CASE_NOTE_SUB_TYPE = COALESCE(:subType, CASE_NOTE_SUB_TYPE)
         GROUP BY STAFF_ID, CASE_NOTE_TYPE, CASE_NOTE_SUB_TYPE
-    """
+    """,
   ),
 
   RECENT_CASE_NOTE_EVENTS(
@@ -87,7 +87,7 @@ enum class CaseNoteRepositorySql(val sql: String) {
         WHERE OC.AUDIT_TIMESTAMP >= :fromDate
         AND OC.CASE_NOTE_TYPE in (:types)
         ORDER BY OC.AUDIT_TIMESTAMP
-    """
+    """,
   ),
 
   GET_CASE_NOTE_TYPES_BY_CASELOAD_TYPE(
@@ -106,7 +106,7 @@ enum class CaseNoteRepositorySql(val sql: String) {
         AND W.MANUAL_SELECT_FLAG ='Y'
         AND W.ACTIVE_FLAG = 'Y'
         ORDER BY W.WORK_TYPE
-    """
+    """,
   ),
 
   GET_CASE_NOTE_TYPES_WITH_SUB_TYPES_BY_CASELOAD_TYPE(
@@ -134,7 +134,7 @@ enum class CaseNoteRepositorySql(val sql: String) {
                 AND RC2.DOMAIN = 'TASK_SUBTYPE'
         AND COALESCE(RC2.PARENT_DOMAIN, 'TASK_TYPE') = 'TASK_TYPE'
         ORDER BY WKS.WORK_TYPE, WKS.WORK_SUB_TYPE
-    """
+    """,
   ),
 
   GET_CASE_NOTE_COUNT(
@@ -146,7 +146,7 @@ enum class CaseNoteRepositorySql(val sql: String) {
         AND CASE_NOTE_SUB_TYPE = :subType
         AND CREATE_DATETIME >= TRUNC(COALESCE(:fromDate, CREATE_DATETIME))
         AND TRUNC(CREATE_DATETIME) <= COALESCE(:toDate, CREATE_DATETIME)
-    """
+    """,
   ),
 
   GET_USED_CASE_NOTE_TYPES_WITH_SUB_TYPES(
@@ -171,6 +171,6 @@ enum class CaseNoteRepositorySql(val sql: String) {
         INNER JOIN REFERENCE_CODES RC2 ON RC2.CODE = WKS.WORK_SUB_TYPE
                 AND RC2.DOMAIN = 'TASK_SUBTYPE'
         AND COALESCE(RC2.PARENT_DOMAIN, 'TASK_TYPE') = 'TASK_TYPE'
-    """
-  )
+    """,
+  ),
 }

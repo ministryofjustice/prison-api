@@ -79,7 +79,7 @@ internal class ExternalMovementTransferServiceTest {
     movementReasonRepository = movementReasonRepository,
     externalMovementRepository = externalMovementRepository,
     movementTypeRepository = movementTypeRepository,
-    entityManager = entityManager
+    entityManager = entityManager,
   )
 
   @DisplayName("updateMovementsForTransfer")
@@ -99,13 +99,13 @@ internal class ExternalMovementTransferServiceTest {
         whenever(movementTypeRepository.findById(MovementType.ADM)).thenReturn(Optional.ofNullable(movementType))
         whenever(movementReasonRepository.findById(MovementReason.pk("INT"))).thenReturn(
           Optional.ofNullable(
-            movementReason
-          )
+            movementReason,
+          ),
         )
         whenever(externalMovementRepository.findAllByOffenderBooking_BookingIdAndActive(99, true)).thenReturn(
           listOf(
-            bookingLastMovement
-          )
+            bookingLastMovement,
+          ),
         )
         booking = OffenderBooking().apply { externalMovements = mutableListOf(bookingLastMovement); bookingId = 99 }
       }
@@ -153,7 +153,8 @@ internal class ExternalMovementTransferServiceTest {
           RequestToTransferIn().apply {
             commentText = "😩"
           },
-          booking, bookingLastMovement
+          booking,
+          bookingLastMovement,
         )
         assertThat(movement.movementDate).isEqualTo(LocalDate.now())
         assertThat(movement.movementTime).isCloseTo(LocalDateTime.now(), within(5, ChronoUnit.SECONDS))
@@ -177,13 +178,13 @@ internal class ExternalMovementTransferServiceTest {
         whenever(movementTypeRepository.findById(MovementType.ADM)).thenReturn(Optional.ofNullable(movementType))
         whenever(movementReasonRepository.findById(MovementReason.pk("INT"))).thenReturn(
           Optional.ofNullable(
-            movementReason
-          )
+            movementReason,
+          ),
         )
         whenever(externalMovementRepository.findAllByOffenderBooking_BookingIdAndActive(99, true)).thenReturn(
           listOf(
-            bookingLastMovement
-          )
+            bookingLastMovement,
+          ),
         )
         booking = OffenderBooking().apply { externalMovements = mutableListOf(bookingLastMovement); bookingId = 99 }
       }
@@ -213,7 +214,8 @@ internal class ExternalMovementTransferServiceTest {
             RequestToTransferIn().apply {
               receiveTime = LocalDateTime.now().plusHours(1); commentText = "😩"
             },
-            booking, bookingLastMovement
+            booking,
+            bookingLastMovement,
           )
         }
           .isInstanceOf(BadRequestException::class.java)
@@ -227,7 +229,8 @@ internal class ExternalMovementTransferServiceTest {
             RequestToTransferIn().apply {
               receiveTime = bookingLastMovement.movementTime.minusHours(1)
             },
-            booking, bookingLastMovement
+            booking,
+            bookingLastMovement,
           )
         }
           .isInstanceOf(BadRequestException::class.java)
@@ -255,13 +258,13 @@ internal class ExternalMovementTransferServiceTest {
         whenever(movementTypeRepository.findById(MovementType.CRT)).thenReturn(Optional.ofNullable(movementType))
         whenever(movementReasonRepository.findById(MovementReason.pk("CRT"))).thenReturn(
           Optional.ofNullable(
-            movementReasonCourt
-          )
+            movementReasonCourt,
+          ),
         )
         whenever(externalMovementRepository.findAllByOffenderBooking_BookingIdAndActive(99, true)).thenReturn(
           listOf(
-            bookingLastMovementCourt
-          )
+            bookingLastMovementCourt,
+          ),
         )
         booking =
           OffenderBooking().apply { externalMovements = mutableListOf(bookingLastMovementCourt); bookingId = 99 }
@@ -276,7 +279,7 @@ internal class ExternalMovementTransferServiceTest {
           commentText = request.commentText,
           booking = booking,
           lastMovement = bookingLastMovementCourt,
-          courtEvent = null
+          courtEvent = null,
         )
         assertThat(booking.externalMovements.first().isActive).isFalse
 
@@ -292,7 +295,7 @@ internal class ExternalMovementTransferServiceTest {
           commentText = request.commentText,
           booking = booking,
           lastMovement = bookingLastMovementCourt,
-          courtEvent = null
+          courtEvent = null,
         )
         assertThat(booking.externalMovements).hasSize(2)
       }
@@ -306,7 +309,7 @@ internal class ExternalMovementTransferServiceTest {
             commentText = request.commentText,
             booking = booking,
             lastMovement = bookingLastMovementCourt,
-            courtEvent = null
+            courtEvent = null,
           )
         assertThat(movement.toAgency).isEqualTo(fromPrison)
         assertThat(movement.fromAgency).isEqualTo(toCourt)
@@ -321,7 +324,7 @@ internal class ExternalMovementTransferServiceTest {
             commentText = request.commentText,
             booking = booking,
             lastMovement = bookingLastMovementCourt,
-            courtEvent = null
+            courtEvent = null,
           )
         assertThat(movement.commentText).isEqualTo("😩")
         assertThat(movement.movementReason).isEqualTo(movementReasonCourt)
@@ -336,7 +339,7 @@ internal class ExternalMovementTransferServiceTest {
             commentText = request.commentText,
             booking = booking,
             lastMovement = bookingLastMovementCourt,
-            courtEvent = null
+            courtEvent = null,
           )
         assertThat(movement.movementDate).isEqualTo(LocalDateTime.parse("2022-04-20T10:00:00").toLocalDate())
         assertThat(movement.movementTime).isEqualTo(LocalDateTime.parse("2022-04-20T10:00:00"))
@@ -346,8 +349,11 @@ internal class ExternalMovementTransferServiceTest {
       internal fun `new movement will contain now when no receive time`() {
         val movement = service.updateMovementsForCourtTransferToSamePrison(
           movementReasonCode = null,
-          movementDateTime = null, commentText = "😩",
-          booking = booking, lastMovement = bookingLastMovementCourt, courtEvent = null
+          movementDateTime = null,
+          commentText = "😩",
+          booking = booking,
+          lastMovement = bookingLastMovementCourt,
+          courtEvent = null,
         )
         assertThat(movement.movementDate).isEqualTo(LocalDate.now())
         assertThat(movement.movementTime).isCloseTo(LocalDateTime.now(), within(5, ChronoUnit.SECONDS))
@@ -362,7 +368,7 @@ internal class ExternalMovementTransferServiceTest {
             commentText = request.commentText,
             booking = booking,
             lastMovement = bookingLastMovementCourt,
-            courtEvent = null
+            courtEvent = null,
           )
         assertThat(movement.movementDirection).isEqualTo(MovementDirection.IN)
       }
@@ -379,13 +385,13 @@ internal class ExternalMovementTransferServiceTest {
         whenever(movementTypeRepository.findById(MovementType.ADM)).thenReturn(Optional.ofNullable(movementType))
         whenever(movementReasonRepository.findById(MovementReason.pk("CRT"))).thenReturn(
           Optional.ofNullable(
-            movementReasonCourt
-          )
+            movementReasonCourt,
+          ),
         )
         whenever(externalMovementRepository.findAllByOffenderBooking_BookingIdAndActive(99, true)).thenReturn(
           listOf(
-            bookingLastMovement
-          )
+            bookingLastMovement,
+          ),
         )
         booking = OffenderBooking().apply { externalMovements = mutableListOf(bookingLastMovement); bookingId = 99 }
       }
@@ -401,7 +407,7 @@ internal class ExternalMovementTransferServiceTest {
             commentText = request.commentText,
             booking = booking,
             lastMovement = bookingLastMovementCourt,
-            courtEvent = null
+            courtEvent = null,
           )
         }
       }
@@ -417,7 +423,7 @@ internal class ExternalMovementTransferServiceTest {
             commentText = request.commentText,
             booking = booking,
             lastMovement = bookingLastMovementCourt,
-            courtEvent = null
+            courtEvent = null,
           )
         }
       }
@@ -431,7 +437,7 @@ internal class ExternalMovementTransferServiceTest {
             commentText = request.commentText,
             booking = booking,
             lastMovement = bookingLastMovementCourt,
-            courtEvent = null
+            courtEvent = null,
           )
         }
           .isInstanceOf(BadRequestException::class.java)
@@ -447,7 +453,7 @@ internal class ExternalMovementTransferServiceTest {
             commentText = request.commentText,
             booking = booking,
             lastMovement = bookingLastMovementCourt,
-            courtEvent = null
+            courtEvent = null,
           )
         }
           .isInstanceOf(BadRequestException::class.java)
@@ -475,13 +481,13 @@ internal class ExternalMovementTransferServiceTest {
         whenever(movementTypeRepository.findById(MovementType.TAP)).thenReturn(Optional.ofNullable(movementType))
         whenever(movementReasonRepository.findById(MovementReason.pk("C3"))).thenReturn(
           Optional.ofNullable(
-            movementReasonFuneral
-          )
+            movementReasonFuneral,
+          ),
         )
         whenever(externalMovementRepository.findAllByOffenderBooking_BookingIdAndActive(99, true)).thenReturn(
           listOf(
-            bookingLastMovementForTAP
-          )
+            bookingLastMovementForTAP,
+          ),
         )
         booking =
           OffenderBooking().apply { externalMovements = mutableListOf(bookingLastMovementForTAP); bookingId = 99 }
@@ -496,7 +502,7 @@ internal class ExternalMovementTransferServiceTest {
           commentText = commentText,
           booking = booking,
           lastMovement = bookingLastMovementForTAP,
-          scheduleEvent = null
+          scheduleEvent = null,
         )
         assertThat(booking.externalMovements.first().isActive).isFalse
 
@@ -512,7 +518,7 @@ internal class ExternalMovementTransferServiceTest {
           commentText = commentText,
           booking = booking,
           lastMovement = bookingLastMovementForTAP,
-          scheduleEvent = null
+          scheduleEvent = null,
         )
         assertThat(booking.externalMovements).hasSize(2)
       }
@@ -526,7 +532,7 @@ internal class ExternalMovementTransferServiceTest {
             commentText = commentText,
             booking = booking,
             lastMovement = bookingLastMovementForTAP,
-            scheduleEvent = null
+            scheduleEvent = null,
           )
         assertThat(movement.toAgency).isEqualTo(fromPrison)
         assertThat(movement.fromAddressId).isEqualTo(bookingLastMovementForTAP.toAddressId)
@@ -543,7 +549,7 @@ internal class ExternalMovementTransferServiceTest {
             commentText = commentText,
             booking = booking,
             lastMovement = bookingLastMovementForTAP,
-            scheduleEvent = null
+            scheduleEvent = null,
           )
         assertThat(movement.commentText).isEqualTo("😩")
         assertThat(movement.movementReason).isEqualTo(movementReasonFuneral)
@@ -558,7 +564,7 @@ internal class ExternalMovementTransferServiceTest {
             commentText = commentText,
             booking = booking,
             lastMovement = bookingLastMovementForTAP,
-            scheduleEvent = null
+            scheduleEvent = null,
           )
         assertThat(movement.movementDate).isEqualTo(LocalDateTime.parse("2022-04-20T10:00:00").toLocalDate())
         assertThat(movement.movementTime).isEqualTo(LocalDateTime.parse("2022-04-20T10:00:00"))
@@ -573,7 +579,7 @@ internal class ExternalMovementTransferServiceTest {
             commentText = commentText,
             booking = booking,
             lastMovement = bookingLastMovementForTAP,
-            scheduleEvent = null
+            scheduleEvent = null,
           )
         assertThat(movement.movementDate).isEqualTo(LocalDate.now())
         assertThat(movement.movementTime).isCloseTo(LocalDateTime.now(), within(5, ChronoUnit.SECONDS))
@@ -588,7 +594,7 @@ internal class ExternalMovementTransferServiceTest {
             commentText = commentText,
             booking = booking,
             lastMovement = bookingLastMovementForTAP,
-            scheduleEvent = null
+            scheduleEvent = null,
           )
         assertThat(movement.movementDirection).isEqualTo(MovementDirection.IN)
       }
@@ -607,13 +613,13 @@ internal class ExternalMovementTransferServiceTest {
         whenever(movementTypeRepository.findById(MovementType.ADM)).thenReturn(Optional.ofNullable(movementType))
         whenever(movementReasonRepository.findById(MovementReason.pk("C3"))).thenReturn(
           Optional.ofNullable(
-            movementReasonFuneral
-          )
+            movementReasonFuneral,
+          ),
         )
         whenever(externalMovementRepository.findAllByOffenderBooking_BookingIdAndActive(99, true)).thenReturn(
           listOf(
-            bookingLastMovement
-          )
+            bookingLastMovement,
+          ),
         )
         booking = OffenderBooking().apply { externalMovements = mutableListOf(bookingLastMovement); bookingId = 99 }
       }
@@ -629,7 +635,7 @@ internal class ExternalMovementTransferServiceTest {
             commentText = commentText,
             booking = booking,
             lastMovement = bookingLastMovementCourt,
-            scheduleEvent = null
+            scheduleEvent = null,
           )
         }
       }
@@ -645,7 +651,7 @@ internal class ExternalMovementTransferServiceTest {
             commentText = commentText,
             booking = booking,
             lastMovement = bookingLastMovementCourt,
-            scheduleEvent = null
+            scheduleEvent = null,
           )
         }
       }
@@ -659,7 +665,7 @@ internal class ExternalMovementTransferServiceTest {
             commentText = commentText,
             booking = booking,
             lastMovement = bookingLastMovementCourt,
-            scheduleEvent = null
+            scheduleEvent = null,
           )
         }
           .isInstanceOf(BadRequestException::class.java)
@@ -675,7 +681,7 @@ internal class ExternalMovementTransferServiceTest {
             commentText = commentText,
             booking = booking,
             lastMovement = bookingLastMovementCourt,
-            scheduleEvent = null
+            scheduleEvent = null,
           )
         }
           .isInstanceOf(BadRequestException::class.java)
@@ -703,13 +709,13 @@ internal class ExternalMovementTransferServiceTest {
         whenever(movementTypeRepository.findById(MovementType.ADM)).thenReturn(Optional.ofNullable(movementType))
         whenever(movementReasonRepository.findById(MovementReason.pk("TRNTAP"))).thenReturn(
           Optional.ofNullable(
-            movementReasonTransferViaTAP
-          )
+            movementReasonTransferViaTAP,
+          ),
         )
         whenever(externalMovementRepository.findAllByOffenderBooking_BookingIdAndActive(99, true)).thenReturn(
           listOf(
-            bookingLastMovementForTAP
-          )
+            bookingLastMovementForTAP,
+          ),
         )
         booking =
           OffenderBooking().apply { externalMovements = mutableListOf(bookingLastMovementForTAP); bookingId = 99 }
@@ -826,13 +832,13 @@ internal class ExternalMovementTransferServiceTest {
         whenever(movementTypeRepository.findById(MovementType.ADM)).thenReturn(Optional.ofNullable(movementType))
         whenever(movementReasonRepository.findById(MovementReason.pk("TRNTAP"))).thenReturn(
           Optional.ofNullable(
-            movementReasonTransferViaTAP
-          )
+            movementReasonTransferViaTAP,
+          ),
         )
         whenever(externalMovementRepository.findAllByOffenderBooking_BookingIdAndActive(99, true)).thenReturn(
           listOf(
-            bookingLastMovement
-          )
+            bookingLastMovement,
+          ),
         )
         booking = OffenderBooking().apply { externalMovements = mutableListOf(bookingLastMovement); bookingId = 99 }
       }

@@ -40,33 +40,59 @@ class CacheConfig : CachingConfigurer {
   fun cacheConfiguration(): JCacheManagerCustomizer = JCacheManagerCustomizer { cm: CacheManager ->
     cm.createCache(
       "referenceDomain",
-      String::class.java, ReferenceDomain::class.java, 500, referenceDataTimeoutSeconds
+      String::class.java,
+      ReferenceDomain::class.java,
+      500,
+      referenceDataTimeoutSeconds,
     )
     cm.createCache(
       "referenceCodesByDomain",
-      SimpleKey::class.java, Page::class.java, 1000, referenceDataTimeoutSeconds
+      SimpleKey::class.java,
+      Page::class.java,
+      1000,
+      referenceDataTimeoutSeconds,
     )
     cm.createCache(
       "referenceCodeByDomainAndCode",
-      String::class.java, ReferenceCode::class.java, 1000, referenceDataTimeoutSeconds
+      String::class.java,
+      ReferenceCode::class.java,
+      1000,
+      referenceDataTimeoutSeconds,
     )
     cm.createCache(
       "getCaseNoteTypesWithSubTypesByCaseLoadTypeAndActiveFlag",
-      SimpleKey::class.java, java.util.List::class.java, 100, caseNoteTimeoutSeconds
+      SimpleKey::class.java,
+      java.util.List::class.java,
+      100,
+      caseNoteTimeoutSeconds,
     )
     cm.createCache(
       "usedCaseNoteTypesWithSubTypes",
-      SimpleKey::class.java, java.util.List::class.java, 100, caseNoteTimeoutSeconds
+      SimpleKey::class.java,
+      java.util.List::class.java,
+      100,
+      caseNoteTimeoutSeconds,
     )
     cm.createCache(
-      "findByStaffId", java.lang.Long::class.java, StaffDetail::class.java, 1000, userTimeoutSeconds
+      "findByStaffId",
+      java.lang.Long::class.java,
+      StaffDetail::class.java,
+      1000,
+      userTimeoutSeconds,
     )
     cm.createCache(
       "findAgenciesByUsername",
-      String::class.java, java.util.List::class.java, 1000, agencyTimeoutSeconds
+      String::class.java,
+      java.util.List::class.java,
+      1000,
+      agencyTimeoutSeconds,
     )
     cm.createCache(
-      GET_AGENCY_LOCATIONS_BOOKED, String::class.java, java.util.List::class.java, 500, activityTimeoutSeconds
+      GET_AGENCY_LOCATIONS_BOOKED,
+      String::class.java,
+      java.util.List::class.java,
+      500,
+      activityTimeoutSeconds,
     )
   }
 
@@ -85,7 +111,7 @@ private fun <K, V> CacheManager.createCache(
   val configuration = Eh107Configuration.fromEhcacheCacheConfiguration(
     CacheConfigurationBuilder
       .newCacheConfigurationBuilder(keyType, valueType, ResourcePoolsBuilder.heap(maxElements))
-      .withExpiry(ExpiryPolicyBuilder.timeToLiveExpiration(Duration.ofSeconds(timeoutSeconds)))
+      .withExpiry(ExpiryPolicyBuilder.timeToLiveExpiration(Duration.ofSeconds(timeoutSeconds))),
   )
 
   createCache(cacheName, configuration)

@@ -25,7 +25,7 @@ class PrisonerCreationServiceTest {
       1,
       27,
       "A",
-      "AA"
+      "AA",
     )
   }
 

@@ -23,6 +23,7 @@ class DatabaseRestoreInfoResourceIntTest : ResourceTest() {
       .expectStatus().isOk
       .expectBody(String::class.java).isEqualTo("\"2022-02-02\"")
   }
+
   @Test
   fun `restore info no data`() {
     doReturn(null).whenever(misStopPointRepository).findMinStopPointDate()

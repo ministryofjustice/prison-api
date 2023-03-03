@@ -44,8 +44,8 @@ internal class CaseNoteTransferServiceTest {
         StaffUserAccount().apply {
           this.staff = loggedInStaff
           username = "TEST_USER"
-        }
-      )
+        },
+      ),
     )
     whenever(caseNoteRepository.save(any())).thenAnswer { it.getArgument<OffenderCaseNote>(0) }
   }
@@ -55,7 +55,7 @@ internal class CaseNoteTransferServiceTest {
     caseNoteTypeReferenceCodeRepository = caseNoteTypeReferenceCodeRepository,
     caseNoteSubTypeReferenceCodeRepository = caseNoteSubTypeReferenceCodeRepository,
     staffUserAccountRepository = staffUserAccountRepository,
-    authenticationFacade = authenticationFacade
+    authenticationFacade = authenticationFacade,
   )
 
   @Nested
@@ -83,13 +83,13 @@ internal class CaseNoteTransferServiceTest {
     internal fun `will create case note with transfer type`() {
       whenever(caseNoteTypeReferenceCodeRepository.findById(CaseNoteType.pk("TRANSFER"))).thenReturn(
         Optional.of(
-          CaseNoteType().apply { code = "TRANSFER"; description = "Transfer" }
-        )
+          CaseNoteType().apply { code = "TRANSFER"; description = "Transfer" },
+        ),
       )
       whenever(caseNoteSubTypeReferenceCodeRepository.findById(CaseNoteSubType.pk("FROMTOL"))).thenReturn(
         Optional.of(
-          CaseNoteSubType().apply { code = "FROMTOL"; description = "From Transfer" }
-        )
+          CaseNoteSubType().apply { code = "FROMTOL"; description = "From Transfer" },
+        ),
       )
 
       service.createGenerateAdmissionNote(booking, movement)
@@ -105,14 +105,14 @@ internal class CaseNoteTransferServiceTest {
           assertThat(it.occurrenceDate).isEqualTo(LocalDate.parse("2020-01-01"))
           assertThat(it.occurrenceDateTime).isEqualTo(LocalDateTime.parse("2020-01-01T00:00:00"))
           assertThat(it.caseNoteText).isEqualTo("Offender admitted to HMP Wandsworth for reason: Transferred from HMP Brixton.")
-        }
+        },
       )
     }
 
     @Test
     internal fun `will throw exception when case note type not found`() {
       whenever(caseNoteTypeReferenceCodeRepository.findById(CaseNoteType.pk("TRANSFER"))).thenReturn(
-        Optional.empty()
+        Optional.empty(),
       )
 
       assertThrows<EntityNotFoundException> {
@@ -123,7 +123,7 @@ internal class CaseNoteTransferServiceTest {
     @Test
     internal fun `will throw exception when case note sub type not found`() {
       whenever(caseNoteSubTypeReferenceCodeRepository.findById(CaseNoteSubType.pk("FROMTOL"))).thenReturn(
-        Optional.empty()
+        Optional.empty(),
       )
 
       assertThrows<EntityNotFoundException> {

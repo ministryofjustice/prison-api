@@ -11,14 +11,14 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTeamAssignm
 @Service
 class TeamWorkflowNotificationService(
   private val offenderTeamAssignmentRepository: OffenderTeamAssignmentRepository,
-  private val workflowTaskService: WorkflowTaskService
+  private val workflowTaskService: WorkflowTaskService,
 ) {
   fun sendTransferViaCourtNotification(booking: OffenderBooking, updateMovement: () -> ExternalMovement): ExternalMovement {
     val offenderTeamAssignment = offenderTeamAssignmentRepository.findByIdOrNull(
       OffenderTeamAssignment.PK(
         booking,
-        AUTO_TRANSFER_FROM_COURT_OR_TAP
-      )
+        AUTO_TRANSFER_FROM_COURT_OR_TAP,
+      ),
     )
 
     return updateMovement().also { movement ->

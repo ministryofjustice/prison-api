@@ -96,7 +96,7 @@ internal class PrisonTransferServiceTest {
     toAgencyIn: AgencyLocation? = toPrison,
     toCityIn: City? = null,
     eventIdIn: Long? = null,
-    active: Boolean = true
+    active: Boolean = true,
   ): ExternalMovement {
     return ExternalMovement().apply {
       fromAgency = fromPrison
@@ -144,15 +144,15 @@ internal class PrisonTransferServiceTest {
       }
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
         Optional.of(
-          booking
-        )
+          booking,
+        ),
       )
       whenever(agencyInternalLocationRepository.findOneByDescriptionAndAgencyId("WWI-1-1", "WWI")).thenReturn(
         Optional.of(
           AgencyInternalLocation().apply {
             this.description = "WWI-1-1"; this.agencyId = "WWI"; this.capacity = 4; this.currentOccupancy = 3
-          }
-        )
+          },
+        ),
       )
     }
 
@@ -174,8 +174,8 @@ internal class PrisonTransferServiceTest {
           externalMovementService.updateMovementsForTransfer(
             request,
             booking,
-            lastMovement = bookingLastMovementTransfer
-          )
+            lastMovement = bookingLastMovementTransfer,
+          ),
         ).thenReturn(newMovement)
       }
 
@@ -199,15 +199,15 @@ internal class PrisonTransferServiceTest {
           Optional.of(
             AgencyInternalLocation().apply {
               this.description = "WWI-RECP"; this.agencyId = "WWI"; this.capacity = 400; this.currentOccupancy = 3
-            }
-          )
+            },
+          ),
         )
         whenever(
           externalMovementService.updateMovementsForTransfer(
             request,
             booking,
-            lastMovement = bookingLastMovementTransfer
-          )
+            lastMovement = bookingLastMovementTransfer,
+          ),
         ).thenReturn(newMovement)
 
         val details = service.transferFromPrison(
@@ -215,7 +215,7 @@ internal class PrisonTransferServiceTest {
           RequestToTransferIn().apply {
             this.commentText = "😎"
             this.receiveTime = LocalDateTime.parse("2022-04-19T00:00:00")
-          }
+          },
         )
         assertThat(details.assignedLivingUnit.description).isEqualTo("RECP")
       }
@@ -227,7 +227,7 @@ internal class PrisonTransferServiceTest {
         verify(externalMovementService).updateMovementsForTransfer(
           request,
           booking,
-          lastMovement = bookingLastMovementTransfer
+          lastMovement = bookingLastMovementTransfer,
         )
       }
 
@@ -238,7 +238,7 @@ internal class PrisonTransferServiceTest {
         verify(trustAccountService).createTrustAccount(
           booking,
           fromAgency = bookingLastMovementTransfer.fromAgency,
-          movementIn = newMovement
+          movementIn = newMovement,
         )
       }
 
@@ -257,8 +257,8 @@ internal class PrisonTransferServiceTest {
         whenever(
           offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(
             "A1234AK",
-            1
-          )
+            1,
+          ),
         ).thenReturn(Optional.empty())
 
         assertThrows<EntityNotFoundException> {
@@ -282,8 +282,8 @@ internal class PrisonTransferServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
-          }
-        )
+          },
+        ),
       )
       assertThrows<BadRequestException> {
         service.transferFromPrison("A1234AK", request)
@@ -305,8 +305,8 @@ internal class PrisonTransferServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
-          }
-        )
+          },
+        ),
       )
       assertThrows<EntityNotFoundException> {
         service.transferFromPrison("A1234AK", request)
@@ -319,7 +319,7 @@ internal class PrisonTransferServiceTest {
         Optional.of(
           OffenderBooking().apply {
             externalMovements = mutableListOf(
-              getMovement(active = false)
+              getMovement(active = false),
             )
             bookingId = 99
             inOutStatus = "TRN"
@@ -330,8 +330,8 @@ internal class PrisonTransferServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
-          }
-        )
+          },
+        ),
       )
       assertThrows<BadRequestException> {
         service.transferFromPrison("A1234AK", request)
@@ -344,7 +344,7 @@ internal class PrisonTransferServiceTest {
         Optional.of(
           OffenderBooking().apply {
             externalMovements = mutableListOf(
-              bookingLastMovementCourt
+              bookingLastMovementCourt,
             )
             bookingId = 99
             inOutStatus = "TRN"
@@ -355,8 +355,8 @@ internal class PrisonTransferServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
-          }
-        )
+          },
+        ),
       )
       assertThrows<BadRequestException> {
         service.transferFromPrison("A1234AK", request)
@@ -372,7 +372,7 @@ internal class PrisonTransferServiceTest {
             this.commentText = "😎"
             this.cellLocation = "BANANAS"
             this.receiveTime = LocalDateTime.parse("2022-04-19T00:00:00")
-          }
+          },
         )
       }
     }
@@ -383,8 +383,8 @@ internal class PrisonTransferServiceTest {
         Optional.of(
           AgencyInternalLocation().apply {
             this.description = "WWI-1-1"; this.agencyId = "WWI"; this.capacity = 4; this.currentOccupancy = 4
-          }
-        )
+          },
+        ),
       )
 
       assertThrows<ConflictingRequestException> {
@@ -423,15 +423,15 @@ internal class PrisonTransferServiceTest {
       }
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
         Optional.of(
-          booking
-        )
+          booking,
+        ),
       )
       whenever(agencyInternalLocationRepository.findOneByDescriptionAndAgencyId("WWI-1-1", "WWI")).thenReturn(
         Optional.of(
           AgencyInternalLocation().apply {
             this.description = "WWI-1-1"; this.agencyId = "WWI"; this.capacity = 4; this.currentOccupancy = 3
-          }
-        )
+          },
+        ),
       )
     }
 
@@ -456,8 +456,8 @@ internal class PrisonTransferServiceTest {
             booking,
             lastMovement = bookingLastMovementCourt,
             courtEvent = null,
-            commentText = "😎"
-          )
+            commentText = "😎",
+          ),
         ).thenReturn(newMovement)
       }
 
@@ -471,7 +471,7 @@ internal class PrisonTransferServiceTest {
           booking,
           lastMovement = bookingLastMovementCourt,
           courtEvent = null,
-          commentText = requestCourtSamePrison.commentText
+          commentText = requestCourtSamePrison.commentText,
         )
       }
 
@@ -494,8 +494,8 @@ internal class PrisonTransferServiceTest {
 
         whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
           Optional.of(
-            bookingWithCourtEventId
-          )
+            bookingWithCourtEventId,
+          ),
         )
 
         whenever(
@@ -505,8 +505,8 @@ internal class PrisonTransferServiceTest {
             booking = bookingWithCourtEventId,
             lastMovement = bookingLastMovementCourtWithEventId,
             courtEvent = null,
-            commentText = requestCourtSamePrison.commentText
-          )
+            commentText = requestCourtSamePrison.commentText,
+          ),
         ).thenReturn(newMovement)
         service.transferViaCourt("A1234AK", requestCourtSamePrison)
 
@@ -536,8 +536,8 @@ internal class PrisonTransferServiceTest {
         whenever(
           offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(
             "A1234AK",
-            1
-          )
+            1,
+          ),
         ).thenReturn(Optional.empty())
 
         assertThrows<EntityNotFoundException> {
@@ -561,8 +561,8 @@ internal class PrisonTransferServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
-          }
-        )
+          },
+        ),
       )
       assertThrows<BadRequestException> {
         service.transferViaCourt("A1234AK", requestCourtSamePrison)
@@ -584,8 +584,8 @@ internal class PrisonTransferServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
-          }
-        )
+          },
+        ),
       )
       assertThrows<EntityNotFoundException> {
         service.transferViaCourt("A1234AK", requestCourtSamePrison)
@@ -598,7 +598,7 @@ internal class PrisonTransferServiceTest {
         Optional.of(
           OffenderBooking().apply {
             externalMovements = mutableListOf(
-              getMovement(active = false)
+              getMovement(active = false),
             )
             bookingId = 99
             inOutStatus = "TRN"
@@ -609,8 +609,8 @@ internal class PrisonTransferServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
-          }
-        )
+          },
+        ),
       )
       assertThrows<BadRequestException> {
         service.transferViaCourt("A1234AK", requestCourtSamePrison)
@@ -632,8 +632,8 @@ internal class PrisonTransferServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
-          }
-        )
+          },
+        ),
       )
       assertThrows<BadRequestException> {
         service.transferViaCourt("A1234AK", requestCourtSamePrison)
@@ -666,22 +666,22 @@ internal class PrisonTransferServiceTest {
       }
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
         Optional.of(
-          booking
-        )
+          booking,
+        ),
       )
       whenever(agencyInternalLocationRepository.findOneByDescriptionAndAgencyId("WWI-1-1", "WWI")).thenReturn(
         Optional.of(
           AgencyInternalLocation().apply {
             this.description = "WWI-1-1"; this.agencyId = "WWI"; this.capacity = 4; this.currentOccupancy = 3
-          }
-        )
+          },
+        ),
       )
       whenever(agencyInternalLocationRepository.findOneByDescriptionAndAgencyId("WWI-RECP", "WWI")).thenReturn(
         Optional.of(
           AgencyInternalLocation().apply {
             this.description = "WWI-RECP"; this.agencyId = "WWI"; this.capacity = 4; this.currentOccupancy = 3
-          }
-        )
+          },
+        ),
       )
     }
 
@@ -706,8 +706,8 @@ internal class PrisonTransferServiceTest {
             booking = booking,
             lastMovement = bookingLastMovementCourt,
             toAgency = toPrison,
-            commentText = requestCourtDifferentPrison.commentText
-          )
+            commentText = requestCourtDifferentPrison.commentText,
+          ),
         ).thenReturn(newMovement)
 
         whenever(agencyLocationRepository.findById("WWI")).thenReturn(
@@ -715,8 +715,8 @@ internal class PrisonTransferServiceTest {
             AgencyLocation().apply {
               this.id = "WWI"
               this.description = "HMPS Wandsworth"
-            }
-          )
+            },
+          ),
         )
       }
 
@@ -745,7 +745,7 @@ internal class PrisonTransferServiceTest {
           booking,
           lastMovement = bookingLastMovementCourt,
           commentText = requestCourtDifferentPrison.commentText,
-          toAgency = toPrison
+          toAgency = toPrison,
         )
       }
 
@@ -756,7 +756,7 @@ internal class PrisonTransferServiceTest {
         verify(trustAccountService).createTrustAccount(
           booking,
           fromAgency = bookingLastMovementCourt.fromAgency,
-          movementIn = newMovement
+          movementIn = newMovement,
         )
       }
 
@@ -768,7 +768,7 @@ internal class PrisonTransferServiceTest {
           booking,
           fromAgency = fromPrison,
           endDate = newMovement.movementDate,
-          endReason = OffenderProgramEndReason.TRF.code
+          endReason = OffenderProgramEndReason.TRF.code,
         )
       }
 
@@ -787,8 +787,8 @@ internal class PrisonTransferServiceTest {
         whenever(
           offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(
             "A1234AK",
-            1
-          )
+            1,
+          ),
         ).thenReturn(Optional.empty())
 
         assertThrows<EntityNotFoundException> {
@@ -812,8 +812,8 @@ internal class PrisonTransferServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
-          }
-        )
+          },
+        ),
       )
       assertThrows<BadRequestException> {
         service.transferViaCourt("A1234AK", requestCourtDifferentPrison)
@@ -835,8 +835,8 @@ internal class PrisonTransferServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
-          }
-        )
+          },
+        ),
       )
       assertThrows<EntityNotFoundException> {
         service.transferViaCourt("A1234AK", requestCourtDifferentPrison)
@@ -849,7 +849,7 @@ internal class PrisonTransferServiceTest {
         Optional.of(
           OffenderBooking().apply {
             externalMovements = mutableListOf(
-              getMovement(active = false)
+              getMovement(active = false),
             )
             bookingId = 99
             inOutStatus = "TRN"
@@ -860,8 +860,8 @@ internal class PrisonTransferServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
-          }
-        )
+          },
+        ),
       )
       assertThrows<BadRequestException> {
         service.transferViaCourt("A1234AK", requestCourtDifferentPrison)
@@ -899,15 +899,15 @@ internal class PrisonTransferServiceTest {
       }
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
         Optional.of(
-          booking
-        )
+          booking,
+        ),
       )
       whenever(agencyInternalLocationRepository.findOneByDescriptionAndAgencyId("WWI-1-1", "WWI")).thenReturn(
         Optional.of(
           AgencyInternalLocation().apply {
             this.description = "WWI-1-1"; this.agencyId = "WWI"; this.capacity = 4; this.currentOccupancy = 3
-          }
-        )
+          },
+        ),
       )
     }
 
@@ -932,8 +932,8 @@ internal class PrisonTransferServiceTest {
             booking,
             lastMovement = bookingLastMovementTAP,
             scheduleEvent = null,
-            commentText = "😎"
-          )
+            commentText = "😎",
+          ),
         ).thenReturn(newMovement)
       }
 
@@ -947,7 +947,7 @@ internal class PrisonTransferServiceTest {
           booking,
           lastMovement = bookingLastMovementTAP,
           scheduleEvent = null,
-          commentText = requestTapArrivalPrison.commentText
+          commentText = requestTapArrivalPrison.commentText,
         )
       }
 
@@ -970,8 +970,8 @@ internal class PrisonTransferServiceTest {
 
         whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
           Optional.of(
-            bookingWithCourtEventId
-          )
+            bookingWithCourtEventId,
+          ),
         )
 
         whenever(
@@ -981,8 +981,8 @@ internal class PrisonTransferServiceTest {
             booking = bookingWithCourtEventId,
             lastMovement = bookingLastMovementCourtWithEventId,
             scheduleEvent = null,
-            commentText = requestTapArrivalPrison.commentText
-          )
+            commentText = requestTapArrivalPrison.commentText,
+          ),
         ).thenReturn(newMovement)
         service.transferInAfterTemporaryAbsence("A1234AK", requestTapArrivalPrison)
 
@@ -1012,8 +1012,8 @@ internal class PrisonTransferServiceTest {
         whenever(
           offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(
             "A1234AK",
-            1
-          )
+            1,
+          ),
         ).thenReturn(Optional.empty())
 
         assertThrows<EntityNotFoundException> {
@@ -1037,8 +1037,8 @@ internal class PrisonTransferServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
-          }
-        )
+          },
+        ),
       )
       assertThrows<BadRequestException> {
         service.transferInAfterTemporaryAbsence("A1234AK", requestTapArrivalPrison)
@@ -1060,8 +1060,8 @@ internal class PrisonTransferServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
-          }
-        )
+          },
+        ),
       )
       assertThrows<EntityNotFoundException> {
         service.transferInAfterTemporaryAbsence("A1234AK", requestTapArrivalPrison)
@@ -1074,7 +1074,7 @@ internal class PrisonTransferServiceTest {
         Optional.of(
           OffenderBooking().apply {
             externalMovements = mutableListOf(
-              getMovement(active = false)
+              getMovement(active = false),
             )
             bookingId = 99
             inOutStatus = "TRN"
@@ -1085,8 +1085,8 @@ internal class PrisonTransferServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
-          }
-        )
+          },
+        ),
       )
       assertThrows<BadRequestException> {
         service.transferInAfterTemporaryAbsence("A1234AK", requestTapArrivalPrison)
@@ -1108,8 +1108,8 @@ internal class PrisonTransferServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
-          }
-        )
+          },
+        ),
       )
       assertThrows<BadRequestException> {
         service.transferInAfterTemporaryAbsence("A1234AK", requestTapArrivalPrison)
@@ -1142,22 +1142,22 @@ internal class PrisonTransferServiceTest {
       }
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
         Optional.of(
-          booking
-        )
+          booking,
+        ),
       )
       whenever(agencyInternalLocationRepository.findOneByDescriptionAndAgencyId("WWI-1-1", "WWI")).thenReturn(
         Optional.of(
           AgencyInternalLocation().apply {
             this.description = "WWI-1-1"; this.agencyId = "WWI"; this.capacity = 4; this.currentOccupancy = 3
-          }
-        )
+          },
+        ),
       )
       whenever(agencyInternalLocationRepository.findOneByDescriptionAndAgencyId("WWI-RECP", "WWI")).thenReturn(
         Optional.of(
           AgencyInternalLocation().apply {
             this.description = "WWI-RECP"; this.agencyId = "WWI"; this.capacity = 4; this.currentOccupancy = 3
-          }
-        )
+          },
+        ),
       )
     }
 
@@ -1182,8 +1182,8 @@ internal class PrisonTransferServiceTest {
             booking = booking,
             lastMovement = bookingLastMovementTAP,
             toAgency = toPrison,
-            commentText = requestTAPArrivalDifferentPrison.commentText
-          )
+            commentText = requestTAPArrivalDifferentPrison.commentText,
+          ),
         ).thenReturn(newMovement)
 
         whenever(agencyLocationRepository.findById("WWI")).thenReturn(
@@ -1191,8 +1191,8 @@ internal class PrisonTransferServiceTest {
             AgencyLocation().apply {
               this.id = "WWI"
               this.description = "HMPS Wandsworth"
-            }
-          )
+            },
+          ),
         )
       }
 
@@ -1221,7 +1221,7 @@ internal class PrisonTransferServiceTest {
           booking,
           lastMovement = bookingLastMovementTAP,
           commentText = requestTAPArrivalDifferentPrison.commentText,
-          toAgency = toPrison
+          toAgency = toPrison,
         )
       }
 
@@ -1232,7 +1232,7 @@ internal class PrisonTransferServiceTest {
         verify(trustAccountService).createTrustAccount(
           booking,
           fromAgency = bookingLastMovementCourt.fromAgency,
-          movementIn = newMovement
+          movementIn = newMovement,
         )
       }
 
@@ -1244,7 +1244,7 @@ internal class PrisonTransferServiceTest {
           booking,
           fromAgency = fromPrison,
           endDate = newMovement.movementDate,
-          endReason = OffenderProgramEndReason.TRF.code
+          endReason = OffenderProgramEndReason.TRF.code,
         )
       }
 
@@ -1263,8 +1263,8 @@ internal class PrisonTransferServiceTest {
         whenever(
           offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(
             "A1234AK",
-            1
-          )
+            1,
+          ),
         ).thenReturn(Optional.empty())
 
         assertThrows<EntityNotFoundException> {
@@ -1288,8 +1288,8 @@ internal class PrisonTransferServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
-          }
-        )
+          },
+        ),
       )
       assertThrows<BadRequestException> {
         service.transferInAfterTemporaryAbsence("A1234AK", requestTAPArrivalDifferentPrison)
@@ -1311,8 +1311,8 @@ internal class PrisonTransferServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
-          }
-        )
+          },
+        ),
       )
       assertThrows<EntityNotFoundException> {
         service.transferInAfterTemporaryAbsence("A1234AK", requestTAPArrivalDifferentPrison)
@@ -1325,7 +1325,7 @@ internal class PrisonTransferServiceTest {
         Optional.of(
           OffenderBooking().apply {
             externalMovements = mutableListOf(
-              getMovement(active = false)
+              getMovement(active = false),
             )
             bookingId = 99
             inOutStatus = "TRN"
@@ -1336,8 +1336,8 @@ internal class PrisonTransferServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
-          }
-        )
+          },
+        ),
       )
       assertThrows<BadRequestException> {
         service.transferInAfterTemporaryAbsence("A1234AK", requestTAPArrivalDifferentPrison)

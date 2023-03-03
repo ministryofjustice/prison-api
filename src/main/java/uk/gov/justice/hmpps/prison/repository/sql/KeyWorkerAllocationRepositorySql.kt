@@ -20,7 +20,7 @@ enum class KeyWorkerAllocationRepositorySql(val sql: String) {
         AND OB.AGY_LOC_ID IN (:agencyIds)
         AND OB.ACTIVE_FLAG = 'Y'
         AND OKW.ACTIVE_FLAG = 'Y'
-    """
+    """,
   ),
 
   GET_ALLOCATION_DETAIL_FOR_OFFENDERS(
@@ -42,7 +42,7 @@ enum class KeyWorkerAllocationRepositorySql(val sql: String) {
         AND OB.AGY_LOC_ID IN (:agencyIds)
         AND OB.ACTIVE_FLAG = 'Y'
         AND OKW.ACTIVE_FLAG = 'Y'
-    """
+    """,
   ),
 
   GET_AVAILABLE_KEY_WORKERS(
@@ -63,7 +63,7 @@ enum class KeyWorkerAllocationRepositorySql(val sql: String) {
                 AND SLR2.CAL_AGY_LOC_ID = SLR.CAL_AGY_LOC_ID
                 AND SLR2.POSITION = SLR.POSITION
                 AND SLR2.ROLE = SLR.ROLE)
-    """
+    """,
   ),
 
   GET_KEY_WORKER_DETAILS(
@@ -75,7 +75,7 @@ enum class KeyWorkerAllocationRepositorySql(val sql: String) {
                 FROM STAFF_MEMBERS SM
         WHERE SM.STAFF_ID = :staffId
         AND SM.STATUS = 'ACTIVE'
-    """
+    """,
   ),
 
   GET_KEY_WORKER_DETAILS_FOR_OFFENDER(
@@ -89,7 +89,7 @@ enum class KeyWorkerAllocationRepositorySql(val sql: String) {
         AND SM.STATUS = 'ACTIVE'
         AND OKW.ACTIVE_FLAG = 'Y'
         AND (OKW.EXPIRY_DATE is null OR OKW.EXPIRY_DATE >= :currentDate)
-    """
+    """,
   ),
 
   CHECK_KEY_WORKER_EXISTS(
@@ -98,7 +98,7 @@ enum class KeyWorkerAllocationRepositorySql(val sql: String) {
                 FROM STAFF_MEMBERS SM
         WHERE SM.STAFF_ID = :staffId
         AND SM.STATUS = 'ACTIVE'
-    """
+    """,
   ),
 
   GET_ALLOCATION_HISTORY_BY_AGENCY(
@@ -119,7 +119,7 @@ enum class KeyWorkerAllocationRepositorySql(val sql: String) {
         INNER JOIN OFFENDER_BOOKINGS OB         ON OB.OFFENDER_BOOK_ID = OKW.OFFENDER_BOOK_ID
                 INNER JOIN OFFENDERS O                  ON OB.OFFENDER_ID = O.OFFENDER_ID
                 WHERE OKW.AGY_LOC_ID = :agencyId
-    """
+    """,
   ),
 
   GET_ALLOCATION_HISTORY_BY_STAFF(
@@ -140,7 +140,7 @@ enum class KeyWorkerAllocationRepositorySql(val sql: String) {
         INNER JOIN OFFENDER_BOOKINGS OB         ON OB.OFFENDER_BOOK_ID = OKW.OFFENDER_BOOK_ID
                 INNER JOIN OFFENDERS O                  ON OB.OFFENDER_ID = O.OFFENDER_ID
                 WHERE OKW.OFFICER_ID in (:staffIds)
-    """
+    """,
   ),
 
   GET_ALLOCATION_HISTORY_BY_OFFENDER(
@@ -161,6 +161,6 @@ enum class KeyWorkerAllocationRepositorySql(val sql: String) {
         INNER JOIN OFFENDER_BOOKINGS OB         ON OB.OFFENDER_BOOK_ID = OKW.OFFENDER_BOOK_ID
                 INNER JOIN OFFENDERS O                  ON OB.OFFENDER_ID = O.OFFENDER_ID
                 WHERE O.OFFENDER_ID_DISPLAY in (:offenderNos)
-    """
-  )
+    """,
+  ),
 }

@@ -43,7 +43,7 @@ internal class BedAssignmentTransferServiceTest {
           assertThat(it.livingUnitId).isEqualTo(88L)
           assertThat(it.assignmentReason).isEqualTo("ADM")
           assertThat(it.bedAssignmentHistoryPK.sequence).isEqualTo(16)
-        }
+        },
       )
     }
   }

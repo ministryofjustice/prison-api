@@ -23,7 +23,7 @@ enum class AccessRoleRepositorySql(val sql: String) {
                   'APP',
                             :roleFunction,
                   'Y')
-    """
+    """,
   ),
 
   UPDATE_ACCESS_ROLE(
@@ -32,7 +32,7 @@ enum class AccessRoleRepositorySql(val sql: String) {
         ROLE_NAME = :roleName,
         ROLE_FUNCTION = :roleFunction
         WHERE ROLE_CODE = :roleCode
-    """
+    """,
   ),
 
   GET_ACCESS_ROLE(
@@ -40,7 +40,7 @@ enum class AccessRoleRepositorySql(val sql: String) {
         SELECT *
                 FROM OMS_ROLES
         WHERE ROLE_CODE = :roleCode
-    """
+    """,
   ),
 
   GET_ACCESS_ROLES(
@@ -48,12 +48,12 @@ enum class AccessRoleRepositorySql(val sql: String) {
         SELECT *
                 FROM OMS_ROLES
         WHERE ROLE_TYPE = 'APP'
-    """
+    """,
   ),
 
   EXCLUDE_ADMIN_ROLES_QUERY_TEMPLATE(
     """
         AND OMS_ROLES.ROLE_FUNCTION != 'ADMIN'
-    """
-  )
+    """,
+  ),
 }

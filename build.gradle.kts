@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.1.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.1.1-beta-3"
   kotlin("plugin.spring") version "1.8.10"
   kotlin("plugin.jpa") version "1.8.10"
   kotlin("plugin.lombok") version "1.8.10"
@@ -25,6 +25,7 @@ val jsqlParserVersion by extra("4.3")
 val hsqldbVersion by extra("2.5.1")
 
 ext["rest-assured.version"] = "5.1.1"
+ext["hibernate.version"] = "6.1.6.Final"
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
@@ -90,20 +91,20 @@ dependencies {
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
   testImplementation("org.glassfish:javax.el:3.0.0")
   testImplementation("io.swagger.parser.v3:swagger-parser:2.1.12")
-  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.22.0")
+  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.23.1")
 
   testCompileOnly("org.projectlombok:lombok:1.18.26")
 }
 
 java {
-  toolchain.languageVersion.set(JavaLanguageVersion.of(18))
+  toolchain.languageVersion.set(JavaLanguageVersion.of(19))
 }
 
 tasks {
   withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {
       freeCompilerArgs = listOf("-Xjvm-default=all")
-      jvmTarget = "18"
+      jvmTarget = "19"
     }
   }
 
@@ -148,7 +149,7 @@ tasks {
 
   withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {
-      jvmTarget = "18"
+      jvmTarget = "19"
     }
   }
 }

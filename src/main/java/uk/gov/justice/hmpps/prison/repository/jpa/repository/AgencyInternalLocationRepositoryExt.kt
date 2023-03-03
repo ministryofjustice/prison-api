@@ -4,6 +4,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation
 
 fun AgencyInternalLocationRepository.findOneByDescriptionAndAgencyIdOrNull(
   description: String,
-  agencyId: String
+  agencyId: String,
 ): AgencyInternalLocation? =
   findOneByDescriptionAndAgencyId(description, agencyId).orElse(null)
