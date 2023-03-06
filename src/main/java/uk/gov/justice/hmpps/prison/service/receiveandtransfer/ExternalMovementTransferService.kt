@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service.receiveandtransfer
 
+import jakarta.persistence.EntityManager
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferIn
@@ -17,7 +18,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeReposi
 import uk.gov.justice.hmpps.prison.service.BadRequestException
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 import java.time.LocalDateTime
-import javax.persistence.EntityManager
 import kotlin.Result.Companion.failure
 import kotlin.Result.Companion.success
 
@@ -31,7 +31,7 @@ class ExternalMovementTransferService(
   fun updateMovementsForTransfer(
     request: RequestToTransferIn,
     booking: OffenderBooking,
-    lastMovement: ExternalMovement
+    lastMovement: ExternalMovement,
   ): ExternalMovement {
     val movementReason = getMovementReasonForPrisonTransfer().getOrThrow()
     val receiveDateTime = getReceiveDateTime(request.receiveTime, booking).getOrThrow()
@@ -52,7 +52,7 @@ class ExternalMovementTransferService(
     booking: OffenderBooking,
     lastMovement: ExternalMovement,
     toAgency: AgencyLocation,
-    commentText: String?
+    commentText: String?,
   ): ExternalMovement {
     val movementReason = getMovementReason(MovementReason.TRANSFER_VIA_COURT.code).getOrThrow()
     val receiveDateTime = getReceiveDateTime(movementDateTime, booking).getOrThrow()
@@ -74,7 +74,7 @@ class ExternalMovementTransferService(
     booking: OffenderBooking,
     lastMovement: ExternalMovement,
     courtEvent: CourtEvent?,
-    commentText: String?
+    commentText: String?,
   ): ExternalMovement {
     val movementReason = getMovementReason(movementReasonCode ?: lastMovement.movementReason.code).getOrThrow()
     val receiveDateTime = getReceiveDateTime(movementDateTime, booking).getOrThrow()
@@ -98,7 +98,7 @@ class ExternalMovementTransferService(
     booking: OffenderBooking,
     lastMovement: ExternalMovement,
     scheduleEvent: OffenderIndividualSchedule?,
-    commentText: String?
+    commentText: String?,
   ): ExternalMovement {
     val movementReason = getMovementReason(movementReasonCode ?: lastMovement.movementReason.code).getOrThrow()
     val receiveDateTime = getReceiveDateTime(movementDateTime, booking).getOrThrow()
@@ -124,7 +124,7 @@ class ExternalMovementTransferService(
     booking: OffenderBooking,
     lastMovement: ExternalMovement,
     toAgency: AgencyLocation,
-    commentText: String?
+    commentText: String?,
   ): ExternalMovement {
     val movementReason = getMovementReason(MovementReason.TRANSFER_VIA_TAP.code).getOrThrow()
     val receiveDateTime = getReceiveDateTime(movementDateTime, booking).getOrThrow()
@@ -146,7 +146,7 @@ class ExternalMovementTransferService(
     fromLocation: AgencyLocation,
     prison: AgencyLocation,
     receiveDateTime: LocalDateTime,
-    commentText: String
+    commentText: String,
   ): ExternalMovement {
     val movementReason = getMovementReason(movementReasonCode).getOrThrow()
     val movementType = getAdmissionMovementType().getOrThrow()
@@ -163,17 +163,17 @@ class ExternalMovementTransferService(
 
   private fun getAdmissionMovementType(): Result<MovementType> =
     movementTypeRepository.findByIdOrNull(MovementType.ADM)?.let { success(it) } ?: failure(
-      EntityNotFoundException.withMessage("No ${MovementType.ADM} movement type found")
+      EntityNotFoundException.withMessage("No ${MovementType.ADM} movement type found"),
     )
 
   private fun getCourtMovementType(): Result<MovementType> =
     movementTypeRepository.findByIdOrNull(MovementType.CRT)?.let { success(it) } ?: failure(
-      EntityNotFoundException.withMessage("No ${MovementType.CRT} movement type found")
+      EntityNotFoundException.withMessage("No ${MovementType.CRT} movement type found"),
     )
 
   private fun getTAPMovementType(): Result<MovementType> =
     movementTypeRepository.findByIdOrNull(MovementType.TAP)?.let { success(it) } ?: failure(
-      EntityNotFoundException.withMessage("No ${MovementType.TAP} movement type found")
+      EntityNotFoundException.withMessage("No ${MovementType.TAP} movement type found"),
     )
 
   private fun getMovementReasonForPrisonTransfer(): Result<MovementReason> {
@@ -241,7 +241,7 @@ class ExternalMovementTransferService(
         /* movementType = */ movementType,
         /* toAddressId = */ null,
         /* fromAddressId = */ fromAddressId,
-      )
+      ),
     )
   }
 }

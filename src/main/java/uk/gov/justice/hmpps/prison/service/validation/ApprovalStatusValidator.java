@@ -2,8 +2,8 @@ package uk.gov.justice.hmpps.prison.service.validation;
 
 import uk.gov.justice.hmpps.prison.api.model.ApprovalStatus;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 public class ApprovalStatusValidator implements ConstraintValidator<ValidApprovalStatus, ApprovalStatus> {
     @Override

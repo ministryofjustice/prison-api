@@ -31,7 +31,7 @@ enum class InmateRepositorySql(val sql: String) {
         FROM OFFENDER_BOOKINGS B
         INNER JOIN OFFENDERS O ON B.OFFENDER_ID = O.OFFENDER_ID
         WHERE B.OFFENDER_BOOK_ID = :bookingId
-    """
+    """,
   ),
 
   FIND_OFFENDER(
@@ -65,7 +65,7 @@ enum class InmateRepositorySql(val sql: String) {
         LEFT JOIN OFFENDER_BOOKINGS B ON B.OFFENDER_ID = O.OFFENDER_ID
                 WHERE O.OFFENDER_ID_DISPLAY = :offenderNo
         ORDER BY B.BOOKING_SEQ
-    """
+    """,
   ),
 
   FIND_BASIC_INMATE_DETAIL(
@@ -85,7 +85,7 @@ enum class InmateRepositorySql(val sql: String) {
         FROM OFFENDER_BOOKINGS B
         INNER JOIN OFFENDERS O ON B.OFFENDER_ID = O.OFFENDER_ID
                 WHERE B.OFFENDER_BOOK_ID = :bookingId
-    """
+    """,
   ),
 
   FIND_BASIC_INMATE_DETAIL_BY_OFFENDER_NO(
@@ -105,7 +105,7 @@ enum class InmateRepositorySql(val sql: String) {
         LEFT JOIN AGENCY_INTERNAL_LOCATIONS I ON OB.LIVING_UNIT_ID = I.INTERNAL_LOCATION_ID
                 WHERE O.OFFENDER_ID_DISPLAY IN (:offenders)
         AND OB.BOOKING_SEQ = :bookingSeq
-    """
+    """,
   ),
 
   FIND_BASIC_INMATE_DETAIL_BY_BOOKING_IDS(
@@ -125,7 +125,7 @@ enum class InmateRepositorySql(val sql: String) {
         LEFT JOIN AGENCY_INTERNAL_LOCATIONS I ON OB.LIVING_UNIT_ID = I.INTERNAL_LOCATION_ID
                 WHERE OB.OFFENDER_BOOK_ID IN (:bookingIds)
         AND OB.AGY_LOC_ID = :caseloadId
-    """
+    """,
   ),
 
   FIND_ASSIGNED_LIVING_UNIT(
@@ -138,7 +138,7 @@ enum class InmateRepositorySql(val sql: String) {
         LEFT JOIN AGENCY_INTERNAL_LOCATIONS I ON B.LIVING_UNIT_ID = I.INTERNAL_LOCATION_ID
                 LEFT JOIN AGENCY_LOCATIONS AL ON AL.AGY_LOC_ID = B.AGY_LOC_ID
                 WHERE B.OFFENDER_BOOK_ID = :bookingId
-    """
+    """,
   ),
 
   FIND_ALL_INMATES(
@@ -177,7 +177,7 @@ enum class InmateRepositorySql(val sql: String) {
             ) OIS ON OIS.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID
             LEFT JOIN IMPRISONMENT_STATUSES IST ON IST.IMPRISONMENT_STATUS = OIS.IMPRISONMENT_STATUS
         WHERE OB.ACTIVE_FLAG = 'Y' AND OB.BOOKING_SEQ = 1
-    """
+    """,
   ),
 
   ALERT_FILTER(
@@ -187,19 +187,19 @@ enum class InmateRepositorySql(val sql: String) {
                 AND A.ALERT_STATUS = 'ACTIVE'
                 AND (A.EXPIRY_DATE IS NULL OR A.EXPIRY_DATE > SYSDATE)
                 AND A.ALERT_CODE IN (:alerts))
-    """
+    """,
   ),
 
   CASELOAD_FILTER(
     """
         EXISTS (select 1 from CASELOAD_AGENCY_LOCATIONS C WHERE OB.AGY_LOC_ID = C.AGY_LOC_ID AND C.CASELOAD_ID IN (:caseLoadId))
-    """
+    """,
   ),
 
   ACTIVE_BOOKING_FILTER(
     """
         OB.ACTIVE_FLAG = 'Y'
-    """
+    """,
   ),
 
   ASSESSMENT_CASELOAD_FILTER(
@@ -207,7 +207,7 @@ enum class InmateRepositorySql(val sql: String) {
         EXISTS (SELECT 1 FROM CASELOAD_AGENCY_LOCATIONS C, OFFENDER_BOOKINGS OB
                 WHERE OB.OFFENDER_BOOK_ID = OFF_ASS.OFFENDER_BOOK_ID
                 AND OB.AGY_LOC_ID = C.AGY_LOC_ID AND C.CASELOAD_ID IN (:caseLoadId))
-    """
+    """,
   ),
 
   GET_ALERT_CODES_FOR_BOOKINGS(
@@ -218,7 +218,7 @@ enum class InmateRepositorySql(val sql: String) {
                 WHERE OFFENDER_BOOK_ID IN (:bookingIds)
         AND ALERT_STATUS = 'ACTIVE'
         AND (EXPIRY_DATE IS NULL OR EXPIRY_DATE > :cutoffDate)
-    """
+    """,
   ),
 
   FIND_INMATES_BY_LOCATION(
@@ -253,7 +253,7 @@ enum class InmateRepositorySql(val sql: String) {
                 SELECT a.INTERNAL_LOCATION_ID, a.PARENT_INTERNAL_LOCATION_ID FROM AGENCY_INTERNAL_LOCATIONS a, LOCATION_SUBQUERY l WHERE l.INTERNAL_LOCATION_ID = a.PARENT_INTERNAL_LOCATION_ID
             ) SELECT INTERNAL_LOCATION_ID FROM LOCATION_SUBQUERY
         )
-    """
+    """,
   ),
 
   FIND_INMATES_OF_LOCATION_LIST(
@@ -271,7 +271,7 @@ enum class InmateRepositorySql(val sql: String) {
         AND EXISTS (select 1 from CASELOAD_AGENCY_LOCATIONS C WHERE B.AGY_LOC_ID = C.AGY_LOC_ID AND C.CASELOAD_ID IN (:caseLoadIds))
         AND AIL.INTERNAL_LOCATION_ID in (:locations)
         AND B.AGY_LOC_ID = :agencyId
-    """
+    """,
   ),
 
   FIND_PHYSICAL_CHARACTERISTICS_BY_BOOKING(
@@ -287,7 +287,7 @@ enum class InmateRepositorySql(val sql: String) {
         LEFT JOIN PROFILE_CODES PC ON PC.PROFILE_TYPE = PT.PROFILE_TYPE AND PC.PROFILE_CODE = P.PROFILE_CODE
                 WHERE P.OFFENDER_BOOK_ID = :bookingId AND P.PROFILE_CODE IS NOT NULL
         ORDER BY P.LIST_SEQ
-    """
+    """,
   ),
 
   FIND_PROFILE_INFORMATION_BY_BOOKING(
@@ -303,7 +303,7 @@ enum class InmateRepositorySql(val sql: String) {
                 AND PC.PROFILE_CODE = P.PROFILE_CODE
                 WHERE P.OFFENDER_BOOK_ID = :bookingId AND P.PROFILE_CODE IS NOT NULL
         ORDER BY P.LIST_SEQ
-    """
+    """,
   ),
 
   GET_OFFENDER_IDENTIFIERS_BY_BOOKING(
@@ -326,7 +326,7 @@ enum class InmateRepositorySql(val sql: String) {
                 FROM OFFENDER_IDENTIFIERS OI2
                 WHERE OI2.OFFENDER_ID = OI.OFFENDER_ID
                 AND OI2.IDENTIFIER_TYPE = OI.IDENTIFIER_TYPE )
-    """
+    """,
   ),
 
   GET_OFFENDER_IDENTIFIERS_BY_OFFENDER_ID(
@@ -347,7 +347,7 @@ enum class InmateRepositorySql(val sql: String) {
                 FROM OFFENDER_IDENTIFIERS OI2
                 WHERE OI2.OFFENDER_ID = OI.OFFENDER_ID
                 AND OI2.IDENTIFIER_TYPE = OI.IDENTIFIER_TYPE )
-    """
+    """,
   ),
 
   FIND_IDENTIFIER_RECORDS_BY_TYPE_AND_VALUE(
@@ -370,7 +370,7 @@ enum class InmateRepositorySql(val sql: String) {
                 FROM OFFENDER_IDENTIFIERS OI2
                 WHERE OI2.OFFENDER_ID = OI.OFFENDER_ID
                 AND OI2.IDENTIFIER_TYPE = OI.IDENTIFIER_TYPE )
-    """
+    """,
   ),
 
   FIND_PHYSICAL_MARKS_BY_BOOKING(
@@ -392,7 +392,7 @@ enum class InmateRepositorySql(val sql: String) {
         JOIN OFFENDER_BOOKINGS B ON B.OFFENDER_BOOK_ID = M.OFFENDER_BOOK_ID
         WHERE B.OFFENDER_BOOK_ID = :bookingId
         AND M.BODY_PART_CODE != 'CONV'
-    """
+    """,
   ),
 
   FIND_PERSONAL_CARE_NEEDS_BY_BOOKING(
@@ -412,7 +412,7 @@ enum class InmateRepositorySql(val sql: String) {
                 AND (OHP.END_DATE >= sysdate or OHP.END_DATE is null)
         AND OHP.PROBLEM_TYPE in (:problemCodes)
         AND OHP.OFFENDER_BOOK_ID = :bookingId
-    """
+    """,
   ),
 
   FIND_PERSONAL_CARE_NEEDS_BY_OFFENDER(
@@ -433,7 +433,7 @@ enum class InmateRepositorySql(val sql: String) {
                 AND (OHP.END_DATE >= sysdate or OHP.END_DATE is null)
         AND OHP.PROBLEM_TYPE in (:problemCodes)
         AND O.OFFENDER_ID_DISPLAY IN (:offenderNos)
-        ORDER BY OFFENDER_NO, OHP.START_DATE """
+        ORDER BY OFFENDER_NO, OHP.START_DATE """,
   ),
 
   FIND_REASONABLE_ADJUSTMENTS_BY_BOOKING(
@@ -455,7 +455,7 @@ enum class InmateRepositorySql(val sql: String) {
                 JOIN REFERENCE_CODES RC ON OMT.TREATMENT_CODE = RC.CODE AND RC.DOMAIN = 'HEALTH_TREAT'
         WHERE OMT.TREATMENT_CODE in (:treatmentCodes)
         AND OHP.OFFENDER_BOOK_ID = :bookingId
-    """
+    """,
   ),
 
   FIND_PHYSICAL_ATTRIBUTES_BY_BOOKING(
@@ -475,7 +475,7 @@ enum class InmateRepositorySql(val sql: String) {
         LEFT JOIN REFERENCE_CODES RCE ON O.RACE_CODE = RCE.CODE AND RCE.DOMAIN = 'ETHNICITY'
         LEFT JOIN REFERENCE_CODES RCS ON O.SEX_CODE = RCS.CODE AND RCS.DOMAIN = 'SEX'
         WHERE B.OFFENDER_BOOK_ID = :bookingId
-    """
+    """,
   ),
 
   FIND_ACTIVE_APPROVED_ASSESSMENT(
@@ -508,7 +508,7 @@ enum class InmateRepositorySql(val sql: String) {
         WHERE OFF_ASS.ASSESS_STATUS = 'A'
         AND OFF_ASS.OFFENDER_BOOK_ID IN (:bookingIds)
         AND (:assessmentCode IS NULL OR ASS.ASSESSMENT_CODE = :assessmentCode)
-    """
+    """,
   ),
 
   FIND_APPROVED_ASSESSMENT_BY_OFFENDER_NO(
@@ -547,7 +547,7 @@ enum class InmateRepositorySql(val sql: String) {
                 ON OFF_ASS.CALC_SUP_LEVEL_TYPE = REF_CAL_SUP.CODE AND REF_CAL_SUP.DOMAIN = 'SUP_LVL_TYPE'
         WHERE (:assessmentCode IS NULL OR ASS.ASSESSMENT_CODE = :assessmentCode)
         AND O.OFFENDER_ID_DISPLAY IN (:offenderNos)
-    """
+    """,
   ),
 
   GET_UNCATEGORISED(
@@ -576,7 +576,7 @@ enum class InmateRepositorySql(val sql: String) {
         AND off_ass.assess_status IN ('A','P')
         LEFT JOIN staff_members sm ON off_ass.assess_staff_id = sm.staff_id
                 WHERE at_offender_booking.agy_loc_id = :agencyId
-    """
+    """,
   ),
 
   GET_APPROVED_CATEGORISED(
@@ -606,7 +606,7 @@ enum class InmateRepositorySql(val sql: String) {
         and off_ass.evaluation_date >= :cutOffDate
         and off_ass.assess_status = :assessStatus
         and off_ass.assessment_type_id = :assessmentId
-    """
+    """,
   ),
 
   GET_RECATEGORISE(
@@ -629,7 +629,7 @@ enum class InmateRepositorySql(val sql: String) {
         where ob.agy_loc_id = :agencyId
         and off_ass.assessment_type_id = :assessmentId
         order by off_ass.next_review_date asc
-    """
+    """,
   ),
 
   GET_OFFENDER_CATEGORISATIONS(
@@ -662,13 +662,13 @@ enum class InmateRepositorySql(val sql: String) {
         and (:agencyId is null or off_ass.assessment_create_location = :agencyId)
         -- included to ensure only authorised bookings are returned (unless client has system role)
         and off_ass.assessment_type_id = :assessmentId
-    """
+    """,
   ),
 
   GET_CATEGORY_ASSESSMENT_ID(
     """
         select assessment_id from assessments a where a.assessment_class='TYPE' and a.assessment_code='CATEGORY'
-    """
+    """,
   ),
 
   INSERT_CATEGORY(
@@ -709,7 +709,7 @@ enum class InmateRepositorySql(val sql: String) {
         :agencyId,
         :placementAgencyId
         )
-    """
+    """,
   ),
 
   UPDATE_CATEGORY(
@@ -724,7 +724,7 @@ enum class InmateRepositorySql(val sql: String) {
         and ASSESSMENT_SEQ=:seq
         and ASSESSMENT_TYPE_ID=:assessmentTypeId
         and ASSESS_STATUS='P'
-    """
+    """,
   ),
 
   APPROVE_CATEGORY(
@@ -744,7 +744,7 @@ enum class InmateRepositorySql(val sql: String) {
         and ASSESSMENT_SEQ=:seq
         and ASSESSMENT_TYPE_ID=:assessmentTypeId
         and ASSESS_STATUS='P'
-    """
+    """,
   ),
 
   REJECT_CATEGORY(
@@ -758,7 +758,7 @@ enum class InmateRepositorySql(val sql: String) {
         and ASSESSMENT_SEQ=:seq
         and ASSESSMENT_TYPE_ID=:assessmentTypeId
         and ASSESS_STATUS='P'
-    """
+    """,
   ),
 
   CATEGORY_SET_STATUS(
@@ -767,7 +767,7 @@ enum class InmateRepositorySql(val sql: String) {
         ASSESS_STATUS=:assessStatus
                 where OFFENDER_BOOK_ID=:bookingId
         and ASSESSMENT_SEQ in (:seq)
-    """
+    """,
   ),
 
   UPDATE_CATEORY_NEXT_REVIEW_DATE(
@@ -779,13 +779,13 @@ enum class InmateRepositorySql(val sql: String) {
         and ASSESSMENT_SEQ = (SELECT MAX (OA.ASSESSMENT_SEQ) FROM OFFENDER_ASSESSMENTS OA
                 WHERE OA.OFFENDER_BOOK_ID = :bookingId and OA.ASSESS_STATUS = 'A' and OA.ASSESSMENT_TYPE_ID=:assessmentTypeId)
 
-    """
+    """,
   ),
 
   OFFENDER_ASSESSMENTS_SEQ_MAX(
     """
         SELECT MAX (ASSESSMENT_SEQ) FROM OFFENDER_ASSESSMENTS OA WHERE OA.OFFENDER_BOOK_ID = :bookingId
-    """
+    """,
   ),
 
   GET_OFFENDER_CATEGORY_SEQUENCES(
@@ -795,7 +795,7 @@ enum class InmateRepositorySql(val sql: String) {
         AND ASSESSMENT_TYPE_ID=:assessmentTypeId
         AND ASSESS_STATUS in (:statuses)
         ORDER BY ASSESSMENT_SEQ DESC
-    """
+    """,
   ),
 
   FIND_INMATE_ALIASES(
@@ -818,7 +818,7 @@ enum class InmateRepositorySql(val sql: String) {
         LEFT JOIN REFERENCE_CODES RCNT ON O.ALIAS_NAME_TYPE = RCNT.CODE
                 AND RCNT.DOMAIN = 'NAME_TYPE'
         WHERE OB.OFFENDER_BOOK_ID = :bookingId
-    """
+    """,
   ),
 
   FIND_OFFENDERS(
@@ -886,7 +886,7 @@ enum class InmateRepositorySql(val sql: String) {
         LEFT JOIN PROFILE_CODES PC ON PC.PROFILE_TYPE = OPD1.PROFILE_TYPE AND PC.PROFILE_CODE = OPD1.PROFILE_CODE
                 LEFT JOIN PROFILE_CODES PC2 ON PC2.PROFILE_TYPE = OPD4.PROFILE_TYPE AND PC2.PROFILE_CODE = OPD4.PROFILE_CODE
                 LEFT JOIN PROFILE_CODES PC3 ON PC3.PROFILE_TYPE = OPD3.PROFILE_TYPE AND PC3.PROFILE_CODE = OPD3.PROFILE_CODE
-    """
+    """,
   ),
 
   FIND_OFFENDERS_WITH_ALIASES(
@@ -961,13 +961,13 @@ enum class InmateRepositorySql(val sql: String) {
         LEFT JOIN PROFILE_CODES PC ON PC.PROFILE_TYPE = OPD1.PROFILE_TYPE AND PC.PROFILE_CODE = OPD1.PROFILE_CODE
                 LEFT JOIN PROFILE_CODES PC2 ON PC2.PROFILE_TYPE = OPD4.PROFILE_TYPE AND PC2.PROFILE_CODE = OPD4.PROFILE_CODE
                 LEFT JOIN PROFILE_CODES PC3 ON PC3.PROFILE_TYPE = OPD3.PROFILE_TYPE AND PC3.PROFILE_CODE = OPD3.PROFILE_CODE
-    """
+    """,
   ),
 
   LOCATION_FILTER_SQL(
     """
         AIL.DESCRIPTION LIKE :locationPrefix
-    """
+    """,
   ),
 
   GET_IMPRISONMENT_STATUS(
@@ -982,6 +982,6 @@ enum class InmateRepositorySql(val sql: String) {
         JOIN OFFENDER_IMPRISON_STATUSES OIS ON OIS.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID AND OIS.LATEST_STATUS = 'Y'
         JOIN IMPRISONMENT_STATUSES IST ON IST.IMPRISONMENT_STATUS = OIS.IMPRISONMENT_STATUS
         WHERE OB.OFFENDER_BOOK_ID = :bookingId
-    """
-  )
+    """,
+  ),
 }

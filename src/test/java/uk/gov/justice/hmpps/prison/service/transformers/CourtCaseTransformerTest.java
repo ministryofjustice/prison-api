@@ -49,7 +49,7 @@ public class CourtCaseTransformerTest {
 
         offenderCourtCase = OffenderCourtCase.builder()
                 .id(-1L)
-                .caseSeq(-2L)
+                .caseSeq(-2)
                 .beginDate(EPOCH)
                 .agencyLocation(courtLocation)
                 .legalCaseType(LEGAL_CASE_TYPE)
@@ -74,7 +74,7 @@ public class CourtCaseTransformerTest {
         assertThat(transformed).isEqualTo(
                 CourtCase.builder()
                         .id(-1L)
-                        .caseSeq(-2L)
+                        .caseSeq(-2)
                         .beginDate(EPOCH)
                         .caseInfoPrefix("CIP")
                         .caseInfoNumber("CIN20177010")

@@ -23,13 +23,13 @@ class OffenderResourceIntTest_getEvents : ResourceTest() {
       listOf(
         createEvent("act", "10:11:12"),
         createEvent("act", "08:59:50"),
-      )
+      ),
     )
     whenever(bookingRepository.getBookingVisits(anyLong(), any(), any(), anyString(), any())).thenReturn(
-      listOf(createEvent("vis", "09:02:03"))
+      listOf(createEvent("vis", "09:02:03")),
     )
     whenever(bookingRepository.getBookingAppointments(anyLong(), any(), any(), anyString(), any())).thenReturn(
-      listOf(createEvent("app", null))
+      listOf(createEvent("app", null)),
     )
     val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf(), mapOf())
     val responseEntity = testRestTemplate.exchange("/api/offenders/A1234AA/events", HttpMethod.GET, requestEntity, String::class.java)
@@ -42,16 +42,16 @@ class OffenderResourceIntTest_getEvents : ResourceTest() {
       listOf(
         createEvent("act", "10:11:12"),
         createEvent("act", "08:59:50"),
-      )
+      ),
     )
     whenever(bookingRepository.getBookingVisits(anyLong(), any(), any(), anyString(), any())).thenReturn(
       listOf(
         createEvent("vis", "09:02:03"),
         ScheduledEvent.builder().bookingId(-1L).eventType("act").eventStatus("CANC").build(),
-      )
+      ),
     )
     whenever(bookingRepository.getBookingAppointments(anyLong(), any(), any(), anyString(), any())).thenReturn(
-      listOf(createEvent("app", null))
+      listOf(createEvent("app", null)),
     )
     val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf(), mapOf())
     val responseEntity = testRestTemplate.exchange("/api/offenders/A1234AA/scheduled-events", HttpMethod.GET, requestEntity, String::class.java)

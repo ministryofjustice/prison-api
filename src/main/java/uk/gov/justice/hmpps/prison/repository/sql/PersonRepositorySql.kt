@@ -12,6 +12,6 @@ enum class PersonRepositorySql(val sql: String) {
         from PERSON_IDENTIFIERS pi1
         where pi1.PERSON_ID = :personId
         AND pi1.IDENTIFIER_TYPE = pi.IDENTIFIER_TYPE)
-    """
-  )
+    """,
+  ),
 }

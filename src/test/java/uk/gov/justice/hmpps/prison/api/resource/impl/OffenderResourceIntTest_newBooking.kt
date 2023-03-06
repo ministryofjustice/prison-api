@@ -48,8 +48,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_SYSTEM_USER")
-            )
+              listOf("ROLE_SYSTEM_USER"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .accept(MediaType.APPLICATION_JSON)
@@ -61,8 +61,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}/booking", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_BOOKING_CREATE")
-            )
+              listOf("ROLE_BOOKING_CREATE"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .bodyValue(
@@ -75,7 +75,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
                "imprisonmentStatus": "CUR_ORA", 
                "cellLocation": "SYI-A-1-1"     
             }
-            """.trimIndent()
+            """.trimIndent(),
           )
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
@@ -91,8 +91,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}/booking", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_BOOKING_CREATE")
-            )
+              listOf("ROLE_BOOKING_CREATE"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .bodyValue(
@@ -104,7 +104,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
                "imprisonmentStatus": "CUR_ORA", 
                "cellLocation": "SYI-A-1-1"     
             }
-            """.trimIndent()
+            """.trimIndent(),
           )
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
@@ -123,8 +123,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}/booking", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_BOOKING_CREATE")
-            )
+              listOf("ROLE_BOOKING_CREATE"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .bodyValue(
@@ -136,7 +136,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
                "imprisonmentStatus": "CUR_ORA", 
                "cellLocation": "SYI-A-1-1"     
             }
-            """.trimIndent()
+            """.trimIndent(),
           )
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
@@ -155,8 +155,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}/booking", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_BOOKING_CREATE")
-            )
+              listOf("ROLE_BOOKING_CREATE"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .bodyValue(
@@ -168,7 +168,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
                "imprisonmentStatus": "CUR_ORA", 
                "cellLocation": "SYI-A-1-1"     
             }
-            """.trimIndent()
+            """.trimIndent(),
           )
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
@@ -177,6 +177,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .jsonPath("userMessage")
           .isEqualTo("ZZZ is not a valid from location")
       }
+
       @Test
       internal fun `404 (possibly incorrectly) when trying to book in from the OUT location (even though this the default when no supplied)`() {
         val offenderNo = createInactiveBooking()
@@ -186,8 +187,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}/booking", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_BOOKING_CREATE")
-            )
+              listOf("ROLE_BOOKING_CREATE"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .bodyValue(
@@ -199,7 +200,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
                "imprisonmentStatus": "CUR_ORA", 
                "cellLocation": "SYI-A-1-1"     
             }
-            """.trimIndent()
+            """.trimIndent(),
           )
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
@@ -218,8 +219,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}/booking", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_BOOKING_CREATE")
-            )
+              listOf("ROLE_BOOKING_CREATE"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .bodyValue(
@@ -231,7 +232,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
                "imprisonmentStatus": "ZZZ", 
                "cellLocation": "SYI-A-1-1"     
             }
-            """.trimIndent()
+            """.trimIndent(),
           )
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
@@ -250,8 +251,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}/booking", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_BOOKING_CREATE")
-            )
+              listOf("ROLE_BOOKING_CREATE"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .bodyValue(
@@ -263,7 +264,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
                "imprisonmentStatus": "CUR_ORA", 
                "cellLocation": "SYI-A-1-1"     
             }
-            """.trimIndent()
+            """.trimIndent(),
           )
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
@@ -282,8 +283,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}/booking", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_BOOKING_CREATE")
-            )
+              listOf("ROLE_BOOKING_CREATE"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .bodyValue(
@@ -295,7 +296,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
                "imprisonmentStatus": "CUR_ORA", 
                "cellLocation": "SYI-BANANAS"     
             }
-            """.trimIndent()
+            """.trimIndent(),
           )
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
@@ -314,8 +315,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}/booking", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_BOOKING_CREATE")
-            )
+              listOf("ROLE_BOOKING_CREATE"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .bodyValue(
@@ -327,7 +328,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
                "imprisonmentStatus": "CUR_ORA", 
                "cellLocation": "MDI-FULL"     
             }
-            """.trimIndent()
+            """.trimIndent(),
           )
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
@@ -346,8 +347,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}/booking", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_BOOKING_CREATE")
-            )
+              listOf("ROLE_BOOKING_CREATE"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .bodyValue(
@@ -361,7 +362,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
             LocalDateTime.now().plusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
             }"
             }
-            """.trimIndent()
+            """.trimIndent(),
           )
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
@@ -380,8 +381,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}/booking", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_BOOKING_CREATE")
-            )
+              listOf("ROLE_BOOKING_CREATE"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .bodyValue(
@@ -395,7 +396,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
             LocalDateTime.now().minusMonths(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
             }"
             }
-            """.trimIndent()
+            """.trimIndent(),
           )
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
@@ -414,7 +415,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
       @BeforeEach
       internal fun setUp() {
         OffenderBuilder(
-          bookingBuilders = arrayOf()
+          bookingBuilders = arrayOf(),
         ).save(testDataContext).also {
           offenderNo = it.offenderNo
         }
@@ -427,8 +428,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_SYSTEM_USER")
-            )
+              listOf("ROLE_SYSTEM_USER"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .accept(MediaType.APPLICATION_JSON)
@@ -446,8 +447,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}/booking", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_BOOKING_CREATE")
-            )
+              listOf("ROLE_BOOKING_CREATE"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .bodyValue(
@@ -460,7 +461,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
                "imprisonmentStatus": "CUR_ORA", 
                "cellLocation": "SYI-A-1-1"     
             }
-            """.trimIndent()
+            """.trimIndent(),
           )
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
@@ -475,8 +476,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_SYSTEM_USER")
-            )
+              listOf("ROLE_SYSTEM_USER"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .accept(MediaType.APPLICATION_JSON)
@@ -505,8 +506,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_SYSTEM_USER")
-            )
+              listOf("ROLE_SYSTEM_USER"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .accept(MediaType.APPLICATION_JSON)
@@ -524,8 +525,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}/booking", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_BOOKING_CREATE")
-            )
+              listOf("ROLE_BOOKING_CREATE"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .bodyValue(
@@ -538,7 +539,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
                "imprisonmentStatus": "CUR_ORA", 
                "cellLocation": "SYI-A-1-1"     
             }
-            """.trimIndent()
+            """.trimIndent(),
           )
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
@@ -550,8 +551,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_SYSTEM_USER")
-            )
+              listOf("ROLE_SYSTEM_USER"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .accept(MediaType.APPLICATION_JSON)
@@ -576,7 +577,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
             prisonId = "LEI",
             released = true,
             youthOffender = true,
-          )
+          ),
         ).save(testDataContext).also {
           offenderNo = it.offenderNo
         }
@@ -589,8 +590,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_SYSTEM_USER")
-            )
+              listOf("ROLE_SYSTEM_USER"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .accept(MediaType.APPLICATION_JSON)
@@ -605,8 +606,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}/booking", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_BOOKING_CREATE")
-            )
+              listOf("ROLE_BOOKING_CREATE"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .bodyValue(
@@ -619,7 +620,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
                "imprisonmentStatus": "CUR_ORA", 
                "cellLocation": "SYI-A-1-1"     
             }
-            """.trimIndent()
+            """.trimIndent(),
           )
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
@@ -634,8 +635,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_SYSTEM_USER")
-            )
+              listOf("ROLE_SYSTEM_USER"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .accept(MediaType.APPLICATION_JSON)
@@ -664,8 +665,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_SYSTEM_USER")
-            )
+              listOf("ROLE_SYSTEM_USER"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .accept(MediaType.APPLICATION_JSON)
@@ -680,8 +681,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}/booking", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_BOOKING_CREATE")
-            )
+              listOf("ROLE_BOOKING_CREATE"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .bodyValue(
@@ -694,7 +695,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
                "imprisonmentStatus": "CUR_ORA", 
                "cellLocation": "SYI-A-1-1"     
             }
-            """.trimIndent()
+            """.trimIndent(),
           )
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
@@ -706,8 +707,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_SYSTEM_USER")
-            )
+              listOf("ROLE_SYSTEM_USER"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .accept(MediaType.APPLICATION_JSON)
@@ -732,7 +733,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
             prisonId = "LEI",
             released = true,
             youthOffender = false,
-          )
+          ),
         ).save(testDataContext).also {
           offenderNo = it.offenderNo
         }
@@ -746,8 +747,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_SYSTEM_USER")
-            )
+              listOf("ROLE_SYSTEM_USER"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .accept(MediaType.APPLICATION_JSON)
@@ -762,8 +763,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}/booking", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_BOOKING_CREATE")
-            )
+              listOf("ROLE_BOOKING_CREATE"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .bodyValue(
@@ -776,7 +777,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
                "imprisonmentStatus": "CUR_ORA", 
                "cellLocation": "SYI-A-1-1"     
             }
-            """.trimIndent()
+            """.trimIndent(),
           )
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
@@ -791,8 +792,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_SYSTEM_USER")
-            )
+              listOf("ROLE_SYSTEM_USER"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .accept(MediaType.APPLICATION_JSON)
@@ -821,8 +822,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_SYSTEM_USER")
-            )
+              listOf("ROLE_SYSTEM_USER"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .accept(MediaType.APPLICATION_JSON)
@@ -837,8 +838,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}/booking", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_BOOKING_CREATE")
-            )
+              listOf("ROLE_BOOKING_CREATE"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .bodyValue(
@@ -851,7 +852,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
                "imprisonmentStatus": "CUR_ORA", 
                "cellLocation": "SYI-A-1-1"     
             }
-            """.trimIndent()
+            """.trimIndent(),
           )
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
@@ -862,8 +863,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_SYSTEM_USER")
-            )
+              listOf("ROLE_SYSTEM_USER"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .accept(MediaType.APPLICATION_JSON)
@@ -892,8 +893,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}/booking", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_BOOKING_CREATE")
-            )
+              listOf("ROLE_BOOKING_CREATE"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .bodyValue(
@@ -904,7 +905,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
                "movementReasonCode": "24", 
                "imprisonmentStatus": "CUR_ORA" 
             }
-            """.trimIndent()
+            """.trimIndent(),
           )
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
@@ -915,8 +916,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_SYSTEM_USER")
-            )
+              listOf("ROLE_SYSTEM_USER"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .accept(MediaType.APPLICATION_JSON)
@@ -929,13 +930,12 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
 
       @Test
       internal fun `will create a new movement for the new booking`() {
-
         val bookingId = webTestClient.post()
           .uri("/api/offenders/{offenderNo}/booking", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_BOOKING_CREATE")
-            )
+              listOf("ROLE_BOOKING_CREATE"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .bodyValue(
@@ -946,7 +946,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
                "movementReasonCode": "24", 
                "imprisonmentStatus": "CUR_ORA" 
             }
-            """.trimIndent()
+            """.trimIndent(),
           )
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
@@ -958,7 +958,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .extracting(
             ExternalMovement::getMovementSequence,
             ExternalMovement::getMovementDirection,
-            ExternalMovement::isActive
+            ExternalMovement::isActive,
           )
           .containsExactly(
             tuple(1L, MovementDirection.IN, true),
@@ -973,8 +973,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}/booking", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_BOOKING_CREATE")
-            )
+              listOf("ROLE_BOOKING_CREATE"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .bodyValue(
@@ -986,7 +986,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
                "imprisonmentStatus": "CUR_ORA" ,
                "bookingInTime": "${bookingInTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
             }
-            """.trimIndent()
+            """.trimIndent(),
           )
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
@@ -998,13 +998,13 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .extracting(
             BedAssignmentHistory::getAssignmentReason,
             BedAssignmentHistory::getAssignmentDate,
-            BedAssignmentHistory::getAssignmentEndDate
+            BedAssignmentHistory::getAssignmentEndDate,
           )
           .containsExactly(
             tuple(
               "ADM",
               bookingInTime.toLocalDate(),
-              null
+              null,
             ),
           )
       }
@@ -1015,8 +1015,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}/booking", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_BOOKING_CREATE")
-            )
+              listOf("ROLE_BOOKING_CREATE"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .bodyValue(
@@ -1027,7 +1027,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
                "movementReasonCode": "24", 
                "imprisonmentStatus": "CUR_ORA"
             }
-            """.trimIndent()
+            """.trimIndent(),
           )
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
@@ -1041,8 +1041,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
             tuple(
               "TRANSFER",
               "FROMTOL",
-              "Offender admitted to MOORLAND for reason: Recall From Intermittent Custody from Court 1."
-            )
+              "Offender admitted to MOORLAND for reason: Recall From Intermittent Custody from Court 1.",
+            ),
           )
       }
 
@@ -1052,8 +1052,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}/booking", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_BOOKING_CREATE")
-            )
+              listOf("ROLE_BOOKING_CREATE"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .bodyValue(
@@ -1064,7 +1064,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
                "movementReasonCode": "24", 
                "imprisonmentStatus": "CUR_ORA"
             }
-            """.trimIndent()
+            """.trimIndent(),
           )
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
@@ -1085,7 +1085,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           check {
             assertThat(it.toAgency.id).isEqualTo("MDI")
             assertThat(it.movementReason.code).isEqualTo("24")
-          }
+          },
         )
       }
 
@@ -1095,8 +1095,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}/booking", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_BOOKING_CREATE")
-            )
+              listOf("ROLE_BOOKING_CREATE"),
+            ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .bodyValue(
@@ -1107,7 +1107,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
                "movementReasonCode": "24", 
                "imprisonmentStatus": "CUR_ORA"
             }
-            """.trimIndent()
+            """.trimIndent(),
           )
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
@@ -1123,13 +1123,13 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
   fun createActiveBooking(prisonId: String = "MDI"): String = OffenderBuilder().withBooking(
     OffenderBookingBuilder(
       prisonId = prisonId,
-    )
+    ),
   ).save(testDataContext).offenderNo
 
   fun createInactiveBooking(iepLevel: String = "ENH"): String = OffenderBuilder().withBooking(
     OffenderBookingBuilder(
       prisonId = "MDI",
-      released = true
-    ).withIEPLevel(iepLevel)
+      released = true,
+    ).withIEPLevel(iepLevel),
   ).save(testDataContext).offenderNo
 }

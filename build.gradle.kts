@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.8.3"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.1.1-beta-3"
   kotlin("plugin.spring") version "1.8.10"
   kotlin("plugin.jpa") version "1.8.10"
   kotlin("plugin.lombok") version "1.8.10"
@@ -25,6 +25,7 @@ val jsqlParserVersion by extra("4.3")
 val hsqldbVersion by extra("2.5.1")
 
 ext["rest-assured.version"] = "5.1.1"
+ext["hibernate.version"] = "6.1.6.Final"
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
@@ -41,26 +42,18 @@ dependencies {
 
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
-  implementation("javax.annotation:javax.annotation-api:1.3.2")
-  implementation("javax.xml.bind:jaxb-api:2.3.1")
-  implementation("com.sun.xml.bind:jaxb-impl:4.0.2")
-  implementation("com.sun.xml.bind:jaxb-core:4.0.2")
-  implementation("javax.activation:activation:1.1.1")
-
   implementation("commons-codec:commons-codec:1.15")
   implementation("com.github.jsqlparser:jsqlparser:$jsqlParserVersion")
-  implementation("net.sf.ehcache:ehcache:2.10.9.2")
+  implementation("org.ehcache:ehcache:3.10.8")
   implementation("com.zaxxer:HikariCP:5.0.1")
 
   implementation("io.swagger:swagger-annotations:1.6.9")
-  implementation("org.springdoc:springdoc-openapi-ui:1.6.14")
-  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.14")
-  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.14")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
 
   implementation("org.apache.commons:commons-lang3:3.12.0")
   implementation("commons-io:commons-io:2.11.0")
   implementation("org.apache.commons:commons-text:1.10.0")
-  implementation("com.oracle.database.jdbc:ojdbc10:19.17.0.0")
+  implementation("com.oracle.database.jdbc:ojdbc10:19.18.0.0")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
   compileOnly("org.projectlombok:lombok:1.18.26")
@@ -87,23 +80,24 @@ dependencies {
   testImplementation("net.serenity-bdd:serenity-spring:3.6.12")
   testImplementation("net.serenity-bdd:serenity-cucumber:3.6.12")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
-  testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
-  testImplementation("io.jsonwebtoken:jjwt:0.9.1")
-  testImplementation("org.glassfish:javax.el:3.0.0")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.11")
+  testImplementation("com.github.tomakehurst:wiremock-jre8-standalone:2.35.0")
+  testImplementation("io.jsonwebtoken:jjwt-impl:0.11.5")
+  testImplementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.12")
+  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.23.1")
 
   testCompileOnly("org.projectlombok:lombok:1.18.26")
 }
 
 java {
-  toolchain.languageVersion.set(JavaLanguageVersion.of(18))
+  toolchain.languageVersion.set(JavaLanguageVersion.of(19))
 }
 
 tasks {
   withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {
       freeCompilerArgs = listOf("-Xjvm-default=all")
-      jvmTarget = "18"
+      jvmTarget = "19"
     }
   }
 
@@ -148,14 +142,7 @@ tasks {
 
   withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {
-      jvmTarget = "18"
+      jvmTarget = "19"
     }
-  }
-
-  // Since Gradle 7.5 `--add-opens` is not automatically added to test workers. This broke a test in `InfoIntTest` because ehcache v2 uses reflection to retrieve the heap size.
-  // As we add `--add-opens` to the JVM args in `run.sh` it seems safe to also add these to the test workers.
-  // For more info. on the Gradle change see https://docs.gradle.org/7.5/userguide/upgrading_version_7.html#removes_implicit_add_opens_for_test_workers
-  withType<Test> {
-    jvmArgs(listOf("--add-opens=java.base/java.lang=ALL-UNNAMED", "--add-opens=java.base/java.util=ALL-UNNAMED", "--add-opens=java.xml/jdk.xml.internal=ALL-UNNAMED"))
   }
 }

@@ -94,4 +94,14 @@ public class OffenderEducationRepositoryTest {
         assertThat(education2).isEqualTo(educations.getContent().get(0));
     }
 
+    @Test
+    void bulk_testExpectedNumberOfEducationsAreReturned() {
+        final var educations = repository.findAllByNomisIdIn(List.of(offenderNumber));
+
+        assertThat(educations).hasSize(2);
+
+        assertThat(education1).isEqualTo(educations.get(0));
+        assertThat(education2).isEqualTo(educations.get(1));
+    }
+
 }

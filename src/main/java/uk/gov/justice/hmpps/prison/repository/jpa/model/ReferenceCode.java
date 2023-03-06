@@ -8,14 +8,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Hibernate;
-import org.hibernate.annotations.Type;
+import org.hibernate.type.YesNoConverter;
+import jakarta.persistence.Convert;
 
-import javax.persistence.Column;
-import javax.persistence.DiscriminatorColumn;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.Inheritance;
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
+import jakarta.persistence.Inheritance;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -53,7 +54,7 @@ public abstract class ReferenceCode implements Serializable {
     private Integer listSequence;
 
     @Column(name = "ACTIVE_FLAG")
-    @Type(type="yes_no")
+    @Convert(converter = YesNoConverter.class)
     private boolean active;
 
     public ReferenceCode(final String domain, final String code, final String description) {

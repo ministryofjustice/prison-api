@@ -14,7 +14,7 @@ interface CopyPreviousBookingService {
   fun copyKeyDataFromPreviousBooking(
     booking: OffenderBooking,
     previousBooking: OffenderBooking,
-    movement: ExternalMovement
+    movement: ExternalMovement,
   )
 }
 
@@ -24,7 +24,7 @@ class CopyPreviousBookingSPService(val copyBookData: CopyBookData) : CopyPreviou
   override fun copyKeyDataFromPreviousBooking(
     booking: OffenderBooking,
     previousBooking: OffenderBooking,
-    movement: ExternalMovement
+    movement: ExternalMovement,
   ) {
     val params = MapSqlParameterSource()
       .addValue("p_move_type", MovementType.ADM.code)
@@ -45,7 +45,7 @@ class CopyPreviousBookingBasicService(val jdbcTemplate: JdbcTemplate) : CopyPrev
   override fun copyKeyDataFromPreviousBooking(
     booking: OffenderBooking,
     previousBooking: OffenderBooking,
-    movement: ExternalMovement
+    movement: ExternalMovement,
   ) {
     // basic version of some of the functionality of the stored procedure - in this case just the offender_profile_details table is copied
     // this is minimal required to test create booking but could be extended
@@ -55,7 +55,8 @@ class CopyPreviousBookingBasicService(val jdbcTemplate: JdbcTemplate) : CopyPrev
         |SELECT ?, profile_seq, profile_type, profile_code, list_seq, comment_text, caseload_type 
         |FROM offender_profile_details 
         |WHERE offender_book_id = ?
-        |""".trimMargin()
+        |
+      """.trimMargin(),
     ) { ps ->
       ps.setLong(1, booking.bookingId)
       ps.setLong(2, previousBooking.bookingId)

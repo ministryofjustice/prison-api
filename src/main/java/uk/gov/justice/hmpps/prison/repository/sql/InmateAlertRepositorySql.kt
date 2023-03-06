@@ -28,7 +28,7 @@ enum class InmateAlertRepositorySql(val sql: String) {
         left join STAFF_MEMBERS SMU on SUAU.STAFF_ID = SMU.STAFF_ID
 
         WHERE OA.OFFENDER_BOOK_ID = :bookingId and (:alertStatus IS NULL OR OA.ALERT_STATUS = :alertStatus)
-    """
+    """,
   ),
 
   FIND_INMATE_ALERT(
@@ -58,7 +58,7 @@ enum class InmateAlertRepositorySql(val sql: String) {
                 left join STAFF_MEMBERS SMU on SUAU.STAFF_ID = SMU.STAFF_ID
                 where OFFENDER_BOOK_ID = :bookingId
         and ALERT_SEQ = :alertSeqId
-    """
+    """,
   ),
 
   FIND_INMATE_OFFENDERS_ALERTS(
@@ -80,7 +80,7 @@ enum class InmateAlertRepositorySql(val sql: String) {
                 LEFT JOIN REFERENCE_CODES ALTYPE ON ALTYPE.DOMAIN = 'ALERT' AND ALTYPE.CODE = OA.ALERT_TYPE
         LEFT JOIN REFERENCE_CODES ALCODE ON ALCODE.DOMAIN = 'ALERT_CODE' AND ALCODE.CODE = OA.ALERT_CODE
         WHERE O.OFFENDER_ID_DISPLAY IN (:offenderNos) AND (:agencyId IS NULL OR B.AGY_LOC_ID = :agencyId)
-    """
+    """,
   ),
 
   GET_ALERT_CANDIDATES(
@@ -90,7 +90,7 @@ enum class InmateAlertRepositorySql(val sql: String) {
         join OFFENDER_BOOKINGS ob on ob.offender_book_id = icp.offender_book_id
         join OFFENDERS o on o.offender_id = ob.offender_id
         where icp.modify_datetime > :cutoffTimestamp
-    """
+    """,
   ),
 
   CREATE_ALERT(
@@ -119,7 +119,7 @@ enum class InmateAlertRepositorySql(val sql: String) {
         USER,
         :caseLoadType
         )
-    """
+    """,
   ),
 
   EXPIRE_ALERT(
@@ -135,7 +135,7 @@ enum class InmateAlertRepositorySql(val sql: String) {
         MODIFY_USER_ID = USER
         WHERE ALERT_SEQ = :alertSeq
         AND OFFENDER_BOOK_ID = :bookingId
-    """
+    """,
   ),
 
   UPDATE_ALERT_COMMENT(
@@ -145,7 +145,7 @@ enum class InmateAlertRepositorySql(val sql: String) {
         MODIFY_USER_ID = USER
         WHERE ALERT_SEQ = :alertSeq
         AND OFFENDER_BOOK_ID = :bookingId
-    """
+    """,
   ),
 
   INSERT_WORK_FLOW(
@@ -162,7 +162,7 @@ enum class InmateAlertRepositorySql(val sql: String) {
                 :bookingId,
                 :alertSeq
         )
-    """
+    """,
   ),
 
   INSERT_WORK_FLOW_LOG(
@@ -185,7 +185,7 @@ enum class InmateAlertRepositorySql(val sql: String) {
                 SYSDATE,
                 USER
         )
-    """
+    """,
   ),
 
   INSERT_NEXT_WORK_FLOW_LOG(
@@ -210,6 +210,6 @@ enum class InmateAlertRepositorySql(val sql: String) {
         WHERE WF.OBJECT_ID = :bookingId
         AND WF.OBJECT_SEQ = :alertSeq
         AND WF.OBJECT_CODE = :alertCode
-    """
-  )
+    """,
+  ),
 }

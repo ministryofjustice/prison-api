@@ -34,6 +34,7 @@ class OffenderResourceIntTest_newOffender : ResourceTest() {
           .bodyValue(requestToCreate()).accept(MediaType.APPLICATION_JSON).exchange()
           .expectStatus().isUnauthorized
       }
+
       @Test
       fun `should return 403 when user does not have any roles`() {
         webTestClient.post().uri("/api/offenders").headers(setAuthorisation(listOf()))
@@ -41,6 +42,7 @@ class OffenderResourceIntTest_newOffender : ResourceTest() {
           .bodyValue(requestToCreate()).accept(MediaType.APPLICATION_JSON).exchange()
           .expectStatus().isForbidden
       }
+
       @Test
       fun `should return 403 when user does not have required role`() {
         webTestClient.post().uri("/api/offenders").headers(setAuthorisation(listOf("ROLE_BANANAS")))
@@ -66,8 +68,8 @@ class OffenderResourceIntTest_newOffender : ResourceTest() {
                 firstName = "Arnaud",
                 dateOfBirth = LocalDate.parse("1985-05-13"),
                 pncNumber = "94/65156B",
-                croNumber = "16677/94P"
-              )
+                croNumber = "16677/94P",
+              ),
             ).accept(MediaType.APPLICATION_JSON).exchange()
             .expectStatus().isOk.returnResult<InmateDetail>().responseBody.blockFirst()!!
       }
@@ -91,7 +93,7 @@ class OffenderResourceIntTest_newOffender : ResourceTest() {
               "ethnicity" : "M3",
               "croNumber" : "163984/21E"  
             }
-              """.trimIndent()
+              """.trimIndent(),
             ).accept(MediaType.APPLICATION_JSON).exchange()
             .expectStatus().isOk.returnResult(InmateDetail::class.java).responseBody.blockFirst()!!
 
@@ -134,7 +136,7 @@ class OffenderResourceIntTest_newOffender : ResourceTest() {
               "dateOfBirth" : "1993-08-04",
               "gender" : "F"
             }
-            """.trimIndent()
+            """.trimIndent(),
           ).accept(MediaType.APPLICATION_JSON).exchange()
           .expectStatus().isOk
       }
@@ -151,7 +153,7 @@ class OffenderResourceIntTest_newOffender : ResourceTest() {
               "pncNumber" : "84/153133B",
               "gender" : "F"
             }
-            """.trimIndent()
+            """.trimIndent(),
           ).accept(MediaType.APPLICATION_JSON).exchange()
           .expectStatus().isOk
       }
@@ -167,7 +169,7 @@ class OffenderResourceIntTest_newOffender : ResourceTest() {
               "dateOfBirth" : "1985-05-14",
               "gender" : "F"
             }
-            """.trimIndent()
+            """.trimIndent(),
           ).accept(MediaType.APPLICATION_JSON).exchange()
           .expectStatus().isOk
       }
@@ -193,8 +195,8 @@ class OffenderResourceIntTest_newOffender : ResourceTest() {
                   firstName = "Fabien",
                   dateOfBirth = LocalDate.parse("1987-09-12"),
                   pncNumber = "1988/69560X",
-                  croNumber = "69560/88G"
-                )
+                  croNumber = "69560/88G",
+                ),
               ).accept(MediaType.APPLICATION_JSON).exchange()
               .expectStatus().isOk.returnResult<InmateDetail>().responseBody.blockFirst()!!
         }
@@ -338,7 +340,7 @@ class OffenderResourceIntTest_newOffender : ResourceTest() {
               "dateOfBirth" : "1993-02-31",
               "gender" : "F"
             }
-              """.trimIndent()
+              """.trimIndent(),
 
             ).jsonPath("$.developerMessage")
               .isEqualTo("Malformed request")
@@ -348,13 +350,13 @@ class OffenderResourceIntTest_newOffender : ResourceTest() {
           internal fun `can not be older than 110 years old`() {
             expectBadRequest(
               requestToCreate(
-                dateOfBirth = LocalDate.now().minusYears(110).minusDays(1)
-              )
+                dateOfBirth = LocalDate.now().minusYears(110).minusDays(1),
+              ),
             ).jsonPath("$.developerMessage")
               .isEqualTo(
                 "Date of birth must be between ${LocalDate.now().minusYears(110)} and ${
                 LocalDate.now().minusYears(16)
-                }"
+                }",
               )
           }
 
@@ -362,13 +364,13 @@ class OffenderResourceIntTest_newOffender : ResourceTest() {
           internal fun `can not be younger than 16 years old`() {
             expectBadRequest(
               requestToCreate(
-                dateOfBirth = LocalDate.now().minusYears(16).plusDays(1)
-              )
+                dateOfBirth = LocalDate.now().minusYears(16).plusDays(1),
+              ),
             ).jsonPath("$.developerMessage")
               .isEqualTo(
                 "Date of birth must be between ${LocalDate.now().minusYears(110)} and ${
                 LocalDate.now().minusYears(16)
-                }"
+                }",
               )
           }
         }
@@ -385,8 +387,8 @@ class OffenderResourceIntTest_newOffender : ResourceTest() {
                 firstName = "Fabien",
                 dateOfBirth = LocalDate.parse("1987-09-12"),
                 pncNumber = null,
-                croNumber = null
-              )
+                croNumber = null,
+              ),
             ).jsonPath("$.developerMessage")
               .isEqualTo("Prisoner with lastname ROCHEFORT, firstname FABIEN and dob 1987-09-12 already exists with ID ${existingPrisoner.offenderNo}")
           }
@@ -466,13 +468,14 @@ class OffenderResourceIntTest_newOffender : ResourceTest() {
                "cellLocation": "SYI-A-1-1"     
               }
             }
-              """.trimIndent()
+              """.trimIndent(),
             ).accept(MediaType.APPLICATION_JSON).exchange()
             .expectStatus().isNotFound
             .expectBody()
             .jsonPath("userMessage")
             .isEqualTo("ZZZ is not a valid from location")
         }
+
         @Test
         internal fun `404 when trying to book in with an imprisonment status that doesn't exist`() {
           webTestClient.post().uri("/api/offenders").headers(setAuthorisation(listOf("ROLE_BOOKING_CREATE")))
@@ -491,7 +494,7 @@ class OffenderResourceIntTest_newOffender : ResourceTest() {
                "cellLocation": "SYI-A-1-1"     
               }
             }
-              """.trimIndent()
+              """.trimIndent(),
             ).accept(MediaType.APPLICATION_JSON).exchange()
             .expectStatus().isNotFound
             .expectBody()
@@ -517,7 +520,7 @@ class OffenderResourceIntTest_newOffender : ResourceTest() {
                "cellLocation": "SYI-A-1-1"     
               }
             }
-              """.trimIndent()
+              """.trimIndent(),
             ).accept(MediaType.APPLICATION_JSON).exchange()
             .expectStatus().isNotFound
             .expectBody()
@@ -543,7 +546,7 @@ class OffenderResourceIntTest_newOffender : ResourceTest() {
                "cellLocation": "SYI-BANANAS"     
               }
             }
-              """.trimIndent()
+              """.trimIndent(),
             ).accept(MediaType.APPLICATION_JSON).exchange()
             .expectStatus().isNotFound
             .expectBody()
@@ -569,7 +572,7 @@ class OffenderResourceIntTest_newOffender : ResourceTest() {
                "cellLocation": "MDI-FULL"     
               }
             }
-              """.trimIndent()
+              """.trimIndent(),
             ).accept(MediaType.APPLICATION_JSON).exchange()
             .expectStatus().isEqualTo(409)
             .expectBody()
@@ -597,7 +600,7 @@ class OffenderResourceIntTest_newOffender : ResourceTest() {
               }"
               }
             }
-              """.trimIndent()
+              """.trimIndent(),
             ).accept(MediaType.APPLICATION_JSON).exchange()
             .expectStatus().isBadRequest
             .expectBody()
@@ -628,7 +631,7 @@ class OffenderResourceIntTest_newOffender : ResourceTest() {
                "cellLocation": "SYI-A-1-1"     
               }
             }
-              """.trimIndent()
+              """.trimIndent(),
             ).accept(MediaType.APPLICATION_JSON).exchange()
             .expectStatus().isOk.returnResult(InmateDetail::class.java).responseBody.blockFirst()!!
 
@@ -690,7 +693,7 @@ private fun requestToCreate(
   gender: String? = "M",
   ethnicity: String? = "M1",
   croNumber: String? = "159049/05L",
-  booking: RequestForNewBooking? = null
+  booking: RequestForNewBooking? = null,
 ) = RequestToCreate(
-  pncNumber, lastName, firstName, middleName1, middleName2, title, suffix, dateOfBirth, gender, ethnicity, croNumber, booking
+  pncNumber, lastName, firstName, middleName1, middleName2, title, suffix, dateOfBirth, gender, ethnicity, croNumber, booking,
 )

@@ -36,7 +36,7 @@ public class AuthServiceIntTest {
 
         assertThatThrownBy(() -> authService.getNomisUserByUsername("bob"))
                 .isInstanceOf(AccessDeniedException.class)
-                .hasMessageContaining("Access is denied");
+                .hasMessageContaining("Access Denied");
     }
 
 }

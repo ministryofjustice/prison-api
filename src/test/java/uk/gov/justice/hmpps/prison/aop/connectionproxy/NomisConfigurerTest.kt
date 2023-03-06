@@ -39,9 +39,9 @@ class NomisConfigurerTest {
                 nomis_context.set_context('AUDIT_USER_ID', 'some user');
                 nomis_context.set_client_nomis_context('some user', 'some IP', 'some app', 'some URI');
                 END;
-            """.trimIndent()
+            """.trimIndent(),
           )
-        }
+        },
       )
       verify(preparedStatement).execute()
     }
@@ -53,7 +53,7 @@ class NomisConfigurerTest {
       verify(connection).prepareStatement(
         check {
           assertThat(it).contains("nomis_context.set_context('AUDIT_MODULE_NAME', 'MERGE');")
-        }
+        },
       )
       verify(preparedStatement).execute()
     }
@@ -71,9 +71,9 @@ class NomisConfigurerTest {
                 nomis_context.set_context('AUDIT_USER_ID', '');
                 nomis_context.set_client_nomis_context('', '', '', '');
                 END;
-            """.trimIndent()
+            """.trimIndent(),
           )
-        }
+        },
       )
       verify(preparedStatement).execute()
     }
@@ -92,9 +92,9 @@ class NomisConfigurerTest {
                 BEGIN
                 nomis_context.set_context('AUDIT_MODULE_NAME', 'MERGE');
                 END;
-            """.trimIndent()
+            """.trimIndent(),
           )
-        }
+        },
       )
       verify(preparedStatement).execute()
     }
@@ -109,7 +109,7 @@ class NomisConfigurerTest {
       verify(connection).prepareStatement(
         check {
           assertThat(it).isEqualTo("ALTER SESSION SET CURRENT_SCHEMA=some default schema")
-        }
+        },
       )
       verify(preparedStatement).execute()
     }

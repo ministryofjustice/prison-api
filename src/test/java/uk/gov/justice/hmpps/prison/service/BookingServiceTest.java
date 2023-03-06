@@ -892,8 +892,8 @@ public class BookingServiceTest {
 
     @Test
     void getOffenderCourtCases_active_only_mapped() {
-        final var activeCourtCase = caseWithDefaults().id(-1L).caseSeq(-1L).caseStatus(new CaseStatus("A", "Active")).build();
-        final var inactiveCourtCase = caseWithDefaults().id(-2L).caseSeq(-2L).caseStatus(new CaseStatus("I", "Inactive")).build();
+        final var activeCourtCase = caseWithDefaults().id(-1L).caseSeq(-1).caseStatus(new CaseStatus("A", "Active")).build();
+        final var inactiveCourtCase = caseWithDefaults().id(-2L).caseSeq(-2).caseStatus(new CaseStatus("I", "Inactive")).build();
 
         when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.of(OffenderBooking.builder()
                 .courtCases(List.of(activeCourtCase, inactiveCourtCase))
@@ -903,7 +903,7 @@ public class BookingServiceTest {
 
         assertThat(activeOnlyCourtCases).containsExactly(CourtCase.builder()
                 .id(-1L)
-                .caseSeq(-1L)
+                .caseSeq(-1)
                 .beginDate(LocalDate.EPOCH)
                 .agency(Agency.builder()
                         .agencyId("agency_id")
@@ -921,8 +921,8 @@ public class BookingServiceTest {
 
     @Test
     void getOffenderCourtCases_all_mapped() {
-        final var activeCourtCase = caseWithDefaults().id(-1L).caseSeq(-1L).caseStatus(new CaseStatus("A", "Active")).build();
-        final var inactiveCourtCase = caseWithDefaults().id(-2L).caseSeq(-2L).caseStatus(new CaseStatus("I", "Inactive")).build();
+        final var activeCourtCase = caseWithDefaults().id(-1L).caseSeq(-1).caseStatus(new CaseStatus("A", "Active")).build();
+        final var inactiveCourtCase = caseWithDefaults().id(-2L).caseSeq(-2).caseStatus(new CaseStatus("I", "Inactive")).build();
 
         when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.of(OffenderBooking.builder()
                 .courtCases(List.of(activeCourtCase, inactiveCourtCase))
@@ -933,7 +933,7 @@ public class BookingServiceTest {
         assertThat(allCourtCases).containsExactly(
                 CourtCase.builder()
                         .id(-1L)
-                        .caseSeq(-1L)
+                        .caseSeq(-1)
                         .beginDate(LocalDate.EPOCH)
                         .agency(Agency.builder()
                                 .agencyId("agency_id")
@@ -949,7 +949,7 @@ public class BookingServiceTest {
                         .build(),
                 CourtCase.builder()
                         .id(-2L)
-                        .caseSeq(-2L)
+                        .caseSeq(-2)
                         .beginDate(LocalDate.EPOCH)
                         .agency(Agency.builder()
                                 .agencyId("agency_id")
@@ -1304,7 +1304,7 @@ public class BookingServiceTest {
                         ))
                         .courtCase(
                             OffenderCourtCase.builder()
-                                .caseSeq(10L)
+                                .caseSeq(10)
                                 .caseInfoNumber("XYZ789")
                                 .courtEvents(
                                     List.of(CourtEvent.builder()
@@ -1329,7 +1329,7 @@ public class BookingServiceTest {
                 .bookingId(-98L)
                 .sentenceSequence(2)
                 .lineSequence(5L)
-                .caseSequence(10L)
+                .caseSequence(10)
                 .caseReference("XYZ789")
                 .courtDescription("A court")
                 .consecutiveToSequence(1)

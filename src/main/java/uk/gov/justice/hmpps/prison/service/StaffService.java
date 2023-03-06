@@ -22,7 +22,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRoleRep
 import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
 import uk.gov.justice.hmpps.prison.service.support.GetStaffRoleRequest;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.Comparator;
 import java.util.List;
 
@@ -55,6 +55,7 @@ public class StaffService {
     }
 
     public StaffDetail getStaffDetail(@NotNull final Long staffId) {
+        if (staffId == null) throw new EntityNotFoundException("No staff id specified");
         return staffRepository.findByStaffId(staffId).orElseThrow(EntityNotFoundException.withId(staffId));
     }
 

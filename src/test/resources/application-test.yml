@@ -6,6 +6,8 @@ spring:
   codec:
     max-in-memory-size: 10MB
 
+spring.cache.type: none
+
 #logging:
 #  level:
 #     org.hibernate.SQL: DEBUG

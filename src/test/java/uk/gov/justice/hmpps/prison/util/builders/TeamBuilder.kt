@@ -26,7 +26,7 @@ class TeamBuilder(
         this.listSequence = 1
         this.location = dataLoader.agencyLocationRepository.findById(agencyId).orElseThrow()
         this.queueClusterId = 1
-      }
+      },
     )
   }
 }

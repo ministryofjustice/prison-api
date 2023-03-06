@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service
 
+import jakarta.transaction.Transactional
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Service
 import uk.gov.justice.hmpps.prison.repository.BookingRepository
@@ -24,7 +25,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.TeamRepository
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
 import uk.gov.justice.hmpps.prison.util.builders.TeamBuilder
 import uk.gov.justice.hmpps.prison.util.builders.TestDataContext
-import javax.transaction.Transactional
 
 @Service
 class DataLoaderRepository(
@@ -64,11 +64,12 @@ class DataLoaderTransaction {
     testDataContext: TestDataContext,
   ) =
     teamBuilder.save(
-      dataLoader = testDataContext.dataLoader
+      dataLoader = testDataContext.dataLoader,
     )
 
   @Transactional
   fun <T> save(operation: () -> T) = operation()
+
   @Transactional
   fun <T> get(operation: () -> T) = operation()
 }

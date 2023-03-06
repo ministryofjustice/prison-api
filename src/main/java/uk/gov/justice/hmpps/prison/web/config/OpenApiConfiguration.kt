@@ -12,7 +12,7 @@ import io.swagger.v3.oas.models.media.StringSchema
 import io.swagger.v3.oas.models.security.SecurityRequirement
 import io.swagger.v3.oas.models.security.SecurityScheme
 import io.swagger.v3.oas.models.servers.Server
-import org.springdoc.core.customizers.OpenApiCustomiser
+import org.springdoc.core.customizers.OpenApiCustomizer
 import org.springdoc.core.customizers.OperationCustomizer
 import org.springframework.boot.info.BuildProperties
 import org.springframework.context.annotation.Bean
@@ -33,7 +33,7 @@ class OpenApiConfiguration(buildProperties: BuildProperties) {
         Server().url("https://api-preprod.prison.service.justice.gov.uk").description("PreProd"),
         Server().url("https://api.prison.service.justice.gov.uk").description("Prod"),
         Server().url("http://localhost:8080").description("Local"),
-      )
+      ),
     )
     .components(
       Components().addSecuritySchemes(
@@ -43,8 +43,8 @@ class OpenApiConfiguration(buildProperties: BuildProperties) {
           .scheme("bearer")
           .bearerFormat("JWT")
           .`in`(SecurityScheme.In.HEADER)
-          .name("Authorization")
-      )
+          .name("Authorization"),
+      ),
     )
     .info(
       Info().title("HMPPS Prison API Documentation")
@@ -59,15 +59,15 @@ class OpenApiConfiguration(buildProperties: BuildProperties) {
             Some endpoints are described as using the Replica database, a read-only copy of the live database which at
             time of writing lags by < 1 second up to approximately 2 seconds. These endpoints are not suitable for use
             by services reacting to events or refreshing web pages where a change has just been made.
-            """
+            """,
         )
         .contact(Contact().name("HMPPS Digital Studio").email("feedback@digital.justice.gov.uk"))
-        .license(License().name("MIT").url("https://opensource.org/licenses/MIT"))
+        .license(License().name("MIT").url("https://opensource.org/licenses/MIT")),
     )
     .addSecurityItem(SecurityRequirement().addList("bearer-jwt", listOf("read", "write")))
 
   @Bean
-  fun openAPICustomiser(): OpenApiCustomiser = OpenApiCustomiser {
+  fun openAPICustomiser(): OpenApiCustomizer = OpenApiCustomizer {
     it.components.schemas.forEach { (_, schema: Schema<*>) ->
       val properties = schema.properties ?: mutableMapOf()
       for (propertyName in properties.keys) {
@@ -79,7 +79,7 @@ class OpenApiConfiguration(buildProperties: BuildProperties) {
               .example("2021-07-05T10:35:17")
               .pattern("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}$")
               .description(propertySchema.description)
-              .required(propertySchema.required)
+              .required(propertySchema.required),
           )
         }
       }

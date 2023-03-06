@@ -39,8 +39,8 @@ import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.service.InmateService;
 import uk.gov.justice.hmpps.prison.service.OffenderAssessmentService;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -191,7 +191,7 @@ public class OffenderAssessmentResource {
     @Operation(summary = "Record new offender categorisation.", description = "Create new categorisation record. The booking id and new sequence number is returned.")
     @PostMapping("/category/categorise")
     @ProxyUser
-    public ResponseEntity<Map<String, Long>> createCategorisation(@javax.validation.Valid @RequestBody @Parameter(description = "Categorisation details", required = true) final CategorisationDetail detail) {
+    public ResponseEntity<Map<String, Long>> createCategorisation(@jakarta.validation.Valid @RequestBody @Parameter(description = "Categorisation details", required = true) final CategorisationDetail detail) {
         final var resultMap = inmateService.createCategorisation(detail.getBookingId(), detail);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -205,7 +205,7 @@ public class OffenderAssessmentResource {
             " Fields left as null will be left unchanged")
     @PutMapping("/category/categorise")
     @ProxyUser
-    public ResponseEntity<Void> updateCategorisation(@javax.validation.Valid @RequestBody @Parameter(description = "Categorisation details", required = true) final CategorisationUpdateDetail detail){
+    public ResponseEntity<Void> updateCategorisation(@jakarta.validation.Valid @RequestBody @Parameter(description = "Categorisation details", required = true) final CategorisationUpdateDetail detail){
         inmateService.updateCategorisation(detail.getBookingId(), detail);
         return ResponseEntity.ok().build();
     }
@@ -216,7 +216,7 @@ public class OffenderAssessmentResource {
     @Operation(summary = "Approve a pending offender categorisation.", description = "Update categorisation record with approval.")
     @PutMapping("/category/approve")
     @ProxyUser
-    public ResponseEntity<Void> approveCategorisation(@javax.validation.Valid @RequestBody @Parameter(description = "Approval details", required = true) final CategoryApprovalDetail detail) {
+    public ResponseEntity<Void> approveCategorisation(@jakarta.validation.Valid @RequestBody @Parameter(description = "Approval details", required = true) final CategoryApprovalDetail detail) {
         inmateService.approveCategorisation(detail.getBookingId(), detail);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -227,7 +227,7 @@ public class OffenderAssessmentResource {
     @Operation(summary = "Reject a pending offender categorisation.", description = "Update categorisation record with rejection.")
     @PutMapping("/category/reject")
     @ProxyUser
-    public ResponseEntity<Void> rejectCategorisation(@javax.validation.Valid @RequestBody @Parameter(description = "Rejection details", required = true) final CategoryRejectionDetail detail) {
+    public ResponseEntity<Void> rejectCategorisation(@jakarta.validation.Valid @RequestBody @Parameter(description = "Rejection details", required = true) final CategoryRejectionDetail detail) {
         inmateService.rejectCategorisation(detail.getBookingId(), detail);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

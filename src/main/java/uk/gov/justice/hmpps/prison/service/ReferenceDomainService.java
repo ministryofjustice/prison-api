@@ -132,11 +132,13 @@ public class ReferenceDomainService {
     }
 
     private void verifyReferenceDomain(final String domain) {
+        if (StringUtils.isBlank(domain)) throw new EntityNotFoundException("Reference domain not specified");
         referenceDataRepository.getReferenceDomain(domain)
                 .orElseThrow(EntityNotFoundException.withMessage("Reference domain [%s] not found.", domain));
     }
 
     private void verifyReferenceCode(final String domain, final String code) {
+        if (StringUtils.isBlank(code)) throw new EntityNotFoundException("Reference code not specified");
         referenceDataRepository.getReferenceCodeByDomainAndCode(domain, code, false)
                 .orElseThrow(EntityNotFoundException.withMessage("Reference code for domain [%s] and code [%s] not found.", domain, code));
     }

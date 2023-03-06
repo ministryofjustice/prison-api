@@ -133,7 +133,7 @@ public class OffenderMovementsResourceIntTest_scheduleSchedulePrisonToPrisonMove
         assertThat(response.getBody()).isEqualTo(
                 ErrorResponse.builder()
                         .status(403)
-                        .userMessage("Access is denied")
+                        .userMessage("Access Denied")
                         .build());
     }
 

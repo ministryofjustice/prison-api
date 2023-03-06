@@ -56,11 +56,11 @@ import uk.gov.justice.hmpps.prison.repository.v1.model.TransferSP;
 import uk.gov.justice.hmpps.prison.repository.v1.model.UnavailabilityReasonSP;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 
-import javax.xml.bind.DatatypeConverter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -258,7 +258,7 @@ public class NomisApiV1Service {
     public Image getOffenderImage(final String nomsId) {
         final var imageBytes = offenderV1Repository.getPhoto(nomsId).orElseThrow(EntityNotFoundException.withId(nomsId));
 
-        return Image.builder().image(DatatypeConverter.printBase64Binary(imageBytes)).build();
+        return Image.builder().image(Base64.getEncoder().encodeToString(imageBytes)).build();
     }
 
     public Event getOffenderPssDetail(final String nomsId) {

@@ -22,7 +22,7 @@ import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMap
 import uk.gov.justice.hmpps.prison.repository.sql.CaseNoteRepositorySql;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.sql.Types;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -152,17 +152,6 @@ public class CaseNoteRepository extends RepositoryBase {
                 "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
                 "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate))),
             Long.class);
-    }
-
-
-    @Cacheable("caseNoteTypesByCaseLoadType")
-    public List<ReferenceCode> getCaseNoteTypesByCaseLoadType(final String caseLoadType) {
-        final var sql = CaseNoteRepositorySql.GET_CASE_NOTE_TYPES_BY_CASELOAD_TYPE.getSql();
-
-        final var codes = jdbcTemplate.query(sql,
-            createParams("caseLoadType", caseLoadType),
-            REF_CODE_ROW_MAPPER);
-        return codes.stream().map(ReferenceCodeDto::toReferenceCode).toList();
     }
 
 

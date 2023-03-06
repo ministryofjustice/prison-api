@@ -7,22 +7,22 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.Hibernate;
-import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
-import org.hibernate.annotations.Type;
+import org.hibernate.type.YesNoConverter;
+import jakarta.persistence.Convert;
 import org.hibernate.annotations.Where;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +39,6 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.CourtType.JURISDI
 @AllArgsConstructor
 @Table(name = "AGENCY_LOCATIONS")
 @ToString(of = {"id", "description"})
-@BatchSize(size = 25)
 public class AgencyLocation extends AuditableEntity {
 
     public static final String IN = "IN";
@@ -61,7 +60,7 @@ public class AgencyLocation extends AuditableEntity {
     private AgencyLocationType type;
 
     @Column(name = "ACTIVE_FLAG")
-    @Type(type="yes_no")
+    @Convert(converter = YesNoConverter.class)
     private boolean active;
 
     @Column(name = "LONG_DESCRIPTION")

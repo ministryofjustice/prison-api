@@ -55,7 +55,7 @@ import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.receiveandtransfer.BookingIntoPrisonService;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;

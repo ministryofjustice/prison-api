@@ -7,6 +7,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransaction.Pk;
 
 public interface OffenderTransactionRepository extends CrudRepository<OffenderTransaction, Pk> {
 
-    @Query(value = "SELECT TXN_ID.nextval FROM dual", nativeQuery = true)
+    @Query(value = "SELECT TXN_ID.nextval FROM dual d", nativeQuery = true)
     Long getNextTransactionId();
 }

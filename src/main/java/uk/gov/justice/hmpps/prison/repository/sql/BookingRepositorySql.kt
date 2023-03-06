@@ -98,7 +98,7 @@ enum class BookingRepositorySql(val sql: String) {
         AND OSC.OFFENDER_SENT_CALCULATION_ID = LATEST_OSC.MAX_OSC_ID) CALC_DATES
         RIGHT JOIN OFFENDER_BOOKINGS OB ON CALC_DATES.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID
         WHERE OB.OFFENDER_BOOK_ID = :bookingId
-    """
+    """,
   ),
 
   GET_OFFENDER_SENTENCE_DETAIL(
@@ -222,7 +222,7 @@ enum class BookingRepositorySql(val sql: String) {
                 LEFT JOIN AGENCY_INTERNAL_LOCATIONS AIL ON OB.LIVING_UNIT_ID = AIL.INTERNAL_LOCATION_ID
                 LEFT JOIN AGENCY_LOCATIONS AL ON AL.AGY_LOC_ID = OB.AGY_LOC_ID
                 LEFT JOIN OFFENDER_RELEASE_DETAILS ORD ON ORD.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID
-    """
+    """,
   ),
 
   GET_OFFENDER_SENT_CALCULATIONS(
@@ -264,7 +264,7 @@ enum class BookingRepositorySql(val sql: String) {
                 GROUP BY OB.OFFENDER_BOOK_ID
         )
         
-    """
+    """,
   ),
 
   GET_BOOKING_ACTIVITIES(
@@ -333,7 +333,7 @@ enum class BookingRepositorySql(val sql: String) {
         (SELECT OE.EXCLUDE_DAY, COALESCE(OE.SLOT_CATEGORY_CODE, CS.SLOT_CATEGORY_CODE)
         FROM OFFENDER_EXCLUDE_ACTS_SCHDS OE
         WHERE OE.OFF_PRGREF_ID = OPP.OFF_PRGREF_ID)
-    """
+    """,
   ),
 
   GET_BOOKING_APPOINTMENTS(
@@ -364,7 +364,7 @@ enum class BookingRepositorySql(val sql: String) {
         AND OIS.EVENT_STATUS = 'SCH'
         AND OIS.EVENT_DATE >= TRUNC(COALESCE(:fromDate, OIS.EVENT_DATE))
         AND TRUNC(OIS.EVENT_DATE) <= COALESCE(:toDate, OIS.EVENT_DATE)
-    """
+    """,
   ),
 
   UPDATE_ATTENDANCE(
@@ -377,7 +377,7 @@ enum class BookingRepositorySql(val sql: String) {
         AUTHORISED_ABSENCE_FLAG = :authorisedAbsence
                 WHERE EVENT_ID = :eventId
         AND OFFENDER_BOOK_ID = :bookingId
-    """
+    """,
   ),
 
   GET_ATTENDANCE_DATE(
@@ -385,7 +385,7 @@ enum class BookingRepositorySql(val sql: String) {
         SELECT EVENT_DATE
                 FROM OFFENDER_COURSE_ATTENDANCES
                 WHERE EVENT_ID = :eventId
-    """
+    """,
   ),
 
   GET_PAYABLE_ATTENDANCE_OUTCOMES(
@@ -400,7 +400,7 @@ enum class BookingRepositorySql(val sql: String) {
         AND OUTCOME_CODE=:outcomeCode
         AND END_DATE IS NULL
                 AND START_DATE <= SYSDATE
-    """
+    """,
   ),
 
   GET_BOOKING_IEP_DETAILS_BY_IDS(
@@ -419,7 +419,7 @@ enum class BookingRepositorySql(val sql: String) {
                 LEFT JOIN REFERENCE_CODES RC ON RC.CODE = OIL.IEP_LEVEL AND RC.DOMAIN = 'IEP_LEVEL'
         WHERE OB.OFFENDER_BOOK_ID IN (:bookingIds)
         ORDER BY OB.OFFENDER_BOOK_ID, OIL.IEP_DATE DESC, OIL.IEP_LEVEL_SEQ DESC
-    """
+    """,
   ),
 
   CHECK_BOOKING_AGENCIES(
@@ -428,7 +428,7 @@ enum class BookingRepositorySql(val sql: String) {
                 FROM OFFENDER_BOOKINGS
                 WHERE OFFENDER_BOOK_ID = :bookingId
         AND AGY_LOC_ID IN (:agencyIds)
-    """
+    """,
   ),
 
   GET_OFFENDER_BOOKING_AGENCY(
@@ -436,7 +436,7 @@ enum class BookingRepositorySql(val sql: String) {
         SELECT AGY_LOC_ID
                 FROM OFFENDER_BOOKINGS
                 WHERE OFFENDER_BOOK_ID = :bookingId
-    """
+    """,
   ),
 
   GET_BOOKING_VISITS(
@@ -464,7 +464,7 @@ enum class BookingRepositorySql(val sql: String) {
                 LEFT JOIN AGENCY_LOCATIONS AGY ON VIS.AGY_LOC_ID = AGY.AGY_LOC_ID
                 WHERE VIS.VISIT_DATE >= TRUNC(COALESCE(:fromDate, VIS.VISIT_DATE))
         AND TRUNC(VIS.VISIT_DATE) <= COALESCE(:toDate, VIS.VISIT_DATE)
-    """
+    """,
   ),
 
   GET_NEXT_BOOKING_VISIT(
@@ -495,7 +495,7 @@ enum class BookingRepositorySql(val sql: String) {
                 AND VISIT.START_TIME > :fromDate AND visit.VISIT_STATUS = 'SCH'
                 ORDER BY VISIT.START_TIME ASC, VISIT.OFFENDER_VISIT_ID ASC)
         WHERE ROWNUM = 1
-    """
+    """,
   ),
 
   GET_BOOKING_APPOINTMENT_BY_EVENT_ID(
@@ -526,7 +526,7 @@ enum class BookingRepositorySql(val sql: String) {
          WHERE OIS.EVENT_ID = :eventId
                AND EVENT_CLASS = 'INT_MOV'
                AND EVENT_TYPE = 'APP'
-    """
+    """,
   ),
 
   INSERT_APPOINTMENT(
@@ -535,7 +535,7 @@ enum class BookingRepositorySql(val sql: String) {
                 EVENT_CLASS, EVENT_TYPE, EVENT_SUB_TYPE, EVENT_STATUS, AGY_LOC_ID, TO_INTERNAL_LOCATION_ID)
         VALUES (EVENT_ID.NEXTVAL, :bookingId, :eventDate, :startTime, :endTime, :comment,
                 'INT_MOV', 'APP', :eventSubType, 'SCH', :agencyId, :locationId)
-    """
+    """,
   ),
 
   DELETE_APPOINTMENT(
@@ -544,7 +544,7 @@ enum class BookingRepositorySql(val sql: String) {
          WHERE EVENT_ID = :eventId
                AND EVENT_CLASS = 'INT_MOV'
                AND EVENT_TYPE = 'APP'
-    """
+    """,
   ),
 
   UPDATE_APPOINTMENT_COMMENT(
@@ -554,7 +554,7 @@ enum class BookingRepositorySql(val sql: String) {
        WHERE EVENT_ID = :eventId
              AND EVENT_CLASS = 'INT_MOV'
              AND EVENT_TYPE = 'APP'
-    """
+    """,
   ),
 
   FIND_BOOKING_IDS_BY_OFFENDER_NO(
@@ -564,7 +564,7 @@ enum class BookingRepositorySql(val sql: String) {
         LEFT JOIN OFFENDER_BOOKINGS B ON B.OFFENDER_ID = O.OFFENDER_ID
                 WHERE O.OFFENDER_ID_DISPLAY = :offenderNo
         ORDER BY B.BOOKING_SEQ
-    """
+    """,
   ),
 
   GET_LATEST_BOOKING_BY_BOOKING_ID(
@@ -594,7 +594,7 @@ enum class BookingRepositorySql(val sql: String) {
                 FROM OFFENDERS O2
                 INNER JOIN OFFENDER_BOOKINGS OB2 ON O2.OFFENDER_ID = OB2.OFFENDER_ID
                 WHERE OB2.OFFENDER_BOOK_ID = :bookingId)
-    """
+    """,
   ),
 
   GET_LATEST_BOOKING_BY_OFFENDER_NO(
@@ -621,7 +621,7 @@ enum class BookingRepositorySql(val sql: String) {
         INNER JOIN AGENCY_LOCATIONS AL ON AL.AGY_LOC_ID = OB.AGY_LOC_ID
                 LEFT JOIN AGENCY_INTERNAL_LOCATIONS AIL ON AIL.INTERNAL_LOCATION_ID = OB.LIVING_UNIT_ID
                 WHERE O.OFFENDER_ID_DISPLAY = :offenderNo
-    """
+    """,
   ),
 
   FIND_BOOKINGS_BY_PERSON_CONTACT(
@@ -650,7 +650,7 @@ enum class BookingRepositorySql(val sql: String) {
                 WHERE PI.IDENTIFIER = :identifier
         AND OCP.RELATIONSHIP_TYPE = COALESCE(:relationshipType, OCP.RELATIONSHIP_TYPE)
         AND OB.ACTIVE_FLAG = 'Y'
-    """
+    """,
   ),
 
   FIND_BOOKINGS_BY_PERSON_ID_CONTACT(
@@ -675,7 +675,7 @@ enum class BookingRepositorySql(val sql: String) {
                 LEFT JOIN AGENCY_INTERNAL_LOCATIONS AIL ON OB.LIVING_UNIT_ID = AIL.INTERNAL_LOCATION_ID
                 WHERE OCP.RELATIONSHIP_TYPE = COALESCE(:relationshipType, OCP.RELATIONSHIP_TYPE)
         AND OB.ACTIVE_FLAG = 'Y'
-    """
+    """,
   ),
 
   FIND_BOOKING_IDS_IN_AGENCY(
@@ -684,7 +684,7 @@ enum class BookingRepositorySql(val sql: String) {
         FROM OFFENDER_BOOKINGS OB
         WHERE OB.OFFENDER_BOOK_ID IN (:bookingIds)
         AND OB.AGY_LOC_ID = :agencyId
-    """
+    """,
   ),
 
   FIND_VO_PVO_BALANCE_DETAILS(
@@ -700,14 +700,14 @@ enum class BookingRepositorySql(val sql: String) {
          
         FROM OFFENDER_VISIT_BALANCES OVB
         WHERE OVB.OFFENDER_BOOK_ID = :bookingId
-    """
+    """,
   ),
 
   INSERT_VO_PVO_BALANCE(
     """
         INSERT INTO offender_visit_balances (offender_book_id, remaining_vo, remaining_pvo)
         VALUES (:bookingId, :voBalance, :pvoBalance)
-    """
+    """,
   ),
 
   ACTIVITIES_BOOKING_ID_CLAUSE(" AND OPP.OFFENDER_BOOK_ID = :bookingId"),
@@ -715,5 +715,5 @@ enum class BookingRepositorySql(val sql: String) {
   VISITS_BOOKING_ID_CLAUSE(" AND VIS.OFFENDER_BOOK_ID = :bookingId"),
   VISITS_BOOKING_ID_IN_CLAUSE(" AND VIS.OFFENDER_BOOK_ID IN (:bookingIds)"),
   APPOINTMENTS_BOOKING_ID_CLAUSE(" AND OIS.OFFENDER_BOOK_ID = :bookingId"),
-  APPOINTMENTS_BOOKING_ID_IN_CLAUSE(" AND OIS.OFFENDER_BOOK_ID IN (:bookingIds)")
+  APPOINTMENTS_BOOKING_ID_IN_CLAUSE(" AND OIS.OFFENDER_BOOK_ID IN (:bookingIds)"),
 }

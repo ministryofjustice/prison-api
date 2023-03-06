@@ -80,7 +80,7 @@ class DigitalWarrantService(
     val legalCaseType = legalCaseTypeReferenceCodeRepository.findById(LegalCaseType.pk(courtCase.caseType)).orElseThrow(EntityNotFoundException.withIdAndClass(courtCase.caseType, LegalCaseType::class.java))
     val booking = offenderBookingRepository.findByBookingId(bookingId).orElseThrow(EntityNotFoundException.withIdAndClass(bookingId, OffenderBooking::class.java))
     val caseStatus = caseStatusReferenceCodeRepository.findById(CaseStatus.pk("A")).orElseThrow(EntityNotFoundException.withIdAndClass("A", CaseStatus::class.java))
-    val sequence = offenderCourtCaseRepository.findAllByOffenderBooking_BookingId(bookingId).stream().max(Comparator.comparing { obj: OffenderCourtCase -> obj.caseSeq }).map { occ: OffenderCourtCase -> occ.caseSeq + 1 }.orElse(1L)
+    val sequence = offenderCourtCaseRepository.findAllByOffenderBooking_BookingId(bookingId).stream().max(Comparator.comparing { obj: OffenderCourtCase -> obj.caseSeq }).map { occ: OffenderCourtCase -> occ.caseSeq + 1 }.orElse(1)
     val offenderCourtCase = OffenderCourtCase()
       .withCaseInfoNumber(courtCase.caseInfoNumber)
       .withLegalCaseType(legalCaseType)
@@ -192,7 +192,7 @@ class DigitalWarrantService(
       OffenderImprisonmentStatus()
         .withImprisonmentStatus(status)
         .withAgyLocId(booking.location.id),
-      LocalDateTime.now()
+      LocalDateTime.now(),
     )
     return offenderSentence.sequence
   }
@@ -208,7 +208,7 @@ class DigitalWarrantService(
           .withAdjustFromDate(adjustment.from)
           .withAdjustToDate(adjustment.to)
           .withAdjustDays(adjustment.days)
-          .withSentenceAdjustCode(BookingAdjustmentType.valueOf(adjustment.type).code)
+          .withSentenceAdjustCode(BookingAdjustmentType.valueOf(adjustment.type).code),
       ).id
     } else {
       return sentenceAdjustmentRepository.save(
@@ -219,7 +219,7 @@ class DigitalWarrantService(
           .withAdjustToDate(adjustment.to)
           .withAdjustDays(adjustment.days)
           .withSentenceAdjustCode(SentenceAdjustmentType.valueOf(adjustment.type).code)
-          .withSentenceSeq(adjustment.sequence)
+          .withSentenceSeq(adjustment.sequence),
       ).id
     }
   }
@@ -238,13 +238,15 @@ class DigitalWarrantService(
           charge.id,
           charge.offence.code,
           charge.offence.statute.code,
+          charge.offence.description,
           charge.dateOfOffence,
           charge.endDate,
           charge.pleaCode == "G",
           charge.offenderCourtCase.id,
-          charge.offenderSentenceCharges.firstOrNull()?.offenderSentence?.sequence
+          charge.offenderCourtCase.caseInfoNumber,
+          charge.offenderSentenceCharges.firstOrNull()?.offenderSentence?.sequence,
         ),
-        charge.offenderBooking.bookingId
+        charge.offenderBooking.bookingId,
       )
     }
       .sortedBy { it.date }

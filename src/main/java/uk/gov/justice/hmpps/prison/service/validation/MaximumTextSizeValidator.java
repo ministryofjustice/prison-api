@@ -3,8 +3,8 @@ package uk.gov.justice.hmpps.prison.service.validation;
 import com.google.common.base.Utf8;
 import org.springframework.stereotype.Component;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 @Component
 public class MaximumTextSizeValidator implements ConstraintValidator<MaximumTextSize, String> {

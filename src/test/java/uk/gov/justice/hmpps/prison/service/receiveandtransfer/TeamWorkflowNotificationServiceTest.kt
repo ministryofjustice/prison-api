@@ -63,7 +63,7 @@ internal class TeamWorkflowNotificationServiceTest {
           check {
             assertThat(it.offenderBooking).isEqualTo(booking)
             assertThat(it.functionTypeCode).isEqualTo("AUTO_TRN")
-          }
+          },
         )
       }
 
@@ -72,6 +72,7 @@ internal class TeamWorkflowNotificationServiceTest {
         service.sendTransferViaCourtNotification(booking) { movement }
         verifyNoInteractions(workflowTaskService)
       }
+
       @Test
       internal fun `will return movement from lambda call`() {
         assertThat(service.sendTransferViaCourtNotification(booking) { movement }).isEqualTo(movement)
@@ -91,7 +92,7 @@ internal class TeamWorkflowNotificationServiceTest {
         null,
         InstitutionArea("KENT", "Kent"),
         AgencyLocation().apply { id = "BXI"; description = "HMPS Brixton" },
-        2L
+        2L,
       )
 
       @BeforeEach

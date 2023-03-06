@@ -11,6 +11,7 @@ class DatabaseRestoreInfoService(private val misStopPointRepository: MisStopPoin
   private companion object {
     private val log = LoggerFactory.getLogger(DatabaseRestoreInfoService::class.java)
   }
+
   /**
    * We can use the earliest min stop point date - 1 day to determine when the database was last restored.
    * For environments other than pre-production this table might not be readable by the current user so will return null.

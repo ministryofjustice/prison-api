@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +27,8 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class OffenderEducationServiceTest {
+
+    private final int BATCH_SIZE = 1;
 
     private final String nomisId = "abc";
 
@@ -74,7 +77,7 @@ public class OffenderEducationServiceTest {
 
     @BeforeEach
     void setup() {
-        service = new OffenderEducationService(repository, transformer);
+        service = new OffenderEducationService(repository, transformer, BATCH_SIZE);
     }
 
     @Test
@@ -87,6 +90,20 @@ public class OffenderEducationServiceTest {
 
         verify(transformer, times(1)).convert(education1);
         verify(transformer, times(1)).convert(education2);
+    }
 
+    @Test
+    public void getOffenderEducationsInBulk_inBatchesOfOne() {
+        final var educations = List.of(education1, education2);
+
+        when(repository.findAllByNomisIdIn(List.of(nomisId))).thenReturn(educations);
+        when(repository.findAllByNomisIdIn(List.of("ABC123"))).thenReturn(Collections.emptyList());
+
+        service.getOffenderEducations(List.of(nomisId, "ABC123"));
+
+        verify(repository).findAllByNomisIdIn(List.of(nomisId));
+        verify(repository).findAllByNomisIdIn(List.of("ABC123"));
+        verify(transformer, times(1)).convert(education1);
+        verify(transformer, times(1)).convert(education2);
     }
 }

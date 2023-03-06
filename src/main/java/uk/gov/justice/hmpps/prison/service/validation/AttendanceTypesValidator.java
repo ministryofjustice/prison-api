@@ -6,8 +6,8 @@ import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
 import uk.gov.justice.hmpps.prison.service.ReferenceDomainService;
 import uk.gov.justice.hmpps.prison.service.support.ReferenceDomain;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 @Component
 public class AttendanceTypesValidator implements ConstraintValidator<AttendanceTypesValid, UpdateAttendance> {

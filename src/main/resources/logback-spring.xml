@@ -7,77 +7,63 @@
 
     <springProperty scope="context" name="app" source="spring.application.name"/>
 
-    <springProfile name="dev || stdout">
-        <appender name="consoleAppender" class="ch.qos.logback.core.helpers.NOPAppender" />
-        <appender name="logAppender" class="ch.qos.logback.core.ConsoleAppender">
-            <layout class="ch.qos.logback.classic.PatternLayout">
-                <Pattern>${LOG_PATTERN}</Pattern>
-            </layout>
-        </appender>
-    </springProfile>
-
-    <springProfile name="!(dev || stdout)">
-        <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
-            <layout class="ch.qos.logback.classic.PatternLayout">
-                <Pattern>${LOG_PATTERN}</Pattern>
-            </layout>
-        </appender>
-        <appender name="logAppender" class="com.microsoft.applicationinsights.logback.ApplicationInsightsAppender"/>
-    </springProfile>
+    <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>${LOG_PATTERN}</Pattern>
+        </layout>
+    </appender>
 
     <logger name="uk.gov.justice.hmpps.prison.PrisonApiServer" additivity="false" level="DEBUG">
-        <appender-ref ref="logAppender"/>
         <appender-ref ref="consoleAppender"/>
     </logger>
 
     <logger name="uk.gov.justice.hmpps" additivity="false" level="DEBUG">
-        <appender-ref ref="logAppender"/>
+        <appender-ref ref="consoleAppender"/>
     </logger>
 
     <logger name="uk.gov.justice.hmpps.prison.repository.mapping" additivity="false" level="INFO">
-        <appender-ref ref="logAppender"/>
+        <appender-ref ref="consoleAppender"/>
     </logger>
 
     <logger name="uk.gov.justice.hmpps.prison.repository.v1.storedprocs" additivity="false" level="INFO">
-        <appender-ref ref="logAppender"/>
+        <appender-ref ref="consoleAppender"/>
     </logger>
 
     <logger name="org.springframework" additivity="false" level="INFO" >
-        <appender-ref ref="logAppender"/>
+        <appender-ref ref="consoleAppender"/>
     </logger>
 
     <logger name="springfox.documentation.spring" additivity="false" level="INFO" >
-        <appender-ref ref="logAppender"/>
+        <appender-ref ref="consoleAppender"/>
     </logger>
 
     <logger name="org.glassfish.jersey" additivity="false" level="INFO" >
-        <appender-ref ref="logAppender"/>
+        <appender-ref ref="consoleAppender"/>
     </logger>
 
     <logger name="com.microsoft.applicationinsights" additivity="false" level="INFO" >
-        <appender-ref ref="logAppender"/>
+        <appender-ref ref="consoleAppender"/>
     </logger>
 
     <logger name="com.zaxxer.hikari" additivity="false" level="INFO" >
-        <appender-ref ref="logAppender"/>
+        <appender-ref ref="consoleAppender"/>
     </logger>
 
     <logger name="org.apache.catalina" additivity="false" level="INFO">
-        <appender-ref ref="logAppender"/>
         <appender-ref ref="consoleAppender"/>
     </logger>
 
     <logger name="org.flywaydb" additivity="false" level="INFO" >
-        <appender-ref ref="logAppender"/>
+        <appender-ref ref="consoleAppender"/>
     </logger>
 
     <root level="INFO">
-        <appender-ref ref="logAppender"/>
+        <appender-ref ref="consoleAppender"/>
     </root>
 
     <springProfile name="ai">
         <root level="INFO">
-            <appender-ref ref="logAppender"/>
+            <appender-ref ref="consoleAppender"/>
         </root>
     </springProfile>
 </configuration>

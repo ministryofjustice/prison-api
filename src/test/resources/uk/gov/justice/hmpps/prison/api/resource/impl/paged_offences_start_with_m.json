@@ -60,11 +60,6 @@
         "legislatingBodyCode": "LG1",
         "activeFlag": "Y"
       },
-      "hoCode": {
-        "code": "815/90",
-        "description": "Ho Code 815/90",
-        "activeFlag": "Y"
-      },
       "severityRanking": "700",
       "activeFlag": "Y"
     },

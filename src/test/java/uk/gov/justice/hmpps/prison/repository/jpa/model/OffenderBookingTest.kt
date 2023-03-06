@@ -53,8 +53,8 @@ class OffenderBookingTest {
     fun courtCaseBy_returns_matching_case() {
       assertThat(
         OffenderBooking.builder().courtCases(listOf(ACTIVE_COURT_CASE)).build().getCourtCaseBy(
-          ACTIVE_COURT_CASE.id
-        )
+          ACTIVE_COURT_CASE.id,
+        ),
       ).hasValue(ACTIVE_COURT_CASE)
     }
 
@@ -106,7 +106,7 @@ class OffenderBookingTest {
               .movementReason(MovementReason("B", "Recall"))
               .movementTime(LocalDateTime.of(2019, 1, 4, 9, 30))
               .toAgency(AgencyLocation.builder().id("WWI").build())
-              .build()
+              .build(),
           )
           it.addExternalMovement(
             ExternalMovement.builder()
@@ -114,7 +114,7 @@ class OffenderBookingTest {
               .movementDirection(MovementDirection.OUT)
               .movementReason(MovementReason("CR", "Conditional Release"))
               .movementTime(LocalDateTime.of(2019, 2, 28, 15, 30))
-              .build()
+              .build(),
           )
         }
 
@@ -131,7 +131,7 @@ class OffenderBookingTest {
               .movementReason(MovementReason("25", "Awaiting Sentence"))
               .movementTime(LocalDateTime.of(2020, 1, 4, 9, 30))
               .toAgency(AgencyLocation.builder().id("MDI").build())
-              .build()
+              .build(),
           )
           it.addExternalMovement(
             ExternalMovement.builder()
@@ -139,7 +139,7 @@ class OffenderBookingTest {
               .movementDirection(MovementDirection.OUT)
               .movementReason(MovementReason("C4", "Wedding"))
               .movementTime(LocalDateTime.of(2020, 1, 15, 9, 30))
-              .build()
+              .build(),
           )
           it.addExternalMovement(
             ExternalMovement.builder()
@@ -147,7 +147,7 @@ class OffenderBookingTest {
               .movementDirection(MovementDirection.IN)
               .movementReason(MovementReason("C4", "Wedding"))
               .movementTime(LocalDateTime.of(2020, 1, 15, 15, 30))
-              .build()
+              .build(),
           )
           it.addExternalMovement(
             ExternalMovement.builder()
@@ -155,7 +155,7 @@ class OffenderBookingTest {
               .movementDirection(MovementDirection.OUT)
               .movementReason(MovementReason("BL", "Bailed"))
               .movementTime(LocalDateTime.of(2020, 2, 28, 15, 30))
-              .build()
+              .build(),
           )
         }
       OffenderBooking.builder()
@@ -171,7 +171,7 @@ class OffenderBookingTest {
               .movementReason(MovementReason("B", "Recall"))
               .movementTime(LocalDateTime.of(2021, 1, 4, 9, 30))
               .toAgency(AgencyLocation.builder().id("MDI").build())
-              .build()
+              .build(),
           )
           it.addExternalMovement(
             ExternalMovement.builder()
@@ -179,7 +179,7 @@ class OffenderBookingTest {
               .movementDirection(MovementDirection.OUT)
               .movementReason(MovementReason("CRT", "Court Appearance"))
               .movementTime(LocalDateTime.of(2021, 1, 15, 9, 30))
-              .build()
+              .build(),
           )
           it.addExternalMovement(
             ExternalMovement.builder()
@@ -187,7 +187,7 @@ class OffenderBookingTest {
               .movementDirection(MovementDirection.IN)
               .movementReason(MovementReason("CRT", "Court Appearance"))
               .movementTime(LocalDateTime.of(2021, 1, 15, 15, 30))
-              .build()
+              .build(),
           )
           it.addExternalMovement(
             ExternalMovement.builder()
@@ -195,7 +195,7 @@ class OffenderBookingTest {
               .movementDirection(MovementDirection.OUT)
               .movementReason(MovementReason("HP", "Hospital"))
               .movementTime(LocalDateTime.of(2021, 2, 28, 15, 30))
-              .build()
+              .build(),
           )
         }
 
@@ -232,7 +232,7 @@ class OffenderBookingTest {
               .movementDirection(MovementDirection.OUT)
               .movementReason(MovementReason("CR", "Conditional Release"))
               .movementTime(LocalDateTime.parse("2019-02-28T15:30"))
-              .build()
+              .build(),
           )
         }
       OffenderBooking.builder()
@@ -248,7 +248,7 @@ class OffenderBookingTest {
               .movementDirection(MovementDirection.OUT)
               .movementReason(MovementReason("CR", "Conditional Release"))
               .movementTime(LocalDateTime.parse("2019-02-28T16:30"))
-              .build()
+              .build(),
           )
         }
 
@@ -277,7 +277,7 @@ class OffenderBookingTest {
               .movementDirection(MovementDirection.IN)
               .movementReason(MovementReason("C4", "Wedding"))
               .movementTime(LocalDateTime.parse("2019-01-03T09:30"))
-              .build()
+              .build(),
           )
           it.addExternalMovement(
             ExternalMovement.builder()
@@ -285,7 +285,7 @@ class OffenderBookingTest {
               .movementDirection(MovementDirection.OUT)
               .movementReason(MovementReason("C4", "Wedding"))
               .movementTime(LocalDateTime.parse("2019-01-03T14:30"))
-              .build()
+              .build(),
           )
           // this movement is the admission so expect the start date for this one
           it.addExternalMovement(
@@ -295,7 +295,7 @@ class OffenderBookingTest {
               .movementReason(MovementReason("B", "Recall"))
               .movementTime(LocalDateTime.parse("2019-01-04T09:30"))
               .toAgency(AgencyLocation.builder().id("WWI").build())
-              .build()
+              .build(),
           )
           it.addExternalMovement(
             ExternalMovement.builder()
@@ -303,7 +303,7 @@ class OffenderBookingTest {
               .movementDirection(MovementDirection.OUT)
               .movementReason(MovementReason("CR", "Conditional Release"))
               .movementTime(LocalDateTime.parse("2019-02-28T15:30"))
-              .build()
+              .build(),
           )
         }
       OffenderBooking.builder()
@@ -319,7 +319,7 @@ class OffenderBookingTest {
               .movementReason(MovementReason("25", "Awaiting Sentence"))
               .movementTime(LocalDateTime.parse("2020-01-04T09:30"))
               .toAgency(AgencyLocation.builder().id("MDI").build())
-              .build()
+              .build(),
           )
         }
 
@@ -351,7 +351,7 @@ class OffenderBookingTest {
               .movementReason(MovementReason("B", "Recall"))
               .movementTime(LocalDateTime.of(2019, 1, 4, 9, 30))
               .toAgency(AgencyLocation.builder().id("MDI").build())
-              .build()
+              .build(),
           )
           it.addExternalMovement(
             ExternalMovement.builder()
@@ -361,7 +361,7 @@ class OffenderBookingTest {
               .movementTime(LocalDateTime.of(2019, 1, 5, 12, 15))
               .fromAgency(AgencyLocation.builder().id("MDI").build())
               .toAgency(AgencyLocation.builder().id("WWI").build())
-              .build()
+              .build(),
           )
           it.addExternalMovement(
             ExternalMovement.builder()
@@ -371,7 +371,7 @@ class OffenderBookingTest {
               .movementTime(LocalDateTime.of(2019, 1, 7, 10, 0))
               .fromAgency(AgencyLocation.builder().id("MDI").build())
               .toAgency(AgencyLocation.builder().id("WWI").build())
-              .build()
+              .build(),
           )
           it.addExternalMovement(
             ExternalMovement.builder()
@@ -381,7 +381,7 @@ class OffenderBookingTest {
               .movementTime(LocalDateTime.of(2019, 2, 28, 15, 30))
               .fromAgency(AgencyLocation.builder().id("WWI").build())
               .toAgency(AgencyLocation.builder().id("OUT").build())
-              .build()
+              .build(),
           )
         }
 
@@ -412,7 +412,7 @@ class OffenderBookingTest {
               .movementReason(MovementReason("I", "In"))
               .movementTime(LocalDateTime.of(2018, 1, 4, 9, 30))
               .toAgency(AgencyLocation.builder().id("MDI").build())
-              .build()
+              .build(),
           )
           it.addExternalMovement(
             ExternalMovement.builder()
@@ -422,7 +422,7 @@ class OffenderBookingTest {
               .movementTime(LocalDateTime.of(2018, 2, 28, 15, 30))
               .fromAgency(AgencyLocation.builder().id("MDI").build())
               .toAgency(AgencyLocation.builder().id("OUT").build())
-              .build()
+              .build(),
           )
         }
 
@@ -441,7 +441,7 @@ class OffenderBookingTest {
               .movementReason(MovementReason("I", "In"))
               .movementTime(LocalDateTime.of(2019, 1, 4, 9, 30))
               .toAgency(AgencyLocation.builder().id("MDI").build())
-              .build()
+              .build(),
           )
           it.addExternalMovement(
             ExternalMovement.builder()
@@ -450,7 +450,7 @@ class OffenderBookingTest {
               .movementReason(MovementReason("C5", "C5"))
               .movementTime(LocalDateTime.of(2019, 1, 7, 12, 15))
               .fromAgency(AgencyLocation.builder().id("MDI").build())
-              .build()
+              .build(),
           )
           it.addExternalMovement(
             ExternalMovement.builder()
@@ -459,7 +459,7 @@ class OffenderBookingTest {
               .movementReason(MovementReason("C5", "C5"))
               .movementTime(LocalDateTime.of(2019, 1, 5, 10, 0))
               .toAgency(AgencyLocation.builder().id("MDI").build())
-              .build()
+              .build(),
           )
           it.addExternalMovement(
             ExternalMovement.builder()
@@ -469,7 +469,7 @@ class OffenderBookingTest {
               .movementTime(LocalDateTime.of(2019, 2, 28, 15, 30))
               .fromAgency(AgencyLocation.builder().id("MDI").build())
               .toAgency(AgencyLocation.builder().id("OUT").build())
-              .build()
+              .build(),
           )
         }
 

@@ -4,5 +4,5 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 
 fun OffenderBookingRepository.findByOffenderNomsIdAndBookingSequenceOrNull(
   nomsId: String,
-  bookingSequence: Int
+  bookingSequence: Int,
 ): OffenderBooking? = this.findByOffenderNomsIdAndBookingSequence(nomsId, bookingSequence).orElse(null)

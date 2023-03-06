@@ -18,7 +18,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationReposit
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import java.time.Clock;
 import java.time.ZoneId;
 import java.util.ArrayList;

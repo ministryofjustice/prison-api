@@ -8,20 +8,20 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
 import org.hibernate.Hibernate;
-import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.NotFound;
-import org.hibernate.annotations.Type;
+import org.hibernate.type.YesNoConverter;
+import jakarta.persistence.Convert;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import java.util.Objects;
 
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
@@ -34,18 +34,17 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @Setter
 @RequiredArgsConstructor
 @Table(name = "AGENCY_INTERNAL_LOCATIONS")
-@BatchSize(size = 25)
 public class AgencyInternalLocation {
     @Id
     @Column(name = "INTERNAL_LOCATION_ID")
     private Long locationId;
 
     @Column(name = "ACTIVE_FLAG")
-    @Type(type="yes_no")
+    @Convert(converter = YesNoConverter.class)
     private boolean active;
 
     @Column(name = "CERTIFIED_FLAG")
-    @Type(type="yes_no")
+    @Convert(converter = YesNoConverter.class)
     private boolean certifiedFlag;
 
     @Column(name = "INTERNAL_LOCATION_TYPE")

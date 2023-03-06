@@ -42,26 +42,27 @@ class ActivityTransferServiceIntTest : ResourceTest() {
     internal fun setUp() {
       OffenderBuilder().withBooking(
         OffenderBookingBuilder(
-          prisonId = "LEI", bookingInTime = bookingInTime
+          prisonId = "LEI",
+          bookingInTime = bookingInTime,
         )
           .withIEPLevel("ENH")
           .withInitialVoBalances(2, 8)
           .withProgramProfiles(
             OffenderProgramProfileBuilder(),
             OffenderProgramProfileBuilder(
-              courseActivityId = -3
+              courseActivityId = -3,
             ),
             OffenderProgramProfileBuilder(
               programStatus = "WAIT",
-              courseActivityId = -4
+              courseActivityId = -4,
             ),
             // rejected waitlist decision should mean that this is ignored
             OffenderProgramProfileBuilder(
               programStatus = "WAIT",
               waitListDecisionCode = "REJ",
-              courseActivityId = -5
-            )
-          )
+              courseActivityId = -5,
+            ),
+          ),
       ).save(testDataContext).also {
         offenderNo = it.offenderNo
         bookingId = it.bookingId
@@ -78,40 +79,51 @@ class ActivityTransferServiceIntTest : ResourceTest() {
 
       assertThat(
         getActiveActivities(
-          offenderBooking, prison, testEndDate
-        )
+          offenderBooking,
+          prison,
+          testEndDate,
+        ),
       ).extracting(
-        OffenderProgramProfile::getProgramStatus, { it.courseActivity.activityId }
+        OffenderProgramProfile::getProgramStatus,
+        { it.courseActivity.activityId },
       ).containsExactlyInAnyOrder(
-        tuple("ALLOC", -1L), tuple("ALLOC", -3L)
+        tuple("ALLOC", -1L),
+        tuple("ALLOC", -3L),
       )
 
       assertThat(
         getActiveWaitList(
-          offenderBooking, prison
-        )
+          offenderBooking,
+          prison,
+        ),
       ).extracting(
         OffenderProgramProfile::getProgramStatus,
         { it.courseActivity.activityId },
-        OffenderProgramProfile::getWaitlistDecisionCode
+        OffenderProgramProfile::getWaitlistDecisionCode,
       ).containsExactly(
-        tuple("WAIT", -4L, null)
+        tuple("WAIT", -4L, null),
       )
 
       transferService.endActivitiesAndWaitlist(
-        offenderBooking, prison, testEndDate, OffenderProgramEndReason.TRF.code
+        offenderBooking,
+        prison,
+        testEndDate,
+        OffenderProgramEndReason.TRF.code,
       )
 
       assertThat(
         getActiveActivities(
-          offenderBooking, prison, testEndDate
-        )
+          offenderBooking,
+          prison,
+          testEndDate,
+        ),
       ).isEmpty()
 
       assertThat(
         getActiveWaitList(
-          offenderBooking, prison
-        )
+          offenderBooking,
+          prison,
+        ),
       ).isEmpty()
     }
   }
@@ -119,18 +131,21 @@ class ActivityTransferServiceIntTest : ResourceTest() {
   fun getActiveActivities(
     offenderBooking: OffenderBooking,
     prison: AgencyLocation,
-    testEndDate: LocalDate
+    testEndDate: LocalDate,
   ): List<OffenderProgramProfile> =
     testDataContext.dataLoader.offenderProgramProfileRepository.findActiveActivitiesForBookingAtPrison(
-      offenderBooking, prison, testEndDate
+      offenderBooking,
+      prison,
+      testEndDate,
     )
 
   fun getActiveWaitList(
     offenderBooking: OffenderBooking,
-    prison: AgencyLocation
+    prison: AgencyLocation,
   ): List<OffenderProgramProfile> =
     testDataContext.dataLoader.offenderProgramProfileRepository.findActiveWaitListActivitiesForBookingAtPrison(
-      offenderBooking, prison
+      offenderBooking,
+      prison,
     )
 
   fun transferOutToCourt(offenderNo: String, toLocation: String, shouldReleaseBed: Boolean = false): LocalDateTime {
@@ -148,8 +163,8 @@ class ActivityTransferServiceIntTest : ResourceTest() {
             "shouldReleaseBed": $shouldReleaseBed
             
           }
-          """.trimIndent()
-        )
+          """.trimIndent(),
+        ),
       ).exchange().expectStatus().isOk.expectBody().jsonPath("inOutStatus").isEqualTo("OUT").jsonPath("status")
       .isEqualTo("ACTIVE OUT").jsonPath("lastMovementTypeCode").isEqualTo("CRT").jsonPath("lastMovementReasonCode")
       .isEqualTo("19").jsonPath("assignedLivingUnit.agencyId").isEqualTo("LEI")

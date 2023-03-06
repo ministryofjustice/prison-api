@@ -2,7 +2,7 @@ package uk.gov.justice.hmpps.prison.api.model.bulkappointments;
 
 import org.junit.jupiter.api.Test;
 
-import javax.validation.ValidationException;
+import jakarta.validation.ValidationException;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 

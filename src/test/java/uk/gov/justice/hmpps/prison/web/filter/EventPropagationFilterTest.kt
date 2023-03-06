@@ -1,5 +1,8 @@
 package uk.gov.justice.hmpps.prison.web.filter
 
+import jakarta.servlet.FilterChain
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import org.junit.Test
 import org.mockito.Mockito.anyString
 import org.mockito.Mockito.mockStatic
@@ -8,9 +11,6 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import org.slf4j.MDC
 import uk.gov.justice.hmpps.prison.util.MdcUtility.SUPPRESS_XTAG_EVENTS
-import javax.servlet.FilterChain
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
 
 class EventPropagationFilterTest {
 

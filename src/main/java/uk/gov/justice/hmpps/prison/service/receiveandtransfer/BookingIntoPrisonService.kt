@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service.receiveandtransfer
 
+import jakarta.persistence.EntityManager
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -42,7 +43,6 @@ import uk.gov.justice.hmpps.prison.service.ConflictingRequestException
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 import uk.gov.justice.hmpps.prison.service.createbooking.CopyPreviousBookingService
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer
-import javax.persistence.EntityManager
 import kotlin.Result.Companion.failure
 import kotlin.Result.Companion.success
 
@@ -67,10 +67,10 @@ class BookingIntoPrisonService(
   private val trustAccountService: TrustAccountService,
   private val caseNoteTransferService: CaseNoteTransferService,
   staffUserAccountRepository: StaffUserAccountRepository,
-  authenticationFacade: AuthenticationFacade
+  authenticationFacade: AuthenticationFacade,
 ) : StaffAwareTransferService(
   staffUserAccountRepository = staffUserAccountRepository,
-  authenticationFacade = authenticationFacade
+  authenticationFacade = authenticationFacade,
 ) {
   fun newBooking(prisonerIdentifier: String, requestForNewBooking: RequestForNewBooking): InmateDetail {
     return newBooking(offender(prisonerIdentifier).getOrThrow(), requestForNewBooking)
@@ -82,7 +82,7 @@ class BookingIntoPrisonService(
     val prison = prison(requestForNewBooking.prisonId).getOrThrow()
     val cellOrReception = cellOrReceptionCode(
       requestForNewBooking.prisonId,
-      requestForNewBooking.cellLocation
+      requestForNewBooking.cellLocation,
     ).let { cellOrLocationWithSpace(it, prison).getOrThrow() }
     val receiveTime =
       externalMovementTransferService.getReceiveDateTime(requestForNewBooking.bookingInTime, previousBooking)
@@ -109,7 +109,7 @@ class BookingIntoPrisonService(
         .withRootOffender(offender.rootOffender)
         .withAdmissionReason("NCO")
         .withBookingSequence(1)
-        .withStatusReason("${MovementType.ADM.code}-${requestForNewBooking.movementReasonCode}")
+        .withStatusReason("${MovementType.ADM.code}-${requestForNewBooking.movementReasonCode}"),
     ).also { newBooking ->
       entityManager.flush()
       val fromLocation = fromLocation(requestForNewBooking.fromLocationId).getOrThrow()
@@ -120,7 +120,7 @@ class BookingIntoPrisonService(
         fromLocation = fromLocation,
         prison = prison,
         receiveDateTime = receiveTime,
-        commentText = "New Booking"
+        commentText = "New Booking",
       ).also { movement ->
         bedAssignmentTransferService.createBedHistory(newBooking, cellOrReception, receiveTime, MovementType.ADM.code)
         previousBooking?.copyKeyDataFromPreviousBooking(newBooking, movement).also {
@@ -132,7 +132,7 @@ class BookingIntoPrisonService(
           OffenderImprisonmentStatus()
             .withAgyLocId(prison.id)
             .withImprisonmentStatus(imprisonmentStatus),
-          receiveTime
+          receiveTime,
         )
         caseNoteTransferService.createGenerateAdmissionNote(newBooking, movement)
       }
@@ -164,7 +164,7 @@ class BookingIntoPrisonService(
             OffenderImprisonmentStatus()
               .withAgyLocId(prison.id)
               .withImprisonmentStatus(it),
-            receiveTime
+            receiveTime,
           )
         }
 
@@ -174,7 +174,7 @@ class BookingIntoPrisonService(
         fromLocation = fromLocation,
         prison = prison,
         receiveDateTime = receiveTime,
-        commentText = "Recall"
+        commentText = "Recall",
       ).also { movement ->
         bedAssignmentTransferService.createBedHistory(booking, cellOrReception, receiveTime, MovementType.ADM.code)
         booking.resetYouthStatus(isYouthOffender)
@@ -201,22 +201,22 @@ class BookingIntoPrisonService(
     agencyLocationRepository.findByIdAndDeactivationDateIsNullOrNull(it)?.let { location -> success(location) }
       ?: failure(EntityNotFoundException.withMessage("$it is not a valid from location"))
   } ?: agencyLocationRepository.findByIdOrNull(AgencyLocation.OUT)?.let { success(it) } ?: failure(
-    EntityNotFoundException.withMessage("${AgencyLocation.OUT} is not a valid from location")
+    EntityNotFoundException.withMessage("${AgencyLocation.OUT} is not a valid from location"),
   )
 
   private fun imprisonmentStatus(imprisonmentStatus: String): Result<ImprisonmentStatus> =
     imprisonmentStatusRepository.findByStatusAndActiveOrNull(imprisonmentStatus, true)?.let { success(it) } ?: failure(
-      EntityNotFoundException.withMessage("No imprisonment status $imprisonmentStatus found")
+      EntityNotFoundException.withMessage("No imprisonment status $imprisonmentStatus found"),
     )
 
   private fun prison(prisonId: String): Result<AgencyLocation> =
     agencyLocationTypeRepository.findByIdOrNull(AgencyLocationType.INST)?.let {
       agencyLocationRepository.findByIdAndTypeAndActiveAndDeactivationDateIsNullOrNull(prisonId, it, true)
         ?.let { prison -> success(prison) } ?: failure(
-        EntityNotFoundException.withMessage("$prisonId prison not found")
+        EntityNotFoundException.withMessage("$prisonId prison not found"),
       )
     } ?: failure(
-      EntityNotFoundException.withMessage("Not Found")
+      EntityNotFoundException.withMessage("Not Found"),
     )
 
   private fun cellOrReceptionCode(prisonId: String, cellLocation: String?) =
@@ -224,15 +224,15 @@ class BookingIntoPrisonService(
 
   private fun cellOrLocationWithSpace(
     internalLocationDescription: String,
-    prison: AgencyLocation
+    prison: AgencyLocation,
   ): Result<AgencyInternalLocation> =
     agencyInternalLocationRepository.findOneByDescriptionAndAgencyIdOrNull(internalLocationDescription, prison.id)
       ?.let {
         it.takeIf { it.hasSpace(true) }?.let { internalLocation -> success(internalLocation) } ?: failure(
           ConflictingRequestException.withMessage(
             "The cell $internalLocationDescription does not have any available capacity",
-            CustomErrorCodes.NO_CELL_CAPACITY
-          )
+            CustomErrorCodes.NO_CELL_CAPACITY,
+          ),
         )
       } ?: failure(EntityNotFoundException.withMessage("$internalLocationDescription cell location not found"))
 
@@ -254,12 +254,12 @@ class BookingIntoPrisonService(
 
   private fun ProfileTypeRepository.youthProfile(): Result<ProfileType> =
     this.findByTypeAndCategoryAndActiveOrNull("YOUTH", "PI", true)?.let { success(it) } ?: failure(
-      EntityNotFoundException.withId("YOUTH")
+      EntityNotFoundException.withId("YOUTH"),
     )
 
   private fun ProfileCodeRepository.profile(type: ProfileType, code: String): Result<ProfileCode> =
     this.findByIdOrNull(ProfileCode.PK(type, code))?.let { success(it) } ?: failure(
-      EntityNotFoundException.withMessage("Profile Code for YOUTH and $code not found")
+      EntityNotFoundException.withMessage("Profile Code for YOUTH and $code not found"),
     )
 }
 
@@ -267,7 +267,7 @@ private fun CopyTableRepository.shouldCopyForAdmission(): Boolean =
   findByOperationCodeAndMovementTypeAndActiveAndExpiryDateIsNull(
     "COP",
     MovementType.ADM.code,
-    true
+    true,
   ).isNotEmpty()
 
 private val Offender.latestBookingOrNull: OffenderBooking?

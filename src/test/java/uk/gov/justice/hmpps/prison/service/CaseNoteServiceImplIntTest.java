@@ -10,7 +10,7 @@ import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.repository.CaseNoteRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 
-import javax.validation.ConstraintViolationException;
+import jakarta.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -107,7 +107,7 @@ public class CaseNoteServiceImplIntTest {
     public void getCaseNotesEvents_wrongRole() {
 
         assertThatThrownBy(() -> caseNoteService.getCaseNotesEvents(List.of(), null, 5001L))
-                .hasMessage("Access is denied");
+                .hasMessage("Access Denied");
     }
 
     @Test
@@ -133,7 +133,7 @@ public class CaseNoteServiceImplIntTest {
     public void getCaseNotesEventsNoLimit_wrongRole() {
 
         assertThatThrownBy(() -> caseNoteService.getCaseNotesEvents(List.of(), null))
-                .hasMessage("Access is denied");
+                .hasMessage("Access Denied");
     }
 
     @Test

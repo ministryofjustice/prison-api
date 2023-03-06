@@ -42,7 +42,7 @@ public class StaffRepository extends RepositoryBase {
 
 
 
-    @Cacheable("findByStaffId")
+    @Cacheable(value = "findByStaffId", unless = "#result == null")
     public Optional<StaffDetail> findByStaffId(final Long staffId) {
         Validate.notNull(staffId, "A staff id is required in order to retrieve staff details.");
 

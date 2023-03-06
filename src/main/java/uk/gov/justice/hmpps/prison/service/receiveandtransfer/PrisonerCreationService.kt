@@ -70,7 +70,7 @@ class PrisonerCreationService(
         .withCaseloadType("INST")
         .withLastNameKey(lastName)
         .withLastNameAlphaKey(lastName.take(1))
-        .withLastNameSoundex(Soundex().soundex(lastName))
+        .withLastNameSoundex(Soundex().soundex(lastName)),
     ).also { newPrisoner ->
       newPrisoner.rootOffenderId = newPrisoner.id
       newPrisoner.rootOffender = newPrisoner
@@ -101,7 +101,7 @@ class PrisonerCreationService(
 
   private fun gender(code: String): Result<Gender> =
     genderRepository.findByIdOrNull(ReferenceCode.Pk(Gender.SEX, code))?.let { success(it) } ?: failure(
-      EntityNotFoundException.withMessage("Gender $code not found")
+      EntityNotFoundException.withMessage("Gender $code not found"),
     )
 
   private fun ethnicity(code: String?): Result<Ethnicity>? =
@@ -156,7 +156,7 @@ class PrisonerCreationService(
     offenderRepository.findByLastNameAndFirstNameAndBirthDate(
       this.second,
       this.first,
-      dateOfBirth
+      dateOfBirth,
     )
       .takeIf { matches -> matches.isNotEmpty() }?.let { matches ->
         failure(matches.toNameMatchFailure())
@@ -170,21 +170,21 @@ class PrisonerCreationService(
 private fun List<OffenderIdentifier>.toPncMatchFailure() = first().let {
   BadRequestException.withMessage(
     "Prisoner with PNC ${it.identifier} already exists with ID ${it.offender.nomsId}",
-    CustomErrorCodes.PRISONER_ALREADY_EXIST
+    CustomErrorCodes.PRISONER_ALREADY_EXIST,
   )
 }
 
 private fun List<OffenderIdentifier>.toCroMatchFailure() = first().let {
   BadRequestException.withMessage(
     "Prisoner with CRO ${it.identifier} already exists with ID ${it.offender.nomsId}",
-    CustomErrorCodes.PRISONER_ALREADY_EXIST
+    CustomErrorCodes.PRISONER_ALREADY_EXIST,
   )
 }
 
 private fun List<Offender>.toNameMatchFailure() = first().let {
   BadRequestException.withMessage(
     "Prisoner with lastname ${it.lastName}, firstname ${it.firstName} and dob ${it.birthDate} already exists with ID ${it.nomsId}",
-    CustomErrorCodes.PRISONER_ALREADY_EXIST
+    CustomErrorCodes.PRISONER_ALREADY_EXIST,
   )
 }
 

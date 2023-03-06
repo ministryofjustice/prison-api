@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -34,7 +35,7 @@ public class CurfewSteps extends CommonSteps {
     @Autowired
     private NamedParameterJdbcOperations jdbcTemplate;
 
-    private HttpStatus httpStatus;
+    private HttpStatusCode httpStatus;
     private ErrorResponse errorResponse;
 
     private void resetErrors() {

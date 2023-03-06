@@ -11,7 +11,7 @@ class OffenderProgramProfileBuilder(
   var programStatus: String = "ALLOC",
   var waitListDecisionCode: String? = null,
   var courseActivityId: Long = -1,
-  var programId: Long = -1
+  var programId: Long = -1,
 ) {
 
   fun save(
@@ -19,17 +19,16 @@ class OffenderProgramProfileBuilder(
     prisonId: String,
     dataLoader: DataLoaderRepository,
   ): OffenderProgramProfile {
-
     val prison = dataLoader.agencyLocationRepository.let {
       it.findByIdOrNull(prisonId) ?: throw BadRequestException("prison $prisonId not found")
     }
 
     val offenderBooking = dataLoader.offenderBookingRepository.findByBookingId(offenderBookingId).orElseThrow(
-      BadRequestException("booking $offenderBookingId not found")
+      BadRequestException("booking $offenderBookingId not found"),
     )
 
     val courseActivity = dataLoader.courseActivityRepository.findByIdOrNull(courseActivityId) ?: throw BadRequestException(
-      "prison $prisonId not found"
+      "prison $prisonId not found",
     )
 
     val offenderProgramProfile =

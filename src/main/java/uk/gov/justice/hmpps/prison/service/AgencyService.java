@@ -55,7 +55,7 @@ import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 import uk.gov.justice.hmpps.prison.service.support.ReferenceDomain;
 import uk.gov.justice.hmpps.prison.service.transformers.AgencyTransformer;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Comparator;
@@ -181,6 +181,7 @@ public class AgencyService {
     }
 
     public List<Agency> findAgenciesByUsername(final String username) {
+        if (StringUtils.isBlank(username)) return Collections.emptyList();
         final var agenciesByUsername = agencyRepository.findAgenciesByUsername(username);
         agenciesByUsername.forEach(a -> a.setDescription(LocationProcessor.formatLocation(a.getDescription())));
         return agenciesByUsername;

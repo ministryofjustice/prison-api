@@ -6,11 +6,12 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.With;
-import org.hibernate.annotations.Type;
+import org.hibernate.type.YesNoConverter;
+import jakarta.persistence.Convert;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import java.time.LocalDate;
 
 @Data
@@ -36,11 +37,11 @@ public class OffenceResult extends AuditableEntity {
     private String chargeStatus;
 
     @Column(name = "CONVICTION_FLAG")
-    @Type(type="yes_no")
+    @Convert(converter = YesNoConverter.class)
     private boolean convictionFlag;
 
     @Column(name = "ACTIVE_FLAG")
-    @Type(type="yes_no")
+    @Convert(converter = YesNoConverter.class)
     private boolean active;
 
     @Column(name = "EXPIRY_DATE")

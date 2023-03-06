@@ -41,7 +41,9 @@ data class OffenderLocation(val levels: List<HousingLocation>? = null)
 data class HousingLocation(
   @Schema(
     description = "The level (starting from 1) of the individual location. The highest number level will be the cell.",
-    minimum = "1", maximum = "4", example = "1"
+    minimum = "1",
+    maximum = "4",
+    example = "1",
   )
   val level: Int,
   @Schema(description = "The code for the location e.g. 010 for a cell, A for a wing", example = "010")
@@ -53,8 +55,9 @@ data class HousingLocation(
 ) {
   val type: String?
     @Schema(
-      description = "The type of the location - from LIVING_UNIT reference code", example = "WING",
-      allowableValues = ["BED", "BLK", "CB", "CELL", "LAND", "SPUR", "TIER", "WING"]
+      description = "The type of the location - from LIVING_UNIT reference code",
+      example = "WING",
+      allowableValues = ["BED", "BLK", "CB", "CELL", "LAND", "SPUR", "TIER", "WING"],
     )
     get() = livingUnit?.code
 

@@ -33,8 +33,8 @@ class BookingResourceInt_addPersonalCareNeedTest : ResourceTest() {
                   "endDate": null,
                   "problemStatus": "ON"
                  }
-            """.trimIndent()
-          )
+            """.trimIndent(),
+          ),
         )
         .exchange()
         .expectStatus().isForbidden
@@ -67,8 +67,8 @@ class BookingResourceInt_addPersonalCareNeedTest : ResourceTest() {
                   "endDate": null,
                   "problemStatus": "ON"
                  }
-            """.trimIndent()
-          )
+            """.trimIndent(),
+          ),
         )
         .exchange()
         .expectStatus().isCreated
@@ -92,7 +92,6 @@ class BookingResourceInt_addPersonalCareNeedTest : ResourceTest() {
 
     @Test
     fun `will check for missing inputs values`() {
-
       webTestClient.post()
         .uri("/api/bookings/-1/personal-care-needs")
         .headers(setAuthorisation(listOf("ROLE_MAINTAIN_HEALTH_PROBLEMS")))
@@ -102,8 +101,8 @@ class BookingResourceInt_addPersonalCareNeedTest : ResourceTest() {
           BodyInserters.fromValue(
             """
                 {}
-            """.trimIndent()
-          )
+            """.trimIndent(),
+          ),
         )
         .exchange()
         .expectStatus().isBadRequest

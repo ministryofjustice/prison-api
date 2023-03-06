@@ -2,6 +2,7 @@
 
 package uk.gov.justice.hmpps.prison.service
 
+import jakarta.persistence.EntityManager
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -43,7 +44,6 @@ import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
 import uk.gov.justice.hmpps.prison.service.receiveandtransfer.BookingIntoPrisonService
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer
 import java.util.Optional
-import javax.persistence.EntityManager
 
 internal class PrisonerReleaseAndTransferServiceTest {
   private val offenderBookingRepository: OffenderBookingRepository = mock()
@@ -114,7 +114,6 @@ internal class PrisonerReleaseAndTransferServiceTest {
 
     @BeforeEach
     internal fun before() {
-
       val prisoner = Offender().also { it.bookings.add(OffenderBooking()) }
       whenever(offenderRepository.findOffenderByNomsId(any())).thenReturn(Optional.of(prisoner))
 
@@ -125,7 +124,7 @@ internal class PrisonerReleaseAndTransferServiceTest {
       whenever(agencyLocationRepository.findById(any())).thenReturn(Optional.of(hospital))
 
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(any(), any())).thenReturn(
-        Optional.of(offenderBooking)
+        Optional.of(offenderBooking),
       )
 
       whenever(movementReasonRepository.findById(any())).thenReturn(Optional.of(MovementReason()))
@@ -136,8 +135,12 @@ internal class PrisonerReleaseAndTransferServiceTest {
       service.dischargeToHospital(
         "A2345C",
         RequestToDischargePrisoner(
-          "BMARSH", null, "comment text", "MDI", "MDI"
-        )
+          "BMARSH",
+          null,
+          "comment text",
+          "MDI",
+          "MDI",
+        ),
       )
 
       assertThat(movement.commentText).isEqualTo("Psychiatric Hospital Discharge to Some Hospital")
@@ -150,8 +153,12 @@ internal class PrisonerReleaseAndTransferServiceTest {
       service.dischargeToHospital(
         "A2345C",
         RequestToDischargePrisoner(
-          "BMARSH", null, "comment text", "MDI", "MDI"
-        )
+          "BMARSH",
+          null,
+          "comment text",
+          "MDI",
+          "MDI",
+        ),
       )
 
       assertThat(movement.commentText).isEqualTo("Psychiatric Hospital Discharge to Some Hospital")
@@ -163,8 +170,12 @@ internal class PrisonerReleaseAndTransferServiceTest {
       service.dischargeToHospital(
         "A2345C",
         RequestToDischargePrisoner(
-          "BMARSH", null, "comment text", "MDI", "MDI"
-        )
+          "BMARSH",
+          null,
+          "comment text",
+          "MDI",
+          "MDI",
+        ),
       )
 
       assertThat(movement.commentText).isEqualTo("Some comment. Psychiatric Hospital Discharge to Some Hospital")
@@ -176,8 +187,12 @@ internal class PrisonerReleaseAndTransferServiceTest {
       service.dischargeToHospital(
         "A2345C",
         RequestToDischargePrisoner(
-          "BMARSH", null, "comment text", "MDI", "MDI"
-        )
+          "BMARSH",
+          null,
+          "comment text",
+          "MDI",
+          "MDI",
+        ),
       )
 
       // we trim at 240 chars - 12 x 19 = 238 so gets trimmed

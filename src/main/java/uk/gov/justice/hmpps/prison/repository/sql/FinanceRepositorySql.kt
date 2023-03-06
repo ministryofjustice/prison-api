@@ -14,6 +14,6 @@ enum class FinanceRepositorySql(val sql: String) {
         AND osa.caseload_id = :agencyId
         AND ac.sub_account_type IN ('REG','SPND','SAV')
         ) ACCOUNT
-    """
+    """,
   ),
 }

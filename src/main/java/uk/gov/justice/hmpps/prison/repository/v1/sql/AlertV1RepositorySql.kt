@@ -38,7 +38,7 @@ enum class AlertV1RepositorySql(val sql: String) {
         where o.offender_id_display = :p_noms_id
         and ob.active_flag = 'Y'
         order by oa.alert_status, oa.alert_date
-    """
+    """,
   ),
 
   ALERTS_BY_OFFENDER(
@@ -79,6 +79,6 @@ enum class AlertV1RepositorySql(val sql: String) {
                 where o.offender_id_display = :p_noms_id
         and ob.active_flag = 'Y'
         order by oa.alert_date
-    """
-  )
+    """,
+  ),
 }

@@ -13,7 +13,7 @@ abstract class StaffAwareTransferService(
   internal fun getLoggedInStaff(): Result<StaffUserAccount> {
     return staffUserAccountRepository.findByIdOrNull(authenticationFacade.currentUsername)
       ?.let { Result.success(it) } ?: Result.failure(
-      EntityNotFoundException.withId(authenticationFacade.currentUsername)
+      EntityNotFoundException.withId(authenticationFacade.currentUsername),
     )
   }
 }

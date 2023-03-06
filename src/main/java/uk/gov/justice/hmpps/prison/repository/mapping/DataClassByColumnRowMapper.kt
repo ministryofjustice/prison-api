@@ -21,6 +21,7 @@ class DataClassByColumnRowMapper<T>(mappedClass: Class<T>) : BeanPropertyRowMapp
   private val mappedConstructor: Constructor<T>
   private val constructorParametersAsColumnNames: List<String>
   private val constructorParameterTypes: List<TypeDescriptor>
+
   // fieldMap is used for building up sorting, mapping the java parameter name to the database column name
   // for example so can then pass "lastName,startTime" and will then sort by those fields
   val fieldMap: Map<String, FieldMapper>
