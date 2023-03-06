@@ -12,7 +12,6 @@ import org.hibernate.annotations.JoinFormula;
 import org.hibernate.type.YesNoConverter;
 import jakarta.persistence.Convert;
 
-import javax.annotation.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
@@ -22,6 +21,8 @@ import jakarta.persistence.IdClass;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
