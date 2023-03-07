@@ -25,7 +25,6 @@ val jsqlParserVersion by extra("4.3")
 val hsqldbVersion by extra("2.5.1")
 
 ext["rest-assured.version"] = "5.1.1"
-ext["hibernate.version"] = "6.1.6.Final"
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")

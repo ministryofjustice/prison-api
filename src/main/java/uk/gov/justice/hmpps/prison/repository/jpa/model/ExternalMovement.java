@@ -52,7 +52,7 @@ public class ExternalMovement extends AuditableEntity {
     }
 
     @Id
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
     private OffenderBooking offenderBooking;
 
