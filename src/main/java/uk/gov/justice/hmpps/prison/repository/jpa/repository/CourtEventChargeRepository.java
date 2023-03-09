@@ -14,8 +14,8 @@ public interface CourtEventChargeRepository extends CrudRepository<CourtEventCha
         "join cec.eventAndCharge.offenderCharge oc " +
         "join oc.offenderBooking ob " +
         "join ob.offender o " +
-        "where o.nomsId = :offenderId and " +
-        "exists (select id from CourtEvent where id = cec.eventAndCharge.courtEvent.id)"
+        "where o.nomsId = :offenderId " +
+        "and exists (select id from CourtEvent where id = cec.eventAndCharge.courtEvent.id)"
     )
     List<CourtEventCharge> findByOffender(String offenderId);
 }
