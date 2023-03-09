@@ -2,7 +2,7 @@
 # Values here are the same across all environments
 generic-service:
   nameOverride: prison-api
-  replicaCount: 4
+  replicaCount: 6
 
   image:
     repository: quay.io/hmpps/prison-api
