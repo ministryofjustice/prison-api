@@ -8,6 +8,11 @@ import java.util.List;
 
 public interface CourtEventChargeRepository extends CrudRepository<CourtEventCharge, CourtEventCharge.Pk> {
 
+    /*
+        Find all court event charges for a given offender.
+        This also filters out data where there is missing court event data, caused by a
+        NOMIS bug where orphan records were left when deleting court data.
+     */
     @Query("select " +
         "cec " +
         "from CourtEventCharge cec " +
