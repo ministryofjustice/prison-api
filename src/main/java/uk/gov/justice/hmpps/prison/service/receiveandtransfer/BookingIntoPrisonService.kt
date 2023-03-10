@@ -76,9 +76,6 @@ class BookingIntoPrisonService(
     return newBooking(offender(prisonerIdentifier).getOrThrow(), requestForNewBooking)
   }
   fun newBooking(offender: Offender, requestForNewBooking: RequestForNewBooking): InmateDetail {
-    // ensure that we can get a select for update on the bookings before we start
-    val bookings = offenderBookingRepository.findAllByOffenderNomsIdForUpdate(offender.nomsId)
-
     val previousBooking: OffenderBooking? = previousInactiveBooking(offender).getOrThrow()
     val imprisonmentStatus: ImprisonmentStatus =
       imprisonmentStatus(requestForNewBooking.imprisonmentStatus).getOrThrow()
@@ -93,9 +90,7 @@ class BookingIntoPrisonService(
     val bookNumber: String = bookNumberGenerationService.generateBookNumber()
     val staff = getLoggedInStaff().getOrThrow().staff
 
-    // now increment the sequence on each booking
-    bookings.forEach(OffenderBooking::incBookingSequence)
-
+    offender.bookings.forEach(OffenderBooking::incBookingSequence)
     return offenderBookingRepository.save(
       OffenderBooking()
         .withBookingBeginDate(receiveTime)
