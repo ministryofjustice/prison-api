@@ -76,7 +76,10 @@ class BookingIntoPrisonService(
     return newBooking(offender(prisonerIdentifier).getOrThrow(), requestForNewBooking)
   }
   fun newBooking(offender: Offender, requestForNewBooking: RequestForNewBooking): InmateDetail {
-    val previousBooking: OffenderBooking? = previousInactiveBooking(offender).getOrThrow()
+    // ensure that we can get a select for update on the bookings before we start
+    val bookings = offenderBookingRepository.findAllByOffenderNomsIdForUpdate(offender.nomsId)
+
+    val previousBooking: OffenderBooking? = previousInactiveBooking(bookings).getOrThrow()
     val imprisonmentStatus: ImprisonmentStatus =
       imprisonmentStatus(requestForNewBooking.imprisonmentStatus).getOrThrow()
     val prison = prison(requestForNewBooking.prisonId).getOrThrow()
@@ -90,7 +93,9 @@ class BookingIntoPrisonService(
     val bookNumber: String = bookNumberGenerationService.generateBookNumber()
     val staff = getLoggedInStaff().getOrThrow().staff
 
-    offender.bookings.forEach(OffenderBooking::incBookingSequence)
+    // now increment the sequence on each booking
+    bookings.forEach(OffenderBooking::incBookingSequence)
+
     return offenderBookingRepository.save(
       OffenderBooking()
         .withBookingBeginDate(receiveTime)
@@ -194,8 +199,8 @@ class BookingIntoPrisonService(
     offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceOrNull(prisonerIdentifier, 1)?.inActiveOut()
       ?: failure(EntityNotFoundException.withMessage("No bookings found for prisoner number $prisonerIdentifier"))
 
-  private fun previousInactiveBooking(offender: Offender): Result<OffenderBooking?> =
-    offender.latestBookingOrNull?.inActiveOut() ?: success(null)
+  private fun previousInactiveBooking(bookings: List<OffenderBooking>): Result<OffenderBooking?> =
+    bookings.minByOrNull { it.bookingSequence }?.inActiveOut() ?: success(null)
 
   private fun fromLocation(location: String?): Result<AgencyLocation> = location?.takeIf { it.isNotBlank() }?.let {
     agencyLocationRepository.findByIdAndDeactivationDateIsNullOrNull(it)?.let { location -> success(location) }
@@ -269,9 +274,6 @@ private fun CopyTableRepository.shouldCopyForAdmission(): Boolean =
     MovementType.ADM.code,
     true,
   ).isNotEmpty()
-
-private val Offender.latestBookingOrNull: OffenderBooking?
-  get() = this.latestBooking.orElse(null)
 
 private fun OffenderBooking.inActiveOut(): Result<OffenderBooking> {
   if (this.isActive) {
