@@ -139,6 +139,12 @@ public class BookingRepository extends RepositoryBase {
                     .put("TARIFF_ERS_SCHEME_ELIG_DATE", new FieldMapper("tariffEarlyRemovalSchemeEligibilityDate", DateTimeConverter::toISO8601LocalDate))
                     .put("EFFECTIVE_SENTENCE_END_DATE", new FieldMapper("effectiveSentenceEndDate", DateTimeConverter::toISO8601LocalDate))
                     .put("ADDITIONAL_DAYS_AWARDED", new FieldMapper("additionalDaysAwarded"))
+                    .put("ETD_OVERRIDED_DATE", new FieldMapper("etdOverrideDate", DateTimeConverter::toISO8601LocalDate))
+                    .put("ETD_CALCULATED_DATE", new FieldMapper("etdCalculatedDate", DateTimeConverter::toISO8601LocalDate))
+                    .put("MTD_OVERRIDED_DATE", new FieldMapper("mtdOverrideDate", DateTimeConverter::toISO8601LocalDate))
+                    .put("MTD_CALCULATED_DATE", new FieldMapper("mtdCalculatedDate", DateTimeConverter::toISO8601LocalDate))
+                    .put("LTD_OVERRIDED_DATE", new FieldMapper("ltdOverrideDate", DateTimeConverter::toISO8601LocalDate))
+                    .put("LTD_CALCULATED_DATE", new FieldMapper("ltdCalculatedDate", DateTimeConverter::toISO8601LocalDate))
                     .build();
 
     private static final Map<String, FieldMapper> SENTENCE_DETAIL_ROW_MAPPER;

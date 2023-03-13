@@ -106,6 +106,8 @@ tasks {
       exclude("**/executablespecification/*")
       exclude("**/*IntTest*")
     }
+    minHeapSize = "128m"
+    maxHeapSize = "2048m"
   }
 
   register<Test>("testIntegration") {
