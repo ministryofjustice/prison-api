@@ -283,4 +283,33 @@ public class BookingSentenceDetailStepDefinitions extends AbstractStepDefinition
     public void sentenceDetailsAreRequestedForHomeDetentionCurfewCandidates() {
         bookingSentenceDetail.requestSentenceDetailsForHomeDetentionCurfewCandidates();
     }
+
+    @And("ETD calculated date matches \"([^\"]*)\"$")
+    public void etdCalculatedDateMatches(String etdCalculatedDate) {
+        bookingSentenceDetail.verifyEtdCalculated(etdCalculatedDate);
+    }
+
+    @And("ETD override date matches \"([^\"]*)\"$")
+    public void etdOverrideDateMatches(String etdOverrideDate) {
+        bookingSentenceDetail.verifyEtdOverride(etdOverrideDate);
+    }
+    @And("LTD calculated date matches \"([^\"]*)\"$")
+    public void ltdCalculatedDateMatches(String ltdCalculatedDate) {
+        bookingSentenceDetail.verifyLtdCalculated(ltdCalculatedDate);
+    }
+
+    @And("LTD override date matches \"([^\"]*)\"$")
+    public void ltdOverrideDateMatches(String ltdOverrideDate) {
+        bookingSentenceDetail.verifyLtdOverride(ltdOverrideDate);
+    }
+
+    @And("MTD calculated date matches \"([^\"]*)\"$")
+    public void mtdCalculatedDateMatches(String mtdCalculatedDate) {
+        bookingSentenceDetail.verifyMtdCalculated(mtdCalculatedDate);
+    }
+
+    @And("MTD override date matches \"([^\"]*)\"$")
+    public void mtdOverrideDateMatches(String mtdOverrideDate) {
+        bookingSentenceDetail.verifyMtdOverride(mtdOverrideDate);
+    }
 }

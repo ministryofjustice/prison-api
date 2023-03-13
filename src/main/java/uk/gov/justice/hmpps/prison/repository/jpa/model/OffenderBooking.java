@@ -344,6 +344,12 @@ public class OffenderBooking extends AuditableEntity {
                     .nonDtoReleaseDateType(sc.getNonDtoReleaseDateType())
                     .releaseDate(getReleaseDate(sentenceCalculation))
                     .confirmedReleaseDate(getConfirmedReleaseDate().orElse(null))
+                    .mtdCalculatedDate(sc.getMtdCalculatedDate())
+                    .mtdOverrideDate(sc.getMtdOverridedDate())
+                    .ltdCalculatedDate(sc.getLtdCalculatedDate())
+                    .ltdOverrideDate(sc.getLtdOverridedDate())
+                    .etdOverrideDate(sc.getEtdOverridedDate())
+                    .etdCalculatedDate(sc.getEtdCalculatedDate())
                     .build())
             .orElse(
                 SentenceCalcDates.sentenceCalcDatesBuilder()

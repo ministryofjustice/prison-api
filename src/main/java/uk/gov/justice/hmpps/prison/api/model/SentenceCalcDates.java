@@ -74,8 +74,25 @@ public class SentenceCalcDates extends BaseSentenceCalcDates {
         "<h3>Algorithm</h3><ul><li>If there is a confirmed release date, the offender release date is the confirmed release date.</li><li>If there is no confirmed release date for the offender, the offender release date is either the actual parole date or the home detention curfew actual date.</li><li>If there is no confirmed release date, actual parole date or home detention curfew actual date for the offender, the release date is the later of the nonDtoReleaseDate or midTermDate value (if either or both are present)</li></ul>", example = "2020-04-01")
     private LocalDate releaseDate;
 
+    @Schema(description = "ETD Override - early term date for offender override date.", example = "2019-04-02")
+    private LocalDate etdOverrideDate;
+
+    @Schema(description = "ETD Override - early term date for offender calculated date.", example = "2019-04-02")
+    private LocalDate etdCalculatedDate;
+
+    @Schema(description = "MTD - mid term date for offender override date.", example = "2019-04-02")
+    private LocalDate mtdOverrideDate;
+
+    @Schema(description = "MTD - mid term date for offender calculated date.", example = "2019-04-02")
+    private LocalDate mtdCalculatedDate;
+
+    @Schema(description = "LTD - late term date for offender override date.", example = "2019-04-02")
+    private LocalDate ltdOverrideDate;
+
+    @Schema(description = "LTD - late term date for offender calculated date.", example = "2019-04-02")
+    private LocalDate ltdCalculatedDate;
     @Builder(builderMethodName = "sentenceCalcDatesBuilder")
-    public SentenceCalcDates(final LocalDate sentenceExpiryDate, final LocalDate automaticReleaseDate, final LocalDate conditionalReleaseDate, final LocalDate nonParoleDate, final LocalDate postRecallReleaseDate, final LocalDate licenceExpiryDate, final LocalDate homeDetentionCurfewEligibilityDate, final LocalDate paroleEligibilityDate, final LocalDate homeDetentionCurfewActualDate, final LocalDate actualParoleDate, final LocalDate releaseOnTemporaryLicenceDate, final LocalDate earlyRemovalSchemeEligibilityDate, final LocalDate earlyTermDate, final LocalDate midTermDate, final LocalDate lateTermDate, final LocalDate topupSupervisionExpiryDate, final LocalDate tariffDate, final LocalDate dtoPostRecallReleaseDate, final LocalDate tariffEarlyRemovalSchemeEligibilityDate, final LocalDate effectiveSentenceEndDate, @NotNull final Long bookingId, final LocalDate sentenceStartDate, final Integer additionalDaysAwarded, final LocalDate automaticReleaseOverrideDate, final LocalDate conditionalReleaseOverrideDate, final LocalDate nonParoleOverrideDate, final LocalDate postRecallReleaseOverrideDate, final LocalDate dtoPostRecallReleaseDateOverride, final LocalDate nonDtoReleaseDate, final LocalDate sentenceExpiryCalculatedDate, final LocalDate sentenceExpiryOverrideDate, final LocalDate licenceExpiryCalculatedDate, final LocalDate licenceExpiryOverrideDate, final LocalDate paroleEligibilityCalculatedDate, final LocalDate topupSupervisionExpiryCalculatedDate, final LocalDate topupSupervisionExpiryOverrideDate, final LocalDate homeDetentionCurfewEligibilityCalculatedDate, final LocalDate homeDetentionCurfewEligibilityOverrideDate, final LocalDate paroleEligibilityOverrideDate, final NonDtoReleaseDateType nonDtoReleaseDateType, final LocalDate confirmedReleaseDate, final LocalDate releaseDate) {
+    public SentenceCalcDates(final LocalDate sentenceExpiryDate, final LocalDate automaticReleaseDate, final LocalDate conditionalReleaseDate, final LocalDate nonParoleDate, final LocalDate postRecallReleaseDate, final LocalDate licenceExpiryDate, final LocalDate homeDetentionCurfewEligibilityDate, final LocalDate paroleEligibilityDate, final LocalDate homeDetentionCurfewActualDate, final LocalDate actualParoleDate, final LocalDate releaseOnTemporaryLicenceDate, final LocalDate earlyRemovalSchemeEligibilityDate, final LocalDate earlyTermDate, final LocalDate midTermDate, final LocalDate lateTermDate, final LocalDate topupSupervisionExpiryDate, final LocalDate tariffDate, final LocalDate dtoPostRecallReleaseDate, final LocalDate tariffEarlyRemovalSchemeEligibilityDate, final LocalDate effectiveSentenceEndDate, @NotNull final Long bookingId, final LocalDate sentenceStartDate, final Integer additionalDaysAwarded, final LocalDate automaticReleaseOverrideDate, final LocalDate conditionalReleaseOverrideDate, final LocalDate nonParoleOverrideDate, final LocalDate postRecallReleaseOverrideDate, final LocalDate dtoPostRecallReleaseDateOverride, final LocalDate nonDtoReleaseDate, final LocalDate sentenceExpiryCalculatedDate, final LocalDate sentenceExpiryOverrideDate, final LocalDate licenceExpiryCalculatedDate, final LocalDate licenceExpiryOverrideDate, final LocalDate paroleEligibilityCalculatedDate, final LocalDate topupSupervisionExpiryCalculatedDate, final LocalDate topupSupervisionExpiryOverrideDate, final LocalDate homeDetentionCurfewEligibilityCalculatedDate, final LocalDate homeDetentionCurfewEligibilityOverrideDate, final LocalDate paroleEligibilityOverrideDate, final NonDtoReleaseDateType nonDtoReleaseDateType, final LocalDate confirmedReleaseDate, final LocalDate releaseDate,     final LocalDate etdOverrideDate, final LocalDate etdCalculatedDate, final LocalDate mtdOverrideDate, final LocalDate mtdCalculatedDate, final LocalDate ltdOverrideDate, final LocalDate ltdCalculatedDate) {
         super(sentenceExpiryDate, automaticReleaseDate, conditionalReleaseDate, nonParoleDate, postRecallReleaseDate, licenceExpiryDate, homeDetentionCurfewEligibilityDate, paroleEligibilityDate, homeDetentionCurfewActualDate, actualParoleDate, releaseOnTemporaryLicenceDate, earlyRemovalSchemeEligibilityDate, earlyTermDate, midTermDate, lateTermDate, topupSupervisionExpiryDate, tariffDate, dtoPostRecallReleaseDate, tariffEarlyRemovalSchemeEligibilityDate, effectiveSentenceEndDate);
         this.bookingId = bookingId;
         this.sentenceStartDate = sentenceStartDate;
@@ -99,6 +116,12 @@ public class SentenceCalcDates extends BaseSentenceCalcDates {
         this.nonDtoReleaseDateType = nonDtoReleaseDateType;
         this.confirmedReleaseDate = confirmedReleaseDate;
         this.releaseDate = releaseDate;
+        this.etdOverrideDate = etdOverrideDate;
+        this.etdCalculatedDate = etdCalculatedDate;
+        this.mtdOverrideDate = mtdOverrideDate;
+        this.mtdCalculatedDate = mtdCalculatedDate;
+        this.ltdOverrideDate = ltdOverrideDate;
+        this.ltdCalculatedDate = ltdCalculatedDate;
     }
 
     @Schema(description = "Top-up supervision start date for offender - calculated as licence end date + 1 day or releaseDate if licence end date not set.", example = "2019-04-01")

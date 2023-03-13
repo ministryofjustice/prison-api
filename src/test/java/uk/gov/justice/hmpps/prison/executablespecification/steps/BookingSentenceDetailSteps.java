@@ -271,6 +271,35 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         dispatchOffenderSentencesForHomeDetentionCurfewCandidates();
     }
 
+    @Step("Verify calculated ETD date")
+    public void verifyEtdCalculated(String etdCalculatedDate) {
+        verifyLocalDate(sentenceDetail.getEtdCalculatedDate(), etdCalculatedDate);
+    }
+
+    @Step("Verify override ETD date")
+    public void verifyEtdOverride(String etdOverrideDate) {
+        verifyLocalDate(sentenceDetail.getEtdOverrideDate(), etdOverrideDate);
+    }
+    @Step("Verify calculated LTD date")
+    public void verifyLtdCalculated(String ltdCalculatedDate) {
+        verifyLocalDate(sentenceDetail.getLtdCalculatedDate(), ltdCalculatedDate);
+    }
+
+    @Step("Verify override LTD date")
+    public void verifyLtdOverride(String ltdOverrideDate) {
+        verifyLocalDate(sentenceDetail.getLtdOverrideDate(), ltdOverrideDate);
+    }
+
+    @Step("Verify calculated MTD date")
+    public void verifyMtdCalculated(String mtdCalculatedDate) {
+        verifyLocalDate(sentenceDetail.getMtdCalculatedDate(), mtdCalculatedDate);
+    }
+
+    @Step("Verify override MTD date")
+    public void verifyMtdOverride(String mtdOverrideDate) {
+        verifyLocalDate(sentenceDetail.getMtdOverrideDate(), mtdOverrideDate);
+    }
+
     @Step("Verify some resource records returned")
     public void verifySomeResourceRecordsReturned() {
         assertThat(offenderSentenceDetails).isNotEmpty();
@@ -400,4 +429,6 @@ public class BookingSentenceDetailSteps extends CommonSteps {
     public void verifySentenceTerms(List<OffenderSentenceTerms> expected) {
         assertThat(offenderSentenceTermsList).asList().containsAll(expected);
     }
+
+
 }
