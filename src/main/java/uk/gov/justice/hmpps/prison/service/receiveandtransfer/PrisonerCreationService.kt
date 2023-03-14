@@ -79,7 +79,7 @@ class PrisonerCreationService(
     }
 
     return prisoner.takeIf { requestToCreate.booking != null }
-      ?.let { bookingIntoPrisonService.newBooking(it, requestToCreate.booking) }
+      ?.let { bookingIntoPrisonService.newBookingWithoutUpdateLock(it, requestToCreate.booking) }
       ?: offenderTransformer.transform(prisoner)
   }
 
