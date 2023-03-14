@@ -35,7 +35,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.findByIdAndTypeAndA
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.findByOffenderNomsIdAndBookingSequenceOrNull
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.findByStatusAndActiveOrNull
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.findByTypeAndCategoryAndActiveOrNull
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.findOffenderByNomsIdOrNull
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.findOneByDescriptionAndAgencyIdOrNull
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
 import uk.gov.justice.hmpps.prison.service.BadRequestException
@@ -73,13 +72,14 @@ class BookingIntoPrisonService(
   authenticationFacade = authenticationFacade,
 ) {
   fun newBooking(prisonerIdentifier: String, requestForNewBooking: RequestForNewBooking): InmateDetail {
-    return newBooking(offender(prisonerIdentifier).getOrThrow(), requestForNewBooking)
+    // grab a lock on the offender and their bookings to ensure that no-one else can add a booking to the offender
+    // during our transaction.  Other processes / threads will hang waiting for this to complete.
+    val offender = offenderForUpdate(prisonerIdentifier).getOrThrow()
+    return newBookingWithoutUpdateLock(offender, requestForNewBooking)
   }
-  fun newBooking(offender: Offender, requestForNewBooking: RequestForNewBooking): InmateDetail {
-    // ensure that we can get a select for update on the bookings before we start
-    val bookings = offenderBookingRepository.findAllByOffenderNomsIdForUpdate(offender.nomsId)
 
-    val previousBooking: OffenderBooking? = previousInactiveBooking(bookings).getOrThrow()
+  fun newBookingWithoutUpdateLock(offender: Offender, requestForNewBooking: RequestForNewBooking): InmateDetail {
+    val previousBooking: OffenderBooking? = previousInactiveBooking(offender).getOrThrow()
     val imprisonmentStatus: ImprisonmentStatus =
       imprisonmentStatus(requestForNewBooking.imprisonmentStatus).getOrThrow()
     val prison = prison(requestForNewBooking.prisonId).getOrThrow()
@@ -94,7 +94,7 @@ class BookingIntoPrisonService(
     val staff = getLoggedInStaff().getOrThrow().staff
 
     // now increment the sequence on each booking
-    bookings.forEach(OffenderBooking::incBookingSequence)
+    offender.bookings.forEach(OffenderBooking::incBookingSequence)
 
     return offenderBookingRepository.save(
       OffenderBooking()
@@ -191,16 +191,16 @@ class BookingIntoPrisonService(
     }
   }
 
-  private fun offender(prisonerIdentifier: String): Result<Offender> =
-    offenderRepository.findOffenderByNomsIdOrNull(prisonerIdentifier)?.let { success(it) }
-      ?: failure(EntityNotFoundException.withMessage("No prisoner found for prisoner number $prisonerIdentifier"))
+  private fun offenderForUpdate(prisonerIdentifier: String): Result<Offender> =
+    offenderRepository.findOffenderByNomsIdOrNullForUpdate(prisonerIdentifier).map { success(it) }
+      .orElse(failure(EntityNotFoundException.withMessage("No prisoner found for prisoner number $prisonerIdentifier")))
 
   private fun previousInactiveBooking(prisonerIdentifier: String): Result<OffenderBooking> =
     offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceOrNull(prisonerIdentifier, 1)?.inActiveOut()
       ?: failure(EntityNotFoundException.withMessage("No bookings found for prisoner number $prisonerIdentifier"))
 
-  private fun previousInactiveBooking(bookings: List<OffenderBooking>): Result<OffenderBooking?> =
-    bookings.minByOrNull { it.bookingSequence }?.inActiveOut() ?: success(null)
+  private fun previousInactiveBooking(offender: Offender): Result<OffenderBooking?> =
+    offender.latestBookingOrNull?.inActiveOut() ?: success(null)
 
   private fun fromLocation(location: String?): Result<AgencyLocation> = location?.takeIf { it.isNotBlank() }?.let {
     agencyLocationRepository.findByIdAndDeactivationDateIsNullOrNull(it)?.let { location -> success(location) }
@@ -274,6 +274,9 @@ private fun CopyTableRepository.shouldCopyForAdmission(): Boolean =
     MovementType.ADM.code,
     true,
   ).isNotEmpty()
+
+private val Offender.latestBookingOrNull: OffenderBooking?
+  get() = this.latestBooking.orElse(null)
 
 private fun OffenderBooking.inActiveOut(): Result<OffenderBooking> {
   if (this.isActive) {
