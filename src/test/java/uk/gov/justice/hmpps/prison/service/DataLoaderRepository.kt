@@ -19,6 +19,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepo
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCourtCaseRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderIndividualScheduleRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProgramProfileRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTeamAssignmentRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.TeamRepository
@@ -46,6 +47,7 @@ class DataLoaderRepository(
   val externalMovementRepository: ExternalMovementRepository,
   val bedAssignmentHistoriesRepository: BedAssignmentHistoriesRepository,
   val courtEventRepository: CourtEventRepository,
+  val offenderRepository: OffenderRepository,
   val jdbcTemplate: JdbcTemplate,
 )
 
