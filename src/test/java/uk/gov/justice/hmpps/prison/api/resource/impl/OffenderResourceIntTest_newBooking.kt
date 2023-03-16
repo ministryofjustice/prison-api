@@ -17,6 +17,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
 import uk.gov.justice.hmpps.prison.service.receiveandtransfer.TrustAccountService
+import uk.gov.justice.hmpps.prison.util.builders.OffenderAliasBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
 import uk.gov.justice.hmpps.prison.util.builders.getBedAssignments
@@ -818,6 +819,86 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
       @Test
       internal fun `will create a new booking and mark as NOT a youth offender when booked in as an ADULT`() {
         // Given offender has previous inactive booking record
+        webTestClient.get()
+          .uri("/api/offenders/{offenderNo}", offenderNo)
+          .headers(
+            setAuthorisation(
+              listOf("ROLE_SYSTEM_USER"),
+            ),
+          )
+          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+          .accept(MediaType.APPLICATION_JSON)
+          .exchange()
+          .expectStatus().isOk
+          .expectBody()
+          .jsonPath("activeFlag").isEqualTo(false)
+          .jsonPath("inOutStatus").isEqualTo("OUT")
+
+        // when booking is created
+        webTestClient.post()
+          .uri("/api/offenders/{offenderNo}/booking", offenderNo)
+          .headers(
+            setAuthorisation(
+              listOf("ROLE_BOOKING_CREATE"),
+            ),
+          )
+          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+          .bodyValue(
+            """
+            {
+               "prisonId": "SYI", 
+               "fromLocationId": "COURT1", 
+               "movementReasonCode": "24", 
+               "youthOffender": "false", 
+               "imprisonmentStatus": "CUR_ORA", 
+               "cellLocation": "SYI-A-1-1"     
+            }
+            """.trimIndent(),
+          )
+          .accept(MediaType.APPLICATION_JSON)
+          .exchange()
+          .expectStatus().isOk
+
+        // then we have an active booking
+        webTestClient.get()
+          .uri("/api/offenders/{offenderNo}", offenderNo)
+          .headers(
+            setAuthorisation(
+              listOf("ROLE_SYSTEM_USER"),
+            ),
+          )
+          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+          .accept(MediaType.APPLICATION_JSON)
+          .exchange()
+          .expectStatus().isOk
+          .expectBody()
+          .jsonPath("activeFlag").isEqualTo(true)
+          .jsonPath("profileInformation[0].type").isEqualTo("YOUTH")
+          .jsonPath("profileInformation[0].resultValue").isEqualTo("No")
+      }
+    }
+
+    @Nested
+    @DisplayName("when offender has an alias (multiple offender records)")
+    inner class OffenderWithAlias {
+      private lateinit var offenderNo: String
+
+      @BeforeEach
+      internal fun setUp() {
+        OffenderBuilder().withBooking(
+          OffenderBookingBuilder(
+            prisonId = "LEI",
+            released = true,
+            youthOffender = false,
+          ),
+        ).withAliases(OffenderAliasBuilder())
+          .save(testDataContext).also {
+            offenderNo = it.offenderNo
+          }
+      }
+
+      @Test
+      internal fun `will create a new booking`() {
         webTestClient.get()
           .uri("/api/offenders/{offenderNo}", offenderNo)
           .headers(

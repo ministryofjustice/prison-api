@@ -11,19 +11,19 @@ import uk.gov.justice.hmpps.prison.util.JwtAuthenticationHelper
 import java.time.LocalDate
 
 class OffenderBuilder(
-  var pncNumber: String? = null,
-  var croNumber: String? = null,
+  private var pncNumber: String? = null,
+  private var croNumber: String? = null,
   var lastName: String = "NTHANDA",
   var firstName: String = randomName(),
-  var middleName1: String? = null,
-  var middleName2: String? = null,
-  var birthDate: LocalDate = LocalDate.of(1965, 7, 19),
-  var genderCode: String = "M",
-  var title: String? = null,
+  private var middleName1: String? = null,
+  private var middleName2: String? = null,
+  private var birthDate: LocalDate = LocalDate.of(1965, 7, 19),
+  private var genderCode: String = "M",
   var ethnicity: String? = null,
-  var bookingBuilders: Array<OffenderBookingBuilder> = Array(1) {
+  private var bookingBuilders: Array<OffenderBookingBuilder> = Array(1) {
     OffenderBookingBuilder()
   },
+  private var aliasBuilders: List<OffenderAliasBuilder> = emptyList(),
 
 ) : WebClientEntityBuilder() {
 
@@ -32,9 +32,15 @@ class OffenderBuilder(
     return this
   }
 
+  fun withAliases(vararg aliasBuilder: OffenderAliasBuilder): OffenderBuilder {
+    aliasBuilders = aliasBuilder.toList()
+    return this
+  }
+
   fun save(
     testDataContext: TestDataContext,
   ): InmateDetail = save(testDataContext.webTestClient, testDataContext.jwtAuthenticationHelper, testDataContext.dataLoader)
+
   private fun save(
     webTestClient: WebTestClient,
     jwtAuthenticationHelper: JwtAuthenticationHelper,
@@ -62,6 +68,7 @@ class OffenderBuilder(
       .expectStatus().isOk
       .returnResult<InmateDetail>().responseBody.blockFirst()!!
 
+    aliasBuilders.forEach { it.save(offender, dataLoader = dataLoader) }
     return bookingBuilders.map {
       it.save(
         webTestClient = webTestClient,

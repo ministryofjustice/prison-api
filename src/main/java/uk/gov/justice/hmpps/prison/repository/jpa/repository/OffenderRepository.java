@@ -34,6 +34,6 @@ public interface OffenderRepository extends JpaRepository<Offender, Long> {
     Page<Offender> getOffendersWithImagesCapturedAfter(@Param("start") LocalDateTime start, Pageable pageable);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT o from Offender o left join fetch o.bookings where o.nomsId = :nomsId")
+    @Query("SELECT o from Offender o left join fetch o.bookings where o.nomsId = :nomsId and o.id = o.rootOffenderId")
     Optional<Offender> findOffenderByNomsIdOrNullForUpdate(@NotNull String nomsId);
 }
