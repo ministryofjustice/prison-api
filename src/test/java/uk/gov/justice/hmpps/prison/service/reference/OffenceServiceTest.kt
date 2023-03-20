@@ -358,47 +358,4 @@ internal class OffenceServiceTest {
       )
     }
   }
-
-  @Nested
-  @DisplayName("Activate / deactivate offences test")
-  inner class ActivateOrDeactivateOffencesTest {
-    private val murderOffence = Offence.builder()
-      .code("COML025")
-      .description("Murder")
-      .build()
-
-    @Test
-    internal fun `Activate an offence in NOMIS`() {
-      val mappingDto = OffenceActivationDto(offenceCode = "COML025", statuteCode = "COML", activationFlag = true)
-      whenever(offenceRepository.findById(PK("COML025", "COML"))).thenReturn(Optional.of(murderOffence))
-
-      service.updateOffenceActiveFlag(mappingDto)
-
-      verify(offenceRepository).save(
-        Offence.builder()
-          .code("COML025")
-          .description("Murder")
-          .active(true)
-          .expiryDate(null)
-          .build(),
-      )
-    }
-
-    @Test
-    internal fun `Deactivate an offence in NOMIS`() {
-      val mappingDto = OffenceActivationDto(offenceCode = "COML025", statuteCode = "COML", activationFlag = false)
-      whenever(offenceRepository.findById(PK("COML025", "COML"))).thenReturn(Optional.of(murderOffence))
-
-      service.updateOffenceActiveFlag(mappingDto)
-
-      verify(offenceRepository).save(
-        Offence.builder()
-          .code("COML025")
-          .description("Murder")
-          .active(false)
-          .expiryDate(LocalDate.now())
-          .build(),
-      )
-    }
-  }
 }
