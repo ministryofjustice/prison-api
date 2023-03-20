@@ -35,20 +35,6 @@ enum class CaseNoteRepositorySql(val sql: String) {
     """,
   ),
 
-  GROUP_BY_TYPES_FOR_BOOKING_FROM_DATE(
-    """
-        SELECT CASE_NOTE_TYPE,
-        CASE_NOTE_SUB_TYPE,
-        OFFENDER_BOOK_ID  BOOKING_ID,
-        COUNT(*)          NUM_CASE_NOTES,
-        MAX(CONTACT_TIME) LATEST_CASE_NOTE
-        FROM OFFENDER_CASE_NOTES OCS
-        WHERE CONTACT_TIME >= :fromDate
-        AND OFFENDER_BOOK_ID = :bookingId
-        AND CASE_NOTE_TYPE IN (:types)
-        GROUP BY CASE_NOTE_TYPE, CASE_NOTE_SUB_TYPE, OFFENDER_BOOK_ID
-    """,
-  ),
 
   GROUP_BY_TYPES_AND_STAFF(
     """
