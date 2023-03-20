@@ -368,6 +368,7 @@ internal class OffenceServiceTest {
       .code("COML025")
       .description("Murder")
       .build()
+
     @Test
     internal fun `Activate an offence in NOMIS when matching offence is not found - throws exception `() {
       val mappingDto = OffenceActivationDto(offenceCode = "COML025", statuteCode = "COML", activationFlag = true)
