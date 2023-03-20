@@ -198,10 +198,9 @@ public class OffenceService {
     @Transactional
     public void updateOffenceActiveFlag(final OffenceActivationDto offenceActivationDto) {
         final var offence = offenceRepository.findById(new PK(offenceActivationDto.getOffenceCode(), offenceActivationDto.getStatuteCode())).orElseThrow(
-            EntityNotFoundException.withMessage("The offence with code %s doesnt exist", offenceActivationDto.getOffenceCode())
+            EntityNotFoundException.withMessage("The offence with code %s and statute code %s doesnt exist", offenceActivationDto.getOffenceCode(), offenceActivationDto.getStatuteCode())
         );
         offence.setActive(offenceActivationDto.getActivationFlag());
         offence.setExpiryDate(offenceActivationDto.getActivationFlag() ? null : LocalDate.now());
-        offenceRepository.save(offence);
     }
 }
