@@ -362,14 +362,14 @@ internal class OffenceServiceTest {
   }
 
   @Nested
-  @DisplayName("Activate / deactivate offences test")
+  @DisplayName("Activate / deactivate offence tests")
   inner class ActivateOrDeactivateOffencesTest {
     private val murderOffence = Offence.builder()
       .code("COML025")
       .description("Murder")
       .build()
     @Test
-    internal fun `Activate an offence in NOMIS matching offence not found - throws exception `() {
+    internal fun `Activate an offence in NOMIS when matching offence is not found - throws exception `() {
       val mappingDto = OffenceActivationDto(offenceCode = "COML025", statuteCode = "COML", activationFlag = true)
       whenever(offenceRepository.findById(PK("COML025", "COML"))).thenReturn(Optional.empty())
 
