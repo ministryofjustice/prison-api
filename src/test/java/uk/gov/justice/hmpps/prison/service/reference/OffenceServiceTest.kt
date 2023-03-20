@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.service.reference
 
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatCode
 import org.assertj.core.api.Assertions.assertThatThrownBy
