@@ -1,6 +1,8 @@
 package uk.gov.justice.hmpps.prison.service.reference
 
+import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatCode
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -356,6 +358,31 @@ internal class OffenceServiceTest {
         mappingDto.schedule.code,
         mappingDto.offenceCode,
       )
+    }
+  }
+
+  @Nested
+  @DisplayName("Activate / deactivate offences test")
+  inner class ActivateOrDeactivateOffencesTest {
+    private val murderOffence = Offence.builder()
+      .code("COML025")
+      .description("Murder")
+      .build()
+    @Test
+    internal fun `Activate an offence in NOMIS matching offence not found - throws exception `() {
+      val mappingDto = OffenceActivationDto(offenceCode = "COML025", statuteCode = "COML", activationFlag = true)
+      whenever(offenceRepository.findById(PK("COML025", "COML"))).thenReturn(Optional.empty())
+
+      Assertions.assertThatThrownBy { service.updateOffenceActiveFlag(mappingDto) }
+        .isInstanceOf(EntityNotFoundException::class.java)
+    }
+
+    @Test
+    internal fun `Activate an offence in NOMIS for a valid offence does not throw an exception `() {
+      val mappingDto = OffenceActivationDto(offenceCode = "COML025", statuteCode = "COML", activationFlag = true)
+      whenever(offenceRepository.findById(PK("COML025", "COML"))).thenReturn(Optional.of(murderOffence))
+
+      assertThatCode { service.updateOffenceActiveFlag(mappingDto) }.doesNotThrowAnyException()
     }
   }
 }
