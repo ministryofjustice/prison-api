@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.HOCodeDto;
+import uk.gov.justice.hmpps.prison.api.model.OffenceActivationDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenceDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenceToScheduleMappingDto;
 import uk.gov.justice.hmpps.prison.api.model.StatuteDto;
@@ -24,6 +25,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.StatuteRepository;
 import uk.gov.justice.hmpps.prison.service.EntityAlreadyExistsException;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.StreamSupport;
@@ -191,5 +193,15 @@ public class OffenceService {
         offencesToSchedules.forEach(o ->
             offenceIndicatorRepository.deleteByIndicatorCodeAndOffence_Code(o.getSchedule().getCode(), o.getOffenceCode())
         );
+    }
+
+    @Transactional
+    public void updateOffenceActiveFlag(final OffenceActivationDto offenceActivationDto) {
+        final var offence = offenceRepository.findById(new PK(offenceActivationDto.getOffenceCode(), offenceActivationDto.getStatuteCode())).orElseThrow(
+            EntityNotFoundException.withMessage("The offence with code %s doesnt exist", offenceActivationDto.getOffenceCode())
+        );
+        offence.setActive(offenceActivationDto.getActivationFlag());
+        offence.setExpiryDate(offenceActivationDto.getActivationFlag() ? null : LocalDate.now());
+        offenceRepository.save(offence);
     }
 }
