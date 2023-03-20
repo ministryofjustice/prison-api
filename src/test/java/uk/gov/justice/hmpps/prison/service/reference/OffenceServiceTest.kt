@@ -295,7 +295,9 @@ internal class OffenceServiceTest {
 
       val pks = mappingDtos.map { PK(it.offenceCode, it.statuteCode) }.toSet()
       whenever(offenceRepository.findAllById(pks)).thenReturn(listOf(murderOffence))
-      whenever(offenceIndicatorRepository.existsByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML025")).thenReturn(false)
+      whenever(offenceIndicatorRepository.existsByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML025")).thenReturn(
+        false,
+      )
 
       service.linkOffencesToSchedules(mappingDtos)
 
@@ -323,8 +325,12 @@ internal class OffenceServiceTest {
 
       val pks = mappingDtos.map { PK(it.offenceCode, it.statuteCode) }.toSet()
       whenever(offenceRepository.findAllById(pks)).thenReturn(listOf(murderOffence, manslaughterOffence))
-      whenever(offenceIndicatorRepository.existsByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML025")).thenReturn(true)
-      whenever(offenceIndicatorRepository.existsByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML026")).thenReturn(false)
+      whenever(offenceIndicatorRepository.existsByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML025")).thenReturn(
+        true,
+      )
+      whenever(offenceIndicatorRepository.existsByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML026")).thenReturn(
+        false,
+      )
 
       service.linkOffencesToSchedules(mappingDtos)
 
@@ -352,6 +358,7 @@ internal class OffenceServiceTest {
       )
     }
   }
+
   @Nested
   @DisplayName("Activate / deactivate offences test")
   inner class ActivateOrDeactivateOffencesTest {
@@ -367,12 +374,14 @@ internal class OffenceServiceTest {
 
       service.updateOffenceActiveFlag(mappingDto)
 
-      verify(offenceRepository).save(Offence.builder()
-        .code("COML025")
-        .description("Murder")
-        .active(true)
-        .expiryDate(null)
-        .build())
+      verify(offenceRepository).save(
+        Offence.builder()
+          .code("COML025")
+          .description("Murder")
+          .active(true)
+          .expiryDate(null)
+          .build(),
+      )
     }
 
     @Test
@@ -382,12 +391,14 @@ internal class OffenceServiceTest {
 
       service.updateOffenceActiveFlag(mappingDto)
 
-      verify(offenceRepository).save(Offence.builder()
-        .code("COML025")
-        .description("Murder")
-        .active(false)
-        .expiryDate(LocalDate.now())
-        .build())
+      verify(offenceRepository).save(
+        Offence.builder()
+          .code("COML025")
+          .description("Murder")
+          .active(false)
+          .expiryDate(LocalDate.now())
+          .build(),
+      )
     }
   }
 }
