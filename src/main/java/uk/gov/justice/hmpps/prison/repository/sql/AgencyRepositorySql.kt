@@ -169,5 +169,4 @@ enum class AgencyRepositorySql(val sql: String) {
         ORDER BY USER_DESCRIPTION
     """,
   ),
-
 }

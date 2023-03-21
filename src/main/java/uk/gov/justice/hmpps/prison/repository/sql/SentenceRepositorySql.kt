@@ -111,5 +111,4 @@ enum class SentenceRepositorySql(val sql: String) {
                 WHERE OFFENDER_BOOK_ID = :bookingId
     """,
   ),
-
 }
