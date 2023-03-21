@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.repository;
 
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCaseNote;
@@ -16,8 +17,9 @@ public interface OffenderCaseNoteRepository extends
 
     Optional<OffenderCaseNote> findByIdAndOffenderBooking_BookingId(final Long id, final Long bookingId);
 
-    List<OffenderCaseNote> findByOffenderBooking_BookingIdInAndType_CodeInAndOccurrenceDateTimeGreaterThanEqual(
+    @Query(value = "select new uk.gov.justice.hmpps.prison.repository.jpa.repository.PrisonerCaseNoteTypeAndSubType(cn.bookingId, cn.typeCode, cn.subTypeCode, cn.occurrenceDateTime) from OffenderCaseNote cn where cn.bookingId in (:bookingIds) and cn.typeCode in (:types) and cn.occurrenceDateTime >= :cutoffTime")
+    List<PrisonerCaseNoteTypeAndSubType> findCaseNotTypesByBookingAndDate(
         List<Long> bookingIds, List<String> types, LocalDateTime cutoffTime
     );
-
 }
+
