@@ -7,10 +7,6 @@ Feature: Prison Contact Details
   Background:
     Given a user has authenticated with the API
 
-  Scenario: Retrieve a list of all Prison contact details
-    When a request is made to retrieve all prison contact details
-    Then a list of prison contact details are returned
-
   Scenario: Retrieve contact details for a specific Prison
     When a request is made to retrieve contact details for prison "BMI"
     Then a single prison contact details record is returned
