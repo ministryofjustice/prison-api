@@ -17,6 +17,7 @@ import uk.gov.justice.hmpps.prison.api.model.CaseNote;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteCount;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteEvent;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteStaffUsage;
+import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeCount;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeSummaryRequest.BookingFromDatePair;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsage;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageByBookingId;
@@ -53,7 +54,9 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
+import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.summarizingInt;
 
 @Service
 @Validated
@@ -238,7 +241,7 @@ public class CaseNoteService {
         return caseNoteRepository.getCaseNoteUsageByBookingId(type, subType, bookingIds, deriveDates.getFromDateToUse(), deriveDates.getToDateToUse());
     }
 
-    public List<CaseNoteUsageByBookingId> getCaseNoteUsageByBookingIdTypeAndDate(@NotEmpty final List<String> types, @NotEmpty final List<BookingFromDatePair> bookingReviewDatePairs) {
+    public List<CaseNoteTypeCount> getCaseNoteUsageByBookingIdTypeAndDate(@NotEmpty final List<String> types, @NotEmpty final List<BookingFromDatePair> bookingReviewDatePairs) {
         final var bookingDateMap = bookingReviewDatePairs.stream().collect(Collectors.toMap(BookingFromDatePair::getBookingId, BookingFromDatePair::getFromDate));
 
         final var allCaseNotesOfType = offenderCaseNoteRepository.findByOffenderBooking_BookingIdInAndType_CodeInAndOccurrenceDateTimeGreaterThanEqual(
@@ -249,28 +252,13 @@ public class CaseNoteService {
 
         return allCaseNotesOfType.stream()
             .filter(b -> !bookingDateMap.get(b.getOffenderBooking().getBookingId()).isAfter(b.getOccurrenceDateTime()))
-            .collect(groupingBy(cn -> new CaseNoteTypesAndSubTypes(cn.getOffenderBooking().getBookingId(), cn.getType().getCode(), cn.getSubType().getCode())))
+            .collect(groupingBy(cn -> new CaseNoteTypesAndSubTypes(cn.getOffenderBooking().getBookingId(), cn.getType().getCode(), cn.getSubType().getCode()), counting()))
             .entrySet().stream()
-            .map(summary ->
-            {
-                final var key = summary.getKey();
-                final var value = summary.getValue();
-                return new CaseNoteUsageByBookingId(
-                    key.bookingId,
-                    key.type,
-                    key.subType,
-                    value.size(),
-                    value.stream().max(Comparator.comparing(OffenderCaseNote::getOccurrenceDateTime)).orElseThrow().getOccurrenceDateTime()
-                );
-            })
-            .sorted(Comparator
-                .comparing(CaseNoteUsageByBookingId::getBookingId)
-                .thenComparing(CaseNoteUsageByBookingId::getCaseNoteType)
-                .thenComparing(CaseNoteUsageByBookingId::getCaseNoteSubType))
+            .map(s -> new CaseNoteTypeCount(s.getKey().bookingId, s.getKey().type, s.getKey().subType, s.getValue()))
             .toList();
     }
 
-    private static record CaseNoteTypesAndSubTypes(Long bookingId, String type, String subType) {};
+    private record CaseNoteTypesAndSubTypes(Long bookingId, String type, String subType) {};
 
     public List<CaseNoteStaffUsage> getCaseNoteStaffUsage(final String type, final String subType, @NotEmpty final List<Integer> staffIds, final LocalDate fromDate, final LocalDate toDate, final int numMonths) {
         final var deriveDates = new DeriveDates(fromDate, toDate, numMonths);

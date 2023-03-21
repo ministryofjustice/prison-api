@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeCount;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeSummaryRequest;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeSummaryRequest.BookingFromDatePair;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageByBookingId;
@@ -45,9 +46,9 @@ public class CaseNoteResourceTest {
     @Test
     public void getCaseNoteUsageByBookingIdTypeAndDate() {
         final var usage = List.of(
-            new CaseNoteUsageByBookingId(-16L, "POS", "IEP_ENC", 2, LocalDateTime.parse("2017-05-13T12:00")),
-            new CaseNoteUsageByBookingId(-16L, "NEG", "IEP_WARN", 3, LocalDateTime.parse("2018-05-13T12:00")),
-            new CaseNoteUsageByBookingId(-17L, "POS", "IEP_ENC", 1, LocalDateTime.parse("2018-05-13T12:00"))
+            new CaseNoteTypeCount(-16L, "POS", "IEP_ENC", 2L),
+            new CaseNoteTypeCount(-16L, "NEG", "IEP_WARN", 3L),
+            new CaseNoteTypeCount(-17L, "POS", "IEP_ENC", 1L)
         );
         when(caseNoteService.getCaseNoteUsageByBookingIdTypeAndDate(anyList(), anyList())).thenReturn(usage);
         final var bookingDatePairs = List.of(
