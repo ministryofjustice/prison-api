@@ -85,7 +85,7 @@ public class CaseNoteResourceIntTest extends ResourceTest {
             BookingFromDatePair.builder().bookingId(-18L).fromDate(fromDate3).build()
         );
 
-        when(offenderCaseNoteRepository.findByOffenderBooking_BookingIdInAndTypeInAndOccurrenceDateTimeGreaterThanEqual(anyList(), anyList(), any(LocalDateTime.class))).thenReturn(
+        when(offenderCaseNoteRepository.findByOffenderBooking_BookingIdInAndType_CodeInAndOccurrenceDateTimeGreaterThanEqual(anyList(), anyList(), any(LocalDateTime.class))).thenReturn(
             List.of(
                 buildCaseNote(-16L, "POS", "IEP_ENC", fromDate1.minusDays(1)),
                 buildCaseNote(-16L, "POS", "IEP_ENC", fromDate1.plusDays(1)),

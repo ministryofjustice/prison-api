@@ -241,7 +241,7 @@ public class CaseNoteService {
     public List<CaseNoteUsageByBookingId> getCaseNoteUsageByBookingIdTypeAndDate(@NotEmpty final List<String> types, @NotEmpty final List<BookingFromDatePair> bookingReviewDatePairs) {
         final var bookingDateMap = bookingReviewDatePairs.stream().collect(Collectors.toMap(BookingFromDatePair::getBookingId, BookingFromDatePair::getFromDate));
 
-        final var allCaseNotesOfType = offenderCaseNoteRepository.findByOffenderBooking_BookingIdInAndTypeInAndOccurrenceDateTimeGreaterThanEqual(
+        final var allCaseNotesOfType = offenderCaseNoteRepository.findByOffenderBooking_BookingIdInAndType_CodeInAndOccurrenceDateTimeGreaterThanEqual(
             bookingDateMap.keySet().stream().toList(),
             types,
             bookingDateMap.values().stream().min(LocalDateTime::compareTo).orElseThrow()

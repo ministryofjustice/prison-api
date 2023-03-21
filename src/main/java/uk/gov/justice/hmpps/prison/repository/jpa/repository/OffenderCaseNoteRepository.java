@@ -16,7 +16,7 @@ public interface OffenderCaseNoteRepository extends
 
     Optional<OffenderCaseNote> findByIdAndOffenderBooking_BookingId(final Long id, final Long bookingId);
 
-    List<OffenderCaseNote> findByOffenderBooking_BookingIdInAndTypeInAndOccurrenceDateTimeGreaterThanEqual(
+    List<OffenderCaseNote> findByOffenderBooking_BookingIdInAndType_CodeInAndOccurrenceDateTimeGreaterThanEqual(
         List<Long> bookingIds, List<String> types, LocalDateTime cutoffTime
     );
 
