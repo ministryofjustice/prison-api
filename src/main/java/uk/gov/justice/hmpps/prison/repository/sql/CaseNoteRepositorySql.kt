@@ -35,7 +35,6 @@ enum class CaseNoteRepositorySql(val sql: String) {
     """,
   ),
 
-
   GROUP_BY_TYPES_AND_STAFF(
     """
         SELECT /*+ index(OCS, OFFENDER_CASE_NOTES_X04) */
@@ -73,25 +72,6 @@ enum class CaseNoteRepositorySql(val sql: String) {
         WHERE OC.AUDIT_TIMESTAMP >= :fromDate
         AND OC.CASE_NOTE_TYPE in (:types)
         ORDER BY OC.AUDIT_TIMESTAMP
-    """,
-  ),
-
-  GET_CASE_NOTE_TYPES_BY_CASELOAD_TYPE(
-    """
-        SELECT DISTINCT RC.DESCRIPTION,
-        W.WORK_TYPE CODE,
-        RC.DOMAIN,
-        NULL PARENT_DOMAIN_ID,
-        NULL PARENT_CODE,
-        W.ACTIVE_FLAG
-        FROM WORKS W
-        INNER JOIN REFERENCE_CODES RC ON RC.CODE = W.WORK_TYPE
-                AND RC.DOMAIN = 'TASK_TYPE'
-        WHERE W.WORKFLOW_TYPE = 'CNOTE'
-        AND W.CASELOAD_TYPE IN ((:caseLoadType), 'BOTH')
-        AND W.MANUAL_SELECT_FLAG ='Y'
-        AND W.ACTIVE_FLAG = 'Y'
-        ORDER BY W.WORK_TYPE
     """,
   ),
 
