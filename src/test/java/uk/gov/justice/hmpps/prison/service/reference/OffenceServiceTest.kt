@@ -1,6 +1,8 @@
 package uk.gov.justice.hmpps.prison.service.reference
 
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatCode
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -14,6 +16,7 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import uk.gov.justice.hmpps.prison.api.model.HOCodeDto
+import uk.gov.justice.hmpps.prison.api.model.OffenceActivationDto
 import uk.gov.justice.hmpps.prison.api.model.OffenceDto
 import uk.gov.justice.hmpps.prison.api.model.OffenceToScheduleMappingDto
 import uk.gov.justice.hmpps.prison.api.model.Schedule.SCHEDULE_15
@@ -294,7 +297,9 @@ internal class OffenceServiceTest {
 
       val pks = mappingDtos.map { PK(it.offenceCode, it.statuteCode) }.toSet()
       whenever(offenceRepository.findAllById(pks)).thenReturn(listOf(murderOffence))
-      whenever(offenceIndicatorRepository.existsByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML025")).thenReturn(false)
+      whenever(offenceIndicatorRepository.existsByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML025")).thenReturn(
+        false,
+      )
 
       service.linkOffencesToSchedules(mappingDtos)
 
@@ -322,8 +327,12 @@ internal class OffenceServiceTest {
 
       val pks = mappingDtos.map { PK(it.offenceCode, it.statuteCode) }.toSet()
       whenever(offenceRepository.findAllById(pks)).thenReturn(listOf(murderOffence, manslaughterOffence))
-      whenever(offenceIndicatorRepository.existsByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML025")).thenReturn(true)
-      whenever(offenceIndicatorRepository.existsByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML026")).thenReturn(false)
+      whenever(offenceIndicatorRepository.existsByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML025")).thenReturn(
+        true,
+      )
+      whenever(offenceIndicatorRepository.existsByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML026")).thenReturn(
+        false,
+      )
 
       service.linkOffencesToSchedules(mappingDtos)
 
@@ -349,6 +358,32 @@ internal class OffenceServiceTest {
         mappingDto.schedule.code,
         mappingDto.offenceCode,
       )
+    }
+  }
+
+  @Nested
+  @DisplayName("Activate / deactivate offence tests")
+  inner class ActivateOrDeactivateOffencesTest {
+    private val murderOffence = Offence.builder()
+      .code("COML025")
+      .description("Murder")
+      .build()
+
+    @Test
+    internal fun `Activate an offence in NOMIS when matching offence is not found - throws exception `() {
+      val mappingDto = OffenceActivationDto(offenceCode = "COML025", statuteCode = "COML", activationFlag = true)
+      whenever(offenceRepository.findById(PK("COML025", "COML"))).thenReturn(Optional.empty())
+
+      assertThatThrownBy { service.updateOffenceActiveFlag(mappingDto) }
+        .isInstanceOf(EntityNotFoundException::class.java)
+    }
+
+    @Test
+    internal fun `Activate an offence in NOMIS for a valid offence does not throw an exception `() {
+      val mappingDto = OffenceActivationDto(offenceCode = "COML025", statuteCode = "COML", activationFlag = true)
+      whenever(offenceRepository.findById(PK("COML025", "COML"))).thenReturn(Optional.of(murderOffence))
+
+      assertThatCode { service.updateOffenceActiveFlag(mappingDto) }.doesNotThrowAnyException()
     }
   }
 }
