@@ -6,6 +6,7 @@
       "startDate": "2010-06-21",
       "endDate": null,
       "agencyId": "LEI",
+      "agencyDescription": "Leeds (HMP)",
       "treatmentDescription": "Wheelchair accessibility"
     },
     {
@@ -14,6 +15,7 @@
       "startDate": "2010-06-21",
       "endDate": null,
       "agencyId": "LEI",
+      "agencyDescription": "Leeds (HMP)",
       "treatmentDescription": "Some other description"
     }
   ]
