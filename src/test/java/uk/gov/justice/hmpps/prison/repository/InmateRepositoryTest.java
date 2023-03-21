@@ -1358,8 +1358,6 @@ public class InmateRepositoryTest {
                         .treatmentCode("WHEELCHR_ACC")
                         .treatmentDescription("Wheelchair accessibility")
                         .commentText("Some Comment Text")
-                        .agencyId("MDI")
-                        .agencyDescription("Moorland")
                         .startDate(LocalDate.of(2010, 6, 21))
                         .build());
         final var treatmentCodes = List.of("WHEELCHR_ACC", "COMP SOFT");
