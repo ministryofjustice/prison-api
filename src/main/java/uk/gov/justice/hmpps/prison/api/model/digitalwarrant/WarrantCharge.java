@@ -45,6 +45,13 @@ public class WarrantCharge {
     @Schema(description = "Court case reference")
     private String courtCaseRef;
 
+    @Schema(description = "Court case location")
+    private String courtLocation;
+
     @Schema(description = "The sequence of the sentence from this charge")
     private Integer sentenceSequence;
+
+    @Schema(description = "The result description of the charge")
+    private String resultDescription;
+
 }

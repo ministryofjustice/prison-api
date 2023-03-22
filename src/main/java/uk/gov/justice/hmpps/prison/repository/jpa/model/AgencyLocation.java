@@ -6,6 +6,7 @@ import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.With;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
@@ -39,6 +40,7 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.CourtType.JURISDI
 @AllArgsConstructor
 @Table(name = "AGENCY_LOCATIONS")
 @ToString(of = {"id", "description"})
+@With
 public class AgencyLocation extends AuditableEntity {
 
     public static final String IN = "IN";
