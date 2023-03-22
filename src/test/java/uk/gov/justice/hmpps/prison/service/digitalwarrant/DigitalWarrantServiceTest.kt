@@ -7,6 +7,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.CourtDateResult
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.WarrantCharge
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEventCharge
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offence
@@ -125,7 +126,9 @@ class DigitalWarrantServiceTest {
               .withGuilty(false)
               .withCourtCaseId(3)
               .withCourtCaseRef(null)
-              .withSentenceSequence(null),
+              .withCourtLocation(null)
+              .withSentenceSequence(null)
+              .withResultDescription(null),
           ),
           CourtDateResult(
             id = 2,
@@ -144,7 +147,9 @@ class DigitalWarrantServiceTest {
               .withGuilty(false)
               .withCourtCaseId(3)
               .withCourtCaseRef(null)
-              .withSentenceSequence(null),
+              .withCourtLocation(null)
+              .withSentenceSequence(null)
+              .withResultDescription(null),
           ),
         ),
       )
@@ -152,6 +157,10 @@ class DigitalWarrantServiceTest {
 
     @Test
     fun `should get dates with full data set`() {
+      val offenceResult = OffenceResult()
+        .withCode("1002")
+        .withDescription("Imprisonment")
+        .withDispositionCode("F")
       whenever(courtEventChargeRepository.findByOffender(PRISONER_ID)).thenReturn(
         listOf(
           CourtEventCharge(
@@ -166,7 +175,11 @@ class DigitalWarrantServiceTest {
               .withOffenderCourtCase(
                 OffenderCourtCase()
                   .withId(3)
-                  .withCaseInfoNumber("TS1000"),
+                  .withCaseInfoNumber("TS1000")
+                  .withAgencyLocation(
+                    AgencyLocation()
+                      .withDescription("Birmingham Crown Court"),
+                  ),
               )
               .withOffenderBooking(
                 OffenderBooking()
@@ -183,15 +196,13 @@ class DigitalWarrantServiceTest {
                         .withId(OffenderSentence.PK(4, 5)),
                     ),
                 ),
-              ),
+              )
+              .withResultCodeOne(offenceResult),
             CourtEvent()
               .withId(2)
               .withEventDate(LocalDate.of(2022, 1, 1))
               .withOutcomeReasonCode(
-                OffenceResult()
-                  .withCode("1002")
-                  .withDescription("Imprisonment")
-                  .withDispositionCode("F"),
+                offenceResult,
               ),
           ),
         ),
@@ -218,7 +229,9 @@ class DigitalWarrantServiceTest {
               .withGuilty(true)
               .withCourtCaseId(3)
               .withCourtCaseRef("TS1000")
-              .withSentenceSequence(5),
+              .withCourtLocation("Birmingham Crown Court")
+              .withSentenceSequence(5)
+              .withResultDescription("Imprisonment"),
           ),
         ),
       )
