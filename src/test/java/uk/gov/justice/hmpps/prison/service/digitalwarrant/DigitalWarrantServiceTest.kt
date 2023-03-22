@@ -177,9 +177,9 @@ class DigitalWarrantServiceTest {
                   .withId(3)
                   .withCaseInfoNumber("TS1000")
                   .withAgencyLocation(
-                    AgencyLocation().
-                      withDescription("Birmingham Crown Court")
-                  )
+                    AgencyLocation()
+                      .withDescription("Birmingham Crown Court"),
+                  ),
               )
               .withOffenderBooking(
                 OffenderBooking()
@@ -231,7 +231,7 @@ class DigitalWarrantServiceTest {
               .withCourtCaseRef("TS1000")
               .withCourtLocation("Birmingham Crown Court")
               .withSentenceSequence(5)
-              .withResultDescription("Imprisonment")
+              .withResultDescription("Imprisonment"),
           ),
         ),
       )
