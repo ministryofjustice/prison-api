@@ -7,12 +7,8 @@ import org.springframework.http.HttpMethod;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteEvent;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeSummaryRequest;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeSummaryRequest.BookingFromDatePair;
+import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageByBookingId;
 import uk.gov.justice.hmpps.prison.repository.CaseNoteRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteSubType;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteType;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCaseNote;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCaseNoteRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,7 +16,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.verify;
@@ -30,9 +25,6 @@ import static org.mockito.Mockito.when;
 public class CaseNoteResourceIntTest extends ResourceTest {
     @MockBean
     private CaseNoteRepository caseNoteRepository;
-
-    @MockBean
-    private OffenderCaseNoteRepository offenderCaseNoteRepository;
 
     @Test
     public void getCaseNoteEvents_noLimit() {
@@ -79,39 +71,27 @@ public class CaseNoteResourceIntTest extends ResourceTest {
         final var fromDate2 = LocalDateTime.of(2019,2,3,12,0,0);
         final var fromDate3 = LocalDateTime.of(2020,2,3,12,0,0);
 
-        final var bookingDatePairs = List.of(
-            BookingFromDatePair.builder().bookingId(-16L).fromDate(fromDate1).build(),
-            BookingFromDatePair.builder().bookingId(-17L).fromDate(fromDate2).build(),
-            BookingFromDatePair.builder().bookingId(-18L).fromDate(fromDate3).build()
+        final var dbResults1 = List.of(
+            new CaseNoteUsageByBookingId(-16, "POS", "IEP_ENC", 2, LocalDateTime.parse("2017-05-13T12:00")),
+            new CaseNoteUsageByBookingId(-16, "NEG", "IEP_WARN", 3, LocalDateTime.parse("2018-05-13T12:00"))
         );
-
-        when(offenderCaseNoteRepository.findByOffenderBooking_BookingIdInAndType_CodeInAndOccurrenceDateTimeGreaterThanEqual(anyList(), anyList(), any(LocalDateTime.class))).thenReturn(
-            List.of(
-                buildCaseNote(-16L, "POS", "IEP_ENC", fromDate1.minusDays(1)),
-                buildCaseNote(-16L, "POS", "IEP_ENC", fromDate1.plusDays(1)),
-                buildCaseNote(-16L, "POS", "IEP_ENC", fromDate1.plusDays(2)),
-                buildCaseNote(-16L, "NEG", "IEP_WARN", fromDate1),
-                buildCaseNote(-16L, "NEG", "IEP_WARN", fromDate1.plusDays(1)),
-                buildCaseNote(-16L, "NEG", "IEP_WARN", fromDate1.plusDays(2)),
-
-                buildCaseNote(-17L, "POS", "IEP_ENC", fromDate2.minusDays(5)),
-                buildCaseNote(-17L, "POS", "IEP_ENC", fromDate2.minusDays(1)),
-                buildCaseNote(-17L, "POS", "IEP_ENC", fromDate2.plusDays(2)),
-                buildCaseNote(-17L, "NEG", "IEP_WARN", fromDate2.minusDays(5)),
-                buildCaseNote(-17L, "NEG", "IEP_WARN", fromDate2.plusDays(1)),
-                buildCaseNote(-17L, "NEG", "IEP_WARN", fromDate2.plusDays(2)),
-
-                buildCaseNote(-18L, "POS", "IEP_ENC", fromDate3.minusDays(5)),
-                buildCaseNote(-18L, "POS", "IEP_ENC", fromDate3.minusDays(1)),
-                buildCaseNote(-18L, "POS", "IEP_ENC", fromDate3.plusDays(2)),
-                buildCaseNote(-18L, "NEG", "IEP_WARN", fromDate3.minusDays(5)),
-                buildCaseNote(-18L, "NEG", "IEP_WARN", fromDate3.minusDays(1)),
-                buildCaseNote(-18L, "NEG", "IEP_WARN", fromDate3.minusDays(2))
-
-            )
+        final var dbResults2 = List.of(
+            new CaseNoteUsageByBookingId(-17, "POS", "IEP_ENC", 1, LocalDateTime.parse("2018-05-13T12:00")),
+            new CaseNoteUsageByBookingId(-17, "NEG", "IEP_WARN", 2, LocalDateTime.parse("2018-05-13T12:00"))
+        );
+        final var dbResults3 = List.of(
+            new CaseNoteUsageByBookingId(-18, "POS", "IEP_ENC", 1, LocalDateTime.parse("2018-05-13T12:00"))
+        );
+        final var bookingDatePairs = List.of(
+            BookingFromDatePair.builder().bookingId(-16).fromDate(fromDate1).build(),
+            BookingFromDatePair.builder().bookingId(-17).fromDate(fromDate2).build(),
+            BookingFromDatePair.builder().bookingId(-18).fromDate(fromDate3).build()
         );
 
         final var types = List.of("POS", "NEG");
+        when(caseNoteRepository.getCaseNoteUsageByBookingIdAndFromDate(types, -16, fromDate1)).thenReturn(dbResults1);
+        when(caseNoteRepository.getCaseNoteUsageByBookingIdAndFromDate(types, -17, fromDate2)).thenReturn(dbResults2);
+        when(caseNoteRepository.getCaseNoteUsageByBookingIdAndFromDate(types, -18, fromDate3)).thenReturn(dbResults3);
 
         final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of(), CaseNoteTypeSummaryRequest.builder()
             .types(types)
@@ -124,15 +104,10 @@ public class CaseNoteResourceIntTest extends ResourceTest {
             });
 
         assertThatJsonFileAndStatus(responseEntity, 200, "case_note_usage_by_type.json");
-    }
 
-    private static OffenderCaseNote buildCaseNote(long bookingId, String type, String subType, LocalDateTime occurrenceDateTime) {
-        return OffenderCaseNote.builder()
-            .offenderBooking(OffenderBooking.builder().bookingId(bookingId).build())
-            .type(new CaseNoteType(type, null))
-            .subType(new CaseNoteSubType(subType, null))
-            .occurrenceDateTime(occurrenceDateTime)
-            .build();
+        verify(caseNoteRepository).getCaseNoteUsageByBookingIdAndFromDate(types, -16, fromDate1);
+        verify(caseNoteRepository).getCaseNoteUsageByBookingIdAndFromDate(types, -17, fromDate2);
+        verify(caseNoteRepository).getCaseNoteUsageByBookingIdAndFromDate(types, -18, fromDate3);
     }
 
     private CaseNoteEvent createEvent(final String type, final String subType) {

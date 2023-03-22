@@ -39,7 +39,7 @@ public class CaseNoteTypeSummaryRequest {
     public static class BookingFromDatePair {
 
         @Schema(description = "Booking Id")
-        private Long bookingId;
+        private Integer bookingId;
 
         @Schema(description = "Only case notes occurring on or after this date (in YYYY-MM-DDTHH:MM:SS format) will be considered.", example = "2018-11-01T12:00:00")
         private LocalDateTime fromDate;

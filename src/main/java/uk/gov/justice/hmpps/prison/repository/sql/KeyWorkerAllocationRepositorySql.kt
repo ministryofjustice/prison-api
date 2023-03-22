@@ -66,6 +66,18 @@ enum class KeyWorkerAllocationRepositorySql(val sql: String) {
     """,
   ),
 
+  GET_KEY_WORKER_DETAILS(
+    """
+        SELECT SM.LAST_NAME,
+        SM.FIRST_NAME,
+        SM.STAFF_ID,
+        0 NUMBER_ALLOCATED
+                FROM STAFF_MEMBERS SM
+        WHERE SM.STAFF_ID = :staffId
+        AND SM.STATUS = 'ACTIVE'
+    """,
+  ),
+
   GET_KEY_WORKER_DETAILS_FOR_OFFENDER(
     """
         SELECT

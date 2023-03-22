@@ -76,7 +76,7 @@ public class CaseNoteServiceImplTest {
 
     @Test
     public void getCaseNoteUsageByBookingId() {
-        final var usage = List.of(new CaseNoteUsageByBookingId(-16L, "OBSERVE", "OBS_GEN", 1, LocalDateTime.parse("2017-05-13T12:00")));
+        final var usage = List.of(new CaseNoteUsageByBookingId(-16, "OBSERVE", "OBS_GEN", 1, LocalDateTime.parse("2017-05-13T12:00")));
         when(repository.getCaseNoteUsageByBookingId(anyString(), anyString(), anyList(), any(), any())).thenReturn(usage);
 
         final var bookingIds = List.of(2, 3, 4);

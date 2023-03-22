@@ -125,6 +125,19 @@ enum class OffenderCurfewRepositorySql(val sql: String) {
     """,
   ),
 
+  UPDATE_HDC_STATUS_REASON(
+    """
+        UPDATE HDC_STATUS_REASONS
+                SET STATUS_REASON_CODE = :hdcStatusReason
+        WHERE HDC_STATUS_TRACKING_ID = (
+                SELECT HDC_STATUS_TRACKING_ID
+                        FROM HDC_STATUS_TRACKINGS
+                        WHERE OFFENDER_CURFEW_ID = :offenderCurfewId AND
+                STATUS_CODE = :hdcStatusTrackingCode
+        )
+    """,
+  ),
+
   FIND_HDC_STATUS_TRACKING(
     """
         SELECT HDC_STATUS_TRACKING_ID

@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Data
 public class CaseNoteUsageByBookingId {
     @Schema(required = true, description = "Booking Id", example = "123456")
-    private Long bookingId;
+    private Integer bookingId;
 
     @Schema(required = true, description = "Case Note Type", example = "KA")
     private String caseNoteType;
@@ -29,7 +29,7 @@ public class CaseNoteUsageByBookingId {
     @Schema(required = true, description = "Last case note of this type", example = "2018-12-01T14:55:23")
     private LocalDateTime latestCaseNote;
 
-    public CaseNoteUsageByBookingId(Long bookingId, String caseNoteType, String caseNoteSubType, Integer numCaseNotes, LocalDateTime latestCaseNote) {
+    public CaseNoteUsageByBookingId(Integer bookingId, String caseNoteType, String caseNoteSubType, Integer numCaseNotes, LocalDateTime latestCaseNote) {
         this.bookingId = bookingId;
         this.caseNoteType = caseNoteType;
         this.caseNoteSubType = caseNoteSubType;
