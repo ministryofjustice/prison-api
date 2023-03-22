@@ -55,6 +55,26 @@ enum class UserRepositorySql(val sql: String) {
     """,
   ),
 
+  FIND_USER_BY_STAFF_ID_STAFF_USER_TYPE(
+    """
+        SELECT SM.STAFF_ID,
+        AUA.USERNAME,
+        SM.FIRST_NAME,
+        SM.LAST_NAME,
+        AUA.WORKING_CASELOAD_ID AS ACTIVE_CASE_LOAD_ID,
+        SM.STATUS ACCOUNT_STATUS,
+        (SELECT TAG_IMAGE_ID
+                FROM TAG_IMAGES
+                WHERE IMAGE_OBJECT_ID = SM.STAFF_ID
+                AND IMAGE_OBJECT_TYPE = 'STAFF'
+        AND ACTIVE_FLAG = 'Y') THUMBNAIL_ID
+        FROM STAFF_MEMBERS SM
+        INNER JOIN STAFF_USER_ACCOUNTS AUA ON SM.STAFF_ID = AUA.STAFF_ID
+                AND AUA.STAFF_ID = :staffId
+        AND AUA.STAFF_USER_TYPE = :staffUserType
+    """,
+  ),
+
   FIND_ACTIVE_STAFF_USERS_WITH_ACCESSIBLE_CASELOAD(
     """
         SELECT SM.STAFF_ID,

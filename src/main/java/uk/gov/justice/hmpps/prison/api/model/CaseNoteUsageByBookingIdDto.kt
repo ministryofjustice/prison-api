@@ -2,7 +2,7 @@ package uk.gov.justice.hmpps.prison.api.model
 import java.time.LocalDateTime
 
 data class CaseNoteUsageByBookingIdDto(
-  val bookingId: Long?,
+  val bookingId: Int?,
   val caseNoteType: String?,
   val caseNoteSubType: String?,
   val numCaseNotes: Int?,
