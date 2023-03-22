@@ -17,7 +17,7 @@
       "courtCaseRef": "ABC123",
       "courtLocation": "BIRMINGHAM",
       "sentenceSequence": 1,
-      "resultDescription":"Imprisonment"
+      "resultDescription":"Not Guilty"
     },
     "bookingId":-60
   }
