@@ -79,6 +79,7 @@ public class OffenderResourceImplIntTest_getAdjudications extends ResourceTest {
                         .startTime(LocalDateTime.of(2015, 1, 2, 14, 0))
                         .internalLocationId(-1000)
                         .internalLocationDescription("LEI-AABCW-1")
+                        .eventStatus("SCH")
                         .build(),
                     OffenderAdjudicationHearing.builder()
                         .agencyId("LEI")
@@ -88,6 +89,7 @@ public class OffenderResourceImplIntTest_getAdjudications extends ResourceTest {
                         .startTime(LocalDateTime.of(2015, 1, 2, 14, 0))
                         .internalLocationId(-1001)
                         .internalLocationDescription("LEI-A-1-1001")
+                        .eventStatus("SCH")
                         .build()
                 )
             );

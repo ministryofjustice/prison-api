@@ -10,6 +10,7 @@ data class OffenderAdjudicationHearingDto(
   val startTime: LocalDateTime?,
   val internalLocationId: Long?,
   val internalLocationDescription: String?,
+  val eventStatus: String?,
 ) {
   fun toOffenderAdjudicationHearing(): OffenderAdjudicationHearing =
     OffenderAdjudicationHearing(
@@ -20,5 +21,6 @@ data class OffenderAdjudicationHearingDto(
       startTime,
       internalLocationId!!,
       internalLocationDescription,
+      eventStatus,
     )
 }

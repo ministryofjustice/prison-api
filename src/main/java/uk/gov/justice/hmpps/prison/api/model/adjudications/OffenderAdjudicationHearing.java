@@ -33,4 +33,7 @@ public class OffenderAdjudicationHearing {
     private long internalLocationId;
 
     private String internalLocationDescription;
+
+    @Schema(description = "The status of the hearing, SCH, COMP or EXP", example = "COMP")
+    private String eventStatus;
 }

@@ -218,6 +218,7 @@ enum class AdjudicationsRepositorySql(val sql: String) {
         ,      oh.HEARING_TIME AS START_TIME
         ,      oh.INTERNAL_LOCATION_ID 
         ,      ail.DESCRIPTION AS INTERNAL_LOCATION_DESCRIPTION
+        ,      oh.EVENT_STATUS
         FROM OIC_HEARINGS oh
         INNER JOIN AGENCY_INCIDENT_PARTIES aip ON aip.OIC_INCIDENT_ID = oh.OIC_INCIDENT_ID 
         INNER JOIN OFFENDER_BOOKINGS ob ON ob.OFFENDER_BOOK_ID = aip.OFFENDER_BOOK_ID
