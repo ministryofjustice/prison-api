@@ -34,13 +34,10 @@ class CaseNoteTransferService(
     val caseNote = OffenderCaseNote(
       /* id = */ null,
       /* offenderBooking = */ booking,
-      null,
       /* occurrenceDate = */ transferMovement.movementTime.toLocalDate(),
       /* occurrenceDateTime = */ transferMovement.movementTime,
       /* type = */ type,
-      null,
       /* subType = */ subType,
-      null,
       /* caseNoteText = */ note,
       /* amendmentFlag = */ false,
       /* agencyLocation = */ booking.location,
