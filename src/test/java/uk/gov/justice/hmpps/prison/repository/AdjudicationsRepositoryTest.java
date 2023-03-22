@@ -19,6 +19,7 @@ import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationCharge;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.Hearing;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.HearingResult;
+import uk.gov.justice.hmpps.prison.api.model.adjudications.OffenderAdjudicationHearing;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.Sanction;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.service.AdjudicationSearchCriteria;
@@ -28,6 +29,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
@@ -395,5 +397,35 @@ public class AdjudicationsRepositoryTest {
 
                 .build())
             .build());
+    }
+
+    @Test
+    public void findOffenderAdjudicationHearings() {
+        val results = repository.findOffenderAdjudicationHearings(
+            "LEI",
+            LocalDate.of(2015, 1, 2),
+            LocalDate.of(2015, 1, 3),
+            Set.of("A1181HH"));
+
+        assertThat(results).containsExactlyInAnyOrder(
+            OffenderAdjudicationHearing.builder()
+                .agencyId("LEI")
+                .offenderNo("A1181HH")
+                .hearingId(-1)
+                .hearingType("Governor's Hearing Adult")
+                .startTime(LocalDateTime.of(2015, 1, 2, 14, 0))
+                .internalLocationId(-1000)
+                .internalLocationDescription("LEI-AABCW-1")
+                .build(),
+            OffenderAdjudicationHearing.builder()
+                .agencyId("LEI")
+                .offenderNo("A1181HH")
+                .hearingId(-2)
+                .hearingType("Governor's Hearing Adult")
+                .startTime(LocalDateTime.of(2015, 1, 2, 14, 0))
+                .internalLocationId(-1001)
+                .internalLocationDescription("LEI-A-1-1001")
+                .build()
+        );
     }
 }

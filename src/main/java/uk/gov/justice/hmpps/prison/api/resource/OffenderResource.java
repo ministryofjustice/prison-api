@@ -61,7 +61,9 @@ import uk.gov.justice.hmpps.prison.api.model.SentenceSummary;
 import uk.gov.justice.hmpps.prison.api.model.UpdateCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSearchResponse;
+import uk.gov.justice.hmpps.prison.api.model.adjudications.OffenderAdjudicationHearing;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
+import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
@@ -97,6 +99,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
 import static uk.gov.justice.hmpps.prison.util.ResourceUtils.nvl;
@@ -740,5 +743,27 @@ public class OffenderResource {
         @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo) {
         final var booking = bookingService.getLatestBookingByOffenderNo(offenderNo);
         return offenderLocationService.getOffenderLocation(booking.getBookingId(), booking);
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Gets a list of offender adjudication hearings", description = """
+        <p>This endpoint returns a list of offender adjudication hearings for 1 or more offenders for a given date range and optional time slot.</p>
+        <p>If the date range goes beyond 31 days then an exception will be thrown.</p>
+        <p>If the time slot is provided then the results will be further restricted to the hearings that fall in that time slot.</p>
+        """)
+    @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
+    @PostMapping("/adjudication-hearings")
+    public List<OffenderAdjudicationHearing> getOffenderAdjudicationHearings(
+        @Parameter(description = "The offender numbers. Offender numbers have the format:<b>G0364GX</b>", required = true) @RequestBody final Set<String> offenderNos,
+        @RequestParam(value = "agencyId") String agencyId,
+        @RequestParam(value = "fromDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+        @RequestParam(value = "toDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+        @RequestParam(value = "timeSlot", required = false) @Parameter(description = "AM, PM or ED") final TimeSlot timeSlot
+        ) {
+        return adjudicationService.findOffenderAdjudicationHearings(agencyId, fromDate, toDate, offenderNos, timeSlot);
     }
 }

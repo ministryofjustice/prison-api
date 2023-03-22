@@ -18,6 +18,8 @@ import uk.gov.justice.hmpps.prison.api.model.adjudications.AwardDto;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.Hearing;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.HearingDto;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.HearingResultDto;
+import uk.gov.justice.hmpps.prison.api.model.adjudications.OffenderAdjudicationHearing;
+import uk.gov.justice.hmpps.prison.api.model.adjudications.OffenderAdjudicationHearingDto;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.Sanction;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.SanctionDto;
 import uk.gov.justice.hmpps.prison.api.support.Page;
@@ -33,6 +35,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.groupingBy;
@@ -50,6 +53,8 @@ public class AdjudicationsRepository extends RepositoryBase {
     private final RowMapper<HearingResultDto> resultMapper = new DataClassByColumnRowMapper<>(HearingResultDto.class);
     private final RowMapper<SanctionDto> sanctionMapper = new DataClassByColumnRowMapper<>(SanctionDto.class);
 
+    private final RowMapper<OffenderAdjudicationHearingDto> offenderHearingsMapper = new DataClassByColumnRowMapper<>(OffenderAdjudicationHearingDto.class);
+
 
     public List<Award> findAwards(final long bookingId) {
         final var awards = jdbcTemplate.query(AdjudicationsRepositorySql.FIND_AWARDS.getSql(), createParams("bookingId", bookingId), rowMapper);
@@ -63,16 +68,16 @@ public class AdjudicationsRepository extends RepositoryBase {
 
     public List<AdjudicationOffence> findAdjudicationOffences(final String offenderNumber) {
         final var adjudications = jdbcTemplate.query(AdjudicationsRepositorySql.FIND_LATEST_ADJUDICATION_OFFENCE_TYPES_FOR_OFFENDER.getSql(),
-                createParams("offenderNo", offenderNumber),
-                offenceMapper);
+            createParams("offenderNo", offenderNumber),
+            offenceMapper);
         return adjudications.stream().map(AdjudicationOffenceDto::toAdjudicationOffence).collect(toList());
     }
 
 
     public List<Agency> findAdjudicationAgencies(final String offenderNumber) {
         final var agencies = jdbcTemplate.query(AdjudicationsRepositorySql.FIND_LATEST_ADJUDICATION_AGENCIES_FOR_OFFENDER.getSql(),
-                createParams("offenderNo", offenderNumber),
-                agencyMapper);
+            createParams("offenderNo", offenderNumber),
+            agencyMapper);
         return agencies.stream().map(AgencyDto::toAgency).collect(toList());
     }
 
@@ -81,10 +86,10 @@ public class AdjudicationsRepository extends RepositoryBase {
                                                                 final long adjudicationNumber) {
 
         val details = jdbcTemplate.query(AdjudicationsRepositorySql.FIND_ADJUDICATION.getSql(),
-                createParams(
-                        "offenderNo", offenderNumber,
-                        "adjudicationNo", adjudicationNumber),
-                detailMapper);
+            createParams(
+                "offenderNo", offenderNumber,
+                "adjudicationNo", adjudicationNumber),
+            detailMapper);
 
         return details.stream().map(detail -> populateDetails(adjudicationNumber, detail)).findFirst();
     }
@@ -101,10 +106,10 @@ public class AdjudicationsRepository extends RepositoryBase {
 
         val populatedHearings = hearings.stream().map(hearing ->
                 populateHearing(
-                        hearing,
-                        results.getOrDefault(hearing.getOicHearingId(), List.of()),
-                        sanctions.getOrDefault(hearing.getOicHearingId(), List.of())))
-                .collect(toList());
+                    hearing,
+                    results.getOrDefault(hearing.getOicHearingId(), List.of()),
+                    sanctions.getOrDefault(hearing.getOicHearingId(), List.of())))
+            .collect(toList());
 
         return detail.toAdjudicationDetail().toBuilder().hearings(populatedHearings).build();
     }
@@ -115,27 +120,27 @@ public class AdjudicationsRepository extends RepositoryBase {
 
         val populatedResults = results.stream().map(result ->
                 result.toHearingResult().toBuilder()
-                        .sanctions(sanctionsByResult.getOrDefault(result.getResultSeq(), List.of()))
-                        .build())
-                .collect(toList());
+                    .sanctions(sanctionsByResult.getOrDefault(result.getResultSeq(), List.of()))
+                    .build())
+            .collect(toList());
 
         return hearing.toHearing().toBuilder().results(populatedResults).build();
     }
 
     private Map<Long, List<SanctionDto>> getSanctions(List<Long> hearingIds) {
         return hearingIds.isEmpty()
-                ? Map.of()
-                : jdbcTemplate.query(AdjudicationsRepositorySql.FIND_SANCTIONS.getSql(), createParams("hearingIds", hearingIds), sanctionMapper)
-                .stream()
-                .collect(groupingBy(SanctionDto::getOicHearingId));
+            ? Map.of()
+            : jdbcTemplate.query(AdjudicationsRepositorySql.FIND_SANCTIONS.getSql(), createParams("hearingIds", hearingIds), sanctionMapper)
+            .stream()
+            .collect(groupingBy(SanctionDto::getOicHearingId));
     }
 
     private Map<Long, List<HearingResultDto>> getResults(List<Long> hearingIds) {
         return hearingIds.isEmpty()
-                ? Map.of()
-                : jdbcTemplate.query(AdjudicationsRepositorySql.FIND_RESULTS.getSql(), createParams("hearingIds", hearingIds), resultMapper)
-                .stream()
-                .collect(groupingBy(HearingResultDto::getOicHearingId));
+            ? Map.of()
+            : jdbcTemplate.query(AdjudicationsRepositorySql.FIND_RESULTS.getSql(), createParams("hearingIds", hearingIds), resultMapper)
+            .stream()
+            .collect(groupingBy(HearingResultDto::getOicHearingId));
     }
 
 
@@ -144,25 +149,25 @@ public class AdjudicationsRepository extends RepositoryBase {
         val pageRequest = criteria.getPageRequest();
 
         val params = createParamSource(pageRequest,
-                "offenderNo", criteria.getOffenderNumber(),
-                "offenceId", criteria.getOffenceId(),
-                "agencyLocationId", criteria.getAgencyId(),
-                "findingCode", criteria.getFindingCode(),
-                "startDate", asDate(criteria.getStartDate()),
-                "endDate", asDate(criteria.getEndDate()));
+            "offenderNo", criteria.getOffenderNumber(),
+            "offenceId", criteria.getOffenceId(),
+            "agencyLocationId", criteria.getAgencyId(),
+            "findingCode", criteria.getFindingCode(),
+            "startDate", asDate(criteria.getStartDate()),
+            "endDate", asDate(criteria.getEndDate()));
 
         val adjudicationCharges = jdbcTemplate.query(AdjudicationsRepositorySql.FIND_LATEST_ADJUDICATIONS_FOR_OFFENDER.getSql(), params, adjudicationMapper);
 
         val chargesGroupedByAdjudication = adjudicationCharges.stream()
-                .collect(groupingBy(AdjudicationChargeDto::getAdjudicationNumber))
-                .values();
+            .collect(groupingBy(AdjudicationChargeDto::getAdjudicationNumber))
+            .values();
 
         val page = chargesGroupedByAdjudication.stream()
-                .map(this::toAdjudication)
-                .sorted(comparing(Adjudication::getReportTime).reversed())
-                .skip(criteria.getPageRequest().getOffset())
-                .limit(criteria.getPageRequest().getLimit())
-                .collect(toList());
+            .map(this::toAdjudication)
+            .sorted(comparing(Adjudication::getReportTime).reversed())
+            .skip(criteria.getPageRequest().getOffset())
+            .limit(criteria.getPageRequest().getLimit())
+            .collect(toList());
 
         return new Page<>(page, chargesGroupedByAdjudication.size(), pageRequest);
     }
@@ -175,25 +180,42 @@ public class AdjudicationsRepository extends RepositoryBase {
         val firstCharge = sortedCharges.get(0);
 
         return Adjudication.builder()
-                .agencyIncidentId(firstCharge.getAgencyIncidentId())
-                .partySeq(firstCharge.getPartySeq())
-                .agencyId(firstCharge.getAgencyId())
-                .adjudicationNumber(firstCharge.getAdjudicationNumber())
-                .reportTime(firstCharge.getReportTime())
-                .adjudicationCharges(sortedCharges.stream().map(this::toCharge).collect(toList()))
-                .build();
+            .agencyIncidentId(firstCharge.getAgencyIncidentId())
+            .partySeq(firstCharge.getPartySeq())
+            .agencyId(firstCharge.getAgencyId())
+            .adjudicationNumber(firstCharge.getAdjudicationNumber())
+            .reportTime(firstCharge.getReportTime())
+            .adjudicationCharges(sortedCharges.stream().map(this::toCharge).collect(toList()))
+            .build();
     }
 
     private AdjudicationCharge toCharge(final AdjudicationChargeDto charge) {
         return AdjudicationCharge.builder()
-                .oicChargeId(charge.getOicChargeId())
-                .offenceCode(charge.getOffenceCode())
-                .offenceDescription(charge.getOffenceDescription())
-                .findingCode(charge.getFindingCode())
-                .build();
+            .oicChargeId(charge.getOicChargeId())
+            .offenceCode(charge.getOffenceCode())
+            .offenceDescription(charge.getOffenceDescription())
+            .findingCode(charge.getFindingCode())
+            .build();
     }
 
     private SqlParameterValue asDate(final LocalDate startDate) {
         return new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(startDate));
+    }
+
+    public List<OffenderAdjudicationHearing> findOffenderAdjudicationHearings(final String agencyId,
+                                                                              final LocalDate fromDate,
+                                                                              final LocalDate toDate,
+                                                                              final Set<String> offenderNos) {
+        return jdbcTemplate.query(
+                AdjudicationsRepositorySql.FIND_OFFENDER_HEARINGS.getSql(),
+                createParams(
+                    "agencyId", agencyId,
+                    "fromDate", fromDate,
+                    "toDate", toDate,
+                    "offenderNos", offenderNos
+                ),
+                offenderHearingsMapper).stream()
+            .map(OffenderAdjudicationHearingDto::toOffenderAdjudicationHearing)
+            .toList();
     }
 }
