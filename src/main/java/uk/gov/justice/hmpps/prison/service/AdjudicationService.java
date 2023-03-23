@@ -1,6 +1,6 @@
 package uk.gov.justice.hmpps.prison.service;
 
-import lombok.RequiredArgsConstructor;
+import com.google.common.collect.Lists;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -13,21 +13,26 @@ import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationOffence;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSummary;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.Award;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.Hearing;
+import uk.gov.justice.hmpps.prison.api.model.adjudications.OffenderAdjudicationHearing;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.ProvenAdjudicationSummary;
 import uk.gov.justice.hmpps.prison.api.support.Page;
+import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import uk.gov.justice.hmpps.prison.repository.AdjudicationsRepository;
 import uk.gov.justice.hmpps.prison.repository.AgencyRepository;
 import uk.gov.justice.hmpps.prison.repository.LocationRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
+import uk.gov.justice.hmpps.prison.util.CalcDateRanges;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
@@ -35,12 +40,25 @@ import static uk.gov.justice.hmpps.prison.repository.support.StatusFilter.ALL;
 
 @Service
 @Transactional(readOnly = true)
-@RequiredArgsConstructor
 public class AdjudicationService {
 
     private final AdjudicationsRepository repository;
     private final AgencyRepository agencyRepository;
     private final LocationRepository locationRepository;
+    @Value("${batch.max.size:1000}")
+    private final int batchSize;
+
+    public AdjudicationService(
+        final AdjudicationsRepository repository,
+        final AgencyRepository agencyRepository,
+        LocationRepository locationRepository,
+        @Value("${batch.max.size:1000}") final int batchSize
+    ) {
+        this.repository = repository;
+        this.agencyRepository = agencyRepository;
+        this.locationRepository = locationRepository;
+        this.batchSize = batchSize;
+    }
 
     @Value("${api.cutoff.adjudication.months:3}")
     private int adjudicationCutoffDefault;
@@ -176,6 +194,36 @@ public class AdjudicationService {
             ).toList();
     }
 
+    public List<OffenderAdjudicationHearing> findOffenderAdjudicationHearings(final String agencyId,
+                                                                              final LocalDate fromDate,
+                                                                              final LocalDate toDate,
+                                                                              final Set<String> offenderNos,
+                                                                              final TimeSlot timeSlot) {
+        if (!toDate.isAfter(fromDate)) {
+            throw new BadRequestException("The from date must be before the to date.");
+        }
+
+        if (ChronoUnit.DAYS.between(fromDate, toDate) > 31) {
+            throw new BadRequestException("A maximum of 31 days worth of offender adjudication hearings is allowed.");
+        }
+
+        if (offenderNos.isEmpty()) {
+            throw new BadRequestException("At least one offender number must be supplied.");
+        }
+
+        val hearings = Lists.partition(offenderNos.stream().toList(), batchSize)
+            .stream()
+            .flatMap(nos -> repository.findOffenderAdjudicationHearings(agencyId, fromDate, toDate, Set.copyOf(nos)).stream())
+            .collect(Collectors.toList());
+
+        if (timeSlot != null) {
+            return hearings.stream()
+                .filter(hearing -> CalcDateRanges.eventStartsInTimeslot(hearing.getStartTime(), timeSlot))
+                .collect(toList());
+        }
+
+        return hearings;
+    }
 
     private LocalDate calculateEndDate(final Award award) {
         var endDate = award.getEffectiveDate();
