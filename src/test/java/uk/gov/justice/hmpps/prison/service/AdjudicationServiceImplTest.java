@@ -21,6 +21,7 @@ import uk.gov.justice.hmpps.prison.repository.AgencyRepository;
 import uk.gov.justice.hmpps.prison.repository.LocationRepository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -139,7 +140,7 @@ public class AdjudicationServiceImplTest {
     public void findOffenderAdjudicationHearings() {
         val fromDate = LocalDate.now();
         val toDate = fromDate.plusDays(1);
-        val expectedResult = List.of(OffenderAdjudicationHearing.builder().startTime(fromDate.atStartOfDay()).build());
+        val expectedResult = List.of(fakeOffenderHearingStartingAt(fromDate.atStartOfDay()));
 
         when(adjudicationsRepository.findOffenderAdjudicationHearings("MDI", fromDate, toDate, Set.of("123456"))).thenReturn(expectedResult);
 
@@ -153,8 +154,8 @@ public class AdjudicationServiceImplTest {
         val fromDate = LocalDate.now();
         val toDate = fromDate.plusDays(1);
 
-        val morningHearing = OffenderAdjudicationHearing.builder().startTime(fromDate.atStartOfDay()).build();
-        val eveningHearing = OffenderAdjudicationHearing.builder().startTime(fromDate.atTime(23, 59)).build();
+        val morningHearing = fakeOffenderHearingStartingAt(fromDate.atStartOfDay());
+        val eveningHearing = fakeOffenderHearingStartingAt(fromDate.atTime(23, 59));
 
         val expectedResult = List.of(morningHearing);
 
@@ -170,8 +171,8 @@ public class AdjudicationServiceImplTest {
         val fromDate = LocalDate.now();
         val toDate = fromDate.plusDays(1);
 
-        val morningHearing = OffenderAdjudicationHearing.builder().startTime(fromDate.atStartOfDay()).build();
-        val afternoonHearing = OffenderAdjudicationHearing.builder().startTime(fromDate.atTime(16, 59)).build();
+        val morningHearing = fakeOffenderHearingStartingAt(fromDate.atStartOfDay());
+        val afternoonHearing = fakeOffenderHearingStartingAt(fromDate.atTime(16, 59));
 
         val expectedResult = List.of(afternoonHearing);
 
@@ -187,8 +188,8 @@ public class AdjudicationServiceImplTest {
         val fromDate = LocalDate.now();
         val toDate = fromDate.plusDays(1);
 
-        val morningHearing = OffenderAdjudicationHearing.builder().startTime(fromDate.atStartOfDay()).build();
-        val eveningHearing = OffenderAdjudicationHearing.builder().startTime(fromDate.atTime(23, 59)).build();
+        val morningHearing = fakeOffenderHearingStartingAt(fromDate.atStartOfDay());
+        val eveningHearing = fakeOffenderHearingStartingAt(fromDate.atTime(23, 59));
 
         val expectedResult = List.of(eveningHearing);
 
@@ -203,7 +204,7 @@ public class AdjudicationServiceImplTest {
     public void findOffenderAdjudicationHearingsForPeriodOfOneMonth() {
         val fromDate = LocalDate.now();
         val toDate = fromDate.plusDays(31);
-        val expectedResult = List.of(OffenderAdjudicationHearing.builder().startTime(fromDate.atStartOfDay()).build());
+        val expectedResult = List.of(fakeOffenderHearingStartingAt(fromDate.atStartOfDay()));
 
         when(adjudicationsRepository.findOffenderAdjudicationHearings("MDI", fromDate, toDate, Set.of("123456"))).thenReturn(expectedResult);
 
@@ -212,6 +213,17 @@ public class AdjudicationServiceImplTest {
         assertThat(actual).isEqualTo(expectedResult);
     }
 
+    private OffenderAdjudicationHearing fakeOffenderHearingStartingAt(final LocalDateTime time) {
+        return new OffenderAdjudicationHearing(
+            "LEI",
+            "A1181HH",
+            -1,
+            "Governor's Hearing Adult",
+            time,
+            -1000,
+            "LEI-AABCW-1",
+            "SCH");
+    }
     @Test
     public void findOffenderAdjudicationHearingsFailsWhenToBeforeFrom() {
         val fromDate = LocalDate.now();

@@ -146,13 +146,13 @@ public class AdjudicationsRepositoryTest {
         executionPhase = ExecutionPhase.AFTER_TEST_METHOD,
         config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
     @Test
-    public void adjudicationsHistorySortTest(){
+    public void adjudicationsHistorySortTest() {
         val results = repository.findAdjudications(AdjudicationSearchCriteria.builder()
             .offenderNumber("A1181GG")
             .pageRequest(new PageRequest(0L, 10L))
             .build());
 
-       assertThat(results.getItems().stream().filter(f -> f.getAdjudicationNumber() == -3001L).findFirst().get().getAdjudicationCharges().get(0).getFindingCode()).isEqualTo("PROVED");
+        assertThat(results.getItems().stream().filter(f -> f.getAdjudicationNumber() == -3001L).findFirst().get().getAdjudicationCharges().get(0).getFindingCode()).isEqualTo("PROVED");
     }
 
     @Test
@@ -408,26 +408,25 @@ public class AdjudicationsRepositoryTest {
             Set.of("A1181HH"));
 
         assertThat(results).containsExactlyInAnyOrder(
-            OffenderAdjudicationHearing.builder()
-                .agencyId("LEI")
-                .offenderNo("A1181HH")
-                .hearingId(-1)
-                .hearingType("Governor's Hearing Adult")
-                .startTime(LocalDateTime.of(2015, 1, 2, 14, 0))
-                .internalLocationId(-1000)
-                .internalLocationDescription("LEI-AABCW-1")
-                .eventStatus("SCH")
-                .build(),
-            OffenderAdjudicationHearing.builder()
-                .agencyId("LEI")
-                .offenderNo("A1181HH")
-                .hearingId(-2)
-                .hearingType("Governor's Hearing Adult")
-                .startTime(LocalDateTime.of(2015, 1, 2, 14, 0))
-                .internalLocationId(-1001)
-                .internalLocationDescription("LEI-A-1-1001")
-                .eventStatus("SCH")
-                .build()
+            new OffenderAdjudicationHearing(
+                "LEI",
+                "A1181HH",
+                -1,
+                "Governor's Hearing Adult",
+                LocalDateTime.of(2015, 1, 2, 14, 0),
+                -1000,
+                "LEI-AABCW-1",
+                "SCH"
+            ),
+            new OffenderAdjudicationHearing(
+                "LEI",
+                "A1181HH",
+                -2,
+                "Governor's Hearing Adult",
+                LocalDateTime.of(2015, 1, 2, 14, 0),
+                -1001,
+                "LEI-A-1-1001",
+                "SCH")
         );
     }
 }

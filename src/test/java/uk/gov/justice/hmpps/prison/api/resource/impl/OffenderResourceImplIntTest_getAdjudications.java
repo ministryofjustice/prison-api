@@ -71,26 +71,25 @@ public class OffenderResourceImplIntTest_getAdjudications extends ResourceTest {
             .expectBodyList(ParameterizedTypeReference.forType(OffenderAdjudicationHearing.class))
             .isEqualTo(
                 List.of(
-                    OffenderAdjudicationHearing.builder()
-                        .agencyId("LEI")
-                        .offenderNo("A1181HH")
-                        .hearingId(-1)
-                        .hearingType("Governor's Hearing Adult")
-                        .startTime(LocalDateTime.of(2015, 1, 2, 14, 0))
-                        .internalLocationId(-1000)
-                        .internalLocationDescription("LEI-AABCW-1")
-                        .eventStatus("SCH")
-                        .build(),
-                    OffenderAdjudicationHearing.builder()
-                        .agencyId("LEI")
-                        .offenderNo("A1181HH")
-                        .hearingId(-2)
-                        .hearingType("Governor's Hearing Adult")
-                        .startTime(LocalDateTime.of(2015, 1, 2, 14, 0))
-                        .internalLocationId(-1001)
-                        .internalLocationDescription("LEI-A-1-1001")
-                        .eventStatus("SCH")
-                        .build()
+                    new OffenderAdjudicationHearing(
+                        "LEI",
+                        "A1181HH",
+                        -1,
+                        "Governor's Hearing Adult",
+                        LocalDateTime.of(2015, 1, 2, 14, 0),
+                        -1000,
+                        "LEI-AABCW-1",
+                        "SCH"
+                    ),
+                    new OffenderAdjudicationHearing(
+                        "LEI",
+                        "A1181HH",
+                        -2,
+                        "Governor's Hearing Adult",
+                        LocalDateTime.of(2015, 1, 2, 14, 0),
+                        -1001,
+                        "LEI-A-1-1001",
+                        "SCH")
                 )
             );
     }
@@ -106,7 +105,7 @@ public class OffenderResourceImplIntTest_getAdjudications extends ResourceTest {
     }
 
     @Test
-    public void shouldReturn404WhenInsufficientPrivileges() {
+    public void shouldReturn403WhenInsufficientPrivileges() {
         webTestClient.post().uri("/api/offenders/adjudication-hearings?agencyId=LEI&fromDate=2015-01-02&toDate=2015-01-03")
             .headers(setAuthorisation(List.of()))
             .bodyValue(Set.of("A1181HH"))
