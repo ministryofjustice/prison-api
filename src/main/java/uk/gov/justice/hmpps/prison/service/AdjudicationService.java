@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import com.google.common.collect.Lists;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
@@ -205,7 +207,14 @@ public class AdjudicationService {
             throw new BadRequestException("A maximum of 31 days worth of offender adjudication hearings is allowed.");
         }
 
-        val hearings = repository.findOffenderAdjudicationHearings(agencyId, fromDate, toDate, offenderNos);
+        if (offenderNos.isEmpty()) {
+            throw new BadRequestException("At least one offender number must be supplied.");
+        }
+
+        val hearings = Lists.partition(offenderNos.stream().toList(), batchSize)
+            .stream()
+            .flatMap(nos -> repository.findOffenderAdjudicationHearings(agencyId, fromDate, toDate, Set.copyOf(nos)).stream())
+            .collect(Collectors.toList());
 
         if (timeSlot != null) {
             return hearings.stream()

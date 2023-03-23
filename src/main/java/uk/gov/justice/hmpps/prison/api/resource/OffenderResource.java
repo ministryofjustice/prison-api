@@ -753,6 +753,7 @@ public class OffenderResource {
     @Operation(summary = "Gets a list of offender adjudication hearings", description = """
         <p>This endpoint returns a list of offender adjudication hearings for 1 or more offenders for a given date range and optional time slot.</p>
         <p>If the date range goes beyond 31 days then an exception will be thrown.</p>
+        <p>At least one offender number must be supplied if not then an exception will be thrown.</p>
         <p>If the time slot is provided then the results will be further restricted to the hearings that fall in that time slot.</p>
         """)
     @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")

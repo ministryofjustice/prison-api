@@ -21,6 +21,7 @@ import uk.gov.justice.hmpps.prison.repository.AgencyRepository;
 import uk.gov.justice.hmpps.prison.repository.LocationRepository;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -238,5 +239,15 @@ public class AdjudicationServiceImplTest {
         assertThatThrownBy(() -> adjudicationService.findOffenderAdjudicationHearings("MDI", fromDate, toDate, Set.of("123456"), TimeSlot.AM))
             .isInstanceOf(BadRequestException.class)
             .hasMessage("A maximum of 31 days worth of offender adjudication hearings is allowed.");
+    }
+
+    @Test
+    public void findOffenderAdjudicationHearingsFailsWhenNoOffendersSupplied() {
+        val fromDate = LocalDate.now();
+        val toDate = fromDate.plusDays(1);
+
+        assertThatThrownBy(() -> adjudicationService.findOffenderAdjudicationHearings("MDI", fromDate, toDate, Collections.emptySet(), TimeSlot.AM))
+            .isInstanceOf(BadRequestException.class)
+            .hasMessage("At least one offender number must be supplied.");
     }
 }
