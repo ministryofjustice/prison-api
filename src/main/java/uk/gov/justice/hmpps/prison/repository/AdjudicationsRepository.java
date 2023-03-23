@@ -19,6 +19,7 @@ import uk.gov.justice.hmpps.prison.api.model.adjudications.Hearing;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.HearingDto;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.HearingResultDto;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.OffenderAdjudicationHearing;
+import uk.gov.justice.hmpps.prison.api.model.adjudications.OffenderAdjudicationHearingDto;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.Sanction;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.SanctionDto;
 import uk.gov.justice.hmpps.prison.api.support.Page;
@@ -52,7 +53,7 @@ public class AdjudicationsRepository extends RepositoryBase {
     private final RowMapper<HearingResultDto> resultMapper = new DataClassByColumnRowMapper<>(HearingResultDto.class);
     private final RowMapper<SanctionDto> sanctionMapper = new DataClassByColumnRowMapper<>(SanctionDto.class);
 
-    private final RowMapper<OffenderAdjudicationHearing> offenderHearingsMapper = new DataClassByColumnRowMapper<>(OffenderAdjudicationHearing.class);
+    private final RowMapper<OffenderAdjudicationHearingDto> offenderHearingsMapper = new DataClassByColumnRowMapper<>(OffenderAdjudicationHearingDto.class);
 
 
     public List<Award> findAwards(final long bookingId) {
@@ -213,7 +214,7 @@ public class AdjudicationsRepository extends RepositoryBase {
                     "toDate", toDate,
                     "offenderNos", offenderNos
                 ),
-                offenderHearingsMapper).stream()
+                offenderHearingsMapper).stream().map(OffenderAdjudicationHearingDto::toOffenderAdjudicationHearing)
             .toList();
     }
 }
