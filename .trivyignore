@@ -1,34 +1,5 @@
-# Suppression for 
-# com.fasterxml.jackson.core:jackson-databind | CVE-2020-36518   | HIGH     | 2.11.1            | 2.12.6.1, 2.13.2.1 | jackson-databind: denial of service   |
-# doesn't appear in the jar file, but re-bundled instead in eh-cache so not a denial of service vulnerability for us
-CVE-2020-36518
-
-# Suppression for
-# org.eclipse.jetty:jetty-server (app.jar) │ CVE-2022-2191 │ HIGH     │ 9.4.39.v20210325  │ 11.0.10, 10.0.10 │ SslConnection does not release pooled ByteBuffers in case of │
-# doesn't appear in the jar file, but re-bundled instead in eh-cache so not a denial of service vulnerability for us
-CVE-2022-2191
-#
-# Suppression for snakeyaml 1.30 vulnerability as bundled with application insights so can't be upgraded easily
-#   Can be suppressed as we we don't parse untrusted yaml
-CVE-2022-25857
-# Suppression for snakeyaml 1.31 vulnerability as no current upgrade path available
-#   Can be suppressed as we we don't parse untrusted yaml
-CVE-2022-38752
 # Suppression for snakeyaml 1.33 vulnerability as not fixed yet
 #   Can be suppressed as we we don't parse untrusted yaml
-CVE-2022-41854
-# Suppression for jackson databind 2.13.4 as no release for it yet
-#   Can be suppressed as UNWRAP_SINGLE_VALUE_ARRAYS is not enabled
-CVE-2022-42003
-# Suppression for jackson databind 2.13.3 as bundled with application insights
-#   Can be suppressed as don't parse untrusted json in application insights
-CVE-2022-42004
-# Suppression for apache common-text 1.9 as bundled with application insights
-#   can be suppressed for the time being as it will be fixed in next version of application insights
-CVE-2022-42889
+CVE-2022-1471
 # Suppression for hsqldb vulnerability as don't run hsqldb in production
 CVE-2022-41853
-# Suppression for spring-web 5.3.24 as bundled with spring boot
-#   can be suppressed as we are not using java serialization and deserialization explicitly
-CVE-2016-1000027
-CVE-2022-1471
