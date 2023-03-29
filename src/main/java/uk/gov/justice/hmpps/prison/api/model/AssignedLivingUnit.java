@@ -57,7 +57,7 @@ public class AssignedLivingUnit {
     /**
      * Agency Id
      */
-    @Schema(required = true, description = "Agency Id")
+    @Schema(description = "Agency Id")
     @JsonProperty("agencyId")
     public String getAgencyId() {
         return agencyId;
@@ -70,7 +70,7 @@ public class AssignedLivingUnit {
     /**
      * location Id
      */
-    @Schema(required = true, description = "location Id")
+    @Schema(description = "location Id")
     @JsonProperty("locationId")
     public Long getLocationId() {
         return locationId;
@@ -83,7 +83,7 @@ public class AssignedLivingUnit {
     /**
      * Living Unit Desc
      */
-    @Schema(required = true, description = "Living Unit Desc")
+    @Schema(description = "Living Unit Desc")
     @JsonProperty("description")
     public String getDescription() {
         return description;
@@ -96,7 +96,7 @@ public class AssignedLivingUnit {
     /**
      * Name of the agency where this living unit resides
      */
-    @Schema(required = true, description = "Name of the agency where this living unit resides")
+    @Schema(description = "Name of the agency where this living unit resides")
     @JsonProperty("agencyName")
     public String getAgencyName() {
         return agencyName;

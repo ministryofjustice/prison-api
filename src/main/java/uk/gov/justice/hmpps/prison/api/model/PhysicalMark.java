@@ -61,7 +61,7 @@ public class PhysicalMark {
     /**
      * Type of Mark
      */
-    @Schema(required = true, description = "Type of Mark")
+    @Schema(description = "Type of Mark")
     @JsonProperty("type")
     public String getType() {
         return type;
@@ -74,7 +74,7 @@ public class PhysicalMark {
     /**
      * Left or Right Side
      */
-    @Schema(required = true, description = "Left or Right Side")
+    @Schema(description = "Left or Right Side")
     @JsonProperty("side")
     public String getSide() {
         return side;
@@ -87,7 +87,7 @@ public class PhysicalMark {
     /**
      * Where on the body
      */
-    @Schema(required = true, description = "Where on the body")
+    @Schema(description = "Where on the body")
     @JsonProperty("bodyPart")
     public String getBodyPart() {
         return bodyPart;
@@ -100,7 +100,7 @@ public class PhysicalMark {
     /**
      * Image orientation
      */
-    @Schema(required = true, description = "Image orientation")
+    @Schema(description = "Image orientation")
     @JsonProperty("orientation")
     public String getOrientation() {
         return orientation;
@@ -113,7 +113,7 @@ public class PhysicalMark {
     /**
      * More information
      */
-    @Schema(required = true, description = "More information")
+    @Schema(description = "More information")
     @JsonProperty("comment")
     public String getComment() {
         return comment;

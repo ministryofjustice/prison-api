@@ -21,15 +21,15 @@ import jakarta.validation.constraints.NotBlank;
 public class ProfileInformation {
 
     @NotBlank
-    @Schema(required = true, description = "Type of profile information")
+    @Schema(description = "Type of profile information")
     private String type;
 
     @NotBlank
-    @Schema(required = true, description = "Profile Question")
+    @Schema(description = "Profile Question")
     private String question;
 
     @NotBlank
-    @Schema(required = true, description = "Profile Result Answer")
+    @Schema(description = "Profile Result Answer")
     private String resultValue;
 
     public ProfileInformation(@NotBlank String type, @NotBlank String question, @NotBlank String resultValue) {
