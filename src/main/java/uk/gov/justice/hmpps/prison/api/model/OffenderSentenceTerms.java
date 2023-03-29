@@ -17,13 +17,13 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Data
 public class OffenderSentenceTerms {
-    @Schema(required = true, description = "Offender booking id.", example = "1132400")
+    @Schema(description = "Offender booking id.", example = "1132400")
     private Long bookingId;
 
-    @Schema(required = true, description = "Sentence number within booking id.", example = "2")
+    @Schema(description = "Sentence number within booking id.", example = "2")
     private Integer sentenceSequence;
 
-    @Schema(required = true, description = "Sentence term number within sentence.", example = "1")
+    @Schema(description = "Sentence term number within sentence.", example = "1")
     private Integer termSequence;
 
     @Schema(description = "Sentence number which this sentence follows if consecutive, otherwise concurrent.", example = "2")
@@ -35,7 +35,7 @@ public class OffenderSentenceTerms {
     @Schema(description = "Sentence type description.", example = "2")
     private String sentenceTypeDescription;
 
-    @Schema(required = true, description = "Start date of sentence term.", example = "2018-12-31")
+    @Schema(description = "Start date of sentence term.", example = "2018-12-31")
     private LocalDate startDate;
 
     @Schema(description = "Sentence length years.")
@@ -50,21 +50,21 @@ public class OffenderSentenceTerms {
     @Schema(description = "Sentence length days.")
     private Integer days;
 
-    @Schema(required = true, description = "Whether this is a life sentence.")
+    @Schema(description = "Whether this is a life sentence.")
     private Boolean lifeSentence;
 
-    @Schema(required = true, description = "Court case id")
+    @Schema(description = "Court case id")
     private String caseId;
 
-    @Schema(required = true, description = "Fine amount.")
+    @Schema(description = "Fine amount.")
     private Double fineAmount;
 
-    @Schema(required = true, description = "Sentence term code.", example = "IMP")
+    @Schema(description = "Sentence term code.", example = "IMP")
     private String sentenceTermCode;
 
-    @Schema(required = true, description = "Sentence line number", example = "1")
+    @Schema(description = "Sentence line number", example = "1")
     private Long lineSeq;
 
-    @Schema(required = true, description = "Sentence start date", example = "2018-12-31")
+    @Schema(description = "Sentence start date", example = "2018-12-31")
     private LocalDate sentenceStartDate;
 }

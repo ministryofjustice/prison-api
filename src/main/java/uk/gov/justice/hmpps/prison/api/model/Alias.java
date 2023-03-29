@@ -26,26 +26,26 @@ import java.time.LocalDate;
 @Data
 public class Alias {
     @NotBlank
-    @Schema(required = true, description = "First name of offender alias", example = "Mike")
+    @Schema(description = "First name of offender alias", example = "Mike")
     private String firstName;
 
     @Schema(description = "Middle names of offender alias", example = "John")
     private String middleName;
 
     @NotBlank
-    @Schema(required = true, description = "Last name of offender alias", example = "Smith")
+    @Schema(description = "Last name of offender alias", example = "Smith")
     private String lastName;
 
     @NotNull
-    @Schema(required = true, description = "Age of Offender", example = "32")
+    @Schema(description = "Age of Offender", example = "32")
     private Integer age;
 
     @NotNull
-    @Schema(required = true, description = "Date of Birth of Offender", example = "1980-02-28")
+    @Schema(description = "Date of Birth of Offender", example = "1980-02-28")
     private LocalDate dob;
 
     @NotBlank
-    @Schema(required = true, description = "Gender", example = "Male")
+    @Schema(description = "Gender", example = "Male")
     private String gender;
 
     @Schema(description = "Ethnicity", example = "Mixed: White and Black African")
@@ -55,6 +55,6 @@ public class Alias {
     private String nameType;
 
     @NotNull
-    @Schema(required = true, description = "Date of creation", example = "2019-02-15")
+    @Schema(description = "Date of creation", example = "2019-02-15")
     private LocalDate createDate;
 }

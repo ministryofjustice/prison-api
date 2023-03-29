@@ -31,47 +31,47 @@ public class Alert {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
 
-    @Schema(required = true, description = "Alert Id", example = "1")
+    @Schema(description = "Alert Id", example = "1")
     @JsonProperty("alertId")
     @NotNull
     private Long alertId;
 
-    @Schema(required = true, description = "Offender booking id.", example = "14")
+    @Schema(description = "Offender booking id.", example = "14")
     @JsonProperty("bookingId")
     @NotNull
     private Long bookingId;
 
-    @Schema(required = true, description = "Offender Unique Reference", example = "G3878UK")
+    @Schema(description = "Offender Unique Reference", example = "G3878UK")
     @JsonProperty("offenderNo")
     @NotBlank
     private String offenderNo;
 
-    @Schema(required = true, description = "Alert Type", example = "X")
+    @Schema(description = "Alert Type", example = "X")
     @JsonProperty("alertType")
     @NotBlank
     private String alertType;
 
-    @Schema(required = true, description = "Alert Type Description", example = "Security")
+    @Schema(description = "Alert Type Description", example = "Security")
     @JsonProperty("alertTypeDescription")
     @NotBlank
     private String alertTypeDescription;
 
-    @Schema(required = true, description = "Alert Code", example = "XER")
+    @Schema(description = "Alert Code", example = "XER")
     @JsonProperty("alertCode")
     @NotBlank
     private String alertCode;
 
-    @Schema(required = true, description = "Alert Code Description", example = "Escape Risk")
+    @Schema(description = "Alert Code Description", example = "Escape Risk")
     @JsonProperty("alertCodeDescription")
     @NotBlank
     private String alertCodeDescription;
 
-    @Schema(required = true, description = "Alert comments", example = "Profession lock pick.")
+    @Schema(description = "Alert comments", example = "Profession lock pick.")
     @JsonProperty("comment")
     @NotBlank
     private String comment;
 
-    @Schema(required = true, description = "Date of the alert, which might differ to the date it was created", example = "2019-08-20")
+    @Schema(description = "Date of the alert, which might differ to the date it was created", example = "2019-08-20")
     @JsonProperty("dateCreated")
     @NotNull
     private LocalDate dateCreated;
@@ -80,12 +80,12 @@ public class Alert {
     @JsonProperty("dateExpires")
     private LocalDate dateExpires;
 
-    @Schema(required = true, description = "True / False based on presence of expiry date", example = "true")
+    @Schema(description = "True / False based on presence of expiry date", example = "true")
     @JsonProperty("expired")
     @NotNull
     private boolean expired;
 
-    @Schema(required = true, description = "True / False based on alert status", example = "false")
+    @Schema(description = "True / False based on alert status", example = "false")
     @JsonProperty("active")
     @NotNull
     private boolean active;

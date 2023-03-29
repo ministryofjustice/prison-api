@@ -23,10 +23,10 @@ import java.time.LocalDate;
 @Data
 public class SentenceCalcDates extends BaseSentenceCalcDates {
 
-    @Schema(required = true, description = "Offender booking id.", example = "1234123")
+    @Schema(description = "Offender booking id.", example = "1234123")
     @NotNull
     private Long bookingId;
-    @Schema(description = "Sentence start date.", example = "2010-02-03", required = true)
+    @Schema(description = "Sentence start date.", example = "2010-02-03")
     private LocalDate sentenceStartDate;
     @Schema(description = "ADA - days added to sentence term due to adjustments.", example = "5")
     private Integer additionalDaysAwarded;
@@ -66,7 +66,7 @@ public class SentenceCalcDates extends BaseSentenceCalcDates {
 
     @Schema(description = "HDCED (override) - date on which offender will be eligible for home detention curfew.", example = "2020-02-03")
     private LocalDate homeDetentionCurfewEligibilityOverrideDate;
-    @Schema(description = "Indicates which type of non-DTO release date is the effective release date. One of 'ARD', 'CRD', 'NPD' or 'PRRD'.", example = "CRD", required = true)
+    @Schema(description = "Indicates which type of non-DTO release date is the effective release date. One of 'ARD', 'CRD', 'NPD' or 'PRRD'.", example = "CRD")
     private NonDtoReleaseDateType nonDtoReleaseDateType;
     @Schema(description = "Confirmed release date for offender.", example = "2020-04-20")
     private LocalDate confirmedReleaseDate;

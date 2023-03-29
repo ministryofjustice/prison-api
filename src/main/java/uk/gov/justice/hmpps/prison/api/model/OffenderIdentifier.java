@@ -19,11 +19,11 @@ import java.time.LocalDateTime;
 @Data
 public class OffenderIdentifier {
     @NotBlank
-    @Schema(required = true, description = "Type of offender identifier", example = "PNC")
+    @Schema(description = "Type of offender identifier", example = "PNC")
     private String type;
 
     @NotBlank
-    @Schema(required = true, description = "The value of the offender identifier", example = "1231/XX/121")
+    @Schema(description = "The value of the offender identifier", example = "1231/XX/121")
     private String value;
 
     @Schema(description = "The offender number for this identifier", example = "A1234AB")

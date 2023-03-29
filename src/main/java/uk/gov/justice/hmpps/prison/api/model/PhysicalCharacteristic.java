@@ -41,7 +41,7 @@ public class PhysicalCharacteristic {
     /**
      * Type code of physical characteristic
      */
-    @Schema(required = true, description = "Type code of physical characteristic")
+    @Schema(description = "Type code of physical characteristic")
     @JsonProperty("type")
     public String getType() {
         return type;
@@ -54,7 +54,7 @@ public class PhysicalCharacteristic {
     /**
      * Type of physical characteristic
      */
-    @Schema(required = true, description = "Type of physical characteristic")
+    @Schema(description = "Type of physical characteristic")
     @JsonProperty("characteristic")
     public String getCharacteristic() {
         return characteristic;
@@ -67,7 +67,7 @@ public class PhysicalCharacteristic {
     /**
      * Detailed information about the physical characteristic
      */
-    @Schema(required = true, description = "Detailed information about the physical characteristic")
+    @Schema(description = "Detailed information about the physical characteristic")
     @JsonProperty("detail")
     public String getDetail() {
         return detail;
