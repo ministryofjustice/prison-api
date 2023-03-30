@@ -33,7 +33,7 @@ import static java.lang.String.format;
 @Data
 public class InmateDetail {
 
-    @Schema(description = "Offender Unique Reference", example = "A1234AA")
+    @Schema(description = "Offender Unique Reference", example = "A1234AA", requiredMode = RequiredMode.NOT_REQUIRED)
     @NotBlank
     private String offenderNo;
 
@@ -43,26 +43,26 @@ public class InmateDetail {
     @Schema(description = "Booking Number")
     private String bookingNo;
 
-    @Schema(description = "Internal Offender ID")
+    @Schema(description = "Internal Offender ID", requiredMode = RequiredMode.NOT_REQUIRED)
     @NotBlank
     private Long offenderId;
 
-    @Schema(description = "Internal Root Offender ID")
+    @Schema(description = "Internal Root Offender ID", requiredMode = RequiredMode.NOT_REQUIRED)
     @NotBlank
     private Long rootOffenderId;
 
-    @Schema(description = "First Name")
+    @Schema(description = "First Name", requiredMode = RequiredMode.NOT_REQUIRED)
     @NotBlank
     private String firstName;
 
     @Schema(description = "Middle Name(s)")
     private String middleName;
 
-    @Schema(description = "Last Name")
+    @Schema(description = "Last Name", requiredMode = RequiredMode.NOT_REQUIRED)
     @NotBlank
     private String lastName;
 
-    @Schema(description = "Date of Birth of prisoner", example = "1970-03-15")
+    @Schema(description = "Date of Birth of prisoner", example = "1970-03-15", requiredMode = RequiredMode.NOT_REQUIRED)
     @NotNull
     private LocalDate dateOfBirth;
 
