@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.api.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 
@@ -41,7 +42,7 @@ public class PhysicalCharacteristic {
     /**
      * Type code of physical characteristic
      */
-    @Schema(description = "Type code of physical characteristic")
+    @Schema(description = "Type code of physical characteristic", requiredMode = RequiredMode.NOT_REQUIRED)
     @JsonProperty("type")
     public String getType() {
         return type;
@@ -54,7 +55,7 @@ public class PhysicalCharacteristic {
     /**
      * Type of physical characteristic
      */
-    @Schema(description = "Type of physical characteristic")
+    @Schema(description = "Type of physical characteristic", requiredMode = RequiredMode.NOT_REQUIRED)
     @JsonProperty("characteristic")
     public String getCharacteristic() {
         return characteristic;
@@ -67,7 +68,7 @@ public class PhysicalCharacteristic {
     /**
      * Detailed information about the physical characteristic
      */
-    @Schema(description = "Detailed information about the physical characteristic")
+    @Schema(description = "Detailed information about the physical characteristic", requiredMode = RequiredMode.NOT_REQUIRED)
     @JsonProperty("detail")
     public String getDetail() {
         return detail;

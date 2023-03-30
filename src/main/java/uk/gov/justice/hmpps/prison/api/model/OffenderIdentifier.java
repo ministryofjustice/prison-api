@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import lombok.Builder;
 import lombok.Data;
 
@@ -19,11 +20,11 @@ import java.time.LocalDateTime;
 @Data
 public class OffenderIdentifier {
     @NotBlank
-    @Schema(description = "Type of offender identifier", example = "PNC")
+    @Schema(description = "Type of offender identifier", example = "PNC", requiredMode = RequiredMode.NOT_REQUIRED)
     private String type;
 
     @NotBlank
-    @Schema(description = "The value of the offender identifier", example = "1231/XX/121")
+    @Schema(description = "The value of the offender identifier", example = "1231/XX/121", requiredMode = RequiredMode.NOT_REQUIRED)
     private String value;
 
     @Schema(description = "The offender number for this identifier", example = "A1234AB")

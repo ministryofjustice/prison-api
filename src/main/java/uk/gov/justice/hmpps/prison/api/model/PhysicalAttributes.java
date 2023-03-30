@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.api.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,11 +29,11 @@ import java.math.BigDecimal;
 public class PhysicalAttributes {
 
     @NotBlank
-    @Schema(description = "Gender Code", example = "M")
+    @Schema(description = "Gender Code", example = "M", requiredMode = RequiredMode.NOT_REQUIRED)
     private String sexCode;
 
     @NotBlank
-    @Schema(description = "Gender", example = "Male")
+    @Schema(description = "Gender", example = "Male", requiredMode = RequiredMode.NOT_REQUIRED)
     private String gender;
 
     @Schema(description = "Ethnicity Code", example = "W1")

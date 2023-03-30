@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,7 +24,7 @@ import java.time.LocalDate;
 @Data
 public class SentenceCalcDates extends BaseSentenceCalcDates {
 
-    @Schema(description = "Offender booking id.", example = "1234123")
+    @Schema(description = "Offender booking id.", example = "1234123", requiredMode = RequiredMode.NOT_REQUIRED)
     @NotNull
     private Long bookingId;
     @Schema(description = "Sentence start date.", example = "2010-02-03")

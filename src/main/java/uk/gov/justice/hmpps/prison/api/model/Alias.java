@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,26 +27,26 @@ import java.time.LocalDate;
 @Data
 public class Alias {
     @NotBlank
-    @Schema(description = "First name of offender alias", example = "Mike")
+    @Schema(description = "First name of offender alias", example = "Mike", requiredMode = RequiredMode.NOT_REQUIRED)
     private String firstName;
 
     @Schema(description = "Middle names of offender alias", example = "John")
     private String middleName;
 
     @NotBlank
-    @Schema(description = "Last name of offender alias", example = "Smith")
+    @Schema(description = "Last name of offender alias", example = "Smith", requiredMode = RequiredMode.NOT_REQUIRED)
     private String lastName;
 
     @NotNull
-    @Schema(description = "Age of Offender", example = "32")
+    @Schema(description = "Age of Offender", example = "32", requiredMode = RequiredMode.NOT_REQUIRED)
     private Integer age;
 
     @NotNull
-    @Schema(description = "Date of Birth of Offender", example = "1980-02-28")
+    @Schema(description = "Date of Birth of Offender", example = "1980-02-28", requiredMode = RequiredMode.NOT_REQUIRED)
     private LocalDate dob;
 
     @NotBlank
-    @Schema(description = "Gender", example = "Male")
+    @Schema(description = "Gender", example = "Male", requiredMode = RequiredMode.NOT_REQUIRED)
     private String gender;
 
     @Schema(description = "Ethnicity", example = "Mixed: White and Black African")
@@ -55,6 +56,6 @@ public class Alias {
     private String nameType;
 
     @NotNull
-    @Schema(description = "Date of creation", example = "2019-02-15")
+    @Schema(description = "Date of creation", example = "2019-02-15", requiredMode = RequiredMode.NOT_REQUIRED)
     private LocalDate createDate;
 }
