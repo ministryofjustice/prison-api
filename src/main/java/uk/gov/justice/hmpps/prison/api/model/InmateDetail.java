@@ -4,6 +4,7 @@ package uk.gov.justice.hmpps.prison.api.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -69,7 +70,7 @@ public class InmateDetail {
     @Schema(description = "Age of prisoner. Note: Full Details Only")
     private Integer age;
 
-    @Schema(description = "Indicates that the person is currently in prison")
+    @Schema(description = "Indicates that the person is currently in prison", requiredMode = RequiredMode.NOT_REQUIRED)
     @NotNull
     private boolean activeFlag;
 
@@ -145,7 +146,7 @@ public class InmateDetail {
     @Schema(description = "Country of birth", example = "GBR")
     private String birthCountryCode;
 
-    @Schema(description = "In/Out Status", example = "IN", allowableValues = {"IN","OUT","TRN"})
+    @Schema(description = "In/Out Status", example = "IN, OUT, TRN")
     private String inOutStatus;
 
     @Schema(description = "Identifiers. Note: Only returned when requesting extra details")
@@ -166,13 +167,13 @@ public class InmateDetail {
     @Schema(description = "Aliases. Note: Only returned when requesting extra details")
     private List<Alias> aliases;
 
-    @Schema(description = "Status of prisoner", example = "ACTIVE IN", allowableValues = {"ACTIVE IN","ACTIVE OUT"})
+    @Schema(description = "Status of prisoner", example = "ACTIVE IN, INACTIVE OUT, INACTIVE TRN")
     private String status;
 
     @Schema(description = "Last movement status of the prison", example = "CRT-CA")
     private String statusReason;
 
-    @Schema(description = "Last Movement Type Code of prisoner. Note: Reference Data from MOVE_TYPE Domain", example = "TAP", allowableValues = {"TAP","CRT","TRN","ADM","REL"})
+    @Schema(description = "Last Movement Type Code of prisoner. Note: Reference Data from MOVE_TYPE Domain", example = "TAP, CRT, TRN, ADM, REL")
     private String lastMovementTypeCode;
 
     @Schema(description = "Last Movement Reason of prisoner. Note: Reference Data from MOVE_RSN Domain", example = "CA")
