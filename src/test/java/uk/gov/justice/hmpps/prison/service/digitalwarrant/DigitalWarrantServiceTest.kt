@@ -10,6 +10,7 @@ import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.WarrantCharge
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEventCharge
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtOrder
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offence
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenceResult
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
@@ -42,9 +43,7 @@ class DigitalWarrantServiceTest {
     mock(),
     mock(),
     courtEventChargeRepository,
-    mock(),
-    mock(),
-    mock(),
+    mock()
   )
 
   @Nested
@@ -128,6 +127,7 @@ class DigitalWarrantServiceTest {
               .withCourtCaseRef(null)
               .withCourtLocation(null)
               .withSentenceSequence(null)
+              .withSentenceDate(null)
               .withResultDescription(null),
           ),
           CourtDateResult(
@@ -149,6 +149,7 @@ class DigitalWarrantServiceTest {
               .withCourtCaseRef(null)
               .withCourtLocation(null)
               .withSentenceSequence(null)
+              .withSentenceDate(null)
               .withResultDescription(null),
           ),
         ),
@@ -193,7 +194,11 @@ class DigitalWarrantServiceTest {
                   OffenderSentenceCharge()
                     .withOffenderSentence(
                       OffenderSentence()
-                        .withId(OffenderSentence.PK(4, 5)),
+                        .withId(OffenderSentence.PK(4, 5))
+                        .withCourtOrder(
+                          CourtOrder()
+                            .withCourtDate(LocalDate.of(2022, 1, 1))
+                        ),
                     ),
                 ),
               )
@@ -231,6 +236,7 @@ class DigitalWarrantServiceTest {
               .withCourtCaseRef("TS1000")
               .withCourtLocation("Birmingham Crown Court")
               .withSentenceSequence(5)
+              .withSentenceDate(LocalDate.of(2022, 1, 1))
               .withResultDescription("Imprisonment"),
           ),
         ),

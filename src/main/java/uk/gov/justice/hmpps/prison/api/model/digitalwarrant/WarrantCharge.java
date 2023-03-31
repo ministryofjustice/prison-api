@@ -51,6 +51,9 @@ public class WarrantCharge {
     @Schema(description = "The sequence of the sentence from this charge")
     private Integer sentenceSequence;
 
+    @Schema(description = "The sentence date")
+    private LocalDate sentenceDate;
+
     @Schema(description = "The result description of the charge")
     private String resultDescription;
 

@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
-import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.Adjustment;
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.WarrantCourtCase;
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.WarrantCharge;
 import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.CourtDateResult;
@@ -72,18 +71,6 @@ public class DigitalWarrantResource {
     public Integer createSentence(@PathVariable("bookingId") @Parameter(description = "The required booking id (mandatory)", required = true) final Long bookingId,
                                                 @RequestBody final WarrantSentence sentence) {
         return digitalWarrantService.createOffenderSentence(bookingId, sentence);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Sentence created.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Integer.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Create a sentence")
-    @PostMapping("/booking/{bookingId}/adjustment")
-    @PreAuthorize("hasRole('MANAGE_DIGITAL_WARRANT') and hasAuthority('SCOPE_write')")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Long createAdjustment(@PathVariable("bookingId") @Parameter(description = "The required booking id (mandatory)", required = true) final Long bookingId,
-                                  @RequestBody final Adjustment adjustment) {
-        return digitalWarrantService.createAdjustment(bookingId, adjustment);
     }
 
     @ApiResponses({
