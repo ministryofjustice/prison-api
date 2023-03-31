@@ -62,7 +62,7 @@ class DigitalWarrantService(
   private val courtOrderRepository: CourtOrderRepository,
   private val courtEventRepository: CourtEventRepository,
   private val courtEventChargeRepository: CourtEventChargeRepository,
-  private val imprisonmentStatusRepository: ImprisonmentStatusRepository
+  private val imprisonmentStatusRepository: ImprisonmentStatusRepository,
 ) {
 
   @Transactional

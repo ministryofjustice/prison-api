@@ -43,7 +43,7 @@ class DigitalWarrantServiceTest {
     mock(),
     mock(),
     courtEventChargeRepository,
-    mock()
+    mock(),
   )
 
   @Nested
@@ -197,7 +197,7 @@ class DigitalWarrantServiceTest {
                         .withId(OffenderSentence.PK(4, 5))
                         .withCourtOrder(
                           CourtOrder()
-                            .withCourtDate(LocalDate.of(2022, 1, 1))
+                            .withCourtDate(LocalDate.of(2022, 1, 1)),
                         ),
                     ),
                 ),
