@@ -1,5 +1,7 @@
 ---
 # Per environment values which override defaults in prison-api/values.yaml
 generic-service:
+  replicaCount: 4
+
   env:
     SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: "https://sign-in-preprod.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json"

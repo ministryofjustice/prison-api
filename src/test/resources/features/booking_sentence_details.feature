@@ -398,3 +398,15 @@ Feature: Booking Sentence Details
   Scenario: Retrieve sentence details for offenders who are candidates for Home Detention Curfew.
     When sentence details are requested for offenders who are candidates for Home Detention Curfew
     Then some offender sentence details are returned
+
+  Scenario Outline: Calculated and override MTD, LTD & ETD are returned
+    When sentence details are requested for an offender with booking id "<bookingId>" and version "<version>"
+    Then ETD calculated date matches "<calculatedEtd>"
+    And ETD override date matches "<overrideEtd>"
+    And LTD calculated date matches "<calculatedLtd>"
+    And LTD override date matches "<overrideLtd>"
+    And MTD calculated date matches "<calculatedMtd>"
+    And MTD override date matches "<overrideMtd>"
+    Examples:
+      | bookingId | version | calculatedEtd | overrideEtd | calculatedLtd | overrideLtd | calculatedMtd | overrideMtd |
+      | -30       | 1.0     | 2021-02-20    | 2021-02-28  | 2021-04-28    |             | 2021-03-15    | 2021-03-25 |

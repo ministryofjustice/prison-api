@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.api.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,39 +29,39 @@ public class Assessment {
     private Map<String, Object> additionalProperties;
 
     @NotNull
-    @Schema(description = "Booking number", example = "123456")
+    @Schema(description = "Booking number", example = "123456", requiredMode = RequiredMode.NOT_REQUIRED)
     private Long bookingId;
 
     @NotBlank
-    @Schema(description = "Offender number (e.g. NOMS Number).", example = "GV09876N")
+    @Schema(description = "Offender number (e.g. NOMS Number).", example = "GV09876N", requiredMode = RequiredMode.NOT_REQUIRED)
     private String offenderNo;
 
     @NotBlank
-    @Schema(description = "Classification code", example = "C")
+    @Schema(description = "Classification code", example = "C", requiredMode = RequiredMode.NOT_REQUIRED)
     private String classificationCode;
 
     @NotBlank
-    @Schema(description = "Classification description", example = "Cat C")
+    @Schema(description = "Classification description", example = "Cat C", requiredMode = RequiredMode.NOT_REQUIRED)
     private String classification;
 
     @NotBlank
-    @Schema(description = "Identifies the type of assessment", example = "CATEGORY")
+    @Schema(description = "Identifies the type of assessment", example = "CATEGORY", requiredMode = RequiredMode.NOT_REQUIRED)
     private String assessmentCode;
 
     @NotBlank
-    @Schema(description = "Assessment description", example = "Categorisation")
+    @Schema(description = "Assessment description", example = "Categorisation", requiredMode = RequiredMode.NOT_REQUIRED)
     private String assessmentDescription;
 
     @NotNull
-    @Schema(description = "Indicates the presence of a cell sharing alert")
+    @Schema(description = "Indicates the presence of a cell sharing alert", requiredMode = RequiredMode.NOT_REQUIRED)
     private boolean cellSharingAlertFlag;
 
     @NotNull
-    @Schema(description = "Date assessment was created", example = "2018-02-11")
+    @Schema(description = "Date assessment was created", example = "2018-02-11", requiredMode = RequiredMode.NOT_REQUIRED)
     private LocalDate assessmentDate;
 
     @NotNull
-    @Schema(description = "Date of next review", example = "2018-02-11")
+    @Schema(description = "Date of next review", example = "2018-02-11", requiredMode = RequiredMode.NOT_REQUIRED)
     private LocalDate nextReviewDate;
 
     @Schema(description = "Date of assessment approval", example = "2018-02-11")

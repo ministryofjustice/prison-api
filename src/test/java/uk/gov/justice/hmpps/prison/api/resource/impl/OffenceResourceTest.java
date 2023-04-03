@@ -13,16 +13,22 @@ import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.jdbc.SqlConfig.TransactionMode;
 import uk.gov.justice.hmpps.prison.api.model.HOCodeDto;
+import uk.gov.justice.hmpps.prison.api.model.OffenceActivationDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenceDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenceToScheduleMappingDto;
 import uk.gov.justice.hmpps.prison.api.model.Schedule;
 import uk.gov.justice.hmpps.prison.api.model.StatuteDto;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Offence;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Offence.PK;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenceIndicatorRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenceRepository;
 
 import java.time.LocalDate;
 import java.util.List;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -30,6 +36,10 @@ public class OffenceResourceTest extends ResourceTest {
 
     @Autowired
     private OffenceIndicatorRepository offenceIndicatorRepository;
+
+    @Autowired
+    private OffenceRepository offenceRepository;
+
     @Nested
     @DisplayName("Tests for all the GET end points")
     public class GeneralOffencesTests {
@@ -291,6 +301,44 @@ public class OffenceResourceTest extends ResourceTest {
         }
     }
 
+    @Nested
+    @DisplayName("Tests for activating and deactivating of offences")
+    public class ActivateOrDeactivateOffencesTests {
+        @Sql(scripts = {"/sql/create_active_and_inactive_offence.sql"},
+            executionPhase = ExecutionPhase.BEFORE_TEST_METHOD,
+            config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
+        @Sql(scripts = {"/sql/clean_offences.sql"},
+            executionPhase = ExecutionPhase.AFTER_TEST_METHOD,
+            config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
+        @Test
+        public void testActivateOffence() {
+            OffenceActivationDto inactiveOffence = new OffenceActivationDto("COML026", "COML", true);
+
+            updateOffenceActiveFlag(inactiveOffence);
+
+            Offence offence = offenceRepository.findById(new PK("COML026", "COML")).get();
+            assertThat(offence.getCode()).isEqualTo("COML026");
+            assertTrue(offence.isActive());
+        }
+
+        @Sql(scripts = {"/sql/create_active_and_inactive_offence.sql"},
+            executionPhase = ExecutionPhase.BEFORE_TEST_METHOD,
+            config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
+        @Sql(scripts = {"/sql/clean_offences.sql"},
+            executionPhase = ExecutionPhase.AFTER_TEST_METHOD,
+            config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
+        @Test
+        public void testDeactivateOffence() {
+            OffenceActivationDto inactiveOffence = new OffenceActivationDto("COML025", "COML", false);
+
+            updateOffenceActiveFlag(inactiveOffence);
+
+            Offence offence = offenceRepository.findById(new PK("COML025", "COML")).get();
+            assertThat(offence.getCode()).isEqualTo("COML025");
+            assertFalse(offence.isActive());
+        }
+    }
+
     private ResponseEntity<String> postRequest(HttpEntity<?> httpEntity, String url) {
         return testRestTemplate.exchange(
             url,
@@ -323,5 +371,14 @@ public class OffenceResourceTest extends ResourceTest {
             httpEntity,
             new ParameterizedTypeReference<>() {
             });
+    }
+
+    private void updateOffenceActiveFlag(OffenceActivationDto offenceActivationDto) {
+        webTestClient.put().uri("/api/offences/update-active-flag")
+            .headers(setAuthorisation(List.of("ROLE_NOMIS_OFFENCE_ACTIVATOR")))
+            .bodyValue(offenceActivationDto)
+            .exchange()
+            .expectStatus()
+            .isOk();
     }
 }

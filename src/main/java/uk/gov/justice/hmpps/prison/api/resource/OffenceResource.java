@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.HOCodeDto;
+import uk.gov.justice.hmpps.prison.api.model.OffenceActivationDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenceDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenceToScheduleMappingDto;
 import uk.gov.justice.hmpps.prison.api.model.StatuteDto;
@@ -198,5 +199,17 @@ public class OffenceResource {
     public void unlinkOffencesFromSchedules(@RequestBody final List<OffenceToScheduleMappingDto> offencesToSchedules) {
         log.info("Request received to unlink offences from schedules");
         service.unlinkOffencesFromSchedules(offencesToSchedules);
+    }
+
+    @PutMapping("/update-active-flag")
+    @Operation(summary = "Update the active flag of an offence", description = "Requires NOMIS_OFFENCE_ACTIVATOR role")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "The active flag has been updated successfully"),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.")
+    })
+    @PreAuthorize("hasRole('NOMIS_OFFENCE_ACTIVATOR')")
+    public void updateOffenceActiveFlag(@RequestBody final OffenceActivationDto offenceActivationDto) {
+        log.info("Request received to change the active flag for offence code {}", offenceActivationDto.getOffenceCode());
+        service.updateOffenceActiveFlag(offenceActivationDto);
     }
 }

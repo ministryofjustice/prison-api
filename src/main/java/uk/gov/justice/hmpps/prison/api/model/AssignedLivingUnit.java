@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -57,7 +58,7 @@ public class AssignedLivingUnit {
     /**
      * Agency Id
      */
-    @Schema(required = true, description = "Agency Id")
+    @Schema(description = "Agency Id", requiredMode = RequiredMode.NOT_REQUIRED)
     @JsonProperty("agencyId")
     public String getAgencyId() {
         return agencyId;
@@ -70,7 +71,7 @@ public class AssignedLivingUnit {
     /**
      * location Id
      */
-    @Schema(required = true, description = "location Id")
+    @Schema(description = "location Id", requiredMode = RequiredMode.NOT_REQUIRED)
     @JsonProperty("locationId")
     public Long getLocationId() {
         return locationId;
@@ -83,7 +84,7 @@ public class AssignedLivingUnit {
     /**
      * Living Unit Desc
      */
-    @Schema(required = true, description = "Living Unit Desc")
+    @Schema(description = "Living Unit Desc", requiredMode = RequiredMode.NOT_REQUIRED)
     @JsonProperty("description")
     public String getDescription() {
         return description;
@@ -96,7 +97,7 @@ public class AssignedLivingUnit {
     /**
      * Name of the agency where this living unit resides
      */
-    @Schema(required = true, description = "Name of the agency where this living unit resides")
+    @Schema(description = "Name of the agency where this living unit resides", requiredMode = RequiredMode.NOT_REQUIRED)
     @JsonProperty("agencyName")
     public String getAgencyName() {
         return agencyName;

@@ -15,7 +15,10 @@
       "guilty":true,
       "courtCaseId":1,
       "courtCaseRef": "ABC123",
-      "sentenceSequence": 1
+      "courtLocation": "BIRMINGHAM",
+      "sentenceSequence": 1,
+      "sentenceDate": "2022-10-10",
+      "resultDescription":"Not Guilty"
     },
     "bookingId":-60
   }

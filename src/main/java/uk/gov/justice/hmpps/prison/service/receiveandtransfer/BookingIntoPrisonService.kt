@@ -35,7 +35,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.findByIdAndTypeAndA
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.findByOffenderNomsIdAndBookingSequenceOrNull
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.findByStatusAndActiveOrNull
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.findByTypeAndCategoryAndActiveOrNull
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.findOffenderByNomsIdOrNull
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.findOneByDescriptionAndAgencyIdOrNull
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
 import uk.gov.justice.hmpps.prison.service.BadRequestException
@@ -73,9 +72,13 @@ class BookingIntoPrisonService(
   authenticationFacade = authenticationFacade,
 ) {
   fun newBooking(prisonerIdentifier: String, requestForNewBooking: RequestForNewBooking): InmateDetail {
-    return newBooking(offender(prisonerIdentifier).getOrThrow(), requestForNewBooking)
+    // grab a lock on the offender and their bookings to ensure that no-one else can add a booking to the offender
+    // during our transaction.  Other processes / threads will hang waiting for this to complete.
+    val offender = offenderForUpdate(prisonerIdentifier).getOrThrow()
+    return newBookingWithoutUpdateLock(offender, requestForNewBooking)
   }
-  fun newBooking(offender: Offender, requestForNewBooking: RequestForNewBooking): InmateDetail {
+
+  fun newBookingWithoutUpdateLock(offender: Offender, requestForNewBooking: RequestForNewBooking): InmateDetail {
     val previousBooking: OffenderBooking? = previousInactiveBooking(offender).getOrThrow()
     val imprisonmentStatus: ImprisonmentStatus =
       imprisonmentStatus(requestForNewBooking.imprisonmentStatus).getOrThrow()
@@ -90,7 +93,9 @@ class BookingIntoPrisonService(
     val bookNumber: String = bookNumberGenerationService.generateBookNumber()
     val staff = getLoggedInStaff().getOrThrow().staff
 
+    // now increment the sequence on each booking
     offender.bookings.forEach(OffenderBooking::incBookingSequence)
+
     return offenderBookingRepository.save(
       OffenderBooking()
         .withBookingBeginDate(receiveTime)
@@ -186,9 +191,9 @@ class BookingIntoPrisonService(
     }
   }
 
-  private fun offender(prisonerIdentifier: String): Result<Offender> =
-    offenderRepository.findOffenderByNomsIdOrNull(prisonerIdentifier)?.let { success(it) }
-      ?: failure(EntityNotFoundException.withMessage("No prisoner found for prisoner number $prisonerIdentifier"))
+  private fun offenderForUpdate(prisonerIdentifier: String): Result<Offender> =
+    offenderRepository.findOffenderByNomsIdOrNullForUpdate(prisonerIdentifier).map { success(it) }
+      .orElse(failure(EntityNotFoundException.withMessage("No prisoner found for prisoner number $prisonerIdentifier")))
 
   private fun previousInactiveBooking(prisonerIdentifier: String): Result<OffenderBooking> =
     offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceOrNull(prisonerIdentifier, 1)?.inActiveOut()

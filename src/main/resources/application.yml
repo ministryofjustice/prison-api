@@ -75,3 +75,4 @@ springdoc:
   swagger-ui:
     operationsSorter: alpha
     tagsSorter: alpha
+  nullable-request-parameter-enabled: false

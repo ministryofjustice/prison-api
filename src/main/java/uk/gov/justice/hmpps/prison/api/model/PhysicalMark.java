@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -61,7 +62,7 @@ public class PhysicalMark {
     /**
      * Type of Mark
      */
-    @Schema(required = true, description = "Type of Mark")
+    @Schema(description = "Type of Mark", requiredMode = RequiredMode.NOT_REQUIRED)
     @JsonProperty("type")
     public String getType() {
         return type;
@@ -74,7 +75,7 @@ public class PhysicalMark {
     /**
      * Left or Right Side
      */
-    @Schema(required = true, description = "Left or Right Side")
+    @Schema(description = "Left or Right Side", requiredMode = RequiredMode.NOT_REQUIRED)
     @JsonProperty("side")
     public String getSide() {
         return side;
@@ -87,7 +88,7 @@ public class PhysicalMark {
     /**
      * Where on the body
      */
-    @Schema(required = true, description = "Where on the body")
+    @Schema(description = "Where on the body", requiredMode = RequiredMode.NOT_REQUIRED)
     @JsonProperty("bodyPart")
     public String getBodyPart() {
         return bodyPart;
@@ -100,7 +101,7 @@ public class PhysicalMark {
     /**
      * Image orientation
      */
-    @Schema(required = true, description = "Image orientation")
+    @Schema(description = "Image orientation", requiredMode = RequiredMode.NOT_REQUIRED)
     @JsonProperty("orientation")
     public String getOrientation() {
         return orientation;
@@ -113,7 +114,7 @@ public class PhysicalMark {
     /**
      * More information
      */
-    @Schema(required = true, description = "More information")
+    @Schema(description = "More information", requiredMode = RequiredMode.NOT_REQUIRED)
     @JsonProperty("comment")
     public String getComment() {
         return comment;

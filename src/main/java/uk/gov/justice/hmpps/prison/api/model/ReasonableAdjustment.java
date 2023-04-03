@@ -28,15 +28,19 @@ public class ReasonableAdjustment {
     @Schema(description = "The agency id where the adjustment was created", example = "LEI")
     private String agencyId;
 
+    @Schema(description = "The formatted agency description where the adjustment was created", example = "Moorland (HMP)")
+    private String agencyDescription;
+
     @Schema(description = "Treatment Description", example = "Wheelchair accessibility")
     private String treatmentDescription;
 
-    public ReasonableAdjustment(String treatmentCode, String commentText, LocalDate startDate, LocalDate endDate, String agencyId, String treatmentDescription) {
+    public ReasonableAdjustment(String treatmentCode, String commentText, LocalDate startDate, LocalDate endDate, String agencyId, String agencyDescription, String treatmentDescription) {
         this.treatmentCode = treatmentCode;
         this.commentText = commentText;
         this.startDate = startDate;
         this.endDate = endDate;
         this.agencyId = agencyId;
+        this.agencyDescription = agencyDescription;
         this.treatmentDescription = treatmentDescription;
     }
 

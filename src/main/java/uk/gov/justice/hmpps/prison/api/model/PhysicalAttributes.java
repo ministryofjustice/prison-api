@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.api.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,34 +29,34 @@ import java.math.BigDecimal;
 public class PhysicalAttributes {
 
     @NotBlank
-    @Schema(required = true, description = "Gender Code", example = "M")
+    @Schema(description = "Gender Code", example = "M", requiredMode = RequiredMode.NOT_REQUIRED)
     private String sexCode;
 
     @NotBlank
-    @Schema(required = true, description = "Gender", example = "Male")
+    @Schema(description = "Gender", example = "Male", requiredMode = RequiredMode.NOT_REQUIRED)
     private String gender;
 
-    @Schema(required = true, description = "Ethnicity Code", example = "W1")
+    @Schema(description = "Ethnicity Code", example = "W1")
     private String raceCode;
 
-    @Schema(required = true, description = "Ethnicity", example = "White: Eng./Welsh/Scot./N.Irish/British")
+    @Schema(description = "Ethnicity", example = "White: Eng./Welsh/Scot./N.Irish/British")
     private String ethnicity;
 
-    @Schema(required = true, description = "Height in Feet", example = "5")
+    @Schema(description = "Height in Feet", example = "5")
     private Integer heightFeet;
 
-    @Schema(required = true, description = "Height in Inches", example = "60")
+    @Schema(description = "Height in Inches", example = "60")
     private Integer heightInches;
 
-    @Schema(required = true, description = "Height in Metres (to 2dp)", example = "1.76")
+    @Schema(description = "Height in Metres (to 2dp)", example = "1.76")
     private BigDecimal heightMetres;
 
-    @Schema(required = true, description = "Height in Centimetres", example = "176")
+    @Schema(description = "Height in Centimetres", example = "176")
     private Integer heightCentimetres;
 
-    @Schema(required = true, description = "Weight in Pounds", example = "50")
+    @Schema(description = "Weight in Pounds", example = "50")
     private Integer weightPounds;
 
-    @Schema(required = true, description = "Weight in Kilograms", example = "67")
+    @Schema(description = "Weight in Kilograms", example = "67")
     private Integer weightKilograms;
 }

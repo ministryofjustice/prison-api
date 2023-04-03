@@ -511,6 +511,19 @@ public class NomisApiV1ResourceIntTest extends ResourceTest {
     }
 
     @Test
+    public void getAccountBalancesTrailingSlash() {
+
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
+
+        when(getAccountBalances.execute(any(SqlParameterSource.class))).thenReturn(
+                Map.of(P_CASH_BALANCE, new BigDecimal("12.34"), P_SPENDS_BALANCE, new BigDecimal("56.78"), P_SAVINGS_BALANCE, new BigDecimal("34.34")));
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/prison/WLI/offenders/G0797UA/accounts/", HttpMethod.GET, requestEntity, String.class);
+
+        assertThatJson(responseEntity.getBody()).isEqualTo("{ \"spends\": 5678, \"savings\": 3434, \"cash\": 1234 }");
+    }
+
+    @Test
     public void getCashTransactions() {
 
         final var responseEntity = getTransactions("cash");

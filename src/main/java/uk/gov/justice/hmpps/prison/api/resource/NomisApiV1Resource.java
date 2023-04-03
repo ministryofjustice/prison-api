@@ -326,6 +326,20 @@ public class NomisApiV1Resource {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Not a digital prison.  Prison not found. Offender has no account at this prison.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "404", description = "Prison or offender was not found", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Deprecated - use the version without the trailing slash. Retrieve an offender's financial account balances.", description = "Returns balances for the offender’s three sub accounts (spends, savings and cash) at the specified prison.<br/>" +
+            "All balance values are represented as pence values.")
+    @GetMapping("/prison/{prison_id}/offenders/{noms_id}/accounts/")
+    @SlowReportQuery
+    @Deprecated
+    public AccountBalance getAccountBalanceTrailingSlash(@Size(max = 3) @NotNull @PathVariable("prison_id") @Parameter(name = "prison_id", description = "Prison ID", example = "WLI", required = true) final String prisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @Parameter(name = "noms_id", description = "Offender Noms Id", example = "A1404AE", required = true) final String nomsId) {
+        return getAccountBalance(prisonId, nomsId);
+    }
+
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "Not a digital prison.  Prison not found. Offender has no account at this prison.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Prison, offender or accountType not found", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Retrieve an offender's financial transaction history for cash, spends or savings.", description = "Transactions are returned in NOMIS ordee (Descending date followed by id).<br/>" +

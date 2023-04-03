@@ -1351,6 +1351,8 @@ public class InmateRepositoryTest {
                         .treatmentDescription("Computer software")
                         .commentText("EFGH")
                         .startDate(LocalDate.of(2010, 6, 21))
+                        .agencyId("LEI")
+                        .agencyDescription("Leeds")
                         .build(),
                 ReasonableAdjustment.builder()
                         .treatmentCode("WHEELCHR_ACC")
