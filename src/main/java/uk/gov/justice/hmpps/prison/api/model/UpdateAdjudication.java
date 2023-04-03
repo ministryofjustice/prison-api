@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import uk.gov.justice.hmpps.prison.service.validation.MaximumTextSize;
@@ -40,11 +41,14 @@ public class UpdateAdjudication {
     private List<String> offenceCodes;
 
     @Schema(description = "The list of staff usernames who were victims", example = "NGK33Y")
+    @Default
     private List<String> victimStaffUsernames = new ArrayList<>();
 
     @Schema(description = "The list of offender numbers of offenders who were victims")
+    @Default
     private List<String> victimOffenderIds = new ArrayList<>();
 
     @Schema(description = "The list of offender numbers of the offenders who were connected")
+    @Default
     private List<String> connectedOffenderIds = new ArrayList<>();
 }

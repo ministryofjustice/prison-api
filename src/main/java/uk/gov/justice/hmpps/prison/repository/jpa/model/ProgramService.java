@@ -1,13 +1,12 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -41,5 +40,6 @@ public class ProgramService {
 
     @Column(name = "ACTIVE_FLAG")
     @Schema(description = "Active flag")
+    @Default
     private String activeFlag = "Y";
 }

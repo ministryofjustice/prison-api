@@ -2,12 +2,12 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.With;
-import org.apache.commons.lang3.StringUtils;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOffence;
 
 import jakarta.persistence.Column;
@@ -25,7 +25,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @Entity
@@ -91,12 +90,12 @@ public class OffenderCharge extends AuditableEntity {
     @Column(name = "CHARGE_STATUS")
     private String chargeStatus;
 
-    @ManyToOne(optional = true, fetch = FetchType.LAZY)
-    @JoinColumn(name = "RESULT_CODE_1", nullable = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "RESULT_CODE_1")
     private OffenceResult resultCodeOne;
 
-    @ManyToOne(optional = true, fetch = FetchType.LAZY)
-    @JoinColumn(name = "RESULT_CODE_2", nullable = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "RESULT_CODE_2")
     private OffenceResult resultCodeTwo;
 
     @Column(name = "RESULT_CODE_1_INDICATOR")
@@ -109,6 +108,7 @@ public class OffenderCharge extends AuditableEntity {
     private String mostSeriousFlag;
 
     @OneToMany(mappedBy = "offenderCharge", fetch = FetchType.LAZY)
+    @Default
     private List<OffenderSentenceCharge> offenderSentenceCharges = new ArrayList<>();
 
     public boolean isActive() {
