@@ -6,7 +6,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCaseNote;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,9 +17,9 @@ public interface OffenderCaseNoteRepository extends
 
     Optional<OffenderCaseNote> findByIdAndOffenderBooking_BookingId(final Long id, final Long bookingId);
 
-    @Query(value = "select new uk.gov.justice.hmpps.prison.repository.jpa.repository.PrisonerCaseNoteTypeAndSubType(cn.bookingId, cn.typeCode, cn.subTypeCode, cn.occurrenceDateTime) from OffenderCaseNote cn where cn.bookingId in (:bookingIds) and cn.typeCode in (:types) and cn.occurrenceDateTime >= :cutoffTime")
+    @Query(value = "select new uk.gov.justice.hmpps.prison.repository.jpa.repository.PrisonerCaseNoteTypeAndSubType(cn.bookingId, cn.typeCode, cn.subTypeCode, cn.occurrenceDateTime) from OffenderCaseNote cn where cn.bookingId in (:bookingIds) and cn.typeCode in (:types) and cn.occurrenceDate >= :cutoffDate")
     List<PrisonerCaseNoteTypeAndSubType> findCaseNotTypesByBookingAndDate(
-        List<Long> bookingIds, List<String> types, LocalDateTime cutoffTime
+        List<Long> bookingIds, List<String> types, LocalDate cutoffDate
     );
 }
 

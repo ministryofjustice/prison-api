@@ -245,7 +245,7 @@ public class CaseNoteService {
         final var allCaseNotesOfType = offenderCaseNoteRepository.findCaseNotTypesByBookingAndDate(
             bookingDateMap.keySet().stream().toList(),
             types,
-            bookingDateMap.values().stream().min(LocalDateTime::compareTo).orElseThrow()
+            bookingDateMap.values().stream().min(LocalDateTime::compareTo).orElseThrow().toLocalDate()  // for performance reasons we ignore time part
         );
 
         return allCaseNotesOfType.stream()
@@ -256,7 +256,7 @@ public class CaseNoteService {
             .toList();
     }
 
-    private record CaseNoteTypesAndSubTypes(Long bookingId, String type, String subType) {};
+    private record CaseNoteTypesAndSubTypes(Long bookingId, String type, String subType) {}
 
     public List<CaseNoteStaffUsage> getCaseNoteStaffUsage(final String type, final String subType, @NotEmpty final List<Integer> staffIds, final LocalDate fromDate, final LocalDate toDate, final int numMonths) {
         final var deriveDates = new DeriveDates(fromDate, toDate, numMonths);
