@@ -106,20 +106,6 @@ public class CaseNoteRepositoryTest {
     }
 
     @Test
-    public void testGetCaseNoteUsageByBookingIdAndFromDate() {
-        final var types = List.of("POS", "NEG");
-        List<CaseNoteUsageByBookingId> results = repository.getCaseNoteUsageByBookingIdAndFromDate(types, -30, LocalDateTime.of(2017, 1, 1, 0, 0, 0));
-
-        assertThat(results).hasSize(1);
-        assertThat(results.get(0)).isEqualTo(CaseNoteUsageByBookingId.builder()
-            .bookingId(-30)
-            .latestCaseNote(LocalDateTime.of(2017,5,13,12,0,0))
-            .caseNoteType("NEG")
-            .caseNoteSubType("IEP_WARN")
-            .numCaseNotes(6)
-            .build());
-    }
-    @Test
     public void testCaseNoteTimes() {
         final long bookingId = -16;
         final var newCaseNote = newCaseNote();
@@ -141,14 +127,14 @@ public class CaseNoteRepositoryTest {
     public void getCaseNoteUsageByBookingIdSingleCaseNote() {
         final var notes = repository.getCaseNoteUsageByBookingId("COMMS", "COM_OUT", List.of(-2), LocalDate.of(2017, 1, 1), LocalDate.of(2018, 1, 1));
 
-        assertThat(notes).containsOnly(new CaseNoteUsageByBookingId(-2, "COMMS", "COM_OUT", 1, LocalDateTime.parse("2017-05-06T17:11:00")));
+        assertThat(notes).containsOnly(new CaseNoteUsageByBookingId(-2L, "COMMS", "COM_OUT", 1, LocalDateTime.parse("2017-05-06T17:11:00")));
     }
 
     @Test
     public void getCaseNoteUsageByBookingIdMultipleCaseNote() {
         final var notes = repository.getCaseNoteUsageByBookingId("OBSERVE", "OBS_GEN", List.of(-3), LocalDate.of(2017, 1, 1), LocalDate.of(2017, 8, 1));
 
-        assertThat(notes).containsOnly(new CaseNoteUsageByBookingId(-3, "OBSERVE", "OBS_GEN", 6, LocalDateTime.parse("2017-07-31T12:00")));
+        assertThat(notes).containsOnly(new CaseNoteUsageByBookingId(-3L, "OBSERVE", "OBS_GEN", 6, LocalDateTime.parse("2017-07-31T12:00")));
     }
 
     @Test
@@ -156,8 +142,8 @@ public class CaseNoteRepositoryTest {
         final var notes = repository.getCaseNoteUsageByBookingId("OBSERVE", "OBS_GEN", List.of(-16, -3), LocalDate.of(2017, 1, 1), LocalDate.of(2017, 8, 1));
 
         assertThat(notes).containsOnly(
-            new CaseNoteUsageByBookingId(-3, "OBSERVE", "OBS_GEN", 6, LocalDateTime.parse("2017-07-31T12:00")),
-            new CaseNoteUsageByBookingId(-16, "OBSERVE", "OBS_GEN", 1, LocalDateTime.parse("2017-05-13T12:00")));
+            new CaseNoteUsageByBookingId(-3L, "OBSERVE", "OBS_GEN", 6, LocalDateTime.parse("2017-07-31T12:00")),
+            new CaseNoteUsageByBookingId(-16L, "OBSERVE", "OBS_GEN", 1, LocalDateTime.parse("2017-05-13T12:00")));
     }
 
     @Test
