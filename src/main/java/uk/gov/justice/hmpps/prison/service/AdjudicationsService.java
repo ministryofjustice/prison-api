@@ -12,6 +12,7 @@ import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
 import uk.gov.justice.hmpps.prison.api.model.OicHearingRequest;
 import uk.gov.justice.hmpps.prison.api.model.OicHearingResponse;
+import uk.gov.justice.hmpps.prison.api.model.OicHearingResultDto;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationActionCode;
@@ -24,12 +25,14 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearing;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearing.OicHearingStatus;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationOffenceTypeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OicHearingRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OicHearingResultRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
@@ -41,8 +44,10 @@ import jakarta.validation.Valid;
 import jakarta.validation.ValidationException;
 import jakarta.validation.constraints.NotNull;
 import java.time.Clock;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -71,6 +76,7 @@ public class AdjudicationsService {
     private final EntityManager entityManager;
 
     private final OicHearingRepository oicHearingRepository;
+    private final OicHearingResultRepository oicHearingResultRepository;
     @Value("${batch.max.size:1000}")
     private final int batchSize;
 
@@ -89,7 +95,8 @@ public class AdjudicationsService {
         final EntityManager entityManager,
         @Value("${batch.max.size:1000}") final int batchSize,
         final AdjudicationsPartyService adjudicationsPartyService,
-        final OicHearingRepository oicHearingRepository) {
+        final OicHearingRepository oicHearingRepository,
+        final OicHearingResultRepository oicHearingResultRepository) {
         this.adjudicationsRepository = adjudicationsRepository;
         this.adjudicationsOffenceTypeRepository = adjudicationsOffenceTypeRepository;
         this.staffUserAccountRepository = staffUserAccountRepository;
@@ -105,6 +112,7 @@ public class AdjudicationsService {
         this.batchSize = batchSize;
         this.adjudicationsPartyService = adjudicationsPartyService;
         this.oicHearingRepository = oicHearingRepository;
+        this.oicHearingResultRepository = oicHearingResultRepository;
     }
 
     private List<AdjudicationOffenceType> offenceCodesFrom(List<String> suppliedOffenceCodes) {
@@ -325,6 +333,40 @@ public class AdjudicationsService {
             throw new ValidationException(format("oic hearingId %d is not linked to adjudication number %d", hearingId, adjudicationNumber));
 
         return hearing;
+    }
+
+    @Transactional
+    @VerifyOffenderAccess
+    public OicHearingResultDto createOicHearingResult(final OicHearingResultDto oicHearingResultDto) {
+        final OicHearingResult.PK id = new OicHearingResult.PK(oicHearingResultDto.getOicHearingId(), oicHearingResultDto.getResultSeq());
+        if (oicHearingResultRepository.existsById(id)) {
+            throw EntityAlreadyExistsException.withMessage(format("Oic Hearing Result with ID (oicHearingId=%d, resultSeq=%d) already exists", oicHearingResultDto.getOicHearingId(), oicHearingResultDto.getResultSeq()));
+        }
+        final Iterator<OicHearing> hearings = oicHearingRepository.findAllById(Arrays.asList((oicHearingResultDto.getOicHearingId()))).iterator();
+        if (!hearings.hasNext()) {
+            throw EntityNotFoundException.withMessage(format("Could not find oic hearingId %d", oicHearingResultDto.getOicHearingId()));
+        }
+
+        OicHearing hearing = hearings.next();
+        final OicHearingResult oicHearingResult = oicHearingResultRepository.save(OicHearingResult.builder()
+            .oicHearingId(oicHearingResultDto.getOicHearingId())
+            .resultSeq(oicHearingResultDto.getResultSeq())
+            .agencyIncidentId(hearing.getAdjudicationNumber())
+            .chargeSeq(oicHearingResultDto.getChargeSeq())
+            .pleaFindingCode(oicHearingResultDto.getPleaFindingCode())
+            .findingCode(oicHearingResultDto.getFindingCode())
+            .oicOffenceId(oicHearingResultDto.getOicOffenceId())
+            .build());
+
+        return OicHearingResultDto.builder()
+            .oicHearingId(oicHearingResult.getOicHearingId())
+            .resultSeq(oicHearingResult.getResultSeq())
+            .agencyIncidentId(oicHearingResult.getAgencyIncidentId())
+            .chargeSeq(oicHearingResult.getChargeSeq())
+            .pleaFindingCode(oicHearingResult.getPleaFindingCode())
+            .findingCode(oicHearingResult.getFindingCode())
+            .oicOffenceId(oicHearingResult.getOicOffenceId())
+            .build();
     }
 
     private void addOffenceCharges(AdjudicationParty adjudicationPartyToUpdate, List<AdjudicationOffenceType> offenceCodes) {

@@ -36,6 +36,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocat
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OicHearingRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OicHearingResultRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
@@ -103,6 +104,8 @@ public class AdjudicationsServiceTest {
     private EntityManager entityManager;
     @Mock
     private OicHearingRepository oicHearingRepository;
+    @Mock
+    private OicHearingResultRepository oicHearingResultRepository;
 
     private AdjudicationsService service;
 
@@ -126,7 +129,8 @@ public class AdjudicationsServiceTest {
             entityManager,
             BATCH_SIZE,
             adjudicationsPartyService,
-            oicHearingRepository
+            oicHearingRepository,
+            oicHearingResultRepository
             );
     }
 
