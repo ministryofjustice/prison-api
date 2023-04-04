@@ -51,6 +51,9 @@ public class OffenderCaseNote extends AuditableEntity {
     @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
     private OffenderBooking offenderBooking;
 
+    @Column(name = "OFFENDER_BOOK_ID", updatable = false, insertable = false)
+    private Long bookingId;
+
     @Column(name = "CONTACT_DATE")
     private LocalDate occurrenceDate;
 
@@ -65,6 +68,9 @@ public class OffenderCaseNote extends AuditableEntity {
     })
     private CaseNoteType type;
 
+    @Column(name = "CASE_NOTE_TYPE", updatable = false, insertable = false)
+    private String typeCode;
+
     @ManyToOne
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
@@ -72,6 +78,9 @@ public class OffenderCaseNote extends AuditableEntity {
         @JoinColumnOrFormula(column = @JoinColumn(name = "CASE_NOTE_SUB_TYPE", referencedColumnName = "code"))
     })
     private CaseNoteSubType subType;
+
+    @Column(name = "CASE_NOTE_SUB_TYPE", updatable = false, insertable = false)
+    private String subTypeCode;
 
     @Column(name = "CASE_NOTE_TEXT")
     private String caseNoteText;
