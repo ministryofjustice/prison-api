@@ -65,7 +65,7 @@ public class BedAssignmentHistoryService {
         return bookingAndSequence;
     }
 
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     public Page<BedAssignment> getBedAssignmentsHistory(final Long bookingId, final PageRequest pageRequest) {
         final var bedAssignmentsHistory = repository.findAllByBedAssignmentHistoryPKOffenderBookingId(bookingId, pageRequest);
         final var results = bedAssignmentsHistory.getContent()
