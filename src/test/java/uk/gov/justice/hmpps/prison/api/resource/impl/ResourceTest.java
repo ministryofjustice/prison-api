@@ -157,8 +157,11 @@ public abstract class ResourceTest {
         return new JsonContent<>(getClass(), forType(String.class), Objects.requireNonNull(response.getBody()));
     }
 
-
     protected Consumer<HttpHeaders> setAuthorisation(List<String> roles) {
         return (httpHeaders -> httpHeaders.add("Authorization", "Bearer " + validToken(roles)));
+    }
+
+    protected Consumer<HttpHeaders> setAuthorisation(String username, List<String> roles) {
+        return (httpHeaders -> httpHeaders.add("Authorization", "Bearer " + createJwt(username, roles)));
     }
 }
