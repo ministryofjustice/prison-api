@@ -4,7 +4,7 @@ package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import org.junit.jupiter.api.Test
 
-class BookingResource_GetBedAssignmentHistoryIntTest : ResourceTest() {
+class BookingResourceIntTest_getBedAssignmentHistory : ResourceTest() {
   @Test
   fun `returns 404 if not in user caseload`() {
     webTestClient.get().uri("/api/bookings/-36/cell-history")
