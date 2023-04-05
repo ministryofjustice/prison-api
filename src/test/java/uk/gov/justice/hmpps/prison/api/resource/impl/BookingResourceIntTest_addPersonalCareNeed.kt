@@ -9,7 +9,7 @@ import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.web.reactive.function.BodyInserters
 
 @WithMockUser
-class BookingResourceInt_addPersonalCareNeedTest : ResourceTest() {
+class BookingResourceIntTest_addPersonalCareNeed : ResourceTest() {
 
   @Nested
   @DisplayName("POST /personal-care-needs")
