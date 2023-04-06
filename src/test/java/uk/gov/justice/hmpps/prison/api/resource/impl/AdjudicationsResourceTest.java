@@ -639,6 +639,18 @@ public class AdjudicationsResourceTest extends ResourceTest  {
 
 
         @Test
+        public void createHearingResultReturns400DueToNoHearingNotBeingAssociatedWithAdjudication() {
+            createHearingResult(valid, validRequest)
+                .expectStatus().isBadRequest();
+        }
+
+        @Test
+        public void createHearingResultReturns400DueToHearingResultPresent() {
+            createHearingResult(valid, validRequest)
+                .expectStatus().isBadRequest();
+        }
+
+        @Test
         public void createHearingResultReturnsSuccess() {
             createHearingResult(valid, validRequest)
                 .expectStatus().isCreated()
@@ -656,8 +668,6 @@ public class AdjudicationsResourceTest extends ResourceTest  {
                 .bodyValue(payload)
                 .exchange();
         }
-
-
 
     }
 

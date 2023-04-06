@@ -317,6 +317,22 @@ public class AdjudicationsService {
         oicHearingRepository.delete(hearingToDelete);
     }
 
+    @Transactional
+    @VerifyOffenderAccess
+    public OicHearingResultDto createOicHearingResult(
+        final Long adjudicationNumber,
+        final Long oicHearingId,
+        final OicHearingResultRequest oicHearingResultRequest) {
+
+        getWithValidationChecks(adjudicationNumber, oicHearingId);
+
+        if (oicHearingResultRepository.findById(new OicHearingResult.PK(oicHearingId, 1L)).isPresent()) {
+            throw new ValidationException(format("Hearing result for hearing id %d already exist for adjudication number %d", oicHearingId, adjudicationNumber));
+        }
+
+        return null;
+    }
+
     private void oicHearingLocationValidation(final Long hearingLocationId){
         internalLocationRepository.findOneByLocationId(hearingLocationId)
             .orElseThrow(() -> new ValidationException(format("Invalid hearing location id %d", hearingLocationId)));
@@ -333,22 +349,6 @@ public class AdjudicationsService {
             throw new ValidationException(format("oic hearingId %d is not linked to adjudication number %d", hearingId, adjudicationNumber));
 
         return hearing;
-    }
-
-    @Transactional
-    @VerifyOffenderAccess
-    public OicHearingResultDto createOicHearingResult(
-        final Long adjudicationNumber,
-        final Long oicHearingId,
-        final OicHearingResultRequest oicHearingResultRequest) {
-
-        getWithValidationChecks(adjudicationNumber, oicHearingId);
-
-        if (oicHearingResultRepository.findById(new OicHearingResult.PK(oicHearingId, 1L)).isPresent()) {
-            throw new ValidationException(format("Hearing result for hearing id %d already exist for adjudication number %d", oicHearingId, adjudicationNumber));
-        }
-
-        return null;
     }
 
     private void addOffenceCharges(AdjudicationParty adjudicationPartyToUpdate, List<AdjudicationOffenceType> offenceCodes) {

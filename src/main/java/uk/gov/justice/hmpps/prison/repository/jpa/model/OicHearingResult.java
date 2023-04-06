@@ -32,7 +32,7 @@ public class OicHearingResult extends AuditableEntity {
     }
 
     public enum FindingCode {
-        NOT_GUILTY, NOT_PROCEED, NOT_PROVEN, PROSECUTED, PROVED, QUASHED, REFUSED, REF_POLICE, S, UNFIT
+        APPEAL, D, DISMISSED, GUILTY, NOT_GUILTY, NOT_PROCEED, NOT_PROVEN, PROSECUTED, PROVED, QUASHED, REFUSED, REF_POLICE, S, UNFIT,
     }
 
     @NoArgsConstructor
