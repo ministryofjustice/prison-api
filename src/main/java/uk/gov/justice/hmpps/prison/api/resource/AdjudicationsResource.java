@@ -29,6 +29,7 @@ import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
 import uk.gov.justice.hmpps.prison.api.model.OicHearingRequest;
 import uk.gov.justice.hmpps.prison.api.model.OicHearingResponse;
 import uk.gov.justice.hmpps.prison.api.model.OicHearingResultDto;
+import uk.gov.justice.hmpps.prison.api.model.OicHearingResultRequest;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.service.AdjudicationsService;
@@ -181,18 +182,52 @@ public class AdjudicationsResource {
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Created"),
         @ApiResponse(responseCode = "403", description = "The client is not authorised for this operation"),
-//        @ApiResponse(responseCode = "400", description = "Invalid request - ie missing hearing location or date", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-//        @ApiResponse(responseCode = "404", description = "No match was found for the adjudication number", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
+        @ApiResponse(responseCode = "404", description = "No match was found for the adjudication number or hearing", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
     })
     @Operation(summary = "Creates an OIC hearing result", description = "Requires MAINTAIN_ADJUDICATIONS access and write scope")
     @PostMapping("/adjudication/{adjudicationNumber}/hearing/{oicHearingId}/result")
     @ProxyUser
     @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS') and hasAuthority('SCOPE_write')")
     @ResponseStatus(HttpStatus.CREATED)
-    public void createOicHearingResult(
-        @Valid @RequestBody @Parameter(description = "OIC hearing result to save", required = true) final OicHearingResultDto oicHearingResultDto,
-        @PathVariable("adjudicationNumber") final Long adjudicationNumber
+    public OicHearingResultDto createOicHearingResult(
+        @PathVariable("adjudicationNumber") final Long adjudicationNumber,
+        @PathVariable("oicHearingId") final Long oicHearingId,
+        @Valid @RequestBody @Parameter(description = "OIC hearing result to save", required = true) final OicHearingResultRequest oicHearingResultRequest
     ) {
-        adjudicationsService.createOicHearingResult(oicHearingResultDto);
+        return null;
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Ok"),
+        @ApiResponse(responseCode = "403", description = "The client is not authorised for this operation"),
+        @ApiResponse(responseCode = "404", description = "No match was found for the adjudication number or hearing", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
+    })
+    @Operation(summary = "Updates an OIC hearing result", description = "Requires MAINTAIN_ADJUDICATIONS access and write scope")
+    @PutMapping("/adjudication/{adjudicationNumber}/hearing/{oicHearingId}/result")
+    @ProxyUser
+    @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS') and hasAuthority('SCOPE_write')")
+    @ResponseStatus(HttpStatus.OK)
+    public OicHearingResultDto amendOicHearingResult(
+        @PathVariable("adjudicationNumber") final Long adjudicationNumber,
+        @PathVariable("oicHearingId") final Long oicHearingId,
+        @Valid @RequestBody @Parameter(description = "OIC hearing result to save", required = true) final OicHearingResultRequest oicHearingResultRequest
+    ) {
+        return null;
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Ok"),
+        @ApiResponse(responseCode = "403", description = "The client is not authorised for this operation"),
+        @ApiResponse(responseCode = "404", description = "No match was found for the adjudication number or hearing", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
+    })
+    @Operation(summary = "Deletes an OIC hearing result", description = "Requires MAINTAIN_ADJUDICATIONS access and write scope")
+    @DeleteMapping("/adjudication/{adjudicationNumber}/hearing/{oicHearingId}/result")
+    @ProxyUser
+    @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS') and hasAuthority('SCOPE_write')")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteOicHearingResult(
+        @PathVariable("adjudicationNumber") final Long adjudicationNumber,
+        @PathVariable("oicHearingId") final Long oicHearingId
+        ) {
     }
 }

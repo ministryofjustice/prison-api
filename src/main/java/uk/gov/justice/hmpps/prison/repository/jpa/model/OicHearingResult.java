@@ -2,6 +2,8 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.Table;
@@ -24,6 +26,14 @@ import java.io.Serializable;
 @IdClass(OicHearingResult.PK.class)
 @Table(name = "OIC_HEARING_RESULTS")
 public class OicHearingResult extends AuditableEntity {
+
+    public enum PleaFindingCode {
+        GUILTY, NOT_GUILTY, REFUSED, UNFIT, NOT_ASKED,
+    }
+
+    public enum FindingCode {
+        NOT_GUILTY, NOT_PROCEED, NOT_PROVEN, PROSECUTED, PROVED, QUASHED, REFUSED, REF_POLICE, S, UNFIT
+    }
 
     @NoArgsConstructor
     @AllArgsConstructor
@@ -48,11 +58,13 @@ public class OicHearingResult extends AuditableEntity {
     @Column(name = "CHARGE_SEQ", nullable = false)
     private Long chargeSeq;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "PLEA_FINDING_CODE", nullable = false, length = 12)
-    private String pleaFindingCode;
+    private PleaFindingCode pleaFindingCode;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "FINDING_CODE", nullable = false, length = 12)
-    private String findingCode;
+    private FindingCode findingCode;
 
     @Column(name = "OIC_OFFENCE_ID", nullable = false)
     private Long oicOffenceId;

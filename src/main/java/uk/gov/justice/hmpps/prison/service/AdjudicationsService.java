@@ -13,6 +13,7 @@ import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
 import uk.gov.justice.hmpps.prison.api.model.OicHearingRequest;
 import uk.gov.justice.hmpps.prison.api.model.OicHearingResponse;
 import uk.gov.justice.hmpps.prison.api.model.OicHearingResultDto;
+import uk.gov.justice.hmpps.prison.api.model.OicHearingResultRequest;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationActionCode;
@@ -336,8 +337,8 @@ public class AdjudicationsService {
 
     @Transactional
     @VerifyOffenderAccess
-    public void createOicHearingResult(final OicHearingResultDto oicHearingResultDto) {
-        final OicHearingResult.PK id = new OicHearingResult.PK(oicHearingResultDto.getOicHearingId(), oicHearingResultDto.getResultSeq());
+    public OicHearingResultDto createOicHearingResult(final OicHearingResultRequest oicHearingResultRequest) {
+    /*    final OicHearingResult.PK id = new OicHearingResult.PK(oicHearingResultDto.getOicHearingId(), oicHearingResultDto.getResultSeq());
         if (oicHearingResultRepository.existsById(id)) {
             throw EntityAlreadyExistsException.withMessage(format("Oic Hearing Result with ID (oicHearingId=%d, resultSeq=%d) already exists", oicHearingResultDto.getOicHearingId(), oicHearingResultDto.getResultSeq()));
         }
@@ -355,10 +356,12 @@ public class AdjudicationsService {
             .resultSeq(1L)
             .agencyIncidentId(adjudication.getAgencyIncidentId())
             .chargeSeq(1L)
-            .pleaFindingCode(oicHearingResultDto.getPleaFindingCode())
-            .findingCode(oicHearingResultDto.getFindingCode())
+          //  .pleaFindingCode(oicHearingResultDto.getPleaFindingCode())
+          //  .findingCode(oicHearingResultDto.getFindingCode())
             .oicOffenceId(oicOffenceId)
             .build());
+            */
+     return null;
     }
 
     private void addOffenceCharges(AdjudicationParty adjudicationPartyToUpdate, List<AdjudicationOffenceType> offenceCodes) {

@@ -1055,6 +1055,24 @@ public class AdjudicationsServiceTest {
 
     }
 
+    @Nested
+    public class HearingResults {
+
+        @Test
+        public void createHearingResult() {
+        }
+
+        @Test
+        public void amendHearingResult() {
+
+        }
+
+        @Test
+        public void deleteHearingResult() {
+
+        }
+    }
+
     private static <T> T assertArgThat(final Consumer<T> assertions) {
         return MockitoHamcrest.argThat(new AssertionMatcher<>() {
             @Override

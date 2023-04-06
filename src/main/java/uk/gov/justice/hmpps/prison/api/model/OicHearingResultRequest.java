@@ -11,13 +11,13 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult.Finding
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult.PleaFindingCode;
 
 
-@Schema(description = "Dto for entity OicHearingResult")
+@Schema(description = "OicHearingResultRequest")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder(toBuilder = true)
-public class OicHearingResultDto {
+public class OicHearingResultRequest {
 
     @Schema(description = "The offender\"s plea code on this charge.")
     @NotNull
@@ -27,4 +27,7 @@ public class OicHearingResultDto {
     @NotNull
     private FindingCode findingCode;
 
+    @Schema(description = "name of adjudicator")
+    @NotNull
+    private String adjudicator;
 }
