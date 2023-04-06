@@ -44,13 +44,12 @@ import jakarta.validation.Valid;
 import jakarta.validation.ValidationException;
 import jakarta.validation.constraints.NotNull;
 import java.time.Clock;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -337,36 +336,29 @@ public class AdjudicationsService {
 
     @Transactional
     @VerifyOffenderAccess
-    public OicHearingResultDto createOicHearingResult(final OicHearingResultDto oicHearingResultDto) {
+    public void createOicHearingResult(final OicHearingResultDto oicHearingResultDto) {
         final OicHearingResult.PK id = new OicHearingResult.PK(oicHearingResultDto.getOicHearingId(), oicHearingResultDto.getResultSeq());
         if (oicHearingResultRepository.existsById(id)) {
             throw EntityAlreadyExistsException.withMessage(format("Oic Hearing Result with ID (oicHearingId=%d, resultSeq=%d) already exists", oicHearingResultDto.getOicHearingId(), oicHearingResultDto.getResultSeq()));
         }
-        final Iterator<OicHearing> hearings = oicHearingRepository.findAllById(Arrays.asList((oicHearingResultDto.getOicHearingId()))).iterator();
-        if (!hearings.hasNext()) {
+        final Optional<OicHearing> hearing = oicHearingRepository.findById(oicHearingResultDto.getOicHearingId());
+
+        if (hearing.isEmpty()) {
             throw EntityNotFoundException.withMessage(format("Could not find oic hearingId %d", oicHearingResultDto.getOicHearingId()));
         }
 
-        OicHearing hearing = hearings.next();
+        final Adjudication adjudication = adjudicationsRepository.findByParties_AdjudicationNumber(hearing.get().getAdjudicationNumber()).get();
+        final Long oicOffenceId = Long.parseLong(adjudication.getOffenderParty().get().getCharges().get(0).getOicChargeId());
+
         final OicHearingResult oicHearingResult = oicHearingResultRepository.save(OicHearingResult.builder()
             .oicHearingId(oicHearingResultDto.getOicHearingId())
-            .resultSeq(oicHearingResultDto.getResultSeq())
-            .agencyIncidentId(hearing.getAdjudicationNumber())
-            .chargeSeq(oicHearingResultDto.getChargeSeq())
+            .resultSeq(1L)
+            .agencyIncidentId(adjudication.getAgencyIncidentId())
+            .chargeSeq(1L)
             .pleaFindingCode(oicHearingResultDto.getPleaFindingCode())
             .findingCode(oicHearingResultDto.getFindingCode())
-            .oicOffenceId(oicHearingResultDto.getOicOffenceId())
+            .oicOffenceId(oicOffenceId)
             .build());
-
-        return OicHearingResultDto.builder()
-            .oicHearingId(oicHearingResult.getOicHearingId())
-            .resultSeq(oicHearingResult.getResultSeq())
-            .agencyIncidentId(oicHearingResult.getAgencyIncidentId())
-            .chargeSeq(oicHearingResult.getChargeSeq())
-            .pleaFindingCode(oicHearingResult.getPleaFindingCode())
-            .findingCode(oicHearingResult.getFindingCode())
-            .oicOffenceId(oicHearingResult.getOicOffenceId())
-            .build();
     }
 
     private void addOffenceCharges(AdjudicationParty adjudicationPartyToUpdate, List<AdjudicationOffenceType> offenceCodes) {
