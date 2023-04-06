@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
 import uk.gov.justice.hmpps.prison.api.model.OicHearingRequest;
+import uk.gov.justice.hmpps.prison.api.model.OicHearingResultRequest;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationActionCode;
@@ -1060,6 +1061,28 @@ public class AdjudicationsServiceTest {
 
         @Test
         public void createHearingResult() {
+        }
+
+        @Test
+        public void createHearingResultAdjudicationDoesNotExist() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.empty());
+
+            assertThatThrownBy(() ->
+                service.createOicHearingResult(OicHearingResultRequest.builder().build()))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find adjudication number 2");
+        }
+
+        @Test
+        public void createHearingResultHearingDoesNotExit() {
+            when(oicHearingRepository.findById(2L))
+                .thenReturn(Optional.empty());
+
+            assertThatThrownBy(() ->
+                service.createOicHearingResult(OicHearingResultRequest.builder().build()))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find hearing number 2");
         }
 
     }
