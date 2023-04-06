@@ -1056,21 +1056,30 @@ public class AdjudicationsServiceTest {
     }
 
     @Nested
-    public class HearingResults {
+    public class CreateHearingResult {
 
         @Test
         public void createHearingResult() {
         }
 
+    }
+
+    @Nested
+    public class AmendHearingResult {
+
         @Test
         public void amendHearingResult() {
-
         }
+
+    }
+
+    @Nested
+    public class DeleteHearingResult {
 
         @Test
         public void deleteHearingResult() {
-
         }
+
     }
 
     private static <T> T assertArgThat(final Consumer<T> assertions) {

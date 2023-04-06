@@ -609,7 +609,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
     }
 
     @Nested
-    public class HearingResults {
+    public class CreateHearingResult {
 
         final List<String> valid = List.of("ROLE_MAINTAIN_ADJUDICATIONS");
         final List<String> invalid = List.of("ROLE_SYSTEM_USER");
@@ -623,22 +623,56 @@ public class AdjudicationsResourceTest extends ResourceTest  {
                 .expectStatus().isForbidden();
         }
 
-        @Test
-        public void amendHearingResultReturns403ForInvalidRoles () {
-                amendHearingResult(invalid, validRequest)
-                .expectStatus().isForbidden();
-        }
-
-        @Test
-        public void deleteHearingResultReturns403ForInvalidRoles () {
-            deleteHearingResult(invalid)
-                .expectStatus().isForbidden();
-        }
 
         @Test
         public void createHearingResultReturns404DueToNoAdjudication() {
             createHearingResult(valid, validRequest)
                 .expectStatus().isNotFound();
+        }
+
+
+        @Test
+        public void createHearingResultReturns404DueToNoHearing() {
+            createHearingResult(valid, validRequest)
+                .expectStatus().isNotFound();
+        }
+
+
+        @Test
+        public void createHearingResultReturnsSuccess() {
+            createHearingResult(valid, validRequest)
+                .expectStatus().isCreated()
+                .expectBody()
+                .jsonPath("$.findingCode").isEqualTo(FindingCode.NOT_PROCEED.name())
+                .jsonPath("$.pleaFindingCode").isEqualTo(PleaFindingCode.GUILTY.name());
+        }
+
+
+        private ResponseSpec createHearingResult(List<String> headers, Map payload) {
+            return webTestClient.post()
+                .uri("/api/adjudications/adjudication/-9/hearing/-1/result")
+                .headers(setAuthorisation(headers))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .bodyValue(payload)
+                .exchange();
+        }
+
+
+
+    }
+
+    @Nested
+    public class AmendHearingResult {
+        final List<String> valid = List.of("ROLE_MAINTAIN_ADJUDICATIONS");
+        final List<String> invalid = List.of("ROLE_SYSTEM_USER");
+
+        final Map validRequest = Map.of("pleaFindingCode", PleaFindingCode.GUILTY, "findingCode", FindingCode.NOT_PROCEED, "adjudicator", "TWRIGHT");
+
+
+        @Test
+        public void amendHearingResultReturns403ForInvalidRoles () {
+            amendHearingResult(invalid, validRequest)
+                .expectStatus().isForbidden();
         }
 
         @Test
@@ -648,36 +682,9 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         }
 
         @Test
-        public void deleteHearingResultReturns404DueToNoHearing() {
-            deleteHearingResult(valid)
-                .expectStatus().isNotFound();
-        }
-
-        @Test
-        public void createHearingResultReturns404DueToNoHearing() {
-            createHearingResult(valid, validRequest)
-                .expectStatus().isNotFound();
-        }
-
-        @Test
         public void amendHearingResultReturns404DueToNoHearing() {
             amendHearingResult(valid, validRequest)
                 .expectStatus().isNotFound();
-        }
-
-        @Test
-        public void deleteHearingResultReturns404DueToNoAdjudication() {
-            deleteHearingResult(valid)
-                .expectStatus().isNotFound();
-        }
-
-        @Test
-        public void createHearingResultReturnsSuccess() {
-            createHearingResult(valid, validRequest)
-                .expectStatus().isCreated()
-                .expectBody()
-                .jsonPath("$.findingCode").isEqualTo(FindingCode.NOT_PROCEED.name())
-                .jsonPath("$.pleaFindingCode").isEqualTo(PleaFindingCode.GUILTY.name());
         }
 
         @Test
@@ -689,20 +696,6 @@ public class AdjudicationsResourceTest extends ResourceTest  {
                 .jsonPath("$.pleaFindingCode").isEqualTo(PleaFindingCode.GUILTY.name());
         }
 
-        @Test
-        public void deleteHearingResultReturnsSuccess() {
-            deleteHearingResult(valid)
-                .expectStatus().isOk();
-        }
-
-        private ResponseSpec createHearingResult(List<String> headers, Map payload) {
-            return webTestClient.post()
-                .uri("/api/adjudications/adjudication/-9/hearing/-1/result")
-                .headers(setAuthorisation(headers))
-                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                .bodyValue(payload)
-                .exchange();
-        }
 
         private ResponseSpec amendHearingResult(List<String> headers, Map payload) {
             return        webTestClient.put()
@@ -713,8 +706,42 @@ public class AdjudicationsResourceTest extends ResourceTest  {
                 .exchange();
         }
 
+
+    }
+
+    @Nested
+    public class DeleteHearingResult {
+
+        final List<String> valid = List.of("ROLE_MAINTAIN_ADJUDICATIONS");
+        final List<String> invalid = List.of("ROLE_SYSTEM_USER");
+
+        @Test
+        public void deleteHearingResultReturns403ForInvalidRoles () {
+            deleteHearingResult(invalid)
+                .expectStatus().isForbidden();
+        }
+
+        @Test
+        public void deleteHearingResultReturns404DueToNoHearing() {
+            deleteHearingResult(valid)
+                .expectStatus().isNotFound();
+        }
+        @Test
+        public void deleteHearingResultReturns404DueToNoAdjudication() {
+            deleteHearingResult(valid)
+                .expectStatus().isNotFound();
+        }
+
+
+        @Test
+        public void deleteHearingResultReturnsSuccess() {
+            deleteHearingResult(valid)
+                .expectStatus().isOk();
+        }
+
+
         private ResponseSpec deleteHearingResult(List<String> headers) {
-           return webTestClient.delete()
+            return webTestClient.delete()
                 .uri("/api/adjudications/adjudication/-9/hearing/-1/result")
                 .headers(setAuthorisation(headers))
                 .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
