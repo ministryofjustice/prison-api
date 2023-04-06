@@ -342,10 +342,11 @@ public class AdjudicationsService {
         final Long oicHearingId,
         final OicHearingResultRequest oicHearingResultRequest) {
 
-        adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber)
-            .orElseThrow(EntityNotFoundException.withMessage(format("Could not find adjudication number %d", adjudicationNumber)));
+        getWithValidationChecks(adjudicationNumber, oicHearingId);
 
-        oicHearingRepository.findById(oicHearingId).orElseThrow(EntityNotFoundException.withMessage(format("Could not find hearing %d", oicHearingId)));
+        if (oicHearingResultRepository.findById(new OicHearingResult.PK(oicHearingId, 1L)).isPresent()) {
+            throw new ValidationException(format("Hearing result for hearing id %d already exist for adjudication number %d", oicHearingId, adjudicationNumber));
+        }
 
         return null;
     }

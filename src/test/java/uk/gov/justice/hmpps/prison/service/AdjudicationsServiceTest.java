@@ -14,6 +14,7 @@ import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
 import uk.gov.justice.hmpps.prison.api.model.OicHearingRequest;
 import uk.gov.justice.hmpps.prison.api.model.OicHearingResultRequest;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication;
+import uk.gov.justice.hmpps.prison.api.model.adjudications.Hearing;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationActionCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationCharge;
@@ -29,6 +30,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearing;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearing.OicHearingStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearing.OicHearingType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Staff;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationOffenceTypeRepository;
@@ -1088,9 +1090,47 @@ public class AdjudicationsServiceTest {
             assertThatThrownBy(() ->
                 service.createOicHearingResult(2L, 3L, OicHearingResultRequest.builder().build()))
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("Could not find hearing 3");
+                .hasMessageContaining("Could not find oic hearingId 3 for adjudication number 2");
         }
 
+        @Test
+        public void createHearingResultHearingDoesNotBelogToAdjudication() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(1L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().parties(List.of(AdjudicationParty.builder().adjudicationNumber(2L).build())).build()
+                ));
+            when(oicHearingRepository.findById(3L))
+                .thenReturn(Optional.of(
+                    OicHearing.builder().adjudicationNumber(2L).build()
+                ));
+
+            assertThatThrownBy(() ->
+                service.createOicHearingResult(1L, 3L, OicHearingResultRequest.builder().build()))
+                .isInstanceOf(ValidationException.class)
+                .hasMessageContaining("oic hearingId 3 is not linked to adjudication number 1");
+        }
+
+        @Test
+        public void createHearingResult_TrowExceptionIfHearingResultAlreadyExist() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().parties(List.of(AdjudicationParty.builder().adjudicationNumber(2L).build())).build()
+                ));
+            when(oicHearingRepository.findById(3L))
+                .thenReturn(Optional.of(
+                    OicHearing.builder().adjudicationNumber(2L).build()
+                ));
+
+            when(oicHearingResultRepository.findById(new OicHearingResult.PK(3L, 1L)))
+                .thenReturn(Optional.of(
+                    OicHearingResult.builder().build()
+                ));
+
+            assertThatThrownBy(() ->
+                service.createOicHearingResult(2L, 3L, OicHearingResultRequest.builder().build()))
+                .isInstanceOf(ValidationException.class)
+                .hasMessageContaining("Hearing result for hearing id 3 already exist for adjudication number 2");
+        }
     }
 
     @Nested
