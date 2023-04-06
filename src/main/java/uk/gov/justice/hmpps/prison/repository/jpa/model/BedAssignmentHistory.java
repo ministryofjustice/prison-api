@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import jakarta.persistence.FetchType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -49,6 +50,10 @@ public class BedAssignmentHistory extends AuditableEntity {
 
     @Column(name = "LIVING_UNIT_ID")
     private Long livingUnitId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "LIVING_UNIT_ID", referencedColumnName = "INTERNAL_LOCATION_ID", insertable = false, updatable = false)
+    private AgencyInternalLocation location;
 
     @Column(name = "ASSIGNMENT_DATE")
     private LocalDate assignmentDate;
