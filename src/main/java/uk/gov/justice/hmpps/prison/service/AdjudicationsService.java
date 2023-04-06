@@ -3,10 +3,12 @@ package uk.gov.justice.hmpps.prison.service;
 import com.google.common.collect.Lists;
 import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+import org.webjars.NotFoundException;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationCreationRequestData;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
@@ -296,7 +298,7 @@ public class AdjudicationsService {
     @Transactional
     @VerifyOffenderAccess
     public void amendOicHearing(final Long adjudicationNumber, final long oicHearingId, final OicHearingRequest oicHearingRequest) {
-        final var hearingToAmend = getWithValidationChecks(adjudicationNumber, oicHearingId);
+        final var hearingToAmend = getWithValidationChecks(adjudicationNumber, oicHearingId).getLeft();
         oicHearingLocationValidation(oicHearingRequest.getHearingLocationId());
 
         final var hearingDate = oicHearingRequest.getDateTimeOfHearing().toLocalDate();
@@ -313,7 +315,7 @@ public class AdjudicationsService {
     @Transactional
     @VerifyOffenderAccess
     public void deleteOicHearing(final Long adjudicationNumber, final long oicHearingId) {
-        final var hearingToDelete = getWithValidationChecks(adjudicationNumber, oicHearingId);
+        final var hearingToDelete = getWithValidationChecks(adjudicationNumber, oicHearingId).getLeft();
         oicHearingRepository.delete(hearingToDelete);
     }
 
@@ -324,13 +326,35 @@ public class AdjudicationsService {
         final Long oicHearingId,
         final OicHearingResultRequest oicHearingResultRequest) {
 
-        getWithValidationChecks(adjudicationNumber, oicHearingId);
+        final var pair = getWithValidationChecks(adjudicationNumber, oicHearingId);
+        final var oicHearing = pair.getLeft();
+        final var adjudication = pair.getRight();
 
         if (oicHearingResultRepository.findById(new OicHearingResult.PK(oicHearingId, 1L)).isPresent()) {
             throw new ValidationException(format("Hearing result for hearing id %d already exist for adjudication number %d", oicHearingId, adjudicationNumber));
         }
 
-        return null;
+        final var staff = staffUserAccountRepository.findByUsername(oicHearingResultRequest.getAdjudicator())
+            .orElseThrow(() -> new EntityNotFoundException(format("Adjudicator not found for username %s", oicHearingResultRequest.getAdjudicator())));
+
+        oicHearing.setAdjudicator(staff.getStaff());
+        oicHearingRepository.save(oicHearing);
+
+        final var oicHearingResult = oicHearingResultRepository.save(OicHearingResult.builder()
+            .oicHearingId(oicHearingId)
+            .chargeSeq(1L)
+            .resultSeq(1L)
+            .pleaFindingCode(oicHearingResultRequest.getPleaFindingCode())
+            .findingCode(oicHearingResultRequest.getFindingCode())
+            .agencyIncidentId(adjudication.getAgencyIncidentId())
+            .oicOffenceId(adjudication.getOffenderParty().get().getCharges().get(0).getOffenceType().getOffenceId())
+            .build());
+
+
+        return OicHearingResultDto.builder()
+            .findingCode(oicHearingResult.getFindingCode())
+            .pleaFindingCode(oicHearingResult.getPleaFindingCode())
+            .build();
     }
 
     private void oicHearingLocationValidation(final Long hearingLocationId){
@@ -338,8 +362,8 @@ public class AdjudicationsService {
             .orElseThrow(() -> new ValidationException(format("Invalid hearing location id %d", hearingLocationId)));
     }
 
-    private OicHearing getWithValidationChecks(final Long adjudicationNumber, final long hearingId){
-        adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber)
+    private Pair<OicHearing, Adjudication> getWithValidationChecks(final Long adjudicationNumber, final long hearingId){
+        final var adjudication = adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber)
             .orElseThrow(EntityNotFoundException.withMessage(format("Could not find adjudication number %d", adjudicationNumber)));
 
         final var hearing = oicHearingRepository.findById(hearingId)
@@ -348,7 +372,7 @@ public class AdjudicationsService {
         if(!Objects.equals(hearing.getAdjudicationNumber(), adjudicationNumber))
             throw new ValidationException(format("oic hearingId %d is not linked to adjudication number %d", hearingId, adjudicationNumber));
 
-        return hearing;
+        return Pair.of(hearing, adjudication);
     }
 
     private void addOffenceCharges(AdjudicationParty adjudicationPartyToUpdate, List<AdjudicationOffenceType> offenceCodes) {

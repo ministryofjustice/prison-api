@@ -68,6 +68,7 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication.INCIDENT_ROLE_OFFENDER;
 
 @ExtendWith(MockitoExtension.class)
 public class AdjudicationsServiceTest {
@@ -1149,16 +1150,23 @@ public class AdjudicationsServiceTest {
 
 
             assertThatThrownBy(() ->
-                service.createOicHearingResult(2L, 3L, OicHearingResultRequest.builder().build()))
+                service.createOicHearingResult(2L, 3L, OicHearingResultRequest.builder().adjudicator("adjudicator").build()))
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("adjudicator is not on file - TODO");
+                .hasMessageContaining("Adjudicator not found for username adjudicator");
         }
 
         @Test
         public void createHearingResult() {
             when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
                 .thenReturn(Optional.of(
-                    Adjudication.builder().parties(List.of(AdjudicationParty.builder().adjudicationNumber(2L).build())).build()
+                    Adjudication.builder()
+                        .agencyIncidentId(10L)
+                        .parties(List.of(AdjudicationParty.builder()
+                            .incidentRole(INCIDENT_ROLE_OFFENDER)
+                            .charges(List.of(AdjudicationCharge.builder()
+                                .offenceType(AdjudicationOffenceType.builder()
+                                    .offenceId(100L).build())
+                                .build())).adjudicationNumber(2L).build())).build()
                 ));
             when(oicHearingRepository.findById(3L))
                 .thenReturn(Optional.of(
@@ -1191,16 +1199,15 @@ public class AdjudicationsServiceTest {
             final var hearingCapture = ArgumentCaptor.forClass(OicHearing.class);
             final var hearingResultCapture = ArgumentCaptor.forClass(OicHearingResult.class);
 
-            verify(oicHearingResultRepository, atLeastOnce()).save(hearingResultCapture.capture());
             verify(oicHearingRepository, atLeastOnce()).save(hearingCapture.capture());
+            assertThat(hearingCapture.getValue().getAdjudicator().getStaffId()).isEqualTo(10);
+            verify(oicHearingResultRepository, atLeastOnce()).save(hearingResultCapture.capture());
 
             assertThat(result).isNotNull();
-            assertThat(hearingResultCapture.getValue().getOicOffenceId()).isEqualTo(1L);
-            assertThat(hearingResultCapture.getValue().getAgencyIncidentId()).isEqualTo(2L);
+            assertThat(hearingResultCapture.getValue().getOicOffenceId()).isEqualTo(100L);
+            assertThat(hearingResultCapture.getValue().getAgencyIncidentId()).isEqualTo(10L);
             assertThat(hearingResultCapture.getValue().getFindingCode()).isEqualTo(FindingCode.DISMISSED);
             assertThat(hearingResultCapture.getValue().getPleaFindingCode()).isEqualTo(PleaFindingCode.GUILTY);
-            assertThat(hearingCapture.getValue().getAdjudicator().getStaffId()).isEqualTo(10);
-
 
             assertThat(result.getPleaFindingCode()).isEqualTo(PleaFindingCode.GUILTY);
             assertThat(result.getFindingCode()).isEqualTo(FindingCode.DISMISSED);
@@ -1247,7 +1254,7 @@ public class AdjudicationsServiceTest {
             mockDataProvider.internalLocation.getLocationId());
 
         final var adjudication = getExampleAdjudication(mockDataProvider, newAdjudication);
-        addExampleAdjudicationParty(false, mockDataProvider, adjudication, adjudicationNumber, Adjudication.INCIDENT_ROLE_OFFENDER);
+        addExampleAdjudicationParty(false, mockDataProvider, adjudication, adjudicationNumber, INCIDENT_ROLE_OFFENDER);
 
         return adjudication;
     }
@@ -1260,7 +1267,7 @@ public class AdjudicationsServiceTest {
             mockDataProvider.internalLocation.getLocationId());
 
         final var adjudication = getExampleAdjudication(mockDataProvider, newAdjudication);
-        addExampleAdjudicationParty(true, mockDataProvider, adjudication, adjudicationNumber, Adjudication.INCIDENT_ROLE_OFFENDER);
+        addExampleAdjudicationParty(true, mockDataProvider, adjudication, adjudicationNumber, INCIDENT_ROLE_OFFENDER);
 
         return adjudication;
     }
@@ -1304,11 +1311,11 @@ public class AdjudicationsServiceTest {
     }
 
     private AdjudicationParty addExampleAdjudicationParty(final MockDataProvider mockDataProvider, final Adjudication expectedAdjudication) {
-        return addExampleAdjudicationParty(false, mockDataProvider, expectedAdjudication, EXAMPLE_ADJUDICATION_NUMBER, Adjudication.INCIDENT_ROLE_OFFENDER);
+        return addExampleAdjudicationParty(false, mockDataProvider, expectedAdjudication, EXAMPLE_ADJUDICATION_NUMBER, INCIDENT_ROLE_OFFENDER);
     }
 
     private AdjudicationParty addExampleAdjudicationParty_WithOptionalData(final MockDataProvider mockDataProvider, final Adjudication expectedAdjudication) {
-        return addExampleAdjudicationParty(true, mockDataProvider, expectedAdjudication, EXAMPLE_ADJUDICATION_NUMBER, Adjudication.INCIDENT_ROLE_OFFENDER);
+        return addExampleAdjudicationParty(true, mockDataProvider, expectedAdjudication, EXAMPLE_ADJUDICATION_NUMBER, INCIDENT_ROLE_OFFENDER);
     }
 
     private AdjudicationParty addExampleAdjudicationParty(final boolean includeOptionalData, final MockDataProvider mockDataProvider, final Adjudication expectedAdjudication,
