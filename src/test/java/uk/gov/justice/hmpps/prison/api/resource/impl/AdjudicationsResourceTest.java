@@ -614,45 +614,52 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         final List<String> valid = List.of("ROLE_MAINTAIN_ADJUDICATIONS");
         final List<String> invalid = List.of("ROLE_SYSTEM_USER");
 
-        final Map validRequest = Map.of("pleaFindingCode", PleaFindingCode.GUILTY, "findingCode", FindingCode.NOT_PROCEED, "adjudicator", "TWRIGHT");
+        final Map invalidRequest = Map.of("pleaFindingCode", PleaFindingCode.GUILTY, "findingCode", FindingCode.NOT_PROCEED, "adjudicator", "TWRIGHT");
+        final Map validRequest = Map.of("pleaFindingCode", PleaFindingCode.GUILTY, "findingCode", FindingCode.NOT_PROCEED, "adjudicator", "TODO");
 
 
         @Test
         public void createHearingResultReturns403ForInvalidRoles () {
-            createHearingResult(invalid, validRequest)
+            createHearingResult(invalid, validRequest, -9L, -1L)
                 .expectStatus().isForbidden();
         }
 
 
         @Test
         public void createHearingResultReturns404DueToNoAdjudication() {
-            createHearingResult(valid, validRequest)
+            createHearingResult(valid, validRequest, 99L, -1L)
                 .expectStatus().isNotFound();
         }
 
 
         @Test
         public void createHearingResultReturns404DueToNoHearing() {
-            createHearingResult(valid, validRequest)
+            createHearingResult(valid, validRequest, -9L, 2L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void createHearingResultReturns404DueToNoAdjudicatorOnFile() {
+            createHearingResult(valid, invalidRequest, -9L, -1L)
                 .expectStatus().isNotFound();
         }
 
 
         @Test
         public void createHearingResultReturns400DueToNoHearingNotBeingAssociatedWithAdjudication() {
-            createHearingResult(valid, validRequest)
+            createHearingResult(valid, validRequest, -5L, -4L)
                 .expectStatus().isBadRequest();
         }
 
         @Test
         public void createHearingResultReturns400DueToHearingResultPresent() {
-            createHearingResult(valid, validRequest)
+            createHearingResult(valid, validRequest, -7L, -1L)
                 .expectStatus().isBadRequest();
         }
 
         @Test
         public void createHearingResultReturnsSuccess() {
-            createHearingResult(valid, validRequest)
+            createHearingResult(valid, validRequest, -9L, -1L)
                 .expectStatus().isCreated()
                 .expectBody()
                 .jsonPath("$.findingCode").isEqualTo(FindingCode.NOT_PROCEED.name())
@@ -660,9 +667,9 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         }
 
 
-        private ResponseSpec createHearingResult(List<String> headers, Map payload) {
+        private ResponseSpec createHearingResult(List<String> headers, Map payload, Long adjudicationNumber, Long hearingId) {
             return webTestClient.post()
-                .uri("/api/adjudications/adjudication/-9/hearing/-1/result")
+                .uri("/api/adjudications/adjudication/"+adjudicationNumber+"/hearing/"+hearingId+"/result")
                 .headers(setAuthorisation(headers))
                 .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                 .bodyValue(payload)

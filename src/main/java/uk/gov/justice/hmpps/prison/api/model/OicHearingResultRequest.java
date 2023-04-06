@@ -27,7 +27,7 @@ public class OicHearingResultRequest {
     @NotNull
     private FindingCode findingCode;
 
-    @Schema(description = "name of adjudicator")
+    @Schema(description = "username of adjudicator")
     @NotNull
     private String adjudicator;
 }

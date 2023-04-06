@@ -194,7 +194,7 @@ public class AdjudicationsResource {
         @PathVariable("oicHearingId") final Long oicHearingId,
         @Valid @RequestBody @Parameter(description = "OIC hearing result to save", required = true) final OicHearingResultRequest oicHearingResultRequest
     ) {
-        return null;
+        return adjudicationsService.createOicHearingResult(adjudicationNumber, oicHearingId, oicHearingResultRequest);
     }
 
     @ApiResponses({

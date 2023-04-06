@@ -1,5 +1,8 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -70,4 +73,7 @@ public class OicHearing extends AuditableEntity {
     @Column(name = "EVENT_STATUS", nullable = false, length = 12)
     private OicHearingStatus eventStatus;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "HEARING_STAFF_ID")
+    private Staff adjudicator;
 }
