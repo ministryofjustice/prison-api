@@ -337,31 +337,17 @@ public class AdjudicationsService {
 
     @Transactional
     @VerifyOffenderAccess
-    public OicHearingResultDto createOicHearingResult(final OicHearingResultRequest oicHearingResultRequest) {
-    /*    final OicHearingResult.PK id = new OicHearingResult.PK(oicHearingResultDto.getOicHearingId(), oicHearingResultDto.getResultSeq());
-        if (oicHearingResultRepository.existsById(id)) {
-            throw EntityAlreadyExistsException.withMessage(format("Oic Hearing Result with ID (oicHearingId=%d, resultSeq=%d) already exists", oicHearingResultDto.getOicHearingId(), oicHearingResultDto.getResultSeq()));
-        }
-        final Optional<OicHearing> hearing = oicHearingRepository.findById(oicHearingResultDto.getOicHearingId());
+    public OicHearingResultDto createOicHearingResult(
+        final Long adjudicationNumber,
+        final Long oicHearingId,
+        final OicHearingResultRequest oicHearingResultRequest) {
 
-        if (hearing.isEmpty()) {
-            throw EntityNotFoundException.withMessage(format("Could not find oic hearingId %d", oicHearingResultDto.getOicHearingId()));
-        }
+        adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber)
+            .orElseThrow(EntityNotFoundException.withMessage(format("Could not find adjudication number %d", adjudicationNumber)));
 
-        final Adjudication adjudication = adjudicationsRepository.findByParties_AdjudicationNumber(hearing.get().getAdjudicationNumber()).get();
-        final Long oicOffenceId = Long.parseLong(adjudication.getOffenderParty().get().getCharges().get(0).getOicChargeId());
+        oicHearingRepository.findById(oicHearingId).orElseThrow(EntityNotFoundException.withMessage(format("Could not find hearing %d", oicHearingId)));
 
-        final OicHearingResult oicHearingResult = oicHearingResultRepository.save(OicHearingResult.builder()
-            .oicHearingId(oicHearingResultDto.getOicHearingId())
-            .resultSeq(1L)
-            .agencyIncidentId(adjudication.getAgencyIncidentId())
-            .chargeSeq(1L)
-          //  .pleaFindingCode(oicHearingResultDto.getPleaFindingCode())
-          //  .findingCode(oicHearingResultDto.getFindingCode())
-            .oicOffenceId(oicOffenceId)
-            .build());
-            */
-     return null;
+        return null;
     }
 
     private void addOffenceCharges(AdjudicationParty adjudicationPartyToUpdate, List<AdjudicationOffenceType> offenceCodes) {

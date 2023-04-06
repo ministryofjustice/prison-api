@@ -1069,20 +1069,26 @@ public class AdjudicationsServiceTest {
                 .thenReturn(Optional.empty());
 
             assertThatThrownBy(() ->
-                service.createOicHearingResult(OicHearingResultRequest.builder().build()))
+                service.createOicHearingResult(2L, 2L, OicHearingResultRequest.builder().build()))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Could not find adjudication number 2");
         }
 
         @Test
         public void createHearingResultHearingDoesNotExit() {
-            when(oicHearingRepository.findById(2L))
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().build()
+                ));
+
+
+            when(oicHearingRepository.findById(3L))
                 .thenReturn(Optional.empty());
 
             assertThatThrownBy(() ->
-                service.createOicHearingResult(OicHearingResultRequest.builder().build()))
+                service.createOicHearingResult(2L, 3L, OicHearingResultRequest.builder().build()))
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("Could not find hearing number 2");
+                .hasMessageContaining("Could not find hearing 3");
         }
 
     }
