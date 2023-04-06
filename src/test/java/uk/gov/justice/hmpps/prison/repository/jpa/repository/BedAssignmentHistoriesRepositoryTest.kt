@@ -90,6 +90,12 @@ class BedAssignmentHistoriesRepositoryTest {
       .containsOnly(LocalDate.parse("2020-04-03"))
   }
 
+  @Test
+  fun findBedAssignmentHistory_mapLocation() {
+    val history = repository.findByBedAssignmentHistoryPKOffenderBookingIdAndBedAssignmentHistoryPKSequence(-35L, 2)
+    assertThat(history).get().extracting { it.location.locationCode }.isEqualTo("2")
+  }
+
   private fun createBedAssignmentHistories(bookingId: Long, numberRecords: Int) {
     (1..numberRecords).forEach { seq: Int ->
       val bookingAndSequence = BedAssignmentHistoryPK(bookingId, seq)
