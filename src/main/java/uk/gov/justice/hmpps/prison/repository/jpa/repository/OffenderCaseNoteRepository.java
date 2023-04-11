@@ -24,7 +24,7 @@ public interface OffenderCaseNoteRepository extends
 
     @Query(value = "select new uk.gov.justice.hmpps.prison.repository.jpa.repository.PrisonerCaseNoteTypeAndSubType(cn.bookingId, cn.typeCode, cn.subTypeCode, cn.occurrenceDateTime) from OffenderCaseNote cn where cn.bookingId in (:bookingIds) and cn.typeCode = :typeCode and cn.subTypeCode = :subTypeCode and cn.occurrenceDate >= :fromDate and cn.occurrenceDate < :toDate")
     List<PrisonerCaseNoteTypeAndSubType> findCaseNoteTypesByBookingsAndDates(
-        List<Long> bookingIds, String type, String subType, LocalDate fromDate, LocalDate toDate
+        List<Long> bookingIds, String typeCode, String subTypeCode, LocalDate fromDate, LocalDate toDate
     );
 }
 
