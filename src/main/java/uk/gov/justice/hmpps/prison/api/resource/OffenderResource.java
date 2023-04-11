@@ -737,6 +737,9 @@ public class OffenderResource {
         For example Bristol has wings, spurs and landings, but this endpoint will only return wings and landings as spurs are not mapped in NOMIS.
         Another example is Moorland where 5-1-B-014 in NOMIS is Wing 5, Landing 1, Cell B and Cell 014, whereas in reality it should be Houseblock 5, Spur 1, Wing B and Cell 014 instead.
         This endpoint will therefore also return different information from Whereabouts API as that service re-maps the NOMIS layout to include spurs etc.</p>
+        <p>If the current location is temporary (reception, court, tap, cell swap or early conditional licence) then the previous permanent location is also returned, provided
+        that the location is at the same prison and they haven't moved to a different prison in the meantime.</p>
+        <p>Requires a relationship (via caseload) with the prisoner or VIEW_PRISONER_DATA role.</p>
         """)
     @GetMapping("/{offenderNo}/housing-location")
     public OffenderLocation getHousingLocation(
