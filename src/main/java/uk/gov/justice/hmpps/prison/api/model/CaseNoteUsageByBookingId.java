@@ -2,9 +2,11 @@ package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -12,31 +14,29 @@ import java.time.LocalDateTime;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @EqualsAndHashCode
+@NoArgsConstructor
 @Data
 public class CaseNoteUsageByBookingId {
-    @Schema(required = true, description = "Booking Id", example = "123456")
+    @Schema(requiredMode = RequiredMode.REQUIRED, description = "Booking Id", example = "123456")
     private Long bookingId;
 
-    @Schema(required = true, description = "Case Note Type", example = "KA")
+    @Schema(requiredMode = RequiredMode.REQUIRED, description = "Case Note Type", example = "KA")
     private String caseNoteType;
 
-    @Schema(required = true, description = "Case Note Sub Type", example = "KS")
+    @Schema(requiredMode = RequiredMode.REQUIRED, description = "Case Note Sub Type", example = "KS")
     private String caseNoteSubType;
 
-    @Schema(required = true, description = "Number of case notes of this type/subtype", example = "5")
-    private Integer numCaseNotes;
+    @Schema(requiredMode = RequiredMode.REQUIRED, description = "Number of case notes of this type/subtype", example = "5")
+    private Long numCaseNotes;
 
-    @Schema(required = true, description = "Last case note of this type", example = "2018-12-01T14:55:23")
+    @Schema(requiredMode = RequiredMode.REQUIRED, description = "Last case note of this type", example = "2018-12-01T14:55:23")
     private LocalDateTime latestCaseNote;
 
-    public CaseNoteUsageByBookingId(Long bookingId, String caseNoteType, String caseNoteSubType, Integer numCaseNotes, LocalDateTime latestCaseNote) {
+    public CaseNoteUsageByBookingId(Long bookingId, String caseNoteType, String caseNoteSubType, Long numCaseNotes, LocalDateTime latestCaseNote) {
         this.bookingId = bookingId;
         this.caseNoteType = caseNoteType;
         this.caseNoteSubType = caseNoteSubType;
         this.numCaseNotes = numCaseNotes;
         this.latestCaseNote = latestCaseNote;
-    }
-
-    public CaseNoteUsageByBookingId() {
     }
 }

@@ -36,8 +36,8 @@ public class CaseNoteResourceTest {
 
     @Test
     public void getCaseNoteUsageByBookingId() {
-        final var usage = List.of(new CaseNoteUsageByBookingId(-16L, "OBSERVE", "OBS_GEN", 1, LocalDateTime.parse("2017-05-13T12:00")));
-        final var bookingIds = List.of(2, 3, 4);
+        final var usage = List.of(new CaseNoteUsageByBookingId(-16L, "OBSERVE", "OBS_GEN", 1L, LocalDateTime.parse("2017-05-13T12:00")));
+        final var bookingIds = List.of(2L, 3L, 4L);
         when(caseNoteService.getCaseNoteUsageByBookingId(anyString(), anyString(), anyList(), any(), any(), anyInt())).thenReturn(usage);
         assertThat(caseNoteResource.getCaseNoteSummaryByBookingId(bookingIds, 2, null, null, "BOB", "SMITH")).isEqualTo(usage);
         verify(caseNoteService).getCaseNoteUsageByBookingId("BOB", "SMITH", bookingIds, null, null, 2);
