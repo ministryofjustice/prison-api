@@ -146,16 +146,18 @@ Feature: Case Note Creation, Update and Count
 
     Examples:
       | bookingId | type    | subType | fromDate   | toDate     | count |
-      | -1        | CHAP    | FAMMAR  |            |            | 1     |
-      | -2        | CHAP    | FAMMAR  |            |            | 0     |
-      | -2        | APP     | OUTCOME |            |            | 1     |
-      | -3        | CHAP    | FAMMAR  |            |            | 0     |
-      | -3        | OBSERVE | OBS_GEN |            |            | 8     |
-      | -3        | OBSERVE | OBS_GEN | 2017-05-01 |            | 8     |
-      | -3        | OBSERVE | OBS_GEN |            | 2017-05-01 | 0     |
-      | -3        | OBSERVE | OBS_GEN | 2017-07-01 |            | 4     |
-      | -3        | OBSERVE | OBS_GEN |            | 2017-07-31 | 6     |
+      | -1        | CHAP    | FAMMAR  | 2000-01-01 | 2020-01-01 | 1     |
+      | -2        | CHAP    | FAMMAR  | 2000-01-01 | 2020-01-01 | 0     |
+      | -2        | APP     | OUTCOME | 2000-01-01 | 2020-01-01 | 1     |
+      | -3        | CHAP    | FAMMAR  | 2000-01-01 | 2020-01-01 | 0     |
+      | -3        | OBSERVE | OBS_GEN | 2000-01-01 | 2020-01-01 | 8     |
+      | -3        | OBSERVE | OBS_GEN | 2017-05-01 | 2020-01-01 | 8     |
+      | -3        | OBSERVE | OBS_GEN | 2000-01-01 | 2017-05-01 | 0     |
+      | -3        | OBSERVE | OBS_GEN | 2017-07-01 | 2020-01-01 | 4     |
+      | -3        | OBSERVE | OBS_GEN | 2000-01-01 | 2017-07-31 | 6     |
       | -3        | OBSERVE | OBS_GEN | 2017-08-01 | 2017-08-31 | 2     |
+      | -3        | OBSERVE | OBS_GEN | 2017-08-01 |            | 2     |
+      | -3        | OBSERVE | OBS_GEN |            | 2017-08-31 | 6     |
 
   Scenario Outline: Get case note usage for a list of offenders and date ranges
     When case note usage between "<fromDate>" and "<toDate>" is requested of offender No "<offenderNo>" for case note type "<type>" and sub-type "<subType>"
