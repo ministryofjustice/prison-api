@@ -742,38 +742,56 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         final List<String> invalid = List.of("ROLE_SYSTEM_USER");
 
         @Test
-        public void deleteHearingResultReturns403ForInvalidRoles () {
-            deleteHearingResult(invalid)
+        public void deleteHearingResultReturns403ForInvalidRoles() {
+            deleteHearingResult(invalid, -9L, -1L)
                 .expectStatus().isForbidden();
         }
 
         @Test
-        public void deleteHearingResultReturns404DueToNoHearing() {
-            deleteHearingResult(valid)
-                .expectStatus().isNotFound();
-        }
-        @Test
         public void deleteHearingResultReturns404DueToNoAdjudication() {
-            deleteHearingResult(valid)
+            deleteHearingResult(valid, 99L, -1L)
                 .expectStatus().isNotFound();
         }
 
+        @Test
+        public void deleteHearingResultReturns404DueToNoHearing() {
+            deleteHearingResult(valid, -9L, 2L)
+                .expectStatus().isNotFound();
+        }
 
         @Test
-        public void deleteHearingResultReturnsSuccess() {
-            deleteHearingResult(valid)
+        public void deleteHearingResultReturns404DueToNoAdjudicatorOnFile() {
+            deleteHearingResult(valid, -9L, -4L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void deleteHearingResultReturns400DueToHearingNotBeingAssociatedWithAdjudication() {
+            deleteHearingResult(valid, -5L, -4L)
+                .expectStatus().isBadRequest();
+        }
+
+        @Test
+        public void deleteHearingResultReturns404DueToNoHearingResultPresent() {
+            deleteHearingResult(valid, -9L, -4L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void deleteHearingResultReturnsSuccess_WithoutSanctions() {
+            deleteHearingResult(valid, -8L, -3L)
                 .expectStatus().isOk();
         }
 
+        // TODO test delete HearingResult with sanctions
 
-        private ResponseSpec deleteHearingResult(List<String> headers) {
+        private ResponseSpec deleteHearingResult(List<String> headers, Long adjudicationNumber, Long hearingId) {
             return webTestClient.delete()
-                .uri("/api/adjudications/adjudication/-9/hearing/-1/result")
+                .uri("/api/adjudications/adjudication/"+adjudicationNumber+"/hearing/"+hearingId+"/result")
                 .headers(setAuthorisation(headers))
                 .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                 .exchange();
         }
-
     }
 
 }

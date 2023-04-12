@@ -228,6 +228,7 @@ public class AdjudicationsResource {
     public void deleteOicHearingResult(
         @PathVariable("adjudicationNumber") final Long adjudicationNumber,
         @PathVariable("oicHearingId") final Long oicHearingId
-        ) {
+    ) {
+        adjudicationsService.deleteOicHearingResult(adjudicationNumber, oicHearingId);
     }
 }
