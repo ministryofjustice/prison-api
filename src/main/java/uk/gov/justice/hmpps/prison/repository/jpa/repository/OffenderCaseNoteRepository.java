@@ -26,5 +26,9 @@ public interface OffenderCaseNoteRepository extends
     List<PrisonerCaseNoteTypeAndSubType> findCaseNoteTypesByBookingsAndDates(
         List<Long> bookingIds, String typeCode, String subTypeCode, LocalDate fromDate, LocalDate toDate
     );
+
+    Long countOffenderCaseNoteByOffenderBooking_BookingIdAndTypeCodeAndSubTypeCodeAndOccurrenceDateIsBetween(
+        Long bookingId, String type, String subType, LocalDate fromDate, LocalDate toDate
+    );
 }
 

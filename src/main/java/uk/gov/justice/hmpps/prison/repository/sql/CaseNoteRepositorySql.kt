@@ -87,18 +87,6 @@ enum class CaseNoteRepositorySql(val sql: String) {
     """,
   ),
 
-  GET_CASE_NOTE_COUNT(
-    """
-        SELECT COUNT(*)
-        FROM OFFENDER_CASE_NOTES
-                WHERE OFFENDER_BOOK_ID = :bookingId
-        AND CASE_NOTE_TYPE = :type
-        AND CASE_NOTE_SUB_TYPE = :subType
-        AND CREATE_DATETIME >= TRUNC(COALESCE(:fromDate, CREATE_DATETIME))
-        AND TRUNC(CREATE_DATETIME) <= COALESCE(:toDate, CREATE_DATETIME)
-    """,
-  ),
-
   GET_USED_CASE_NOTE_TYPES_WITH_SUB_TYPES(
     """
         SELECT WKS.WORK_TYPE CODE,

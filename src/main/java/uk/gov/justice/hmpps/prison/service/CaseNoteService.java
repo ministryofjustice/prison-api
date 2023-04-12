@@ -195,7 +195,10 @@ public class CaseNoteService {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Invalid date range: toDate is before fromDate.");
         }
 
-        final var count = caseNoteRepository.getCaseNoteCount(bookingId, type, subType, fromDate, toDate);
+        final var dateRange = new DeriveDates(fromDate, toDate, 3);
+
+        final var count = offenderCaseNoteRepository.countOffenderCaseNoteByOffenderBooking_BookingIdAndTypeCodeAndSubTypeCodeAndOccurrenceDateIsBetween(
+                bookingId, type, subType, dateRange.fromDateToUse, dateRange.toDateToUse);
 
         return CaseNoteCount.builder()
                 .bookingId(bookingId)

@@ -11,11 +11,8 @@ import uk.gov.justice.hmpps.prison.api.model.CaseNoteEventDto;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteStaffUsage;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteStaffUsageDto;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsage;
-import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageByBookingId;
-import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageByBookingIdDto;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageDto;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
-import uk.gov.justice.hmpps.prison.api.model.ReferenceCodeDto;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.repository.mapping.DataClassByColumnRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
@@ -38,17 +35,12 @@ import java.util.stream.Collectors;
 @Repository
 @Validated
 public class CaseNoteRepository extends RepositoryBase {
-    private static final RowMapper<ReferenceCodeDto> REF_CODE_ROW_MAPPER =
-        new DataClassByColumnRowMapper<>(ReferenceCodeDto.class);
 
     private static final RowMapper<ReferenceCodeDetail> REF_CODE_DETAIL_ROW_MAPPER =
         new StandardBeanPropertyRowMapper<>(ReferenceCodeDetail.class);
 
     private static final RowMapper<CaseNoteUsageDto> CASE_NOTE_USAGE_MAPPER =
         new DataClassByColumnRowMapper<>(CaseNoteUsageDto.class);
-
-    private static final RowMapper<CaseNoteUsageByBookingIdDto> CASE_NOTE_USAGE_BY_BOOKING_ID_ROW_MAPPER =
-        new DataClassByColumnRowMapper<>(CaseNoteUsageByBookingIdDto.class);
 
     private static final RowMapper<CaseNoteStaffUsageDto> CASE_NOTE_STAFF_USAGE_MAPPER =
         new DataClassByColumnRowMapper<>(CaseNoteStaffUsageDto.class);
@@ -113,20 +105,6 @@ public class CaseNoteRepository extends RepositoryBase {
         return usage.stream().map(CaseNoteStaffUsageDto::toCaseNoteStaffUsage).collect(Collectors.toList());
 
     }
-
-    public Long getCaseNoteCount(final long bookingId, final String type, final String subType, final LocalDate fromDate, final LocalDate toDate) {
-        final var sql = CaseNoteRepositorySql.GET_CASE_NOTE_COUNT.getSql();
-
-        return jdbcTemplate.queryForObject(
-            sql,
-            createParams("bookingId", bookingId,
-                "type", type,
-                "subType", subType,
-                "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
-                "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate))),
-            Long.class);
-    }
-
 
     @Cacheable("getCaseNoteTypesWithSubTypesByCaseLoadTypeAndActiveFlag")
     public List<ReferenceCode> getCaseNoteTypesWithSubTypesByCaseLoadTypeAndActiveFlag(final String caseLoadType, final Boolean active) {
