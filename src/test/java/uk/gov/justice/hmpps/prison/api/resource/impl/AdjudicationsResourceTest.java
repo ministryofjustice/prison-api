@@ -615,8 +615,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         final List<String> invalid = List.of("ROLE_SYSTEM_USER");
 
         final Map invalidRequest = Map.of("pleaFindingCode", PleaFindingCode.GUILTY, "findingCode", FindingCode.NOT_PROCEED, "adjudicator", "TWRIGHT");
-        final Map validRequest = Map.of("pleaFindingCode", PleaFindingCode.GUILTY, "findingCode", FindingCode.NOT_PROCEED, "adjudicator", "TODO");
-
+        final Map validRequest = Map.of("pleaFindingCode", PleaFindingCode.GUILTY, "findingCode", FindingCode.NOT_PROCEED, "adjudicator", "ITAG_USER");
 
         @Test
         public void createHearingResultReturns403ForInvalidRoles () {
@@ -624,13 +623,11 @@ public class AdjudicationsResourceTest extends ResourceTest  {
                 .expectStatus().isForbidden();
         }
 
-
         @Test
         public void createHearingResultReturns404DueToNoAdjudication() {
             createHearingResult(valid, validRequest, 99L, -1L)
                 .expectStatus().isNotFound();
         }
-
 
         @Test
         public void createHearingResultReturns404DueToNoHearing() {
@@ -640,13 +637,12 @@ public class AdjudicationsResourceTest extends ResourceTest  {
 
         @Test
         public void createHearingResultReturns404DueToNoAdjudicatorOnFile() {
-            createHearingResult(valid, invalidRequest, -9L, -1L)
+            createHearingResult(valid, invalidRequest, -9L, -4L)
                 .expectStatus().isNotFound();
         }
 
-
         @Test
-        public void createHearingResultReturns400DueToNoHearingNotBeingAssociatedWithAdjudication() {
+        public void createHearingResultReturns400DueToHearingNotBeingAssociatedWithAdjudication() {
             createHearingResult(valid, validRequest, -5L, -4L)
                 .expectStatus().isBadRequest();
         }
@@ -659,13 +655,12 @@ public class AdjudicationsResourceTest extends ResourceTest  {
 
         @Test
         public void createHearingResultReturnsSuccess() {
-            createHearingResult(valid, validRequest, -9L, -1L)
+            createHearingResult(valid, validRequest, -9L, -4L)
                 .expectStatus().isCreated()
                 .expectBody()
                 .jsonPath("$.findingCode").isEqualTo(FindingCode.NOT_PROCEED.name())
                 .jsonPath("$.pleaFindingCode").isEqualTo(PleaFindingCode.GUILTY.name());
         }
-
 
         private ResponseSpec createHearingResult(List<String> headers, Map payload, Long adjudicationNumber, Long hearingId) {
             return webTestClient.post()
@@ -675,7 +670,6 @@ public class AdjudicationsResourceTest extends ResourceTest  {
                 .bodyValue(payload)
                 .exchange();
         }
-
     }
 
     @Nested
@@ -688,42 +682,39 @@ public class AdjudicationsResourceTest extends ResourceTest  {
 
         @Test
         public void amendHearingResultReturns403ForInvalidRoles () {
-            amendHearingResult(invalid, validRequest)
+            amendHearingResult(invalid, validRequest, -9L, -1L)
                 .expectStatus().isForbidden();
         }
 
         @Test
         public void amendHearingResultReturns404DueToNoAdjudication() {
-            amendHearingResult(valid, validRequest)
+            amendHearingResult(valid, validRequest, 99L, -1L)
                 .expectStatus().isNotFound();
         }
 
         @Test
         public void amendHearingResultReturns404DueToNoHearing() {
-            amendHearingResult(valid, validRequest)
+            amendHearingResult(valid, validRequest, -9L, 2L)
                 .expectStatus().isNotFound();
         }
 
         @Test
         public void amendHearingResultReturnsSuccess() {
-            amendHearingResult(valid, validRequest)
+            amendHearingResult(valid, validRequest, -9L, -1L)
                 .expectStatus().isOk()
                 .expectBody()
                 .jsonPath("$.findingCode").isEqualTo(FindingCode.NOT_PROCEED.name())
                 .jsonPath("$.pleaFindingCode").isEqualTo(PleaFindingCode.GUILTY.name());
         }
 
-
-        private ResponseSpec amendHearingResult(List<String> headers, Map payload) {
+        private ResponseSpec amendHearingResult(List<String> headers, Map payload, Long adjudicationNumber, Long hearingId) {
             return webTestClient.put()
-                .uri("/api/adjudications/adjudication/-9/hearing/-1/result")
+                .uri("/api/adjudications/adjudication/"+adjudicationNumber+"/hearing/"+hearingId+"/result")
                 .headers(setAuthorisation(headers))
                 .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                 .bodyValue(payload)
                 .exchange();
         }
-
-
     }
 
     @Nested
