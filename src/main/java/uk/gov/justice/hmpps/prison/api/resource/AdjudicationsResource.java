@@ -210,9 +210,9 @@ public class AdjudicationsResource {
     public OicHearingResultDto amendOicHearingResult(
         @PathVariable("adjudicationNumber") final Long adjudicationNumber,
         @PathVariable("oicHearingId") final Long oicHearingId,
-        @Valid @RequestBody @Parameter(description = "OIC hearing result to save", required = true) final OicHearingResultRequest oicHearingResultRequest
+        @Valid @RequestBody @Parameter(description = "Amended OIC hearing result to save", required = true) final OicHearingResultRequest oicHearingResultRequest
     ) {
-        return null;
+        return adjudicationsService.amendOicHearingResult(adjudicationNumber, oicHearingId, oicHearingResultRequest);
     }
 
     @ApiResponses({

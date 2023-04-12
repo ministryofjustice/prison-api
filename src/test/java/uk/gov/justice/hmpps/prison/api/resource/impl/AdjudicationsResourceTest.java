@@ -677,8 +677,8 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         final List<String> valid = List.of("ROLE_MAINTAIN_ADJUDICATIONS");
         final List<String> invalid = List.of("ROLE_SYSTEM_USER");
 
-        final Map validRequest = Map.of("pleaFindingCode", PleaFindingCode.GUILTY, "findingCode", FindingCode.NOT_PROCEED, "adjudicator", "TWRIGHT");
-
+        final Map validRequest = Map.of("pleaFindingCode", PleaFindingCode.GUILTY, "findingCode", FindingCode.NOT_PROCEED, "adjudicator", "ITAG_USER");
+        final Map invalidRequest = Map.of("pleaFindingCode", PleaFindingCode.GUILTY, "findingCode", FindingCode.NOT_PROCEED, "adjudicator", "TWRIGHT");
 
         @Test
         public void amendHearingResultReturns403ForInvalidRoles () {
@@ -699,8 +699,26 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         }
 
         @Test
+        public void amendHearingResultReturns404DueToNoAdjudicatorOnFile() {
+            amendHearingResult(valid, invalidRequest, -9L, -4L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void amendHearingResultReturns400DueToHearingNotBeingAssociatedWithAdjudication() {
+            amendHearingResult(valid, validRequest, -5L, -4L)
+                .expectStatus().isBadRequest();
+        }
+
+        @Test
+        public void amendHearingResultReturns404DueToNoHearingResultPresent() {
+            amendHearingResult(valid, validRequest, -9L, -4L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
         public void amendHearingResultReturnsSuccess() {
-            amendHearingResult(valid, validRequest, -9L, -1L)
+            amendHearingResult(valid, validRequest, -7L, -1L)
                 .expectStatus().isOk()
                 .expectBody()
                 .jsonPath("$.findingCode").isEqualTo(FindingCode.NOT_PROCEED.name())
