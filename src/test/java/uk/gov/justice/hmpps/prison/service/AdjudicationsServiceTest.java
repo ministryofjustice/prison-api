@@ -1094,20 +1094,20 @@ public class AdjudicationsServiceTest {
         }
 
         @Test
-        public void createHearingResultHearingDoesNotBelogToAdjudication() {
-            when(adjudicationsRepository.findByParties_AdjudicationNumber(1L))
+        public void createHearingResultHearingDoesNotBelongToAdjudication() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
                 .thenReturn(Optional.of(
                     Adjudication.builder().parties(List.of(AdjudicationParty.builder().adjudicationNumber(2L).build())).build()
                 ));
             when(oicHearingRepository.findById(3L))
                 .thenReturn(Optional.of(
-                    OicHearing.builder().adjudicationNumber(2L).build()
+                    OicHearing.builder().adjudicationNumber(20L).build()
                 ));
 
             assertThatThrownBy(() ->
-                service.createOicHearingResult(1L, 3L, OicHearingResultRequest.builder().build()))
+                service.createOicHearingResult(2L, 3L, OicHearingResultRequest.builder().build()))
                 .isInstanceOf(ValidationException.class)
-                .hasMessageContaining("oic hearingId 3 is not linked to adjudication number 1");
+                .hasMessageContaining("oic hearingId 3 is not linked to adjudication number 2");
         }
 
         @Test
@@ -1133,7 +1133,7 @@ public class AdjudicationsServiceTest {
         }
 
         @Test
-        public void createHearingResultThrowsnotFoundWhenAdjudicatorMotOnFile() {
+        public void createHearingResultThrowsNotFoundWhenAdjudicatorNotOnFile() {
             when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
                 .thenReturn(Optional.of(
                     Adjudication.builder().parties(List.of(AdjudicationParty.builder().adjudicationNumber(2L).build())).build()
@@ -1219,18 +1219,237 @@ public class AdjudicationsServiceTest {
     public class AmendHearingResult {
 
         @Test
-        public void amendHearingResult() {
+        public void amendHearingResultAdjudicationDoesNotExist() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.empty());
+
+            assertThatThrownBy(() ->
+                service.amendOicHearingResult(2L, 2L, OicHearingResultRequest.builder().build()))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find adjudication number 2");
         }
 
+        @Test
+        public void amendHearingResultHearingDoesNotExit() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().build()
+                ));
+
+            when(oicHearingRepository.findById(3L))
+                .thenReturn(Optional.empty());
+
+            assertThatThrownBy(() ->
+                service.amendOicHearingResult(2L, 3L, OicHearingResultRequest.builder().build()))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find oic hearingId 3 for adjudication number 2");
+        }
+
+        @Test
+        public void amendHearingResultHearingDoesNotBelongToAdjudication() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().parties(List.of(AdjudicationParty.builder().adjudicationNumber(2L).build())).build()
+                ));
+            when(oicHearingRepository.findById(3L))
+                .thenReturn(Optional.of(
+                    OicHearing.builder().adjudicationNumber(20L).build()
+                ));
+
+            assertThatThrownBy(() ->
+                service.amendOicHearingResult(2L, 3L, OicHearingResultRequest.builder().build()))
+                .isInstanceOf(ValidationException.class)
+                .hasMessageContaining("oic hearingId 3 is not linked to adjudication number 2");
+        }
+
+        @Test
+        public void amendHearingResult_TrowExceptionIfHearingResultDoesNotExist() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().parties(List.of(AdjudicationParty.builder().adjudicationNumber(2L).build())).build()
+                ));
+            when(oicHearingRepository.findById(3L))
+                .thenReturn(Optional.of(
+                    OicHearing.builder().adjudicationNumber(2L).build()
+                ));
+
+            when(oicHearingResultRepository.findById(new OicHearingResult.PK(3L, 1L)))
+                .thenReturn(Optional.empty());
+
+            assertThatThrownBy(() ->
+                service.amendOicHearingResult(2L, 3L, OicHearingResultRequest.builder().build()))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("No hearing result found for hearing id 3 and adjudication number 2");
+        }
+
+        @Test
+        public void amendHearingResultThrowsNotFoundWhenAdjudicatorNotOnFile() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().parties(List.of(AdjudicationParty.builder().adjudicationNumber(2L).build())).build()
+                ));
+            when(oicHearingRepository.findById(3L))
+                .thenReturn(Optional.of(
+                    OicHearing.builder().adjudicationNumber(2L).build()
+                ));
+
+            when(oicHearingResultRepository.findById(new OicHearingResult.PK(3L, 1L)))
+                .thenReturn(Optional.of(
+                    OicHearingResult.builder().build()
+                ));
+
+            when(staffUserAccountRepository.findByUsername("adjudicator")).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() ->
+                service.amendOicHearingResult(2L, 3L, OicHearingResultRequest.builder().adjudicator("adjudicator").build()))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Adjudicator not found for username adjudicator");
+        }
+
+        @Test
+        public void amendHearingResult() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().build()
+                ));
+            when(oicHearingRepository.findById(3L))
+                .thenReturn(Optional.of(
+                    OicHearing.builder().adjudicationNumber(2L).build()
+                ));
+
+            when(oicHearingResultRepository.findById(new OicHearingResult.PK(3L, 1L)))
+                .thenReturn(Optional.of(
+                    OicHearingResult.builder()
+                        .findingCode(FindingCode.DISMISSED)
+                        .pleaFindingCode(PleaFindingCode.GUILTY)
+                        .build()
+                ));
+
+            when(staffUserAccountRepository.findByUsername("other_adjudicator")).thenReturn(
+                Optional.of(
+                    StaffUserAccount.builder().staff(
+                        Staff.builder().staffId(11L).build()
+                    ).build()
+                )
+            );
+
+            var result = service.amendOicHearingResult(2L, 3L, OicHearingResultRequest.builder()
+                .findingCode(FindingCode.NOT_PROVEN)
+                .pleaFindingCode(PleaFindingCode.NOT_GUILTY)
+                .adjudicator("other_adjudicator")
+                .build());
+
+            final var hearingCapture = ArgumentCaptor.forClass(OicHearing.class);
+            final var hearingResultCapture = ArgumentCaptor.forClass(OicHearingResult.class);
+
+            verify(oicHearingRepository, atLeastOnce()).save(hearingCapture.capture());
+            assertThat(hearingCapture.getValue().getAdjudicator().getStaffId()).isEqualTo(11);
+            verify(oicHearingResultRepository, atLeastOnce()).save(hearingResultCapture.capture());
+
+            assertThat(hearingResultCapture.getValue().getFindingCode()).isEqualTo(FindingCode.NOT_PROVEN);
+            assertThat(hearingResultCapture.getValue().getPleaFindingCode()).isEqualTo(PleaFindingCode.NOT_GUILTY);
+
+            assertThat(result.getPleaFindingCode()).isEqualTo(PleaFindingCode.NOT_GUILTY);
+            assertThat(result.getFindingCode()).isEqualTo(FindingCode.NOT_PROVEN);
+        }
     }
 
     @Nested
     public class DeleteHearingResult {
 
         @Test
-        public void deleteHearingResult() {
+        public void deleteHearingResultAdjudicationDoesNotExist() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.empty());
+
+            assertThatThrownBy(() ->
+                service.deleteOicHearingResult(2L, 2L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find adjudication number 2");
         }
 
+        @Test
+        public void deleteHearingResultHearingDoesNotExit() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().build()
+                ));
+
+            when(oicHearingRepository.findById(3L))
+                .thenReturn(Optional.empty());
+
+            assertThatThrownBy(() ->
+                service.deleteOicHearingResult(2L, 3L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find oic hearingId 3 for adjudication number 2");
+        }
+
+        @Test
+        public void deleteHearingResultHearingDoesNotBelongToAdjudication() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().parties(List.of(AdjudicationParty.builder().adjudicationNumber(2L).build())).build()
+                ));
+            when(oicHearingRepository.findById(3L))
+                .thenReturn(Optional.of(
+                    OicHearing.builder().adjudicationNumber(20L).build()
+                ));
+
+            assertThatThrownBy(() ->
+                service.deleteOicHearingResult(2L, 3L))
+                .isInstanceOf(ValidationException.class)
+                .hasMessageContaining("oic hearingId 3 is not linked to adjudication number 2");
+        }
+
+        @Test
+        public void deleteHearingResult_TrowExceptionIfHearingResultDoesNotExist() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().parties(List.of(AdjudicationParty.builder().adjudicationNumber(2L).build())).build()
+                ));
+            when(oicHearingRepository.findById(3L))
+                .thenReturn(Optional.of(
+                    OicHearing.builder().adjudicationNumber(2L).build()
+                ));
+
+            when(oicHearingResultRepository.findById(new OicHearingResult.PK(3L, 1L)))
+                .thenReturn(Optional.empty());
+
+            assertThatThrownBy(() ->
+                service.deleteOicHearingResult(2L, 3L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("No hearing result found for hearing id 3 and adjudication number 2");
+        }
+
+        @Test
+        public void deleteHearingResult() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().build()
+                ));
+            when(oicHearingRepository.findById(3L))
+                .thenReturn(Optional.of(
+                    OicHearing.builder().adjudicationNumber(2L).build()
+                ));
+
+            when(oicHearingResultRepository.findById(new OicHearingResult.PK(3L, 1L)))
+                .thenReturn(Optional.of(OicHearingResult.builder()
+                    .oicHearingId(3L)
+                    .resultSeq(1L).build()
+                ));
+
+            service.deleteOicHearingResult(2L, 3L);
+
+            final var hearingCapture = ArgumentCaptor.forClass(OicHearing.class);
+            final var hearingResultCapture = ArgumentCaptor.forClass(OicHearingResult.class);
+
+            verify(oicHearingRepository, atLeastOnce()).save(hearingCapture.capture());
+            assertThat(hearingCapture.getValue().getAdjudicator()).isNull();
+            verify(oicHearingResultRepository, atLeastOnce()).delete(hearingResultCapture.capture());
+
+            assertThat(hearingResultCapture.getValue().getOicHearingId()).isEqualTo(3L);
+            assertThat(hearingResultCapture.getValue().getResultSeq()).isEqualTo(1L);
+        }
     }
 
     private static <T> T assertArgThat(final Consumer<T> assertions) {

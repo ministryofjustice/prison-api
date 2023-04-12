@@ -715,7 +715,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
 
 
         private ResponseSpec amendHearingResult(List<String> headers, Map payload) {
-            return        webTestClient.put()
+            return webTestClient.put()
                 .uri("/api/adjudications/adjudication/-9/hearing/-1/result")
                 .headers(setAuthorisation(headers))
                 .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)

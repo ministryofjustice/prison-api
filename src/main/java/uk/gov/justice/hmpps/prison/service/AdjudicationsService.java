@@ -357,6 +357,50 @@ public class AdjudicationsService {
             .build();
     }
 
+    @Transactional
+    @VerifyOffenderAccess
+    public OicHearingResultDto amendOicHearingResult(
+        final Long adjudicationNumber,
+        final Long oicHearingId,
+        final OicHearingResultRequest oicHearingResultRequest) {
+
+        final var oicHearing = getWithValidationChecks(adjudicationNumber, oicHearingId).getLeft();
+
+        final var oicHearingResult = oicHearingResultRepository.findById(new OicHearingResult.PK(oicHearingId, 1L))
+            .orElseThrow(new EntityNotFoundException(format("No hearing result found for hearing id %d and adjudication number %d", oicHearingId, adjudicationNumber)));
+
+        final var staff = staffUserAccountRepository.findByUsername(oicHearingResultRequest.getAdjudicator())
+            .orElseThrow(() -> new EntityNotFoundException(format("Adjudicator not found for username %s", oicHearingResultRequest.getAdjudicator())));
+
+        oicHearing.setAdjudicator(staff.getStaff());
+        oicHearingRepository.save(oicHearing);
+
+        oicHearingResult.setPleaFindingCode(oicHearingResultRequest.getPleaFindingCode());
+        oicHearingResult.setFindingCode(oicHearingResultRequest.getFindingCode());
+        oicHearingResultRepository.save(oicHearingResult);
+
+        return OicHearingResultDto.builder()
+            .findingCode(oicHearingResult.getFindingCode())
+            .pleaFindingCode(oicHearingResult.getPleaFindingCode())
+            .build();
+    }
+
+    @Transactional
+    @VerifyOffenderAccess
+    public void deleteOicHearingResult(
+        final Long adjudicationNumber,
+        final Long oicHearingId) {
+
+        final var oicHearing = getWithValidationChecks(adjudicationNumber, oicHearingId).getLeft();
+
+        final var oicHearingResult = oicHearingResultRepository.findById(new OicHearingResult.PK(oicHearingId, 1L))
+            .orElseThrow(new EntityNotFoundException(format("No hearing result found for hearing id %d and adjudication number %d", oicHearingId, adjudicationNumber)));
+
+        oicHearing.setAdjudicator(null);
+        oicHearingRepository.save(oicHearing);
+        oicHearingResultRepository.delete(oicHearingResult);
+    }
+
     private void oicHearingLocationValidation(final Long hearingLocationId){
         internalLocationRepository.findOneByLocationId(hearingLocationId)
             .orElseThrow(() -> new ValidationException(format("Invalid hearing location id %d", hearingLocationId)));
