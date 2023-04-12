@@ -91,21 +91,6 @@ public class CaseNoteRepository extends RepositoryBase {
         return usages.stream().map(CaseNoteUsageDto::toCaseNoteUsage).collect(Collectors.toList());
     }
 
-
-    public List<CaseNoteUsageByBookingId> getCaseNoteUsageByBookingId(final String type, final String subType, final List<Integer> bookingIds, final LocalDate fromDate, final LocalDate toDate) {
-
-        final var sql = CaseNoteRepositorySql.GROUP_BY_TYPES_AND_OFFENDERS_FOR_BOOKING.getSql();
-
-        final var usages = jdbcTemplate.query(sql,
-            createParams("bookingIds", bookingIds,
-                "type", new SqlParameterValue(Types.VARCHAR, type),
-                "subType", new SqlParameterValue(Types.VARCHAR, subType),
-                "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
-                "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate))),
-            CASE_NOTE_USAGE_BY_BOOKING_ID_ROW_MAPPER);
-        return usages.stream().map(CaseNoteUsageByBookingIdDto::toCaseNoteUsageByBookingId).collect(Collectors.toList());
-    }
-
     public List<CaseNoteEvent> getCaseNoteEvents(final LocalDateTime fromDate, final Set<String> events, final long limit) {
         final var casenoteevents = jdbcTemplate.query(queryBuilderFactory.getQueryBuilder(CaseNoteRepositorySql.RECENT_CASE_NOTE_EVENTS.getSql(), Map.of()).addPagination().build(),
             createParamSource(new PageRequest(0L, limit),
