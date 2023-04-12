@@ -15,7 +15,6 @@ import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
 import uk.gov.justice.hmpps.prison.api.model.OicHearingRequest;
 import uk.gov.justice.hmpps.prison.api.model.OicHearingResultRequest;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication;
-import uk.gov.justice.hmpps.prison.api.model.adjudications.Hearing;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationActionCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationCharge;

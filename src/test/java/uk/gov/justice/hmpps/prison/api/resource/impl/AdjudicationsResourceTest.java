@@ -5,6 +5,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
+import org.springframework.test.context.jdbc.SqlConfig;
+import org.springframework.test.context.jdbc.SqlConfig.TransactionMode;
 import org.springframework.test.web.reactive.server.WebTestClient.ResponseSpec;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult.FindingCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult.PleaFindingCode;
@@ -12,6 +16,12 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult.PleaFin
 import java.util.List;
 import java.util.Map;
 
+@Sql(scripts = {"/sql/adjudicationHistorySort_init.sql"},
+    executionPhase = ExecutionPhase.BEFORE_TEST_METHOD,
+    config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
+@Sql(scripts = {"/sql/adjudicationHistorySort_clean.sql"},
+    executionPhase = ExecutionPhase.AFTER_TEST_METHOD,
+    config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
 public class AdjudicationsResourceTest extends ResourceTest  {
 
     @Nested
@@ -655,7 +665,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
 
         @Test
         public void createHearingResultReturnsSuccess() {
-            createHearingResult(valid, validRequest, -9L, -4L)
+            createHearingResult(valid, validRequest, -3001L, -3004L)
                 .expectStatus().isCreated()
                 .expectBody()
                 .jsonPath("$.findingCode").isEqualTo(FindingCode.NOT_PROCEED.name())
@@ -718,7 +728,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
 
         @Test
         public void amendHearingResultReturnsSuccess() {
-            amendHearingResult(valid, validRequest, -7L, -1L)
+            amendHearingResult(valid, validRequest, -3001L, -3001L)
                 .expectStatus().isOk()
                 .expectBody()
                 .jsonPath("$.findingCode").isEqualTo(FindingCode.NOT_PROCEED.name())
@@ -779,7 +789,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
 
         @Test
         public void deleteHearingResultReturnsSuccess_WithoutSanctions() {
-            deleteHearingResult(valid, -8L, -3L)
+            deleteHearingResult(valid, -3001L, -3001L)
                 .expectStatus().isOk();
         }
 
