@@ -18,6 +18,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Staff;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCaseNoteRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.PrisonerCaseNoteTypeAndSubType;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
@@ -76,16 +77,18 @@ public class CaseNoteServiceImplTest {
 
     @Test
     public void getCaseNoteUsageByBookingId() {
-        final var usage = List.of(new CaseNoteUsageByBookingId(-16L, "OBSERVE", "OBS_GEN", 1, LocalDateTime.parse("2017-05-13T12:00")));
-        when(repository.getCaseNoteUsageByBookingId(anyString(), anyString(), anyList(), any(), any())).thenReturn(usage);
+        final var usage = List.of(new PrisonerCaseNoteTypeAndSubType(-16L, "OBSERVE", "OBS_GEN", LocalDateTime.parse("2017-05-13T12:00")));
+        when(offenderCaseNoteRepository.findCaseNoteTypesByBookingsAndDates(anyList(), anyString(), anyString(), any(), any())).thenReturn(usage);
 
-        final var bookingIds = List.of(2, 3, 4);
-        assertThat(caseNoteService.getCaseNoteUsageByBookingId("TYPE", "SUBTYPE", bookingIds, null, null, 3)).isEqualTo(usage);
+        final var bookingIds = List.of(2L, 3L, 4L);
+        assertThat(caseNoteService.getCaseNoteUsageByBookingId("TYPE", "SUBTYPE", bookingIds, null, null, 3)).isEqualTo(
+            List.of(new CaseNoteUsageByBookingId(-16L, "OBSERVE", "OBS_GEN", 1L, LocalDateTime.parse("2017-05-13T12:00")))
+        );
 
         final var tomorrow = LocalDate.now().plusDays(1);
         final var threeMonthsAgo = LocalDate.now().minusMonths(3);
 
-        verify(repository).getCaseNoteUsageByBookingId("TYPE", "SUBTYPE", bookingIds, threeMonthsAgo, tomorrow);
+        verify(offenderCaseNoteRepository).findCaseNoteTypesByBookingsAndDates(bookingIds, "TYPE", "SUBTYPE", threeMonthsAgo, tomorrow);
     }
 
     @Test
