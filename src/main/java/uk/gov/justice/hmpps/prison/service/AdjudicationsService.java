@@ -338,6 +338,13 @@ public class AdjudicationsService {
         oicHearing.setAdjudicator(staff.getStaff());
         oicHearingRepository.save(oicHearing);
 
+        Long oicOffenceId;
+        try {
+            oicOffenceId = adjudication.getOffenderParty().get().getCharges().get(0).getOffenceType().getOffenceId();
+        } catch (Exception e) {
+            throw EntityNotFoundException.withMessage(format("OicOffenceId not found for adjudicationNumber %d and oicHearingId %d", adjudicationNumber, oicHearingId), e.getMessage());
+        }
+
         final var oicHearingResult = oicHearingResultRepository.save(OicHearingResult.builder()
             .oicHearingId(oicHearingId)
             .chargeSeq(1L)
@@ -345,7 +352,7 @@ public class AdjudicationsService {
             .pleaFindingCode(oicHearingResultRequest.getPleaFindingCode())
             .findingCode(oicHearingResultRequest.getFindingCode())
             .agencyIncidentId(adjudication.getAgencyIncidentId())
-            .oicOffenceId(adjudication.getOffenderParty().get().getCharges().get(0).getOffenceType().getOffenceId())
+            .oicOffenceId(oicOffenceId)
             .build());
 
 
