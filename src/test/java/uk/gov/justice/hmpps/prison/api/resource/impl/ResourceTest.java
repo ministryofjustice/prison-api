@@ -1,6 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.json.JsonContent;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -31,9 +33,13 @@ import static org.springframework.core.ResolvableType.forType;
 
 @ActiveProfiles(value = "test")
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = PrisonApiServer.class)
+@AutoConfigureTestEntityManager
 public abstract class ResourceTest {
     @Autowired
     private DataLoaderRepository dataLoader;
+
+    @Autowired
+    protected TestEntityManager entityManager;
 
     @Autowired
     protected TestRestTemplate testRestTemplate;

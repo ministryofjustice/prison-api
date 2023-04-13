@@ -5,10 +5,27 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
+import org.springframework.test.context.jdbc.SqlConfig;
+import org.springframework.test.context.jdbc.SqlConfig.TransactionMode;
+import org.springframework.test.web.reactive.server.WebTestClient.ResponseSpec;
+import org.springframework.transaction.annotation.Transactional;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult.FindingCode;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult.PleaFindingCode;
 
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+@Sql(scripts = {"/sql/adjudicationHistorySort_init.sql"},
+    executionPhase = ExecutionPhase.BEFORE_TEST_METHOD,
+    config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
+@Sql(scripts = {"/sql/adjudicationHistorySort_clean.sql"},
+    executionPhase = ExecutionPhase.AFTER_TEST_METHOD,
+    config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
 public class AdjudicationsResourceTest extends ResourceTest  {
 
     @Nested
@@ -602,6 +619,202 @@ public class AdjudicationsResourceTest extends ResourceTest  {
                 .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                 .exchange()
                 .expectStatus().isOk();
+        }
+    }
+
+    @Nested
+    public class CreateHearingResult {
+
+        final List<String> valid = List.of("ROLE_MAINTAIN_ADJUDICATIONS");
+        final List<String> invalid = List.of("ROLE_SYSTEM_USER");
+
+        final Map invalidRequest = Map.of("pleaFindingCode", PleaFindingCode.GUILTY, "findingCode", FindingCode.NOT_PROCEED, "adjudicator", "TWRIGHT");
+        final Map validRequest = Map.of("pleaFindingCode", PleaFindingCode.GUILTY, "findingCode", FindingCode.NOT_PROCEED, "adjudicator", "ITAG_USER");
+
+        @Test
+        public void createHearingResultReturns403ForInvalidRoles () {
+            createHearingResult(invalid, validRequest, -9L, -1L)
+                .expectStatus().isForbidden();
+        }
+
+        @Test
+        public void createHearingResultReturns404DueToNoAdjudication() {
+            createHearingResult(valid, validRequest, 99L, -1L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void createHearingResultReturns404DueToNoHearing() {
+            createHearingResult(valid, validRequest, -9L, 2L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void createHearingResultReturns404DueToNoAdjudicatorOnFile() {
+            createHearingResult(valid, invalidRequest, -9L, -4L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void createHearingResultReturns400DueToHearingNotBeingAssociatedWithAdjudication() {
+            createHearingResult(valid, validRequest, -5L, -4L)
+                .expectStatus().isBadRequest();
+        }
+
+        @Test
+        public void createHearingResultReturns400DueToHearingResultPresent() {
+            createHearingResult(valid, validRequest, -7L, -1L)
+                .expectStatus().isBadRequest();
+        }
+
+        @Test
+        @Transactional
+        public void createHearingResultReturnsSuccess() {
+            createHearingResult(valid, validRequest, -3001L, -3004L)
+                .expectStatus().isCreated()
+                .expectBody()
+                .jsonPath("$.findingCode").isEqualTo(FindingCode.NOT_PROCEED.name())
+                .jsonPath("$.pleaFindingCode").isEqualTo(PleaFindingCode.GUILTY.name());
+
+            OicHearingResult oicHearingResult = entityManager.find(OicHearingResult.class, new OicHearingResult.PK(-3004L, 1L));
+            assertThat(FindingCode.NOT_PROCEED).isEqualTo(oicHearingResult.getFindingCode());
+            assertThat(PleaFindingCode.GUILTY).isEqualTo(oicHearingResult.getPleaFindingCode());
+        }
+
+        private ResponseSpec createHearingResult(List<String> headers, Map payload, Long adjudicationNumber, Long hearingId) {
+            return webTestClient.post()
+                .uri("/api/adjudications/adjudication/"+adjudicationNumber+"/hearing/"+hearingId+"/result")
+                .headers(setAuthorisation(headers))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .bodyValue(payload)
+                .exchange();
+        }
+    }
+
+    @Nested
+    public class AmendHearingResult {
+        final List<String> valid = List.of("ROLE_MAINTAIN_ADJUDICATIONS");
+        final List<String> invalid = List.of("ROLE_SYSTEM_USER");
+
+        final Map validRequest = Map.of("pleaFindingCode", PleaFindingCode.GUILTY, "findingCode", FindingCode.NOT_PROCEED, "adjudicator", "ITAG_USER");
+        final Map invalidRequest = Map.of("pleaFindingCode", PleaFindingCode.GUILTY, "findingCode", FindingCode.NOT_PROCEED, "adjudicator", "TWRIGHT");
+
+        @Test
+        public void amendHearingResultReturns403ForInvalidRoles () {
+            amendHearingResult(invalid, validRequest, -9L, -1L)
+                .expectStatus().isForbidden();
+        }
+
+        @Test
+        public void amendHearingResultReturns404DueToNoAdjudication() {
+            amendHearingResult(valid, validRequest, 99L, -1L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void amendHearingResultReturns404DueToNoHearing() {
+            amendHearingResult(valid, validRequest, -9L, 2L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void amendHearingResultReturns404DueToNoAdjudicatorOnFile() {
+            amendHearingResult(valid, invalidRequest, -9L, -4L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void amendHearingResultReturns400DueToHearingNotBeingAssociatedWithAdjudication() {
+            amendHearingResult(valid, validRequest, -5L, -4L)
+                .expectStatus().isBadRequest();
+        }
+
+        @Test
+        public void amendHearingResultReturns404DueToNoHearingResultPresent() {
+            amendHearingResult(valid, validRequest, -9L, -4L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        @Transactional
+        public void amendHearingResultReturnsSuccess() {
+            amendHearingResult(valid, validRequest, -3001L, -3001L)
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.findingCode").isEqualTo(FindingCode.NOT_PROCEED.name())
+                .jsonPath("$.pleaFindingCode").isEqualTo(PleaFindingCode.GUILTY.name());
+
+            OicHearingResult oicHearingResult = entityManager.find(OicHearingResult.class, new OicHearingResult.PK(-3001L, 1L));
+            assertThat(FindingCode.NOT_PROCEED).isEqualTo(oicHearingResult.getFindingCode());
+            assertThat(PleaFindingCode.GUILTY).isEqualTo(oicHearingResult.getPleaFindingCode());
+        }
+
+        private ResponseSpec amendHearingResult(List<String> headers, Map payload, Long adjudicationNumber, Long hearingId) {
+            return webTestClient.put()
+                .uri("/api/adjudications/adjudication/"+adjudicationNumber+"/hearing/"+hearingId+"/result")
+                .headers(setAuthorisation(headers))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .bodyValue(payload)
+                .exchange();
+        }
+    }
+
+    @Nested
+    public class DeleteHearingResult {
+
+        final List<String> valid = List.of("ROLE_MAINTAIN_ADJUDICATIONS");
+        final List<String> invalid = List.of("ROLE_SYSTEM_USER");
+
+        @Test
+        public void deleteHearingResultReturns403ForInvalidRoles() {
+            deleteHearingResult(invalid, -9L, -1L)
+                .expectStatus().isForbidden();
+        }
+
+        @Test
+        public void deleteHearingResultReturns404DueToNoAdjudication() {
+            deleteHearingResult(valid, 99L, -1L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void deleteHearingResultReturns404DueToNoHearing() {
+            deleteHearingResult(valid, -9L, 2L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void deleteHearingResultReturns404DueToNoAdjudicatorOnFile() {
+            deleteHearingResult(valid, -9L, -4L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void deleteHearingResultReturns400DueToHearingNotBeingAssociatedWithAdjudication() {
+            deleteHearingResult(valid, -5L, -4L)
+                .expectStatus().isBadRequest();
+        }
+
+        @Test
+        public void deleteHearingResultReturns404DueToNoHearingResultPresent() {
+            deleteHearingResult(valid, -9L, -4L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void deleteHearingResultReturnsSuccess_WithoutSanctions() {
+            deleteHearingResult(valid, -3001L, -3001L)
+                .expectStatus().isOk();
+        }
+
+        // TODO test delete HearingResult with sanctions
+
+        private ResponseSpec deleteHearingResult(List<String> headers, Long adjudicationNumber, Long hearingId) {
+            return webTestClient.delete()
+                .uri("/api/adjudications/adjudication/"+adjudicationNumber+"/hearing/"+hearingId+"/result")
+                .headers(setAuthorisation(headers))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .exchange();
         }
     }
 

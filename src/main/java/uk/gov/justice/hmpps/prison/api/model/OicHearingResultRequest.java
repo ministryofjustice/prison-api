@@ -1,0 +1,33 @@
+package uk.gov.justice.hmpps.prison.api.model;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult.FindingCode;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult.PleaFindingCode;
+
+
+@Schema(description = "OicHearingResultRequest")
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@Builder(toBuilder = true)
+public class OicHearingResultRequest {
+
+    @Schema(description = "The offender's plea code on this charge")
+    @NotNull
+    private PleaFindingCode pleaFindingCode;
+
+    @Schema( description = "Finding code")
+    @NotNull
+    private FindingCode findingCode;
+
+    @Schema(description = "username of adjudicator")
+    @NotNull
+    private String adjudicator;
+}
