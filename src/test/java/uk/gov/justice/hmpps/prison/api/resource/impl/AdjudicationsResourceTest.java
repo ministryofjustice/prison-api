@@ -10,11 +10,15 @@ import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.jdbc.SqlConfig.TransactionMode;
 import org.springframework.test.web.reactive.server.WebTestClient.ResponseSpec;
+import org.springframework.transaction.annotation.Transactional;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult.FindingCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult.PleaFindingCode;
 
 import java.util.List;
 import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Sql(scripts = {"/sql/adjudicationHistorySort_init.sql"},
     executionPhase = ExecutionPhase.BEFORE_TEST_METHOD,
@@ -664,12 +668,17 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         }
 
         @Test
+        @Transactional
         public void createHearingResultReturnsSuccess() {
             createHearingResult(valid, validRequest, -3001L, -3004L)
                 .expectStatus().isCreated()
                 .expectBody()
                 .jsonPath("$.findingCode").isEqualTo(FindingCode.NOT_PROCEED.name())
                 .jsonPath("$.pleaFindingCode").isEqualTo(PleaFindingCode.GUILTY.name());
+
+            OicHearingResult oicHearingResult = entityManager.find(OicHearingResult.class, new OicHearingResult.PK(-3004L, 1L));
+            assertThat(FindingCode.NOT_PROCEED).isEqualTo(oicHearingResult.getFindingCode());
+            assertThat(PleaFindingCode.GUILTY).isEqualTo(oicHearingResult.getPleaFindingCode());
         }
 
         private ResponseSpec createHearingResult(List<String> headers, Map payload, Long adjudicationNumber, Long hearingId) {
@@ -727,12 +736,17 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         }
 
         @Test
+        @Transactional
         public void amendHearingResultReturnsSuccess() {
             amendHearingResult(valid, validRequest, -3001L, -3001L)
                 .expectStatus().isOk()
                 .expectBody()
                 .jsonPath("$.findingCode").isEqualTo(FindingCode.NOT_PROCEED.name())
                 .jsonPath("$.pleaFindingCode").isEqualTo(PleaFindingCode.GUILTY.name());
+
+            OicHearingResult oicHearingResult = entityManager.find(OicHearingResult.class, new OicHearingResult.PK(-3001L, 1L));
+            assertThat(FindingCode.NOT_PROCEED).isEqualTo(oicHearingResult.getFindingCode());
+            assertThat(PleaFindingCode.GUILTY).isEqualTo(oicHearingResult.getPleaFindingCode());
         }
 
         private ResponseSpec amendHearingResult(List<String> headers, Map payload, Long adjudicationNumber, Long hearingId) {

@@ -19,7 +19,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult.PleaFin
 @Builder(toBuilder = true)
 public class OicHearingResultDto {
 
-    @Schema(description = "The offender\"s plea code on this charge.")
+    @Schema(description = "The offender\'s plea code on this charge")
     @NotNull
     private PleaFindingCode pleaFindingCode;
 
