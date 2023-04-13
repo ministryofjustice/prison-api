@@ -78,7 +78,7 @@ public class ReferenceDomainResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "List of case note source codes.", description = "List of case note source codes.")
+    @Operation(summary = "List of case note source codes.", description = "List of case note source codes.", hidden = true)
     @GetMapping("/caseNoteSources")
     @SlowReportQuery
     public ResponseEntity<List<ReferenceCode>> getCaseNoteSources(@RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of caseNoteSource records.") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of caseNoteSource records returned.") final Long pageLimit, @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>code, description</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
@@ -97,7 +97,7 @@ public class ReferenceDomainResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "List of all used case note types (with sub-types).", description = "List of all used case note types (with sub-types).")
+    @Operation(summary = "List of all used case note types (with sub-types).", description = "List of all used case note types (with sub-types).", hidden = true)
     @GetMapping("/caseNoteTypes")
     @SlowReportQuery
     public  List<ReferenceCode> getCaseNoteTypes() {

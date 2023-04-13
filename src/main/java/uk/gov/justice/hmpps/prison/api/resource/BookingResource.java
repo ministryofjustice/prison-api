@@ -444,7 +444,7 @@ public class BookingResource {
         return inmateService.getAssessments(bookingId);
     }
 
-    @Operation(summary = "Offender case notes.", description = "Offender case notes.")
+    @Operation(summary = "Offender case notes.", description = "Offender case notes.", hidden = true)
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
@@ -473,7 +473,7 @@ public class BookingResource {
         return caseNoteService.getCaseNotes(caseNoteFilter, pageable);
     }
 
-    @Operation(summary = "Offender case note detail.", description = "Offender case note detail.")
+    @Operation(summary = "Offender case note detail.", description = "Offender case note detail.", hidden = true)
     @GetMapping("/{bookingId}/caseNotes/{caseNoteId}")
     public CaseNote getOffenderCaseNote(@PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId, @PathVariable("caseNoteId") @Parameter(description = "The case note id", required = true) final Long caseNoteId) {
         return caseNoteService.getCaseNote(bookingId, caseNoteId);
@@ -1184,7 +1184,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Gets cell history for an offender booking", description = "Default sort order is by assignment date descending")
+    @Operation(summary = "Gets cell history for an offender booking", description = "Default sort order is by assignment date descending.  Requires a relationship (via caseload) with the prisoner or VIEW_PRISONER_DATA role.")
     @GetMapping("/{bookingId}/cell-history")
     @SlowReportQuery
     public Page<BedAssignment> getBedAssignmentsHistory(@PathVariable("bookingId") @Parameter(description = "The offender booking linked to the court hearings.", required = true) final Long bookingId,

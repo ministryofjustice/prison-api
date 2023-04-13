@@ -24,6 +24,7 @@ class BedAssignmentTransferService(private val bedAssignmentHistoriesRepository:
         ),
         /* offenderBooking = */ booking,
         /* livingUnitId = */ cellLocation.locationId,
+        /* location = */ cellLocation,
         /* assignmentDate = */ receiveTime.toLocalDate(),
         /* assignmentDateTime = */ receiveTime,
         /* assignmentReason = */ reasonCode,

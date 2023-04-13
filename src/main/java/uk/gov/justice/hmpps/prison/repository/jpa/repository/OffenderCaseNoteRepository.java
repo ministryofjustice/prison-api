@@ -18,8 +18,17 @@ public interface OffenderCaseNoteRepository extends
     Optional<OffenderCaseNote> findByIdAndOffenderBooking_BookingId(final Long id, final Long bookingId);
 
     @Query(value = "select new uk.gov.justice.hmpps.prison.repository.jpa.repository.PrisonerCaseNoteTypeAndSubType(cn.bookingId, cn.typeCode, cn.subTypeCode, cn.occurrenceDateTime) from OffenderCaseNote cn where cn.bookingId in (:bookingIds) and cn.typeCode in (:types) and cn.occurrenceDate >= :cutoffDate")
-    List<PrisonerCaseNoteTypeAndSubType> findCaseNotTypesByBookingAndDate(
+    List<PrisonerCaseNoteTypeAndSubType> findCaseNoteTypesByBookingAndDate(
         List<Long> bookingIds, List<String> types, LocalDate cutoffDate
+    );
+
+    @Query(value = "select new uk.gov.justice.hmpps.prison.repository.jpa.repository.PrisonerCaseNoteTypeAndSubType(cn.bookingId, cn.typeCode, cn.subTypeCode, cn.occurrenceDateTime) from OffenderCaseNote cn where cn.bookingId in (:bookingIds) and cn.typeCode = :typeCode and cn.subTypeCode = :subTypeCode and cn.occurrenceDate >= :fromDate and cn.occurrenceDate < :toDate")
+    List<PrisonerCaseNoteTypeAndSubType> findCaseNoteTypesByBookingsAndDates(
+        List<Long> bookingIds, String typeCode, String subTypeCode, LocalDate fromDate, LocalDate toDate
+    );
+
+    Long countOffenderCaseNoteByOffenderBooking_BookingIdAndTypeCodeAndSubTypeCodeAndOccurrenceDateIsBetween(
+        Long bookingId, String type, String subType, LocalDate fromDate, LocalDate toDate
     );
 }
 

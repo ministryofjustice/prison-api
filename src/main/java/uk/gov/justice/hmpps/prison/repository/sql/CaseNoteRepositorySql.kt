@@ -19,22 +19,6 @@ enum class CaseNoteRepositorySql(val sql: String) {
     """,
   ),
 
-  GROUP_BY_TYPES_AND_OFFENDERS_FOR_BOOKING(
-    """
-        SELECT CASE_NOTE_TYPE,
-        CASE_NOTE_SUB_TYPE,
-        OFFENDER_BOOK_ID  BOOKING_ID,
-        COUNT(*)          NUM_CASE_NOTES,
-        MAX(CONTACT_TIME) LATEST_CASE_NOTE
-                FROM OFFENDER_CASE_NOTES OCS
-        WHERE AUDIT_TIMESTAMP between :fromDate and :toDate
-        AND OFFENDER_BOOK_ID IN (:bookingIds)
-        AND CASE_NOTE_TYPE = COALESCE(:type, CASE_NOTE_TYPE)
-        AND CASE_NOTE_SUB_TYPE = COALESCE(:subType, CASE_NOTE_SUB_TYPE)
-        GROUP BY CASE_NOTE_TYPE, CASE_NOTE_SUB_TYPE, OFFENDER_BOOK_ID
-    """,
-  ),
-
   GROUP_BY_TYPES_AND_STAFF(
     """
         SELECT /*+ index(OCS, OFFENDER_CASE_NOTES_X04) */
@@ -100,18 +84,6 @@ enum class CaseNoteRepositorySql(val sql: String) {
                 AND RC2.DOMAIN = 'TASK_SUBTYPE'
         AND COALESCE(RC2.PARENT_DOMAIN, 'TASK_TYPE') = 'TASK_TYPE'
         ORDER BY WKS.WORK_TYPE, WKS.WORK_SUB_TYPE
-    """,
-  ),
-
-  GET_CASE_NOTE_COUNT(
-    """
-        SELECT COUNT(*)
-        FROM OFFENDER_CASE_NOTES
-                WHERE OFFENDER_BOOK_ID = :bookingId
-        AND CASE_NOTE_TYPE = :type
-        AND CASE_NOTE_SUB_TYPE = :subType
-        AND CREATE_DATETIME >= TRUNC(COALESCE(:fromDate, CREATE_DATETIME))
-        AND TRUNC(CREATE_DATETIME) <= COALESCE(:toDate, CREATE_DATETIME)
     """,
   ),
 

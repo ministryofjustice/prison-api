@@ -74,6 +74,7 @@ class OffenderResourceIntTest_getHousingLocation : ResourceTest() {
       .jsonPath("levels[*].code").isEqualTo(JSONArray().also { it.addAll(listOf("A", "1", "10")) })
       .jsonPath("levels[*].type").isEqualTo(JSONArray().also { it.addAll(listOf("WING", "LAND", "CELL")) })
       .jsonPath("levels[*].description").isEqualTo(JSONArray().also { it.addAll(listOf("Block A", "Landing A/1", "Cell 10")) })
+      .jsonPath("lastPermanentLevels").doesNotExist()
   }
 
   @Test
@@ -98,5 +99,6 @@ class OffenderResourceIntTest_getHousingLocation : ResourceTest() {
       .jsonPath("levels[*].code").isEqualTo(JSONArray().also { it.addAll(listOf("RECP")) })
       .jsonPath("levels[0].type").doesNotExist()
       .jsonPath("levels[*].description").isEqualTo(JSONArray().also { it.addAll(listOf("RECP")) })
+      .jsonPath("lastPermanentLevels").doesNotExist()
   }
 }

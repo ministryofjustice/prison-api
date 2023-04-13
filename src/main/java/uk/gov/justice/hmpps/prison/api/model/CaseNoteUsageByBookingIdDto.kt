@@ -5,7 +5,7 @@ data class CaseNoteUsageByBookingIdDto(
   val bookingId: Long?,
   val caseNoteType: String?,
   val caseNoteSubType: String?,
-  val numCaseNotes: Int?,
+  val numCaseNotes: Long?,
   val latestCaseNote: LocalDateTime?,
 ) {
   fun toCaseNoteUsageByBookingId() = CaseNoteUsageByBookingId(

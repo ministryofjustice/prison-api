@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpMethod.GET;
 
 @DisplayName("BookingResource get offender alerts")
-public class BookingResourceInt_getOffenderAlertsTest extends ResourceTest {
+public class BookingResourceIntTest_getOffenderAlerts extends ResourceTest {
     /*
     data is as follows (see resources/db/migration/data/R__4_3__OFFENDER_ALERTS.sql)
     offender A1179MT
