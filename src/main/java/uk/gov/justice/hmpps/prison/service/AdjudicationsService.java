@@ -15,7 +15,9 @@ import uk.gov.justice.hmpps.prison.api.model.OicHearingRequest;
 import uk.gov.justice.hmpps.prison.api.model.OicHearingResponse;
 import uk.gov.justice.hmpps.prison.api.model.OicHearingResultDto;
 import uk.gov.justice.hmpps.prison.api.model.OicHearingResultRequest;
+import uk.gov.justice.hmpps.prison.api.model.OicSanctionRequest;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication;
+import uk.gov.justice.hmpps.prison.api.model.adjudications.Sanction;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationActionCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationCharge;
@@ -28,6 +30,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearing;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearing.OicHearingStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationOffenceTypeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
@@ -35,6 +38,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepos
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OicHearingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OicHearingResultRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OicSanctionRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
@@ -77,6 +81,7 @@ public class AdjudicationsService {
 
     private final OicHearingRepository oicHearingRepository;
     private final OicHearingResultRepository oicHearingResultRepository;
+    private final OicSanctionRepository oicSanctionRepository;
     @Value("${batch.max.size:1000}")
     private final int batchSize;
 
@@ -96,7 +101,8 @@ public class AdjudicationsService {
         @Value("${batch.max.size:1000}") final int batchSize,
         final AdjudicationsPartyService adjudicationsPartyService,
         final OicHearingRepository oicHearingRepository,
-        final OicHearingResultRepository oicHearingResultRepository) {
+        final OicHearingResultRepository oicHearingResultRepository,
+        final OicSanctionRepository oicSanctionRepository) {
         this.adjudicationsRepository = adjudicationsRepository;
         this.adjudicationsOffenceTypeRepository = adjudicationsOffenceTypeRepository;
         this.staffUserAccountRepository = staffUserAccountRepository;
@@ -113,6 +119,7 @@ public class AdjudicationsService {
         this.adjudicationsPartyService = adjudicationsPartyService;
         this.oicHearingRepository = oicHearingRepository;
         this.oicHearingResultRepository = oicHearingResultRepository;
+        this.oicSanctionRepository = oicSanctionRepository;
     }
 
     private List<AdjudicationOffenceType> offenceCodesFrom(List<String> suppliedOffenceCodes) {
@@ -404,6 +411,42 @@ public class AdjudicationsService {
         oicHearing.setAdjudicator(null);
         oicHearingRepository.save(oicHearing);
         oicHearingResultRepository.delete(oicHearingResult);
+    }
+
+    @Transactional
+    @VerifyOffenderAccess
+    public Sanction createOicSanction(
+        final Long adjudicationNumber,
+        final Long oicHearingId,
+        final OicSanctionRequest oicSanctionRequest) {
+
+        final var pair = getWithValidationChecks(adjudicationNumber, oicHearingId);
+
+        List<OicSanction> oicSanctions = oicSanctionRepository.findAllByOicHearingId(oicHearingId);
+
+        final var oicSanction = oicSanctionRepository.save(OicSanction.builder()
+            .offenderBookId(-1L)                                        //?
+            .sanctionSeq(oicSanctions.size() + 1L)
+            .oicSanctionCode(oicSanctionRequest.getSanctionType())       //?
+            .compensationAmount(oicSanctionRequest.getCompensationAmount())
+            .sanctionMonths(oicSanctionRequest.getSanctionMonths())
+            .sanctionDays(oicSanctionRequest.getSanctionDays())
+            .commentText(oicSanctionRequest.getComment())
+            .effectiveDate(oicSanctionRequest.getEffectiveDate())
+//                .appealingDate()
+//                .consecutiveOffenderBookId()
+            .consecutiveSanctionSeq(oicSanctionRequest.getConsecutiveSanctionSeq())
+            .oicHearingId(oicHearingId)
+            .status(oicSanctionRequest.getStatus())
+//                .offenderAdjustId()
+            .resultSeq(1L)
+//                .statusDate()
+            .oicIncidentId(adjudicationNumber)
+//                .lidsSanctionNumber()
+            .build());
+
+        return Sanction.builder()
+            .build();
     }
 
     private void oicHearingLocationValidation(final Long hearingLocationId){

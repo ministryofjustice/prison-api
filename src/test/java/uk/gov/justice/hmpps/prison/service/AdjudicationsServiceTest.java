@@ -14,7 +14,9 @@ import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
 import uk.gov.justice.hmpps.prison.api.model.OicHearingRequest;
 import uk.gov.justice.hmpps.prison.api.model.OicHearingResultRequest;
+import uk.gov.justice.hmpps.prison.api.model.OicSanctionRequest;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication;
+import uk.gov.justice.hmpps.prison.api.model.adjudications.Sanction;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationActionCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationCharge;
@@ -33,6 +35,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearing.OicHearingTyp
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult.FindingCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult.PleaFindingCode;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Staff;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationOffenceTypeRepository;
@@ -42,6 +45,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepos
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OicHearingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OicHearingResultRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OicSanctionRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
@@ -49,6 +53,7 @@ import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import jakarta.persistence.EntityManager;
 import jakarta.validation.ValidationException;
 import java.time.Clock;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -112,6 +117,8 @@ public class AdjudicationsServiceTest {
     private OicHearingRepository oicHearingRepository;
     @Mock
     private OicHearingResultRepository oicHearingResultRepository;
+    @Mock
+    private OicSanctionRepository oicSanctionRepository;
 
     private AdjudicationsService service;
 
@@ -136,7 +143,8 @@ public class AdjudicationsServiceTest {
             BATCH_SIZE,
             adjudicationsPartyService,
             oicHearingRepository,
-            oicHearingResultRepository
+            oicHearingResultRepository,
+            oicSanctionRepository
             );
     }
 
@@ -1449,6 +1457,130 @@ public class AdjudicationsServiceTest {
             assertThat(hearingResultCapture.getValue().getOicHearingId()).isEqualTo(3L);
             assertThat(hearingResultCapture.getValue().getResultSeq()).isEqualTo(1L);
         }
+    }
+    @Nested
+    public class CreateSanction {
+
+        @Test
+        public void createSanctionAdjudicationDoesNotExist() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.empty());
+
+            assertThatThrownBy(() ->
+                service.createOicHearingResult(2L, 2L, OicHearingResultRequest.builder().build()))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find adjudication number 2");
+        }
+
+        @Test
+        public void createSanctionHearingDoesNotExit() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().build()
+                ));
+
+            when(oicHearingRepository.findById(3L))
+                .thenReturn(Optional.empty());
+
+            assertThatThrownBy(() ->
+                service.createOicHearingResult(2L, 3L, OicHearingResultRequest.builder().build()))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find oic hearingId 3 for adjudication number 2");
+        }
+
+        @Test
+        public void createSanctionHearingDoesNotBelongToAdjudication() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().parties(List.of(AdjudicationParty.builder().adjudicationNumber(2L).build())).build()
+                ));
+            when(oicHearingRepository.findById(3L))
+                .thenReturn(Optional.of(
+                    OicHearing.builder().adjudicationNumber(20L).build()
+                ));
+
+            assertThatThrownBy(() ->
+                service.createOicHearingResult(2L, 3L, OicHearingResultRequest.builder().build()))
+                .isInstanceOf(ValidationException.class)
+                .hasMessageContaining("oic hearingId 3 is not linked to adjudication number 2");
+        }
+
+        @Test
+        public void createSanction() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder()
+                        .agencyIncidentId(10L)
+                        .parties(List.of(AdjudicationParty.builder()
+                            .incidentRole(INCIDENT_ROLE_OFFENDER)
+                            .charges(List.of(AdjudicationCharge.builder()
+                                .offenceType(AdjudicationOffenceType.builder()
+                                    .offenceId(100L).build())
+                                .build())).adjudicationNumber(2L).build())).build()
+                ));
+            when(oicHearingRepository.findById(3L))
+                .thenReturn(Optional.of(
+                    OicHearing.builder().adjudicationNumber(2L).build()
+                ));
+
+            when(oicSanctionRepository.findAllByOicHearingId(3L))
+                .thenReturn(List.of(OicSanction.builder().build()));
+
+            LocalDate today = LocalDate.now();
+
+            when(oicSanctionRepository.save(any())).thenReturn(OicSanction.builder()
+                .offenderBookId(-1L)
+                .sanctionSeq(2L)
+                .oicSanctionCode("SanctionType")
+                .compensationAmount(1000.55)
+                .sanctionMonths(12L)
+                .sanctionDays(30L)
+                .commentText("Comment")
+                .effectiveDate(today)
+//                .appealingDate()
+//                .consecutiveOffenderBookId()
+                .consecutiveSanctionSeq(1L)
+                .oicHearingId(3L)
+                .status("Status")
+//                .offenderAdjustId()
+                .resultSeq(1L)
+//                .statusDate()
+                .oicIncidentId(2L)
+//                .lidsSanctionNumber()
+                .build());
+
+            var result = service.createOicSanction(2L, 3L, OicSanctionRequest.builder()
+                .sanctionType("SanctionType")
+                .compensationAmount(1000.55)
+                .sanctionMonths(12L)
+                .sanctionDays(30L)
+                .comment("Comment")
+                .effectiveDate(today)
+                .consecutiveSanctionSeq(1L)
+                .status("Status")
+                .build());
+
+            final var sanctionCapture = ArgumentCaptor.forClass(OicSanction.class);
+            verify(oicSanctionRepository, atLeastOnce()).save(sanctionCapture.capture());
+
+            assertThat(result).isNotNull();
+            assertThat(sanctionCapture.getValue().getOffenderBookId()).isEqualTo(-1L);
+            assertThat(sanctionCapture.getValue().getSanctionSeq()).isEqualTo(2L);
+            assertThat(sanctionCapture.getValue().getOicSanctionCode()).isEqualTo("SanctionType");
+            assertThat(sanctionCapture.getValue().getCompensationAmount()).isEqualTo(1000.55);
+            assertThat(sanctionCapture.getValue().getSanctionMonths()).isEqualTo(12L);
+            assertThat(sanctionCapture.getValue().getSanctionDays()).isEqualTo(30L);
+            assertThat(sanctionCapture.getValue().getCommentText()).isEqualTo("Comment");
+            assertThat(sanctionCapture.getValue().getEffectiveDate()).isEqualTo(today);
+            assertThat(sanctionCapture.getValue().getConsecutiveSanctionSeq()).isEqualTo(1L);
+            assertThat(sanctionCapture.getValue().getOicHearingId()).isEqualTo(3L);
+            assertThat(sanctionCapture.getValue().getStatus()).isEqualTo("Status");
+            assertThat(sanctionCapture.getValue().getResultSeq()).isEqualTo(1L);
+            assertThat(sanctionCapture.getValue().getOicIncidentId()).isEqualTo(2L);
+
+            assertThat(result).isEqualTo(Sanction.builder().build());
+        }
+
     }
 
     private static <T> T assertArgThat(final Consumer<T> assertions) {
