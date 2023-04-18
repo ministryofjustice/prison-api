@@ -31,6 +31,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearing;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearing.OicHearingStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction.OicSanctionCode;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction.Status;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationOffenceTypeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
@@ -427,7 +429,7 @@ public class AdjudicationsService {
         final var oicSanction = oicSanctionRepository.save(OicSanction.builder()
             .offenderBookId(-1L)                                        //?
             .sanctionSeq(oicSanctions.size() + 1L)
-            .oicSanctionCode(oicSanctionRequest.getSanctionType())       //?
+            .oicSanctionCode(OicSanctionCode.valueOf(oicSanctionRequest.getSanctionType()))
             .compensationAmount(oicSanctionRequest.getCompensationAmount())
             .sanctionMonths(oicSanctionRequest.getSanctionMonths())
             .sanctionDays(oicSanctionRequest.getSanctionDays())
@@ -437,7 +439,7 @@ public class AdjudicationsService {
 //                .consecutiveOffenderBookId()
             .consecutiveSanctionSeq(oicSanctionRequest.getConsecutiveSanctionSeq())
             .oicHearingId(oicHearingId)
-            .status(oicSanctionRequest.getStatus())
+            .status(Status.valueOf(oicSanctionRequest.getStatus()))
 //                .offenderAdjustId()
             .resultSeq(1L)
 //                .statusDate()
