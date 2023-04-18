@@ -52,6 +52,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.ValidationException;
 import jakarta.validation.constraints.NotNull;
 import java.time.Clock;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -420,7 +421,7 @@ public class AdjudicationsService {
     public Sanction createOicSanction(
         final Long adjudicationNumber,
         final Long oicHearingId,
-        final OicSanctionRequest oicSanctionRequest) {
+        final List<OicSanctionRequest> oicSanctionRequests) {
 
         final var pair = getWithValidationChecks(adjudicationNumber, oicHearingId);
         final var adjudication = pair.getRight();
@@ -429,26 +430,27 @@ public class AdjudicationsService {
         final var priorOicSanction = oicSanctionRepository.findFirstByOffenderBookIdOrderBySanctionSeqDesc(offenderBookId);
         Long nextSanctionSeq = (priorOicSanction.isPresent()) ? priorOicSanction.get().getSanctionSeq() + 1 : 1;
 
-        final var oicSanction = oicSanctionRepository.save(OicSanction.builder()
-            .offenderBookId(adjudication.getOffenderParty().get().getOffenderBooking().getBookingId())
-            .sanctionSeq(nextSanctionSeq)
-            .oicSanctionCode(OicSanctionCode.valueOf(oicSanctionRequest.getSanctionType()))
-            .compensationAmount(oicSanctionRequest.getCompensationAmount())
-            .sanctionMonths(oicSanctionRequest.getSanctionMonths())
-            .sanctionDays(oicSanctionRequest.getSanctionDays())
-            .commentText(oicSanctionRequest.getComment())
-            .effectiveDate(oicSanctionRequest.getEffectiveDate())
-//                .appealingDate()
-//                .consecutiveOffenderBookId()
-            .consecutiveSanctionSeq(oicSanctionRequest.getConsecutiveSanctionSeq())
-            .oicHearingId(oicHearingId)
-            .status(Status.valueOf(oicSanctionRequest.getStatus()))
-//                .offenderAdjustId()
-            .resultSeq(1L)
-//                .statusDate()
-            .oicIncidentId(adjudicationNumber)
-//                .lidsSanctionNumber()
-            .build());
+        List<OicSanction> oicSanctions = new ArrayList<>();
+        int index = 0;
+        for (var request : oicSanctionRequests) {
+            oicSanctions.add(oicSanctionRepository.save(OicSanction.builder()
+                .offenderBookId(offenderBookId)
+                .sanctionSeq(nextSanctionSeq + index)
+                .oicSanctionCode(OicSanctionCode.valueOf(request.getSanctionType()))
+                .compensationAmount(request.getCompensationAmount())
+                .sanctionMonths(request.getSanctionMonths())
+                .sanctionDays(request.getSanctionDays())
+                .commentText(request.getComment())
+                .effectiveDate(request.getEffectiveDate())
+                .consecutiveSanctionSeq(request.getConsecutiveSanctionSeq())
+                .oicHearingId(oicHearingId)
+                .status(Status.valueOf(request.getStatus()))
+                .resultSeq(1L)
+                .oicIncidentId(adjudicationNumber)
+                .build())
+            );
+            index++;
+        }
 
         return Sanction.builder()
             .build();

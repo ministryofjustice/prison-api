@@ -247,9 +247,9 @@ public class AdjudicationsResource {
     public Sanction createOicSanction(
         @PathVariable("adjudicationNumber") final Long adjudicationNumber,
         @PathVariable("oicHearingId") final Long oicHearingId,
-        @Valid @RequestBody @Parameter(description = "OIC sanction to save", required = true) final OicSanctionRequest oicSanctionRequest
+        @Valid @RequestBody @Parameter(description = "OIC sanctions to save", required = true) final List<OicSanctionRequest> oicSanctionRequests
     ) {
-        return adjudicationsService.createOicSanction(adjudicationNumber, oicHearingId, oicSanctionRequest);
+        return adjudicationsService.createOicSanction(adjudicationNumber, oicHearingId, oicSanctionRequests);
     }
 
     @ApiResponses({

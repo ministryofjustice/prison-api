@@ -1542,19 +1542,14 @@ public class AdjudicationsServiceTest {
                 .sanctionDays(30L)
                 .commentText("Comment")
                 .effectiveDate(today)
-//                .appealingDate()
-//                .consecutiveOffenderBookId()
                 .consecutiveSanctionSeq(1L)
                 .oicHearingId(3L)
                 .status(Status.IMMEDIATE)
-//                .offenderAdjustId()
                 .resultSeq(1L)
-//                .statusDate()
                 .oicIncidentId(2L)
-//                .lidsSanctionNumber()
                 .build());
 
-            var result = service.createOicSanction(2L, 3L, OicSanctionRequest.builder()
+            var result = service.createOicSanction(2L, 3L, List.of(OicSanctionRequest.builder()
                 .sanctionType(OicSanctionCode.ADA.name())
                 .compensationAmount(new BigDecimal("1000.55"))
                 .sanctionMonths(12L)
@@ -1563,7 +1558,7 @@ public class AdjudicationsServiceTest {
                 .effectiveDate(today)
                 .consecutiveSanctionSeq(1L)
                 .status(Status.IMMEDIATE.name())
-                .build());
+                .build()));
 
             final var sanctionCapture = ArgumentCaptor.forClass(OicSanction.class);
             verify(oicSanctionRepository, atLeastOnce()).save(sanctionCapture.capture());
