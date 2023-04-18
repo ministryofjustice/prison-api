@@ -7,6 +7,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Digits;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,6 +17,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
@@ -117,8 +119,9 @@ public class OicSanction extends AuditableEntity {
     @Column(name = "OIC_SANCTION_CODE", length = 12)
     private OicSanctionCode oicSanctionCode;
 
+    @Digits(integer=11, fraction=2)
     @Column(name = "COMPENSATION_AMOUNT")
-    private Double compensationAmount;
+    private BigDecimal compensationAmount;
 
     @Column(name = "SANCTION_MONTHS")
     private Long sanctionMonths;

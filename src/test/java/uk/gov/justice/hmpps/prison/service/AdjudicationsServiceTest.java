@@ -36,6 +36,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult.FindingCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult.PleaFindingCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction.OicSanctionCode;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction.Status;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Staff;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationOffenceTypeRepository;
@@ -52,6 +54,8 @@ import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 
 import jakarta.persistence.EntityManager;
 import jakarta.validation.ValidationException;
+
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -1513,26 +1517,27 @@ public class AdjudicationsServiceTest {
                         .agencyIncidentId(10L)
                         .parties(List.of(AdjudicationParty.builder()
                             .incidentRole(INCIDENT_ROLE_OFFENDER)
-                            .charges(List.of(AdjudicationCharge.builder()
-                                .offenceType(AdjudicationOffenceType.builder()
-                                    .offenceId(100L).build())
-                                .build())).adjudicationNumber(2L).build())).build()
+                            .offenderBooking(OffenderBooking.builder()
+                                .bookingId(200L).build())
+                            .adjudicationNumber(2L).build())).build()
                 ));
             when(oicHearingRepository.findById(3L))
                 .thenReturn(Optional.of(
                     OicHearing.builder().adjudicationNumber(2L).build()
                 ));
 
-            when(oicSanctionRepository.findAllByOicHearingId(3L))
-                .thenReturn(List.of(OicSanction.builder().build()));
+            when(oicSanctionRepository.findFirstByOffenderBookIdOrderBySanctionSeqDesc(200L))
+                .thenReturn(Optional.of(OicSanction.builder()
+                    .sanctionSeq(5L)
+                    .build()));
 
             LocalDate today = LocalDate.now();
 
             when(oicSanctionRepository.save(any())).thenReturn(OicSanction.builder()
-                .offenderBookId(-1L)
-                .sanctionSeq(2L)
-                .oicSanctionCode("SanctionType")
-                .compensationAmount(1000.55)
+                .offenderBookId(200L)
+                .sanctionSeq(6L)
+                .oicSanctionCode(OicSanctionCode.ADA)
+                .compensationAmount(new BigDecimal("1000.55"))
                 .sanctionMonths(12L)
                 .sanctionDays(30L)
                 .commentText("Comment")
@@ -1541,7 +1546,7 @@ public class AdjudicationsServiceTest {
 //                .consecutiveOffenderBookId()
                 .consecutiveSanctionSeq(1L)
                 .oicHearingId(3L)
-                .status("Status")
+                .status(Status.IMMEDIATE)
 //                .offenderAdjustId()
                 .resultSeq(1L)
 //                .statusDate()
@@ -1550,31 +1555,31 @@ public class AdjudicationsServiceTest {
                 .build());
 
             var result = service.createOicSanction(2L, 3L, OicSanctionRequest.builder()
-                .sanctionType("SanctionType")
-                .compensationAmount(1000.55)
+                .sanctionType(OicSanctionCode.ADA.name())
+                .compensationAmount(new BigDecimal("1000.55"))
                 .sanctionMonths(12L)
                 .sanctionDays(30L)
                 .comment("Comment")
                 .effectiveDate(today)
                 .consecutiveSanctionSeq(1L)
-                .status("Status")
+                .status(Status.IMMEDIATE.name())
                 .build());
 
             final var sanctionCapture = ArgumentCaptor.forClass(OicSanction.class);
             verify(oicSanctionRepository, atLeastOnce()).save(sanctionCapture.capture());
 
             assertThat(result).isNotNull();
-            assertThat(sanctionCapture.getValue().getOffenderBookId()).isEqualTo(-1L);
-            assertThat(sanctionCapture.getValue().getSanctionSeq()).isEqualTo(2L);
-            assertThat(sanctionCapture.getValue().getOicSanctionCode()).isEqualTo("SanctionType");
-            assertThat(sanctionCapture.getValue().getCompensationAmount()).isEqualTo(1000.55);
+            assertThat(sanctionCapture.getValue().getOffenderBookId()).isEqualTo(200L);
+            assertThat(sanctionCapture.getValue().getSanctionSeq()).isEqualTo(6L);
+            assertThat(sanctionCapture.getValue().getOicSanctionCode()).isEqualTo(OicSanctionCode.ADA);
+            assertThat(sanctionCapture.getValue().getCompensationAmount()).isEqualTo(new BigDecimal("1000.55"));
             assertThat(sanctionCapture.getValue().getSanctionMonths()).isEqualTo(12L);
             assertThat(sanctionCapture.getValue().getSanctionDays()).isEqualTo(30L);
             assertThat(sanctionCapture.getValue().getCommentText()).isEqualTo("Comment");
             assertThat(sanctionCapture.getValue().getEffectiveDate()).isEqualTo(today);
             assertThat(sanctionCapture.getValue().getConsecutiveSanctionSeq()).isEqualTo(1L);
             assertThat(sanctionCapture.getValue().getOicHearingId()).isEqualTo(3L);
-            assertThat(sanctionCapture.getValue().getStatus()).isEqualTo("Status");
+            assertThat(sanctionCapture.getValue().getStatus()).isEqualTo(Status.IMMEDIATE);
             assertThat(sanctionCapture.getValue().getResultSeq()).isEqualTo(1L);
             assertThat(sanctionCapture.getValue().getOicIncidentId()).isEqualTo(2L);
 

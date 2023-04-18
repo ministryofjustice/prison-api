@@ -423,12 +423,15 @@ public class AdjudicationsService {
         final OicSanctionRequest oicSanctionRequest) {
 
         final var pair = getWithValidationChecks(adjudicationNumber, oicHearingId);
+        final var adjudication = pair.getRight();
+        Long offenderBookId = adjudication.getOffenderParty().get().getOffenderBooking().getBookingId();
 
-        List<OicSanction> oicSanctions = oicSanctionRepository.findAllByOicHearingId(oicHearingId);
+        final var priorOicSanction = oicSanctionRepository.findFirstByOffenderBookIdOrderBySanctionSeqDesc(offenderBookId);
+        Long nextSanctionSeq = (priorOicSanction.isPresent()) ? priorOicSanction.get().getSanctionSeq() + 1 : 1;
 
         final var oicSanction = oicSanctionRepository.save(OicSanction.builder()
-            .offenderBookId(-1L)                                        //?
-            .sanctionSeq(oicSanctions.size() + 1L)
+            .offenderBookId(adjudication.getOffenderParty().get().getOffenderBooking().getBookingId())
+            .sanctionSeq(nextSanctionSeq)
             .oicSanctionCode(OicSanctionCode.valueOf(oicSanctionRequest.getSanctionType()))
             .compensationAmount(oicSanctionRequest.getCompensationAmount())
             .sanctionMonths(oicSanctionRequest.getSanctionMonths())

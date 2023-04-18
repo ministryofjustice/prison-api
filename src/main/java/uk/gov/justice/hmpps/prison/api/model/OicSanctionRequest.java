@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 
@@ -21,7 +22,7 @@ public class OicSanctionRequest {
 
     private String sanctionType;
 
-    private Double compensationAmount;
+    private BigDecimal compensationAmount;
 
     private Long sanctionMonths;
 
