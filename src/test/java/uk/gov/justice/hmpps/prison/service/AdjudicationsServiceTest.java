@@ -1159,6 +1159,8 @@ public class AdjudicationsServiceTest {
         public void createHearingResult() {
             initCreateHearingResultTest();
 
+            when(oicHearingRepository.save(any())).thenReturn(OicHearing.builder().build());
+
             when(staffUserAccountRepository.findByUsername("adjudicator")).thenReturn(
                 Optional.of(
                     StaffUserAccount.builder().staff(
@@ -1210,7 +1212,6 @@ public class AdjudicationsServiceTest {
             when(oicHearingResultRepository.findById(new OicHearingResult.PK(3L, 1L)))
                 .thenReturn(Optional.empty());
 
-            when(oicHearingRepository.save(any())).thenReturn(OicHearing.builder().build());
             when(oicHearingResultRepository.save(any())).thenReturn(OicHearingResult.builder()
                 .findingCode(FindingCode.DISMISSED)
                 .pleaFindingCode(PleaFindingCode.GUILTY)
@@ -1222,9 +1223,9 @@ public class AdjudicationsServiceTest {
             final var hearingCapture = ArgumentCaptor.forClass(OicHearing.class);
             final var hearingResultCapture = ArgumentCaptor.forClass(OicHearingResult.class);
 
-            verify(oicHearingRepository, atLeastOnce()).save(hearingCapture.capture());
             verify(oicHearingResultRepository, atLeastOnce()).save(hearingResultCapture.capture());
             if(withAdjudicator) {
+                verify(oicHearingRepository, atLeastOnce()).save(hearingCapture.capture());
                 assertThat(hearingCapture.getValue().getAdjudicator().getStaffId()).isEqualTo(10);
             }
 
@@ -1335,6 +1336,7 @@ public class AdjudicationsServiceTest {
         @Test
         public void amendHearingResult() {
             initAmendHearingResult();
+
             when(staffUserAccountRepository.findByUsername("other_adjudicator")).thenReturn(
                 Optional.of(
                     StaffUserAccount.builder().staff(
@@ -1370,6 +1372,7 @@ public class AdjudicationsServiceTest {
                 .thenReturn(Optional.of(
                     Adjudication.builder().build()
                 ));
+
             when(oicHearingRepository.findById(3L))
                 .thenReturn(Optional.of(
                     OicHearing.builder().adjudicationNumber(2L).build()
@@ -1389,8 +1392,8 @@ public class AdjudicationsServiceTest {
             final var hearingCapture = ArgumentCaptor.forClass(OicHearing.class);
             final var hearingResultCapture = ArgumentCaptor.forClass(OicHearingResult.class);
 
-            verify(oicHearingRepository, atLeastOnce()).save(hearingCapture.capture());
             if(withAdjudicator) {
+                verify(oicHearingRepository, atLeastOnce()).save(hearingCapture.capture());
                 assertThat(hearingCapture.getValue().getAdjudicator().getStaffId()).isEqualTo(11);
             }
             verify(oicHearingResultRepository, atLeastOnce()).save(hearingResultCapture.capture());
