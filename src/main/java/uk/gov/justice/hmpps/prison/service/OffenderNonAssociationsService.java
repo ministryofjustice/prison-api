@@ -10,10 +10,14 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderNonAssociation;
 import uk.gov.justice.hmpps.prison.api.model.OffenderNonAssociationDetails;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.NonAssociationReason;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderNonAssociationDetail;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
+import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -25,6 +29,7 @@ import java.util.stream.Collectors;
 public class OffenderNonAssociationsService {
 
     private final OffenderBookingRepository bookingRepository;
+    private final OffenderRepository offenderRepository;
 
     @VerifyBookingAccess
     public OffenderNonAssociationDetails retrieve(final Long bookingId) {
@@ -48,6 +53,30 @@ public class OffenderNonAssociationsService {
                 .assignedLivingUnitDescription(Optional.ofNullable(booking.getAssignedLivingUnit()).map(AgencyInternalLocation::getDescription).orElse(null))
                 .nonAssociations(nonAssociations)
                 .build();
+    }
+
+    @VerifyOffenderAccess
+    public OffenderNonAssociationDetails retrieveByOffenderNo(final String offenderNo) {
+        log.debug("Fetching non-associations for offender no '{}'", offenderNo);
+
+        final var offender = offenderRepository.findOffenderByNomsId(offenderNo).orElseThrow(EntityNotFoundException.withMessage("Offender no %s not found.", offenderNo));
+
+        final var nonAssociations = offender.getBookings().stream().map(OffenderBooking::getNonAssociationDetails)
+            .flatMap(Collection::stream)
+            .map(this::transform)
+            .toList();
+
+        log.debug("'{}' non-association(s) found for offender '{}'", nonAssociations.size(), offenderNo);
+
+        return OffenderNonAssociationDetails.builder()
+            .offenderNo(offender.getNomsId())
+            .firstName(WordUtils.capitalizeFully(offender.getFirstName()))
+            .lastName(WordUtils.capitalizeFully(offender.getLastName()))
+            .agencyDescription(offender.getLatestBooking().orElseThrow().getLocation().getDescription())
+            .assignedLivingUnitId(Optional.ofNullable(offender.getLatestBooking().orElseThrow().getAssignedLivingUnit()).map(AgencyInternalLocation::getLocationId).orElse(null))
+            .assignedLivingUnitDescription(Optional.ofNullable(offender.getLatestBooking().orElseThrow().getAssignedLivingUnit()).map(AgencyInternalLocation::getDescription).orElse(null))
+            .nonAssociations(nonAssociations)
+            .build();
     }
 
     private uk.gov.justice.hmpps.prison.api.model.OffenderNonAssociationDetail transform(final OffenderNonAssociationDetail detail) {

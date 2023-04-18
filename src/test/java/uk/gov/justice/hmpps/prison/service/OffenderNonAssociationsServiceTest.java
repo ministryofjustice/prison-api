@@ -15,6 +15,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.NonAssociationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -61,13 +62,16 @@ public class OffenderNonAssociationsServiceTest {
     @Mock
     private OffenderBookingRepository bookingRepository;
 
+    @Mock
+    private OffenderRepository offenderRepository;
+
     private OffenderBooking victimsBooking;
 
     private OffenderNonAssociationsService service;
 
     @BeforeEach
     void setup() {
-        service = new OffenderNonAssociationsService(bookingRepository);
+        service = new OffenderNonAssociationsService(bookingRepository, offenderRepository);
     }
 
     @Test
