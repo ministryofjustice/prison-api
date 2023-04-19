@@ -432,13 +432,15 @@ public class AdjudicationsService {
                 .sanctionSeq(nextSanctionSeq + index)
                 .oicSanctionCode(request.getOicSanctionCode())
                 .compensationAmount(BigDecimal.valueOf(request.getCompensationAmount()))
-                .sanctionMonths(request.getSanctionMonths())
                 .sanctionDays(request.getSanctionDays())
-                .commentText(request.getComment())
                 .effectiveDate(request.getEffectiveDate())
                 .status(request.getStatus())
+                    .oicHearingId(null)
                 .resultSeq(1L)
+                    .lidsSanctionNumber(null) // TODO speak to John
                 .oicIncidentId(adjudicationNumber)
+                    .consecutiveSanctionSeq(null) //TODO speak to John
+                    .consecutiveSanctionSeq(null) //TODO speak to John
                 .build())
             );
             index++;

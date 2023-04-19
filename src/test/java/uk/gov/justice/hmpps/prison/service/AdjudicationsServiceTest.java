@@ -1471,14 +1471,48 @@ public class AdjudicationsServiceTest {
                 .thenReturn(Optional.empty());
 
             assertThatThrownBy(() ->
-                service.createOicSanctions(2L, OicHearingResultRequest.builder().build()))
+                service.createOicSanctions(2L, List.of(OicSanctionRequest.builder().build())))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Could not find adjudication number 2");
         }
 
         @Test
         public void createSanctionsNoChargeProvedHearingResult() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().agencyIncidentId(1L).build()
+                ));
 
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(1L, FindingCode.PROVED)).thenReturn(Collections.emptyList());
+
+            assertThatThrownBy(() ->
+                service.createOicSanctions(2L, List.of(OicSanctionRequest.builder().build())))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find hearing result PROVED for adjudication 2");
+        }
+
+        @Test
+        public void createSanctionsHasMultipleChargeProvedHearingResults() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().agencyIncidentId(1L).build()
+                ));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(1L, FindingCode.PROVED)).thenReturn(List.of(
+                OicHearingResult.builder()
+                    .oicHearingId(2L)
+                    .resultSeq(1L)
+                    .build(),
+                OicHearingResult.builder()
+                    .oicHearingId(1L)
+                    .resultSeq(1L)
+                    .build()
+            ));
+
+            assertThatThrownBy(() ->
+                service.createOicSanctions(2L, List.of(OicSanctionRequest.builder().build())))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Multiple PROVED hearing results for adjudication 2");
         }
 /*
         @Test
@@ -1557,6 +1591,23 @@ public class AdjudicationsServiceTest {
 
             assertThat(result).isEqualTo(Sanction.builder().build());
         }
+
+    }
+
+    @Nested
+    public class UpdateSanctions {
+        // grab high sequence
+        // remove all the sanctions
+        // create from high sequence
+    }
+
+    @Nested
+    public class QuashSanctions {
+        // all it will do is change the status to quashed
+    }
+
+    @Nested
+    public class DeleteSanctions {
 
     }
 
