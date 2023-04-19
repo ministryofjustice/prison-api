@@ -818,4 +818,9 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         }
     }
 
+    @Nested
+    public class CreateSanctions {
+
+    }
+
 }

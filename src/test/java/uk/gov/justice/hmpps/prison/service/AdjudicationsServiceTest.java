@@ -1463,17 +1463,22 @@ public class AdjudicationsServiceTest {
         }
     }
     @Nested
-    public class CreateSanction {
+    public class CreateSanctions {
 
         @Test
-        public void createSanctionAdjudicationDoesNotExist() {
+        public void createSanctionsAdjudicationDoesNotExist() {
             when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
                 .thenReturn(Optional.empty());
 
             assertThatThrownBy(() ->
-                service.createOicHearingResult(2L, 2L, OicHearingResultRequest.builder().build()))
+                service.createOicSanctions(2L, OicHearingResultRequest.builder().build()))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Could not find adjudication number 2");
+        }
+
+        @Test
+        public void createSanctionsNoChargeProvedHearingResult() {
+
         }
 /*
         @Test
@@ -1524,7 +1529,7 @@ public class AdjudicationsServiceTest {
                 .oicIncidentId(2L)
                 .build());
 
-            var result = service.createOicSanction(2L, List.of(OicSanctionRequest.builder()
+            var result = service.createOicSanctions(2L, List.of(OicSanctionRequest.builder()
                 .oicSanctionCode(OicSanctionCode.ADA)
                 .compensationAmount(1000.55)
                 .sanctionMonths(12L)
