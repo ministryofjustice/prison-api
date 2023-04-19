@@ -28,6 +28,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearing;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearing.OicHearingStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult.FindingCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationOffenceTypeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationRepository;
@@ -420,8 +421,12 @@ public class AdjudicationsService {
 
         final var adjudication = adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber)
             .orElseThrow(EntityNotFoundException.withMessage(format("Could not find adjudication number %d", adjudicationNumber)));
-        Long offenderBookId = adjudication.getOffenderParty().get().getOffenderBooking().getBookingId();
 
+        final var hearingResult = oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(adjudication.getAgencyIncidentId(), FindingCode.PROVED);
+        if (hearingResult.isEmpty()) throw EntityNotFoundException.withMessage(format("Could not find hearing result PROVED for adjudication id %d", adjudication.getAgencyIncidentId()));
+        if (hearingResult.size() > 1) throw EntityNotFoundException.withMessage(format("Multiple PROVED hearing results for adjudication id %d", adjudication.getAgencyIncidentId()));
+
+        Long offenderBookId = adjudication.getOffenderParty().get().getOffenderBooking().getBookingId();
         Long nextSanctionSeq = oicSanctionRepository.getNextSanctionSeq(offenderBookId);
 
         List<OicSanction> oicSanctions = new ArrayList<>();
@@ -435,7 +440,7 @@ public class AdjudicationsService {
                 .sanctionDays(request.getSanctionDays())
                 .effectiveDate(request.getEffectiveDate())
                 .status(request.getStatus())
-                    .oicHearingId(null)
+                .oicHearingId(hearingResult.get(0).getOicHearingId())
                 .resultSeq(1L)
                     .lidsSanctionNumber(null) // TODO speak to John
                 .oicIncidentId(adjudicationNumber)

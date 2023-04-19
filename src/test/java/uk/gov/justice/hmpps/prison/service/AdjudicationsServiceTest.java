@@ -1488,7 +1488,7 @@ public class AdjudicationsServiceTest {
             assertThatThrownBy(() ->
                 service.createOicSanctions(2L, List.of(OicSanctionRequest.builder().build())))
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("Could not find hearing result PROVED for adjudication 2");
+                .hasMessageContaining("Could not find hearing result PROVED for adjudication id 1");
         }
 
         @Test
@@ -1512,25 +1512,9 @@ public class AdjudicationsServiceTest {
             assertThatThrownBy(() ->
                 service.createOicSanctions(2L, List.of(OicSanctionRequest.builder().build())))
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("Multiple PROVED hearing results for adjudication 2");
+                .hasMessageContaining("Multiple PROVED hearing results for adjudication id 1");
         }
-/*
-        @Test
-        public void createSanctionHearingDoesNotExit() {
-            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
-                .thenReturn(Optional.of(
-                    Adjudication.builder().build()
-                ));
 
-            when(oicHearingRepository.findById(3L))
-                .thenReturn(Optional.empty());
-
-            assertThatThrownBy(() ->
-                service.createOicHearingResult(2L, 3L, OicHearingResultRequest.builder().build()))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("Could not find oic hearingId 3 for adjudication number 2");
-        }
-*/
         @Test
         public void createSanction() {
             when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
@@ -1544,6 +1528,13 @@ public class AdjudicationsServiceTest {
                             .adjudicationNumber(2L).build())).build()
                 ));
 
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(10L, FindingCode.PROVED)).thenReturn(List.of(
+                OicHearingResult.builder()
+                    .oicHearingId(3L)
+                    .resultSeq(1L)
+                    .build()
+            ));
+
             when(oicSanctionRepository.getNextSanctionSeq(200L))
                 .thenReturn(6L);
 
@@ -1554,11 +1545,10 @@ public class AdjudicationsServiceTest {
                 .sanctionSeq(6L)
                 .oicSanctionCode(OicSanctionCode.ADA)
                 .compensationAmount(new BigDecimal("1000.55"))
-                .sanctionMonths(12L)
                 .sanctionDays(30L)
-                .commentText("Comment")
                 .effectiveDate(today)
                 .status(Status.IMMEDIATE)
+                .oicHearingId(3L)
                 .resultSeq(1L)
                 .oicIncidentId(2L)
                 .build());
@@ -1566,9 +1556,7 @@ public class AdjudicationsServiceTest {
             var result = service.createOicSanctions(2L, List.of(OicSanctionRequest.builder()
                 .oicSanctionCode(OicSanctionCode.ADA)
                 .compensationAmount(1000.55)
-                .sanctionMonths(12L)
                 .sanctionDays(30L)
-                .comment("Comment")
                 .effectiveDate(today)
                 .status(Status.IMMEDIATE)
                 .build()));
@@ -1581,9 +1569,7 @@ public class AdjudicationsServiceTest {
             assertThat(sanctionCapture.getValue().getSanctionSeq()).isEqualTo(6L);
             assertThat(sanctionCapture.getValue().getOicSanctionCode()).isEqualTo(OicSanctionCode.ADA);
             assertThat(sanctionCapture.getValue().getCompensationAmount()).isEqualTo(new BigDecimal("1000.55"));
-            assertThat(sanctionCapture.getValue().getSanctionMonths()).isEqualTo(12L);
             assertThat(sanctionCapture.getValue().getSanctionDays()).isEqualTo(30L);
-            assertThat(sanctionCapture.getValue().getCommentText()).isEqualTo("Comment");
             assertThat(sanctionCapture.getValue().getEffectiveDate()).isEqualTo(today);
             assertThat(sanctionCapture.getValue().getStatus()).isEqualTo(Status.IMMEDIATE);
             assertThat(sanctionCapture.getValue().getResultSeq()).isEqualTo(1L);
