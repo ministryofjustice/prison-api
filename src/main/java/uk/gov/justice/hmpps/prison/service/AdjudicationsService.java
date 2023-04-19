@@ -20,6 +20,8 @@ import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.Sanction;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationActionCode;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationCharge;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationCharge.PK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationIncidentType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationOffenceType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationParty;
@@ -57,6 +59,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -474,7 +478,7 @@ public class AdjudicationsService {
     }
 
     private void addOffenceCharges(AdjudicationParty adjudicationPartyToUpdate, List<AdjudicationOffenceType> offenceCodes) {
-     /*   final var existingCharges = adjudicationPartyToUpdate.getCharges();
+        final var existingCharges = adjudicationPartyToUpdate.getCharges();
         final var existingChargesBySequenceNumber = existingCharges.stream().collect(Collectors.toMap(AdjudicationCharge::getSequenceNumber, Function.identity()));
         adjudicationPartyToUpdate.getCharges().clear();
         // If we do not run these inserts one at a time Oracle errors as it is not able to correctly run the trigger
@@ -497,7 +501,7 @@ public class AdjudicationsService {
             // If we do not run these inserts one at a time Oracle errors as it is not able to correctly run the trigger
             // AGENCY_INCIDENT_CHARGES_T1
             entityManager.flush();
-        } */
+        }
     }
 
     private void trackAdjudicationCreated(final Adjudication createdAdjudication, String reporterName) {
