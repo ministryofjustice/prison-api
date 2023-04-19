@@ -240,16 +240,15 @@ public class AdjudicationsResource {
         @ApiResponse(responseCode = "404", description = "No match was found for the adjudication number or hearing", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
     })
     @Operation(summary = "Creates an OIC sanction", description = "Requires MAINTAIN_ADJUDICATIONS access and write scope")
-    @PostMapping("/adjudication/{adjudicationNumber}/hearing/{oicHearingId}/sanction")
+    @PostMapping("/adjudication/{adjudicationNumber}/sanction")
     @ProxyUser
     @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS') and hasAuthority('SCOPE_write')")
     @ResponseStatus(HttpStatus.CREATED)
     public Sanction createOicSanction(
         @PathVariable("adjudicationNumber") final Long adjudicationNumber,
-        @PathVariable("oicHearingId") final Long oicHearingId,
         @Valid @RequestBody @Parameter(description = "OIC sanctions to save", required = true) final List<OicSanctionRequest> oicSanctionRequests
     ) {
-        return adjudicationsService.createOicSanction(adjudicationNumber, oicHearingId, oicSanctionRequests);
+        return adjudicationsService.createOicSanction(adjudicationNumber, oicSanctionRequests);
     }
 
     @ApiResponses({
@@ -258,13 +257,12 @@ public class AdjudicationsResource {
         @ApiResponse(responseCode = "404", description = "No match was found for the adjudication number or hearing", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
     })
     @Operation(summary = "Updates an OIC hearing result", description = "Requires MAINTAIN_ADJUDICATIONS access and write scope")
-    @PutMapping("/adjudication/{adjudicationNumber}/hearing/{oicHearingId}/sanction")
+    @PutMapping("/adjudication/{adjudicationNumber}/sanction")
     @ProxyUser
     @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS') and hasAuthority('SCOPE_write')")
     @ResponseStatus(HttpStatus.OK)
     public OicHearingResultDto amendOicSanction(
         @PathVariable("adjudicationNumber") final Long adjudicationNumber,
-        @PathVariable("oicHearingId") final Long oicHearingId,
         @Valid @RequestBody @Parameter(description = "Amended OIC sanction to save", required = true) final OicHearingResultRequest oicHearingResultRequest
     ) {
         return null;
@@ -276,13 +274,12 @@ public class AdjudicationsResource {
         @ApiResponse(responseCode = "404", description = "No match was found for the adjudication number or hearing", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
     })
     @Operation(summary = "Deletes an OIC sanction", description = "Requires MAINTAIN_ADJUDICATIONS access and write scope")
-    @DeleteMapping("/adjudication/{adjudicationNumber}/hearing/{oicHearingId}/sanction")
+    @DeleteMapping("/adjudication/{adjudicationNumber}/sanction")
     @ProxyUser
     @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS') and hasAuthority('SCOPE_write')")
     @ResponseStatus(HttpStatus.OK)
     public void deleteOicSanction(
-        @PathVariable("adjudicationNumber") final Long adjudicationNumber,
-        @PathVariable("oicHearingId") final Long oicHearingId
+        @PathVariable("adjudicationNumber") final Long adjudicationNumber
     ) {
 
     }

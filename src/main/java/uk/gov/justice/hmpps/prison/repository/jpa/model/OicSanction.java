@@ -33,69 +33,57 @@ public class OicSanction extends AuditableEntity {
 
     @Getter
     public enum OicSanctionCode {
-        ADA("Additional Days Added"),
-        ASSO("Association/Dine/Recreat/Entertain/Class"),
-        ASS_DINING("Dining In Association"),
-        ASS_NEWS("Association Newspapers"),
-        ASS_SNACKS("Snacks And Beverages On Assoc"),
-        BEDDG_OWN("Use Of Own Bedding"),
-        BEST_JOBS("Best Jobs"),
-        BONUS_PNTS("Bonus Points"),
-        CANTEEN("Canteen Facilities"),
-        CAUTION("Caution"),
-        CC("Cellular Confinement"),
-        CELL_ELEC("Electricity In Cell"),
-        CELL_FURN("Cell Furniture Above Minimum"),
-        COOK_FAC("Cooking Facilities"),
-        EXTRA_WORK("Exclusion from Associated Work"),
-        EXTW("Extra Work"),
-        FOOD_CHOIC("Food Choice On Prison Menu"),
-        FORFEIT("Forfeiture of Privileges"),
-        GAMES_ELEC("Electronic Games (Access/Hire)"),
-        INCOM_TEL("Incoming Telephone Calls"),
-        MAIL_ORDER("Use Of Mail Order Facilities"),
-        MEAL_TIMES("Meal Times"),
-        OIC("Occupations in Cell"),
-        OTHER("Other"),
-        PADA("Prospective Additional Days Added"),
-        PIC("Possessions in Cell"),
-        POSSESSION("Possessions (So4/Facil List)"),
-        PUBL("Publications"),
-        REMACT("Removal from Activity"),
-        REMWIN("Removal from Wing/Living Unit"),
-        STOP_EARN("Stoppage of Earnings (amount)"),
-        STOP_PCT("Stoppage of Earnings (%)"),
-        TOBA("Tobacco"),
-        USE_FRIDGE("Use Of Fridges And Freezers"),
-        USE_GYM("Gymnasium Use"),
-        USE_LAUNDRY("Laundry Facilities"),
-        USE_LIBRARY("Use Of Library"),
-        VISIT_HRS("Visiting Hrs/Evening Visits");
-
-        private final String desc;
-
-        OicSanctionCode(String desc) {
-            this.desc = desc;
-        }
+        ADA,
+        ASSO,
+        ASS_DINING,
+        ASS_NEWS,
+        ASS_SNACKS,
+        BEDDG_OWN,
+        BEST_JOBS,
+        BONUS_PNTS,
+        CANTEEN,
+        CAUTION,
+        CC,
+        CELL_ELEC,
+        CELL_FURN,
+        COOK_FAC,
+        EXTRA_WORK,
+        EXTW,
+        FOOD_CHOIC,
+        FORFEIT,
+        GAMES_ELEC,
+        INCOM_TEL,
+        MAIL_ORDER,
+        MEAL_TIMES,
+        OIC,
+        OTHER,
+        PADA,
+        PIC,
+        POSSESSION,
+        PUBL,
+        REMACT,
+        REMWIN,
+        STOP_EARN,
+        STOP_PCT,
+        TOBA,
+        USE_FRIDGE,
+        USE_GYM,
+        USE_LAUNDRY,
+        USE_LIBRARY,
+        VISIT_HRS;
     }
 
     public enum Status {
-        AS_AWARDED("Activated as Awarded"),
-        AWARD_RED("Activated with Quantum Reduced"),
-        IMMEDIATE("Immediate"),
-        PROSPECTIVE("Prospective"),
-        QUASHED("Quashed"),
-        REDAPP("Reduced on Appeal"),
-        SUSPENDED("Suspended"),
-        SUSPEN_EXT("Period of Suspension Extended"),
-        SUSPEN_RED("Period of Suspension Shortened"),
-        SUSP_PROSP("Suspended and Prospective");
-
-        private final String desc;
-
-        Status(String desc) {
-            this.desc = desc;
-        }
+        AS_AWARDED,
+        AWARD_RED,
+        IMMEDIATE,
+        PROSPECTIVE,
+        QUASHED,
+        REDAPP,
+        SUSPENDED,
+        SUSPEN_EXT,
+        SUSPEN_RED,
+        SUSP_PROSP;
     }
 
     @NoArgsConstructor

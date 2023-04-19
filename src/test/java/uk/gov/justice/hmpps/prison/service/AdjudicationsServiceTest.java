@@ -1475,7 +1475,7 @@ public class AdjudicationsServiceTest {
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Could not find adjudication number 2");
         }
-
+/*
         @Test
         public void createSanctionHearingDoesNotExit() {
             when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
@@ -1491,24 +1491,7 @@ public class AdjudicationsServiceTest {
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Could not find oic hearingId 3 for adjudication number 2");
         }
-
-        @Test
-        public void createSanctionHearingDoesNotBelongToAdjudication() {
-            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
-                .thenReturn(Optional.of(
-                    Adjudication.builder().parties(List.of(AdjudicationParty.builder().adjudicationNumber(2L).build())).build()
-                ));
-            when(oicHearingRepository.findById(3L))
-                .thenReturn(Optional.of(
-                    OicHearing.builder().adjudicationNumber(20L).build()
-                ));
-
-            assertThatThrownBy(() ->
-                service.createOicHearingResult(2L, 3L, OicHearingResultRequest.builder().build()))
-                .isInstanceOf(ValidationException.class)
-                .hasMessageContaining("oic hearingId 3 is not linked to adjudication number 2");
-        }
-
+*/
         @Test
         public void createSanction() {
             when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
@@ -1521,15 +1504,9 @@ public class AdjudicationsServiceTest {
                                 .bookingId(200L).build())
                             .adjudicationNumber(2L).build())).build()
                 ));
-            when(oicHearingRepository.findById(3L))
-                .thenReturn(Optional.of(
-                    OicHearing.builder().adjudicationNumber(2L).build()
-                ));
 
-            when(oicSanctionRepository.findFirstByOffenderBookIdOrderBySanctionSeqDesc(200L))
-                .thenReturn(Optional.of(OicSanction.builder()
-                    .sanctionSeq(5L)
-                    .build()));
+            when(oicSanctionRepository.getNextSanctionSeq(200L))
+                .thenReturn(6L);
 
             LocalDate today = LocalDate.now();
 
@@ -1542,22 +1519,19 @@ public class AdjudicationsServiceTest {
                 .sanctionDays(30L)
                 .commentText("Comment")
                 .effectiveDate(today)
-                .consecutiveSanctionSeq(1L)
-                .oicHearingId(3L)
                 .status(Status.IMMEDIATE)
                 .resultSeq(1L)
                 .oicIncidentId(2L)
                 .build());
 
-            var result = service.createOicSanction(2L, 3L, List.of(OicSanctionRequest.builder()
-                .sanctionType(OicSanctionCode.ADA.name())
-                .compensationAmount(new BigDecimal("1000.55"))
+            var result = service.createOicSanction(2L, List.of(OicSanctionRequest.builder()
+                .oicSanctionCode(OicSanctionCode.ADA)
+                .compensationAmount(1000.55)
                 .sanctionMonths(12L)
                 .sanctionDays(30L)
                 .comment("Comment")
                 .effectiveDate(today)
-                .consecutiveSanctionSeq(1L)
-                .status(Status.IMMEDIATE.name())
+                .status(Status.IMMEDIATE)
                 .build()));
 
             final var sanctionCapture = ArgumentCaptor.forClass(OicSanction.class);
@@ -1572,8 +1546,6 @@ public class AdjudicationsServiceTest {
             assertThat(sanctionCapture.getValue().getSanctionDays()).isEqualTo(30L);
             assertThat(sanctionCapture.getValue().getCommentText()).isEqualTo("Comment");
             assertThat(sanctionCapture.getValue().getEffectiveDate()).isEqualTo(today);
-            assertThat(sanctionCapture.getValue().getConsecutiveSanctionSeq()).isEqualTo(1L);
-            assertThat(sanctionCapture.getValue().getOicHearingId()).isEqualTo(3L);
             assertThat(sanctionCapture.getValue().getStatus()).isEqualTo(Status.IMMEDIATE);
             assertThat(sanctionCapture.getValue().getResultSeq()).isEqualTo(1L);
             assertThat(sanctionCapture.getValue().getOicIncidentId()).isEqualTo(2L);

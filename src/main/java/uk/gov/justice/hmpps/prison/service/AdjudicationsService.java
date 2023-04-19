@@ -31,8 +31,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearing;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearing.OicHearingStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction.OicSanctionCode;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction.Status;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationOffenceTypeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
@@ -51,6 +49,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.validation.Valid;
 import jakarta.validation.ValidationException;
 import jakarta.validation.constraints.NotNull;
+
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -420,15 +420,13 @@ public class AdjudicationsService {
     @VerifyOffenderAccess
     public Sanction createOicSanction(
         final Long adjudicationNumber,
-        final Long oicHearingId,
         final List<OicSanctionRequest> oicSanctionRequests) {
 
-        final var pair = getWithValidationChecks(adjudicationNumber, oicHearingId);
-        final var adjudication = pair.getRight();
+        final var adjudication = adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber)
+            .orElseThrow(EntityNotFoundException.withMessage(format("Could not find adjudication number %d", adjudicationNumber)));
         Long offenderBookId = adjudication.getOffenderParty().get().getOffenderBooking().getBookingId();
 
-        final var priorOicSanction = oicSanctionRepository.findFirstByOffenderBookIdOrderBySanctionSeqDesc(offenderBookId);
-        Long nextSanctionSeq = (priorOicSanction.isPresent()) ? priorOicSanction.get().getSanctionSeq() + 1 : 1;
+        Long nextSanctionSeq = oicSanctionRepository.getNextSanctionSeq(offenderBookId);
 
         List<OicSanction> oicSanctions = new ArrayList<>();
         int index = 0;
@@ -436,15 +434,13 @@ public class AdjudicationsService {
             oicSanctions.add(oicSanctionRepository.save(OicSanction.builder()
                 .offenderBookId(offenderBookId)
                 .sanctionSeq(nextSanctionSeq + index)
-                .oicSanctionCode(OicSanctionCode.valueOf(request.getSanctionType()))
-                .compensationAmount(request.getCompensationAmount())
+                .oicSanctionCode(request.getOicSanctionCode())
+                .compensationAmount(BigDecimal.valueOf(request.getCompensationAmount()))
                 .sanctionMonths(request.getSanctionMonths())
                 .sanctionDays(request.getSanctionDays())
                 .commentText(request.getComment())
                 .effectiveDate(request.getEffectiveDate())
-                .consecutiveSanctionSeq(request.getConsecutiveSanctionSeq())
-                .oicHearingId(oicHearingId)
-                .status(Status.valueOf(request.getStatus()))
+                .status(request.getStatus())
                 .resultSeq(1L)
                 .oicIncidentId(adjudicationNumber)
                 .build())

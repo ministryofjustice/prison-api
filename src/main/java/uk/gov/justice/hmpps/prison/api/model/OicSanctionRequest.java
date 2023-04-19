@@ -7,8 +7,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction.OicSanctionCode;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction.Status;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 
@@ -20,19 +21,25 @@ import java.time.LocalDate;
 @Builder(toBuilder = true)
 public class OicSanctionRequest {
 
-    private String sanctionType;
+    @Schema(description = "Sanction Type")
+    private OicSanctionCode oicSanctionCode;
 
-    private BigDecimal compensationAmount;
+    @Schema(description = "Compensation Amount")
+    private Double compensationAmount;
 
+    @Schema(description = "Sanction Months")
     private Long sanctionMonths;
 
+    @Schema(description = "Sanction Days")
     private Long sanctionDays;
 
+    @Schema(description = "Comment")
     private String comment;
 
+    @Schema(description = "Effective Days")
+    @NotNull
     private LocalDate effectiveDate;
 
-    private Long consecutiveSanctionSeq;
-
-    private String status;
+    @Schema(description = "Sanction status")
+    private Status status;
 }
