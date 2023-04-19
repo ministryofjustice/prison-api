@@ -14,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult.FindingCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult.PleaFindingCode;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction.OicSanctionCode;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction.Status;
 
 import java.util.List;
 import java.util.Map;
@@ -821,6 +823,55 @@ public class AdjudicationsResourceTest extends ResourceTest  {
     @Nested
     public class CreateSanctions {
 
+        final List<String> valid = List.of("ROLE_MAINTAIN_ADJUDICATIONS");
+        final List<String> invalid = List.of("ROLE_SYSTEM_USER");
+
+        final List invalidRequest = List.of(Map.of(
+            "oicSanctionCode", OicSanctionCode.ADA,
+            "compensationAmount", "1000.55",
+            "sanctionDays", "30",
+            "effectiveDate", "2021-01-04",
+            "status", Status.IMMEDIATE));
+
+        final List validRequest = List.of(Map.of(
+            "oicSanctionCode", OicSanctionCode.ADA,
+            "compensationAmount", "1000.55",
+            "sanctionDays", "30",
+            "effectiveDate", "2021-01-04",
+            "status", Status.IMMEDIATE));
+
+        @Test
+        public void createSanctionsReturns403ForInvalidRoles() {
+            createSanctions(invalid, validRequest, -9L)
+                .expectStatus().isForbidden();
+        }
+
+        @Test
+        public void createSanctionsReturns404DueToNoAdjudication() {
+            createSanctions(valid, validRequest, 99L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void createSanctionsReturns404DueToNoProvedHearingResult() {
+            createSanctions(valid, validRequest, -9L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void createSanctionsReturns404DueToMultipleProvedHearingResult() {
+            createSanctions(valid, validRequest, -3001L)
+                .expectStatus().isNotFound();
+        }
+
+        private ResponseSpec createSanctions(List<String> headers, List payload, Long adjudicationNumber) {
+            return webTestClient.post()
+                .uri("/api/adjudications/adjudication/"+adjudicationNumber+"/sanction")
+                .headers(setAuthorisation(headers))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .bodyValue(payload)
+                .exchange();
+        }
     }
 
 }
