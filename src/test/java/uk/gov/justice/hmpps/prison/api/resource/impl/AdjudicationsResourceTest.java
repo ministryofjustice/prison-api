@@ -900,7 +900,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
 
         private ResponseSpec createSanctions(List<String> headers, List payload, Long adjudicationNumber) {
             return webTestClient.post()
-                .uri("/api/adjudications/adjudication/"+adjudicationNumber+"/sanction")
+                .uri("/api/adjudications/adjudication/"+adjudicationNumber+"/sanctions")
                 .headers(setAuthorisation(headers))
                 .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                 .bodyValue(payload)

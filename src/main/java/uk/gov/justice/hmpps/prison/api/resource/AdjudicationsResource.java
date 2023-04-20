@@ -239,7 +239,7 @@ public class AdjudicationsResource {
         @ApiResponse(responseCode = "404", description = "No match was found for the adjudication number or hearing", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
     })
     @Operation(summary = "Creates a set of OIC sanctions", description = "Requires MAINTAIN_ADJUDICATIONS access and write scope")
-    @PostMapping("/adjudication/{adjudicationNumber}/sanction")
+    @PostMapping("/adjudication/{adjudicationNumber}/sanctions")
     @ProxyUser
     @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS') and hasAuthority('SCOPE_write')")
     @ResponseStatus(HttpStatus.CREATED)
