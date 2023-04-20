@@ -419,7 +419,7 @@ public class AdjudicationsService {
 
     @Transactional
     @VerifyOffenderAccess
-    public Sanction createOicSanctions(
+    public List<Sanction> createOicSanctions(
         final Long adjudicationNumber,
         final List<OicSanctionRequest> oicSanctionRequests) {
 
@@ -455,8 +455,16 @@ public class AdjudicationsService {
             index++;
         }
 
-        return Sanction.builder()
-            .build();
+        return oicSanctions.stream().map(oicSanction -> Sanction.builder()
+            .sanctionType(oicSanction.getOicSanctionCode().name())
+            .sanctionDays(oicSanction.getSanctionDays())
+            .compensationAmount(oicSanction.getCompensationAmount().longValue())
+            .effectiveDate(oicSanction.getEffectiveDate().atStartOfDay())
+            .status(oicSanction.getStatus().name())
+            .sanctionSeq(oicSanction.getSanctionSeq())
+            .oicHearingId(oicSanction.getOicHearingId())
+            .resultSeq(oicSanction.getResultSeq())
+            .build()).collect(Collectors.toList());
     }
 
     private void oicHearingLocationValidation(final Long hearingLocationId){

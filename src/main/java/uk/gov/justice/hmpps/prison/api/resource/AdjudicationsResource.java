@@ -243,7 +243,7 @@ public class AdjudicationsResource {
     @ProxyUser
     @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS') and hasAuthority('SCOPE_write')")
     @ResponseStatus(HttpStatus.CREATED)
-    public Sanction createOicSanction(
+    public List<Sanction> createOicSanction(
         @PathVariable("adjudicationNumber") final Long adjudicationNumber,
         @Valid @RequestBody @Parameter(description = "OIC sanctions to save", required = true) final List<OicSanctionRequest> oicSanctionRequests
     ) {

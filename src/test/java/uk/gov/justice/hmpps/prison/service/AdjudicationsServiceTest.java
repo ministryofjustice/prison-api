@@ -1553,7 +1553,7 @@ public class AdjudicationsServiceTest {
                 .oicIncidentId(2L)
                 .build());
 
-            var result = service.createOicSanctions(2L, List.of(OicSanctionRequest.builder()
+            List<Sanction> result = service.createOicSanctions(2L, List.of(OicSanctionRequest.builder()
                 .oicSanctionCode(OicSanctionCode.ADA)
                 .compensationAmount(1000.55)
                 .sanctionDays(30L)
@@ -1564,7 +1564,6 @@ public class AdjudicationsServiceTest {
             final var sanctionCapture = ArgumentCaptor.forClass(OicSanction.class);
             verify(oicSanctionRepository, atLeastOnce()).save(sanctionCapture.capture());
 
-            assertThat(result).isNotNull();
             assertThat(sanctionCapture.getValue().getOffenderBookId()).isEqualTo(200L);
             assertThat(sanctionCapture.getValue().getSanctionSeq()).isEqualTo(6L);
             assertThat(sanctionCapture.getValue().getOicSanctionCode()).isEqualTo(OicSanctionCode.ADA);
@@ -1572,10 +1571,17 @@ public class AdjudicationsServiceTest {
             assertThat(sanctionCapture.getValue().getSanctionDays()).isEqualTo(30L);
             assertThat(sanctionCapture.getValue().getEffectiveDate()).isEqualTo(today);
             assertThat(sanctionCapture.getValue().getStatus()).isEqualTo(Status.IMMEDIATE);
+            assertThat(sanctionCapture.getValue().getOicHearingId()).isEqualTo(3L);
             assertThat(sanctionCapture.getValue().getResultSeq()).isEqualTo(1L);
             assertThat(sanctionCapture.getValue().getOicIncidentId()).isEqualTo(2L);
 
-            assertThat(result).isEqualTo(Sanction.builder().build());
+            assertThat(result.get(0).getSanctionType()).isEqualTo(OicSanctionCode.ADA.name());
+            assertThat(result.get(0).getCompensationAmount()).isEqualTo(1000L);
+            assertThat(result.get(0).getSanctionDays()).isEqualTo(30L);
+            assertThat(result.get(0).getEffectiveDate()).isEqualTo(today.atStartOfDay());
+            assertThat(result.get(0).getStatus()).isEqualTo(Status.IMMEDIATE.name());
+            assertThat(result.get(0).getOicHearingId()).isEqualTo(3L);
+            assertThat(result.get(0).getResultSeq()).isEqualTo(1L);
         }
 
     }
