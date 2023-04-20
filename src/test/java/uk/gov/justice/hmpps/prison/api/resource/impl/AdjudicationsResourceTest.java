@@ -832,6 +832,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
             "oicSanctionCode", OicSanctionCode.ADA,
             "compensationAmount", "1000.55",
             "sanctionDays", "30",
+            "commentText", "comment",
             "effectiveDate", "2021-01-04",
             "status", Status.IMMEDIATE));
 
@@ -839,6 +840,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
             "oicSanctionCode", OicSanctionCode.ADA,
             "compensationAmount", "1000.55",
             "sanctionDays", "30",
+            "commentText", "comment",
             "effectiveDate", "2021-01-04",
             "status", Status.IMMEDIATE));
 
@@ -874,6 +876,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
                 .expectBody()
                 .jsonPath("$[0].sanctionType").isEqualTo(OicSanctionCode.ADA.name())
                 .jsonPath("$[0].sanctionDays").isEqualTo("30")
+                .jsonPath("$[0].comment").isEqualTo("comment")
                 .jsonPath("$[0].compensationAmount").isEqualTo("1000")
                 .jsonPath("$[0].effectiveDate").isEqualTo("2021-01-04T00:00:00")
                 .jsonPath("$[0].status").isEqualTo(Status.IMMEDIATE.name())
@@ -886,11 +889,13 @@ public class AdjudicationsResourceTest extends ResourceTest  {
             assertThat(oicSanctions.get(0).getOicSanctionCode()).isEqualTo(OicSanctionCode.ADA);
             assertThat(oicSanctions.get(0).getCompensationAmount()).isEqualTo(new BigDecimal("1000.55"));
             assertThat(oicSanctions.get(0).getSanctionDays()).isEqualTo(30L);
+            assertThat(oicSanctions.get(0).getCommentText()).isEqualTo("comment");
             assertThat(oicSanctions.get(0).getEffectiveDate()).isEqualTo("2021-01-04");
             assertThat(oicSanctions.get(0).getStatus()).isEqualTo(Status.IMMEDIATE);
             assertThat(oicSanctions.get(0).getOicHearingId()).isEqualTo(-3006L);
             assertThat(oicSanctions.get(0).getResultSeq()).isEqualTo(1L);
             assertThat(oicSanctions.get(0).getOicIncidentId()).isEqualTo(-3002L);
+            assertThat(oicSanctions.size()).isEqualTo(1);
         }
 
         private ResponseSpec createSanctions(List<String> headers, List payload, Long adjudicationNumber) {

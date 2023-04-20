@@ -30,6 +30,9 @@ public class OicSanctionRequest {
     @Schema(description = "Sanction Days")
     private Long sanctionDays;
 
+    @Schema(description = "Comment Text")
+    private String commentText;
+
     @Schema(description = "Effective Date")
     @NotNull
     private LocalDate effectiveDate; //TODO confirm with John is this suspended until date as well?

@@ -1546,6 +1546,7 @@ public class AdjudicationsServiceTest {
                 .oicSanctionCode(OicSanctionCode.ADA)
                 .compensationAmount(new BigDecimal("1000.55"))
                 .sanctionDays(30L)
+                .commentText("comment")
                 .effectiveDate(today)
                 .status(Status.IMMEDIATE)
                 .oicHearingId(3L)
@@ -1557,6 +1558,7 @@ public class AdjudicationsServiceTest {
                 .oicSanctionCode(OicSanctionCode.ADA)
                 .compensationAmount(1000.55)
                 .sanctionDays(30L)
+                .commentText("comment")
                 .effectiveDate(today)
                 .status(Status.IMMEDIATE)
                 .build()));
@@ -1569,6 +1571,7 @@ public class AdjudicationsServiceTest {
             assertThat(sanctionCapture.getValue().getOicSanctionCode()).isEqualTo(OicSanctionCode.ADA);
             assertThat(sanctionCapture.getValue().getCompensationAmount()).isEqualTo(new BigDecimal("1000.55"));
             assertThat(sanctionCapture.getValue().getSanctionDays()).isEqualTo(30L);
+            assertThat(sanctionCapture.getValue().getCommentText()).isEqualTo("comment");
             assertThat(sanctionCapture.getValue().getEffectiveDate()).isEqualTo(today);
             assertThat(sanctionCapture.getValue().getStatus()).isEqualTo(Status.IMMEDIATE);
             assertThat(sanctionCapture.getValue().getOicHearingId()).isEqualTo(3L);
@@ -1578,6 +1581,7 @@ public class AdjudicationsServiceTest {
             assertThat(result.get(0).getSanctionType()).isEqualTo(OicSanctionCode.ADA.name());
             assertThat(result.get(0).getCompensationAmount()).isEqualTo(1000L);
             assertThat(result.get(0).getSanctionDays()).isEqualTo(30L);
+            assertThat(result.get(0).getComment()).isEqualTo("comment");
             assertThat(result.get(0).getEffectiveDate()).isEqualTo(today.atStartOfDay());
             assertThat(result.get(0).getStatus()).isEqualTo(Status.IMMEDIATE.name());
             assertThat(result.get(0).getOicHearingId()).isEqualTo(3L);

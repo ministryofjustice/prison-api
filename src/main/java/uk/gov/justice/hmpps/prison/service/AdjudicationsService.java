@@ -442,14 +442,12 @@ public class AdjudicationsService {
                 .oicSanctionCode(request.getOicSanctionCode())
                 .compensationAmount(BigDecimal.valueOf(request.getCompensationAmount()))
                 .sanctionDays(request.getSanctionDays())
+                .commentText(request.getCommentText())
                 .effectiveDate(request.getEffectiveDate())
                 .status(request.getStatus())
                 .oicHearingId(hearingResult.get(0).getOicHearingId())
                 .resultSeq(1L)
-                    .lidsSanctionNumber(null) // TODO speak to John
                 .oicIncidentId(adjudicationNumber)
-                    .consecutiveSanctionSeq(null) //TODO speak to John
-                    .consecutiveSanctionSeq(null) //TODO speak to John
                 .build())
             );
             index++;
@@ -458,6 +456,7 @@ public class AdjudicationsService {
         return oicSanctions.stream().map(oicSanction -> Sanction.builder()
             .sanctionType(oicSanction.getOicSanctionCode().name())
             .sanctionDays(oicSanction.getSanctionDays())
+            .comment(oicSanction.getCommentText())
             .compensationAmount(oicSanction.getCompensationAmount().longValue())
             .effectiveDate(oicSanction.getEffectiveDate().atStartOfDay())
             .status(oicSanction.getStatus().name())
