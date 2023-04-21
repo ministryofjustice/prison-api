@@ -39,7 +39,6 @@ class AgencyResource_prisonsIntTest : ResourceTest() {
         .expectBody()
         .jsonPath("\$.length()").value<Int> { assertThat(it).isGreaterThan(2) }
         .jsonPath("\$[*].agencyId").value<List<String>> { assertThat(it).contains("BMI", "BXI", "TRO") }
-        .jsonPath("\$[*].agencyId").value<List<String>> { assertThat(it).contains("BMI", "BXI", "TRO") }
         .jsonPath("\$[?(@.agencyId == 'BMI')].description").isEqualTo("Birmingham")
     }
 
