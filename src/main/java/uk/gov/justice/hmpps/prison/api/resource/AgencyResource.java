@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.AddressDto;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentTypes;
+import uk.gov.justice.hmpps.prison.api.model.AgyPrisonerPayProfile;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.IepLevel;
 import uk.gov.justice.hmpps.prison.api.model.Location;
@@ -392,5 +393,18 @@ public class AgencyResource {
         @PathVariable @Parameter(description = "The ID of the contact", required = true) final Long phoneId
     ) {
          agencyService.deleteAgencyAddressPhone(agencyId, addressId, phoneId);
+    }
+
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Return the payment profile data for the given Agency.", description = "Each agency can configure its own pay profile and this endpoint provides its key data, such as min/max pay and bonus rates.")
+    @GetMapping("/{agencyId}/pay-profile")
+    @SlowReportQuery
+    public AgyPrisonerPayProfile getAgencyPayProfile(@PathVariable("agencyId") @Parameter(required = true) final String agencyId) {
+        return agencyService.getAgencyPayProfile(agencyId);
     }
 }

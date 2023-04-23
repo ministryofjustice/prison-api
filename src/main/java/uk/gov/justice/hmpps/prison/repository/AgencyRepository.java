@@ -1,13 +1,18 @@
 package uk.gov.justice.hmpps.prison.repository;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.AgencyDto;
+import uk.gov.justice.hmpps.prison.api.model.AgyPrisonerPayProfile;
+import uk.gov.justice.hmpps.prison.api.model.AgyPrisonerPayProfileDto;
 import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.model.LocationDto;
 import uk.gov.justice.hmpps.prison.api.support.Order;
@@ -37,6 +42,9 @@ public class AgencyRepository extends RepositoryBase {
 
     private static final DataClassByColumnRowMapper<LocationDto> LOCATION_ROW_MAPPER =
             new DataClassByColumnRowMapper<>(LocationDto.class);
+
+    private static final DataClassByColumnRowMapper<AgyPrisonerPayProfileDto> AGY_PRISONER_PAY_PROFILE_ROW_MAPPER =
+        new DataClassByColumnRowMapper<>(AgyPrisonerPayProfileDto.class);
 
     public Page<Agency> getAgencies(final String orderByField, final Order order, final long offset, final long limit) {
         final var initialSql = AgencyRepositorySql.GET_AGENCIES.getSql();
@@ -162,6 +170,23 @@ public class AgencyRepository extends RepositoryBase {
 
         final var locations = jdbcTemplate.query(sql, params, LOCATION_ROW_MAPPER);
         return locations.stream().map(LocationDto::toLocation).collect(toList());
+    }
+
+    public Optional<AgyPrisonerPayProfile> getAgyPrisonerPayProfile(final String agencyId) {
+        final var initialSql = AgencyRepositorySql.GET_AGY_PRISONER_PAY_PROFILE.getSql();
+        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, AGY_PRISONER_PAY_PROFILE_ROW_MAPPER);
+        final var sql = builder.build();
+        final var params = createParams("agencyId", agencyId);
+
+        AgyPrisonerPayProfileDto agyPrisonerPayProfileDto;
+
+        try {
+            agyPrisonerPayProfileDto = jdbcTemplate.queryForObject(sql, params, AGY_PRISONER_PAY_PROFILE_ROW_MAPPER);
+        } catch (DataAccessException ex) {
+            agyPrisonerPayProfileDto = null;
+        }
+
+        return Optional.ofNullable(agyPrisonerPayProfileDto).map(AgyPrisonerPayProfileDto::toAgyPrisonerPayProfile);
     }
 
     private void setupDates(final MapSqlParameterSource params, final LocalDate bookedOnDay, final TimeSlot bookedOnPeriod) {

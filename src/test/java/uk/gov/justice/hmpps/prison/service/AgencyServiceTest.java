@@ -1,6 +1,8 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import com.google.common.collect.ImmutableList;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentType;
 import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentTypes;
+import uk.gov.justice.hmpps.prison.api.model.AgyPrisonerPayProfile;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCell;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCellAttribute;
 import uk.gov.justice.hmpps.prison.api.model.PrisonContactDetail;
@@ -262,6 +265,49 @@ public class AgencyServiceTest {
         when(referenceDomainService.getReferenceCodeByDomainAndCode("ESTAB_TYPE", "IM", false)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.getEstablishmentTypes("MDI")).isInstanceOf(EntityNotFoundException.class).hasMessage("Establishment type IM for agency MDI not found.");
+    }
+
+    @Test
+    public void shouldReturnAgencyPayProfileForMoorland() {
+        var fakeResponse = AgyPrisonerPayProfile.builder()
+            .agencyId("MDI")
+            .startDate(LocalDateTime.now().minusDays(1).toLocalDate())
+            .endDate(LocalDateTime.now().plusDays(1).toLocalDate())
+            .autoPayFlag("Y")
+            .minHalfDayRate(new BigDecimal("1.25"))
+            .maxHalfDayRate(new BigDecimal("5.25"))
+            .maxBonusRate(new BigDecimal("4.00"))
+            .maxPieceWorkRate(new BigDecimal("8.00"))
+            .payFrequency(1)
+            .backdateDays(7)
+            .defaultPayBandCode("1")
+            .weeklyAbsenceLimit(12)
+            .build();
+
+        when(agencyRepo.getAgyPrisonerPayProfile("MDI")).thenReturn(Optional.of(fakeResponse));
+
+        final var payProfile = service.getAgencyPayProfile("MDI");
+
+        assertThat(payProfile.getAgencyId()).isEqualTo("MDI");
+        assertThat(payProfile.getStartDate()).isEqualTo(LocalDateTime.now().minusDays(1).toLocalDate());
+        assertThat(payProfile.getEndDate()).isEqualTo(LocalDateTime.now().plusDays(1).toLocalDate());
+        assertThat(payProfile.getAutoPayFlag()).isEqualTo("Y");
+        assertThat(payProfile.getMinHalfDayRate()).isEqualTo(new BigDecimal("1.25"));
+        assertThat(payProfile.getMaxHalfDayRate()).isEqualTo(new BigDecimal("5.25"));
+        assertThat(payProfile.getMaxBonusRate()).isEqualTo(new BigDecimal("4.00"));
+        assertThat(payProfile.getMaxPieceWorkRate()).isEqualTo(new BigDecimal("8.00"));
+        assertThat(payProfile.getPayFrequency()).isEqualTo(1);
+        assertThat(payProfile.getBackdateDays()).isEqualTo(7);
+        assertThat(payProfile.getDefaultPayBandCode()).isEqualTo("1");
+        assertThat(payProfile.getWeeklyAbsenceLimit()).isEqualTo(12);
+    }
+
+    @Test
+    public void notFoundExceptionForAgencyPayProfile() {
+        when(agencyRepo.getAgyPrisonerPayProfile("XXX")).thenReturn(Optional.empty());
+        assertThatThrownBy(() -> service.getAgencyPayProfile("XXX"))
+            .isInstanceOf(EntityNotFoundException.class)
+            .hasMessage("Resource with id [XXX] not found.");
     }
 
     private List<PrisonContactDetail> buildPrisonContactDetailsList() {

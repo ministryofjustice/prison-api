@@ -12,6 +12,7 @@ import uk.gov.justice.hmpps.prison.api.model.AddressDto;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentType;
 import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentTypes;
+import uk.gov.justice.hmpps.prison.api.model.AgyPrisonerPayProfile;
 import uk.gov.justice.hmpps.prison.api.model.IepLevel;
 import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCell;
@@ -522,5 +523,7 @@ public class AgencyService {
         agencyAddress.removePhone(addressPhone);
     }
 
-
+    public AgyPrisonerPayProfile getAgencyPayProfile(final String agencyId) {
+        return agencyRepository.getAgyPrisonerPayProfile(agencyId).orElseThrow(EntityNotFoundException.withId(agencyId));
+    }
 }
