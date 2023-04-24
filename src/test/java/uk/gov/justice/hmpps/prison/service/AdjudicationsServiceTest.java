@@ -54,6 +54,7 @@ import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 
 import jakarta.persistence.EntityManager;
 import jakarta.validation.ValidationException;
+import uk.gov.justice.hmpps.prison.service.AdjudicationsService.OicSanctionAction;
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -1471,7 +1472,7 @@ public class AdjudicationsServiceTest {
                 .thenReturn(Optional.empty());
 
             assertThatThrownBy(() ->
-                service.createOicSanctions(2L, List.of(OicSanctionRequest.builder().build())))
+                service.upsertOicSanctions(2L, List.of(OicSanctionRequest.builder().build()), OicSanctionAction.CREATE))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Could not find adjudication number 2");
         }
@@ -1486,7 +1487,7 @@ public class AdjudicationsServiceTest {
             when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(1L, FindingCode.PROVED)).thenReturn(Collections.emptyList());
 
             assertThatThrownBy(() ->
-                service.createOicSanctions(2L, List.of(OicSanctionRequest.builder().build())))
+                service.upsertOicSanctions(2L, List.of(OicSanctionRequest.builder().build()), OicSanctionAction.CREATE))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Could not find hearing result PROVED for adjudication id 1");
         }
@@ -1510,7 +1511,7 @@ public class AdjudicationsServiceTest {
             ));
 
             assertThatThrownBy(() ->
-                service.createOicSanctions(2L, List.of(OicSanctionRequest.builder().build())))
+                service.upsertOicSanctions(2L, List.of(OicSanctionRequest.builder().build()), OicSanctionAction.CREATE))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Multiple PROVED hearing results for adjudication id 1");
         }
@@ -1554,14 +1555,14 @@ public class AdjudicationsServiceTest {
                 .oicIncidentId(2L)
                 .build());
 
-            List<Sanction> result = service.createOicSanctions(2L, List.of(OicSanctionRequest.builder()
+            List<Sanction> result = service.upsertOicSanctions(2L, List.of(OicSanctionRequest.builder()
                 .oicSanctionCode(OicSanctionCode.ADA)
                 .compensationAmount(1000.55)
                 .sanctionDays(30L)
                 .commentText("comment")
                 .effectiveDate(today)
                 .status(Status.IMMEDIATE)
-                .build()));
+                .build()), OicSanctionAction.CREATE);
 
             final var sanctionCapture = ArgumentCaptor.forClass(OicSanction.class);
             verify(oicSanctionRepository, atLeastOnce()).save(sanctionCapture.capture());

@@ -36,6 +36,8 @@ import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.service.AdjudicationsService;
 
 import jakarta.validation.Valid;
+import uk.gov.justice.hmpps.prison.service.AdjudicationsService.OicSanctionAction;
+
 import java.util.List;
 
 @Hidden
@@ -247,6 +249,39 @@ public class AdjudicationsResource {
         @PathVariable("adjudicationNumber") final Long adjudicationNumber,
         @Valid @RequestBody @Parameter(description = "OIC sanctions to save", required = true) final List<OicSanctionRequest> oicSanctionRequests
     ) {
-        return adjudicationsService.createOicSanctions(adjudicationNumber, oicSanctionRequests);
+        return adjudicationsService.upsertOicSanctions(adjudicationNumber, oicSanctionRequests, OicSanctionAction.CREATE);
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "403", description = "The client is not authorised for this operation"),
+        @ApiResponse(responseCode = "404", description = "No match was found for the adjudication number or hearing", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
+    })
+    @Operation(summary = "Updates OIC sanctions (deletes if sanction list is empty)", description = "Requires MAINTAIN_ADJUDICATIONS access and write scope")
+    @PutMapping("/adjudication/{adjudicationNumber}/sanctions")
+    @ProxyUser
+    @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS') and hasAuthority('SCOPE_write')")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Sanction> updateOicSanction(
+        @PathVariable("adjudicationNumber") final Long adjudicationNumber,
+        @Valid @RequestBody @Parameter(description = "OIC sanctions to save", required = true) final List<OicSanctionRequest> oicSanctionRequests
+    ) {
+        return adjudicationsService.upsertOicSanctions(adjudicationNumber, oicSanctionRequests, OicSanctionAction.UPDATE);
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "403", description = "The client is not authorised for this operation"),
+        @ApiResponse(responseCode = "404", description = "No match was found for the adjudication number or hearing", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
+    })
+    @Operation(summary = "Quashes OIC sanctions", description = "Requires MAINTAIN_ADJUDICATIONS access and write scope")
+    @PutMapping("/adjudication/{adjudicationNumber}/sanctions/quash")
+    @ProxyUser
+    @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS') and hasAuthority('SCOPE_write')")
+    @ResponseStatus(HttpStatus.OK)
+    public void quashOicSanction(
+        @PathVariable("adjudicationNumber") final Long adjudicationNumber
+    ) {
+        adjudicationsService.upsertOicSanctions(adjudicationNumber, null, OicSanctionAction.QUASH);
     }
 }
