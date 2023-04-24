@@ -169,26 +169,4 @@ enum class AgencyRepositorySql(val sql: String) {
         ORDER BY USER_DESCRIPTION
     """,
   ),
-
-  GET_AGY_PRISONER_PAY_PROFILE(
-    """
-        SELECT
-          AGY_LOC_ID,
-          AUTO_PAY_FLAG,
-          START_DATE,
-          END_DATE,
-          PAY_FREQUENCY,
-          WEEKLY_ABSENCE_LIMIT,
-          MIN_HALF_DAY_RATE,
-          MAX_HALF_DAY_RATE,
-          MAX_PIECE_WORK_RATE,
-          MAX_BONUS_RATE,
-          BACKDATE_DAYS,
-          DEFAULT_PAY_BAND_CODE
-          FROM AGY_PRISONER_PAY_PROFILES
-          WHERE AGY_LOC_ID = :agencyId
-          AND (END_DATE is null or END_DATE > trunc(sysdate))
-          AND START_DATE <= trunc(sysdate)
-    """,
-  ),
 }
