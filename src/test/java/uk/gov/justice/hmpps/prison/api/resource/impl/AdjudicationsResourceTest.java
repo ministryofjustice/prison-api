@@ -16,9 +16,11 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult.Finding
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult.PleaFindingCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction.OicSanctionCode;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction.PK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction.Status;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -898,7 +900,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
             assertThat(oicSanctions.size()).isEqualTo(1);
         }
 
-        private ResponseSpec createSanctions(List<String> headers, List payload, Long adjudicationNumber) {
+        public ResponseSpec createSanctions(List<String> headers, List payload, Long adjudicationNumber) {
             return webTestClient.post()
                 .uri("/api/adjudications/adjudication/"+adjudicationNumber+"/sanctions")
                 .headers(setAuthorisation(headers))
@@ -908,4 +910,108 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         }
     }
 
+    @Nested
+    public class UpdateSanctions {
+
+        final List<String> valid = List.of("ROLE_MAINTAIN_ADJUDICATIONS");
+        final List<String> invalid = List.of("ROLE_SYSTEM_USER");
+
+        final List invalidRequest = List.of(Map.of(
+            "oicSanctionCode", OicSanctionCode.ADA,
+            "compensationAmount", "1000.55",
+            "sanctionDays", "30",
+            "commentText", "comment",
+            "effectiveDate", "2021-01-04",
+            "status", Status.IMMEDIATE));
+
+        final List validRequest = List.of(Map.of(
+            "oicSanctionCode", OicSanctionCode.ADA,
+            "compensationAmount", "1000.55",
+            "sanctionDays", "30",
+            "commentText", "comment_new",
+            "effectiveDate", "2021-01-05",
+            "status", Status.IMMEDIATE));
+
+        @Test
+        public void updateSanctionsReturns403ForInvalidRoles() {
+            updateSanctions(invalid, validRequest, -9L)
+                .expectStatus().isForbidden();
+        }
+
+        @Test
+        public void updateSanctionsReturns404DueToNoAdjudication() {
+            updateSanctions(valid, validRequest, 99L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void updateSanctionsReturns404DueToNoProvedHearingResult() {
+            updateSanctions(valid, validRequest, -9L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void updateSanctionsReturns404DueToMultipleProvedHearingResult() {
+            updateSanctions(valid, validRequest, -3001L)
+                .expectStatus().isNotFound();
+        }
+
+        // empty list for deletion
+
+        @Test
+        @Transactional
+        public void updateSanctionsReturnsSuccess() {
+            OicSanction oicSanction = entityManager.persistFlushFind(OicSanction.builder()
+                .offenderBookId(-50L)
+                .sanctionSeq(0L)
+                .oicSanctionCode(OicSanctionCode.ADA)
+                .compensationAmount(new BigDecimal("555.55"))
+                .sanctionDays(29L)
+                .commentText("comment_old")
+                .effectiveDate(LocalDate.of(2021, 01, 04))
+                .status(Status.SUSPENDED)
+                .oicHearingId(-3006L)
+                .resultSeq(1L)
+                .oicIncidentId(-3002L)
+                .createUserId("ITAG_USER")
+                .build());
+
+            updateSanctions(valid, validRequest, -3002L)
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$[0].sanctionType").isEqualTo(OicSanctionCode.ADA.name())
+                .jsonPath("$[0].sanctionDays").isEqualTo("30")
+                .jsonPath("$[0].comment").isEqualTo("comment_new")
+                .jsonPath("$[0].compensationAmount").isEqualTo("1000")
+                .jsonPath("$[0].effectiveDate").isEqualTo("2021-01-05T00:00:00")
+                .jsonPath("$[0].status").isEqualTo(Status.IMMEDIATE.name())
+                .jsonPath("$[0].sanctionSeq").isEqualTo("0");
+
+            oicSanction = entityManager.find(OicSanction.class, new PK(-50L, 0L));
+            assertThat(oicSanction.getOffenderBookId()).isEqualTo(-50L);
+            assertThat(oicSanction.getSanctionSeq()).isEqualTo(0L);
+            assertThat(oicSanction.getOicSanctionCode()).isEqualTo(OicSanctionCode.ADA);
+            assertThat(oicSanction.getCompensationAmount()).isEqualTo(new BigDecimal("1000.55"));
+            assertThat(oicSanction.getSanctionDays()).isEqualTo(30L);
+            assertThat(oicSanction.getCommentText()).isEqualTo("comment_new");
+            assertThat(oicSanction.getEffectiveDate()).isEqualTo("2021-01-05");
+            assertThat(oicSanction.getStatus()).isEqualTo(Status.IMMEDIATE);
+            assertThat(oicSanction.getOicHearingId()).isEqualTo(-3006L);
+            assertThat(oicSanction.getResultSeq()).isEqualTo(1L);
+            assertThat(oicSanction.getOicIncidentId()).isEqualTo(-3002L);
+
+            entityManager.remove(oicSanction);
+            entityManager.flush();
+            entityManager.clear();
+        }
+
+        private ResponseSpec updateSanctions(List<String> headers, List payload, Long adjudicationNumber) {
+            return webTestClient.put()
+                .uri("/api/adjudications/adjudication/"+adjudicationNumber+"/sanctions")
+                .headers(setAuthorisation(headers))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .bodyValue(payload)
+                .exchange();
+        }
+    }
 }
