@@ -13,8 +13,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AgyPrisonerPayProfile
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyPrisonerPayProfileRepository
 import java.math.BigDecimal
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.Optional
 
 class AgencyPrisonerPayProfileServiceTest {
   val repository: AgencyPrisonerPayProfileRepository = mock()
@@ -26,19 +24,20 @@ class AgencyPrisonerPayProfileServiceTest {
   }
 
   @Test
-  fun shouldReturnAgencyPayProfileForMoorland() {
-    val fakeEntity = getFakeEntity("MDI")
-
+  fun shouldReturnTheActiveAgencyPayProfile() {
+    val today = LocalDate.now()
     whenever(
-      repository.findAgencyPrisonerPayProfileByAgyLocIdEqualsAndEndDateIsNullAndStartDateIsLessThanEqual("MDI", LocalDate.now()),
-    ).thenReturn(Optional.of(fakeEntity))
+      repository.findAgencyPrisonerPayProfileByAgyLocId("MDI"),
+    ).thenReturn(
+      listOf(getFakeEntity("MDI", today.minusDays(1), today.plusDays(1))), // Active
+    )
 
     val payProfile = service.getAgencyPrisonerPayProfile("MDI")
 
     with(payProfile) {
       assertThat(agencyId).isEqualTo("MDI")
-      assertThat(startDate).isEqualTo(LocalDateTime.now().minusDays(1).toLocalDate())
-      assertThat(endDate).isEqualTo(LocalDateTime.now().plusDays(1).toLocalDate())
+      assertThat(startDate).isEqualTo(today.minusDays(1))
+      assertThat(endDate).isEqualTo(today.plusDays(1))
       assertThat(autoPayFlag).isTrue
       assertThat(minHalfDayRate).isEqualTo(BigDecimal("1.25"))
       assertThat(maxHalfDayRate).isEqualTo(BigDecimal("5.25"))
@@ -52,30 +51,50 @@ class AgencyPrisonerPayProfileServiceTest {
   }
 
   @Test
-  fun notFoundExceptionForAgencyPayProfile() {
+  fun shouldChooseTheActiveProfileWhenOthersExist() {
+    val today = LocalDate.now()
     whenever(
-      repository.findAgencyPrisonerPayProfileByAgyLocIdEqualsAndEndDateIsNullAndStartDateIsLessThanEqual("XXX", LocalDate.now()),
-    ).thenThrow(EntityNotFoundException("Error"))
+      repository.findAgencyPrisonerPayProfileByAgyLocId("MDI"),
+    ).thenReturn(
+      listOf(
+        getFakeEntity("MDI", today.minusDays(10), today.minusDays(8)), // Expired
+        getFakeEntity("MDI", today.minusDays(8), today), // Active today
+        getFakeEntity("MDI", today.plusDays(1), null), // Planned
+      ),
+    )
+
+    val payProfile = service.getAgencyPrisonerPayProfile("MDI")
+
+    with(payProfile) {
+      assertThat(agencyId).isEqualTo("MDI")
+      assertThat(startDate).isEqualTo(today.minusDays(8))
+      assertThat(endDate).isEqualTo(today)
+    }
+  }
+
+  @Test
+  fun notFoundExceptionForAgencyPayProfile() {
+    whenever(repository.findAgencyPrisonerPayProfileByAgyLocId("XXX")).thenReturn(emptyList())
     assertThatThrownBy { service.getAgencyPrisonerPayProfile("XXX") }
       .isInstanceOf(EntityNotFoundException::class.java)
-      .hasMessage("Error")
+      .hasMessage("Resource with id [XXX] not found.")
   }
 
   @Test
   fun dataAccessExceptionForAgencyPayProfile() {
     whenever(
-      repository.findAgencyPrisonerPayProfileByAgyLocIdEqualsAndEndDateIsNullAndStartDateIsLessThanEqual("XXX", LocalDate.now()),
+      repository.findAgencyPrisonerPayProfileByAgyLocId("XXX"),
     ).thenThrow(QueryTimeoutException("Error"))
     assertThatThrownBy { service.getAgencyPrisonerPayProfile("XXX") }
       .isInstanceOf(DataAccessException::class.java)
       .hasMessage("Error")
   }
 
-  private fun getFakeEntity(agencyId: String) =
+  private fun getFakeEntity(agencyId: String, startDate: LocalDate, endDate: LocalDate?) =
     AgyPrisonerPayProfile(
       agyLocId = agencyId,
-      startDate = LocalDateTime.now().minusDays(1).toLocalDate(),
-      endDate = LocalDateTime.now().plusDays(1).toLocalDate(),
+      startDate = startDate,
+      endDate = endDate,
       autoPayFlag = "Y",
       minHalfDayRate = BigDecimal("1.25"),
       maxHalfDayRate = BigDecimal("5.25"),

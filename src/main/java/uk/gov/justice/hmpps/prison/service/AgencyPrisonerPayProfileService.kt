@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service
 
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import uk.gov.justice.hmpps.prison.api.model.AgencyPrisonerPayProfile
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgyPrisonerPayProfile
@@ -12,10 +13,17 @@ class AgencyPrisonerPayProfileService(
   private val agencyPrisonerPayProfileRepository: AgencyPrisonerPayProfileRepository,
 ) {
   fun getAgencyPrisonerPayProfile(agencyId: String): AgencyPrisonerPayProfile {
-    val result = agencyPrisonerPayProfileRepository
-      .findAgencyPrisonerPayProfileByAgyLocIdEqualsAndEndDateIsNullAndStartDateIsLessThanEqual(agencyId, LocalDate.now())
-      .orElseThrow(EntityNotFoundException.withId(agencyId))
-    return entityToModel(result)
+    val today = LocalDate.now()
+    val agencyProfilesList = agencyPrisonerPayProfileRepository
+      .findAgencyPrisonerPayProfileByAgyLocId(agencyId)
+      .filter { agy -> !agy.startDate.isAfter(today) && (agy.endDate == null || !agy.endDate.isBefore(today)) }
+
+    if (agencyProfilesList.isEmpty()) {
+      log.error("No AGY_PRISONER_PAY_PROFILES row is active for agency {} on {}", agencyId, today)
+      throw(EntityNotFoundException.withId(agencyId))
+    }
+
+    return entityToModel(agencyProfilesList.first())
   }
 
   private fun entityToModel(entity: AgyPrisonerPayProfile) = AgencyPrisonerPayProfile(
@@ -32,4 +40,8 @@ class AgencyPrisonerPayProfileService(
     backdateDays = entity.backdateDays,
     defaultPayBandCode = entity.defaultPayBandCode,
   )
+
+  private companion object {
+    private val log = LoggerFactory.getLogger(this::class.java)
+  }
 }

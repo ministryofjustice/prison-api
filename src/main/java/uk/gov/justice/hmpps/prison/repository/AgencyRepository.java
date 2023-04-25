@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.repository;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
@@ -30,7 +29,6 @@ import static java.util.stream.Collectors.toList;
 /**
  * Agency API repository implementation.
  */
-@Slf4j
 @Repository
 public class AgencyRepository extends RepositoryBase {
 

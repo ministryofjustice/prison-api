@@ -9,16 +9,16 @@ import java.time.LocalDate
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class AgencyPrisonerPayProfile(
   @Schema(description = "Agency identifier", example = "MDI")
-  val agencyId: String?,
+  val agencyId: String,
 
   @Schema(description = "The start date when this pay profile took effect", example = "2022-10-01")
-  val startDate: LocalDate?,
+  val startDate: LocalDate,
 
   @Schema(description = "The end date when this pay profile will stop taking effect", example = "2027-10-01")
   val endDate: LocalDate? = null,
 
   @Schema(description = "Whether automatic payments are enabled", example = "true")
-  val autoPayFlag: Boolean?,
+  val autoPayFlag: Boolean,
 
   @Schema(description = "The frequency that payroll runs for this agency (usually 1)", example = "1")
   val payFrequency: Int?,
