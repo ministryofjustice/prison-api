@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.AddressDto;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentTypes;
+import uk.gov.justice.hmpps.prison.api.model.AgencyPrisonerPayProfile;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.IepLevel;
 import uk.gov.justice.hmpps.prison.api.model.Location;
@@ -42,6 +43,7 @@ import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
+import uk.gov.justice.hmpps.prison.service.AgencyPrisonerPayProfileService;
 import uk.gov.justice.hmpps.prison.service.AgencyService;
 import uk.gov.justice.hmpps.prison.service.LocationGroupService;
 
@@ -61,12 +63,16 @@ import static uk.gov.justice.hmpps.prison.repository.support.StatusFilter.ALL;
 public class AgencyResource {
     private final AgencyService agencyService;
     private final LocationGroupService locationGroupService;
+    private final AgencyPrisonerPayProfileService agencyPrisonerPayProfileService;
 
     public AgencyResource(
         final AgencyService agencyService,
-        final LocationGroupService locationGroupService) {
+        final LocationGroupService locationGroupService,
+        final AgencyPrisonerPayProfileService agencyPrisonerPayProfileService
+    ) {
         this.agencyService = agencyService;
         this.locationGroupService = locationGroupService;
+        this.agencyPrisonerPayProfileService = agencyPrisonerPayProfileService;
     }
 
     @ApiResponses({
@@ -416,5 +422,18 @@ public class AgencyResource {
         @PathVariable @Parameter(description = "The ID of the contact", required = true) final Long phoneId
     ) {
          agencyService.deleteAgencyAddressPhone(agencyId, addressId, phoneId);
+    }
+
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Return the payment profile data for the given Agency.", description = "Each agency can configure its own pay profile and this endpoint provides its key data, such as min/max pay and bonus rates. Requires VIEW_PRISON_DATA.")
+    @PreAuthorize("hasRole('VIEW_PRISON_DATA')")
+    @GetMapping("/{agencyId}/pay-profile")
+    public AgencyPrisonerPayProfile getAgencyPayProfile(@PathVariable("agencyId") @Parameter(required = true) final String agencyId) {
+        return agencyPrisonerPayProfileService.getAgencyPrisonerPayProfile(agencyId);
     }
 }
