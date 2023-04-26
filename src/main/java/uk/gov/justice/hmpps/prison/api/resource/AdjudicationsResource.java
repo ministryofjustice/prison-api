@@ -279,9 +279,9 @@ public class AdjudicationsResource {
     @ProxyUser
     @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS') and hasAuthority('SCOPE_write')")
     @ResponseStatus(HttpStatus.OK)
-    public void quashOicSanction(
+    public List<Sanction> quashOicSanction(
         @PathVariable("adjudicationNumber") final Long adjudicationNumber
     ) {
-        adjudicationsService.upsertOicSanctions(adjudicationNumber, null, OicSanctionAction.QUASH);
+        return adjudicationsService.upsertOicSanctions(adjudicationNumber, null, OicSanctionAction.QUASH);
     }
 }

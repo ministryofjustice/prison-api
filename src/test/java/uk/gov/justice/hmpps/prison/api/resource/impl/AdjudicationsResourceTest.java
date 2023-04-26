@@ -1013,4 +1013,71 @@ public class AdjudicationsResourceTest extends ResourceTest  {
                 .exchange();
         }
     }
+
+    @Nested
+    public class QuashSanctions {
+
+        final List<String> valid = List.of("ROLE_MAINTAIN_ADJUDICATIONS");
+        final List<String> invalid = List.of("ROLE_SYSTEM_USER");
+
+        @Test
+        public void quashSanctionsReturns403ForInvalidRoles() {
+            quashSanctions(invalid, -9L)
+                .expectStatus().isForbidden();
+        }
+
+        @Test
+        public void quashSanctionsReturns404DueToNoAdjudication() {
+            quashSanctions(valid, 99L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void quashSanctionsReturns404DueToNoProvedHearingResult() {
+            quashSanctions(valid, -9L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void quashSanctionsReturns404DueToMultipleProvedHearingResult() {
+            quashSanctions(valid, -3001L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        @Transactional
+        public void quashSanctionsReturnsSuccess() {
+            quashSanctions(valid, -8L)
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$[0].sanctionType").isEqualTo(OicSanctionCode.FORFEIT.name())
+                .jsonPath("$[0].sanctionDays").isEqualTo("21")
+                .jsonPath("$[0].comment").isEqualTo("comment")
+                .jsonPath("$[0].compensationAmount").isEqualTo("50")
+                .jsonPath("$[0].effectiveDate").isEqualTo("2017-11-13T00:00:00")
+                .jsonPath("$[0].status").isEqualTo(Status.QUASHED.name())
+                .jsonPath("$[0].sanctionSeq").isEqualTo("1");
+
+            OicSanction oicSanction = entityManager.find(OicSanction.class, new PK(-35L, 1L));
+            assertThat(oicSanction.getOffenderBookId()).isEqualTo(-35L);
+            assertThat(oicSanction.getSanctionSeq()).isEqualTo(1L);
+            assertThat(oicSanction.getOicSanctionCode()).isEqualTo(OicSanctionCode.FORFEIT);
+            assertThat(oicSanction.getCompensationAmount()).isEqualTo(new BigDecimal("50.00"));
+            assertThat(oicSanction.getSanctionDays()).isEqualTo(21L);
+            assertThat(oicSanction.getCommentText()).isEqualTo("comment");
+            assertThat(oicSanction.getEffectiveDate()).isEqualTo("2017-11-13");
+            assertThat(oicSanction.getStatus()).isEqualTo(Status.QUASHED);
+            assertThat(oicSanction.getOicHearingId()).isEqualTo(-3L);
+            assertThat(oicSanction.getResultSeq()).isEqualTo(1L);
+            assertThat(oicSanction.getOicIncidentId()).isEqualTo(-8L);
+        }
+
+        private ResponseSpec quashSanctions(List<String> headers, Long adjudicationNumber) {
+            return webTestClient.put()
+                .uri("/api/adjudications/adjudication/"+adjudicationNumber+"/sanctions/quash")
+                .headers(setAuthorisation(headers))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .exchange();
+        }
+    }
 }
