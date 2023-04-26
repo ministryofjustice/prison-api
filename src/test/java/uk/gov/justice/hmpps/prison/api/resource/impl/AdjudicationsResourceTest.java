@@ -897,7 +897,6 @@ public class AdjudicationsResourceTest extends ResourceTest  {
             assertThat(oicSanctions.get(0).getResultSeq()).isEqualTo(1L);
             assertThat(oicSanctions.get(0).getOicIncidentId()).isEqualTo(-3002L);
             assertThat(oicSanctions.size()).isEqualTo(1);
-            entityManager.clear();
         }
 
         public ResponseSpec createSanctions(List<String> headers, List payload, Long adjudicationNumber) {
@@ -987,7 +986,6 @@ public class AdjudicationsResourceTest extends ResourceTest  {
             assertThat(oicSanction.getOicHearingId()).isEqualTo(-3L);
             assertThat(oicSanction.getResultSeq()).isEqualTo(1L);
             assertThat(oicSanction.getOicIncidentId()).isEqualTo(-8L);
-            entityManager.clear();
         }
 
         @Test
@@ -1004,7 +1002,6 @@ public class AdjudicationsResourceTest extends ResourceTest  {
 
             assertThat(entityManager.find(OicSanction.class, new PK(-35L, 1L))).isNull();
             assertThat(entityManager.find(OicSanction.class, new PK(-35L, 2L))).isNull();
-            entityManager.clear();
         }
 
         private ResponseSpec updateSanctions(List<String> headers, List payload, Long adjudicationNumber) {
