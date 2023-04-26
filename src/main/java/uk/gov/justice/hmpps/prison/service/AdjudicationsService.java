@@ -444,9 +444,6 @@ public class AdjudicationsService {
                 break;
             case UPDATE:
                 oicSanctionRepository.deleteAll(exitingOicSanctions);
-                break;
-            case QUASH:
-                if (exitingOicSanctions.isEmpty()) throw EntityNotFoundException.withMessage(format("Cannot quash sanctions, no sanctions found for adjudication id %d", adjudicationNumber));
         }
 
         List<OicSanction> oicSanctions = new ArrayList<>();
