@@ -4,3 +4,6 @@ spring:
       resourceserver:
         jwt:
           public-key-location: classpath:local-public-key.pub
+
+sql:
+  syntax_ora: true

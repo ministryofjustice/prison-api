@@ -245,7 +245,7 @@ public class AdjudicationsRepositoryTest {
                     "5139/3",
                     "51:2C",
                     "Detains any person against his will - detention against will of prison officer grade",
-                    "NOT_PROVED"))));
+                    "NOT_PROVEN"))));
     }
 
     @Test

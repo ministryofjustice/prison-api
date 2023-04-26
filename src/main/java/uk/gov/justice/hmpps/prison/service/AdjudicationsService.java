@@ -437,7 +437,7 @@ public class AdjudicationsService {
         Long offenderBookId = adjudication.getOffenderParty().get().getOffenderBooking().getBookingId();
         Long nextSanctionSeq = oicSanctionRepository.getNextSanctionSeq(offenderBookId);
 
-        List<OicSanction> exitingOicSanctions = oicSanctionRepository.findAllByOicHearingId(hearingResult.get(0).getOicHearingId());
+        List<OicSanction> exitingOicSanctions = oicSanctionRepository.findByOicHearingId(hearingResult.get(0).getOicHearingId());
         switch (action) {
             case CREATE:
                 if (!exitingOicSanctions.isEmpty()) throw BadRequestException.withMessage(format("Sanctions already exit for adjudication id %d", adjudicationNumber));
