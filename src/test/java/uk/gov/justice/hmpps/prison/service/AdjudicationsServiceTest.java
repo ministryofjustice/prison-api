@@ -1588,7 +1588,6 @@ public class AdjudicationsServiceTest {
             assertThat(result.get(0).getOicHearingId()).isEqualTo(3L);
             assertThat(result.get(0).getResultSeq()).isEqualTo(1L);
         }
-
     }
 
     @Nested
