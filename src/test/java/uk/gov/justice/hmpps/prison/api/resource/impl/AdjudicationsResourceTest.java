@@ -2,7 +2,6 @@ package uk.gov.justice.hmpps.prison.api.resource.impl;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -11,8 +10,6 @@ import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.jdbc.SqlConfig.TransactionMode;
 import org.springframework.test.web.reactive.server.WebTestClient.ResponseSpec;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult.FindingCode;
@@ -23,7 +20,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction.PK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction.Status;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +31,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Sql(scripts = {"/sql/adjudicationHistorySort_clean.sql"},
     executionPhase = ExecutionPhase.AFTER_TEST_METHOD,
     config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
-@EnableTransactionManagement
 public class AdjudicationsResourceTest extends ResourceTest  {
 
     @Nested
@@ -965,53 +960,6 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         @Test
         @Transactional
         public void updateSanctionsReturnsSuccess() {
-            OicSanction oicSanction = entityManager.persistFlushFind(OicSanction.builder()
-                .offenderBookId(-50L)
-                .sanctionSeq(0L)
-                .oicSanctionCode(OicSanctionCode.ADA)
-                .compensationAmount(new BigDecimal("555.55"))
-                .sanctionDays(29L)
-                .commentText("comment_old")
-                .effectiveDate(LocalDate.of(2021, 01, 04))
-                .status(Status.SUSPENDED)
-                .oicHearingId(-3006L)
-                .resultSeq(1L)
-                .oicIncidentId(-3002L)
-                .createUserId("ITAG_USER")
-                .build());
-
-            updateSanctions(valid, validRequest, -3002L)
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$[0].sanctionType").isEqualTo(OicSanctionCode.ADA.name())
-                .jsonPath("$[0].sanctionDays").isEqualTo("30")
-                .jsonPath("$[0].comment").isEqualTo("comment_new")
-                .jsonPath("$[0].compensationAmount").isEqualTo("1000")
-                .jsonPath("$[0].effectiveDate").isEqualTo("2021-01-05T00:00:00")
-                .jsonPath("$[0].status").isEqualTo(Status.IMMEDIATE.name())
-                .jsonPath("$[0].sanctionSeq").isEqualTo("0");
-
-            oicSanction = entityManager.find(OicSanction.class, new PK(-50L, 1L));
-            assertThat(oicSanction.getOffenderBookId()).isEqualTo(-50L);
-            assertThat(oicSanction.getSanctionSeq()).isEqualTo(1L);
-            assertThat(oicSanction.getOicSanctionCode()).isEqualTo(OicSanctionCode.ADA);
-            assertThat(oicSanction.getCompensationAmount()).isEqualTo(new BigDecimal("1000.55"));
-            assertThat(oicSanction.getSanctionDays()).isEqualTo(30L);
-            assertThat(oicSanction.getCommentText()).isEqualTo("comment_new");
-            assertThat(oicSanction.getEffectiveDate()).isEqualTo("2021-01-05");
-            assertThat(oicSanction.getStatus()).isEqualTo(Status.IMMEDIATE);
-            assertThat(oicSanction.getOicHearingId()).isEqualTo(-3006L);
-            assertThat(oicSanction.getResultSeq()).isEqualTo(1L);
-            assertThat(oicSanction.getOicIncidentId()).isEqualTo(-3002L);
-
-            entityManager.remove(oicSanction);
-            entityManager.flush();
-            entityManager.clear();
-        }
-
-        @Test
-        @Transactional
-        public void updateSanctionsReturnsSuccess2() {
             updateSanctions(valid, validRequest, -6L)
                 .expectStatus().isOk()
                 .expectBody()
@@ -1021,25 +969,20 @@ public class AdjudicationsResourceTest extends ResourceTest  {
                 .jsonPath("$[0].compensationAmount").isEqualTo("1000")
                 .jsonPath("$[0].effectiveDate").isEqualTo("2021-01-05T00:00:00")
                 .jsonPath("$[0].status").isEqualTo(Status.IMMEDIATE.name())
-                .jsonPath("$[0].sanctionSeq").isEqualTo("0");
+                .jsonPath("$[0].sanctionSeq").isEqualTo("4");
 
-//            oicSanction = entityManager.find(OicSanction.class, new PK(-50L, 1L));
-            OicSanction oicSanction = entityManager.find(OicSanction.class, new PK(-51L, 3L));
-            assertThat(oicSanction.getOffenderBookId()).isEqualTo(-51L);
-            assertThat(oicSanction.getSanctionSeq()).isEqualTo(3L);
+            OicSanction oicSanction = entityManager.find(OicSanction.class, new PK(-49L, 4L));
+            assertThat(oicSanction.getOffenderBookId()).isEqualTo(-49L);
+            assertThat(oicSanction.getSanctionSeq()).isEqualTo(4L);
             assertThat(oicSanction.getOicSanctionCode()).isEqualTo(OicSanctionCode.ADA);
             assertThat(oicSanction.getCompensationAmount()).isEqualTo(new BigDecimal("1000.55"));
             assertThat(oicSanction.getSanctionDays()).isEqualTo(30L);
             assertThat(oicSanction.getCommentText()).isEqualTo("comment_new");
             assertThat(oicSanction.getEffectiveDate()).isEqualTo("2021-01-05");
             assertThat(oicSanction.getStatus()).isEqualTo(Status.IMMEDIATE);
-            assertThat(oicSanction.getOicHearingId()).isEqualTo(-3006L);
+            assertThat(oicSanction.getOicHearingId()).isEqualTo(-24L);
             assertThat(oicSanction.getResultSeq()).isEqualTo(1L);
-            assertThat(oicSanction.getOicIncidentId()).isEqualTo(-3002L);
-
-//            entityManager.remove(oicSanction);
-//            entityManager.flush();
-//            entityManager.clear();
+            assertThat(oicSanction.getOicIncidentId()).isEqualTo(-6L);
         }
 
         private ResponseSpec updateSanctions(List<String> headers, List payload, Long adjudicationNumber) {
