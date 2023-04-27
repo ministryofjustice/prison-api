@@ -1,8 +1,8 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.1.4-beta-3"
-  kotlin("plugin.spring") version "1.8.20"
-  kotlin("plugin.jpa") version "1.8.20"
-  kotlin("plugin.lombok") version "1.8.20"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.1.4-beta-4"
+  kotlin("plugin.spring") version "1.8.21"
+  kotlin("plugin.jpa") version "1.8.21"
+  kotlin("plugin.lombok") version "1.8.21"
 }
 
 configurations {
@@ -74,10 +74,10 @@ dependencies {
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.37.0")
 
-  testImplementation("net.serenity-bdd:serenity-core:3.6.23")
-  testImplementation("net.serenity-bdd:serenity-junit:3.6.23")
-  testImplementation("net.serenity-bdd:serenity-spring:3.6.23")
-  testImplementation("net.serenity-bdd:serenity-cucumber:3.6.23")
+  testImplementation("net.serenity-bdd:serenity-core:3.7.1")
+  testImplementation("net.serenity-bdd:serenity-junit:3.7.1")
+  testImplementation("net.serenity-bdd:serenity-spring:3.7.1")
+  testImplementation("net.serenity-bdd:serenity-cucumber:3.7.1")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
   testImplementation("com.github.tomakehurst:wiremock-jre8-standalone:2.35.0")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.11.5")
