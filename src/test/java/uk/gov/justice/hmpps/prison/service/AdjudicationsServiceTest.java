@@ -6,8 +6,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.hamcrest.MockitoHamcrest;
@@ -56,7 +54,6 @@ import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 
 import jakarta.persistence.EntityManager;
 import jakarta.validation.ValidationException;
-import uk.gov.justice.hmpps.prison.service.AdjudicationsService.OicSanctionAction;
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -1470,21 +1467,19 @@ public class AdjudicationsServiceTest {
     @Nested
     public class UpsertSanctions_CommonTests {
 
-        @ParameterizedTest
-        @EnumSource(OicSanctionAction.class)
-        public void upsertSanctionsAdjudicationDoesNotExist(OicSanctionAction action) {
+        @Test
+        public void upsertSanctionsAdjudicationDoesNotExist() {
             when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
                 .thenReturn(Optional.empty());
 
             assertThatThrownBy(() ->
-                service.upsertOicSanctions(2L, List.of(OicSanctionRequest.builder().build()), action))
+                service.createOicSanctions(2L, List.of(OicSanctionRequest.builder().build())))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Could not find adjudication number 2");
         }
 
-        @ParameterizedTest
-        @EnumSource(OicSanctionAction.class)
-        public void upsertSanctionsNoChargeProvedHearingResult(OicSanctionAction action) {
+        @Test
+        public void upsertSanctionsNoChargeProvedHearingResult() {
             when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
                 .thenReturn(Optional.of(
                     Adjudication.builder().agencyIncidentId(1L).build()
@@ -1493,14 +1488,13 @@ public class AdjudicationsServiceTest {
             when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(1L, FindingCode.PROVED)).thenReturn(Collections.emptyList());
 
             assertThatThrownBy(() ->
-                service.upsertOicSanctions(2L, List.of(OicSanctionRequest.builder().build()), action))
+                service.createOicSanctions(2L, List.of(OicSanctionRequest.builder().build())))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Could not find hearing result PROVED for adjudication id 1");
         }
 
-        @ParameterizedTest
-        @EnumSource(OicSanctionAction.class)
-        public void upsertSanctionsHasMultipleChargeProvedHearingResults(OicSanctionAction action) {
+        @Test
+        public void upsertSanctionsHasMultipleChargeProvedHearingResults() {
             when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
                 .thenReturn(Optional.of(
                     Adjudication.builder().agencyIncidentId(1L).build()
@@ -1518,7 +1512,7 @@ public class AdjudicationsServiceTest {
             ));
 
             assertThatThrownBy(() ->
-                service.upsertOicSanctions(2L, List.of(OicSanctionRequest.builder().build()), action))
+                service.createOicSanctions(2L, List.of(OicSanctionRequest.builder().build())))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Multiple PROVED hearing results for adjudication id 1");
         }
@@ -1554,7 +1548,7 @@ public class AdjudicationsServiceTest {
                 .thenReturn(List.of(OicSanction.builder().build()));
 
             assertThatThrownBy(() ->
-                service.upsertOicSanctions(2L, List.of(OicSanctionRequest.builder().build()), OicSanctionAction.CREATE))
+                service.createOicSanctions(2L, List.of(OicSanctionRequest.builder().build())))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessageContaining("Sanctions already exit for adjudication number 2");
         }
@@ -1598,14 +1592,14 @@ public class AdjudicationsServiceTest {
                 .oicIncidentId(2L)
                 .build());
 
-            List<Sanction> result = service.upsertOicSanctions(2L, List.of(OicSanctionRequest.builder()
+            List<Sanction> result = service.createOicSanctions(2L, List.of(OicSanctionRequest.builder()
                 .oicSanctionCode(OicSanctionCode.ADA)
                 .compensationAmount(1000.55)
                 .sanctionDays(30L)
                 .commentText("comment")
                 .effectiveDate(today)
                 .status(Status.IMMEDIATE)
-                .build()), OicSanctionAction.CREATE);
+                .build()));
 
             final var sanctionCapture = ArgumentCaptor.forClass(OicSanction.class);
             verify(oicSanctionRepository, atLeastOnce()).save(sanctionCapture.capture());
@@ -1676,14 +1670,14 @@ public class AdjudicationsServiceTest {
                 .oicIncidentId(2L)
                 .build());
 
-            List<Sanction> result = service.upsertOicSanctions(2L, List.of(OicSanctionRequest.builder()
+            List<Sanction> result = service.updateOicSanctions(2L, List.of(OicSanctionRequest.builder()
                 .oicSanctionCode(OicSanctionCode.ADA)
                 .compensationAmount(1000.55)
                 .sanctionDays(30L)
                 .commentText("comment")
                 .effectiveDate(today)
                 .status(Status.IMMEDIATE)
-                .build()), OicSanctionAction.UPDATE);
+                .build()));
 
             ArgumentCaptor<List<OicSanction>> deleteCapture = ArgumentCaptor.forClass(List.class);
             verify(oicSanctionRepository, atLeastOnce()).deleteAll(deleteCapture.capture());
@@ -1713,44 +1707,6 @@ public class AdjudicationsServiceTest {
             assertThat(result.get(0).getOicHearingId()).isEqualTo(3L);
             assertThat(result.get(0).getResultSeq()).isEqualTo(1L);
         }
-
-        @Test
-        public void deleteSanction() {
-            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
-                .thenReturn(Optional.of(
-                    Adjudication.builder()
-                        .agencyIncidentId(10L)
-                        .parties(List.of(AdjudicationParty.builder()
-                            .incidentRole(INCIDENT_ROLE_OFFENDER)
-                            .offenderBooking(OffenderBooking.builder()
-                                .bookingId(200L).build())
-                            .adjudicationNumber(2L).build())).build()
-                ));
-
-            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(10L, FindingCode.PROVED)).thenReturn(List.of(
-                OicHearingResult.builder()
-                    .oicHearingId(3L)
-                    .resultSeq(1L)
-                    .build()
-            ));
-
-            when(oicSanctionRepository.getNextSanctionSeq(200L))
-                .thenReturn(6L);
-
-            when(oicSanctionRepository.findByOicHearingId(3L))
-                .thenReturn(List.of(OicSanction.builder().offenderBookId(200L).build()));
-
-            List<Sanction> result = service.upsertOicSanctions(2L, List.of(), OicSanctionAction.UPDATE);
-
-            ArgumentCaptor<List<OicSanction>> deleteCapture = ArgumentCaptor.forClass(List.class);
-            verify(oicSanctionRepository, atLeastOnce()).deleteAll(deleteCapture.capture());
-            assertThat(deleteCapture.getValue().get(0).getOffenderBookId()).isEqualTo(200L);
-
-            final var saveCapture = ArgumentCaptor.forClass(OicSanction.class);
-            verify(oicSanctionRepository, never()).save(saveCapture.capture());
-
-            assertThat(result.size()).isEqualTo(0);
-        }
     }
 
     @Nested
@@ -1775,9 +1731,6 @@ public class AdjudicationsServiceTest {
                     .build()
             ));
 
-            when(oicSanctionRepository.getNextSanctionSeq(200L))
-                .thenReturn(6L);
-
             LocalDate today = LocalDate.now();
             OicSanction oicSanction = OicSanction.builder()
                 .offenderBookId(200L)
@@ -1799,17 +1752,7 @@ public class AdjudicationsServiceTest {
             when(oicSanctionRepository.save(any())).thenReturn(oicSanction);
             oicSanction.setStatus(Status.QUASHED);
 
-            List<Sanction> result = service.upsertOicSanctions(2L, List.of(OicSanctionRequest.builder()
-                .oicSanctionCode(OicSanctionCode.ADA)
-                .compensationAmount(1000.55)
-                .sanctionDays(30L)
-                .commentText("comment")
-                .effectiveDate(today)
-                .status(Status.QUASHED)
-                .build()), OicSanctionAction.QUASH);
-
-            ArgumentCaptor<List<OicSanction>> deleteCapture = ArgumentCaptor.forClass(List.class);
-            verify(oicSanctionRepository, never()).deleteAll(deleteCapture.capture());
+            List<Sanction> result = service.quashOicSanctions(2L);
 
             ArgumentCaptor<OicSanction> saveCapture = ArgumentCaptor.forClass(OicSanction.class);
             verify(oicSanctionRepository, atLeastOnce()).save(saveCapture.capture());
@@ -1840,6 +1783,38 @@ public class AdjudicationsServiceTest {
     @Nested
     public class DeleteSanctions {
 
+        @Test
+        public void deleteSanction() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder()
+                        .agencyIncidentId(10L)
+                        .parties(List.of(AdjudicationParty.builder()
+                            .incidentRole(INCIDENT_ROLE_OFFENDER)
+                            .offenderBooking(OffenderBooking.builder()
+                                .bookingId(200L).build())
+                            .adjudicationNumber(2L).build())).build()
+                ));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(10L, FindingCode.PROVED)).thenReturn(List.of(
+                OicHearingResult.builder()
+                    .oicHearingId(3L)
+                    .resultSeq(1L)
+                    .build()
+            ));
+
+            when(oicSanctionRepository.findByOicHearingId(3L))
+                .thenReturn(List.of(OicSanction.builder().offenderBookId(200L).build()));
+
+            service.deleteOicSanctions(2L);
+
+            ArgumentCaptor<List<OicSanction>> deleteCapture = ArgumentCaptor.forClass(List.class);
+            verify(oicSanctionRepository, atLeastOnce()).deleteAll(deleteCapture.capture());
+            assertThat(deleteCapture.getValue().get(0).getOffenderBookId()).isEqualTo(200L);
+
+            final var saveCapture = ArgumentCaptor.forClass(OicSanction.class);
+            verify(oicSanctionRepository, never()).save(saveCapture.capture());
+        }
     }
 
     private static <T> T assertArgThat(final Consumer<T> assertions) {

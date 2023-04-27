@@ -829,14 +829,6 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         final List<String> valid = List.of("ROLE_MAINTAIN_ADJUDICATIONS");
         final List<String> invalid = List.of("ROLE_SYSTEM_USER");
 
-        final List invalidRequest = List.of(Map.of(
-            "oicSanctionCode", OicSanctionCode.ADA,
-            "compensationAmount", "1000.55",
-            "sanctionDays", "30",
-            "commentText", "comment",
-            "effectiveDate", "2021-01-04",
-            "status", Status.IMMEDIATE));
-
         final List validRequest = List.of(Map.of(
             "oicSanctionCode", OicSanctionCode.ADA,
             "compensationAmount", "1000.55",
@@ -915,14 +907,6 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         final List<String> valid = List.of("ROLE_MAINTAIN_ADJUDICATIONS");
         final List<String> invalid = List.of("ROLE_SYSTEM_USER");
 
-        final List invalidRequest = List.of(Map.of(
-            "oicSanctionCode", OicSanctionCode.ADA,
-            "compensationAmount", "1000.55",
-            "sanctionDays", "30",
-            "commentText", "comment",
-            "effectiveDate", "2021-01-04",
-            "status", Status.IMMEDIATE));
-
         final List validRequest = List.of(Map.of(
             "oicSanctionCode", OicSanctionCode.ADA,
             "compensationAmount", "1000.55",
@@ -986,22 +970,6 @@ public class AdjudicationsResourceTest extends ResourceTest  {
             assertThat(oicSanction.getOicHearingId()).isEqualTo(-3L);
             assertThat(oicSanction.getResultSeq()).isEqualTo(1L);
             assertThat(oicSanction.getOicIncidentId()).isEqualTo(-8L);
-        }
-
-        @Test
-        @Transactional
-        public void deleteSanctionsReturnsSuccess() {
-            assertThat(entityManager.find(OicSanction.class, new PK(-35L, 1L))).isNotNull();
-            assertThat(entityManager.find(OicSanction.class, new PK(-35L, 2L))).isNull();
-            entityManager.clear();
-
-            updateSanctions(valid, List.of(), -8L)
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.size()").isEqualTo(0);
-
-            assertThat(entityManager.find(OicSanction.class, new PK(-35L, 1L))).isNull();
-            assertThat(entityManager.find(OicSanction.class, new PK(-35L, 2L))).isNull();
         }
 
         private ResponseSpec updateSanctions(List<String> headers, List payload, Long adjudicationNumber) {
@@ -1075,6 +1043,59 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         private ResponseSpec quashSanctions(List<String> headers, Long adjudicationNumber) {
             return webTestClient.put()
                 .uri("/api/adjudications/adjudication/"+adjudicationNumber+"/sanctions/quash")
+                .headers(setAuthorisation(headers))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .exchange();
+        }
+    }
+
+    @Nested
+    public class DeleteSanctions {
+
+        final List<String> valid = List.of("ROLE_MAINTAIN_ADJUDICATIONS");
+        final List<String> invalid = List.of("ROLE_SYSTEM_USER");
+
+        @Test
+        public void deleteSanctionsReturns403ForInvalidRoles() {
+            deleteSanctions(invalid, -9L)
+                .expectStatus().isForbidden();
+        }
+
+        @Test
+        public void deleteSanctionsReturns404DueToNoAdjudication() {
+            deleteSanctions(valid, 99L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void deleteSanctionsReturns404DueToNoProvedHearingResult() {
+            deleteSanctions(valid, -9L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void deleteSanctionsReturns404DueToMultipleProvedHearingResult() {
+            deleteSanctions(valid, -3001L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        @Transactional
+        public void deleteSanctionsReturnsSuccess() {
+            assertThat(entityManager.find(OicSanction.class, new PK(-35L, 1L))).isNotNull();
+            assertThat(entityManager.find(OicSanction.class, new PK(-35L, 2L))).isNull();
+            entityManager.clear();
+
+            deleteSanctions(valid,-8L)
+                .expectStatus().isOk();
+
+            assertThat(entityManager.find(OicSanction.class, new PK(-35L, 1L))).isNull();
+            assertThat(entityManager.find(OicSanction.class, new PK(-35L, 2L))).isNull();
+        }
+
+        private ResponseSpec deleteSanctions(List<String> headers, Long adjudicationNumber) {
+            return webTestClient.delete()
+                .uri("/api/adjudications/adjudication/"+adjudicationNumber+"/sanctions")
                 .headers(setAuthorisation(headers))
                 .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                 .exchange();

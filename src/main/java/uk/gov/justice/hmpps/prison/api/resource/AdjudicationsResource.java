@@ -36,7 +36,6 @@ import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.service.AdjudicationsService;
 
 import jakarta.validation.Valid;
-import uk.gov.justice.hmpps.prison.service.AdjudicationsService.OicSanctionAction;
 
 import java.util.List;
 
@@ -249,7 +248,7 @@ public class AdjudicationsResource {
         @PathVariable("adjudicationNumber") final Long adjudicationNumber,
         @Valid @RequestBody @Parameter(description = "OIC sanctions to save", required = true) final List<OicSanctionRequest> oicSanctionRequests
     ) {
-        return adjudicationsService.upsertOicSanctions(adjudicationNumber, oicSanctionRequests, OicSanctionAction.CREATE);
+        return adjudicationsService.createOicSanctions(adjudicationNumber, oicSanctionRequests);
     }
 
     @ApiResponses({
@@ -266,7 +265,7 @@ public class AdjudicationsResource {
         @PathVariable("adjudicationNumber") final Long adjudicationNumber,
         @Valid @RequestBody @Parameter(description = "OIC sanctions to save", required = true) final List<OicSanctionRequest> oicSanctionRequests
     ) {
-        return adjudicationsService.upsertOicSanctions(adjudicationNumber, oicSanctionRequests, OicSanctionAction.UPDATE);
+        return adjudicationsService.updateOicSanctions(adjudicationNumber, oicSanctionRequests);
     }
 
     @ApiResponses({
@@ -282,6 +281,22 @@ public class AdjudicationsResource {
     public List<Sanction> quashOicSanction(
         @PathVariable("adjudicationNumber") final Long adjudicationNumber
     ) {
-        return adjudicationsService.upsertOicSanctions(adjudicationNumber, null, OicSanctionAction.QUASH);
+        return adjudicationsService.quashOicSanctions(adjudicationNumber);
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "403", description = "The client is not authorised for this operation"),
+        @ApiResponse(responseCode = "404", description = "No match was found for the adjudication number or hearing", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
+    })
+    @Operation(summary = "Deletes OIC sanctions", description = "Requires MAINTAIN_ADJUDICATIONS access and write scope")
+    @DeleteMapping("/adjudication/{adjudicationNumber}/sanctions")
+    @ProxyUser
+    @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS') and hasAuthority('SCOPE_write')")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteOicSanction(
+        @PathVariable("adjudicationNumber") final Long adjudicationNumber
+    ) {
+        adjudicationsService.deleteOicSanctions(adjudicationNumber);
     }
 }
