@@ -1522,38 +1522,6 @@ public class AdjudicationsServiceTest {
     public class CreateSanctions {
 
         @Test
-        public void createSanction_SanctionsAlreadyExist() {
-            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
-                .thenReturn(Optional.of(
-                    Adjudication.builder()
-                        .agencyIncidentId(10L)
-                        .parties(List.of(AdjudicationParty.builder()
-                            .incidentRole(INCIDENT_ROLE_OFFENDER)
-                            .offenderBooking(OffenderBooking.builder()
-                                .bookingId(200L).build())
-                            .adjudicationNumber(2L).build())).build()
-                ));
-
-            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(10L, FindingCode.PROVED)).thenReturn(List.of(
-                OicHearingResult.builder()
-                    .oicHearingId(3L)
-                    .resultSeq(1L)
-                    .build()
-            ));
-
-            when(oicSanctionRepository.getNextSanctionSeq(200L))
-                .thenReturn(6L);
-
-            when(oicSanctionRepository.findByOicHearingId(3L))
-                .thenReturn(List.of(OicSanction.builder().build()));
-
-            assertThatThrownBy(() ->
-                service.createOicSanctions(2L, List.of(OicSanctionRequest.builder().build())))
-                .isInstanceOf(BadRequestException.class)
-                .hasMessageContaining("Sanctions already exit for adjudication number 2");
-        }
-
-        @Test
         public void createSanction() {
             when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
                 .thenReturn(Optional.of(
