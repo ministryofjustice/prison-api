@@ -440,7 +440,7 @@ public class AdjudicationsService {
         List<OicSanction> exitingOicSanctions = oicSanctionRepository.findByOicHearingId(hearingResult.get(0).getOicHearingId());
         switch (action) {
             case CREATE:
-                if (!exitingOicSanctions.isEmpty()) throw BadRequestException.withMessage(format("Sanctions already exit for adjudication id %d", adjudicationNumber));
+                if (!exitingOicSanctions.isEmpty()) throw BadRequestException.withMessage(format("Sanctions already exit for adjudication number %d", adjudicationNumber));
                 break;
             case UPDATE:
                 oicSanctionRepository.deleteAll(exitingOicSanctions);
@@ -469,8 +469,10 @@ public class AdjudicationsService {
                 }
             break;
             case QUASH:
-                exitingOicSanctions.forEach(oicSanction -> oicSanction.setStatus(Status.QUASHED));
-                oicSanctions.addAll(Lists.newArrayList(oicSanctionRepository.saveAll(exitingOicSanctions)));
+                for (var oicSanction : exitingOicSanctions) {
+                    oicSanction.setStatus(Status.QUASHED);
+                    oicSanctions.add(oicSanctionRepository.save(oicSanction));
+                }
         }
 
         return oicSanctions.stream().map(oicSanction -> Sanction.builder()
