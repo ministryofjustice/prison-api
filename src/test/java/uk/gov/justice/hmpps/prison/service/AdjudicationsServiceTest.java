@@ -1522,7 +1522,7 @@ public class AdjudicationsServiceTest {
     public class CreateSanctions {
 
         @Test
-        public void createSanction() {
+        public void createSanctions() {
             when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
                 .thenReturn(Optional.of(
                     Adjudication.builder()
@@ -1598,7 +1598,7 @@ public class AdjudicationsServiceTest {
     @Nested
     public class UpdateSanctions {
         @Test
-        public void updateSanction() {
+        public void updateSanctions() {
             when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
                 .thenReturn(Optional.of(
                     Adjudication.builder()
@@ -1680,7 +1680,7 @@ public class AdjudicationsServiceTest {
     @Nested
     public class QuashSanctions {
         @Test
-        public void quashSanction() {
+        public void quashSanctions() {
             when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
                 .thenReturn(Optional.of(
                     Adjudication.builder()
@@ -1752,7 +1752,7 @@ public class AdjudicationsServiceTest {
     public class DeleteSanctions {
 
         @Test
-        public void deleteSanction() {
+        public void deleteSanctions() {
             when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
                 .thenReturn(Optional.of(
                     Adjudication.builder()
@@ -1779,9 +1779,37 @@ public class AdjudicationsServiceTest {
             ArgumentCaptor<List<OicSanction>> deleteCapture = ArgumentCaptor.forClass(List.class);
             verify(oicSanctionRepository, atLeastOnce()).deleteAll(deleteCapture.capture());
             assertThat(deleteCapture.getValue().get(0).getOffenderBookId()).isEqualTo(200L);
+        }
 
-            final var saveCapture = ArgumentCaptor.forClass(OicSanction.class);
-            verify(oicSanctionRepository, never()).save(saveCapture.capture());
+        @Test
+        public void deleteSingleSanction() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder()
+                        .agencyIncidentId(10L)
+                        .parties(List.of(AdjudicationParty.builder()
+                            .incidentRole(INCIDENT_ROLE_OFFENDER)
+                            .offenderBooking(OffenderBooking.builder()
+                                .bookingId(200L).build())
+                            .adjudicationNumber(2L).build())).build()
+                ));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(10L, FindingCode.PROVED)).thenReturn(List.of(
+                OicHearingResult.builder()
+                    .oicHearingId(3L)
+                    .resultSeq(1L)
+                    .build()
+            ));
+
+            when(oicSanctionRepository.findByOicHearingId(3L))
+                .thenReturn(List.of(OicSanction.builder().offenderBookId(200L).sanctionSeq(1L).build()));
+
+            service.deleteSingleOicSanction(2L, 1L);
+
+            ArgumentCaptor<OicSanction> deleteCapture = ArgumentCaptor.forClass(OicSanction.class);
+            verify(oicSanctionRepository, atLeastOnce()).delete(deleteCapture.capture());
+            assertThat(deleteCapture.getValue().getOffenderBookId()).isEqualTo(200L);
+            assertThat(deleteCapture.getValue().getSanctionSeq()).isEqualTo(1L);
         }
     }
 

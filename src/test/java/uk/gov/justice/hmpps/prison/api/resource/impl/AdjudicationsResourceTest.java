@@ -1101,4 +1101,57 @@ public class AdjudicationsResourceTest extends ResourceTest  {
                 .exchange();
         }
     }
+
+    @Nested
+    public class DeleteSingleSanction {
+
+        final List<String> valid = List.of("ROLE_MAINTAIN_ADJUDICATIONS");
+        final List<String> invalid = List.of("ROLE_SYSTEM_USER");
+
+        @Test
+        public void deleteSanctionReturns403ForInvalidRoles() {
+            deleteSingleSanction(invalid, -9L,1L)
+                .expectStatus().isForbidden();
+        }
+
+        @Test
+        public void deleteSanctionReturns404DueToNoAdjudication() {
+            deleteSingleSanction(valid, 99L,1L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void deleteSanctionReturns404DueToNoProvedHearingResult() {
+            deleteSingleSanction(valid, -9L,1L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void deleteSanctionReturns404DueToMultipleProvedHearingResult() {
+            deleteSingleSanction(valid, -3001L,1L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        @Transactional
+        public void deleteSanctionReturnsSuccess() {
+            assertThat(entityManager.find(OicSanction.class, new PK(-35L, 1L))).isNotNull();
+            assertThat(entityManager.find(OicSanction.class, new PK(-35L, 2L))).isNull();
+            entityManager.clear();
+
+            deleteSingleSanction(valid,-8L,1L)
+                .expectStatus().isOk();
+
+            assertThat(entityManager.find(OicSanction.class, new PK(-35L, 1L))).isNull();
+            assertThat(entityManager.find(OicSanction.class, new PK(-35L, 2L))).isNull();
+        }
+
+        private ResponseSpec deleteSingleSanction(List<String> headers, Long adjudicationNumber, Long sanctionSeq) {
+            return webTestClient.delete()
+                .uri("/api/adjudications/adjudication/"+adjudicationNumber+"/sanction/"+sanctionSeq)
+                .headers(setAuthorisation(headers))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .exchange();
+        }
+    }
 }

@@ -299,4 +299,21 @@ public class AdjudicationsResource {
     ) {
         adjudicationsService.deleteOicSanctions(adjudicationNumber);
     }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "403", description = "The client is not authorised for this operation"),
+        @ApiResponse(responseCode = "404", description = "No match was found for the adjudication number or hearing", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
+    })
+    @Operation(summary = "Deletes OIC sanctions", description = "Requires MAINTAIN_ADJUDICATIONS access and write scope")
+    @DeleteMapping("/adjudication/{adjudicationNumber}/sanction/{sanctionSeq}")
+    @ProxyUser
+    @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS') and hasAuthority('SCOPE_write')")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteOicSanction(
+        @PathVariable("adjudicationNumber") final Long adjudicationNumber,
+        @PathVariable("sanctionSeq") final Long sanctionSeq
+    ) {
+        adjudicationsService.deleteSingleOicSanction(adjudicationNumber, sanctionSeq);
+    }
 }

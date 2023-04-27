@@ -537,6 +537,25 @@ public class AdjudicationsService {
 
     @Transactional
     @VerifyOffenderAccess
+    public void deleteSingleOicSanction(
+        final Long adjudicationNumber,
+        final Long sanctionSeq) {
+
+        final var adjudication = adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber)
+            .orElseThrow(EntityNotFoundException.withMessage(format("Could not find adjudication number %d", adjudicationNumber)));
+
+        final var hearingResult = oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(adjudication.getAgencyIncidentId(), FindingCode.PROVED);
+        if (hearingResult.isEmpty()) throw EntityNotFoundException.withMessage(format("Could not find hearing result PROVED for adjudication id %d", adjudication.getAgencyIncidentId()));
+        if (hearingResult.size() > 1) throw EntityNotFoundException.withMessage(format("Multiple PROVED hearing results for adjudication id %d", adjudication.getAgencyIncidentId()));
+
+        List<OicSanction> exitingOicSanctions = oicSanctionRepository.findByOicHearingId(hearingResult.get(0).getOicHearingId());
+        for (var oicSanction : exitingOicSanctions) {
+            if (oicSanction.getSanctionSeq() == sanctionSeq) oicSanctionRepository.delete(oicSanction);
+        }
+    }
+
+    @Transactional
+    @VerifyOffenderAccess
     public List<Sanction> quashOicSanctions(
         final Long adjudicationNumber) {
 
