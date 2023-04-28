@@ -899,7 +899,6 @@ public class AdjudicationsServiceTest {
                 .hasMessageContaining("Invalid hearing location id 3");
         }
 
-
         @Test
         public void amendHearing() {
 
