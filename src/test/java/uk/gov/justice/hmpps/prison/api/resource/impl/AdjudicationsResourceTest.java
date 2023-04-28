@@ -812,7 +812,6 @@ public class AdjudicationsResourceTest extends ResourceTest  {
                 .expectStatus().isOk();
         }
 
-        // TODO test delete HearingResult with sanctions
 
         private ResponseSpec deleteHearingResult(List<String> headers, Long adjudicationNumber, Long hearingId) {
             return webTestClient.delete()

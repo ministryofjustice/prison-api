@@ -63,6 +63,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -347,11 +348,14 @@ public class AdjudicationsService {
             throw new ValidationException(format("Hearing result for hearing id %d already exist for adjudication number %d", oicHearingId, adjudicationNumber));
         }
 
-        final var staff = staffUserAccountRepository.findByUsername(oicHearingResultRequest.getAdjudicator())
-            .orElseThrow(() -> new EntityNotFoundException(format("Adjudicator not found for username %s", oicHearingResultRequest.getAdjudicator())));
+        Optional.ofNullable(oicHearingResultRequest.getAdjudicator()).ifPresent(adjudicator -> {
+            final var staff = staffUserAccountRepository.findByUsername(adjudicator)
+                .orElseThrow(() -> new EntityNotFoundException(format("Adjudicator not found for username %s", adjudicator)));
 
-        oicHearing.setAdjudicator(staff.getStaff());
-        oicHearingRepository.save(oicHearing);
+            oicHearing.setAdjudicator(staff.getStaff());
+            oicHearingRepository.save(oicHearing);
+        });
+
 
         Long oicOffenceId;
         try {
@@ -389,11 +393,13 @@ public class AdjudicationsService {
         final var oicHearingResult = oicHearingResultRepository.findById(new OicHearingResult.PK(oicHearingId, 1L))
             .orElseThrow(new EntityNotFoundException(format("No hearing result found for hearing id %d and adjudication number %d", oicHearingId, adjudicationNumber)));
 
-        final var staff = staffUserAccountRepository.findByUsername(oicHearingResultRequest.getAdjudicator())
-            .orElseThrow(() -> new EntityNotFoundException(format("Adjudicator not found for username %s", oicHearingResultRequest.getAdjudicator())));
+        Optional.ofNullable(oicHearingResultRequest.getAdjudicator()).ifPresent(adjudicator -> {
+            final var staff = staffUserAccountRepository.findByUsername(adjudicator)
+                .orElseThrow(() -> new EntityNotFoundException(format("Adjudicator not found for username %s", adjudicator)));
 
-        oicHearing.setAdjudicator(staff.getStaff());
-        oicHearingRepository.save(oicHearing);
+            oicHearing.setAdjudicator(staff.getStaff());
+            oicHearingRepository.save(oicHearing);
+        });
 
         oicHearingResult.setPleaFindingCode(oicHearingResultRequest.getPleaFindingCode());
         oicHearingResult.setFindingCode(oicHearingResultRequest.getFindingCode());

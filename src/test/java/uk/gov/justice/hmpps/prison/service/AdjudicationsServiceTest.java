@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
 import uk.gov.justice.hmpps.prison.api.model.OicHearingRequest;
+import uk.gov.justice.hmpps.prison.api.model.OicHearingResultDto;
 import uk.gov.justice.hmpps.prison.api.model.OicHearingResultRequest;
 import uk.gov.justice.hmpps.prison.api.model.OicSanctionRequest;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication;
@@ -1168,6 +1169,42 @@ public class AdjudicationsServiceTest {
 
         @Test
         public void createHearingResult() {
+            initCreateHearingResultTest();
+
+            when(oicHearingRepository.save(any())).thenReturn(OicHearing.builder().build());
+
+            when(staffUserAccountRepository.findByUsername("adjudicator")).thenReturn(
+                Optional.of(
+                    StaffUserAccount.builder().staff(
+                        Staff.builder().staffId(10L).build()
+                    ).build()
+                )
+            );
+
+            var result = service.createOicHearingResult(2L, 3L, OicHearingResultRequest.builder()
+                .findingCode(FindingCode.DISMISSED)
+                .pleaFindingCode(PleaFindingCode.GUILTY)
+                .adjudicator("adjudicator")
+                .build());
+
+            verifyCreateHearingResult(result, true);
+
+        }
+
+        @Test
+        public void createHearingResultWithoutAdjudicator() {
+            initCreateHearingResultTest();
+
+            var result = service.createOicHearingResult(2L, 3L, OicHearingResultRequest.builder()
+                .findingCode(FindingCode.DISMISSED)
+                .pleaFindingCode(PleaFindingCode.GUILTY)
+                .build());
+
+            verifyCreateHearingResult(result, false);
+
+        }
+
+        private void initCreateHearingResultTest() {
             when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
                 .thenReturn(Optional.of(
                     Adjudication.builder()
@@ -1187,32 +1224,22 @@ public class AdjudicationsServiceTest {
             when(oicHearingResultRepository.findById(new OicHearingResult.PK(3L, 1L)))
                 .thenReturn(Optional.empty());
 
-            when(oicHearingRepository.save(any())).thenReturn(OicHearing.builder().build());
             when(oicHearingResultRepository.save(any())).thenReturn(OicHearingResult.builder()
                 .findingCode(FindingCode.DISMISSED)
                 .pleaFindingCode(PleaFindingCode.GUILTY)
                 .build());
 
-            when(staffUserAccountRepository.findByUsername("adjudicator")).thenReturn(
-                Optional.of(
-                    StaffUserAccount.builder().staff(
-                        Staff.builder().staffId(10L).build()
-                    ).build()
-                )
-            );
+        }
 
-            var result = service.createOicHearingResult(2L, 3L, OicHearingResultRequest.builder()
-                .findingCode(FindingCode.DISMISSED)
-                .pleaFindingCode(PleaFindingCode.GUILTY)
-                .adjudicator("adjudicator")
-                .build());
-
+        private void verifyCreateHearingResult(OicHearingResultDto result,Boolean withAdjudicator) {
             final var hearingCapture = ArgumentCaptor.forClass(OicHearing.class);
             final var hearingResultCapture = ArgumentCaptor.forClass(OicHearingResult.class);
 
-            verify(oicHearingRepository, atLeastOnce()).save(hearingCapture.capture());
-            assertThat(hearingCapture.getValue().getAdjudicator().getStaffId()).isEqualTo(10);
             verify(oicHearingResultRepository, atLeastOnce()).save(hearingResultCapture.capture());
+            if(withAdjudicator) {
+                verify(oicHearingRepository, atLeastOnce()).save(hearingCapture.capture());
+                assertThat(hearingCapture.getValue().getAdjudicator().getStaffId()).isEqualTo(10);
+            }
 
             assertThat(result).isNotNull();
             assertThat(hearingResultCapture.getValue().getOicOffenceId()).isEqualTo(100L);
@@ -1222,6 +1249,7 @@ public class AdjudicationsServiceTest {
 
             assertThat(result.getPleaFindingCode()).isEqualTo(PleaFindingCode.GUILTY);
             assertThat(result.getFindingCode()).isEqualTo(FindingCode.DISMISSED);
+
         }
 
     }
@@ -1319,22 +1347,7 @@ public class AdjudicationsServiceTest {
 
         @Test
         public void amendHearingResult() {
-            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
-                .thenReturn(Optional.of(
-                    Adjudication.builder().build()
-                ));
-            when(oicHearingRepository.findById(3L))
-                .thenReturn(Optional.of(
-                    OicHearing.builder().adjudicationNumber(2L).build()
-                ));
-
-            when(oicHearingResultRepository.findById(new OicHearingResult.PK(3L, 1L)))
-                .thenReturn(Optional.of(
-                    OicHearingResult.builder()
-                        .findingCode(FindingCode.DISMISSED)
-                        .pleaFindingCode(PleaFindingCode.GUILTY)
-                        .build()
-                ));
+            initAmendHearingResult();
 
             when(staffUserAccountRepository.findByUsername("other_adjudicator")).thenReturn(
                 Optional.of(
@@ -1350,11 +1363,51 @@ public class AdjudicationsServiceTest {
                 .adjudicator("other_adjudicator")
                 .build());
 
+            verifyAmendHearingResult(result, true);
+        }
+
+        @Test
+        public void amendHearingResultWithoutAdjudicator() {
+            initAmendHearingResult();
+
+            var result = service.amendOicHearingResult(2L, 3L, OicHearingResultRequest.builder()
+                .findingCode(FindingCode.NOT_PROVEN)
+                .pleaFindingCode(PleaFindingCode.NOT_GUILTY)
+                .build());
+
+            verifyAmendHearingResult(result, false);
+
+        }
+
+        private void initAmendHearingResult() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().build()
+                ));
+
+            when(oicHearingRepository.findById(3L))
+                .thenReturn(Optional.of(
+                    OicHearing.builder().adjudicationNumber(2L).build()
+                ));
+
+            when(oicHearingResultRepository.findById(new OicHearingResult.PK(3L, 1L)))
+                .thenReturn(Optional.of(
+                    OicHearingResult.builder()
+                        .findingCode(FindingCode.DISMISSED)
+                        .pleaFindingCode(PleaFindingCode.GUILTY)
+                        .build()
+                ));
+
+        }
+
+        private void verifyAmendHearingResult(OicHearingResultDto result, Boolean withAdjudicator){
             final var hearingCapture = ArgumentCaptor.forClass(OicHearing.class);
             final var hearingResultCapture = ArgumentCaptor.forClass(OicHearingResult.class);
 
-            verify(oicHearingRepository, atLeastOnce()).save(hearingCapture.capture());
-            assertThat(hearingCapture.getValue().getAdjudicator().getStaffId()).isEqualTo(11);
+            if(withAdjudicator) {
+                verify(oicHearingRepository, atLeastOnce()).save(hearingCapture.capture());
+                assertThat(hearingCapture.getValue().getAdjudicator().getStaffId()).isEqualTo(11);
+            }
             verify(oicHearingResultRepository, atLeastOnce()).save(hearingResultCapture.capture());
 
             assertThat(hearingResultCapture.getValue().getFindingCode()).isEqualTo(FindingCode.NOT_PROVEN);
@@ -1362,6 +1415,7 @@ public class AdjudicationsServiceTest {
 
             assertThat(result.getPleaFindingCode()).isEqualTo(PleaFindingCode.NOT_GUILTY);
             assertThat(result.getFindingCode()).isEqualTo(FindingCode.NOT_PROVEN);
+
         }
     }
 

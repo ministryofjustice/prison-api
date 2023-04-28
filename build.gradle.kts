@@ -1,8 +1,8 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.1.3-beta-2"
-  kotlin("plugin.spring") version "1.8.10"
-  kotlin("plugin.jpa") version "1.8.10"
-  kotlin("plugin.lombok") version "1.8.10"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.1.4-beta-4"
+  kotlin("plugin.spring") version "1.8.21"
+  kotlin("plugin.jpa") version "1.8.21"
+  kotlin("plugin.lombok") version "1.8.21"
 }
 
 configurations {
@@ -47,7 +47,7 @@ dependencies {
   implementation("com.zaxxer:HikariCP:5.0.1")
 
   implementation("io.swagger:swagger-annotations:1.6.10")
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.4")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0")
 
   implementation("org.apache.commons:commons-lang3:3.12.0")
   implementation("commons-io:commons-io:2.11.0")
@@ -74,16 +74,16 @@ dependencies {
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.37.0")
 
-  testImplementation("net.serenity-bdd:serenity-core:3.6.22")
-  testImplementation("net.serenity-bdd:serenity-junit:3.6.22")
-  testImplementation("net.serenity-bdd:serenity-spring:3.6.22")
-  testImplementation("net.serenity-bdd:serenity-cucumber:3.6.22")
+  testImplementation("net.serenity-bdd:serenity-core:3.7.1")
+  testImplementation("net.serenity-bdd:serenity-junit:3.7.1")
+  testImplementation("net.serenity-bdd:serenity-spring:3.7.1")
+  testImplementation("net.serenity-bdd:serenity-cucumber:3.7.1")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
   testImplementation("com.github.tomakehurst:wiremock-jre8-standalone:2.35.0")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.11.5")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
   testImplementation("io.swagger.parser.v3:swagger-parser:2.1.13")
-  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.24.0")
+  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.25.0")
 
   testCompileOnly("org.projectlombok:lombok:1.18.26")
 }

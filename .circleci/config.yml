@@ -7,7 +7,7 @@ executor:
   &executor
   executor:
     name: hmpps/java
-    tag: "18.0"
+    tag: "19.0"
   environment:
     # Setting max gradle workers to 1 (which means 1 running concurrently, not max 1!) - because although this doesn't stop the ktlint workers from starting it does seem to prevent the test executor from needing as much memory.
     _JAVA_OPTIONS: -Xmx1280m -XX:ParallelGCThreads=2 -XX:ConcGCThreads=2
@@ -180,6 +180,7 @@ workflows:
                 - main
     jobs:
       - hmpps/gradle_owasp_dependency_check:
+          jdk_tag: "19.0"
           context:
             - hmpps-common-vars
           cache_key: "v2_0"
