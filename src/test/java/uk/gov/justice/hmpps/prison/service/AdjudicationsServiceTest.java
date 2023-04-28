@@ -15,7 +15,9 @@ import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
 import uk.gov.justice.hmpps.prison.api.model.OicHearingRequest;
 import uk.gov.justice.hmpps.prison.api.model.OicHearingResultDto;
 import uk.gov.justice.hmpps.prison.api.model.OicHearingResultRequest;
+import uk.gov.justice.hmpps.prison.api.model.OicSanctionRequest;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication;
+import uk.gov.justice.hmpps.prison.api.model.adjudications.Sanction;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationActionCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationCharge;
@@ -34,6 +36,9 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearing.OicHearingTyp
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult.FindingCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult.PleaFindingCode;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction.OicSanctionCode;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction.Status;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Staff;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationOffenceTypeRepository;
@@ -43,13 +48,17 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepos
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OicHearingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OicHearingResultRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OicSanctionRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 
 import jakarta.persistence.EntityManager;
 import jakarta.validation.ValidationException;
+
+import java.math.BigDecimal;
 import java.time.Clock;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -65,6 +74,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -113,6 +123,8 @@ public class AdjudicationsServiceTest {
     private OicHearingRepository oicHearingRepository;
     @Mock
     private OicHearingResultRepository oicHearingResultRepository;
+    @Mock
+    private OicSanctionRepository oicSanctionRepository;
 
     private AdjudicationsService service;
 
@@ -137,7 +149,8 @@ public class AdjudicationsServiceTest {
             BATCH_SIZE,
             adjudicationsPartyService,
             oicHearingRepository,
-            oicHearingResultRepository
+            oicHearingResultRepository,
+            oicSanctionRepository
             );
     }
 
@@ -887,7 +900,6 @@ public class AdjudicationsServiceTest {
                 .hasMessageContaining("Invalid hearing location id 3");
         }
 
-
         @Test
         public void amendHearing() {
 
@@ -1502,6 +1514,560 @@ public class AdjudicationsServiceTest {
 
             assertThat(hearingResultCapture.getValue().getOicHearingId()).isEqualTo(3L);
             assertThat(hearingResultCapture.getValue().getResultSeq()).isEqualTo(1L);
+        }
+    }
+
+    @Nested
+    public class CreateSanctions {
+
+        @Test
+        public void upsertSanctionsAdjudicationDoesNotExist() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.empty());
+
+            assertThatThrownBy(() ->
+                service.createOicSanctions(2L, List.of(OicSanctionRequest.builder().build())))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find adjudication number 2");
+        }
+
+        @Test
+        public void upsertSanctionsNoChargeProvedHearingResult() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().agencyIncidentId(1L).build()
+                ));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(1L, FindingCode.PROVED)).thenReturn(Collections.emptyList());
+
+            assertThatThrownBy(() ->
+                service.createOicSanctions(2L, List.of(OicSanctionRequest.builder().build())))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find hearing result PROVED for adjudication id 1");
+        }
+
+        @Test
+        public void upsertSanctionsHasMultipleChargeProvedHearingResults() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().agencyIncidentId(1L).build()
+                ));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(1L, FindingCode.PROVED)).thenReturn(List.of(
+                OicHearingResult.builder()
+                    .oicHearingId(2L)
+                    .resultSeq(1L)
+                    .build(),
+                OicHearingResult.builder()
+                    .oicHearingId(1L)
+                    .resultSeq(1L)
+                    .build()
+            ));
+
+            assertThatThrownBy(() ->
+                service.createOicSanctions(2L, List.of(OicSanctionRequest.builder().build())))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Multiple PROVED hearing results for adjudication id 1");
+        }
+
+        @Test
+        public void createSanctions() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder()
+                        .agencyIncidentId(10L)
+                        .parties(List.of(AdjudicationParty.builder()
+                            .incidentRole(INCIDENT_ROLE_OFFENDER)
+                            .offenderBooking(OffenderBooking.builder()
+                                .bookingId(200L).build())
+                            .adjudicationNumber(2L).build())).build()
+                ));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(10L, FindingCode.PROVED)).thenReturn(List.of(
+                OicHearingResult.builder()
+                    .oicHearingId(3L)
+                    .resultSeq(1L)
+                    .build()
+            ));
+
+            when(oicSanctionRepository.getNextSanctionSeq(200L))
+                .thenReturn(6L);
+
+            LocalDate today = LocalDate.now();
+
+            when(oicSanctionRepository.save(any())).thenReturn(OicSanction.builder()
+                .offenderBookId(200L)
+                .sanctionSeq(6L)
+                .oicSanctionCode(OicSanctionCode.ADA)
+                .compensationAmount(new BigDecimal("1000.55"))
+                .sanctionDays(30L)
+                .commentText("comment")
+                .effectiveDate(today)
+                .status(Status.IMMEDIATE)
+                .oicHearingId(3L)
+                .resultSeq(1L)
+                .oicIncidentId(2L)
+                .build());
+
+            List<Sanction> result = service.createOicSanctions(2L, List.of(OicSanctionRequest.builder()
+                .oicSanctionCode(OicSanctionCode.ADA)
+                .compensationAmount(1000.55)
+                .sanctionDays(30L)
+                .commentText("comment")
+                .effectiveDate(today)
+                .status(Status.IMMEDIATE)
+                .build()));
+
+            final var sanctionCapture = ArgumentCaptor.forClass(OicSanction.class);
+            verify(oicSanctionRepository, atLeastOnce()).save(sanctionCapture.capture());
+
+            assertThat(sanctionCapture.getValue().getOffenderBookId()).isEqualTo(200L);
+            assertThat(sanctionCapture.getValue().getSanctionSeq()).isEqualTo(6L);
+            assertThat(sanctionCapture.getValue().getOicSanctionCode()).isEqualTo(OicSanctionCode.ADA);
+            assertThat(sanctionCapture.getValue().getCompensationAmount()).isEqualTo(new BigDecimal("1000.55"));
+            assertThat(sanctionCapture.getValue().getSanctionDays()).isEqualTo(30L);
+            assertThat(sanctionCapture.getValue().getCommentText()).isEqualTo("comment");
+            assertThat(sanctionCapture.getValue().getEffectiveDate()).isEqualTo(today);
+            assertThat(sanctionCapture.getValue().getStatus()).isEqualTo(Status.IMMEDIATE);
+            assertThat(sanctionCapture.getValue().getOicHearingId()).isEqualTo(3L);
+            assertThat(sanctionCapture.getValue().getResultSeq()).isEqualTo(1L);
+            assertThat(sanctionCapture.getValue().getOicIncidentId()).isEqualTo(2L);
+
+            assertThat(result.get(0).getSanctionType()).isEqualTo(OicSanctionCode.ADA.name());
+            assertThat(result.get(0).getCompensationAmount()).isEqualTo(1000L);
+            assertThat(result.get(0).getSanctionDays()).isEqualTo(30L);
+            assertThat(result.get(0).getComment()).isEqualTo("comment");
+            assertThat(result.get(0).getEffectiveDate()).isEqualTo(today.atStartOfDay());
+            assertThat(result.get(0).getStatus()).isEqualTo(Status.IMMEDIATE.name());
+            assertThat(result.get(0).getOicHearingId()).isEqualTo(3L);
+            assertThat(result.get(0).getResultSeq()).isEqualTo(1L);
+        }
+    }
+
+    @Nested
+    public class UpdateSanctions {
+
+        @Test
+        public void updateSanctionsAdjudicationDoesNotExist() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.empty());
+
+            assertThatThrownBy(() ->
+                service.updateOicSanctions(2L, List.of(OicSanctionRequest.builder().build())))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find adjudication number 2");
+        }
+
+        @Test
+        public void updateSanctionsNoChargeProvedHearingResult() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().agencyIncidentId(1L).build()
+                ));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(1L, FindingCode.PROVED)).thenReturn(Collections.emptyList());
+
+            assertThatThrownBy(() ->
+                service.updateOicSanctions(2L, List.of(OicSanctionRequest.builder().build())))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find hearing result PROVED for adjudication id 1");
+        }
+
+        @Test
+        public void updateSanctionsHasMultipleChargeProvedHearingResults() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().agencyIncidentId(1L).build()
+                ));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(1L, FindingCode.PROVED)).thenReturn(List.of(
+                OicHearingResult.builder()
+                    .oicHearingId(2L)
+                    .resultSeq(1L)
+                    .build(),
+                OicHearingResult.builder()
+                    .oicHearingId(1L)
+                    .resultSeq(1L)
+                    .build()
+            ));
+
+            assertThatThrownBy(() ->
+                service.updateOicSanctions(2L, List.of(OicSanctionRequest.builder().build())))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Multiple PROVED hearing results for adjudication id 1");
+        }
+
+        @Test
+        public void updateSanctions() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder()
+                        .agencyIncidentId(10L)
+                        .parties(List.of(AdjudicationParty.builder()
+                            .incidentRole(INCIDENT_ROLE_OFFENDER)
+                            .offenderBooking(OffenderBooking.builder()
+                                .bookingId(200L).build())
+                            .adjudicationNumber(2L).build())).build()
+                ));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(10L, FindingCode.PROVED)).thenReturn(List.of(
+                OicHearingResult.builder()
+                    .oicHearingId(3L)
+                    .resultSeq(1L)
+                    .build()
+            ));
+
+            when(oicSanctionRepository.getNextSanctionSeq(200L))
+                .thenReturn(6L);
+
+            when(oicSanctionRepository.findByOicHearingId(3L))
+                .thenReturn(List.of(OicSanction.builder().offenderBookId(200L).build()));
+
+            LocalDate today = LocalDate.now();
+            when(oicSanctionRepository.save(any())).thenReturn(OicSanction.builder()
+                .offenderBookId(200L)
+                .sanctionSeq(6L)
+                .oicSanctionCode(OicSanctionCode.ADA)
+                .compensationAmount(new BigDecimal("1000.55"))
+                .sanctionDays(30L)
+                .commentText("comment")
+                .effectiveDate(today)
+                .status(Status.IMMEDIATE)
+                .oicHearingId(3L)
+                .resultSeq(1L)
+                .oicIncidentId(2L)
+                .build());
+
+            List<Sanction> result = service.updateOicSanctions(2L, List.of(OicSanctionRequest.builder()
+                .oicSanctionCode(OicSanctionCode.ADA)
+                .compensationAmount(1000.55)
+                .sanctionDays(30L)
+                .commentText("comment")
+                .effectiveDate(today)
+                .status(Status.IMMEDIATE)
+                .build()));
+
+            ArgumentCaptor<List<OicSanction>> deleteCapture = ArgumentCaptor.forClass(List.class);
+            verify(oicSanctionRepository, atLeastOnce()).deleteAll(deleteCapture.capture());
+            assertThat(deleteCapture.getValue().get(0).getOffenderBookId()).isEqualTo(200L);
+
+            final var saveCapture = ArgumentCaptor.forClass(OicSanction.class);
+            verify(oicSanctionRepository, atLeastOnce()).save(saveCapture.capture());
+
+            assertThat(saveCapture.getValue().getOffenderBookId()).isEqualTo(200L);
+            assertThat(saveCapture.getValue().getSanctionSeq()).isEqualTo(6L);
+            assertThat(saveCapture.getValue().getOicSanctionCode()).isEqualTo(OicSanctionCode.ADA);
+            assertThat(saveCapture.getValue().getCompensationAmount()).isEqualTo(new BigDecimal("1000.55"));
+            assertThat(saveCapture.getValue().getSanctionDays()).isEqualTo(30L);
+            assertThat(saveCapture.getValue().getCommentText()).isEqualTo("comment");
+            assertThat(saveCapture.getValue().getEffectiveDate()).isEqualTo(today);
+            assertThat(saveCapture.getValue().getStatus()).isEqualTo(Status.IMMEDIATE);
+            assertThat(saveCapture.getValue().getOicHearingId()).isEqualTo(3L);
+            assertThat(saveCapture.getValue().getResultSeq()).isEqualTo(1L);
+            assertThat(saveCapture.getValue().getOicIncidentId()).isEqualTo(2L);
+
+            assertThat(result.get(0).getSanctionType()).isEqualTo(OicSanctionCode.ADA.name());
+            assertThat(result.get(0).getCompensationAmount()).isEqualTo(1000L);
+            assertThat(result.get(0).getSanctionDays()).isEqualTo(30L);
+            assertThat(result.get(0).getComment()).isEqualTo("comment");
+            assertThat(result.get(0).getEffectiveDate()).isEqualTo(today.atStartOfDay());
+            assertThat(result.get(0).getStatus()).isEqualTo(Status.IMMEDIATE.name());
+            assertThat(result.get(0).getOicHearingId()).isEqualTo(3L);
+            assertThat(result.get(0).getResultSeq()).isEqualTo(1L);
+        }
+    }
+
+    @Nested
+    public class QuashSanctions {
+
+        @Test
+        public void quashSanctionsAdjudicationDoesNotExist() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.empty());
+
+            assertThatThrownBy(() ->
+                service.quashOicSanctions(2L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find adjudication number 2");
+        }
+
+        @Test
+        public void quashSanctionsNoChargeProvedHearingResult() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().agencyIncidentId(1L).build()
+                ));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(1L, FindingCode.PROVED)).thenReturn(Collections.emptyList());
+
+            assertThatThrownBy(() ->
+                service.quashOicSanctions(2L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find hearing result PROVED for adjudication id 1");
+        }
+
+        @Test
+        public void quashSanctionsHasMultipleChargeProvedHearingResults() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().agencyIncidentId(1L).build()
+                ));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(1L, FindingCode.PROVED)).thenReturn(List.of(
+                OicHearingResult.builder()
+                    .oicHearingId(2L)
+                    .resultSeq(1L)
+                    .build(),
+                OicHearingResult.builder()
+                    .oicHearingId(1L)
+                    .resultSeq(1L)
+                    .build()
+            ));
+
+            assertThatThrownBy(() ->
+                service.quashOicSanctions(2L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Multiple PROVED hearing results for adjudication id 1");
+        }
+
+        @Test
+        public void quashSanctions() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder()
+                        .agencyIncidentId(10L)
+                        .parties(List.of(AdjudicationParty.builder()
+                            .incidentRole(INCIDENT_ROLE_OFFENDER)
+                            .offenderBooking(OffenderBooking.builder()
+                                .bookingId(200L).build())
+                            .adjudicationNumber(2L).build())).build()
+                ));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(10L, FindingCode.PROVED)).thenReturn(List.of(
+                OicHearingResult.builder()
+                    .oicHearingId(3L)
+                    .resultSeq(1L)
+                    .build()
+            ));
+
+            LocalDate today = LocalDate.now();
+            OicSanction oicSanction = OicSanction.builder()
+                .offenderBookId(200L)
+                .sanctionSeq(6L)
+                .oicSanctionCode(OicSanctionCode.ADA)
+                .compensationAmount(new BigDecimal("1000.55"))
+                .sanctionDays(30L)
+                .commentText("comment")
+                .effectiveDate(today)
+                .status(Status.IMMEDIATE)
+                .oicHearingId(3L)
+                .resultSeq(1L)
+                .oicIncidentId(2L)
+                .build();
+
+            when(oicSanctionRepository.findByOicHearingId(3L))
+                .thenReturn(List.of(oicSanction));
+
+            when(oicSanctionRepository.save(any())).thenReturn(oicSanction);
+            oicSanction.setStatus(Status.QUASHED);
+
+            List<Sanction> result = service.quashOicSanctions(2L);
+
+            ArgumentCaptor<OicSanction> saveCapture = ArgumentCaptor.forClass(OicSanction.class);
+            verify(oicSanctionRepository, atLeastOnce()).save(saveCapture.capture());
+
+            assertThat(saveCapture.getValue().getOffenderBookId()).isEqualTo(200L);
+            assertThat(saveCapture.getValue().getSanctionSeq()).isEqualTo(6L);
+            assertThat(saveCapture.getValue().getOicSanctionCode()).isEqualTo(OicSanctionCode.ADA);
+            assertThat(saveCapture.getValue().getCompensationAmount()).isEqualTo(new BigDecimal("1000.55"));
+            assertThat(saveCapture.getValue().getSanctionDays()).isEqualTo(30L);
+            assertThat(saveCapture.getValue().getCommentText()).isEqualTo("comment");
+            assertThat(saveCapture.getValue().getEffectiveDate()).isEqualTo(today);
+            assertThat(saveCapture.getValue().getStatus()).isEqualTo(Status.QUASHED);
+            assertThat(saveCapture.getValue().getOicHearingId()).isEqualTo(3L);
+            assertThat(saveCapture.getValue().getResultSeq()).isEqualTo(1L);
+            assertThat(saveCapture.getValue().getOicIncidentId()).isEqualTo(2L);
+
+            assertThat(result.get(0).getSanctionType()).isEqualTo(OicSanctionCode.ADA.name());
+            assertThat(result.get(0).getCompensationAmount()).isEqualTo(1000L);
+            assertThat(result.get(0).getSanctionDays()).isEqualTo(30L);
+            assertThat(result.get(0).getComment()).isEqualTo("comment");
+            assertThat(result.get(0).getEffectiveDate()).isEqualTo(today.atStartOfDay());
+            assertThat(result.get(0).getStatus()).isEqualTo(Status.QUASHED.name());
+            assertThat(result.get(0).getOicHearingId()).isEqualTo(3L);
+            assertThat(result.get(0).getResultSeq()).isEqualTo(1L);
+        }
+    }
+
+    @Nested
+    public class DeleteSanctions {
+
+        @Test
+        public void deleteanctionsAdjudicationDoesNotExist() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.empty());
+
+            assertThatThrownBy(() ->
+                service.deleteOicSanctions(2L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find adjudication number 2");
+        }
+
+        @Test
+        public void deleteSanctionsNoChargeProvedHearingResult() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().agencyIncidentId(1L).build()
+                ));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(1L, FindingCode.PROVED)).thenReturn(Collections.emptyList());
+
+            assertThatThrownBy(() ->
+                service.deleteOicSanctions(2L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find hearing result PROVED for adjudication id 1");
+        }
+
+        @Test
+        public void deleteSanctionsHasMultipleChargeProvedHearingResults() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().agencyIncidentId(1L).build()
+                ));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(1L, FindingCode.PROVED)).thenReturn(List.of(
+                OicHearingResult.builder()
+                    .oicHearingId(2L)
+                    .resultSeq(1L)
+                    .build(),
+                OicHearingResult.builder()
+                    .oicHearingId(1L)
+                    .resultSeq(1L)
+                    .build()
+            ));
+
+            assertThatThrownBy(() ->
+                service.deleteOicSanctions(2L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Multiple PROVED hearing results for adjudication id 1");
+        }
+
+        @Test
+        public void deleteSanctions() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder()
+                        .agencyIncidentId(10L)
+                        .parties(List.of(AdjudicationParty.builder()
+                            .incidentRole(INCIDENT_ROLE_OFFENDER)
+                            .offenderBooking(OffenderBooking.builder()
+                                .bookingId(200L).build())
+                            .adjudicationNumber(2L).build())).build()
+                ));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(10L, FindingCode.PROVED)).thenReturn(List.of(
+                OicHearingResult.builder()
+                    .oicHearingId(3L)
+                    .resultSeq(1L)
+                    .build()
+            ));
+
+            when(oicSanctionRepository.findByOicHearingId(3L))
+                .thenReturn(List.of(OicSanction.builder().offenderBookId(200L).build()));
+
+            service.deleteOicSanctions(2L);
+
+            ArgumentCaptor<List<OicSanction>> deleteCapture = ArgumentCaptor.forClass(List.class);
+            verify(oicSanctionRepository, atLeastOnce()).deleteAll(deleteCapture.capture());
+            assertThat(deleteCapture.getValue().get(0).getOffenderBookId()).isEqualTo(200L);
+        }
+    }
+
+    @Nested
+    public class DeleteSingleSanction {
+
+        @Test
+        public void deleteSingleSanctionAdjudicationDoesNotExist() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.empty());
+
+            assertThatThrownBy(() ->
+                service.deleteSingleOicSanction(2L, 1L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find adjudication number 2");
+        }
+
+        @Test
+        public void deleteSingleSanctionNoChargeProvedHearingResult() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().agencyIncidentId(1L).build()
+                ));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(1L, FindingCode.PROVED)).thenReturn(Collections.emptyList());
+
+            assertThatThrownBy(() ->
+                service.deleteSingleOicSanction(2L,1L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find hearing result PROVED for adjudication id 1");
+        }
+
+        @Test
+        public void deleteSingleSanctionHasMultipleChargeProvedHearingResults() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().agencyIncidentId(1L).build()
+                ));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(1L, FindingCode.PROVED)).thenReturn(List.of(
+                OicHearingResult.builder()
+                    .oicHearingId(2L)
+                    .resultSeq(1L)
+                    .build(),
+                OicHearingResult.builder()
+                    .oicHearingId(1L)
+                    .resultSeq(1L)
+                    .build()
+            ));
+
+            assertThatThrownBy(() ->
+                service.deleteSingleOicSanction(2L, 1L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Multiple PROVED hearing results for adjudication id 1");
+        }
+
+        @Test
+        public void deleteSingleSanction() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder()
+                        .agencyIncidentId(10L)
+                        .parties(List.of(AdjudicationParty.builder()
+                            .incidentRole(INCIDENT_ROLE_OFFENDER)
+                            .offenderBooking(OffenderBooking.builder()
+                                .bookingId(200L).build())
+                            .adjudicationNumber(2L).build())).build()
+                ));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(10L, FindingCode.PROVED)).thenReturn(List.of(
+                OicHearingResult.builder()
+                    .oicHearingId(3L)
+                    .resultSeq(1L)
+                    .build()
+            ));
+
+            when(oicSanctionRepository.findByOicHearingId(3L))
+                .thenReturn(List.of(
+                    OicSanction.builder().offenderBookId(200L).sanctionSeq(1L).build(),
+                    OicSanction.builder().offenderBookId(200L).sanctionSeq(2L).build(),
+                    OicSanction.builder().offenderBookId(200L).sanctionSeq(3L).build()));
+
+            service.deleteSingleOicSanction(2L, 2L);
+
+            ArgumentCaptor<OicSanction> deleteCapture = ArgumentCaptor.forClass(OicSanction.class);
+            verify(oicSanctionRepository, times(1)).delete(deleteCapture.capture());
+            assertThat(deleteCapture.getValue().getOffenderBookId()).isEqualTo(200L);
+            assertThat(deleteCapture.getValue().getSanctionSeq()).isEqualTo(2L);
         }
     }
 

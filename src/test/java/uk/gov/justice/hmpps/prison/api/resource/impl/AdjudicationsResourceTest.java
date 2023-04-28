@@ -14,7 +14,12 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult.FindingCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult.PleaFindingCode;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction.OicSanctionCode;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction.PK;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction.Status;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -817,4 +822,413 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         }
     }
 
+    @Nested
+    public class CreateSanctions {
+
+        final List<String> valid = List.of("ROLE_MAINTAIN_ADJUDICATIONS");
+        final List<String> invalid = List.of("ROLE_SYSTEM_USER");
+
+        final List validRequest = List.of(Map.of(
+            "oicSanctionCode", OicSanctionCode.ADA,
+            "compensationAmount", "1000.55",
+            "sanctionDays", "30",
+            "commentText", "comment",
+            "effectiveDate", "2021-01-04",
+            "status", Status.IMMEDIATE));
+
+        @Test
+        public void createSanctionsReturns403ForInvalidRoles() {
+            createSanctions(invalid, validRequest, -9L)
+                .expectStatus().isForbidden();
+        }
+
+        @Test
+        public void createSanctionsReturns404DueToNoAdjudication() {
+            createSanctions(valid, validRequest, 99L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void createSanctionsReturns404DueToNoProvedHearingResult() {
+            createSanctions(valid, validRequest, -9L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void createSanctionsReturns404DueToMultipleProvedHearingResult() {
+            createSanctions(valid, validRequest, -3001L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        @Transactional
+        public void createSanctionsReturnsSuccess() {
+            createSanctions(valid, validRequest, -3002L)
+                .expectStatus().isCreated()
+                .expectBody()
+                .jsonPath("$[0].sanctionType").isEqualTo(OicSanctionCode.ADA.name())
+                .jsonPath("$[0].sanctionDays").isEqualTo("30")
+                .jsonPath("$[0].comment").isEqualTo("comment")
+                .jsonPath("$[0].compensationAmount").isEqualTo("1000")
+                .jsonPath("$[0].effectiveDate").isEqualTo("2021-01-04T00:00:00")
+                .jsonPath("$[0].status").isEqualTo(Status.IMMEDIATE.name())
+                .jsonPath("$[0].sanctionSeq").isEqualTo("1");
+
+            List<OicSanction> oicSanctions = entityManager.getEntityManager()
+                .createNativeQuery("select * from OFFENDER_OIC_SANCTIONS where OIC_HEARING_ID = -3006", OicSanction.class).getResultList();
+            assertThat(oicSanctions.get(0).getOffenderBookId()).isEqualTo(-50L);
+            assertThat(oicSanctions.get(0).getSanctionSeq()).isEqualTo(1L);
+            assertThat(oicSanctions.get(0).getOicSanctionCode()).isEqualTo(OicSanctionCode.ADA);
+            assertThat(oicSanctions.get(0).getCompensationAmount()).isEqualTo(new BigDecimal("1000.55"));
+            assertThat(oicSanctions.get(0).getSanctionDays()).isEqualTo(30L);
+            assertThat(oicSanctions.get(0).getCommentText()).isEqualTo("comment");
+            assertThat(oicSanctions.get(0).getEffectiveDate()).isEqualTo("2021-01-04");
+            assertThat(oicSanctions.get(0).getStatus()).isEqualTo(Status.IMMEDIATE);
+            assertThat(oicSanctions.get(0).getOicHearingId()).isEqualTo(-3006L);
+            assertThat(oicSanctions.get(0).getResultSeq()).isEqualTo(1L);
+            assertThat(oicSanctions.get(0).getOicIncidentId()).isEqualTo(-3002L);
+            assertThat(oicSanctions.size()).isEqualTo(1);
+        }
+
+        private ResponseSpec createSanctions(List<String> headers, List payload, Long adjudicationNumber) {
+            return webTestClient.post()
+                .uri("/api/adjudications/adjudication/"+adjudicationNumber+"/sanctions")
+                .headers(setAuthorisation(headers))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .bodyValue(payload)
+                .exchange();
+        }
+    }
+
+    @Nested
+    public class CreateSingleSanction {
+
+        final List<String> valid = List.of("ROLE_MAINTAIN_ADJUDICATIONS");
+        final List<String> invalid = List.of("ROLE_SYSTEM_USER");
+
+        final Map validRequest = Map.of(
+            "oicSanctionCode", OicSanctionCode.ADA,
+            "compensationAmount", "1000.55",
+            "sanctionDays", "30",
+            "commentText", "comment",
+            "effectiveDate", "2021-01-04",
+            "status", Status.IMMEDIATE);
+
+        @Test
+        public void createSingleSanctionReturns403ForInvalidRoles() {
+            createSingleSanction(invalid, validRequest, -9L)
+                .expectStatus().isForbidden();
+        }
+
+        @Test
+        public void createSingleSanctionReturns404DueToNoAdjudication() {
+            createSingleSanction(valid, validRequest, 99L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void createSingleSanctionReturns404DueToNoProvedHearingResult() {
+            createSingleSanction(valid, validRequest, -9L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void createSingleSanctionReturns404DueToMultipleProvedHearingResult() {
+            createSingleSanction(valid, validRequest, -3001L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        @Transactional
+        public void createSingleSanctionReturnsSuccess() {
+            createSingleSanction(valid, validRequest, -3002L)
+                .expectStatus().isCreated()
+                .expectBody()
+                .jsonPath("$.sanctionType").isEqualTo(OicSanctionCode.ADA.name())
+                .jsonPath("$.sanctionDays").isEqualTo("30")
+                .jsonPath("$.comment").isEqualTo("comment")
+                .jsonPath("$.compensationAmount").isEqualTo("1000")
+                .jsonPath("$.effectiveDate").isEqualTo("2021-01-04T00:00:00")
+                .jsonPath("$.status").isEqualTo(Status.IMMEDIATE.name())
+                .jsonPath("$.sanctionSeq").isEqualTo("1");
+
+            List<OicSanction> oicSanctions = entityManager.getEntityManager()
+                .createNativeQuery("select * from OFFENDER_OIC_SANCTIONS where OIC_HEARING_ID = -3006", OicSanction.class).getResultList();
+            assertThat(oicSanctions.get(0).getOffenderBookId()).isEqualTo(-50L);
+            assertThat(oicSanctions.get(0).getSanctionSeq()).isEqualTo(1L);
+            assertThat(oicSanctions.get(0).getOicSanctionCode()).isEqualTo(OicSanctionCode.ADA);
+            assertThat(oicSanctions.get(0).getCompensationAmount()).isEqualTo(new BigDecimal("1000.55"));
+            assertThat(oicSanctions.get(0).getSanctionDays()).isEqualTo(30L);
+            assertThat(oicSanctions.get(0).getCommentText()).isEqualTo("comment");
+            assertThat(oicSanctions.get(0).getEffectiveDate()).isEqualTo("2021-01-04");
+            assertThat(oicSanctions.get(0).getStatus()).isEqualTo(Status.IMMEDIATE);
+            assertThat(oicSanctions.get(0).getOicHearingId()).isEqualTo(-3006L);
+            assertThat(oicSanctions.get(0).getResultSeq()).isEqualTo(1L);
+            assertThat(oicSanctions.get(0).getOicIncidentId()).isEqualTo(-3002L);
+            assertThat(oicSanctions.size()).isEqualTo(1);
+        }
+
+        private ResponseSpec createSingleSanction(List<String> headers, Map payload, Long adjudicationNumber) {
+            return webTestClient.post()
+                .uri("/api/adjudications/adjudication/"+adjudicationNumber+"/sanction")
+                .headers(setAuthorisation(headers))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .bodyValue(payload)
+                .exchange();
+        }
+    }
+
+    @Nested
+    public class UpdateSanctions {
+
+        final List<String> valid = List.of("ROLE_MAINTAIN_ADJUDICATIONS");
+        final List<String> invalid = List.of("ROLE_SYSTEM_USER");
+
+        final List validRequest = List.of(Map.of(
+            "oicSanctionCode", OicSanctionCode.ADA,
+            "compensationAmount", "1000.55",
+            "sanctionDays", "30",
+            "commentText", "comment_new",
+            "effectiveDate", "2021-01-05",
+            "status", Status.IMMEDIATE));
+
+        @Test
+        public void updateSanctionsReturns403ForInvalidRoles() {
+            updateSanctions(invalid, validRequest, -9L)
+                .expectStatus().isForbidden();
+        }
+
+        @Test
+        public void updateSanctionsReturns404DueToNoAdjudication() {
+            updateSanctions(valid, validRequest, 99L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void updateSanctionsReturns404DueToNoProvedHearingResult() {
+            updateSanctions(valid, validRequest, -9L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void updateSanctionsReturns404DueToMultipleProvedHearingResult() {
+            updateSanctions(valid, validRequest, -3001L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        @Transactional
+        public void updateSanctionsReturnsSuccess() {
+            assertThat(entityManager.find(OicSanction.class, new PK(-35L, 1L))).isNotNull();
+            entityManager.clear();
+
+            updateSanctions(valid, validRequest, -8L)
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$[0].sanctionType").isEqualTo(OicSanctionCode.ADA.name())
+                .jsonPath("$[0].sanctionDays").isEqualTo("30")
+                .jsonPath("$[0].comment").isEqualTo("comment_new")
+                .jsonPath("$[0].compensationAmount").isEqualTo("1000")
+                .jsonPath("$[0].effectiveDate").isEqualTo("2021-01-05T00:00:00")
+                .jsonPath("$[0].status").isEqualTo(Status.IMMEDIATE.name())
+                .jsonPath("$[0].sanctionSeq").isEqualTo("2");
+
+            assertThat(entityManager.find(OicSanction.class, new PK(-35L, 1L))).isNull();
+
+            OicSanction oicSanction = entityManager.find(OicSanction.class, new PK(-35L, 2L));
+            assertThat(oicSanction.getOffenderBookId()).isEqualTo(-35L);
+            assertThat(oicSanction.getSanctionSeq()).isEqualTo(2L);
+            assertThat(oicSanction.getOicSanctionCode()).isEqualTo(OicSanctionCode.ADA);
+            assertThat(oicSanction.getCompensationAmount()).isEqualTo(new BigDecimal("1000.55"));
+            assertThat(oicSanction.getSanctionDays()).isEqualTo(30L);
+            assertThat(oicSanction.getCommentText()).isEqualTo("comment_new");
+            assertThat(oicSanction.getEffectiveDate()).isEqualTo("2021-01-05");
+            assertThat(oicSanction.getStatus()).isEqualTo(Status.IMMEDIATE);
+            assertThat(oicSanction.getOicHearingId()).isEqualTo(-3L);
+            assertThat(oicSanction.getResultSeq()).isEqualTo(1L);
+            assertThat(oicSanction.getOicIncidentId()).isEqualTo(-8L);
+        }
+
+        private ResponseSpec updateSanctions(List<String> headers, List payload, Long adjudicationNumber) {
+            return webTestClient.put()
+                .uri("/api/adjudications/adjudication/"+adjudicationNumber+"/sanctions")
+                .headers(setAuthorisation(headers))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .bodyValue(payload)
+                .exchange();
+        }
+    }
+
+    @Nested
+    public class QuashSanctions {
+
+        final List<String> valid = List.of("ROLE_MAINTAIN_ADJUDICATIONS");
+        final List<String> invalid = List.of("ROLE_SYSTEM_USER");
+
+        @Test
+        public void quashSanctionsReturns403ForInvalidRoles() {
+            quashSanctions(invalid, -9L)
+                .expectStatus().isForbidden();
+        }
+
+        @Test
+        public void quashSanctionsReturns404DueToNoAdjudication() {
+            quashSanctions(valid, 99L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void quashSanctionsReturns404DueToNoProvedHearingResult() {
+            quashSanctions(valid, -9L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void quashSanctionsReturns404DueToMultipleProvedHearingResult() {
+            quashSanctions(valid, -3001L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        @Transactional
+        public void quashSanctionsReturnsSuccess() {
+            quashSanctions(valid, -8L)
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$[0].sanctionType").isEqualTo(OicSanctionCode.FORFEIT.name())
+                .jsonPath("$[0].sanctionDays").isEqualTo("21")
+                .jsonPath("$[0].comment").isEqualTo("comment")
+                .jsonPath("$[0].compensationAmount").isEqualTo("50")
+                .jsonPath("$[0].effectiveDate").isEqualTo("2017-11-13T00:00:00")
+                .jsonPath("$[0].status").isEqualTo(Status.QUASHED.name())
+                .jsonPath("$[0].sanctionSeq").isEqualTo("1");
+
+            OicSanction oicSanction = entityManager.find(OicSanction.class, new PK(-35L, 1L));
+            assertThat(oicSanction.getOffenderBookId()).isEqualTo(-35L);
+            assertThat(oicSanction.getSanctionSeq()).isEqualTo(1L);
+            assertThat(oicSanction.getOicSanctionCode()).isEqualTo(OicSanctionCode.FORFEIT);
+            assertThat(oicSanction.getCompensationAmount()).isEqualTo(new BigDecimal("50.00"));
+            assertThat(oicSanction.getSanctionDays()).isEqualTo(21L);
+            assertThat(oicSanction.getCommentText()).isEqualTo("comment");
+            assertThat(oicSanction.getEffectiveDate()).isEqualTo("2017-11-13");
+            assertThat(oicSanction.getStatus()).isEqualTo(Status.QUASHED);
+            assertThat(oicSanction.getOicHearingId()).isEqualTo(-3L);
+            assertThat(oicSanction.getResultSeq()).isEqualTo(1L);
+            assertThat(oicSanction.getOicIncidentId()).isEqualTo(-8L);
+        }
+
+        private ResponseSpec quashSanctions(List<String> headers, Long adjudicationNumber) {
+            return webTestClient.put()
+                .uri("/api/adjudications/adjudication/"+adjudicationNumber+"/sanctions/quash")
+                .headers(setAuthorisation(headers))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .exchange();
+        }
+    }
+
+    @Nested
+    public class DeleteSanctions {
+
+        final List<String> valid = List.of("ROLE_MAINTAIN_ADJUDICATIONS");
+        final List<String> invalid = List.of("ROLE_SYSTEM_USER");
+
+        @Test
+        public void deleteSanctionsReturns403ForInvalidRoles() {
+            deleteSanctions(invalid, -9L)
+                .expectStatus().isForbidden();
+        }
+
+        @Test
+        public void deleteSanctionsReturns404DueToNoAdjudication() {
+            deleteSanctions(valid, 99L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void deleteSanctionsReturns404DueToNoProvedHearingResult() {
+            deleteSanctions(valid, -9L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void deleteSanctionsReturns404DueToMultipleProvedHearingResult() {
+            deleteSanctions(valid, -3001L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        @Transactional
+        public void deleteSanctionsReturnsSuccess() {
+            assertThat(entityManager.find(OicSanction.class, new PK(-35L, 1L))).isNotNull();
+            assertThat(entityManager.find(OicSanction.class, new PK(-35L, 2L))).isNull();
+            entityManager.clear();
+
+            deleteSanctions(valid,-8L)
+                .expectStatus().isOk();
+
+            assertThat(entityManager.find(OicSanction.class, new PK(-35L, 1L))).isNull();
+            assertThat(entityManager.find(OicSanction.class, new PK(-35L, 2L))).isNull();
+        }
+
+        private ResponseSpec deleteSanctions(List<String> headers, Long adjudicationNumber) {
+            return webTestClient.delete()
+                .uri("/api/adjudications/adjudication/"+adjudicationNumber+"/sanctions")
+                .headers(setAuthorisation(headers))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .exchange();
+        }
+    }
+
+    @Nested
+    public class DeleteSingleSanction {
+
+        final List<String> valid = List.of("ROLE_MAINTAIN_ADJUDICATIONS");
+        final List<String> invalid = List.of("ROLE_SYSTEM_USER");
+
+        @Test
+        public void deleteSanctionReturns403ForInvalidRoles() {
+            deleteSingleSanction(invalid, -9L,1L)
+                .expectStatus().isForbidden();
+        }
+
+        @Test
+        public void deleteSanctionReturns404DueToNoAdjudication() {
+            deleteSingleSanction(valid, 99L,1L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void deleteSanctionReturns404DueToNoProvedHearingResult() {
+            deleteSingleSanction(valid, -9L,1L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void deleteSanctionReturns404DueToMultipleProvedHearingResult() {
+            deleteSingleSanction(valid, -3001L,1L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        @Transactional
+        public void deleteSanctionReturnsSuccess() {
+            assertThat(entityManager.find(OicSanction.class, new PK(-35L, 1L))).isNotNull();
+            assertThat(entityManager.find(OicSanction.class, new PK(-35L, 2L))).isNull();
+            entityManager.clear();
+
+            deleteSingleSanction(valid,-8L,1L)
+                .expectStatus().isOk();
+
+            assertThat(entityManager.find(OicSanction.class, new PK(-35L, 1L))).isNull();
+            assertThat(entityManager.find(OicSanction.class, new PK(-35L, 2L))).isNull();
+        }
+
+        private ResponseSpec deleteSingleSanction(List<String> headers, Long adjudicationNumber, Long sanctionSeq) {
+            return webTestClient.delete()
+                .uri("/api/adjudications/adjudication/"+adjudicationNumber+"/sanction/"+sanctionSeq)
+                .headers(setAuthorisation(headers))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .exchange();
+        }
+    }
 }

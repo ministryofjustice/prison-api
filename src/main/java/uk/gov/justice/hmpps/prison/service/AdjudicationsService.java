@@ -2,6 +2,9 @@ package uk.gov.justice.hmpps.prison.service;
 
 import com.google.common.collect.Lists;
 import com.microsoft.applicationinsights.TelemetryClient;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,7 +18,9 @@ import uk.gov.justice.hmpps.prison.api.model.OicHearingRequest;
 import uk.gov.justice.hmpps.prison.api.model.OicHearingResponse;
 import uk.gov.justice.hmpps.prison.api.model.OicHearingResultDto;
 import uk.gov.justice.hmpps.prison.api.model.OicHearingResultRequest;
+import uk.gov.justice.hmpps.prison.api.model.OicSanctionRequest;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication;
+import uk.gov.justice.hmpps.prison.api.model.adjudications.Sanction;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationActionCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationCharge;
@@ -28,6 +33,9 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearing;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearing.OicHearingStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult.FindingCode;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction.Status;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationOffenceTypeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
@@ -35,6 +43,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepos
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OicHearingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OicHearingResultRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OicSanctionRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
@@ -45,7 +54,10 @@ import jakarta.persistence.EntityManager;
 import jakarta.validation.Valid;
 import jakarta.validation.ValidationException;
 import jakarta.validation.constraints.NotNull;
+
+import java.math.BigDecimal;
 import java.time.Clock;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -78,6 +90,7 @@ public class AdjudicationsService {
 
     private final OicHearingRepository oicHearingRepository;
     private final OicHearingResultRepository oicHearingResultRepository;
+    private final OicSanctionRepository oicSanctionRepository;
     @Value("${batch.max.size:1000}")
     private final int batchSize;
 
@@ -97,7 +110,8 @@ public class AdjudicationsService {
         @Value("${batch.max.size:1000}") final int batchSize,
         final AdjudicationsPartyService adjudicationsPartyService,
         final OicHearingRepository oicHearingRepository,
-        final OicHearingResultRepository oicHearingResultRepository) {
+        final OicHearingResultRepository oicHearingResultRepository,
+        final OicSanctionRepository oicSanctionRepository) {
         this.adjudicationsRepository = adjudicationsRepository;
         this.adjudicationsOffenceTypeRepository = adjudicationsOffenceTypeRepository;
         this.staffUserAccountRepository = staffUserAccountRepository;
@@ -114,6 +128,7 @@ public class AdjudicationsService {
         this.adjudicationsPartyService = adjudicationsPartyService;
         this.oicHearingRepository = oicHearingRepository;
         this.oicHearingResultRepository = oicHearingResultRepository;
+        this.oicSanctionRepository = oicSanctionRepository;
     }
 
     private List<AdjudicationOffenceType> offenceCodesFrom(List<String> suppliedOffenceCodes) {
@@ -411,6 +426,173 @@ public class AdjudicationsService {
         oicHearingRepository.save(oicHearing);
         oicHearingResultRepository.delete(oicHearingResult);
     }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    class OicSanctionValidationResult {
+        Adjudication adjudication;
+        Long oicHearingId;
+        Long offenderBookId;
+    }
+
+    protected OicSanctionValidationResult validateOicSanction(Long adjudicationNumber) {
+        final var adjudication = adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber)
+            .orElseThrow(EntityNotFoundException.withMessage(format("Could not find adjudication number %d", adjudicationNumber)));
+
+        final var hearingResult = oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(adjudication.getAgencyIncidentId(), FindingCode.PROVED);
+        if (hearingResult.isEmpty()) throw EntityNotFoundException.withMessage(format("Could not find hearing result PROVED for adjudication id %d", adjudication.getAgencyIncidentId()));
+        if (hearingResult.size() > 1) throw EntityNotFoundException.withMessage(format("Multiple PROVED hearing results for adjudication id %d", adjudication.getAgencyIncidentId()));
+
+        return new OicSanctionValidationResult(
+            adjudication,
+            hearingResult.get(0).getOicHearingId(),
+            adjudication.getOffenderParty().get().getOffenderBooking().getBookingId()
+        );
+    }
+
+    @Transactional
+    @VerifyOffenderAccess
+    public List<Sanction> createOicSanctions(
+        final Long adjudicationNumber,
+        final List<OicSanctionRequest> oicSanctionRequests) {
+
+        var result = validateOicSanction(adjudicationNumber);
+
+        Long nextSanctionSeq = oicSanctionRepository.getNextSanctionSeq(result.getOffenderBookId());
+
+        List<OicSanction> oicSanctions = new ArrayList<>();
+        int index = 0;
+        for (var request : oicSanctionRequests) {
+            oicSanctions.add(oicSanctionRepository.save(OicSanction.builder()
+                .offenderBookId(result.getOffenderBookId())
+                .sanctionSeq(nextSanctionSeq + index)
+                .oicSanctionCode(request.getOicSanctionCode())
+                .compensationAmount(BigDecimal.valueOf(request.getCompensationAmount()))
+                .sanctionDays(request.getSanctionDays())
+                .commentText(request.getCommentText())
+                .effectiveDate(request.getEffectiveDate())
+                .status(request.getStatus())
+                .oicHearingId(result.getOicHearingId())
+                .resultSeq(1L)
+                .oicIncidentId(adjudicationNumber)
+                .build())
+            );
+            index++;
+        }
+
+        return oicSanctions.stream().map(oicSanction -> Sanction.builder()
+            .sanctionType(oicSanction.getOicSanctionCode().name())
+            .sanctionDays(oicSanction.getSanctionDays())
+            .comment(oicSanction.getCommentText())
+            .compensationAmount(oicSanction.getCompensationAmount().longValue())
+            .effectiveDate(oicSanction.getEffectiveDate().atStartOfDay())
+            .status(oicSanction.getStatus().name())
+            .sanctionSeq(oicSanction.getSanctionSeq())
+            .oicHearingId(oicSanction.getOicHearingId())
+            .resultSeq(oicSanction.getResultSeq())
+            .build()).collect(Collectors.toList());
+    }
+
+    @Transactional
+    @VerifyOffenderAccess
+    public List<Sanction> updateOicSanctions(
+        final Long adjudicationNumber,
+        final List<OicSanctionRequest> oicSanctionRequests) {
+
+        var result = validateOicSanction(adjudicationNumber);
+
+        Long nextSanctionSeq = oicSanctionRepository.getNextSanctionSeq(result.getOffenderBookId());
+
+        List<OicSanction> exitingOicSanctions = oicSanctionRepository.findByOicHearingId(result.getOicHearingId());
+        oicSanctionRepository.deleteAll(exitingOicSanctions);
+
+        List<OicSanction> oicSanctions = new ArrayList<>();
+        int index = 0;
+        for (var request : oicSanctionRequests) {
+            oicSanctions.add(oicSanctionRepository.save(OicSanction.builder()
+                .offenderBookId(result.getOffenderBookId())
+                .sanctionSeq(nextSanctionSeq + index)
+                .oicSanctionCode(request.getOicSanctionCode())
+                .compensationAmount(BigDecimal.valueOf(request.getCompensationAmount()))
+                .sanctionDays(request.getSanctionDays())
+                .commentText(request.getCommentText())
+                .effectiveDate(request.getEffectiveDate())
+                .status(request.getStatus())
+                .oicHearingId(result.getOicHearingId())
+                .resultSeq(1L)
+                .oicIncidentId(adjudicationNumber)
+                .build())
+            );
+            index++;
+        }
+
+        return oicSanctions.stream().map(oicSanction -> Sanction.builder()
+            .sanctionType(oicSanction.getOicSanctionCode().name())
+            .sanctionDays(oicSanction.getSanctionDays())
+            .comment(oicSanction.getCommentText())
+            .compensationAmount(oicSanction.getCompensationAmount().longValue())
+            .effectiveDate(oicSanction.getEffectiveDate().atStartOfDay())
+            .status(oicSanction.getStatus().name())
+            .sanctionSeq(oicSanction.getSanctionSeq())
+            .oicHearingId(oicSanction.getOicHearingId())
+            .resultSeq(oicSanction.getResultSeq())
+            .build()).collect(Collectors.toList());
+    }
+
+    @Transactional
+    @VerifyOffenderAccess
+    public List<Sanction> quashOicSanctions(
+        final Long adjudicationNumber) {
+
+        var result = validateOicSanction(adjudicationNumber);
+
+        List<OicSanction> exitingOicSanctions = oicSanctionRepository.findByOicHearingId(result.getOicHearingId());
+
+        List<OicSanction> oicSanctions = new ArrayList<>();
+        for (var oicSanction : exitingOicSanctions) {
+            oicSanction.setStatus(Status.QUASHED);
+            oicSanctions.add(oicSanctionRepository.save(oicSanction));
+        }
+
+        return oicSanctions.stream().map(oicSanction -> Sanction.builder()
+            .sanctionType(oicSanction.getOicSanctionCode().name())
+            .sanctionDays(oicSanction.getSanctionDays())
+            .comment(oicSanction.getCommentText())
+            .compensationAmount(oicSanction.getCompensationAmount().longValue())
+            .effectiveDate(oicSanction.getEffectiveDate().atStartOfDay())
+            .status(oicSanction.getStatus().name())
+            .sanctionSeq(oicSanction.getSanctionSeq())
+            .oicHearingId(oicSanction.getOicHearingId())
+            .resultSeq(oicSanction.getResultSeq())
+            .build()).collect(Collectors.toList());
+    }
+
+    @Transactional
+    @VerifyOffenderAccess
+    public void deleteOicSanctions(
+        final Long adjudicationNumber) {
+
+        var result = validateOicSanction(adjudicationNumber);
+
+        List<OicSanction> exitingOicSanctions = oicSanctionRepository.findByOicHearingId(result.getOicHearingId());
+        oicSanctionRepository.deleteAll(exitingOicSanctions);
+    }
+
+    @Transactional
+    @VerifyOffenderAccess
+    public void deleteSingleOicSanction(
+        final Long adjudicationNumber,
+        final Long sanctionSeq) {
+
+        var result = validateOicSanction(adjudicationNumber);
+
+        List<OicSanction> exitingOicSanctions = oicSanctionRepository.findByOicHearingId(result.getOicHearingId());
+        for (var oicSanction : exitingOicSanctions) {
+            if (oicSanction.getSanctionSeq() == sanctionSeq) oicSanctionRepository.delete(oicSanction);
+        }
+    }
+
 
     private void oicHearingLocationValidation(final Long hearingLocationId){
         internalLocationRepository.findOneByLocationId(hearingLocationId)
