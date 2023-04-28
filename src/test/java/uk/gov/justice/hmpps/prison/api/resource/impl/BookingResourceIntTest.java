@@ -17,7 +17,6 @@ import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.InmateBasicDetails;
 import uk.gov.justice.hmpps.prison.api.model.Movement;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendanceBatch;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
 
 import java.time.Clock;
@@ -539,6 +538,21 @@ public class BookingResourceIntTest extends ResourceTest {
             String.class, "A1234AB");
 
         assertThatJsonFileAndStatus(response, 200, "offender_offence_history_A12234AB_include_non_convictions.json");
+    }
+
+    @Test
+    public void getOffenceHistoryForBookings() {
+        final var token = validToken(List.of("ROLE_VIEW_PRISONER_DATA"));
+        final var httpEntity = createHttpEntity(token, List.of(-59, -7, -3));
+
+        final var response = testRestTemplate.exchange(
+            "/api/bookings/offenceHistory",
+            HttpMethod.POST,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThatJsonFileAndStatus(response, 200, "offence-history-by-bookingids.json");
     }
 
     @Test

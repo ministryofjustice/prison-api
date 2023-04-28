@@ -1,0 +1,58 @@
+[
+  {
+    "bookingId": -3,
+    "offenceDescription": "Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury",
+    "offenceCode": "RC86355",
+    "statuteCode": "RC86",
+    "mostSerious": false,
+    "primaryResultCode": "1501",
+    "primaryResultDescription": "Recall",
+    "primaryResultConviction": true,
+    "caseId": -300
+  },
+  {
+    "bookingId": -59,
+    "offenceDate": "2015-01-04",
+    "offenceRangeDate": "2015-01-25",
+    "offenceDescription": "Manslaughter",
+    "offenceCode": "M4",
+    "statuteCode": "RC86",
+    "mostSerious": true,
+    "secondaryResultCode": "1005",
+    "secondaryResultDescription": "Borstal Training",
+    "secondaryResultConviction": true,
+    "courtDate": "2017-06-22",
+    "caseId": -20
+  },
+  {
+    "bookingId": -7,
+    "offenceDescription": "Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury",
+    "offenceCode": "RC86355",
+    "statuteCode": "RC86",
+    "mostSerious": true,
+    "secondaryResultCode": "1005",
+    "secondaryResultDescription": "Borstal Training",
+    "secondaryResultConviction": true,
+    "caseId": -9
+  },
+  {
+    "bookingId": -7,
+    "offenceDescription": "Cause another to use a vehicle where the seat belt is not securely fastened to the anchorage point.",
+    "offenceCode": "RC86360",
+    "statuteCode": "RC86",
+    "mostSerious": true,
+    "primaryResultCode": "1003",
+    "primaryResultDescription": "Detained during HM Pleasure",
+    "primaryResultConviction": true,
+    "caseId": -8
+  },
+  {
+    "bookingId": -3,
+    "offenceDescription": "Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury",
+    "offenceCode": "RC86355",
+    "statuteCode": "RC86",
+    "mostSerious": false,
+    "courtDate": "2017-04-24",
+    "caseId": -3
+  }
+]

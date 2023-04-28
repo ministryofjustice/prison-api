@@ -17,6 +17,7 @@ import uk.gov.justice.hmpps.prison.api.model.CourtCase;
 import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecord;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
+import uk.gov.justice.hmpps.prison.api.model.OffenceHistoryDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderFinePaymentDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOffence;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences;
@@ -69,6 +70,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.WarZone;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AvailablePrisonIepLevelRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderChargeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPersonsRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderFinePaymentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
@@ -81,6 +83,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitorRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.support.PayableAttendanceOutcomeDto;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderBookingTransformer;
+import uk.gov.justice.hmpps.prison.service.transformers.OffenderChargeTransformer;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
 
 import java.math.BigDecimal;
@@ -111,6 +114,8 @@ public class BookingServiceTest {
     private BookingRepository bookingRepository;
     @Mock
     private OffenderBookingRepository offenderBookingRepository;
+    @Mock
+    private OffenderChargeRepository offenderChargeRepository;
     @Mock
     private OffenderRepository offenderRepository;
     @Mock
@@ -145,7 +150,8 @@ public class BookingServiceTest {
     private CaseloadToAgencyMappingService caseloadToAgencyMappingService;
     @Mock
     private CaseLoadService caseLoadService;
-
+    @Mock
+    private OffenderChargeTransformer offenderChargeTransformer;
     private BookingService bookingService;
 
     @BeforeEach
@@ -153,6 +159,7 @@ public class BookingServiceTest {
         bookingService = new BookingService(
                 bookingRepository,
                 offenderBookingRepository,
+                offenderChargeRepository,
                 offenderRepository,
                 visitorRepository,
                 visitInformationRepository,
@@ -169,6 +176,7 @@ public class BookingServiceTest {
                 offenderSentenceRepository,
                 offenderFinePaymentRepository,
                 offenderRestrictionRepository,
+                offenderChargeTransformer,
                 10);
     }
 
@@ -1541,4 +1549,16 @@ public class BookingServiceTest {
         }
     }
 
+    @Test
+    public void getActiveOffencesForBookings() {
+        final var bookingIds = Set.of(2L, 4L, 9L);
+        final var charges = List.of(new OffenderCharge());
+
+        when(offenderChargeRepository.findActiveOffencesByBookingIds(bookingIds)).thenReturn(charges);
+        List<OffenceHistoryDetail> offenceHistoryDetails = bookingService.getActiveOffencesForBookings(bookingIds);
+
+        verify(offenderChargeRepository).findActiveOffencesByBookingIds(bookingIds);
+        assertThat(offenceHistoryDetails).isNotNull();
+        assertThat(offenceHistoryDetails).hasSize(charges.size());
+    }
 }

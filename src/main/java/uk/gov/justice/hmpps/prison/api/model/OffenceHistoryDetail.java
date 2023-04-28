@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.api.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
+import lombok.Builder;
 import lombok.Data;
 
 import jakarta.validation.constraints.NotBlank;
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 
 @Schema(description = "Offence History Item")
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@Builder
 @Data
 public class OffenceHistoryDetail {
 
