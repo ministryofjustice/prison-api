@@ -468,7 +468,7 @@ public class AdjudicationsService {
                 .offenderBookId(result.getOffenderBookId())
                 .sanctionSeq(nextSanctionSeq + index)
                 .oicSanctionCode(request.getOicSanctionCode())
-                .compensationAmount(BigDecimal.valueOf(request.getCompensationAmount()))
+                .compensationAmount(request.getCompensationAmount() == null ? null : BigDecimal.valueOf(request.getCompensationAmount()))
                 .sanctionDays(request.getSanctionDays())
                 .commentText(request.getCommentText())
                 .effectiveDate(request.getEffectiveDate())
@@ -485,7 +485,7 @@ public class AdjudicationsService {
             .sanctionType(oicSanction.getOicSanctionCode().name())
             .sanctionDays(oicSanction.getSanctionDays())
             .comment(oicSanction.getCommentText())
-            .compensationAmount(oicSanction.getCompensationAmount().longValue())
+            .compensationAmount(oicSanction.getCompensationAmount() == null ? null : oicSanction.getCompensationAmount().longValue())
             .effectiveDate(oicSanction.getEffectiveDate().atStartOfDay())
             .status(oicSanction.getStatus().name())
             .sanctionSeq(oicSanction.getSanctionSeq())
@@ -514,7 +514,7 @@ public class AdjudicationsService {
                 .offenderBookId(result.getOffenderBookId())
                 .sanctionSeq(nextSanctionSeq + index)
                 .oicSanctionCode(request.getOicSanctionCode())
-                .compensationAmount(BigDecimal.valueOf(request.getCompensationAmount()))
+                .compensationAmount(request.getCompensationAmount() == null ? null : BigDecimal.valueOf(request.getCompensationAmount()))
                 .sanctionDays(request.getSanctionDays())
                 .commentText(request.getCommentText())
                 .effectiveDate(request.getEffectiveDate())
@@ -531,7 +531,7 @@ public class AdjudicationsService {
             .sanctionType(oicSanction.getOicSanctionCode().name())
             .sanctionDays(oicSanction.getSanctionDays())
             .comment(oicSanction.getCommentText())
-            .compensationAmount(oicSanction.getCompensationAmount().longValue())
+            .compensationAmount(oicSanction.getCompensationAmount() == null ? null : oicSanction.getCompensationAmount().longValue())
             .effectiveDate(oicSanction.getEffectiveDate().atStartOfDay())
             .status(oicSanction.getStatus().name())
             .sanctionSeq(oicSanction.getSanctionSeq())
@@ -559,7 +559,7 @@ public class AdjudicationsService {
             .sanctionType(oicSanction.getOicSanctionCode().name())
             .sanctionDays(oicSanction.getSanctionDays())
             .comment(oicSanction.getCommentText())
-            .compensationAmount(oicSanction.getCompensationAmount().longValue())
+            .compensationAmount(oicSanction.getCompensationAmount() == null ? null : oicSanction.getCompensationAmount().longValue())
             .effectiveDate(oicSanction.getEffectiveDate().atStartOfDay())
             .status(oicSanction.getStatus().name())
             .sanctionSeq(oicSanction.getSanctionSeq())
@@ -592,7 +592,6 @@ public class AdjudicationsService {
             if (oicSanction.getSanctionSeq() == sanctionSeq) oicSanctionRepository.delete(oicSanction);
         }
     }
-
 
     private void oicHearingLocationValidation(final Long hearingLocationId){
         internalLocationRepository.findOneByLocationId(hearingLocationId)
