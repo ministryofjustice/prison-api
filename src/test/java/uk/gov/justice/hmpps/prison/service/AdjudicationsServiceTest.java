@@ -73,7 +73,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -1465,7 +1465,7 @@ public class AdjudicationsServiceTest {
     }
 
     @Nested
-    public class UpsertSanctions_CommonTests {
+    public class CreateSanctions {
 
         @Test
         public void upsertSanctionsAdjudicationDoesNotExist() {
@@ -1516,10 +1516,6 @@ public class AdjudicationsServiceTest {
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Multiple PROVED hearing results for adjudication id 1");
         }
-    }
-
-    @Nested
-    public class CreateSanctions {
 
         @Test
         public void createSanctions() {
@@ -1597,6 +1593,57 @@ public class AdjudicationsServiceTest {
 
     @Nested
     public class UpdateSanctions {
+
+        @Test
+        public void updateSanctionsAdjudicationDoesNotExist() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.empty());
+
+            assertThatThrownBy(() ->
+                service.updateOicSanctions(2L, List.of(OicSanctionRequest.builder().build())))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find adjudication number 2");
+        }
+
+        @Test
+        public void updateSanctionsNoChargeProvedHearingResult() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().agencyIncidentId(1L).build()
+                ));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(1L, FindingCode.PROVED)).thenReturn(Collections.emptyList());
+
+            assertThatThrownBy(() ->
+                service.updateOicSanctions(2L, List.of(OicSanctionRequest.builder().build())))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find hearing result PROVED for adjudication id 1");
+        }
+
+        @Test
+        public void updateSanctionsHasMultipleChargeProvedHearingResults() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().agencyIncidentId(1L).build()
+                ));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(1L, FindingCode.PROVED)).thenReturn(List.of(
+                OicHearingResult.builder()
+                    .oicHearingId(2L)
+                    .resultSeq(1L)
+                    .build(),
+                OicHearingResult.builder()
+                    .oicHearingId(1L)
+                    .resultSeq(1L)
+                    .build()
+            ));
+
+            assertThatThrownBy(() ->
+                service.updateOicSanctions(2L, List.of(OicSanctionRequest.builder().build())))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Multiple PROVED hearing results for adjudication id 1");
+        }
+
         @Test
         public void updateSanctions() {
             when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
@@ -1679,6 +1726,57 @@ public class AdjudicationsServiceTest {
 
     @Nested
     public class QuashSanctions {
+
+        @Test
+        public void quashSanctionsAdjudicationDoesNotExist() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.empty());
+
+            assertThatThrownBy(() ->
+                service.quashOicSanctions(2L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find adjudication number 2");
+        }
+
+        @Test
+        public void quashSanctionsNoChargeProvedHearingResult() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().agencyIncidentId(1L).build()
+                ));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(1L, FindingCode.PROVED)).thenReturn(Collections.emptyList());
+
+            assertThatThrownBy(() ->
+                service.quashOicSanctions(2L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find hearing result PROVED for adjudication id 1");
+        }
+
+        @Test
+        public void quashSanctionsHasMultipleChargeProvedHearingResults() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().agencyIncidentId(1L).build()
+                ));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(1L, FindingCode.PROVED)).thenReturn(List.of(
+                OicHearingResult.builder()
+                    .oicHearingId(2L)
+                    .resultSeq(1L)
+                    .build(),
+                OicHearingResult.builder()
+                    .oicHearingId(1L)
+                    .resultSeq(1L)
+                    .build()
+            ));
+
+            assertThatThrownBy(() ->
+                service.quashOicSanctions(2L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Multiple PROVED hearing results for adjudication id 1");
+        }
+
         @Test
         public void quashSanctions() {
             when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
@@ -1752,6 +1850,56 @@ public class AdjudicationsServiceTest {
     public class DeleteSanctions {
 
         @Test
+        public void deleteanctionsAdjudicationDoesNotExist() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.empty());
+
+            assertThatThrownBy(() ->
+                service.deleteOicSanctions(2L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find adjudication number 2");
+        }
+
+        @Test
+        public void deleteSanctionsNoChargeProvedHearingResult() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().agencyIncidentId(1L).build()
+                ));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(1L, FindingCode.PROVED)).thenReturn(Collections.emptyList());
+
+            assertThatThrownBy(() ->
+                service.deleteOicSanctions(2L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find hearing result PROVED for adjudication id 1");
+        }
+
+        @Test
+        public void deleteSanctionsHasMultipleChargeProvedHearingResults() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().agencyIncidentId(1L).build()
+                ));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(1L, FindingCode.PROVED)).thenReturn(List.of(
+                OicHearingResult.builder()
+                    .oicHearingId(2L)
+                    .resultSeq(1L)
+                    .build(),
+                OicHearingResult.builder()
+                    .oicHearingId(1L)
+                    .resultSeq(1L)
+                    .build()
+            ));
+
+            assertThatThrownBy(() ->
+                service.deleteOicSanctions(2L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Multiple PROVED hearing results for adjudication id 1");
+        }
+
+        @Test
         public void deleteSanctions() {
             when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
                 .thenReturn(Optional.of(
@@ -1780,6 +1928,60 @@ public class AdjudicationsServiceTest {
             verify(oicSanctionRepository, atLeastOnce()).deleteAll(deleteCapture.capture());
             assertThat(deleteCapture.getValue().get(0).getOffenderBookId()).isEqualTo(200L);
         }
+    }
+
+    @Nested
+    public class DeleteSingleSanction {
+
+        @Test
+        public void deleteSingleSanctionAdjudicationDoesNotExist() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.empty());
+
+            assertThatThrownBy(() ->
+                service.deleteSingleOicSanction(2L, 1L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find adjudication number 2");
+        }
+
+        @Test
+        public void deleteSingleSanctionNoChargeProvedHearingResult() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().agencyIncidentId(1L).build()
+                ));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(1L, FindingCode.PROVED)).thenReturn(Collections.emptyList());
+
+            assertThatThrownBy(() ->
+                service.deleteSingleOicSanction(2L,1L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find hearing result PROVED for adjudication id 1");
+        }
+
+        @Test
+        public void deleteSingleSanctionHasMultipleChargeProvedHearingResults() {
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().agencyIncidentId(1L).build()
+                ));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(1L, FindingCode.PROVED)).thenReturn(List.of(
+                OicHearingResult.builder()
+                    .oicHearingId(2L)
+                    .resultSeq(1L)
+                    .build(),
+                OicHearingResult.builder()
+                    .oicHearingId(1L)
+                    .resultSeq(1L)
+                    .build()
+            ));
+
+            assertThatThrownBy(() ->
+                service.deleteSingleOicSanction(2L, 1L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Multiple PROVED hearing results for adjudication id 1");
+        }
 
         @Test
         public void deleteSingleSanction() {
@@ -1802,14 +2004,17 @@ public class AdjudicationsServiceTest {
             ));
 
             when(oicSanctionRepository.findByOicHearingId(3L))
-                .thenReturn(List.of(OicSanction.builder().offenderBookId(200L).sanctionSeq(1L).build()));
+                .thenReturn(List.of(
+                    OicSanction.builder().offenderBookId(200L).sanctionSeq(1L).build(),
+                    OicSanction.builder().offenderBookId(200L).sanctionSeq(2L).build(),
+                    OicSanction.builder().offenderBookId(200L).sanctionSeq(3L).build()));
 
-            service.deleteSingleOicSanction(2L, 1L);
+            service.deleteSingleOicSanction(2L, 2L);
 
             ArgumentCaptor<OicSanction> deleteCapture = ArgumentCaptor.forClass(OicSanction.class);
-            verify(oicSanctionRepository, atLeastOnce()).delete(deleteCapture.capture());
+            verify(oicSanctionRepository, times(1)).delete(deleteCapture.capture());
             assertThat(deleteCapture.getValue().getOffenderBookId()).isEqualTo(200L);
-            assertThat(deleteCapture.getValue().getSanctionSeq()).isEqualTo(1L);
+            assertThat(deleteCapture.getValue().getSanctionSeq()).isEqualTo(2L);
         }
     }
 
