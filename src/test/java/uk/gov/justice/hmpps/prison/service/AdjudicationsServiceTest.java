@@ -1521,7 +1521,7 @@ public class AdjudicationsServiceTest {
     public class CreateSanctions {
 
         @Test
-        public void upsertSanctionsAdjudicationDoesNotExist() {
+        public void createSanctionsAdjudicationDoesNotExist() {
             when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
                 .thenReturn(Optional.empty());
 
@@ -1532,7 +1532,7 @@ public class AdjudicationsServiceTest {
         }
 
         @Test
-        public void upsertSanctionsNoChargeProvedHearingResult() {
+        public void createSanctionsNoChargeProvedHearingResult() {
             when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
                 .thenReturn(Optional.of(
                     Adjudication.builder().agencyIncidentId(1L).build()
@@ -1547,7 +1547,7 @@ public class AdjudicationsServiceTest {
         }
 
         @Test
-        public void upsertSanctionsHasMultipleChargeProvedHearingResults() {
+        public void createSanctionsHasMultipleChargeProvedHearingResults() {
             when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
                 .thenReturn(Optional.of(
                     Adjudication.builder().agencyIncidentId(1L).build()
@@ -1570,6 +1570,7 @@ public class AdjudicationsServiceTest {
                 .hasMessageContaining("Multiple PROVED hearing results for adjudication id 1");
         }
 
+        @Test
         public void createSanctions() {
             when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
                 .thenReturn(Optional.of(
@@ -1594,11 +1595,11 @@ public class AdjudicationsServiceTest {
 
             LocalDate today = LocalDate.now();
 
-            when(oicSanctionRepository.save(any())).thenReturn(OicSanction.builder()
+            OicSanction oicSanction_withoutCompensation = OicSanction.builder()
                 .offenderBookId(200L)
                 .sanctionSeq(6L)
                 .oicSanctionCode(OicSanctionCode.ADA)
-                .compensationAmount(new BigDecimal("1000.55"))
+                .compensationAmount(null)
                 .sanctionDays(30L)
                 .commentText("comment")
                 .effectiveDate(today)
@@ -1606,21 +1607,37 @@ public class AdjudicationsServiceTest {
                 .oicHearingId(3L)
                 .resultSeq(1L)
                 .oicIncidentId(2L)
-                .build());
-
-            List<Sanction> result = service.createOicSanctions(2L, List.of(OicSanctionRequest.builder()
+                .build();
+            OicSanction oicSanction_withCompensation = OicSanction.builder()
+                .offenderBookId(200L)
+                .sanctionSeq(7L)
                 .oicSanctionCode(OicSanctionCode.ADA)
+                .compensationAmount(new BigDecimal("1000.0"))
                 .sanctionDays(30L)
                 .commentText("comment")
-                .compensationAmount(1000.0)
                 .effectiveDate(today)
                 .status(Status.IMMEDIATE)
-                .build(),
-                OicSanctionRequest.builder()
+                .oicHearingId(3L)
+                .resultSeq(1L)
+                .oicIncidentId(2L)
+                .build();
+
+            when(oicSanctionRepository.save(oicSanction_withoutCompensation)).thenReturn(oicSanction_withoutCompensation);
+            when(oicSanctionRepository.save(oicSanction_withCompensation)).thenReturn(oicSanction_withCompensation);
+
+            List<Sanction> result = service.createOicSanctions(2L, List.of(OicSanctionRequest.builder()
                     .oicSanctionCode(OicSanctionCode.ADA)
-                    .compensationAmount(null)
                     .sanctionDays(30L)
                     .commentText("comment")
+                    .compensationAmount(null)
+                    .effectiveDate(today)
+                    .status(Status.IMMEDIATE)
+                    .build(),
+                OicSanctionRequest.builder()
+                    .oicSanctionCode(OicSanctionCode.ADA)
+                    .sanctionDays(30L)
+                    .commentText("comment")
+                    .compensationAmount(1000.0)
                     .effectiveDate(today)
                     .status(Status.IMMEDIATE)
                     .build()));
@@ -1629,9 +1646,9 @@ public class AdjudicationsServiceTest {
             verify(oicSanctionRepository, atLeastOnce()).save(sanctionCapture.capture());
 
             assertThat(sanctionCapture.getValue().getOffenderBookId()).isEqualTo(200L);
-            assertThat(sanctionCapture.getValue().getSanctionSeq()).isEqualTo(6L);
+            assertThat(sanctionCapture.getValue().getSanctionSeq()).isEqualTo(7L);
             assertThat(sanctionCapture.getValue().getOicSanctionCode()).isEqualTo(OicSanctionCode.ADA);
-            assertThat(sanctionCapture.getValue().getCompensationAmount()).isEqualTo(new BigDecimal("1000.55"));
+            assertThat(sanctionCapture.getValue().getCompensationAmount()).isEqualTo(new BigDecimal("1000.0"));
             assertThat(sanctionCapture.getValue().getSanctionDays()).isEqualTo(30L);
             assertThat(sanctionCapture.getValue().getCommentText()).isEqualTo("comment");
             assertThat(sanctionCapture.getValue().getEffectiveDate()).isEqualTo(today);
@@ -1641,13 +1658,15 @@ public class AdjudicationsServiceTest {
             assertThat(sanctionCapture.getValue().getOicIncidentId()).isEqualTo(2L);
 
             assertThat(result.get(0).getSanctionType()).isEqualTo(OicSanctionCode.ADA.name());
-            assertThat(result.get(0).getCompensationAmount()).isEqualTo(1000L);
+            assertThat(result.get(0).getCompensationAmount()).isEqualTo(null);
             assertThat(result.get(0).getSanctionDays()).isEqualTo(30L);
             assertThat(result.get(0).getComment()).isEqualTo("comment");
             assertThat(result.get(0).getEffectiveDate()).isEqualTo(today.atStartOfDay());
             assertThat(result.get(0).getStatus()).isEqualTo(Status.IMMEDIATE.name());
             assertThat(result.get(0).getOicHearingId()).isEqualTo(3L);
             assertThat(result.get(0).getResultSeq()).isEqualTo(1L);
+            assertThat(result.get(1).getCompensationAmount()).isEqualTo(1000L);
+            assertThat(result.size()).isEqualTo(2);
         }
     }
 
@@ -1731,11 +1750,12 @@ public class AdjudicationsServiceTest {
                 .thenReturn(List.of(OicSanction.builder().offenderBookId(200L).build()));
 
             LocalDate today = LocalDate.now();
-            when(oicSanctionRepository.save(any())).thenReturn(OicSanction.builder()
+
+            OicSanction oicSanction_withoutCompensation = OicSanction.builder()
                 .offenderBookId(200L)
                 .sanctionSeq(6L)
                 .oicSanctionCode(OicSanctionCode.ADA)
-                .compensationAmount(new BigDecimal("1000.55"))
+                .compensationAmount(null)
                 .sanctionDays(30L)
                 .commentText("comment")
                 .effectiveDate(today)
@@ -1743,28 +1763,52 @@ public class AdjudicationsServiceTest {
                 .oicHearingId(3L)
                 .resultSeq(1L)
                 .oicIncidentId(2L)
-                .build());
-
-            List<Sanction> result = service.updateOicSanctions(2L, List.of(OicSanctionRequest.builder()
+                .build();
+            OicSanction oicSanction_withCompensation = OicSanction.builder()
+                .offenderBookId(200L)
+                .sanctionSeq(7L)
                 .oicSanctionCode(OicSanctionCode.ADA)
-                .compensationAmount(1000.55)
+                .compensationAmount(new BigDecimal("1000.0"))
                 .sanctionDays(30L)
                 .commentText("comment")
                 .effectiveDate(today)
                 .status(Status.IMMEDIATE)
-                .build()));
+                .oicHearingId(3L)
+                .resultSeq(1L)
+                .oicIncidentId(2L)
+                .build();
+
+            when(oicSanctionRepository.save(oicSanction_withoutCompensation)).thenReturn(oicSanction_withoutCompensation);
+            when(oicSanctionRepository.save(oicSanction_withCompensation)).thenReturn(oicSanction_withCompensation);
+
+            List<Sanction> result = service.updateOicSanctions(2L, List.of(OicSanctionRequest.builder()
+                    .oicSanctionCode(OicSanctionCode.ADA)
+                    .sanctionDays(30L)
+                    .commentText("comment")
+                    .compensationAmount(null)
+                    .effectiveDate(today)
+                    .status(Status.IMMEDIATE)
+                    .build(),
+                OicSanctionRequest.builder()
+                    .oicSanctionCode(OicSanctionCode.ADA)
+                    .sanctionDays(30L)
+                    .commentText("comment")
+                    .compensationAmount(1000.0)
+                    .effectiveDate(today)
+                    .status(Status.IMMEDIATE)
+                    .build()));
 
             ArgumentCaptor<List<OicSanction>> deleteCapture = ArgumentCaptor.forClass(List.class);
             verify(oicSanctionRepository, atLeastOnce()).deleteAll(deleteCapture.capture());
             assertThat(deleteCapture.getValue().get(0).getOffenderBookId()).isEqualTo(200L);
 
             final var saveCapture = ArgumentCaptor.forClass(OicSanction.class);
-            verify(oicSanctionRepository, atLeastOnce()).save(saveCapture.capture());
+            verify(oicSanctionRepository, times(2)).save(saveCapture.capture());
 
             assertThat(saveCapture.getValue().getOffenderBookId()).isEqualTo(200L);
-            assertThat(saveCapture.getValue().getSanctionSeq()).isEqualTo(6L);
+            assertThat(saveCapture.getValue().getSanctionSeq()).isEqualTo(7L);
             assertThat(saveCapture.getValue().getOicSanctionCode()).isEqualTo(OicSanctionCode.ADA);
-            assertThat(saveCapture.getValue().getCompensationAmount()).isEqualTo(new BigDecimal("1000.55"));
+            assertThat(saveCapture.getValue().getCompensationAmount()).isEqualTo(new BigDecimal("1000.0"));
             assertThat(saveCapture.getValue().getSanctionDays()).isEqualTo(30L);
             assertThat(saveCapture.getValue().getCommentText()).isEqualTo("comment");
             assertThat(saveCapture.getValue().getEffectiveDate()).isEqualTo(today);
@@ -1774,13 +1818,16 @@ public class AdjudicationsServiceTest {
             assertThat(saveCapture.getValue().getOicIncidentId()).isEqualTo(2L);
 
             assertThat(result.get(0).getSanctionType()).isEqualTo(OicSanctionCode.ADA.name());
-            assertThat(result.get(0).getCompensationAmount()).isEqualTo(1000L);
+            assertThat(result.get(0).getSanctionSeq()).isEqualTo(6L);
+            assertThat(result.get(0).getCompensationAmount()).isEqualTo(null);
             assertThat(result.get(0).getSanctionDays()).isEqualTo(30L);
             assertThat(result.get(0).getComment()).isEqualTo("comment");
             assertThat(result.get(0).getEffectiveDate()).isEqualTo(today.atStartOfDay());
             assertThat(result.get(0).getStatus()).isEqualTo(Status.IMMEDIATE.name());
             assertThat(result.get(0).getOicHearingId()).isEqualTo(3L);
             assertThat(result.get(0).getResultSeq()).isEqualTo(1L);
+            assertThat(result.get(1).getSanctionSeq()).isEqualTo(7L);
+            assertThat(result.get(1).getCompensationAmount()).isEqualTo(1000L);
         }
     }
 
@@ -1858,11 +1905,25 @@ public class AdjudicationsServiceTest {
             ));
 
             LocalDate today = LocalDate.now();
-            OicSanction oicSanction = OicSanction.builder()
+
+            OicSanction oicSanction_withoutCompensation = OicSanction.builder()
                 .offenderBookId(200L)
                 .sanctionSeq(6L)
                 .oicSanctionCode(OicSanctionCode.ADA)
-                .compensationAmount(new BigDecimal("1000.55"))
+                .compensationAmount(null)
+                .sanctionDays(30L)
+                .commentText("comment")
+                .effectiveDate(today)
+                .status(Status.IMMEDIATE)
+                .oicHearingId(3L)
+                .resultSeq(1L)
+                .oicIncidentId(2L)
+                .build();
+            OicSanction oicSanction_withCompensation = OicSanction.builder()
+                .offenderBookId(200L)
+                .sanctionSeq(7L)
+                .oicSanctionCode(OicSanctionCode.ADA)
+                .compensationAmount(new BigDecimal("1000.0"))
                 .sanctionDays(30L)
                 .commentText("comment")
                 .effectiveDate(today)
@@ -1872,21 +1933,20 @@ public class AdjudicationsServiceTest {
                 .oicIncidentId(2L)
                 .build();
 
-            when(oicSanctionRepository.findByOicHearingId(3L))
-                .thenReturn(List.of(oicSanction));
+            when(oicSanctionRepository.findByOicHearingId(3L)).thenReturn(List.of(oicSanction_withoutCompensation, oicSanction_withCompensation));
 
-            when(oicSanctionRepository.save(any())).thenReturn(oicSanction);
-            oicSanction.setStatus(Status.QUASHED);
+            when(oicSanctionRepository.save(oicSanction_withoutCompensation)).thenReturn(oicSanction_withoutCompensation);
+            when(oicSanctionRepository.save(oicSanction_withCompensation)).thenReturn(oicSanction_withCompensation);
 
             List<Sanction> result = service.quashOicSanctions(2L);
 
-            ArgumentCaptor<OicSanction> saveCapture = ArgumentCaptor.forClass(OicSanction.class);
-            verify(oicSanctionRepository, atLeastOnce()).save(saveCapture.capture());
+            final var saveCapture = ArgumentCaptor.forClass(OicSanction.class);
+            verify(oicSanctionRepository, times(2)).save(saveCapture.capture());
 
             assertThat(saveCapture.getValue().getOffenderBookId()).isEqualTo(200L);
-            assertThat(saveCapture.getValue().getSanctionSeq()).isEqualTo(6L);
+            assertThat(saveCapture.getValue().getSanctionSeq()).isEqualTo(7L);
             assertThat(saveCapture.getValue().getOicSanctionCode()).isEqualTo(OicSanctionCode.ADA);
-            assertThat(saveCapture.getValue().getCompensationAmount()).isEqualTo(new BigDecimal("1000.55"));
+            assertThat(saveCapture.getValue().getCompensationAmount()).isEqualTo(new BigDecimal("1000.0"));
             assertThat(saveCapture.getValue().getSanctionDays()).isEqualTo(30L);
             assertThat(saveCapture.getValue().getCommentText()).isEqualTo("comment");
             assertThat(saveCapture.getValue().getEffectiveDate()).isEqualTo(today);
@@ -1896,13 +1956,17 @@ public class AdjudicationsServiceTest {
             assertThat(saveCapture.getValue().getOicIncidentId()).isEqualTo(2L);
 
             assertThat(result.get(0).getSanctionType()).isEqualTo(OicSanctionCode.ADA.name());
-            assertThat(result.get(0).getCompensationAmount()).isEqualTo(1000L);
+            assertThat(result.get(0).getSanctionSeq()).isEqualTo(6L);
+            assertThat(result.get(0).getCompensationAmount()).isEqualTo(null);
             assertThat(result.get(0).getSanctionDays()).isEqualTo(30L);
             assertThat(result.get(0).getComment()).isEqualTo("comment");
             assertThat(result.get(0).getEffectiveDate()).isEqualTo(today.atStartOfDay());
             assertThat(result.get(0).getStatus()).isEqualTo(Status.QUASHED.name());
             assertThat(result.get(0).getOicHearingId()).isEqualTo(3L);
             assertThat(result.get(0).getResultSeq()).isEqualTo(1L);
+            assertThat(result.get(1).getSanctionSeq()).isEqualTo(7L);
+            assertThat(result.get(1).getStatus()).isEqualTo(Status.QUASHED.name());
+            assertThat(result.get(1).getCompensationAmount()).isEqualTo(1000L);
         }
     }
 
