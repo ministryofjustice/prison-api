@@ -459,14 +459,13 @@ public class AdjudicationsService {
 
         var result = validateOicSanction(adjudicationNumber);
 
-        Long offenderBookId = result.adjudication.getOffenderParty().get().getOffenderBooking().getBookingId();
-        Long nextSanctionSeq = oicSanctionRepository.getNextSanctionSeq(offenderBookId);
+        Long nextSanctionSeq = oicSanctionRepository.getNextSanctionSeq(result.getOffenderBookId());
 
         List<OicSanction> oicSanctions = new ArrayList<>();
         int index = 0;
         for (var request : oicSanctionRequests) {
             oicSanctions.add(oicSanctionRepository.save(OicSanction.builder()
-                .offenderBookId(offenderBookId)
+                .offenderBookId(result.getOffenderBookId())
                 .sanctionSeq(nextSanctionSeq + index)
                 .oicSanctionCode(request.getOicSanctionCode())
                 .compensationAmount(BigDecimal.valueOf(request.getCompensationAmount()))
@@ -503,8 +502,7 @@ public class AdjudicationsService {
 
         var result = validateOicSanction(adjudicationNumber);
 
-        Long offenderBookId = result.adjudication.getOffenderParty().get().getOffenderBooking().getBookingId();
-        Long nextSanctionSeq = oicSanctionRepository.getNextSanctionSeq(offenderBookId);
+        Long nextSanctionSeq = oicSanctionRepository.getNextSanctionSeq(result.getOffenderBookId());
 
         List<OicSanction> exitingOicSanctions = oicSanctionRepository.findByOicHearingId(result.getOicHearingId());
         oicSanctionRepository.deleteAll(exitingOicSanctions);
@@ -513,7 +511,7 @@ public class AdjudicationsService {
         int index = 0;
         for (var request : oicSanctionRequests) {
             oicSanctions.add(oicSanctionRepository.save(OicSanction.builder()
-                .offenderBookId(offenderBookId)
+                .offenderBookId(result.getOffenderBookId())
                 .sanctionSeq(nextSanctionSeq + index)
                 .oicSanctionCode(request.getOicSanctionCode())
                 .compensationAmount(BigDecimal.valueOf(request.getCompensationAmount()))
