@@ -873,12 +873,12 @@ public class AdjudicationsResourceTest extends ResourceTest  {
                 .jsonPath("$[0].compensationAmount").isEqualTo("1000")
                 .jsonPath("$[0].effectiveDate").isEqualTo("2021-01-04T00:00:00")
                 .jsonPath("$[0].status").isEqualTo(Status.IMMEDIATE.name())
-                .jsonPath("$[0].sanctionSeq").isEqualTo("0");
+                .jsonPath("$[0].sanctionSeq").isEqualTo("1");
 
             List<OicSanction> oicSanctions = entityManager.getEntityManager()
                 .createNativeQuery("select * from OFFENDER_OIC_SANCTIONS where OIC_HEARING_ID = -3006", OicSanction.class).getResultList();
             assertThat(oicSanctions.get(0).getOffenderBookId()).isEqualTo(-50L);
-            assertThat(oicSanctions.get(0).getSanctionSeq()).isEqualTo(0L);
+            assertThat(oicSanctions.get(0).getSanctionSeq()).isEqualTo(1L);
             assertThat(oicSanctions.get(0).getOicSanctionCode()).isEqualTo(OicSanctionCode.ADA);
             assertThat(oicSanctions.get(0).getCompensationAmount()).isEqualTo(new BigDecimal("1000.55"));
             assertThat(oicSanctions.get(0).getSanctionDays()).isEqualTo(30L);
@@ -951,12 +951,12 @@ public class AdjudicationsResourceTest extends ResourceTest  {
                 .jsonPath("$.compensationAmount").isEqualTo("1000")
                 .jsonPath("$.effectiveDate").isEqualTo("2021-01-04T00:00:00")
                 .jsonPath("$.status").isEqualTo(Status.IMMEDIATE.name())
-                .jsonPath("$.sanctionSeq").isEqualTo("0");
+                .jsonPath("$.sanctionSeq").isEqualTo("1");
 
             List<OicSanction> oicSanctions = entityManager.getEntityManager()
                 .createNativeQuery("select * from OFFENDER_OIC_SANCTIONS where OIC_HEARING_ID = -3006", OicSanction.class).getResultList();
             assertThat(oicSanctions.get(0).getOffenderBookId()).isEqualTo(-50L);
-            assertThat(oicSanctions.get(0).getSanctionSeq()).isEqualTo(0L);
+            assertThat(oicSanctions.get(0).getSanctionSeq()).isEqualTo(1L);
             assertThat(oicSanctions.get(0).getOicSanctionCode()).isEqualTo(OicSanctionCode.ADA);
             assertThat(oicSanctions.get(0).getCompensationAmount()).isEqualTo(new BigDecimal("1000.55"));
             assertThat(oicSanctions.get(0).getSanctionDays()).isEqualTo(30L);
