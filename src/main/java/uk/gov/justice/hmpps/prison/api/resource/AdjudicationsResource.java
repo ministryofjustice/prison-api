@@ -327,7 +327,7 @@ public class AdjudicationsResource {
     @ProxyUser
     @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS') and hasAuthority('SCOPE_write')")
     @ResponseStatus(HttpStatus.OK)
-    public void deleteOicSanction(
+    public void deleteSingleOicSanction(
         @PathVariable("adjudicationNumber") final Long adjudicationNumber,
         @PathVariable("sanctionSeq") final Long sanctionSeq
     ) {
