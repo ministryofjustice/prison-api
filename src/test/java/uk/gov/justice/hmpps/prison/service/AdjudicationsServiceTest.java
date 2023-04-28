@@ -2,10 +2,13 @@ package uk.gov.justice.hmpps.prison.service;
 
 import com.microsoft.applicationinsights.TelemetryClient;
 import org.assertj.core.matcher.AssertionMatcher;
+import org.checkerframework.checker.units.qual.C;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.hamcrest.MockitoHamcrest;
@@ -1570,7 +1573,6 @@ public class AdjudicationsServiceTest {
                 .hasMessageContaining("Multiple PROVED hearing results for adjudication id 1");
         }
 
-        @Test
         public void createSanctions() {
             when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
                 .thenReturn(Optional.of(
@@ -1611,12 +1613,20 @@ public class AdjudicationsServiceTest {
 
             List<Sanction> result = service.createOicSanctions(2L, List.of(OicSanctionRequest.builder()
                 .oicSanctionCode(OicSanctionCode.ADA)
-                .compensationAmount(1000.55)
                 .sanctionDays(30L)
                 .commentText("comment")
+                .compensationAmount(1000.0)
                 .effectiveDate(today)
                 .status(Status.IMMEDIATE)
-                .build()));
+                .build(),
+                OicSanctionRequest.builder()
+                    .oicSanctionCode(OicSanctionCode.ADA)
+                    .compensationAmount(null)
+                    .sanctionDays(30L)
+                    .commentText("comment")
+                    .effectiveDate(today)
+                    .status(Status.IMMEDIATE)
+                    .build()));
 
             final var sanctionCapture = ArgumentCaptor.forClass(OicSanction.class);
             verify(oicSanctionRepository, atLeastOnce()).save(sanctionCapture.capture());
