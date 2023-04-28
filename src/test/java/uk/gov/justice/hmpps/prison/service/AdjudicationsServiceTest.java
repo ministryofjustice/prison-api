@@ -1622,8 +1622,8 @@ public class AdjudicationsServiceTest {
                 .oicIncidentId(2L)
                 .build();
 
-            when(oicSanctionRepository.save(oicSanction_withoutCompensation)).thenReturn(oicSanction_withoutCompensation);
-            when(oicSanctionRepository.save(oicSanction_withCompensation)).thenReturn(oicSanction_withCompensation);
+            when(oicSanctionRepository.saveAndFlush(oicSanction_withoutCompensation)).thenReturn(oicSanction_withoutCompensation);
+            when(oicSanctionRepository.saveAndFlush(oicSanction_withCompensation)).thenReturn(oicSanction_withCompensation);
 
             List<Sanction> result = service.createOicSanctions(2L, List.of(OicSanctionRequest.builder()
                     .oicSanctionCode(OicSanctionCode.ADA)
@@ -1643,7 +1643,7 @@ public class AdjudicationsServiceTest {
                     .build()));
 
             final var sanctionCapture = ArgumentCaptor.forClass(OicSanction.class);
-            verify(oicSanctionRepository, atLeastOnce()).save(sanctionCapture.capture());
+            verify(oicSanctionRepository, times(2)).saveAndFlush(sanctionCapture.capture());
 
             assertThat(sanctionCapture.getValue().getOffenderBookId()).isEqualTo(200L);
             assertThat(sanctionCapture.getValue().getSanctionSeq()).isEqualTo(7L);
@@ -1778,8 +1778,8 @@ public class AdjudicationsServiceTest {
                 .oicIncidentId(2L)
                 .build();
 
-            when(oicSanctionRepository.save(oicSanction_withoutCompensation)).thenReturn(oicSanction_withoutCompensation);
-            when(oicSanctionRepository.save(oicSanction_withCompensation)).thenReturn(oicSanction_withCompensation);
+            when(oicSanctionRepository.saveAndFlush(oicSanction_withoutCompensation)).thenReturn(oicSanction_withoutCompensation);
+            when(oicSanctionRepository.saveAndFlush(oicSanction_withCompensation)).thenReturn(oicSanction_withCompensation);
 
             List<Sanction> result = service.updateOicSanctions(2L, List.of(OicSanctionRequest.builder()
                     .oicSanctionCode(OicSanctionCode.ADA)
@@ -1799,11 +1799,11 @@ public class AdjudicationsServiceTest {
                     .build()));
 
             ArgumentCaptor<List<OicSanction>> deleteCapture = ArgumentCaptor.forClass(List.class);
-            verify(oicSanctionRepository, atLeastOnce()).deleteAll(deleteCapture.capture());
+            verify(oicSanctionRepository, times(1)).deleteAll(deleteCapture.capture());
             assertThat(deleteCapture.getValue().get(0).getOffenderBookId()).isEqualTo(200L);
 
             final var saveCapture = ArgumentCaptor.forClass(OicSanction.class);
-            verify(oicSanctionRepository, times(2)).save(saveCapture.capture());
+            verify(oicSanctionRepository, times(2)).saveAndFlush(saveCapture.capture());
 
             assertThat(saveCapture.getValue().getOffenderBookId()).isEqualTo(200L);
             assertThat(saveCapture.getValue().getSanctionSeq()).isEqualTo(7L);
