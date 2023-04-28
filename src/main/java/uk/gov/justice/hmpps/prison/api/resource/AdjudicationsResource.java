@@ -244,11 +244,28 @@ public class AdjudicationsResource {
     @ProxyUser
     @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS') and hasAuthority('SCOPE_write')")
     @ResponseStatus(HttpStatus.CREATED)
-    public List<Sanction> createOicSanction(
+    public List<Sanction> createOicSanctions(
         @PathVariable("adjudicationNumber") final Long adjudicationNumber,
         @Valid @RequestBody @Parameter(description = "OIC sanctions to save", required = true) final List<OicSanctionRequest> oicSanctionRequests
     ) {
         return adjudicationsService.createOicSanctions(adjudicationNumber, oicSanctionRequests);
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Created"),
+        @ApiResponse(responseCode = "403", description = "The client is not authorised for this operation"),
+        @ApiResponse(responseCode = "404", description = "No match was found for the adjudication number or hearing", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
+    })
+    @Operation(summary = "Creates single OIC sanction", description = "Requires MAINTAIN_ADJUDICATIONS access and write scope")
+    @PostMapping("/adjudication/{adjudicationNumber}/sanction")
+    @ProxyUser
+    @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS') and hasAuthority('SCOPE_write')")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Sanction createSingleOicSanction(
+        @PathVariable("adjudicationNumber") final Long adjudicationNumber,
+        @Valid @RequestBody @Parameter(description = "OIC sanctions to save", required = true) final OicSanctionRequest oicSanctionRequest
+    ) {
+        return adjudicationsService.createOicSanctions(adjudicationNumber, List.of(oicSanctionRequest)).get(0);
     }
 
     @ApiResponses({
@@ -261,7 +278,7 @@ public class AdjudicationsResource {
     @ProxyUser
     @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS') and hasAuthority('SCOPE_write')")
     @ResponseStatus(HttpStatus.OK)
-    public List<Sanction> updateOicSanction(
+    public List<Sanction> updateOicSanctions(
         @PathVariable("adjudicationNumber") final Long adjudicationNumber,
         @Valid @RequestBody @Parameter(description = "OIC sanctions to save", required = true) final List<OicSanctionRequest> oicSanctionRequests
     ) {
@@ -278,7 +295,7 @@ public class AdjudicationsResource {
     @ProxyUser
     @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS') and hasAuthority('SCOPE_write')")
     @ResponseStatus(HttpStatus.OK)
-    public List<Sanction> quashOicSanction(
+    public List<Sanction> quashOicSanctions(
         @PathVariable("adjudicationNumber") final Long adjudicationNumber
     ) {
         return adjudicationsService.quashOicSanctions(adjudicationNumber);
@@ -294,7 +311,7 @@ public class AdjudicationsResource {
     @ProxyUser
     @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS') and hasAuthority('SCOPE_write')")
     @ResponseStatus(HttpStatus.OK)
-    public void deleteOicSanction(
+    public void deleteOicSanctions(
         @PathVariable("adjudicationNumber") final Long adjudicationNumber
     ) {
         adjudicationsService.deleteOicSanctions(adjudicationNumber);

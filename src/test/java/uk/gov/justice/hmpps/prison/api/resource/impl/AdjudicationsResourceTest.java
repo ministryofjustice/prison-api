@@ -891,9 +891,87 @@ public class AdjudicationsResourceTest extends ResourceTest  {
             assertThat(oicSanctions.size()).isEqualTo(1);
         }
 
-        public ResponseSpec createSanctions(List<String> headers, List payload, Long adjudicationNumber) {
+        private ResponseSpec createSanctions(List<String> headers, List payload, Long adjudicationNumber) {
             return webTestClient.post()
                 .uri("/api/adjudications/adjudication/"+adjudicationNumber+"/sanctions")
+                .headers(setAuthorisation(headers))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .bodyValue(payload)
+                .exchange();
+        }
+    }
+
+    @Nested
+    public class CreateSingleSanction {
+
+        final List<String> valid = List.of("ROLE_MAINTAIN_ADJUDICATIONS");
+        final List<String> invalid = List.of("ROLE_SYSTEM_USER");
+
+        final Map validRequest = Map.of(
+            "oicSanctionCode", OicSanctionCode.ADA,
+            "compensationAmount", "1000.55",
+            "sanctionDays", "30",
+            "commentText", "comment",
+            "effectiveDate", "2021-01-04",
+            "status", Status.IMMEDIATE);
+
+        @Test
+        public void createSingleSanctionReturns403ForInvalidRoles() {
+            createSingleSanction(invalid, validRequest, -9L)
+                .expectStatus().isForbidden();
+        }
+
+        @Test
+        public void createSingleSanctionReturns404DueToNoAdjudication() {
+            createSingleSanction(valid, validRequest, 99L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void createSingleSanctionReturns404DueToNoProvedHearingResult() {
+            createSingleSanction(valid, validRequest, -9L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void createSingleSanctionReturns404DueToMultipleProvedHearingResult() {
+            createSingleSanction(valid, validRequest, -3001L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        @Transactional
+        public void createSingleSanctionReturnsSuccess() {
+            createSingleSanction(valid, validRequest, -3002L)
+                .expectStatus().isCreated()
+                .expectBody()
+                .jsonPath("$.sanctionType").isEqualTo(OicSanctionCode.ADA.name())
+                .jsonPath("$.sanctionDays").isEqualTo("30")
+                .jsonPath("$.comment").isEqualTo("comment")
+                .jsonPath("$.compensationAmount").isEqualTo("1000")
+                .jsonPath("$.effectiveDate").isEqualTo("2021-01-04T00:00:00")
+                .jsonPath("$.status").isEqualTo(Status.IMMEDIATE.name())
+                .jsonPath("$.sanctionSeq").isEqualTo("0");
+
+            List<OicSanction> oicSanctions = entityManager.getEntityManager()
+                .createNativeQuery("select * from OFFENDER_OIC_SANCTIONS where OIC_HEARING_ID = -3006", OicSanction.class).getResultList();
+            assertThat(oicSanctions.get(0).getOffenderBookId()).isEqualTo(-50L);
+            assertThat(oicSanctions.get(0).getSanctionSeq()).isEqualTo(0L);
+            assertThat(oicSanctions.get(0).getOicSanctionCode()).isEqualTo(OicSanctionCode.ADA);
+            assertThat(oicSanctions.get(0).getCompensationAmount()).isEqualTo(new BigDecimal("1000.55"));
+            assertThat(oicSanctions.get(0).getSanctionDays()).isEqualTo(30L);
+            assertThat(oicSanctions.get(0).getCommentText()).isEqualTo("comment");
+            assertThat(oicSanctions.get(0).getEffectiveDate()).isEqualTo("2021-01-04");
+            assertThat(oicSanctions.get(0).getStatus()).isEqualTo(Status.IMMEDIATE);
+            assertThat(oicSanctions.get(0).getOicHearingId()).isEqualTo(-3006L);
+            assertThat(oicSanctions.get(0).getResultSeq()).isEqualTo(1L);
+            assertThat(oicSanctions.get(0).getOicIncidentId()).isEqualTo(-3002L);
+            assertThat(oicSanctions.size()).isEqualTo(1);
+        }
+
+        private ResponseSpec createSingleSanction(List<String> headers, Map payload, Long adjudicationNumber) {
+            return webTestClient.post()
+                .uri("/api/adjudications/adjudication/"+adjudicationNumber+"/sanction")
                 .headers(setAuthorisation(headers))
                 .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                 .bodyValue(payload)
