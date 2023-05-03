@@ -106,7 +106,7 @@ public class BedAssignmentHistoryService {
     }
 
     private BedAssignment transform(final BedAssignmentHistory assignment) {
-        final var agencyInternalLocation = locationRepository.findOneByLocationId(assignment.getLivingUnitId());
+        final var agencyInternalLocation = Optional.ofNullable(assignment.getLocation());
         final var agencyId = agencyInternalLocation.map(AgencyInternalLocation::getAgencyId).orElse(null);
         final var agencyDescription = agencyInternalLocation.map(AgencyInternalLocation::getDescription).orElse(null);
 

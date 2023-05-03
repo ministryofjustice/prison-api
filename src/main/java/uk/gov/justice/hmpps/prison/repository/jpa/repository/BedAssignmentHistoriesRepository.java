@@ -2,6 +2,8 @@ package uk.gov.justice.hmpps.prison.repository.jpa.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -31,5 +33,6 @@ public interface BedAssignmentHistoriesRepository extends
     @Query("select ba from BedAssignmentHistory ba where ba.livingUnitId = :livingUnitId and (ba.assignmentEndDateTime is null or :fromDate <= ba.assignmentEndDateTime) and :toDate >= ba.assignmentDateTime")
     List<BedAssignmentHistory> findByLivingUnitIdAndDateTimeRange(@Param("livingUnitId") long livingUnitId, @Param("fromDate") LocalDateTime from, @Param("toDate") LocalDateTime to);
 
+    @EntityGraph(type = EntityGraphType.FETCH, value = "bed-history-with-booking")
     List<BedAssignmentHistory> findBedAssignmentHistoriesByAssignmentDateAndLivingUnitIdIn(LocalDate assignmentDate, Set<Long> livingUnitIds);
 }
