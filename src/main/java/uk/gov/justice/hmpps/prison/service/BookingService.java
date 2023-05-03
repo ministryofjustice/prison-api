@@ -658,9 +658,9 @@ public class BookingService {
         return offenderBooking.getActiveFilteredSentenceTerms(filterBySentenceTermCodes);
     }
 
-    public List<OffenderSentenceDetail> getOffenderSentencesSummary(final String agencyId, final List<String> offenderNos) {
+    public List<OffenderSentenceDetail> getOffenderSentencesSummary(final String agencyId, final List<String> offenderNos, final boolean activeBookingOnly) {
 
-        final var offenderSentenceSummary = offenderSentenceSummaries(agencyId, offenderNos);
+        final var offenderSentenceSummary = offenderSentenceSummaries(agencyId, offenderNos, activeBookingOnly);
         return getOffenderSentenceDetails(offenderSentenceSummary);
     }
 
@@ -963,34 +963,35 @@ public class BookingService {
     }
 
 
-    private List<OffenderSentenceDetailDto> offenderSentenceSummaries(final String agencyId, final List<String> offenderNos) {
+    private List<OffenderSentenceDetailDto> offenderSentenceSummaries(final String agencyId, final List<String> offenderNos, final boolean activeBookingOnly) {
 
         final var viewAllBookings = isAllowedToViewAllPrisonerData(RESTRICTED_ALLOWED_ROLES);
         final var caseLoadIdsForUser = getCaseLoadIdForUserIfRequired();
+        final boolean viewInactiveBookings = activeBookingOnly ? false : isViewInactiveBookings();
 
         if (offenderNos == null || offenderNos.isEmpty()) {
-            return offenderSentenceSummaries(agencyId, caseLoadIdsForUser, !viewAllBookings);
+            return offenderSentenceSummaries(agencyId, caseLoadIdsForUser, !viewAllBookings, viewInactiveBookings);
         } else {
-            return offenderSentenceSummaries(offenderNos, caseLoadIdsForUser, !viewAllBookings);
+            return offenderSentenceSummaries(offenderNos, caseLoadIdsForUser, !viewAllBookings, viewInactiveBookings);
         }
     }
 
-    private List<OffenderSentenceDetailDto> offenderSentenceSummaries(final String agencyId, final Set<String> caseloads, final boolean filterByCaseloads) {
+    private List<OffenderSentenceDetailDto> offenderSentenceSummaries(final String agencyId, final Set<String> caseloads, final boolean filterByCaseloads, final boolean viewInactiveBookings) {
         final var query = buildAgencyQuery(agencyId, authenticationFacade.getCurrentUsername());
         if (StringUtils.isEmpty(query) && caseloads.isEmpty()) {
             throw new HttpClientErrorException(BAD_REQUEST, "Request must be restricted to either a caseload, agency or list of offenders");
         }
-        return bookingRepository.getOffenderSentenceSummary(query, caseloads, filterByCaseloads, isViewInactiveBookings());
+        return bookingRepository.getOffenderSentenceSummary(query, caseloads, filterByCaseloads, viewInactiveBookings);
     }
 
-    private List<OffenderSentenceDetailDto> offenderSentenceSummaries(final List<String> offenderNos, final Set<String> caseloads, final boolean filterByCaseloads) {
+    private List<OffenderSentenceDetailDto> offenderSentenceSummaries(final List<String> offenderNos, final Set<String> caseloads, final boolean filterByCaseloads, final boolean viewInactiveBookings) {
 
         return Lists
                 .partition(offenderNos, maxBatchSize)
                 .stream()
                 .flatMap(numbers -> {
                     var query = "offenderNo:in:" + quotedAndPipeDelimited(numbers.stream());
-                    return bookingRepository.getOffenderSentenceSummary(query, caseloads, filterByCaseloads, isViewInactiveBookings()).stream();
+                    return bookingRepository.getOffenderSentenceSummary(query, caseloads, filterByCaseloads, viewInactiveBookings ).stream();
                 })
                 .toList();
     }
@@ -1014,7 +1015,6 @@ public class BookingService {
     private boolean isViewInactiveBookings() {
         return authenticationFacade.isOverrideRole("INACTIVE_BOOKINGS", "SYSTEM_USER");
     }
-
     private static String quotedAndPipeDelimited(final Stream<String> values) {
         return values.collect(Collectors.joining("'|'", "'", "'"));
     }

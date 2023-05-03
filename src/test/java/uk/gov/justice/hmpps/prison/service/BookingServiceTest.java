@@ -1200,7 +1200,7 @@ public class BookingServiceTest {
                 .build());
 
         when(bookingRepository.getOffenderSentenceSummary(any(), any(), anyBoolean(), anyBoolean())).thenReturn(OffenderSentenceDetailDtos);
-        List<OffenderSentenceDetail> offenderSentenceDetails = bookingService.getOffenderSentencesSummary(null, List.of("NomsId"));
+        List<OffenderSentenceDetail> offenderSentenceDetails = bookingService.getOffenderSentencesSummary(null, List.of("NomsId"), false);
 
         assertThat(offenderSentenceDetails).hasSize(2);
         assertThat(offenderSentenceDetails.get(0)).extracting(OffenderSentenceDetail::getBookingId).isEqualTo(1L);
@@ -1238,7 +1238,7 @@ public class BookingServiceTest {
     public void getOffenderSentenceSummaries_forOveriddenRole() {
         when(authenticationFacade.isOverrideRole(any())).thenReturn(true);
         when(caseloadToAgencyMappingService.agenciesForUsersWorkingCaseload(any())).thenReturn(List.of());
-        assertThatThrownBy(() -> bookingService.getOffenderSentencesSummary(null, List.of()))
+        assertThatThrownBy(() -> bookingService.getOffenderSentencesSummary(null, List.of(), false))
                 .isInstanceOf(HttpClientErrorException.class).hasMessage("400 Request must be restricted to either a caseload, agency or list of offenders");
     }
 
