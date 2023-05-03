@@ -1,6 +1,8 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
-import jakarta.persistence.FetchType;
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.NamedSubgraph;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,9 +17,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.NotFound;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
+import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
 @Data
 @Builder
@@ -27,6 +33,18 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Entity
 @Table(name = "BED_ASSIGNMENT_HISTORIES")
+@NamedEntityGraph(
+    name = "bed-history-with-booking",
+    attributeNodes = @NamedAttributeNode(value = "offenderBooking", subgraph = "booking-offender"),
+    subgraphs = {
+        @NamedSubgraph(
+            name = "booking-offender",
+            attributeNodes = {
+                @NamedAttributeNode("offender")
+            }
+        )
+    }
+)
 public class BedAssignmentHistory extends AuditableEntity {
 
     @Data
@@ -51,7 +69,8 @@ public class BedAssignmentHistory extends AuditableEntity {
     @Column(name = "LIVING_UNIT_ID")
     private Long livingUnitId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @NotFound(action = IGNORE)
+    @ManyToOne
     @JoinColumn(name = "LIVING_UNIT_ID", referencedColumnName = "INTERNAL_LOCATION_ID", insertable = false, updatable = false)
     private AgencyInternalLocation location;
 
