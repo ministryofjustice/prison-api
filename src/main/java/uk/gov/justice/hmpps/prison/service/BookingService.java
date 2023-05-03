@@ -62,6 +62,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Caseload;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.GlobalVisitorRestriction;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderContactPerson;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderFinePayment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImage;
@@ -72,6 +73,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.KeyD
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderChargeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPersonsRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderFinePaymentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
@@ -87,6 +89,7 @@ import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 import uk.gov.justice.hmpps.prison.service.transformers.CourtCaseTransformer;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderBookingTransformer;
+import uk.gov.justice.hmpps.prison.service.transformers.OffenderChargeTransformer;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
 import uk.gov.justice.hmpps.prison.service.transformers.PropertyContainerTransformer;
 import uk.gov.justice.hmpps.prison.service.validation.AttendanceTypesValid;
@@ -133,6 +136,7 @@ public class BookingService {
 
     private final BookingRepository bookingRepository;
     private final OffenderBookingRepository offenderBookingRepository;
+    private final OffenderChargeRepository offenderChargeRepository;
     private final OffenderRepository offenderRepository;
     private final VisitInformationRepository visitInformationRepository;
     private final VisitorRepository visitorRepository;
@@ -149,10 +153,12 @@ public class BookingService {
     private final OffenderFinePaymentRepository offenderFinePaymentRepository;
     private final OffenderTransformer offenderTransformer;
     private final AuthenticationFacade authenticationFacade;
+    private final OffenderChargeTransformer offenderChargeTransformer;
     private final int maxBatchSize;
 
     public BookingService(final BookingRepository bookingRepository,
                           final OffenderBookingRepository offenderBookingRepository,
+                          final OffenderChargeRepository offenderChargeRepository,
                           final OffenderRepository offenderRepository,
                           final VisitorRepository visitorRepository,
                           final VisitInformationRepository visitInformationRepository,
@@ -169,10 +175,12 @@ public class BookingService {
                           final OffenderSentenceRepository offenderSentenceRepository,
                           final OffenderFinePaymentRepository offenderFinePaymentRepository,
                           final OffenderRestrictionRepository offenderRestrictionRepository,
+                          final OffenderChargeTransformer offenderChargeTransformer,
                           @Value("${batch.max.size:1000}")
                           final int maxBatchSize) {
         this.bookingRepository = bookingRepository;
         this.offenderBookingRepository = offenderBookingRepository;
+        this.offenderChargeRepository = offenderChargeRepository;
         this.offenderRepository = offenderRepository;
         this.visitInformationRepository = visitInformationRepository;
         this.visitorRepository = visitorRepository;
@@ -189,6 +197,7 @@ public class BookingService {
         this.offenderSentenceRepository = offenderSentenceRepository;
         this.offenderFinePaymentRepository = offenderFinePaymentRepository;
         this.offenderRestrictionRepository = offenderRestrictionRepository;
+        this.offenderChargeTransformer = offenderChargeTransformer;
         this.maxBatchSize = maxBatchSize;
     }
 
@@ -573,6 +582,11 @@ public class BookingService {
 
     public List<OffenceHistoryDetail> getActiveOffencesForBooking(final Long bookingId, final boolean convictionsOnly) {
         return sentenceRepository.getActiveOffencesForBooking(bookingId, convictionsOnly);
+    }
+
+    public List<OffenceHistoryDetail> getActiveOffencesForBookings(final Set<Long> bookingIds) {
+        List<OffenderCharge> offenderCharges = offenderChargeRepository.findActiveOffencesByBookingIds(bookingIds);
+        return offenderCharges.stream().map(offenderChargeTransformer::convert).collect(toList());
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
