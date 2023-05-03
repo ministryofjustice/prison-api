@@ -656,8 +656,8 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Offence histories.", description = "Offence histories for a set of booking ids.")
-    @PostMapping("/offenceHistory")
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','VIEW_PRISONER_DATA','CREATE_CATEGORISATION','APPROVE_CATEGORISATION')")
+    @PostMapping("/offence-history")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER','VIEW_PRISONER_DATA')")
     public List<OffenceHistoryDetail> getOffenceHistoryForBookings(@RequestBody @Parameter(description = "The booking ids", required = true) final Set<Long> bookingIds){
         return bookingService.getActiveOffencesForBookings(bookingIds);
     }

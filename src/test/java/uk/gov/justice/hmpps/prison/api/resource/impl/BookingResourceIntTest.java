@@ -546,7 +546,7 @@ public class BookingResourceIntTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, List.of(-59, -7, -3));
 
         final var response = testRestTemplate.exchange(
-            "/api/bookings/offenceHistory",
+            "/api/bookings/offence-history",
             HttpMethod.POST,
             httpEntity,
             new ParameterizedTypeReference<String>() {
