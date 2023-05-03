@@ -1,9 +1,16 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.repository;
 
+import org.jetbrains.annotations.NotNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.lang.Nullable;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCaseNote;
 
 import java.time.LocalDate;
@@ -30,5 +37,8 @@ public interface OffenderCaseNoteRepository extends
     Long countOffenderCaseNoteByOffenderBooking_BookingIdAndTypeCodeAndSubTypeCodeAndOccurrenceDateIsBetween(
         Long bookingId, String type, String subType, LocalDate fromDate, LocalDate toDate
     );
+    @NotNull
+    @EntityGraph(type = EntityGraphType.FETCH, value = "case-note-with-author")
+    Page<OffenderCaseNote> findAll(@Nullable Specification<OffenderCaseNote> spec, @NotNull Pageable pageable);
 }
 

@@ -1,5 +1,7 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -38,6 +40,7 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @EqualsAndHashCode(of = "id", callSuper = false)
 @Table(name = "OFFENDER_CASE_NOTES")
 @ToString(exclude = { "offenderBooking", "agencyLocation" } )
+@NamedEntityGraph(name = "case-note-with-author", attributeNodes = @NamedAttributeNode(value = "author"))
 public class OffenderCaseNote extends AuditableEntity {
     private static final String AMEND_CASE_NOTE_FORMAT = "%s ...[%s updated the case notes on %s] %s";
 

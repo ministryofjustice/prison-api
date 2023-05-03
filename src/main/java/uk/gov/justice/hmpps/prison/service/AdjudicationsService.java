@@ -464,7 +464,8 @@ public class AdjudicationsService {
         List<OicSanction> oicSanctions = new ArrayList<>();
         int index = 0;
         for (var request : oicSanctionRequests) {
-            oicSanctions.add(oicSanctionRepository.save(OicSanction.builder()
+            // flushing removes error in trigger OFFENDER_OIC_SANCTIONS_T1 on insert
+            oicSanctions.add(oicSanctionRepository.saveAndFlush(OicSanction.builder()
                 .offenderBookId(result.getOffenderBookId())
                 .sanctionSeq(nextSanctionSeq + index)
                 .oicSanctionCode(request.getOicSanctionCode())
@@ -510,7 +511,8 @@ public class AdjudicationsService {
         List<OicSanction> oicSanctions = new ArrayList<>();
         int index = 0;
         for (var request : oicSanctionRequests) {
-            oicSanctions.add(oicSanctionRepository.save(OicSanction.builder()
+            // flushing removes error in trigger OFFENDER_OIC_SANCTIONS_T1 on insert
+            oicSanctions.add(oicSanctionRepository.saveAndFlush(OicSanction.builder()
                 .offenderBookId(result.getOffenderBookId())
                 .sanctionSeq(nextSanctionSeq + index)
                 .oicSanctionCode(request.getOicSanctionCode())
