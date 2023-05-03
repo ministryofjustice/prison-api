@@ -96,4 +96,14 @@ class OpenApiDocsTest : ResourceTest() {
       .jsonPath("$.security[0].bearer-jwt")
       .isEqualTo(bearerJwts)
   }
+
+  @Test
+  fun `the swagger json doesn't include LocalTime`() {
+    webTestClient.get()
+      .uri("/v3/api-docs")
+      .accept(MediaType.APPLICATION_JSON)
+      .exchange()
+      .expectStatus().isOk
+      .expectBody().jsonPath("components.schemas.LocalTime").doesNotExist()
+  }
 }
