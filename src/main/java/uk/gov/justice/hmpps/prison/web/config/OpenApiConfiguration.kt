@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.web.config
 
+import io.swagger.v3.core.util.PrimitiveType
 import io.swagger.v3.oas.models.Components
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.Operation
@@ -84,6 +85,11 @@ class OpenApiConfiguration(buildProperties: BuildProperties) {
         }
       }
     }
+  }
+
+  @Bean
+  fun enableLocalTimePrimitiveType() {
+    PrimitiveType.enablePartialTime()
   }
 }
 
