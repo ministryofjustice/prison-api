@@ -1,5 +1,7 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.repository;
 
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
@@ -11,6 +13,9 @@ import java.util.Optional;
 public interface AgencyInternalLocationRepository extends JpaRepository<AgencyInternalLocation, Long> {
 
     List<AgencyInternalLocation> findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive(final String agencyId, final String locationType, final boolean active);
+
+    @EntityGraph(type = EntityGraphType.FETCH, value = "agency-internal-location-with-profiles")
+    List<AgencyInternalLocation> findWithProfilesAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive(final String agencyId, final String locationType, final boolean active);
 
     List<AgencyInternalLocation> findAgencyInternalLocationsByAgencyIdAndLocationType(final String agencyId, final String locationType);
 

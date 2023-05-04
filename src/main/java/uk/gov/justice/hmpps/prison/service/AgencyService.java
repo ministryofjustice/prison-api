@@ -357,7 +357,7 @@ public class AgencyService {
     }
 
     public List<OffenderCell> getCellsWithCapacityInAgency(@NotNull final String agencyId, final String attribute) {
-        final var cells = agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive(agencyId, "CELL", true);
+        final var cells = agencyInternalLocationRepository.findWithProfilesAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive(agencyId, "CELL", true);
         return cells.stream()
                 .filter((l) -> l.isActiveCellWithSpace(true))
                 .map(cell -> transform(cell, true))
@@ -389,8 +389,7 @@ public class AgencyService {
     }
 
     private OffenderCell transform(final AgencyInternalLocation cell, final boolean treatZeroOperationalCapacityAsNull) {
-        final var attributes = agencyInternalLocationProfileRepository
-            .findAllByLocationId(cell.getLocationId())
+        final var attributes = cell.getProfiles()
             .stream()
             .filter(AgencyInternalLocationProfile::isAttribute)
             .map(AgencyInternalLocationProfile::getHousingAttributeReferenceCode)
