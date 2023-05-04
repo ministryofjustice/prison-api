@@ -36,7 +36,7 @@ public class CreateExternalMovement {
     @Schema(description = "Movement reason", required = true, example = "SEC")
     @NotNull
     private String movementReason;
-    @Schema(description = "Direction code", required = true, example = "OUT", allowableValues = {"IN","OUT"})
+    @Schema(description = "Direction code", required = true, example = "OUT")
     @NotNull
     private MovementDirection directionCode;
 }

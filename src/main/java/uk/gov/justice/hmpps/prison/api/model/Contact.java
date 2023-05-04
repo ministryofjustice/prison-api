@@ -67,19 +67,19 @@ public class Contact {
     @Schema(description = "id of the person contact", example = "5871791")
     private Long personId;
 
-    @Schema(required = true, description = "Active indicator flag.", example = "true", allowableValues = {"true","false"})
+    @Schema(required = true, description = "Active indicator flag.", example = "true")
     private boolean activeFlag;
 
     @Schema(description = "Date made inactive", example = "2019-01-31")
     private LocalDate expiryDate;
 
-    @Schema(required = true, description = "Approved Visitor", example = "true", allowableValues = {"true","false"})
+    @Schema(required = true, description = "Approved Visitor", example = "true")
     private boolean approvedVisitorFlag;
 
-    @Schema(required = true, description = "Can be contacted", example = "false", allowableValues = {"true","false"})
+    @Schema(required = true, description = "Can be contacted", example = "false")
     private boolean canBeContactedFlag;
 
-    @Schema(required = true, description = "Aware of charges against prisoner", example = "true", allowableValues = {"true","false"})
+    @Schema(required = true, description = "Aware of charges against prisoner", example = "true")
     private boolean awareOfChargesFlag;
 
     @Schema(description = "Link to root offender ID", example = "5871791")
