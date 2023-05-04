@@ -1187,7 +1187,7 @@ public class BookingServiceTest {
     }
 
     @Test
-    void getOffenderSentencesSummary_most_recent_active_booking() {
+    void getOffenderSentencesSummary_most_recent_bookings() {
         final var OffenderSentenceDetailDtos
             = List.of(
                 OffenderSentenceDetailDto.builder()
@@ -1208,6 +1208,24 @@ public class BookingServiceTest {
         assertThat(offenderSentenceDetails.get(1)).extracting(OffenderSentenceDetail::getBookingId).isEqualTo(2L);
         assertThat(offenderSentenceDetails.get(1)).extracting(OffenderSentenceDetail::getMostRecentActiveBooking).isEqualTo(false);
     }
+
+    @Test
+    void getOffenderSentencesSummary_most_recent_active_bookings() {
+        final var OffenderSentenceDetailDtos
+            = List.of(
+            OffenderSentenceDetailDto.builder()
+                .bookingId(1L)
+                .mostRecentActiveBooking(true)
+                .build());
+
+        when(bookingRepository.getOffenderSentenceSummary(any(), any(), anyBoolean(), anyBoolean())).thenReturn(OffenderSentenceDetailDtos);
+        List<OffenderSentenceDetail> offenderSentenceDetails = bookingService.getOffenderSentencesSummary(null, List.of("NomsId"), true);
+
+        assertThat(offenderSentenceDetails).hasSize(1);
+        assertThat(offenderSentenceDetails.get(0)).extracting(OffenderSentenceDetail::getBookingId).isEqualTo(1L);
+        assertThat(offenderSentenceDetails.get(0)).extracting(OffenderSentenceDetail::getMostRecentActiveBooking).isEqualTo(true);
+    }
+
 
     @Test
     void getOffenderCourtCases_errors_for_unknown_booking() {
