@@ -36,7 +36,7 @@ public class OffenderCategorise {
     @Schema(description = "Sequence number within booking")
     private Integer assessmentSeq;
 
-    @Schema(description = "assessment type", allowableValues = {"CATEGORY"})
+    @Schema(description = "assessment type")
     private Long assessmentTypeId;
 
     @Schema(description = "Categorisation status", allowableValues = {"P","A","I"})
