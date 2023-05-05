@@ -26,6 +26,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.PersonRepository;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -66,7 +67,7 @@ public class PersonServiceTest {
             .county(new County("S.YORKSHIRE", "South Yorkshire"))
             .city(new City("25343", "Sheffield"))
             .startDate(LocalDate.of(2016, 8, 2))
-            .phones(List.of(
+            .phones(Set.of(
                 AddressPhone.builder()
                     .phoneId(-7L)
                     .phoneNo("0114 2345345")
@@ -80,7 +81,7 @@ public class PersonServiceTest {
                     .extNo(null)
                     .build())
             )
-            .addressUsages(List.of(
+            .addressUsages(Set.of(
                 AddressUsage.builder().active(true).addressUsage("HDC").addressUsageType(new AddressUsageType("HDC", "HDC address")).build(),
                 AddressUsage.builder().active(true).addressUsage("HDC").build()
             ))

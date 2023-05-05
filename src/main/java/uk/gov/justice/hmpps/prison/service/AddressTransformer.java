@@ -7,6 +7,7 @@ import uk.gov.justice.hmpps.prison.api.model.Telephone;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Address;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Phone;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,7 +54,7 @@ public class AddressTransformer {
                 .build();
     }
 
-    public static List<Telephone> translatePhones(final List<? extends Phone> phones) {
+    public static List<Telephone> translatePhones(final Collection<? extends Phone> phones) {
         return phones.stream().map(AddressTransformer::translate).collect(toList());
     }
 

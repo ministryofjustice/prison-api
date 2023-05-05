@@ -24,6 +24,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepo
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -73,7 +74,7 @@ public class OffenderAddressServiceImplTest {
                         .city(new City("25343", "Sheffield"))
                         .startDate(LocalDate.of(2016, 8, 2))
                         .endDate(null)
-                    .phones( List.of(
+                    .phones( Set.of(
                         AddressPhone.builder()
                             .phoneId(-7L)
                             .phoneNo("0114 2345345")
@@ -86,7 +87,7 @@ public class OffenderAddressServiceImplTest {
                             .phoneType("BUS")
                             .extNo(null)
                             .build()))
-                        .addressUsages(List.of(
+                        .addressUsages(Set.of(
                                 AddressUsage.builder().active(true).addressUsage("HDC").addressUsageType(new AddressUsageType("HDC", "HDC address")).build(),
                                 AddressUsage.builder().active(true).addressUsage("HDC").build()
                         ))
