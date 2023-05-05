@@ -1,5 +1,7 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.repository;
 
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
@@ -16,6 +18,7 @@ public interface AgencyLocationRepository extends JpaRepository<AgencyLocation, 
 
     Optional<AgencyLocation> findByIdAndTypeAndActiveAndDeactivationDateIsNull(String id, AgencyLocationType type, boolean active);
 
+    @EntityGraph(type = EntityGraphType.FETCH, value = "agency-location-with-contact-details")
     List<AgencyLocation> findByTypeAndActiveAndDeactivationDateIsNull(AgencyLocationType type, boolean active);
 
 }

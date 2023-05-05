@@ -1,5 +1,18 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.NamedSubgraph;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -11,24 +24,16 @@ import org.hibernate.Hibernate;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
-import org.hibernate.type.YesNoConverter;
-import jakarta.persistence.Convert;
 import org.hibernate.annotations.Where;
+import org.hibernate.type.YesNoConverter;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType.AGY_LOC_TYPE;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.CourtType.JURISDICTION;
@@ -41,6 +46,18 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.CourtType.JURISDI
 @Table(name = "AGENCY_LOCATIONS")
 @ToString(of = {"id", "description"})
 @With
+@NamedEntityGraph(
+    name = "agency-location-with-contact-details",
+    attributeNodes =  { @NamedAttributeNode(value = "addresses", subgraph = "address-phone"), @NamedAttributeNode(value = "phones") },
+    subgraphs = {
+    @NamedSubgraph(
+        name = "address-phone",
+        attributeNodes = {
+            @NamedAttributeNode("phones"), @NamedAttributeNode("addressUsages")
+        }
+    )
+}
+)
 public class AgencyLocation extends AuditableEntity {
 
     public static final String IN = "IN";
@@ -94,7 +111,7 @@ public class AgencyLocation extends AuditableEntity {
     @OneToMany(mappedBy = "agency", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @Where(clause = "OWNER_CLASS = '"+AgencyPhone.PHONE_TYPE+"'")
     @Default
-    private List<AgencyPhone> phones = new ArrayList<>();
+    private Set<AgencyPhone> phones = new HashSet<>();
 
     @OneToMany(mappedBy = "agency", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @Where(clause = "OWNER_CLASS = '"+AgencyInternetAddress.TYPE+"'")
