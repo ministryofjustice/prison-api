@@ -106,7 +106,7 @@ public class AgencyLocation extends AuditableEntity {
     @OneToMany(mappedBy = "agency", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @Where(clause = "OWNER_CLASS = '"+AgencyAddress.ADDR_TYPE+"'")
     @Default
-    private List<AgencyAddress> addresses = new ArrayList<>();
+    private Set<AgencyAddress> addresses = new HashSet<>();
 
     @OneToMany(mappedBy = "agency", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @Where(clause = "OWNER_CLASS = '"+AgencyPhone.PHONE_TYPE+"'")

@@ -9,14 +9,13 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Phone;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
 @Component
 public class AddressTransformer {
 
-    public static List<AddressDto> translate(final List<? extends Address> addresses) {
+    public static List<AddressDto> translate(final Collection<? extends Address> addresses) {
         return addresses.stream().map(AddressTransformer::translate).collect(toList());
     }
 
