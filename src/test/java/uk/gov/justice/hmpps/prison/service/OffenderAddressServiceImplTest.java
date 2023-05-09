@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.service;
 
 
+import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +25,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepo
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -73,7 +75,7 @@ public class OffenderAddressServiceImplTest {
                         .city(new City("25343", "Sheffield"))
                         .startDate(LocalDate.of(2016, 8, 2))
                         .endDate(null)
-                    .phones( List.of(
+                    .phones( Set.of(
                         AddressPhone.builder()
                             .phoneId(-7L)
                             .phoneNo("0114 2345345")
@@ -86,7 +88,7 @@ public class OffenderAddressServiceImplTest {
                             .phoneType("BUS")
                             .extNo(null)
                             .build()))
-                        .addressUsages(List.of(
+                        .addressUsages(Set.of(
                                 AddressUsage.builder().active(true).addressUsage("HDC").addressUsageType(new AddressUsageType("HDC", "HDC address")).build(),
                                 AddressUsage.builder().active(true).addressUsage("HDC").build()
                         ))
@@ -116,68 +118,76 @@ public class OffenderAddressServiceImplTest {
 
         verify(offenderBookingRepository).findByOffenderNomsIdAndActive(offenderNo, true);
 
-        assertThat(results).isEqualTo(List.of(
+        // ignore Set order for phone and addresses
+        RecursiveComparisonConfiguration configuration = RecursiveComparisonConfiguration
+            .builder()
+            .withIgnoreCollectionOrder(true)
+            .build();
+
+        assertThat(results)
+            .usingRecursiveFieldByFieldElementComparator(configuration)
+            .isEqualTo(List.of(
                 AddressDto.builder()
-                        .addressType("Home Address")
-                        .noFixedAddress(false)
-                        .primary(true)
-                        .comment(null)
-                        .flat("Flat 1")
-                        .premise("Brook Hamlets")
-                        .street("Mayfield Drive")
-                        .postalCode("B5")
-                        .locality("Nether Edge")
-                        .country("England")
-                        .county("South Yorkshire")
-                        .town("Sheffield")
-                        .startDate(LocalDate.of(2016, 8, 2))
-                        .addressId(-15L)
-                        .phones(List.of(
-                                Telephone.builder()
-                                        .phoneId(-7L)
-                                        .number("0114 2345345")
-                                        .ext("345")
-                                        .type("HOME")
-                                        .build(),
-                                Telephone.builder()
-                                        .phoneId(-8L)
-                                        .number("0114 2345346")
-                                        .ext(null)
-                                        .type("BUS")
-                                        .build()))
-                        .addressUsages(List.of(AddressUsageDto.builder()
-                                        .addressId(-15L)
-                                        .activeFlag(true)
-                                        .addressUsage("HDC")
-                                        .addressUsageDescription("HDC address")
-                                        .build(),
-                                AddressUsageDto.builder()
-                                        .addressId(-15L)
-                                        .activeFlag(true)
-                                        .addressUsage("HDC")
-                                        .addressUsageDescription(null)
-                                        .build()
-                                )
+                    .addressType("Home Address")
+                    .noFixedAddress(false)
+                    .primary(true)
+                    .comment(null)
+                    .flat("Flat 1")
+                    .premise("Brook Hamlets")
+                    .street("Mayfield Drive")
+                    .postalCode("B5")
+                    .locality("Nether Edge")
+                    .country("England")
+                    .county("South Yorkshire")
+                    .town("Sheffield")
+                    .startDate(LocalDate.of(2016, 8, 2))
+                    .addressId(-15L)
+                    .phones(List.of(
+                        Telephone.builder()
+                            .phoneId(-7L)
+                            .number("0114 2345345")
+                            .ext("345")
+                            .type("HOME")
+                            .build(),
+                        Telephone.builder()
+                            .phoneId(-8L)
+                            .number("0114 2345346")
+                            .ext(null)
+                            .type("BUS")
+                            .build()))
+                    .addressUsages(List.of(AddressUsageDto.builder()
+                                .addressId(-15L)
+                                .activeFlag(true)
+                                .addressUsage("HDC")
+                                .addressUsageDescription("HDC address")
+                                .build(),
+                            AddressUsageDto.builder()
+                                .addressId(-15L)
+                                .activeFlag(true)
+                                .addressUsage("HDC")
+                                .addressUsageDescription(null)
+                                .build()
                         )
-                        .build(),
+                    )
+                    .build(),
                 AddressDto.builder()
-                        .addressType("Business Address")
-                        .noFixedAddress(true)
-                        .primary(false)
-                        .comment(null)
-                        .flat(null)
-                        .premise(null)
-                        .street(null)
-                        .postalCode(null)
-                        .country("England")
-                        .county(null)
-                        .town(null)
-                        .startDate(LocalDate.of(2016, 8, 2))
-                        .addressId(-16L)
-                        .phones(List.of())
-                        .addressUsages(List.of())
-                        .build())
-        );
+                    .addressType("Business Address")
+                    .noFixedAddress(true)
+                    .primary(false)
+                    .comment(null)
+                    .flat(null)
+                    .premise(null)
+                    .street(null)
+                    .postalCode(null)
+                    .country("England")
+                    .county(null)
+                    .town(null)
+                    .startDate(LocalDate.of(2016, 8, 2))
+                    .addressId(-16L)
+                    .phones(List.of())
+                    .addressUsages(List.of())
+                    .build()));
+
     }
 
     @Test

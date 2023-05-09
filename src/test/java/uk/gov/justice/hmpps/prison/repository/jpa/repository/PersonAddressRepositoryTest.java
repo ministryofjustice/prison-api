@@ -50,7 +50,7 @@ public class PersonAddressRepositoryTest {
                                     .city(new City("25343", "Sheffield"))
                                     .startDate(LocalDate.of(2016, 8, 2))
                                     .endDate(null)
-                                    .addressUsages(Collections.emptyList())
+                                    .addressUsages(Collections.emptySet())
                                     .build(),
         PersonAddress.builder()
                                     .addressId(-16L)
@@ -69,7 +69,7 @@ public class PersonAddressRepositoryTest {
                                     .city(null)
                                     .startDate(LocalDate.of(2016, 8, 2))
                                     .endDate(null)
-                                    .addressUsages(Collections.emptyList())
+                                    .addressUsages(Collections.emptySet())
                                     .build());
 
         final var addresses = repository.findAllByPersonId(person.getId());

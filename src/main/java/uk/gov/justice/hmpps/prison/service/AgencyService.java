@@ -303,7 +303,7 @@ public class AgencyService {
                 .build();
         } else {
             final var primaryAddress = prison.getAddresses().stream()
-                .filter(a -> "Y".equals(a.getPrimaryFlag())).findFirst().orElse(prison.getAddresses().get(0));
+                .filter(a -> "Y".equals(a.getPrimaryFlag())).findFirst().orElse(prison.getAddresses().iterator().next());
 
             final var primaryCountry = primaryAddress.getCountry() != null ? primaryAddress.getCountry().getDescription() : null;
             final var primaryTown = primaryAddress.getCity() != null ? primaryAddress.getCity().getDescription() : null;
