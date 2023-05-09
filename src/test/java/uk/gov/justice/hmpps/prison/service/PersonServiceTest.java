@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -112,7 +113,14 @@ public class PersonServiceTest {
 
         List<AddressDto> results = personService.getAddresses(-8L);
 
-        assertThat(results).isEqualTo(List.of(
+        // ignore Set order for phone and addresses
+        RecursiveComparisonConfiguration configuration = RecursiveComparisonConfiguration
+            .builder()
+            .withIgnoreCollectionOrder(true)
+            .build();
+
+        assertThat(results)
+            .usingRecursiveFieldByFieldElementComparator(configuration).isEqualTo(List.of(
             AddressDto.builder()
                 .addressType("Home Address")
                 .noFixedAddress(false)
