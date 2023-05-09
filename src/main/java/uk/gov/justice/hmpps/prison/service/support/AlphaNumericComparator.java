@@ -37,7 +37,7 @@ public class AlphaNumericComparator implements Comparator<String> {
 
         final var data = value.toCharArray();
 
-        return !Character.isAlphabetic(data[data.length - 1]);
+        return Character.isDigit(data[data.length - 1]);
     }
 
     private int compareAlpha(final String left, final String right) {
