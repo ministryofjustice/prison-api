@@ -2,6 +2,8 @@ package uk.gov.justice.hmpps.prison.repository.jpa.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
@@ -24,6 +26,7 @@ public interface ExternalMovementRepository extends PagingAndSortingRepository<E
         "and m.movementTime > :start " +
         "and (:end is null or m.movementTime < :end)"
     )
+    @EntityGraph(type = EntityGraphType.FETCH, value = "movement-with-detail-and-offender")
     Page<ExternalMovement> findMovements(
         @Param("agencyId") String agencyId,
         @Param("active") boolean active,
