@@ -1,5 +1,8 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.NamedSubgraph;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -41,6 +44,27 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.TYPE
 @Table(name = "OFFENDER_EXTERNAL_MOVEMENTS")
 @IdClass(ExternalMovement.PK.class)
 @EqualsAndHashCode(callSuper = false)
+@NamedEntityGraph(
+    name = "movement-with-detail-and-offender",
+    attributeNodes = {
+        @NamedAttributeNode(value = "offenderBooking", subgraph = "booking-offender"),
+        @NamedAttributeNode(value = "fromAgency"),
+        @NamedAttributeNode(value = "fromCity"),
+        @NamedAttributeNode(value = "toAgency"),
+        @NamedAttributeNode(value = "toCity"),
+        @NamedAttributeNode(value = "movementReason"),
+        @NamedAttributeNode(value = "movementType"),
+    },
+    subgraphs = {
+        @NamedSubgraph(
+            name = "booking-offender",
+            attributeNodes = {
+                @NamedAttributeNode("offender"),
+                @NamedAttributeNode("assignedLivingUnit"),
+            }
+        )
+    }
+)
 public class ExternalMovement extends AuditableEntity {
 
     @NoArgsConstructor
@@ -80,11 +104,11 @@ public class ExternalMovement extends AuditableEntity {
     @JoinColumn(name = "ARREST_AGENCY_LOC_ID")
     private AgencyLocation arrestAgencyLocation;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "FROM_AGY_LOC_ID")
     private AgencyLocation fromAgency;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TO_AGY_LOC_ID")
     private AgencyLocation toAgency;
 
