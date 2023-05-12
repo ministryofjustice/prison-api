@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,23 +28,34 @@ import java.time.LocalDate;
 @ToString
 public class ImageDetail {
 
-    @Schema(required = true, description = "Image ID", example = "2461788")
+    @Schema(requiredMode = RequiredMode.REQUIRED, description = "Image ID", example = "2461788")
     @NotNull
     private Long imageId;
 
-    @Schema(required = true, description = "Date of image capture", example = "2008-08-27")
+    @Schema(requiredMode = RequiredMode.REQUIRED, description = "Date of image capture", example = "2008-08-27")
     @NotNull
     private LocalDate captureDate;
 
-    @Schema(required = true, description = "Image view information", example = "FACE")
+    @Schema(requiredMode = RequiredMode.REQUIRED,
+        description = "Image view information.  Actual values extracted 10/05/2023, with the majority of values being FACE. This doesn't appear to be mapped to any REFERENCE_CODE data, even though there is a domain called IMAGE_VIEW.",
+        example = "FACE",
+        allowableValues = {"OIC", "FACE", "TAT", "MARK", "SCAR", "OTH"})
     @NotBlank
     private String imageView;
 
-    @Schema(required = true, description = "Orientation of the image", example = "FRONT")
+    @Schema(requiredMode = RequiredMode.REQUIRED,
+        description = "Orientation of the image. Actual values extracted 10/05/2023, with the majority of values being FRONT. This doesn't appear to be mapped to any REFERENCE_CODE data, even though there is a domain called PART_ORIENT.",
+        example = "FRONT",
+        allowableValues = {"NECK", "KNEE", "TORSO", "FACE", "DAMAGE", "INJURY", "HAND", "HEAD", "THIGH", "ELBOW", "FOOT", "INCIDENT", "ARM", "SHOULDER", "ANKLE", "FINGER", "EAR", "TOE", "FIGHT", "FRONT", "LEG", "LIP", "NOSE"}
+    )
     @NotBlank
     private String imageOrientation;
 
-    @Schema(required = true, description = "Image Type", example = "OFF_BKG")
+    @Schema(requiredMode = RequiredMode.REQUIRED,
+        description = "Image Type. Actual values extracted 10/05/2023, with the majority of values being OFF_BKG. This doesn't appear to be mapped to any REFERENCE_CODE data.",
+        example = "OFF_BKG",
+        allowableValues = {"OFF_IDM", "OFF_BKG", "OIC"}
+    )
     @NotBlank
     private String imageType;
 
