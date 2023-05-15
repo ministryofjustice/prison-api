@@ -1,5 +1,8 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.NamedSubgraph;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,6 +35,10 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @Entity
 @Table(name = "OFFENDER_PROGRAM_PROFILES")
 @ToString(of = {"offenderProgramReferenceId"})
+@NamedEntityGraph(
+    name = "program-profile-with-course-activity",
+    attributeNodes = {@NamedAttributeNode(value = "courseActivity"), @NamedAttributeNode(value = "agencyLocation")}
+)
 public class OffenderProgramProfile extends AuditableEntity {
 
     @Id

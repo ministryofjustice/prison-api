@@ -2,6 +2,8 @@ package uk.gov.justice.hmpps.prison.repository.jpa.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -28,6 +30,7 @@ public interface OffenderProgramProfileRepository extends CrudRepository<Offende
                    AND (OPP.endDate >= :earliestEndDate OR OPP.endDate IS NULL)
             """
     )
+    @EntityGraph(type = EntityGraphType.FETCH, value = "program-profile-with-course-activity")
     Page<OffenderProgramProfile> findByNomisIdAndProgramStatusAndEndDateAfter(String nomsId, List<String> programStatuses, LocalDate earliestEndDate, Pageable pageable);
 
     @Modifying
