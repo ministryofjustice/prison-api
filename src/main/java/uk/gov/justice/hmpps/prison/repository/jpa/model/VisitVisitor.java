@@ -1,5 +1,7 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,6 +38,12 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.VisitOutcomeReaso
 @RequiredArgsConstructor
 @Entity
 @Table(name = "OFFENDER_VISIT_VISITORS")
+@NamedEntityGraph(
+    name = "visitor-with-person",
+    attributeNodes = {
+        @NamedAttributeNode(value = "person"),
+    }
+)
 public class VisitVisitor extends AuditableEntity {
 
     @SequenceGenerator(name = "OFFENDER_VISIT_VISITOR_ID", sequenceName = "OFFENDER_VISIT_VISITOR_ID", allocationSize = 1)
@@ -82,7 +90,7 @@ public class VisitVisitor extends AuditableEntity {
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + VISIT_OUTCOME_REASON + "'", referencedColumnName = "domain")),
-            @JoinColumnOrFormula(column = @JoinColumn(name = "OUTCOME_REASON_CODE", referencedColumnName = "code", nullable = false))
+            @JoinColumnOrFormula(column = @JoinColumn(name = "OUTCOME_REASON_CODE", referencedColumnName = "code"))
     })
     private VisitOutcomeReason outcomeReason;
 
@@ -91,7 +99,7 @@ public class VisitVisitor extends AuditableEntity {
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + EVENT_OUTCOME + "'", referencedColumnName = "domain")),
-            @JoinColumnOrFormula(column = @JoinColumn(name = "EVENT_OUTCOME", referencedColumnName = "code", nullable = false))
+            @JoinColumnOrFormula(column = @JoinColumn(name = "EVENT_OUTCOME", referencedColumnName = "code"))
     })
     private EventOutcome eventOutcome;
 

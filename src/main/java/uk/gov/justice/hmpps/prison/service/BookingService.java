@@ -67,9 +67,12 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderContactPerson;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderFinePayment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImage;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Person;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.RelationshipType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.KeyDateValues;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitInformation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitVisitor;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
@@ -82,6 +85,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRep
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitVisitorRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitorRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
@@ -140,6 +144,7 @@ public class BookingService {
     private final OffenderRepository offenderRepository;
     private final VisitInformationRepository visitInformationRepository;
     private final VisitorRepository visitorRepository;
+    private final VisitVisitorRepository visitVisitorRepository;
     private final SentenceRepository sentenceRepository;
     private final AgencyService agencyService;
     private final CaseLoadService caseLoadService;
@@ -162,6 +167,7 @@ public class BookingService {
                           final OffenderRepository offenderRepository,
                           final VisitorRepository visitorRepository,
                           final VisitInformationRepository visitInformationRepository,
+                          final VisitVisitorRepository visitVisitorRepository,
                           final SentenceRepository sentenceRepository,
                           final AgencyService agencyService,
                           final CaseLoadService caseLoadService,
@@ -184,6 +190,7 @@ public class BookingService {
         this.offenderRepository = offenderRepository;
         this.visitInformationRepository = visitInformationRepository;
         this.visitorRepository = visitorRepository;
+        this.visitVisitorRepository = visitVisitorRepository;
         this.sentenceRepository = sentenceRepository;
         this.agencyService = agencyService;
         this.caseLoadService = caseLoadService;
@@ -370,11 +377,16 @@ public class BookingService {
     public Page<VisitWithVisitors> getBookingVisitsWithVisitor(final VisitInformationFilter filter, final Pageable pageable) {
         checkState(filter.getBookingId() != null, "BookingId required");
         final var visits = visitInformationRepository.findAll(filter, pageable);
+        final var allVisitors = getVisitorsForAllVisits(visits.getContent());
+        final var allContacts = getVisitorRelationshipsForAllVisits(filter.getBookingId(), allVisitors);
 
         final var visitsWithVisitors = visits.getContent().stream()
                 .map(visitInformation -> {
-                    final var relationshipType = getRelationshipType(filter.getBookingId(), visitInformation.getVisitorPersonId());
-                    final var visitorsList = getVisitors(filter.getBookingId(), visitInformation.getVisitId());
+                    var relationshipType = Optional.ofNullable(visitInformation.getVisitorPersonId())
+                        .flatMap(id -> allContacts.getOrDefault(id, Optional.empty()))
+                        .map(OffenderContactPerson::getRelationshipType);
+
+                    final var visitorsList = getVisitors(allVisitors, allContacts, visitInformation.getVisitId(), filter.getBookingId());
 
                     return VisitWithVisitors.builder()
                             .visitDetail(
@@ -407,6 +419,20 @@ public class BookingService {
         return new PageImpl<>(visitsWithVisitors, pageable, visits.getTotalElements());
     }
 
+    private Map<Long, Optional<OffenderContactPerson>> getVisitorRelationshipsForAllVisits(Long bookingId, List<VisitVisitor> visitors) {
+        var visitorPersonIds = visitors.stream()
+            .map(VisitVisitor::getPerson)
+            .filter(Objects::nonNull)
+            .map(Person::getId)
+            .toList();
+        var allRelationships = offenderContactPersonsRepository.findAllByOffenderBooking_BookingIdAndPersonIdIn(bookingId, visitorPersonIds);
+        return allRelationships.stream().collect(Collectors.groupingBy(OffenderContactPerson::getPersonId, Collectors.maxBy(Comparator.comparing(OffenderContactPerson::lastUpdatedDateTime))));
+    }
+
+    private List<VisitVisitor> getVisitorsForAllVisits(List<VisitInformation> visits) {
+        return visitVisitorRepository.findByVisitIdInAndOffenderBookingIsNullOrderByPerson_BirthDateDesc(visits.stream().map(VisitInformation::getVisitId).toList());
+    }
+
     private List<Visitor> getVisitors(final Long bookingId, final Long visitId) {
         return visitorRepository.findAllByVisitId(visitId)
             .stream()
@@ -421,6 +447,23 @@ public class BookingService {
                     .personId(visitor.getPersonId())
                     .relationship(contactRelationship.map(RelationshipType::getDescription).orElse(null))
                     .attended("ATT".equals(visitor.getEventOutcome()))
+                    .build();
+            })
+            .toList();
+    }
+    private List<Visitor> getVisitors(final List<VisitVisitor> allVisitors, Map<Long, Optional<OffenderContactPerson>> allContacts, final Long visitId, final Long bookingId) {
+        return allVisitors.stream().filter(visitor -> visitor.getVisitId().equals(visitId))
+            .map(visitor -> {
+                final var contactRelationship = allContacts.getOrDefault(visitor.getPerson().getId(), Optional.empty())
+                    .map(OffenderContactPerson::getRelationshipType);
+                return Visitor.builder()
+                    .dateOfBirth(visitor.getPerson().getBirthDate())
+                    .firstName(visitor.getPerson().getFirstName())
+                    .lastName(visitor.getPerson().getLastName())
+                    .leadVisitor(visitor.isGroupLeader())
+                    .personId(visitor.getPerson().getId())
+                    .relationship(contactRelationship.map(RelationshipType::getDescription).orElse(null))
+                    .attended(Optional.ofNullable(visitor.getEventOutcome()).map(outcome -> outcome.getCode().equals("ATT")).orElse(true))
                     .build();
             })
             .toList();

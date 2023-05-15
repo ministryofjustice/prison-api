@@ -42,6 +42,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtOrder;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.DisciplinaryAction;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.EventOutcome;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.KeyDateAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LegalCaseType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryBranch;
@@ -59,12 +60,14 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPropertyContainer;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentenceCharge;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Person;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.PropertyContainer;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.RelationshipType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalcType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitInformation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitVisitor;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitorInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.WarZone;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
@@ -79,6 +82,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRep
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitVisitorRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitorRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.support.PayableAttendanceOutcomeDto;
@@ -123,6 +127,8 @@ public class BookingServiceTest {
     @Mock
     private VisitorRepository visitorRepository;
     @Mock
+    private VisitVisitorRepository visitVisitorRepository;
+    @Mock
     private AgencyService agencyService;
     @Mock
     private AgencyInternalLocationRepository agencyInternalLocationRepository;
@@ -163,6 +169,7 @@ public class BookingServiceTest {
                 offenderRepository,
                 visitorRepository,
                 visitInformationRepository,
+                visitVisitorRepository,
                 null,
                 agencyService,
                 caseLoadService,
@@ -486,48 +493,54 @@ public class BookingServiceTest {
                 .build());
 
         var page = new PageImpl<>(visits);
-        when(offenderContactPersonsRepository.findAllByPersonIdAndOffenderBooking_BookingId(-1L, -1L)).thenReturn(List.of(
-                OffenderContactPerson.builder()
-                        .relationshipType(new RelationshipType("UN", "Uncle"))
-                        .modifyDateTime(LocalDateTime.parse("2019-10-10T14:00"))
-                        .createDateTime(LocalDateTime.parse("2019-10-10T14:00"))
-                        .id(-1L)
-                        .build(),
-                OffenderContactPerson.builder()
-                        .relationshipType(new RelationshipType("FRI", "Friend"))
-                        .modifyDateTime(null)
-                        .createDateTime(LocalDateTime.parse("2019-10-11T14:00"))
-                        .id(-2L)
-                        .build()
-        ));
-        when(offenderContactPersonsRepository.findAllByPersonIdAndOffenderBooking_BookingId(-2L, -1L)).thenReturn(List.of(
-                OffenderContactPerson.builder()
-                        .relationshipType(new RelationshipType("NIE", "Niece"))
-                        .modifyDateTime(LocalDateTime.parse("2019-10-10T14:00"))
-                        .id(-3L)
-                        .build()
+        when(offenderContactPersonsRepository.findAllByOffenderBooking_BookingIdAndPersonIdIn(-1L, List.of(-1L, -2L))).thenReturn(List.of(
+            OffenderContactPerson.builder()
+                .relationshipType(new RelationshipType("UN", "Uncle"))
+                .modifyDateTime(LocalDateTime.parse("2019-10-10T14:00"))
+                .createDateTime(LocalDateTime.parse("2019-10-10T14:00"))
+                .personId(-1L)
+                .id(-1L)
+                .build(),
+            OffenderContactPerson.builder()
+                .relationshipType(new RelationshipType("FRI", "Friend"))
+                .modifyDateTime(null)
+                .createDateTime(LocalDateTime.parse("2019-10-11T14:00"))
+                .personId(-1L)
+                .id(-2L)
+                .build(),
+            OffenderContactPerson.builder()
+                .relationshipType(new RelationshipType("NIE", "Niece"))
+                .modifyDateTime(LocalDateTime.parse("2019-10-10T14:00"))
+                .id(-3L)
+                .personId(-2L)
+                .build()
+
         ));
         when(visitInformationRepository.findAll(VisitInformationFilter.builder().bookingId(-1L).build(), pageable))
                 .thenReturn(page);
 
-        when(visitorRepository.findAllByVisitId(anyLong())).thenReturn(List.of(
-                VisitorInformation
-                        .builder()
-                        .birthdate(LocalDate.parse("1980-10-01"))
-                        .firstName("John")
-                        .lastName("Smith")
-                        .leadVisitor("Y")
-                        .personId(-1L)
+        when(visitVisitorRepository.findByVisitIdInAndOffenderBookingIsNullOrderByPerson_BirthDateDesc(List.of(-1L))).thenReturn(List.of(
+                VisitVisitor.builder()
                         .visitId(-1L)
+                        .person(Person.builder()
+                                .id(-1L)
+                                .birthDate(LocalDate.parse("1980-10-01"))
+                                .firstName("John")
+                                .lastName("Smith")
+                                .build())
+                        .groupLeader(true)
+                        .eventOutcome(new EventOutcome("ABS", "Absent"))
                         .build(),
-                VisitorInformation
-                        .builder()
-                        .birthdate(LocalDate.parse("2010-10-01"))
-                        .firstName("Jenny")
-                        .lastName("Smith")
-                        .leadVisitor("N")
-                        .personId(-2L)
+                VisitVisitor.builder()
                         .visitId(-1L)
+                        .person(Person.builder()
+                                .id(-2L)
+                                .birthDate(LocalDate.parse("2010-10-01"))
+                                .firstName("Jenny")
+                                .lastName("Smith")
+                                .build())
+                        .groupLeader(false)
+                        .eventOutcome(new EventOutcome("ATT", "Attended"))
                         .build()
 
         ));
@@ -565,6 +578,7 @@ public class BookingServiceTest {
                                         .leadVisitor(true)
                                         .personId(-1L)
                                         .relationship("Friend")
+                                        .attended(false)
                                         .build(),
                                 Visitor
                                         .builder()
@@ -574,6 +588,7 @@ public class BookingServiceTest {
                                         .leadVisitor(false)
                                         .personId(-2L)
                                         .relationship("Niece")
+                                        .attended(true)
                                         .build()))
                         .build());
     }
@@ -601,7 +616,7 @@ public class BookingServiceTest {
                         .build(),
                 VisitInformation
                         .builder()
-                        .visitId(-1L)
+                        .visitId(-2L)
                         .bookingId(-1L)
                         .visitorPersonId(-1L)
                         .cancellationReason(null)
@@ -619,24 +634,26 @@ public class BookingServiceTest {
                         .build());
 
         var page = new PageImpl<>(visits);
-        when(offenderContactPersonsRepository.findAllByPersonIdAndOffenderBooking_BookingId(-1L, -1L)).thenReturn(List.of(
+        when(offenderContactPersonsRepository.findAllByOffenderBooking_BookingIdAndPersonIdIn(-1L, List.of(-1L, -2L, -1L, -2L))).thenReturn(List.of(
                 OffenderContactPerson.builder()
                         .relationshipType(new RelationshipType("UN", "Uncle"))
                         .modifyDateTime(LocalDateTime.parse("2019-10-10T14:00"))
                         .id(-1L)
+                        .personId(-1L)
                         .build(),
                 OffenderContactPerson.builder()
                         .relationshipType(new RelationshipType("FRI", "Friend"))
                         .modifyDateTime(LocalDateTime.parse("2019-10-11T14:00"))
                         .id(-2L)
-                        .build()
-        ));
-        when(offenderContactPersonsRepository.findAllByPersonIdAndOffenderBooking_BookingId(-2L, -1L)).thenReturn(List.of(
+                        .personId(-1L)
+                        .build(),
                 OffenderContactPerson.builder()
-                        .relationshipType(new RelationshipType("NIE", "Niece"))
-                        .modifyDateTime(LocalDateTime.parse("2019-10-10T14:00"))
-                        .id(-3L)
-                        .build()
+                    .relationshipType(new RelationshipType("NIE", "Niece"))
+                    .modifyDateTime(LocalDateTime.parse("2019-10-10T14:00"))
+                    .id(-3L)
+                    .personId(-2L)
+                    .build()
+
         ));
         when(visitInformationRepository.findAll(VisitInformationFilter.builder()
                 .bookingId(-1L)
@@ -646,25 +663,52 @@ public class BookingServiceTest {
                 .build(), pageable))
                 .thenReturn(page);
 
-        when(visitorRepository.findAllByVisitId(anyLong())).thenReturn(List.of(
-                VisitorInformation
-                        .builder()
-                        .birthdate(LocalDate.parse("1980-10-01"))
-                        .firstName("John")
-                        .lastName("Smith")
-                        .leadVisitor("Y")
-                        .personId(-1L)
-                        .visitId(-1L)
-                        .build(),
-                VisitorInformation
-                        .builder()
-                        .birthdate(LocalDate.parse("2010-10-01"))
-                        .firstName("Jenny")
-                        .lastName("Smith")
-                        .leadVisitor("N")
-                        .personId(-2L)
-                        .visitId(-1L)
-                        .build()
+
+        when(visitVisitorRepository.findByVisitIdInAndOffenderBookingIsNullOrderByPerson_BirthDateDesc(List.of(-1L, -2L))).thenReturn(List.of(
+            VisitVisitor.builder()
+                .visitId(-1L)
+                .person(Person.builder()
+                    .id(-1L)
+                    .birthDate(LocalDate.parse("1980-10-01"))
+                    .firstName("John")
+                    .lastName("Smith")
+                    .build())
+                .groupLeader(true)
+                .eventOutcome(new EventOutcome("ABS", "Absent"))
+                .build(),
+            VisitVisitor.builder()
+                .visitId(-1L)
+                .person(Person.builder()
+                    .id(-2L)
+                    .birthDate(LocalDate.parse("2010-10-01"))
+                    .firstName("Jenny")
+                    .lastName("Smith")
+                    .build())
+                .groupLeader(false)
+                .eventOutcome(new EventOutcome("ATT", "Attended"))
+                .build(),
+            VisitVisitor.builder()
+                .visitId(-2L)
+                .person(Person.builder()
+                    .id(-1L)
+                    .birthDate(LocalDate.parse("1980-10-01"))
+                    .firstName("John")
+                    .lastName("Smith")
+                    .build())
+                .groupLeader(true)
+                .eventOutcome(new EventOutcome("ABS", "Absent"))
+                .build(),
+            VisitVisitor.builder()
+                .visitId(-2L)
+                .person(Person.builder()
+                    .id(-2L)
+                    .birthDate(LocalDate.parse("2010-10-01"))
+                    .firstName("Jenny")
+                    .lastName("Smith")
+                    .build())
+                .groupLeader(false)
+                .eventOutcome(new EventOutcome("ATT", "Attended"))
+                .build()
 
         ));
 
@@ -706,6 +750,7 @@ public class BookingServiceTest {
                                         .leadVisitor(true)
                                         .personId(-1L)
                                         .relationship("Friend")
+                                        .attended(false)
                                         .build(),
                                 Visitor
                                         .builder()
@@ -715,6 +760,7 @@ public class BookingServiceTest {
                                         .leadVisitor(false)
                                         .personId(-2L)
                                         .relationship("Niece")
+                                        .attended(true)
                                         .build()))
                         .build(),
                 VisitWithVisitors.builder()
@@ -746,6 +792,7 @@ public class BookingServiceTest {
                                         .leadVisitor(true)
                                         .personId(-1L)
                                         .relationship("Friend")
+                                        .attended(false)
                                         .build(),
                                 Visitor
                                         .builder()
@@ -755,6 +802,7 @@ public class BookingServiceTest {
                                         .leadVisitor(false)
                                         .personId(-2L)
                                         .relationship("Niece")
+                                        .attended(true)
                                         .build()))
                         .build());
     }
@@ -778,7 +826,8 @@ public class BookingServiceTest {
         when(visitInformationRepository.findAll(VisitInformationFilter.builder().bookingId(-1L).build(), pageable))
                 .thenReturn(page);
 
-        when(visitorRepository.findAllByVisitId(anyLong())).thenReturn(List.of());
+        when(visitVisitorRepository.findByVisitIdInAndOffenderBookingIsNullOrderByPerson_BirthDateDesc(List.of(-1L)))
+                .thenReturn(List.of());
 
         final var visitsWithVisitors = bookingService.getBookingVisitsWithVisitor(VisitInformationFilter.builder().bookingId(-1L).build(), pageable);
         assertThat(visitsWithVisitors).containsOnly(
@@ -801,99 +850,6 @@ public class BookingServiceTest {
                                         .attended(false)
                                         .build())
                         .visitors(List.of())
-                        .build());
-    }
-
-    @Test
-    public void getBookingVisitsWithVisitor_visitorNoPerson() {
-        Pageable pageable = PageRequest.of(0, 20);
-        var visits = List.of(VisitInformation
-                .builder()
-                .visitId(-1L)
-                .visitorPersonId(-1L)
-                .cancellationReason(null)
-                .cancelReasonDescription(null)
-                .eventStatus("ATT")
-                .eventStatusDescription("Attended")
-                .eventOutcome("ATT")
-                .eventOutcomeDescription("Attended")
-                .startTime(LocalDateTime.parse("2019-10-10T14:00"))
-                .endTime(LocalDateTime.parse("2019-10-10T15:00"))
-                .location("Visits")
-                .visitType("SOC")
-                .visitTypeDescription("Social")
-                .leadVisitor("John Smith")
-                .build());
-
-        var page = new PageImpl<>(visits);
-        when(offenderContactPersonsRepository.findAllByPersonIdAndOffenderBooking_BookingId(-1L, -1L)).thenReturn(List.of(
-                OffenderContactPerson.builder()
-                        .relationshipType(new RelationshipType("UN", "Uncle"))
-                        .modifyDateTime(LocalDateTime.parse("2019-10-10T14:00"))
-                        .id(-1L)
-                        .build(),
-                OffenderContactPerson.builder()
-                        .relationshipType(new RelationshipType("FRI", "Friend"))
-                        .modifyDateTime(LocalDateTime.parse("2019-10-11T14:00"))
-                        .id(-2L)
-                        .build()
-        ));
-        when(visitInformationRepository.findAll(VisitInformationFilter.builder().bookingId(-1L).build(), pageable))
-                .thenReturn(page);
-
-        when(visitorRepository.findAllByVisitId(anyLong())).thenReturn(List.of(
-                VisitorInformation
-                        .builder()
-                        .birthdate(LocalDate.parse("1980-10-01"))
-                        .firstName("John")
-                        .lastName("Smith")
-                        .leadVisitor("Y")
-                        .personId(-1L)
-                        .visitId(-1L)
-                        .build(),
-                VisitorInformation
-                        .builder()
-                        .birthdate(LocalDate.parse("2010-10-01"))
-                        .firstName("Jenny")
-                        .lastName("Smith")
-                        .leadVisitor("N")
-                        .visitId(-1L)
-                        .build()
-
-        ));
-
-        final var visitsWithVisitors = bookingService.getBookingVisitsWithVisitor(VisitInformationFilter.builder().bookingId(-1L).build(), pageable);
-        assertThat(visitsWithVisitors).containsOnly(
-                VisitWithVisitors.builder()
-                        .visitDetail(
-                                VisitDetails
-                                        .builder()
-                                        .cancellationReason(null)
-                                        .cancelReasonDescription(null)
-                                        .eventStatus("ATT")
-                                        .eventStatusDescription("Attended")
-                                        .eventOutcome("ATT")
-                                        .eventOutcomeDescription("Attended")
-                                        .startTime(LocalDateTime.parse("2019-10-10T14:00"))
-                                        .endTime(LocalDateTime.parse("2019-10-10T15:00"))
-                                        .location("Visits")
-                                        .visitType("SOC")
-                                        .visitTypeDescription("Social")
-                                        .leadVisitor("John Smith")
-                                        .relationship("FRI")
-                                        .relationshipDescription("Friend")
-                                        .attended(true)
-                                        .build())
-                        .visitors(List.of(
-                                Visitor
-                                        .builder()
-                                        .dateOfBirth(LocalDate.parse("1980-10-01"))
-                                        .firstName("John")
-                                        .lastName("Smith")
-                                        .leadVisitor(true)
-                                        .personId(-1L)
-                                        .relationship("Friend")
-                                        .build()))
                         .build());
     }
 
