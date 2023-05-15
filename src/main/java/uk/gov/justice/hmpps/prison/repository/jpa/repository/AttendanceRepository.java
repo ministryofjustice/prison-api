@@ -2,6 +2,8 @@ package uk.gov.justice.hmpps.prison.repository.jpa.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Attendance;
@@ -17,5 +19,6 @@ public interface AttendanceRepository extends CrudRepository<Attendance, Long> {
         WHERE offender.nomsId = :nomsId
             AND attendance.eventDate between :earliestDate and :latestDate
             AND (:outcome is null OR attendance.eventOutcome = :outcome)""")
+    @EntityGraph(type = EntityGraphType.FETCH, value = "attendance-with-course-activity-and-program-service")
     Page<Attendance> findByEventDateBetweenAndOutcome(final String nomsId, final LocalDate earliestDate, final LocalDate latestDate, final String outcome, final Pageable pageable);
 }

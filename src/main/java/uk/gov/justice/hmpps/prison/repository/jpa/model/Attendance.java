@@ -1,5 +1,7 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,6 +26,10 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "OFFENDER_COURSE_ATTENDANCES")
 @ToString(of = {"eventId", "offenderBooking"})
+@NamedEntityGraph(
+    name = "attendance-with-course-activity-and-program-service",
+    attributeNodes = {@NamedAttributeNode(value = "courseActivity"), @NamedAttributeNode(value = "programService")}
+)
 public class Attendance extends AuditableEntity {
 
     @Id
