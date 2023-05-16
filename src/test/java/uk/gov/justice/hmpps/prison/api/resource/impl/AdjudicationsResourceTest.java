@@ -765,6 +765,55 @@ public class AdjudicationsResourceTest extends ResourceTest  {
     }
 
     @Nested
+    public class GetHearingResults {
+        final List<String> valid = List.of("ROLE_MAINTAIN_ADJUDICATIONS");
+        final List<String> invalid = List.of("ROLE_SYSTEM_USER");
+
+        @Test
+        public void getHearingResultsReturns403ForInvalidRoles () {
+            getHearingResults(invalid, -9L, -1L)
+                .expectStatus().isForbidden();
+        }
+
+        @Test
+        public void getHearingResultsReturns404DueToNoAdjudication() {
+            getHearingResults(valid, 99L, -1L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void getHearingResultsReturns404DueToNoHearing() {
+            getHearingResults(valid, -9L, 2L)
+                .expectStatus().isNotFound();
+        }
+
+        @Test
+        public void getHearingResultsReturns400DueToHearingNotBeingAssociatedWithAdjudication() {
+            getHearingResults(valid, -5L, -4L)
+                .expectStatus().isBadRequest();
+        }
+
+        @Test
+        @Transactional
+        public void getHearingResultsReturnsSuccess() {
+            getHearingResults(valid, -3001L, -3001L)
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.length()").isEqualTo(1)
+                .jsonPath("$.[0].findingCode").isEqualTo(FindingCode.PROVED.name())
+                .jsonPath("$.[0].pleaFindingCode").isEqualTo(PleaFindingCode.NOT_GUILTY.name());
+        }
+
+        private ResponseSpec getHearingResults(List<String> headers, Long adjudicationNumber, Long hearingId) {
+            return webTestClient.get()
+                .uri("/api/adjudications/adjudication/"+adjudicationNumber+"/hearing/"+hearingId+"/result")
+                .headers(setAuthorisation(headers))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .exchange();
+        }
+    }
+
+    @Nested
     public class DeleteHearingResult {
 
         final List<String> valid = List.of("ROLE_MAINTAIN_ADJUDICATIONS");

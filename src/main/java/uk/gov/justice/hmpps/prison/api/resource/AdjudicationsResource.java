@@ -78,7 +78,7 @@ public class AdjudicationsResource {
     @ProxyUser
     @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS') and hasAuthority('SCOPE_write')")
     public ResponseEntity<AdjudicationDetail> createAdjudication(@Valid @RequestBody @Parameter(description = "Adjudication details to save", required = true) final NewAdjudication adjudicationDetails) {
-        final var savedAdjudication = adjudicationsService.createAdjudication(adjudicationDetails.getOffenderNo(), adjudicationDetails);
+        final var savedAdjudication = adjudicationsService.createAdjudication(adjudicationDetails);
         return ResponseEntity
             .status(HttpStatus.CREATED)
             .body(savedAdjudication);
@@ -179,6 +179,21 @@ public class AdjudicationsResource {
         @PathVariable("oicHearingId") final Long oicHearingId
     ) {
         adjudicationsService.deleteOicHearing(adjudicationNumber, oicHearingId);
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "A list of ordered hearing results"),
+        @ApiResponse(responseCode = "403", description = "The client is not authorised for this operation"),
+        @ApiResponse(responseCode = "404", description = "No match was found for the adjudication number or hearing", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
+    })
+    @Operation(summary = "Returns hearing results for specified hearing in sequence order", description = "Requires MAINTAIN_ADJUDICATIONS access")
+    @GetMapping("/adjudication/{adjudicationNumber}/hearing/{oicHearingId}/result")
+    @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS')")
+    @ResponseStatus(HttpStatus.OK)
+    public List<OicHearingResultDto> getOicHearingResults(
+        @PathVariable("adjudicationNumber") final Long adjudicationNumber,
+        @PathVariable("oicHearingId") final Long oicHearingId) {
+        return adjudicationsService.getOicHearingResults(adjudicationNumber, oicHearingId);
     }
 
     @ApiResponses({

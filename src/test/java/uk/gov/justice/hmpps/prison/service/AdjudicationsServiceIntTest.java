@@ -33,7 +33,7 @@ public class AdjudicationsServiceIntTest {
                 .statement(generateMessageWith4001Chars())
                 .build();
 
-            assertThatThrownBy(() -> service.createAdjudication(adjudicationWithLargeStatementSize.getOffenderNo(), adjudicationWithLargeStatementSize))
+            assertThatThrownBy(() -> service.createAdjudication(adjudicationWithLargeStatementSize))
                 .isInstanceOf(ConstraintViolationException.class)
                 .hasMessageContaining("Length exceeds the maximum size allowed");
         }
@@ -45,7 +45,7 @@ public class AdjudicationsServiceIntTest {
                 .statement(generateMessageWith4000CharsAndUtf8Chars())
                 .build();
 
-            assertThatThrownBy(() -> service.createAdjudication(adjudicationWithLargeStatementSize.getOffenderNo(), adjudicationWithLargeStatementSize))
+            assertThatThrownBy(() -> service.createAdjudication(adjudicationWithLargeStatementSize))
                 .isInstanceOf(ConstraintViolationException.class)
                 .hasMessageContaining("Length exceeds the maximum size allowed");
         }
@@ -57,7 +57,7 @@ public class AdjudicationsServiceIntTest {
                 .statement("A statement")
                 .build();
 
-            assertThatThrownBy(() -> service.createAdjudication("Z1234ZZ", adjudication))
+            assertThatThrownBy(() -> service.createAdjudication(adjudication))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Resource with id [Z1234ZZ] not found.");
         }

@@ -46,7 +46,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OicHearingResultRep
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OicSanctionRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.transformers.AdjudicationsTransformer;
 
@@ -56,8 +55,8 @@ import jakarta.validation.ValidationException;
 import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
-import java.time.Clock;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -83,11 +82,8 @@ public class AdjudicationsService {
     private final AgencyLocationRepository agencyLocationRepository;
     private final AdjudicationsPartyService adjudicationsPartyService;
     private final AgencyInternalLocationRepository internalLocationRepository;
-    private final AuthenticationFacade authenticationFacade;
     private final TelemetryClient telemetryClient;
-    private final Clock clock;
     private final EntityManager entityManager;
-
     private final OicHearingRepository oicHearingRepository;
     private final OicHearingResultRepository oicHearingResultRepository;
     private final OicSanctionRepository oicSanctionRepository;
@@ -103,9 +99,7 @@ public class AdjudicationsService {
         final ReferenceCodeRepository<AdjudicationActionCode> actionCodeRepository,
         final AgencyLocationRepository agencyLocationRepository,
         final AgencyInternalLocationRepository internalLocationRepository,
-        final AuthenticationFacade authenticationFacade,
         final TelemetryClient telemetryClient,
-        final Clock clock,
         final EntityManager entityManager,
         @Value("${batch.max.size:1000}") final int batchSize,
         final AdjudicationsPartyService adjudicationsPartyService,
@@ -120,9 +114,7 @@ public class AdjudicationsService {
         this.actionCodeRepository = actionCodeRepository;
         this.agencyLocationRepository = agencyLocationRepository;
         this.internalLocationRepository = internalLocationRepository;
-        this.authenticationFacade = authenticationFacade;
         this.telemetryClient = telemetryClient;
-        this.clock = clock;
         this.entityManager = entityManager;
         this.batchSize = batchSize;
         this.adjudicationsPartyService = adjudicationsPartyService;
@@ -156,8 +148,7 @@ public class AdjudicationsService {
 
     @Transactional
     @VerifyOffenderAccess
-    public AdjudicationDetail createAdjudication(@NotNull final String offenderNo,
-                                                 @NotNull @Valid final NewAdjudication adjudication) {
+    public AdjudicationDetail createAdjudication(@NotNull @Valid final NewAdjudication adjudication) {
         final var currentDateTime = adjudication.getReportedDateTime();
         final var incidentDateTime = adjudication.getIncidentTime();
 
@@ -223,7 +214,7 @@ public class AdjudicationsService {
             adjudication.getVictimOffenderIds(),
             adjudication.getConnectedOffenderIds());
 
-        final var updatedAdjudication = adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber).get();
+        final var updatedAdjudication = adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber).orElseThrow(EntityNotFoundException.withId(adjudicationNumber));
 
         trackAdjudicationCreated(updatedAdjudication, reporterName);
 
@@ -259,7 +250,7 @@ public class AdjudicationsService {
             adjudication.getConnectedOffenderIds()
         );
 
-        final var updatedAdjudication = adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber).get();
+        final var updatedAdjudication = adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber).orElseThrow(EntityNotFoundException.withId(adjudicationNumber));
 
         trackAdjudicationUpdated(adjudicationNumber, updatedAdjudication);
 
@@ -333,6 +324,24 @@ public class AdjudicationsService {
         oicHearingRepository.delete(hearingToDelete);
     }
 
+    @Transactional(readOnly = true)
+    public List<OicHearingResultDto> getOicHearingResults(
+        final Long adjudicationNumber,
+        final Long oicHearingId) {
+
+        // Perform validation first, will throw exceptions if not valid id's
+        getWithValidationChecks(adjudicationNumber, oicHearingId);
+
+        return oicHearingResultRepository.findByOicHearingId(oicHearingId)
+            .stream().sorted(Comparator.comparing(OicHearingResult::getResultSeq))
+            .map(it ->
+                OicHearingResultDto.builder()
+                    .findingCode(it.getFindingCode())
+                    .pleaFindingCode(it.getPleaFindingCode())
+                    .build()
+            ).toList();
+    }
+
     @Transactional
     @VerifyOffenderAccess
     public OicHearingResultDto createOicHearingResult(
@@ -359,7 +368,7 @@ public class AdjudicationsService {
 
         Long oicOffenceId;
         try {
-            oicOffenceId = adjudication.getOffenderParty().get().getCharges().get(0).getOffenceType().getOffenceId();
+            oicOffenceId = adjudication.getOffenderParty().orElseThrow(EntityNotFoundException.withId(adjudicationNumber)).getCharges().get(0).getOffenceType().getOffenceId();
         } catch (Exception e) {
             throw EntityNotFoundException.withMessage(format("OicOffenceId not found for adjudicationNumber %d and oicHearingId %d", adjudicationNumber, oicHearingId), e.getMessage());
         }
@@ -430,7 +439,7 @@ public class AdjudicationsService {
     @Getter
     @Setter
     @AllArgsConstructor
-    class OicSanctionValidationResult {
+    private static class OicSanctionValidationResult {
         Adjudication adjudication;
         Long oicHearingId;
         Long offenderBookId;
@@ -447,7 +456,7 @@ public class AdjudicationsService {
         return new OicSanctionValidationResult(
             adjudication,
             hearingResult.get(0).getOicHearingId(),
-            adjudication.getOffenderParty().get().getOffenderBooking().getBookingId()
+            adjudication.getOffenderParty().orElseThrow(EntityNotFoundException.withId(adjudicationNumber)).getOffenderBooking().getBookingId()
         );
     }
 
@@ -461,7 +470,11 @@ public class AdjudicationsService {
 
         Long nextSanctionSeq = oicSanctionRepository.getNextSanctionSeq(result.getOffenderBookId());
 
-        List<OicSanction> oicSanctions = new ArrayList<>();
+        return transform(adjudicationNumber, oicSanctionRequests, result, nextSanctionSeq);
+    }
+
+    private List<Sanction> transform(Long adjudicationNumber, List<OicSanctionRequest> oicSanctionRequests, OicSanctionValidationResult result, Long nextSanctionSeq) {
+        final var oicSanctions = new ArrayList<OicSanction>();
         int index = 0;
         for (var request : oicSanctionRequests) {
             // flushing removes error in trigger OFFENDER_OIC_SANCTIONS_T1 on insert
@@ -482,6 +495,10 @@ public class AdjudicationsService {
             index++;
         }
 
+        return transform(oicSanctions);
+    }
+
+    private List<Sanction> transform(List<OicSanction> oicSanctions) {
         return oicSanctions.stream().map(oicSanction -> Sanction.builder()
             .sanctionType(oicSanction.getOicSanctionCode().name())
             .sanctionDays(oicSanction.getSanctionDays())
@@ -508,38 +525,7 @@ public class AdjudicationsService {
         List<OicSanction> exitingOicSanctions = oicSanctionRepository.findByOicHearingId(result.getOicHearingId());
         oicSanctionRepository.deleteAll(exitingOicSanctions);
 
-        List<OicSanction> oicSanctions = new ArrayList<>();
-        int index = 0;
-        for (var request : oicSanctionRequests) {
-            // flushing removes error in trigger OFFENDER_OIC_SANCTIONS_T1 on insert
-            oicSanctions.add(oicSanctionRepository.saveAndFlush(OicSanction.builder()
-                .offenderBookId(result.getOffenderBookId())
-                .sanctionSeq(nextSanctionSeq + index)
-                .oicSanctionCode(request.getOicSanctionCode())
-                .compensationAmount(request.getCompensationAmount() == null ? null : BigDecimal.valueOf(request.getCompensationAmount()))
-                .sanctionDays(request.getSanctionDays())
-                .commentText(request.getCommentText())
-                .effectiveDate(request.getEffectiveDate())
-                .status(request.getStatus())
-                .oicHearingId(result.getOicHearingId())
-                .resultSeq(1L)
-                .oicIncidentId(adjudicationNumber)
-                .build())
-            );
-            index++;
-        }
-
-        return oicSanctions.stream().map(oicSanction -> Sanction.builder()
-            .sanctionType(oicSanction.getOicSanctionCode().name())
-            .sanctionDays(oicSanction.getSanctionDays())
-            .comment(oicSanction.getCommentText())
-            .compensationAmount(oicSanction.getCompensationAmount() == null ? null : oicSanction.getCompensationAmount().longValue())
-            .effectiveDate(oicSanction.getEffectiveDate().atStartOfDay())
-            .status(oicSanction.getStatus().name())
-            .sanctionSeq(oicSanction.getSanctionSeq())
-            .oicHearingId(oicSanction.getOicHearingId())
-            .resultSeq(oicSanction.getResultSeq())
-            .build()).collect(Collectors.toList());
+        return transform(adjudicationNumber, oicSanctionRequests, result, nextSanctionSeq);
     }
 
     @Transactional
@@ -557,17 +543,7 @@ public class AdjudicationsService {
             oicSanctions.add(oicSanctionRepository.save(oicSanction));
         }
 
-        return oicSanctions.stream().map(oicSanction -> Sanction.builder()
-            .sanctionType(oicSanction.getOicSanctionCode().name())
-            .sanctionDays(oicSanction.getSanctionDays())
-            .comment(oicSanction.getCommentText())
-            .compensationAmount(oicSanction.getCompensationAmount() == null ? null : oicSanction.getCompensationAmount().longValue())
-            .effectiveDate(oicSanction.getEffectiveDate().atStartOfDay())
-            .status(oicSanction.getStatus().name())
-            .sanctionSeq(oicSanction.getSanctionSeq())
-            .oicHearingId(oicSanction.getOicHearingId())
-            .resultSeq(oicSanction.getResultSeq())
-            .build()).collect(Collectors.toList());
+        return transform(oicSanctions);
     }
 
     @Transactional
@@ -591,7 +567,7 @@ public class AdjudicationsService {
 
         List<OicSanction> exitingOicSanctions = oicSanctionRepository.findByOicHearingId(result.getOicHearingId());
         for (var oicSanction : exitingOicSanctions) {
-            if (oicSanction.getSanctionSeq() == sanctionSeq) oicSanctionRepository.delete(oicSanction);
+            if (Objects.equals(oicSanction.getSanctionSeq(), sanctionSeq)) oicSanctionRepository.delete(oicSanction);
         }
     }
 
@@ -653,14 +629,14 @@ public class AdjudicationsService {
 
     private void trackAdjudicationUpdated(final Long adjudicationNumber, final Adjudication updatedAdjudication) {
         final Map<String, String> logMap = new HashMap<>();
-        logMap.put("adjudicationNumber", "" + adjudicationNumber);
+        logMap.put("adjudicationNumber", String.valueOf(adjudicationNumber));
         trackAdjudicationDetails("AdjudicationUpdated", updatedAdjudication, logMap);
     }
 
     private void trackAdjudicationDetails(final String eventName, final Adjudication adjudication, final Map<String, String> propertyMap) {
         propertyMap.put("incidentTime", adjudication.getIncidentTime().toString());
         propertyMap.put("incidentLocation", adjudication.getInternalLocation().getDescription());
-        propertyMap.put("statementSize", "" + adjudication.getIncidentDetails().length());
+        propertyMap.put("statementSize", String.valueOf(adjudication.getIncidentDetails().length()));
 
         telemetryClient.trackEvent(eventName, propertyMap, null);
     }
