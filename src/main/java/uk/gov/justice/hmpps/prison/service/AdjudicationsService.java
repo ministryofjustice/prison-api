@@ -2,9 +2,6 @@ package uk.gov.justice.hmpps.prison.service;
 
 import com.google.common.collect.Lists;
 import com.microsoft.applicationinsights.TelemetryClient;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Value;
@@ -437,14 +434,7 @@ public class AdjudicationsService {
         oicHearingResultRepository.delete(oicHearingResult);
     }
 
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    private static class OicSanctionValidationResult {
-        Adjudication adjudication;
-        Long oicHearingId;
-        Long offenderBookId;
-    }
+    record OicSanctionValidationResult(Adjudication adjudication, Long oicHearingId, Long offenderBookId) {}
 
     protected OicSanctionValidationResult validateOicSanction(Long adjudicationNumber) {
         final var adjudication = adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber)
@@ -469,7 +459,7 @@ public class AdjudicationsService {
 
         var result = validateOicSanction(adjudicationNumber);
 
-        Long nextSanctionSeq = oicSanctionRepository.getNextSanctionSeq(result.getOffenderBookId());
+        Long nextSanctionSeq = oicSanctionRepository.getNextSanctionSeq(result.offenderBookId());
 
         return transform(adjudicationNumber, oicSanctionRequests, result, nextSanctionSeq);
     }
@@ -480,7 +470,7 @@ public class AdjudicationsService {
         for (var request : oicSanctionRequests) {
             // flushing removes error in trigger OFFENDER_OIC_SANCTIONS_T1 on insert
             oicSanctions.add(oicSanctionRepository.saveAndFlush(OicSanction.builder()
-                .offenderBookId(result.getOffenderBookId())
+                .offenderBookId(result.offenderBookId())
                 .sanctionSeq(nextSanctionSeq + index)
                 .oicSanctionCode(request.getOicSanctionCode())
                 .compensationAmount(request.getCompensationAmount() == null ? null : BigDecimal.valueOf(request.getCompensationAmount()))
@@ -488,7 +478,7 @@ public class AdjudicationsService {
                 .commentText(request.getCommentText())
                 .effectiveDate(request.getEffectiveDate())
                 .status(request.getStatus())
-                .oicHearingId(result.getOicHearingId())
+                .oicHearingId(result.oicHearingId())
                 .resultSeq(1L)
                 .oicIncidentId(adjudicationNumber)
                 .build())
@@ -521,9 +511,9 @@ public class AdjudicationsService {
 
         var result = validateOicSanction(adjudicationNumber);
 
-        Long nextSanctionSeq = oicSanctionRepository.getNextSanctionSeq(result.getOffenderBookId());
+        Long nextSanctionSeq = oicSanctionRepository.getNextSanctionSeq(result.offenderBookId());
 
-        List<OicSanction> exitingOicSanctions = oicSanctionRepository.findByOicHearingId(result.getOicHearingId());
+        List<OicSanction> exitingOicSanctions = oicSanctionRepository.findByOicHearingId(result.oicHearingId());
         oicSanctionRepository.deleteAll(exitingOicSanctions);
 
         return transform(adjudicationNumber, oicSanctionRequests, result, nextSanctionSeq);
@@ -536,7 +526,7 @@ public class AdjudicationsService {
 
         var result = validateOicSanction(adjudicationNumber);
 
-        List<OicSanction> exitingOicSanctions = oicSanctionRepository.findByOicHearingId(result.getOicHearingId());
+        List<OicSanction> exitingOicSanctions = oicSanctionRepository.findByOicHearingId(result.oicHearingId());
 
         List<OicSanction> oicSanctions = new ArrayList<>();
         for (var oicSanction : exitingOicSanctions) {
@@ -554,7 +544,7 @@ public class AdjudicationsService {
 
         var result = validateOicSanction(adjudicationNumber);
 
-        List<OicSanction> exitingOicSanctions = oicSanctionRepository.findByOicHearingId(result.getOicHearingId());
+        List<OicSanction> exitingOicSanctions = oicSanctionRepository.findByOicHearingId(result.oicHearingId());
         oicSanctionRepository.deleteAll(exitingOicSanctions);
     }
 
@@ -566,7 +556,7 @@ public class AdjudicationsService {
 
         var result = validateOicSanction(adjudicationNumber);
 
-        List<OicSanction> exitingOicSanctions = oicSanctionRepository.findByOicHearingId(result.getOicHearingId());
+        List<OicSanction> exitingOicSanctions = oicSanctionRepository.findByOicHearingId(result.oicHearingId());
         for (var oicSanction : exitingOicSanctions) {
             if (Objects.equals(oicSanction.getSanctionSeq(), sanctionSeq)) oicSanctionRepository.delete(oicSanction);
         }
