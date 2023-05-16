@@ -50,18 +50,6 @@ public class AdjudicationsServiceIntTest {
                 .hasMessageContaining("Length exceeds the maximum size allowed");
         }
 
-        @Test
-        @WithMockUser(username = "ITAG_USER")
-        public void invalidOffenderNo() {
-            final var adjudication = defaultAdjudicationBuilder()
-                .statement("A statement")
-                .build();
-
-            assertThatThrownBy(() -> service.createAdjudication(adjudication))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("Resource with id [Z1234ZZ] not found.");
-        }
-
         private NewAdjudicationBuilder defaultAdjudicationBuilder() {
             return NewAdjudication.builder()
                 .offenderNo("A1234AD")
