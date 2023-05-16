@@ -148,7 +148,8 @@ public class AdjudicationsService {
 
     @Transactional
     @VerifyOffenderAccess
-    public AdjudicationDetail createAdjudication(@NotNull @Valid final NewAdjudication adjudication) {
+    public AdjudicationDetail createAdjudication(@SuppressWarnings("unused") @NotNull final String offenderNo, // This is to make the `@VerifyOffenderAccess` check access rights
+                                                 @NotNull @Valid final NewAdjudication adjudication) {
         final var currentDateTime = adjudication.getReportedDateTime();
         final var incidentDateTime = adjudication.getIncidentTime();
 

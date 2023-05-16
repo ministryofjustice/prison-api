@@ -203,7 +203,7 @@ public class AdjudicationsServiceTest {
 
             when(adjudicationsRepository.findByParties_AdjudicationNumber(any())).thenReturn(Optional.empty(), Optional.of(expectedAdjudication));
 
-            service.createAdjudication(newAdjudication);
+            service.createAdjudication(newAdjudication.getOffenderNo(), newAdjudication);
 
             verify(adjudicationsRepository).save(assertArgThat(actualAdjudication -> {
                     assertThat(actualAdjudication).usingRecursiveComparison().ignoringFields("createUserId", "parties")
@@ -248,7 +248,7 @@ public class AdjudicationsServiceTest {
 
             when(adjudicationsRepository.findByParties_AdjudicationNumber(any())).thenReturn(Optional.empty(), Optional.of(expectedAdjudication));
 
-            final var returnedAdjudication = service.createAdjudication(newAdjudication);
+            final var returnedAdjudication = service.createAdjudication(newAdjudication.getOffenderNo(), newAdjudication);
 
             assertThat(returnedAdjudication).isEqualTo(expectedReturnedAdjudication);
         }
@@ -270,7 +270,7 @@ public class AdjudicationsServiceTest {
 
             when(adjudicationsRepository.findByParties_AdjudicationNumber(any())).thenReturn(Optional.empty(), Optional.of(expectedAdjudication));
 
-            service.createAdjudication(newAdjudication);
+            service.createAdjudication(newAdjudication.getOffenderNo(), newAdjudication);
 
             verify(telemetryClient).trackEvent("AdjudicationCreated",
                 Map.of(
@@ -296,7 +296,7 @@ public class AdjudicationsServiceTest {
                 mockDataProvider.internalLocation.getLocationId());
 
             assertThatThrownBy(() ->
-                service.createAdjudication(newAdjudication))
+                service.createAdjudication(newAdjudication.getOffenderNo(), newAdjudication))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Agency with id LEI does not exist");
 
@@ -316,7 +316,7 @@ public class AdjudicationsServiceTest {
                 mockDataProvider.internalLocation.getLocationId());
 
             assertThatThrownBy(() ->
-                service.createAdjudication(newAdjudication))
+                service.createAdjudication(newAdjudication.getOffenderNo(), newAdjudication))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Location with id 456 does not exist or is not in your caseload");
 
@@ -344,7 +344,7 @@ public class AdjudicationsServiceTest {
 
             when(adjudicationsRepository.findByParties_AdjudicationNumber(any())).thenReturn(Optional.empty(), Optional.of(expectedAdjudication));
 
-            service.createAdjudication(newAdjudication);
+            service.createAdjudication(newAdjudication.getOffenderNo(), newAdjudication);
 
             verify(adjudicationsRepository).save(assertArgThat(actualAdjudication -> {
                     assertThat(actualAdjudication).usingRecursiveComparison().ignoringFields("createUserId", "parties")
@@ -388,7 +388,7 @@ public class AdjudicationsServiceTest {
 
             when(adjudicationsRepository.findByParties_AdjudicationNumber(any())).thenReturn(Optional.empty(), Optional.of(expectedAdjudication));
 
-            final var returnedAdjudication = service.createAdjudication(newAdjudication);
+            final var returnedAdjudication = service.createAdjudication(newAdjudication.getOffenderNo(), newAdjudication);
 
             assertThat(returnedAdjudication).isEqualTo(expectedReturnedAdjudication);
         }
@@ -419,7 +419,7 @@ public class AdjudicationsServiceTest {
 
                 when(adjudicationsRepository.findByParties_AdjudicationNumber(any())).thenReturn(Optional.empty(), Optional.of(expectedAdjudication));
 
-                final var returnedAdjudication = service.createAdjudication(newAdjudication);
+                final var returnedAdjudication = service.createAdjudication(newAdjudication.getOffenderNo(), newAdjudication);
 
                 assertThat(returnedAdjudication.getAdjudicationNumber()).isEqualTo(EXAMPLE_ADJUDICATION_NUMBER);
 
@@ -443,7 +443,7 @@ public class AdjudicationsServiceTest {
                 newAdjudication.setOffenceCodes(List.of(EXAMPLE_OFFENCE_CHARGE_CODE, "51:99"));
 
                 assertThatThrownBy(() ->
-                    service.createAdjudication(newAdjudication))
+                    service.createAdjudication(newAdjudication.getOffenderNo(), newAdjudication))
                     .isInstanceOf(RuntimeException.class)
                     .hasMessageContaining("Offence code not found");
             }
