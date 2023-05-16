@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -36,11 +37,14 @@ public class OffenderTransactionHistoryServiceTest {
     @Mock
     private OffenderTransactionHistoryRepository repository;
 
+    @Mock
+    private EntityManager entityManager;
+
     private OffenderTransactionHistoryService service;
 
     @BeforeEach
     public void setUp() {
-        service = new OffenderTransactionHistoryService("GBP", repository);
+        service = new OffenderTransactionHistoryService("GBP", repository, entityManager);
     }
 
     final Offender OFFENDER = Offender.builder().nomsId(OFFENDER_NO).rootOffenderId(2L).id(3L).build();

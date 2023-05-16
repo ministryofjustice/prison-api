@@ -9,6 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -88,6 +89,7 @@ public class OffenderTransactionHistory {
     })
     @OneToMany
     @Default
+    @BatchSize(size = 1000)
     private List<OffenderTransactionDetails> relatedTransactionDetails = new ArrayList<>();
 
     @Builder.Default
