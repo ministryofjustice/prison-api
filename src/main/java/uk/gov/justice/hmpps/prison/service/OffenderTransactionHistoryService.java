@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,10 +51,14 @@ public class OffenderTransactionHistoryService {
     private final String apiCurrency;
     private final OffenderTransactionHistoryRepository historyRepository;
 
+    private final EntityManager entityManager;
+
     public OffenderTransactionHistoryService(@Value("${api.currency:GBP}") final String currency,
-                                             final OffenderTransactionHistoryRepository historyRepository) {
+                                             final OffenderTransactionHistoryRepository historyRepository,
+                                             final EntityManager entityManager) {
         this.apiCurrency = currency;
         this.historyRepository = historyRepository;
+        this.entityManager = entityManager;
     }
 
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
@@ -64,12 +69,26 @@ public class OffenderTransactionHistoryService {
                                                                      final String transactionType) {
         validate(offenderNo, accountCode, fromDate, toDate);
 
-        return getAllTransactionsWithRunningBalance(offenderNo)
+        // balance is calculated per transaction by reading every transaction regardless of filter
+        var allTransactions = getAllTransactionsWithRunningBalance(offenderNo);
+
+        var filteredTransactions = allTransactions
             .stream()
             .filter(byDateRange(fromDate, toDate))
             .filter(byAccountCode(accountCode))
             .filter(transaction -> transactionType == null || transaction.getTransactionType().equals(transactionType))
             .sorted(SORT_BY_RECENT_DATE)
+            .toList();
+
+        // Detach all filtered out transactions from JPA session so no further JPA loads happen on these redundant entities
+        allTransactions
+            .stream()
+            .filter(transaction -> !filteredTransactions.contains(transaction))
+            .forEach(entityManager::detach);
+
+
+        return filteredTransactions
+            .stream()
             .map(this::enrichRelatedTransactionsWithCurrentBalance)
             .map(this::transform)
             .collect(toList());
