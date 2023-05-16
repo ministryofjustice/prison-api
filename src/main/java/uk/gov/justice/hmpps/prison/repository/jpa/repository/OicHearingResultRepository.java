@@ -9,4 +9,6 @@ import java.util.List;
 
 public interface OicHearingResultRepository extends CrudRepository<OicHearingResult, PK> {
     List<OicHearingResult> findByAgencyIncidentIdAndFindingCode(Long agencyIncidentId, FindingCode findingCode);
+
+    List<OicHearingResult> findByOicHearingId(Long oicHearingId);
 }

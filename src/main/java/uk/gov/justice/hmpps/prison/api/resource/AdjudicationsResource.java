@@ -182,6 +182,21 @@ public class AdjudicationsResource {
     }
 
     @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "A list of ordered hearing results"),
+        @ApiResponse(responseCode = "403", description = "The client is not authorised for this operation"),
+        @ApiResponse(responseCode = "404", description = "No match was found for the adjudication number or hearing", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
+    })
+    @Operation(summary = "Returns hearing results for specified hearing in sequence order", description = "Requires MAINTAIN_ADJUDICATIONS access")
+    @GetMapping("/adjudication/{adjudicationNumber}/hearing/{oicHearingId}/result")
+    @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS')")
+    @ResponseStatus(HttpStatus.OK)
+    public List<OicHearingResultDto> getOicHearingResults(
+        @PathVariable("adjudicationNumber") final Long adjudicationNumber,
+        @PathVariable("oicHearingId") final Long oicHearingId) {
+        return adjudicationsService.getOicHearingResults(adjudicationNumber, oicHearingId);
+    }
+
+    @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Created"),
         @ApiResponse(responseCode = "403", description = "The client is not authorised for this operation"),
         @ApiResponse(responseCode = "404", description = "No match was found for the adjudication number or hearing", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})

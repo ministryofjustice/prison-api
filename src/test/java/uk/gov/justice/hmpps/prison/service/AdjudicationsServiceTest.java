@@ -51,7 +51,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OicHearingResultRep
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OicSanctionRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 
 import jakarta.persistence.EntityManager;
 import jakarta.validation.ValidationException;
@@ -93,8 +92,6 @@ public class AdjudicationsServiceTest {
     private static final String EXAMPLE_STATEMENT = "Example statement";
     private static final String EXAMPLE_CREATOR_ID = "ASMITH";
     private static final LocalDateTime EXAMPLE_INCIDENT_TIME = LocalDateTime.of(2020, 1, 1, 2, 3, 4);
-    private Integer BATCH_SIZE = 1;
-
     @Mock
     private AdjudicationRepository adjudicationsRepository;
     @Mock
@@ -111,8 +108,6 @@ public class AdjudicationsServiceTest {
     private AgencyLocationRepository agencyLocationRepository;
     @Mock
     private AgencyInternalLocationRepository internalLocationRepository;
-    @Mock
-    private AuthenticationFacade authenticationFacade;
     @Mock
     private TelemetryClient telemetryClient;
     @Mock
@@ -133,6 +128,7 @@ public class AdjudicationsServiceTest {
 
     @BeforeEach
     public void beforeEach() {
+        final var BATCH_SIZE = 1;
         service = new AdjudicationsService(
             adjudicationsRepository,
             offenceTypeRepository,
@@ -142,9 +138,7 @@ public class AdjudicationsServiceTest {
             actionCodeRepository,
             agencyLocationRepository,
             internalLocationRepository,
-            authenticationFacade,
             telemetryClient,
-            clock,
             entityManager,
             BATCH_SIZE,
             adjudicationsPartyService,
@@ -284,7 +278,7 @@ public class AdjudicationsServiceTest {
                     "offenderNo", mockDataProvider.getOffenderNo(),
                     "incidentTime", EXAMPLE_INCIDENT_TIME.toString(),
                     "incidentLocation", mockDataProvider.getIncidentLocation(),
-                    "statementSize", "" + mockDataProvider.getStatement().length()
+                    "statementSize", String.valueOf(mockDataProvider.getStatement().length())
                 ),
                 null);
         }
@@ -500,10 +494,8 @@ public class AdjudicationsServiceTest {
         public void makesCallToRepositoryWithCorrectData() {
             service.updateAdjudication(updateNumber, updateRequest);
 
-            verify(adjudicationsRepository).save(assertArgThat(actualAdjudication -> {
-                    assertThat(actualAdjudication).usingRecursiveComparison().ignoringFields("parties")
-                        .isEqualTo(savedAdjudication);
-                }
+            verify(adjudicationsRepository).save(assertArgThat(actualAdjudication -> assertThat(actualAdjudication).usingRecursiveComparison().ignoringFields("parties")
+                .isEqualTo(savedAdjudication)
             ));
         }
 
@@ -540,10 +532,10 @@ public class AdjudicationsServiceTest {
 
             verify(telemetryClient).trackEvent("AdjudicationUpdated",
                 Map.of(
-                    "adjudicationNumber", "" + updateNumber,
+                    "adjudicationNumber", String.valueOf(updateNumber),
                     "incidentTime", updatedIncidentTime.toString(),
                     "incidentLocation", updatedInternalLocation.getDescription(),
-                    "statementSize", "" + updatedStatement.length()
+                    "statementSize", String.valueOf(updatedStatement.length())
                 ),
                 null);
         }
@@ -579,10 +571,7 @@ public class AdjudicationsServiceTest {
         private Adjudication savedAdjudication;
         private Long updateNumber;
         private UpdateAdjudication updateRequest;
-        private LocalDateTime updatedIncidentTime;
         private List<String> updatedOffenceCodes;
-        private String updatedStatement;
-        private AgencyInternalLocation updatedInternalLocation;
 
         @BeforeEach
         public void setup() {
@@ -590,17 +579,17 @@ public class AdjudicationsServiceTest {
             existingSavedAdjudication = generateExampleAdjudication_WithOptionalData(new MockDataProvider(), updateNumber);
             when(adjudicationsRepository.findByParties_AdjudicationNumber(updateNumber)).thenReturn(Optional.of(existingSavedAdjudication));
 
-            updatedIncidentTime = LocalDateTime.of(2020, 1, 1, 2, 3, 5);
-            updatedStatement = "New statement";
+            LocalDateTime updatedIncidentTime = LocalDateTime.of(2020, 1, 1, 2, 3, 5);
+            String updatedStatement = "New statement";
 
             updatedOffenceCodes = List.of("51:22", "51:24");
             final var offenderParty = existingSavedAdjudication.getOffenderParty().get();
             final var offenderPartyCharges = generateExampleAdjudicationCharges(offenderParty, updatedOffenceCodes);
             offenderParty.setCharges(offenderPartyCharges);
-            final var offenceTypes = offenderPartyCharges.stream().map(c -> c.getOffenceType()).toList();
+            final var offenceTypes = offenderPartyCharges.stream().map(AdjudicationCharge::getOffenceType).toList();
             lenient().when(offenceTypeRepository.findByOffenceCodeIn(updatedOffenceCodes)).thenReturn(offenceTypes);
 
-            updatedInternalLocation = AgencyInternalLocation.builder()
+            AgencyInternalLocation updatedInternalLocation = AgencyInternalLocation.builder()
                 .locationId(11L)
                 .description("Basketball")
                 .build();
@@ -818,7 +807,7 @@ public class AdjudicationsServiceTest {
     @Nested
     public class AdjudicationHearings {
 
-        private LocalDateTime now  = LocalDateTime.now();
+        private final LocalDateTime now  = LocalDateTime.now();
 
         private final OicHearingRequest oicHearingRequest =
             OicHearingRequest.builder()
