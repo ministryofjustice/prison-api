@@ -98,4 +98,81 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
         }
     }
   }
+
+  @Nested
+  inner class CreateServicePrison {
+    @Test
+    fun `should return unauthorised without an auth token`() {
+      webTestClient.post()
+        .uri("/api/service-prisons/SOME_SERVICE/prison/LEI")
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return forbidden without a valid role`() {
+      webTestClient.post()
+        .uri("/api/service-prisons/SOME_SERVICE/prison/BXI")
+        .headers(setAuthorisation(listOf("ROLE_INVALID")))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should return not found if service does not exist`() {
+      webTestClient.post()
+        .uri("/api/service-prisons/INVALID/prison/BXI")
+        .headers(setAuthorisation(listOf("ROLE_SERVICE_AGENCY_SWITCHES")))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").value<String> {
+          assertThat(it).contains("Service code INVALID does not exist")
+        }
+    }
+
+    @Test
+    fun `should return not found if prison does not exist`() {
+      webTestClient.post()
+        .uri("/api/service-prisons/SOME_SERVICE/prison/INVALID")
+        .headers(setAuthorisation(listOf("ROLE_SERVICE_AGENCY_SWITCHES")))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").value<String> {
+          assertThat(it).contains("Prison id INVALID does not exist")
+        }
+    }
+
+    @Test
+    fun `should activate a prison for the service`() {
+      webTestClient.post()
+        .uri("/api/service-prisons/SOME_SERVICE/prison/BXI")
+        .headers(setAuthorisation(listOf("ROLE_SERVICE_AGENCY_SWITCHES")))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isCreated
+
+      val someService = externalServiceRepository.findByIdOrNull("SOME_SERVICE") ?: throw EntityNotFoundException("Service SOME_SERVICE is not saved")
+      val brixton = agencyLocationRepository.findByIdOrNull("BXI") ?: throw EntityNotFoundException("Agency BXI is not saved")
+      val serviceAgencySwitch = serviceAgencySwitchesRepository.findByIdOrNull(ServiceAgencySwitchId(someService, brixton))
+      assertThat(serviceAgencySwitch).isNotNull
+    }
+
+    @Test
+    fun `should return bad request if service already active for a prison`() {
+      webTestClient.post()
+        .uri("/api/service-prisons/SOME_SERVICE/prison/MDI")
+        .headers(setAuthorisation(listOf("ROLE_SERVICE_AGENCY_SWITCHES")))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("userMessage").value<String> {
+          assertThat(it).contains("Prison MDI is already active for service SOME_SERVICE")
+        }
+    }
+  }
 }
