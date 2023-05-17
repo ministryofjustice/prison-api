@@ -61,6 +61,6 @@ class ServiceAgencySwitchesResource(private val service: ServiceAgencySwitchesSe
     @PathVariable
     @Parameter(name = "The id of the prison from the AGENCY_LOCATIONS table")
     prisonId: String,
-  ) =
+  ): PrisonDetails =
     service.addServicePrison(serviceCode, prisonId)
 }

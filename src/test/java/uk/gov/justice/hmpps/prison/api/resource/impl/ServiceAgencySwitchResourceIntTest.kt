@@ -33,13 +33,14 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
 
   private lateinit var leeds: AgencyLocation
   private lateinit var moorland: AgencyLocation
+  private lateinit var someService: ExternalService
 
   @BeforeEach
   fun `set up`() {
     leeds = agencyLocationRepository.findByIdOrNull("LEI") ?: throw EntityNotFoundException("Agency LEI is not saved")
     moorland = agencyLocationRepository.findByIdOrNull("MDI") ?: throw EntityNotFoundException("Agency MDI is not saved")
 
-    val someService = externalServiceRepository.save(ExternalService.builder().serviceName("SOME_SERVICE").description("Some service").build())
+    someService = externalServiceRepository.save(ExternalService.builder().serviceName("SOME_SERVICE").description("Some service").build())
 
     serviceAgencySwitchesRepository.save(ServiceAgencySwitch(ServiceAgencySwitchId(someService, leeds)))
     serviceAgencySwitchesRepository.save(ServiceAgencySwitch(ServiceAgencySwitchId(someService, moorland)))
@@ -104,7 +105,7 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
     @Test
     fun `should return unauthorised without an auth token`() {
       webTestClient.post()
-        .uri("/api/service-prisons/SOME_SERVICE/prison/LEI")
+        .uri("/api/service-prisons/SOME_SERVICE/prison/BXI")
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isUnauthorized
@@ -147,22 +148,7 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `should activate a prison for the service`() {
-      webTestClient.post()
-        .uri("/api/service-prisons/SOME_SERVICE/prison/BXI")
-        .headers(setAuthorisation(listOf("ROLE_SERVICE_AGENCY_SWITCHES")))
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isCreated
-
-      val someService = externalServiceRepository.findByIdOrNull("SOME_SERVICE") ?: throw EntityNotFoundException("Service SOME_SERVICE is not saved")
-      val brixton = agencyLocationRepository.findByIdOrNull("BXI") ?: throw EntityNotFoundException("Agency BXI is not saved")
-      val serviceAgencySwitch = serviceAgencySwitchesRepository.findByIdOrNull(ServiceAgencySwitchId(someService, brixton))
-      assertThat(serviceAgencySwitch).isNotNull
-    }
-
-    @Test
-    fun `should return bad request if service already active for a prison`() {
+    fun `should return bad request if prison already active for a service`() {
       webTestClient.post()
         .uri("/api/service-prisons/SOME_SERVICE/prison/MDI")
         .headers(setAuthorisation(listOf("ROLE_SERVICE_AGENCY_SWITCHES")))
@@ -173,6 +159,21 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
         .jsonPath("userMessage").value<String> {
           assertThat(it).contains("Prison MDI is already active for service SOME_SERVICE")
         }
+    }
+
+    @Test
+    fun `should return ok if prison added to the service`() {
+      webTestClient.post()
+        .uri("/api/service-prisons/SOME_SERVICE/prison/BXI")
+        .headers(setAuthorisation(listOf("ROLE_SERVICE_AGENCY_SWITCHES")))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isCreated
+        .expectBody()
+        .jsonPath("prisonId").isEqualTo("BXI")
+
+      val switch = serviceAgencySwitchesRepository.findByIdExternalService(someService).firstOrNull { it.id.agencyLocation.id == "BXI" }
+      assertThat(switch).isNotNull
     }
   }
 }
