@@ -17,18 +17,32 @@ class ServiceAgencySwitchesService(
 ) {
 
   fun getServicePrisons(serviceCode: String): List<PrisonDetails> =
-    externalServiceRepository.findByIdOrNull(serviceCode)
-      ?.serviceAgencySwitches
-      ?.map { PrisonDetails(it.id.agencyLocation.id, it.id.agencyLocation.description) }
-      ?: throw EntityNotFoundException("Service code $serviceCode does not exist")
+    findExternalServiceOrThrow(serviceCode)
+      .serviceAgencySwitches
+      .map { PrisonDetails(it.id.agencyLocation.id, it.id.agencyLocation.description) }
 
   fun addServicePrison(serviceCode: String, prisonId: String): PrisonDetails {
-    val service = externalServiceRepository.findByIdOrNull(serviceCode) ?: throw EntityNotFoundException("Service code $serviceCode does not exist")
-    val agency = agencyLocationRepository.findByIdOrNull(prisonId) ?: throw EntityNotFoundException("Prison id $prisonId does not exist")
+    val service = findExternalServiceOrThrow(serviceCode)
+    val agency = findAgencyLocationOrThrow(prisonId)
     if (service.serviceAgencySwitches.map { it.id.agencyLocation }.contains(agency)) {
-      throw BadRequestException("Prison $prisonId is already active for service $serviceCode")
+      throw ConflictingRequestException("Prison $prisonId is already active for service $serviceCode")
     }
-    service.serviceAgencySwitches.add(ServiceAgencySwitch(ServiceAgencySwitchId(service, agency)))
+    service.serviceAgencySwitches += ServiceAgencySwitch(ServiceAgencySwitchId(service, agency))
     return PrisonDetails(agency.id, agency.description)
   }
+
+  fun removeServicePrison(serviceCode: String, prisonId: String) {
+    val service = findExternalServiceOrThrow(serviceCode)
+    val agency = findAgencyLocationOrThrow(prisonId)
+    service.serviceAgencySwitches.firstOrNull { it.id.agencyLocation == agency }
+      ?.also { service.serviceAgencySwitches -= it }
+  }
+
+  private fun findExternalServiceOrThrow(serviceCode: String) =
+    externalServiceRepository.findByIdOrNull(serviceCode)
+      ?: throw EntityNotFoundException("Service code $serviceCode does not exist")
+
+  private fun findAgencyLocationOrThrow(prisonId: String) =
+    agencyLocationRepository.findByIdOrNull(prisonId)
+      ?: throw EntityNotFoundException("Prison id $prisonId does not exist")
 }

@@ -12,7 +12,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.ActiveProfiles
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalService
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalServiceEntity
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ServiceAgencySwitch
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ServiceAgencySwitchId
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
@@ -41,10 +41,11 @@ class ServiceAgencySwitchesRepositoryTest {
   @BeforeEach
   fun `set up`() {
     leeds = agencyLocationRepository.findByIdOrNull("LEI") ?: throw EntityNotFoundException("Agency LEI is not saved")
-    moorland = agencyLocationRepository.findByIdOrNull("MDI") ?: throw EntityNotFoundException("Agency MDI is not saved")
+    moorland =
+      agencyLocationRepository.findByIdOrNull("MDI") ?: throw EntityNotFoundException("Agency MDI is not saved")
 
-    val someService = externalServiceRepository.save(ExternalService.builder().serviceName("SOME_SERVICE").description("Some service").build())
-    val anotherService = externalServiceRepository.save(ExternalService.builder().serviceName("ANOTHER_SERVICE").description("Another service").build())
+    val someService = externalServiceRepository.save(ExternalServiceEntity("SOME_SERVICE", "Some service"))
+    val anotherService = externalServiceRepository.save(ExternalServiceEntity("ANOTHER_SERVICE", "Another service"))
 
     serviceAgencySwitchesRepository.save(ServiceAgencySwitch(ServiceAgencySwitchId(someService, leeds)))
     serviceAgencySwitchesRepository.save(ServiceAgencySwitch(ServiceAgencySwitchId(someService, moorland)))
@@ -60,17 +61,19 @@ class ServiceAgencySwitchesRepositoryTest {
   @Test
   fun `can find agency switches by service`() {
     val someService = externalServiceRepository.findByIdOrNull("SOME_SERVICE") ?: throw EntityNotFoundException("SOME_SERVICE not found")
-    val someAgencies = serviceAgencySwitchesRepository.findByIdExternalService(someService)
+    val someAgencies = serviceAgencySwitchesRepository.findByIdExternalServiceEntity(someService)
     assertThat(someAgencies).extracting("id").extracting("agencyLocation").extracting("id").containsExactly("LEI", "MDI")
   }
 
   @Test
   fun `can delete agency switches`() {
     val someService = externalServiceRepository.findByIdOrNull("SOME_SERVICE") ?: throw EntityNotFoundException("SOME_SERVICE not found")
-    val someServiceAtMoorland = serviceAgencySwitchesRepository.findByIdOrNull(ServiceAgencySwitchId(someService, moorland)) ?: throw EntityNotFoundException("SOME_SERVICE at MDI not found")
+    val someServiceAtMoorland = ServiceAgencySwitchId(someService, moorland).let {
+      serviceAgencySwitchesRepository.findByIdOrNull(it) ?: throw EntityNotFoundException("SOME_SERVICE at MDI not found")
+    }
     serviceAgencySwitchesRepository.delete(someServiceAtMoorland)
 
-    val someAgencies = serviceAgencySwitchesRepository.findByIdExternalService(someService)
+    val someAgencies = serviceAgencySwitchesRepository.findByIdExternalServiceEntity(someService)
     assertThat(someAgencies).extracting("id").extracting("agencyLocation").extracting("id").containsExactly("LEI")
   }
 }

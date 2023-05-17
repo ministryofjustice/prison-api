@@ -11,7 +11,7 @@ import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import uk.gov.justice.hmpps.prison.api.model.PrisonDetails
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalService
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalServiceEntity
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ServiceAgencySwitch
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ServiceAgencySwitchId
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository
@@ -33,15 +33,14 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
 
   private lateinit var leeds: AgencyLocation
   private lateinit var moorland: AgencyLocation
-  private lateinit var someService: ExternalService
+  private lateinit var someService: ExternalServiceEntity
 
   @BeforeEach
   fun `set up`() {
     leeds = agencyLocationRepository.findByIdOrNull("LEI") ?: throw EntityNotFoundException("Agency LEI is not saved")
     moorland = agencyLocationRepository.findByIdOrNull("MDI") ?: throw EntityNotFoundException("Agency MDI is not saved")
 
-    someService = externalServiceRepository.save(ExternalService.builder().serviceName("SOME_SERVICE").description("Some service").build())
-
+    someService = externalServiceRepository.save(ExternalServiceEntity("SOME_SERVICE", "Some service"))
     serviceAgencySwitchesRepository.save(ServiceAgencySwitch(ServiceAgencySwitchId(someService, leeds)))
     serviceAgencySwitchesRepository.save(ServiceAgencySwitch(ServiceAgencySwitchId(someService, moorland)))
   }
@@ -53,7 +52,7 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
   }
 
   @Nested
-  inner class GetPrisons {
+  inner class GetServicePrisons {
     @Test
     fun `should return unauthorised without an auth token`() {
       webTestClient.get()
@@ -148,13 +147,13 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `should return bad request if prison already active for a service`() {
+    fun `should return conflict if prison already active for a service`() {
       webTestClient.post()
         .uri("/api/service-prisons/SOME_SERVICE/prison/MDI")
         .headers(setAuthorisation(listOf("ROLE_SERVICE_AGENCY_SWITCHES")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
-        .expectStatus().isBadRequest
+        .expectStatus().isEqualTo(409)
         .expectBody()
         .jsonPath("userMessage").value<String> {
           assertThat(it).contains("Prison MDI is already active for service SOME_SERVICE")
@@ -172,8 +171,79 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
         .expectBody()
         .jsonPath("prisonId").isEqualTo("BXI")
 
-      val switch = serviceAgencySwitchesRepository.findByIdExternalService(someService).firstOrNull { it.id.agencyLocation.id == "BXI" }
+      val switch = serviceAgencySwitchesRepository.findByIdExternalServiceEntity(someService).firstOrNull { it.id.agencyLocation.id == "BXI" }
       assertThat(switch).isNotNull
+    }
+  }
+
+  @Nested
+  inner class RemoveServicePrison {
+    @Test
+    fun `should return unauthorised without an auth token`() {
+      webTestClient.delete()
+        .uri("/api/service-prisons/SOME_SERVICE/prison/BXI")
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return forbidden without a valid role`() {
+      webTestClient.delete()
+        .uri("/api/service-prisons/SOME_SERVICE/prison/BXI")
+        .headers(setAuthorisation(listOf("ROLE_INVALID")))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should return not found if service does not exist`() {
+      webTestClient.delete()
+        .uri("/api/service-prisons/INVALID/prison/MDI")
+        .headers(setAuthorisation(listOf("ROLE_SERVICE_AGENCY_SWITCHES")))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").value<String> {
+          assertThat(it).contains("Service code INVALID does not exist")
+        }
+    }
+
+    @Test
+    fun `should return not found if prison does not exist`() {
+      webTestClient.delete()
+        .uri("/api/service-prisons/SOME_SERVICE/prison/INVALID")
+        .headers(setAuthorisation(listOf("ROLE_SERVICE_AGENCY_SWITCHES")))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").value<String> {
+          assertThat(it).contains("Prison id INVALID does not exist")
+        }
+    }
+
+    @Test
+    fun `should return ok if prison already inactive for a service`() {
+      webTestClient.delete()
+        .uri("/api/service-prisons/SOME_SERVICE/prison/BXI")
+        .headers(setAuthorisation(listOf("ROLE_SERVICE_AGENCY_SWITCHES")))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isNoContent
+    }
+
+    @Test
+    fun `should return ok if prison removed from the service`() {
+      webTestClient.delete()
+        .uri("/api/service-prisons/SOME_SERVICE/prison/MDI")
+        .headers(setAuthorisation(listOf("ROLE_SERVICE_AGENCY_SWITCHES")))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isNoContent
+
+      val switch = serviceAgencySwitchesRepository.findByIdExternalServiceEntity(someService).firstOrNull { it.id.agencyLocation.id == "MDI" }
+      assertThat(switch).isNull()
     }
   }
 }
