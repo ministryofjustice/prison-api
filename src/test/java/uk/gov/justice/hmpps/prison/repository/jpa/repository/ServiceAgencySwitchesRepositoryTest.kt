@@ -44,7 +44,7 @@ class ServiceAgencySwitchesRepositoryTest {
     moorland = agencyLocationRepository.findByIdOrNull("MDI") ?: throw EntityNotFoundException("Agency MDI is not saved")
 
     val someService = externalServiceRepository.save(ExternalService.builder().serviceName("SOME_SERVICE").description("Some service").build())
-    val anotherService = externalServiceRepository.save(ExternalService("ANOTHER_SERVICE", "Another service"))
+    val anotherService = externalServiceRepository.save(ExternalService.builder().serviceName("ANOTHER_SERVICE").description("Another service").build())
 
     serviceAgencySwitchesRepository.save(ServiceAgencySwitch(ServiceAgencySwitchId(someService, leeds)))
     serviceAgencySwitchesRepository.save(ServiceAgencySwitch(ServiceAgencySwitchId(someService, moorland)))
