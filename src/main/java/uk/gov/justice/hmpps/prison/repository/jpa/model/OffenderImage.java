@@ -85,7 +85,6 @@ public class OffenderImage extends AuditableEntity {
             .imageId(getId())
             .captureDate(getCaptureDateTime().toLocalDate())
             .captureDateTime(getCaptureDateTime())
-            .createDateTime(getCreateDatetime())
             .imageView(getViewType())
             .imageOrientation(getOrientationType())
             .imageType(getImageType())
