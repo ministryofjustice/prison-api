@@ -48,6 +48,9 @@ public class OffenderImage extends AuditableEntity {
     @Column(name = "CAPTURE_DATETIME")
     private LocalDateTime captureDateTime;
 
+    @Column(insertable=false, updatable=false, name = "CREATE_DATETIME")
+    private LocalDateTime createDateTime;
+
     @Column(name = "IMAGE_VIEW_TYPE")
     private String viewType;
 
@@ -84,6 +87,8 @@ public class OffenderImage extends AuditableEntity {
         return ImageDetail.builder()
             .imageId(getId())
             .captureDate(getCaptureDateTime().toLocalDate())
+            .captureDateTime(getCaptureDateTime())
+            .createDateTime(getCreateDateTime())
             .imageView(getViewType())
             .imageOrientation(getOrientationType())
             .imageType(getImageType())
