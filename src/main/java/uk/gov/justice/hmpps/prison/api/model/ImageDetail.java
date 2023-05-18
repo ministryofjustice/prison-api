@@ -41,10 +41,6 @@ public class ImageDetail {
     @NotNull
     private LocalDateTime captureDateTime;
 
-    @Schema(description = "Date and time of image creation", example = "2008-08-27 01:01:01")
-    @NotNull
-    private LocalDateTime createDateTime;
-
     @Schema(requiredMode = RequiredMode.REQUIRED,
         description = "Image view information.  Actual values extracted 10/05/2023, with the majority of values being FACE. This doesn't appear to be mapped to any REFERENCE_CODE data, even though there is a domain called IMAGE_VIEW.",
         example = "FACE",
