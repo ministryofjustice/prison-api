@@ -29,4 +29,7 @@ public class RequestToUpdateOffenderDates {
 
     @Schema(required = true, description = "Key dates to be updated for the offender.")
     private OffenderKeyDates keyDates;
+
+    @Schema(description = "Comment to be associated with the sentence calculation, if not set a default comment is used")
+    private String comment;
 }

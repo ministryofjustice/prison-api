@@ -18,6 +18,8 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 @Service
 @Transactional
 @Slf4j
@@ -47,7 +49,11 @@ public class OffenderDatesService {
                 .offenderBooking(offenderBooking)
                 .reasonCode("UPDATE")
                 .calculationDate(calculationDate)
-                .comments("The information shown was calculated using the Calculate Release Dates service. The calculation ID is: " + requestToUpdateOffenderDates.getCalculationUuid())
+                .comments(
+                    isBlank(requestToUpdateOffenderDates.getComment()) ?
+                        "The information shown was calculated using the Calculate Release Dates service. The calculation ID is: " + requestToUpdateOffenderDates.getCalculationUuid()
+                        : requestToUpdateOffenderDates.getComment()
+                )
                 .staff(staffUserAccount.getStaff())
                 .recordedUser(staffUserAccount)
                 .recordedDateTime(calculationDate)
@@ -83,7 +89,7 @@ public class OffenderDatesService {
 
     public OffenderCalculatedKeyDates getOffenderKeyDates(Long bookingId) {
         final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
-        final var sentenceCalculation = offenderBooking.getLatestCalculation().orElseThrow(EntityNotFoundException.withId(bookingId));;
+        final var sentenceCalculation = offenderBooking.getLatestCalculation().orElseThrow(EntityNotFoundException.withId(bookingId));
 
         return OffenderCalculatedKeyDates.offenderCalculatedKeyDates()
             .homeDetentionCurfewEligibilityDate(sentenceCalculation.getHomeDetentionCurfewEligibilityDate())
