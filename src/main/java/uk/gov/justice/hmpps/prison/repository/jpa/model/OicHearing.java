@@ -76,4 +76,7 @@ public class OicHearing extends AuditableEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "HEARING_STAFF_ID")
     private Staff adjudicator;
+
+    @Column(name = "COMMENT_TEXT", length = 240)
+    private String commentText;
 }

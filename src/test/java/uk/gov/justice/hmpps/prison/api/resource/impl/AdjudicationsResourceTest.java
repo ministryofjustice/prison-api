@@ -424,7 +424,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
     }
 
     @Nested
-    public class AdjudicationHearings {
+    public class CreateHearing {
 
         final List<String> valid = List.of("ROLE_MAINTAIN_ADJUDICATIONS");
         final List<String> invalid = List.of("ROLE_SYSTEM_USER");
@@ -499,6 +499,19 @@ public class AdjudicationsResourceTest extends ResourceTest  {
                 .expectStatus().isCreated();
         }
 
+    }
+
+    @Nested
+    public class AmendHearing {
+
+        final List<String> valid = List.of("ROLE_MAINTAIN_ADJUDICATIONS");
+        final List<String> invalid = List.of("ROLE_SYSTEM_USER");
+        final Map validRequest = Map.of("dateTimeOfHearing","2022-10-24T10:12:44", "hearingLocationId", "-31", "oicHearingType", "GOV_ADULT");
+        final Map invalidRequest = Map.of("dateTimeOfHearing","not a date time", "hearingLocationId", "-31", "oicHearingType", "GOV_ADULT");
+        final Map invalidLocationRequest = Map.of("dateTimeOfHearing","2022-10-24T10:12:44", "hearingLocationId", "1", "oicHearingType", "GOV_ADULT");
+        final Map invalidTypeRequest = Map.of("dateTimeOfHearing","2022-10-24T10:12:44", "hearingLocationId", "-31", "oicHearingType", "WRONG");
+        final Map invalidAdjudicatorRequest = Map.of("dateTimeOfHearing","2022-10-24T10:12:44", "hearingLocationId", "-31", "oicHearingType", "GOV_ADULT", "adjudicator", "notfound");
+
         @Test
         public void amendHearingReturns403ForInvalidRoles () {
             webTestClient.put()
@@ -565,6 +578,17 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         }
 
         @Test
+        public void amendHearingReturns404DueToNoAdjudicatorOnFile() {
+            webTestClient.put()
+                .uri("/api/adjudications/adjudication/-9/hearing/-4")
+                .headers(setAuthorisation(valid))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .bodyValue(invalidAdjudicatorRequest)
+                .exchange()
+                .expectStatus().isNotFound();
+        }
+
+        @Test
         public void amendHearing() {
             webTestClient.put()
                 .uri("/api/adjudications/adjudication/-9/hearing/-4")
@@ -575,6 +599,14 @@ public class AdjudicationsResourceTest extends ResourceTest  {
                 .expectStatus().isOk();
         }
 
+
+    }
+
+    @Nested
+    public class DeleteHearing {
+
+        final List<String> valid = List.of("ROLE_MAINTAIN_ADJUDICATIONS");
+        final List<String> invalid = List.of("ROLE_SYSTEM_USER");
 
         @Test
         public void deleteHearingReturns403DueToInvalidRoles () {
@@ -1280,4 +1312,5 @@ public class AdjudicationsResourceTest extends ResourceTest  {
                 .exchange();
         }
     }
+
 }
