@@ -433,6 +433,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         final Map invalidLocationRequest = Map.of("dateTimeOfHearing","2022-10-24T10:12:44", "hearingLocationId", "1", "oicHearingType", "GOV_ADULT");
         final Map invalidTypeRequest = Map.of("dateTimeOfHearing","2022-10-24T10:12:44", "hearingLocationId", "-31", "oicHearingType", "WRONG");
 
+        final Map invalidAdjudicatorRequest = Map.of("dateTimeOfHearing","2022-10-24T10:12:44", "hearingLocationId", "-31", "oicHearingType", "GOV_ADULT", "adjudicator", "notfound");
 
         @Test
         public void createHearingReturns403ForInvalidRoles () {
@@ -565,6 +566,17 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         }
 
         @Test
+        public void amendHearingReturns404DueToNoAdjudicatorOnFile() {
+            webTestClient.put()
+                .uri("/api/adjudications/adjudication/-9/hearing/-4")
+                .headers(setAuthorisation(valid))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .bodyValue(invalidAdjudicatorRequest)
+                .exchange()
+                .expectStatus().isNotFound();
+        }
+
+        @Test
         public void amendHearing() {
             webTestClient.put()
                 .uri("/api/adjudications/adjudication/-9/hearing/-4")
@@ -574,7 +586,6 @@ public class AdjudicationsResourceTest extends ResourceTest  {
                 .exchange()
                 .expectStatus().isOk();
         }
-
 
         @Test
         public void deleteHearingReturns403DueToInvalidRoles () {
@@ -625,7 +636,9 @@ public class AdjudicationsResourceTest extends ResourceTest  {
                 .exchange()
                 .expectStatus().isOk();
         }
+
     }
+
 
     @Nested
     public class CreateHearingResult {
@@ -1280,4 +1293,5 @@ public class AdjudicationsResourceTest extends ResourceTest  {
                 .exchange();
         }
     }
+
 }
