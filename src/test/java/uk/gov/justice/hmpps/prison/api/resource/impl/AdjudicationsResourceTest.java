@@ -535,7 +535,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         @Test
         public void amendHearingReturns400forOicHearingType() {
             webTestClient.put()
-                .uri("/api/adjudications/adjudication/-5/hearing/-4")
+                .uri("/api/adjudications/adjudication/-9/hearing/-4")
                 .headers(setAuthorisation(valid))
                 .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                 .bodyValue(invalidTypeRequest)
@@ -546,7 +546,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         @Test
         public void amendHearingReturns400forLocationId() {
             webTestClient.put()
-                .uri("/api/adjudications/adjudication/-5/hearing/-4")
+                .uri("/api/adjudications/adjudication/-9/hearing/-4")
                 .headers(setAuthorisation(valid))
                 .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                 .bodyValue(invalidLocationRequest)
