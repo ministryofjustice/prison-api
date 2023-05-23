@@ -905,6 +905,18 @@ public class AdjudicationsServiceTest {
                 .commentText("comment")
                 .eventStatus(OicHearingStatus.SCH).build();
 
+        private final OicHearing expectedMockCallOnAmendWithoutAdjudicatorAndComment =
+            OicHearing.builder()
+                .oicHearingId(1L)
+                .internalLocationId(4L)
+                .adjudicationNumber(1L)
+                .hearingDate(oicHearingRequest.getDateTimeOfHearing().toLocalDate().plusDays(1))
+                .hearingTime(oicHearingRequest.getDateTimeOfHearing().plusDays(1))
+                .oicHearingType(OicHearingType.GOV_YOI)
+                .adjudicator(null)
+                .commentText(null)
+                .eventStatus(OicHearingStatus.SCH).build();
+
         @Test
         public void amendHearing() {
 
@@ -953,6 +965,48 @@ public class AdjudicationsServiceTest {
             service.amendOicHearing(1L, 1L, amendRequest);
 
             verify(oicHearingRepository, atLeastOnce()).save(expectedMockCallOnAmend);
+        }
+
+        @Test
+        public void amendHearingRemovesAdjudicatorAndComment() {
+
+            final OicHearingRequest amendRequest =
+                OicHearingRequest.builder()
+                    .hearingLocationId(4L)
+                    .oicHearingType(OicHearingType.GOV_YOI)
+                    .dateTimeOfHearing(now.plusDays(1)).build();
+
+
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(1L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().build()
+                ));
+
+            when(oicHearingRepository.findById(1L))
+                .thenReturn(Optional.of(
+                    OicHearing.builder()
+                        .oicHearingId(1L)
+                        .adjudicationNumber(1L)
+                        .internalLocationId(3L)
+                        .oicHearingType(OicHearingType.GOV_ADULT)
+                        .commentText("comment")
+                        .adjudicator(Staff.builder().build())
+                        .eventStatus(OicHearingStatus.SCH)
+                        .build()
+                ));
+
+
+            when(internalLocationRepository.findOneByLocationId(4L)).thenReturn(
+                Optional.of(AgencyInternalLocation.builder().build())
+            );
+
+            when(oicHearingRepository.save(expectedMockCallOnAmendWithoutAdjudicatorAndComment)).thenReturn(
+                OicHearing.builder().build()
+            );
+
+            service.amendOicHearing(1L, 1L, amendRequest);
+
+            verify(oicHearingRepository, atLeastOnce()).save(expectedMockCallOnAmendWithoutAdjudicatorAndComment);
         }
 
         @Test

@@ -311,20 +311,15 @@ public class AdjudicationsService {
         hearingToAmend.setHearingTime(hearingTime);
         hearingToAmend.setOicHearingType(oicHearingRequest.getOicHearingType());
         hearingToAmend.setInternalLocationId(oicHearingRequest.getHearingLocationId());
+        hearingToAmend.setCommentText(oicHearingRequest.getCommentText());
 
-        Optional.ofNullable(oicHearingRequest.getCommentText()).ifPresent(
-            comment -> hearingToAmend.setCommentText(comment)
-        );
-
-        Optional.ofNullable(oicHearingRequest.getAdjudicator()).ifPresent(
+        Optional.ofNullable(oicHearingRequest.getAdjudicator()).ifPresentOrElse(
             adjudicator ->    {
                 final var staff = staffUserAccountRepository.findByUsername(adjudicator)
                     .orElseThrow(() -> new EntityNotFoundException(format("Adjudicator not found for username %s", adjudicator)));
 
                 hearingToAmend.setAdjudicator(staff.getStaff());
-            }
-
-        );
+            }, () -> hearingToAmend.setAdjudicator(null));
 
         oicHearingRepository.save(hearingToAmend);
     }
