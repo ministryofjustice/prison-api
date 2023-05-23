@@ -54,6 +54,7 @@ dependencies {
   implementation("org.apache.commons:commons-text:1.10.0")
   implementation("com.oracle.database.jdbc:ojdbc10:19.18.0.0")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+  implementation("org.hibernate.orm:hibernate-community-dialects:6.2.3.Final")
 
   compileOnly("org.projectlombok:lombok:1.18.26")
 
