@@ -13,6 +13,7 @@ import lombok.ToString;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * Image Detail
@@ -35,6 +36,10 @@ public class ImageDetail {
     @Schema(requiredMode = RequiredMode.REQUIRED, description = "Date of image capture", example = "2008-08-27")
     @NotNull
     private LocalDate captureDate;
+
+    @Schema(requiredMode = RequiredMode.REQUIRED, description = "Date and time of image capture", example = "2008-08-28T01:01:01")
+    @NotNull
+    private LocalDateTime captureDateTime;
 
     @Schema(requiredMode = RequiredMode.REQUIRED,
         description = "Image view information.  Actual values extracted 10/05/2023, with the majority of values being FACE. This doesn't appear to be mapped to any REFERENCE_CODE data, even though there is a domain called IMAGE_VIEW.",

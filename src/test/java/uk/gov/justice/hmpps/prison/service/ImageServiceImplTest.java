@@ -62,6 +62,7 @@ public class ImageServiceImplTest {
                 ImageDetail.builder()
                         .imageId(123L)
                         .captureDate(DATETIME.toLocalDate())
+                        .captureDateTime(DATETIME)
                         .imageView("FACE")
                         .imageOrientation("FRONT")
                         .imageType("OFF_BKG")
