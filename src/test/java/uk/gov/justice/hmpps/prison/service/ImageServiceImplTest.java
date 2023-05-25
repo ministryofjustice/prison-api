@@ -51,6 +51,7 @@ public class ImageServiceImplTest {
         when(offenderImageRepository.getImagesByOffenderNumber(OFFENDER_NUMBER)).thenReturn(List.of(
                 OffenderImage.builder()
                         .id(123L)
+                        .active(false)
                         .captureDateTime(DATETIME)
                         .viewType("FACE")
                         .orientationType("FRONT")
@@ -61,6 +62,7 @@ public class ImageServiceImplTest {
         assertThat(service.findOffenderImagesFor(OFFENDER_NUMBER)).containsOnly(
                 ImageDetail.builder()
                         .imageId(123L)
+                        .active(false)
                         .captureDate(DATETIME.toLocalDate())
                         .imageView("FACE")
                         .imageOrientation("FRONT")

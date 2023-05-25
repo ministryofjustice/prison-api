@@ -1,6 +1,7 @@
 [
   {
     "imageId":-1,
+    "active": true,
     "captureDate":"2008-08-27",
     "imageView":"FACE",
     "imageOrientation":"FRONT",
