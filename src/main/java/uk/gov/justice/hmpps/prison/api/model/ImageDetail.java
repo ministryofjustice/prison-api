@@ -33,6 +33,10 @@ public class ImageDetail {
     @NotNull
     private Long imageId;
 
+    @Schema(requiredMode = RequiredMode.REQUIRED, description = "Active", example = "false")
+    @NotNull
+    private Boolean active;
+
     @Schema(requiredMode = RequiredMode.REQUIRED, description = "Date of image capture", example = "2008-08-27")
     @NotNull
     private LocalDate captureDate;
