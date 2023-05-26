@@ -33,9 +33,8 @@ public class ImageDetail {
     @NotNull
     private Long imageId;
 
-    @Schema(requiredMode = RequiredMode.REQUIRED, description = "Active", example = "false")
-    @NotNull
-    private Boolean active;
+    @Schema(requiredMode = RequiredMode.REQUIRED, description = "An active image means that it is to be used and is current for the prisoner. An inactive image means that it has been superseded by another image or the image is no longer relevant.", example = "false")
+    private boolean active;
 
     @Schema(requiredMode = RequiredMode.REQUIRED, description = "Date of image capture", example = "2008-08-27")
     @NotNull
@@ -46,7 +45,7 @@ public class ImageDetail {
     private LocalDateTime captureDateTime;
 
     @Schema(requiredMode = RequiredMode.REQUIRED,
-        description = "Image view information.  Actual values extracted 10/05/2023, with the majority of values being FACE. This doesn't appear to be mapped to any REFERENCE_CODE data, even though there is a domain called IMAGE_VIEW.",
+        description = "Image view information. Actual values extracted 10/05/2023, with the majority of values being FACE. This doesn't appear to be mapped to any REFERENCE_CODE data, even though there is a domain called IMAGE_VIEW.",
         example = "FACE",
         allowableValues = {"OIC", "FACE", "TAT", "MARK", "SCAR", "OTH"})
     @NotBlank
