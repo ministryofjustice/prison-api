@@ -788,7 +788,7 @@ public class AdjudicationsServiceTest {
     }
 
     @Nested
-    public class AdjudicationHearings {
+    public class CreateHearing {
 
         private final LocalDateTime now  = LocalDateTime.now();
 
@@ -809,15 +809,6 @@ public class AdjudicationsServiceTest {
             .oicHearingType(OicHearingType.GOV)
             .eventStatus(OicHearingStatus.SCH).build();
 
-        private final OicHearing expectedMockCallOnAmend =
-            OicHearing.builder()
-                .oicHearingId(1L)
-                .internalLocationId(4L)
-                .adjudicationNumber(1L)
-                .hearingDate(oicHearingRequest.getDateTimeOfHearing().toLocalDate().plusDays(1))
-                .hearingTime(oicHearingRequest.getDateTimeOfHearing().plusDays(1))
-                .oicHearingType(OicHearingType.GOV_YOI)
-                .eventStatus(OicHearingStatus.SCH).build();
 
         @Test
         public void createHearing() {
@@ -872,8 +863,95 @@ public class AdjudicationsServiceTest {
                 .hasMessageContaining("Invalid hearing location id 3");
         }
 
+    }
+
+    @Nested
+    public class AmendHearing {
+
+        private final LocalDateTime now  = LocalDateTime.now();
+
+        private final OicHearingRequest oicHearingRequest =
+            OicHearingRequest.builder()
+                .hearingLocationId(3L)
+                .oicHearingType(OicHearingType.GOV)
+                .dateTimeOfHearing(now).build();
+
+        private final OicHearing expectedMockCallOnAmend =
+            OicHearing.builder()
+                .oicHearingId(1L)
+                .internalLocationId(4L)
+                .adjudicationNumber(1L)
+                .hearingDate(oicHearingRequest.getDateTimeOfHearing().toLocalDate().plusDays(1))
+                .hearingTime(oicHearingRequest.getDateTimeOfHearing().plusDays(1))
+                .oicHearingType(OicHearingType.GOV_YOI)
+                .adjudicator(Staff.builder().staffId(10L).build())
+                .commentText("comment")
+                .eventStatus(OicHearingStatus.SCH).build();
+
+        private final OicHearing expectedMockCallOnAmendWithoutAdjudicatorAndComment =
+            OicHearing.builder()
+                .oicHearingId(1L)
+                .internalLocationId(4L)
+                .adjudicationNumber(1L)
+                .hearingDate(oicHearingRequest.getDateTimeOfHearing().toLocalDate().plusDays(1))
+                .hearingTime(oicHearingRequest.getDateTimeOfHearing().plusDays(1))
+                .oicHearingType(OicHearingType.GOV_YOI)
+                .adjudicator(null)
+                .commentText(null)
+                .eventStatus(OicHearingStatus.SCH).build();
+
         @Test
         public void amendHearing() {
+
+            final OicHearingRequest amendRequest =
+                OicHearingRequest.builder()
+                    .hearingLocationId(4L)
+                    .oicHearingType(OicHearingType.GOV_YOI)
+                    .commentText("comment")
+                    .adjudicator("adjudicator")
+                    .dateTimeOfHearing(now.plusDays(1)).build();
+
+
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(1L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().build()
+                ));
+
+            when(oicHearingRepository.findById(1L))
+                .thenReturn(Optional.of(
+                    OicHearing.builder()
+                        .oicHearingId(1L)
+                        .adjudicationNumber(1L)
+                        .internalLocationId(3L)
+                        .oicHearingType(OicHearingType.GOV_ADULT)
+                        .eventStatus(OicHearingStatus.SCH)
+                        .build()
+                ));
+
+            when(staffUserAccountRepository.findByUsername("adjudicator")).thenReturn(
+                Optional.of(
+                    StaffUserAccount.builder().staff(
+                        Staff.builder().staffId(10L).build()
+                    ).build()
+                )
+            );
+
+
+            when(internalLocationRepository.findOneByLocationId(4L)).thenReturn(
+                Optional.of(AgencyInternalLocation.builder().build())
+            );
+
+            when(oicHearingRepository.save(expectedMockCallOnAmend)).thenReturn(
+                OicHearing.builder().build()
+            );
+
+            service.amendOicHearing(1L, 1L, amendRequest);
+
+            verify(oicHearingRepository, atLeastOnce()).save(expectedMockCallOnAmend);
+        }
+
+        @Test
+        public void amendHearingRemovesAdjudicatorAndComment() {
 
             final OicHearingRequest amendRequest =
                 OicHearingRequest.builder()
@@ -894,21 +972,24 @@ public class AdjudicationsServiceTest {
                         .adjudicationNumber(1L)
                         .internalLocationId(3L)
                         .oicHearingType(OicHearingType.GOV_ADULT)
+                        .commentText("comment")
+                        .adjudicator(Staff.builder().build())
                         .eventStatus(OicHearingStatus.SCH)
                         .build()
                 ));
+
 
             when(internalLocationRepository.findOneByLocationId(4L)).thenReturn(
                 Optional.of(AgencyInternalLocation.builder().build())
             );
 
-            when(oicHearingRepository.save(expectedMockCallOnAmend)).thenReturn(
+            when(oicHearingRepository.save(expectedMockCallOnAmendWithoutAdjudicatorAndComment)).thenReturn(
                 OicHearing.builder().build()
             );
 
             service.amendOicHearing(1L, 1L, amendRequest);
 
-            verify(oicHearingRepository, atLeastOnce()).save(expectedMockCallOnAmend);
+            verify(oicHearingRepository, atLeastOnce()).save(expectedMockCallOnAmendWithoutAdjudicatorAndComment);
         }
 
         @Test
@@ -978,6 +1059,53 @@ public class AdjudicationsServiceTest {
         }
 
         @Test
+        public void amendHearingThrowsNotFoundWhenAdjudicatorNotOnFile() {
+
+            final OicHearingRequest amendRequest =
+                OicHearingRequest.builder()
+                    .hearingLocationId(4L)
+                    .oicHearingType(OicHearingType.GOV_YOI)
+                    .adjudicator("adjudicator")
+                    .dateTimeOfHearing(now.plusDays(1)).build();
+
+
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(1L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder().build()
+                ));
+
+            when(oicHearingRepository.findById(1L))
+                .thenReturn(Optional.of(
+                    OicHearing.builder()
+                        .oicHearingId(1L)
+                        .adjudicationNumber(1L)
+                        .internalLocationId(3L)
+                        .oicHearingType(OicHearingType.GOV_ADULT)
+                        .eventStatus(OicHearingStatus.SCH)
+                        .build()
+                ));
+
+            when(staffUserAccountRepository.findByUsername("adjudicator")).thenReturn(Optional.empty());
+
+
+            when(internalLocationRepository.findOneByLocationId(4L)).thenReturn(
+                Optional.of(AgencyInternalLocation.builder().build())
+            );
+
+            when(staffUserAccountRepository.findByUsername("adjudicator")).thenReturn(Optional.empty());
+
+
+            assertThatThrownBy(() ->
+                service.amendOicHearing(1L, 1L, amendRequest))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Adjudicator not found for username adjudicator");
+        }
+
+    }
+
+    @Nested
+    public class DeleteHearing {
+        @Test
         public void deleteHearing() {
 
             var oicHearingToDelete =  OicHearing.builder().oicHearingId(1L)
@@ -989,7 +1117,7 @@ public class AdjudicationsServiceTest {
                 ));
 
             when(oicHearingRepository.findById(1L)).thenReturn(
-              Optional.of(oicHearingToDelete)
+                Optional.of(oicHearingToDelete)
             );
 
             service.deleteOicHearing(1L, 1L);
@@ -1043,7 +1171,6 @@ public class AdjudicationsServiceTest {
                 .hasMessageContaining("oic hearingId 2 is not linked to adjudication number 1");
 
         }
-
     }
 
     @Nested
@@ -2113,6 +2240,7 @@ public class AdjudicationsServiceTest {
             assertThat(deleteCapture.getValue().getSanctionSeq()).isEqualTo(2L);
         }
     }
+
 
     private static <T> T assertArgThat(final Consumer<T> assertions) {
         return MockitoHamcrest.argThat(new AssertionMatcher<>() {

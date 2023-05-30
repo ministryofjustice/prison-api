@@ -29,5 +29,11 @@ public class OicHearingRequest {
     @Schema(required = true, description = "OIC hearing type (currently GOV_ADULT or GOV_YOI)")
     @NotNull
     private OicHearingType oicHearingType;
+
+    @Schema(description = "optional adjudicator username")
+    private String adjudicator;
+
+    @Schema(description = "optional comment text")
+    private String commentText;
 }
 

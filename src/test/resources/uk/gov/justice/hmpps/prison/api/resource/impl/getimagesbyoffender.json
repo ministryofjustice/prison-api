@@ -1,7 +1,9 @@
 [
   {
     "imageId":-1,
+    "active": true,
     "captureDate":"2008-08-27",
+    "captureDateTime":"2008-08-27T00:00:00",
     "imageView":"FACE",
     "imageOrientation":"FRONT",
     "imageType":"OFF_BKG"

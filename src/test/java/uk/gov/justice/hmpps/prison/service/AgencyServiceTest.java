@@ -6,19 +6,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentType;
-import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentTypes;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCell;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCellAttribute;
 import uk.gov.justice.hmpps.prison.api.model.PrisonContactDetail;
-import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.api.model.Telephone;
 import uk.gov.justice.hmpps.prison.repository.AgencyRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyEstablishmentType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocationProfile;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationEstablishment;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationEstablishmentId;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.City;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country;
@@ -219,20 +218,22 @@ public class AgencyServiceTest {
 
     @Test
     public void shouldReturnAllEstablishmentTypesForMoorland() {
+        final var agencyLocation = AgencyLocation.builder()
+            .id("MDI")
+            .description("Moorland")
+            .type(AgencyLocationType.PRISON_TYPE)
+            .build();
+        final var establishmentType = new AgencyEstablishmentType("IM", "Closed Young Offender Institute (Male)");
         when(agencyLocationRepository.findById("MDI")).thenReturn(Optional.of(AgencyLocation.builder()
                 .id("MDI")
-                .establishmentTypes(List.of(AgencyLocationEstablishment
-                        .builder()
-                        .agencyLocId("MDI")
-                        .establishmentType("IM")
-                        .build()))
+                .establishmentTypes(List.of(new AgencyLocationEstablishment(new AgencyLocationEstablishmentId(agencyLocation.getId(), establishmentType.getCode()), agencyLocation, establishmentType)))
                 .build()));
-
-        when(referenceDomainService.getReferenceCodeByDomainAndCode("ESTAB_TYPE", "IM", false)).thenReturn(Optional.of(ReferenceCode.builder().code("IM").description("Closed Young Offender Institute (Male)").build()));
 
         final var establishmentTypes = service.getEstablishmentTypes("MDI");
 
-        assertThat(establishmentTypes).isEqualTo(AgencyEstablishmentTypes.builder().agencyId("MDI").establishmentTypes(List.of(AgencyEstablishmentType.builder().code("IM").description("Closed Young Offender Institute (Male)").build())).build());
+        assertThat(establishmentTypes.getAgencyId()).isEqualTo("MDI");
+        assertThat(establishmentTypes.getEstablishmentTypes()).extracting("code").containsExactly("IM");
+        assertThat(establishmentTypes.getEstablishmentTypes()).extracting("description").containsExactly("Closed Young Offender Institute (Male)");
     }
 
     @Test
@@ -240,22 +241,6 @@ public class AgencyServiceTest {
         when(agencyLocationRepository.findById(anyString())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.getEstablishmentTypes("unknown")).isInstanceOf(EntityNotFoundException.class).hasMessage("Resource with id [unknown] not found.");
-    }
-
-    @Test
-    public void shouldFailForEstablishmentTypesWhenAgencyEstablishmentNotFound() {
-        when(agencyLocationRepository.findById("MDI")).thenReturn(Optional.of(AgencyLocation.builder()
-                .id("MDI")
-                .establishmentTypes(List.of(AgencyLocationEstablishment
-                        .builder()
-                        .agencyLocId("MDI")
-                        .establishmentType("IM")
-                        .build()))
-                .build()));
-
-        when(referenceDomainService.getReferenceCodeByDomainAndCode("ESTAB_TYPE", "IM", false)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> service.getEstablishmentTypes("MDI")).isInstanceOf(EntityNotFoundException.class).hasMessage("Establishment type IM for agency MDI not found.");
     }
 
     private List<PrisonContactDetail> buildPrisonContactDetailsList() {
