@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import uk.gov.justice.hmpps.prison.api.model.AdjudicationCreationRequestData;
+import uk.gov.justice.hmpps.prison.api.model.AdjudicationCreationResponseData;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
 import uk.gov.justice.hmpps.prison.api.model.OicHearingRequest;
@@ -136,13 +136,9 @@ public class AdjudicationsService {
 
     @Transactional
     @VerifyOffenderAccess
-    public AdjudicationCreationRequestData generateAdjudicationCreationData(@NotNull final String offenderNo) {
-        final var offenderBookingEntry = bookingRepository.findByOffenderNomsIdAndBookingSequence(offenderNo, 1)
-            .orElseThrow(() -> EntityNotFoundException.withMessage(format("Could not find a current booking for Offender No %s", offenderNo)));
-        final var adjudicationNumber = adjudicationsRepository.getNextAdjudicationNumber();
-        return AdjudicationCreationRequestData.builder()
-            .bookingId(offenderBookingEntry.getBookingId())
-            .adjudicationNumber(adjudicationNumber)
+    public AdjudicationCreationResponseData generateAdjudicationNumber() {
+        return AdjudicationCreationResponseData.builder()
+            .adjudicationNumber(adjudicationsRepository.getNextAdjudicationNumber())
             .build();
     }
 

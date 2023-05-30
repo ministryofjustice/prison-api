@@ -152,35 +152,18 @@ public class AdjudicationsServiceTest {
     public class PrepareAdjudicationCreationData {
         @Test
         public void makesCallToRepositoryToGetNextAdjudicationNumber() {
-            final var exampleBooking = new MockDataProvider().generateOffenderBooking();
-            when(bookingRepository.findByOffenderNomsIdAndBookingSequence(EXAMPLE_NOMS_ID, 1)).thenReturn(Optional.of(exampleBooking));
             when(adjudicationsRepository.getNextAdjudicationNumber()).thenReturn(EXAMPLE_ADJUDICATION_NUMBER);
 
-            service.generateAdjudicationCreationData(EXAMPLE_NOMS_ID);
+            service.generateAdjudicationNumber();
 
             verify(adjudicationsRepository).getNextAdjudicationNumber();
         }
 
         @Test
         public void returnsCorrectData() {
-            final var exampleBooking = new MockDataProvider().generateOffenderBooking();
-            when(bookingRepository.findByOffenderNomsIdAndBookingSequence(EXAMPLE_NOMS_ID, 1)).thenReturn(Optional.of(exampleBooking));
             when(adjudicationsRepository.getNextAdjudicationNumber()).thenReturn(EXAMPLE_ADJUDICATION_NUMBER);
-
-            final var returnData = service.generateAdjudicationCreationData(EXAMPLE_NOMS_ID);
-
+            final var returnData = service.generateAdjudicationNumber();
             assertThat(returnData.getAdjudicationNumber()).isEqualTo(EXAMPLE_ADJUDICATION_NUMBER);
-            assertThat(returnData.getBookingId()).isEqualTo(exampleBooking.getBookingId());
-        }
-
-        @Test
-        public void withOffenderMissingBookingThrowsNotFoundException() {
-            when(bookingRepository.findByOffenderNomsIdAndBookingSequence(EXAMPLE_NOMS_ID, 1)).thenReturn(Optional.empty());
-
-            assertThatThrownBy(() ->
-                service.generateAdjudicationCreationData(EXAMPLE_NOMS_ID))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("Could not find a current booking for Offender No A1234BB");
         }
     }
 
