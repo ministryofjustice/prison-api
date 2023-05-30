@@ -36,7 +36,6 @@ public class OffenderSubAccount {
     @Column(name = "TRUST_ACCOUNT_CODE", nullable = false, insertable = false, updatable = false)
     private Long accountCode;
 
-    @Id
     @Column(name = "BALANCE", nullable = false)
     private BigDecimal balance;
 
