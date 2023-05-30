@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model
 
+import jakarta.persistence.Column
 import jakarta.persistence.Embeddable
 import jakarta.persistence.EmbeddedId
 import jakarta.persistence.Entity
@@ -15,10 +16,10 @@ import java.io.Serializable
 
 @Embeddable
 data class AgencyLocationEstablishmentId(
-  @JoinColumn(name = "AGY_LOC_ID", nullable = false)
+  @Column(name = "AGY_LOC_ID", nullable = false)
   val agencyLocationId: String,
 
-  @JoinColumn(name = "ESTABLISHMENT_TYPE", nullable = false)
+  @Column(name = "ESTABLISHMENT_TYPE", nullable = false)
   val establishmentTypeCode: String,
 ) : Serializable
 
@@ -40,7 +41,7 @@ data class AgencyLocationEstablishment(
           value = "'" + AgencyEstablishmentType.ESTABLISHMENT_TYPE + "'",
           referencedColumnName = "domain",
         ),
-      ), JoinColumnOrFormula(column = JoinColumn(name = "ESTAB_TYPE", referencedColumnName = "code", nullable = true, updatable = false, insertable = false)),
+      ), JoinColumnOrFormula(column = JoinColumn(name = "ESTABLISHMENT_TYPE", referencedColumnName = "code", nullable = true, updatable = false, insertable = false)),
     ],
   )
   val establishmentType: AgencyEstablishmentType,
