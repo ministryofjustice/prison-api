@@ -3,7 +3,7 @@ spring:
   jpa:
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.Oracle10gDialect
+        dialect: org.hibernate.community.dialect.Oracle10gDialect
 
   datasource:
     hikari:
