@@ -152,8 +152,8 @@ public class AdjudicationsService {
         final var reporter = staffUserAccountRepository.findById(reporterName)
             .orElseThrow(() -> new RuntimeException(format("User not found %s", reporterName)));
 
-        final var offenderBookingEntry = bookingRepository.findByBookingId(adjudication.getBookingId())
-                .orElseThrow(() -> new RuntimeException(format("Could not find the booking with id %d", adjudication.getBookingId())));
+        final var offenderBookingEntry = bookingRepository.findByOffenderNomsIdAndActive(adjudication.getOffenderNo(), true)
+                .orElseThrow(() -> new RuntimeException(format("Could not find the booking with id %d", adjudication.getOffenderNo())));
         final var incidentType = incidentTypeRepository.findById(AdjudicationIncidentType.GOVERNORS_REPORT)
             .orElseThrow(() -> new RuntimeException("Incident type not available"));
         final var actionCode = actionCodeRepository.findById(AdjudicationActionCode.PLACED_ON_REPORT)

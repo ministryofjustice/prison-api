@@ -2353,7 +2353,6 @@ public class AdjudicationsServiceTest {
         return NewAdjudication.builder()
             .offenderNo(offenderNo)
             .adjudicationNumber(EXAMPLE_ADJUDICATION_NUMBER)
-            .bookingId(bookingId)
             .reporterName(reporterName)
             .reportedDateTime(now)
             .agencyId(EXAMPLE_AGENCY_ID)
@@ -2367,7 +2366,6 @@ public class AdjudicationsServiceTest {
         return NewAdjudication.builder()
             .offenderNo(offenderNo)
             .adjudicationNumber(EXAMPLE_ADJUDICATION_NUMBER)
-            .bookingId(bookingId)
             .reporterName(reporterName)
             .reportedDateTime(now)
             .agencyId(EXAMPLE_AGENCY_ID)
@@ -2417,7 +2415,7 @@ public class AdjudicationsServiceTest {
             when(incidentTypeRepository.findById(AdjudicationIncidentType.GOVERNORS_REPORT)).thenReturn(Optional.of(incidentType));
             when(actionCodeRepository.findById(AdjudicationActionCode.PLACED_ON_REPORT)).thenReturn(Optional.of(actionCode));
             when(staffUserAccountRepository.findById(EXAMPLE_REPORTER_USERNAME)).thenReturn(Optional.of(reporter));
-            when(bookingRepository.findByBookingId(booking.getBookingId())).thenReturn(Optional.of(booking));
+            when(bookingRepository.findByOffenderNomsIdAndActive(new MockDataProvider().booking.getOffender().getNomsId(), true)).thenReturn(Optional.of(booking));
             if (validAgency && validLocation) {
                 when(internalLocationRepository.findOneByLocationId(internalLocation.getLocationId())).thenReturn(Optional.of(internalLocation));
                 when(agencyLocationRepository.findById(agencyDetails.getId())).thenReturn(Optional.of(agencyDetails));
