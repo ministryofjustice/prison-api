@@ -691,8 +691,7 @@ public class OffenderBooking extends AuditableEntity {
 
     public List<BookingAdjustment> getBookingAdjustments() {
         List<String> bookingAdjustmentCodes = Stream.of(
-            BookingAdjustmentType.values()).map(BookingAdjustmentType::getCode).collect(Collectors.toList()
-        );
+            BookingAdjustmentType.values()).map(BookingAdjustmentType::getCode).toList();
         return keyDateAdjustments
             .stream()
             .filter(sa -> bookingAdjustmentCodes.contains(sa.getSentenceAdjustCode()))
