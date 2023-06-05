@@ -28,6 +28,8 @@ class OracleConnectionAspect(
   private val nomisConfigurer: NomisConfigurer,
 ) : AbstractConnectionAspect() {
 
+  private val log = LoggerFactory.getLogger(this::class.java)
+
   @Throws(SQLException::class)
   public override fun configureNomisConnection(pooledConnection: Connection): Connection =
     with(pooledConnection) {
@@ -102,10 +104,6 @@ class OracleConnectionAspect(
   private fun authSource(): AuthSource = authenticationFacade.authenticationSource
 
   private fun mdc(key: String): String? = MDC.get(key)
-
-  companion object {
-    val log = LoggerFactory.getLogger(this::class.java)!!
-  }
 }
 
 @Throws(SQLException::class)

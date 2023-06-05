@@ -14,6 +14,8 @@ import java.sql.SQLException
 @Aspect
 class HsqlConnectionAspect(private val authenticationFacade: AuthenticationFacade) : AbstractConnectionAspect() {
 
+  private val log = LoggerFactory.getLogger(this::class.java)
+
   @Throws(SQLException::class)
   override fun configureNomisConnection(pooledConnection: Connection): Connection =
     with(pooledConnection) {
@@ -54,8 +56,4 @@ class HsqlConnectionAspect(private val authenticationFacade: AuthenticationFacad
   private fun isProxyUser(): Boolean = !MDC.get(PROXY_USER).isNullOrBlank()
 
   private fun authSource(): AuthSource = authenticationFacade.authenticationSource
-
-  companion object {
-    val log = LoggerFactory.getLogger(this::class.java)!!
-  }
 }
