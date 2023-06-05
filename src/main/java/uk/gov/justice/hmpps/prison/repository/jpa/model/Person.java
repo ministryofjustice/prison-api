@@ -1,5 +1,12 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -9,17 +16,11 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.Where;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 @Data
 @Entity
@@ -55,12 +56,12 @@ public class Person extends AuditableEntity {
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Where(clause = "OWNER_CLASS = '"+PersonPhone.PHONE_TYPE+"'")
     @Default
-    private List<PersonPhone> phones = new ArrayList<>();
+    private Set<PersonPhone> phones = new HashSet<>();
 
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Where(clause = "OWNER_CLASS = '"+PersonInternetAddress.TYPE+"'")
     @Default
-    private List<PersonInternetAddress> internetAddresses = new ArrayList<>();
+    private Set<PersonInternetAddress> internetAddresses = new HashSet<>();
 
     public List<PersonInternetAddress> getEmails() {
         return internetAddresses.stream().filter(ia -> "EMAIL".equals(ia.getInternetAddressClass())).toList();
