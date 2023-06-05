@@ -837,31 +837,39 @@ public class BookingService {
 
     public OffenderContacts getOffenderContacts(final Long bookingId, boolean approvedVisitorOnly, boolean activeOnly) {
         return new OffenderContacts(offenderContactPersonsRepository.findAllByOffenderBooking_BookingIdOrderByIdDesc(bookingId).stream()
-                .filter(contact -> contact.getPerson() != null)
-                .filter(contact -> !approvedVisitorOnly || contact.isApprovedVisitor())
-                .filter(contact -> !activeOnly || contact.isActive())
-                .map(oc ->
-                        OffenderContact.builder()
-                                .relationshipCode(ReferenceCode.getCodeOrNull(oc.getRelationshipType()))
-                                .relationshipDescription(ReferenceCode.getDescriptionOrNull(oc.getRelationshipType()))
-                                .contactType(ReferenceCode.getCodeOrNull(oc.getContactType()))
-                                .contactTypeDescription(ReferenceCode.getDescriptionOrNull(oc.getContactType()))
-                                .commentText(oc.getComment())
-                                .firstName(WordUtils.capitalizeFully(oc.getPerson().getFirstName()))
-                                .lastName(WordUtils.capitalizeFully(oc.getPerson().getLastName()))
-                                .dateOfBirth(oc.getPerson().getBirthDate())
-                                .emergencyContact(oc.isEmergencyContact())
-                                .nextOfKin(oc.isNextOfKin())
-                                .approvedVisitor(oc.isApprovedVisitor())
-                                .personId(oc.getPersonId())
-                                .bookingId(oc.getOffenderBooking().getBookingId())
-                                .emails(oc.getPerson().getEmails().stream().map(email ->
-                                        Email.builder().email(email.getInternetAddress()).build()).collect(toList()))
-                                .phones(AddressTransformer.translatePhones(oc.getPerson().getPhones()))
-                                .middleName(WordUtils.capitalizeFully(oc.getPerson().getMiddleName()))
-                                .restrictions(mergeGlobalAndStandardRestrictions(oc))
-                                .active(oc.isActive())
-                                .build()).toList());
+            .filter(contact -> contact.getPerson() != null)
+            .filter(contact -> !approvedVisitorOnly || contact.isApprovedVisitor())
+            .filter(contact -> !activeOnly || contact.isActive())
+            .map(oc -> {
+//                Set<PersonInternetAddress> internetAddresses = oc.getPerson().getInternetAddresses();
+//                log.debug("internetAddresses are {}", internetAddresses);
+//                if (internetAddresses.size() > 0) {
+//                    log.debug("******************* Found internetAddresses  {}", internetAddresses);
+//                }
+                // log.debug("emails are {}", oc.getPerson().getEmails());
+                return OffenderContact.builder()
+                    .relationshipCode(ReferenceCode.getCodeOrNull(oc.getRelationshipType()))
+                    .relationshipDescription(ReferenceCode.getDescriptionOrNull(oc.getRelationshipType()))
+                    .contactType(ReferenceCode.getCodeOrNull(oc.getContactType()))
+                    .contactTypeDescription(ReferenceCode.getDescriptionOrNull(oc.getContactType()))
+                    .commentText(oc.getComment())
+                    .firstName(WordUtils.capitalizeFully(oc.getPerson().getFirstName()))
+                    .lastName(WordUtils.capitalizeFully(oc.getPerson().getLastName()))
+                    .dateOfBirth(oc.getPerson().getBirthDate())
+                    .emergencyContact(oc.isEmergencyContact())
+                    .nextOfKin(oc.isNextOfKin())
+                    .approvedVisitor(oc.isApprovedVisitor())
+                    .personId(oc.getPersonId())
+                    .bookingId(oc.getOffenderBooking().getBookingId())
+//                    .emails(oc.getPerson().getEmails().stream().map(email ->
+//                        Email.builder().email(email.getInternetAddress()).build()).collect(toList()))
+                    .emails(AddressTransformer.translateEmails(oc.getPerson().getEmails()))
+                    .phones(AddressTransformer.translatePhones(oc.getPerson().getPhones()))
+                    .middleName(WordUtils.capitalizeFully(oc.getPerson().getMiddleName()))
+                    .restrictions(mergeGlobalAndStandardRestrictions(oc))
+                    .active(oc.isActive())
+                    .build();
+            }).toList());
     }
 
     public OffenderRestrictions getOffenderRestrictions(final Long bookingId, boolean activeRestrictionsOnly) {
