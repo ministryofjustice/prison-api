@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.repository;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -18,7 +19,8 @@ public interface OffenderAlertRepository extends
 
     List<OffenderAlert> findAllByOffenderBooking_BookingId(final Long bookingId);
 
+    @NotNull
     @Override
     @EntityGraph(type = EntityGraphType.FETCH, value = "alerts-for-offender")
-    List<OffenderAlert> findAll(Specification<OffenderAlert> filter, Sort sort);
+    List<OffenderAlert> findAll(@NotNull Specification<OffenderAlert> filter, @NotNull Sort sort);
 }
