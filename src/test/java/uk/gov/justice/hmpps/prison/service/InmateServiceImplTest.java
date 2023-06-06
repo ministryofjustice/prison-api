@@ -360,7 +360,7 @@ public class InmateServiceImplTest {
     @Test
     public void testThatAnExceptionIsThrown_whenAStandardUserWithNoActiveCaseloadsRequestsInmateDetails() {
         when(authenticationFacade.getCurrentUsername()).thenReturn("ME");
-        when(authenticationFacade.isOverrideRole(any(String[].class))).thenReturn(false);
+        when(authenticationFacade.isOverrideRole(any())).thenReturn(false);
         when(caseLoadService.getCaseLoadIdsForUser("ME", false)).thenReturn(Collections.emptySet());
 
         Assertions.assertThatThrownBy(() -> serviceToTest.getBasicInmateDetailsForOffenders(Set.of("A123"), true))
@@ -370,7 +370,7 @@ public class InmateServiceImplTest {
 
     @Test
     public void testThatAnExceptionIsNotThrown_whenGlobalSearchUserWithNoActiveCaseloadsRequestsInmateDetails() {
-        when(authenticationFacade.isOverrideRole(any(String[].class))).thenReturn(true);
+        when(authenticationFacade.isOverrideRole(any())).thenReturn(true);
         serviceToTest.getBasicInmateDetailsForOffenders(Set.of("A123"), false);
         verify(repository).getBasicInmateDetailsForOffenders(Set.of("A123"), true, Collections.emptySet(), false);
     }
