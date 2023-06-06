@@ -16,6 +16,16 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.Where;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.NamedSubgraph;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -30,6 +40,24 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = false)
 @Table(name = "PERSONS")
 @ToString(of = {"id"})
+@NamedEntityGraph(
+    name = "person-address-with-phones-and-usage",
+    attributeNodes =  {
+        @NamedAttributeNode(value = "addresses", subgraph = "address-phone"),
+    },
+    subgraphs = {
+        @NamedSubgraph(
+            name = "address-phone",
+            attributeNodes = {
+                @NamedAttributeNode("phones"),
+                @NamedAttributeNode("addressUsages"),
+                @NamedAttributeNode("city"),
+                @NamedAttributeNode("county"),
+                @NamedAttributeNode("country"),
+            }
+        )
+    }
+)
 public class Person extends AuditableEntity {
 
     @Id

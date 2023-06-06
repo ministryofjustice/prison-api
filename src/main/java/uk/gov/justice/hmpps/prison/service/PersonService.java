@@ -26,7 +26,7 @@ public class PersonService {
     }
 
     public List<AddressDto> getAddresses(final long personId) {
-        final var person = personRepository.findById(personId).orElseThrow(EntityNotFoundException.withId(personId));
+        final var person = personRepository.findAddressesById(personId).orElseThrow(EntityNotFoundException.withId(personId));
         return AddressTransformer.translate(person.getAddresses());
     }
 
