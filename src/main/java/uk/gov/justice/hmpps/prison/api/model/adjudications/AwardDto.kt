@@ -16,7 +16,7 @@ data class AwardDto(
   val hearingId: Long?,
   val hearingSequence: Int?,
   val adjudicationNumber: Long?,
-  val reportId: Long?
+  val reportId: Long?,
 ) {
   fun toAward() = Award(
     this.bookingId,
@@ -32,6 +32,6 @@ data class AwardDto(
     this.hearingId,
     this.hearingSequence,
     this.adjudicationNumber,
-    this.reportId
+    this.reportId,
   )
 }
