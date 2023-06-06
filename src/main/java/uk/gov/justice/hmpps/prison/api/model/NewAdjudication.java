@@ -32,10 +32,6 @@ public class NewAdjudication {
     @NotNull
     private Long adjudicationNumber;
 
-    @Schema(required = true, description = "Booking number", example = "123456")
-    @NotNull
-    private Long bookingId;
-
     @Schema(required = true, description = "The user name of the reporter", example = "G12345")
     @NotBlank
     private String reporterName;

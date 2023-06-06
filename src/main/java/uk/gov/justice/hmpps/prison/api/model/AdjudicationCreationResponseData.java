@@ -9,7 +9,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import jakarta.validation.constraints.NotNull;
-import java.time.LocalDateTime;
 
 @Schema(description = "AdjudicationCreationRequest")
 @JsonInclude(Include.NON_NULL)
@@ -17,12 +16,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Data
 @Builder(toBuilder = true)
-public class AdjudicationCreationRequestData {
+public class AdjudicationCreationResponseData {
     @Schema(description = "Adjudication number", example = "123")
     @NotNull
     private Long adjudicationNumber;
-
-    @Schema(description = "Booking number", example = "123456")
-    @NotNull
-    private Long bookingId;
 }

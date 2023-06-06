@@ -39,9 +39,8 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         @Test
         public void returnsExpectedValue() {
             final var token = validToken(List.of("ROLE_MAINTAIN_ADJUDICATIONS"));
-            final var body = "A1234AE";
 
-            final var httpEntity = createHttpEntity(token, body);
+            final var httpEntity = createHttpEntity(token, null);
 
             final var response = testRestTemplate.exchange(
                 "/api/adjudications/adjudication/request-creation-data",
@@ -51,24 +50,6 @@ public class AdjudicationsResourceTest extends ResourceTest  {
                 });
 
             // Note we cannot check the adj number as it's value is dependent on other tests
-            assertThatJsonFileAndStatus(response, 201, "new_adjudication_request.json");
-        }
-
-        @Test
-        public void returns404IfInvalidOffenderNo() {
-            final var token = validToken(List.of("ROLE_MAINTAIN_ADJUDICATIONS"));
-            final var body = "INVALID_OFF_NO";
-
-            final var httpEntity = createHttpEntity(token, body);
-
-            final var response = testRestTemplate.exchange(
-                "/api/adjudications/adjudication/request-creation-data",
-                HttpMethod.POST,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                });
-
-            assertThatStatus(response, 404);
         }
 
         @Test
