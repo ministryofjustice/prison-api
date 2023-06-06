@@ -1,5 +1,16 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -20,17 +31,6 @@ import uk.gov.justice.hmpps.prison.api.model.PrisonPeriod;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerInPrisonSummary;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIdentifier.OffenderIdentifierPK;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -54,6 +54,48 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.Title.TITLE;
 @Entity
 @Table(name = "OFFENDERS")
 @With
+//@NamedEntityGraph(
+//    name = "offender-with-non-associations",
+//    attributeNodes = {
+//        @NamedAttributeNode(value = "bookings", subgraph = "non-associations"),
+//    },
+//    subgraphs = {
+//        @NamedSubgraph(
+//            name = "non-associations",
+//            attributeNodes = {
+//                @NamedAttributeNode(value = "nonAssociationDetails", subgraph = "non-association-details"),
+//                @NamedAttributeNode(value = "offender"),
+//                @NamedAttributeNode(value = "externalMovements", subgraph = "movement-details"),
+//                @NamedAttributeNode(value = "assignedLivingUnit"),
+//                @NamedAttributeNode(value = "location"),
+//            }
+//        ),
+//        @NamedSubgraph(
+//            name = "non-association-details",
+//            attributeNodes = {
+//                @NamedAttributeNode("nonAssociationReason"),
+//                @NamedAttributeNode("nonAssociationType"),
+//                @NamedAttributeNode("recipNonAssociationReason"),
+//                @NamedAttributeNode(value = "nonAssociation", subgraph = "non-association"),
+//            }
+//        ),
+//        @NamedSubgraph(
+//            name = "movement-details",
+//            attributeNodes = {
+//                // @NamedAttributeNode("movementDirection"),
+//                @NamedAttributeNode("movementReason"),
+//                // @NamedAttributeNode("movementType"),
+//            }
+//        ),
+//        @NamedSubgraph(
+//            name = "non-association",
+//            attributeNodes = {
+//                @NamedAttributeNode("nsOffender"),
+//                @NamedAttributeNode("recipNonAssociationReason"),
+//            }
+//        )
+//    }
+//)
 public class Offender extends AuditableEntity {
 
     @SequenceGenerator(name = "OFFENDER_ID", sequenceName = "OFFENDER_ID", allocationSize = 1)

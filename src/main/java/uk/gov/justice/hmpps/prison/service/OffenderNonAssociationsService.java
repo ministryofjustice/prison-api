@@ -19,7 +19,6 @@ import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 
 import java.util.Collection;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -59,7 +58,8 @@ public class OffenderNonAssociationsService {
     public OffenderNonAssociationDetails retrieveByOffenderNo(final String offenderNo) {
         log.debug("Fetching non-associations for offender no '{}'", offenderNo);
 
-        final var offender = offenderRepository.findOffenderByNomsId(offenderNo).orElseThrow(EntityNotFoundException.withMessage("Offender no %s not found.", offenderNo));
+        final var offender = offenderRepository.findOffenderByNomsIdWithNonAssociations(offenderNo)
+            .orElseThrow(EntityNotFoundException.withMessage("Offender no %s not found.", offenderNo));
 
         final var nonAssociations = offender.getBookings().stream().map(OffenderBooking::getNonAssociationDetails)
             .flatMap(Collection::stream)
