@@ -110,7 +110,7 @@ public class PersonServiceTest {
             ))
             .internetAddresses(Collections.emptySet()).build();
 
-        when(personRepository.findById(person.getId())).thenReturn(Optional.of(person));
+        when(personRepository.findAddressesById(person.getId())).thenReturn(Optional.of(person));
 
         List<AddressDto> results = personService.getAddresses(-8L);
 
