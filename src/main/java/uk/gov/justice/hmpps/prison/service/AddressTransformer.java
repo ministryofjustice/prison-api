@@ -3,8 +3,10 @@ package uk.gov.justice.hmpps.prison.service;
 import org.springframework.stereotype.Component;
 import uk.gov.justice.hmpps.prison.api.model.AddressDto;
 import uk.gov.justice.hmpps.prison.api.model.AddressUsageDto;
+import uk.gov.justice.hmpps.prison.api.model.Email;
 import uk.gov.justice.hmpps.prison.api.model.Telephone;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Address;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.PersonInternetAddress;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Phone;
 
 import java.util.Collection;
@@ -57,6 +59,10 @@ public class AddressTransformer {
         return phones.stream().map(AddressTransformer::translate).collect(toList());
     }
 
+    public static List<Email> translateEmails(List<PersonInternetAddress> emails) {
+        return emails.stream().map(AddressTransformer::translate).collect(toList());
+    }
+
     public static Telephone translate(final Phone phone) {
         return Telephone.builder()
             .phoneId(phone.getPhoneId())
@@ -64,5 +70,9 @@ public class AddressTransformer {
             .type(phone.getPhoneType())
             .number(phone.getPhoneNo())
             .build();
+    }
+
+    public static Email translate(final PersonInternetAddress email) {
+        return Email.builder().email(email.getInternetAddress()).build();
     }
 }
