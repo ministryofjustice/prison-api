@@ -14,7 +14,6 @@ import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.Set
 
 @ActiveProfiles("test")
 @DataJpaTest
@@ -65,7 +64,7 @@ class BedAssignmentHistoriesRepositoryTest {
   fun findBedAssignmentHistory_byDate() {
     val cellHistory = repository.findBedAssignmentHistoriesByAssignmentDateAndLivingUnitIdIn(
       LocalDate.of(2040, 10, 17),
-      Set.of(-16L, -17L, -18L),
+      setOf(-16L, -17L, -18L),
     )
     assertThat(cellHistory)
       .extracting<Long> { it.livingUnitId }
