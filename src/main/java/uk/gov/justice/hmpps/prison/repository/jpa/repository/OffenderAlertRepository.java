@@ -1,5 +1,10 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.repository;
 
+import org.jetbrains.annotations.NotNull;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -13,4 +18,9 @@ public interface OffenderAlertRepository extends
     JpaSpecificationExecutor<OffenderAlert> {
 
     List<OffenderAlert> findAllByOffenderBooking_BookingId(final Long bookingId);
+
+    @NotNull
+    @Override
+    @EntityGraph(type = EntityGraphType.FETCH, value = "alerts-for-offender")
+    List<OffenderAlert> findAll(@NotNull Specification<OffenderAlert> filter, @NotNull Sort sort);
 }
