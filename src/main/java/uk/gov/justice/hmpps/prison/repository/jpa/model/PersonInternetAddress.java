@@ -19,7 +19,7 @@ import jakarta.persistence.ManyToOne;
 @AllArgsConstructor
 @SuperBuilder
 @Data
-@EqualsAndHashCode(exclude = "person", callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 @ToString(of = {"person"})
 public class PersonInternetAddress extends InternetAddress {
 

@@ -21,7 +21,7 @@ import jakarta.persistence.Table;
 @Table(name = "INTERNET_ADDRESSES")
 @DiscriminatorColumn(name = "OWNER_CLASS")
 @Inheritance
-@EqualsAndHashCode(of = "internetAddressId", callSuper = false)
+@EqualsAndHashCode(of = "internetAddressId")
 public abstract class InternetAddress {
     @Id
     @Column(name = "INTERNET_ADDRESS_ID", nullable = false)
