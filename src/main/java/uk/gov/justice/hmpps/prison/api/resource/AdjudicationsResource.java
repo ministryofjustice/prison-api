@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.justice.hmpps.prison.api.model.AdjudicationCreationResponseData;
+import uk.gov.justice.hmpps.prison.api.model.AdjudicationCreationRequestData;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
@@ -53,14 +53,16 @@ public class AdjudicationsResource {
 
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Created"),
+        @ApiResponse(responseCode = "400", description = "Invalid request - e.g. no current booking was found for the given offender.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "No match was found for the provided offender number.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
     })
     @Operation(summary = "Request the information needed to create an adjudication.",
         description = "Must be called before creating the adjudication. Requires MAINTAIN_ADJUDICATIONS access and write scope")
     @PostMapping("/adjudication/request-creation-data")
     @ProxyUser
     @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS') and hasAuthority('SCOPE_write')")
-    public ResponseEntity<AdjudicationCreationResponseData> requestAdjudicationCreationData() {
-        final var adjudicationCreationRequest = adjudicationsService.generateAdjudicationNumber();
+    public ResponseEntity<AdjudicationCreationRequestData> requestAdjudicationCreationData(@RequestBody final String offenderNo) {
+        final var adjudicationCreationRequest = adjudicationsService.generateAdjudicationCreationData(offenderNo);
         return ResponseEntity
             .status(HttpStatus.CREATED)
             .body(adjudicationCreationRequest);
