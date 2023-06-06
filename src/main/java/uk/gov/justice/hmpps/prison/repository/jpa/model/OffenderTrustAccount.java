@@ -31,6 +31,7 @@ public class OffenderTrustAccount {
     @Column(name = "OFFENDER_ID", nullable = false, insertable = false, updatable = false)
     private Long offenderId;
 
+    @Id
     @Column(name = "ACCOUNT_CLOSED_FLAG", nullable = false)
     private String accountClosedFlag;
 
