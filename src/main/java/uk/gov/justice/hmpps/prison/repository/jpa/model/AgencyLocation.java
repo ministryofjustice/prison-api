@@ -85,7 +85,7 @@ public class AgencyLocation extends AuditableEntity {
     @Column(name = "LONG_DESCRIPTION")
     private String longDescription;
 
-    @OneToMany(mappedBy = "agencyLocId", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "agencyLocation", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @Default
     private List<AgencyLocationEstablishment> establishmentTypes = new ArrayList<>();
 
