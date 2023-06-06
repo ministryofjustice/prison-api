@@ -25,7 +25,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.PersonPhone;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.PersonRepository;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -108,7 +107,7 @@ public class PersonServiceTest {
             .endDate(null)
                     .build()
             ))
-            .internetAddresses(Collections.emptySet()).build();
+            .internetAddresses(List.of()).build();
 
         when(personRepository.findById(person.getId())).thenReturn(Optional.of(person));
 
@@ -190,7 +189,7 @@ public class PersonServiceTest {
 
         final var person = Person.builder().id(-8L)
             .phones(
-                Set.of(
+                List.of(
                     PersonPhone.builder()
                         .phoneId(-7L)
                         .phoneNo("0114 2345345")
@@ -219,7 +218,7 @@ public class PersonServiceTest {
     @Test
     public void canRetrieveEmails() {
         final var person = Person.builder().id(-8L)
-            .internetAddresses(Set.of(
+            .internetAddresses(List.of(
                 PersonInternetAddress.builder().internetAddress("person1@other.com").internetAddressId(-1L).internetAddressClass("EMAIL").build()
             )).build();
 

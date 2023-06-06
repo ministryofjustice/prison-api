@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import uk.gov.justice.hmpps.prison.api.model.AdjudicationCreationResponseData;
+import uk.gov.justice.hmpps.prison.api.model.AdjudicationCreationRequestData;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
 import uk.gov.justice.hmpps.prison.api.model.OicHearingRequest;
@@ -133,9 +133,13 @@ public class AdjudicationsService {
 
     @Transactional
     @VerifyOffenderAccess
-    public AdjudicationCreationResponseData generateAdjudicationNumber() {
-        return AdjudicationCreationResponseData.builder()
-            .adjudicationNumber(adjudicationsRepository.getNextAdjudicationNumber())
+    public AdjudicationCreationRequestData generateAdjudicationCreationData(@NotNull final String offenderNo) {
+        final var offenderBookingEntry = bookingRepository.findByOffenderNomsIdAndBookingSequence(offenderNo, 1)
+            .orElseThrow(() -> EntityNotFoundException.withMessage(format("Could not find a current booking for Offender No %s", offenderNo)));
+        final var adjudicationNumber = adjudicationsRepository.getNextAdjudicationNumber();
+        return AdjudicationCreationRequestData.builder()
+            .bookingId(offenderBookingEntry.getBookingId())
+            .adjudicationNumber(adjudicationNumber)
             .build();
     }
 
@@ -152,8 +156,8 @@ public class AdjudicationsService {
         final var reporter = staffUserAccountRepository.findById(reporterName)
             .orElseThrow(() -> new RuntimeException(format("User not found %s", reporterName)));
 
-        final var offenderBookingEntry = bookingRepository.findByOffenderNomsIdAndActive(adjudication.getOffenderNo(), true)
-                .orElseThrow(() -> new RuntimeException(format("Could not find the booking with id %d", adjudication.getOffenderNo())));
+        final var offenderBookingEntry = bookingRepository.findByBookingId(adjudication.getBookingId())
+                .orElseThrow(() -> new RuntimeException(format("Could not find the booking with id %d", adjudication.getBookingId())));
         final var incidentType = incidentTypeRepository.findById(AdjudicationIncidentType.GOVERNORS_REPORT)
             .orElseThrow(() -> new RuntimeException("Incident type not available"));
         final var actionCode = actionCodeRepository.findById(AdjudicationActionCode.PLACED_ON_REPORT)

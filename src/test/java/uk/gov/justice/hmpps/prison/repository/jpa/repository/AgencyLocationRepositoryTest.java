@@ -8,9 +8,12 @@ import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationEstablishment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -83,6 +86,9 @@ public class AgencyLocationRepositoryTest {
                 .description("A Test Agency")
                 .active(true)
                 .type(AgencyLocationType.PRISON_TYPE)
+                .establishmentTypes(List.of(AgencyLocationEstablishment.builder()
+                        .agencyLocId("AgencyRepositoryTestTEST")
+                        .establishmentType("IF").build()))
                 .build();
 
         final var createdAgency = repository.save(newAgency);

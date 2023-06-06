@@ -9,10 +9,9 @@ import org.springframework.stereotype.Component
 import uk.gov.justice.hmpps.prison.security.AuthSource
 import uk.gov.justice.hmpps.prison.security.AuthSource.NOMIS
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
+import uk.gov.justice.hmpps.prison.util.MdcUtility
 import uk.gov.justice.hmpps.prison.util.MdcUtility.IP_ADDRESS
-import uk.gov.justice.hmpps.prison.util.MdcUtility.PROXY_USER
 import uk.gov.justice.hmpps.prison.util.MdcUtility.REQUEST_URI
-import uk.gov.justice.hmpps.prison.util.MdcUtility.SUPPRESS_XTAG_EVENTS
 import uk.gov.justice.hmpps.prison.util.MdcUtility.USER_ID_HEADER
 import uk.gov.justice.hmpps.prison.web.config.RoutingDataSource
 import java.sql.Connection
@@ -27,8 +26,6 @@ class OracleConnectionAspect(
   private val roleConfigurer: RoleConfigurer,
   private val nomisConfigurer: NomisConfigurer,
 ) : AbstractConnectionAspect() {
-
-  private val log = LoggerFactory.getLogger(this::class.java)
 
   @Throws(SQLException::class)
   public override fun configureNomisConnection(pooledConnection: Connection): Connection =
@@ -97,13 +94,17 @@ class OracleConnectionAspect(
 
   private fun isNomisProxyUser(): Boolean = isProxyUser() && authSource() == NOMIS
 
-  private fun isProxyUser(): Boolean = !mdc(PROXY_USER).isNullOrBlank()
+  private fun isProxyUser(): Boolean = !mdc(MdcUtility.PROXY_USER).isNullOrBlank()
 
-  private fun isSuppressXTags(): Boolean = "true" == MDC.get(SUPPRESS_XTAG_EVENTS)
+  private fun isSuppressXTags(): Boolean = "true" == MDC.get(MdcUtility.SUPPRESS_XTAG_EVENTS)
 
   private fun authSource(): AuthSource = authenticationFacade.authenticationSource
 
   private fun mdc(key: String): String? = MDC.get(key)
+
+  companion object {
+    val log = LoggerFactory.getLogger(this::class.java)!!
+  }
 }
 
 @Throws(SQLException::class)

@@ -1,17 +1,5 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.NamedAttributeNode;
-import jakarta.persistence.NamedEntityGraph;
-import jakarta.persistence.NamedSubgraph;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -25,10 +13,19 @@ import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.type.YesNoConverter;
+import jakarta.persistence.Convert;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.ContactType.CONTACTS;
@@ -42,25 +39,6 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.RelationshipType.
 @EqualsAndHashCode(callSuper = false)
 @Table(name = "OFFENDER_CONTACT_PERSONS")
 @ToString
-@NamedEntityGraph(
-    name = "contacts-with-details",
-    attributeNodes = {
-        @NamedAttributeNode(value = "person", subgraph = "person-details"),
-        @NamedAttributeNode(value = "visitorRestrictions"),
-        @NamedAttributeNode(value = "globalVisitorRestrictions"),
-        @NamedAttributeNode(value = "relationshipType"),
-        @NamedAttributeNode(value = "contactType"),
-    },
-    subgraphs = {
-        @NamedSubgraph(
-            name = "person-details",
-            attributeNodes = {
-                @NamedAttributeNode("internetAddresses"),
-                @NamedAttributeNode("phones")
-            }
-        )
-    }
-)
 public class OffenderContactPerson extends AuditableEntity {
 
     private static final String ACTIVE = "Y";
@@ -103,13 +81,13 @@ public class OffenderContactPerson extends AuditableEntity {
     @JoinColumn(name = "OFFENDER_CONTACT_PERSON_ID", referencedColumnName = "OFFENDER_CONTACT_PERSON_ID")
     @Exclude
     @Default
-    private Set<VisitorRestriction> visitorRestrictions = new HashSet<>();
+    private List<VisitorRestriction> visitorRestrictions = new ArrayList<>();
 
     @OneToMany
     @JoinColumn(name = "PERSON_ID", referencedColumnName = "PERSON_ID")
     @Exclude
     @Default
-    private Set<GlobalVisitorRestriction> globalVisitorRestrictions = new HashSet<>();
+    private List<GlobalVisitorRestriction> globalVisitorRestrictions = new ArrayList<>();
 
     @Column(name = "ACTIVE_FLAG")
     @Convert(converter = YesNoConverter.class)
