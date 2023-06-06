@@ -52,7 +52,11 @@ public class Award {
     @Schema(required = true, description = "hearing record sequence number")
     private Integer hearingSequence;
 
-    public Award(Long bookingId, String sanctionCode, String sanctionCodeDescription, Integer months, Integer days, BigDecimal limit, String comment, LocalDate effectiveDate, String status, String statusDescription, Long hearingId, Integer hearingSequence) {
+    private Long adjudicationNumber;
+
+    private Long reportId;
+
+    public Award(Long bookingId, String sanctionCode, String sanctionCodeDescription, Integer months, Integer days, BigDecimal limit, String comment, LocalDate effectiveDate, String status, String statusDescription, Long hearingId, Integer hearingSequence, Long adjudicationNumber, Long reportId) {
         this.bookingId = bookingId;
         this.sanctionCode = sanctionCode;
         this.sanctionCodeDescription = sanctionCodeDescription;
@@ -65,6 +69,8 @@ public class Award {
         this.statusDescription = statusDescription;
         this.hearingId = hearingId;
         this.hearingSequence = hearingSequence;
+        this.adjudicationNumber = adjudicationNumber;
+        this.reportId = reportId;
     }
 
     public Award() {
