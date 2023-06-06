@@ -213,7 +213,6 @@ public class PersonServiceTest {
             Telephone.builder().phoneId(-7L).ext("345").number("0114 2345345").type("HOME").build(),
             Telephone.builder().phoneId(-8L).ext(null).number("0114 2345346").type("BUS").build()
         );
-
     }
 
     @Test
