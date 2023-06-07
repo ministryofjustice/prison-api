@@ -131,7 +131,7 @@ internal class PrisonTransferServiceTest {
     @BeforeEach
     internal fun setUp() {
       booking = OffenderBooking().apply {
-        externalMovements = mutableListOf(bookingLastMovementTransfer)
+        externalMovements = mutableSetOf(bookingLastMovementTransfer)
         bookingId = 99
         inOutStatus = "TRN"
         isActive = false
@@ -272,7 +272,7 @@ internal class PrisonTransferServiceTest {
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
-            externalMovements = mutableListOf(bookingLastMovementTransfer)
+            externalMovements = mutableSetOf(bookingLastMovementTransfer)
             bookingId = 99
             inOutStatus = "OUT"
             isActive = false
@@ -295,7 +295,7 @@ internal class PrisonTransferServiceTest {
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
-            externalMovements = mutableListOf()
+            externalMovements = mutableSetOf()
             bookingId = 99
             inOutStatus = "TRN"
             isActive = false
@@ -318,7 +318,7 @@ internal class PrisonTransferServiceTest {
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
-            externalMovements = mutableListOf(
+            externalMovements = mutableSetOf(
               getMovement(active = false),
             )
             bookingId = 99
@@ -343,7 +343,7 @@ internal class PrisonTransferServiceTest {
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
-            externalMovements = mutableListOf(
+            externalMovements = mutableSetOf(
               bookingLastMovementCourt,
             )
             bookingId = 99
@@ -408,7 +408,7 @@ internal class PrisonTransferServiceTest {
     @BeforeEach
     internal fun setUp() {
       booking = OffenderBooking().apply {
-        externalMovements = mutableListOf(bookingLastMovementCourt)
+        externalMovements = mutableSetOf(bookingLastMovementCourt)
         bookingId = 99
         inOutStatus = "OUT"
         isActive = true
@@ -478,7 +478,7 @@ internal class PrisonTransferServiceTest {
       @Test
       internal fun `will request court events are updated if event id present`() {
         val bookingWithCourtEventId = OffenderBooking().apply {
-          externalMovements = mutableListOf(bookingLastMovementCourtWithEventId)
+          externalMovements = mutableSetOf(bookingLastMovementCourtWithEventId)
           bookingId = 99
           inOutStatus = "OUT"
           isActive = true
@@ -551,7 +551,7 @@ internal class PrisonTransferServiceTest {
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
-            externalMovements = mutableListOf(bookingLastMovementTransfer)
+            externalMovements = mutableSetOf(bookingLastMovementTransfer)
             bookingId = 99
             inOutStatus = "OUT"
             isActive = false
@@ -574,7 +574,7 @@ internal class PrisonTransferServiceTest {
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
-            externalMovements = mutableListOf()
+            externalMovements = mutableSetOf()
             bookingId = 99
             inOutStatus = "OUT"
             isActive = true
@@ -597,7 +597,7 @@ internal class PrisonTransferServiceTest {
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
-            externalMovements = mutableListOf(
+            externalMovements = mutableSetOf(
               getMovement(active = false),
             )
             bookingId = 99
@@ -622,7 +622,7 @@ internal class PrisonTransferServiceTest {
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
-            externalMovements = mutableListOf(bookingLastMovementTransfer)
+            externalMovements = mutableSetOf(bookingLastMovementTransfer)
             bookingId = 99
             inOutStatus = "TRN"
             isActive = false
@@ -653,7 +653,7 @@ internal class PrisonTransferServiceTest {
     @BeforeEach
     internal fun setUp() {
       booking = OffenderBooking().apply {
-        externalMovements = mutableListOf(bookingLastMovementCourt)
+        externalMovements = mutableSetOf(bookingLastMovementCourt)
         bookingId = 99
         inOutStatus = "OUT"
         isActive = true
@@ -802,7 +802,7 @@ internal class PrisonTransferServiceTest {
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
-            externalMovements = mutableListOf(bookingLastMovementTransfer)
+            externalMovements = mutableSetOf(bookingLastMovementTransfer)
             bookingId = 99
             inOutStatus = "OUT"
             isActive = false
@@ -825,7 +825,7 @@ internal class PrisonTransferServiceTest {
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
-            externalMovements = mutableListOf()
+            externalMovements = mutableSetOf()
             bookingId = 99
             inOutStatus = "OUT"
             isActive = false
@@ -848,7 +848,7 @@ internal class PrisonTransferServiceTest {
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
-            externalMovements = mutableListOf(
+            externalMovements = mutableSetOf(
               getMovement(active = false),
             )
             bookingId = 99
@@ -884,7 +884,7 @@ internal class PrisonTransferServiceTest {
     @BeforeEach
     internal fun setUp() {
       booking = OffenderBooking().apply {
-        externalMovements = mutableListOf(bookingLastMovementTAP)
+        externalMovements = mutableSetOf(bookingLastMovementTAP)
         bookingId = 99
         inOutStatus = "OUT"
         isActive = true
@@ -954,7 +954,7 @@ internal class PrisonTransferServiceTest {
       @Test
       internal fun `will request scheduled events are updated if event id present`() {
         val bookingWithCourtEventId = OffenderBooking().apply {
-          externalMovements = mutableListOf(bookingLastMovementTAPWithEventId)
+          externalMovements = mutableSetOf(bookingLastMovementTAPWithEventId)
           bookingId = 99
           inOutStatus = "OUT"
           isActive = true
@@ -1027,7 +1027,7 @@ internal class PrisonTransferServiceTest {
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
-            externalMovements = mutableListOf(bookingLastMovementTransfer)
+            externalMovements = mutableSetOf(bookingLastMovementTransfer)
             bookingId = 99
             inOutStatus = "OUT"
             isActive = false
@@ -1050,7 +1050,7 @@ internal class PrisonTransferServiceTest {
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
-            externalMovements = mutableListOf()
+            externalMovements = mutableSetOf()
             bookingId = 99
             inOutStatus = "OUT"
             isActive = true
@@ -1073,7 +1073,7 @@ internal class PrisonTransferServiceTest {
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
-            externalMovements = mutableListOf(
+            externalMovements = mutableSetOf(
               getMovement(active = false),
             )
             bookingId = 99
@@ -1098,7 +1098,7 @@ internal class PrisonTransferServiceTest {
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
-            externalMovements = mutableListOf(bookingLastMovementTransfer)
+            externalMovements = mutableSetOf(bookingLastMovementTransfer)
             bookingId = 99
             inOutStatus = "TRN"
             isActive = false
@@ -1129,7 +1129,7 @@ internal class PrisonTransferServiceTest {
     @BeforeEach
     internal fun setUp() {
       booking = OffenderBooking().apply {
-        externalMovements = mutableListOf(bookingLastMovementTAP)
+        externalMovements = mutableSetOf(bookingLastMovementTAP)
         bookingId = 99
         inOutStatus = "OUT"
         isActive = true
@@ -1278,7 +1278,7 @@ internal class PrisonTransferServiceTest {
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
-            externalMovements = mutableListOf(bookingLastMovementTransfer)
+            externalMovements = mutableSetOf(bookingLastMovementTransfer)
             bookingId = 99
             inOutStatus = "OUT"
             isActive = false
@@ -1301,7 +1301,7 @@ internal class PrisonTransferServiceTest {
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
-            externalMovements = mutableListOf()
+            externalMovements = mutableSetOf()
             bookingId = 99
             inOutStatus = "OUT"
             isActive = false
@@ -1324,7 +1324,7 @@ internal class PrisonTransferServiceTest {
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
-            externalMovements = mutableListOf(
+            externalMovements = mutableSetOf(
               getMovement(active = false),
             )
             bookingId = 99

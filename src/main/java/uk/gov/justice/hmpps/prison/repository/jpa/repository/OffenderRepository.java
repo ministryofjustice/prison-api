@@ -36,13 +36,15 @@ public interface OffenderRepository extends JpaRepository<Offender, Long> {
             left join fetch b.nonAssociationDetails nad
                  join fetch b.offender o2
             left join fetch b.assignedLivingUnit alu
+            left join fetch alu.livingUnit lu
                  join fetch b.location l
+            left join fetch nad.nsOffender no
             left join fetch nad.nonAssociationReason nar
             left join fetch nad.nonAssociationType nat
             left join fetch nad.recipNonAssociationReason rnar
             left join fetch nad.nonAssociation na
             left join fetch b.externalMovements em
-            left join fetch em.movementReason
+            left join fetch em.movementReason mr
             left join fetch na.recipNonAssociationReason rnar2
 
             where o.nomsId = :nomsId and b.bookingSequence = 1

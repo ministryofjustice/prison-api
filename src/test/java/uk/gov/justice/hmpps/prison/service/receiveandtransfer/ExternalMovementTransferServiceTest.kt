@@ -107,7 +107,7 @@ internal class ExternalMovementTransferServiceTest {
             bookingLastMovement,
           ),
         )
-        booking = OffenderBooking().apply { externalMovements = mutableListOf(bookingLastMovement); bookingId = 99 }
+        booking = OffenderBooking().apply { externalMovements = mutableSetOf(bookingLastMovement); bookingId = 99 }
       }
 
       @Test
@@ -186,7 +186,7 @@ internal class ExternalMovementTransferServiceTest {
             bookingLastMovement,
           ),
         )
-        booking = OffenderBooking().apply { externalMovements = mutableListOf(bookingLastMovement); bookingId = 99 }
+        booking = OffenderBooking().apply { externalMovements = mutableSetOf(bookingLastMovement); bookingId = 99 }
       }
 
       @Test
@@ -267,7 +267,7 @@ internal class ExternalMovementTransferServiceTest {
           ),
         )
         booking =
-          OffenderBooking().apply { externalMovements = mutableListOf(bookingLastMovementCourt); bookingId = 99 }
+          OffenderBooking().apply { externalMovements = mutableSetOf(bookingLastMovementCourt); bookingId = 99 }
       }
 
       @Test
@@ -393,7 +393,7 @@ internal class ExternalMovementTransferServiceTest {
             bookingLastMovement,
           ),
         )
-        booking = OffenderBooking().apply { externalMovements = mutableListOf(bookingLastMovement); bookingId = 99 }
+        booking = OffenderBooking().apply { externalMovements = mutableSetOf(bookingLastMovement); bookingId = 99 }
       }
 
       @Test
@@ -490,7 +490,7 @@ internal class ExternalMovementTransferServiceTest {
           ),
         )
         booking =
-          OffenderBooking().apply { externalMovements = mutableListOf(bookingLastMovementForTAP); bookingId = 99 }
+          OffenderBooking().apply { externalMovements = mutableSetOf(bookingLastMovementForTAP); bookingId = 99 }
       }
 
       @Test
@@ -621,7 +621,7 @@ internal class ExternalMovementTransferServiceTest {
             bookingLastMovement,
           ),
         )
-        booking = OffenderBooking().apply { externalMovements = mutableListOf(bookingLastMovement); bookingId = 99 }
+        booking = OffenderBooking().apply { externalMovements = mutableSetOf(bookingLastMovement); bookingId = 99 }
       }
 
       @Test
@@ -718,7 +718,7 @@ internal class ExternalMovementTransferServiceTest {
           ),
         )
         booking =
-          OffenderBooking().apply { externalMovements = mutableListOf(bookingLastMovementForTAP); bookingId = 99 }
+          OffenderBooking().apply { externalMovements = mutableSetOf(bookingLastMovementForTAP); bookingId = 99 }
       }
 
       @Test
@@ -840,7 +840,7 @@ internal class ExternalMovementTransferServiceTest {
             bookingLastMovement,
           ),
         )
-        booking = OffenderBooking().apply { externalMovements = mutableListOf(bookingLastMovement); bookingId = 99 }
+        booking = OffenderBooking().apply { externalMovements = mutableSetOf(bookingLastMovement); bookingId = 99 }
       }
 
       @Test

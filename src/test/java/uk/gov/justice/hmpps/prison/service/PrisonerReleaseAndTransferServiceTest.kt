@@ -110,7 +110,7 @@ internal class PrisonerReleaseAndTransferServiceTest {
   @Nested
   inner class dischargeToHospital {
     val movement = ExternalMovement().also { m -> m.movementType = MovementType().also { t -> t.code = "REL" } }
-    val offenderBooking = OffenderBooking().also { it.externalMovements = listOf(movement) }
+    val offenderBooking = OffenderBooking().also { it.externalMovements = setOf(movement) }
 
     @BeforeEach
     internal fun before() {

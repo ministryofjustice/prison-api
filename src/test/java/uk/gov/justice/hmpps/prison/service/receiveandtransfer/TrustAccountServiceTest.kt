@@ -88,7 +88,7 @@ internal class TrustAccountServiceTest {
   @BeforeEach
   internal fun setUp() {
     booking = OffenderBooking().apply {
-      externalMovements = mutableListOf(transferOutToPrison); bookingId = 99; rootOffender =
+      externalMovements = mutableSetOf(transferOutToPrison); bookingId = 99; rootOffender =
         Offender().apply { id = 55L }
     }
   }

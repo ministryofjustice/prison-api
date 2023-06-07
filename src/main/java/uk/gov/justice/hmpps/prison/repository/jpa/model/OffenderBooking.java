@@ -167,7 +167,7 @@ public class OffenderBooking extends AuditableEntity {
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude
-    private List<ExternalMovement> externalMovements = new ArrayList<>();
+    private Set<ExternalMovement> externalMovements = new HashSet<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
