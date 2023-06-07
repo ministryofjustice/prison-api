@@ -41,13 +41,13 @@ public interface OffenderRepository extends JpaRepository<Offender, Long> {
             left join fetch nad.nonAssociationType nat
             left join fetch nad.recipNonAssociationReason rnar
             left join fetch nad.nonAssociation na
-            left join fetch na.nsOffender nof
-            
+            left join fetch b.externalMovements em
+            left join fetch em.movementReason
+            left join fetch na.recipNonAssociationReason rnar2
+
             where o.nomsId = :nomsId and b.bookingSequence = 1
             """)
-        //   join fetch b.externalMovements em
-        //   join fetch em.movementReason
-        //   join fetch na.recipNonAssociationReason rnar2
+
         // @EntityGraph(type = EntityGraphType.FETCH, value = "offender-with-non-associations")
     Optional<Offender> findOffenderByNomsIdWithNonAssociations(String nomsId);
 

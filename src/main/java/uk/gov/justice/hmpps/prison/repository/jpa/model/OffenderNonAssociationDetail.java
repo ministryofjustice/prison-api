@@ -103,7 +103,7 @@ public class OffenderNonAssociationDetail extends AuditableEntity {
     })
     private NonAssociationReason recipNonAssociationReason;
 
-    @OneToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(column = @JoinColumn(name = "OFFENDER_ID", referencedColumnName = "OFFENDER_ID")),
             @JoinColumnOrFormula(column = @JoinColumn(name = "NS_OFFENDER_ID", referencedColumnName = "NS_OFFENDER_ID")),
