@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import jakarta.persistence.NamedAttributeNode;
 import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.NamedSubgraph;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,7 +42,15 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @Table(name = "AGENCY_INTERNAL_LOCATIONS")
 @NamedEntityGraph(
     name = "agency-internal-location-with-profiles",
-    attributeNodes = @NamedAttributeNode(value = "profiles")
+    attributeNodes = @NamedAttributeNode(value = "profiles", subgraph = "housing-units"),
+    subgraphs = {
+        @NamedSubgraph(
+            name = "housing-units",
+            attributeNodes = {
+                @NamedAttributeNode("housingAttributeReferenceCode")
+            }
+        )
+    }
 )
 public class AgencyInternalLocation {
     @Id
