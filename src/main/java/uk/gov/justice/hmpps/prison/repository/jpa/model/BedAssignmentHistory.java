@@ -45,6 +45,18 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
         )
     }
 )
+@NamedEntityGraph(
+    name = "bed-history-with-location",
+    attributeNodes = @NamedAttributeNode(value = "location", subgraph = "bed-location"),
+    subgraphs = {
+        @NamedSubgraph(
+            name = "bed-location",
+            attributeNodes = {
+                @NamedAttributeNode("livingUnit")
+            }
+        )
+    }
+)
 public class BedAssignmentHistory extends AuditableEntity {
 
     @Data
