@@ -39,7 +39,7 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id", callSuper = false)
 @Table(name = "OFFENDER_CASE_NOTES")
-@ToString(exclude = {"offenderBooking", "agencyLocation"})
+@ToString(exclude = { "offenderBooking", "agencyLocation" })
 @NamedEntityGraph(name = "case-note-with-author", attributeNodes = {
     @NamedAttributeNode(value = "author"),
     @NamedAttributeNode(value = "type"),
