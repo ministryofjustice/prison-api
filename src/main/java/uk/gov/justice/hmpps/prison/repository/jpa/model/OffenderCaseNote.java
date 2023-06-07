@@ -39,8 +39,12 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id", callSuper = false)
 @Table(name = "OFFENDER_CASE_NOTES")
-@ToString(exclude = { "offenderBooking", "agencyLocation" } )
-@NamedEntityGraph(name = "case-note-with-author", attributeNodes = @NamedAttributeNode(value = "author"))
+@ToString(exclude = {"offenderBooking", "agencyLocation"})
+@NamedEntityGraph(name = "case-note-with-author", attributeNodes = {
+    @NamedAttributeNode(value = "author"),
+    @NamedAttributeNode(value = "type"),
+    @NamedAttributeNode(value = "subType"),
+})
 public class OffenderCaseNote extends AuditableEntity {
     private static final String AMEND_CASE_NOTE_FORMAT = "%s ...[%s updated the case notes on %s] %s";
 
@@ -92,8 +96,8 @@ public class OffenderCaseNote extends AuditableEntity {
     @Convert(converter = YesNoConverter.class)
     private boolean amendmentFlag;
 
-    @ManyToOne(optional = true, fetch = FetchType.LAZY)
-    @JoinColumn(name = "AGY_LOC_ID", nullable = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "AGY_LOC_ID")
     private AgencyLocation agencyLocation;
 
     @ManyToOne
