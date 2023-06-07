@@ -41,9 +41,13 @@ public class FinanceController {
 
     @PostMapping("/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings")
     @Operation(summary = "Post a financial transaction to NOMIS.",
-            description = "Notes:<br/><ul>" +
-                    "<li>If the field X-Client-Name is present in the request header then the value is prepended to the client_unique_ref separated by a dash</li>" +
-                    "<li>The client_unique_ref can have a maximum of 64 characters, only alphabetic, numeric, ‘-’ and ‘_’ characters are allowed</li></ul>")
+            description = """
+                Notes:<br/>
+                  <ul>
+                    <li>If the field X-Client-Name is present in the request header then the value is prepended to the client_unique_ref separated by a dash</li>
+                    <li>The client_unique_ref can have a maximum of 64 characters, only alphabetic, numeric, ‘-’ and ‘_’ characters are allowed</li>
+                  </ul>
+                <p>Requires role NOMIS_API_V1</p>""")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Transaction Created", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = TransferTransaction.class))}),
             @ApiResponse(responseCode = "400", description = "One of: <ul><li>Insufficient Funds - The prisoner has insufficient funds in the required account to cover the cost of the debit transaction</li>" +

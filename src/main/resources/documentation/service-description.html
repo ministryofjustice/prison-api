@@ -1,0 +1,105 @@
+<div>
+  <h2 id="overview">Overview</h2>
+  <p>A RESTful API service for accessing NOMIS data sets.</p>
+  <p>
+    All times sent to the API should be sent in local time without the timezone e.g. YYYY-MM-DDTHH:MM:SS.
+    All times returned in responses will be in Europe / London local time unless otherwise stated.
+  </p>
+  <p>
+    Some endpoints are described as using the Replica database, a read-only copy of the live database which at
+    time of writing lags by < 1 second up to approximately 2 seconds. These endpoints are not suitable for use
+    by services reacting to events or refreshing web pages where a change has just been made.
+  </p>
+  <p>
+    This service does provide searching capabilities, but can sometimes be slow to return results.  A faster search
+    is available in the
+    <a href="https://prisoner-offender-search-dev.prison.service.justice.gov.uk/swagger-ui/index.html">HMPPS Prisoner Search</a>
+    service.  This also augments the results from the incentives and restricted patients service.  That service should
+    be used in preference, with this service only then being used if the data is not available there.  Furthermore, the
+    Prisoner Search service also provides key prisoner view that could be suitable.
+  </p>
+  <h2 id="role-restrictions">Role restrictions</h2>
+  The following roles are currently in use in this service:
+  <ul>
+    <li>
+      APPROVE_CATEGORISATION
+    </li>
+    <li>
+      CASE_NOTE_EVENTS
+    </li>
+    <li>
+      CONTACT_CREATE
+    </li>
+    <li>
+      CREATE_CATEGORISATION
+    </li>
+    <li>
+      GLOBAL_APPOINTMENT
+    </li>
+    <li>
+      GLOBAL_SEARCH
+    </li>
+    <li>
+      MAINTAIN_ACCESS_ROLES.  This role is only used by the "/add/default/{caseload}" endpoint to add the NWEB caseload
+      to all users in a prison.  Historically it was used for maintaining user permissions, but this functionality
+      has now been migrated to
+      <a href="https://nomis-user-dev.aks-dev-1.studio-hosting.service.justice.gov.uk/swagger-ui/index.html">HMPPS NOMIS User Roles API</a>
+      instead.
+    </li>
+    <li>
+      MAINTAIN_ACCESS_ROLES_ADMIN.  This role is only used by the "/add/default/{caseload}" endpoint to add the NWEB caseload
+      to all users in a prison.  Historically it was used for maintaining user permissions, but this functionality
+      has now been migrated to
+      <a href="https://nomis-user-dev.aks-dev-1.studio-hosting.service.justice.gov.uk/swagger-ui/index.html">HMPPS NOMIS User Roles API</a>
+      instead.
+    </li>
+    <li>
+      MAINTAIN_ADJUDICATIONS
+    </li>
+    <li>
+      NOMIS_API_V1.  This role is used to secure old legacy endpoints that were originally part of the old NOMIS API.
+      Most of the old endpoints are implemented as stored procedures and thus no new services should be calling them.
+      Examples of clients that are using them are unilink and the old prison visits booking service.  Clients are
+      encouraged to move to the newer JDBC Template / JPA endpoints instead. Endpoints protected by this role are "/v1"
+      and also "/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings".
+    </li>
+    <li>
+      NOMIS_OFFENCE_ACTIVATOR
+    </li>
+    <li>
+      RELEASE_DATES_CALCULATOR
+    </li>
+    <li>
+      ROLE_AUTH_NOMIS
+    </li>
+    <li>
+      ROLE_PAY
+    </li>
+    <li>
+      SERVICE_AGENCY_SWITCHES.  This role is to secure the "/service-prisons" series of endpoints that are used to
+      control which prisons have an particular external service switched on.
+    </li>
+    <li>
+      SYSTEM_USER.  This has historically been used as a generic service to service user with full privileges for most
+      endpoints / resources.  If a client needs to access lots of endpoints then this is still suitable, but otherwise
+      consider adding a new role to the endpoint instead.
+    </li>
+    <li>
+      UPDATE_ALERT
+    </li>
+    <li>
+      UPDATE_OFFENCE_SCHEDULES
+    </li>
+    <li>
+      VIEW_ADJUDICATIONS
+    </li>
+    <li>
+      VIEW_PRISONER_DATA
+    </li>
+    <li>
+      VIEW_PRISON_DATA
+    </li>
+  </ul>
+  For endpoints that make changes to the data a token with write scope is normally required.  User tokens will normally
+  automatically have a write scope but write scope needs to be specifically requested for client credentials.
+</div>
