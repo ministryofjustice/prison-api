@@ -48,15 +48,21 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.CourtType.JURISDI
 @With
 @NamedEntityGraph(
     name = "agency-location-with-contact-details",
-    attributeNodes =  { @NamedAttributeNode(value = "addresses", subgraph = "address-phone"), @NamedAttributeNode(value = "phones") },
+    attributeNodes = {
+        @NamedAttributeNode(value = "addresses", subgraph = "address-phone"),
+        @NamedAttributeNode(value = "phones"),
+    },
     subgraphs = {
-    @NamedSubgraph(
-        name = "address-phone",
-        attributeNodes = {
-            @NamedAttributeNode("phones"), @NamedAttributeNode("addressUsages")
-        }
-    )
-}
+        @NamedSubgraph(
+            name = "address-phone",
+            attributeNodes = {
+                @NamedAttributeNode("phones"),
+                @NamedAttributeNode("addressUsages"),
+                @NamedAttributeNode("city"),
+                @NamedAttributeNode("county"),
+            }
+        )
+    }
 )
 public class AgencyLocation extends AuditableEntity {
 
