@@ -42,6 +42,7 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.VisitOutcomeReaso
     name = "visitor-with-person",
     attributeNodes = {
         @NamedAttributeNode(value = "person"),
+        @NamedAttributeNode(value = "outcomeReason"),
     }
 )
 public class VisitVisitor extends AuditableEntity {

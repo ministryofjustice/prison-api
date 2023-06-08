@@ -61,6 +61,12 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.RelationshipType.
         )
     }
 )
+@NamedEntityGraph(
+    name = "contacts-with-relationship",
+    attributeNodes = {
+        @NamedAttributeNode(value = "relationshipType"),
+    }
+)
 public class OffenderContactPerson extends AuditableEntity {
 
     private static final String ACTIVE = "Y";

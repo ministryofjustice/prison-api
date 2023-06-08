@@ -12,5 +12,7 @@ public interface OffenderContactPersonsRepository extends CrudRepository<Offende
 
     @EntityGraph(type = EntityGraphType.FETCH, value = "contacts-with-details")
     List<OffenderContactPerson> findAllByOffenderBooking_BookingIdOrderByIdDesc(final long bookingId);
+
+    @EntityGraph(type = EntityGraphType.FETCH, value = "contacts-with-relationship")
     List<OffenderContactPerson> findAllByOffenderBooking_BookingIdAndPersonIdIn(final long bookingId, final List<Long> personIds);
 }
