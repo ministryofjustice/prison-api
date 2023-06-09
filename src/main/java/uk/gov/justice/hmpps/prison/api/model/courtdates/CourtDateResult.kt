@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.api.model.digitalwarrant
+package uk.gov.justice.hmpps.prison.api.model.courtdates
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.swagger.v3.oas.annotations.media.Schema
@@ -24,7 +24,7 @@ data class CourtDateResult(
   val resultDispositionCode: String?,
 
   @Schema(description = "The charge which is the subject of the court date")
-  val charge: WarrantCharge,
+  val charge: CourtDateCharge,
 
   @Schema(description = "The id of the booking this court date was linked to")
   val bookingId: Long?,

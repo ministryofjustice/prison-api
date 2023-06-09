@@ -1,0 +1,19 @@
+[
+  {
+    "id": -215,
+    "date": "2017-06-21",
+    "charge": {
+      "chargeId": -11,
+      "offenceCode": "M4",
+      "offenceStatue": "RC86",
+      "offenceDescription": "Manslaughter",
+      "offenceDate": "2015-01-04",
+      "offenceEndDate": "2015-01-25",
+      "guilty": false,
+      "courtCaseId": -20,
+      "courtCaseRef": "ABC123",
+      "courtLocation": "Court 1"
+    },
+    "bookingId": -59
+  }
+]
