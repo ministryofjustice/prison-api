@@ -25,7 +25,7 @@ import java.util.List;
 @RestController
 @Tag(name = "court-dates")
 @Validated
-@RequestMapping(value = "${api.base.path}/court-date-results", produces = "application/json")
+@RequestMapping(value = {"${api.base.path}/court-date-results", "${api.base.path}/digital-warrant/court-date-results"}, produces = "application/json")
 public class CourtDateResource {
     @Autowired
     private CourtDateService courtDateService;
