@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +11,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
 @Schema(description = "Offender Key Dates")
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(Include.NON_NULL)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -64,4 +65,16 @@ public class OffenderKeyDates {
 
     @Schema(required = true, description = "Sentence length in the format 00 years/00 months/00 days.", example = "11/00/00")
     private String sentenceLength;
+
+    @Schema(description = "HDCAD - Home Detention Curfew Approved date", example = "2020-02-03")
+    private LocalDate homeDetentionCurfewApprovedDate;
+
+    @Schema(description = "Tarrif - Tarrif date", example = "2020-02-03")
+    private LocalDate tariffDate;
+
+    @Schema(description = "Tarrif Expiry date", example = "2020-02-03")
+    private LocalDate tariffExpiredRemovalSchemeEligibilityDate;
+
+    @Schema(description = "APD - Approved Parole date", example = "2020-02-03")
+    private LocalDate approvedParoleDate;
 }
