@@ -1,0 +1,18 @@
+[
+  {
+    "id": -201,
+    "date": "2017-07-02",
+    "charge": {
+      "chargeId": -1,
+      "offenceCode": "RV98011",
+      "offenceStatue": "RV98",
+      "offenceDescription": "Cause exceed max permitted wt of artic' vehicle - No of axles/configuration (No MOT/Manufacturer's Plate)",
+      "offenceDate": "2017-12-24",
+      "guilty": false,
+      "courtCaseId": -1,
+      "courtLocation": "Court 1",
+      "resultDescription": "Restriction Order"
+    },
+    "bookingId": -1
+  }
+]
