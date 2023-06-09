@@ -20,13 +20,15 @@
   </p>
   <h2 id="role-restrictions">Access restrictions</h2>
   <p>
-    All the API endpoints in Prison API require an access token. Clients can either use the access token from sign into HMPPS Auth, or obtain a token
+    All the API endpoints in Prison API require an access token. Clients can either use the access token from sign into
+    <a href="https://github.com/ministryofjustice/hmpps-auth">HMPPS Auth</a>, or obtain a token
     by making a client credentials request to HMPPS Auth (with or without an optional username associated with the token).
   </p>
   <p>Access to endpoints are then restricted in two ways:</p>
   <ul>
     <li>
-      Relationship based access. The username (if present) in the token is used to determine what prisons (caseloads) the user is associated with. Each
+      Relationship based access. The username (if present) in the token is used to determine what prisons (caseloads) the user is associated with. If there is
+      no username in the token or if it doesn't correspond to a valid account in NOMIS then it will be ignored and only role based access will be used. Each
       prisoner has a current prison location, or is determined to be out of prison or on temporary transfer. If the user also has the 'INACTIVE_BOOKINGS' role
       then they can view prisoner details of prisoners that are out or on temporary transfer. Endpoints or services that restrict in this way will be
       annotated with <code>@VerifyOffenderAccess</code>, <code>@VerifyBookingAccess</code>, depending on whether an offender or booking is passed into
