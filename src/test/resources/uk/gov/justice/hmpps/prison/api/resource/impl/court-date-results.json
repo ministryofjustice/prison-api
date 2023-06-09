@@ -1,18 +1,19 @@
 [
   {
-    "id": -201,
-    "date": "2017-07-02",
+    "id": -215,
+    "date": "2017-06-21",
     "charge": {
-      "chargeId": -1,
-      "offenceCode": "RV98011",
-      "offenceStatue": "RV98",
-      "offenceDescription": "Cause exceed max permitted wt of artic' vehicle - No of axles/configuration (No MOT/Manufacturer's Plate)",
-      "offenceDate": "2017-12-24",
+      "chargeId": -11,
+      "offenceCode": "M4",
+      "offenceStatue": "RC86",
+      "offenceDescription": "Manslaughter",
+      "offenceDate": "2015-01-04",
+      "offenceEndDate": "2015-01-25",
       "guilty": false,
-      "courtCaseId": -1,
-      "courtLocation": "Court 1",
-      "resultDescription": "Restriction Order"
+      "courtCaseId": -20,
+      "courtCaseRef": "ABC123",
+      "courtLocation": "Court 1"
     },
-    "bookingId": -1
+    "bookingId": -59
   }
 ]

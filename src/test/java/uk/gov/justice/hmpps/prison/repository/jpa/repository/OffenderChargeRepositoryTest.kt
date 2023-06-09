@@ -17,9 +17,9 @@ class OffenderChargeRepositoryTest {
 
   @Test
   fun `should find active offences by booking ids`() {
-    val bookingIds = setOf(-4L, -7L)
+    val bookingIds = setOf(-4L, -59L, -7L)
     val charges = offenderChargeRepository.findActiveOffencesByBookingIds(bookingIds)
-    assertThat(charges).hasSize(3)
+    assertThat(charges).hasSize(4)
     charges.forEach {
       assertThat(it.offenderBooking.bookingId).isIn(bookingIds)
       assertThat(it.isActive).isTrue()

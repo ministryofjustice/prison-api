@@ -13,7 +13,7 @@ public class CourtDateResourceImplIntTest extends ResourceTest {
 
         final var responseEntity = testRestTemplate
             .exchange(
-                "/api/court-date-results/A1234AA",
+                "/api/court-date-results/Z0020XY",
                 HttpMethod.GET,
                 requestEntity,
                 String.class
