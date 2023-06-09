@@ -28,7 +28,7 @@
     <li>
       Relationship based access. The username (if present) in the token is used to determine what prisons (caseloads) the user is associated with. Each
       prisoner has a current prison location, or is determined to be out of prison or on temporary transfer. If the user also has the 'INACTIVE_BOOKINGS' role
-      then they can view prisoner details of prisoners that are out or on temporary transfer. Endpoints or services that use restrict using this way will be
+      then they can view prisoner details of prisoners that are out or on temporary transfer. Endpoints or services that restrict in this way will be
       annotated with <code>@VerifyOffenderAccess</code>, <code>@VerifyBookingAccess</code>, depending on whether an offender or booking is passed into
       the method. The <code>@VerifyAgencyAccess</code> is also used to restrict to allowing to see details in a particular prison e.g. for seeing all alerts.
       Sometimes the annotation can be hidden deep into multiple different levels of service so is sometimes difficult to locate. The annotation can also specify
@@ -36,15 +36,18 @@
     </li>
     <li>
       Role based access. The token will include a number of roles. An endpoint or service can have a <code>@PreAuthorize</code> annotation that restricts access
-      to
-      a list of roles.
+      to a list of roles.
     </li>
   </ul>
   <p>New endpoints do try to document what access restrictions are in place, but for old endpoints it is often necessary to look at the source code for
     <a href="https://github.com/ministryofjustice/prison-api">Prison API</a> in github to find that out.</p>
 
-  <p>Note also that the endpoints that write data back to NOMIS also often require a write scope in the token. User access tokens will automatically have a
-    write scope, but client credentials tokens will often be read scope only unless write has been specifically requested.</p>
+  <p>
+    Note also that the endpoints that write data back to NOMIS also often require a write scope in the token. User access tokens will automatically have a
+    write scope, but client credentials tokens will often be read scope only unless write has been specifically requested. Write scope endpoints / services
+    will either be annotated with <code>@HasWriteScope</code> or the <code>@PreAuthorize</code> will have an extra <code>hasAuthority('SCOPE_write')</code>
+    condition.
+  </p>
 
   <p>
     For an example suppose that information about alerts for a list of prisoners is required. The endpoint is '/booking/offenderNo/{agencyId}/alerts'.
