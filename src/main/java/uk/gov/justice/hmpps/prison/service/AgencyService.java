@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import com.google.common.annotations.VisibleForTesting;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -40,7 +41,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.County;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtType;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AddressPhoneRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyAddressRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationProfileRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
@@ -55,7 +55,6 @@ import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 import uk.gov.justice.hmpps.prison.service.support.ReferenceDomain;
 import uk.gov.justice.hmpps.prison.service.transformers.AgencyTransformer;
 
-import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Comparator;
@@ -90,7 +89,6 @@ public class AgencyService {
     private final ReferenceCodeRepository<AgencyLocationType> agencyLocationTypeReferenceCodeRepository;
     private final ReferenceCodeRepository<CourtType> courtTypeReferenceCodeRepository;
     private final AgencyInternalLocationRepository agencyInternalLocationRepository;
-    private final AgencyInternalLocationProfileRepository agencyInternalLocationProfileRepository;
     private final AddressPhoneRepository addressPhoneRepository;
     private final AgencyAddressRepository agencyAddressRepository;
 
