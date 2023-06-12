@@ -846,7 +846,7 @@ public class InmateRepositoryTest {
 
         // -26 has a latest assessment with a status of I, which should be ignored in favour of the earlier valid one
         assertThat(recategorisations).extracting("bookingId", "assessmentSeq", "nextReviewDate", "assessStatus",  "category"
-        ).containsExactly(Tuple.tuple(-26l, 1, LocalDate.of(2019, 6, 8), "A", "B"));
+        ).containsExactly(Tuple.tuple(-26L, 1, LocalDate.of(2019, 6, 8), "A", "B"));
     }
 
     @Test
@@ -1059,7 +1059,7 @@ public class InmateRepositoryTest {
         repository.approveCategory(catDetail);
 
 
-        final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -32 order by ASSESSMENT_SEQ asc");
+        final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -32 order by ASSESSMENT_SEQ");
 
         // after making the pending cat active should make any earlier categorisation inactive (regardless of order)
         assertThat(results)
@@ -1086,7 +1086,7 @@ public class InmateRepositoryTest {
         repository.approveCategory(catDetail);
 
 
-        final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -36 order by ASSESSMENT_SEQ asc");
+        final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -36 order by ASSESSMENT_SEQ");
 
         // confirm single categorisation is active
         assertThat(results)
@@ -1389,7 +1389,7 @@ public class InmateRepositoryTest {
                 .assignedLivingUnitId(-204L)
                 .build());
 
-        final var results = repository.findInmatesByLocation(-200L, "WING", "SYI", "lastName,firstName,offenderNo", Order.DESC, 0, 10);
+        final var results = repository.findInmatesByLocation(-200L, "SYI", "lastName,firstName,offenderNo", Order.DESC, 0, 10);
 
         assertThat(results.getItems()).hasSize(1);
         assertThat(results.getItems().get(0)).isEqualTo(expectedInfo.get(0));
@@ -1412,7 +1412,7 @@ public class InmateRepositoryTest {
                 .assignedLivingUnitId(-204L)
                 .build());
 
-        final var results = repository.findInmatesByLocation(-204L, "CELL", "SYI", "lastName,firstName,offenderNo", Order.DESC, 0, 10);
+        final var results = repository.findInmatesByLocation(-204L, "SYI", "lastName,firstName,offenderNo", Order.DESC, 0, 10);
 
         assertThat(results.getItems()).hasSize(1);
         assertThat(results.getItems().get(0)).isEqualTo(expectedInfo.get(0));

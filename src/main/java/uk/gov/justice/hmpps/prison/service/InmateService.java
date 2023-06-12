@@ -98,8 +98,6 @@ public class InmateService {
     private final HealthService healthService;
     private final TelemetryClient telemetryClient;
 
-    private final String locationTypeGranularity;
-
     public InmateService(final InmateRepository repository,
                          final CaseLoadService caseLoadService,
                          final InmateAlertService inmateAlertService,
@@ -110,7 +108,6 @@ public class InmateService {
                          final UserService userService,
                          final AuthenticationFacade authenticationFacade,
                          final TelemetryClient telemetryClient,
-                         @Value("${api.users.me.locations.locationType:WING}") final String locationTypeGranularity,
                          @Value("${batch.max.size:1000}") final int maxBatchSize,
                          final OffenderAssessmentService offenderAssessmentService,
                          final OffenderLanguageRepository offenderLanguageRepository,
@@ -124,7 +121,6 @@ public class InmateService {
         this.referenceDomainService = referenceDomainService;
         this.healthService = healthService;
         this.telemetryClient = telemetryClient;
-        this.locationTypeGranularity = locationTypeGranularity;
         this.bookingService = bookingService;
         this.agencyService = agencyService;
         this.authenticationFacade = authenticationFacade;
@@ -222,7 +218,7 @@ public class InmateService {
             inmate.setPhysicalAttributes(getPhysicalAttributes(bookingId));
             inmate.setPhysicalCharacteristics(getPhysicalCharacteristics(bookingId));
             inmate.setProfileInformation(getProfileInformation(bookingId));
-            repository.findAssignedLivingUnit(bookingId, locationTypeGranularity).ifPresent(assignedLivingUnit -> {
+            repository.findAssignedLivingUnit(bookingId).ifPresent(assignedLivingUnit -> {
                 assignedLivingUnit.setAgencyName(LocationProcessor.formatLocation(assignedLivingUnit.getAgencyName()));
                 inmate.setAssignedLivingUnit(assignedLivingUnit);
             });

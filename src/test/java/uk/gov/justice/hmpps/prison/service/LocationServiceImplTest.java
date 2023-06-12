@@ -13,7 +13,6 @@ import uk.gov.justice.hmpps.prison.repository.LocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -39,7 +38,7 @@ class LocationServiceImplTest {
 
     @BeforeEach
     void init() {
-        locationService = new LocationService(agencyRepository, agencyInternalLocationRepository, locationRepository, null, caseLoadService, "WING");
+        locationService = new LocationService(agencyRepository, agencyInternalLocationRepository, locationRepository, null, caseLoadService);
     }
 
     @Test
@@ -49,10 +48,8 @@ class LocationServiceImplTest {
 
         when(agencyRepository.findAgenciesForCurrentCaseloadByUsername("me")).thenReturn(agencies);
 
-        final List<Location> locations = new ArrayList<>();
         final var location = createTestLocation();
-        locations.add(location);
-        when(agencyInternalLocationRepository.findByAgencyIdAndLocationTypeAndActiveAndParentLocationIsNull("LEI", "WING", true)).thenReturn(List.of(createTestAgencyInternalLocation()));
+        when(agencyInternalLocationRepository.findByAgencyIdAndActiveAndParentLocationIsNull("LEI", true)).thenReturn(List.of(createTestAgencyInternalLocation()));
         when(caseLoadService.getWorkingCaseLoadForUser("me")).thenReturn(Optional.of(CaseLoad.builder().caseLoadId("LEI").type("INST").build()));
         final var returnedLocations = locationService.getUserLocations("me");
 
