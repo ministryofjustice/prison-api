@@ -7,17 +7,22 @@ import org.springframework.stereotype.Component;
 import uk.gov.justice.hmpps.prison.api.model.AssignedLivingUnit;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifier;
+import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
 import uk.gov.justice.hmpps.prison.api.model.PhysicalAttributes;
 import uk.gov.justice.hmpps.prison.api.model.ProfileInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
 import java.time.Clock;
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
 import static uk.gov.justice.hmpps.prison.util.DateTimeConverter.getAge;
 
 @Component
@@ -91,5 +96,15 @@ public class OffenderTransformer {
                 .raceCode(offender.getEthnicity() != null ? offender.getEthnicity().getCode() : null)
                 .ethnicity(offender.getEthnicity() != null ? offender.getEthnicity().getDescription() : null)
                 .build());
+    }
+
+    public static List<OffenderSentenceTerms> filterSentenceTerms(List<SentenceTerm> terms, List<String> filterBySentenceTermCodes) {
+        final var sentenceTermCodes = (filterBySentenceTermCodes == null || filterBySentenceTermCodes.isEmpty()) ? List.of("IMP") : filterBySentenceTermCodes;
+        return terms
+            .stream()
+            .filter(term -> "A".equals(term.getOffenderSentence().getStatus()))
+            .filter(term -> sentenceTermCodes.contains(term.getSentenceTermCode()))
+            .map(SentenceTerm::getSentenceSummary)
+            .collect(toList());
     }
 }

@@ -123,6 +123,8 @@ import static java.util.Comparator.nullsLast;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static uk.gov.justice.hmpps.prison.service.ContactService.EXTERNAL_REL;
+import static uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer.filterSentenceTerms;
+
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm;
 /**
  * Bookings API service interface.
@@ -701,13 +703,7 @@ public class BookingService {
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<OffenderSentenceTerms> getOffenderSentenceTerms(final Long bookingId, final List<String> filterBySentenceTermCodes) {
        final var terms = sentenceTermRepository.findByOffenderBookingBookingId(bookingId);
-       final var sentenceTermCodes = (filterBySentenceTermCodes == null || filterBySentenceTermCodes.isEmpty()) ? List.of("IMP") : filterBySentenceTermCodes;
-        return terms
-            .stream()
-            .filter(term -> "A".equals(term.getOffenderSentence().getStatus()))
-            .filter(term -> sentenceTermCodes.contains(term.getSentenceTermCode()))
-            .map(SentenceTerm::getSentenceSummary)
-            .collect(toList());
+       return filterSentenceTerms(terms, filterBySentenceTermCodes);
     }
 
     public List<OffenderSentenceDetail> getOffenderSentencesSummary(final String agencyId, final List<String> offenderNos) {
