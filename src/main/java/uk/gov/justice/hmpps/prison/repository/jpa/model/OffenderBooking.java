@@ -55,6 +55,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
+import static uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer.filterSentenceTerms;
 
 @Getter
 @Setter
@@ -451,13 +452,7 @@ public class OffenderBooking extends AuditableEntity {
     }
 
     public List<OffenderSentenceTerms> getActiveFilteredSentenceTerms(List<String> filterBySentenceTermCodes) {
-        final var sentenceTermCodes = (filterBySentenceTermCodes == null || filterBySentenceTermCodes.isEmpty()) ? List.of("IMP") : filterBySentenceTermCodes;
-        return getTerms()
-            .stream()
-            .filter(term -> "A".equals(term.getOffenderSentence().getStatus()))
-            .filter(term -> sentenceTermCodes.contains(term.getSentenceTermCode()))
-            .map(SentenceTerm::getSentenceSummary)
-            .collect(toList());
+        return filterSentenceTerms(getTerms(), filterBySentenceTermCodes);
     }
 
     public void add(final OffenderMilitaryRecord omr) {
