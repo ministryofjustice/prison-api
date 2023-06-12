@@ -21,7 +21,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.BookingActivity;
 import uk.gov.justice.hmpps.prison.api.model.CourtCase;
-import uk.gov.justice.hmpps.prison.api.model.Email;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecord;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
@@ -82,6 +81,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderFinePayment
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRestrictionRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.SentenceTermRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationRepository;
@@ -123,7 +123,7 @@ import static java.util.Comparator.nullsLast;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static uk.gov.justice.hmpps.prison.service.ContactService.EXTERNAL_REL;
-
+import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm;
 /**
  * Bookings API service interface.
  */
@@ -146,6 +146,7 @@ public class BookingService {
     private final VisitorRepository visitorRepository;
     private final VisitVisitorRepository visitVisitorRepository;
     private final SentenceRepository sentenceRepository;
+    private final SentenceTermRepository sentenceTermRepository;
     private final AgencyService agencyService;
     private final CaseLoadService caseLoadService;
     private final CaseloadToAgencyMappingService caseloadToAgencyMappingService;
@@ -169,6 +170,7 @@ public class BookingService {
                           final VisitInformationRepository visitInformationRepository,
                           final VisitVisitorRepository visitVisitorRepository,
                           final SentenceRepository sentenceRepository,
+                          final SentenceTermRepository sentenceTermRepository,
                           final AgencyService agencyService,
                           final CaseLoadService caseLoadService,
                           final CaseloadToAgencyMappingService caseloadToAgencyMappingService,
@@ -192,6 +194,7 @@ public class BookingService {
         this.visitorRepository = visitorRepository;
         this.visitVisitorRepository = visitVisitorRepository;
         this.sentenceRepository = sentenceRepository;
+        this.sentenceTermRepository = sentenceTermRepository;
         this.agencyService = agencyService;
         this.caseLoadService = caseLoadService;
         this.caseloadToAgencyMappingService = caseloadToAgencyMappingService;
@@ -697,8 +700,13 @@ public class BookingService {
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<OffenderSentenceTerms> getOffenderSentenceTerms(final Long bookingId, final List<String> filterBySentenceTermCodes) {
-        final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
-        return offenderBooking.getActiveFilteredSentenceTerms(filterBySentenceTermCodes);
+       final var terms = sentenceTermRepository.findByOffenderBookingBookingId(bookingId);
+        return terms
+            .stream()
+            .filter(term -> "A".equals(term.getOffenderSentence().getStatus()))
+            .filter(term -> filterBySentenceTermCodes.contains(term.getSentenceTermCode()))
+            .map(SentenceTerm::getSentenceSummary)
+            .collect(toList());
     }
 
     public List<OffenderSentenceDetail> getOffenderSentencesSummary(final String agencyId, final List<String> offenderNos) {
