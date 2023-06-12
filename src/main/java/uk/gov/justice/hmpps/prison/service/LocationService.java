@@ -66,7 +66,7 @@ public class LocationService {
                 locations.addAll(agencyInternalLocationRepository.findByAgencyIdAndActiveAndParentLocationIsNull(agency.getAgencyId(), true)
                         .stream()
                         .filter(location -> List.of("WING", "TAP", "HBLK", "COURT", "AREA").contains(location.getLocationType()))
-                        .filter(location -> !("AREA".equals(location.getLocationType()) && !"RECP".equals(location.getDescription())))
+                        .filter(location -> !("AREA".equals(location.getLocationType()) && !"RECP".equals(location.getLocationCode())))
                     .map(LocationTransformer::fromAgencyInternalLocationPreferUserDesc).sorted(Comparator.comparing(Location::getDescription)).toList());
                 return locations.stream();
 
