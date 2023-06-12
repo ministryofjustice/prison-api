@@ -1,16 +1,5 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-import org.hibernate.annotations.JoinColumnOrFormula;
-import org.hibernate.annotations.JoinColumnsOrFormulas;
-import org.hibernate.annotations.JoinFormula;
-import org.hibernate.annotations.NotFound;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -19,6 +8,18 @@ import jakarta.persistence.IdClass;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import org.hibernate.Hibernate;
+import org.hibernate.annotations.JoinColumnOrFormula;
+import org.hibernate.annotations.JoinColumnsOrFormulas;
+import org.hibernate.annotations.JoinFormula;
+import org.hibernate.annotations.NotFound;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -30,7 +31,6 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = false)
 @ToString(exclude = {"offender", "nsOffender", "offenderBooking", "nonAssociation"})
 @Table(name = "OFFENDER_NA_DETAILS")
 @IdClass(OffenderNonAssociationDetail.Pk.class)
@@ -113,8 +113,22 @@ public class OffenderNonAssociationDetail extends AuditableEntity {
         return Optional.ofNullable(offenderBooking.getLocation()).map(AgencyLocation::getDescription);
     }
 
-//    public Optional<String> getAssignedLivingUnitDescription() {
-//        return Optional.ofNullable(offenderBooking.getAssignedLivingUnit()).map(AgencyInternalLocation::getDescription);
-//    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        final OffenderNonAssociationDetail that = (OffenderNonAssociationDetail) o;
+        if (!getOffender().equals(that.getOffender())) return false;
+        if (!getNsOffender().equals(that.getNsOffender())) return false;
+        return getTypeSequence().equals(that.getTypeSequence());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getOffender().hashCode();
+        result = 31 * result + getNsOffender().hashCode();
+        result = 31 * result + getTypeSequence().hashCode();
+        return result;
+    }
 }
 

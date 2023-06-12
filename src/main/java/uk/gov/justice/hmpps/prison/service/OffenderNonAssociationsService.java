@@ -68,13 +68,14 @@ public class OffenderNonAssociationsService {
 
         log.debug("'{}' non-association(s) found for offender '{}'", nonAssociations.size(), offenderNo);
 
+        OffenderBooking booking = offender.getLatestBooking().orElseThrow();
         return OffenderNonAssociationDetails.builder()
             .offenderNo(offender.getNomsId())
             .firstName(WordUtils.capitalizeFully(offender.getFirstName()))
             .lastName(WordUtils.capitalizeFully(offender.getLastName()))
-            .agencyDescription(offender.getLatestBooking().orElseThrow().getLocation().getDescription())
-            .assignedLivingUnitId(Optional.ofNullable(offender.getLatestBooking().orElseThrow().getAssignedLivingUnit()).map(AgencyInternalLocation::getLocationId).orElse(null))
-            .assignedLivingUnitDescription(Optional.ofNullable(offender.getLatestBooking().orElseThrow().getAssignedLivingUnit()).map(AgencyInternalLocation::getDescription).orElse(null))
+            .agencyDescription(booking.getLocation().getDescription())
+            .assignedLivingUnitId(Optional.ofNullable(booking.getAssignedLivingUnit()).map(AgencyInternalLocation::getLocationId).orElse(null))
+            .assignedLivingUnitDescription(Optional.ofNullable(booking.getAssignedLivingUnit()).map(AgencyInternalLocation::getDescription).orElse(null))
             .nonAssociations(nonAssociations)
             .build();
     }
