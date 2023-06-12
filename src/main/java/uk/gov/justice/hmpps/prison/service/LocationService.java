@@ -64,7 +64,10 @@ public class LocationService {
 
                 // Then retrieve all associated internal locations at configured level of granularity.
                 locations.addAll(agencyInternalLocationRepository.findByAgencyIdAndActiveAndParentLocationIsNull(agency.getAgencyId(), true)
-                        .stream().map(LocationTransformer::fromAgencyInternalLocationPreferUserDesc).sorted(Comparator.comparing(Location::getDescription)).toList());
+                        .stream()
+                        .filter(location -> List.of("WING", "TAP", "HBLK", "COURT", "AREA").contains(location.getLocationType()))
+                        .filter(location -> !("AREA".equals(location.getLocationType()) && !"RECP".equals(location.getDescription())))
+                    .map(LocationTransformer::fromAgencyInternalLocationPreferUserDesc).sorted(Comparator.comparing(Location::getDescription)).toList());
                 return locations.stream();
 
         }).toList();
