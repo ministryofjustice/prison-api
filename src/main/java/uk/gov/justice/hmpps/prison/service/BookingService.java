@@ -701,10 +701,11 @@ public class BookingService {
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<OffenderSentenceTerms> getOffenderSentenceTerms(final Long bookingId, final List<String> filterBySentenceTermCodes) {
        final var terms = sentenceTermRepository.findByOffenderBookingBookingId(bookingId);
+       final var sentenceTermCodes = (filterBySentenceTermCodes == null || filterBySentenceTermCodes.isEmpty()) ? List.of("IMP") : filterBySentenceTermCodes;
         return terms
             .stream()
             .filter(term -> "A".equals(term.getOffenderSentence().getStatus()))
-            .filter(term -> filterBySentenceTermCodes.contains(term.getSentenceTermCode()))
+            .filter(term -> sentenceTermCodes.contains(term.getSentenceTermCode()))
             .map(SentenceTerm::getSentenceSummary)
             .collect(toList());
     }
