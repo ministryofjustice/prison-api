@@ -7,6 +7,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.NamedSubgraph;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,7 +17,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.hibernate.Hibernate;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
@@ -31,9 +33,38 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 @ToString(exclude = {"offender", "nsOffender", "offenderBooking", "nonAssociation"})
 @Table(name = "OFFENDER_NA_DETAILS")
 @IdClass(OffenderNonAssociationDetail.Pk.class)
+@NamedEntityGraph(
+    name = "non-association-details",
+    attributeNodes = {
+        @NamedAttributeNode("nonAssociationReason"),
+        @NamedAttributeNode("nonAssociationType"),
+        @NamedAttributeNode("recipNonAssociationReason"),
+        @NamedAttributeNode(value = "nonAssociation", subgraph = "non-association"),
+        @NamedAttributeNode("nsOffender"),
+        // @NamedAttributeNode(value = "bookings", subgraph = "booking-details"),
+    },
+    subgraphs = {
+        @NamedSubgraph(
+            name = "non-association",
+            attributeNodes = {
+                @NamedAttributeNode("nsOffender"),
+                @NamedAttributeNode("recipNonAssociationReason"),
+                @NamedAttributeNode(value = "nsOffenderBooking", subgraph = "ns-living-unit"),
+            }
+        ),
+        @NamedSubgraph(
+            name = "ns-living-unit",
+            attributeNodes = {
+                @NamedAttributeNode("assignedLivingUnit"),
+                @NamedAttributeNode("location"),
+            }
+        ),
+    }
+)
 public class OffenderNonAssociationDetail extends AuditableEntity {
 
     @AllArgsConstructor
@@ -111,24 +142,6 @@ public class OffenderNonAssociationDetail extends AuditableEntity {
 
     public Optional<String> getAgencyDescription() {
         return Optional.ofNullable(offenderBooking.getLocation()).map(AgencyLocation::getDescription);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        final OffenderNonAssociationDetail that = (OffenderNonAssociationDetail) o;
-        if (!getOffender().equals(that.getOffender())) return false;
-        if (!getNsOffender().equals(that.getNsOffender())) return false;
-        return getTypeSequence().equals(that.getTypeSequence());
-    }
-
-    @Override
-    public int hashCode() {
-        int result = getOffender().hashCode();
-        result = 31 * result + getNsOffender().hashCode();
-        result = 31 * result + getTypeSequence().hashCode();
-        return result;
     }
 }
 

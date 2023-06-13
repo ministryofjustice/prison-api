@@ -1,22 +1,7 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
-import jakarta.persistence.NamedAttributeNode;
-import jakarta.persistence.NamedEntityGraph;
-import jakarta.persistence.NamedSubgraph;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Builder.Default;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import org.hibernate.Hibernate;
-import org.hibernate.annotations.JoinColumnOrFormula;
-import org.hibernate.annotations.JoinColumnsOrFormulas;
-import org.hibernate.annotations.JoinFormula;
-import org.hibernate.type.YesNoConverter;
-import jakarta.persistence.Convert;
-
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -24,7 +9,20 @@ import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.NamedSubgraph;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JoinColumnOrFormula;
+import org.hibernate.annotations.JoinColumnsOrFormulas;
+import org.hibernate.annotations.JoinFormula;
+import org.hibernate.type.YesNoConverter;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
@@ -44,7 +42,7 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.TYPE
 @Entity
 @Table(name = "OFFENDER_EXTERNAL_MOVEMENTS")
 @IdClass(ExternalMovement.PK.class)
-// @EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = false)
 @NamedEntityGraph(
     name = "movement-with-detail-and-offender",
     attributeNodes = {
@@ -172,21 +170,5 @@ public class ExternalMovement extends AuditableEntity {
         return REL.getCode().equals(getMovementType().getCode())
             ? "Outside - released from " + getFromAgency().getDescription()
             : "Outside - " + getMovementType().getDescription();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        final ExternalMovement that = (ExternalMovement) o;
-        if (!getOffenderBooking().equals(that.getOffenderBooking())) return false;
-        return getMovementSequence().equals(that.getMovementSequence());
-    }
-
-    @Override
-    public int hashCode() {
-        int result = getOffenderBooking().hashCode();
-        result = 31 * result + getMovementSequence().hashCode();
-        return result;
     }
 }

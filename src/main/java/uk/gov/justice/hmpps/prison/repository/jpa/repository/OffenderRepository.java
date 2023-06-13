@@ -29,35 +29,6 @@ public interface OffenderRepository extends JpaRepository<Offender, Long> {
         return findOffendersByNomsId(nomsId, PageRequest.of(0,1)).stream().findFirst();
     }
 
-    @Query("""
-        select o from Offender o
-                 join fetch o.bookings b
-                 join fetch b.offender o2
-                 left join fetch b.nonAssociationDetails nad
-            left join fetch b.releaseDetail rd
-            left join fetch rd.movementType mt
-            left join fetch b.assignedLivingUnit alu
-            left join fetch alu.livingUnit lu
-                 join fetch b.location l
-            left join fetch l.courtType ct
-           
-         where o.nomsId = :nomsId and b.bookingSequence = 1
-         order by nad.effectiveDate ASC
-            """)
-        // *** NOTE: Problems with too many rows returned (>1000 rather than ~160) possibly due to Set equals issue
-//    left join fetch b.externalMovements em
-//    left join fetch em.movementReason mr
-//left join fetch b.nonAssociationDetails nad
-//    left join fetch nad.nsOffender no
-//    left join fetch nad.nonAssociationReason nar
-//    left join fetch nad.nonAssociationType nat
-//    left join fetch nad.recipNonAssociationReason rnar
-//    left join fetch nad.nonAssociation na
-        // left join fetch na.recipNonAssociationReason rnar2
-
-    // @EntityGraph(type = EntityGraphType.FETCH, value = "offender-with-non-associations")
-    Optional<Offender> findOffenderByNomsIdWithNonAssociations(String nomsId);
-
     @Query(value =
         "select o from Offender o join o.bookings ob join ob.images oi WHERE oi.captureDateTime > :start")
     Page<Offender> getOffendersWithImagesCapturedAfter(@Param("start") LocalDateTime start, Pageable pageable);

@@ -11,6 +11,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedAttributeNode;
 import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.NamedEntityGraphs;
+import jakarta.persistence.NamedSubgraph;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.OrderBy;
@@ -67,14 +69,41 @@ import static uk.gov.justice.hmpps.prison.service.transformers.OffenderTransform
 @Entity
 @Table(name = "OFFENDER_BOOKINGS")
 @With
-@NamedEntityGraph(
-    name = "booking-with-summary",
-    attributeNodes = {
-        @NamedAttributeNode(value = "offender"),
-        @NamedAttributeNode(value = "location"),
-        @NamedAttributeNode(value = "assignedLivingUnit"),
-    }
-)
+@NamedEntityGraphs({
+    @NamedEntityGraph(
+        name = "booking-with-summary",
+        attributeNodes = {
+            @NamedAttributeNode(value = "offender"),
+            @NamedAttributeNode(value = "location"),
+            @NamedAttributeNode(value = "assignedLivingUnit"),
+        }
+    ),
+    @NamedEntityGraph(
+        name = "booking-with-movements",
+        attributeNodes = {
+            @NamedAttributeNode(value = "offender"),
+            @NamedAttributeNode(value = "location"),
+            @NamedAttributeNode(value = "assignedLivingUnit", subgraph = "agency-internal-location-details"),
+            @NamedAttributeNode(value = "externalMovements", subgraph = "movement-details"),
+        },
+        subgraphs = {
+            @NamedSubgraph(
+                name = "movement-details",
+                attributeNodes = {
+                    // @NamedAttributeNode("movementDirection"),
+                    @NamedAttributeNode("movementReason"),
+                    // @NamedAttributeNode("movementType"),
+                }
+            ),
+            @NamedSubgraph(
+                name = "agency-internal-location-details",
+                attributeNodes = {
+                    @NamedAttributeNode("livingUnit"),
+                }
+            ),
+        }
+    )
+})
 public class OffenderBooking extends AuditableEntity {
 
     @SequenceGenerator(name = "OFFENDER_BOOK_ID", sequenceName = "OFFENDER_BOOK_ID", allocationSize = 1)

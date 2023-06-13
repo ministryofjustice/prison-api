@@ -8,9 +8,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.NamedAttributeNode;
-import jakarta.persistence.NamedEntityGraph;
-import jakarta.persistence.NamedSubgraph;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
@@ -57,54 +54,6 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.Title.TITLE;
 @Entity
 @Table(name = "OFFENDERS")
 @With
-@NamedEntityGraph(
-    name = "offender-with-non-associations",
-    attributeNodes = {
-        @NamedAttributeNode(value = "bookings", subgraph = "booking-details"),
-    },
-    subgraphs = {
-        @NamedSubgraph(
-            name = "booking-details",
-            attributeNodes = {
-                @NamedAttributeNode(value = "nonAssociationDetails", subgraph = "non-association-details"),
-                @NamedAttributeNode(value = "offender"),
-                @NamedAttributeNode(value = "externalMovements", subgraph = "movement-details"),
-                @NamedAttributeNode(value = "assignedLivingUnit", subgraph = "agency-internal-location-details"),
-                @NamedAttributeNode(value = "location"),
-                @NamedAttributeNode(value = "releaseDetail"),
-            }
-        ),
-        @NamedSubgraph(
-            name = "non-association-details",
-            attributeNodes = {
-                @NamedAttributeNode("nonAssociationReason"),
-                @NamedAttributeNode("nonAssociationType"),
-                @NamedAttributeNode("recipNonAssociationReason"),
-                // @NamedAttributeNode(value = "nonAssociation", subgraph = "non-association"),
-                @NamedAttributeNode("nsOffender"),
-            }
-        ),
-        @NamedSubgraph(
-            name = "agency-internal-location-details",
-            attributeNodes = {
-                @NamedAttributeNode("livingUnit"),
-            }
-        ),
-        @NamedSubgraph(
-            name = "movement-details",
-            attributeNodes = {
-                @NamedAttributeNode("movementReason"),
-            }
-        ),
-//        @NamedSubgraph(
-//            name = "non-association",
-//            attributeNodes = {
-//                @NamedAttributeNode("nsOffender"),
-//                @NamedAttributeNode("recipNonAssociationReason"),
-//            }
-//        )
-    }
-)
 public class Offender extends AuditableEntity {
 
     @SequenceGenerator(name = "OFFENDER_ID", sequenceName = "OFFENDER_ID", allocationSize = 1)
