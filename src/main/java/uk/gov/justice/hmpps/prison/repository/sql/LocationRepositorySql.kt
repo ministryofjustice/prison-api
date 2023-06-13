@@ -37,19 +37,19 @@ enum class LocationRepositorySql(val sql: String) {
 
   GET_LOCATION_GROUP_DATA(
     """
-        SELECT AIL.INTERNAL_LOCATION_ID                        AS LOCATION_ID,
+        SELECT AIL.INTERNAL_LOCATION_ID                 AS LOCATION_ID,
         AIL.DESCRIPTION,
         AIL.USER_DESC                                   AS USER_DESCRIPTION,
         AIL.INTERNAL_LOCATION_CODE,
         AIL.INTERNAL_LOCATION_TYPE                      AS LOCATION_TYPE,
-        AIL.PARENT_INTERNAL_LOCATION_ID                 AS PARENT_LOCATION_ID
+        AIL.PARENT_INTERNAL_LOCATION_ID                 AS PARENT_LOCATION_ID,
+        AIL.CERTIFIED_FLAG
         FROM AGENCY_INTERNAL_LOCATIONS AIL
-        WHERE AIL.INTERNAL_LOCATION_TYPE in ('WING') AND
-                AIL.CERTIFIED_FLAG = 'Y'                      AND
-                AIL.UNIT_TYPE IS NOT NULL                     AND
-        AIL.AGY_LOC_ID = :agencyId                    AND
-        AIL.ACTIVE_FLAG = 'Y'                         AND
-                AIL.PARENT_INTERNAL_LOCATION_ID IS NULL
+        WHERE AIL.AGY_LOC_ID = :agencyId                    AND
+              AIL.UNIT_TYPE IS NOT NULL                     AND
+              AIL.CAPACITY > 0                              AND
+              AIL.ACTIVE_FLAG = 'Y'                         AND
+              AIL.PARENT_INTERNAL_LOCATION_ID IS NULL     
     """,
   ),
 

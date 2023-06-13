@@ -12,6 +12,8 @@ data class LocationDto(
   val operationalCapacity: Int?,
   val userDescription: String?,
   val internalLocationCode: String?,
+  val certifiedFlag: String?,
+  val capacity: Int?,
 ) {
   fun toLocation() = Location(
     this.locationId,

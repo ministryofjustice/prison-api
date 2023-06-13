@@ -52,12 +52,14 @@ public class LocationRepository extends RepositoryBase {
         }
     }
 
-    public List<Location> getLocationGroupData(final String agencyId) {
+    public List<Location> getLocationGroupData(final String agencyId, boolean certifiedOnly) {
         final var locations = jdbcTemplate.query(
                 LocationRepositorySql.GET_LOCATION_GROUP_DATA.getSql(),
                 Map.of("agencyId", agencyId),
                 LOCATION_ROW_MAPPER);
-        return locations.stream().map(LocationDto::toLocation).toList();
+        return locations.stream()
+            .filter(l -> !certifiedOnly || "Y".equals(l.getCertifiedFlag()))
+            .map(LocationDto::toLocation).toList();
     }
 
     public List<Location> getSubLocationGroupData(Set<Long> parentLocationIds) {

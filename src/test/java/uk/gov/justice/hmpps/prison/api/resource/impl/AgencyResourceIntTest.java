@@ -31,7 +31,7 @@ public class AgencyResourceIntTest extends ResourceTest {
 
     @Test
     public void locationGroups_allOk_returnsSuccessAndData() {
-        when(repository.getLocationGroupData("LEI")).thenReturn(List.of(L1));
+        when(repository.getLocationGroupData("LEI", true)).thenReturn(List.of(L1));
 
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
 
@@ -44,7 +44,7 @@ public class AgencyResourceIntTest extends ResourceTest {
 
     @Test
     public void locationGroups_randomError_returnsErrorFromControllerAdvice() {
-        when(locationGroupService.getLocationGroups("LEI")).thenThrow(new EntityNotFoundException("test ex"));
+        when(locationGroupService.getLocationGroups("LEI", true)).thenThrow(new EntityNotFoundException("test ex"));
 
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
 

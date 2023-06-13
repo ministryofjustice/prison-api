@@ -58,7 +58,7 @@ public class LocationRepositoryTest {
 
     @Test
     public void getLocationGroupData() {
-        assertThat(repository.getLocationGroupData("LEI"))
+        assertThat(repository.getLocationGroupData("LEI", true))
                 .contains(
                         Location.builder().locationId(-1L).locationType("WING").description("LEI-A").userDescription("Block A").internalLocationCode("A").build(),
                         Location.builder().locationId(-13L).locationType("WING").description("LEI-H").internalLocationCode("H").build()

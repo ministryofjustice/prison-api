@@ -2,7 +2,6 @@ package uk.gov.justice.hmpps.prison.service;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.apache.commons.text.WordUtils;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.model.LocationGroup;
@@ -32,12 +31,12 @@ public class LocationGroupService {
         this.locationRepository = locationRepository;
     }
 
-    public List<LocationGroup> getLocationGroupsForAgency(final String agencyId) {
-        return getLocationGroups(agencyId);
+    public List<LocationGroup> getLocationGroupsForAgency(final String agencyId, boolean certifiedOnly) {
+        return getLocationGroups(agencyId, certifiedOnly);
     }
 
-    public List<LocationGroup> getLocationGroups(String agencyId) {
-        val locations = locationRepository.getLocationGroupData(agencyId);
+    public List<LocationGroup> getLocationGroups(String agencyId, boolean certifiedOnly) {
+        val locations = locationRepository.getLocationGroupData(agencyId, certifiedOnly);
         val locationIds = locations.stream().map(Location::getLocationId).collect(toSet());
         val subLocations = locationRepository.getSubLocationGroupData(locationIds);
         return toLocationGroups(locations, subLocations);

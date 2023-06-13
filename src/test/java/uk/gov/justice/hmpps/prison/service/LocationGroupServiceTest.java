@@ -54,42 +54,42 @@ class LocationGroupServiceTest {
 
     @Test
     void noGroups() {
-        assertThat(service.getLocationGroups("LEI")).isEmpty();
+        assertThat(service.getLocationGroups("LEI", true)).isEmpty();
     }
 
     @Test
     void oneGroup() {
-        when(repository.getLocationGroupData("LEI")).thenReturn(List.of(L1));
-        assertThat(service.getLocationGroups("LEI")).contains(LG1);
+        when(repository.getLocationGroupData("LEI", true)).thenReturn(List.of(L1));
+        assertThat(service.getLocationGroups("LEI", true)).contains(LG1);
     }
 
     @Test
     void twoGroups() {
-        when(repository.getLocationGroupData("LEI")).thenReturn(List.of(L2, L1));
-        assertThat(service.getLocationGroups("LEI")).containsExactly(LG1, LG2);
+        when(repository.getLocationGroupData("LEI", true)).thenReturn(List.of(L2, L1));
+        assertThat(service.getLocationGroups("LEI", true)).containsExactly(LG1, LG2);
     }
 
     @Test
     void oneGroupOneSubGroupRemoved() {
-        when(repository.getLocationGroupData("LEI")).thenReturn(List.of(L1));
+        when(repository.getLocationGroupData("LEI", true)).thenReturn(List.of(L1));
         when(repository.getSubLocationGroupData(Set.of(-1L))).thenReturn(List.of(SL2));
-        assertThat(service.getLocationGroups("LEI")).contains(LG1);
+        assertThat(service.getLocationGroups("LEI", true)).contains(LG1);
     }
 
     @Test
     void oneGroupTwoSubGroups() {
-        when(repository.getLocationGroupData("LEI")).thenReturn(List.of(L1));
+        when(repository.getLocationGroupData("LEI", true)).thenReturn(List.of(L1));
         when(repository.getSubLocationGroupData(Set.of(-1L))).thenReturn(List.of(SL3, SL2));
-        assertThat(service.getLocationGroups("LEI")).contains(
+        assertThat(service.getLocationGroups("LEI", true)).contains(
                 LG1.toBuilder().children(List.of(SLG2, SLG3)).build()
         );
     }
 
     @Test
     void twoGroupWithSubGroups() {
-        when(repository.getLocationGroupData("LEI")).thenReturn(List.of(L1, L2));
+        when(repository.getLocationGroupData("LEI", true)).thenReturn(List.of(L1, L2));
         when(repository.getSubLocationGroupData(Set.of(-1L, -13L))).thenReturn(List.of(SL1, SL2, SL3));
-        assertThat(service.getLocationGroups("LEI")).contains(
+        assertThat(service.getLocationGroups("LEI", true)).contains(
                 LG1.toBuilder().children(List.of(SLG2, SLG3)).build(),
                 LG2
         );
@@ -104,9 +104,9 @@ class LocationGroupServiceTest {
 
     @Test
     void locationGroupFormatting() {
-        when(repository.getLocationGroupData("LEI")).thenReturn(List.of(L1_WITH_ACRONYM));
+        when(repository.getLocationGroupData("LEI", true)).thenReturn(List.of(L1_WITH_ACRONYM));
         when(repository.getSubLocationGroupData(Set.of(-1L))).thenReturn(List.of(SL1_WITH_ACRONYM, SL2_WITH_ACRONYM));
-        var foundLocations = service.getLocationGroups("LEI");
+        var foundLocations = service.getLocationGroups("LEI", true);
         assertThat(foundLocations).contains(LG1_WITH_ACRONYM.toBuilder().children(List.of(SLG2_WITH_ACRONYM, SLG1_WITH_ACRONYM)).build());
     }
 

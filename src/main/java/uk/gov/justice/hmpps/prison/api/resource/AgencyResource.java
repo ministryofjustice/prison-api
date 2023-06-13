@@ -217,8 +217,10 @@ public class AgencyResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of all available Location Groups at agency.", description = "List of all available Location Groups at agency.")
     @GetMapping("/{agencyId}/locations/groups")
-    public List<LocationGroup> getAvailableLocationGroups(@PathVariable("agencyId") @Parameter(description = "The prison", required = true) final String agencyId) {
-        return locationGroupService.getLocationGroupsForAgency(agencyId);
+    public List<LocationGroup> getAvailableLocationGroups(@PathVariable("agencyId") @Parameter(description = "The prison", required = true) final String agencyId,
+                                                          @RequestParam(value = "certifiedOnly", defaultValue = "true", required = false)
+                                                          @Parameter(description = "Only return certified locations") final boolean certifiedOnly) {
+        return locationGroupService.getLocationGroupsForAgency(agencyId, certifiedOnly);
     }
 
     @ApiResponses({
