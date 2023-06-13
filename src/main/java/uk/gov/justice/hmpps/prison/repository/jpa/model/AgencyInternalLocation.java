@@ -102,6 +102,9 @@ public class AgencyInternalLocation {
     @Column(name = "CAPACITY")
     private Integer capacity;
 
+    @Column(name = "UNIT_TYPE")
+    private String type;
+
     @OneToMany(fetch = FetchType.LAZY)
     @Where(clause = "INT_LOC_PROFILE_TYPE = 'HOU_UNIT_ATT' AND INT_LOC_PROFILE_CODE is not NULL")
     @JoinColumn(name = "INTERNAL_LOCATION_ID", referencedColumnName = "INTERNAL_LOCATION_ID")

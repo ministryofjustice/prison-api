@@ -49,7 +49,7 @@ class LocationServiceImplTest {
         when(agencyRepository.findAgenciesForCurrentCaseloadByUsername("me")).thenReturn(agencies);
 
         final var location = createTestLocation();
-        when(agencyInternalLocationRepository.findByAgencyIdAndActiveAndParentLocationIsNull("LEI", true)).thenReturn(List.of(createTestAgencyInternalLocation()));
+        when(agencyInternalLocationRepository.findByAgencyIdAndActiveAndParentLocationIsNullAndCapacityGreaterThanAndTypeIsNotNull("LEI", true, 0)).thenReturn(List.of(createTestAgencyInternalLocation()));
         when(caseLoadService.getWorkingCaseLoadForUser("me")).thenReturn(Optional.of(CaseLoad.builder().caseLoadId("LEI").type("INST").build()));
         final var returnedLocations = locationService.getUserLocations("me");
 
