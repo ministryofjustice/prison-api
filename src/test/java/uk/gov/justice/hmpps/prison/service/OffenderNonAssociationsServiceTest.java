@@ -20,7 +20,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderNonAssociat
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -95,7 +94,7 @@ public class OffenderNonAssociationsServiceTest {
     @Test
     void retrieve_maps_associations_for_booking() {
         victimsBooking = victimsBookingBuilder
-                .nonAssociationDetails(Set.of(
+                .nonAssociationDetails(List.of(
                         uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderNonAssociationDetail.builder()
                                 .offender(victim)
                                 .nsOffender(perpetrator)
@@ -171,7 +170,7 @@ public class OffenderNonAssociationsServiceTest {
     @Test
     void retrieve_handles_missing_optionals() {
         victimsBooking = victimBookingWithoutOptionalsBuilder
-                .nonAssociationDetails(Set.of(
+                .nonAssociationDetails(List.of(
                         uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderNonAssociationDetail.builder()
                                 .offender(victim)
                                 .nsOffender(perpetrator)

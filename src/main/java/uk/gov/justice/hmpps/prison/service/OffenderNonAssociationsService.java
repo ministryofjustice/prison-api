@@ -14,7 +14,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderNonAssociationDetail;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderNonAssociationDetailRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 
@@ -62,10 +61,10 @@ public class OffenderNonAssociationsService {
         final List<OffenderNonAssociationDetail> nonAssociations
             = offenderNonAssociationDetailRepository.findAllByOffenderBooking_Offender_NomsIdOrderByEffectiveDateAsc(offenderNo);
 
+        log.debug("'{}' non-association(s) found for offender '{}'", nonAssociations.size(), offenderNo);
+
         final var latestBooking = bookingRepository.findWithDetailsByOffenderNomsIdAndBookingSequence(offenderNo, 1)
             .orElseThrow(EntityNotFoundException.withMessage("Offender no %s not found.", offenderNo));
-
-        log.debug("'{}' non-association(s) found for offender '{}'", nonAssociations.size(), offenderNo);
 
         final Offender offender = latestBooking.getOffender();
         return OffenderNonAssociationDetails.builder()

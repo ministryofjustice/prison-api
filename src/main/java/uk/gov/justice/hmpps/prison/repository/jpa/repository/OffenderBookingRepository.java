@@ -24,7 +24,7 @@ public interface OffenderBookingRepository extends
 
     Optional<OffenderBooking> findByOffenderNomsIdAndBookingSequence(String nomsId, Integer bookingSequence);
 
-    @EntityGraph(type = EntityGraphType.FETCH, value = "booking-with-movements")
+    @EntityGraph(type = EntityGraphType.FETCH, value = "booking-with-livingUnits")
     Optional<OffenderBooking> findWithDetailsByOffenderNomsIdAndBookingSequence(String nomsId, Integer bookingSequence);
 
     Optional<OffenderBooking> findByBookingId(Long bookingId);
