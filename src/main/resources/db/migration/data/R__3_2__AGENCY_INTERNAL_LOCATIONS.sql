@@ -62,7 +62,7 @@ INSERT INTO AGENCY_INTERNAL_LOCATIONS (INTERNAL_LOCATION_ID, INTERNAL_LOCATION_C
         (-22,  '8',   'CELL',  'LEI',   'NA', 'Y',  1,  1, 'LEI-H-1-8', -14, null, 1),
         (-23,  '9',   'CELL',  'LEI',   'NA', 'Y',  1,  1, 'LEI-H-1-9', -14, null, 1),
         (-24, '10',   'CELL',  'LEI',   'NA', 'Y',  1,  1, 'LEI-H-1-10', -14, null, 1),
-        (-25, 'CHAP', 'AREA',  'LEI',   null, 'N',  null,  null, 'LEI-CHAP', null, 'Chapel', null),
+        (-25, 'CHAP', 'AREA',  'LEI',   'NA', 'N',  null,  null, 'LEI-CHAP', null, 'Chapel', null),
         (-26, 'CARP', 'WSHP',  'LEI',   null, 'N',  null,  null, 'LEI-CARP', null, 'Carpentry Workshop', null),
         (-27, 'CRM1', 'CLAS',  'LEI',   null, 'N',  null,  null, 'LEI-CRM1', null, 'Classroom 1', null),
         (-28, 'VIS',  'VISIT', 'LEI',   null, 'N',  null,  null, 'LEI-VIS', null, 'Visiting Room', null),
