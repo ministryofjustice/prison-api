@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderNumber;
-import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImage;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImageRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
