@@ -11,6 +11,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderNonAssociationDetails;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.NonAssociationReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderNonAssociationDetail;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderNonAssociationDetailRepository;
@@ -36,22 +37,11 @@ public class OffenderNonAssociationsService {
 
         final var booking = bookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId));
 
-        final var nonAssociations = booking.getNonAssociationDetails()
-                .stream()
-                .map(this::transform)
-                .toList();
+        final var nonAssociations = offenderNonAssociationDetailRepository.findAllByOffenderBooking_BookingIdOrderByEffectiveDateAsc(bookingId);
 
         log.debug("'{}' non-association(s) found for booking '{}'", nonAssociations.size(), bookingId);
 
-        return OffenderNonAssociationDetails.builder()
-                .offenderNo(booking.getOffender().getNomsId())
-                .firstName(WordUtils.capitalizeFully(booking.getOffender().getFirstName()))
-                .lastName(WordUtils.capitalizeFully(booking.getOffender().getLastName()))
-                .agencyDescription(booking.getLocation().getDescription())
-                .assignedLivingUnitId(Optional.ofNullable(booking.getAssignedLivingUnit()).map(AgencyInternalLocation::getLocationId).orElse(null))
-                .assignedLivingUnitDescription(Optional.ofNullable(booking.getAssignedLivingUnit()).map(AgencyInternalLocation::getDescription).orElse(null))
-                .nonAssociations(nonAssociations)
-                .build();
+        return getOffenderNonAssociationDetails(booking, nonAssociations);
     }
 
     @VerifyOffenderAccess
@@ -66,14 +56,18 @@ public class OffenderNonAssociationsService {
         final var latestBooking = bookingRepository.findWithDetailsByOffenderNomsIdAndBookingSequence(offenderNo, 1)
             .orElseThrow(EntityNotFoundException.withMessage("Offender no %s not found.", offenderNo));
 
-        final Offender offender = latestBooking.getOffender();
+        return getOffenderNonAssociationDetails(latestBooking, nonAssociations);
+    }
+
+    private OffenderNonAssociationDetails getOffenderNonAssociationDetails(OffenderBooking booking, List<OffenderNonAssociationDetail> nonAssociations) {
+        final Offender offender = booking.getOffender();
         return OffenderNonAssociationDetails.builder()
             .offenderNo(offender.getNomsId())
             .firstName(WordUtils.capitalizeFully(offender.getFirstName()))
             .lastName(WordUtils.capitalizeFully(offender.getLastName()))
-            .agencyDescription(latestBooking.getLocation().getDescription())
-            .assignedLivingUnitId(Optional.ofNullable(latestBooking.getAssignedLivingUnit()).map(AgencyInternalLocation::getLocationId).orElse(null))
-            .assignedLivingUnitDescription(Optional.ofNullable(latestBooking.getAssignedLivingUnit()).map(AgencyInternalLocation::getDescription).orElse(null))
+            .agencyDescription(booking.getLocation().getDescription())
+            .assignedLivingUnitId(Optional.ofNullable(booking.getAssignedLivingUnit()).map(AgencyInternalLocation::getLocationId).orElse(null))
+            .assignedLivingUnitDescription(Optional.ofNullable(booking.getAssignedLivingUnit()).map(AgencyInternalLocation::getDescription).orElse(null))
             .nonAssociations(nonAssociations.stream().map(this::transform).toList())
             .build();
     }

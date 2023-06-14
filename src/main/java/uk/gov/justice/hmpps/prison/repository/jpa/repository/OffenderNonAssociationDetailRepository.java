@@ -10,5 +10,8 @@ import java.util.List;
 public interface OffenderNonAssociationDetailRepository extends CrudRepository<OffenderNonAssociationDetail, OffenderNonAssociationDetail.Pk> {
 
     @EntityGraph(type = EntityGraphType.FETCH, value = "non-association-details")
+    List<OffenderNonAssociationDetail> findAllByOffenderBooking_BookingIdOrderByEffectiveDateAsc(final Long bookingId);
+
+    @EntityGraph(type = EntityGraphType.FETCH, value = "non-association-details")
     List<OffenderNonAssociationDetail> findAllByOffenderBooking_Offender_NomsIdOrderByEffectiveDateAsc(final String nomisId);
 }
