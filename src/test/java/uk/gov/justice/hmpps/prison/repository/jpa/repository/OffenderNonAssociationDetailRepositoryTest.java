@@ -49,7 +49,7 @@ public class OffenderNonAssociationDetailRepositoryTest {
 
     @Test
     void find_non_association_details_by_offender_booking() {
-        final var nonAssociationDetails = nonAssociationDetailRepositoryRepository.findAllByOffenderBooking_BookingId(booking.getBookingId());
+        final var nonAssociationDetails = nonAssociationDetailRepositoryRepository.findAllByOffenderBooking_Offender_NomsIdOrderByEffectiveDateAsc(booking.getOffender().getNomsId());
 
         assertThat(nonAssociationDetails).hasSize(2);
 

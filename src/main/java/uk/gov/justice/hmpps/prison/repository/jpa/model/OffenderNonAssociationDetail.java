@@ -1,5 +1,16 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.NamedSubgraph;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -11,15 +22,6 @@ import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.NotFound;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-import jakarta.persistence.IdClass;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -35,6 +37,34 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @ToString(exclude = {"offender", "nsOffender", "offenderBooking", "nonAssociation"})
 @Table(name = "OFFENDER_NA_DETAILS")
 @IdClass(OffenderNonAssociationDetail.Pk.class)
+@NamedEntityGraph(
+    name = "non-association-details",
+    attributeNodes = {
+        @NamedAttributeNode("nonAssociationReason"),
+        @NamedAttributeNode("nonAssociationType"),
+        @NamedAttributeNode("recipNonAssociationReason"),
+        @NamedAttributeNode(value = "nonAssociation", subgraph = "non-association"),
+        @NamedAttributeNode("nsOffender"),
+        // @NamedAttributeNode(value = "bookings", subgraph = "booking-details"),
+    },
+    subgraphs = {
+        @NamedSubgraph(
+            name = "non-association",
+            attributeNodes = {
+                @NamedAttributeNode("nsOffender"),
+                @NamedAttributeNode("recipNonAssociationReason"),
+                @NamedAttributeNode(value = "nsOffenderBooking", subgraph = "ns-living-unit"),
+            }
+        ),
+        @NamedSubgraph(
+            name = "ns-living-unit",
+            attributeNodes = {
+                @NamedAttributeNode("assignedLivingUnit"),
+                @NamedAttributeNode("location"),
+            }
+        ),
+    }
+)
 public class OffenderNonAssociationDetail extends AuditableEntity {
 
     @AllArgsConstructor
@@ -103,7 +133,7 @@ public class OffenderNonAssociationDetail extends AuditableEntity {
     })
     private NonAssociationReason recipNonAssociationReason;
 
-    @OneToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(column = @JoinColumn(name = "OFFENDER_ID", referencedColumnName = "OFFENDER_ID")),
             @JoinColumnOrFormula(column = @JoinColumn(name = "NS_OFFENDER_ID", referencedColumnName = "NS_OFFENDER_ID")),
@@ -112,10 +142,6 @@ public class OffenderNonAssociationDetail extends AuditableEntity {
 
     public Optional<String> getAgencyDescription() {
         return Optional.ofNullable(offenderBooking.getLocation()).map(AgencyLocation::getDescription);
-    }
-
-    public Optional<String> getAssignedLivingUnitDescription() {
-        return Optional.ofNullable(offenderBooking.getAssignedLivingUnit()).map(AgencyInternalLocation::getDescription);
     }
 }
 
