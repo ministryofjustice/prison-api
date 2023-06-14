@@ -29,6 +29,6 @@ public interface AgencyInternalLocationRepository extends JpaRepository<AgencyIn
 
     Optional<AgencyInternalLocation> findOneByLocationCodeAndAgencyId(final String locationCode, final String agencyId);
 
-    List<AgencyInternalLocation> findByAgencyIdAndActiveAndParentLocationIsNull(final String agencyId, boolean active);
+    List<AgencyInternalLocation> findByAgencyIdAndActiveAndParentLocationIsNullAndCapacityGreaterThanAndTypeIsNotNull(final String agencyId, boolean active, int capacity);
 
 }
