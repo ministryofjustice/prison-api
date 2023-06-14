@@ -45,7 +45,6 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
         @NamedAttributeNode("recipNonAssociationReason"),
         @NamedAttributeNode(value = "nonAssociation", subgraph = "non-association"),
         @NamedAttributeNode("nsOffender"),
-        // @NamedAttributeNode(value = "bookings", subgraph = "booking-details"),
     },
     subgraphs = {
         @NamedSubgraph(

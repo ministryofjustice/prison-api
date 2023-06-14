@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.courtdates.CourtDateResult;
+import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.service.courtdates.CourtDateService;
 
 import java.util.List;
@@ -35,8 +36,8 @@ public class CourtDateResource {
     @Operation(summary = "Returns details of all court dates and the result of each.")
     @GetMapping("/{offenderId}")
     @PreAuthorize("hasRole('MANAGE_DIGITAL_WARRANT') and hasAuthority('SCOPE_read')")
+    @SlowReportQuery
     public List<CourtDateResult> getCourtDateResults(@PathVariable("offenderId") @Parameter(description = "The required offender id (mandatory)", required = true) final String offenderId) {
         return courtDateService.getCourtDateResults(offenderId);
     }
 }
-
