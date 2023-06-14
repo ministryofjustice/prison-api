@@ -11,6 +11,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedAttributeNode;
 import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.NamedEntityGraphs;
+import jakarta.persistence.NamedSubgraph;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.OrderBy;
@@ -54,7 +56,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.toList;
 import static uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer.filterSentenceTerms;
 
 @Getter
@@ -65,14 +66,32 @@ import static uk.gov.justice.hmpps.prison.service.transformers.OffenderTransform
 @Entity
 @Table(name = "OFFENDER_BOOKINGS")
 @With
-@NamedEntityGraph(
-    name = "booking-with-summary",
-    attributeNodes = {
-        @NamedAttributeNode(value = "offender"),
-        @NamedAttributeNode(value = "location"),
-        @NamedAttributeNode(value = "assignedLivingUnit"),
-    }
-)
+@NamedEntityGraphs({
+    @NamedEntityGraph(
+        name = "booking-with-summary",
+        attributeNodes = {
+            @NamedAttributeNode(value = "offender"),
+            @NamedAttributeNode(value = "location"),
+            @NamedAttributeNode(value = "assignedLivingUnit"),
+        }
+    ),
+    @NamedEntityGraph(
+        name = "booking-with-livingUnits",
+        attributeNodes = {
+            @NamedAttributeNode(value = "offender"),
+            @NamedAttributeNode(value = "location"),
+            @NamedAttributeNode(value = "assignedLivingUnit", subgraph = "agency-internal-location-details"),
+        },
+        subgraphs = {
+            @NamedSubgraph(
+                name = "agency-internal-location-details",
+                attributeNodes = {
+                    @NamedAttributeNode("livingUnit"),
+                }
+            ),
+        }
+    )
+})
 public class OffenderBooking extends AuditableEntity {
 
     @SequenceGenerator(name = "OFFENDER_BOOK_ID", sequenceName = "OFFENDER_BOOK_ID", allocationSize = 1)

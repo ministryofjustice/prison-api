@@ -10,16 +10,15 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderNonAssociation;
 import uk.gov.justice.hmpps.prison.api.model.OffenderNonAssociationDetails;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.NonAssociationReason;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderNonAssociationDetail;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderNonAssociationDetailRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -29,7 +28,7 @@ import java.util.stream.Collectors;
 public class OffenderNonAssociationsService {
 
     private final OffenderBookingRepository bookingRepository;
-    private final OffenderRepository offenderRepository;
+    private final OffenderNonAssociationDetailRepository offenderNonAssociationDetailRepository;
 
     @VerifyBookingAccess
     public OffenderNonAssociationDetails retrieve(final Long bookingId) {
@@ -59,23 +58,23 @@ public class OffenderNonAssociationsService {
     public OffenderNonAssociationDetails retrieveByOffenderNo(final String offenderNo) {
         log.debug("Fetching non-associations for offender no '{}'", offenderNo);
 
-        final var offender = offenderRepository.findOffenderByNomsId(offenderNo).orElseThrow(EntityNotFoundException.withMessage("Offender no %s not found.", offenderNo));
-
-        final var nonAssociations = offender.getBookings().stream().map(OffenderBooking::getNonAssociationDetails)
-            .flatMap(Collection::stream)
-            .map(this::transform)
-            .toList();
+        final List<OffenderNonAssociationDetail> nonAssociations
+            = offenderNonAssociationDetailRepository.findAllByOffenderBooking_Offender_NomsIdOrderByEffectiveDateAsc(offenderNo);
 
         log.debug("'{}' non-association(s) found for offender '{}'", nonAssociations.size(), offenderNo);
 
+        final var latestBooking = bookingRepository.findWithDetailsByOffenderNomsIdAndBookingSequence(offenderNo, 1)
+            .orElseThrow(EntityNotFoundException.withMessage("Offender no %s not found.", offenderNo));
+
+        final Offender offender = latestBooking.getOffender();
         return OffenderNonAssociationDetails.builder()
             .offenderNo(offender.getNomsId())
             .firstName(WordUtils.capitalizeFully(offender.getFirstName()))
             .lastName(WordUtils.capitalizeFully(offender.getLastName()))
-            .agencyDescription(offender.getLatestBooking().orElseThrow().getLocation().getDescription())
-            .assignedLivingUnitId(Optional.ofNullable(offender.getLatestBooking().orElseThrow().getAssignedLivingUnit()).map(AgencyInternalLocation::getLocationId).orElse(null))
-            .assignedLivingUnitDescription(Optional.ofNullable(offender.getLatestBooking().orElseThrow().getAssignedLivingUnit()).map(AgencyInternalLocation::getDescription).orElse(null))
-            .nonAssociations(nonAssociations)
+            .agencyDescription(latestBooking.getLocation().getDescription())
+            .assignedLivingUnitId(Optional.ofNullable(latestBooking.getAssignedLivingUnit()).map(AgencyInternalLocation::getLocationId).orElse(null))
+            .assignedLivingUnitDescription(Optional.ofNullable(latestBooking.getAssignedLivingUnit()).map(AgencyInternalLocation::getDescription).orElse(null))
+            .nonAssociations(nonAssociations.stream().map(this::transform).toList())
             .build();
     }
 
@@ -90,9 +89,9 @@ public class OffenderNonAssociationsService {
                 .typeCode(detail.getNonAssociationType().getCode())
                 .typeDescription(detail.getNonAssociationType().getDescription())
                 .offenderNonAssociation(OffenderNonAssociation.builder()
-                        .offenderNo(detail.getNonAssociation().getNsOffender().getNomsId())
-                        .firstName(WordUtils.capitalizeFully(detail.getNonAssociation().getNsOffender().getFirstName()))
-                        .lastName(WordUtils.capitalizeFully(detail.getNonAssociation().getNsOffender().getLastName()))
+                        .offenderNo(detail.getNsOffender().getNomsId())
+                        .firstName(WordUtils.capitalizeFully(detail.getNsOffender().getFirstName()))
+                        .lastName(WordUtils.capitalizeFully(detail.getNsOffender().getLastName()))
                         .reasonCode(Optional.ofNullable(detail.getNonAssociation().getRecipNonAssociationReason()).map(NonAssociationReason::getCode).orElse(null))
                         .reasonDescription(Optional.ofNullable(detail.getNonAssociation().getRecipNonAssociationReason()).map(NonAssociationReason::getDescription).orElse(null))
                         .agencyDescription(detail.getNonAssociation().getNsAgencyDescription().orElse(null))
