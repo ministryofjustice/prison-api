@@ -281,7 +281,6 @@ public class InmateService {
 
 
     private Optional<OffenderLanguage> getFirstPreferredSpokenLanguage(final Long bookingId) {
-        offenderLanguageRepository.findByOffenderBookId(bookingId);
         return offenderLanguageRepository
                 .findByOffenderBookId(bookingId)
                 .stream()
