@@ -8,6 +8,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.NamedSubgraph;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
@@ -54,6 +57,34 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.Title.TITLE;
 @Entity
 @Table(name = "OFFENDERS")
 @With
+@NamedEntityGraph(name = "offender-with-sentences",
+    attributeNodes = {
+        @NamedAttributeNode(value = "bookings", subgraph = "bookings-with-sentences"),
+    },
+    subgraphs = {
+        @NamedSubgraph(
+            name = "bookings-with-sentences",
+            attributeNodes = {
+                @NamedAttributeNode(value = "sentences", subgraph = "sentence-terms"),
+                @NamedAttributeNode(value = "location"),
+                @NamedAttributeNode(value = "assignedLivingUnit", subgraph = "agency-internal-location-details"),
+            }
+        ),
+        @NamedSubgraph(
+            name = "sentence-terms",
+            attributeNodes = {
+                @NamedAttributeNode(value = "terms"),
+            }
+        ),
+        @NamedSubgraph(
+            name = "agency-internal-location-details",
+            attributeNodes = {
+                @NamedAttributeNode("livingUnit"),
+            }
+        ),
+    }
+)
+
 public class Offender extends AuditableEntity {
 
     @SequenceGenerator(name = "OFFENDER_ID", sequenceName = "OFFENDER_ID", allocationSize = 1)

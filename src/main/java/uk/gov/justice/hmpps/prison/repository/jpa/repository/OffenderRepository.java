@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -28,6 +29,9 @@ public interface OffenderRepository extends JpaRepository<Offender, Long> {
     default Optional<Offender> findOffenderByNomsId(String nomsId){
         return findOffendersByNomsId(nomsId, PageRequest.of(0,1)).stream().findFirst();
     }
+
+    @EntityGraph(value = "offender-with-sentences")
+    Optional<Offender> findFirstWithSentencesByNomsId(String nomsId);
 
     @Query(value =
         "select o from Offender o join o.bookings ob join ob.images oi WHERE oi.captureDateTime > :start")
