@@ -1,8 +1,8 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.1.4-beta-4"
-  kotlin("plugin.spring") version "1.8.21"
-  kotlin("plugin.jpa") version "1.8.21"
-  kotlin("plugin.lombok") version "1.8.21"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.2.0"
+  kotlin("plugin.spring") version "1.8.22"
+  kotlin("plugin.jpa") version "1.8.22"
+  kotlin("plugin.lombok") version "1.8.22"
 }
 
 configurations {
@@ -53,6 +53,7 @@ dependencies {
   implementation("commons-io:commons-io:2.11.0")
   implementation("org.apache.commons:commons-text:1.10.0")
   implementation("com.oracle.database.jdbc:ojdbc10:19.18.0.0")
+  implementation("org.hibernate.orm:hibernate-community-dialects:6.2.5.Final")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
   compileOnly("org.projectlombok:lombok:1.18.26")
