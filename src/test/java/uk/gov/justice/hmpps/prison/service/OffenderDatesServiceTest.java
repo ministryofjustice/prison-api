@@ -164,7 +164,15 @@ public class OffenderDatesServiceTest {
 
         // Then
         final var latestCalculation = offenderBooking.getLatestCalculation().get();
-        assertThat(latestCalculation).hasAllNullFieldsOrPropertiesExcept("offenderBooking", "hdcEligible");
+        assertThat(latestCalculation).hasAllNullFieldsOrPropertiesExcept(
+            "offenderBooking",
+            "hdcEligible",
+            "calculationDate",
+            "comments",
+            "staff",
+            "reasonCode",
+            "recordedDateTime",
+            "recordedUser");
     }
 
     @Test
