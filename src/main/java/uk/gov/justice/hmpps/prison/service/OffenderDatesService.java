@@ -81,7 +81,18 @@ public class OffenderDatesService {
                     .build();
             offenderBooking.addSentenceCalculation(sentenceCalculation);
         } else {
-            sentenceCalculation = SentenceCalculation.builder().build();
+            sentenceCalculation = SentenceCalculation.builder()
+                .offenderBooking(offenderBooking)
+                .reasonCode("UPDATE")
+                .calculationDate(calculationDate)
+                .comments(
+                    isBlank(requestToUpdateOffenderDates.getComment()) ?
+                        "The information shown was calculated using the Calculate Release Dates service. The calculation ID is: " + requestToUpdateOffenderDates.getCalculationUuid()
+                        : requestToUpdateOffenderDates.getComment()
+                )
+                .staff(staffUserAccount.getStaff())
+                .recordedUser(staffUserAccount)
+                .recordedDateTime(calculationDate).build();
             offenderBooking.addSentenceCalculation(sentenceCalculation);
         }
 
