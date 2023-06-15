@@ -70,7 +70,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitVisitor;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.WarZone;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.AvailablePrisonIepLevelRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderChargeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPersonsRepository;
@@ -146,8 +145,6 @@ public class BookingServiceTest {
     private OffenderTransformer offenderTransformer;
     @Mock
     private OffenderBookingTransformer offenderBookingTransformer;
-    @Mock
-    private AvailablePrisonIepLevelRepository availablePrisonIepLevelRepository;
     @Mock
     private OffenderSentenceRepository offenderSentenceRepository;
     @Mock
@@ -1227,7 +1224,7 @@ public class BookingServiceTest {
     void getSentenceAndOffenceDetails_withFullData() {
         final var bookingId = -1L;
 
-        final var termsSet = new LinkedHashSet();
+        final var termsSet = new LinkedHashSet<SentenceTerm>();
         termsSet.add(SentenceTerm.builder()
             .id(new SentenceTerm.PK(1L, 1, 1))
             .years(2)
