@@ -417,7 +417,7 @@ public class OffenderResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Return a specific adjudication")
     @GetMapping("/{offenderNo}/adjudications/{adjudicationNo}")
-    public AdjudicationDetail getAdjudication(@PathVariable("offenderNo") @Parameter(description = "offenderNo", required = true, example = "A1234AA") @NotNull final String offenderNo, @PathVariable("adjudicationNo") @Parameter(description = "adjudicationNo", required = true) @NotNull final long adjudicationNo) {
+    public AdjudicationDetail getAdjudication(@PathVariable("offenderNo") @Parameter(description = "offenderNo", required = true, example = "A1234AA") @NotNull final String offenderNo, @PathVariable("adjudicationNo") @Parameter(description = "adjudicationNo", required = true) final long adjudicationNo) {
         return adjudicationService.findAdjudication(offenderNo, adjudicationNo);
     }
 
@@ -665,6 +665,7 @@ public class OffenderResource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Gets the offender non-association details for a given offender for ALL bookings", description = "Get offender non-association details by offender No")
     @GetMapping("/{offenderNo}/non-association-details")
+    @SlowReportQuery
     public OffenderNonAssociationDetails getNonAssociationDetails(
         @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo) {
         try {
