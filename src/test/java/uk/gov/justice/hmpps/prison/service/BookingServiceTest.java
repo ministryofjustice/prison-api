@@ -1332,6 +1332,11 @@ public class BookingServiceTest {
                 .build()
         );
     }
+    /*
+ expected: [OffenderSentenceAndOffences(bookingId=-98, sentenceSequence=2, consecutiveToSequence=1, lineSequence=5, caseSequence=10, caseReference=XYZ789, courtDescription=A court, sentenceStatus=A, sentenceCategory=CAT, sentenceCalculationType=CALC, sentenceTypeDescription=Calc description, sentenceDate=2021-01-01, terms=[OffenderSentenceTerm(years=2, months=0, weeks=0, days=0, code=IMP), OffenderSentenceTerm(years=1, months=0, weeks=0, days=0, code=LI)], offences=[OffenderOffence(offenderChargeId=null, offenceStartDate=2021-01-02, offenceEndDate=2021-01-25, offenceCode=null, offenceDescription=null, indicators=[INDICATOR])], fineAmount=null)]
+  actual:  [OffenderSentenceAndOffences(bookingId=-98, sentenceSequence=2, consecutiveToSequence=1, lineSequence=5, caseSequence=10, caseReference=XYZ789, courtDescription=A court, sentenceStatus=A, sentenceCategory=CAT, sentenceCalculationType=CALC, sentenceTypeDescription=Calc description, sentenceDate=2021-01-01, terms=[OffenderSentenceTerm(years=1, months=0, weeks=0, days=0, code=LI), OffenderSentenceTerm(years=2, months=0, weeks=0, days=0, code=IMP)], offences=[OffenderOffence(offenderChargeId=null, offenceStartDate=2021-01-02, offenceEndDate=2021-01-25, offenceCode=null, offenceDescription=null, indicators=[INDICATOR])], fineAmount=null)]
+
+     */
 
     @Test
     void getOffenderFinePayments() {
