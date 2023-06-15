@@ -94,6 +94,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -1225,6 +1226,19 @@ public class BookingServiceTest {
     @Test
     void getSentenceAndOffenceDetails_withFullData() {
         final var bookingId = -1L;
+
+        final var termsSet = new LinkedHashSet();
+        termsSet.add(SentenceTerm.builder()
+            .id(new SentenceTerm.PK(1L, 1, 1))
+            .years(2)
+            .sentenceTermCode("IMP")
+            .build());
+        termsSet.add(SentenceTerm.builder()
+            .id(new SentenceTerm.PK(1L, 1, 2))
+            .years(1)
+            .sentenceTermCode("LI")
+            .build());
+
         when(offenderSentenceRepository.findByOffenderBooking_BookingId_AndCalculationType_CalculationTypeNotLikeAndCalculationType_CategoryNot(bookingId, "%AGG%", "LICENCE"))
             .thenReturn(
                 List.of(OffenderSentence.builder()
@@ -1244,18 +1258,7 @@ public class BookingServiceTest {
                                 .courtDate(LocalDate.of(2021,1,1))
                                 .build()
                             )
-                        .terms(Set.of(
-                            SentenceTerm.builder()
-                                .id(new SentenceTerm.PK(1L, 1, 1))
-                                .years(2)
-                                .sentenceTermCode("IMP")
-                                .build(),
-                            SentenceTerm.builder()
-                                .id(new SentenceTerm.PK(1L, 1, 2))
-                                .years(1)
-                                .sentenceTermCode("LI")
-                                .build()
-                        ))
+                        .terms(termsSet)
                         .offenderSentenceCharges(List.of(
                             OffenderSentenceCharge.builder()
                                 .offenderCharge(OffenderCharge.builder()
@@ -1332,6 +1335,11 @@ public class BookingServiceTest {
                 .build()
         );
     }
+    /*
+ expected: [OffenderSentenceAndOffences(bookingId=-98, sentenceSequence=2, consecutiveToSequence=1, lineSequence=5, caseSequence=10, caseReference=XYZ789, courtDescription=A court, sentenceStatus=A, sentenceCategory=CAT, sentenceCalculationType=CALC, sentenceTypeDescription=Calc description, sentenceDate=2021-01-01, terms=[OffenderSentenceTerm(years=2, months=0, weeks=0, days=0, code=IMP), OffenderSentenceTerm(years=1, months=0, weeks=0, days=0, code=LI)], offences=[OffenderOffence(offenderChargeId=null, offenceStartDate=2021-01-02, offenceEndDate=2021-01-25, offenceCode=null, offenceDescription=null, indicators=[INDICATOR])], fineAmount=null)]
+  actual:  [OffenderSentenceAndOffences(bookingId=-98, sentenceSequence=2, consecutiveToSequence=1, lineSequence=5, caseSequence=10, caseReference=XYZ789, courtDescription=A court, sentenceStatus=A, sentenceCategory=CAT, sentenceCalculationType=CALC, sentenceTypeDescription=Calc description, sentenceDate=2021-01-01, terms=[OffenderSentenceTerm(years=1, months=0, weeks=0, days=0, code=LI), OffenderSentenceTerm(years=2, months=0, weeks=0, days=0, code=IMP)], offences=[OffenderOffence(offenderChargeId=null, offenceStartDate=2021-01-02, offenceEndDate=2021-01-25, offenceCode=null, offenceDescription=null, indicators=[INDICATOR])], fineAmount=null)]
+
+     */
 
     @Test
     void getOffenderFinePayments() {
