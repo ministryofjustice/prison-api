@@ -1,6 +1,6 @@
 spring:
   security:
     oauth2:
-      resource-server:
+      resourceserver:
         jwt:
-          public-key-location: classpath:local-public-key.pub
+          jwk-set-uri: http://localhost:9090/auth/.well-known/jwks.json

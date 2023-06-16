@@ -55,7 +55,7 @@ to your run configuration.  This is because the current version of ehcache needs
 
 #### Authenticating with JWT when running locally
 
-When running locally with the profile `dev` JWTs are verified against resources/local-public-key.pem.  When deployed to t3, t2, preprod or prod, JWTs are verified against the public key hosted by the auth server at https://<auth-server>/auth/.well-known/jwks.json.
+When running locally with the profile `dev` JWTs are verified against http://localhost:9090/auth/.well-known/jwks.json.  When deployed to t3, t2, preprod or prod, JWTs are verified against the public key hosted by the auth server at https://<auth-server>/auth/.well-known/jwks.json.
 
 ### Coding Standards
 There are a few different styles in this project due to historical reasons and the accumulation of technical debt.
