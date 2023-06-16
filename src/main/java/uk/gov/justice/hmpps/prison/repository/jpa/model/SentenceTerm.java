@@ -36,7 +36,15 @@ import java.time.LocalDate;
 @NamedEntityGraph(
     name = "sentence-term-with-offender-sentence",
     attributeNodes = {
-        @NamedAttributeNode(value = "offenderSentence")
+        @NamedAttributeNode(value = "offenderSentence", subgraph = "offender-sentence-calc-type"),
+    },
+    subgraphs = {
+        @NamedSubgraph(
+            name = "offender-sentence-calc-type",
+            attributeNodes = {
+                @NamedAttributeNode(value = "calculationType")
+            }
+        ),
     }
 )
 public class SentenceTerm extends AuditableEntity {
