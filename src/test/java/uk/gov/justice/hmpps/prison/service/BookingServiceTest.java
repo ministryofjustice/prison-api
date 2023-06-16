@@ -70,7 +70,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitVisitor;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.WarZone;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.AvailablePrisonIepLevelRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderChargeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPersonsRepository;
@@ -94,6 +93,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -145,8 +145,6 @@ public class BookingServiceTest {
     private OffenderTransformer offenderTransformer;
     @Mock
     private OffenderBookingTransformer offenderBookingTransformer;
-    @Mock
-    private AvailablePrisonIepLevelRepository availablePrisonIepLevelRepository;
     @Mock
     private OffenderSentenceRepository offenderSentenceRepository;
     @Mock
@@ -1225,6 +1223,19 @@ public class BookingServiceTest {
     @Test
     void getSentenceAndOffenceDetails_withFullData() {
         final var bookingId = -1L;
+
+        final var termsSet = new LinkedHashSet<SentenceTerm>();
+        termsSet.add(SentenceTerm.builder()
+            .id(new SentenceTerm.PK(1L, 1, 1))
+            .years(2)
+            .sentenceTermCode("IMP")
+            .build());
+        termsSet.add(SentenceTerm.builder()
+            .id(new SentenceTerm.PK(1L, 1, 2))
+            .years(1)
+            .sentenceTermCode("LI")
+            .build());
+
         when(offenderSentenceRepository.findByOffenderBooking_BookingId_AndCalculationType_CalculationTypeNotLikeAndCalculationType_CategoryNot(bookingId, "%AGG%", "LICENCE"))
             .thenReturn(
                 List.of(OffenderSentence.builder()
@@ -1244,18 +1255,7 @@ public class BookingServiceTest {
                                 .courtDate(LocalDate.of(2021,1,1))
                                 .build()
                             )
-                        .terms(Set.of(
-                            SentenceTerm.builder()
-                                .id(new SentenceTerm.PK(1L, 1, 1))
-                                .years(2)
-                                .sentenceTermCode("IMP")
-                                .build(),
-                            SentenceTerm.builder()
-                                .id(new SentenceTerm.PK(1L, 1, 2))
-                                .years(1)
-                                .sentenceTermCode("LI")
-                                .build()
-                        ))
+                        .terms(termsSet)
                         .offenderSentenceCharges(List.of(
                             OffenderSentenceCharge.builder()
                                 .offenderCharge(OffenderCharge.builder()
