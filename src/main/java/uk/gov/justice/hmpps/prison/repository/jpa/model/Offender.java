@@ -68,6 +68,7 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.Title.TITLE;
                 @NamedAttributeNode(value = "sentences", subgraph = "sentence-terms"),
                 @NamedAttributeNode(value = "location"),
                 @NamedAttributeNode(value = "assignedLivingUnit", subgraph = "agency-internal-location-details"),
+                @NamedAttributeNode(value = "releaseDetail"),
             }
         ),
         @NamedSubgraph(
