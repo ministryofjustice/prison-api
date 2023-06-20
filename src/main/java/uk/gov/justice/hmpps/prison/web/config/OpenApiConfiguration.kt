@@ -50,18 +50,7 @@ class OpenApiConfiguration(buildProperties: BuildProperties) {
     .info(
       Info().title("HMPPS Prison API Documentation")
         .version(version)
-        .description(
-          """
-            A RESTful API service for accessing NOMIS data sets.
-            
-            All times sent to the API should be sent in local time without the timezone e.g. YYYY-MM-DDTHH:MM:SS.
-            All times returned in responses will be in Europe / London local time unless otherwise stated.
-            
-            Some endpoints are described as using the Replica database, a read-only copy of the live database which at
-            time of writing lags by < 1 second up to approximately 2 seconds. These endpoints are not suitable for use
-            by services reacting to events or refreshing web pages where a change has just been made.
-            """,
-        )
+        .description(this.javaClass.getResource("/documentation/service-description.html")!!.readText())
         .contact(Contact().name("HMPPS Digital Studio").email("feedback@digital.justice.gov.uk"))
         .license(License().name("MIT").url("https://opensource.org/licenses/MIT")),
     )

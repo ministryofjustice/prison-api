@@ -2,7 +2,6 @@ package uk.gov.justice.hmpps.prison.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
@@ -34,21 +33,18 @@ public class LocationService {
     private final LocationRepository locationRepository;
     private final InmateRepository inmateRepository;
     private final CaseLoadService caseLoadService;
-    private final String locationTypeGranularity;
 
     public LocationService(
             final AgencyRepository agencyRepository,
             final AgencyInternalLocationRepository agencyInternalLocationRepository,
             final LocationRepository locationRepository,
             final InmateRepository inmateRepository,
-            final CaseLoadService caseLoadService,
-            @Value("${api.users.me.locations.locationType:WING}") final String locationTypeGranularity) {
+            final CaseLoadService caseLoadService) {
         this.locationRepository = locationRepository;
         this.agencyInternalLocationRepository = agencyInternalLocationRepository;
         this.inmateRepository = inmateRepository;
         this.caseLoadService = caseLoadService;
         this.agencyRepository = agencyRepository;
-        this.locationTypeGranularity = locationTypeGranularity;
     }
 
     @Transactional
@@ -67,8 +63,9 @@ public class LocationService {
                 locations.add(convertToLocation(agency));
 
                 // Then retrieve all associated internal locations at configured level of granularity.
-                locations.addAll(agencyInternalLocationRepository.findByAgencyIdAndLocationTypeAndActiveAndParentLocationIsNull(agency.getAgencyId(), locationTypeGranularity, true)
-                        .stream().map(LocationTransformer::fromAgencyInternalLocationPreferUserDesc).sorted(Comparator.comparing(Location::getDescription)).toList());
+                locations.addAll(agencyInternalLocationRepository.findByAgencyIdAndActiveAndParentLocationIsNullAndCapacityGreaterThanAndTypeIsNotNull(agency.getAgencyId(), true, 0)
+                        .stream()
+                    .map(LocationTransformer::fromAgencyInternalLocationPreferUserDesc).sorted(Comparator.comparing(Location::getDescription)).toList());
                 return locations.stream();
 
         }).toList();
@@ -82,8 +79,7 @@ public class LocationService {
 
         return inmateRepository.findInmatesByLocation(
                 locationId,
-                locationTypeGranularity,
-                getWorkingCaseLoad(username),
+            getWorkingCaseLoad(username),
                 colSort,
                 order,
                 offset,

@@ -32,4 +32,7 @@ public class RequestToUpdateOffenderDates {
 
     @Schema(description = "Comment to be associated with the sentence calculation, if not set a default comment is used")
     private String comment;
+
+    @Schema(description = "Is true, when there are no dates to be recorded in NOMIS")
+    private boolean noDates;
 }

@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import com.google.common.collect.Lists;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -21,7 +22,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.BookingActivity;
 import uk.gov.justice.hmpps.prison.api.model.CourtCase;
-import uk.gov.justice.hmpps.prison.api.model.Email;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecord;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
@@ -82,6 +82,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderFinePayment
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRestrictionRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.SentenceTermRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationRepository;
@@ -98,7 +99,6 @@ import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
 import uk.gov.justice.hmpps.prison.service.transformers.PropertyContainerTransformer;
 import uk.gov.justice.hmpps.prison.service.validation.AttendanceTypesValid;
 
-import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -123,6 +123,7 @@ import static java.util.Comparator.nullsLast;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static uk.gov.justice.hmpps.prison.service.ContactService.EXTERNAL_REL;
+import static uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer.filterSentenceTerms;
 
 /**
  * Bookings API service interface.
@@ -146,6 +147,7 @@ public class BookingService {
     private final VisitorRepository visitorRepository;
     private final VisitVisitorRepository visitVisitorRepository;
     private final SentenceRepository sentenceRepository;
+    private final SentenceTermRepository sentenceTermRepository;
     private final AgencyService agencyService;
     private final CaseLoadService caseLoadService;
     private final CaseloadToAgencyMappingService caseloadToAgencyMappingService;
@@ -169,6 +171,7 @@ public class BookingService {
                           final VisitInformationRepository visitInformationRepository,
                           final VisitVisitorRepository visitVisitorRepository,
                           final SentenceRepository sentenceRepository,
+                          final SentenceTermRepository sentenceTermRepository,
                           final AgencyService agencyService,
                           final CaseLoadService caseLoadService,
                           final CaseloadToAgencyMappingService caseloadToAgencyMappingService,
@@ -192,6 +195,7 @@ public class BookingService {
         this.visitorRepository = visitorRepository;
         this.visitVisitorRepository = visitVisitorRepository;
         this.sentenceRepository = sentenceRepository;
+        this.sentenceTermRepository = sentenceTermRepository;
         this.agencyService = agencyService;
         this.caseLoadService = caseLoadService;
         this.caseloadToAgencyMappingService = caseloadToAgencyMappingService;
@@ -451,6 +455,7 @@ public class BookingService {
             })
             .toList();
     }
+
     private List<Visitor> getVisitors(final List<VisitVisitor> allVisitors, Map<Long, Optional<OffenderContactPerson>> allContacts, final Long visitId, final Long bookingId) {
         return allVisitors.stream().filter(visitor -> visitor.getVisitId().equals(visitId))
             .map(visitor -> {
@@ -697,8 +702,8 @@ public class BookingService {
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<OffenderSentenceTerms> getOffenderSentenceTerms(final Long bookingId, final List<String> filterBySentenceTermCodes) {
-        final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
-        return offenderBooking.getActiveFilteredSentenceTerms(filterBySentenceTermCodes);
+       final var terms = sentenceTermRepository.findByOffenderBookingBookingId(bookingId);
+       return filterSentenceTerms(terms, filterBySentenceTermCodes);
     }
 
     public List<OffenderSentenceDetail> getOffenderSentencesSummary(final String agencyId, final List<String> offenderNos) {
@@ -715,7 +720,7 @@ public class BookingService {
 
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public Optional<OffenderSentenceDetail> getOffenderSentenceDetail(final String offenderNo) {
-        return offenderRepository.findOffenderByNomsId(offenderNo)
+        return offenderRepository.findFirstWithSentencesByNomsId(offenderNo)
             .map(offender -> offender.getLatestBooking().map(booking ->
                 OffenderSentenceDetail.offenderSentenceDetailBuilder()
                     .offenderNo(offenderNo)
@@ -855,8 +860,7 @@ public class BookingService {
                                 .approvedVisitor(oc.isApprovedVisitor())
                                 .personId(oc.getPersonId())
                                 .bookingId(oc.getOffenderBooking().getBookingId())
-                                .emails(oc.getPerson().getEmails().stream().map(email ->
-                                        Email.builder().email(email.getInternetAddress()).build()).collect(toList()))
+                                .emails(AddressTransformer.translateEmails(oc.getPerson().getEmails()))
                                 .phones(AddressTransformer.translatePhones(oc.getPerson().getPhones()))
                                 .middleName(WordUtils.capitalizeFully(oc.getPerson().getMiddleName()))
                                 .restrictions(mergeGlobalAndStandardRestrictions(oc))

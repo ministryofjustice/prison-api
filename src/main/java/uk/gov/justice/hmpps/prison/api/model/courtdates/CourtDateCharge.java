@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.api.model.digitalwarrant;
+package uk.gov.justice.hmpps.prison.api.model.courtdates;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -10,14 +10,14 @@ import lombok.With;
 
 import java.time.LocalDate;
 
-@Schema(description = "A new offence from a digital warrant")
+@Schema(description = "A charge linked to a court date")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @With
-public class WarrantCharge {
+public class CourtDateCharge {
     @Schema(description = "The id of the charge")
     private Long chargeId;
 

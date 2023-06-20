@@ -1,5 +1,8 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.NamedSubgraph;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -30,6 +33,20 @@ import java.time.LocalDate;
 @EqualsAndHashCode(of = { "id" }, callSuper = false)
 @With
 @Table(name = "OFFENDER_SENTENCE_TERMS")
+@NamedEntityGraph(
+    name = "sentence-term-with-offender-sentence",
+    attributeNodes = {
+        @NamedAttributeNode(value = "offenderSentence", subgraph = "offender-sentence-calc-type"),
+    },
+    subgraphs = {
+        @NamedSubgraph(
+            name = "offender-sentence-calc-type",
+            attributeNodes = {
+                @NamedAttributeNode(value = "calculationType")
+            }
+        ),
+    }
+)
 public class SentenceTerm extends AuditableEntity {
 
     @NoArgsConstructor

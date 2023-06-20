@@ -1,5 +1,25 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.NamedEntityGraphs;
+import jakarta.persistence.NamedSubgraph;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.OrderBy;
+import jakarta.persistence.OrderColumn;
+import jakarta.persistence.PrimaryKeyJoinColumn;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +32,6 @@ import lombok.With;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.ListIndexBase;
 import org.hibernate.type.YesNoConverter;
-import jakarta.persistence.Convert;
 import uk.gov.justice.hmpps.prison.api.model.BookingAdjustment;
 import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
 import uk.gov.justice.hmpps.prison.api.model.LegalStatus;
@@ -27,32 +46,19 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail.PK
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.KeyDateValues;
 import uk.gov.justice.hmpps.prison.service.support.NonDtoReleaseDate;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.OrderBy;
-import jakarta.persistence.OrderColumn;
-import jakarta.persistence.PrimaryKeyJoinColumn;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.toList;
+import static uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer.filterSentenceTerms;
 
 @Getter
 @Setter
@@ -62,6 +68,32 @@ import static java.util.stream.Collectors.toList;
 @Entity
 @Table(name = "OFFENDER_BOOKINGS")
 @With
+@NamedEntityGraphs({
+    @NamedEntityGraph(
+        name = "booking-with-summary",
+        attributeNodes = {
+            @NamedAttributeNode(value = "offender"),
+            @NamedAttributeNode(value = "location"),
+            @NamedAttributeNode(value = "assignedLivingUnit"),
+        }
+    ),
+    @NamedEntityGraph(
+        name = "booking-with-livingUnits",
+        attributeNodes = {
+            @NamedAttributeNode(value = "offender"),
+            @NamedAttributeNode(value = "location"),
+            @NamedAttributeNode(value = "assignedLivingUnit", subgraph = "agency-internal-location-details"),
+        },
+        subgraphs = {
+            @NamedSubgraph(
+                name = "agency-internal-location-details",
+                attributeNodes = {
+                    @NamedAttributeNode("livingUnit"),
+                }
+            ),
+        }
+    )
+})
 public class OffenderBooking extends AuditableEntity {
 
     @SequenceGenerator(name = "OFFENDER_BOOK_ID", sequenceName = "OFFENDER_BOOK_ID", allocationSize = 1)
@@ -194,7 +226,7 @@ public class OffenderBooking extends AuditableEntity {
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude
-    private List<OffenderSentence> sentences = new ArrayList<>();
+    private Set<OffenderSentence> sentences = new HashSet<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
@@ -441,13 +473,7 @@ public class OffenderBooking extends AuditableEntity {
     }
 
     public List<OffenderSentenceTerms> getActiveFilteredSentenceTerms(List<String> filterBySentenceTermCodes) {
-        final var sentenceTermCodes = (filterBySentenceTermCodes == null || filterBySentenceTermCodes.isEmpty()) ? List.of("IMP") : filterBySentenceTermCodes;
-        return getTerms()
-            .stream()
-            .filter(term -> "A".equals(term.getOffenderSentence().getStatus()))
-            .filter(term -> sentenceTermCodes.contains(term.getSentenceTermCode()))
-            .map(SentenceTerm::getSentenceSummary)
-            .collect(toList());
+        return filterSentenceTerms(getTerms(), filterBySentenceTermCodes);
     }
 
     public void add(final OffenderMilitaryRecord omr) {
@@ -681,8 +707,7 @@ public class OffenderBooking extends AuditableEntity {
 
     public List<BookingAdjustment> getBookingAdjustments() {
         List<String> bookingAdjustmentCodes = Stream.of(
-            BookingAdjustmentType.values()).map(BookingAdjustmentType::getCode).collect(Collectors.toList()
-        );
+            BookingAdjustmentType.values()).map(BookingAdjustmentType::getCode).toList();
         return keyDateAdjustments
             .stream()
             .filter(sa -> bookingAdjustmentCodes.contains(sa.getSentenceAdjustCode()))

@@ -1,12 +1,12 @@
-package uk.gov.justice.hmpps.prison.service.digitalwarrant
+package uk.gov.justice.hmpps.prison.service.courtdates
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
-import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.CourtDateResult
-import uk.gov.justice.hmpps.prison.api.model.digitalwarrant.WarrantCharge
+import uk.gov.justice.hmpps.prison.api.model.courtdates.CourtDateCharge
+import uk.gov.justice.hmpps.prison.api.model.courtdates.CourtDateResult
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEventCharge
@@ -22,28 +22,11 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Statute
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventChargeRepository
 import java.time.LocalDate
 
-class DigitalWarrantServiceTest {
+class CourtDateServiceTest {
 
   private val courtEventChargeRepository = mock<CourtEventChargeRepository>()
-  private val digitalWarrantService = DigitalWarrantService(
-    mock(),
-    mock(),
-    mock(),
-    mock(),
-    mock(),
-    mock(),
-    mock(),
-    mock(),
-    mock(),
-    mock(),
-    mock(),
-    mock(),
-    mock(),
-    mock(),
-    mock(),
-    mock(),
+  private val courtDateService = CourtDateService(
     courtEventChargeRepository,
-    mock(),
   )
 
   @Nested
@@ -52,7 +35,7 @@ class DigitalWarrantServiceTest {
     fun `should get dates with empty data`() {
       whenever(courtEventChargeRepository.findByOffender(PRISONER_ID)).thenReturn(listOf())
 
-      val result = digitalWarrantService.getCourtDateResults(PRISONER_ID)
+      val result = courtDateService.getCourtDateResults(PRISONER_ID)
 
       assertThat(result).isEmpty()
     }
@@ -104,7 +87,7 @@ class DigitalWarrantServiceTest {
         ),
       )
 
-      val result = digitalWarrantService.getCourtDateResults(PRISONER_ID)
+      val result = courtDateService.getCourtDateResults(PRISONER_ID)
 
       assertThat(result).isEqualTo(
         listOf(
@@ -115,7 +98,7 @@ class DigitalWarrantServiceTest {
             resultDescription = null,
             resultDispositionCode = null,
             bookingId = 4,
-            charge = WarrantCharge()
+            charge = CourtDateCharge()
               .withChargeId(1)
               .withOffenceCode("OFF")
               .withOffenceStatue("STAT")
@@ -137,7 +120,7 @@ class DigitalWarrantServiceTest {
             resultDescription = null,
             resultDispositionCode = null,
             bookingId = 4,
-            charge = WarrantCharge()
+            charge = CourtDateCharge()
               .withChargeId(5)
               .withOffenceCode("OFF")
               .withOffenceStatue("STAT")
@@ -213,7 +196,7 @@ class DigitalWarrantServiceTest {
         ),
       )
 
-      val result = digitalWarrantService.getCourtDateResults(PRISONER_ID)
+      val result = courtDateService.getCourtDateResults(PRISONER_ID)
 
       assertThat(result).isEqualTo(
         listOf(
@@ -224,7 +207,7 @@ class DigitalWarrantServiceTest {
             resultDescription = "Imprisonment",
             resultDispositionCode = "F",
             bookingId = 4,
-            charge = WarrantCharge()
+            charge = CourtDateCharge()
               .withChargeId(1)
               .withOffenceCode("OFF")
               .withOffenceStatue("STAT")

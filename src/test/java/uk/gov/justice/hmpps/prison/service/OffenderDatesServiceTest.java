@@ -29,6 +29,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -140,6 +141,38 @@ public class OffenderDatesServiceTest {
         final var latestCalculation = offenderBooking.getLatestCalculation().get();
         assertEquals(defaultedCalculationDate, latestCalculation.getCalculationDate());
         assertEquals(defaultedCalculationDate, latestCalculation.getRecordedDateTime());
+    }
+
+    @Test
+    void updateOffendDates_no_dates_to_store() {
+        final var bookingId = 1L;
+        final var offenderBooking = OffenderBooking.builder().bookingId(bookingId).build();
+        when(offenderBookingRepository.findById(bookingId)).thenReturn(Optional.of(offenderBooking));
+        final var staff = Staff.builder().staffId(2L).firstName("Other").lastName("Staff").build();
+        final var staffUserAccount = StaffUserAccount.builder().username("staff").staff(staff).build();
+        when(staffUserAccountRepository.findById("staff")).thenReturn(Optional.of(staffUserAccount));
+        final var calculationUuid = UUID.randomUUID();
+        final var payload = RequestToUpdateOffenderDates.builder()
+            .keyDates(new OffenderKeyDates())
+            .noDates(true)
+            .submissionUser("staff")
+            .calculationUuid(calculationUuid)
+            .build();
+
+        // When
+        service.updateOffenderKeyDates(bookingId, payload);
+
+        // Then
+        final var latestCalculation = offenderBooking.getLatestCalculation().get();
+        assertThat(latestCalculation).hasAllNullFieldsOrPropertiesExcept(
+            "offenderBooking",
+            "hdcEligible",
+            "calculationDate",
+            "comments",
+            "staff",
+            "reasonCode",
+            "recordedDateTime",
+            "recordedUser");
     }
 
     @Test

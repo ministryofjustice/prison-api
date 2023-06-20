@@ -182,7 +182,6 @@ public class InmateRepository extends RepositoryBase {
 
 
     public Page<OffenderBooking> findInmatesByLocation(final Long locationId,
-                                                       final String locationTypeRoot,
                                                        final String caseLoadId,
                                                        final String orderByField,
                                                        final Order order,
@@ -206,7 +205,6 @@ public class InmateRepository extends RepositoryBase {
         final var results = jdbcTemplate.query(
             sql,
             createParams("locationId", locationId,
-                "locationTypeRoot", locationTypeRoot,
                 "caseLoadId", caseLoadId,
                 "offset", offset,
                 "limit", limit),
@@ -612,11 +610,10 @@ public class InmateRepository extends RepositoryBase {
     private List<OffenderCategorise> getLatestOffenderCategorisations(final List<OffenderCategorise> individualCatList) {
         final var maxSeqOpt = individualCatList.stream().max(Comparator.comparing(OffenderCategorise::getAssessmentSeq));
         final var maxDateOpt = individualCatList.stream().max(Comparator.comparing(OffenderCategorise::getAssessmentDate));
-        if (maxDateOpt.isEmpty()) return individualCatList;
+        return maxDateOpt.map(offenderCategorise -> individualCatList.stream()
+            .filter(oc -> oc.getAssessmentSeq() == null || (oc.getAssessmentSeq().equals(maxSeqOpt.get().getAssessmentSeq()) && oc.getAssessmentDate().equals(offenderCategorise.getAssessmentDate())))
+            .toList()).orElse(individualCatList);
 
-        return individualCatList.stream()
-            .filter(oc -> oc.getAssessmentSeq() == null || (oc.getAssessmentSeq().equals(maxSeqOpt.get().getAssessmentSeq()) && oc.getAssessmentDate().equals(maxDateOpt.get().getAssessmentDate())))
-            .toList();
     }
 
     private List<OffenderCategorise> removeEarlierCategorisations(final List<OffenderCategorise> catList) {
@@ -628,7 +625,7 @@ public class InmateRepository extends RepositoryBase {
             .toList();
     }
 
-    public Optional<AssignedLivingUnit> findAssignedLivingUnit(final long bookingId, final String locationTypeRoot) {
+    public Optional<AssignedLivingUnit> findAssignedLivingUnit(final long bookingId) {
         final var sql = InmateRepositorySql.FIND_ASSIGNED_LIVING_UNIT.getSql();
 
         final var assignedLivingUnitRowMapper =
@@ -638,7 +635,7 @@ public class InmateRepository extends RepositoryBase {
         try {
             assignedLivingUnit = jdbcTemplate.queryForObject(
                 sql,
-                createParams("bookingId", bookingId, "locationTypeRoot", locationTypeRoot),
+                createParams("bookingId", bookingId),
                 assignedLivingUnitRowMapper);
         } catch (final EmptyResultDataAccessException ex) {
             assignedLivingUnit = null;

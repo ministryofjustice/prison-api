@@ -68,10 +68,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalcType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitVisitor;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitorInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.WarZone;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.AvailablePrisonIepLevelRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderChargeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPersonsRepository;
@@ -79,6 +77,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderFinePayment
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRestrictionRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.SentenceTermRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationRepository;
@@ -94,6 +93,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -146,10 +146,9 @@ public class BookingServiceTest {
     @Mock
     private OffenderBookingTransformer offenderBookingTransformer;
     @Mock
-    private AvailablePrisonIepLevelRepository availablePrisonIepLevelRepository;
-    @Mock
     private OffenderSentenceRepository offenderSentenceRepository;
-
+    @Mock
+    private SentenceTermRepository sentenceTermRepository;
     @Mock
     private OffenderFinePaymentRepository offenderFinePaymentRepository;
     @Mock
@@ -171,6 +170,7 @@ public class BookingServiceTest {
                 visitInformationRepository,
                 visitVisitorRepository,
                 null,
+                sentenceTermRepository,
                 agencyService,
                 caseLoadService,
                 caseloadToAgencyMappingService,
@@ -231,7 +231,7 @@ public class BookingServiceTest {
 
     @Test
     public void verifyCanViewSensitiveBookingInfo_systemUser() {
-        when(authenticationFacade.isOverrideRole(any())).thenReturn(true);
+        when(authenticationFacade.isOverrideRole(any(String[].class))).thenReturn(true);
 
         when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(new OffenderBookingIdSeq("off-1", -1L, 1)));
 
@@ -1129,7 +1129,7 @@ public class BookingServiceTest {
                         .build()))
                 .build();
 
-        when(offenderRepository.findOffenderByNomsId("NomsId")).thenReturn(Optional.of(offender));
+        when(offenderRepository.findFirstWithSentencesByNomsId("NomsId")).thenReturn(Optional.of(offender));
         Optional<OffenderSentenceDetail> offenderSentenceDetail = bookingService.getOffenderSentenceDetail("NomsId");
 
         assertThat(offenderSentenceDetail)
@@ -1192,7 +1192,7 @@ public class BookingServiceTest {
 
     @Test
     public void getOffenderSentenceSummaries_forOveriddenRole() {
-        when(authenticationFacade.isOverrideRole(any())).thenReturn(true);
+        when(authenticationFacade.isOverrideRole(any(String[].class))).thenReturn(true);
         when(caseloadToAgencyMappingService.agenciesForUsersWorkingCaseload(any())).thenReturn(List.of());
         assertThatThrownBy(() -> bookingService.getOffenderSentencesSummary(null, List.of()))
                 .isInstanceOf(HttpClientErrorException.class).hasMessage("400 Request must be restricted to either a caseload, agency or list of offenders");
@@ -1223,6 +1223,19 @@ public class BookingServiceTest {
     @Test
     void getSentenceAndOffenceDetails_withFullData() {
         final var bookingId = -1L;
+
+        final var termsSet = new LinkedHashSet<SentenceTerm>();
+        termsSet.add(SentenceTerm.builder()
+            .id(new SentenceTerm.PK(1L, 1, 1))
+            .years(2)
+            .sentenceTermCode("IMP")
+            .build());
+        termsSet.add(SentenceTerm.builder()
+            .id(new SentenceTerm.PK(1L, 1, 2))
+            .years(1)
+            .sentenceTermCode("LI")
+            .build());
+
         when(offenderSentenceRepository.findByOffenderBooking_BookingId_AndCalculationType_CalculationTypeNotLikeAndCalculationType_CategoryNot(bookingId, "%AGG%", "LICENCE"))
             .thenReturn(
                 List.of(OffenderSentence.builder()
@@ -1242,16 +1255,7 @@ public class BookingServiceTest {
                                 .courtDate(LocalDate.of(2021,1,1))
                                 .build()
                             )
-                        .terms(List.of(
-                            SentenceTerm.builder()
-                                .years(2)
-                                .sentenceTermCode("IMP")
-                                .build(),
-                            SentenceTerm.builder()
-                                .years(1)
-                                .sentenceTermCode("LI")
-                                .build()
-                        ))
+                        .terms(termsSet)
                         .offenderSentenceCharges(List.of(
                             OffenderSentenceCharge.builder()
                                 .offenderCharge(OffenderCharge.builder()

@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCalculatedKeyDates;
-import uk.gov.justice.hmpps.prison.api.model.OffenderKeyDates;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateOffenderDates;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation;
@@ -43,9 +42,46 @@ public class OffenderDatesService {
             .orElseThrow(EntityNotFoundException.withId(requestToUpdateOffenderDates.getSubmissionUser()));
 
         final var keyDatesFromPayload = requestToUpdateOffenderDates.getKeyDates();
-
-        final var sentenceCalculation =
-            SentenceCalculation.builder()
+        SentenceCalculation sentenceCalculation;
+        if (!requestToUpdateOffenderDates.isNoDates()) {
+            sentenceCalculation =
+                SentenceCalculation.builder()
+                    .offenderBooking(offenderBooking)
+                    .reasonCode("UPDATE")
+                    .calculationDate(calculationDate)
+                    .comments(
+                        isBlank(requestToUpdateOffenderDates.getComment()) ?
+                            "The information shown was calculated using the Calculate Release Dates service. The calculation ID is: " + requestToUpdateOffenderDates.getCalculationUuid()
+                            : requestToUpdateOffenderDates.getComment()
+                    )
+                    .staff(staffUserAccount.getStaff())
+                    .recordedUser(staffUserAccount)
+                    .recordedDateTime(calculationDate)
+                    .hdcedCalculatedDate(keyDatesFromPayload.getHomeDetentionCurfewEligibilityDate())
+                    .etdCalculatedDate(keyDatesFromPayload.getEarlyTermDate())
+                    .mtdCalculatedDate(keyDatesFromPayload.getMidTermDate())
+                    .ltdCalculatedDate(keyDatesFromPayload.getLateTermDate())
+                    .dprrdCalculatedDate(keyDatesFromPayload.getDtoPostRecallReleaseDate())
+                    .ardCalculatedDate(keyDatesFromPayload.getAutomaticReleaseDate())
+                    .crdCalculatedDate(keyDatesFromPayload.getConditionalReleaseDate())
+                    .pedCalculatedDate(keyDatesFromPayload.getParoleEligibilityDate())
+                    .npdCalculatedDate(keyDatesFromPayload.getNonParoleDate())
+                    .ledCalculatedDate(keyDatesFromPayload.getLicenceExpiryDate())
+                    .prrdCalculatedDate(keyDatesFromPayload.getPostRecallReleaseDate())
+                    .sedCalculatedDate(keyDatesFromPayload.getSentenceExpiryDate())
+                    .tusedCalculatedDate(keyDatesFromPayload.getTopupSupervisionExpiryDate())
+                    .effectiveSentenceEndDate(keyDatesFromPayload.getEffectiveSentenceEndDate())
+                    .effectiveSentenceLength(keyDatesFromPayload.getSentenceLength())
+                    .ersedOverridedDate(keyDatesFromPayload.getEarlyRemovalSchemeEligibilityDate())
+                    .hdcadCalculatedDate(keyDatesFromPayload.getHomeDetentionCurfewApprovedDate())
+                    .tariffCalculatedDate(keyDatesFromPayload.getTariffDate())
+                    .tersedOverridedDate(keyDatesFromPayload.getTariffExpiredRemovalSchemeEligibilityDate())
+                    .apdCalculatedDate(keyDatesFromPayload.getApprovedParoleDate())
+                    .judiciallyImposedSentenceLength(keyDatesFromPayload.getSentenceLength())
+                    .build();
+            offenderBooking.addSentenceCalculation(sentenceCalculation);
+        } else {
+            sentenceCalculation = SentenceCalculation.builder()
                 .offenderBooking(offenderBooking)
                 .reasonCode("UPDATE")
                 .calculationDate(calculationDate)
@@ -56,26 +92,9 @@ public class OffenderDatesService {
                 )
                 .staff(staffUserAccount.getStaff())
                 .recordedUser(staffUserAccount)
-                .recordedDateTime(calculationDate)
-                .hdcedCalculatedDate(keyDatesFromPayload.getHomeDetentionCurfewEligibilityDate())
-                .etdCalculatedDate(keyDatesFromPayload.getEarlyTermDate())
-                .mtdCalculatedDate(keyDatesFromPayload.getMidTermDate())
-                .ltdCalculatedDate(keyDatesFromPayload.getLateTermDate())
-                .dprrdCalculatedDate(keyDatesFromPayload.getDtoPostRecallReleaseDate())
-                .ardCalculatedDate(keyDatesFromPayload.getAutomaticReleaseDate())
-                .crdCalculatedDate(keyDatesFromPayload.getConditionalReleaseDate())
-                .pedCalculatedDate(keyDatesFromPayload.getParoleEligibilityDate())
-                .npdCalculatedDate(keyDatesFromPayload.getNonParoleDate())
-                .ledCalculatedDate(keyDatesFromPayload.getLicenceExpiryDate())
-                .prrdCalculatedDate(keyDatesFromPayload.getPostRecallReleaseDate())
-                .sedCalculatedDate(keyDatesFromPayload.getSentenceExpiryDate())
-                .tusedCalculatedDate(keyDatesFromPayload.getTopupSupervisionExpiryDate())
-                .effectiveSentenceEndDate(keyDatesFromPayload.getEffectiveSentenceEndDate())
-                .effectiveSentenceLength(keyDatesFromPayload.getSentenceLength())
-                .ersedOverridedDate(keyDatesFromPayload.getEarlyRemovalSchemeEligibilityDate())
-                .judiciallyImposedSentenceLength(keyDatesFromPayload.getSentenceLength())
-                .build();
-        offenderBooking.addSentenceCalculation(sentenceCalculation);
+                .recordedDateTime(calculationDate).build();
+            offenderBooking.addSentenceCalculation(sentenceCalculation);
+        }
 
         telemetryClient.trackEvent("OffenderKeyDatesUpdated",
             ImmutableMap.of(

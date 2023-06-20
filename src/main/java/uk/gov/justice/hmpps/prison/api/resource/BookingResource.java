@@ -428,9 +428,7 @@ public class BookingResource {
     @Operation(summary = "Offender assessment detail.", description = "Offender assessment detail.")
     @GetMapping("/{bookingId}/assessment/{assessmentCode}")
     public Assessment getAssessmentByCode(@PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId, @PathVariable("assessmentCode") @Parameter(description = "Assessment Type Code", required = true) final String assessmentCode) {
-        return inmateService.getInmateAssessmentByCode(bookingId, assessmentCode).orElseThrow(() -> {
-            throw EntityNotFoundException.withMessage("Offender does not have a [" + assessmentCode + "] assessment on record.");
-        });
+        return inmateService.getInmateAssessmentByCode(bookingId, assessmentCode).orElseThrow(EntityNotFoundException.withMessage("Offender does not have a [" + assessmentCode + "] assessment on record."));
     }
 
     @ApiResponses({
@@ -1186,6 +1184,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Gets the offender non-association details for a given booking", description = "Get offender non-association details")
     @GetMapping("/{bookingId}/non-association-details")
+    @SlowReportQuery
     public OffenderNonAssociationDetails getNonAssociationDetails(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
         return offenderNonAssociationsService.retrieve(bookingId);
     }

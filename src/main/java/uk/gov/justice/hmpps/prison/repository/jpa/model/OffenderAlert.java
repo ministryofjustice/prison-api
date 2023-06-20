@@ -1,5 +1,8 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.NamedSubgraph;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -34,6 +37,23 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @Table(name = "OFFENDER_ALERTS")
 @ToString(exclude = {"offenderBooking"})
 @IdClass(OffenderAlert.PK.class)
+@NamedEntityGraph(
+    name = "alerts-for-offender",
+    attributeNodes = {
+        @NamedAttributeNode("code"),
+        @NamedAttributeNode("type"),
+        @NamedAttributeNode(value = "createUser", subgraph = "staff"),
+        @NamedAttributeNode(value = "modifyUser", subgraph = "staff")
+    },
+    subgraphs = {
+        @NamedSubgraph(
+            name = "staff",
+            attributeNodes = {
+                @NamedAttributeNode("staff")
+            }
+        )
+    }
+)
 public class OffenderAlert extends AuditableEntity {
     @Column(name = "ALERT_DATE")
     @CreatedDate

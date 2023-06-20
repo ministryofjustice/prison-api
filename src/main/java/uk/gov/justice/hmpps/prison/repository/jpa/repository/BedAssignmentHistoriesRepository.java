@@ -28,6 +28,7 @@ public interface BedAssignmentHistoriesRepository extends
 
     Optional<BedAssignmentHistory> findByBedAssignmentHistoryPKOffenderBookingIdAndBedAssignmentHistoryPKSequence(Long offenderBookingId, Integer sequence);
 
+    @EntityGraph(type = EntityGraphType.FETCH, value = "bed-history-with-location")
     Page<BedAssignmentHistory> findAllByBedAssignmentHistoryPKOffenderBookingId(Long offenderBookingId, Pageable pageable);
 
     @Query("select ba from BedAssignmentHistory ba where ba.livingUnitId = :livingUnitId and (ba.assignmentEndDateTime is null or :fromDate <= ba.assignmentEndDateTime) and :toDate >= ba.assignmentDateTime")

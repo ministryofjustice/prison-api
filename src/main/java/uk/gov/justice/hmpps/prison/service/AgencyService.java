@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import com.google.common.annotations.VisibleForTesting;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -40,7 +41,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.County;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtType;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AddressPhoneRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyAddressRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationProfileRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
@@ -55,7 +55,6 @@ import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 import uk.gov.justice.hmpps.prison.service.support.ReferenceDomain;
 import uk.gov.justice.hmpps.prison.service.transformers.AgencyTransformer;
 
-import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Comparator;
@@ -78,8 +77,6 @@ import static uk.gov.justice.hmpps.prison.web.config.CacheConfig.GET_AGENCY_LOCA
 @AllArgsConstructor
 public class AgencyService {
 
-    private static final String ESTABLISHMENT_TYPE_DOMAIN = "ESTAB_TYPE";
-
     private static final Comparator<Location> LOCATION_DESCRIPTION_COMPARATOR = Comparator.comparing(
             Location::getDescription,
             new AlphaNumericComparator());
@@ -92,7 +89,6 @@ public class AgencyService {
     private final ReferenceCodeRepository<AgencyLocationType> agencyLocationTypeReferenceCodeRepository;
     private final ReferenceCodeRepository<CourtType> courtTypeReferenceCodeRepository;
     private final AgencyInternalLocationRepository agencyInternalLocationRepository;
-    private final AgencyInternalLocationProfileRepository agencyInternalLocationProfileRepository;
     private final AddressPhoneRepository addressPhoneRepository;
     private final AgencyAddressRepository agencyAddressRepository;
 
@@ -376,16 +372,17 @@ public class AgencyService {
 
     public AgencyEstablishmentTypes getEstablishmentTypes(final String agencyId) {
         final var agency = agencyLocationRepository.findById(agencyId).orElseThrow(EntityNotFoundException.withId(agencyId));
-
-        return AgencyEstablishmentTypes.builder().agencyId(agencyId).establishmentTypes(agency.getEstablishmentTypes()
-                .stream()
-                .map(et -> {
-                    final var establishment = referenceDomainService.getReferenceCodeByDomainAndCode(ESTABLISHMENT_TYPE_DOMAIN, et.getEstablishmentType(), false).orElseThrow(EntityNotFoundException.withMessage("Establishment type %s for agency %s not found.", et.getEstablishmentType(), agencyId));
-
-                    return AgencyEstablishmentType.builder().code(establishment.getCode()).description(establishment.getDescription()).build();
-                })
-                .collect(toList()))
-                .build();
+        return AgencyEstablishmentTypes.builder().agencyId(agencyId).establishmentTypes(
+                agency.getEstablishmentTypes()
+                    .stream()
+                    .map(establishment -> {
+                        return AgencyEstablishmentType.builder()
+                            .code(establishment.getEstablishmentType().getCode())
+                            .description(establishment.getEstablishmentType().getDescription())
+                            .build();
+                    })
+                    .collect(toList()))
+            .build();
     }
 
     private OffenderCell transform(final AgencyInternalLocation cell, final boolean treatZeroOperationalCapacityAsNull) {

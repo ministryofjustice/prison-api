@@ -40,6 +40,15 @@ public class OffenderRepositoryTest {
         final var offenders = repository.findByNomsId("A1234AL");
         assertThat(offenders).isNotEmpty();
     }
+
+    @Test
+    void findByOffendersWithSentenceByNomsId() {
+        final var offender = repository.findFirstWithSentencesByNomsId("A1234AL").orElseThrow();
+
+        assertThat(offender).extracting(Offender::getId, o -> o.getRootOffender().getId()).containsExactly(-1012L, -1012L);
+        assertThat(offender.getBookings()).hasSize(2);
+        assertThat(offender.getLatestBooking()).isPresent();
+        assertThat(offender.getLatestBooking()).get().extracting(OffenderBooking::getBookingId).isEqualTo(-12L);    }
 }
 
 

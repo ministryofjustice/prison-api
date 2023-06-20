@@ -1,8 +1,8 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.1.4-beta-4"
-  kotlin("plugin.spring") version "1.8.21"
-  kotlin("plugin.jpa") version "1.8.21"
-  kotlin("plugin.lombok") version "1.8.21"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.2.0"
+  kotlin("plugin.spring") version "1.8.22"
+  kotlin("plugin.jpa") version "1.8.22"
+  kotlin("plugin.lombok") version "1.8.22"
 }
 
 configurations {
@@ -28,8 +28,8 @@ ext["rest-assured.version"] = "5.1.1"
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-  annotationProcessor("org.projectlombok:lombok:1.18.26")
-  testAnnotationProcessor("org.projectlombok:lombok:1.18.26")
+  annotationProcessor("org.projectlombok:lombok:1.18.28")
+  testAnnotationProcessor("org.projectlombok:lombok:1.18.28")
 
   implementation("org.springframework.boot:spring-boot-starter-aop")
   implementation("org.springframework.boot:spring-boot-starter-validation")
@@ -46,16 +46,17 @@ dependencies {
   implementation("org.ehcache:ehcache:3.10.8")
   implementation("com.zaxxer:HikariCP:5.0.1")
 
-  implementation("io.swagger:swagger-annotations:1.6.10")
+  implementation("io.swagger:swagger-annotations:1.6.11")
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0")
 
   implementation("org.apache.commons:commons-lang3:3.12.0")
-  implementation("commons-io:commons-io:2.11.0")
+  implementation("commons-io:commons-io:2.13.0")
   implementation("org.apache.commons:commons-text:1.10.0")
-  implementation("com.oracle.database.jdbc:ojdbc10:19.18.0.0")
+  implementation("com.oracle.database.jdbc:ojdbc10:19.19.0.0")
+  implementation("org.hibernate.orm:hibernate-community-dialects:6.2.2.Final")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
-  compileOnly("org.projectlombok:lombok:1.18.26")
+  compileOnly("org.projectlombok:lombok:1.18.28")
 
   runtimeOnly("org.hsqldb:hsqldb:$hsqldbVersion")
   runtimeOnly("org.flywaydb:flyway-core")
@@ -72,20 +73,20 @@ dependencies {
   testImplementation("org.powermock:powermock-module-junit4:2.0.9")
 
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.37.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.38.0")
 
-  testImplementation("net.serenity-bdd:serenity-core:3.7.1")
-  testImplementation("net.serenity-bdd:serenity-junit:3.7.1")
-  testImplementation("net.serenity-bdd:serenity-spring:3.7.1")
-  testImplementation("net.serenity-bdd:serenity-cucumber:3.7.1")
+  testImplementation("net.serenity-bdd:serenity-core:3.8.1")
+  testImplementation("net.serenity-bdd:serenity-junit:3.8.1")
+  testImplementation("net.serenity-bdd:serenity-spring:3.8.1")
+  testImplementation("net.serenity-bdd:serenity-cucumber:3.8.1")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
   testImplementation("com.github.tomakehurst:wiremock-jre8-standalone:2.35.0")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.11.5")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.13")
-  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.25.0")
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.15")
+  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.27.0")
 
-  testCompileOnly("org.projectlombok:lombok:1.18.26")
+  testCompileOnly("org.projectlombok:lombok:1.18.28")
 }
 
 java {

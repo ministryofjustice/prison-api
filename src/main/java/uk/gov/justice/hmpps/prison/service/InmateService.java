@@ -98,8 +98,6 @@ public class InmateService {
     private final HealthService healthService;
     private final TelemetryClient telemetryClient;
 
-    private final String locationTypeGranularity;
-
     public InmateService(final InmateRepository repository,
                          final CaseLoadService caseLoadService,
                          final InmateAlertService inmateAlertService,
@@ -110,7 +108,6 @@ public class InmateService {
                          final UserService userService,
                          final AuthenticationFacade authenticationFacade,
                          final TelemetryClient telemetryClient,
-                         @Value("${api.users.me.locations.locationType:WING}") final String locationTypeGranularity,
                          @Value("${batch.max.size:1000}") final int maxBatchSize,
                          final OffenderAssessmentService offenderAssessmentService,
                          final OffenderLanguageRepository offenderLanguageRepository,
@@ -124,7 +121,6 @@ public class InmateService {
         this.referenceDomainService = referenceDomainService;
         this.healthService = healthService;
         this.telemetryClient = telemetryClient;
-        this.locationTypeGranularity = locationTypeGranularity;
         this.bookingService = bookingService;
         this.agencyService = agencyService;
         this.authenticationFacade = authenticationFacade;
@@ -212,17 +208,18 @@ public class InmateService {
             final var bookingId = inmate.getBookingId();
             inmate.deriveStatus();
             inmate.splitStatusReason();
-            getFirstPreferredSpokenLanguage(bookingId).ifPresent(offenderLanguage -> {
+
+            final var languages = offenderLanguageRepository.findByOffenderBookId(bookingId);
+            getFirstPreferredSpokenLanguage(languages).ifPresent(offenderLanguage -> {
                 inmate.setLanguage(offenderLanguage.getReferenceCode().getDescription());
                 inmate.setInterpreterRequired("Y".equalsIgnoreCase(offenderLanguage.getInterpreterRequestedFlag()));
             });
-
-            getFirstPreferredWrittenLanguage(bookingId).ifPresent(offenderLanguage -> inmate.setWrittenLanguage(offenderLanguage.getReferenceCode().getDescription()));
+            getFirstPreferredWrittenLanguage(languages).ifPresent(offenderLanguage -> inmate.setWrittenLanguage(offenderLanguage.getReferenceCode().getDescription()));
 
             inmate.setPhysicalAttributes(getPhysicalAttributes(bookingId));
             inmate.setPhysicalCharacteristics(getPhysicalCharacteristics(bookingId));
             inmate.setProfileInformation(getProfileInformation(bookingId));
-            repository.findAssignedLivingUnit(bookingId, locationTypeGranularity).ifPresent(assignedLivingUnit -> {
+            repository.findAssignedLivingUnit(bookingId).ifPresent(assignedLivingUnit -> {
                 assignedLivingUnit.setAgencyName(LocationProcessor.formatLocation(assignedLivingUnit.getAgencyName()));
                 inmate.setAssignedLivingUnit(assignedLivingUnit);
             });
@@ -276,27 +273,22 @@ public class InmateService {
         return inmate;
     }
 
-
     public static String calculateReleaseLocationDescription(final ExternalMovement lastMovement) {
         return REL.getCode().equals(lastMovement.getMovementType().getCode())
                 ? "Outside - released from " + lastMovement.getFromAgency().getDescription()
                 : "Outside - " + lastMovement.getMovementType().getDescription();
     }
 
-
-    private Optional<OffenderLanguage> getFirstPreferredSpokenLanguage(final Long bookingId) {
-        offenderLanguageRepository.findByOffenderBookId(bookingId);
-        return offenderLanguageRepository
-                .findByOffenderBookId(bookingId)
+    private Optional<OffenderLanguage> getFirstPreferredSpokenLanguage(final List<OffenderLanguage> languages) {
+        return languages
                 .stream()
                 .filter(l -> "PREF_SPEAK".equals(l.getType()) && l.getReferenceCode() != null)
                 .sorted(Comparator.comparing(right -> right.getReferenceCode().getDescription()))
                 .reduce((first, second) -> second);
     }
 
-    private Optional<OffenderLanguage> getFirstPreferredWrittenLanguage(final long bookingId) {
-        return offenderLanguageRepository
-                .findByOffenderBookId(bookingId)
+    private Optional<OffenderLanguage> getFirstPreferredWrittenLanguage(final List<OffenderLanguage> languages) {
+        return languages
                 .stream()
                 .filter(l -> "PREF_WRITE".equals(l.getType()) && l.getReferenceCode() != null)
                 .sorted(Comparator.comparing(right -> right.getReferenceCode().getDescription()))

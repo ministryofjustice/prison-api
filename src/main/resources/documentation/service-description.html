@@ -1,0 +1,65 @@
+<div>
+  <h2 id="overview">Overview</h2>
+  <p>A RESTful API service for accessing NOMIS data sets.</p>
+  <p>
+    All times sent to the API should be sent in local time without the timezone e.g. YYYY-MM-DDTHH:MM:SS.
+    All times returned in responses will be in Europe / London local time unless otherwise stated.
+  </p>
+  <p>
+    Some endpoints are described as using the Replica database, a read-only copy of the live database which at
+    time of writing lags by < 1 second up to approximately 2 seconds. These endpoints are not suitable for use
+    by services reacting to events or refreshing web pages where a change has just been made.
+  </p>
+  <p>
+    This service does provide searching capabilities, but can sometimes be slow to return results. A faster search
+    is available in the
+    <a href="https://prisoner-offender-search-dev.prison.service.justice.gov.uk/swagger-ui/index.html">HMPPS Prisoner Search</a>
+    service. This also augments the results from the incentives and restricted patients service. That service should
+    be used in preference, with this service only then being used if the data is not available there. Furthermore, the
+    Prisoner Search service also provides key prisoner view that could be suitable.
+  </p>
+  <h2 id="role-restrictions">Access restrictions</h2>
+  <p>
+    All the API endpoints in Prison API require an access token. Clients can either use the access token from sign into
+    <a href="https://github.com/ministryofjustice/hmpps-auth">HMPPS Auth</a>, or obtain a token
+    by making a client credentials request to HMPPS Auth (with or without an optional username associated with the token).
+  </p>
+  <p>Access to endpoints are then restricted in two ways:</p>
+  <ul>
+    <li>
+      Relationship based access. The username (if present) in the token is used to determine what prisons (caseloads) the user is associated with. If there is
+      no username in the token or if it doesn't correspond to a valid account in NOMIS then it will be ignored and only role based access will be used. Each
+      prisoner has a current prison location, or is determined to be out of prison or on temporary transfer. If the user also has the 'INACTIVE_BOOKINGS' role
+      then they can view prisoner details of prisoners that are out or on temporary transfer. Endpoints or services that restrict in this way will be
+      annotated with <code>@VerifyOffenderAccess</code>, <code>@VerifyBookingAccess</code>, depending on whether an offender or booking is passed into
+      the method. The <code>@VerifyAgencyAccess</code> is also used to restrict to allowing to see details in a particular prison e.g. for seeing all alerts.
+      Sometimes the annotation can be hidden deep into multiple different levels of service so is sometimes difficult to locate. The annotation can also specify
+      override roles, so even if the user doesn't have a relationship with the prisoner via a prison then they could still be allowed access via their roles.
+    </li>
+    <li>
+      Role based access. The token will include a number of roles. An endpoint or service can have a <code>@PreAuthorize</code> annotation that restricts access
+      to a list of roles.
+    </li>
+  </ul>
+  <p>New endpoints do try to document what access restrictions are in place, but for old endpoints it is often necessary to look at the source code for
+    <a href="https://github.com/ministryofjustice/prison-api">Prison API</a> in github to find that out.</p>
+
+  <p>
+    Note also that the endpoints that write data back to NOMIS also often require a write scope in the token. User access tokens will automatically have a
+    write scope, but client credentials tokens will often be read scope only unless write has been specifically requested. Write scope endpoints / services
+    will either be annotated with <code>@HasWriteScope</code> or the <code>@PreAuthorize</code> will have an extra <code>hasAuthority('SCOPE_write')</code>
+    condition.
+  </p>
+
+  <p>
+    For an example suppose that information about alerts for a list of prisoners is required. The endpoint is '/booking/offenderNo/{agencyId}/alerts'.
+    Searching the codebase for that endpoint reveals that it is in <code>BookingResource</code>. The resource endpoint doesn't have any annotations
+    restricting access. However it then calls <code>InmateAlertService.getInmateAlertsByOffenderNosAtAgency</code>. This has the following annotation and
+    method signature:
+  <pre>
+      @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+      public List<Alert> getInmateAlertsByOffenderNosAtAgency(final String agencyId, final List<String> offenderNos) {
+    </pre>
+  which means that either the token has one of those three roles, or the user associated with the token has <code>agencyId</code> as one of their caseloads.
+  </p>
+</div>
