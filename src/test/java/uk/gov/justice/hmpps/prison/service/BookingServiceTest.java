@@ -1037,7 +1037,7 @@ public class BookingServiceTest {
                         .build()
         );
 
-        final var offenderKeyDateAdjustments = List.of(
+        final var offenderKeyDateAdjustments = Set.of(
                 KeyDateAdjustment
                         .builder()
                         .id(-8L)
@@ -1129,7 +1129,7 @@ public class BookingServiceTest {
                         .build()))
                 .build();
 
-        when(offenderRepository.findFirstWithSentencesByNomsId("NomsId")).thenReturn(Optional.of(offender));
+        when(offenderRepository.findOffenderByNomsId("NomsId")).thenReturn(Optional.of(offender));
         Optional<OffenderSentenceDetail> offenderSentenceDetail = bookingService.getOffenderSentenceDetail("NomsId");
 
         assertThat(offenderSentenceDetail)
@@ -1256,7 +1256,7 @@ public class BookingServiceTest {
                                 .build()
                             )
                         .terms(termsSet)
-                        .offenderSentenceCharges(List.of(
+                        .offenderSentenceCharges(Set.of(
                             OffenderSentenceCharge.builder()
                                 .offenderCharge(OffenderCharge.builder()
                                     .dateOfOffence(LocalDate.of(2021, 1, 2))
