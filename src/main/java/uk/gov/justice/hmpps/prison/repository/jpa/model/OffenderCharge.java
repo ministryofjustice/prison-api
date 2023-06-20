@@ -1,5 +1,8 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.NamedSubgraph;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -35,6 +38,32 @@ import java.util.List;
 @Table(name = "OFFENDER_CHARGES")
 @ToString(exclude = {"offenderBooking", "offenderCourtCase"})
 @With
+@NamedEntityGraph(
+    name = "charges-details",
+    attributeNodes = {
+        @NamedAttributeNode(value = "offenderCourtCase", subgraph = "court-case"),
+        @NamedAttributeNode(value = "offence"),
+        @NamedAttributeNode(value = "resultCodeOne"),
+        @NamedAttributeNode(value = "resultCodeTwo"),
+        },
+    subgraphs = {
+        @NamedSubgraph(
+            name = "court-case",
+            attributeNodes = {
+                @NamedAttributeNode("legalCaseType"),
+                @NamedAttributeNode("caseStatus"),
+                @NamedAttributeNode(value = "courtEvents", subgraph = "court-event-details"),
+            }
+        ),
+        @NamedSubgraph(
+            name = "court-event-details",
+            attributeNodes = {
+                @NamedAttributeNode("courtEventType"),
+                @NamedAttributeNode("eventStatus"),
+            }
+        ),
+    }
+)
 public class OffenderCharge extends AuditableEntity {
 
     private static final String ACTIVE = "A";
@@ -113,10 +142,6 @@ public class OffenderCharge extends AuditableEntity {
 
     public boolean isActive() {
         return ACTIVE.equals(chargeStatus);
-    }
-
-    public void setMostSeriousFlag(String mostSeriousFlag) {
-        this.mostSeriousFlag = mostSeriousFlag;
     }
 
     public OffenderOffence getOffenceDetail() {

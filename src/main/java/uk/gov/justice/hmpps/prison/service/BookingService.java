@@ -390,7 +390,7 @@ public class BookingService {
                         .flatMap(id -> allContacts.getOrDefault(id, Optional.empty()))
                         .map(OffenderContactPerson::getRelationshipType);
 
-                    final var visitorsList = getVisitors(allVisitors, allContacts, visitInformation.getVisitId(), filter.getBookingId());
+                    final var visitorsList = getVisitors(allVisitors, allContacts, visitInformation.getVisitId());
 
                     return VisitWithVisitors.builder()
                             .visitDetail(
@@ -456,7 +456,7 @@ public class BookingService {
             .toList();
     }
 
-    private List<Visitor> getVisitors(final List<VisitVisitor> allVisitors, Map<Long, Optional<OffenderContactPerson>> allContacts, final Long visitId, final Long bookingId) {
+    private List<Visitor> getVisitors(final List<VisitVisitor> allVisitors, Map<Long, Optional<OffenderContactPerson>> allContacts, final Long visitId) {
         return allVisitors.stream().filter(visitor -> visitor.getVisitId().equals(visitId))
             .map(visitor -> {
                 final var contactRelationship = allContacts.getOrDefault(visitor.getPerson().getId(), Optional.empty())
@@ -633,7 +633,8 @@ public class BookingService {
     }
 
     public List<OffenceHistoryDetail> getActiveOffencesForBookings(final Set<Long> bookingIds) {
-        List<OffenderCharge> offenderCharges = offenderChargeRepository.findActiveOffencesByBookingIds(bookingIds);
+        List<OffenderCharge> offenderCharges = offenderChargeRepository.findByOffenderBooking_BookingIdInAndChargeStatusAndOffenderCourtCase_CaseStatus_Code(bookingIds,"A","A");
+           // findActiveOffencesByBookingIds(bookingIds);
         return offenderCharges.stream().map(offenderChargeTransformer::convert).collect(toList());
     }
 
