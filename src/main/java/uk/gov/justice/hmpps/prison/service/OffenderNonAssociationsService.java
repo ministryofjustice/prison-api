@@ -44,7 +44,7 @@ public class OffenderNonAssociationsService {
         return getOffenderNonAssociationDetails(booking, nonAssociations);
     }
 
-    @VerifyOffenderAccess(overrideRoles = {"VIEW_PRISONER_DATA"} )
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"} )
     public OffenderNonAssociationDetails retrieveByOffenderNo(final String offenderNo) {
         log.debug("Fetching non-associations for offender no '{}'", offenderNo);
 
