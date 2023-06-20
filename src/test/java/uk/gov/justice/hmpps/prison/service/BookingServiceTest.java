@@ -1037,7 +1037,7 @@ public class BookingServiceTest {
                         .build()
         );
 
-        final var offenderKeyDateAdjustments = Set.of(
+        final var offenderKeyDateAdjustments = List.of(
                 KeyDateAdjustment
                         .builder()
                         .id(-8L)
@@ -1256,7 +1256,7 @@ public class BookingServiceTest {
                                 .build()
                             )
                         .terms(termsSet)
-                        .offenderSentenceCharges(Set.of(
+                        .offenderSentenceCharges(List.of(
                             OffenderSentenceCharge.builder()
                                 .offenderCharge(OffenderCharge.builder()
                                     .dateOfOffence(LocalDate.of(2021, 1, 2))
