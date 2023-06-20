@@ -721,7 +721,7 @@ public class BookingService {
 
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public Optional<OffenderSentenceDetail> getOffenderSentenceDetail(final String offenderNo) {
-        return offenderRepository.findFirstWithSentencesByNomsId(offenderNo)
+        return offenderRepository.findOffenderByNomsId(offenderNo)
             .map(offender -> offender.getLatestBooking().map(booking ->
                 OffenderSentenceDetail.offenderSentenceDetailBuilder()
                     .offenderNo(offenderNo)
