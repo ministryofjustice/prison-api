@@ -656,7 +656,8 @@ public class BookingResource {
     @Operation(summary = "Offence histories.", description = "Offence histories for a set of booking ids.")
     @PostMapping("/offence-history")
     @PreAuthorize("hasAnyRole('SYSTEM_USER','VIEW_PRISONER_DATA')")
-    public List<OffenceHistoryDetail> getOffenceHistoryForBookings(@RequestBody @Parameter(description = "The booking ids", required = true) final Set<Long> bookingIds){
+    @SlowReportQuery
+    public List<OffenceHistoryDetail> getOffenceHistoryForBookings(@RequestBody @Parameter(description = "The booking ids", required = true) final Set<Long> bookingIds) {
         return bookingService.getActiveOffencesForBookings(bookingIds);
     }
 

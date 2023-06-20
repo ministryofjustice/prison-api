@@ -1514,10 +1514,10 @@ public class BookingServiceTest {
         final var bookingIds = Set.of(2L, 4L, 9L);
         final var charges = List.of(new OffenderCharge());
 
-        when(offenderChargeRepository.findActiveOffencesByBookingIds(bookingIds)).thenReturn(charges);
+        when(offenderChargeRepository.findByOffenderBooking_BookingIdInAndChargeStatusAndOffenderCourtCase_CaseStatus_Code(bookingIds, "A", "A")).thenReturn(charges);
         List<OffenceHistoryDetail> offenceHistoryDetails = bookingService.getActiveOffencesForBookings(bookingIds);
 
-        verify(offenderChargeRepository).findActiveOffencesByBookingIds(bookingIds);
+        verify(offenderChargeRepository).findByOffenderBooking_BookingIdInAndChargeStatusAndOffenderCourtCase_CaseStatus_Code(bookingIds, "A", "A");
         assertThat(offenceHistoryDetails).isNotNull();
         assertThat(offenceHistoryDetails).hasSize(charges.size());
     }
