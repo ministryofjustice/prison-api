@@ -158,16 +158,16 @@ public class AdjudicationsRepositoryTest {
     @Test
     public void adjudicationHistoryContainsAdjudicationWithoutSuspectCode(){
         val results = repository.findAdjudications(AdjudicationSearchCriteria.builder()
-            .offenderNumber("A1181GG")
+            .offenderNumber("A1183SH")
             .pageRequest(new PageRequest(0L, 10L))
             .build());
 
-        assertThat(results.getItems().stream().filter(f -> f.getAdjudicationNumber() == -3001)).isNotEmpty();
+        assertThat(results.getItems().stream().filter(f -> f.getAdjudicationNumber() == -3003)).isNotEmpty();
     }
 
     @Test
     public void adjudicationFoundWithoutSuspectCode() {
-        val result = repository.findAdjudicationDetails("A1181GG", -3001);
+        val result = repository.findAdjudicationDetails("A1183SH", -3003);
         assertThat(result).isPresent();
     }
 
