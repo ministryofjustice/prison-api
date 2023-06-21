@@ -139,6 +139,22 @@ workflows:
             - check
             - test-integration
             - test-schema-nomis
+      - hmpps/deploy_env:
+          name: deploy_cp_dev
+          env: "cp-dev"
+          jira_update: true
+          context:
+            - hmpps-common-vars
+            - prison-api-stage
+          filters:
+            branches:
+              only:
+                - main
+          requires:
+            - build_docker
+            - check
+            - test-integration
+            - test-schema-nomis
       - request-preprod-approval:
           type: approval
           requires:
