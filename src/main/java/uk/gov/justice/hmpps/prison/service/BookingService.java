@@ -92,6 +92,7 @@ import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
+import uk.gov.justice.hmpps.prison.service.support.PayableAttendanceOutcomeDto;
 import uk.gov.justice.hmpps.prison.service.transformers.CourtCaseTransformer;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderBookingTransformer;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderChargeTransformer;
@@ -325,36 +326,43 @@ public class BookingService {
     @Transactional
     @PreAuthorize("hasRole('ROLE_PAY')")
     public void updateAttendance(final String offenderNo, final Long activityId, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance) {
-        updateAttendance(activityId, updateAttendance, getLatestBookingByOffenderNo(offenderNo));
+        // Copy flags from the PAYABLE_ATTENDANCE_OUTCOME reference table
+        final var activityOutcome = bookingRepository.getPayableAttendanceOutcome("PRISON_ACT", updateAttendance.getEventOutcome());
+        updateAttendance(activityId, updateAttendance, getLatestBookingByOffenderNo(offenderNo), activityOutcome);
     }
 
     @Transactional
     @PreAuthorize("hasRole('ROLE_PAY')")
     public void updateAttendance(final Long bookingId, final Long activityId, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance) {
-        updateAttendance(activityId, updateAttendance, getLatestBookingByBookingId(bookingId));
+        final var activityOutcome = bookingRepository.getPayableAttendanceOutcome("PRISON_ACT", updateAttendance.getEventOutcome());
+        updateAttendance(activityId, updateAttendance, getLatestBookingByBookingId(bookingId), activityOutcome);
     }
 
     @Transactional
     @PreAuthorize("hasRole('ROLE_PAY')")
     public void updateAttendanceForMultipleBookingIds(final Set<BookingActivity> bookingActivities, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance) {
-        bookingActivities.forEach(bookingActivity -> updateAttendance(bookingActivity.getActivityId(), updateAttendance, getLatestBookingByBookingId(bookingActivity.getBookingId())));
-    }
 
-    private void updateAttendance(final Long activityId, final UpdateAttendance updateAttendance, final OffenderSummary offenderSummary) {
-        validateActivity(activityId);
+        final var bookingMap = bookingActivities.stream()
+            .map(BookingActivity::getBookingId)
+            .distinct()
+            .map(bookingId -> Map.entry(bookingId, getLatestBookingByBookingId(bookingId)))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        // Copy flags from the PAYABLE_ATTENDANCE_OUTCOME reference table
+        log.info("updateAttendanceForMultipleBookingIds() received {} activities and {} bookings", bookingActivities.size(), bookingMap.size());
+
         final var activityOutcome = bookingRepository.getPayableAttendanceOutcome("PRISON_ACT", updateAttendance.getEventOutcome());
-        bookingRepository.updateAttendance(offenderSummary.getBookingId(), activityId, updateAttendance, activityOutcome.isPaid(), activityOutcome.isAuthorisedAbsence());
+
+        bookingActivities.forEach(bookingActivity -> {
+            final Long activityId = bookingActivity.getActivityId();
+
+            updateAttendance(activityId, updateAttendance, bookingMap.get(bookingActivity.getBookingId()), activityOutcome);
+        });
     }
 
-
-    private void validateActivity(final Long activityId) {
-        // Find details for activities for same offender and same day as this one
-        final var attendanceEventDate = bookingRepository.getAttendanceEventDate(activityId);
-        if (attendanceEventDate == null) {
-            throw EntityNotFoundException.withMessage("Activity Id %d not found", activityId);
-        }
+    private void updateAttendance(final Long activityId,
+                                  final UpdateAttendance updateAttendance,
+                                  final OffenderSummary offenderSummary, final PayableAttendanceOutcomeDto activityOutcome) {
+        bookingRepository.updateAttendance(offenderSummary.getBookingId(), activityId, updateAttendance, activityOutcome.isPaid(), activityOutcome.isAuthorisedAbsence());
     }
 
     @VerifyBookingAccess

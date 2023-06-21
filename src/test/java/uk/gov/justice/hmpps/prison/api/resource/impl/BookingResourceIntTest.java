@@ -139,7 +139,7 @@ public class BookingResourceIntTest extends ResourceTest {
             },
             -2, -11);
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(403);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
     @Test
@@ -157,7 +157,7 @@ public class BookingResourceIntTest extends ResourceTest {
             },
             -2, -11);
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(201);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
     }
 
     @Test
@@ -200,7 +200,55 @@ public class BookingResourceIntTest extends ResourceTest {
             new ParameterizedTypeReference<String>() {
             });
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(201);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+    }
+
+    @Test
+    public void testUpdateAttendance_WithMultipleBookingIds_invalidEvent() {
+        final var token = authTokenHelper.getToken(AuthToken.PAY);
+
+        final var body = UpdateAttendanceBatch
+            .builder()
+            .eventOutcome("ATT")
+            .performance("STANDARD")
+            .bookingActivities(Set.of(BookingActivity.builder().activityId(999L).bookingId(-2L).build()))
+            .build();
+
+        final var httpEntity = createHttpEntity(token, body);
+
+        final var response = testRestTemplate.exchange(
+            "/api/bookings/activities/attendance",
+            HttpMethod.PUT,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(response.getBody()).contains("Activity with booking Id -2 and activityId 999 not found");
+    }
+
+    @Test
+    public void testUpdateAttendance_WithMultipleBookingIds_invalidBooking() {
+        final var token = authTokenHelper.getToken(AuthToken.PAY);
+
+        final var body = UpdateAttendanceBatch
+            .builder()
+            .eventOutcome("ATT")
+            .performance("STANDARD")
+            .bookingActivities(Set.of(BookingActivity.builder().activityId(-11L).bookingId(999L).build()))
+            .build();
+
+        final var httpEntity = createHttpEntity(token, body);
+
+        final var response = testRestTemplate.exchange(
+            "/api/bookings/activities/attendance",
+            HttpMethod.PUT,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(response.getBody()).contains("Resource with id [999] not found.");
     }
 
     @Test
@@ -217,7 +265,7 @@ public class BookingResourceIntTest extends ResourceTest {
             new ParameterizedTypeReference<ErrorResponse>() {
             }, -10L);
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(403);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
     @Test
@@ -233,7 +281,7 @@ public class BookingResourceIntTest extends ResourceTest {
             new ParameterizedTypeReference<ErrorResponse>() {
             }, -1L, 4);
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(403);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
     @Test
@@ -262,7 +310,7 @@ public class BookingResourceIntTest extends ResourceTest {
             new ParameterizedTypeReference<AlertCreated>() {
             }, -14L, createdAlert.getAlertId());
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test
@@ -291,7 +339,7 @@ public class BookingResourceIntTest extends ResourceTest {
             new ParameterizedTypeReference<AlertCreated>() {
             }, -14L, createdAlert.getAlertId());
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test
@@ -313,7 +361,7 @@ public class BookingResourceIntTest extends ResourceTest {
         assertThat(validationMessages).contains("alertCode");
         assertThat(validationMessages).contains("comment");
         assertThat(validationMessages).contains("alertDate");
-        assertThat(response.getStatusCodeValue()).isEqualTo(400);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     @Test
@@ -339,7 +387,7 @@ public class BookingResourceIntTest extends ResourceTest {
         assertThat(validationMessages).contains("alertType");
         assertThat(validationMessages).contains("alertCode");
         assertThat(validationMessages).contains("comment");
-        assertThat(response.getStatusCodeValue()).isEqualTo(400);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
 
@@ -358,7 +406,7 @@ public class BookingResourceIntTest extends ResourceTest {
             }, -10L);
 
         assertThat(response.getBody().getAlertId()).isGreaterThan(1);
-        assertThat(response.getStatusCodeValue()).isEqualTo(201);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
     }
 
     @Test
@@ -375,7 +423,7 @@ public class BookingResourceIntTest extends ResourceTest {
             });
 
         assertThat(response.getBody().get(0).getBookingId()).isEqualTo(-20);
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test
@@ -388,7 +436,7 @@ public class BookingResourceIntTest extends ResourceTest {
             createHttpEntity(token, null),
             Movement.class, "-29", "2");
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
 
         assertThat(response.getBody().getFromAgency()).isEqualTo("LEI");
@@ -405,7 +453,7 @@ public class BookingResourceIntTest extends ResourceTest {
             createHttpEntity(token, null),
             Movement.class, "-29", "999");
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(404);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test

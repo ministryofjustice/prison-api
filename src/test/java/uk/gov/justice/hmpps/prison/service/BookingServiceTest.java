@@ -97,7 +97,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -107,6 +106,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 /**
@@ -259,40 +259,41 @@ public class BookingServiceTest {
 
     @Test
     public void testThatUpdateAttendanceIsCalledForEachBooking() {
-        final var bookingIds = Set.of(1L, 2L, 3L);
-        final var activityId = 2L;
-
         when(bookingRepository.getLatestBookingByBookingId(anyLong()))
-                .thenReturn(Optional.of(OffenderSummary.builder().bookingId(1L).build()))
-                .thenReturn(Optional.of(OffenderSummary.builder().bookingId(2L).build()))
-                .thenReturn(Optional.of(OffenderSummary.builder().bookingId(3L).build()));
+            .thenAnswer(invocation ->
+                Optional.of(OffenderSummary.builder().bookingId(invocation.getArgument(0)).build()));
 
-        when(bookingRepository.getAttendanceEventDate(anyLong())).thenReturn(LocalDate.now());
         when(bookingRepository.getPayableAttendanceOutcome(anyString(), anyString()))
-                .thenReturn(PayableAttendanceOutcomeDto
-                        .builder()
-                        .paid(true)
-                        .build());
+            .thenReturn(PayableAttendanceOutcomeDto
+                .builder()
+                .paid(true)
+                .build());
 
         final var updateAttendance = UpdateAttendance
-                .builder()
-                .eventOutcome("ATT")
-                .performance("STANDARD")
-                .build();
+            .builder()
+            .eventOutcome("ATT")
+            .performance("STANDARD")
+            .build();
 
-        final var bookingActivities = bookingIds.stream()
-                .map(bookingId -> BookingActivity.builder().bookingId(bookingId).activityId(activityId).build())
-                .collect(Collectors.toSet());
+        final var bookingActivities = Set.of(
+            BookingActivity.builder().bookingId(1L).activityId(10L).build(),
+            BookingActivity.builder().bookingId(2L).activityId(20L).build(),
+            BookingActivity.builder().bookingId(3L).activityId(30L).build(),
+            BookingActivity.builder().bookingId(3L).activityId(31L).build(),
+            BookingActivity.builder().bookingId(3L).activityId(32L).build()
+        );
 
         bookingService.updateAttendanceForMultipleBookingIds(bookingActivities, updateAttendance);
 
         final var expectedOutcome = UpdateAttendance.builder().performance("STANDARD").eventOutcome("ATT").build();
 
-        bookingIds.forEach(bookingId -> verify(bookingRepository).updateAttendance(bookingId, activityId, expectedOutcome, true, false));
+        verify(bookingRepository).updateAttendance(1L, 10L, expectedOutcome, true, false);
+        verify(bookingRepository).updateAttendance(2L, 20L, expectedOutcome, true, false);
+        verify(bookingRepository).updateAttendance(3L, 30L, expectedOutcome, true, false);
+        verify(bookingRepository).updateAttendance(3L, 31L, expectedOutcome, true, false);
+        verify(bookingRepository).updateAttendance(3L, 32L, expectedOutcome, true, false);
+        verifyNoMoreInteractions(bookingRepository);
     }
-
-
-
 
     @Test
     public void getBookingVisitBalances() {
