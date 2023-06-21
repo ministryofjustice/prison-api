@@ -259,11 +259,7 @@ public class BookingServiceTest {
 
     @Test
     public void testThatUpdateAttendanceIsCalledForEachBooking() {
-        when(bookingRepository.getLatestBookingByBookingId(anyLong()))
-            .thenAnswer(invocation ->
-                Optional.of(OffenderSummary.builder().bookingId(invocation.getArgument(0)).build()));
-
-        when(bookingRepository.getPayableAttendanceOutcome(anyString(), anyString()))
+        when(bookingRepository.getPayableAttendanceOutcome("PRISON_ACT", "ATT"))
             .thenReturn(PayableAttendanceOutcomeDto
                 .builder()
                 .paid(true)
