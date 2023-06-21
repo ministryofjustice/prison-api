@@ -5,7 +5,6 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -21,17 +20,19 @@ import java.util.Optional;
 @Repository
 public interface OffenderRepository extends JpaRepository<Offender, Long> {
     List<Offender> findByNomsId(String nomsId);
+
     List<Offender> findByLastNameAndFirstNameAndBirthDate(final String lastName, final String firstName, final LocalDate dob);
 
     @Query("select o from Offender o left join fetch o.bookings b WHERE o.nomsId = :nomsId order by b.bookingSequence asc")
     List<Offender> findOffendersByNomsId(@Param("nomsId") String nomsId, Pageable pageable);
 
-    default Optional<Offender> findOffenderByNomsId(String nomsId){
-        return findOffendersByNomsId(nomsId, PageRequest.of(0,1)).stream().findFirst();
+    default Optional<Offender> findOffenderByNomsId(String nomsId) {
+        return findOffendersByNomsId(nomsId, PageRequest.of(0, 1)).stream().findFirst();
     }
 
-    @EntityGraph(value = "offender-with-sentences")
-    Optional<Offender> findFirstWithSentencesByNomsId(String nomsId);
+    @Query("select o from Offender o left join fetch o.bookings b left join fetch b.releaseDetail r " +
+        "WHERE o.nomsId = :nomsId order by b.bookingSequence asc limit 1")
+    Optional<Offender> findOffendersWithReleaseDetailByNomsId(@Param("nomsId") String nomsId);
 
     @Query(value =
         "select o from Offender o join o.bookings ob join ob.images oi WHERE oi.captureDateTime > :start")

@@ -9,6 +9,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ReleaseDetail;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl;
 
@@ -42,13 +43,25 @@ public class OffenderRepositoryTest {
     }
 
     @Test
-    void findByOffendersWithSentenceByNomsId() {
-        final var offender = repository.findFirstWithSentencesByNomsId("A1234AL").orElseThrow();
+    void findOffendersWithReleaseDetailByNomsId_NoReleaseDetails() {
+        final var offender = repository.findOffendersWithReleaseDetailByNomsId("A1234AL").orElseThrow();
 
         assertThat(offender).extracting(Offender::getId, o -> o.getRootOffender().getId()).containsExactly(-1012L, -1012L);
         assertThat(offender.getBookings()).hasSize(2);
         assertThat(offender.getLatestBooking()).isPresent();
-        assertThat(offender.getLatestBooking()).get().extracting(OffenderBooking::getBookingId).isEqualTo(-12L);    }
+        assertThat(offender.getLatestBooking()).get().extracting(OffenderBooking::getBookingId).isEqualTo(-12L);
+        assertThat(offender.getLatestBooking()).get().extracting(OffenderBooking::getReleaseDetail).isNull();
+    }
+
+    @Test
+    void findOffendersWithReleaseDetailByNomsId() {
+        final var offender = repository.findOffendersWithReleaseDetailByNomsId("A1234AA").orElseThrow();
+
+        assertThat(offender).extracting(Offender::getId, o -> o.getRootOffender().getId()).containsExactly(-1001L, -1001L);
+        assertThat(offender.getBookings()).hasSize(1);
+        assertThat(offender.getLatestBooking()).isPresent();
+        assertThat(offender.getLatestBooking()).get().extracting(OffenderBooking::getBookingId).isEqualTo(-1L);
+        assertThat(offender.getLatestBooking()).get().extracting(OffenderBooking::getReleaseDetail).isNotNull();
+        assertThat(offender.getLatestBooking().get().getReleaseDetail()).extracting(ReleaseDetail::getId).isEqualTo(-1L);
+    }
 }
-
-
