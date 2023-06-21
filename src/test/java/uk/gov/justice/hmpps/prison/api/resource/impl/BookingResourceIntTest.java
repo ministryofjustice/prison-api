@@ -248,7 +248,7 @@ public class BookingResourceIntTest extends ResourceTest {
             });
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-        assertThat(response.getBody()).contains("Resource with id [999] not found.");
+        assertThat(response.getBody()).contains("Activity with booking Id 999 and activityId -11 not found");
     }
 
     @Test

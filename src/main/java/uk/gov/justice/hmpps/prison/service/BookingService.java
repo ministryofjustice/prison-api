@@ -328,41 +328,33 @@ public class BookingService {
     public void updateAttendance(final String offenderNo, final Long activityId, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance) {
         // Copy flags from the PAYABLE_ATTENDANCE_OUTCOME reference table
         final var activityOutcome = bookingRepository.getPayableAttendanceOutcome("PRISON_ACT", updateAttendance.getEventOutcome());
-        updateAttendance(activityId, updateAttendance, getLatestBookingByOffenderNo(offenderNo), activityOutcome);
+        updateAttendance(activityId, updateAttendance, getLatestBookingByOffenderNo(offenderNo).getBookingId(), activityOutcome);
     }
 
     @Transactional
     @PreAuthorize("hasRole('ROLE_PAY')")
     public void updateAttendance(final Long bookingId, final Long activityId, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance) {
         final var activityOutcome = bookingRepository.getPayableAttendanceOutcome("PRISON_ACT", updateAttendance.getEventOutcome());
-        updateAttendance(activityId, updateAttendance, getLatestBookingByBookingId(bookingId), activityOutcome);
+        updateAttendance(activityId, updateAttendance, getLatestBookingByBookingId(bookingId).getBookingId(), activityOutcome);
     }
 
     @Transactional
     @PreAuthorize("hasRole('ROLE_PAY')")
     public void updateAttendanceForMultipleBookingIds(final Set<BookingActivity> bookingActivities, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance) {
-
-        final var bookingMap = bookingActivities.stream()
-            .map(BookingActivity::getBookingId)
-            .distinct()
-            .map(bookingId -> Map.entry(bookingId, getLatestBookingByBookingId(bookingId)))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-        log.info("updateAttendanceForMultipleBookingIds() received {} activities and {} bookings", bookingActivities.size(), bookingMap.size());
+        log.info("updateAttendanceForMultipleBookingIds() received {} activities", bookingActivities.size());
 
         final var activityOutcome = bookingRepository.getPayableAttendanceOutcome("PRISON_ACT", updateAttendance.getEventOutcome());
 
-        bookingActivities.forEach(bookingActivity -> {
-            final Long activityId = bookingActivity.getActivityId();
-
-            updateAttendance(activityId, updateAttendance, bookingMap.get(bookingActivity.getBookingId()), activityOutcome);
-        });
+        bookingActivities.forEach(bookingActivity ->
+            updateAttendance(bookingActivity.getActivityId(), updateAttendance, bookingActivity.getBookingId(), activityOutcome)
+        );
     }
 
     private void updateAttendance(final Long activityId,
                                   final UpdateAttendance updateAttendance,
-                                  final OffenderSummary offenderSummary, final PayableAttendanceOutcomeDto activityOutcome) {
-        bookingRepository.updateAttendance(offenderSummary.getBookingId(), activityId, updateAttendance, activityOutcome.isPaid(), activityOutcome.isAuthorisedAbsence());
+                                  final Long bookingId,
+                                  final PayableAttendanceOutcomeDto activityOutcome) {
+        bookingRepository.updateAttendance(bookingId, activityId, updateAttendance, activityOutcome.isPaid(), activityOutcome.isAuthorisedAbsence());
     }
 
     @VerifyBookingAccess
