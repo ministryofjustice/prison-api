@@ -38,7 +38,7 @@ class OffenderRepositoryTest {
 
   @Test
   fun findOffenderWithLatestBookingNoSentencesOrReleaseDetail() {
-    val offender = repository.findOffendersWithLatestBookingByNomsId("A1060AA").orElseThrow()
+    val offender = repository.findOffenderWithLatestBookingByNomsId("A1060AA").orElseThrow()
     assertThat(offender).extracting({ it.id }, { it.rootOffender.id }).containsExactly(-1060L, -1060L)
     assertThat(offender.bookings).hasSize(1)
     val latestBooking = offender.latestBooking.get()
@@ -49,7 +49,7 @@ class OffenderRepositoryTest {
 
   @Test
   fun findOffenderWithLatestBookingWithSentences() {
-    val offender = repository.findOffendersWithLatestBookingByNomsId("A1234AL").orElseThrow()
+    val offender = repository.findOffenderWithLatestBookingByNomsId("A1234AL").orElseThrow()
     assertThat(offender).extracting({ it.id }, { it.rootOffender.id }).containsExactly(-1012L, -1012L)
     assertThat(offender.bookings).hasSize(1)
     val latestBooking = offender.latestBooking.get()
@@ -60,7 +60,7 @@ class OffenderRepositoryTest {
 
   @Test
   fun findOffenderWithLatestBookingWithReleaseDetailAndSentences() {
-    val offender = repository.findOffendersWithLatestBookingByNomsId("A1234AA").orElseThrow()
+    val offender = repository.findOffenderWithLatestBookingByNomsId("A1234AA").orElseThrow()
     assertThat(offender).extracting({ it.id }, { it.rootOffender.id }).containsExactly(-1001L, -1001L)
     assertThat(offender.bookings).hasSize(1)
     val latestBooking = offender.latestBooking.get()
@@ -71,7 +71,7 @@ class OffenderRepositoryTest {
 
   @Test
   fun findOffenderWithLatestBookingAliasedOffender() {
-    val offender = repository.findOffendersWithLatestBookingByNomsId("A1234AI").orElseThrow()
+    val offender = repository.findOffenderWithLatestBookingByNomsId("A1234AI").orElseThrow()
     assertThat(offender).extracting({ it.id }, { it.rootOffender.id }).containsExactly(-1009L, -1009L)
     assertThat(offender.bookings).hasSize(1)
     assertThat(offender.latestBooking.get().bookingId).isEqualTo(-9L)

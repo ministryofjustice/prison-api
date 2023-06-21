@@ -1132,7 +1132,7 @@ public class BookingServiceTest {
                         .build()))
                 .build();
 
-        when(offenderRepository.findOffendersWithLatestBookingByNomsId("NomsId")).thenReturn(Optional.of(offender));
+        when(offenderRepository.findOffenderWithLatestBookingByNomsId("NomsId")).thenReturn(Optional.of(offender));
         Optional<OffenderSentenceDetail> offenderSentenceDetail = bookingService.getOffenderSentenceDetail("NomsId");
 
         assertThat(offenderSentenceDetail)

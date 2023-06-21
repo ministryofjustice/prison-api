@@ -31,7 +31,7 @@ public interface OffenderRepository extends JpaRepository<Offender, Long> {
     }
 
     @Query("select o from Offender o left join fetch o.bookings b WHERE o.nomsId = :nomsId and b.bookingSequence = 1")
-    Optional<Offender> findOffendersWithLatestBookingByNomsId(@Param("nomsId") String nomsId);
+    Optional<Offender> findOffenderWithLatestBookingByNomsId(@Param("nomsId") String nomsId);
 
     @Query(value =
         "select o from Offender o join o.bookings ob join ob.images oi WHERE oi.captureDateTime > :start")
