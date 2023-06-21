@@ -105,7 +105,7 @@ enum class AdjudicationsRepositorySql(val sql: String) {
         ,       OHR.FINDING_CODE
         ,       COALESCE(OH.HEARING_TIME,AI.REPORT_TIME) AS SORT_TIME
         FROM  AGENCY_INCIDENTS AI
-              INNER JOIN AGENCY_INCIDENT_PARTIES AIP ON AIP.AGENCY_INCIDENT_ID = AI.AGENCY_INCIDENT_ID  AND AIP.INCIDENT_ROLE = 'S'
+              INNER JOIN AGENCY_INCIDENT_PARTIES AIP ON AIP.AGENCY_INCIDENT_ID = AI.AGENCY_INCIDENT_ID
               INNER JOIN AGENCY_LOCATIONS AL ON AL.AGY_LOC_ID = AI.AGY_LOC_ID
               INNER JOIN AGENCY_INCIDENT_CHARGES AIC  ON AIC.AGENCY_INCIDENT_ID = AIP.AGENCY_INCIDENT_ID AND AIC.PARTY_SEQ = AIP.PARTY_SEQ
               INNER JOIN OIC_OFFENCES OO ON OO.OIC_OFFENCE_ID = AIC.CHARGED_OIC_OFFENCE_ID
@@ -120,6 +120,7 @@ enum class AdjudicationsRepositorySql(val sql: String) {
         AND (:offenceId IS NULL OR CHARGED_OIC_OFFENCE_ID = :offenceId)
         AND (:startDate IS NULL OR trunc(REPORT_TIME) >= :startDate)
         AND (:endDate IS NULL OR trunc(REPORT_TIME) <= :endDate)
+        AND aip.oic_incident_id IS NOT NULL
         ORDER BY AI.REPORT_TIME DESC
     """,
   ),
@@ -146,7 +147,6 @@ enum class AdjudicationsRepositorySql(val sql: String) {
                         JOIN OFFENDERS OFF ON OFF.OFFENDER_ID = OB.OFFENDER_ID
                         WHERE OFF.OFFENDER_ID_DISPLAY = :offenderNo)
         AND AIP.OIC_INCIDENT_ID = :adjudicationNo
-        AND AIP.INCIDENT_ROLE = 'S'
     """,
   ),
 

@@ -156,6 +156,22 @@ public class AdjudicationsRepositoryTest {
     }
 
     @Test
+    public void adjudicationHistoryContainsAdjudicationWithoutSuspectCode(){
+        val results = repository.findAdjudications(AdjudicationSearchCriteria.builder()
+            .offenderNumber("A1181GG")
+            .pageRequest(new PageRequest(0L, 10L))
+            .build());
+
+        assertThat(results.getItems().stream().filter(f -> f.getAdjudicationNumber() == -3001)).isNotEmpty();
+    }
+
+    @Test
+    public void adjudicationFoundWithoutSuspectCode() {
+        val result = repository.findAdjudicationDetails("A1181GG", -3001);
+        assertThat(result).isPresent();
+    }
+
+    @Test
     public void filterByStartDate() {
 
         val results = repository.findAdjudications(AdjudicationSearchCriteria.builder()
