@@ -145,7 +145,7 @@ workflows:
           jira_update: true
           context:
             - hmpps-common-vars
-            - prison-api-cp-dev
+            - prison-api-stage
           filters:
             branches:
               only:
