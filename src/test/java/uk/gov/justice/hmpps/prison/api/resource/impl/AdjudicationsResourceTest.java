@@ -158,7 +158,8 @@ public class AdjudicationsResourceTest extends ResourceTest  {
                 "agencyId", "MDI",
                 "incidentTime", "2021-01-04T10:12:44",
                 "incidentLocationId", -31L,
-                "statement", "Example statement");
+                "statement", "Example statement",
+                "offenceCodes", List.of("51:8D"));
 
             final var httpEntity = createHttpEntity(token, body);
 

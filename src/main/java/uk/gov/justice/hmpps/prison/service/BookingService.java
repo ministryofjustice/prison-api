@@ -92,6 +92,7 @@ import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
+import uk.gov.justice.hmpps.prison.service.support.PayableAttendanceOutcomeDto;
 import uk.gov.justice.hmpps.prison.service.transformers.CourtCaseTransformer;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderBookingTransformer;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderChargeTransformer;
@@ -325,36 +326,35 @@ public class BookingService {
     @Transactional
     @PreAuthorize("hasRole('ROLE_PAY')")
     public void updateAttendance(final String offenderNo, final Long activityId, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance) {
-        updateAttendance(activityId, updateAttendance, getLatestBookingByOffenderNo(offenderNo));
+        // Copy flags from the PAYABLE_ATTENDANCE_OUTCOME reference table
+        final var activityOutcome = bookingRepository.getPayableAttendanceOutcome("PRISON_ACT", updateAttendance.getEventOutcome());
+        updateAttendance(activityId, updateAttendance, getLatestBookingByOffenderNo(offenderNo).getBookingId(), activityOutcome);
     }
 
     @Transactional
     @PreAuthorize("hasRole('ROLE_PAY')")
     public void updateAttendance(final Long bookingId, final Long activityId, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance) {
-        updateAttendance(activityId, updateAttendance, getLatestBookingByBookingId(bookingId));
+        final var activityOutcome = bookingRepository.getPayableAttendanceOutcome("PRISON_ACT", updateAttendance.getEventOutcome());
+        updateAttendance(activityId, updateAttendance, getLatestBookingByBookingId(bookingId).getBookingId(), activityOutcome);
     }
 
     @Transactional
     @PreAuthorize("hasRole('ROLE_PAY')")
     public void updateAttendanceForMultipleBookingIds(final Set<BookingActivity> bookingActivities, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance) {
-        bookingActivities.forEach(bookingActivity -> updateAttendance(bookingActivity.getActivityId(), updateAttendance, getLatestBookingByBookingId(bookingActivity.getBookingId())));
-    }
+        log.info("updateAttendanceForMultipleBookingIds() received {} activities", bookingActivities.size());
 
-    private void updateAttendance(final Long activityId, final UpdateAttendance updateAttendance, final OffenderSummary offenderSummary) {
-        validateActivity(activityId);
-
-        // Copy flags from the PAYABLE_ATTENDANCE_OUTCOME reference table
         final var activityOutcome = bookingRepository.getPayableAttendanceOutcome("PRISON_ACT", updateAttendance.getEventOutcome());
-        bookingRepository.updateAttendance(offenderSummary.getBookingId(), activityId, updateAttendance, activityOutcome.isPaid(), activityOutcome.isAuthorisedAbsence());
+
+        bookingActivities.forEach(bookingActivity ->
+            updateAttendance(bookingActivity.getActivityId(), updateAttendance, bookingActivity.getBookingId(), activityOutcome)
+        );
     }
 
-
-    private void validateActivity(final Long activityId) {
-        // Find details for activities for same offender and same day as this one
-        final var attendanceEventDate = bookingRepository.getAttendanceEventDate(activityId);
-        if (attendanceEventDate == null) {
-            throw EntityNotFoundException.withMessage("Activity Id %d not found", activityId);
-        }
+    private void updateAttendance(final Long activityId,
+                                  final UpdateAttendance updateAttendance,
+                                  final Long bookingId,
+                                  final PayableAttendanceOutcomeDto activityOutcome) {
+        bookingRepository.updateAttendance(bookingId, activityId, updateAttendance, activityOutcome.isPaid(), activityOutcome.isAuthorisedAbsence());
     }
 
     @VerifyBookingAccess
@@ -721,7 +721,7 @@ public class BookingService {
 
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public Optional<OffenderSentenceDetail> getOffenderSentenceDetail(final String offenderNo) {
-        return offenderRepository.findOffenderByNomsId(offenderNo)
+        return offenderRepository.findOffenderWithLatestBookingByNomsId(offenderNo)
             .map(offender -> offender.getLatestBooking().map(booking ->
                 OffenderSentenceDetail.offenderSentenceDetailBuilder()
                     .offenderNo(offenderNo)
@@ -734,11 +734,10 @@ public class BookingService {
                     .agencyLocationDesc(booking.getLocation().getDescription())
                     .agencyLocationId(booking.getLocation().getId())
                     .internalLocationDesc(booking.getAssignedLivingUnit() != null ? LocationProcessor.stripAgencyId(booking.getAssignedLivingUnit().getDescription(), booking.getLocation().getId()) : null)
-                    .sentenceDetail(booking.getSentenceCalcDates())
+                    .sentenceDetail(getBookingSentenceCalcDates(booking.getBookingId()))
                     .build()
             ))
             .orElseThrow(EntityNotFoundException.withMessage(format("No prisoner found for prisoner number %s", offenderNo)));
-
     }
 
     @VerifyBookingAccess

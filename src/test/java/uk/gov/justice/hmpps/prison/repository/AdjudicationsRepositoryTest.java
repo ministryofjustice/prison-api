@@ -155,6 +155,34 @@ public class AdjudicationsRepositoryTest {
         assertThat(results.getItems().stream().filter(f -> f.getAdjudicationNumber() == -3001L).findFirst().get().getAdjudicationCharges().get(0).getFindingCode()).isEqualTo("PROVED");
     }
 
+    @Sql(scripts = {"/sql/incident_no_suspect.sql"},
+        executionPhase = ExecutionPhase.BEFORE_TEST_METHOD,
+        config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
+    @Sql(scripts = {"/sql/incident_no_suspect_cleanup.sql"},
+        executionPhase = ExecutionPhase.AFTER_TEST_METHOD,
+        config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
+    @Test
+    public void adjudicationHistoryContainsAdjudicationWithoutSuspectCode(){
+        val results = repository.findAdjudications(AdjudicationSearchCriteria.builder()
+            .offenderNumber("A1183SH")
+            .pageRequest(new PageRequest(0L, 10L))
+            .build());
+
+        assertThat(results.getItems().stream().filter(f -> f.getAdjudicationNumber() == -3003)).isNotEmpty();
+    }
+
+    @Sql(scripts = {"/sql/incident_no_suspect.sql"},
+        executionPhase = ExecutionPhase.BEFORE_TEST_METHOD,
+        config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
+    @Sql(scripts = {"/sql/incident_no_suspect_cleanup.sql"},
+        executionPhase = ExecutionPhase.AFTER_TEST_METHOD,
+        config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
+    @Test
+    public void adjudicationFoundWithoutSuspectCode() {
+        val result = repository.findAdjudicationDetails("A1183SH", -3003);
+        assertThat(result).isPresent();
+    }
+
     @Test
     public void filterByStartDate() {
 
