@@ -132,7 +132,6 @@ public class AdjudicationsService {
     }
 
     @Transactional
-    @VerifyOffenderAccess
     public AdjudicationCreationResponseData generateAdjudicationNumber() {
         return AdjudicationCreationResponseData.builder()
             .adjudicationNumber(adjudicationsRepository.getNextAdjudicationNumber())
@@ -140,7 +139,6 @@ public class AdjudicationsService {
     }
 
     @Transactional
-    @VerifyOffenderAccess
     public AdjudicationDetail createAdjudication(@SuppressWarnings("unused") @NotNull final String offenderNo, // This is to make the `@VerifyOffenderAccess` check access rights
                                                  @NotNull @Valid final NewAdjudication adjudication) {
         final var currentDateTime = adjudication.getReportedDateTime();
@@ -265,7 +263,6 @@ public class AdjudicationsService {
     }
 
     @Transactional
-    @VerifyOffenderAccess
     public OicHearingResponse createOicHearing(final Long adjudicationNumber, final OicHearingRequest oicHearingRequest) {
         adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber)
             .orElseThrow(EntityNotFoundException.withMessage(format("Could not find adjudication number %d", adjudicationNumber)));
@@ -295,7 +292,6 @@ public class AdjudicationsService {
     }
 
     @Transactional
-    @VerifyOffenderAccess
     public void amendOicHearing(final Long adjudicationNumber, final long oicHearingId, final OicHearingRequest oicHearingRequest) {
         final var hearingToAmend = getWithValidationChecks(adjudicationNumber, oicHearingId).getLeft();
         oicHearingLocationValidation(oicHearingRequest.getHearingLocationId());
@@ -321,7 +317,6 @@ public class AdjudicationsService {
     }
 
     @Transactional
-    @VerifyOffenderAccess
     public void deleteOicHearing(final Long adjudicationNumber, final long oicHearingId) {
         final var hearingToDelete = getWithValidationChecks(adjudicationNumber, oicHearingId).getLeft();
         oicHearingRepository.delete(hearingToDelete);
@@ -346,7 +341,6 @@ public class AdjudicationsService {
     }
 
     @Transactional
-    @VerifyOffenderAccess
     public OicHearingResultDto createOicHearingResult(
         final Long adjudicationNumber,
         final Long oicHearingId,
@@ -394,7 +388,6 @@ public class AdjudicationsService {
     }
 
     @Transactional
-    @VerifyOffenderAccess
     public OicHearingResultDto amendOicHearingResult(
         final Long adjudicationNumber,
         final Long oicHearingId,
@@ -424,7 +417,6 @@ public class AdjudicationsService {
     }
 
     @Transactional
-    @VerifyOffenderAccess
     public void deleteOicHearingResult(
         final Long adjudicationNumber,
         final Long oicHearingId) {
@@ -457,7 +449,6 @@ public class AdjudicationsService {
     }
 
     @Transactional
-    @VerifyOffenderAccess
     public List<Sanction> createOicSanctions(
         final Long adjudicationNumber,
         final List<OicSanctionRequest> oicSanctionRequests) {
@@ -509,7 +500,6 @@ public class AdjudicationsService {
     }
 
     @Transactional
-    @VerifyOffenderAccess
     public List<Sanction> updateOicSanctions(
         final Long adjudicationNumber,
         final List<OicSanctionRequest> oicSanctionRequests) {
@@ -525,7 +515,6 @@ public class AdjudicationsService {
     }
 
     @Transactional
-    @VerifyOffenderAccess
     public List<Sanction> quashOicSanctions(
         final Long adjudicationNumber) {
 
@@ -543,7 +532,6 @@ public class AdjudicationsService {
     }
 
     @Transactional
-    @VerifyOffenderAccess
     public void deleteOicSanctions(
         final Long adjudicationNumber) {
 
@@ -554,7 +542,6 @@ public class AdjudicationsService {
     }
 
     @Transactional
-    @VerifyOffenderAccess
     public void deleteSingleOicSanction(
         final Long adjudicationNumber,
         final Long sanctionSeq) {
