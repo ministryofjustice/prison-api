@@ -139,8 +139,7 @@ public class AdjudicationsService {
     }
 
     @Transactional
-    public AdjudicationDetail createAdjudication(@SuppressWarnings("unused") @NotNull final String offenderNo, // This is to make the `@VerifyOffenderAccess` check access rights
-                                                 @NotNull @Valid final NewAdjudication adjudication) {
+    public AdjudicationDetail createAdjudication(@NotNull @Valid final NewAdjudication adjudication) {
         final var currentDateTime = adjudication.getReportedDateTime();
         final var incidentDateTime = adjudication.getIncidentTime();
 
@@ -151,7 +150,7 @@ public class AdjudicationsService {
             .orElseThrow(() -> new RuntimeException(format("User not found %s", reporterName)));
 
         final var offenderBookingEntry = bookingRepository.findByOffenderNomsIdAndActive(adjudication.getOffenderNo(), true)
-                .orElseThrow(() -> new RuntimeException(format("Could not find the booking with id %d", adjudication.getOffenderNo())));
+                .orElseThrow(() -> new EntityNotFoundException(format("Could not find the booking with id %s", adjudication.getOffenderNo())));
         final var incidentType = incidentTypeRepository.findById(AdjudicationIncidentType.GOVERNORS_REPORT)
             .orElseThrow(() -> new RuntimeException("Incident type not available"));
         final var actionCode = actionCodeRepository.findById(AdjudicationActionCode.PLACED_ON_REPORT)
