@@ -721,7 +721,7 @@ public class BookingService {
 
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public Optional<OffenderSentenceDetail> getOffenderSentenceDetail(final String offenderNo) {
-        return offenderRepository.findOffenderByNomsId(offenderNo)
+        return offenderRepository.findOffenderWithLatestBookingByNomsId(offenderNo)
             .map(offender -> offender.getLatestBooking().map(booking ->
                 OffenderSentenceDetail.offenderSentenceDetailBuilder()
                     .offenderNo(offenderNo)
@@ -734,11 +734,10 @@ public class BookingService {
                     .agencyLocationDesc(booking.getLocation().getDescription())
                     .agencyLocationId(booking.getLocation().getId())
                     .internalLocationDesc(booking.getAssignedLivingUnit() != null ? LocationProcessor.stripAgencyId(booking.getAssignedLivingUnit().getDescription(), booking.getLocation().getId()) : null)
-                    .sentenceDetail(booking.getSentenceCalcDates())
+                    .sentenceDetail(getBookingSentenceCalcDates(booking.getBookingId()))
                     .build()
             ))
             .orElseThrow(EntityNotFoundException.withMessage(format("No prisoner found for prisoner number %s", offenderNo)));
-
     }
 
     @VerifyBookingAccess
