@@ -34,6 +34,7 @@ import uk.gov.justice.hmpps.prison.api.model.Visitor;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.repository.BookingRepository;
 import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq;
+import uk.gov.justice.hmpps.prison.repository.SentenceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
@@ -147,6 +148,8 @@ public class BookingServiceTest {
     @Mock
     private OffenderSentenceRepository offenderSentenceRepository;
     @Mock
+    private SentenceRepository sentenceRepository;
+    @Mock
     private SentenceTermRepository sentenceTermRepository;
     @Mock
     private OffenderFinePaymentRepository offenderFinePaymentRepository;
@@ -168,7 +171,7 @@ public class BookingServiceTest {
                 visitorRepository,
                 visitInformationRepository,
                 visitVisitorRepository,
-                null,
+                sentenceRepository,
                 sentenceTermRepository,
                 agencyService,
                 caseLoadService,
@@ -1125,7 +1128,7 @@ public class BookingServiceTest {
                         .build()))
                 .build();
 
-        when(offenderRepository.findOffenderByNomsId("NomsId")).thenReturn(Optional.of(offender));
+        when(offenderRepository.findOffenderWithLatestBookingByNomsId("NomsId")).thenReturn(Optional.of(offender));
         Optional<OffenderSentenceDetail> offenderSentenceDetail = bookingService.getOffenderSentenceDetail("NomsId");
 
         assertThat(offenderSentenceDetail)
