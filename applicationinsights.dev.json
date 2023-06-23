@@ -20,6 +20,7 @@
     "sampling": {
       "overrides": [
         {
+          "telemetryType": "dependency",
           "attributes": [
             {
               "key": "db.system",
@@ -30,6 +31,7 @@
           "percentage": 100
         },
         {
+          "telemetryType": "request",
           "attributes": [
             {
               "key": "http.url",
