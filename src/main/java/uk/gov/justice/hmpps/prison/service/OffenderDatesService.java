@@ -25,6 +25,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @AllArgsConstructor
 public class OffenderDatesService {
 
+    private static final String ZERO_LENGTH = "00/00/00";
     private final OffenderBookingRepository offenderBookingRepository;
     private final StaffUserAccountRepository staffUserAccountRepository;
     private final TelemetryClient telemetryClient;
@@ -85,6 +86,7 @@ public class OffenderDatesService {
                 .offenderBooking(offenderBooking)
                 .reasonCode("UPDATE")
                 .calculationDate(calculationDate)
+                .effectiveSentenceLength(ZERO_LENGTH)
                 .comments(
                     isBlank(requestToUpdateOffenderDates.getComment()) ?
                         "The information shown was calculated using the Calculate Release Dates service. The calculation ID is: " + requestToUpdateOffenderDates.getCalculationUuid()

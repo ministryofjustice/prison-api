@@ -172,7 +172,8 @@ public class OffenderDatesServiceTest {
             "staff",
             "reasonCode",
             "recordedDateTime",
-            "recordedUser");
+            "recordedUser",
+            "effectiveSentenceLength");
     }
 
     @Test
