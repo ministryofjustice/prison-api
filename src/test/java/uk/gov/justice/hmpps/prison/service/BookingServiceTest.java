@@ -92,6 +92,7 @@ import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -1223,17 +1224,17 @@ public class BookingServiceTest {
     void getSentenceAndOffenceDetails_withFullData() {
         final var bookingId = -1L;
 
-        final var termsSet = new LinkedHashSet<SentenceTerm>();
-        termsSet.add(SentenceTerm.builder()
-            .id(new SentenceTerm.PK(1L, 1, 1))
-            .years(2)
-            .sentenceTermCode("IMP")
-            .build());
-        termsSet.add(SentenceTerm.builder()
-            .id(new SentenceTerm.PK(1L, 1, 2))
-            .years(1)
-            .sentenceTermCode("LI")
-            .build());
+        final var terms = List.of(
+            SentenceTerm.builder()
+                .id(new SentenceTerm.PK(1L, 1, 1))
+                .years(2)
+                .sentenceTermCode("IMP")
+                .build(),
+            SentenceTerm.builder()
+                .id(new SentenceTerm.PK(1L, 1, 2))
+                .years(1)
+                .sentenceTermCode("LI")
+                .build());
 
         when(offenderSentenceRepository.findByOffenderBooking_BookingId_AndCalculationType_CalculationTypeNotLikeAndCalculationType_CategoryNot(bookingId, "%AGG%", "LICENCE"))
             .thenReturn(
@@ -1254,7 +1255,7 @@ public class BookingServiceTest {
                                 .courtDate(LocalDate.of(2021,1,1))
                                 .build()
                             )
-                        .terms(termsSet)
+                        .terms(terms)
                         .offenderSentenceCharges(List.of(
                             OffenderSentenceCharge.builder()
                                 .offenderCharge(OffenderCharge.builder()

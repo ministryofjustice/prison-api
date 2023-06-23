@@ -1,14 +1,5 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Builder.Default;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.With;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -19,6 +10,15 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.With;
+import org.hibernate.annotations.BatchSize;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +52,7 @@ public class CourtOrder extends AuditableEntity {
 
     @OneToMany(mappedBy = "courtOrder")
     @Default
+    @BatchSize(size = 1000)
     private final List<OffenderSentence> sentences = new ArrayList<>();
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
