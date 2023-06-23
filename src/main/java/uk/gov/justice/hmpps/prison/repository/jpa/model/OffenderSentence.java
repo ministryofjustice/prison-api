@@ -19,6 +19,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.With;
+import org.hibernate.annotations.BatchSize;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerm;
 
@@ -103,7 +104,8 @@ public class OffenderSentence extends AuditableEntity {
         @JoinColumn(name = "OFFENDER_BOOK_ID", referencedColumnName = "OFFENDER_BOOK_ID"),
         @JoinColumn(name = "SENTENCE_SEQ", referencedColumnName = "SENTENCE_SEQ")
     })
-    private Set<SentenceTerm> terms;
+    @BatchSize(size = 1000)
+    private List<SentenceTerm> terms;
 
     @Column(name = "START_DATE")
     private LocalDate sentenceStartDate;
@@ -118,6 +120,7 @@ public class OffenderSentence extends AuditableEntity {
     private Long lineSequence;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "offenderSentence")
+    @BatchSize(size = 1000)
     private List<OffenderSentenceCharge> offenderSentenceCharges;
 
     public Integer getSequence() {

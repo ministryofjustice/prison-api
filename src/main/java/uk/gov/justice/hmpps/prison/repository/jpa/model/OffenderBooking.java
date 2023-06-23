@@ -30,6 +30,7 @@ import lombok.Setter;
 import lombok.ToString.Exclude;
 import lombok.With;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.ListIndexBase;
 import org.hibernate.type.YesNoConverter;
 import uk.gov.justice.hmpps.prison.api.model.BookingAdjustment;
@@ -139,6 +140,7 @@ public class OffenderBooking extends AuditableEntity {
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude
+    @BatchSize(size = 1000)
     private List<CourtOrder> courtOrders = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
@@ -201,7 +203,7 @@ public class OffenderBooking extends AuditableEntity {
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude
-    private List<OffenderCharge> charges = new ArrayList<>();
+    private Set<OffenderCharge> charges = new HashSet<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
@@ -211,22 +213,26 @@ public class OffenderBooking extends AuditableEntity {
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude
+    @BatchSize(size = 1000)
     private List<KeyDateAdjustment> keyDateAdjustments = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude
+    @BatchSize(size = 1000)
     private List<SentenceAdjustment> sentenceAdjustments = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude
+    @BatchSize(size = 1000)
     private List<SentenceTerm> terms = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude
-    private Set<OffenderSentence> sentences = new HashSet<>();
+    @BatchSize(size = 1000)
+    private List<OffenderSentence> sentences = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
