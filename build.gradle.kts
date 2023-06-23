@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.2.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.2.1"
   kotlin("plugin.spring") version "1.8.22"
   kotlin("plugin.jpa") version "1.8.22"
   kotlin("plugin.lombok") version "1.8.22"
@@ -41,7 +41,7 @@ dependencies {
 
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
-  implementation("commons-codec:commons-codec:1.15")
+  implementation("commons-codec:commons-codec:1.16.0")
   implementation("com.github.jsqlparser:jsqlparser:$jsqlParserVersion")
   implementation("org.ehcache:ehcache:3.10.8")
   implementation("com.zaxxer:HikariCP:5.0.1")
@@ -51,6 +51,7 @@ dependencies {
 
   implementation("org.apache.commons:commons-lang3:3.12.0")
   implementation("commons-io:commons-io:2.13.0")
+  implementation("com.google.guava:guava:32.0.1-jre")
   implementation("org.apache.commons:commons-text:1.10.0")
   implementation("com.oracle.database.jdbc:ojdbc10:19.19.0.0")
   implementation("org.hibernate.orm:hibernate-community-dialects")
@@ -63,9 +64,9 @@ dependencies {
 
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
-  testImplementation("io.rest-assured:rest-assured:5.3.0")
-  testImplementation("io.rest-assured:json-schema-validator:5.3.0")
-  testImplementation("io.rest-assured:spring-mock-mvc:5.3.0")
+  testImplementation("io.rest-assured:rest-assured:5.3.1")
+  testImplementation("io.rest-assured:json-schema-validator:5.3.1")
+  testImplementation("io.rest-assured:spring-mock-mvc:5.3.1")
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("com.google.code.gson:gson:2.10.1")
   testImplementation("org.mockito:mockito-inline:5.2.0")
