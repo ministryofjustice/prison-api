@@ -203,7 +203,7 @@ public class OffenderBooking extends AuditableEntity {
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude
-    private Set<OffenderCharge> charges = new HashSet<>();
+    private List<OffenderCharge> charges = new ArrayList<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
