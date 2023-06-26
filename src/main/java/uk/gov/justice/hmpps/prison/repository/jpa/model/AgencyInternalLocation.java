@@ -15,6 +15,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -28,6 +29,7 @@ import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.Where;
 import org.hibernate.type.YesNoConverter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -90,7 +92,8 @@ public class AgencyInternalLocation {
 
     @OneToMany(mappedBy = "parentLocation", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Exclude
-    private List<AgencyInternalLocation> childLocations;
+    @Default
+    private List<AgencyInternalLocation> childLocations = new ArrayList<>();
 
     @Column(name = "NO_OF_OCCUPANT")
     private Integer currentOccupancy;
