@@ -958,6 +958,7 @@ public class BookingServiceTest {
                 .location(Location.builder()
                         .locationId(10L)
                         .description(null)
+                        .subLocations(false)
                         .build())
                 .containerType("Bulk")
                 .build());

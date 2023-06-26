@@ -61,6 +61,19 @@ public class LocationResourceIntTest extends ResourceTest {
         assertThat(responseBody.getAgencyId()).isEqualTo("LEI");
         assertThat(responseBody.getLocationType()).isEqualTo("WING");
         assertThat(responseBody.getUserDescription()).isEqualTo("Block A");
+        assertThat(responseBody.getSubLocations()).isEqualTo(true);
+    }
+
+    @Test
+    public void testGetLocation_by_code_cell() {
+        final var response = getLocationByCode("LEI-A-1-1");
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        Location responseBody = response.getBody();
+        assertThat(responseBody).isNotNull();
+        assertThat(responseBody.getAgencyId()).isEqualTo("LEI");
+        assertThat(responseBody.getLocationType()).isEqualTo("CELL");
+        assertThat(responseBody.getSubLocations()).isEqualTo(false);
     }
 
     @Test
