@@ -20,6 +20,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.County;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderAddress;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderAddressRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 
 import java.time.LocalDate;
@@ -40,11 +41,14 @@ public class OffenderAddressServiceImplTest {
     @Mock
     private OffenderBookingRepository offenderBookingRepository;
 
+    @Mock
+    private OffenderAddressRepository offenderAddressRepository;
+
     private OffenderAddressService offenderAddressService;
 
     @BeforeEach
     public void setUp() {
-        offenderAddressService = new OffenderAddressService(offenderBookingRepository);
+        offenderAddressService = new OffenderAddressService(offenderBookingRepository,offenderAddressRepository);
     }
 
     @Test
@@ -52,11 +56,11 @@ public class OffenderAddressServiceImplTest {
 
         final var offenderNo = "off-1";
 
-        final var offender = Offender.builder().rootOffenderId(1L).build();
+        final var offender = Offender.builder().id(1L).rootOffenderId(1L).build();
         offender.setRootOffender(offender);
         final var offenderBooking = OffenderBooking.builder().offender(offender).build();
         when(offenderBookingRepository.findByOffenderNomsIdAndActive(any(), anyBoolean())).thenReturn(Optional.of(offenderBooking));
-        offenderBooking.getOffender().setAddresses(List.of(
+        var addresses = List.of(
                 OffenderAddress.builder()
                         .addressId(-15L)
                         .addressType(new AddressType("HOME", "Home Address"))
@@ -112,7 +116,8 @@ public class OffenderAddressServiceImplTest {
                         .startDate(LocalDate.of(2016, 8, 2))
                         .endDate(null)
                         .build()
-        ));
+        );
+        when(offenderAddressRepository.findByOffenderId(1L)).thenReturn(addresses);
 
         List<AddressDto> results = offenderAddressService.getAddressesByOffenderNo(offenderNo);
 
@@ -193,11 +198,10 @@ public class OffenderAddressServiceImplTest {
     @Test
     public void testThatExceptionIsThrown_WhenNoActiveOffenderBookingsAreFound() {
         when(offenderBookingRepository.findByOffenderNomsIdAndActive(any(), anyBoolean()))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> {
-            offenderAddressService.getAddressesByOffenderNo("A12345");
-        }).isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("No active offender bookings found for offender number A12345\n");
+        assertThatThrownBy(() -> offenderAddressService.getAddressesByOffenderNo("A12345"))
+            .isInstanceOf(EntityNotFoundException.class)
+            .hasMessageContaining("No active offender bookings found for offender number A12345\n");
     }
 }
