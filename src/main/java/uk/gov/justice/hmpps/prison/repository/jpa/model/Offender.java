@@ -8,9 +8,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.NamedAttributeNode;
-import jakarta.persistence.NamedEntityGraph;
-import jakarta.persistence.NamedSubgraph;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
@@ -27,7 +24,6 @@ import org.hibernate.Hibernate;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
-import org.hibernate.annotations.Where;
 import org.springframework.data.annotation.CreatedDate;
 import uk.gov.justice.hmpps.prison.api.model.MovementDate;
 import uk.gov.justice.hmpps.prison.api.model.PrisonPeriod;
@@ -158,12 +154,6 @@ public class Offender extends AuditableEntity {
 
     @Column(name = "LAST_NAME_ALPHA_KEY")
     private String lastNameAlphaKey;
-
-    @OneToMany(mappedBy = "offender", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @Where(clause = "OWNER_CLASS = '"+OffenderAddress.ADDR_TYPE+"'")
-    @Default
-    @Exclude
-    private List<OffenderAddress> addresses = new ArrayList<>();
 
     public Optional<OffenderIdentifier> getLatestIdentifierOfType(final String type) {
         final var offenderIdentifiers = mapOfIdentifiers().get(type);
