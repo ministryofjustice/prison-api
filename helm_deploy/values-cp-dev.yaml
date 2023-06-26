@@ -10,6 +10,28 @@ generic-service:
     enabled: true
     host: prison-api-dev.prison.service.justice.gov.uk
     tlsSecretName: prison-api-cert
+    modsecurity_enabled: true
+    # Missing User Agent Header - 920320
+    # Request Missing an Accept Header - 920300
+    # Restrict file extension - 920440
+    # SQL Injection Attack: Common Injection Testing Detected - 942110
+    # Found User-Agent associated with scripting/generic HTTP client - 913101
+    modsecurity_snippet:
+      SecRuleEngine On
+      SecDefaultAction "phase:2,pass,log,tag:github_team=dps-tech"
+      SecRuleRemoveById 920320
+      SecRuleRemoveById 920300
+      SecRuleRemoveById 920440
+      SecRuleRemoveById 942110
+      SecRuleRemoveById 913101
+      SecRuleUpdateTargetById 932150 "!ARGS:/keywords/"
+      SecRuleUpdateTargetById 942330 "!ARGS:/keywords/"
+      SecRuleUpdateTargetById 942410 "!ARGS:/outcomeComment/"
+      SecRuleUpdateTargetById 942150 "!ARGS:/outcomeComment/"
+      SecRuleUpdateTargetById 942130 "!ARGS:/text/"
+      SecRuleUpdateTargetById 942130 "!ARGS:/.*comment/"
+      SecRuleUpdateTargetById 942130 "!ARGS:/statement/"
+      SecRuleUpdateTargetById 942130 "!ARGS:/.*description/"
 
   env:
     SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: "https://sign-in-dev.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json"
