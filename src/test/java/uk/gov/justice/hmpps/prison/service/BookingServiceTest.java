@@ -92,9 +92,7 @@ import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -958,6 +956,7 @@ public class BookingServiceTest {
                 .location(Location.builder()
                         .locationId(10L)
                         .description(null)
+                        .subLocations(false)
                         .build())
                 .containerType("Bulk")
                 .build());
