@@ -27,6 +27,7 @@ public class LocationTransformer {
             .operationalCapacity(agencyInternalLocation.getOperationalCapacity())
             .userDescription(agencyInternalLocation.getUserDescription())
             .internalLocationCode(agencyInternalLocation.getLocationCode())
+            .subLocations(!agencyInternalLocation.getChildLocations().isEmpty())
             .build();
     }
 }

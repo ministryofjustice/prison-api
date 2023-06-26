@@ -53,7 +53,10 @@ public class Location {
 
     private String internalLocationCode;
 
-    public Location(@NotNull Long locationId, @NotBlank String locationType, @NotBlank String description, String locationUsage, @NotBlank String agencyId, Long parentLocationId, Integer currentOccupancy, String locationPrefix, Integer operationalCapacity, String userDescription, String internalLocationCode) {
+    @Schema(description = "Indicates that sub locations exist for this location e.g. landings or cells")
+    private Boolean subLocations;
+
+    public Location(@NotNull Long locationId, @NotBlank String locationType, @NotBlank String description, String locationUsage, @NotBlank String agencyId, Long parentLocationId, Integer currentOccupancy, String locationPrefix, Integer operationalCapacity, String userDescription, String internalLocationCode, Boolean subLocations) {
         this.locationId = locationId;
         this.locationType = locationType;
         this.description = description;
@@ -65,6 +68,7 @@ public class Location {
         this.operationalCapacity = operationalCapacity;
         this.userDescription = userDescription;
         this.internalLocationCode = internalLocationCode;
+        this.subLocations =  subLocations;
     }
 
     public Location() {

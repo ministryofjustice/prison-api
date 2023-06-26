@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -86,6 +87,10 @@ public class AgencyInternalLocation {
     @JoinColumn(name = "PARENT_INTERNAL_LOCATION_ID")
     @Exclude
     private AgencyInternalLocation parentLocation;
+
+    @OneToMany(mappedBy = "parentLocation", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @Exclude
+    private List<AgencyInternalLocation> childLocations;
 
     @Column(name = "NO_OF_OCCUPANT")
     private Integer currentOccupancy;
