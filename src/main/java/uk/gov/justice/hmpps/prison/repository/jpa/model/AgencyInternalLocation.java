@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -14,6 +15,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -27,6 +29,7 @@ import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.Where;
 import org.hibernate.type.YesNoConverter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -86,6 +89,11 @@ public class AgencyInternalLocation {
     @JoinColumn(name = "PARENT_INTERNAL_LOCATION_ID")
     @Exclude
     private AgencyInternalLocation parentLocation;
+
+    @OneToMany(mappedBy = "parentLocation", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @Exclude
+    @Default
+    private List<AgencyInternalLocation> childLocations = new ArrayList<>();
 
     @Column(name = "NO_OF_OCCUPANT")
     private Integer currentOccupancy;

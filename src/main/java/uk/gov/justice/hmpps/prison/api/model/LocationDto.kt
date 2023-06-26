@@ -12,6 +12,7 @@ data class LocationDto(
   val operationalCapacity: Int?,
   val userDescription: String?,
   val internalLocationCode: String?,
+  val subLocations: Boolean?,
 ) {
   fun toLocation() = Location(
     this.locationId,
@@ -25,5 +26,6 @@ data class LocationDto(
     this.operationalCapacity,
     this.userDescription,
     this.internalLocationCode,
+    this.subLocations,
   )
 }
