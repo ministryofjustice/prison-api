@@ -46,18 +46,6 @@ public class PrisonerInformationService {
         this.maxBatchSize = maxBatchSize;
     }
 
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH')")
-    public Page<PrisonerInformation> getPrisonerInformationByPrison(final @NotNull String agencyId, final Pageable pageable) {
-
-        final var page = prisonerStatusInformationRepository.findAllByEstablishmentCode(agencyId, pageable);
-        final var prisonerInformation = page.getContent().stream().map(this::transform).toList();
-
-        final var bookingIds = prisonerInformation.stream().map(PrisonerInformation::getBookingId).toList();
-        InmatesHelper.setReleaseDate(prisonerInformation, bookingService.getBookingSentencesSummary(bookingIds));
-        Lists.partition(bookingIds, maxBatchSize).forEach(bookingIdList -> InmatesHelper.setCategory(prisonerInformation, repository.findAssessments(bookingIdList, "CATEGORY", Set.of())));
-        return new PageImpl<>(prisonerInformation, pageable, page.getTotalElements());
-    }
-
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public PrisonerInformation getPrisonerInformationById(final @NotNull String offenderNo) {
         final var entity = prisonerStatusInformationRepository.getByNomsId(offenderNo).orElseThrow(() -> new EntityNotFoundException(format("Resource with id [%s] not found.", offenderNo)));
