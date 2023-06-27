@@ -81,6 +81,7 @@ import static uk.gov.justice.hmpps.prison.service.transformers.OffenderTransform
     @NamedEntityGraph(
         name = "booking-with-sentence-summary",
         attributeNodes = {
+            @NamedAttributeNode("releaseDetail"),
             @NamedAttributeNode(value = "sentences", subgraph = "sentence-details"),
         },
         subgraphs = {
@@ -94,9 +95,9 @@ import static uk.gov.justice.hmpps.prison.service.transformers.OffenderTransform
             @NamedSubgraph(
                 name = "court",
                 attributeNodes = {
-                    @NamedAttributeNode(value = "agencyLocation", subgraph = "court-location"),
                     @NamedAttributeNode("caseStatus"),
                     @NamedAttributeNode("legalCaseType"),
+                    @NamedAttributeNode(value = "agencyLocation", subgraph = "court-location"),
                 }
             ),
             @NamedSubgraph(
