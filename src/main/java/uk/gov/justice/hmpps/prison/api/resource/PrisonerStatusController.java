@@ -50,48 +50,4 @@ public class PrisonerStatusController {
                                                          @PathVariable("offenderNo") final String offenderNo) {
         return service.getPrisonerInformationById(offenderNo);
     }
-
-    /* NOTE: This is the old way of sending paging and returning information to existing prison-api ways of doing things **/
-
-    @Deprecated
-    @GetMapping("/at-location/{establishmentCode}")
-    @Operation(summary = "List of prisoners at a prison establishment", description = "Pagination In Headers")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    public ResponseEntity<List<PrisonerInformation>> getPrisonerDetailAtLocationOld(
-                                         @Parameter(description = "Establishment Code", required = true, example = "MDI") @PathVariable("establishmentCode") final String establishmentCode,
-                                         @Parameter(description = "Requested offset of first record in returned collection of prisoner records.") @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) Long pageOffset,
-                                         @Parameter(description = "Requested limit to number of prisoner records returned.") @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) Long pageLimit,
-                                         @Parameter(description = "Comma separated list of one or more of the following fields - <b>bookingId, nomsId, cellLocation</b>") @RequestHeader(value = "Sort-Fields", defaultValue = "bookingId", required = false) String sortFields,
-                                         @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) Order sortOrder) {
-
-        final var prisonerInfo =  service.getPrisonerInformationByPrison(establishmentCode,
-                PageRequest.of(sortFields, sortOrder, pageOffset, pageLimit));
-
-        final var responseHeaders = new HttpHeaders();
-        responseHeaders.set("Total-Records", String.valueOf(prisonerInfo.getTotalElements()));
-        responseHeaders.set("Page-Offset",   String.valueOf(prisonerInfo.getPageable().getOffset()));
-        responseHeaders.set("Page-Limit",    String.valueOf(prisonerInfo.getPageable().getPageSize()));
-
-        return ResponseEntity.ok()
-                .headers(responseHeaders)
-                .body(prisonerInfo.getContent());
-    }
-
-    /* NOTE: This is the new way of sending paging and returning information to match spring data patterns **/
-
-    @GetMapping("/by-establishment/{establishmentCode}")
-    @Operation(summary = "List of prisoners at a prison establishment")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    public Page<PrisonerInformation> getPrisonerDetailAtLocation(
-            @Parameter(description = "Establishment Code", required = true, example = "MDI") @PathVariable("establishmentCode") final String establishmentCode,
-            @ParameterObject @PageableDefault(sort = {"bookingId"}, direction = Sort.Direction.ASC) final Pageable pageable) {
-
-        return service.getPrisonerInformationByPrison(establishmentCode,  pageable);
-    }
 }

@@ -42,38 +42,6 @@ public class PrisonersResourceTest extends ResourceTest {
     }
 
     @Test
-    public void testCanReturnPrisonerInformationAtLocation() {
-        final var token = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH);
-
-        final var httpEntity = createHttpEntity(token, null, Map.of("Page-Limit", "30"));
-
-        final var response = testRestTemplate.exchange(
-                "/api/prisoners/at-location/LEI",
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                });
-
-        assertThatJsonFileAndStatus(response, 200, "prisoners_information.json");
-    }
-
-    @Test
-    public void testCanReturnPrisonerInformationByEstablishmentWithSort() {
-        final var token = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH);
-
-        final var httpEntity = createHttpEntity(token, null, Map.of());
-
-        final var response = testRestTemplate.exchange(
-                "/api/prisoners/by-establishment/LEI?size=5&page=2&sort=lastName,asc&sort=givenName1,asc",
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                });
-
-        assertThatJsonFileAndStatus(response, 200, "prisoners_information_paged.json");
-    }
-
-    @Test
     public void testCanReturnPrisonerInformationByNomsId() {
         final var token = authTokenHelper.getToken(AuthToken.VIEW_PRISONER_DATA);
 
