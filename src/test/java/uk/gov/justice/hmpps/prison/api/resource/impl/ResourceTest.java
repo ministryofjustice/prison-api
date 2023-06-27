@@ -145,19 +145,8 @@ public abstract class ResourceTest {
         assertThat(response.getStatusCode()).withFailMessage("Expecting status code value <%s> to be equal to <%s> but it was not.\nBody was\n%s", response.getStatusCode(), status, response.getBody()).isEqualTo(status);
     }
 
-    protected <T> void assertThatStatus(final ResponseEntity<T> response, final HttpStatusCode status) {
-        assertThat(response.getStatusCode()).withFailMessage("Expecting status code value <%s> to be equal to <%s> but it was not.\nBody was\n%s", response.getStatusCode(), status, response.getBody()).isEqualTo(status);
-    }
-
     protected void assertThatJsonFileAndStatus(final ResponseEntity<String> response, final int status, final String jsonFile) {
         assertThatJsonFileAndStatus(response, HttpStatusCode.valueOf(status), jsonFile);
-    }
-
-    protected void assertThatJsonFileAndStatus(final ResponseEntity<String> response, final HttpStatusCode status, final String jsonFile) {
-        assertThatStatus(response, status);
-
-        final var bodyAsJsonContent = getBodyAsJsonContent(response);
-        assertThat(bodyAsJsonContent).isEqualToJson(jsonFile);
     }
 
     protected void assertThatJsonFileAndStatus(final ResponseEntity<String> response, final HttpStatusCode status, final String jsonFile) {
