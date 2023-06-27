@@ -84,7 +84,7 @@ dependencies {
   testImplementation("com.github.tomakehurst:wiremock-jre8-standalone:2.35.0")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.11.5")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.16")
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.15")
   testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.27.0")
 
   testCompileOnly("org.projectlombok:lombok:1.18.28")
