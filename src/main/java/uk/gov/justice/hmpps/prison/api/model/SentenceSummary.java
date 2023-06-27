@@ -38,10 +38,6 @@ public class SentenceSummary {
     @Schema(description = "Most recent term in prison")
     private PrisonTerm latestPrisonTerm;
 
-    @Schema(description = "Other prison terms")
-    private List<PrisonTerm> previousPrisonTerms;
-
-
     @Schema(description = "Prison Term")
     @Builder
     @AllArgsConstructor
