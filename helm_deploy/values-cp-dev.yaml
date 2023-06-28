@@ -16,7 +16,7 @@ generic-service:
     # Restrict file extension - 920440
     # SQL Injection Attack: Common Injection Testing Detected - 942110
     # Found User-Agent associated with scripting/generic HTTP client - 913101
-    modsecurity_snippet:
+    modsecurity_snippet: |
       SecRuleEngine On
       SecDefaultAction "phase:2,pass,log,tag:github_team=dps-tech"
       SecRuleRemoveById 920320
