@@ -22,6 +22,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
@@ -93,6 +94,7 @@ public class AgencyInternalLocation {
     @OneToMany(mappedBy = "parentLocation", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Exclude
     @Default
+    @BatchSize(size = 1000)
     private List<AgencyInternalLocation> childLocations = new ArrayList<>();
 
     @Column(name = "NO_OF_OCCUPANT")
