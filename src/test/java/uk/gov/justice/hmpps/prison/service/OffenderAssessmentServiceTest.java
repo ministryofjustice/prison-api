@@ -259,7 +259,7 @@ public class OffenderAssessmentServiceTest {
 
     @Test
     public void getOffenderAssessments_returnsCorrectApiObject() {
-        when(repository.findByCsraAssessmentAndByOffenderNos_OrderByLatestFirst(List.of("N1234AA"))).thenReturn(List.of(
+        when(repository.findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(List.of("N1234AA"))).thenReturn(List.of(
             OffenderAssessment.builder()
                 .bookingId(-1L)
                 .assessmentSeq(2)
@@ -323,7 +323,7 @@ public class OffenderAssessmentServiceTest {
 
     @Test
     public void getOffenderAssessments_returnsAllObjects() {
-        when(repository.findByCsraAssessmentAndByOffenderNos_OrderByLatestFirst(List.of("N1234AA"))).thenReturn(List.of(
+        when(repository.findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(List.of("N1234AA"))).thenReturn(List.of(
             getOffenderAssessment_MinimalBuilder(-1L, 1, "N1234AA", -11L)
                 .build(),
             getOffenderAssessment_MinimalBuilder(-1L, 2, "N1234AA", -11L)
@@ -351,7 +351,7 @@ public class OffenderAssessmentServiceTest {
 
     @Test
     public void getCurrentCsraClassification_returnsResultsOfFirstAssessmentIfSet() {
-        when(repository.findByCsraAssessmentAndByOffenderNos_OrderByLatestFirst(List.of("N1234AA"))).thenReturn(List.of(
+        when(repository.findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(List.of("N1234AA"))).thenReturn(List.of(
             getOffenderAssessment_CsraClassificationBuilder("N1234AA", new AssessmentClassification("HI", "High"), LocalDate.parse("2019-01-02"))
                 .build(),
             getOffenderAssessment_CsraClassificationBuilder("N1234AA", new AssessmentClassification("STANDARD", "Standard"), LocalDate.parse("2019-01-01"))
@@ -366,7 +366,7 @@ public class OffenderAssessmentServiceTest {
 
     @Test
     public void getCurrentCsraClassification_returnsResultsOfNextAssessmentIfFirstNotSet() {
-        when(repository.findByCsraAssessmentAndByOffenderNos_OrderByLatestFirst(List.of("N1234AA"))).thenReturn(List.of(
+        when(repository.findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(List.of("N1234AA"))).thenReturn(List.of(
             getOffenderAssessment_CsraClassificationBuilder("N1234AA", null, LocalDate.parse("2019-01-03"))
                 .build(),
             getOffenderAssessment_CsraClassificationBuilder("N1234AA", new AssessmentClassification("STANDARD", "Standard"), LocalDate.parse("2019-01-02"))
@@ -383,7 +383,7 @@ public class OffenderAssessmentServiceTest {
 
     @Test
     public void getCurrentCsraClassification_returnsNullIfNoAssessmentsWithResults() {
-        when(repository.findByCsraAssessmentAndByOffenderNos_OrderByLatestFirst(List.of("N1234AA"))).thenReturn(List.of(
+        when(repository.findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(List.of("N1234AA"))).thenReturn(List.of(
             getOffenderAssessment_CsraClassificationBuilder("N1234AA", null, LocalDate.parse("2019-01-02"))
                 .build()
         ));
@@ -395,7 +395,7 @@ public class OffenderAssessmentServiceTest {
 
     @Test
     public void getCurrentCsraClassification_returnsNullIfNoAssessments() {
-        when(repository.findByCsraAssessmentAndByOffenderNos_OrderByLatestFirst(List.of("N1234AA"))).thenReturn(List.of());
+        when(repository.findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(List.of("N1234AA"))).thenReturn(List.of());
 
         final var csraClassificationCode = service.getCurrentCsraClassification("N1234AA");
 
@@ -404,7 +404,7 @@ public class OffenderAssessmentServiceTest {
 
     @Test
     public void getOffendersAssessmentRatings_returnsResultsOfNextAssessmentIfLatestNotFinalised() {
-        when(repository.findByCsraAssessmentAndByOffenderNos_OrderByLatestFirst(List.of("N1234AA"))).thenReturn(List.of(
+        when(repository.findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(List.of("N1234AA"))).thenReturn(List.of(
             getOffenderAssessment_CsraClassificationBuilder("N1234AA", null, LocalDate.parse("2019-01-03"))
                 .build(),
             getOffenderAssessment_CsraClassificationBuilder("N1234AA", new AssessmentClassification("HI", "High"), LocalDate.parse("2019-01-02"))
@@ -425,7 +425,7 @@ public class OffenderAssessmentServiceTest {
 
     @Test
     public void getOffendersAssessmentRatings_returnsOnlyOffendersRequestedWithAssessments() {
-        when(repository.findByCsraAssessmentAndByOffenderNos_OrderByLatestFirst(List.of("N1234AA", "N2345BB"))).thenReturn(List.of(
+        when(repository.findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(List.of("N1234AA", "N2345BB"))).thenReturn(List.of(
             getOffenderAssessment_CsraClassificationBuilder("N1234AA", new AssessmentClassification("HI", "High"), LocalDate.parse("2019-01-02"))
             .build()
         ));
@@ -445,11 +445,11 @@ public class OffenderAssessmentServiceTest {
     @Test
     public void getOffendersAssessmentRatings_returnsBatchedAssessments() {
         final var serviceWithSmallBatchSize = new OffenderAssessmentService(repository, assessmentRepository, 2);
-        when(repository.findByCsraAssessmentAndByOffenderNos_OrderByLatestFirst(List.of("N1234AA", "N2345BB"))).thenReturn(List.of(
+        when(repository.findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(List.of("N1234AA", "N2345BB"))).thenReturn(List.of(
             getOffenderAssessment_CsraClassificationBuilder("N1234AA", new AssessmentClassification("HI", "High"), LocalDate.parse("2019-01-02"))
                 .build()
         ));
-        when(repository.findByCsraAssessmentAndByOffenderNos_OrderByLatestFirst(List.of("N3456CC"))).thenReturn(List.of(
+        when(repository.findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(List.of("N3456CC"))).thenReturn(List.of(
             getOffenderAssessment_CsraClassificationBuilder("N3456CC", new AssessmentClassification("STANDARD", "Standard"), LocalDate.parse("2019-01-03"))
                 .build()
         ));
