@@ -28,7 +28,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -140,14 +141,14 @@ public class OffenderAssessmentServiceTest {
 
     @Test
     public void getOffenderAssessment_throwsEntityNotFoundIfNoMatch() {
-        when(repository.findByBookingIdAndAssessmentSeq(any(), any())).thenReturn(Optional.empty());
+        when(repository.findByBookingIdAndAssessmentSeq(anyLong(), anyInt())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.getOffenderAssessment(-1L, 2)).isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test
     public void getOffenderAssessment_throwsEntityNotFoundIfNoCsraQuestions() {
-        when(repository.findByBookingIdAndAssessmentSeq(any(), any())).thenReturn(Optional.of(
+        when(repository.findByBookingIdAndAssessmentSeq(anyLong(), anyInt())).thenReturn(Optional.of(
             getOffenderAssessment_MinimalBuilder(-1L, 2, "NN123N", -11L)
             .build()
         ));
@@ -160,7 +161,7 @@ public class OffenderAssessmentServiceTest {
 
     @Test
     public void getOffenderAssessment_handlesMultipleAnswersToCsraQuestion() {
-        when(repository.findByBookingIdAndAssessmentSeq(any(), any())).thenReturn(Optional.of(
+        when(repository.findByBookingIdAndAssessmentSeq(anyLong(), anyInt())).thenReturn(Optional.of(
             getOffenderAssessment_MinimalBuilder(-1L, 2, "NN123N", -11L)
                 .assessmentItems(List.of(
                     OffenderAssessmentItem.builder()
@@ -213,7 +214,7 @@ public class OffenderAssessmentServiceTest {
 
     @Test
     public void getOffenderAssessment_ignoresAnswersThatAreNotInCsraQuestions() {
-        when(repository.findByBookingIdAndAssessmentSeq(any(), any())).thenReturn(Optional.of(
+        when(repository.findByBookingIdAndAssessmentSeq(anyLong(), anyInt())).thenReturn(Optional.of(
             getOffenderAssessment_MinimalBuilder(-1L, 2, "NN123N", -11L)
                 .assessmentItems(List.of(
                     OffenderAssessmentItem.builder()
@@ -242,7 +243,7 @@ public class OffenderAssessmentServiceTest {
 
     @Test
     public void getOffenderAssessment_handlesMinimalNonNullValues() {
-        when(repository.findByBookingIdAndAssessmentSeq(any(), any())).thenReturn(Optional.of(
+        when(repository.findByBookingIdAndAssessmentSeq(anyLong(), anyInt())).thenReturn(Optional.of(
             getOffenderAssessment_MinimalBuilder(-1L, 2, "NN123N", -11L)
             .build()
         ));
