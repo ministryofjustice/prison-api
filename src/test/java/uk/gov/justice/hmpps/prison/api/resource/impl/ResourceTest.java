@@ -8,6 +8,7 @@ import org.springframework.boot.test.json.JsonContent;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -137,10 +138,18 @@ public abstract class ResourceTest {
     }
 
     protected <T> void assertThatStatus(final ResponseEntity<T> response, final int status) {
-        assertThat(response.getStatusCodeValue()).withFailMessage("Expecting status code value <%s> to be equal to <%s> but it was not.\nBody was\n%s", response.getStatusCodeValue(), status, response.getBody()).isEqualTo(status);
+        assertThatStatus(response, HttpStatusCode.valueOf(status));
+    }
+
+    protected <T> void assertThatStatus(final ResponseEntity<T> response, final HttpStatusCode status) {
+        assertThat(response.getStatusCode()).withFailMessage("Expecting status code value <%s> to be equal to <%s> but it was not.\nBody was\n%s", response.getStatusCode(), status, response.getBody()).isEqualTo(status);
     }
 
     protected void assertThatJsonFileAndStatus(final ResponseEntity<String> response, final int status, final String jsonFile) {
+        assertThatJsonFileAndStatus(response, HttpStatusCode.valueOf(status), jsonFile);
+    }
+
+    protected void assertThatJsonFileAndStatus(final ResponseEntity<String> response, final HttpStatusCode status, final String jsonFile) {
         assertThatStatus(response, status);
 
         final var bodyAsJsonContent = getBodyAsJsonContent(response);
