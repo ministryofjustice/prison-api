@@ -79,6 +79,38 @@ import static uk.gov.justice.hmpps.prison.service.transformers.OffenderTransform
         }
     ),
     @NamedEntityGraph(
+        name = "booking-with-sentence-summary",
+        attributeNodes = {
+            @NamedAttributeNode("releaseDetail"),
+            @NamedAttributeNode(value = "sentences", subgraph = "sentence-details"),
+        },
+        subgraphs = {
+            @NamedSubgraph(
+                name = "sentence-details",
+                attributeNodes = {
+                    @NamedAttributeNode("calculationType"),
+                    @NamedAttributeNode(value = "courtCase", subgraph = "court"),
+                }
+            ),
+            @NamedSubgraph(
+                name = "court",
+                attributeNodes = {
+                    @NamedAttributeNode("caseStatus"),
+                    @NamedAttributeNode("legalCaseType"),
+                    @NamedAttributeNode(value = "agencyLocation", subgraph = "court-location"),
+                }
+            ),
+            @NamedSubgraph(
+                name = "court-location",
+                attributeNodes = {
+                    @NamedAttributeNode("type"),
+                    @NamedAttributeNode("courtType"),
+
+                }
+            ),
+        }
+    ),
+    @NamedEntityGraph(
         name = "booking-with-livingUnits",
         attributeNodes = {
             @NamedAttributeNode(value = "offender"),

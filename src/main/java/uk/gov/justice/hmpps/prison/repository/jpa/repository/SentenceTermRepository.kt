@@ -8,5 +8,5 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm.PK
 
 public interface SentenceTermRepository : CrudRepository<SentenceTerm, PK> {
   @EntityGraph(type = EntityGraphType.FETCH, value = "sentence-term-with-offender-sentence")
-  fun findByOffenderBookingBookingId(bookingId: Long): MutableList<SentenceTerm>
+  fun findByOffenderBookingBookingId(bookingId: Long): List<SentenceTerm>
 }

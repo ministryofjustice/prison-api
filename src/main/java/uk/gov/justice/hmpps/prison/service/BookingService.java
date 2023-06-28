@@ -824,20 +824,13 @@ public class BookingService {
 
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     public Optional<SentenceSummary> getSentenceSummary(final String offenderNo) {
-        final var offender = offenderRepository.findOffenderByNomsId(offenderNo)
+        final var latestBooking = offenderBookingRepository.findWithSentenceSummaryByOffenderNomsIdAndBookingSequence(offenderNo, 1)
             .orElseThrow(EntityNotFoundException.withMessage(format("No prisoner found for prisoner number %s", offenderNo)));
 
-        return offender.getLatestBooking()
-                .map(latestBooking ->
-                        SentenceSummary.builder()
-                            .prisonerNumber(offenderNo)
-                            .latestPrisonTerm(PrisonTerm.transform(latestBooking))
-                            .previousPrisonTerms(offender.getBookings().stream()
-                                .filter(b -> !b.getBookingId().equals(latestBooking.getBookingId()) && !b.getSentences().isEmpty())
-                                .sorted(comparing(OffenderBooking::getBookingBeginDate).reversed())
-                                .map(PrisonTerm::transform).toList())
-                        .build()
-            );
+        return Optional.of(SentenceSummary.builder()
+            .prisonerNumber(offenderNo)
+            .latestPrisonTerm(PrisonTerm.transform(latestBooking))
+            .build());
     }
 
     public OffenderContacts getOffenderContacts(final Long bookingId, boolean approvedVisitorOnly, boolean activeOnly) {

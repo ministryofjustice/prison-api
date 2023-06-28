@@ -27,6 +27,9 @@ public interface OffenderBookingRepository extends
     @EntityGraph(type = EntityGraphType.FETCH, value = "booking-with-livingUnits")
     Optional<OffenderBooking> findWithDetailsByOffenderNomsIdAndBookingSequence(String nomsId, Integer bookingSequence);
 
+    @EntityGraph(type = EntityGraphType.FETCH, value = "booking-with-sentence-summary")
+    Optional<OffenderBooking> findWithSentenceSummaryByOffenderNomsIdAndBookingSequence(String nomsId, Integer bookingSequence);
+
     Optional<OffenderBooking> findByBookingId(Long bookingId);
 
     @NotNull
