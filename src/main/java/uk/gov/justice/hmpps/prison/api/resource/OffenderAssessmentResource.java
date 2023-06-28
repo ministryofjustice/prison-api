@@ -95,7 +95,7 @@ public class OffenderAssessmentResource {
 
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "The CSRA assessment list is returned, 1 per offender.")})
-    @Operation(summary = "Retrieves Offender CRSAs for multiple offenders - POST version to allow large offender lists.")
+    @Operation(summary = "Retrieves Offender CSRAs for multiple offenders - POST version to allow large offender lists.")
     @PostMapping("/csra/list")
     @SlowReportQuery
     public List<Assessment> postOffenderAssessmentsCsraList(@RequestBody @NotEmpty @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderList) {

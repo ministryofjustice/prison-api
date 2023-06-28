@@ -71,13 +71,13 @@ public class OffenderAssessmentService {
     @Transactional(readOnly = true)
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<AssessmentSummary> getOffenderAssessments(final String offenderNo) {
-        final var assessments = repository.findByCsraAssessmentAndByOffenderNos_OrderByLatestFirst(List.of(offenderNo));
+        final var assessments = repository.findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(List.of(offenderNo));
 
         return assessments.stream().map(this::getAssessmentSummary).collect(toList());
     }
 
     public CurrentCsraAssessment getCurrentCsraClassification(final String offenderNo) {
-        final var assessments = repository.findByCsraAssessmentAndByOffenderNos_OrderByLatestFirst(List.of(offenderNo));
+        final var assessments = repository.findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(List.of(offenderNo));
 
         return calculateCurrentCsraClassification(assessments);
     }
@@ -133,7 +133,7 @@ public class OffenderAssessmentService {
     }
 
     private List<AssessmentClassification> getOffendersCurrentAssessmentRating(final List<String> offenderNos) {
-        final var assessmentsLatestFirstForAllOffenders = repository.findByCsraAssessmentAndByOffenderNos_OrderByLatestFirst(offenderNos);
+        final var assessmentsLatestFirstForAllOffenders = repository.findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(offenderNos);
         final var assessmentsLatestFirstByOffenderNo = assessmentsLatestFirstForAllOffenders.stream().collect(groupingBy(OffenderAssessment::getOffenderNo));
         return assessmentsLatestFirstByOffenderNo.entrySet().stream()
             .map(e -> getOffenderCurrentAssessmentRating(e.getKey(), e.getValue()))
@@ -165,9 +165,9 @@ public class OffenderAssessmentService {
         private String classificationCode;
         private LocalDate classificationDate;
 
-        public static CurrentCsraAssessment fromAssessment(OffenderAssessment asseessmentWithClassificationSet) {
-            return new CurrentCsraAssessment(asseessmentWithClassificationSet.getClassificationSummary().getFinalClassification().getCode(),
-                asseessmentWithClassificationSet.getAssessmentDate());
+        public static CurrentCsraAssessment fromAssessment(OffenderAssessment assessmentWithClassificationSet) {
+            return new CurrentCsraAssessment(assessmentWithClassificationSet.getClassificationSummary().getFinalClassification().getCode(),
+                assessmentWithClassificationSet.getAssessmentDate());
         }
     }
 }
