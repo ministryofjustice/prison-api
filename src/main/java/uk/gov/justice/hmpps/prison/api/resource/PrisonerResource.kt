@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
@@ -191,6 +193,40 @@ class PrisonerResource(private val globalSearchService: GlobalSearchService) {
     )
       .also { log.debug("Global Search returned {} records", it.totalRecords) }
       .response
+  }
+
+  @ApiResponses(
+    ApiResponse(responseCode = "200", description = "OK"),
+    ApiResponse(responseCode = "400", description = "Invalid request.", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
+    ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
+  )
+  @Operation(
+    summary = """
+    Return a list of all unique prisoner numbers (also called NOMS ID or offenderNo). 
+    Results are ordered by max(ROOT_OFFENDER_ID), therefore ensuring that new offenders are added to the end of the 
+    results.
+    This is an internal endpoint used by Prisoner Search to ensure that NOMIS and OpenSearch are in sync.
+    Other services should use Prisoner Search instead to get the list of prisoners.
+    Requires PRISONER_INDEX role.
+    """,
+  )
+  @GetMapping("/prisoner-numbers")
+  @PreAuthorize("hasAnyRole('SYSTEM_USER','PRISONER_INDEX')")
+  @SlowReportQuery
+  fun getPrisonerNumbers(
+    @RequestParam(value = "page", defaultValue = "0", required = false)
+    @Parameter(description = "The page number of the paged results")
+    page: Int,
+    @RequestParam(value = "size", defaultValue = "10", required = false)
+    @Parameter(description = "Requested limit to number of prisoner numbers returned.")
+    size: Int,
+  ): Page<String> {
+    val offenderNumbers = globalSearchService.getOffenderNumbers(page.toLong() * size, size.toLong())
+    return PageImpl(
+      offenderNumbers.items.map { it.offenderNumber },
+      org.springframework.data.domain.PageRequest.of(page, size),
+      offenderNumbers.totalRecords,
+    )
   }
 
   private companion object {
