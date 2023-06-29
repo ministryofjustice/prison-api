@@ -1,5 +1,7 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.repository
 
+import org.springframework.data.jpa.repository.EntityGraph
+import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType.FETCH
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderAssessment
@@ -21,4 +23,7 @@ interface OffenderAssessmentRepository : CrudRepository<OffenderAssessment, Offe
         """,
   )
   fun findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(offenderNos: List<String>): List<OffenderAssessment>
+
+  @EntityGraph(type = FETCH, value = "offender-assessment-with-details")
+  fun findWithDetailsByOffenderBookingOffenderNomsIdInAndAssessmentTypeCellSharingAlertFlagOrderByAssessmentDateDescAssessmentSeqDesc(offenderNos: List<String>, cellSharingFlag: String = "Y"): List<OffenderAssessment>
 }

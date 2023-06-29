@@ -71,7 +71,7 @@ public class OffenderAssessmentService {
     @Transactional(readOnly = true)
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<AssessmentSummary> getOffenderAssessments(final String offenderNo) {
-        final var assessments = repository.findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(List.of(offenderNo));
+        final var assessments = repository.findWithDetailsByOffenderBookingOffenderNomsIdInAndAssessmentTypeCellSharingAlertFlagOrderByAssessmentDateDescAssessmentSeqDesc(List.of(offenderNo), "Y");
 
         return assessments.stream().map(this::getAssessmentSummary).collect(toList());
     }

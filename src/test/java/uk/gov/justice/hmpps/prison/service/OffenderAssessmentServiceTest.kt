@@ -305,7 +305,8 @@ class OffenderAssessmentServiceTest {
 
   @Test
   fun offenderAssessments_returnsCorrectApiObject() {
-    whenever(repository.findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(listOf("N1234AA"))).thenReturn(
+    whenever(repository.findWithDetailsByOffenderBookingOffenderNomsIdInAndAssessmentTypeCellSharingAlertFlagOrderByAssessmentDateDescAssessmentSeqDesc(listOf("N1234AA"), "Y")).thenReturn(
+
       listOf(
         OffenderAssessment.builder()
           .bookingId(-1L)
@@ -386,7 +387,7 @@ class OffenderAssessmentServiceTest {
 
   @Test
   fun offenderAssessments_returnsAllObjects() {
-    whenever(repository.findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(listOf("N1234AA"))).thenReturn(
+    whenever(repository.findWithDetailsByOffenderBookingOffenderNomsIdInAndAssessmentTypeCellSharingAlertFlagOrderByAssessmentDateDescAssessmentSeqDesc(listOf("N1234AA"), "Y")).thenReturn(
       listOf(
         getOffenderAssessment_MinimalBuilder(-1L, 1, "N1234AA", -11L)
           .build(),
