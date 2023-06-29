@@ -100,7 +100,7 @@ class OffenderAssessmentRepositoryTest {
 
   @Test
   fun assessmentsByCsraAssessmentAndOffenderNos() {
-    val assessments = repository.findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(listOf("A1183JE", "A1184MA", "A1184JR"))
+    val assessments = repository.findByOffenderBookingOffenderNomsIdInAndAssessmentTypeCellSharingAlertFlagOrderByAssessmentDateDescAssessmentSeqDesc(listOf("A1183JE", "A1184MA", "A1184JR"))
     assertThat(assessments).extracting("bookingId", "assessmentSeq")
       .containsExactly(
         tuple(-41L, 2),
@@ -113,7 +113,7 @@ class OffenderAssessmentRepositoryTest {
 
   @Test
   fun assessmentsByCsraAssessmentAndOffenderNos_ReturnsNothing() {
-    val assessments = repository.findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(listOf("A1183JC"))
+    val assessments = repository.findByOffenderBookingOffenderNomsIdInAndAssessmentTypeCellSharingAlertFlagOrderByAssessmentDateDescAssessmentSeqDesc(listOf("A1183JC"))
     assertThat(assessments).isEmpty()
   }
 
