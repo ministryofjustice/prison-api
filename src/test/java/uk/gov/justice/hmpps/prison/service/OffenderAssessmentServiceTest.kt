@@ -305,7 +305,8 @@ class OffenderAssessmentServiceTest {
 
   @Test
   fun offenderAssessments_returnsCorrectApiObject() {
-    whenever(repository.findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(listOf("N1234AA"))).thenReturn(
+    whenever(repository.findWithDetailsByOffenderBookingOffenderNomsIdInAndAssessmentTypeCellSharingAlertFlagOrderByAssessmentDateDescAssessmentSeqDesc(listOf("N1234AA"), "Y")).thenReturn(
+
       listOf(
         OffenderAssessment.builder()
           .bookingId(-1L)
@@ -386,7 +387,7 @@ class OffenderAssessmentServiceTest {
 
   @Test
   fun offenderAssessments_returnsAllObjects() {
-    whenever(repository.findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(listOf("N1234AA"))).thenReturn(
+    whenever(repository.findWithDetailsByOffenderBookingOffenderNomsIdInAndAssessmentTypeCellSharingAlertFlagOrderByAssessmentDateDescAssessmentSeqDesc(listOf("N1234AA"), "Y")).thenReturn(
       listOf(
         getOffenderAssessment_MinimalBuilder(-1L, 1, "N1234AA", -11L)
           .build(),
@@ -415,7 +416,7 @@ class OffenderAssessmentServiceTest {
 
   @Test
   fun currentCsraClassification_returnsResultsOfFirstAssessmentIfSet() {
-    whenever(repository.findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(listOf("N1234AA"))).thenReturn(
+    whenever(repository.findByOffenderBookingOffenderNomsIdInAndAssessmentTypeCellSharingAlertFlagOrderByAssessmentDateDescAssessmentSeqDesc(listOf("N1234AA"))).thenReturn(
       listOf(
         getOffenderAssessment_CsraClassificationBuilder("N1234AA", AssessmentClassification("HI", "High"), LocalDate.parse("2019-01-02"))
           .build(),
@@ -430,7 +431,7 @@ class OffenderAssessmentServiceTest {
 
   @Test
   fun currentCsraClassification_returnsResultsOfNextAssessmentIfFirstNotSet() {
-    whenever(repository.findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(listOf("N1234AA"))).thenReturn(
+    whenever(repository.findByOffenderBookingOffenderNomsIdInAndAssessmentTypeCellSharingAlertFlagOrderByAssessmentDateDescAssessmentSeqDesc(listOf("N1234AA"))).thenReturn(
       listOf(
         getOffenderAssessment_CsraClassificationBuilder("N1234AA", null, LocalDate.parse("2019-01-03"))
           .build(),
@@ -447,7 +448,7 @@ class OffenderAssessmentServiceTest {
 
   @Test
   fun currentCsraClassification_returnsNullIfNoAssessmentsWithResults() {
-    whenever(repository.findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(listOf("N1234AA"))).thenReturn(
+    whenever(repository.findByOffenderBookingOffenderNomsIdInAndAssessmentTypeCellSharingAlertFlagOrderByAssessmentDateDescAssessmentSeqDesc(listOf("N1234AA"))).thenReturn(
       listOf(
         getOffenderAssessment_CsraClassificationBuilder("N1234AA", null, LocalDate.parse("2019-01-02"))
           .build(),
@@ -459,14 +460,14 @@ class OffenderAssessmentServiceTest {
 
   @Test
   fun currentCsraClassification_returnsNullIfNoAssessments() {
-    whenever(repository.findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(listOf("N1234AA"))).thenReturn(listOf())
+    whenever(repository.findByOffenderBookingOffenderNomsIdInAndAssessmentTypeCellSharingAlertFlagOrderByAssessmentDateDescAssessmentSeqDesc(listOf("N1234AA"))).thenReturn(listOf())
     val csraClassificationCode = service.getCurrentCsraClassification("N1234AA")
     assertThat(csraClassificationCode).isEqualTo(null)
   }
 
   @Test
   fun offendersAssessmentRatings_returnsResultsOfNextAssessmentIfLatestNotFinalised() {
-    whenever(repository.findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(listOf("N1234AA"))).thenReturn(
+    whenever(repository.findByOffenderBookingOffenderNomsIdInAndAssessmentTypeCellSharingAlertFlagOrderByAssessmentDateDescAssessmentSeqDesc(listOf("N1234AA"))).thenReturn(
       listOf(
         getOffenderAssessment_CsraClassificationBuilder("N1234AA", null, LocalDate.parse("2019-01-03"))
           .build(),
@@ -488,7 +489,7 @@ class OffenderAssessmentServiceTest {
 
   @Test
   fun offendersAssessmentRatings_returnsOnlyOffendersRequestedWithAssessments() {
-    whenever(repository.findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(listOf("N1234AA", "N2345BB"))).thenReturn(
+    whenever(repository.findByOffenderBookingOffenderNomsIdInAndAssessmentTypeCellSharingAlertFlagOrderByAssessmentDateDescAssessmentSeqDesc(listOf("N1234AA", "N2345BB"))).thenReturn(
       listOf(
         getOffenderAssessment_CsraClassificationBuilder("N1234AA", AssessmentClassification("HI", "High"), LocalDate.parse("2019-01-02"))
           .build(),
@@ -509,13 +510,13 @@ class OffenderAssessmentServiceTest {
   @Test
   fun offendersAssessmentRatings_returnsBatchedAssessments() {
     val serviceWithSmallBatchSize = OffenderAssessmentService(repository, assessmentRepository, 2)
-    whenever(repository.findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(listOf("N1234AA", "N2345BB"))).thenReturn(
+    whenever(repository.findByOffenderBookingOffenderNomsIdInAndAssessmentTypeCellSharingAlertFlagOrderByAssessmentDateDescAssessmentSeqDesc(listOf("N1234AA", "N2345BB"))).thenReturn(
       listOf(
         getOffenderAssessment_CsraClassificationBuilder("N1234AA", AssessmentClassification("HI", "High"), LocalDate.parse("2019-01-02"))
           .build(),
       ),
     )
-    whenever(repository.findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(listOf("N3456CC"))).thenReturn(
+    whenever(repository.findByOffenderBookingOffenderNomsIdInAndAssessmentTypeCellSharingAlertFlagOrderByAssessmentDateDescAssessmentSeqDesc(listOf("N3456CC"))).thenReturn(
       listOf(
         getOffenderAssessment_CsraClassificationBuilder("N3456CC", AssessmentClassification("STANDARD", "Standard"), LocalDate.parse("2019-01-03"))
           .build(),
