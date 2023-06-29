@@ -161,7 +161,7 @@ public class AgencyInternalLocation {
     }
 
     public boolean isLeafNode() {
-        return getChildLocations().size() == 0;
+        return getChildLocations().isEmpty();
     }
 
     @Override
