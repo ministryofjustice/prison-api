@@ -207,7 +207,7 @@ public class AppointmentsService {
 
             if (skipLocationAgencyCheck) return appointmentLocation.getAgencyId();
 
-            final var userLocations = locationService.getUserLocations(username);
+            final var userLocations = locationService.getUserLocations(username, true);
             final var isValidLocation = userLocations.stream()
                 .anyMatch(loc -> loc.getAgencyId().equals(appointmentLocation.getAgencyId()));
 
@@ -288,7 +288,7 @@ public class AppointmentsService {
     private Optional<Location> findLocationInUserLocations(final long locationId) {
 
         final var appointmentLocation = locationService.getLocation(locationId);
-        final var userLocations = locationService.getUserLocations(authenticationFacade.getCurrentUsername());
+        final var userLocations = locationService.getUserLocations(authenticationFacade.getCurrentUsername(), true);
 
         for (final var location : userLocations) {
             if (location.getAgencyId().equals(appointmentLocation.getAgencyId())) {

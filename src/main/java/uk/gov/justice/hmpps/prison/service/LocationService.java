@@ -48,15 +48,15 @@ public class LocationService {
     }
 
     @Transactional
-    public List<Location> getUserLocations(final String username) {
+    public List<Location> getUserLocations(final String username, final boolean includeNonRes) {
         final var caseLoad = caseLoadService.getWorkingCaseLoadForUser(username);
         if (caseLoad.isEmpty() || caseLoad.get().isAdminType()) {
             return Collections.emptyList();
         }
-        return findLocationsFromAgencies(username);
+        return findLocationsFromAgencies(username, includeNonRes);
     }
 
-    private List<Location> findLocationsFromAgencies(final String username) {
+    private List<Location> findLocationsFromAgencies(final String username, final boolean includeNonRes) {
         return agencyRepository.findAgenciesForCurrentCaseloadByUsername(username).stream()
             .flatMap(agency -> {
                 final var locations = new ArrayList<Location>();
@@ -65,6 +65,7 @@ public class LocationService {
                 // Then retrieve all associated internal locations at configured level of granularity.
                 locations.addAll(agencyInternalLocationRepository.findByAgencyIdAndActiveAndParentLocationIsNullAndCapacityGreaterThanAndTypeIsNotNull(agency.getAgencyId(), true, 0)
                         .stream()
+                        .filter(l -> includeNonRes || l.isLeafNode())
                     .map(LocationTransformer::fromAgencyInternalLocationPreferUserDesc).sorted(Comparator.comparing(Location::getDescription)).toList());
                 return locations.stream();
 

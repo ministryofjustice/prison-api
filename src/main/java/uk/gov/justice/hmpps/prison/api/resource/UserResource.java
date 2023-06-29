@@ -107,8 +107,9 @@ public class UserResource {
     @Operation(summary = "List of locations accessible to current user.", description = "List of locations accessible to current user.")
     @GetMapping("/me/locations")
     @SlowReportQuery
-    public List<Location> getMyLocations() {
-        return locationService.getUserLocations(authenticationFacade.getCurrentUsername());
+    public List<Location> getMyLocations(
+        @RequestParam(value = "include-non-residential-locations", required = false, defaultValue = "false") @Parameter(description = "Indicates non residential locations should be included") final boolean includeNonRes) {
+        return locationService.getUserLocations(authenticationFacade.getCurrentUsername(), includeNonRes);
     }
 
     @ApiResponses({

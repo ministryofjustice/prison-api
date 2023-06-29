@@ -37,11 +37,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.anyMap;
@@ -104,7 +104,7 @@ public class AppointmentsServiceImplTest {
     public void initMocks() {
         SecurityContextHolder.createEmptyContext();
         ensureRoles(BULK_APPOINTMENTS_ROLE);
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         appointmentsService = new AppointmentsService(
             bookingRepository,
             new AuthenticationFacade(),
@@ -675,7 +675,7 @@ public class AppointmentsServiceImplTest {
                 .locationId(locationId).build();
 
             when(locationService.getLocation(newAppointment.getLocationId())).thenReturn(location);
-            when(locationService.getUserLocations(principal)).thenReturn(Collections.singletonList(location));
+            when(locationService.getUserLocations(principal, true)).thenReturn(Collections.singletonList(location));
 
             when(referenceDomainService.getReferenceCodeByDomainAndCode(
                 ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(), false))
@@ -744,7 +744,7 @@ public class AppointmentsServiceImplTest {
                 .locationId(locationId).build();
 
             when(locationService.getLocation(newAppointment.getLocationId())).thenReturn(location);
-            when(locationService.getUserLocations(principal)).thenReturn(Collections.singletonList(location));
+            when(locationService.getUserLocations(principal, true)).thenReturn(Collections.singletonList(location));
 
             when(referenceDomainService.getReferenceCodeByDomainAndCode(
                 ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(), false))
@@ -779,7 +779,7 @@ public class AppointmentsServiceImplTest {
                 .locationId(locationId).build();
 
             when(locationService.getLocation(newAppointment.getLocationId())).thenReturn(location);
-            when(locationService.getUserLocations(principal)).thenReturn(Collections.singletonList(location));
+            when(locationService.getUserLocations(principal, true)).thenReturn(Collections.singletonList(location));
 
             when(referenceDomainService.getReferenceCodeByDomainAndCode(
                 ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(), false))
@@ -837,7 +837,7 @@ public class AppointmentsServiceImplTest {
 
             appointmentsService.createBookingAppointment(bookingId, principal, newAppointment);
 
-            verify(locationService, never()).getUserLocations(principal);
+            verify(locationService, never()).getUserLocations(principal, true);
         }
     }
 
@@ -1053,7 +1053,7 @@ public class AppointmentsServiceImplTest {
     }
 
     private void stubLocation(final Location location) {
-        when(locationService.getUserLocations(anyString())).thenReturn(List.of(LOCATION_A, LOCATION_B));
+        when(locationService.getUserLocations(anyString(), anyBoolean())).thenReturn(List.of(LOCATION_A, LOCATION_B));
         when(locationService.getLocation(location.getLocationId())).thenReturn(location);
     }
 
