@@ -160,6 +160,10 @@ public class AgencyInternalLocation {
         return useOperationalCapacity ? operationalCapacity : capacity;
     }
 
+    public boolean isLeafNode() {
+        return getChildLocations().isEmpty();
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;

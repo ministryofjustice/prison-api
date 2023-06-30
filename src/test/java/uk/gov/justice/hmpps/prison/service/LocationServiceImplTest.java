@@ -51,7 +51,7 @@ class LocationServiceImplTest {
         final var location = createTestLocation();
         when(agencyInternalLocationRepository.findByAgencyIdAndActiveAndParentLocationIsNullAndCapacityGreaterThanAndTypeIsNotNull("LEI", true, 0)).thenReturn(List.of(createTestAgencyInternalLocation()));
         when(caseLoadService.getWorkingCaseLoadForUser("me")).thenReturn(Optional.of(CaseLoad.builder().caseLoadId("LEI").type("INST").build()));
-        final var returnedLocations = locationService.getUserLocations("me");
+        final var returnedLocations = locationService.getUserLocations("me", false);
 
         assertThat(returnedLocations.isEmpty()).isFalse();
         assertThat(returnedLocations).hasSize(2);
@@ -67,7 +67,7 @@ class LocationServiceImplTest {
     void getUserLocationsWithCentralOnly() {
 
         when(caseLoadService.getWorkingCaseLoadForUser("admin")).thenReturn(Optional.of(CaseLoad.builder().caseLoadId("CADM_I").type("ADMIN").build()));
-        final var returnedLocations = locationService.getUserLocations("admin");
+        final var returnedLocations = locationService.getUserLocations("admin", false);
 
         assertThat(returnedLocations).isEmpty();
     }
@@ -76,7 +76,7 @@ class LocationServiceImplTest {
     void getUserLocationsWithNoCaseload() {
 
         when(caseLoadService.getWorkingCaseLoadForUser("noone")).thenReturn(Optional.empty());
-        final var returnedLocations = locationService.getUserLocations("noone");
+        final var returnedLocations = locationService.getUserLocations("noone", false);
 
         assertThat(returnedLocations).isEmpty();
     }
@@ -98,6 +98,7 @@ class LocationServiceImplTest {
             .agencyId("LEI")
             .locationType("WING")
             .description("LEI-A")
+            .certifiedFlag(true)
             .build();
     }
 }
