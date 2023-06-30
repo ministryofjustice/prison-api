@@ -99,8 +99,8 @@ class OffenderAssessmentRepositoryTest {
   }
 
   @Test
-  fun assessmentaByCsraAssessmentAndOffenderNos() {
-    val assessments = repository.findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(listOf("A1183JE", "A1184MA", "A1184JR"))
+  fun assessmentsByCsraAssessmentAndOffenderNos() {
+    val assessments = repository.findByOffenderBookingOffenderNomsIdInAndAssessmentTypeCellSharingAlertFlagOrderByAssessmentDateDescAssessmentSeqDesc(listOf("A1183JE", "A1184MA", "A1184JR"))
     assertThat(assessments).extracting("bookingId", "assessmentSeq")
       .containsExactly(
         tuple(-41L, 2),
@@ -112,8 +112,27 @@ class OffenderAssessmentRepositoryTest {
   }
 
   @Test
-  fun assessmentaByCsraAssessmentAndOffenderNos_ReturnsNothing() {
-    val assessments = repository.findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(listOf("A1183JC"))
+  fun assessmentsByCsraAssessmentAndOffenderNos_ReturnsNothing() {
+    val assessments = repository.findByOffenderBookingOffenderNomsIdInAndAssessmentTypeCellSharingAlertFlagOrderByAssessmentDateDescAssessmentSeqDesc(listOf("A1183JC"))
+    assertThat(assessments).isEmpty()
+  }
+
+  @Test
+  fun assessmentDetailsByOffenderNos() {
+    val assessments = repository.findWithDetailsByOffenderBookingOffenderNomsIdInAndAssessmentTypeCellSharingAlertFlagOrderByAssessmentDateDescAssessmentSeqDesc(listOf("A1183JE", "A1184MA", "A1184JR"))
+    assertThat(assessments).extracting("bookingId", "assessmentSeq")
+      .containsExactly(
+        tuple(-41L, 2),
+        tuple(-57L, 1),
+        tuple(-43L, 2),
+        tuple(-43L, 1),
+      )
+    assertCsraAssessment_Booking43_AssessmentSeq2(assessments[2])
+  }
+
+  @Test
+  fun assessmentDetailsByOffenderNos_ReturnsNothing() {
+    val assessments = repository.findWithDetailsByOffenderBookingOffenderNomsIdInAndAssessmentTypeCellSharingAlertFlagOrderByAssessmentDateDescAssessmentSeqDesc(listOf("A1183JC"))
     assertThat(assessments).isEmpty()
   }
 

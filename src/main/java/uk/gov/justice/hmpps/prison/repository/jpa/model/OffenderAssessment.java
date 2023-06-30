@@ -1,5 +1,20 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.NamedSubgraph;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,18 +27,6 @@ import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.NotFound;
 import org.springframework.lang.NonNull;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-import jakarta.persistence.IdClass;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinColumns;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MapsId;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
@@ -39,6 +42,28 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @IdClass(OffenderAssessment.Pk.class)
 @Table(name = "OFFENDER_ASSESSMENTS")
 @ToString(of = {"bookingId", "assessmentSeq"})
+@NamedEntityGraph(
+    name = "offender-assessment-with-details",
+    attributeNodes = {
+        @NamedAttributeNode(value = "offenderBooking", subgraph = "booking-details"),
+        @NamedAttributeNode("assessCommittee"),
+        @NamedAttributeNode("assessmentType"),
+        @NamedAttributeNode("calculatedClassification"),
+        @NamedAttributeNode("overridingClassification"),
+        @NamedAttributeNode("overrideReason"),
+        @NamedAttributeNode("reviewedClassification"),
+        @NamedAttributeNode("reviewCommittee"),
+    },
+    subgraphs = {
+        @NamedSubgraph(
+            name = "booking-details",
+            attributeNodes = {
+                @NamedAttributeNode("offender"),
+            }
+        )
+    }
+)
+
 public class OffenderAssessment extends AuditableEntity {
 
     @Id

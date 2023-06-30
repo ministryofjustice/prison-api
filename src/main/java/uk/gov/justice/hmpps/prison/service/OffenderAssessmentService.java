@@ -71,13 +71,13 @@ public class OffenderAssessmentService {
     @Transactional(readOnly = true)
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<AssessmentSummary> getOffenderAssessments(final String offenderNo) {
-        final var assessments = repository.findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(List.of(offenderNo));
+        final var assessments = repository.findWithDetailsByOffenderBookingOffenderNomsIdInAndAssessmentTypeCellSharingAlertFlagOrderByAssessmentDateDescAssessmentSeqDesc(List.of(offenderNo), "Y");
 
         return assessments.stream().map(this::getAssessmentSummary).collect(toList());
     }
 
     public CurrentCsraAssessment getCurrentCsraClassification(final String offenderNo) {
-        final var assessments = repository.findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(List.of(offenderNo));
+        final var assessments = repository.findByOffenderBookingOffenderNomsIdInAndAssessmentTypeCellSharingAlertFlagOrderByAssessmentDateDescAssessmentSeqDesc(List.of(offenderNo), "Y");
 
         return calculateCurrentCsraClassification(assessments);
     }
@@ -133,7 +133,7 @@ public class OffenderAssessmentService {
     }
 
     private List<AssessmentClassification> getOffendersCurrentAssessmentRating(final List<String> offenderNos) {
-        final var assessmentsLatestFirstForAllOffenders = repository.findByCsraAssessmentAndByOffenderNosOrderByLatestFirst(offenderNos);
+        final var assessmentsLatestFirstForAllOffenders = repository.findByOffenderBookingOffenderNomsIdInAndAssessmentTypeCellSharingAlertFlagOrderByAssessmentDateDescAssessmentSeqDesc(offenderNos, "Y");
         final var assessmentsLatestFirstByOffenderNo = assessmentsLatestFirstForAllOffenders.stream().collect(groupingBy(OffenderAssessment::getOffenderNo));
         return assessmentsLatestFirstByOffenderNo.entrySet().stream()
             .map(e -> getOffenderCurrentAssessmentRating(e.getKey(), e.getValue()))
