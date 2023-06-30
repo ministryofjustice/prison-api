@@ -79,9 +79,9 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
         user.authenticateAsClient(VIEW_PRISONER_DATA);
     }
 
-    @When("^a request is made to retrieve user locations$")
-    public void aRequestIsMadeToRetrieveUserLocations() {
-        user.retrieveUserLocations();
+    @When("^a request is made to retrieve user locations non-residential, include non-res = \"([^\"]*)\"$")
+    public void aRequestIsMadeToRetrieveUserLocations(final String includeNonRes) {
+        user.retrieveUserLocations("true".equals(includeNonRes));
     }
 
     @Then("^\"([^\"]*)\" user locations are returned$")

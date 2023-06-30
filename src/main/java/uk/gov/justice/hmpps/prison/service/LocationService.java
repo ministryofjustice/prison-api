@@ -65,7 +65,7 @@ public class LocationService {
                 // Then retrieve all associated internal locations at configured level of granularity.
                 locations.addAll(agencyInternalLocationRepository.findByAgencyIdAndActiveAndParentLocationIsNullAndCapacityGreaterThanAndTypeIsNotNull(agency.getAgencyId(), true, 0)
                         .stream()
-                        .filter(l -> includeNonRes || l.isLeafNode())
+                        .filter(l -> includeNonRes || l.isCertifiedFlag())
                     .map(LocationTransformer::fromAgencyInternalLocationPreferUserDesc).sorted(Comparator.comparing(Location::getDescription)).toList());
                 return locations.stream();
 

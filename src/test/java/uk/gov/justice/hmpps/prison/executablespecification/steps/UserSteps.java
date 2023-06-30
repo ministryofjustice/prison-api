@@ -42,8 +42,8 @@ public class UserSteps extends CommonSteps {
     }
 
     @Step("Retrieve user locations")
-    public void retrieveUserLocations() {
-        dispatchUserLocationsRequest();
+    public void retrieveUserLocations(boolean includeNonResidential) {
+        dispatchUserLocationsRequest(includeNonResidential);
     }
 
     @Step("Verify location agency ids")
@@ -153,12 +153,12 @@ public class UserSteps extends CommonSteps {
         }
     }
 
-    private void dispatchUserLocationsRequest() {
+    private void dispatchUserLocationsRequest(boolean includeNonResidential) {
         init();
 
         try {
             final var response = restTemplate.exchange(
-                    API_USERS_ME_LOCATIONS_REQUEST_URL,
+                    API_USERS_ME_LOCATIONS_REQUEST_URL + "?include-non-residential-locations="+ includeNonResidential,
                     HttpMethod.GET,
                     createEntity(),
                     new ParameterizedTypeReference<List<Location>>() {
