@@ -98,6 +98,7 @@ class LocationServiceImplTest {
             .agencyId("LEI")
             .locationType("WING")
             .description("LEI-A")
+            .certifiedFlag(true)
             .build();
     }
 }
