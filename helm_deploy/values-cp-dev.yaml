@@ -11,18 +11,22 @@ generic-service:
     host: prison-api-dev.prison.service.justice.gov.uk
     tlsSecretName: prison-api-cert
     modsecurity_enabled: true
-    # Missing User Agent Header - 920320
-    # Request Missing an Accept Header - 920300
-    # Restrict file extension - 920440
-    # SQL Injection Attack: Common Injection Testing Detected - 942110
-    # Found User-Agent associated with scripting/generic HTTP client - 913101
+
     modsecurity_snippet: |
       SecRuleEngine On
+      # team here grants access to the OpenSearch logs to delve into the cause of the blockage
       SecDefaultAction "phase:2,pass,log,tag:github_team=dps-tech"
+      # Default is only GET HEAD POST OPTIONS so need to include PUT etc.
+      SecAction "id:900200,phase:1,nolog,pass,t:none,setvar:tx.allowed_methods=GET HEAD POST OPTIONS PUT PATCH DELETE"
+      # Missing User Agent Header
       SecRuleRemoveById 920320
+      # Request Missing an Accept Header
       SecRuleRemoveById 920300
+      # Restrict file extension
       SecRuleRemoveById 920440
+      # SQL Injection Attack: Common Injection Testing Detected
       SecRuleRemoveById 942110
+      # Found User-Agent associated with scripting/generic HTTP client
       SecRuleRemoveById 913101
       SecRuleUpdateTargetById 932150 "!ARGS:/keywords/"
       SecRuleUpdateTargetById 942330 "!ARGS:/keywords/"
@@ -32,6 +36,9 @@ generic-service:
       SecRuleUpdateTargetById 942130 "!ARGS:/.*comment/"
       SecRuleUpdateTargetById 942130 "!ARGS:/statement/"
       SecRuleUpdateTargetById 942130 "!ARGS:/.*description/"
+      # Change default denial to be a 406 so that we can tell easily that it is modsecurity doing the blocking
+      SecRuleUpdateActionById 949110 "t:none,deny,status:406,logdata:%{SERVER_NAME}"
+      SecRuleUpdateActionById 959100 "t:none,deny,status:406,logdata:%{SERVER_NAME}"
 
   env:
     SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: "https://sign-in-dev.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json"
