@@ -74,10 +74,11 @@ public class OffenderDatesService {
                     .effectiveSentenceEndDate(keyDatesFromPayload.getEffectiveSentenceEndDate())
                     .effectiveSentenceLength(keyDatesFromPayload.getSentenceLength())
                     .ersedOverridedDate(keyDatesFromPayload.getEarlyRemovalSchemeEligibilityDate())
-                    .hdcadCalculatedDate(keyDatesFromPayload.getHomeDetentionCurfewApprovedDate())
-                    .tariffCalculatedDate(keyDatesFromPayload.getTariffDate())
+                    .hdcadOverridedDate(keyDatesFromPayload.getHomeDetentionCurfewApprovedDate())
+                    .tariffOverridedDate(keyDatesFromPayload.getTariffDate())
                     .tersedOverridedDate(keyDatesFromPayload.getTariffExpiredRemovalSchemeEligibilityDate())
-                    .apdCalculatedDate(keyDatesFromPayload.getApprovedParoleDate())
+                    .apdOverridedDate(keyDatesFromPayload.getApprovedParoleDate())
+                    .rotlOverridedDate(keyDatesFromPayload.getReleaseOnTemporaryLicenceDate())
                     .judiciallyImposedSentenceLength(keyDatesFromPayload.getSentenceLength())
                     .build();
             offenderBooking.addSentenceCalculation(sentenceCalculation);
