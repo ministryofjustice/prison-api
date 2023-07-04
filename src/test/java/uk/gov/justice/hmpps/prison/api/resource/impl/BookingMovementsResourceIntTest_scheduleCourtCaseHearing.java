@@ -13,7 +13,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpStatus.CREATED;
 
-public class OffenderMovementsResourceIntTest_scheduleCourtCaseHearing extends ResourceTest {
+public class BookingMovementsResourceIntTest_scheduleCourtCaseHearing extends ResourceTest {
 
     @Test
     public void schedules_court_case_hearing() {

@@ -10,7 +10,7 @@ import java.util.Map;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.http.HttpMethod.POST;
 
-public class OffenderMovementsResourceIntTest_createExternalMovement extends ResourceTest {
+public class BookingMovementsResourceIntTest_createExternalMovement extends ResourceTest {
 
     @Test
     public void createExternalMovement() {

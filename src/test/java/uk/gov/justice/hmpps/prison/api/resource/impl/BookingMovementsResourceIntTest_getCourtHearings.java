@@ -8,7 +8,7 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class OffenderMovementsResourceIntTest_getCourtHearings extends ResourceTest {
+public class BookingMovementsResourceIntTest_getCourtHearings extends ResourceTest {
 
     @Test
     public void get_court_hearings_for_booking_returns_no_court_hearings() {

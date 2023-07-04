@@ -12,7 +12,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpStatus.OK;
 
-public class OffenderMovementsResourceIntTest_cancelSchedulePrisonToPrisonMove extends ResourceTest {
+public class BookingMovementsResourceIntTest_cancelSchedulePrisonToPrisonMove extends ResourceTest {
 
     private String token;
 
