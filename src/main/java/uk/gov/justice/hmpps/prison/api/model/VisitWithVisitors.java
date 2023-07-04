@@ -12,6 +12,8 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "List of visitors for a visit")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
@@ -19,12 +21,12 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class VisitWithVisitors {
-    @Schema(description = "List of visitors on visit", required = true)
+    @Schema(description = "List of visitors on visit", requiredMode = REQUIRED)
     @JsonProperty("visitors")
     @NotEmpty
     private List<Visitor> visitors;
 
-    @Schema(description = "Visit Information", required = true)
+    @Schema(description = "Visit Information", requiredMode = REQUIRED)
     @JsonProperty("visitDetails")
     @NotNull
     private VisitDetails visitDetail;

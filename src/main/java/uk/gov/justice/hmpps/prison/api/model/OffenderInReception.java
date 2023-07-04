@@ -9,6 +9,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Summary of an offender counted as Establishment Roll - Reception")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder(toBuilder = true)
@@ -16,11 +18,11 @@ import java.time.LocalDate;
 public class OffenderInReception {
 
     @NotBlank
-    @Schema(required = true, description = "Display Prisoner Number")
+    @Schema(requiredMode = REQUIRED, description = "Display Prisoner Number")
     private String offenderNo;
 
     @NotBlank
-    @Schema(required = true, description = "Booking Id")
+    @Schema(requiredMode = REQUIRED, description = "Booking Id")
     private Long bookingId;
 
     @NotNull

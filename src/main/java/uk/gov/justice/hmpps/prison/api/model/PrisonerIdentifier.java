@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.With;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Prisoner Identifier")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
@@ -20,6 +22,6 @@ import lombok.With;
 @ToString
 @With
 public class PrisonerIdentifier {
-    @Schema(description = "Prisoner Identifier", example = "A1234AA", required = true)
+    @Schema(description = "Prisoner Identifier", example = "A1234AA", requiredMode = REQUIRED)
     private String id;
 }

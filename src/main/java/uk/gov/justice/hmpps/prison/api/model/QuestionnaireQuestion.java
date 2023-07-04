@@ -12,6 +12,8 @@ import org.apache.commons.lang3.builder.CompareToBuilder;
 import java.time.LocalDateTime;
 import java.util.SortedSet;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 
 @Schema(description = "Questionnaire Question")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -22,23 +24,23 @@ import java.util.SortedSet;
 @Data
 public class QuestionnaireQuestion implements Comparable<QuestionnaireQuestion> {
 
-    @Schema(required = true, description = "")
+    @Schema(requiredMode = REQUIRED, description = "")
     private Long questionnaireQueId;
-    @Schema(required = true, description = "")
+    @Schema(requiredMode = REQUIRED, description = "")
     private int questionSeq;
-    @Schema(required = true, description = "")
+    @Schema(requiredMode = REQUIRED, description = "")
     private String questionDesc;
-    @Schema(required = true, description = "")
+    @Schema(requiredMode = REQUIRED, description = "")
     private int questionListSeq;
-    @Schema(required = true, description = "")
+    @Schema(requiredMode = REQUIRED, description = "")
     private Boolean questionActiveFlag;
-    @Schema(required = true, description = "")
+    @Schema(requiredMode = REQUIRED, description = "")
     private LocalDateTime questionExpiryDate;
-    @Schema(required = true, description = "")
+    @Schema(requiredMode = REQUIRED, description = "")
     private Boolean multipleAnswerFlag;
-    @Schema(required = true, description = "")
+    @Schema(requiredMode = REQUIRED, description = "")
     private Long nextQuestionnaireQueId;
-    @Schema(required = true, description = "")
+    @Schema(requiredMode = REQUIRED, description = "")
     private SortedSet<QuestionnaireAnswer> answers;
 
     @Override

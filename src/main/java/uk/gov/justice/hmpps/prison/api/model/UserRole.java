@@ -17,6 +17,8 @@ import jakarta.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * User Role
  **/
@@ -58,7 +60,7 @@ public class UserRole {
     /**
      * Role Id
      */
-    @Schema(required = true, description = "Role Id")
+    @Schema(requiredMode = REQUIRED, description = "Role Id")
     @JsonProperty("roleId")
     public Long getRoleId() {
         return roleId;
@@ -71,7 +73,7 @@ public class UserRole {
     /**
      * code for this role
      */
-    @Schema(required = true, description = "code for this role")
+    @Schema(requiredMode = REQUIRED, description = "code for this role")
     @JsonProperty("roleCode")
     public String getRoleCode() {
         return roleCode;
@@ -84,7 +86,7 @@ public class UserRole {
     /**
      * Full text description of the role type
      */
-    @Schema(required = true, description = "Full text description of the role type")
+    @Schema(requiredMode = REQUIRED, description = "Full text description of the role type")
     @JsonProperty("roleName")
     public String getRoleName() {
         return roleName;

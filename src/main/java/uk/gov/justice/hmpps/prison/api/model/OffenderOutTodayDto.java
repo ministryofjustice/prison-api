@@ -11,6 +11,8 @@ import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Data
 @Schema(description = "Offender out today details")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -20,25 +22,25 @@ import java.time.LocalTime;
 public class OffenderOutTodayDto {
 
     @NotBlank
-    @Schema(required = true, description = "Offender Unique Reference")
+    @Schema(requiredMode = REQUIRED, description = "Offender Unique Reference")
     private String offenderNo;
 
     @NotBlank
-    @Schema(required = true)
+    @Schema(requiredMode = REQUIRED)
     private LocalDate dateOfBirth;
 
     @Schema(description = "Reason for out movement")
     private String reasonDescription;
 
     @NotBlank
-    @Schema(required = true)
+    @Schema(requiredMode = REQUIRED)
     private LocalTime timeOut;
 
     @NotBlank
-    @Schema(required = true)
+    @Schema(requiredMode = REQUIRED)
     private String firstName;
 
     @NotBlank
-    @Schema(required = true)
+    @Schema(requiredMode = REQUIRED)
     private String lastName;
 }

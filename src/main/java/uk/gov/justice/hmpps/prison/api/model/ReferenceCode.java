@@ -17,6 +17,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Reference Code
  **/
@@ -29,12 +31,12 @@ import java.util.List;
 @ToString
 public class ReferenceCode extends ReferenceCodeInfo {
 
-    @Schema(required = true, description = "Reference data item domain.", example = "TASK_TYPE")
+    @Schema(requiredMode = REQUIRED, description = "Reference data item domain.", example = "TASK_TYPE")
     @NotBlank
     @Size(max = 12)
     private String domain;
 
-    @Schema(required = true, description = "Reference data item code.", example = "MISC")
+    @Schema(requiredMode = REQUIRED, description = "Reference data item code.", example = "MISC")
     @NotBlank
     @Size(max = 12)
     private String code;

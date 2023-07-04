@@ -10,6 +10,8 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 
 @Schema(description = "Prisoner Movement")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -17,7 +19,7 @@ import java.time.LocalTime;
 @Data
 public class OffenderMovement {
     @NotBlank
-    @Schema(required = true, description = "Display Prisoner Number (UK is NOMS ID)")
+    @Schema(requiredMode = REQUIRED, description = "Display Prisoner Number (UK is NOMS ID)")
     private String offenderNo;
 
     @NotNull
@@ -35,47 +37,47 @@ public class OffenderMovement {
     private String lastName;
 
     @NotBlank
-    @Schema(required = true, description = "Agency travelling from")
+    @Schema(requiredMode = REQUIRED, description = "Agency travelling from")
     private String fromAgency;
 
     @NotBlank
-    @Schema(required = true, description = "Description for Agency travelling from")
+    @Schema(requiredMode = REQUIRED, description = "Description for Agency travelling from")
     private String fromAgencyDescription;
 
     @NotBlank
-    @Schema(required = true, description = "Agency travelling to")
+    @Schema(requiredMode = REQUIRED, description = "Agency travelling to")
     private String toAgency;
 
     @NotBlank
-    @Schema(required = true, description = "Description for Agency travelling to")
+    @Schema(requiredMode = REQUIRED, description = "Description for Agency travelling to")
     private String toAgencyDescription;
 
     @NotBlank
-    @Schema(required = true, description = "ADM (admission), CRT (court), REL (release), TAP (temporary absence) or TRN (transfer)", example = "ADM", allowableValues = {"ADM","CRT","REL","TAP","TRN"})
+    @Schema(requiredMode = REQUIRED, description = "ADM (admission), CRT (court), REL (release), TAP (temporary absence) or TRN (transfer)", example = "ADM", allowableValues = {"ADM","CRT","REL","TAP","TRN"})
     private String movementType;
 
     @NotBlank
-    @Schema(required = true, description = "Description of the movement type")
+    @Schema(requiredMode = REQUIRED, description = "Description of the movement type")
     private String movementTypeDescription;
 
     @NotBlank
-    @Schema(required = true, description = "Reason code for the movement")
+    @Schema(requiredMode = REQUIRED, description = "Reason code for the movement")
     private String movementReason;
 
     @NotBlank
-    @Schema(required = true, description = "Description of the movement reason")
+    @Schema(requiredMode = REQUIRED, description = "Description of the movement reason")
     private String movementReasonDescription;
 
     @NotBlank
-    @Schema(required = true, description = "IN or OUT")
+    @Schema(requiredMode = REQUIRED, description = "IN or OUT")
     private String directionCode;
 
     @NotNull
-    @Schema(required = true, description = "Movement time")
+    @Schema(requiredMode = REQUIRED, description = "Movement time")
     private LocalTime movementTime;
 
     @NotNull
-    @Schema(required = true, description = "Movement date")
+    @Schema(requiredMode = REQUIRED, description = "Movement date")
     private LocalDate movementDate;
 
     public OffenderMovement(@NotBlank String offenderNo, @NotNull Long bookingId, @NotNull LocalDate dateOfBirth, @NotBlank String firstName, String middleName, @NotBlank String lastName, @NotBlank String fromAgency, @NotBlank String fromAgencyDescription, @NotBlank String toAgency, @NotBlank String toAgencyDescription, @NotBlank String movementType, @NotBlank String movementTypeDescription, @NotBlank String movementReason, @NotBlank String movementReasonDescription, @NotBlank String directionCode, @NotNull LocalTime movementTime, @NotNull LocalDate movementDate) {

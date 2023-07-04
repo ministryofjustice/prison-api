@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Maps an offence to a schedule")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @AllArgsConstructor
@@ -19,11 +21,11 @@ import jakarta.validation.constraints.NotNull;
 @Builder
 public class OffenceToScheduleMappingDto {
     @NotBlank
-    @Schema(required = true, description = "Offence code", example = "COML025")
+    @Schema(requiredMode = REQUIRED, description = "Offence code", example = "COML025")
     private String offenceCode;
 
     @NotNull
-    @Schema(required = true, description = "Schedule type", example = "SCHEDULE_15")
+    @Schema(requiredMode = REQUIRED, description = "Schedule type", example = "SCHEDULE_15")
     private Schedule schedule;
 
     @JsonIgnore

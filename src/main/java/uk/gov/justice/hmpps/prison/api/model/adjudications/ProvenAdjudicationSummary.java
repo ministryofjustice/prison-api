@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 
 @Schema(description = "Proven Adjudication Summary for offender")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -16,10 +18,10 @@ import lombok.NoArgsConstructor;
 @Data
 public class ProvenAdjudicationSummary {
 
-    @Schema(required = true, description = "Offender Booking Id")
+    @Schema(requiredMode = REQUIRED, description = "Offender Booking Id")
     private Long bookingId;
 
-    @Schema(required = true, description = "Number of proven adjudications")
+    @Schema(requiredMode = REQUIRED, description = "Number of proven adjudications")
     private Integer provenAdjudicationCount;
 
 }

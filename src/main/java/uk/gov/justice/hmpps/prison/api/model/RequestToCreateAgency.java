@@ -13,6 +13,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Create Agency Request")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder(toBuilder = true)
@@ -21,14 +23,14 @@ import jakarta.validation.constraints.Pattern;
 @Data
 public class RequestToCreateAgency {
     @NotBlank
-    @Schema(required = true, description = "Agency identifier.", example = "MDI")
+    @Schema(requiredMode = REQUIRED, description = "Agency identifier.", example = "MDI")
     @Valid
     @Length(max = 6, min = 2, message = "Agency Id can be min of 2 and max of 6 characters")
     @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "Invalid characters for agencyId")
     private String agencyId;
 
     @NotBlank
-    @Schema(required = true, description = "Agency description.", example = "Moorland (HMP & YOI)")
+    @Schema(requiredMode = REQUIRED, description = "Agency description.", example = "Moorland (HMP & YOI)")
     @Length(max = 40, min = 3, message = "Agency description is max 40 characters and min of 3")
     private String description;
 
@@ -37,12 +39,12 @@ public class RequestToCreateAgency {
     private String longDescription;
 
     @NotBlank
-    @Schema(required = true, description = "Agency type.  Reference domain is AGY_LOC_TYPE", example = "INST", allowableValues = {"CRC","POLSTN","INST","COMM","APPR","CRT","POLICE","IMDC","TRN","OUT","YOT","SCH","STC","HOST","AIRPORT","HSHOSP","HOSPITAL","PECS","PAR","PNP","PSY"})
+    @Schema(requiredMode = REQUIRED, description = "Agency type.  Reference domain is AGY_LOC_TYPE", example = "INST", allowableValues = {"CRC","POLSTN","INST","COMM","APPR","CRT","POLICE","IMDC","TRN","OUT","YOT","SCH","STC","HOST","AIRPORT","HSHOSP","HOSPITAL","PECS","PAR","PNP","PSY"})
     @Valid @Length(max = 12, min = 2, message = "Agency Type is max 12 characters and min of 2")
     @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "Invalid characters for agencyType")
     private String agencyType;
 
-    @Schema(required = true, description = "Court Type.  Reference domain is JURISDICTION", example = "CC", allowableValues = {"CACD","CB","CC","CO","DCM","GCM","IMM","MC","OTHER","YC"})
+    @Schema(requiredMode = REQUIRED, description = "Court Type.  Reference domain is JURISDICTION", example = "CC", allowableValues = {"CACD","CB","CC","CO","DCM","GCM","IMM","MC","OTHER","YC"})
     @Valid @Length(max = 12, min = 2, message = "Court Type is max 12 characters and min of 2")
     @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "Invalid characters for Court Type")
     private String courtType;

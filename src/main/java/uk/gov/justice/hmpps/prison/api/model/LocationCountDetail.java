@@ -17,6 +17,8 @@ import jakarta.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Location Inmate Count
  **/
@@ -59,7 +61,7 @@ public class LocationCountDetail {
     /**
      * Who did the count (staff ID)
      */
-    @Schema(required = true, description = "Who did the count (staff ID)")
+    @Schema(requiredMode = REQUIRED, description = "Who did the count (staff ID)")
     @JsonProperty("conductByUserId")
     public Long getConductByUserId() {
         return conductByUserId;
@@ -72,7 +74,7 @@ public class LocationCountDetail {
     /**
      * Staff Id
      */
-    @Schema(required = true, description = "Staff Id")
+    @Schema(requiredMode = REQUIRED, description = "Staff Id")
     @JsonProperty("enteredByUserId")
     public Long getEnteredByUserId() {
         return enteredByUserId;
@@ -85,7 +87,7 @@ public class LocationCountDetail {
     /**
      * The number of inmates
      */
-    @Schema(required = true, description = "The number of inmates")
+    @Schema(requiredMode = REQUIRED, description = "The number of inmates")
     @JsonProperty("inmateCount")
     public Integer getInmateCount() {
         return inmateCount;
@@ -98,7 +100,7 @@ public class LocationCountDetail {
     /**
      * Reason for count
      */
-    @Schema(required = true, description = "Reason for count")
+    @Schema(requiredMode = REQUIRED, description = "Reason for count")
     @JsonProperty("countReasonCode")
     public String getCountReasonCode() {
         return countReasonCode;

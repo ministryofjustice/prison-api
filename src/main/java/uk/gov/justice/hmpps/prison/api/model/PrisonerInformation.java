@@ -13,6 +13,8 @@ import org.springframework.data.annotation.Id;
 
 import java.time.LocalDate;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Prisoner Information")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
@@ -24,34 +26,34 @@ import java.time.LocalDate;
 public class PrisonerInformation implements CategoryCodeAware, ReleaseDateAware {
 
     @Id
-    @Schema(description = "Offender Identifier", example = "A1234AA", required = true)
+    @Schema(description = "Offender Identifier", example = "A1234AA", requiredMode = REQUIRED)
     private String nomsId;
 
-    @Schema(description = "Establishment Code for prisoner", example = "MDI", required = true)
+    @Schema(description = "Establishment Code for prisoner", example = "MDI", requiredMode = REQUIRED)
     private String establishmentCode;
 
     @Schema(description = "Booking Id (Internal)", example = "1231232", required = true)
     private Long bookingId;
 
-    @Schema(description = "Given Name 1", example = "John", required = true)
+    @Schema(description = "Given Name 1", example = "John", requiredMode = REQUIRED)
     private String givenName1;
 
     @Schema(description = "Given Name 2", example = "Luke")
     private String givenName2;
 
-    @Schema(description = "Last Name", example = "Smith", required = true)
+    @Schema(description = "Last Name", example = "Smith", requiredMode = REQUIRED)
     private String lastName;
 
     @Schema(description = "Requested Name", example = "Dave")
     private String requestedName;
 
-    @Schema(description = "Date of Birth", example = "1970-05-01", required = true)
+    @Schema(description = "Date of Birth", example = "1970-05-01", requiredMode = REQUIRED)
     private LocalDate dateOfBirth;
 
-    @Schema(description = "Gender", example = "Male", required = true)
+    @Schema(description = "Gender", example = "Male", requiredMode = REQUIRED)
     private String gender;
 
-    @Schema(description = "Indicated that is English speaking", example = "true", required = true)
+    @Schema(description = "Indicated that is English speaking", example = "true", requiredMode = REQUIRED)
     private boolean englishSpeaking;
 
     @Schema(description = "Level 1 Location Unit Code", example = "A")
@@ -76,13 +78,13 @@ public class PrisonerInformation implements CategoryCodeAware, ReleaseDateAware 
     @Schema(description = "Category of this prisoner", example = "C")
     private String categoryCode;
 
-    @Schema(description = "Status of prisoner in community", required = true, example = "ACTIVE IN", allowableValues = {"ACTIVE IN","ACTIVE OUT"})
+    @Schema(description = "Status of prisoner in community", requiredMode = REQUIRED, example = "ACTIVE IN", allowableValues = {"ACTIVE IN","ACTIVE OUT"})
     private String communityStatus;
 
     @Schema(description = "Legal Status", example = "REMAND")
     private LegalStatus legalStatus;
 
-    @Schema(description = "Establishment Name for prisoner", example = "Moorland", required = true)
+    @Schema(description = "Establishment Name for prisoner", example = "Moorland", requiredMode = REQUIRED)
     private String establishmentName;
 
     public void deriveUnitCodes(final String cellLocation) {

@@ -12,6 +12,8 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @SuppressWarnings("unused")
 @Schema(description = "Summary data for a completed movement")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -21,22 +23,22 @@ import java.time.LocalDateTime;
 @Data
 public class OutOnTemporaryAbsenceSummary {
 
-    @Schema(required = true, description = "Offender number (NOMS ID)", example = "G3878UK")
+    @Schema(requiredMode = REQUIRED, description = "Offender number (NOMS ID)", example = "G3878UK")
     private String offenderNo;
 
     @NotBlank
-    @Schema(required = true, description = "Prisoner first name.", example = "JOHN")
+    @Schema(requiredMode = REQUIRED, description = "Prisoner first name.", example = "JOHN")
     private String firstName;
 
     @NotBlank
-    @Schema(required = true, description = "Prisoner's last name.", example = "SMITH")
+    @Schema(requiredMode = REQUIRED, description = "Prisoner's last name.", example = "SMITH")
     private String lastName;
 
     @NotNull
-    @Schema(required = true, description = "Prisoner's date of birth.", example = "1980-05-02")
+    @Schema(requiredMode = REQUIRED, description = "Prisoner's date of birth.", example = "1980-05-02")
     private LocalDate dateOfBirth;
 
-    @Schema(required = true, description = "Movement date and time in Europe/London local time format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS.", example = "2019-12-01T13:34:00")
+    @Schema(requiredMode = REQUIRED, description = "Movement date and time in Europe/London local time format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS.", example = "2019-12-01T13:34:00")
     private LocalDateTime movementTime;
 
     @Schema(description = "Agency travelling to", example = "MDI")
@@ -48,10 +50,10 @@ public class OutOnTemporaryAbsenceSummary {
     @Schema(description = "City offender was sent to", example = "DONCASTER")
     private String toCity;
 
-    @Schema(required = true, description = "The movement reason code", example = "C1")
+    @Schema(requiredMode = REQUIRED, description = "The movement reason code", example = "C1")
     private String movementReasonCode;
 
-    @Schema(required = true, description = "Description of movement reason", example = "Convicted at court")
+    @Schema(requiredMode = REQUIRED, description = "Description of movement reason", example = "Convicted at court")
     private String movementReason;
 
     @Schema(description = "Comment", example = "This is a free text comment")

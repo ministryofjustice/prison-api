@@ -12,6 +12,8 @@ import lombok.ToString;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @SuppressWarnings("unused")
 @Schema(description = "Restrictive Patient details")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -22,15 +24,15 @@ import java.time.LocalDate;
 @ToString
 @Data
 public class RestrictivePatient {
-    @Schema(required = true, description = "Prison where the offender is support by POM")
+    @Schema(requiredMode = REQUIRED, description = "Prison where the offender is support by POM")
     @NotNull
     private Agency supportingPrison;
 
-    @Schema(required = true, description = "Hospital where the offender is currently located")
+    @Schema(requiredMode = REQUIRED, description = "Hospital where the offender is currently located")
     @NotNull
     private Agency dischargedHospital;
 
-    @Schema(required = true, description = "Date Discharged")
+    @Schema(requiredMode = REQUIRED, description = "Date Discharged")
     @NotNull
     private LocalDate dischargeDate;
 

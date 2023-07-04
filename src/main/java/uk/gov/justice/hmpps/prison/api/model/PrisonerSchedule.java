@@ -13,6 +13,8 @@ import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Prisoner Schedule
  **/
@@ -23,7 +25,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode
 @Data
 public class PrisonerSchedule {
-    @Schema(required = true, description = "Offender number (e.g. NOMS Number)")
+    @Schema(requiredMode = REQUIRED, description = "Offender number (e.g. NOMS Number)")
     @NotBlank
     private String offenderNo;
 
@@ -33,49 +35,49 @@ public class PrisonerSchedule {
     @Schema(description = "Booking id for offender")
     private Long bookingId;
 
-    @Schema(required = true, description = "The number which (uniquely) identifies the internal location associated with the Scheduled Event (Prisoner Schedule)")
+    @Schema(requiredMode = REQUIRED, description = "The number which (uniquely) identifies the internal location associated with the Scheduled Event (Prisoner Schedule)")
     @NotNull
     private Long locationId;
 
-    @Schema(required = true, description = "Offender first name")
+    @Schema(requiredMode = REQUIRED, description = "Offender first name")
     @NotBlank
     private String firstName;
 
-    @Schema(required = true, description = "Offender last name")
+    @Schema(requiredMode = REQUIRED, description = "Offender last name")
     @NotBlank
     private String lastName;
 
-    @Schema(required = true, description = "Offender cell")
+    @Schema(requiredMode = REQUIRED, description = "Offender cell")
     @NotBlank
     private String cellLocation;
 
-    @Schema(required = true, description = "Event code")
+    @Schema(requiredMode = REQUIRED, description = "Event code")
     @NotBlank
     private String event;
 
-    @Schema(required = true, description = "Event type, e.g. VISIT, APP, PRISON_ACT")
+    @Schema(requiredMode = REQUIRED, description = "Event type, e.g. VISIT, APP, PRISON_ACT")
     @NotBlank
     private String eventType;
 
-    @Schema(required = true, description = "Description of event code")
+    @Schema(requiredMode = REQUIRED, description = "Description of event code")
     @NotBlank
     private String eventDescription;
 
-    @Schema(required = true, description = "Location of the event")
+    @Schema(requiredMode = REQUIRED, description = "Location of the event")
     private String eventLocation;
 
     @Schema(description = "Id of an internal event location")
     private Long eventLocationId;
 
-    @Schema(required = true, description = "The event's status. Includes 'CANC', meaning cancelled for 'VISIT'")
+    @Schema(requiredMode = REQUIRED, description = "The event's status. Includes 'CANC', meaning cancelled for 'VISIT'")
     @NotBlank
     private String eventStatus;
 
-    @Schema(required = true, description = "Comment")
+    @Schema(requiredMode = REQUIRED, description = "Comment")
     @Size(max = 4000)
     private String comment;
 
-    @Schema(required = true, description = "Date and time at which event starts")
+    @Schema(requiredMode = REQUIRED, description = "Date and time at which event starts")
     @NotNull
     private LocalDateTime startTime;
 

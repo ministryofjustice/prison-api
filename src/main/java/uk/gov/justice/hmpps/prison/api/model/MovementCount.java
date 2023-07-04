@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 
 import jakarta.validation.constraints.NotNull;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Establishment roll count in and out numbers
  **/
@@ -22,10 +24,10 @@ import jakarta.validation.constraints.NotNull;
 public class MovementCount {
 
     @NotNull
-    @Schema(required = true, description = "Number of prisoners arrived so far on given date")
+    @Schema(requiredMode = REQUIRED, description = "Number of prisoners arrived so far on given date")
     private Integer in;
 
     @NotNull
-    @Schema(required = true, description = "Number of prisoners that have left so far on given date")
+    @Schema(requiredMode = REQUIRED, description = "Number of prisoners that have left so far on given date")
     public Integer out;
 }

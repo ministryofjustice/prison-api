@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Home Detention Curfew information")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
@@ -35,7 +37,7 @@ public class HomeDetentionCurfew {
     @Schema(description = "Refused reason. Will be one of the 'HDC_REJ_RSN' reference codes", example = "UNDER_14DAYS")
     String refusedReason;
 
-    @Schema(required = true, description = "Approval status date. ISO-8601 format. YYYY-MM-DD", example = "2018-12-31")
+    @Schema(requiredMode = REQUIRED, description = "Approval status date. ISO-8601 format. YYYY-MM-DD", example = "2018-12-31")
     LocalDate approvalStatusDate;
 
     @Schema(description = "Offender booking ID", example = "123")

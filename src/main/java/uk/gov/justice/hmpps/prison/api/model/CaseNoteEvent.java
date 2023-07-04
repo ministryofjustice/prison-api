@@ -11,6 +11,8 @@ import org.apache.commons.text.WordUtils;
 
 import java.time.LocalDateTime;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 
 @Getter
 @Schema(description = "Case Note Event")
@@ -19,19 +21,19 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode
 @Data
 public class CaseNoteEvent {
-    @Schema(name = "noms_id", description = "Offender Noms Id", example = "A1417AE", required = true)
+    @Schema(name = "noms_id", description = "Offender Noms Id", example = "A1417AE", requiredMode = REQUIRED)
     private String nomsId;
 
-    @Schema(required = true, description = "Case Note Id (unique)", example = "12311312")
+    @Schema(requiredMode = REQUIRED, description = "Case Note Id (unique)", example = "12311312")
     private Long id;
 
-    @Schema(required = true, description = "Case Note Text", example = "This is some text")
+    @Schema(requiredMode = REQUIRED, description = "Case Note Text", example = "This is some text")
     private String content;
 
-    @Schema(required = true, description = "Date and Time of when case note contact with offender was made", example = "2017-10-31T01:30:00")
+    @Schema(requiredMode = REQUIRED, description = "Date and Time of when case note contact with offender was made", example = "2017-10-31T01:30:00")
     private LocalDateTime contactTimestamp;
 
-    @Schema(required = true, description = "Date and Time of notification of event", example = "2017-10-31T01:30:00")
+    @Schema(requiredMode = REQUIRED, description = "Date and Time of notification of event", example = "2017-10-31T01:30:00")
     private LocalDateTime notificationTimestamp;
 
     @JsonIgnore
@@ -63,12 +65,12 @@ public class CaseNoteEvent {
     public CaseNoteEvent() {
     }
 
-    @Schema(required = true, description = "Case Note Type and Sub Type", example = "POS IEP_ENC")
+    @Schema(requiredMode = REQUIRED, description = "Case Note Type and Sub Type", example = "POS IEP_ENC")
     public String getNoteType() {
         return mainNoteType + " " + subNoteType;
     }
 
-    @Schema(required = true, description = "Name of staff member who created case note (lastname, firstname)", example = "Smith, John")
+    @Schema(requiredMode = REQUIRED, description = "Name of staff member who created case note (lastname, firstname)", example = "Smith, John")
     public String getStaffName() {
         return WordUtils.capitalizeFully(lastName + ", " + firstName);
     }

@@ -6,27 +6,29 @@ import lombok.Builder;
 import lombok.Data;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Incident Party")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @Data
 public class IncidentParty implements Comparable<IncidentParty> {
 
-    @Schema(required = true, description = "Booking Id of offender involved", example = "1241232")
+    @Schema(requiredMode = REQUIRED, description = "Booking Id of offender involved", example = "1241232")
     private Long bookingId;
-    @Schema(required = true, description = "Sequence or each party member", example = "1")
+    @Schema(requiredMode = REQUIRED, description = "Sequence or each party member", example = "1")
     private Long partySeq;
     @Schema(description = "Staff Member ID (optional)", example = "1534133")
     private Long staffId;
     @Schema(description = "Person (non-staff) ID (optional)", example = "544233")
     private Long personId;
-    @Schema(required = true, description = "Role in the Incident", example = "ASSIAL")
+    @Schema(requiredMode = REQUIRED, description = "Role in the Incident", example = "ASSIAL")
     private String participationRole;
-    @Schema(required = true, description = "Outcome Code", example = "POR")
+    @Schema(requiredMode = REQUIRED, description = "Outcome Code", example = "POR")
     private String outcomeCode;
-    @Schema(required = true, description = "Additional Comments", example = "Some additional Information")
+    @Schema(requiredMode = REQUIRED, description = "Additional Comments", example = "Some additional Information")
     private String commentText;
-    @Schema(required = true, description = "Incident Case ID", example = "12431243")
+    @Schema(requiredMode = REQUIRED, description = "Incident Case ID", example = "12431243")
     private Long incidentCaseId;
 
     public IncidentParty(Long bookingId, Long partySeq, Long staffId, Long personId, String participationRole, String outcomeCode, String commentText, Long incidentCaseId) {

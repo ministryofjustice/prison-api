@@ -14,6 +14,8 @@ import lombok.ToString;
 import java.time.LocalDate;
 import java.util.List;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Offender Booking")
 @Data
 @AllArgsConstructor
@@ -27,11 +29,11 @@ public class Booking {
     @JsonIgnore
     private Long offenderBookId;
 
-    @Schema(name = "booking_no", description = "Bookings", required = true, example = "A12313")
+    @Schema(name = "booking_no", description = "Bookings", requiredMode = REQUIRED, example = "A12313")
     @JsonProperty("booking_no")
     private String bookingNo;
 
-    @Schema(name = "booking_started", description = "Start Date of Booking", required = true, example = "2017-02-04")
+    @Schema(name = "booking_started", description = "Start Date of Booking", requiredMode = REQUIRED, example = "2017-02-04")
     @JsonProperty("booking_started")
     private LocalDate bookingBeginDate;
 
@@ -39,7 +41,7 @@ public class Booking {
     @JsonProperty("booking_ended")
     private LocalDate bookingEndDate;
 
-    @Schema(name = "booking_active", description = "Booking Active?", example = "true", required = true)
+    @Schema(name = "booking_active", description = "Booking Active?", example = "true", requiredMode = REQUIRED)
     @JsonProperty("booking_active")
     private boolean bookingActive;
 

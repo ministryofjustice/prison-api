@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Offender Event")
 @Data
 @AllArgsConstructor
@@ -27,15 +29,15 @@ import java.time.format.DateTimeFormatter;
 @JsonSerialize(using = EventSerializer.class)
 public class Event {
 
-    @Schema(description = "Type of event", required = true, example = "IEP_CHANGED")
+    @Schema(description = "Type of event", requiredMode = REQUIRED, example = "IEP_CHANGED")
     private String type;
-    @Schema(description = "Unique indentifier for event", required = true, example = "21")
+    @Schema(description = "Unique indentifier for event", requiredMode = REQUIRED, example = "21")
     private Long id;
-    @Schema(name = "noms_id", description = "Offender Noms Id", example = "A1417AE", required = true)
+    @Schema(name = "noms_id", description = "Offender Noms Id", example = "A1417AE", requiredMode = REQUIRED)
     private String nomsId;
-    @Schema(name = "prison_id", description = "Prison ID", example = "BMI", required = true)
+    @Schema(name = "prison_id", description = "Prison ID", example = "BMI", requiredMode = REQUIRED)
     private String prisonId;
-    @Schema(name = "timestamp", description = "Date and time the event occurred", example = "2016-10-21 15:55:06.284", required = true)
+    @Schema(name = "timestamp", description = "Date and time the event occurred", example = "2016-10-21 15:55:06.284", requiredMode = REQUIRED)
     private LocalDateTime timestamp;
 
     private String eventData;

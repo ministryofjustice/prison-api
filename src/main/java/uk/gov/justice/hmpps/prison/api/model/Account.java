@@ -14,6 +14,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 import static uk.gov.justice.hmpps.prison.util.MoneySupport.MoneyDeserializer;
 
 /**
@@ -29,27 +30,27 @@ import static uk.gov.justice.hmpps.prison.util.MoneySupport.MoneyDeserializer;
 @Data
 public class Account {
 
-    @Schema(required = true, description = "Spends sub account balance.")
+    @Schema(requiredMode = REQUIRED, description = "Spends sub account balance.")
     @NotNull
     @JsonDeserialize(using = MoneyDeserializer.class)
     private BigDecimal spends;
 
-    @Schema(required = true, description = "Cash sub account balance.")
+    @Schema(requiredMode = REQUIRED, description = "Cash sub account balance.")
     @NotNull
     @JsonDeserialize(using = MoneyDeserializer.class)
     private BigDecimal cash;
 
-    @Schema(required = true, description = "Saves sub account balance.")
+    @Schema(requiredMode = REQUIRED, description = "Saves sub account balance.")
     @NotNull
     @JsonDeserialize(using = MoneyDeserializer.class)
     private BigDecimal savings;
 
-    @Schema(required = true, description = "Damage obligation balance.")
+    @Schema(requiredMode = REQUIRED, description = "Damage obligation balance.")
     @NotNull
     @JsonDeserialize(using = MoneyDeserializer.class)
     private BigDecimal damageObligations;
 
-    @Schema(required = true, description = "Currency of these balances.")
+    @Schema(requiredMode = REQUIRED, description = "Currency of these balances.")
     @NotBlank
     private String currency;
 }

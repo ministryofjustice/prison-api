@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Case Note Type Staff Usage Request
  **/
@@ -61,7 +63,7 @@ public class CaseNoteStaffUsageRequest {
     /**
      * a list of staff numbers to search.
      */
-    @Schema(required = true, description = "a list of staff numbers to search.")
+    @Schema(requiredMode = REQUIRED, description = "a list of staff numbers to search.")
     @JsonProperty("staffIds")
     public List<Integer> getStaffIds() {
         return staffIds;

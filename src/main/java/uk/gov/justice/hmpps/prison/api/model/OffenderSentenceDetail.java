@@ -12,6 +12,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Offender Sentence Detail
  **/
@@ -23,13 +25,13 @@ import java.time.LocalDate;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class OffenderSentenceDetail extends OffenderSentenceCalc<SentenceCalcDates> {
-    @Schema(required = true, description = "Offender date of birth.")
+    @Schema(requiredMode = REQUIRED, description = "Offender date of birth.")
     @NotNull
     private LocalDate dateOfBirth;
-    @Schema(required = true, description = "Agency Description")
+    @Schema(requiredMode = REQUIRED, description = "Agency Description")
     @NotBlank
     private String agencyLocationDesc;
-    @Schema(required = true, description = "Description of the location within the prison")
+    @Schema(requiredMode = REQUIRED, description = "Description of the location within the prison")
     @NotBlank
     private String internalLocationDesc;
     @Schema(description = "Identifier of facial image of offender.")

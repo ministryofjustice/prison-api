@@ -6,15 +6,17 @@ import lombok.Data;
 
 import java.time.LocalDate;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Balances of visit orders and privilege visit orders")
 @Builder
 @Data
 public class VisitBalances {
 
-    @Schema(required = true, description = "Balance of visit orders remaining")
+    @Schema(requiredMode = REQUIRED, description = "Balance of visit orders remaining")
     private Integer remainingVo;
 
-    @Schema(required = true, description = "Balance of privilege visit orders remaining")
+    @Schema(requiredMode = REQUIRED, description = "Balance of privilege visit orders remaining")
     public Integer remainingPvo;
 
     @Schema(description = "Date of last IEP adjustment for Visit orders")

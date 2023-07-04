@@ -10,6 +10,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Case Note Type Usage
  **/
@@ -20,23 +22,23 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode
 @Data
 public class CaseNoteUsage {
-    @Schema(required = true, description = "Offender No", example = "ZWE12A")
+    @Schema(requiredMode = REQUIRED, description = "Offender No", example = "ZWE12A")
     @NotBlank
     private String offenderNo;
 
-    @Schema(required = true, description = "Case Note Type", example = "KA")
+    @Schema(requiredMode = REQUIRED, description = "Case Note Type", example = "KA")
     @NotBlank
     private String caseNoteType;
 
-    @Schema(required = true, description = "Case Note Sub Type", example = "KS")
+    @Schema(requiredMode = REQUIRED, description = "Case Note Sub Type", example = "KS")
     @NotBlank
     private String caseNoteSubType;
 
-    @Schema(required = true, description = "Number of case notes of this type/subtype", example = "5")
+    @Schema(requiredMode = REQUIRED, description = "Number of case notes of this type/subtype", example = "5")
     @NotNull
     private Integer numCaseNotes;
 
-    @Schema(required = true, description = "Last case note of this type", example = "2018-12-01T14:55:23")
+    @Schema(requiredMode = REQUIRED, description = "Last case note of this type", example = "2018-12-01T14:55:23")
     @NotNull
     private LocalDateTime latestCaseNote;
 

@@ -14,6 +14,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @Schema(description = "HDC Approval Status")
@@ -27,14 +28,14 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 public class ApprovalStatus {
     public static final String APPROVED_STATUS = "APPROVED";
 
-    @Schema(required = true, description = "Approval status. Must be one of the 'HDC_APPROVE' reference codes", example = "APPROVED")
+    @Schema(requiredMode = REQUIRED, description = "Approval status. Must be one of the 'HDC_APPROVE' reference codes", example = "APPROVED")
     @NotBlank
     String approvalStatus;
 
     @Schema(description = "Refused reason. Must be one of the 'HDC_REJ_RSN' reference codes", example = "UNDER_14DAYS")
     String refusedReason;
 
-    @Schema(required = true, description = "Approval status date. ISO-8601 format. YYYY-MM-DD", example = "2018-12-31")
+    @Schema(requiredMode = REQUIRED, description = "Approval status date. ISO-8601 format. YYYY-MM-DD", example = "2018-12-31")
     @NotNull
     LocalDate date;
 

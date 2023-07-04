@@ -12,16 +12,18 @@ import java.time.LocalDateTime;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Repeat {
-    @Schema(required = true, description = "The period at which the appointment should repeat.", example = "WEEKLY")
+    @Schema(requiredMode = REQUIRED, description = "The period at which the appointment should repeat.", example = "WEEKLY")
     @NotNull
     private RepeatPeriod repeatPeriod;
 
-    @Schema(required = true, description = "The total number of appointments. Must be greater than 0")
+    @Schema(requiredMode = REQUIRED, description = "The total number of appointments. Must be greater than 0")
     @Min(1)
     @NotNull
     private Integer count;

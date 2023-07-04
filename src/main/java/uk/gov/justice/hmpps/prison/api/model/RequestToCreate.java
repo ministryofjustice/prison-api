@@ -15,6 +15,8 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Represents the data required for creating a new prisoner")
 @Builder
 @AllArgsConstructor
@@ -29,13 +31,13 @@ public class RequestToCreate {
     @Pattern(regexp = "^^([0-9]{2}|[0-9]{4})/[0-9]+[a-zA-Z]$", message = "PNC is not valid")
     private String pncNumber;
 
-    @Schema(required = true, description = "The offender's last name.", example = "Mark")
+    @Schema(requiredMode = REQUIRED, description = "The offender's last name.", example = "Mark")
     @Size(max = 35)
     @NotBlank
     @Pattern(regexp = "^[A-Z|a-z ,.'-]+$", message = "Last name is not valid")
     private String lastName;
 
-    @Schema(required = true, description = "The offender's first name.", example = "John")
+    @Schema(requiredMode = REQUIRED, description = "The offender's first name.", example = "John")
     @Size(max = 35)
     @NotBlank
     @Pattern(regexp = "^[A-Z|a-z ,.'-]+$", message = "First name is not valid")
@@ -59,11 +61,11 @@ public class RequestToCreate {
     @Size(max = 12)
     private String suffix;
 
-    @Schema(required = true, description = "The offender's date of birth. Must be specified in YYYY-MM-DD format. Range allowed is 16-110 years", example = "1970-01-01")
+    @Schema(requiredMode = REQUIRED, description = "The offender's date of birth. Must be specified in YYYY-MM-DD format. Range allowed is 16-110 years", example = "1970-01-01")
     @NotNull
     private LocalDate dateOfBirth;
 
-    @Schema(required = true, description = "A code representing the offender's gender (from the SEX reference domain).", example = "M", allowableValues = {"M","F","NK","NS","REF"})
+    @Schema(requiredMode = REQUIRED, description = "A code representing the offender's gender (from the SEX reference domain).", example = "M", allowableValues = {"M","F","NK","NS","REF"})
     @Size(max = 12)
     @NotBlank
     private String gender;

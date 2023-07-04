@@ -12,6 +12,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Categorisation approval detail for an offender")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
@@ -20,19 +22,19 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class CategoryRejectionDetail {
 
-    @Schema(required = true, description = "Booking Id")
+    @Schema(requiredMode = REQUIRED, description = "Booking Id")
     @NotNull(message = "bookingId must be provided")
     private Long bookingId;
 
-    @Schema(required = true, description = "Sequence number")
+    @Schema(requiredMode = REQUIRED, description = "Sequence number")
     @NotNull(message = "Sequence number must be provided")
     private Integer assessmentSeq;
 
-    @Schema(required = true, description = "Date of rejection")
+    @Schema(requiredMode = REQUIRED, description = "Date of rejection")
     @NotNull(message = "Date of rejection must be provided") // TODO make optional, default today?
     private LocalDate evaluationDate;
 
-    @Schema(required = true, description = "Department, reference code in domain 'ASSESS_COMM'. Normally 'REVIEW'")
+    @Schema(requiredMode = REQUIRED, description = "Department, reference code in domain 'ASSESS_COMM'. Normally 'REVIEW'")
     @NotEmpty(message = "Department must be provided")
     private String reviewCommitteeCode;
 

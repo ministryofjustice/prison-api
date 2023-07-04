@@ -24,6 +24,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Sentence Summary")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @AllArgsConstructor
@@ -32,7 +34,7 @@ import java.util.Optional;
 @Builder
 public class SentenceSummary {
 
-    @Schema(description = "Prisoner Identifier", example = "A1234AA", required = true)
+    @Schema(description = "Prisoner Identifier", example = "A1234AA", requiredMode = REQUIRED)
     private String prisonerNumber;
 
     @Schema(description = "Most recent term in prison")
@@ -170,10 +172,10 @@ public class SentenceSummary {
         @Schema(description = "The sentence end date for this sentence")
         private LocalDate sentenceEndDate;
 
-        @Schema(required = true, description = "Fine amount.")
+        @Schema(requiredMode = REQUIRED, description = "Fine amount.")
         private Double fineAmount;
 
-        @Schema(required = true, description = "Sentence line number", example = "1")
+        @Schema(requiredMode = REQUIRED, description = "Sentence line number", example = "1")
         private Long lineSeq;
 
         @Schema(description = "The offences related to this sentence (will usually only have one offence per sentence)")
@@ -213,7 +215,7 @@ public class SentenceSummary {
     @Data
     public static class Terms {
 
-        @Schema(required = true, description = "Sentence term number within sentence.", example = "1")
+        @Schema(requiredMode = REQUIRED, description = "Sentence term number within sentence.", example = "1")
         private Integer termSequence;
 
         @Schema(description = "Sentence number which this sentence follows if consecutive, otherwise concurrent.", example = "2")
@@ -222,13 +224,13 @@ public class SentenceSummary {
         @Schema(description = "Sentence type, using reference data from table SENTENCE_CALC_TYPES.", example = "2")
         private String sentenceType;
 
-        @Schema(required = true, description = "Sentence term code.", example = "IMP")
+        @Schema(requiredMode = REQUIRED, description = "Sentence term code.", example = "IMP")
         private String sentenceTermCode;
 
         @Schema(description = "Sentence type description.", example = "2")
         private String sentenceTypeDescription;
 
-        @Schema(required = true, description = "Start date of sentence term.", example = "2018-12-31")
+        @Schema(requiredMode = REQUIRED, description = "Start date of sentence term.", example = "2018-12-31")
         private LocalDate startDate;
 
         @Schema(description = "Sentence length years.")
@@ -243,7 +245,7 @@ public class SentenceSummary {
         @Schema(description = "Sentence length days.")
         private Integer days;
 
-        @Schema(required = true, description = "Whether this is a life sentence.")
+        @Schema(requiredMode = REQUIRED, description = "Whether this is a life sentence.")
         private Boolean lifeSentence;
 
 
@@ -268,7 +270,7 @@ public class SentenceSummary {
     @Data
     public static class KeyDates {
 
-        @Schema(description = "Sentence start date.", example = "2010-02-03", required = true)
+        @Schema(description = "Sentence start date.", example = "2010-02-03", requiredMode = REQUIRED)
         private LocalDate sentenceStartDate;
         @Schema(description = "Effective sentence end date", example = "2020-02-03")
         private LocalDate effectiveSentenceEndDate;
@@ -278,7 +280,7 @@ public class SentenceSummary {
 
         @Schema(description = "Release date for non-DTO sentence (if applicable). This will be based on one of ARD, CRD, NPD or PRRD.", example = "2020-04-01")
         private LocalDate nonDtoReleaseDate;
-        @Schema(description = "Indicates which type of non-DTO release date is the effective release date. One of 'ARD', 'CRD', 'NPD' or 'PRRD'.", example = "CRD", required = true)
+        @Schema(description = "Indicates which type of non-DTO release date is the effective release date. One of 'ARD', 'CRD', 'NPD' or 'PRRD'.", example = "CRD", requiredMode = REQUIRED)
         private NonDtoReleaseDateType nonDtoReleaseDateType;
         @Schema(description = "Confirmed release date for offender.", example = "2020-04-20")
         private LocalDate confirmedReleaseDate;

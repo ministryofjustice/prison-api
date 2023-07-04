@@ -11,6 +11,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Scheduled Event
  **/
@@ -20,38 +22,38 @@ import java.time.LocalDateTime;
 @Builder
 @Data
 public class ScheduledEvent {
-    @Schema(required = true, description = "Offender booking id")
+    @Schema(requiredMode = REQUIRED, description = "Offender booking id")
     @NotNull
     private Long bookingId;
 
-    @Schema(required = true, description = "Class of event")
+    @Schema(requiredMode = REQUIRED, description = "Class of event")
     @NotBlank
     private String eventClass;
 
     @Schema(description = "Activity id if any. Used to attend or pay an activity.")
     private Long eventId;
 
-    @Schema(required = true, description = "Status of event")
+    @Schema(requiredMode = REQUIRED, description = "Status of event")
     @NotBlank
     private String eventStatus;
 
-    @Schema(required = true, description = "Type of scheduled event (as a code)")
+    @Schema(requiredMode = REQUIRED, description = "Type of scheduled event (as a code)")
     @NotBlank
     private String eventType;
 
-    @Schema(required = true, description = "Description of scheduled event type")
+    @Schema(requiredMode = REQUIRED, description = "Description of scheduled event type")
     @NotBlank
     private String eventTypeDesc;
 
-    @Schema(required = true, description = "Sub type (or reason) of scheduled event (as a code)")
+    @Schema(requiredMode = REQUIRED, description = "Sub type (or reason) of scheduled event (as a code)")
     @NotBlank
     private String eventSubType;
 
-    @Schema(required = true, description = "Description of scheduled event sub type")
+    @Schema(requiredMode = REQUIRED, description = "Description of scheduled event sub type")
     @NotBlank
     private String eventSubTypeDesc;
 
-    @Schema(required = true, description = "Date on which event occurs")
+    @Schema(requiredMode = REQUIRED, description = "Date on which event occurs")
     @NotNull
     private LocalDate eventDate;
 
@@ -70,7 +72,7 @@ public class ScheduledEvent {
     @Schema(description = "The agency ID for the booked internal location", example = "WWI")
     private String agencyId;
 
-    @Schema(required = true, description = "Code identifying underlying source of event data")
+    @Schema(requiredMode = REQUIRED, description = "Code identifying underlying source of event data")
     @NotBlank
     private String eventSource;
 

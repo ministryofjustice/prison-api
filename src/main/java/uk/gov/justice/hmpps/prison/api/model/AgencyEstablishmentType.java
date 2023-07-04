@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 
 import jakarta.validation.constraints.NotBlank;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Agency Establishment Type")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder(toBuilder = true)
@@ -18,10 +20,10 @@ import jakarta.validation.constraints.NotBlank;
 public class AgencyEstablishmentType {
 
     @NotBlank
-    @Schema(required = true, description = "Code.", example = "IM")
+    @Schema(requiredMode = REQUIRED, description = "Code.", example = "IM")
     private String code;
 
     @NotBlank
-    @Schema(required = true, description = "Description.", example = "Closed Young Offender Institute (Male)")
+    @Schema(requiredMode = REQUIRED, description = "Description.", example = "Closed Young Offender Institute (Male)")
     private String description;
 }

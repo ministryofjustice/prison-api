@@ -9,6 +9,8 @@ import lombok.EqualsAndHashCode;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Person
  **/
@@ -39,7 +41,7 @@ public class Person {
     /**
      * id of the person
      */
-    @Schema(required = true, description = "id of the person")
+    @Schema(requiredMode = REQUIRED, description = "id of the person")
     @JsonProperty("personId")
     public Long getPersonId() {
         return personId;
@@ -52,7 +54,7 @@ public class Person {
     /**
      * Surname
      */
-    @Schema(required = true, description = "Surname")
+    @Schema(requiredMode = REQUIRED, description = "Surname")
     @JsonProperty("lastName")
     public String getLastName() {
         return lastName;
@@ -65,7 +67,7 @@ public class Person {
     /**
      * First Name
      */
-    @Schema(required = true, description = "First Name")
+    @Schema(requiredMode = REQUIRED, description = "First Name")
     @JsonProperty("firstName")
     public String getFirstName() {
         return firstName;

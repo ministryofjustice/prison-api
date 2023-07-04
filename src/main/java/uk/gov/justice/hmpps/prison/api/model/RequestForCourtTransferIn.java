@@ -13,6 +13,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Represents the data required for registering court return")
 @Builder
 @AllArgsConstructor
@@ -22,7 +24,7 @@ import java.time.LocalDateTime;
 @ToString
 public class RequestForCourtTransferIn {
 
-    @Schema(required = true, description = "Agency identifier", example = "MDI")
+    @Schema(requiredMode = REQUIRED, description = "Agency identifier", example = "MDI")
     @Length(max = 20, min = 2, message = "Agency identifier cannot be less then 2 and more than 20 characters")
     @NotNull
     private String agencyId;
@@ -35,7 +37,7 @@ public class RequestForCourtTransferIn {
     @Length(max = 240, message = "comment text size is a maximum of 240 characters")
     private String commentText;
 
-    @Schema(required = true, description = "The date and time the movement occurred, if not supplied it will be the current time. Note: Time can be in the past but not before the last movement", example = "2020-03-24T12:13:40")
+    @Schema(requiredMode = REQUIRED, description = "The date and time the movement occurred, if not supplied it will be the current time. Note: Time can be in the past but not before the last movement", example = "2020-03-24T12:13:40")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime dateTime;
 
