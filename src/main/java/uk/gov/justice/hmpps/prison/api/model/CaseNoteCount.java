@@ -18,6 +18,8 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Case Note Count Detail
  **/
@@ -62,7 +64,7 @@ public class CaseNoteCount {
     /**
      * Offender booking id
      */
-    @Schema(required = true, description = "Offender booking id")
+    @Schema(requiredMode = REQUIRED, description = "Offender booking id")
     @JsonProperty("bookingId")
     public Long getBookingId() {
         return bookingId;
@@ -75,7 +77,7 @@ public class CaseNoteCount {
     /**
      * Case note type.
      */
-    @Schema(required = true, description = "Case note type.")
+    @Schema(requiredMode = REQUIRED, description = "Case note type.")
     @JsonProperty("type")
     public String getType() {
         return type;
@@ -88,7 +90,7 @@ public class CaseNoteCount {
     /**
      * Case note sub-type.
      */
-    @Schema(required = true, description = "Case note sub-type.")
+    @Schema(requiredMode = REQUIRED, description = "Case note sub-type.")
     @JsonProperty("subType")
     public String getSubType() {
         return subType;
@@ -101,7 +103,7 @@ public class CaseNoteCount {
     /**
      * Number of case notes of defined type and subType for offender.
      */
-    @Schema(required = true, description = "Number of case notes of defined type and subType for offender.")
+    @Schema(requiredMode = REQUIRED, description = "Number of case notes of defined type and subType for offender.")
     @JsonProperty("count")
     public Long getCount() {
         return count;

@@ -13,6 +13,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.util.Set;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Attendance details.  This is used to update the attendance details of multiple bookings")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
@@ -23,7 +25,7 @@ import java.util.Set;
 @Data
 public class UpdateAttendanceBatch {
 
-    @Schema(required = true, description = "Attendance outcome, possible values are the codes in the 'PS_PA_OC' reference domain.", example = "ATT", allowableValues = {"ABS","ACCAB","ATT","CANC","NREQ","SUS","UNACAB","REST"})
+    @Schema(requiredMode = REQUIRED, description = "Attendance outcome, possible values are the codes in the 'PS_PA_OC' reference domain.", example = "ATT", allowableValues = {"ABS","ACCAB","ATT","CANC","NREQ","SUS","UNACAB","REST"})
     @Size(max = 12)
     @NotBlank
     private String eventOutcome;
@@ -36,7 +38,7 @@ public class UpdateAttendanceBatch {
     @Size(max = 240)
     private String outcomeComment;
 
-    @Schema(required = true, description = "set of booking and activity ids")
+    @Schema(requiredMode = REQUIRED, description = "set of booking and activity ids")
     private Set<BookingActivity> bookingActivities;
 }
 

@@ -10,6 +10,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Offender Key Worker record representation (to facilitate data migration)
  **/
@@ -69,7 +71,7 @@ public class OffenderKeyWorker {
     /**
      * Offender Unique Reference
      */
-    @Schema(required = true, description = "Offender Unique Reference")
+    @Schema(requiredMode = REQUIRED, description = "Offender Unique Reference")
     @JsonProperty("offenderNo")
     public String getOffenderNo() {
         return offenderNo;
@@ -82,7 +84,7 @@ public class OffenderKeyWorker {
     /**
      * The key worker's Staff Id
      */
-    @Schema(required = true, description = "The key worker's Staff Id")
+    @Schema(requiredMode = REQUIRED, description = "The key worker's Staff Id")
     @JsonProperty("staffId")
     public Long getStaffId() {
         return staffId;
@@ -95,7 +97,7 @@ public class OffenderKeyWorker {
     /**
      * Agency Id
      */
-    @Schema(required = true, description = "Agency Id")
+    @Schema(requiredMode = REQUIRED, description = "Agency Id")
     @JsonProperty("agencyId")
     public String getAgencyId() {
         return agencyId;
@@ -108,7 +110,7 @@ public class OffenderKeyWorker {
     /**
      * Date and time allocation was assigned
      */
-    @Schema(required = true, description = "Date and time allocation was assigned")
+    @Schema(requiredMode = REQUIRED, description = "Date and time allocation was assigned")
     @JsonProperty("assigned")
     public LocalDateTime getAssigned() {
         return assigned;
@@ -134,7 +136,7 @@ public class OffenderKeyWorker {
     /**
      * Username of user who processed allocation
      */
-    @Schema(required = true, description = "Username of user who processed allocation")
+    @Schema(requiredMode = REQUIRED, description = "Username of user who processed allocation")
     @JsonProperty("userId")
     public String getUserId() {
         return userId;
@@ -147,7 +149,7 @@ public class OffenderKeyWorker {
     /**
      * Y
      */
-    @Schema(required = true, description = "Y")
+    @Schema(requiredMode = REQUIRED, description = "Y")
     @JsonProperty("active")
     public String getActive() {
         return active;
@@ -160,7 +162,7 @@ public class OffenderKeyWorker {
     /**
      * Date and time allocation record was created
      */
-    @Schema(required = true, description = "Date and time allocation record was created")
+    @Schema(requiredMode = REQUIRED, description = "Date and time allocation record was created")
     @JsonProperty("created")
     public LocalDateTime getCreated() {
         return created;
@@ -173,7 +175,7 @@ public class OffenderKeyWorker {
     /**
      * Username of user who created allocation record
      */
-    @Schema(required = true, description = "Username of user who created allocation record")
+    @Schema(requiredMode = REQUIRED, description = "Username of user who created allocation record")
     @JsonProperty("createdBy")
     public String getCreatedBy() {
         return createdBy;

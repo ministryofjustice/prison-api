@@ -11,23 +11,25 @@ import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
 import jakarta.validation.constraints.NotBlank;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Case Load")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @EqualsAndHashCode(of = "caseLoadId")
 @Data
 public class CaseLoad {
-    @Schema(required = true, description = "Case Load ID", example = "MDI")
+    @Schema(requiredMode = REQUIRED, description = "Case Load ID", example = "MDI")
     @JsonProperty("caseLoadId")
     @NotBlank
     private String caseLoadId;
 
-    @Schema(required = true, description = "Full description of the case load", example = "Moorland Closed (HMP & YOI)")
+    @Schema(requiredMode = REQUIRED, description = "Full description of the case load", example = "Moorland Closed (HMP & YOI)")
     @JsonProperty("description")
     @NotBlank
     private String description;
 
-    @Schema(required = true, description = "Type of case load. Note: Reference Code CSLD_TYPE", example = "INST", allowableValues = {"COMM","INST","APP"})
+    @Schema(requiredMode = REQUIRED, description = "Type of case load. Note: Reference Code CSLD_TYPE", example = "INST", allowableValues = {"COMM","INST","APP"})
     @JsonProperty("type")
     @NotBlank
     private String type;
@@ -36,7 +38,7 @@ public class CaseLoad {
     @JsonProperty("caseloadFunction")
     private String caseloadFunction;
 
-    @Schema(required = true, description = "Indicates that this caseload in the context of a staff member is the current active", example = "false")
+    @Schema(requiredMode = REQUIRED, description = "Indicates that this caseload in the context of a staff member is the current active", example = "false")
     @JsonProperty("currentlyActive")
     @NotBlank
     private boolean currentlyActive;

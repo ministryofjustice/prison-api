@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Offender non-association")
 @Builder(toBuilder = true)
 @AllArgsConstructor
@@ -17,27 +19,27 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode
 public class OffenderNonAssociation {
 
-    @Schema(required = true, description = "The offenders number", example = "G0135GA")
+    @Schema(requiredMode = REQUIRED, description = "The offenders number", example = "G0135GA")
     private String offenderNo;
 
-    @Schema(required = true, description = "The offenders first name", example = "Joseph")
+    @Schema(requiredMode = REQUIRED, description = "The offenders first name", example = "Joseph")
     private String firstName;
 
-    @Schema(required = true, description = "The offenders last name", example = "Bloggs")
+    @Schema(requiredMode = REQUIRED, description = "The offenders last name", example = "Bloggs")
     private String lastName;
 
-    @Schema(required = true, description = "The non-association reason code", example = "PER")
+    @Schema(requiredMode = REQUIRED, description = "The non-association reason code", example = "PER")
     private String reasonCode;
 
-    @Schema(required = true, description = "The non-association reason description", example = "Perpetrator")
+    @Schema(requiredMode = REQUIRED, description = "The non-association reason description", example = "Perpetrator")
     private String reasonDescription;
 
-    @Schema(required = true, description = "Description of the agency (e.g. prison) the offender is assigned to.", example = "Pentonville (PVI)")
+    @Schema(requiredMode = REQUIRED, description = "Description of the agency (e.g. prison) the offender is assigned to.", example = "Pentonville (PVI)")
     private String agencyDescription;
 
-    @Schema(required = true, description = "Description of living unit (e.g. cell) the offender is assigned to.", example = "PVI-1-2-4")
+    @Schema(requiredMode = REQUIRED, description = "Description of living unit (e.g. cell) the offender is assigned to.", example = "PVI-1-2-4")
     private String assignedLivingUnitDescription;
 
-    @Schema(required = true, description = "Id of living unit (e.g. cell) the offender is assigned to.", example = "123")
+    @Schema(requiredMode = REQUIRED, description = "Id of living unit (e.g. cell) the offender is assigned to.", example = "123")
     private Long assignedLivingUnitId;
 }

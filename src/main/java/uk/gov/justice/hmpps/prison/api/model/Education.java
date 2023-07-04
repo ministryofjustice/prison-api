@@ -12,6 +12,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -21,7 +23,7 @@ import java.util.List;
 public class Education {
 
     @NotNull
-    @Schema(description = "Offender booking id.", example = "14", required = true)
+    @Schema(description = "Offender booking id.", example = "14", requiredMode = REQUIRED)
     private Long bookingId;
 
     @NotNull
@@ -49,14 +51,14 @@ public class Education {
     @Schema(description = "Name of school attended.", example = "School of economics")
     private String school;
 
-    @Schema(description = "Whether this is special education", example = "false", required = true)
+    @Schema(description = "Whether this is special education", example = "false", requiredMode = REQUIRED)
     private Boolean isSpecialEducation;
 
-    @Schema(description = "The education schedule", example = "Full Time", required = true)
+    @Schema(description = "The education schedule", example = "Full Time", requiredMode = REQUIRED)
     private String schedule;
 
     @NotNull
     @Builder.Default
-    @Schema(description = "A list of addresses associated with the education", required = true)
+    @Schema(description = "A list of addresses associated with the education", requiredMode = REQUIRED)
     private List<AddressDto> addresses = new ArrayList<>();
 }

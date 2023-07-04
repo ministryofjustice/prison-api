@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 import static java.time.LocalDate.EPOCH;
 
 @Getter
@@ -24,7 +25,7 @@ import static java.time.LocalDate.EPOCH;
 public class PendingDeletionRequest {
 
     @NotNull
-    @Schema(description = "An ID uniquely identifying the deletion request batch", example = "123", required = true)
+    @Schema(description = "An ID uniquely identifying the deletion request batch", example = "123", requiredMode = REQUIRED)
     @JsonProperty("batchId")
     private Long batchId;
 

@@ -13,6 +13,8 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Contact
  **/
@@ -25,25 +27,25 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode
 @Data
 public class Contact {
-    @Schema(required = true, description = "Last name of the contact", example = "SMITH")
+    @Schema(requiredMode = REQUIRED, description = "Last name of the contact", example = "SMITH")
     @NotBlank
     private String lastName;
 
-    @Schema(required = true, description = "First Name", example = "JOHN")
+    @Schema(requiredMode = REQUIRED, description = "First Name", example = "JOHN")
     @NotBlank
     private String firstName;
 
     @Schema(description = "Middle Names", example = "MARK")
     private String middleName;
 
-    @Schema(required = true, description = "Contact type", example = "O")
+    @Schema(requiredMode = REQUIRED, description = "Contact type", example = "O")
     @NotBlank
     private String contactType;
 
     @Schema(description = "Contact type text", example = "Official")
     private String contactTypeDescription;
 
-    @Schema(required = true, description = "Relationship to prisoner", example = "RO")
+    @Schema(requiredMode = REQUIRED, description = "Relationship to prisoner", example = "RO")
     @NotBlank
     private String relationship;
 
@@ -53,11 +55,11 @@ public class Contact {
     @Schema(description = "Comments", example = "Some additional information")
     private String commentText;
 
-    @Schema(required = true, description = "Is an emergency contact", example = "true")
+    @Schema(requiredMode = REQUIRED, description = "Is an emergency contact", example = "true")
     @NotNull
     private boolean emergencyContact;
 
-    @Schema(required = true, description = "Indicates that the contact is Next of Kin Type", example = "false")
+    @Schema(requiredMode = REQUIRED, description = "Indicates that the contact is Next of Kin Type", example = "false")
     @NotNull
     private boolean nextOfKin;
 
@@ -67,27 +69,27 @@ public class Contact {
     @Schema(description = "id of the person contact", example = "5871791")
     private Long personId;
 
-    @Schema(required = true, description = "Active indicator flag.", example = "true")
+    @Schema(requiredMode = REQUIRED, description = "Active indicator flag.", example = "true")
     private boolean activeFlag;
 
     @Schema(description = "Date made inactive", example = "2019-01-31")
     private LocalDate expiryDate;
 
-    @Schema(required = true, description = "Approved Visitor", example = "true")
+    @Schema(requiredMode = REQUIRED, description = "Approved Visitor", example = "true")
     private boolean approvedVisitorFlag;
 
-    @Schema(required = true, description = "Can be contacted", example = "false")
+    @Schema(requiredMode = REQUIRED, description = "Can be contacted", example = "false")
     private boolean canBeContactedFlag;
 
-    @Schema(required = true, description = "Aware of charges against prisoner", example = "true")
+    @Schema(requiredMode = REQUIRED, description = "Aware of charges against prisoner", example = "true")
     private boolean awareOfChargesFlag;
 
     @Schema(description = "Link to root offender ID", example = "5871791")
     private Long contactRootOffenderId;
 
-    @Schema(required = true, description = "Offender Booking Id for this contact", example = "2468081")
+    @Schema(requiredMode = REQUIRED, description = "Offender Booking Id for this contact", example = "2468081")
     private Long bookingId;
 
-    @Schema(required = true, description = "Date time the contact was created", example = "2020-10-10T:20:00")
+    @Schema(requiredMode = REQUIRED, description = "Date time the contact was created", example = "2020-10-10T:20:00")
     private LocalDateTime createDateTime;
 }

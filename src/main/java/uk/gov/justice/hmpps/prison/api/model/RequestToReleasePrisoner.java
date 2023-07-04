@@ -13,6 +13,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Request release of prisoner")
 @Builder
 @AllArgsConstructor
@@ -25,7 +27,7 @@ public class RequestToReleasePrisoner {
     @Schema(description = "Reason code for the release, reference domain is MOVE_RSN", example = "CR", allowableValues = {"AR","AU","BD","BL","CE","CR","D1","D2","D3","D4","D5","D6","DA","DD","DE","DEC","DL","DS","ER","ESCP","ETR","EX","HC","HD","HE","HP","HR","HU","IF","MRG","NCS","NG","NP","PD","PF","PX","RE","RW","SC","UAL"})
     private String movementReasonCode;
 
-    @Schema(required = true, description = "The time the release occurred, if not supplied it will be the current time. Note: Time can be in the past but not before the last movement", example = "2020-03-24T12:13:40")
+    @Schema(requiredMode = REQUIRED, description = "The time the release occurred, if not supplied it will be the current time. Note: Time can be in the past but not before the last movement", example = "2020-03-24T12:13:40")
     @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime releaseTime;
 

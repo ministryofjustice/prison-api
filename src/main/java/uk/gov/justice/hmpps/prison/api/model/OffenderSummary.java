@@ -9,6 +9,8 @@ import lombok.EqualsAndHashCode;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Offender Summary
  **/
@@ -67,7 +69,7 @@ public class OffenderSummary {
     /**
      * A unique booking id.
      */
-    @Schema(required = true, description = "A unique booking id.")
+    @Schema(requiredMode = REQUIRED, description = "A unique booking id.")
     @JsonProperty("bookingId")
     public Long getBookingId() {
         return bookingId;
@@ -80,7 +82,7 @@ public class OffenderSummary {
     /**
      * The offender's unique offender number (aka NOMS Number in the UK).
      */
-    @Schema(required = true, description = "The offender's unique offender number (aka NOMS Number in the UK).")
+    @Schema(requiredMode = REQUIRED, description = "The offender's unique offender number (aka NOMS Number in the UK).")
     @JsonProperty("offenderNo")
     public String getOffenderNo() {
         return offenderNo;
@@ -119,7 +121,7 @@ public class OffenderSummary {
     /**
      * The offender's first name.
      */
-    @Schema(required = true, description = "The offender's first name.")
+    @Schema(requiredMode = REQUIRED, description = "The offender's first name.")
     @JsonProperty("firstName")
     public String getFirstName() {
         return firstName;
@@ -145,7 +147,7 @@ public class OffenderSummary {
     /**
      * The offender's last name.
      */
-    @Schema(required = true, description = "The offender's last name.")
+    @Schema(requiredMode = REQUIRED, description = "The offender's last name.")
     @JsonProperty("lastName")
     public String getLastName() {
         return lastName;

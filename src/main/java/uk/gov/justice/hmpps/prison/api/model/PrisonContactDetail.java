@@ -14,6 +14,8 @@ import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Contacts Details for agency
  **/
@@ -26,52 +28,52 @@ import java.util.List;
 @Data
 @ToString
 public class PrisonContactDetail {
-    @Schema(required = true, description = "Identifier of agency/prison.", example = "MDI")
+    @Schema(requiredMode = REQUIRED, description = "Identifier of agency/prison.", example = "MDI")
     @NotBlank
     private String agencyId;
 
     @NotBlank
-    @Schema(required = true, description = "Agency description.", example = "MOORLAND (HMP & YOI)")
+    @Schema(requiredMode = REQUIRED, description = "Agency description.", example = "MOORLAND (HMP & YOI)")
     private String description;
 
     @NotBlank
-    @Schema(required = true, description = "Formatted agency description.", example = "Moorland (HMP & YOI)")
+    @Schema(requiredMode = REQUIRED, description = "Formatted agency description.", example = "Moorland (HMP & YOI)")
     private String formattedDescription;
 
-    @Schema(required = true, description = "Type of agency.", example = "INST")
+    @Schema(requiredMode = REQUIRED, description = "Type of agency.", example = "INST")
     @NotBlank
     private String agencyType;
 
-    @Schema(required = true, description = "Type of address.")
+    @Schema(requiredMode = REQUIRED, description = "Type of address.")
     @NotBlank
     private String addressType;
 
-    @Schema(required = true, description = "The Prison name.")
+    @Schema(requiredMode = REQUIRED, description = "The Prison name.")
     @NotBlank
     private String premise;
 
-    @Schema(required = true, description = "Describes the geographic location.")
+    @Schema(requiredMode = REQUIRED, description = "Describes the geographic location.")
     @NotBlank
     private String locality;
 
-    @Schema(required = true, description = "Address city.")
+    @Schema(requiredMode = REQUIRED, description = "Address city.")
     @NotBlank
     private String city;
 
-    @Schema(required = true, description = "Address country.")
+    @Schema(requiredMode = REQUIRED, description = "Address country.")
     @NotBlank
     private String country;
 
-    @Schema(required = true, description = "Address postcode.")
+    @Schema(requiredMode = REQUIRED, description = "Address postcode.")
     @NotBlank
     private String postCode;
 
-    @Schema(required = true, description = "List of Telephone details")
+    @Schema(requiredMode = REQUIRED, description = "List of Telephone details")
     @NotNull
     @Builder.Default
     private List<Telephone> phones = new ArrayList<>();
 
-    @Schema(required = false, description = "List of Address details")
+    @Schema(description = "List of Address details")
     @NotNull
     @Builder.Default
     private List<AddressDto> addresses = new ArrayList<>();

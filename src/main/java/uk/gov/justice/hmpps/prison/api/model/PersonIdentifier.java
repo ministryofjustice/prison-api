@@ -8,6 +8,8 @@ import lombok.EqualsAndHashCode;
 
 import jakarta.validation.constraints.NotBlank;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * PersonIdentifier
  **/
@@ -34,7 +36,7 @@ public class PersonIdentifier {
     /**
      * The identifier type
      */
-    @Schema(required = true, description = "The identifier type")
+    @Schema(requiredMode = REQUIRED, description = "The identifier type")
     @JsonProperty("identifierType")
     public String getIdentifierType() {
         return identifierType;
@@ -47,7 +49,7 @@ public class PersonIdentifier {
     /**
      * The most recent identifier value of that type.
      */
-    @Schema(required = true, description = "The most recent identifier value of that type.")
+    @Schema(requiredMode = REQUIRED, description = "The most recent identifier value of that type.")
     @JsonProperty("identifierValue")
     public String getIdentifierValue() {
         return identifierValue;

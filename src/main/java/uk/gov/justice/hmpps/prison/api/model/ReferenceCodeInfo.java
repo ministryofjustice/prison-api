@@ -15,6 +15,8 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Reference Code Data")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @EqualsAndHashCode
@@ -24,7 +26,7 @@ import java.time.LocalDate;
 @ToString
 public class ReferenceCodeInfo {
 
-    @Schema(required = true, description = "Reference data item description.", example = "Some description")
+    @Schema(requiredMode = REQUIRED, description = "Reference data item description.", example = "Some description")
     @NotBlank
     @Size(max = 40)
     private String description;
@@ -37,7 +39,7 @@ public class ReferenceCodeInfo {
     @Size(max = 12)
     private String parentCode;
 
-    @Schema(required = true, description = "Reference data item active indicator flag.", example = "Y", allowableValues = {"Y","N"})
+    @Schema(requiredMode = REQUIRED, description = "Reference data item active indicator flag.", example = "Y", allowableValues = {"Y","N"})
     @Size(max = 1)
     @Pattern(regexp = "[N|Y]")
     @Builder.Default

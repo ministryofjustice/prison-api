@@ -12,6 +12,8 @@ import lombok.ToString;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Attendance details
  **/
@@ -26,7 +28,7 @@ import jakarta.validation.constraints.Size;
 @Data
 public class UpdateAttendance {
 
-    @Schema(required = true, description = "Attendance outcome, possible values are the codes in the 'PS_PA_OC' reference domain.", example = "ATT", allowableValues = {"ABS","ACCAB","ATT","CANC","NREQ","SUS","UNACAB","REST"})
+    @Schema(requiredMode = REQUIRED, description = "Attendance outcome, possible values are the codes in the 'PS_PA_OC' reference domain.", example = "ATT", allowableValues = {"ABS","ACCAB","ATT","CANC","NREQ","SUS","UNACAB","REST"})
     @Size(max = 12)
     @NotBlank
     private String eventOutcome;

@@ -11,6 +11,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Prisoner Custody Status
  **/
@@ -22,25 +24,25 @@ import java.time.LocalTime;
 public class Movement {
 
     @NotBlank
-    @Schema(required = true, description = "Display Prisoner Number (UK is NOMS ID)")
+    @Schema(requiredMode = REQUIRED, description = "Display Prisoner Number (UK is NOMS ID)")
     private String offenderNo;
 
     @NotNull
-    @Schema(required = true, description = "Timestamp when the external movement record was created")
+    @Schema(requiredMode = REQUIRED, description = "Timestamp when the external movement record was created")
     private LocalDateTime createDateTime;
 
     @NotBlank
-    @Schema(required = true, description = "Agency travelling from")
+    @Schema(requiredMode = REQUIRED, description = "Agency travelling from")
     private String fromAgency;
 
-    @Schema(required = true, description = "Description of the agency travelling from")
+    @Schema(requiredMode = REQUIRED, description = "Description of the agency travelling from")
     private String fromAgencyDescription;
 
     @NotBlank
-    @Schema(required = true, description = "Agency travelling to")
+    @Schema(requiredMode = REQUIRED, description = "Agency travelling to")
     private String toAgency;
 
-    @Schema(required = true, description = "Description of the agency travelling to")
+    @Schema(requiredMode = REQUIRED, description = "Description of the agency travelling to")
     private String toAgencyDescription;
 
     @Schema(description = "City offender was received from")
@@ -50,23 +52,23 @@ public class Movement {
     private String toCity;
 
     @NotBlank
-    @Schema(required = true, description = "ADM (admission), CRT (court), REL (release), TAP (temporary absence) or TRN (transfer)", example = "ADM", allowableValues = {"ADM","CRT","REL","TAP","TRN"})
+    @Schema(requiredMode = REQUIRED, description = "ADM (admission), CRT (court), REL (release), TAP (temporary absence) or TRN (transfer)", example = "ADM", allowableValues = {"ADM","CRT","REL","TAP","TRN"})
     private String movementType;
 
-    @Schema(required = true, description = "Description of the movement type")
+    @Schema(requiredMode = REQUIRED, description = "Description of the movement type")
     private String movementTypeDescription;
 
-    @Schema(required = true, description = "IN or OUT")
+    @Schema(requiredMode = REQUIRED, description = "IN or OUT")
     @NotBlank
     private String directionCode;
 
-    @Schema(required = true, description = "Movement date")
+    @Schema(requiredMode = REQUIRED, description = "Movement date")
     private LocalDate movementDate;
 
-    @Schema(required = true, description = "Movement time")
+    @Schema(requiredMode = REQUIRED, description = "Movement time")
     private LocalTime movementTime;
 
-    @Schema(required = true, description = "Description of movement reason")
+    @Schema(requiredMode = REQUIRED, description = "Description of movement reason")
     private String movementReason;
 
     @Schema(description = "Comment")

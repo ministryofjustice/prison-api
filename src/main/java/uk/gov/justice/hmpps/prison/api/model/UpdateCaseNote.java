@@ -16,6 +16,8 @@ import jakarta.validation.constraints.NotBlank;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Update Case Note
  **/
@@ -47,7 +49,7 @@ public class UpdateCaseNote {
     /**
      * Updated Case Note Text
      */
-    @Schema(required = true, description = "Updated Case Note Text")
+    @Schema(requiredMode = REQUIRED, description = "Updated Case Note Text")
     @JsonProperty("text")
     public String getText() {
         return text;

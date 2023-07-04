@@ -6,16 +6,18 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Cell move result")
 @Builder(toBuilder = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class CellMoveResult {
-    @Schema(required = true, description = "Unique, numeric booking id.", example = "1234134")
+    @Schema(requiredMode = REQUIRED, description = "Unique, numeric booking id.", example = "1234134")
     private Long bookingId;
 
-    @Schema(required = true, description = "Identifier of agency that offender is associated with.", example = "MDI")
+    @Schema(requiredMode = REQUIRED, description = "Identifier of agency that offender is associated with.", example = "MDI")
     private String agencyId;
 
     @Schema(description = "Identifier of living unit (e.g. cell) that offender is assigned to.", example = "123123")

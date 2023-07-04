@@ -11,6 +11,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Details for creating appointments in bulk")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
@@ -18,12 +20,12 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class AppointmentsToCreate {
-    @Schema(required = true, description = "The default values to be applied to each new appointment. An individual appointment may change the startTime, add or change the endTime and provide text for that appointment's comment.")
+    @Schema(requiredMode = REQUIRED, description = "The default values to be applied to each new appointment. An individual appointment may change the startTime, add or change the endTime and provide text for that appointment's comment.")
     @NotNull
     @Valid
     private AppointmentDefaults appointmentDefaults;
 
-    @Schema(required = true, description = "The details for creating each appointment.  A Missing value falls back to the default value if present. Mandatory, but an empty list is accepted.")
+    @Schema(requiredMode = REQUIRED, description = "The details for creating each appointment.  A Missing value falls back to the default value if present. Mandatory, but an empty list is accepted.")
     @NotNull
     private List<@Valid AppointmentDetails> appointments;
 

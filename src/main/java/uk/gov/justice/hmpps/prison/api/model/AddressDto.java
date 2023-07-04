@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.util.List;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "An Address")
 @Data
 @Builder(toBuilder = true)
@@ -52,10 +54,10 @@ public class AddressDto {
     @Schema(description = "Comment", example = "This is a comment text")
     private String comment;
 
-    @Schema(required = true, description = "Primary Address", example = "Y")
+    @Schema(requiredMode = REQUIRED, description = "Primary Address", example = "Y")
     private Boolean primary;
 
-    @Schema(required = true, description = "No Fixed Address", example = "N")
+    @Schema(requiredMode = REQUIRED, description = "No Fixed Address", example = "N")
     private Boolean noFixedAddress;
 
     @Schema(description = "Date Added", example = "2005-05-12")

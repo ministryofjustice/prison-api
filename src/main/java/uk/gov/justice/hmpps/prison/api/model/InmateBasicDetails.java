@@ -10,6 +10,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Offender basic detail")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @EqualsAndHashCode
@@ -25,18 +27,18 @@ public class InmateBasicDetails {
     @NotBlank
     private String bookingNo;
 
-    @Schema(required = true, description = "Offender Unique Reference", example = "A1234AA")
+    @Schema(requiredMode = REQUIRED, description = "Offender Unique Reference", example = "A1234AA")
     @NotBlank
     private String offenderNo;
 
-    @Schema(required = true, description = "First Name")
+    @Schema(requiredMode = REQUIRED, description = "First Name")
     @NotBlank
     private String firstName;
 
     @Schema(description = "Middle Name(s)")
     private String middleName;
 
-    @Schema(required = true, description = "Last Name")
+    @Schema(requiredMode = REQUIRED, description = "Last Name")
     @NotBlank
     private String lastName;
 
@@ -50,7 +52,7 @@ public class InmateBasicDetails {
     @Schema(description = "Description of living unit (e.g. cell) that offender is assigned to.", example = "MDI-1-1-3")
     private String assignedLivingUnitDesc;
 
-    @Schema(required = true, description = "Date of Birth of prisoner", example = "1970-03-15")
+    @Schema(requiredMode = REQUIRED, description = "Date of Birth of prisoner", example = "1970-03-15")
     @NotNull
     private LocalDate dateOfBirth;
 

@@ -14,6 +14,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Offender Booking Summary")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder(toBuilder = true)
@@ -23,37 +25,37 @@ import java.util.List;
 public class OffenderBooking implements CategoryCodeAware {
 
     @NotNull
-    @Schema(required = true, description = "Unique, numeric booking id.", example = "1234134")
+    @Schema(requiredMode = REQUIRED, description = "Unique, numeric booking id.", example = "1234134")
     private Long bookingId;
 
     @Schema(description = "Booking number.", example = "A12121")
     private String bookingNo;
 
     @NotBlank
-    @Schema(required = true, description = "Offender number (e.g. NOMS Number).", example = "A1234AA")
+    @Schema(requiredMode = REQUIRED, description = "Offender number (e.g. NOMS Number).", example = "A1234AA")
     private String offenderNo;
 
     @NotBlank
-    @Schema(required = true, description = "Offender first name.", example = "JOHN")
+    @Schema(requiredMode = REQUIRED, description = "Offender first name.", example = "JOHN")
     private String firstName;
 
     @Schema(description = "Offender middle name.", example = "ASHLEY")
     private String middleName;
 
     @NotBlank
-    @Schema(required = true, description = "Offender last name.", example = "SMITH")
+    @Schema(requiredMode = REQUIRED, description = "Offender last name.", example = "SMITH")
     private String lastName;
 
     @NotNull
-    @Schema(required = true, description = "Offender date of birth.", example = "1980-05-02")
+    @Schema(requiredMode = REQUIRED, description = "Offender date of birth.", example = "1980-05-02")
     private LocalDate dateOfBirth;
 
     @NotNull
-    @Schema(required = true, description = "Offender's current age.", example = "32")
+    @Schema(requiredMode = REQUIRED, description = "Offender's current age.", example = "32")
     private Integer age;
 
     @NotBlank
-    @Schema(required = true, description = "Identifier of agency that offender is associated with.", example = "MDI")
+    @Schema(requiredMode = REQUIRED, description = "Identifier of agency that offender is associated with.", example = "MDI")
     private String agencyId;
 
     @Schema(description = "Identifier of living unit (e.g. cell) that offender is assigned to.", example = "123123")
@@ -85,12 +87,12 @@ public class OffenderBooking implements CategoryCodeAware {
 
     @NotNull
     @Builder.Default
-    @Schema(required = true, description = "List of offender's current alert types.")
+    @Schema(requiredMode = REQUIRED, description = "List of offender's current alert types.")
     private List<String> alertsCodes = new ArrayList<>();
 
     @NotNull
     @Builder.Default
-    @Schema(required = true, description = "List of offender's current alert codes.")
+    @Schema(requiredMode = REQUIRED, description = "List of offender's current alert codes.")
     private List<String> alertsDetails = new ArrayList<>();
 
     @Schema(description = "Legal Status", name = "legalStatus", example = "REMAND")

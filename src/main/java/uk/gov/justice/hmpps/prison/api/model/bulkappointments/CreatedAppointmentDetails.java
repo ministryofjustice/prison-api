@@ -11,6 +11,8 @@ import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "The details of an appointment that has just been created")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
@@ -18,7 +20,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class CreatedAppointmentDetails {
-    @Schema(required = true, description = "The Booking id of the offender for whom the appointment was created.", example = "123456")
+    @Schema(requiredMode = REQUIRED, description = "The Booking id of the offender for whom the appointment was created.", example = "123456")
     @NotNull
     private Long bookingId;
 

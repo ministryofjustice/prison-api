@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Statute")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @AllArgsConstructor
@@ -14,16 +16,16 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class StatuteDto {
-    @Schema(required = true, description = "Statute code", example = "RR84")
+    @Schema(requiredMode = REQUIRED, description = "Statute code", example = "RR84")
     private String code;
 
-    @Schema(required = true, description = "Statute code description", example = "Statute RV98")
+    @Schema(requiredMode = REQUIRED, description = "Statute code description", example = "Statute RV98")
     private String description;
 
-    @Schema(required = true, description = "Legislating Body Code", example = "UK")
+    @Schema(requiredMode = REQUIRED, description = "Legislating Body Code", example = "UK")
     private String legislatingBodyCode;
 
-    @Schema(required = true, description = "Active Y/N", example = "Y")
+    @Schema(requiredMode = REQUIRED, description = "Active Y/N", example = "Y")
     private String activeFlag;
 
 }

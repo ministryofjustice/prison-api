@@ -13,6 +13,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Represents the data required receiving a prisoner under a new booking")
 @Builder
 @AllArgsConstructor
@@ -27,7 +29,7 @@ public class RequestForNewBooking {
     @NotNull
     private String prisonId;
 
-    @Schema(required = true, description = "The time the booking in occurred, if not supplied it will be the current time", example = "2020-03-24T12:13:40")
+    @Schema(requiredMode = REQUIRED, description = "The time the booking in occurred, if not supplied it will be the current time", example = "2020-03-24T12:13:40")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime bookingInTime;
 

@@ -19,6 +19,8 @@ import jakarta.validation.constraints.Size;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * New Allocation
  **/
@@ -62,7 +64,7 @@ public class NewAllocation {
     /**
      * Offender Booking Id
      */
-    @Schema(required = true, description = "Offender Booking Id")
+    @Schema(requiredMode = REQUIRED, description = "Offender Booking Id")
     @JsonProperty("bookingId")
     public Long getBookingId() {
         return bookingId;
@@ -75,7 +77,7 @@ public class NewAllocation {
     /**
      * Keyworker's staff Id
      */
-    @Schema(required = true, description = "Keyworker's staff Id")
+    @Schema(requiredMode = REQUIRED, description = "Keyworker's staff Id")
     @JsonProperty("staffId")
     public Long getStaffId() {
         return staffId;
@@ -88,7 +90,7 @@ public class NewAllocation {
     /**
      * Whether auto or manual
      */
-    @Schema(required = true, description = "Whether auto or manual")
+    @Schema(requiredMode = REQUIRED, description = "Whether auto or manual")
     @JsonProperty("type")
     public String getType() {
         return type;

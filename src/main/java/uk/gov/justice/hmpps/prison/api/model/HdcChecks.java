@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "HDC Curfew Check")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
@@ -20,11 +22,11 @@ import java.time.LocalDate;
 @EqualsAndHashCode
 @Data
 public class HdcChecks {
-    @Schema(required = true, description = "HDC Checks passed flag", example = "true")
+    @Schema(requiredMode = REQUIRED, description = "HDC Checks passed flag", example = "true")
     @NotNull
     private Boolean passed;
 
-    @Schema(required = true, description = "HDC Checks passed date. ISO-8601 format. YYYY-MM-DD", example = "2018-12-31")
+    @Schema(requiredMode = REQUIRED, description = "HDC Checks passed date. ISO-8601 format. YYYY-MM-DD", example = "2018-12-31")
     @NotNull
     private LocalDate date;
 

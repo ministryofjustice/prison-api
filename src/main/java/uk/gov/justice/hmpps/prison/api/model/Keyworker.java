@@ -9,6 +9,8 @@ import lombok.EqualsAndHashCode;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Keyworker Details
  **/
@@ -50,7 +52,7 @@ public class Keyworker {
     /**
      * Unique identifier for staff member.
      */
-    @Schema(required = true, description = "Unique identifier for staff member.")
+    @Schema(requiredMode = REQUIRED, description = "Unique identifier for staff member.")
     @JsonProperty("staffId")
     public Long getStaffId() {
         return staffId;
@@ -63,7 +65,7 @@ public class Keyworker {
     /**
      * Staff member's first name.
      */
-    @Schema(required = true, description = "Staff member's first name.")
+    @Schema(requiredMode = REQUIRED, description = "Staff member's first name.")
     @JsonProperty("firstName")
     public String getFirstName() {
         return firstName;
@@ -76,7 +78,7 @@ public class Keyworker {
     /**
      * Staff member's last name.
      */
-    @Schema(required = true, description = "Staff member's last name.")
+    @Schema(requiredMode = REQUIRED, description = "Staff member's last name.")
     @JsonProperty("lastName")
     public String getLastName() {
         return lastName;
@@ -89,7 +91,7 @@ public class Keyworker {
     /**
      * Status of staff member.
      */
-    @Schema(required = true, description = "Status of staff member.")
+    @Schema(requiredMode = REQUIRED, description = "Status of staff member.")
     @JsonProperty("status")
     public String getStatus() {
         return status;
@@ -115,7 +117,7 @@ public class Keyworker {
     /**
      * Current number allocated
      */
-    @Schema(required = true, description = "Current number allocated")
+    @Schema(requiredMode = REQUIRED, description = "Current number allocated")
     @JsonProperty("numberAllocated")
     public Integer getNumberAllocated() {
         return numberAllocated;

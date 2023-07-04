@@ -12,6 +12,8 @@ import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Staff Details with position and role
  **/
@@ -22,19 +24,19 @@ import java.time.LocalDate;
 @Data
 @ToString
 public class StaffLocationRole {
-    @Schema(required = true, description = "Unique identifier for staff member.", example = "242342")
+    @Schema(requiredMode = REQUIRED, description = "Unique identifier for staff member.", example = "242342")
     @NotNull
     private Long staffId;
 
-    @Schema(required = true, description = "Staff member's first name.", example = "JOHN")
+    @Schema(requiredMode = REQUIRED, description = "Staff member's first name.", example = "JOHN")
     @NotBlank
     private String firstName;
 
-    @Schema(required = true, description = "Staff member's last name.", example = "SMITH")
+    @Schema(requiredMode = REQUIRED, description = "Staff member's last name.", example = "SMITH")
     @NotBlank
     private String lastName;
 
-    @Schema(required = true, description = "Status of staff member.", example = "ACTIVE", allowableValues = {"ACTIVE","INACTIVE"})
+    @Schema(requiredMode = REQUIRED, description = "Status of staff member.", example = "ACTIVE", allowableValues = {"ACTIVE","INACTIVE"})
     @NotBlank
     private String status;
 
@@ -47,28 +49,28 @@ public class StaffLocationRole {
     @Schema(description = "Date of Birth of Staff Member", example = "1970-01-02")
     private LocalDate dateOfBirth;
 
-    @Schema(required = true, description = "Agency at which staff member is performing role.", example = "LEI")
+    @Schema(requiredMode = REQUIRED, description = "Agency at which staff member is performing role.", example = "LEI")
     @NotBlank
     private String agencyId;
 
     @Schema(description = "Agency description.", example = "HMP Leeds")
     private String agencyDescription;
 
-    @Schema(required = true, description = "Date from which staff member is actively performing role.", example = "2019-02-05")
+    @Schema(requiredMode = REQUIRED, description = "Date from which staff member is actively performing role.", example = "2019-02-05")
     @NotNull
     private LocalDate fromDate;
 
     @Schema(description = "Date on which staff member stops actively performing role.", example = "2019-03-25")
     private LocalDate toDate;
 
-    @Schema(required = true, description = "A code that defines staff member's position at agency.", example = "PRO")
+    @Schema(requiredMode = REQUIRED, description = "A code that defines staff member's position at agency.", example = "PRO")
     @NotBlank
     private String position;
 
     @Schema(description = "Description of staff member's position at agency.", example = "Prison Officer")
     private String positionDescription;
 
-    @Schema(required = true, description = "A code that defines staff member's role at agency.", example = "KW")
+    @Schema(requiredMode = REQUIRED, description = "A code that defines staff member's role at agency.", example = "KW")
     @NotBlank
     private String role;
 
