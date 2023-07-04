@@ -1,13 +1,13 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import io.opentelemetry.sdk.testing.assertj.OpenTelemetryAssertions.assertThat
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.NOT_FOUND
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
 
 class PrisonerResourceTest : ResourceTest() {
@@ -111,7 +111,7 @@ class PrisonerResourceTest : ResourceTest() {
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
       )
-      assertThatStatus(response, HttpStatus.NOT_FOUND)
+      assertThatStatus(response, NOT_FOUND)
     }
 
     @Test
@@ -124,7 +124,7 @@ class PrisonerResourceTest : ResourceTest() {
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
       )
-      assertThatStatus(response, HttpStatus.NOT_FOUND)
+      assertThatStatus(response, NOT_FOUND)
     }
   }
 
@@ -149,7 +149,7 @@ class PrisonerResourceTest : ResourceTest() {
     }
 
     @Test
-    fun testReturnEmptyArrayWhenOffenderNotFound() {
+    fun testReturn404WhenOffenderNotFound() {
       val token = authTokenHelper.getToken(AuthToken.VIEW_PRISONER_DATA)
       val httpEntity = createHttpEntity(token, null, emptyMap())
       val response = testRestTemplate.exchange(
@@ -158,12 +158,11 @@ class PrisonerResourceTest : ResourceTest() {
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
       )
-      assertThatJsonAndStatus(response, HttpStatus.OK.value(), "[]")
+      assertThat(response.statusCode).isEqualTo(NOT_FOUND)
     }
 
     @Test
-    @Disabled("SDIT-910: No access restrictions currently on this endpoint")
-    fun testReturnEmptyArrayWhenDoesNotHavePrivs() {
+    fun testReturn404WhenDoesNotHavePrivs() {
       val token = authTokenHelper.getToken(AuthToken.NO_CASELOAD_USER)
       val httpEntity = createHttpEntity(token, null, emptyMap())
       val response = testRestTemplate.exchange(
@@ -172,7 +171,7 @@ class PrisonerResourceTest : ResourceTest() {
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
       )
-      assertThatJsonAndStatus(response, HttpStatus.OK.value(), "[]")
+      assertThat(response.statusCode).isEqualTo(NOT_FOUND)
     }
   }
 
@@ -250,7 +249,7 @@ class PrisonerResourceTest : ResourceTest() {
     }
 
     @Test
-    fun testReturn404WhenDoesNotHavePrivs() {
+    fun testReturn403WhenDoesNotHavePrivs() {
       webTestClient.get()
         .uri("/api/prisoners/prisoner-numbers")
         .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))

@@ -28,6 +28,7 @@ import uk.gov.justice.hmpps.prison.api.model.PrisonerDetailSearchCriteria
 import uk.gov.justice.hmpps.prison.api.support.Order
 import uk.gov.justice.hmpps.prison.api.support.PageRequest
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery
+import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess
 import uk.gov.justice.hmpps.prison.service.GlobalSearchService
 import java.time.LocalDate
 
@@ -141,6 +142,7 @@ class PrisonerResource(private val globalSearchService: GlobalSearchService) {
     ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
   )
   @Operation(summary = "List of offenders globally matching the offenderNo.", description = "List of offenders globally matching the offenderNo.")
+  @VerifyOffenderAccess(overrideRoles = ["SYSTEM_USER", "VIEW_PRISONER_DATA"])
   @GetMapping("/{offenderNo}")
   fun getPrisonersOffenderNo(
     @PathVariable("offenderNo")
