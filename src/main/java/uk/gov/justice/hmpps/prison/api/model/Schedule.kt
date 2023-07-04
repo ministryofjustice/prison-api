@@ -6,12 +6,15 @@ because schedule data is grouped with lots of other reference_codes and is there
 'domain' (DOMAIN = 'OFFENCE_IND')
 
 The list in the database is as follows:
-S15/CJIB	    Schedule 15 CJ B applies
-SCH15/CJIB/L	Schedule 15 CJIB Applies, attracts Life
+S15/CJIB	      Schedule 15 CJ B applies
+SCH15/CJIB/L	  Schedule 15 CJIB Applies, attracts Life
 SCH17A2	        Schedule 17a Part 2 CT & Sent Bill
 SCH19ZA	        Schedule 19ZA CT and Sent Bill
-SCH13	        Schedule 13 CT & Sent Bill
+SCH13	          Schedule 13 CT & Sent Bill
 SCH17A	        Schedule 17a CT & Sent Bill
+PCSC/SDS	      PCSC SDS between 4 and 7 years
+PCSC/SDS+	      PCSC SDS+
+PCSC/SEC250	    PCSC Sec250 >7 years
  */
 enum class Schedule(val code: String, val description: String) {
   SCHEDULE_13("SCH13", "Schedule 13 CT & Sentencing Bill"),
@@ -20,5 +23,8 @@ enum class Schedule(val code: String, val description: String) {
   SCHEDULE_17A_PART_1("SCH17A", "Schedule 17A Part 1 CT & Sentencing Bill"),
   SCHEDULE_17A_PART_2("SCH17A2", "Schedule 17A Part 2 CT & Sentencing Bill"),
   SCHEDULE_19ZA("SCH19ZA", "Schedule 19ZA CT & Sentencing Bill"),
+  PCSC_SDS("PCSC/SDS", "PCSC SDS between 4 and 7 years"),
+  PCSC_SDS_PLUS("PCSC/SDS+", "PCSC SDS+"),
+  PCSC_SEC_250("PCSC/SEC250", "PCSC Sec250 >7 years"),
   ;
 }
