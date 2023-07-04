@@ -26,7 +26,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class OffenderMovementsResourceImplIntTest_bookingDamageObligations extends ResourceTest {
+public class OffenderResourceImplIntTest_bookingDamageObligations extends ResourceTest {
     private String token;
 
     @MockBean
