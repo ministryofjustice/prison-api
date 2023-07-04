@@ -89,18 +89,6 @@ Feature: Prisoner Search results contain aliases
       | A1476AE    | 0             |           |
       | A1181MV    | 1             | O'VAUGHAN |
 
-  Scenario Outline: Search for prisoners with specified offender number using simple unprotected endpoint
-    Given a user has a token name of "GLOBAL_SEARCH"
-    When a search is made for prisoners with offender numbers of "<offenderNo>" using simple endpoint
-    Then "<numberResults>" prisoner records are returned
-    And the prisoners last names match "<lastNames>"
-
-    Examples:
-      | offenderNo | numberResults | lastNames |
-      | A1234AC    | 1             | BATES     |
-      | A1476AE    | 0             |           |
-      | A1181MV    | 1             | O'VAUGHAN |
-
   Scenario: Search for prisoners without GLOBAL_SEARCH role
     Given a user has authenticated with the API
     When a search is made for prisoners with an offender number of "<offenderNo>" expecting failure
