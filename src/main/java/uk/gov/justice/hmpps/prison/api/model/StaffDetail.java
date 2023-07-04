@@ -11,6 +11,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Staff Details
  **/
@@ -23,19 +25,19 @@ import java.time.LocalDate;
 @EqualsAndHashCode
 public class StaffDetail {
 
-    @Schema(required = true, description = "Unique identifier for staff member.", example = "423142")
+    @Schema(requiredMode = REQUIRED, description = "Unique identifier for staff member.", example = "423142")
     @NotNull
     private Long staffId;
 
-    @Schema(required = true, description = "Staff member's first name.", example = "JOHN")
+    @Schema(requiredMode = REQUIRED, description = "Staff member's first name.", example = "JOHN")
     @NotBlank
     private String firstName;
 
-    @Schema(required = true, description = "Staff member's last name.", example = "SMITH")
+    @Schema(requiredMode = REQUIRED, description = "Staff member's last name.", example = "SMITH")
     @NotBlank
     private String lastName;
 
-    @Schema(required = true, description = "Status of staff member.", example = "ACTIVE", allowableValues = {"ACTIVE","INACTIVE"})
+    @Schema(requiredMode = REQUIRED, description = "Status of staff member.", example = "ACTIVE", allowableValues = {"ACTIVE","INACTIVE"})
     @NotBlank
     private String status;
 

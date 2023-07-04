@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "HO Code")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @AllArgsConstructor
@@ -17,13 +19,13 @@ import java.time.LocalDate;
 @Builder
 public class HOCodeDto {
 
-    @Schema(required = true, description = "HO code", example = "825/99")
+    @Schema(requiredMode = REQUIRED, description = "HO code", example = "825/99")
     private String code;
 
-    @Schema(required = true, description = "HO code description", example = "Ho Code 825/99")
+    @Schema(requiredMode = REQUIRED, description = "HO code description", example = "Ho Code 825/99")
     private String description;
 
-    @Schema(required = true, description = "Active Y/N", example = "Y")
+    @Schema(requiredMode = REQUIRED, description = "Active Y/N", example = "Y")
     private String activeFlag;
 
     @Schema(description = "Expiry Date", example = "2021-01-05")

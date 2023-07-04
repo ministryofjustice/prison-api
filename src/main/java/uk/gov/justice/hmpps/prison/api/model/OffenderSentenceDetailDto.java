@@ -16,6 +16,8 @@ import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
 import java.time.LocalDate;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Offender Sentence Detail Dto
  **/
@@ -34,11 +36,11 @@ public class OffenderSentenceDetailDto {
         ARD, CRD, NPD, PRRD,
     }
 
-    @Schema(required = true, description = "Offender booking id.", example = "1212123")
+    @Schema(requiredMode = REQUIRED, description = "Offender booking id.", example = "1212123")
     @NotNull
     private Long bookingId;
 
-    @Schema(required = true, description = "Is this the most recent active booking", example = "true")
+    @Schema(requiredMode = REQUIRED, description = "Is this the most recent active booking", example = "true")
     @NotNull
     private Boolean mostRecentActiveBooking;
 
@@ -161,31 +163,31 @@ public class OffenderSentenceDetailDto {
     @Schema(description = "HDCED (override) - date on which offender will be eligible for home detention curfew.", example = "2020-02-03")
     private LocalDate homeDetentionCurfewEligibilityOverrideDate;
 
-    @Schema(required = true, description = "Offender Unique Reference (NOMSID)", example = "A1234AA")
+    @Schema(requiredMode = REQUIRED, description = "Offender Unique Reference (NOMSID)", example = "A1234AA")
     @NotBlank
     private String offenderNo;
 
-    @Schema(required = true, description = "First Name", example = "John")
+    @Schema(requiredMode = REQUIRED, description = "First Name", example = "John")
     @NotBlank
     private String firstName;
 
-    @Schema(required = true, description = "Last Name", example = "Smith")
+    @Schema(requiredMode = REQUIRED, description = "Last Name", example = "Smith")
     @NotBlank
     private String lastName;
 
-    @Schema(required = true, description = "Offender date of birth.", example = "1969-12-30")
+    @Schema(requiredMode = REQUIRED, description = "Offender date of birth.", example = "1969-12-30")
     @NotNull
     private LocalDate dateOfBirth;
 
-    @Schema(required = true, description = "Agency Id", example = "LEI")
+    @Schema(requiredMode = REQUIRED, description = "Agency Id", example = "LEI")
     @NotBlank
     private String agencyLocationId;
 
-    @Schema(required = true, description = "Agency Description", example = "HMP Leeds")
+    @Schema(requiredMode = REQUIRED, description = "Agency Description", example = "HMP Leeds")
     @NotBlank
     private String agencyLocationDesc;
 
-    @Schema(required = true, description = "Description of the location within the prison")
+    @Schema(requiredMode = REQUIRED, description = "Description of the location within the prison")
     @NotBlank
     private String internalLocationDesc;
 

@@ -7,6 +7,8 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @SuppressWarnings("unused")
 @Schema(description = "Summary data for a completed movement")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -14,25 +16,25 @@ import java.time.LocalDateTime;
 @Data
 public class MovementSummary {
 
-    @Schema(required = true, description = "Offender number (NOMS ID)", example = "G3878UK")
+    @Schema(requiredMode = REQUIRED, description = "Offender number (NOMS ID)", example = "G3878UK")
     private String offenderNo;
 
-    @Schema(required = true, description = "Timestamp when the external movement record was created in Europe/London (ISO 8601) format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS.", example = "2019-12-01T13:34:00")
+    @Schema(requiredMode = REQUIRED, description = "Timestamp when the external movement record was created in Europe/London (ISO 8601) format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS.", example = "2019-12-01T13:34:00")
     private LocalDateTime createDateTime;
 
-    @Schema(required = true, description = "The internal event ID", example = "1223232")
+    @Schema(requiredMode = REQUIRED, description = "The internal event ID", example = "1223232")
     private Long eventId;
 
-    @Schema(required = true, description = "Agency travelling from", example = "LEI")
+    @Schema(requiredMode = REQUIRED, description = "Agency travelling from", example = "LEI")
     private String fromAgency;
 
-    @Schema(required = true, description = "Description of the agency travelling from", example = "HMP LEEDS")
+    @Schema(requiredMode = REQUIRED, description = "Description of the agency travelling from", example = "HMP LEEDS")
     private String fromAgencyDescription;
 
-    @Schema(required = true, description = "Agency travelling to", example = "MDI")
+    @Schema(requiredMode = REQUIRED, description = "Agency travelling to", example = "MDI")
     private String toAgency;
 
-    @Schema(required = true, description = "Description of the agency travelling to", example = "HMP MOORLANDS")
+    @Schema(requiredMode = REQUIRED, description = "Description of the agency travelling to", example = "HMP MOORLANDS")
     private String toAgencyDescription;
 
     @Schema(description = "City offender was received from", example = "LEEDS")
@@ -59,19 +61,19 @@ public class MovementSummary {
     @Schema(description = "The escort text", example = "Secure van")
     private String escortText;
 
-    @Schema(required = true, description = "ADM (admission), CRT (court), REL (release), TAP (temporary absence) or TRN (transfer)", example = "ADM", allowableValues = {"ADM","CRT","REL","TAP","TRN"})
+    @Schema(requiredMode = REQUIRED, description = "ADM (admission), CRT (court), REL (release), TAP (temporary absence) or TRN (transfer)", example = "ADM", allowableValues = {"ADM","CRT","REL","TAP","TRN"})
     private String movementType;
 
-    @Schema(required = true, description = "Description of the movement type", example = "Admission")
+    @Schema(requiredMode = REQUIRED, description = "Description of the movement type", example = "Admission")
     private String movementTypeDescription;
 
-    @Schema(required = true, description = "IN or OUT", example = "IN")
+    @Schema(requiredMode = REQUIRED, description = "IN or OUT", example = "IN")
     private String directionCode;
 
-    @Schema(required = true, description = "Movement date and time in Europe/London local time format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS.", example = "2019-12-01T13:34:00")
+    @Schema(requiredMode = REQUIRED, description = "Movement date and time in Europe/London local time format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS.", example = "2019-12-01T13:34:00")
     private LocalDateTime movementTime;
 
-    @Schema(required = true, description = "Description of movement reason", example = "Convicted at court")
+    @Schema(requiredMode = REQUIRED, description = "Description of movement reason", example = "Convicted at court")
     private String movementReason;
 
     @Schema(description = "Comment", example = "This is a free text comment")

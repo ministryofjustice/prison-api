@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.api.model
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED
 import java.time.LocalDateTime
 
 /**
@@ -13,7 +14,7 @@ data class VisitSummary(
   @JsonProperty("startDateTime")
   val startDateTime: LocalDateTime?,
 
-  @Schema(required = true, description = "Whether the prisoner has any visits (previous or next)")
+  @Schema(requiredMode = REQUIRED, description = "Whether the prisoner has any visits (previous or next)")
   @JsonProperty("hasVisits")
   val hasVisits: Boolean = false,
 )

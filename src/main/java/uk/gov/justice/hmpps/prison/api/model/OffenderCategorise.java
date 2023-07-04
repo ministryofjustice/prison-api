@@ -9,22 +9,24 @@ import uk.gov.justice.hmpps.prison.api.support.CategorisationStatus;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Prisoner with categorisation data")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @Data
 public class OffenderCategorise {
 
-    @Schema(required = true, description = "Display Prisoner Number")
+    @Schema(requiredMode = REQUIRED, description = "Display Prisoner Number")
     private String offenderNo;
 
     @NotNull
     private Long bookingId;
 
-    @Schema(required = true, description = "Prisoner First Name")
+    @Schema(requiredMode = REQUIRED, description = "Prisoner First Name")
     private String firstName;
 
-    @Schema(required = true, description = "Prisoner Last Name")
+    @Schema(requiredMode = REQUIRED, description = "Prisoner Last Name")
     private String lastName;
 
     @Schema(description = "Categorisation date if any")
@@ -60,7 +62,7 @@ public class OffenderCategorise {
     @Schema(description = "Next Review Date - for recategorisations")
     private LocalDate nextReviewDate;
 
-    @Schema(required = true, description = "Where in the categorisation workflow the prisoner is")
+    @Schema(requiredMode = REQUIRED, description = "Where in the categorisation workflow the prisoner is")
     private CategorisationStatus status;
 
     public OffenderCategorise(String offenderNo, @NotNull Long bookingId, String firstName, String lastName, LocalDate assessmentDate, LocalDate approvalDate, Integer assessmentSeq, Long assessmentTypeId, String assessStatus, String categoriserFirstName, String categoriserLastName, String approverFirstName, String approverLastName, String category, LocalDate nextReviewDate, CategorisationStatus status) {

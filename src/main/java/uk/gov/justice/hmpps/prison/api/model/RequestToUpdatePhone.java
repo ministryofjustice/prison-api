@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 
 import jakarta.validation.constraints.NotBlank;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Update Phone Request")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder(toBuilder = true)
@@ -17,11 +19,11 @@ import jakarta.validation.constraints.NotBlank;
 @Data
 public class RequestToUpdatePhone {
 
-    @Schema(required = true, description = "Telephone number")
+    @Schema(requiredMode = REQUIRED, description = "Telephone number")
     @NotBlank
     private String number;
 
-    @Schema(required = true, description = "Telephone type")
+    @Schema(requiredMode = REQUIRED, description = "Telephone type")
     @NotBlank
     private String type;
 

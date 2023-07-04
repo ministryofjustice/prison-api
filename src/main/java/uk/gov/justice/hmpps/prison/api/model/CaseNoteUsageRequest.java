@@ -12,6 +12,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Case Note Type Usage Request
  **/
@@ -36,7 +38,7 @@ public class CaseNoteUsageRequest {
     private Integer numMonths = 1;
 
     @Builder.Default
-    @Schema(required = true, description = "a list of offender numbers to search.")
+    @Schema(requiredMode = REQUIRED, description = "a list of offender numbers to search.")
     private List<String> offenderNos = new ArrayList<>();
 
     @Schema(description = "staff Id to use in search (optional).", example = "223423")

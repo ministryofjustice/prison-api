@@ -12,6 +12,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Detail for creating an appointment for a particular bookingId where values should differ from the defaults")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
@@ -20,7 +22,7 @@ import java.time.LocalDateTime;
 @Builder(toBuilder = true)
 public class AppointmentDetails {
 
-    @Schema(required = true, description = "The Booking id of the offender for whom the appointment is to be created.", example = "123456")
+    @Schema(requiredMode = REQUIRED, description = "The Booking id of the offender for whom the appointment is to be created.", example = "123456")
     @NotNull
     private Long bookingId;
 

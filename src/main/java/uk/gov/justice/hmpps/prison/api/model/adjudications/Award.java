@@ -9,6 +9,8 @@ import lombok.EqualsAndHashCode;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Adjudication award / sanction")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
@@ -16,10 +18,10 @@ import java.time.LocalDate;
 @EqualsAndHashCode
 public class Award {
 
-    @Schema(required = true, description = "Id of booking")
+    @Schema(requiredMode = REQUIRED, description = "Id of booking")
     private Long bookingId;
 
-    @Schema(required = true, description = "Type of award")
+    @Schema(requiredMode = REQUIRED, description = "Type of award")
     private String sanctionCode;
 
     @Schema(description = "Award type description")
@@ -37,7 +39,7 @@ public class Award {
     @Schema(description = "Optional details")
     private String comment;
 
-    @Schema(required = true, description = "Start of sanction")
+    @Schema(requiredMode = REQUIRED, description = "Start of sanction")
     private LocalDate effectiveDate;
 
     @Schema(description = "Award status (ref domain OIC_SANCT_ST)")
@@ -46,10 +48,10 @@ public class Award {
     @Schema(description = "Award status description")
     private String statusDescription;
 
-    @Schema(required = true, description = "Id of hearing")
+    @Schema(requiredMode = REQUIRED, description = "Id of hearing")
     private Long hearingId;
 
-    @Schema(required = true, description = "hearing record sequence number")
+    @Schema(requiredMode = REQUIRED, description = "hearing record sequence number")
     private Integer hearingSequence;
 
     public Award(Long bookingId, String sanctionCode, String sanctionCodeDescription, Integer months, Integer days, BigDecimal limit, String comment, LocalDate effectiveDate, String status, String statusDescription, Long hearingId, Integer hearingSequence) {

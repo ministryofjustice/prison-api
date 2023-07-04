@@ -16,6 +16,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Creation details for a new adjudication")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
@@ -24,35 +26,35 @@ import java.util.List;
 @AllArgsConstructor
 public class NewAdjudication {
 
-    @Schema(required = true, description = "Offender number (NOMS ID)", example = "G3878UK")
+    @Schema(requiredMode = REQUIRED, description = "Offender number (NOMS ID)", example = "G3878UK")
     @NotBlank
     private String offenderNo;
 
-    @Schema(required = true, description = "Adjudication number. This must be the value returned by an adjudication creation request", example = "123456")
+    @Schema(requiredMode = REQUIRED, description = "Adjudication number. This must be the value returned by an adjudication creation request", example = "123456")
     @NotNull
     private Long adjudicationNumber;
 
-    @Schema(required = true, description = "The user name of the reporter", example = "G12345")
+    @Schema(requiredMode = REQUIRED, description = "The user name of the reporter", example = "G12345")
     @NotBlank
     private String reporterName;
 
-    @Schema(required = true, description = "When the adjudication was reported", example = "15-06-2020T09:03:11")
+    @Schema(requiredMode = REQUIRED, description = "When the adjudication was reported", example = "15-06-2020T09:03:11")
     @NotNull
     private LocalDateTime reportedDateTime;
 
-    @Schema(required = true, description = "When the incident took place", example = "15-06-2020T09:03:11")
+    @Schema(requiredMode = REQUIRED, description = "When the incident took place", example = "15-06-2020T09:03:11")
     @NotNull
     private LocalDateTime incidentTime;
 
-    @Schema(required = true, description = "The id of the agency related to this incident. Note: If omitted then it will use the agency related to the incidentLocationId that is provided", example = "MDI")
+    @Schema(requiredMode = REQUIRED, description = "The id of the agency related to this incident. Note: If omitted then it will use the agency related to the incidentLocationId that is provided", example = "MDI")
     @NotNull
     private String agencyId;
 
-    @Schema(required = true, description = "The id to indicate where the incident took place. Note: This will be an agency's internal location id")
+    @Schema(requiredMode = REQUIRED, description = "The id to indicate where the incident took place. Note: This will be an agency's internal location id")
     @NotNull
     private Long incidentLocationId;
 
-    @Schema(required = true, description = "The adjudication statement", example = "The offence involved ...")
+    @Schema(requiredMode = REQUIRED, description = "The adjudication statement", example = "The offence involved ...")
     @NotNull
     @MaximumTextSize
     @Size(max = 4000)

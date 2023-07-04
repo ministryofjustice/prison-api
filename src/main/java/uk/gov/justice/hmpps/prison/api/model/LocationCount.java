@@ -16,6 +16,8 @@ import jakarta.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Location Count
  **/
@@ -63,7 +65,7 @@ public class LocationCount {
     /**
      * Phyical Count Id
      */
-    @Schema(required = true, description = "Phyical Count Id")
+    @Schema(requiredMode = REQUIRED, description = "Phyical Count Id")
     @JsonProperty("physicalCountId")
     public Long getPhysicalCountId() {
         return physicalCountId;
@@ -76,7 +78,7 @@ public class LocationCount {
     /**
      * Location Id
      */
-    @Schema(required = true, description = "Location Id")
+    @Schema(requiredMode = REQUIRED, description = "Location Id")
     @JsonProperty("locationId")
     public Long getLocationId() {
         return locationId;
@@ -102,7 +104,7 @@ public class LocationCount {
     /**
      * Initial Count Details
      */
-    @Schema(required = true, description = "Initial Count Details")
+    @Schema(requiredMode = REQUIRED, description = "Initial Count Details")
     @JsonProperty("initialCount")
     public LocationCountDetail getInitialCount() {
         return initialCount;

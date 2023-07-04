@@ -11,6 +11,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Builder
 @Data
 @AllArgsConstructor
@@ -18,25 +20,25 @@ import java.time.LocalDateTime;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Create external movement")
 public class CreateExternalMovement {
-    @Schema(description = "Booking id", required = true, example = "1")
+    @Schema(description = "Booking id", requiredMode = REQUIRED, example = "1")
     @NotNull
     private Long bookingId;
-    @Schema(description = "Agency location moving from", required = true, example = "MDI")
+    @Schema(description = "Agency location moving from", requiredMode = REQUIRED, example = "MDI")
     @NotNull
     private String fromAgencyId;
-    @Schema(description = "Agency location moving to", required = true, example = "OUT")
+    @Schema(description = "Agency location moving to", requiredMode = REQUIRED, example = "OUT")
     @NotNull
     private String toAgencyId;
-    @Schema(description = "Date time of movement", required = true, example = "2020-02-28T14:40:00")
+    @Schema(description = "Date time of movement", requiredMode = REQUIRED, example = "2020-02-28T14:40:00")
     @NotNull
     private LocalDateTime movementTime;
-    @Schema(description = "Type of movement", required = true, example = "TRN")
+    @Schema(description = "Type of movement", requiredMode = REQUIRED, example = "TRN")
     @NotNull
     private String movementType;
-    @Schema(description = "Movement reason", required = true, example = "SEC")
+    @Schema(description = "Movement reason", requiredMode = REQUIRED, example = "SEC")
     @NotNull
     private String movementReason;
-    @Schema(description = "Direction code", required = true, example = "OUT")
+    @Schema(description = "Direction code", requiredMode = REQUIRED, example = "OUT")
     @NotNull
     private MovementDirection directionCode;
 }

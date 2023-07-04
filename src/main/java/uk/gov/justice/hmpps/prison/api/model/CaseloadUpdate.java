@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 
 import jakarta.validation.constraints.NotNull;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Case Load Update
  **/
@@ -23,11 +25,11 @@ import jakarta.validation.constraints.NotNull;
 @Data
 public class CaseloadUpdate {
 
-    @Schema(required = true, description = "Caseload", example = "MDI")
+    @Schema(requiredMode = REQUIRED, description = "Caseload", example = "MDI")
     @NotNull
     private String caseload;
 
-    @Schema(required = true, description = "Number of users enabled to access API", example = "5")
+    @Schema(requiredMode = REQUIRED, description = "Number of users enabled to access API", example = "5")
     @NotNull
     private int numUsersEnabled;
 }

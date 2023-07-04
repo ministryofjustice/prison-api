@@ -11,6 +11,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Categorisation detail for an offender")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
@@ -19,15 +21,15 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class CategorisationDetail {
 
-    @Schema(required = true, description = "Booking Id")
+    @Schema(requiredMode = REQUIRED, description = "Booking Id")
     @NotNull(message = "bookingId must be provided")
     private Long bookingId;
 
-    @Schema(required = true, description = "Category code")
+    @Schema(requiredMode = REQUIRED, description = "Category code")
     @NotNull(message = "category must be provided")
     private String category;
 
-    @Schema(required = true, description = "The assessment committee code (reference code in domain 'ASSESS_COMM')")
+    @Schema(requiredMode = REQUIRED, description = "The assessment committee code (reference code in domain 'ASSESS_COMM')")
     @NotNull(message = "committee must be provided")
     private String committee;
 
@@ -38,7 +40,7 @@ public class CategorisationDetail {
     @Size(max = 4000, message = "Comment text must be a maximum of 4000 characters")
     private String comment;
 
-    @Schema(required = true, description = "The prison to be transferred to")
+    @Schema(requiredMode = REQUIRED, description = "The prison to be transferred to")
     @Size(max = 6, message = "Agency id must be a maximum of 6 characters")
     private String placementAgencyId;
 

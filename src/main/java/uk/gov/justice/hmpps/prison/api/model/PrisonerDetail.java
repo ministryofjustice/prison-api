@@ -12,6 +12,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Prisoner Details
  **/
@@ -24,7 +26,7 @@ import java.time.LocalDate;
 @ToString
 public class PrisonerDetail {
 
-    @Schema(required = true, description = "The prisoner's unique offender number (aka NOMS Number in the UK).", example="A0000AA")
+    @Schema(requiredMode = REQUIRED, description = "The prisoner's unique offender number (aka NOMS Number in the UK).", example="A0000AA")
     @NotBlank
     private String offenderNo;
 
@@ -34,33 +36,33 @@ public class PrisonerDetail {
     @Schema(description = "The prisoner's name suffix.", example="Mac")
     private String suffix;
 
-    @Schema(required = true, description = "The prisoner's first name.", example="Thorfinn")
+    @Schema(requiredMode = REQUIRED, description = "The prisoner's first name.", example="Thorfinn")
     @NotBlank
     private String firstName;
 
     @Schema(description = "The prisoner's middle name(s).", example="Skull-splitter")
     private String middleNames;
 
-    @Schema(required = true, description = "The prisoner's last name.", example="Torf-Einarsson")
+    @Schema(requiredMode = REQUIRED, description = "The prisoner's last name.", example="Torf-Einarsson")
     @NotBlank
     private String lastName;
 
-    @Schema(required = true, description = "The prisoner's date of birth (in YYYY-MM-DD format).", example="1960-02-29")
+    @Schema(requiredMode = REQUIRED, description = "The prisoner's date of birth (in YYYY-MM-DD format).", example="1960-02-29")
     @NotNull
     private LocalDate dateOfBirth;
 
-    @Schema(required = true, description = "The prisoner's gender.", example="Female")
+    @Schema(requiredMode = REQUIRED, description = "The prisoner's gender.", example="Female")
     @NotBlank
     private String gender;
 
-    @Schema(required = true, description = "The prisoner's gender code.", example="F")
+    @Schema(requiredMode = REQUIRED, description = "The prisoner's gender code.", example="F")
     @NotBlank
     private String sexCode;
 
     @Schema(description = "The prisoner's nationality.", example="Scottish")
     private String nationalities;
 
-    @Schema(required = true, description = "Flag (Y or N) to indicate if prisoner is currently in prison.", example="N")
+    @Schema(requiredMode = REQUIRED, description = "Flag (Y or N) to indicate if prisoner is currently in prison.", example="N")
     @NotBlank
     private String currentlyInPrison;
 
@@ -118,15 +120,15 @@ public class PrisonerDetail {
     @Schema(description = "The prisoner's marital status.", example="Single")
     private String maritalStatus;
 
-    @Schema(required = true, description = "The prisoner's current working first name.", example="Thorfinn")
+    @Schema(requiredMode = REQUIRED, description = "The prisoner's current working first name.", example="Thorfinn")
     @NotBlank
     private String currentWorkingFirstName;
 
-    @Schema(required = true, description = "The prisoner's current working last name.", example="Torf-Einarsson")
+    @Schema(requiredMode = REQUIRED, description = "The prisoner's current working last name.", example="Torf-Einarsson")
     @NotBlank
     private String currentWorkingLastName;
 
-    @Schema(required = true, description = "The prisoner's current working date of birth (in YYYY-MM-DD format).", example="1960-02-29")
+    @Schema(requiredMode = REQUIRED, description = "The prisoner's current working date of birth (in YYYY-MM-DD format).", example="1960-02-29")
     @NotNull
     private LocalDate currentWorkingBirthDate;
 

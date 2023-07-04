@@ -11,6 +11,8 @@ import org.apache.commons.lang3.builder.CompareToBuilder;
 
 import java.time.LocalDateTime;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Incident Reponses")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
@@ -20,15 +22,15 @@ import java.time.LocalDateTime;
 @Data
 public class IncidentResponse implements Comparable<IncidentResponse> {
 
-    @Schema(required = true, description = "The Question", example = "Was it a violent assault?")
+    @Schema(requiredMode = REQUIRED, description = "The Question", example = "Was it a violent assault?")
     private String question;
-    @Schema(required = true, description = "The Answer to the Question", example = "YES")
+    @Schema(requiredMode = REQUIRED, description = "The Answer to the Question", example = "YES")
     private String answer;
-    @Schema(required = true, description = "Sequence of presented Questions", example = "2131231")
+    @Schema(requiredMode = REQUIRED, description = "Sequence of presented Questions", example = "2131231")
     private int questionSeq;
-    @Schema(required = true, description = "ID for Questionnaire Question", example = "983431")
+    @Schema(requiredMode = REQUIRED, description = "ID for Questionnaire Question", example = "983431")
     private Long questionnaireQueId;
-    @Schema(required = true, description = "ID for Questionnaire Answer", example = "983434")
+    @Schema(requiredMode = REQUIRED, description = "ID for Questionnaire Answer", example = "983434")
     private Long questionnaireAnsId;
     @Schema(description = "Date response was recorded", example = "2018-03-04T11:00:05")
     private LocalDateTime responseDate;

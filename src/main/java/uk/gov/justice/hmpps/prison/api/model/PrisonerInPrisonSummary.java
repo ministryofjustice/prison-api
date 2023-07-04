@@ -12,6 +12,8 @@ import org.springframework.data.annotation.Id;
 
 import java.util.List;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Prisoners time in prison summary")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
@@ -22,7 +24,7 @@ import java.util.List;
 @ToString
 public class PrisonerInPrisonSummary {
     @Id
-    @Schema(description = "Prisoner Identifier", example = "A1234AA", required = true)
+    @Schema(description = "Prisoner Identifier", example = "A1234AA", requiredMode = REQUIRED)
     private String prisonerNumber;
 
     @Schema(description = "List of date when prisoner was in prison")

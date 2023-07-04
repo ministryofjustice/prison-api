@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDate;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Update Address Request")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder(toBuilder = true)
@@ -18,7 +20,7 @@ import java.time.LocalDate;
 @Data
 public class RequestToUpdateAddress {
 
-    @Schema(description = "Address Type. Note: Reference domain is ADDR_TYPE", example = "BUS", required = true)
+    @Schema(description = "Address Type. Note: Reference domain is ADDR_TYPE", example = "BUS", requiredMode = REQUIRED)
     @NotBlank
     private String addressType;
 
@@ -50,10 +52,10 @@ public class RequestToUpdateAddress {
     @Schema(description = "Comment", example = "This is a comment text")
     private String comment;
 
-    @Schema(required = true, description = "Primary Address", example = "Y")
+    @Schema(requiredMode = REQUIRED, description = "Primary Address", example = "Y")
     private boolean primary;
 
-    @Schema(required = true, description = "No Fixed Address", example = "N")
+    @Schema(requiredMode = REQUIRED, description = "No Fixed Address", example = "N")
     private boolean noFixedAddress;
 
     @Schema(description = "Date Added", example = "2005-05-12")

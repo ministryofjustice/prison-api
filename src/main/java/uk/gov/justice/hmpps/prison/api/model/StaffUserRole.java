@@ -17,6 +17,8 @@ import jakarta.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Staff User Role
  **/
@@ -64,7 +66,7 @@ public class StaffUserRole {
     /**
      * Role Id
      */
-    @Schema(required = true, description = "Role Id")
+    @Schema(requiredMode = REQUIRED, description = "Role Id")
     @JsonProperty("roleId")
     public Long getRoleId() {
         return roleId;
@@ -77,7 +79,7 @@ public class StaffUserRole {
     /**
      * code for this role
      */
-    @Schema(required = true, description = "code for this role")
+    @Schema(requiredMode = REQUIRED, description = "code for this role")
     @JsonProperty("roleCode")
     public String getRoleCode() {
         return roleCode;
@@ -90,7 +92,7 @@ public class StaffUserRole {
     /**
      * Full text description of the role type
      */
-    @Schema(required = true, description = "Full text description of the role type")
+    @Schema(requiredMode = REQUIRED, description = "Full text description of the role type")
     @JsonProperty("roleName")
     public String getRoleName() {
         return roleName;
@@ -129,7 +131,7 @@ public class StaffUserRole {
     /**
      * Staff username
      */
-    @Schema(required = true, description = "Staff username")
+    @Schema(requiredMode = REQUIRED, description = "Staff username")
     @JsonProperty("username")
     public String getUsername() {
         return username;
@@ -142,7 +144,7 @@ public class StaffUserRole {
     /**
      * Staff Id
      */
-    @Schema(required = true, description = "Staff Id")
+    @Schema(requiredMode = REQUIRED, description = "Staff Id")
     @JsonProperty("staffId")
     public Long getStaffId() {
         return staffId;

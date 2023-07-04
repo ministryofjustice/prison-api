@@ -12,6 +12,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Represents the data required for receiving a prisoner transfer")
 @Builder
 @AllArgsConstructor
@@ -21,7 +23,7 @@ import java.time.LocalDateTime;
 @ToString
 public class RequestToTransferIn {
 
-    @Schema(required = true, description = "The time the movement occurred, if not supplied it will be the current time. Note: Time can be in the past but not before the last movement", example = "2020-03-24T12:13:40")
+    @Schema(requiredMode = REQUIRED, description = "The time the movement occurred, if not supplied it will be the current time. Note: Time can be in the past but not before the last movement", example = "2020-03-24T12:13:40")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime receiveTime;
 

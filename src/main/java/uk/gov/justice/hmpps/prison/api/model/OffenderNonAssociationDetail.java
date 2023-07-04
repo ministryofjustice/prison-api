@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Offender non-association detail")
 @Builder(toBuilder = true)
 @AllArgsConstructor
@@ -19,19 +21,19 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode
 public class OffenderNonAssociationDetail {
 
-    @Schema(required = true, description = "The non-association reason code", example = "VIC")
+    @Schema(requiredMode = REQUIRED, description = "The non-association reason code", example = "VIC")
     private String reasonCode;
 
-    @Schema(required = true, description = "The non-association reason description", example = "Victim")
+    @Schema(requiredMode = REQUIRED, description = "The non-association reason description", example = "Victim")
     private String reasonDescription;
 
-    @Schema(required = true, description = "The non-association type code", example = "WING")
+    @Schema(requiredMode = REQUIRED, description = "The non-association type code", example = "WING")
     private String typeCode;
 
-    @Schema(required = true, description = "The non-association type description", example = "Do Not Locate on Same Wing")
+    @Schema(requiredMode = REQUIRED, description = "The non-association type description", example = "Do Not Locate on Same Wing")
     private String typeDescription;
 
-    @Schema(required = true, description = "Date and time the mom-association is effective from. In Europe/London (ISO 8601) format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS.", example = "2019-12-01T13:34:00")
+    @Schema(requiredMode = REQUIRED, description = "Date and time the mom-association is effective from. In Europe/London (ISO 8601) format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS.", example = "2019-12-01T13:34:00")
     private LocalDateTime effectiveDate;
 
     @Schema(description = "Date and time the mom-association expires. In Europe/London (ISO 8601) format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS.", example = "2019-12-01T13:34:00")
@@ -43,6 +45,6 @@ public class OffenderNonAssociationDetail {
     @Schema(description = "Additional free text comments related to the non-association.")
     private String comments;
 
-    @Schema(required = true, description = "The offender with whom not to associate.")
+    @Schema(requiredMode = REQUIRED, description = "The offender with whom not to associate.")
     private OffenderNonAssociation offenderNonAssociation;
 }
