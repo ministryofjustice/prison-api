@@ -14,7 +14,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpStatus.OK;
 
-public class OffenderMovementsResourceIntTest_rescheduleCourtHearing extends ResourceTest {
+public class BookingMovementsResourceIntTest_rescheduleCourtHearing extends ResourceTest {
 
     @Test
     public void reschedule_court_hearing() {

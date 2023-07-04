@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -51,25 +52,14 @@ import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
 @RequestMapping(value = "${api.base.path}/bookings", produces = "application/json")
 @Validated
 @Slf4j
-public class OffenderMovementsResource {
+@AllArgsConstructor
+public class BookingMovementsResource {
 
     private final CourtHearingsService courtHearingsService;
     private final MovementUpdateService movementUpdateService;
     private final PrisonToPrisonMoveSchedulingService prisonToPrisonMoveSchedulingService;
     private final CourtHearingReschedulingService courtHearingReschedulingService;
     private final CourtHearingCancellationService courtHearingCancellationService;
-
-    public OffenderMovementsResource(final CourtHearingsService courtHearingsService,
-                                     final MovementUpdateService movementUpdateService,
-                                     final PrisonToPrisonMoveSchedulingService prisonToPrisonMoveSchedulingService,
-                                     final CourtHearingReschedulingService courtHearingReschedulingService,
-                                     final CourtHearingCancellationService courtHearingCancellationService) {
-        this.courtHearingsService = courtHearingsService;
-        this.movementUpdateService = movementUpdateService;
-        this.prisonToPrisonMoveSchedulingService = prisonToPrisonMoveSchedulingService;
-        this.courtHearingReschedulingService = courtHearingReschedulingService;
-        this.courtHearingCancellationService = courtHearingCancellationService;
-    }
 
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Court hearing created.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CourtHearing.class))}),
