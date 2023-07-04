@@ -31,7 +31,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 import static uk.gov.justice.hmpps.prison.service.support.ReferenceDomain.CELL_MOVE_REASON;
 
-public class OffenderMovementResourceApiTest_moveToCell extends ResourceTest {
+public class BookingMovementsResourceIntTest_moveToCell_mockService extends ResourceTest {
 
     @Autowired
     private TestRestTemplate testRestTemplate;
