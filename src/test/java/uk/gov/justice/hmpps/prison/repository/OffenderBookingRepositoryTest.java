@@ -3,16 +3,21 @@ package uk.gov.justice.hmpps.prison.repository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.SentenceCalcTypeRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl;
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs;
@@ -30,9 +35,17 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @Slf4j
 @DisplayName("OffenderBookingRepositoryTest with OffenderBookingFilter")
 public class OffenderBookingRepositoryTest {
+    @Autowired
+    private SentenceCalcTypeRepository sentenceCalcTypeRepository;
 
     @Autowired
     private OffenderBookingRepository repository;
+
+    @Autowired
+    private AgencyLocationRepository agencyLocationRepository;
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
 
 
     @Test
@@ -123,6 +136,24 @@ public class OffenderBookingRepositoryTest {
         assertThat(pageOfBookings.getContent()).hasSize(2);
 
     }
+
+    @Test
+    void canFindAllBookingsAtEstablishment() {
+
+        final var location = agencyLocationRepository.getReferenceById("LEI");
+
+        final var validCalcTypes = sentenceCalcTypeRepository.findByCalculationTypeIsNotAndCategoryNotContaining(
+            "LICENCE",
+            "AGG"
+        );
+
+        repository.findAllOffenderBookingsByActiveTrueAndLocationAndSentences_CalculationTypeIsNotIn(
+            location,
+            validCalcTypes
+        );
+
+    }
+
     @Test
     @DisplayName("can find by primary key")
     void canFindByPrimaryKey() {

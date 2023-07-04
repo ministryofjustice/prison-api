@@ -10,8 +10,11 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalcType;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -29,6 +32,12 @@ public interface OffenderBookingRepository extends
 
     @EntityGraph(type = EntityGraphType.FETCH, value = "booking-with-sentence-summary")
     Optional<OffenderBooking> findWithSentenceSummaryByOffenderNomsIdAndBookingSequence(String nomsId, Integer bookingSequence);
+
+    @EntityGraph(type = EntityGraphType.FETCH, value = "booking-with-sentence-summary")
+    List<OffenderBooking> findAllOffenderBookingsByActiveTrueAndLocationAndSentences_CalculationTypeIsNotIn(
+       AgencyLocation agencyLocation,
+       List<SentenceCalcType> validCalcTypes
+       );
 
     Optional<OffenderBooking> findByBookingId(Long bookingId);
 

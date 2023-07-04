@@ -59,6 +59,7 @@ import uk.gov.justice.hmpps.prison.repository.BookingRepository;
 import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq;
 import uk.gov.justice.hmpps.prison.repository.SentenceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Caseload;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.GlobalVisitorRestriction;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
@@ -70,10 +71,12 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Person;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.RelationshipType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalcType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.KeyDateValues;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitVisitor;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderChargeRepository;
@@ -82,6 +85,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderFinePayment
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRestrictionRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.SentenceCalcTypeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.SentenceTermRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
@@ -118,7 +122,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.time.LocalDate.now;
-import static java.util.Comparator.comparing;
 import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsLast;
 import static java.util.stream.Collectors.toList;
@@ -134,6 +137,7 @@ import static uk.gov.justice.hmpps.prison.service.transformers.OffenderTransform
 @Validated
 @Slf4j
 public class BookingService {
+    private final AgencyLocationRepository agencyLocationRepository;
 
     private static final String AGENCY_LOCATION_ID_KEY = "agencyLocationId";
     public static final String[] RESTRICTED_ALLOWED_ROLES = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "CREATE_CATEGORISATION", "APPROVE_CATEGORISATION"};
@@ -149,6 +153,7 @@ public class BookingService {
     private final VisitVisitorRepository visitVisitorRepository;
     private final SentenceRepository sentenceRepository;
     private final SentenceTermRepository sentenceTermRepository;
+    private final SentenceCalcTypeRepository sentenceCalcTypeRepository;
     private final AgencyService agencyService;
     private final CaseLoadService caseLoadService;
     private final CaseloadToAgencyMappingService caseloadToAgencyMappingService;
@@ -173,7 +178,7 @@ public class BookingService {
                           final VisitVisitorRepository visitVisitorRepository,
                           final SentenceRepository sentenceRepository,
                           final SentenceTermRepository sentenceTermRepository,
-                          final AgencyService agencyService,
+                          SentenceCalcTypeRepository sentenceCalcTypeRepository, final AgencyService agencyService,
                           final CaseLoadService caseLoadService,
                           final CaseloadToAgencyMappingService caseloadToAgencyMappingService,
                           final AgencyInternalLocationRepository agencyInternalLocationRepository,
@@ -186,6 +191,7 @@ public class BookingService {
                           final OffenderFinePaymentRepository offenderFinePaymentRepository,
                           final OffenderRestrictionRepository offenderRestrictionRepository,
                           final OffenderChargeTransformer offenderChargeTransformer,
+                          final AgencyLocationRepository agencyLocationRepository,
                           @Value("${batch.max.size:1000}")
                           final int maxBatchSize) {
         this.bookingRepository = bookingRepository;
@@ -197,6 +203,7 @@ public class BookingService {
         this.visitVisitorRepository = visitVisitorRepository;
         this.sentenceRepository = sentenceRepository;
         this.sentenceTermRepository = sentenceTermRepository;
+        this.sentenceCalcTypeRepository = sentenceCalcTypeRepository;
         this.agencyService = agencyService;
         this.caseLoadService = caseLoadService;
         this.caseloadToAgencyMappingService = caseloadToAgencyMappingService;
@@ -211,6 +218,7 @@ public class BookingService {
         this.offenderRestrictionRepository = offenderRestrictionRepository;
         this.offenderChargeTransformer = offenderChargeTransformer;
         this.maxBatchSize = maxBatchSize;
+        this.agencyLocationRepository = agencyLocationRepository;
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
@@ -831,6 +839,20 @@ public class BookingService {
             .prisonerNumber(offenderNo)
             .latestPrisonTerm(PrisonTerm.transform(latestBooking))
             .build());
+    }
+
+    public List<OffenderBooking> getActiveBookingsForEstablishment(String caseLoad){
+        AgencyLocation agencyLocation = agencyLocationRepository.getReferenceById(caseLoad);
+
+        // this is cached for performance
+        final List<SentenceCalcType> validCalcTypes = sentenceCalcTypeRepository.findByCalculationTypeIsNotAndCategoryNotContaining(
+            "LICENCE",
+            "AGG"
+        );
+        return offenderBookingRepository.findAllOffenderBookingsByActiveTrueAndLocationAndSentences_CalculationTypeIsNotIn(
+            agencyLocation,
+            validCalcTypes
+        );
     }
 
     public OffenderContacts getOffenderContacts(final Long bookingId, boolean approvedVisitorOnly, boolean activeOnly) {
