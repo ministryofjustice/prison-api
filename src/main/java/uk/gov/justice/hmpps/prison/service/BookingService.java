@@ -842,10 +842,10 @@ public class BookingService {
     }
 
     public List<OffenderBooking> getActiveBookingsForEstablishment(String caseLoad){
-        AgencyLocation agencyLocation = agencyLocationRepository.getReferenceById(caseLoad);
+        final var agencyLocation = agencyLocationRepository.getReferenceById(caseLoad);
 
-        // this is cached for performance
-        final List<SentenceCalcType> validCalcTypes = sentenceCalcTypeRepository.findByCalculationTypeIsNotAndCategoryNotContaining(
+        // Cached because Sentence Types are reference data that rarely change
+        final var validCalcTypes = sentenceCalcTypeRepository.findByCalculationTypeIsNotAndCategoryNotContaining(
             "LICENCE",
             "AGG"
         );
