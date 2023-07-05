@@ -87,21 +87,6 @@ public class PrisonerSearchSteps extends CommonSteps {
         doSearch(expectedStatus, queryUrl, isErrorExpected);
     }
 
-    public void simpleSearch(final List<String> offenderNos, final HttpStatus expectedStatus) {
-        init();
-
-        if (offenderNos.size() > 1) {
-            final var params = new StringBuilder();
-            offenderNos.forEach(value -> params.append(String.format("%s=%s&", "offenderNo", value)));
-
-            doSearch(expectedStatus, String.format(PRISONER_SEARCH, params),
-                            expectedStatus.is4xxClientError() || expectedStatus.is5xxServerError());
-        } else {
-            doSearch(expectedStatus, String.format(PRISONER_SIMPLE_SEARCH, offenderNos.get(0)),
-                            expectedStatus.is4xxClientError() || expectedStatus.is5xxServerError());
-        }
-    }
-
     private String adjustQueryUrl(final String queryUrl) {
         if (!includeAliases) {
             return queryUrl;
