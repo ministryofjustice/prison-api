@@ -1,6 +1,9 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import com.google.common.collect.ImmutableList;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -14,11 +17,11 @@ import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.repository.InmateRepository;
 import uk.gov.justice.hmpps.prison.repository.PrisonerRepository;
+import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Provides operations for locating offenders and other resources across the entire prison estate.
@@ -37,6 +40,14 @@ public class GlobalSearchService {
     public GlobalSearchService(final InmateRepository inmateRepository, final PrisonerRepository prisonerRepository) {
         this.inmateRepository = inmateRepository;
         this.prisonerRepository = prisonerRepository;
+    }
+
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
+    public Page<PrisonerDetail> findOffender(final String offenderNo, final PageRequest pageRequest) {
+        val criteria = PrisonerDetailSearchCriteria.builder()
+            .offenderNos(List.of(offenderNo))
+            .build();
+        return findOffenders(criteria, pageRequest);
     }
 
     public Page<PrisonerDetail> findOffenders(@NotNull @Valid final PrisonerDetailSearchCriteria criteria, final PageRequest pageRequest) {

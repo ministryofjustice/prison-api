@@ -1,22 +1,47 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import io.opentelemetry.sdk.testing.assertj.OpenTelemetryAssertions.assertThat
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.NOT_FOUND
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
+import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.GLOBAL_SEARCH
 
 class PrisonerResourceTest : ResourceTest() {
   @Nested
   @DisplayName("GET /api/prisoners")
   inner class GetPrisoners {
     @Test
+    fun testCanFindSinglePrisoner() {
+      val httpEntity = createEmptyHttpEntity(GLOBAL_SEARCH)
+      val response = testRestTemplate.exchange(
+        "/api/prisoners?offenderNo=A1234AC",
+        HttpMethod.GET,
+        httpEntity,
+        object : ParameterizedTypeReference<String?>() {},
+      )
+      assertThatJsonFileAndStatus(response, HttpStatus.OK, "prisoners_single.json")
+    }
+
+    @Test
+    fun testReturnEmptyArrayWhenOffenderNotFound() {
+      val httpEntity = createEmptyHttpEntity(GLOBAL_SEARCH)
+      val response = testRestTemplate.exchange(
+        "/api/prisoners?ofenderNo=A1476AE",
+        HttpMethod.GET,
+        httpEntity,
+        object : ParameterizedTypeReference<String?>() {},
+      )
+      assertThatJsonAndStatus(response, HttpStatus.OK.value(), "[]")
+    }
+
+    @Test
     fun testCanFindMultiplePrisoners() {
-      val httpEntity = createEmptyHttpEntity(AuthToken.GLOBAL_SEARCH)
+      val httpEntity = createEmptyHttpEntity(GLOBAL_SEARCH)
       val response = testRestTemplate.exchange(
         "/api/prisoners?offenderNo=A1234AC&offenderNo=A1234AA",
         HttpMethod.GET,
@@ -28,7 +53,7 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun testCanFindMultiplePrisonersAndFilterByMoreThanOneCriteria() {
-      val httpEntity = createEmptyHttpEntity(AuthToken.GLOBAL_SEARCH)
+      val httpEntity = createEmptyHttpEntity(GLOBAL_SEARCH)
       val response = testRestTemplate.exchange(
         "/api/prisoners?offenderNo=A1181MV&offenderNo=A1234AC&offenderNo=A1234AA&lastName=BATES",
         HttpMethod.GET,
@@ -37,6 +62,18 @@ class PrisonerResourceTest : ResourceTest() {
       )
       assertThatJsonFileAndStatus(response, HttpStatus.OK, "prisoners_single.json")
     }
+
+    @Test
+    fun testReturn403WhenDoesNotHavePrivs() {
+      val httpEntity = createEmptyHttpEntity(AuthToken.NO_CASELOAD_USER)
+      val response = testRestTemplate.exchange(
+        "/api/prisoners?offenderNo=A1234AC&offenderNo=A1234AA",
+        HttpMethod.GET,
+        httpEntity,
+        object : ParameterizedTypeReference<String?>() {},
+      )
+      assertThatStatus(response, HttpStatus.FORBIDDEN)
+    }
   }
 
   @Nested
@@ -44,7 +81,7 @@ class PrisonerResourceTest : ResourceTest() {
   inner class PostPrisoners {
     @Test
     fun testCanFindMultiplePrisonersUsingPost() {
-      val token = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH)
+      val token = authTokenHelper.getToken(GLOBAL_SEARCH)
       val httpEntity = createHttpEntity(token, "{ \"offenderNos\": [ \"A1234AC\", \"A1234AA\" ] }")
       val response = testRestTemplate.exchange(
         "/api/prisoners",
@@ -57,7 +94,7 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun testCanFindMultiplePrisonersAndFilterByMoreThanOneCriteria() {
-      val token = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH)
+      val token = authTokenHelper.getToken(GLOBAL_SEARCH)
       val httpEntity = createHttpEntity(
         token,
         "{ \"offenderNos\": [ \"A1181MV\", \"A1234AC\", \"A1234AA\" ], \"lastName\": \"BATES\" }",
@@ -77,8 +114,7 @@ class PrisonerResourceTest : ResourceTest() {
   inner class GetPrisonerFullStatus {
     @Test
     fun testCanReturnPrisonerInformationByNomsId() {
-      val token = authTokenHelper.getToken(AuthToken.VIEW_PRISONER_DATA)
-      val httpEntity = createHttpEntity(token, null, emptyMap())
+      val httpEntity = createEmptyHttpEntity(AuthToken.VIEW_PRISONER_DATA)
       val response = testRestTemplate.exchange(
         "/api/prisoners/A1234AA/full-status",
         HttpMethod.GET,
@@ -90,8 +126,7 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun testCanReturnPrisonerInformationByNomsIdWhenReleased() {
-      val token = authTokenHelper.getToken(AuthToken.VIEW_PRISONER_DATA)
-      val httpEntity = createHttpEntity(token, null, emptyMap())
+      val httpEntity = createEmptyHttpEntity(AuthToken.VIEW_PRISONER_DATA)
       val response = testRestTemplate.exchange(
         "/api/prisoners/Z0023ZZ/full-status",
         HttpMethod.GET,
@@ -103,28 +138,26 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun testReturn404WhenOffenderNotFound() {
-      val token = authTokenHelper.getToken(AuthToken.VIEW_PRISONER_DATA)
-      val httpEntity = createHttpEntity(token, null, emptyMap())
+      val httpEntity = createEmptyHttpEntity(AuthToken.VIEW_PRISONER_DATA)
       val response = testRestTemplate.exchange(
         "/api/prisoners/X1111XX/full-status",
         HttpMethod.GET,
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
       )
-      assertThatStatus(response, HttpStatus.NOT_FOUND)
+      assertThatStatus(response, NOT_FOUND)
     }
 
     @Test
     fun testReturn404WhenDoesNotHavePrivs() {
-      val token = authTokenHelper.getToken(AuthToken.NO_CASELOAD_USER)
-      val httpEntity = createHttpEntity(token, null, emptyMap())
+      val httpEntity = createEmptyHttpEntity(AuthToken.NO_CASELOAD_USER)
       val response = testRestTemplate.exchange(
         "/api/prisoners/A1234AA/full-status",
         HttpMethod.GET,
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
       )
-      assertThatStatus(response, HttpStatus.NOT_FOUND)
+      assertThatStatus(response, NOT_FOUND)
     }
   }
 
@@ -133,8 +166,7 @@ class PrisonerResourceTest : ResourceTest() {
   inner class GetPrisoner {
     @Test
     fun testCanReturnPrisonerInformationByNomsId() {
-      val token = authTokenHelper.getToken(AuthToken.VIEW_PRISONER_DATA)
-      val httpEntity = createHttpEntity(token, null, emptyMap())
+      val httpEntity = createEmptyHttpEntity(AuthToken.VIEW_PRISONER_DATA)
       val response = testRestTemplate.exchange(
         "/api/prisoners/A1234AC",
         HttpMethod.GET,
@@ -150,8 +182,7 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun testReturnEmptyArrayWhenOffenderNotFound() {
-      val token = authTokenHelper.getToken(AuthToken.VIEW_PRISONER_DATA)
-      val httpEntity = createHttpEntity(token, null, emptyMap())
+      val httpEntity = createEmptyHttpEntity(AuthToken.VIEW_PRISONER_DATA)
       val response = testRestTemplate.exchange(
         "/api/prisoners/X1111XX",
         HttpMethod.GET,
@@ -162,10 +193,9 @@ class PrisonerResourceTest : ResourceTest() {
     }
 
     @Test
-    @Disabled("SDIT-910: No access restrictions currently on this endpoint")
     fun testReturnEmptyArrayWhenDoesNotHavePrivs() {
-      val token = authTokenHelper.getToken(AuthToken.NO_CASELOAD_USER)
-      val httpEntity = createHttpEntity(token, null, emptyMap())
+      val httpEntity = createEmptyHttpEntity(AuthToken.NO_CASELOAD_USER)
+
       val response = testRestTemplate.exchange(
         "/api/prisoners/A1234AA",
         HttpMethod.GET,
@@ -250,7 +280,7 @@ class PrisonerResourceTest : ResourceTest() {
     }
 
     @Test
-    fun testReturn404WhenDoesNotHavePrivs() {
+    fun testReturn403WhenDoesNotHavePrivs() {
       webTestClient.get()
         .uri("/api/prisoners/prisoner-numbers")
         .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))

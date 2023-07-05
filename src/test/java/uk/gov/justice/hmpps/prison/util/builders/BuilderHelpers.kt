@@ -135,13 +135,13 @@ fun TestDataContext.transferOutToTemporaryAbsence(
 ): LocalDateTime {
   val movementTime = LocalDateTime.now().minusHours(1)
   val request = RequestToTransferOutToTemporaryAbsence(
-    /* toLocation = */ toLocation,
-    /* movementTime = */ movementTime,
-    /* escortType = */ null,
-    /* transferReasonCode = */ "C3",
-    /* commentText = */ "day release",
-    /* shouldReleaseBed = */ shouldReleaseBed,
-    /* courtEventId = */ tapIndividualScheduleEventId,
+    toLocation,
+    movementTime,
+    null,
+    "C3",
+    "day release",
+    shouldReleaseBed,
+    tapIndividualScheduleEventId,
   )
   webTestClient.put()
     .uri("/api/offenders/{nomsId}/temporary-absence-out", offenderNo)
@@ -170,16 +170,14 @@ private fun TestDataContext.setAuthorisation(roles: List<String>): Consumer<Http
   }
 }
 
-fun TestDataContext.validToken(roles: List<String?>?): String? {
-  return this.jwtAuthenticationHelper.createJwt(
-    JwtParameters.builder()
-      .username("ITAG_USER")
-      .scope(listOf("read", "write"))
-      .roles(roles)
-      .expiryTime(Duration.ofDays((365 * 10).toLong()))
-      .build(),
-  )
-}
+fun TestDataContext.validToken(roles: List<String>): String = this.jwtAuthenticationHelper.createJwt(
+  JwtParameters.builder()
+    .username("ITAG_USER")
+    .scope(listOf("read", "write"))
+    .roles(roles)
+    .expiryTime(Duration.ofDays((365 * 10).toLong()))
+    .build(),
+)
 
 fun TestDataContext.createScheduledTemporaryAbsence(
   bookingId: Long,

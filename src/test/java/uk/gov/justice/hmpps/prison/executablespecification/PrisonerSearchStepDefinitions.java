@@ -140,21 +140,6 @@ public class PrisonerSearchStepDefinitions extends AbstractStepDefinitions {
         prisonerSearch.search(ImmutableMap.of("dob", dob), 0, 100, HttpStatus.OK);
     }
 
-    @When("^a search is made for prisoners with an offender number of \"([^\"]*)\"$")
-    public void aSearchIsMadeForPrisonersWithAnOffenderNumberOf(final String offenderNo) throws Throwable {
-        prisonerSearch.search(ImmutableMap.of("offenderNo", offenderNo), 0, 100, HttpStatus.OK);
-    }
-
-    @When("^a search is made for prisoners with an offender number of \"([^\"]*)\" expecting failure$")
-    public void aSearchIsMadeForPrisonersWithFailure(final String offenderNo) throws Throwable {
-        prisonerSearch.search(ImmutableMap.of("offenderNo", offenderNo), 0, 100, HttpStatus.FORBIDDEN);
-    }
-
-    @When("^a search is made for prisoners with offender numbers of \"([^\"]*)\" using simple endpoint$")
-    public void aSimpleSearchIsMadeForPrisonersWithAnOffenderNumberOf(final String offenderNos) throws Throwable {
-        prisonerSearch.simpleSearch(Arrays.asList(StringUtils.split(offenderNos, ",")), HttpStatus.OK);
-    }
-
     @When("^a search is made for prisoners with CRO number of \"([^\"]*)\"$")
     public void aSearchIsMadeForPrisonersWithCRONumberOf(final String cro) throws Throwable {
         final Map<String, String> params = new HashMap<>();

@@ -46,7 +46,7 @@ public class BedAssignmentHistoryService {
         this.maxBatchSize = maxBatchSize;
     }
 
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "UNILINK"})
     @HasWriteScope
     public BedAssignmentHistoryPK add(final Long bookingId, final Long livingUnitId, final String reasonCode, final LocalDateTime time) {
         final var maxSequence = repository.getMaxSeqForBookingId(bookingId);

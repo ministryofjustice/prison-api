@@ -28,6 +28,7 @@ import uk.gov.justice.hmpps.prison.api.model.PrisonerDetailSearchCriteria
 import uk.gov.justice.hmpps.prison.api.support.Order
 import uk.gov.justice.hmpps.prison.api.support.PageRequest
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery
+import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 import uk.gov.justice.hmpps.prison.service.GlobalSearchService
 import java.time.LocalDate
 
@@ -137,26 +138,32 @@ class PrisonerResource(private val globalSearchService: GlobalSearchService) {
   @ApiResponses(
     ApiResponse(responseCode = "200", description = "OK"),
     ApiResponse(responseCode = "400", description = "Invalid request.", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
-    ApiResponse(responseCode = "404", description = "Requested resource not found.", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
     ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
   )
-  @Operation(summary = "List of offenders globally matching the offenderNo.", description = "List of offenders globally matching the offenderNo.")
+  @Operation(
+    summary = "List of offenders globally matching the offenderNo.",
+    description = "List of offenders globally matching the offenderNo, restricted by the VIEW_PRISONER_DATA or SYSTEM_USER role. " +
+      "Returns an empty array if no results are found or if does not have correct permissions",
+  )
   @GetMapping("/{offenderNo}")
   fun getPrisonersOffenderNo(
     @PathVariable("offenderNo")
     @Parameter(description = "The offenderNo to search for", required = true)
     offenderNo: String,
   ): List<PrisonerDetail> {
-    val criteria = PrisonerDetailSearchCriteria.builder()
-      .offenderNos(listOf(offenderNo))
-      .build()
-    log.info("Global Search with search criteria: {}", criteria)
-    return globalSearchService.findOffenders(
-      criteria,
-      PageRequest(null, null, 0L, 1000L),
-    )
-      .also { log.debug("Global Search returned {} records", it.totalRecords) }
-      .items
+    try {
+      log.info("Global Search with search criteria offender No: {}", offenderNo)
+      return globalSearchService.findOffender(
+        offenderNo,
+        PageRequest(null, null, 0L, 1000L),
+      )
+        .also {
+          log.debug("Global Search returned {} records", it.totalRecords)
+        }
+        .items
+    } catch (enfe: EntityNotFoundException) {
+      return listOf()
+    }
   }
 
   @ApiResponses(

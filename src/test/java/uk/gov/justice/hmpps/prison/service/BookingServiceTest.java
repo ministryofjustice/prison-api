@@ -70,6 +70,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitVisitor;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.WarZone;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderChargeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPersonsRepository;
@@ -77,6 +78,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderFinePayment
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRestrictionRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.SentenceCalcTypeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.SentenceTermRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
@@ -148,6 +150,9 @@ public class BookingServiceTest {
     private OffenderSentenceRepository offenderSentenceRepository;
     @Mock
     private SentenceRepository sentenceRepository;
+
+    @Mock
+    private SentenceCalcTypeRepository sentenceCalcTypeRepository;
     @Mock
     private SentenceTermRepository sentenceTermRepository;
     @Mock
@@ -158,6 +163,9 @@ public class BookingServiceTest {
     private CaseLoadService caseLoadService;
     @Mock
     private OffenderChargeTransformer offenderChargeTransformer;
+
+    @Mock
+    private AgencyLocationRepository agencyLocationRepository;
     private BookingService bookingService;
 
     @BeforeEach
@@ -172,6 +180,7 @@ public class BookingServiceTest {
                 visitVisitorRepository,
                 sentenceRepository,
                 sentenceTermRepository,
+                sentenceCalcTypeRepository,
                 agencyService,
                 caseLoadService,
                 caseloadToAgencyMappingService,
@@ -185,6 +194,7 @@ public class BookingServiceTest {
                 offenderFinePaymentRepository,
                 offenderRestrictionRepository,
                 offenderChargeTransformer,
+                agencyLocationRepository,
                 10);
     }
 
