@@ -129,11 +129,18 @@ public class NomisApiV1Resource {
             @ApiResponse(responseCode = "400", description = "Invalid Noms ID", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Offender not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Fetch alerts by offender", description = "Returns all active alerts for the specified offender or those that meet the optional criteria. Active alerts are listed first, followed by inactive alerts, both sorted by ascending order of alert date.<br/>" +
-            "<ul><li>if alert_type is specified then only alerts of that type are returned</li>" +
-            "<li>if modified_since is specified then only those alerts created or modified on or after the specified date time. The following formats are supported: 2018-01-10, 2018-01-10 03:34, 2018-01-10 03:34:12, 2018-01-10 03:34:12.123</li>" +
-            "<li>If include_inactive=true is specified then inactive alerts are also returned.</li></ul>")
+    @Operation(summary = "Fetch alerts by offender", description = """
+            Returns all active alerts for the specified offender or those that meet the optional criteria. Active alerts are listed first, followed by inactive alerts, both sorted by ascending order of alert date.<br/>
+            <ul>
+              <li>if alert_type is specified then only alerts of that type are returned</li>
+              <li>if modified_since is specified then only those alerts created or modified on or after the specified date time. The following formats are supported: 2018-01-10, 2018-01-10 03:34, 2018-01-10 03:34:12, 2018-01-10 03:34:12.123</li>
+              <li>If include_inactive=true is specified then inactive alerts are also returned.</li>
+            </ul>
+            Requires NOMIS_API_V1 or UNILINK role.
+            """
+    )
     @GetMapping("/offenders/{noms_id}/alerts")
+    @Tag(name = "unilink")
     @SlowReportQuery
     public Alerts getAlerts(@Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @Parameter(name = "noms_id", description = "Offender Noms Id", example = "A1583AE", required = true) final String nomsId, @RequestParam(value = "alert_type", required = false) @Parameter(name = "alert_type", description = "Alert Type, if alert_type is specified then only alerts of that type are returned", example = "H") final String alertType, @RequestParam(value = "modified_since", required = false) @Parameter(name = "modified_since", description = "Modified Since - if modified_since is specified then only those alerts created or modified on or after the specified date time. The following formats are supported: 2018-01-10, 2018-01-10 03:34, 2018-01-10 03:34:12, 2018-01-10 03:34:12.123", example = "2017-10-07T12:23:45.678") final String modifiedSince, @RequestParam(value = "include_inactive", required = false, defaultValue = "false") @Parameter(name = "include_inactive", description = "Include Inactive alerts, If include_inactive=true is specified then inactive alerts are also returned.", example = "true") final boolean includeInactive) {
         final var alerts = service.getAlerts(nomsId, includeInactive, optionalStrToLocalDateTime(modifiedSince)).stream()
@@ -147,18 +154,25 @@ public class NomisApiV1Resource {
             @ApiResponse(responseCode = "400", description = "Invalid Noms ID", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Offender not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Fetch events", description = "Returns all events that required to update the prisoner self service application. Currently these are:" +
-            "<ul><li>ALERT</li>" +
-            "<li>DISCHARGE</li>" +
-            "<li>IEP_CHANGED</li>" +
-            "<li>INTERNAL_LOCATION_CHANGED</li>" +
-            "<li>NOMS_ID_CHANGED</li>" +
-            "<li>PERSONAL_DETAILS_CHANGED</li>" +
-            "<li>PERSONAL_OFFICER_CHANGED</li>" +
-            "<li>RECEPTION</li>" +
-            "<li>SENTENCE_INFORMATION_CHANGED</li>" +
-            "<li>BALANCE_UPDATE</li></ul>")
+    @Operation(summary = "Fetch events", description = """
+            Returns all events that required to update the prisoner self service application. Currently these are:
+            <ul>
+              <li>ALERT</li>
+              <li>DISCHARGE</li>
+              <li>IEP_CHANGED</li>
+              <li>INTERNAL_LOCATION_CHANGED</li>
+              <li>NOMS_ID_CHANGED</li>
+              <li>PERSONAL_DETAILS_CHANGED</li>
+              <li>PERSONAL_OFFICER_CHANGED</li>
+              <li>RECEPTION</li>
+              <li>SENTENCE_INFORMATION_CHANGED</li>
+              <li>BALANCE_UPDATE</li>
+            </ul>
+            Requires NOMIS_API_V1 or UNILINK role.
+            """
+    )
     @GetMapping("/offenders/events")
+    @Tag(name = "unilink")
     @SlowReportQuery
     public Events getOffenderEvents(@Size(max = 3) @RequestParam("prison_id") @Parameter(name = "prison_id", description = "Prison ID", example = "BMI") final String prisonId, @RequestParam(value = "offender_id", required = false) @Parameter(name = "offender_id", description = "Offender Noms Id", example = "A1417AE") final String offenderIdentifier, @RequestParam(value = "event_type", required = false) @Parameter(name = "event_type", description = "Event Type", example = "ALERT") final String eventType, @RequestParam("from_datetime") @Parameter(name = "from_datetime", description = "From Date Time. The following formats are supported: 2018-01-10, 2018-01-10 03:34, 2018-01-10 03:34:12, 2018-01-10 03:34:12.123", example = "2017-10-07T12:23:45.678") final String fromDateTime, @RequestParam(value = "limit", required = false) @Parameter(name = "limit", description = "Number of events to return", example = "100") final Long limit) {
         final var events = service.getEvents(prisonId, new OffenderIdentifier(offenderIdentifier), eventType, optionalStrToLocalDateTime(fromDateTime), limit);
@@ -209,23 +223,30 @@ public class NomisApiV1Resource {
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "409", description = "Duplicate post - The unique_client_ref has been used before", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Post a financial transaction to NOMIS.", description = "The valid prison_id and type combinations are defined in the Nomis transaction_operations table which is maintained by the Maintain Transaction Operations screen (OCMTROPS), from the Financials Maintenance menu. Only those prisons (Caseloads) and Transaction types associated with the NOMISAPI module are valid.<br/>" +
-            "This will be setup by script intially as part of the deployment process as shown below<br/><br/>" +
-            "<table>" +
-            "<tr><th>Transaction Type</th><th>Description</th><th>Digital Prison</th><th>Non Digital Prison</th></tr>" +
-            "<tr><td>CANT</td><td>Canteen Spend</td><td>Yes</td><td>No</td></tr>" +
-            "<tr><td>REFND</td><td>Canteen Refund</td><td>Yes</td><td>No</td></tr>" +
-            "<tr><td>PHONE</td><td>Phone Credit</td><td>Yes</td><td>No</td></tr>" +
-            "<tr><td>MRPR</td><td>Misc Receipt - Private Cash</td><td>Yes</td><td>Yes</td></tr>" +
-            "<tr><td>MTDS</td><td>Money through digital service</td><td>Yes</td><td>Yes</td></tr>" +
-            "<tr><td>DTDS</td><td>Disbursement through Digital service</td><td>Yes</td><td>Yes</td></tr>" +
-            "<tr><td>CASHD</td><td>Cash Disbursement</td><td>Yes</td><td>Yes</td></tr>" +
-            "<tr><td>RELA</td><td>Money to Relatives</td><td>Yes</td><td>Yes</td></tr>" +
-            "<tr><td>RELS</td><td>Money to Relatives- Spends</td><td>Yes</td><td>Yes</td></tr>" +
-            "</table>Notes:<br/><ul>" +
-            "<li>The sub_account the amount is debited or credited from will be determined by the transaction_type definition in NOMIS.</li>" +
-            "<li>If the field X-Client-Name is present in the request header then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.</li>" +
-            "<li>The client_unique_ref can have a maximum of 64 characters, only alphabetic, numeric, ‘-’ and ‘_’ characters are allowed</li></ul>")
+    @Operation(summary = "Post a financial transaction to NOMIS.", description = """
+            The valid prison_id and type combinations are defined in the Nomis transaction_operations table which is maintained by the Maintain Transaction Operations screen (OCMTROPS), from the Financials Maintenance menu. Only those prisons (Caseloads) and Transaction types associated with the NOMISAPI module are valid.<br/>
+            This will be setup by script intially as part of the deployment process as shown below<br/><br/>
+            <table>
+              <tr><th>Transaction Type</th><th>Description</th><th>Digital Prison</th><th>Non Digital Prison</th></tr>
+              <tr><td>CANT</td><td>Canteen Spend</td><td>Yes</td><td>No</td></tr>
+              <tr><td>REFND</td><td>Canteen Refund</td><td>Yes</td><td>No</td></tr>
+              <tr><td>PHONE</td><td>Phone Credit</td><td>Yes</td><td>No</td></tr>
+              <tr><td>MRPR</td><td>Misc Receipt - Private Cash</td><td>Yes</td><td>Yes</td></tr>
+              <tr><td>MTDS</td><td>Money through digital service</td><td>Yes</td><td>Yes</td></tr>
+              <tr><td>DTDS</td><td>Disbursement through Digital service</td><td>Yes</td><td>Yes</td></tr>
+              <tr><td>CASHD</td><td>Cash Disbursement</td><td>Yes</td><td>Yes</td></tr>
+              <tr><td>RELA</td><td>Money to Relatives</td><td>Yes</td><td>Yes</td></tr>
+              <tr><td>RELS</td><td>Money to Relatives- Spends</td><td>Yes</td><td>Yes</td></tr>
+            </table>Notes:<br/>
+            <ul>
+              <li>The sub_account the amount is debited or credited from will be determined by the transaction_type definition in NOMIS.</li>
+              <li>If the field X-Client-Name is present in the request header then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.</li>
+              <li>The client_unique_ref can have a maximum of 64 characters, only alphabetic, numeric, ‘-’ and ‘_’ characters are allowed</li>
+            </ul>
+            Requires NOMIS_API_V1 or UNILINK role.
+            """
+    )
+    @Tag(name = "unilink")
     @PostMapping("/prison/{prison_id}/offenders/{noms_id}/transactions")
     @HasWriteScope
     @ProxyUser
@@ -264,8 +285,9 @@ public class NomisApiV1Resource {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Not a digital prison.  Prison not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Fetching live roll.")
+    @Operation(summary = "Fetching live roll.", description = "Requires NOMIS_API_V1 or UNILINK role.")
     @GetMapping("/prison/{prison_id}/live_roll")
+    @Tag(name = "unilink")
     @SlowReportQuery
     public LiveRoll getLiveRoll(@Size(max = 3) @NotNull @PathVariable("prison_id") @Parameter(name = "prison_id", description = "Prison ID", example = "BMI", required = true) final String prisonId) {
         return new LiveRoll(service.getLiveRoll(prisonId));
@@ -276,11 +298,18 @@ public class NomisApiV1Resource {
             @ApiResponse(responseCode = "400", description = "Invalid Noms ID", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Offender not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Get the PSS detail by offender", description = "Returns the PSS detail information for the specified offender including personal data, warnings, sentence details and location information.<br/>" +
-            "<ul><li>The 'type' field is always OFFENDER_DETAILS_REQUEST</li><br/>" +
-            "<li>The field 'offender_details_request' contains a JSON block of data containing the offender data.</li></ul>" +
-            "The format of 'offender_details_request' is not specified here.")
+    @Operation(summary = "Get the PSS detail by offender", description = """
+            Returns the PSS detail information for the specified offender including personal data, warnings, sentence details and location information.<br/>
+            <ul>
+              <li>The 'type' field is always OFFENDER_DETAILS_REQUEST</li>
+              <li>The field 'offender_details_request' contains a JSON block of data containing the offender data.</li>
+            </ul>
+            The format of 'offender_details_request' is not specified here.<br/>
+            Requires NOMIS_API_V1 or UNILINK role.
+            """
+    )
     @GetMapping("/offenders/{noms_id}/pss_detail")
+    @Tag(name = "unilink")
     @SlowReportQuery
     public Event getOffenderPssDetail(@Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @Parameter(name = "noms_id", description = "Offender Noms Id", example = "A1404AE", required = true) final String nomsId) {
         return service.getOffenderPssDetail(nomsId);
@@ -296,14 +325,22 @@ public class NomisApiV1Resource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Store a payment for an offender account.", description = """
         Pay events will be stored in a table on receipt by Nomis to be processed by a batch job scheduled to run after the last Nomis payroll batch job but before the advances and scheduled payments batch jobs.
-        <br/>Possible payment types are:<br/><table><tr><td>A_EARN</td><td>Credit, Offender Payroll</td></tr><tr><td>ADJ</td><td>Debit, Adjudication Award</td></tr></table><br/>Example request:<br/>{
+        <br/>Possible payment types are:<br/><table><tr><td>A_EARN</td><td>Credit, Offender Payroll</td></tr><tr><td>ADJ</td><td>Debit, Adjudication Award</td></tr></table><br/>Example request:<br/>
+        <pre>
+        {
           "type": "A_EARN",
           "description": "May earnings",
           "amount": 1,
           "client_transaction_id": "PAY-05-19"
-        }<br/>The valid prison_id and type combinations are defined in the Nomis transaction_operations table which is maintained by the Maintain Transaction Operations screen (OCMTROPS), from the Financials Maintenance menu.
-        Only those prisons (Caseloads) and Transaction types associated with the NOMISAPI module are valid.<br/>This will be setup by script intially as part of the deployment process as shown below<br/><br/>""")
+        }
+        </pre>
+        <br/>The valid prison_id and type combinations are defined in the Nomis transaction_operations table which is maintained by the Maintain Transaction Operations screen (OCMTROPS), from the Financials Maintenance menu.
+        Only those prisons (Caseloads) and Transaction types associated with the NOMISAPI module are valid.<br/>This will be setup by script intially as part of the deployment process as shown below<br/><br/>
+        Requires NOMIS_API_V1 or UNILINK role.
+        """
+    )
     @PostMapping("/prison/{prison_id}/offenders/{noms_id}/payment")
+    @Tag(name = "unilink")
     @HasWriteScope
     @ProxyUser
     public PaymentResponse storePayment(@Size(max = 3) @NotNull @PathVariable("prison_id") @Parameter(name = "prison_id", description = "Prison ID", example = "BMI", required = true) final String prisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @Parameter(name = "noms_id", description = "Offender Noms Id", example = "A1417AE", required = true) final String nomsId, @jakarta.validation.Valid @NotNull @RequestBody @Parameter(description = "Transaction Details", required = true) final StorePaymentRequest payment) {
@@ -315,9 +352,14 @@ public class NomisApiV1Resource {
             @ApiResponse(responseCode = "400", description = "Not a digital prison.  Prison not found. Offender has no account at this prison.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Prison or offender was not found", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Retrieve an offender's financial account balances.", description = "Returns balances for the offender’s three sub accounts (spends, savings and cash) at the specified prison.<br/>" +
-            "All balance values are represented as pence values.")
+    @Operation(summary = "Retrieve an offender's financial account balances.", description = """
+            Returns balances for the offender’s three sub accounts (spends, savings and cash) at the specified prison.<br/>
+            All balance values are represented as pence values.<br/>
+            Requires NOMIS_API_V1 or UNILINK role.
+            """
+    )
     @GetMapping("/prison/{prison_id}/offenders/{noms_id}/accounts")
+    @Tag(name = "unilink")
     @SlowReportQuery
     public AccountBalance getAccountBalance(@Size(max = 3) @NotNull @PathVariable("prison_id") @Parameter(name = "prison_id", description = "Prison ID", example = "WLI", required = true) final String prisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @Parameter(name = "noms_id", description = "Offender Noms Id", example = "A1404AE", required = true) final String nomsId) {
         return service.getAccountBalances(prisonId, nomsId);
@@ -328,9 +370,14 @@ public class NomisApiV1Resource {
             @ApiResponse(responseCode = "400", description = "Not a digital prison.  Prison not found. Offender has no account at this prison.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Prison or offender was not found", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Deprecated - use the version without the trailing slash. Retrieve an offender's financial account balances.", description = "Returns balances for the offender’s three sub accounts (spends, savings and cash) at the specified prison.<br/>" +
-            "All balance values are represented as pence values.")
+    @Operation(summary = "Deprecated - use the version without the trailing slash. Retrieve an offender's financial account balances.", description = """
+            Returns balances for the offender’s three sub accounts (spends, savings and cash) at the specified prison.<br/>
+            All balance values are represented as pence values.<br/>
+            Requires NOMIS_API_V1 or UNILINK role.
+            """
+    )
     @GetMapping("/prison/{prison_id}/offenders/{noms_id}/accounts/")
+    @Tag(name = "unilink")
     @SlowReportQuery
     @Deprecated
     public AccountBalance getAccountBalanceTrailingSlash(@Size(max = 3) @NotNull @PathVariable("prison_id") @Parameter(name = "prison_id", description = "Prison ID", example = "WLI", required = true) final String prisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @Parameter(name = "noms_id", description = "Offender Noms Id", example = "A1404AE", required = true) final String nomsId) {
@@ -342,9 +389,14 @@ public class NomisApiV1Resource {
             @ApiResponse(responseCode = "400", description = "Not a digital prison.  Prison not found. Offender has no account at this prison.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Prison, offender or accountType not found", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Retrieve an offender's financial transaction history for cash, spends or savings.", description = "Transactions are returned in NOMIS ordee (Descending date followed by id).<br/>" +
-            "All transaction amounts are represented as pence values.")
+    @Operation(summary = "Retrieve an offender's financial transaction history for cash, spends or savings.", description = """
+            Transactions are returned in NOMIS ordee (Descending date followed by id).<br/>
+            All transaction amounts are represented as pence values.<br/>
+            Requires NOMIS_API_V1 or UNILINK role.
+            """
+    )
     @GetMapping("/prison/{prison_id}/offenders/{noms_id}/accounts/{account_code}/transactions")
+    @Tag(name = "unilink")
     @SlowReportQuery
     public AccountTransactions getAccountTransactions(@Size(max = 3) @NotNull @PathVariable("prison_id") @Parameter(name = "prison_id", description = "Prison ID", example = "WLI", required = true) final String prisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @Parameter(name = "noms_id", description = "Offender Noms Id", example = "A1404AE", required = true) final String nomsId, @NotNull @PathVariable("account_code") @Parameter(name = "account_code", description = "Account code", example = "spends", required = true, schema = @Schema(implementation = String.class, allowableValues = {"spends","cash","savings"})) final String accountCode, @RequestParam(value = "from_date", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(name = "from_date", description = "Start date for transactions (defaults to today if not supplied)", example = "2019-04-01") final LocalDate fromDate, @RequestParam(value = "to_date", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(name = "to_date", description = "To date for transactions (defaults to today if not supplied)", example = "2019-05-01") final LocalDate toDate) {
         final var transactions = service.getAccountTransactions(prisonId, nomsId, accountCode, fromDate, toDate);
@@ -356,8 +408,13 @@ public class NomisApiV1Resource {
             @ApiResponse(responseCode = "400", description = "Not a digital prison.  Prison not found. Offender has no account at this prison.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Prison, offender or accountType not found", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Retrieve a single financial transaction using client unique ref.", description = "All transaction amounts are represented as pence values.")
+    @Operation(summary = "Retrieve a single financial transaction using client unique ref.", description = """
+        All transaction amounts are represented as pence values.<br/>
+        Requires NOMIS_API_V1 or UNILINK role.
+        """
+    )
     @GetMapping("/prison/{prison_id}/offenders/{noms_id}/transactions/{client_unique_ref}")
+    @Tag(name = "unilink")
     @SlowReportQuery
     public AccountTransaction getTransactionByClientUniqueRef(@RequestHeader(value = "X-Client-Name", required = false) @Parameter(name = "X-Client-Name", description = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") final String clientName, @Size(max = 3) @NotNull @PathVariable("prison_id") @Parameter(name = "prison_id", description = "Prison ID", example = "WLI", required = true) final String prisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @Parameter(name = "noms_id", description = "Offender Noms Id", example = "A1404AE", required = true) final String nomsId, @Pattern(regexp = CLIENT_UNIQUE_REF_PATTERN) @Size(max = 64) @PathVariable("client_unique_ref") @Parameter(name = "client_unique_ref", description = "Client unique reference", required = true) final String clientUniqueRef) {
         final var uniqueClientId = getUniqueClientId(clientName, clientUniqueRef);
