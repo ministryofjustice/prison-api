@@ -149,7 +149,7 @@ class PrisonerResourceTest : ResourceTest() {
     }
 
     @Test
-    fun testReturn404WhenOffenderNotFound() {
+    fun testReturnEmptyArrayWhenOffenderNotFound() {
       val token = authTokenHelper.getToken(AuthToken.VIEW_PRISONER_DATA)
       val httpEntity = createHttpEntity(token, null, emptyMap())
       val response = testRestTemplate.exchange(
@@ -158,11 +158,11 @@ class PrisonerResourceTest : ResourceTest() {
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
       )
-      assertThat(response.statusCode).isEqualTo(NOT_FOUND)
+      assertThatJsonAndStatus(response, HttpStatus.OK.value(), "[]")
     }
 
     @Test
-    fun testReturn404WhenDoesNotHavePrivs() {
+    fun testReturnEmptyArrayWhenDoesNotHavePrivs() {
       val token = authTokenHelper.getToken(AuthToken.NO_CASELOAD_USER)
       val httpEntity = createHttpEntity(token, null, emptyMap())
       val response = testRestTemplate.exchange(
@@ -171,7 +171,7 @@ class PrisonerResourceTest : ResourceTest() {
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
       )
-      assertThat(response.statusCode).isEqualTo(NOT_FOUND)
+      assertThatJsonAndStatus(response, HttpStatus.OK.value(), "[]")
     }
   }
 
