@@ -46,7 +46,7 @@ public class MovementUpdateService {
     }
 
     @Transactional
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"ROLE_SYSTEM_USER", "ROLE_UNILINK"})
     @HasWriteScope
     public CellMoveResult moveToCell(final Long bookingId, final String internalLocationDescription, final String reasonCode, final LocalDateTime dateTime) {
         validateMoveToCell(reasonCode, dateTime);
