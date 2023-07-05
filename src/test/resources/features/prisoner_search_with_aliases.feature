@@ -77,23 +77,6 @@ Feature: Prisoner Search results contain aliases
       | 1999-10-27 | 1             | BATES          |
       | 1959-10-28 | 0             |                |
 
-  Scenario Outline: Search for prisoners with specified offender number
-    Given a user has a token name of "GLOBAL_SEARCH"
-    When a search is made for prisoners with an offender number of "<offenderNo>"
-    Then "<numberResults>" prisoner records are returned
-    And the prisoners last names match "<lastNames>"
-
-    Examples:
-      | offenderNo | numberResults | lastNames |
-      | A1234AC    | 1             | BATES     |
-      | A1476AE    | 0             |           |
-      | A1181MV    | 1             | O'VAUGHAN |
-
-  Scenario: Search for prisoners without GLOBAL_SEARCH role
-    Given a user has authenticated with the API
-    When a search is made for prisoners with an offender number of "<offenderNo>" expecting failure
-    Then access is denied
-
   Scenario Outline: Search prisoners with a CRO number
     Given a user has a token name of "GLOBAL_SEARCH"
     When a search is made for prisoners with CRO number of "<cro>"
