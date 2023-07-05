@@ -447,6 +447,30 @@ public class AdjudicationsService {
         );
     }
 
+    protected OicSanction validateConsecutiveReportNumber(Long consecutiveReportNumber) {
+        final var exitingOicSanctions = oicSanctionRepository.findByOicHearingId(consecutiveReportNumber);
+
+        if (exitingOicSanctions.isEmpty()) {
+            throw new EntityNotFoundException(format("Could not find sanctions for consecutiveReportNumber %d", consecutiveReportNumber));
+        }
+
+        final var firstOicSanction = exitingOicSanctions.get(0);
+
+        if (firstOicSanction.getOffenderBookId() == null) {
+            throw new ValidationException(format("consecutiveReportNumber %d is not linked to offenderBookId", consecutiveReportNumber));
+        }
+
+        if (firstOicSanction.getResultSeq() == null) {
+            throw new ValidationException(format("consecutiveReportNumber %d does not have a result seq", consecutiveReportNumber));
+        }
+
+        if (firstOicSanction.getSanctionDays() == null) {
+            throw new ValidationException(format("consecutiveReportNumber %d does not have sanction days", consecutiveReportNumber));
+        }
+
+        return firstOicSanction;
+    }
+
     @Transactional
     public List<Sanction> createOicSanctions(
         final Long adjudicationNumber,
@@ -463,10 +487,17 @@ public class AdjudicationsService {
         final var oicSanctions = new ArrayList<OicSanction>();
         int index = 0;
         for (var request : oicSanctionRequests) {
+
+            final var oicSanction = request.getConsecutiveReportNumber() != null
+                ? validateConsecutiveReportNumber(request.getConsecutiveReportNumber())
+                : null;
+
             // flushing removes error in trigger OFFENDER_OIC_SANCTIONS_T1 on insert
             oicSanctions.add(oicSanctionRepository.saveAndFlush(OicSanction.builder()
                 .offenderBookId(result.offenderBookId())
                 .sanctionSeq(nextSanctionSeq + index)
+                .consecutiveSanctionSeq(oicSanction == null ? null : oicSanction.getConsecutiveSanctionSeq())
+                .consecutiveOffenderBookId(oicSanction == null ? null : oicSanction.getOffenderBookId())
                 .oicSanctionCode(request.getOicSanctionCode())
                 .compensationAmount(request.getCompensationAmount() == null ? null : BigDecimal.valueOf(request.getCompensationAmount()))
                 .sanctionDays(request.getSanctionDays())
