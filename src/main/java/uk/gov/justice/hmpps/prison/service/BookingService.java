@@ -805,7 +805,7 @@ public class BookingService {
     }
 
     @Transactional
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "UNILINK"})
     @HasWriteScope
     public void updateLivingUnit(final Long bookingId, final AgencyInternalLocation location) {
         final var offenderBooking = offenderBookingRepository.findById(bookingId)

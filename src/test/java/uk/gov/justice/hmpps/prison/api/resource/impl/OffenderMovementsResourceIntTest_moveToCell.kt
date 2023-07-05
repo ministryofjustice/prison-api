@@ -129,11 +129,11 @@ class OffenderMovementsResourceIntTest_moveToCell : ResourceTest() {
     val response = requestMoveToCell(
       createJwt("unilink", listOf("ROLE_UNILINK")),
       OFFENDER_NO,
-      INITIAL_CELL_DESC,
+      NEW_CELL_DESC,
       "BEH",
-      dateTime.plusMinutes(1).format(ISO_LOCAL_DATE_TIME),
+      dateTime.format(ISO_LOCAL_DATE_TIME),
     )
-    verifySuccessResponse(response, BOOKING_ID, INITIAL_CELL, INITIAL_CELL_DESC)
+    verifySuccessResponse(response, BOOKING_ID, NEW_CELL, NEW_CELL_DESC)
   }
 
   @Test
@@ -257,28 +257,22 @@ class OffenderMovementsResourceIntTest_moveToCell : ResourceTest() {
   private fun differentAgencyToken(): String = jwtAuthenticationHelper.createJwt(
     JwtParameters.builder()
       .username("WAI_USER")
-      .scope(listOf<String?>("read", "write"))
+      .scope(listOf("read", "write"))
       .roles(listOf())
       .expiryTime(Duration.ofDays((365 * 10).toLong()))
       .build(),
   )
 
   private fun requestMoveToCell(
-    bearerToken: String?,
-    offenderNo: String?,
-    livingUnitId: String?,
-    reasonCode: String?,
-    dateTime: String?,
+    bearerToken: String,
+    offenderNo: String,
+    livingUnitId: String,
+    reasonCode: String,
+    dateTime: String,
   ): ResponseEntity<String?>? {
     val entity = createHttpEntity(bearerToken, null)
     return testRestTemplate.exchange(
-      String.format(
-        "/api/offenders/%s/living-unit/%s?reasonCode=%s&dateTime=%s",
-        offenderNo,
-        livingUnitId,
-        reasonCode,
-        dateTime,
-      ),
+      "/api/offenders/$offenderNo/living-unit/$livingUnitId?reasonCode=$reasonCode&dateTime=$dateTime",
       HttpMethod.PUT,
       entity,
       object : ParameterizedTypeReference<String?>() {},
@@ -287,17 +281,17 @@ class OffenderMovementsResourceIntTest_moveToCell : ResourceTest() {
 
   private fun verifySuccessResponse(
     response: ResponseEntity<String?>?,
-    bookingId: Long?,
-    internalLocationId: Long?,
-    internalLocationDesc: String?,
+    bookingId: Long,
+    internalLocationId: Long,
+    internalLocationDesc: String,
   ) {
     assertThat(response!!.statusCode).isEqualTo(HttpStatus.OK)
     assertThat(getBodyAsJsonContent<Any?>(response)).extractingJsonPathNumberValue("$.bookingId").isEqualTo(
-      bookingId?.toInt(),
+      bookingId.toInt(),
     )
     assertThat(getBodyAsJsonContent<Any?>(response)).extractingJsonPathNumberValue("$.assignedLivingUnitId")
       .isEqualTo(
-        internalLocationId?.toInt(),
+        internalLocationId.toInt(),
       )
     assertThat(getBodyAsJsonContent<Any?>(response))
       .extractingJsonPathStringValue("$.assignedLivingUnitDesc").isEqualTo(internalLocationDesc)
@@ -320,16 +314,16 @@ class OffenderMovementsResourceIntTest_moveToCell : ResourceTest() {
     }
   }
 
-  private fun verifyOffenderBookingLivingUnit(bookingId: Long?, livingUnitId: Long?) {
+  private fun verifyOffenderBookingLivingUnit(bookingId: Long, livingUnitId: Long) {
     val offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow()
     assertThat(offenderBooking.assignedLivingUnit.locationId).isEqualTo(livingUnitId)
   }
 
   private fun verifyLastBedAssignmentHistory(
-    bookingId: Long?,
-    livingUnitId: Long?,
-    reason: String?,
-    dateTime: LocalDateTime?,
+    bookingId: Long,
+    livingUnitId: Long,
+    reason: String,
+    dateTime: LocalDateTime,
   ) {
     val bedAssignmentHistories =
       bedAssignmentHistoriesRepository.findAllByBedAssignmentHistoryPKOffenderBookingId(bookingId)
@@ -343,10 +337,10 @@ class OffenderMovementsResourceIntTest_moveToCell : ResourceTest() {
         "assignmentDate",
         "assignmentDateTime",
       )
-      .containsExactlyInAnyOrder(bookingId, livingUnitId, reason, dateTime!!.toLocalDate(), dateTime.withNano(0))
+      .containsExactlyInAnyOrder(bookingId, livingUnitId, reason, dateTime.toLocalDate(), dateTime.withNano(0))
   }
 
-  private fun verifyLastBedAssignmentHistory(bookingId: Long?, livingUnitId: Long?) {
+  private fun verifyLastBedAssignmentHistory(bookingId: Long, livingUnitId: Long) {
     val bedAssignmentHistories =
       bedAssignmentHistoriesRepository.findAllByBedAssignmentHistoryPKOffenderBookingId(bookingId)
     assertThat(
