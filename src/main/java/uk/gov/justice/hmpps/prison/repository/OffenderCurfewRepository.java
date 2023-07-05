@@ -1,7 +1,11 @@
 package uk.gov.justice.hmpps.prison.repository;
 
+import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -10,7 +14,9 @@ import uk.gov.justice.hmpps.prison.api.model.ApprovalStatus;
 import uk.gov.justice.hmpps.prison.api.model.HdcChecks;
 import uk.gov.justice.hmpps.prison.api.model.HomeDetentionCurfew;
 import uk.gov.justice.hmpps.prison.repository.sql.OffenderCurfewRepositorySql;
+import uk.gov.justice.hmpps.prison.service.DatabaseRowLockedException;
 import uk.gov.justice.hmpps.prison.service.support.OffenderCurfew;
+import uk.gov.justice.hmpps.prison.web.config.RoutingDataSource;
 
 import java.beans.PropertyDescriptor;
 import java.sql.ResultSet;
@@ -26,6 +32,11 @@ import java.util.Set;
 @Repository
 @Slf4j
 public class OffenderCurfewRepository extends RepositoryBase {
+
+    @Autowired
+    private RoutingDataSource routingDataSource;
+
+    private final static int lockWaitTime = 25; // Client has a 30 second timeout, so we need to be less than that
 
     private static class AlmostStandardBeanPropertyRowMapper<T> extends BeanPropertyRowMapper<T> {
         AlmostStandardBeanPropertyRowMapper(Class<T> clazz) {
@@ -69,6 +80,7 @@ public class OffenderCurfewRepository extends RepositoryBase {
 
 
     public void setHDCChecksPassed(final long curfewId, final HdcChecks hdcChecks) {
+        getCurfewLock(curfewId);
         jdbcTemplate.update(
                 OffenderCurfewRepositorySql.UPDATE_CURFEW_CHECKS_PASSED.getSql(),
                 createParams(
@@ -81,6 +93,7 @@ public class OffenderCurfewRepository extends RepositoryBase {
 
 
     public void setHdcChecksPassedDate(long curfewId, LocalDate date) {
+        getCurfewLock(curfewId);
         jdbcTemplate.update(
                 OffenderCurfewRepositorySql.UPDATE_CURFEW_CHECKS_PASSED_DATE.getSql(),
                 createParams(
@@ -92,6 +105,7 @@ public class OffenderCurfewRepository extends RepositoryBase {
 
 
     public void setApprovalStatus(final long curfewId, final ApprovalStatus approvalStatus) {
+        getCurfewLock(curfewId);
         jdbcTemplate.update(
                 OffenderCurfewRepositorySql.UPDATE_APPROVAL_STATUS.getSql(),
                 createParams(
@@ -104,6 +118,7 @@ public class OffenderCurfewRepository extends RepositoryBase {
 
 
     public void setApprovalStatusDate(long curfewId, LocalDate date) {
+        getCurfewLock(curfewId);
         jdbcTemplate.update(
                 OffenderCurfewRepositorySql.UPDATE_APPROVAL_STATUS_DATE.getSql(),
                 createParams(
@@ -127,6 +142,7 @@ public class OffenderCurfewRepository extends RepositoryBase {
 
 
     public void deleteStatusReasons(long curfewId, Set<String> statusTrackingCodesToMatch) {
+        getReasonsLock(curfewId, statusTrackingCodesToMatch);
         jdbcTemplate.update(
                 OffenderCurfewRepositorySql.DELETE_HDC_STATUS_REASONS.getSql(),
                 createParams(
@@ -138,6 +154,7 @@ public class OffenderCurfewRepository extends RepositoryBase {
 
 
     public void deleteStatusTrackings(long curfewId, Set<String> statusTrackingCodesToMatch) {
+        getTrackingsLock(curfewId, statusTrackingCodesToMatch);
         jdbcTemplate.update(
                 OffenderCurfewRepositorySql.DELETE_HDC_STATUS_TRACKINGS.getSql(),
                 createParams(
@@ -160,7 +177,6 @@ public class OffenderCurfewRepository extends RepositoryBase {
                 new String[]{"HDC_STATUS_TRACKING_ID"});
 
         return generatedKeyHolder.getKey().longValue();
-
     }
 
 
@@ -186,20 +202,73 @@ public class OffenderCurfewRepository extends RepositoryBase {
 
 
     public List<HomeDetentionCurfew> getBatchLatestHomeDetentionCurfew(List<Long> bookingIds, Set<String> statusTrackingCodesToMatch) {
-        val results = jdbcTemplate.query(
+        return jdbcTemplate.query(
                 OffenderCurfewRepositorySql.LATEST_BATCH_HOME_DETENTION_CURFEW.getSql(),
                 createParams(
                   "bookingIds", bookingIds,
                   "statusTrackingCodes", statusTrackingCodesToMatch),
                   HOME_DETENTION_CURFEW_ROW_MAPPER
                 );
-        return results;
     }
 
 
     public void resetCurfew(long curfewId) {
+        getCurfewLock(curfewId);
         jdbcTemplate.update(
                 OffenderCurfewRepositorySql.RESET_OFFENDER_CURFEW.getSql(),
                 createParams("curfewId", curfewId));
+    }
+
+    private void getCurfewLock(long curfewId) {
+        try {
+            jdbcTemplate.query(
+                OffenderCurfewRepositorySql.GET_OFFENDER_CURFEW_LOCK.getSql() + getWaitClauseIfNotHsqldb(),
+                createParams("curfewId", curfewId,
+                    "waitSeconds", lockWaitTime),
+                rs -> {
+                }
+            );
+        } catch (DataAccessException e) {
+            log.error("Error getting lock", e);
+            throw new DatabaseRowLockedException("Failed to get OFFENDER_CURFEWS lock for curfew id " + curfewId);
+        }
+    }
+
+    private void getTrackingsLock(long curfewId, Set<String> statusTrackingCodesToMatch) {
+        try {
+            jdbcTemplate.query(
+                OffenderCurfewRepositorySql.GET_HDC_STATUS_TRACKINGS_LOCK.getSql() + getWaitClauseIfNotHsqldb(),
+                createParams("curfewId", curfewId,
+                    "codes", statusTrackingCodesToMatch,
+                    "waitSeconds", lockWaitTime),
+                rs -> {
+                }
+            );
+        } catch (DataAccessException e) {
+            log.error("Error getting lock", e);
+            throw new DatabaseRowLockedException("Failed to get HDC_STATUS_TRACKINGS lock for curfew id " + curfewId);
+        }
+    }
+
+    private void getReasonsLock(long curfewId, Set<String> statusTrackingCodesToMatch) {
+        try {
+            jdbcTemplate.query(
+                OffenderCurfewRepositorySql.GET_HDC_STATUS_REASONS_LOCK.getSql() + getWaitClauseIfNotHsqldb(),
+                createParams("curfewId", curfewId,
+                    "codes", statusTrackingCodesToMatch,
+                    "waitSeconds", lockWaitTime),
+                rs -> {
+                }
+            );
+        } catch (DataAccessException e) {
+            log.error("Error getting lock", e);
+            throw new DatabaseRowLockedException("Failed to get HDC_STATUS_REASONS lock for curfew id " + curfewId);
+        }
+    }
+
+    @NotNull
+    private String getWaitClauseIfNotHsqldb() {
+        final HikariDataSource resolvedDefaultDataSource = (HikariDataSource)routingDataSource.getResolvedDefaultDataSource();
+        return resolvedDefaultDataSource.getJdbcUrl().contains("hsqldb") ? "" : " WAIT " + lockWaitTime;
     }
 }

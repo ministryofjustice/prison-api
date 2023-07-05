@@ -24,6 +24,7 @@ import org.springframework.web.client.RestClientResponseException
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
 import uk.gov.justice.hmpps.prison.service.BadRequestException
 import uk.gov.justice.hmpps.prison.service.ConflictingRequestException
+import uk.gov.justice.hmpps.prison.service.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.service.EntityAlreadyExistsException
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 import uk.gov.justice.hmpps.prison.service.NoContentException
@@ -358,6 +359,21 @@ class ControllerAdvice {
           .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
           .userMessage("An unexpected error occurred")
           .developerMessage("Root cause: ${e.rootCause}")
+          .build(),
+      )
+  }
+
+  @ExceptionHandler(DatabaseRowLockedException::class)
+  fun handleDatabaseRowLockedException(e: DatabaseRowLockedException): ResponseEntity<ErrorResponse> {
+    log.debug("Locked (423) returned with message {}", e.message)
+    return ResponseEntity
+      .status(HttpStatus.LOCKED)
+      .body(
+        ErrorResponse
+          .builder()
+          .userMessage(e.message)
+          .status(HttpStatus.LOCKED.value())
+          .developerMessage(e.developerMessage)
           .build(),
       )
   }
