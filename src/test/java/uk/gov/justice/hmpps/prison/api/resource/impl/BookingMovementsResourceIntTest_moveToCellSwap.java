@@ -35,8 +35,8 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
-@ContextConfiguration(classes = OffenderMovementsResourceIntTest_moveToCell.TestClock.class)
-public class OffenderMovementsResourceIntTest_moveToCellSwap extends ResourceTest {
+@ContextConfiguration(classes = BookingMovementsResourceIntTest_moveToCell.TestClock.class)
+public class BookingMovementsResourceIntTest_moveToCellSwap extends ResourceTest {
 
     @TestConfiguration
     static class TestClock {

@@ -10,7 +10,7 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @AutoConfigureTestDatabase(replace = NONE)
-public class OffenderMovementsResourceIntTest_jpaLoading extends ResourceTest {
+public class BookingMovementsResourceIntTest_jpaLoading extends ResourceTest {
 
     private String token;
 

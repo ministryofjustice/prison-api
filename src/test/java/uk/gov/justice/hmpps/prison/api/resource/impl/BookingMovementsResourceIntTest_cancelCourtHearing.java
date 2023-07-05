@@ -24,8 +24,8 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpStatus.OK;
 
-@ContextConfiguration(classes = OffenderMovementsResourceIntTest_cancelCourtHearing.TestClock.class)
-public class OffenderMovementsResourceIntTest_cancelCourtHearing extends ResourceTest {
+@ContextConfiguration(classes = BookingMovementsResourceIntTest_cancelCourtHearing.TestClock.class)
+public class BookingMovementsResourceIntTest_cancelCourtHearing extends ResourceTest {
 
     @TestConfiguration
     static class TestClock {

@@ -277,19 +277,28 @@ public class OffenceResourceTest extends ResourceTest {
             List<OffenceToScheduleMappingDto> mappingDtos = List.of(
                 getMappingDto("COML025", Schedule.SCHEDULE_15),
                 getMappingDto("STAT001", Schedule.SCHEDULE_13),
-                getMappingDto("RC86355", Schedule.SCHEDULE_13)
+                getMappingDto("RC86355", Schedule.SCHEDULE_13),
+                getMappingDto("COML025", Schedule.PCSC_SDS),
+                getMappingDto("STAT001", Schedule.PCSC_SDS_PLUS),
+                getMappingDto("RC86355", Schedule.PCSC_SEC_250)
             );
             linkOffencesToSchedules(mappingDtos);
 
             assertTrue(doesMappingExist(Schedule.SCHEDULE_15, "COML025"));
             assertTrue(doesMappingExist(Schedule.SCHEDULE_13, "STAT001"));
             assertTrue(doesMappingExist(Schedule.SCHEDULE_13, "RC86355"));
+            assertTrue(doesMappingExist(Schedule.PCSC_SDS, "COML025"));
+            assertTrue(doesMappingExist(Schedule.PCSC_SDS_PLUS, "STAT001"));
+            assertTrue(doesMappingExist(Schedule.PCSC_SEC_250, "RC86355"));
 
             unlinkOffencesFromSchedules(mappingDtos);
 
             assertFalse(doesMappingExist(Schedule.SCHEDULE_15, "COML025"));
             assertFalse(doesMappingExist(Schedule.SCHEDULE_13, "STAT001"));
             assertFalse(doesMappingExist(Schedule.SCHEDULE_13, "RC86355"));
+            assertFalse(doesMappingExist(Schedule.PCSC_SDS, "COML025"));
+            assertFalse(doesMappingExist(Schedule.PCSC_SDS_PLUS, "STAT001"));
+            assertFalse(doesMappingExist(Schedule.PCSC_SEC_250, "RC86355"));
         }
 
         private boolean doesMappingExist(Schedule schedule, String offenceCode) {
