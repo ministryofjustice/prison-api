@@ -62,6 +62,7 @@ class PrisonerResourceTest : ResourceTest() {
       )
       assertThatJsonFileAndStatus(response, HttpStatus.OK, "prisoners_single.json")
     }
+
     @Test
     fun testReturn403WhenDoesNotHavePrivs() {
       val httpEntity = createEmptyHttpEntity(AuthToken.NO_CASELOAD_USER)
