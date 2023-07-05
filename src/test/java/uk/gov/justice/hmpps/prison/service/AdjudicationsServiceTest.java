@@ -1619,6 +1619,32 @@ public class AdjudicationsServiceTest {
     @Nested
     public class CreateSanctions {
 
+        private void mocksToSatisfyValidateOicSanction() {
+            final var adjudicationNumber = 2L;
+            final var agencyIncidentId = 10L;
+            final var bookingId = 200L;
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber))
+                .thenReturn(Optional.of(
+                    Adjudication.builder()
+                        .agencyIncidentId(agencyIncidentId)
+                        .parties(List.of(AdjudicationParty.builder()
+                            .incidentRole(INCIDENT_ROLE_OFFENDER)
+                            .offenderBooking(OffenderBooking.builder()
+                                .bookingId(bookingId).build())
+                            .adjudicationNumber(adjudicationNumber).build())).build()
+                ));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(agencyIncidentId, FindingCode.PROVED)).thenReturn(List.of(
+                OicHearingResult.builder()
+                    .oicHearingId(3L)
+                    .resultSeq(1L)
+                    .build()
+            ));
+
+            when(oicSanctionRepository.getNextSanctionSeq(bookingId))
+                .thenReturn(6L);
+        }
+
         @Test
         public void createSanctionsAdjudicationDoesNotExist() {
             when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
@@ -1670,32 +1696,178 @@ public class AdjudicationsServiceTest {
         }
 
         @Test
+        public void createSanctionsConsecutiveReportNotOnFile() {
+            // Given
+            final var adjudicationNumber = 2L;
+            mocksToSatisfyValidateOicSanction();
+
+            // When + Then
+            assertThatThrownBy(() ->
+                service.createOicSanctions(adjudicationNumber, List.of(OicSanctionRequest.builder().consecutiveReportNumber(1L).build())))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find adjudication for consecutiveReportNumber 1");
+        }
+
+        @Test
+        public void createSanctionsConsecutiveReportCannotFindHearings() {
+            // Given
+            final var adjudicationNumber = 2L;
+            final var consecutiveReportNumber = 3L;
+            mocksToSatisfyValidateOicSanction();
+
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(consecutiveReportNumber))
+                .thenReturn(Optional.of(Adjudication.builder().agencyIncidentId(1L).build()));
+
+            // When + Then
+            assertThatThrownBy(() ->
+                service.createOicSanctions(adjudicationNumber, List.of(OicSanctionRequest.builder()
+                    .consecutiveReportNumber(consecutiveReportNumber).build())))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find hearing result PROVED for adjudication id 1");
+        }
+
+        @Test
+        public void createSanctionsConsecutiveReportCannotFindSanctionForBookingId() {
+            // Given
+            final var adjudicationNumber = 2L;
+            final var consecutiveReportNumber = 3L;
+            final var oicHearingId = 4L;
+            final var agencyIncidentId = 5L;
+            mocksToSatisfyValidateOicSanction();
+
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(consecutiveReportNumber))
+                .thenReturn(Optional.of(Adjudication.builder().agencyIncidentId(agencyIncidentId).build()));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(agencyIncidentId, FindingCode.PROVED))
+                .thenReturn(List.of(OicHearingResult.builder().oicHearingId(oicHearingId).build()));
+
+            OicSanction oicSanctionDifferentOffenderBookId = OicSanction.builder()
+                .oicHearingId(consecutiveReportNumber)
+                .offenderBookId(5L).build();
+            when(oicSanctionRepository.findByOicHearingIdIn(List.of(oicHearingId)))
+                .thenReturn(List.of(oicSanctionDifferentOffenderBookId));
+
+            // When + Then
+            assertThatThrownBy(() ->
+                service.createOicSanctions(adjudicationNumber, List.of(OicSanctionRequest.builder()
+                    .consecutiveReportNumber(consecutiveReportNumber)
+                    .status(Status.AS_AWARDED)
+                    .build())))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find sanction for offenderBookId 200, sanction code ADA, status AS_AWARDED");
+        }
+
+        @Test
+        public void createSanctionsConsecutiveReportCannotFindAdaSanction() {
+            // Given
+            final var adjudicationNumber = 2L;
+            final var consecutiveReportNumber = 3L;
+            final var oicHearingId = 4L;
+            final var agencyIncidentId = 5L;
+            mocksToSatisfyValidateOicSanction();
+
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(consecutiveReportNumber))
+                .thenReturn(Optional.of(Adjudication.builder().agencyIncidentId(agencyIncidentId).build()));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(agencyIncidentId, FindingCode.PROVED))
+                .thenReturn(List.of(OicHearingResult.builder().oicHearingId(oicHearingId).build()));
+
+            OicSanction oicSanctionDifferentOffenderBookId = OicSanction.builder()
+                .oicHearingId(consecutiveReportNumber)
+                .offenderBookId(200L)
+                .oicSanctionCode(OicSanctionCode.OIC).build();
+            when(oicSanctionRepository.findByOicHearingIdIn(List.of(oicHearingId)))
+                .thenReturn(List.of(oicSanctionDifferentOffenderBookId));
+
+            // When + Then
+            assertThatThrownBy(() ->
+                service.createOicSanctions(adjudicationNumber, List.of(OicSanctionRequest.builder()
+                    .consecutiveReportNumber(consecutiveReportNumber)
+                    .status(Status.AS_AWARDED)
+                    .build())))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find sanction for offenderBookId 200, sanction code ADA, status AS_AWARDED");
+        }
+
+        @Test
+        public void createSanctionsConsecutiveReportCannotFindSanctionWithRequestStatus() {
+            // Given
+            final var adjudicationNumber = 2L;
+            final var consecutiveReportNumber = 3L;
+            final var oicHearingId = 4L;
+            final var agencyIncidentId = 5L;
+            mocksToSatisfyValidateOicSanction();
+
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(consecutiveReportNumber))
+                .thenReturn(Optional.of(Adjudication.builder().agencyIncidentId(agencyIncidentId).build()));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(agencyIncidentId, FindingCode.PROVED))
+                .thenReturn(List.of(OicHearingResult.builder().oicHearingId(oicHearingId).build()));
+
+            OicSanction oicSanctionDifferentOffenderBookId = OicSanction.builder()
+                .oicHearingId(consecutiveReportNumber)
+                .offenderBookId(200L)
+                .oicSanctionCode(OicSanctionCode.ADA)
+                .status(Status.AWARD_RED).build();
+            when(oicSanctionRepository.findByOicHearingIdIn(List.of(oicHearingId)))
+                .thenReturn(List.of(oicSanctionDifferentOffenderBookId));
+
+            // When + Then
+            assertThatThrownBy(() ->
+                service.createOicSanctions(adjudicationNumber, List.of(OicSanctionRequest.builder()
+                    .consecutiveReportNumber(consecutiveReportNumber)
+                    .status(Status.AS_AWARDED)
+                    .build())))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find sanction for offenderBookId 200, sanction code ADA, status AS_AWARDED");
+        }
+
+        @Test
         public void createSanctions() {
+            final var offenderBookId = 200L;
+            final var consecutiveReportNumber = 5L;
+            final var oicHearingId = 3L;
+            final var agencyIncidentId = 10L;
+            final var today = LocalDate.now();
+
             when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
                 .thenReturn(Optional.of(
                     Adjudication.builder()
-                        .agencyIncidentId(10L)
+                        .agencyIncidentId(agencyIncidentId)
                         .parties(List.of(AdjudicationParty.builder()
                             .incidentRole(INCIDENT_ROLE_OFFENDER)
                             .offenderBooking(OffenderBooking.builder()
-                                .bookingId(200L).build())
+                                .bookingId(offenderBookId).build())
                             .adjudicationNumber(2L).build())).build()
                 ));
 
-            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(10L, FindingCode.PROVED)).thenReturn(List.of(
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(agencyIncidentId, FindingCode.PROVED)).thenReturn(List.of(
                 OicHearingResult.builder()
-                    .oicHearingId(3L)
+                    .oicHearingId(oicHearingId)
                     .resultSeq(1L)
                     .build()
             ));
 
-            when(oicSanctionRepository.getNextSanctionSeq(200L))
+            when(oicSanctionRepository.getNextSanctionSeq(offenderBookId))
                 .thenReturn(6L);
 
-            LocalDate today = LocalDate.now();
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(consecutiveReportNumber))
+                .thenReturn(Optional.of(Adjudication.builder().agencyIncidentId(agencyIncidentId).build()));
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(agencyIncidentId, FindingCode.PROVED))
+                .thenReturn(List.of(OicHearingResult.builder().oicHearingId(oicHearingId).build()));
+
+            OicSanction oicSanctionForConsecutive = OicSanction.builder()
+                .oicHearingId(consecutiveReportNumber)
+                .offenderBookId(offenderBookId)
+                .oicSanctionCode(OicSanctionCode.ADA)
+                .status(Status.IMMEDIATE)
+                .consecutiveSanctionSeq(250L)
+                .build();
+            when(oicSanctionRepository.findByOicHearingIdIn(List.of(oicHearingId)))
+                .thenReturn(List.of(oicSanctionForConsecutive));
 
             OicSanction oicSanction_withoutCompensation = OicSanction.builder()
-                .offenderBookId(200L)
+                .offenderBookId(offenderBookId)
                 .sanctionSeq(6L)
                 .oicSanctionCode(OicSanctionCode.ADA)
                 .compensationAmount(null)
@@ -1703,12 +1875,14 @@ public class AdjudicationsServiceTest {
                 .commentText("comment")
                 .effectiveDate(today)
                 .status(Status.IMMEDIATE)
-                .oicHearingId(3L)
+                .oicHearingId(oicHearingId)
                 .resultSeq(1L)
                 .oicIncidentId(2L)
+                .consecutiveOffenderBookId(offenderBookId)
+                .consecutiveSanctionSeq(250L)
                 .build();
             OicSanction oicSanction_withCompensation = OicSanction.builder()
-                .offenderBookId(200L)
+                .offenderBookId(offenderBookId)
                 .sanctionSeq(7L)
                 .oicSanctionCode(OicSanctionCode.ADA)
                 .compensationAmount(new BigDecimal("1000.0"))
@@ -1716,7 +1890,7 @@ public class AdjudicationsServiceTest {
                 .commentText("comment")
                 .effectiveDate(today)
                 .status(Status.IMMEDIATE)
-                .oicHearingId(3L)
+                .oicHearingId(oicHearingId)
                 .resultSeq(1L)
                 .oicIncidentId(2L)
                 .build();
@@ -1731,6 +1905,7 @@ public class AdjudicationsServiceTest {
                     .compensationAmount(null)
                     .effectiveDate(today)
                     .status(Status.IMMEDIATE)
+                    .consecutiveReportNumber(consecutiveReportNumber)
                     .build(),
                 OicSanctionRequest.builder()
                     .oicSanctionCode(OicSanctionCode.ADA)
@@ -1744,7 +1919,7 @@ public class AdjudicationsServiceTest {
             final var sanctionCapture = ArgumentCaptor.forClass(OicSanction.class);
             verify(oicSanctionRepository, times(2)).saveAndFlush(sanctionCapture.capture());
 
-            assertThat(sanctionCapture.getValue().getOffenderBookId()).isEqualTo(200L);
+            assertThat(sanctionCapture.getValue().getOffenderBookId()).isEqualTo(offenderBookId);
             assertThat(sanctionCapture.getValue().getSanctionSeq()).isEqualTo(7L);
             assertThat(sanctionCapture.getValue().getOicSanctionCode()).isEqualTo(OicSanctionCode.ADA);
             assertThat(sanctionCapture.getValue().getCompensationAmount()).isEqualTo(new BigDecimal("1000.0"));
@@ -1752,7 +1927,7 @@ public class AdjudicationsServiceTest {
             assertThat(sanctionCapture.getValue().getCommentText()).isEqualTo("comment");
             assertThat(sanctionCapture.getValue().getEffectiveDate()).isEqualTo(today);
             assertThat(sanctionCapture.getValue().getStatus()).isEqualTo(Status.IMMEDIATE);
-            assertThat(sanctionCapture.getValue().getOicHearingId()).isEqualTo(3L);
+            assertThat(sanctionCapture.getValue().getOicHearingId()).isEqualTo(oicHearingId);
             assertThat(sanctionCapture.getValue().getResultSeq()).isEqualTo(1L);
             assertThat(sanctionCapture.getValue().getOicIncidentId()).isEqualTo(2L);
 
@@ -1762,8 +1937,9 @@ public class AdjudicationsServiceTest {
             assertThat(result.get(0).getComment()).isEqualTo("comment");
             assertThat(result.get(0).getEffectiveDate()).isEqualTo(today.atStartOfDay());
             assertThat(result.get(0).getStatus()).isEqualTo(Status.IMMEDIATE.name());
-            assertThat(result.get(0).getOicHearingId()).isEqualTo(3L);
+            assertThat(result.get(0).getOicHearingId()).isEqualTo(oicHearingId);
             assertThat(result.get(0).getResultSeq()).isEqualTo(1L);
+            assertThat(result.get(0).getConsecutiveSanctionSeq()).isEqualTo(250L);
             assertThat(result.get(1).getCompensationAmount()).isEqualTo(1000L);
             assertThat(result.size()).isEqualTo(2);
         }

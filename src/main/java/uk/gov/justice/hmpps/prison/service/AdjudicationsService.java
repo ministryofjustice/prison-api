@@ -32,6 +32,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearing.OicHearingSta
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult.FindingCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction.OicSanctionCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction.Status;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationOffenceTypeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationRepository;
@@ -43,7 +44,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OicHearingResultRep
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OicSanctionRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
-import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.transformers.AdjudicationsTransformer;
 
 import jakarta.persistence.EntityManager;
@@ -447,6 +447,26 @@ public class AdjudicationsService {
         );
     }
 
+    protected OicSanction findSanctionForConsecutiveReportNumber(OicSanctionRequest oicSanctionRequest, OicSanctionValidationResult oicSanctionValidationResult) {
+        final var adjudication = adjudicationsRepository.findByParties_AdjudicationNumber(oicSanctionRequest.getConsecutiveReportNumber())
+            .orElseThrow(EntityNotFoundException.withMessage(format("Could not find adjudication for consecutiveReportNumber %d", oicSanctionRequest.getConsecutiveReportNumber())));
+
+        final var hearingResult = oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(adjudication.getAgencyIncidentId(), FindingCode.PROVED);
+        if (hearingResult.isEmpty()) throw EntityNotFoundException.withMessage(format("Could not find hearing result PROVED for adjudication id %d", adjudication.getAgencyIncidentId()));
+
+        final var sanctionForHearings = oicSanctionRepository.findByOicHearingIdIn(hearingResult.stream().map(OicHearingResult::getOicHearingId).toList());
+
+        final var filteredSanctions = sanctionForHearings.stream().filter(sanction ->
+            sanction.getOffenderBookId().equals(oicSanctionValidationResult.offenderBookId)
+                && sanction.getOicSanctionCode().equals(OicSanctionCode.ADA)
+                && sanction.getStatus().equals(oicSanctionRequest.getStatus())).toList();
+
+        if (filteredSanctions.isEmpty()) throw EntityNotFoundException.withMessage(format("Could not find sanction for offenderBookId %d, sanction code ADA, status %s", oicSanctionValidationResult.offenderBookId, oicSanctionRequest.getStatus()));
+
+        // not expecting this to return more than 1 sanction
+        return filteredSanctions.get(0);
+    }
+
     @Transactional
     public List<Sanction> createOicSanctions(
         final Long adjudicationNumber,
@@ -459,21 +479,28 @@ public class AdjudicationsService {
         return transform(adjudicationNumber, oicSanctionRequests, result, nextSanctionSeq);
     }
 
-    private List<Sanction> transform(Long adjudicationNumber, List<OicSanctionRequest> oicSanctionRequests, OicSanctionValidationResult result, Long nextSanctionSeq) {
+    private List<Sanction> transform(Long adjudicationNumber, List<OicSanctionRequest> oicSanctionRequests, OicSanctionValidationResult oicSanctionValidationResult, Long nextSanctionSeq) {
         final var oicSanctions = new ArrayList<OicSanction>();
         int index = 0;
         for (var request : oicSanctionRequests) {
+
+            final var oicSanction = request.getConsecutiveReportNumber() != null
+                ? findSanctionForConsecutiveReportNumber(request, oicSanctionValidationResult)
+                : null;
+
             // flushing removes error in trigger OFFENDER_OIC_SANCTIONS_T1 on insert
             oicSanctions.add(oicSanctionRepository.saveAndFlush(OicSanction.builder()
-                .offenderBookId(result.offenderBookId())
+                .offenderBookId(oicSanctionValidationResult.offenderBookId())
                 .sanctionSeq(nextSanctionSeq + index)
+                .consecutiveSanctionSeq(oicSanction == null ? null : oicSanction.getConsecutiveSanctionSeq())
+                .consecutiveOffenderBookId(oicSanction == null ? null : oicSanction.getOffenderBookId())
                 .oicSanctionCode(request.getOicSanctionCode())
                 .compensationAmount(request.getCompensationAmount() == null ? null : BigDecimal.valueOf(request.getCompensationAmount()))
                 .sanctionDays(request.getSanctionDays())
                 .commentText(request.getCommentText())
                 .effectiveDate(request.getEffectiveDate())
                 .status(request.getStatus())
-                .oicHearingId(result.oicHearingId())
+                .oicHearingId(oicSanctionValidationResult.oicHearingId())
                 .resultSeq(1L)
                 .oicIncidentId(adjudicationNumber)
                 .build())
@@ -495,6 +522,7 @@ public class AdjudicationsService {
             .sanctionSeq(oicSanction.getSanctionSeq())
             .oicHearingId(oicSanction.getOicHearingId())
             .resultSeq(oicSanction.getResultSeq())
+            .consecutiveSanctionSeq(oicSanction.getConsecutiveSanctionSeq())
             .build()).collect(Collectors.toList());
     }
 

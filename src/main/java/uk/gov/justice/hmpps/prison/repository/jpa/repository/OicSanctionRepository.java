@@ -11,6 +11,8 @@ public interface OicSanctionRepository extends JpaRepository<OicSanction, PK> {
 
     List<OicSanction> findByOicHearingId(Long oicHearingId);
 
+    List<OicSanction> findByOicHearingIdIn(List<Long> oicHearingIds);
+
     @Query(value = "SELECT NVL(MAX(SANCTION_SEQ)+1, 1) FROM OFFENDER_OIC_SANCTIONS oos WHERE OFFENDER_BOOK_ID = :offenderBookId", nativeQuery = true)
     Long getNextSanctionSeq(Long offenderBookId);
 }
