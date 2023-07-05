@@ -461,7 +461,7 @@ public class AdjudicationsService {
                 && sanction.getOicSanctionCode().equals(OicSanctionCode.ADA)
                 && sanction.getStatus().equals(oicSanctionRequest.getStatus())).toList();
 
-        if (filteredSanctions.isEmpty()) throw EntityNotFoundException.withMessage(format("Could not find sanction for offenderBookId %d", oicSanctionValidationResult.offenderBookId));
+        if (filteredSanctions.isEmpty()) throw EntityNotFoundException.withMessage(format("Could not find sanction for offenderBookId %d, sanction code ADA, status %s", oicSanctionValidationResult.offenderBookId, oicSanctionRequest.getStatus()));
 
         // not expecting this to return more than 1 sanction
         return filteredSanctions.get(0);
@@ -522,6 +522,7 @@ public class AdjudicationsService {
             .sanctionSeq(oicSanction.getSanctionSeq())
             .oicHearingId(oicSanction.getOicHearingId())
             .resultSeq(oicSanction.getResultSeq())
+            .consecutiveSanctionSeq(oicSanction.getConsecutiveSanctionSeq())
             .build()).collect(Collectors.toList());
     }
 
