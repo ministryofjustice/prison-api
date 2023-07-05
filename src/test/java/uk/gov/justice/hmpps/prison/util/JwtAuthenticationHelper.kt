@@ -10,6 +10,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
 import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.interfaces.RSAPublicKey
+import java.time.Duration
 import java.util.Date
 import java.util.UUID
 
@@ -27,20 +28,41 @@ class JwtAuthenticationHelper {
   @Primary
   fun jwtDecoder(): JwtDecoder = NimbusJwtDecoder.withPublicKey(keyPair.public as RSAPublicKey).build()
 
-  fun createJwt(parameters: JwtParameters): String {
-    val claims = HashMap<String, Any>()
-    if (parameters.username != null) {
-      claims["user_name"] = parameters.username
+  fun createJwt(parameters: JwtParameters): String = with(parameters) {
+    createJwt(
+      username = username,
+      scope = scope,
+      roles = roles,
+      expiryTime = expiryTime,
+      clientId = clientId,
+      internalUser = internalUser,
+    )
+  }
+
+  fun createJwt(
+    username: String? = null,
+    scope: List<String>? = null,
+    roles: List<String>? = null,
+    expiryTime: Duration = Duration.ofDays(1),
+    clientId: String = "prison-api-client",
+    internalUser: Boolean = true,
+  ): String {
+    val claims = mutableMapOf<String, Any?>(
+      "client_id" to clientId,
+      "internalUser" to internalUser,
+    ).apply {
+      username?.let { this["user_name"] = username }
+      roles?.let {
+        // ensure that all roles have a ROLE_ prefix
+        this["authorities"] = roles.map { "ROLE_${it.substringAfter("ROLE_")}" }
+      }
+      scope?.let { this["scope"] = scope }
     }
-    claims["client_id"] = parameters.clientId
-    claims["internalUser"] = parameters.isInternalUser
-    if (parameters.roles != null && parameters.roles.isNotEmpty()) claims["authorities"] = parameters.roles
-    if (parameters.scope != null && parameters.scope.isNotEmpty()) claims["scope"] = parameters.scope
     return Jwts.builder()
       .setId(UUID.randomUUID().toString())
-      .setSubject(parameters.username)
+      .setSubject(username)
       .addClaims(claims)
-      .setExpiration(Date(System.currentTimeMillis() + parameters.expiryTime.toMillis()))
+      .setExpiration(Date(System.currentTimeMillis() + expiryTime.toMillis()))
       .signWith(keyPair.private, SignatureAlgorithm.RS256)
       .setHeaderParam("typ", "JWT")
       .setHeaderParam("kid", "dps-client-key")
