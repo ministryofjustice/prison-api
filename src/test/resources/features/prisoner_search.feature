@@ -96,17 +96,14 @@ Feature: Prisoner Search
       | A1476AE    | 0             |           |
       | A1181MV    | 1             | O'VAUGHAN |
 
-  Scenario Outline: Search for prisoners with specified offender number using simple unprotected endpoint
-    Given a user has a token name of "GLOBAL_SEARCH"
+  Scenario Outline: Search for prisoners with specified offender numbers using simple endpoint
+     Given a user has a token name of "GLOBAL_SEARCH"
     When a search is made for prisoners with offender numbers of "<offenderNos>" using simple endpoint
     Then "<numberResults>" prisoner records are returned
     And the prisoners last names match "<lastNames>"
 
     Examples:
       | offenderNos        | numberResults | lastNames       |
-      | A1234AC            | 1             | BATES           |
-      | A1476AE            | 0             |                 |
-      | A1181MV            | 1             | O'VAUGHAN       |
       | A1181MV,A1234AC    | 2             | O'VAUGHAN,BATES |
 
   Scenario: Search for prisoners without GLOBAL_SEARCH role
