@@ -138,12 +138,12 @@ class PrisonerResource(private val globalSearchService: GlobalSearchService) {
   @ApiResponses(
     ApiResponse(responseCode = "200", description = "OK"),
     ApiResponse(responseCode = "400", description = "Invalid request.", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
-    ApiResponse(responseCode = "404", description = "Requested resource not found.", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
     ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
   )
   @Operation(
     summary = "List of offenders globally matching the offenderNo.",
-    description = "List of offenders globally matching the offenderNo. restricted- document and also say [] if no results",
+    description = "List of offenders globally matching the offenderNo, restricted by the VIEW_PRISONER_DATA or SYSTEM_USER role. " +
+      "Returns an empty array if no results are found or if does not have correct permissions",
   )
   @GetMapping("/{offenderNo}")
   fun getPrisonersOffenderNo(
