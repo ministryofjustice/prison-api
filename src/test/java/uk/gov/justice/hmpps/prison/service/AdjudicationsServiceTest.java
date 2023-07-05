@@ -1705,27 +1705,117 @@ public class AdjudicationsServiceTest {
             assertThatThrownBy(() ->
                 service.createOicSanctions(adjudicationNumber, List.of(OicSanctionRequest.builder().consecutiveReportNumber(1L).build())))
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("Could not find sanctions for consecutiveReportNumber 1");
+                .hasMessageContaining("Could not find adjudication for consecutiveReportNumber 1");
         }
 
         @Test
-        public void createSanctionsConsecutiveReportMissingOffenderBookId() {
+        public void createSanctionsConsecutiveReportCannotFindHearings() {
             // Given
             final var adjudicationNumber = 2L;
             final var consecutiveReportNumber = 3L;
             mocksToSatisfyValidateOicSanction();
 
-            OicSanction oicSanction_withoutOffenderBookId = OicSanction.builder()
-                .oicHearingId(consecutiveReportNumber).build();
-            when(oicSanctionRepository.findByOicHearingId(consecutiveReportNumber))
-                .thenReturn(List.of(oicSanction_withoutOffenderBookId));
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(consecutiveReportNumber))
+                .thenReturn(Optional.of(Adjudication.builder().agencyIncidentId(1L).build()));
 
             // When + Then
             assertThatThrownBy(() ->
                 service.createOicSanctions(adjudicationNumber, List.of(OicSanctionRequest.builder()
                     .consecutiveReportNumber(consecutiveReportNumber).build())))
-                .isInstanceOf(ValidationException.class)
-                .hasMessageContaining("consecutiveReportNumber 3 is not linked to offenderBookId");
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find hearing result PROVED for adjudication id 1");
+        }
+
+        @Test
+        public void createSanctionsConsecutiveReportCannotFindSanctionForBookingId() {
+            // Given
+            final var adjudicationNumber = 2L;
+            final var consecutiveReportNumber = 3L;
+            final var oicHearingId = 4L;
+            final var agencyIncidentId = 5L;
+            mocksToSatisfyValidateOicSanction();
+
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(consecutiveReportNumber))
+                .thenReturn(Optional.of(Adjudication.builder().agencyIncidentId(agencyIncidentId).build()));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(agencyIncidentId, FindingCode.PROVED))
+                .thenReturn(List.of(OicHearingResult.builder().oicHearingId(oicHearingId).build()));
+
+            OicSanction oicSanctionDifferentOffenderBookId = OicSanction.builder()
+                .oicHearingId(consecutiveReportNumber)
+                .offenderBookId(5L).build();
+            when(oicSanctionRepository.findByOicHearingIdIn(List.of(oicHearingId)))
+                .thenReturn(List.of(oicSanctionDifferentOffenderBookId));
+
+            // When + Then
+            assertThatThrownBy(() ->
+                service.createOicSanctions(adjudicationNumber, List.of(OicSanctionRequest.builder()
+                    .consecutiveReportNumber(consecutiveReportNumber).build())))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find sanction for offenderBookId 200");
+        }
+
+        @Test
+        public void createSanctionsConsecutiveReportCannotFindAdaSanction() {
+            // Given
+            final var adjudicationNumber = 2L;
+            final var consecutiveReportNumber = 3L;
+            final var oicHearingId = 4L;
+            final var agencyIncidentId = 5L;
+            mocksToSatisfyValidateOicSanction();
+
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(consecutiveReportNumber))
+                .thenReturn(Optional.of(Adjudication.builder().agencyIncidentId(agencyIncidentId).build()));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(agencyIncidentId, FindingCode.PROVED))
+                .thenReturn(List.of(OicHearingResult.builder().oicHearingId(oicHearingId).build()));
+
+            OicSanction oicSanctionDifferentOffenderBookId = OicSanction.builder()
+                .oicHearingId(consecutiveReportNumber)
+                .offenderBookId(200L)
+                .oicSanctionCode(OicSanctionCode.OIC).build();
+            when(oicSanctionRepository.findByOicHearingIdIn(List.of(oicHearingId)))
+                .thenReturn(List.of(oicSanctionDifferentOffenderBookId));
+
+            // When + Then
+            assertThatThrownBy(() ->
+                service.createOicSanctions(adjudicationNumber, List.of(OicSanctionRequest.builder()
+                    .consecutiveReportNumber(consecutiveReportNumber).build())))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find sanction for offenderBookId 200");
+        }
+
+        @Test
+        public void createSanctionsConsecutiveReportCannotSanctionWithRequestStatus() {
+            // Given
+            final var adjudicationNumber = 2L;
+            final var consecutiveReportNumber = 3L;
+            final var oicHearingId = 4L;
+            final var agencyIncidentId = 5L;
+            mocksToSatisfyValidateOicSanction();
+
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(consecutiveReportNumber))
+                .thenReturn(Optional.of(Adjudication.builder().agencyIncidentId(agencyIncidentId).build()));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(agencyIncidentId, FindingCode.PROVED))
+                .thenReturn(List.of(OicHearingResult.builder().oicHearingId(oicHearingId).build()));
+
+            OicSanction oicSanctionDifferentOffenderBookId = OicSanction.builder()
+                .oicHearingId(consecutiveReportNumber)
+                .offenderBookId(200L)
+                .oicSanctionCode(OicSanctionCode.ADA)
+                .status(Status.AWARD_RED).build();
+            when(oicSanctionRepository.findByOicHearingIdIn(List.of(oicHearingId)))
+                .thenReturn(List.of(oicSanctionDifferentOffenderBookId));
+
+            // When + Then
+            assertThatThrownBy(() ->
+                service.createOicSanctions(adjudicationNumber, List.of(OicSanctionRequest.builder()
+                    .consecutiveReportNumber(consecutiveReportNumber)
+                    .status(Status.AS_AWARDED)
+                    .build())))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Could not find sanction for offenderBookId 200");
         }
 
         @Test
