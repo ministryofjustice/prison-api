@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 
 import jakarta.validation.constraints.NotBlank;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "IEP Level")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
@@ -20,7 +22,7 @@ public class IepLevel {
     @NotBlank(message = "The IEP level must not be blank")
     private String iepLevel;
 
-    @Schema(description = "A long description of the IEP level value", required = true, example = "Basic")
+    @Schema(description = "A long description of the IEP level value", requiredMode = REQUIRED, example = "Basic")
     @NotBlank(message = "The IEP description must not be blank")
     private String iepDescription;
 

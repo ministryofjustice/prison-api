@@ -12,6 +12,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Represents the data required to schedule a prison to court hearing for an offender.")
 @Builder
 @AllArgsConstructor
@@ -20,17 +22,17 @@ import java.time.LocalDateTime;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PrisonToCourtHearing {
 
-    @Schema(required = true, description = "The prison (agency code) where the offender will be moved from.", example = "LEI")
+    @Schema(requiredMode = REQUIRED, description = "The prison (agency code) where the offender will be moved from.", example = "LEI")
     @NotBlank(message = "The from prison location must be provided.")
     @Size(max = 6, message = "From location must be a maximum of 6 characters.")
     private String fromPrisonLocation;
 
-    @Schema(required = true, description = "The court (agency code) where the offender will moved to.", example = "LEEDCC")
+    @Schema(requiredMode = REQUIRED, description = "The court (agency code) where the offender will moved to.", example = "LEEDCC")
     @NotBlank(message = "The court location to be moved to must be provided.")
     @Size(max = 6, message = "To location must be a maximum of 6 characters.")
     private String toCourtLocation;
 
-    @Schema(required = true, description = "The future date and time of the court hearing in Europe/London (ISO 8601) format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS.", example = "2020-02-28T14:40:00")
+    @Schema(requiredMode = REQUIRED, description = "The future date and time of the court hearing in Europe/London (ISO 8601) format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS.", example = "2020-02-28T14:40:00")
     @NotNull(message = "The future court hearing date time must be provided.")
     private LocalDateTime courtHearingDateTime;
 

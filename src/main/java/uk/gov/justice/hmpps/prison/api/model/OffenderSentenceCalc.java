@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Offender Sentence Detail
  **/
@@ -21,27 +23,27 @@ import jakarta.validation.constraints.NotNull;
 @NoArgsConstructor
 @Data
 public class OffenderSentenceCalc<S extends BaseSentenceCalcDates> {
-    @Schema(required = true, description = "Offender booking id.", example = "12341321")
+    @Schema(requiredMode = REQUIRED, description = "Offender booking id.", example = "12341321")
     @NotNull
     private Long bookingId;
 
-    @Schema(required = true, description = "Offender Unique Reference", example = "A1000AA")
+    @Schema(requiredMode = REQUIRED, description = "Offender Unique Reference", example = "A1000AA")
     @NotBlank
     private String offenderNo;
 
-    @Schema(required = true, description = "First Name", example = "John")
+    @Schema(requiredMode = REQUIRED, description = "First Name", example = "John")
     @NotBlank
     private String firstName;
 
-    @Schema(required = true, description = "Last Name", example = "Smith")
+    @Schema(requiredMode = REQUIRED, description = "Last Name", example = "Smith")
     @NotBlank
     private String lastName;
 
-    @Schema(required = true, description = "Agency Id", example = "LEI")
+    @Schema(requiredMode = REQUIRED, description = "Agency Id", example = "LEI")
     @NotBlank
     private String agencyLocationId;
 
-    @Schema(required = true, description = "Is this the most recent active booking", example = "true")
+    @Schema(requiredMode = REQUIRED, description = "Is this the most recent active booking", example = "true")
     @NotNull
     private Boolean mostRecentActiveBooking;
 

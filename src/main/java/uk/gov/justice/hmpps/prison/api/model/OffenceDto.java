@@ -11,6 +11,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Offence;
 import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDate;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Offence")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @AllArgsConstructor
@@ -19,25 +21,25 @@ import java.time.LocalDate;
 @Builder
 public class OffenceDto {
 
-    @Schema(required = true, description = "Reference Code", example = "RR84070")
+    @Schema(requiredMode = REQUIRED, description = "Reference Code", example = "RR84070")
     @NotBlank
     private String code;
 
-    @Schema(required = true, description = "Description of offence")
+    @Schema(requiredMode = REQUIRED, description = "Description of offence")
     @NotBlank
     private String description;
 
-    @Schema(required = true, description = "Statute code", example = "RR84")
+    @Schema(requiredMode = REQUIRED, description = "Statute code", example = "RR84")
     @NotBlank
     private StatuteDto statuteCode;
 
     @Schema(description = "HO code", example = "825/99")
     private HOCodeDto hoCode;
 
-    @Schema(required = true, description = "Severity Ranking", example = "5")
+    @Schema(requiredMode = REQUIRED, description = "Severity Ranking", example = "5")
     private String severityRanking;
 
-    @Schema(required = true, description = "Active Y/N", example = "Y")
+    @Schema(requiredMode = REQUIRED, description = "Active Y/N", example = "Y")
     private String activeFlag;
 
     @Schema(description = "Sequence", example = "1")

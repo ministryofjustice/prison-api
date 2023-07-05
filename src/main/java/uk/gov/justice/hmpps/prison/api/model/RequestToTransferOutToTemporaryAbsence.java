@@ -11,6 +11,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Represents the data required for transferring a prisoner to temporary absence")
 @Builder
 @AllArgsConstructor
@@ -28,7 +30,7 @@ public class RequestToTransferOutToTemporaryAbsence {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime movementTime;
 
-    @Schema(required = true, description = "The escort type of the move.", example = "PECS")
+    @Schema(requiredMode = REQUIRED, description = "The escort type of the move.", example = "PECS")
     @Size(max = 12, message = "Escort type must be a maximum of 12 characters.")
     private String escortType;
 

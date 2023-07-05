@@ -12,6 +12,8 @@ import lombok.ToString;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * General API Error Response
  **/
@@ -26,14 +28,14 @@ import jakarta.validation.constraints.NotNull;
 @Data
 public class ErrorResponse {
 
-    @Schema(required = true, description = "Response status code (will typically mirror HTTP status code).", example = "404")
+    @Schema(requiredMode = REQUIRED, description = "Response status code (will typically mirror HTTP status code).", example = "404")
     @NotNull
     private Integer status;
 
     @Schema(description = "An (optional) application-specific error code.", example = "20002")
     private Integer errorCode;
 
-    @Schema(required = true, description = "Concise error reason for end-user consumption.", example = "Entity Not Found")
+    @Schema(requiredMode = REQUIRED, description = "Concise error reason for end-user consumption.", example = "Entity Not Found")
     @NotBlank
     private String userMessage;
 

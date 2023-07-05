@@ -13,6 +13,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -22,11 +24,11 @@ import java.util.List;
 public class Employment {
 
     @NotNull
-    @Schema(description = "Offender booking id.", example = "14", required = true)
+    @Schema(description = "Offender booking id.", example = "14", requiredMode = REQUIRED)
     private Long bookingId;
 
     @NotNull
-    @Schema(description = "Start date of employment", example = "2018-02-11", required = true)
+    @Schema(description = "Start date of employment", example = "2018-02-11", requiredMode = REQUIRED)
     private LocalDate startDate;
 
     @Schema(description = "End date of employment", example = "2018-05-11")
@@ -66,15 +68,15 @@ public class Employment {
     private Integer hoursWeek;
 
     @NotNull
-    @Schema(description = "Whether the employer is aware of the offender's charges", example = "true", required = true)
+    @Schema(description = "Whether the employer is aware of the offender's charges", example = "true", requiredMode = REQUIRED)
     private Boolean isEmployerAware;
 
     @NotNull
-    @Schema(description = "Whether the employer can be contacted or not", example = "false", required = true)
+    @Schema(description = "Whether the employer can be contacted or not", example = "false", requiredMode = REQUIRED)
     private Boolean isEmployerContactable;
 
     @NotNull
     @Builder.Default
-    @Schema(description = "A list of addresses associated with the employment", required = true)
+    @Schema(description = "A list of addresses associated with the employment", requiredMode = REQUIRED)
     private List<AddressDto> addresses = new ArrayList<>();
 }

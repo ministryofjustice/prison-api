@@ -10,6 +10,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Key worker allocation details
  **/
@@ -63,7 +65,7 @@ public class KeyWorkerAllocationDetail {
     /**
      * Offender Booking Id
      */
-    @Schema(required = true, description = "Offender Booking Id")
+    @Schema(requiredMode = REQUIRED, description = "Offender Booking Id")
     @JsonProperty("bookingId")
     public Long getBookingId() {
         return bookingId;
@@ -76,7 +78,7 @@ public class KeyWorkerAllocationDetail {
     /**
      * Offender Unique Reference
      */
-    @Schema(required = true, description = "Offender Unique Reference")
+    @Schema(requiredMode = REQUIRED, description = "Offender Unique Reference")
     @JsonProperty("offenderNo")
     public String getOffenderNo() {
         return offenderNo;
@@ -89,7 +91,7 @@ public class KeyWorkerAllocationDetail {
     /**
      * First Name
      */
-    @Schema(required = true, description = "First Name")
+    @Schema(requiredMode = REQUIRED, description = "First Name")
     @JsonProperty("firstName")
     public String getFirstName() {
         return firstName;
@@ -115,7 +117,7 @@ public class KeyWorkerAllocationDetail {
     /**
      * Last Name
      */
-    @Schema(required = true, description = "Last Name")
+    @Schema(requiredMode = REQUIRED, description = "Last Name")
     @JsonProperty("lastName")
     public String getLastName() {
         return lastName;
@@ -128,7 +130,7 @@ public class KeyWorkerAllocationDetail {
     /**
      * The key worker's Staff Id
      */
-    @Schema(required = true, description = "The key worker's Staff Id")
+    @Schema(requiredMode = REQUIRED, description = "The key worker's Staff Id")
     @JsonProperty("staffId")
     public Long getStaffId() {
         return staffId;
@@ -141,7 +143,7 @@ public class KeyWorkerAllocationDetail {
     /**
      * Agency Id
      */
-    @Schema(required = true, description = "Agency Id")
+    @Schema(requiredMode = REQUIRED, description = "Agency Id")
     @JsonProperty("agencyId")
     public String getAgencyId() {
         return agencyId;
@@ -154,7 +156,7 @@ public class KeyWorkerAllocationDetail {
     /**
      * Date and time of the allocation
      */
-    @Schema(required = true, description = "Date and time of the allocation")
+    @Schema(requiredMode = REQUIRED, description = "Date and time of the allocation")
     @JsonProperty("assigned")
     public LocalDateTime getAssigned() {
         return assigned;
@@ -167,7 +169,7 @@ public class KeyWorkerAllocationDetail {
     /**
      * Description of the location within the prison
      */
-    @Schema(required = true, description = "Description of the location within the prison")
+    @Schema(requiredMode = REQUIRED, description = "Description of the location within the prison")
     @JsonProperty("internalLocationDesc")
     public String getInternalLocationDesc() {
         return internalLocationDesc;

@@ -11,6 +11,8 @@ import lombok.ToString;
 
 import jakarta.validation.constraints.NotBlank;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Telephone Details
  **/
@@ -27,11 +29,11 @@ public class Telephone {
     @Schema(description = "Phone Id", example = "2234232")
     private Long phoneId;
 
-    @Schema(required = true, description = "Telephone number", example = "0114 2345678")
+    @Schema(requiredMode = REQUIRED, description = "Telephone number", example = "0114 2345678")
     @NotBlank
     private String number;
 
-    @Schema(required = true, description = "Telephone type", example = "TEL")
+    @Schema(requiredMode = REQUIRED, description = "Telephone type", example = "TEL")
     @NotBlank
     private String type;
 

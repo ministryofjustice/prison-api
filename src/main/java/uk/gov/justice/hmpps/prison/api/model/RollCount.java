@@ -9,6 +9,8 @@ import lombok.EqualsAndHashCode;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Establishment roll count numbers for a housing block, wing, or reception etc.
  **/
@@ -66,7 +68,7 @@ public class RollCount {
     /**
      * Id of location
      */
-    @Schema(required = true, description = "Id of location")
+    @Schema(requiredMode = REQUIRED, description = "Id of location")
     @JsonProperty("livingUnitId")
     public Long getLivingUnitId() {
         return livingUnitId;
@@ -79,7 +81,7 @@ public class RollCount {
     /**
      * Wing, houseblock etc. name
      */
-    @Schema(required = true, description = "Wing, houseblock etc. name")
+    @Schema(requiredMode = REQUIRED, description = "Wing, houseblock etc. name")
     @JsonProperty("livingUnitDesc")
     public String getLivingUnitDesc() {
         return livingUnitDesc;
@@ -92,7 +94,7 @@ public class RollCount {
     /**
      * No of residential prisoners
      */
-    @Schema(required = true, description = "No of residential prisoners")
+    @Schema(requiredMode = REQUIRED, description = "No of residential prisoners")
     @JsonProperty("bedsInUse")
     public Integer getBedsInUse() {
         return bedsInUse;
@@ -105,7 +107,7 @@ public class RollCount {
     /**
      * No of residential prisoners actually in
      */
-    @Schema(required = true, description = "No of residential prisoners actually in")
+    @Schema(requiredMode = REQUIRED, description = "No of residential prisoners actually in")
     @JsonProperty("currentlyInCell")
     public Integer getCurrentlyInCell() {
         return currentlyInCell;
@@ -118,7 +120,7 @@ public class RollCount {
     /**
      * No of residential prisoners out
      */
-    @Schema(required = true, description = "No of residential prisoners out")
+    @Schema(requiredMode = REQUIRED, description = "No of residential prisoners out")
     @JsonProperty("currentlyOut")
     public Integer getCurrentlyOut() {
         return currentlyOut;
@@ -131,7 +133,7 @@ public class RollCount {
     /**
      * Total capacity not including unavailable cells
      */
-    @Schema(required = true, description = "Total capacity not including unavailable cells")
+    @Schema(requiredMode = REQUIRED, description = "Total capacity not including unavailable cells")
     @JsonProperty("operationalCapacity")
     public Integer getOperationalCapacity() {
         return operationalCapacity;
@@ -144,7 +146,7 @@ public class RollCount {
     /**
      * Available empty beds
      */
-    @Schema(required = true, description = "Available empty beds")
+    @Schema(requiredMode = REQUIRED, description = "Available empty beds")
     @JsonProperty("netVacancies")
     public Integer getNetVacancies() {
         return netVacancies;
@@ -157,7 +159,7 @@ public class RollCount {
     /**
      * Total capacity including unavailable cells
      */
-    @Schema(required = true, description = "Total capacity including unavailable cells")
+    @Schema(requiredMode = REQUIRED, description = "Total capacity including unavailable cells")
     @JsonProperty("maximumCapacity")
     public Integer getMaximumCapacity() {
         return maximumCapacity;
@@ -170,7 +172,7 @@ public class RollCount {
     /**
      * All empty beds
      */
-    @Schema(required = true, description = "All empty beds")
+    @Schema(requiredMode = REQUIRED, description = "All empty beds")
     @JsonProperty("availablePhysical")
     public Integer getAvailablePhysical() {
         return availablePhysical;
@@ -183,7 +185,7 @@ public class RollCount {
     /**
      * No of unavailable cells
      */
-    @Schema(required = true, description = "No of unavailable cells")
+    @Schema(requiredMode = REQUIRED, description = "No of unavailable cells")
     @JsonProperty("outOfOrder")
     public Integer getOutOfOrder() {
         return outOfOrder;

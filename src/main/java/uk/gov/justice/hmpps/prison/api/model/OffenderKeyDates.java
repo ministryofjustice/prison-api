@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Offender Key Dates")
 @JsonInclude(Include.NON_NULL)
 @Builder
@@ -60,10 +62,10 @@ public class OffenderKeyDates {
     @Schema(description = "ERSED - Early Removal Scheme Eligibility Date", example = "2020-02-03")
     private LocalDate earlyRemovalSchemeEligibilityDate;
 
-    @Schema(required = true, description = "Effective sentence end date.", example = "2020-02-03")
+    @Schema(requiredMode = REQUIRED, description = "Effective sentence end date.", example = "2020-02-03")
     private LocalDate effectiveSentenceEndDate;
 
-    @Schema(required = true, description = "Sentence length in the format 00 years/00 months/00 days.", example = "11/00/00")
+    @Schema(requiredMode = REQUIRED, description = "Sentence length in the format 00 years/00 months/00 days.", example = "11/00/00")
     private String sentenceLength;
 
     @Schema(description = "HDCAD - Home Detention Curfew Approved date", example = "2020-02-03")

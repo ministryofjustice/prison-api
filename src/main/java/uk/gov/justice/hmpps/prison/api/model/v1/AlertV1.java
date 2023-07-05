@@ -15,6 +15,8 @@ import lombok.ToString;
 
 import java.time.LocalDate;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Offender Alert")
 @Data
 @AllArgsConstructor
@@ -26,15 +28,15 @@ import java.time.LocalDate;
 @JsonPropertyOrder({"alert_type", "alert_sub_type", "alert_date", "expiry_date", "status", "comment"})
 public class AlertV1 {
 
-    @Schema(description = "Code and description identifying the type of alert", required = true, example = "{ \"code\": \"FX\", \"desc\": \"Security\" }")
+    @Schema(description = "Code and description identifying the type of alert", requiredMode = REQUIRED, example = "{ \"code\": \"FX\", \"desc\": \"Security\" }")
     @JsonProperty("alert_type")
     private CodeDescription type;
 
-    @Schema(description = "Code and description identifying the sub type of alert", required = true, example = "{ \"code\": \"XEL\", \"desc\": \"Escape List\" }")
+    @Schema(description = "Code and description identifying the sub type of alert", requiredMode = REQUIRED, example = "{ \"code\": \"XEL\", \"desc\": \"Escape List\" }")
     @JsonProperty("alert_sub_type")
     private CodeDescription subType;
 
-    @Schema(description = "Date the alert became effective", example = "2019-02-13", required = true)
+    @Schema(description = "Date the alert became effective", example = "2019-02-13", requiredMode = REQUIRED)
     @JsonProperty("alert_date")
     private LocalDate date;
 

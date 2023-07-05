@@ -8,6 +8,8 @@ import lombok.EqualsAndHashCode;
 
 import jakarta.validation.constraints.NotBlank;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Staff Role
  **/
@@ -33,7 +35,7 @@ public class StaffRole {
     /**
      * A code that defines staff member's role at agency.
      */
-    @Schema(required = true, description = "A code that defines staff member's role at agency.")
+    @Schema(requiredMode = REQUIRED, description = "A code that defines staff member's role at agency.")
     @JsonProperty("role")
     public String getRole() {
         return role;

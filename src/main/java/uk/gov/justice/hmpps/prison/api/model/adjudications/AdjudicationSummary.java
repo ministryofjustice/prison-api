@@ -12,6 +12,8 @@ import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 
 @Schema(description = "Adjudication Summary for offender")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -22,14 +24,14 @@ import java.util.List;
 public class AdjudicationSummary {
 
     @JsonProperty("bookingId")
-    @Schema(required = true, description = "Offender Booking Id")
+    @Schema(requiredMode = REQUIRED, description = "Offender Booking Id")
     private Long bookingId;
 
-    @Schema(required = true, description = "Number of proven adjudications")
+    @Schema(requiredMode = REQUIRED, description = "Number of proven adjudications")
     @JsonProperty("adjudicationCount")
     private Integer adjudicationCount;
 
-    @Schema(required = true, description = "List of awards / sanctions")
+    @Schema(requiredMode = REQUIRED, description = "List of awards / sanctions")
     @JsonProperty("awards")
     @NotNull
     @Builder.Default

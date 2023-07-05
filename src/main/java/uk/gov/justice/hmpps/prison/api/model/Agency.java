@@ -9,24 +9,26 @@ import lombok.Data;
 import java.time.LocalDate;
 import java.util.List;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Agency Details")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder(toBuilder = true)
 @Data
 public class Agency {
-    @Schema(required = true, description = "Agency identifier.", example = "MDI")
+    @Schema(requiredMode = REQUIRED, description = "Agency identifier.", example = "MDI")
     private String agencyId;
 
-    @Schema(required = true, description = "Agency description.", example = "Moorland (HMP & YOI)")
+    @Schema(requiredMode = REQUIRED, description = "Agency description.", example = "Moorland (HMP & YOI)")
     private String description;
 
     @Schema(description = "Long description of the agency", example = "Moorland (HMP & YOI)")
     private String longDescription;
 
-    @Schema(required = true, description = "Agency type.  Reference domain is AGY_LOC_TYPE", example = "INST", allowableValues = {"CRC","POLSTN","INST","COMM","APPR","CRT","POLICE","IMDC","TRN","OUT","YOT","SCH","STC","HOST","AIRPORT","HSHOSP","HOSPITAL","PECS","PAR","PNP","PSY"})
+    @Schema(requiredMode = REQUIRED, description = "Agency type.  Reference domain is AGY_LOC_TYPE", example = "INST", allowableValues = {"CRC","POLSTN","INST","COMM","APPR","CRT","POLICE","IMDC","TRN","OUT","YOT","SCH","STC","HOST","AIRPORT","HSHOSP","HOSPITAL","PECS","PAR","PNP","PSY"})
     private String agencyType;
 
-    @Schema(required = true, description = "Indicates the Agency is active", example = "true")
+    @Schema(requiredMode = REQUIRED, description = "Indicates the Agency is active", example = "true")
     @Default
     private boolean active = true;
 

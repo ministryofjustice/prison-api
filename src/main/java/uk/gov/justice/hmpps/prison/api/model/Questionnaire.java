@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 import jakarta.validation.constraints.NotBlank;
 import java.util.SortedSet;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Questionnaire")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
@@ -19,13 +21,13 @@ import java.util.SortedSet;
 @EqualsAndHashCode
 @Data
 public class Questionnaire {
-    @Schema(required = true, description = "Code to identify this questionnaire", example = "ASSAULTS")
+    @Schema(requiredMode = REQUIRED, description = "Code to identify this questionnaire", example = "ASSAULTS")
     @NotBlank
     private String code;
-    @Schema(required = true, description = "ID internal of this Questionnaire", example = "123412")
+    @Schema(requiredMode = REQUIRED, description = "ID internal of this Questionnaire", example = "123412")
     @NotBlank
     private Long questionnaireId;
 
-    @Schema(required = true, description = "List of Questions (with Answers) for this Questionnaire")
+    @Schema(requiredMode = REQUIRED, description = "List of Questions (with Answers) for this Questionnaire")
     private SortedSet<QuestionnaireQuestion> questions;
 }

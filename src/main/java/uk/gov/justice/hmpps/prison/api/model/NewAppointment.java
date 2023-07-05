@@ -13,6 +13,8 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Creation details for a new appointment
  **/
@@ -25,17 +27,17 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class NewAppointment {
 
-    @Schema(required = true, description = "Corresponds to the scheduled event subType")
+    @Schema(requiredMode = REQUIRED, description = "Corresponds to the scheduled event subType")
     @Size(max = 12)
     @Pattern(regexp = "\\w*")
     @NotBlank
     private String appointmentType;
 
-    @Schema(required = true, description = "Location at which the appointment takes place.")
+    @Schema(requiredMode = REQUIRED, description = "Location at which the appointment takes place.")
     @NotNull
     private Long locationId;
 
-    @Schema(required = true, description = "Date and time at which event starts")
+    @Schema(requiredMode = REQUIRED, description = "Date and time at which event starts")
     @NotNull
     private LocalDateTime startTime;
 

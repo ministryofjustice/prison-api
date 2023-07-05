@@ -19,6 +19,8 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * New Case Note
  **/
@@ -62,7 +64,7 @@ public class NewCaseNote {
     /**
      * Case Note Type
      */
-    @Schema(required = true, description = "Case Note Type")
+    @Schema(requiredMode = REQUIRED, description = "Case Note Type")
     @JsonProperty("type")
     public String getType() {
         return type;
@@ -75,7 +77,7 @@ public class NewCaseNote {
     /**
      * Case Note Sub Type
      */
-    @Schema(required = true, description = "Case Note Sub Type")
+    @Schema(requiredMode = REQUIRED, description = "Case Note Sub Type")
     @JsonProperty("subType")
     public String getSubType() {
         return subType;
@@ -101,7 +103,7 @@ public class NewCaseNote {
     /**
      * Case Note Text
      */
-    @Schema(required = true, description = "Case Note Text")
+    @Schema(requiredMode = REQUIRED, description = "Case Note Text")
     @JsonProperty("text")
     public String getText() {
         return text;

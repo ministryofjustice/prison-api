@@ -11,6 +11,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Summary of an offender counted as Establishment Roll - In")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder(toBuilder = true)
@@ -18,7 +20,7 @@ import java.time.LocalTime;
 
 public class OffenderIn {
     @NotBlank
-    @Schema(required = true, description = "Display Prisoner Number")
+    @Schema(requiredMode = REQUIRED, description = "Display Prisoner Number")
     private String offenderNo;
 
     @NotNull
@@ -36,19 +38,19 @@ public class OffenderIn {
     private String lastName;
 
     @NotBlank
-    @Schema(required = true, description = "Id for Agency travelling from")
+    @Schema(requiredMode = REQUIRED, description = "Id for Agency travelling from")
     private String fromAgencyId;
 
     @NotBlank
-    @Schema(required = true, description = "Description for Agency travelling from")
+    @Schema(requiredMode = REQUIRED, description = "Description for Agency travelling from")
     private String fromAgencyDescription;
 
     @NotBlank
-    @Schema(required = true, description = "Id for Agency travelling to")
+    @Schema(requiredMode = REQUIRED, description = "Id for Agency travelling to")
     private String toAgencyId;
 
     @NotBlank
-    @Schema(required = true, description = "Description for Agency travelling to")
+    @Schema(requiredMode = REQUIRED, description = "Description for Agency travelling to")
     private String toAgencyDescription;
 
     @NotBlank
@@ -60,15 +62,15 @@ public class OffenderIn {
     private String toCity;
 
     @NotNull
-    @Schema(required = true, description = "Movement time")
+    @Schema(requiredMode = REQUIRED, description = "Movement time")
     private LocalTime movementTime;
 
     @NotNull
-    @Schema(required = true, description = "Movement date time")
+    @Schema(requiredMode = REQUIRED, description = "Movement date time")
     private LocalDateTime movementDateTime;
 
     @NotNull
-    @Schema(required = true, description = "Description of the offender's (internal) location")
+    @Schema(requiredMode = REQUIRED, description = "Description of the offender's (internal) location")
     private String location;
 
     public OffenderIn(@NotBlank String offenderNo, @NotNull Long bookingId, @NotNull LocalDate dateOfBirth, @NotBlank String firstName, String middleName, @NotBlank String lastName, @NotBlank String fromAgencyId, @NotBlank String fromAgencyDescription, @NotBlank String toAgencyId, @NotBlank String toAgencyDescription, @NotBlank String fromCity, @NotBlank String toCity, @NotNull LocalTime movementTime, @NotNull LocalDateTime movementDateTime, @NotNull String location) {

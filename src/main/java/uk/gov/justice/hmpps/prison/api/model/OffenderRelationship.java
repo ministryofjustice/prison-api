@@ -16,6 +16,8 @@ import jakarta.validation.constraints.NotBlank;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Offender Relationship
  **/
@@ -83,7 +85,7 @@ public class OffenderRelationship {
     /**
      * Surname
      */
-    @Schema(required = true, description = "Surname")
+    @Schema(requiredMode = REQUIRED, description = "Surname")
     @JsonProperty("lastName")
     public String getLastName() {
         return lastName;
@@ -96,7 +98,7 @@ public class OffenderRelationship {
     /**
      * First Name
      */
-    @Schema(required = true, description = "First Name")
+    @Schema(requiredMode = REQUIRED, description = "First Name")
     @JsonProperty("firstName")
     public String getFirstName() {
         return firstName;
@@ -109,7 +111,7 @@ public class OffenderRelationship {
     /**
      * Relationship to inmate (e.g. COM or POM, etc.)
      */
-    @Schema(required = true, description = "Relationship to inmate (e.g. COM or POM, etc.)")
+    @Schema(requiredMode = REQUIRED, description = "Relationship to inmate (e.g. COM or POM, etc.)")
     @JsonProperty("relationshipType")
     public String getRelationshipType() {
         return relationshipType;

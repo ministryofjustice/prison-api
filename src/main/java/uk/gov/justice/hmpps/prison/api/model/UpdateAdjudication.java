@@ -15,6 +15,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Update details for an existing adjudication")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
@@ -23,15 +25,15 @@ import java.util.List;
 @AllArgsConstructor
 public class UpdateAdjudication {
 
-    @Schema(required = true, description = "When the incident took place", example = "15-06-2020T09:03:11")
+    @Schema(requiredMode = REQUIRED, description = "When the incident took place", example = "15-06-2020T09:03:11")
     @NotNull
     private LocalDateTime incidentTime;
 
-    @Schema(required = true, description = "The id to indicate where the incident took place. Note: This will be an agency's internal location id")
+    @Schema(requiredMode = REQUIRED, description = "The id to indicate where the incident took place. Note: This will be an agency's internal location id")
     @NotNull
     private Long incidentLocationId;
 
-    @Schema(required = true, description = "The adjudication statement", example = "The offence involved ...")
+    @Schema(requiredMode = REQUIRED, description = "The adjudication statement", example = "The offence involved ...")
     @NotNull
     @MaximumTextSize
     @Size(max = 4000)

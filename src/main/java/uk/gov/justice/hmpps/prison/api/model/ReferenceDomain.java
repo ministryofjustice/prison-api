@@ -8,6 +8,8 @@ import lombok.EqualsAndHashCode;
 
 import jakarta.validation.constraints.NotBlank;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Reference Domain
  **/
@@ -49,7 +51,7 @@ public class ReferenceDomain {
     /**
      * Reference domain name
      */
-    @Schema(required = true, description = "Reference domain name")
+    @Schema(requiredMode = REQUIRED, description = "Reference domain name")
     @JsonProperty("domain")
     public String getDomain() {
         return domain;
@@ -62,7 +64,7 @@ public class ReferenceDomain {
     /**
      * Reference domain description.
      */
-    @Schema(required = true, description = "Reference domain description.")
+    @Schema(requiredMode = REQUIRED, description = "Reference domain description.")
     @JsonProperty("description")
     public String getDescription() {
         return description;
@@ -75,7 +77,7 @@ public class ReferenceDomain {
     /**
      * Reference domain status.
      */
-    @Schema(required = true, description = "Reference domain status.")
+    @Schema(requiredMode = REQUIRED, description = "Reference domain status.")
     @JsonProperty("domainStatus")
     public String getDomainStatus() {
         return domainStatus;
@@ -88,7 +90,7 @@ public class ReferenceDomain {
     /**
      * Reference domain owner.
      */
-    @Schema(required = true, description = "Reference domain owner.")
+    @Schema(requiredMode = REQUIRED, description = "Reference domain owner.")
     @JsonProperty("ownerCode")
     public String getOwnerCode() {
         return ownerCode;
@@ -101,7 +103,7 @@ public class ReferenceDomain {
     /**
      * Application that uses reference domain.
      */
-    @Schema(required = true, description = "Application that uses reference domain.")
+    @Schema(requiredMode = REQUIRED, description = "Application that uses reference domain.")
     @JsonProperty("applnCode")
     public String getApplnCode() {
         return applnCode;

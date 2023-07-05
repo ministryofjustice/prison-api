@@ -7,24 +7,26 @@ import lombok.Data;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Offence Details")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 public class OffenceDetail {
 
-    @Schema(required = true, description = "Prisoner booking id", example = "1123456")
+    @Schema(requiredMode = REQUIRED, description = "Prisoner booking id", example = "1123456")
     @NotNull
     private Long bookingId;
 
-    @Schema(required = true, description = "Description of offence")
+    @Schema(requiredMode = REQUIRED, description = "Description of offence")
     @NotBlank
     private String offenceDescription;
 
-    @Schema(required = true, description = "Reference Code", example = "RR84070")
+    @Schema(requiredMode = REQUIRED, description = "Reference Code", example = "RR84070")
     @NotBlank
     private String offenceCode;
 
-    @Schema(required = true, description = "Statute code", example = "RR84")
+    @Schema(requiredMode = REQUIRED, description = "Statute code", example = "RR84")
     @NotBlank
     private String statuteCode;
 

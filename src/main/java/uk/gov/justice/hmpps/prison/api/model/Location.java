@@ -8,6 +8,8 @@ import lombok.Data;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 /**
  * Location Details
  **/
@@ -17,22 +19,22 @@ import jakarta.validation.constraints.NotNull;
 @Builder
 @Data
 public class Location {
-    @Schema(required = true, description = "Location identifier.")
+    @Schema(requiredMode = REQUIRED, description = "Location identifier.")
     @NotNull
     private Long locationId;
 
-    @Schema(required = true, description = "Location type.")
+    @Schema(requiredMode = REQUIRED, description = "Location type.")
     @NotBlank
     private String locationType;
 
-    @Schema(required = true, description = "Location description.")
+    @Schema(requiredMode = REQUIRED, description = "Location description.")
     @NotBlank
     private String description;
 
     @Schema(description = "What events this room can be used for.")
     private String locationUsage;
 
-    @Schema(required = true, description = "Identifier of Agency this location is associated with.")
+    @Schema(requiredMode = REQUIRED, description = "Identifier of Agency this location is associated with.")
     @NotBlank
     private String agencyId;
 

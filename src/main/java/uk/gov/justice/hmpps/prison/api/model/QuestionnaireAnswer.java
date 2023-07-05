@@ -11,6 +11,8 @@ import org.apache.commons.lang3.builder.CompareToBuilder;
 
 import java.time.LocalDateTime;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @Schema(description = "Questionnaire Answer")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
@@ -20,21 +22,21 @@ import java.time.LocalDateTime;
 @Data
 public class QuestionnaireAnswer implements Comparable<QuestionnaireAnswer> {
 
-    @Schema(required = true, description = "ID for this Answer")
+    @Schema(requiredMode = REQUIRED, description = "ID for this Answer")
     private Long questionnaireAnsId;
-    @Schema(required = true, description = "", example = "1")
+    @Schema(requiredMode = REQUIRED, description = "", example = "1")
     private int answerSeq;
-    @Schema(required = true, description = "", example = "YES")
+    @Schema(requiredMode = REQUIRED, description = "", example = "YES")
     private String answerDesc;
-    @Schema(required = true, description = "", example = "1")
+    @Schema(requiredMode = REQUIRED, description = "", example = "1")
     private int answerListSeq;
-    @Schema(required = true, description = "", example = "true")
+    @Schema(requiredMode = REQUIRED, description = "", example = "true")
     private Boolean answerActiveFlag;
-    @Schema(required = true, description = "", example = "2017-01-02T00:00:00")
+    @Schema(requiredMode = REQUIRED, description = "", example = "2017-01-02T00:00:00")
     private LocalDateTime answerExpiryDate;
-    @Schema(required = true, description = "", example = "false")
+    @Schema(requiredMode = REQUIRED, description = "", example = "false")
     private Boolean dateRequiredFlag;
-    @Schema(required = true, description = "", example = "false")
+    @Schema(requiredMode = REQUIRED, description = "", example = "false")
     private Boolean commentRequiredFlag;
 
     @Override
