@@ -1152,7 +1152,7 @@ public class BookingServiceTest {
     }
 
     @Test
-    void getOffenderSentencesSummary_most_recent_active_booking() {
+    void getOffenderSentencesSummary_most_recent_bookings() {
         final var OffenderSentenceDetailDtos
             = List.of(
                 OffenderSentenceDetailDto.builder()
@@ -1165,7 +1165,7 @@ public class BookingServiceTest {
                 .build());
 
         when(bookingRepository.getOffenderSentenceSummary(any(), any(), anyBoolean(), anyBoolean())).thenReturn(OffenderSentenceDetailDtos);
-        List<OffenderSentenceDetail> offenderSentenceDetails = bookingService.getOffenderSentencesSummary(null, List.of("NomsId"));
+        List<OffenderSentenceDetail> offenderSentenceDetails = bookingService.getOffenderSentencesSummary(null, List.of("NomsId"), false);
 
         assertThat(offenderSentenceDetails).hasSize(2);
         assertThat(offenderSentenceDetails.get(0)).extracting(OffenderSentenceDetail::getBookingId).isEqualTo(1L);
@@ -1173,6 +1173,24 @@ public class BookingServiceTest {
         assertThat(offenderSentenceDetails.get(1)).extracting(OffenderSentenceDetail::getBookingId).isEqualTo(2L);
         assertThat(offenderSentenceDetails.get(1)).extracting(OffenderSentenceDetail::getMostRecentActiveBooking).isEqualTo(false);
     }
+
+    @Test
+    void getOffenderSentencesSummary_most_recent_active_bookings() {
+        final var OffenderSentenceDetailDtos
+            = List.of(
+            OffenderSentenceDetailDto.builder()
+                .bookingId(1L)
+                .mostRecentActiveBooking(true)
+                .build());
+
+        when(bookingRepository.getOffenderSentenceSummary(any(), any(), anyBoolean(), anyBoolean())).thenReturn(OffenderSentenceDetailDtos);
+        List<OffenderSentenceDetail> offenderSentenceDetails = bookingService.getOffenderSentencesSummary(null, List.of("NomsId"), true);
+
+        assertThat(offenderSentenceDetails).hasSize(1);
+        assertThat(offenderSentenceDetails.get(0)).extracting(OffenderSentenceDetail::getBookingId).isEqualTo(1L);
+        assertThat(offenderSentenceDetails.get(0)).extracting(OffenderSentenceDetail::getMostRecentActiveBooking).isEqualTo(true);
+    }
+
 
     @Test
     void getOffenderCourtCases_errors_for_unknown_booking() {
@@ -1203,7 +1221,7 @@ public class BookingServiceTest {
     public void getOffenderSentenceSummaries_forOveriddenRole() {
         when(authenticationFacade.isOverrideRole(any(String[].class))).thenReturn(true);
         when(caseloadToAgencyMappingService.agenciesForUsersWorkingCaseload(any())).thenReturn(List.of());
-        assertThatThrownBy(() -> bookingService.getOffenderSentencesSummary(null, List.of()))
+        assertThatThrownBy(() -> bookingService.getOffenderSentencesSummary(null, List.of(), false))
                 .isInstanceOf(HttpClientErrorException.class).hasMessage("400 Request must be restricted to either a caseload, agency or list of offenders");
     }
 
