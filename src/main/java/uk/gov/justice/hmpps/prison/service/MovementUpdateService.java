@@ -13,7 +13,6 @@ import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -46,7 +45,7 @@ public class MovementUpdateService {
     }
 
     @Transactional
-    @VerifyBookingAccess(overrideRoles = {"ROLE_SYSTEM_USER", "ROLE_UNILINK"})
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "UNILINK"})
     @HasWriteScope
     public CellMoveResult moveToCell(final Long bookingId, final String internalLocationDescription, final String reasonCode, final LocalDateTime dateTime) {
         validateMoveToCell(reasonCode, dateTime);

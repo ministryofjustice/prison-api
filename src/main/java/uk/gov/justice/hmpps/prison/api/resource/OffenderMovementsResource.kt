@@ -38,11 +38,10 @@ class OffenderMovementsResource(
   )
   @Operation(
     summary = "Move the prisoner to the specified cell.",
-    description = """
-      Unilink specific version of /api/bookings/{bookingId}/living-unit/{internalLocationDescription}.
-      Requires either a valid user token or a token with UNILINK role.
-      """,
+    description = """Unilink specific version of /api/bookings/{bookingId}/living-unit/{internalLocationDescription}.<br/>
+      Requires either a valid user token or a token with UNILINK role.""",
   )
+  @Tag(name = "unilink")
   @PutMapping("/{offenderNo}/living-unit/{internalLocationDescription}")
   @ProxyUser
   fun moveToCell(

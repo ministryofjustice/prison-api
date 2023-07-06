@@ -78,7 +78,7 @@ public class FinanceService {
     }
 
     @Transactional
-    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'NOMIS_API_V1')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'NOMIS_API_V1', 'UNILINK')")
     public TransferTransactionDetail transferToSavings(final String prisonId, final String offenderNo, final TransferTransaction transferTransaction,
                                                        final String clientUniqueId) {
         final var optionalOffenderBooking = offenderBookingRepository.findByOffenderNomsIdAndActive(offenderNo, true);

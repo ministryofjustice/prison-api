@@ -12,7 +12,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction.Status;
 
 import java.time.LocalDate;
 
-
 @Schema(description = "OicSanctionRequest")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @AllArgsConstructor
@@ -39,4 +38,7 @@ public class OicSanctionRequest {
 
     @Schema(description = "Sanction status")
     private Status status;
+
+    @Schema(description = "Consecutive Report Number")
+    private Long consecutiveReportNumber;
 }
