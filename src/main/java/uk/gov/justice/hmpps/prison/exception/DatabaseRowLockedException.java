@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.service;
+package uk.gov.justice.hmpps.prison.exception;
 
 import java.util.function.Supplier;
 

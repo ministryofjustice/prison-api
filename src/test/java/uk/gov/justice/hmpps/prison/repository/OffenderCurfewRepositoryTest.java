@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -18,6 +19,8 @@ import org.springframework.test.context.ContextConfiguration;
 import uk.gov.justice.hmpps.prison.api.model.ApprovalStatus;
 import uk.gov.justice.hmpps.prison.api.model.HdcChecks;
 import uk.gov.justice.hmpps.prison.api.model.HomeDetentionCurfew;
+import uk.gov.justice.hmpps.prison.service.support.HsqlConditionalSqlService;
+import uk.gov.justice.hmpps.prison.service.support.OracleConditionalSqlService;
 import uk.gov.justice.hmpps.prison.service.support.OffenderCurfew;
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs;
 
@@ -39,6 +42,7 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @JdbcTest
 @AutoConfigureTestDatabase(replace = NONE)
 @ContextConfiguration(classes = PersistenceConfigs.class)
+@Import({OracleConditionalSqlService.class, HsqlConditionalSqlService.class})
 public class OffenderCurfewRepositoryTest {
     private static final String STATUS_TRACKING_CODE_REFUSED = "REFUSED";
     private static final String STATUS_TRACKING_CODE_MANUAL_FAIL = "MAN_CK_FAIL";

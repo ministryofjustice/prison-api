@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.repository;
 
-import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
@@ -13,10 +12,10 @@ import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.api.model.ApprovalStatus;
 import uk.gov.justice.hmpps.prison.api.model.HdcChecks;
 import uk.gov.justice.hmpps.prison.api.model.HomeDetentionCurfew;
+import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException;
 import uk.gov.justice.hmpps.prison.repository.sql.OffenderCurfewRepositorySql;
-import uk.gov.justice.hmpps.prison.service.DatabaseRowLockedException;
+import uk.gov.justice.hmpps.prison.service.support.ConditionalSqlService;
 import uk.gov.justice.hmpps.prison.service.support.OffenderCurfew;
-import uk.gov.justice.hmpps.prison.web.config.RoutingDataSource;
 
 import java.beans.PropertyDescriptor;
 import java.sql.ResultSet;
@@ -34,7 +33,7 @@ import java.util.Set;
 public class OffenderCurfewRepository extends RepositoryBase {
 
     @Autowired
-    private RoutingDataSource routingDataSource;
+    private ConditionalSqlService conditionalSqlService;
 
     private final static int lockWaitTime = 25; // Client has a 30 second timeout, so we need to be less than that
 
@@ -44,7 +43,7 @@ public class OffenderCurfewRepository extends RepositoryBase {
         }
 
 
-        protected Object getColumnValue(ResultSet rs, int index, PropertyDescriptor pd) throws SQLException {
+        protected Object getColumnValue(@NotNull ResultSet rs, int index, PropertyDescriptor pd) throws SQLException {
             if (Boolean.class == pd.getPropertyType()) {
                 val value = rs.getString(index);
                 if ("Y".equals(value)) {
@@ -222,7 +221,7 @@ public class OffenderCurfewRepository extends RepositoryBase {
     private void getCurfewLock(long curfewId) {
         try {
             jdbcTemplate.query(
-                OffenderCurfewRepositorySql.GET_OFFENDER_CURFEW_LOCK.getSql() + getWaitClauseIfNotHsqldb(),
+                OffenderCurfewRepositorySql.GET_OFFENDER_CURFEW_LOCK.getSql() + getWaitClause(),
                 createParams("curfewId", curfewId,
                     "waitSeconds", lockWaitTime),
                 rs -> {
@@ -237,7 +236,7 @@ public class OffenderCurfewRepository extends RepositoryBase {
     private void getTrackingsLock(long curfewId, Set<String> statusTrackingCodesToMatch) {
         try {
             jdbcTemplate.query(
-                OffenderCurfewRepositorySql.GET_HDC_STATUS_TRACKINGS_LOCK.getSql() + getWaitClauseIfNotHsqldb(),
+                OffenderCurfewRepositorySql.GET_HDC_STATUS_TRACKINGS_LOCK.getSql() + getWaitClause(),
                 createParams("curfewId", curfewId,
                     "codes", statusTrackingCodesToMatch,
                     "waitSeconds", lockWaitTime),
@@ -253,7 +252,7 @@ public class OffenderCurfewRepository extends RepositoryBase {
     private void getReasonsLock(long curfewId, Set<String> statusTrackingCodesToMatch) {
         try {
             jdbcTemplate.query(
-                OffenderCurfewRepositorySql.GET_HDC_STATUS_REASONS_LOCK.getSql() + getWaitClauseIfNotHsqldb(),
+                OffenderCurfewRepositorySql.GET_HDC_STATUS_REASONS_LOCK.getSql() + getWaitClause(),
                 createParams("curfewId", curfewId,
                     "codes", statusTrackingCodesToMatch,
                     "waitSeconds", lockWaitTime),
@@ -266,9 +265,7 @@ public class OffenderCurfewRepository extends RepositoryBase {
         }
     }
 
-    @NotNull
-    private String getWaitClauseIfNotHsqldb() {
-        final HikariDataSource resolvedDefaultDataSource = (HikariDataSource)routingDataSource.getResolvedDefaultDataSource();
-        return resolvedDefaultDataSource.getJdbcUrl().contains("hsqldb") ? "" : " WAIT " + lockWaitTime;
+    private String getWaitClause() {
+        return conditionalSqlService.getWaitClause(lockWaitTime);
     }
 }

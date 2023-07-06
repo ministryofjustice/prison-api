@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.test.context.ActiveProfiles;
@@ -20,6 +21,8 @@ import uk.gov.justice.hmpps.prison.api.model.HomeDetentionCurfew;
 import uk.gov.justice.hmpps.prison.repository.OffenderCurfewRepository;
 import uk.gov.justice.hmpps.prison.service.BookingService;
 import uk.gov.justice.hmpps.prison.service.CaseloadToAgencyMappingService;
+import uk.gov.justice.hmpps.prison.service.support.HsqlConditionalSqlService;
+import uk.gov.justice.hmpps.prison.service.support.OracleConditionalSqlService;
 import uk.gov.justice.hmpps.prison.service.ReferenceDomainService;
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs;
 
@@ -41,6 +44,7 @@ import static uk.gov.justice.hmpps.prison.repository.OffenderCurfewRepositoryTes
 @JdbcTest
 @AutoConfigureTestDatabase(replace = NONE)
 @ContextConfiguration(classes = PersistenceConfigs.class)
+@Import({OracleConditionalSqlService.class, HsqlConditionalSqlService.class})
 public class OffenderCurfewServiceIntegrationTest {
 
     private static final long OFFENDER_BOOKING_ID = -51L;
