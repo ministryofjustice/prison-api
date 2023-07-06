@@ -60,6 +60,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -579,6 +580,31 @@ public class AdjudicationsService {
         for (var oicSanction : exitingOicSanctions) {
             if (Objects.equals(oicSanction.getSanctionSeq(), sanctionSeq)) oicSanctionRepository.delete(oicSanction);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public void validateCharge(
+        final Long adjudicationNumber,
+        final Long bookingId) {
+
+        final var adjudication = adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber)
+            .orElseThrow(EntityNotFoundException.withMessage(format("Could not find adjudication for consecutiveReportNumber %d", adjudicationNumber)));
+
+        final var bookingIdOnAdjudication = adjudication.getOffenderParty().orElseThrow(EntityNotFoundException.withId(adjudicationNumber)).getOffenderBooking().getBookingId();
+
+        if (!bookingId.equals(bookingIdOnAdjudication)) throw EntityNotFoundException.withMessage(format("Adjudication number %d has different bookingId %d to the one passed %d", adjudicationNumber, bookingIdOnAdjudication, bookingId));
+
+        final var hearingResult = oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(adjudication.getAgencyIncidentId(), FindingCode.PROVED);
+        if (hearingResult.isEmpty()) throw EntityNotFoundException.withMessage(format("Could not find hearing result PROVED for adjudication id %d", adjudication.getAgencyIncidentId()));
+
+        final var sanctionForHearings = oicSanctionRepository.findByOicHearingIdIn(hearingResult.stream().map(OicHearingResult::getOicHearingId).toList());
+
+        final var validSanctionStatuses = Set.of(Status.IMMEDIATE, Status.PROSPECTIVE);
+        final var filteredSanctions = sanctionForHearings.stream().filter(sanction ->
+            //sanction.getOffenderBookId().equals(bookingId) &&  -- is this one better to use?
+            validSanctionStatuses.contains(sanction.getStatus())).toList();
+
+        if (filteredSanctions.isEmpty()) throw EntityNotFoundException.withMessage(format("Could not find sanction for bookingId %d with status %s", bookingId, validSanctionStatuses));
     }
 
     private void oicHearingLocationValidation(final Long hearingLocationId){
