@@ -27,7 +27,7 @@ public class FinanceControllerTest extends ResourceTest {
     private OffenderTransactionRepository offenderTransactionRepository;
 
     @Test
-    public void transferToSavings() {
+    public void transferToSavingsNomisV1Role() {
         when(offenderTransactionRepository.getNextTransactionId()).thenReturn(12345L);
         when(offenderTransactionRepository.findById(any()))
                 .thenReturn(Optional.of(OffenderTransaction.builder().build()))
@@ -35,6 +35,21 @@ public class FinanceControllerTest extends ResourceTest {
         final var transaction = createTransferTransaction(124L);
 
         final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), transaction);
+        final var responseEntity = testRestTemplate.exchange("/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings",
+                HttpMethod.POST, requestEntity, String.class, "LEI", "A1234AA");
+
+        assertThatJsonAndStatus(responseEntity, 200, "{\"debitTransaction\":{\"id\":\"12345-1\"},\"creditTransaction\":{\"id\":\"12345-2\"},\"transactionId\":12345}");
+    }
+
+    @Test
+    public void transferToSavingsUnilinkRole() {
+        when(offenderTransactionRepository.getNextTransactionId()).thenReturn(12345L);
+        when(offenderTransactionRepository.findById(any()))
+                .thenReturn(Optional.of(OffenderTransaction.builder().build()))
+                .thenReturn(Optional.of(OffenderTransaction.builder().build()));
+        final var transaction = createTransferTransaction(124L);
+
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("UNILINK"), transaction);
         final var responseEntity = testRestTemplate.exchange("/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings",
                 HttpMethod.POST, requestEntity, String.class, "LEI", "A1234AA");
 

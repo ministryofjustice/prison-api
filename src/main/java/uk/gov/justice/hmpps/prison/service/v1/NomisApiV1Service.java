@@ -76,7 +76,7 @@ import static uk.gov.justice.hmpps.prison.values.AccountCode.codeForNameOrEmpty;
 @Slf4j
 @Service
 @Transactional(readOnly = true)
-@PreAuthorize("hasAnyRole('SYSTEM_USER','NOMIS_API_V1')")
+@PreAuthorize("hasAnyRole('SYSTEM_USER','NOMIS_API_V1', 'UNILINK')")
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class NomisApiV1Service {
 
