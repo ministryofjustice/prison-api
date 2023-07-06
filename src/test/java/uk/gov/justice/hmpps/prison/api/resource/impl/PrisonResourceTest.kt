@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.test.context.support.WithMockUser
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
 
-
 @WithMockUser
 class PrisonResourceTest : ResourceTest() {
 
@@ -38,10 +37,4 @@ class PrisonResourceTest : ResourceTest() {
     )
     AssertionsForClassTypes.assertThat(response.statusCode).isEqualTo(HttpStatus.FORBIDDEN)
   }
-
-
-
 }
-
-
-

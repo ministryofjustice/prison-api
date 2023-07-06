@@ -36,8 +36,6 @@ class CacheConfig : CachingConfigurer {
   @Value("\${cache.timeout.seconds.activity:3600}")
   private val activityTimeoutSeconds = 0L
 
-
-
   @Bean
   fun cacheConfiguration(): JCacheManagerCustomizer = JCacheManagerCustomizer { cm: CacheManager ->
     // single item cache jwks json with no expiry
