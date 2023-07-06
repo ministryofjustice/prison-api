@@ -33,6 +33,7 @@ import uk.gov.justice.hmpps.prison.api.model.OicSanctionRequest;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.Sanction;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OicSanction.Status;
 import uk.gov.justice.hmpps.prison.service.AdjudicationsService;
 
 import jakarta.validation.Valid;
@@ -350,15 +351,16 @@ public class AdjudicationsResource {
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "The charge exists"),
         @ApiResponse(responseCode = "403", description = "The client is not authorised for this operation"),
-        @ApiResponse(responseCode = "404", description = "No match was found for the adjudication or bookingId", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
+        @ApiResponse(responseCode = "404", description = "No match was found for the parameters", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
     })
     @Operation(summary = "Validates a charge", description = "Requires MAINTAIN_ADJUDICATIONS access")
-    @GetMapping("/adjudication/{adjudicationNumber}/sanction/{bookingId}/result")
+    @GetMapping("/adjudication/{adjudicationNumber}/sanction/{offenderNo}/{status}/validate")
     @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS')")
     @ResponseStatus(HttpStatus.OK)
     public void validateCharge(
         @PathVariable("adjudicationNumber") @Parameter(description = "adjudicationNo", required = true) final Long adjudicationNumber,
-        @PathVariable("bookingId") @Parameter(description = "bookingId", required = true) final Long bookingId) {
-        adjudicationsService.validateCharge(adjudicationNumber, bookingId);
+        @PathVariable("offenderNo") @Parameter(description = "offenderNo", required = true) final String offenderNo,
+        @PathVariable("status") @Parameter(description = "Sanction status", required = true) final Status status) {
+        adjudicationsService.validateCharge(adjudicationNumber, offenderNo, status);
     }
 }
