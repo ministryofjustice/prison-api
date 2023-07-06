@@ -160,6 +160,24 @@ public class NomisApiV1ResourceIntTest extends ResourceTest {
     }
 
     @Test
+    public void transferTransaction_unilink_role() {
+        final var transaction = new CreateTransaction();
+        transaction.setAmount(1234L);
+        transaction.setClientUniqueRef("clientRef");
+        transaction.setDescription("desc");
+        transaction.setType("type");
+        transaction.setClientTransactionId("transId");
+
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_UNILINK"), transaction);
+
+        when(postTransfer.execute(any(SqlParameterSource.class))).thenReturn(Map.of(P_TXN_ID, "someId", P_TXN_ENTRY_SEQ, "someSeq", P_CURRENT_AGY_DESC, "someDesc", P_CURRENT_AGY_LOC_ID, "someLoc"));
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/prison/CKI/offenders/G1408GC/transfer_transactions", HttpMethod.POST, requestEntity, String.class);
+
+        assertThatJson(responseEntity.getBody()).isEqualTo("{current_location: {code: \"someLoc\", desc: \"someDesc\"}, transaction: {id:\"someId-someSeq\"}}");
+    }
+
+    @Test
     public void transferTransaction_duplicate() {
         final var transaction = new CreateTransaction();
         transaction.setAmount(1234L);
