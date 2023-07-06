@@ -10,6 +10,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.hamcrest.MockitoHamcrest;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
 import uk.gov.justice.hmpps.prison.api.model.OicHearingRequest;
@@ -2414,6 +2416,43 @@ public class AdjudicationsServiceTest {
             verify(oicSanctionRepository, times(1)).delete(deleteCapture.capture());
             assertThat(deleteCapture.getValue().getOffenderBookId()).isEqualTo(200L);
             assertThat(deleteCapture.getValue().getSanctionSeq()).isEqualTo(2L);
+        }
+    }
+
+    // setting this enables us to use mockDataProvider
+    @MockitoSettings(strictness = Strictness.LENIENT)
+    @Nested
+    public class validateCharge {
+
+        @Test
+        public void happyPath() {
+            // Given
+            final var mockDataProvider = new MockDataProvider();
+            mockDataProvider.setupMocks();
+            final var consecutiveReportNumber = 5L;
+            final var oicHearingId = 3L;
+            final var agencyIncidentId = 10L;
+            final var sanctionStatus = Status.IMMEDIATE;
+
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(consecutiveReportNumber))
+                .thenReturn(Optional.of(Adjudication.builder().agencyIncidentId(agencyIncidentId).build()));
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(agencyIncidentId, FindingCode.PROVED))
+                .thenReturn(List.of(OicHearingResult.builder().oicHearingId(oicHearingId).build()));
+
+            OicSanction oicSanctionForConsecutive = OicSanction.builder()
+                .oicHearingId(consecutiveReportNumber)
+                .offenderBookId(mockDataProvider.booking.getBookingId())
+                .oicSanctionCode(OicSanctionCode.ADA)
+                .status(sanctionStatus)
+                .consecutiveSanctionSeq(250L)
+                .build();
+            when(oicSanctionRepository.findByOicHearingIdIn(List.of(oicHearingId)))
+                .thenReturn(List.of(oicSanctionForConsecutive));
+
+            // When
+            service.validateCharge(consecutiveReportNumber, sanctionStatus, mockDataProvider.getOffenderNo());
+
+            // Then - no exception is thrown, success!
         }
     }
 

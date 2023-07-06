@@ -354,13 +354,13 @@ public class AdjudicationsResource {
         @ApiResponse(responseCode = "404", description = "No match was found for the parameters", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
     })
     @Operation(summary = "Validates a charge", description = "Requires MAINTAIN_ADJUDICATIONS access")
-    @GetMapping("/adjudication/{adjudicationNumber}/sanction/{offenderNo}/{status}/validate")
+    @GetMapping("/adjudication/{adjudicationNumber}/sanction/{status}/{offenderNo}/validate")
     @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS')")
     @ResponseStatus(HttpStatus.OK)
     public void validateCharge(
         @PathVariable("adjudicationNumber") @Parameter(description = "adjudicationNo", required = true) final Long adjudicationNumber,
-        @PathVariable("offenderNo") @Parameter(description = "offenderNo", required = true) final String offenderNo,
-        @PathVariable("status") @Parameter(description = "Sanction status", required = true) final Status status) {
-        adjudicationsService.validateCharge(adjudicationNumber, offenderNo, status);
+        @PathVariable("status") @Parameter(description = "Sanction status", required = true) final Status status,
+        @PathVariable("offenderNo") @Parameter(description = "offenderNo", required = true) final String offenderNo) {
+        adjudicationsService.validateCharge(adjudicationNumber, status, offenderNo);
     }
 }

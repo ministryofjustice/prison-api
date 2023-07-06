@@ -584,28 +584,22 @@ public class AdjudicationsService {
     @Transactional(readOnly = true)
     public void validateCharge(
         final Long adjudicationNumber,
-        final String offenderNo,
-        final Status status) {
-        final var adjudication = adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber)
-            .orElseThrow(EntityNotFoundException.withMessage(format("Could not find adjudication for consecutiveReportNumber %d", adjudicationNumber)));
+        final Status status,
+        final String offenderNo) {
+        final var oicSanctionRequest = OicSanctionRequest.builder()
+            .consecutiveReportNumber(adjudicationNumber)
+            .status(status)
+            .build();
 
         final var offenderBookingEntry = bookingRepository.findByOffenderNomsIdAndActive(offenderNo, true)
             .orElseThrow(() -> new EntityNotFoundException(format("Could not find the booking with id %s", offenderNo)));
+        final var oicSanctionValidationResult = new OicSanctionValidationResult(
+            null,
+            null,
+            offenderBookingEntry.getBookingId()
+        );
 
-        final var bookingIdOnAdjudication = adjudication.getOffenderParty()
-            .orElseThrow(EntityNotFoundException.withId(adjudicationNumber)).getOffenderBooking().getBookingId();
-
-        if (!Objects.equals(offenderBookingEntry.getBookingId(), bookingIdOnAdjudication))
-            throw EntityNotFoundException.withMessage(format("Adjudication number %d has different bookingId %d to the one provided %d", adjudicationNumber, bookingIdOnAdjudication, offenderBookingEntry.getBookingId()));
-
-        final var hearingResult = oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(adjudication.getAgencyIncidentId(), FindingCode.PROVED);
-        if (hearingResult.isEmpty()) throw EntityNotFoundException.withMessage(format("Could not find hearing result PROVED for adjudication id %d", adjudication.getAgencyIncidentId()));
-
-        final var sanctionForHearings = oicSanctionRepository.findByOicHearingIdIn(hearingResult.stream().map(OicHearingResult::getOicHearingId).toList());
-
-        final var filteredSanctions = sanctionForHearings.stream().filter(sanction ->
-            Objects.equals(sanction.getStatus(), status)).toList();
-        if (filteredSanctions.isEmpty()) throw EntityNotFoundException.withMessage(format("Could not find sanction for adjudicationNumber %d with status %s", adjudicationNumber, status));
+        findSanctionForConsecutiveReportNumber(oicSanctionRequest, oicSanctionValidationResult);
     }
 
     private void oicHearingLocationValidation(final Long hearingLocationId){
