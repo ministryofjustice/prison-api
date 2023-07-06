@@ -22,9 +22,9 @@ import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestClientException
 import org.springframework.web.client.RestClientResponseException
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
+import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.service.BadRequestException
 import uk.gov.justice.hmpps.prison.service.ConflictingRequestException
-import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.service.EntityAlreadyExistsException
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 import uk.gov.justice.hmpps.prison.service.NoContentException
