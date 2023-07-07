@@ -1328,6 +1328,12 @@ public class AdjudicationsResourceTest extends ResourceTest  {
 
         @Test
         @Transactional
+        @Sql(scripts = {"/sql/adjudicationForValidateCharge_init.sql"},
+            executionPhase = ExecutionPhase.BEFORE_TEST_METHOD,
+            config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
+        @Sql(scripts = {"/sql/adjudicationForValidateCharge_clean.sql"},
+            executionPhase = ExecutionPhase.AFTER_TEST_METHOD,
+            config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
         public void validateChargeResultsReturnsSuccess() {
             validateCharge(validRole, -3001L, Status.IMMEDIATE, offenderNo)
                 .expectStatus().isOk();
