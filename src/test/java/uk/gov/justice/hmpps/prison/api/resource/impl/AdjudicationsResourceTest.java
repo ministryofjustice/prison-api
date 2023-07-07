@@ -1308,23 +1308,12 @@ public class AdjudicationsResourceTest extends ResourceTest  {
                 .expectBody().jsonPath("userMessage").isEqualTo("Could not find hearing result PROVED for adjudication id -6");
         }
 
-//        @Test
-//        public void validateChargeReturns404DueToNoSanctionForBookingId() {
-//            validateCharge(validRole, -9L, Status.IMMEDIATE, offenderNo)
-//                .expectStatus().isNotFound();
-//        }
-//
-//        @Test
-//        public void validateChargeReturns404DueToNoSanctionWithAdaCode() {
-//            validateCharge(validRole, -9L, Status.IMMEDIATE, offenderNo)
-//                .expectStatus().isNotFound();
-//        }
-//
-//        @Test
-//        public void validateChargeReturns404DueToNoSanctionForProvidedStatus() {
-//            validateCharge(validRole, -9L, Status.IMMEDIATE, offenderNo)
-//                .expectStatus().isNotFound();
-//        }
+        @Test
+        public void validateChargeReturns404DueToNoSanctionForBookingId() {
+            validateCharge(validRole, -3001L, Status.IMMEDIATE, offenderNo)
+                .expectStatus().isNotFound()
+                .expectBody().jsonPath("userMessage").isEqualTo("Could not find sanction for offenderBookId -5, sanction code ADA, status IMMEDIATE");
+        }
 
         @Test
         @Transactional
