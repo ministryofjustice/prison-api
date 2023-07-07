@@ -1276,4 +1276,69 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         }
     }
 
+    @Nested
+    public class ValidateCharge {
+        final List<String> validRole = List.of("ROLE_MAINTAIN_ADJUDICATIONS");
+        final String offenderNo = "A1234AE";
+
+        @Test
+        public void validateChargeReturns403ForInvalidRoles () {
+            validateCharge(List.of("ROLE_SYSTEM_USER"), -9L, Status.IMMEDIATE, offenderNo)
+                .expectStatus().isForbidden();
+        }
+
+        @Test
+        public void validateChargeReturns404DueToNoBooking() {
+            validateCharge(validRole, -9L, Status.IMMEDIATE, "fakeOffenderNo")
+                .expectStatus().isNotFound()
+                .expectBody().jsonPath("userMessage").isEqualTo("Could not find the booking for offender number fakeOffenderNo");
+        }
+
+        @Test
+        public void validateChargeReturns404DueToNoAdjudication() {
+            validateCharge(validRole, 99L, Status.IMMEDIATE, offenderNo)
+                .expectStatus().isNotFound()
+                .expectBody().jsonPath("userMessage").isEqualTo("Could not find adjudication for consecutiveReportNumber 99");
+        }
+
+        @Test
+        public void validateChargeReturns404DueToNoHearing() {
+            validateCharge(validRole, -9L, Status.IMMEDIATE, offenderNo)
+                .expectStatus().isNotFound()
+                .expectBody().jsonPath("userMessage").isEqualTo("Could not find hearing result PROVED for adjudication id -6");
+        }
+
+//        @Test
+//        public void validateChargeReturns404DueToNoSanctionForBookingId() {
+//            validateCharge(validRole, -9L, Status.IMMEDIATE, offenderNo)
+//                .expectStatus().isNotFound();
+//        }
+//
+//        @Test
+//        public void validateChargeReturns404DueToNoSanctionWithAdaCode() {
+//            validateCharge(validRole, -9L, Status.IMMEDIATE, offenderNo)
+//                .expectStatus().isNotFound();
+//        }
+//
+//        @Test
+//        public void validateChargeReturns404DueToNoSanctionForProvidedStatus() {
+//            validateCharge(validRole, -9L, Status.IMMEDIATE, offenderNo)
+//                .expectStatus().isNotFound();
+//        }
+
+        @Test
+        @Transactional
+        public void validateChargeResultsReturnsSuccess() {
+            validateCharge(validRole, -3001L, Status.IMMEDIATE, offenderNo)
+                .expectStatus().isOk();
+        }
+
+        private ResponseSpec validateCharge(List<String> headers, Long adjudicationNumber, Status status, String offenderNo) {
+            return webTestClient.get()
+                .uri("/api/adjudications/adjudication/"+adjudicationNumber+"/sanction/"+status+"/"+ offenderNo + "/validate")
+                .headers(setAuthorisation(headers))
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .exchange();
+        }
+    }
 }

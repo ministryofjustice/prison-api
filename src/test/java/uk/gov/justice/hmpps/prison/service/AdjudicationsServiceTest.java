@@ -2422,7 +2422,7 @@ public class AdjudicationsServiceTest {
     // setting this enables us to use mockDataProvider
     @MockitoSettings(strictness = Strictness.LENIENT)
     @Nested
-    public class validateCharge {
+    public class ValidateCharge {
 
         @Test
         public void happyPath() {

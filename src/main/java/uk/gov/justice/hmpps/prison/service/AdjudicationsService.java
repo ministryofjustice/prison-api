@@ -592,7 +592,7 @@ public class AdjudicationsService {
             .build();
 
         final var offenderBookingEntry = bookingRepository.findByOffenderNomsIdAndActive(offenderNo, true)
-            .orElseThrow(() -> new EntityNotFoundException(format("Could not find the booking with id %s", offenderNo)));
+            .orElseThrow(() -> new EntityNotFoundException(format("Could not find the booking for offender number %s", offenderNo)));
         final var oicSanctionValidationResult = new OicSanctionValidationResult(
             null,
             null,
