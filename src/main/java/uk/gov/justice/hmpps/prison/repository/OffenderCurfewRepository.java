@@ -2,13 +2,17 @@ package uk.gov.justice.hmpps.prison.repository;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.api.model.ApprovalStatus;
 import uk.gov.justice.hmpps.prison.api.model.HdcChecks;
 import uk.gov.justice.hmpps.prison.api.model.HomeDetentionCurfew;
+import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException;
 import uk.gov.justice.hmpps.prison.repository.sql.OffenderCurfewRepositorySql;
 import uk.gov.justice.hmpps.prison.service.support.OffenderCurfew;
 
@@ -27,13 +31,21 @@ import java.util.Set;
 @Slf4j
 public class OffenderCurfewRepository extends RepositoryBase {
 
+    private final ConditionalSqlService conditionalSqlService;
+
+    public OffenderCurfewRepository(ConditionalSqlService conditionalSqlService) {
+        this.conditionalSqlService = conditionalSqlService;
+    }
+
+    private final static int lockWaitTime = 25; // Client has a 30 second timeout, so we need to be less than that
+
     private static class AlmostStandardBeanPropertyRowMapper<T> extends BeanPropertyRowMapper<T> {
         AlmostStandardBeanPropertyRowMapper(Class<T> clazz) {
             super(clazz);
         }
 
 
-        protected Object getColumnValue(ResultSet rs, int index, PropertyDescriptor pd) throws SQLException {
+        protected Object getColumnValue(@NotNull ResultSet rs, int index, PropertyDescriptor pd) throws SQLException {
             if (Boolean.class == pd.getPropertyType()) {
                 val value = rs.getString(index);
                 if ("Y".equals(value)) {
@@ -69,6 +81,7 @@ public class OffenderCurfewRepository extends RepositoryBase {
 
 
     public void setHDCChecksPassed(final long curfewId, final HdcChecks hdcChecks) {
+        getCurfewLock(curfewId);
         jdbcTemplate.update(
                 OffenderCurfewRepositorySql.UPDATE_CURFEW_CHECKS_PASSED.getSql(),
                 createParams(
@@ -81,6 +94,7 @@ public class OffenderCurfewRepository extends RepositoryBase {
 
 
     public void setHdcChecksPassedDate(long curfewId, LocalDate date) {
+        getCurfewLock(curfewId);
         jdbcTemplate.update(
                 OffenderCurfewRepositorySql.UPDATE_CURFEW_CHECKS_PASSED_DATE.getSql(),
                 createParams(
@@ -92,6 +106,7 @@ public class OffenderCurfewRepository extends RepositoryBase {
 
 
     public void setApprovalStatus(final long curfewId, final ApprovalStatus approvalStatus) {
+        getCurfewLock(curfewId);
         jdbcTemplate.update(
                 OffenderCurfewRepositorySql.UPDATE_APPROVAL_STATUS.getSql(),
                 createParams(
@@ -104,6 +119,7 @@ public class OffenderCurfewRepository extends RepositoryBase {
 
 
     public void setApprovalStatusDate(long curfewId, LocalDate date) {
+        getCurfewLock(curfewId);
         jdbcTemplate.update(
                 OffenderCurfewRepositorySql.UPDATE_APPROVAL_STATUS_DATE.getSql(),
                 createParams(
@@ -127,6 +143,7 @@ public class OffenderCurfewRepository extends RepositoryBase {
 
 
     public void deleteStatusReasons(long curfewId, Set<String> statusTrackingCodesToMatch) {
+        getReasonsLock(curfewId, statusTrackingCodesToMatch);
         jdbcTemplate.update(
                 OffenderCurfewRepositorySql.DELETE_HDC_STATUS_REASONS.getSql(),
                 createParams(
@@ -138,6 +155,7 @@ public class OffenderCurfewRepository extends RepositoryBase {
 
 
     public void deleteStatusTrackings(long curfewId, Set<String> statusTrackingCodesToMatch) {
+        getTrackingsLock(curfewId, statusTrackingCodesToMatch);
         jdbcTemplate.update(
                 OffenderCurfewRepositorySql.DELETE_HDC_STATUS_TRACKINGS.getSql(),
                 createParams(
@@ -160,7 +178,6 @@ public class OffenderCurfewRepository extends RepositoryBase {
                 new String[]{"HDC_STATUS_TRACKING_ID"});
 
         return generatedKeyHolder.getKey().longValue();
-
     }
 
 
@@ -186,20 +203,55 @@ public class OffenderCurfewRepository extends RepositoryBase {
 
 
     public List<HomeDetentionCurfew> getBatchLatestHomeDetentionCurfew(List<Long> bookingIds, Set<String> statusTrackingCodesToMatch) {
-        val results = jdbcTemplate.query(
+        return jdbcTemplate.query(
                 OffenderCurfewRepositorySql.LATEST_BATCH_HOME_DETENTION_CURFEW.getSql(),
                 createParams(
                   "bookingIds", bookingIds,
                   "statusTrackingCodes", statusTrackingCodesToMatch),
                   HOME_DETENTION_CURFEW_ROW_MAPPER
                 );
-        return results;
     }
 
-
     public void resetCurfew(long curfewId) {
+        getCurfewLock(curfewId);
         jdbcTemplate.update(
                 OffenderCurfewRepositorySql.RESET_OFFENDER_CURFEW.getSql(),
                 createParams("curfewId", curfewId));
+    }
+
+    private void getCurfewLock(long curfewId) {
+        getLock(OffenderCurfewRepositorySql.GET_OFFENDER_CURFEW_LOCK,
+            createParams("curfewId", curfewId, "waitSeconds", lockWaitTime),
+            "OFFENDER_CURFEWS");
+    }
+
+    private void getTrackingsLock(long curfewId, Set<String> statusTrackingCodesToMatch) {
+        getLock(OffenderCurfewRepositorySql.GET_HDC_STATUS_TRACKINGS_LOCK,
+            createParams("curfewId", curfewId, "codes", statusTrackingCodesToMatch, "waitSeconds", lockWaitTime),
+            "HDC_STATUS_TRACKINGS");
+    }
+
+    private void getReasonsLock(long curfewId, Set<String> statusTrackingCodesToMatch) {
+        getLock(OffenderCurfewRepositorySql.GET_HDC_STATUS_REASONS_LOCK,
+            createParams("curfewId", curfewId, "codes", statusTrackingCodesToMatch, "waitSeconds", lockWaitTime),
+            "HDC_STATUS_REASONS");
+    }
+
+    private void getLock(OffenderCurfewRepositorySql lockSql, MapSqlParameterSource map, String tableName) {
+        try {
+            jdbcTemplate.query(lockSql.getSql() + getWaitClause(), map, rs -> {
+            });
+        } catch (UncategorizedSQLException e) {
+            log.error("Error getting lock", e);
+            if (e.getCause().getMessage().contains("ORA-30006")) {
+                throw new DatabaseRowLockedException("Failed to get " + tableName + " lock for curfew id " + map.getValue("curfewId") + " after " + lockWaitTime + " seconds");
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    private String getWaitClause() {
+        return conditionalSqlService.getWaitClause(lockWaitTime);
     }
 }
