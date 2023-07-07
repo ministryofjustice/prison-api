@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.api.model.ApprovalStatus;
@@ -211,7 +212,6 @@ public class OffenderCurfewRepository extends RepositoryBase {
                 );
     }
 
-
     public void resetCurfew(long curfewId) {
         getCurfewLock(curfewId);
         jdbcTemplate.update(
@@ -220,58 +220,31 @@ public class OffenderCurfewRepository extends RepositoryBase {
     }
 
     private void getCurfewLock(long curfewId) {
-        try {
-            jdbcTemplate.query(
-                OffenderCurfewRepositorySql.GET_OFFENDER_CURFEW_LOCK.getSql() + getWaitClause(),
-                createParams("curfewId", curfewId,
-                    "waitSeconds", lockWaitTime),
-                rs -> {
-                }
-            );
-        } catch (UncategorizedSQLException e) {
-            log.error("Error getting lock", e);
-            if (e.getCause().getMessage().contains("ORA-30006")) {
-                throw new DatabaseRowLockedException("Failed to get OFFENDER_CURFEWS lock for curfew id " + curfewId);
-            } else {
-                throw e;
-            }
-        }
+        getLock(OffenderCurfewRepositorySql.GET_OFFENDER_CURFEW_LOCK,
+            createParams("curfewId", curfewId, "waitSeconds", lockWaitTime),
+            "OFFENDER_CURFEWS");
     }
 
     private void getTrackingsLock(long curfewId, Set<String> statusTrackingCodesToMatch) {
-        try {
-            jdbcTemplate.query(
-                OffenderCurfewRepositorySql.GET_HDC_STATUS_TRACKINGS_LOCK.getSql() + getWaitClause(),
-                createParams("curfewId", curfewId,
-                    "codes", statusTrackingCodesToMatch,
-                    "waitSeconds", lockWaitTime),
-                rs -> {
-                }
-            );
-        } catch (UncategorizedSQLException e) {
-            log.error("Error getting lock", e);
-            if (e.getCause().getMessage().contains("ORA-30006")) {
-                throw new DatabaseRowLockedException("Failed to get HDC_STATUS_TRACKINGS lock for curfew id " + curfewId);
-            } else {
-                throw e;
-            }
-        }
+        getLock(OffenderCurfewRepositorySql.GET_HDC_STATUS_TRACKINGS_LOCK,
+            createParams("curfewId", curfewId, "codes", statusTrackingCodesToMatch, "waitSeconds", lockWaitTime),
+            "HDC_STATUS_TRACKINGS");
     }
 
     private void getReasonsLock(long curfewId, Set<String> statusTrackingCodesToMatch) {
+        getLock(OffenderCurfewRepositorySql.GET_HDC_STATUS_REASONS_LOCK,
+            createParams("curfewId", curfewId, "codes", statusTrackingCodesToMatch, "waitSeconds", lockWaitTime),
+            "HDC_STATUS_REASONS");
+    }
+
+    private void getLock(OffenderCurfewRepositorySql lockSql, MapSqlParameterSource map, String tableName) {
         try {
-            jdbcTemplate.query(
-                OffenderCurfewRepositorySql.GET_HDC_STATUS_REASONS_LOCK.getSql() + getWaitClause(),
-                createParams("curfewId", curfewId,
-                    "codes", statusTrackingCodesToMatch,
-                    "waitSeconds", lockWaitTime),
-                rs -> {
-                }
-            );
+            jdbcTemplate.query(lockSql.getSql() + getWaitClause(), map, rs -> {
+            });
         } catch (UncategorizedSQLException e) {
             log.error("Error getting lock", e);
             if (e.getCause().getMessage().contains("ORA-30006")) {
-                throw new DatabaseRowLockedException("Failed to get HDC_STATUS_REASONS lock for curfew id " + curfewId);
+                throw new DatabaseRowLockedException("Failed to get " + tableName + " lock for curfew id " + map.getValue("curfewId") + " after " + lockWaitTime + " seconds");
             } else {
                 throw e;
             }
