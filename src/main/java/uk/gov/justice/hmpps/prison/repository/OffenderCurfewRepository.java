@@ -3,7 +3,6 @@ package uk.gov.justice.hmpps.prison.repository;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.RowMapper;
@@ -14,7 +13,6 @@ import uk.gov.justice.hmpps.prison.api.model.HdcChecks;
 import uk.gov.justice.hmpps.prison.api.model.HomeDetentionCurfew;
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException;
 import uk.gov.justice.hmpps.prison.repository.sql.OffenderCurfewRepositorySql;
-import uk.gov.justice.hmpps.prison.service.support.ConditionalSqlService;
 import uk.gov.justice.hmpps.prison.service.support.OffenderCurfew;
 
 import java.beans.PropertyDescriptor;
@@ -32,8 +30,11 @@ import java.util.Set;
 @Slf4j
 public class OffenderCurfewRepository extends RepositoryBase {
 
-    @Autowired
-    private ConditionalSqlService conditionalSqlService;
+    private final ConditionalSqlService conditionalSqlService;
+
+    public OffenderCurfewRepository(ConditionalSqlService conditionalSqlService) {
+        this.conditionalSqlService = conditionalSqlService;
+    }
 
     private final static int lockWaitTime = 25; // Client has a 30 second timeout, so we need to be less than that
 

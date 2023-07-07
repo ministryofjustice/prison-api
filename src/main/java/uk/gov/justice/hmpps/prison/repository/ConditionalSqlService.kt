@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.service.support
+package uk.gov.justice.hmpps.prison.repository
 
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
