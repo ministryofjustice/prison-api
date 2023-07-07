@@ -10,7 +10,6 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.test.context.ActiveProfiles;
@@ -21,8 +20,6 @@ import uk.gov.justice.hmpps.prison.api.model.HomeDetentionCurfew;
 import uk.gov.justice.hmpps.prison.repository.OffenderCurfewRepository;
 import uk.gov.justice.hmpps.prison.service.BookingService;
 import uk.gov.justice.hmpps.prison.service.CaseloadToAgencyMappingService;
-import uk.gov.justice.hmpps.prison.repository.HsqlConditionalSqlService;
-import uk.gov.justice.hmpps.prison.repository.OracleConditionalSqlService;
 import uk.gov.justice.hmpps.prison.service.ReferenceDomainService;
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs;
 
