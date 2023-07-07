@@ -42,13 +42,13 @@ class PrisonResource(private val bookingService: BookingService) {
     ),
   )
   @Operation(summary = "Details of the active offender booking and calculable sentences at a particular establishment")
-  @PreAuthorize("hasRole('ROLE_RELEASE_DATE_MANUAL_COMPARER') and hasAuthority('SCOPE_read')")
+  @PreAuthorize("hasRole('RELEASE_DATE_MANUAL_COMPARER')")
   @GetMapping("/{establishmentId}/booking/latest/sentence-summary")
   fun getActiveOffenderBookingsByEstablishment(
     @PathVariable
     @Parameter(description = "The identifier of the establishment(prison) to get the active bookings for", required = true)
     establishmentId: String,
-  ): MutableList<SentenceSummary>? {
+  ): List<SentenceSummary> {
     return this.bookingService.getActiveBookingsForEstablishment(establishmentId)
   }
 }
