@@ -3,7 +3,7 @@ package uk.gov.justice.hmpps.prison.repository;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -228,9 +228,13 @@ public class OffenderCurfewRepository extends RepositoryBase {
                 rs -> {
                 }
             );
-        } catch (DataAccessException e) {
+        } catch (UncategorizedSQLException e) {
             log.error("Error getting lock", e);
-            throw new DatabaseRowLockedException("Failed to get OFFENDER_CURFEWS lock for curfew id " + curfewId);
+            if (e.getCause().getMessage().contains("ORA-30006")) {
+                throw new DatabaseRowLockedException("Failed to get OFFENDER_CURFEWS lock for curfew id " + curfewId);
+            } else {
+                throw e;
+            }
         }
     }
 
@@ -244,9 +248,13 @@ public class OffenderCurfewRepository extends RepositoryBase {
                 rs -> {
                 }
             );
-        } catch (DataAccessException e) {
+        } catch (UncategorizedSQLException e) {
             log.error("Error getting lock", e);
-            throw new DatabaseRowLockedException("Failed to get HDC_STATUS_TRACKINGS lock for curfew id " + curfewId);
+            if (e.getCause().getMessage().contains("ORA-30006")) {
+                throw new DatabaseRowLockedException("Failed to get HDC_STATUS_TRACKINGS lock for curfew id " + curfewId);
+            } else {
+                throw e;
+            }
         }
     }
 
@@ -260,9 +268,13 @@ public class OffenderCurfewRepository extends RepositoryBase {
                 rs -> {
                 }
             );
-        } catch (DataAccessException e) {
+        } catch (UncategorizedSQLException e) {
             log.error("Error getting lock", e);
-            throw new DatabaseRowLockedException("Failed to get HDC_STATUS_REASONS lock for curfew id " + curfewId);
+            if (e.getCause().getMessage().contains("ORA-30006")) {
+                throw new DatabaseRowLockedException("Failed to get HDC_STATUS_REASONS lock for curfew id " + curfewId);
+            } else {
+                throw e;
+            }
         }
     }
 
