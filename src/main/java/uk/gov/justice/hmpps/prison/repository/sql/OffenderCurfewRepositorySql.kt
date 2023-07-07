@@ -166,4 +166,31 @@ enum class OffenderCurfewRepositorySql(val sql: String) {
         WHERE OFFENDER_CURFEW_ID = :curfewId
     """,
   ),
+
+  GET_OFFENDER_CURFEW_LOCK(
+    """
+        SELECT 1 FROM OFFENDER_CURFEWS
+        WHERE OFFENDER_CURFEW_ID = :curfewId
+        FOR UPDATE
+    """,
+  ),
+
+  GET_HDC_STATUS_TRACKINGS_LOCK(
+    """
+        SELECT 1 FROM HDC_STATUS_TRACKINGS
+        WHERE OFFENDER_CURFEW_ID = :curfewId AND STATUS_CODE IN (:codes) 
+        FOR UPDATE
+    """,
+  ),
+
+  GET_HDC_STATUS_REASONS_LOCK(
+    """
+        SELECT 1 FROM HDC_STATUS_REASONS
+        WHERE HDC_STATUS_TRACKING_ID IN (
+            SELECT HDC_STATUS_TRACKING_ID from HDC_STATUS_TRACKINGS
+                WHERE OFFENDER_CURFEW_ID = :curfewId AND STATUS_CODE IN (:codes)
+        )
+        FOR UPDATE
+    """,
+  ),
 }

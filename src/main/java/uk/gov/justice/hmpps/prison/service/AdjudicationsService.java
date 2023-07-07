@@ -581,6 +581,27 @@ public class AdjudicationsService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public void validateCharge(
+        final Long adjudicationNumber,
+        final Status status,
+        final String offenderNo) {
+        final var oicSanctionRequest = OicSanctionRequest.builder()
+            .consecutiveReportNumber(adjudicationNumber)
+            .status(status)
+            .build();
+
+        final var offenderBookingEntry = bookingRepository.findByOffenderNomsIdAndActive(offenderNo, true)
+            .orElseThrow(() -> new EntityNotFoundException(format("Could not find the booking for offender number %s", offenderNo)));
+        final var oicSanctionValidationResult = new OicSanctionValidationResult(
+            null,
+            null,
+            offenderBookingEntry.getBookingId()
+        );
+
+        findSanctionForConsecutiveReportNumber(oicSanctionRequest, oicSanctionValidationResult);
+    }
+
     private void oicHearingLocationValidation(final Long hearingLocationId){
         internalLocationRepository.findOneByLocationId(hearingLocationId)
             .orElseThrow(() -> new ValidationException(format("Invalid hearing location id %d", hearingLocationId)));
