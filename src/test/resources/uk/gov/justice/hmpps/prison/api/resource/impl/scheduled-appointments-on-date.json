@@ -28,5 +28,20 @@
     "locationId":-28,
     "createUserId":"SA",
     "agencyId":"LEI"
+  },
+  {
+    "id":-33,
+    "offenderNo":"A1234AB",
+    "firstName":"GILLIAN",
+    "lastName":"ANDERSON",
+    "date":"2017-01-02",
+    "startTime":"2017-01-02T19:30:00",
+    "endTime":"2017-01-02T20:30:00",
+    "appointmentTypeDescription":"Medical - Dentist",
+    "appointmentTypeCode":"MEDE",
+    "locationDescription":"Visiting Room",
+    "locationId":-28,
+    "createUserId":"SA",
+    "agencyId":"LEI"
   }
 ]
