@@ -3,14 +3,11 @@ package uk.gov.justice.hmpps.prison.repository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -43,10 +40,6 @@ public class OffenderBookingRepositoryTest {
 
     @Autowired
     private AgencyLocationRepository agencyLocationRepository;
-
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-
-
 
     @Test
     @DisplayName("can find all for a booking")
@@ -142,12 +135,12 @@ public class OffenderBookingRepositoryTest {
 
         final var location = agencyLocationRepository.getReferenceById("LEI");
 
-        final var validCalcTypes = sentenceCalcTypeRepository.findByCalculationTypeIsNotAndCategoryNotContaining(
+        final var validCalcTypes = sentenceCalcTypeRepository.findByCalculationTypeNotContainingAndCategoryIsNot(
             "LICENCE",
             "AGG"
         );
 
-        repository.findAllOffenderBookingsByActiveTrueAndLocationAndSentences_CalculationTypeIsNotIn(
+        repository.findAllOffenderBookingsByActiveTrueAndLocationAndSentences_CalculationTypeIsIn(
             location,
             validCalcTypes
         );
