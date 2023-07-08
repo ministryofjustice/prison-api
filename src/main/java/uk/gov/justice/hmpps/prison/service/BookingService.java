@@ -59,7 +59,6 @@ import uk.gov.justice.hmpps.prison.repository.BookingRepository;
 import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq;
 import uk.gov.justice.hmpps.prison.repository.SentenceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Caseload;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.GlobalVisitorRestriction;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
@@ -71,7 +70,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Person;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.RelationshipType;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalcType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.KeyDateValues;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitVisitor;
@@ -841,18 +839,28 @@ public class BookingService {
             .build());
     }
 
-    public List<OffenderBooking> getActiveBookingsForEstablishment(String caseLoad){
+    public List<SentenceSummary> getActiveBookingsForEstablishment(String caseLoad){
         final var agencyLocation = agencyLocationRepository.getReferenceById(caseLoad);
 
         // Cached because Sentence Types are reference data that rarely change
-        final var validCalcTypes = sentenceCalcTypeRepository.findByCalculationTypeIsNotAndCategoryNotContaining(
-            "LICENCE",
-            "AGG"
+        final var validCalcTypes = sentenceCalcTypeRepository.findByCalculationTypeNotContainingAndCategoryIsNot(
+            "AGG",
+            "LICENCE"
         );
-        return offenderBookingRepository.findAllOffenderBookingsByActiveTrueAndLocationAndSentences_CalculationTypeIsNotIn(
+        final var activeBookings =  offenderBookingRepository.findAllOffenderBookingsByActiveTrueAndLocationAndSentences_CalculationTypeIsIn(
             agencyLocation,
             validCalcTypes
         );
+
+        return activeBookings.stream().map(this::buildSentencesFromBooking).toList();
+    }
+
+    private SentenceSummary buildSentencesFromBooking(OffenderBooking offenderBooking)
+    {
+        return SentenceSummary.builder()
+            .prisonerNumber(offenderBooking.getOffender().getNomsId())
+            .latestPrisonTerm(PrisonTerm.transform(offenderBooking))
+            .build();
     }
 
     public OffenderContacts getOffenderContacts(final Long bookingId, boolean approvedVisitorOnly, boolean activeOnly) {
