@@ -847,7 +847,7 @@ public class BookingService {
             "AGG",
             "LICENCE"
         );
-        final var activeBookings =  offenderBookingRepository.findAllOffenderBookingsByActiveTrueAndLocationAndSentences_CalculationTypeIsNotIn(
+        final var activeBookings =  offenderBookingRepository.findAllOffenderBookingsByActiveTrueAndLocationAndSentences_CalculationTypeIsIn(
             agencyLocation,
             validCalcTypes
         );

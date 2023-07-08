@@ -140,7 +140,7 @@ public class OffenderBookingRepositoryTest {
             "AGG"
         );
 
-        repository.findAllOffenderBookingsByActiveTrueAndLocationAndSentences_CalculationTypeIsNotIn(
+        repository.findAllOffenderBookingsByActiveTrueAndLocationAndSentences_CalculationTypeIsIn(
             location,
             validCalcTypes
         );
