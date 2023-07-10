@@ -60,6 +60,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -530,15 +531,44 @@ public class AdjudicationsService {
     public List<Sanction> updateOicSanctions(
         final Long adjudicationNumber,
         final List<OicSanctionRequest> oicSanctionRequests) {
+        List<Sanction> updatedSanctions = Lists.newArrayList();
 
         var result = validateOicSanction(adjudicationNumber);
 
-        Long nextSanctionSeq = oicSanctionRepository.getNextSanctionSeq(result.offenderBookId());
-
         List<OicSanction> exitingOicSanctions = oicSanctionRepository.findByOicHearingId(result.oicHearingId());
+
+        var existingAdaSanctions = exitingOicSanctions.stream().filter(
+            sanction -> sanction.getOicSanctionCode().equals(OicSanctionCode.ADA)).toList();
+
+        if (!existingAdaSanctions.isEmpty()) {
+            var sanctionDays = oicSanctionRequests.get(0).getSanctionDays();
+
+            exitingOicSanctions.removeAll(existingAdaSanctions);
+
+            for (var adaSanction : existingAdaSanctions) {
+                var optionalSanctionForThisBookId = oicSanctionRepository.findById(new OicSanction.PK(adaSanction.getOffenderBookId(), adaSanction.getSanctionSeq()));
+
+                if (optionalSanctionForThisBookId.isPresent()) {
+                    var sanctionForThisBookId = optionalSanctionForThisBookId.get();
+                    var validStatuses = Set.of(Status.IMMEDIATE, Status.PROSPECTIVE);
+                    if (!validStatuses.contains(sanctionForThisBookId.getStatus()))
+                        throw new ValidationException(format("some error"));
+
+                    sanctionForThisBookId.setSanctionDays(sanctionDays);
+                    oicSanctionRepository.save(sanctionForThisBookId);
+                }
+
+                adaSanction.setSanctionDays(sanctionDays);
+                oicSanctionRepository.save(adaSanction);
+            }
+            updatedSanctions.addAll(transform(exitingOicSanctions));
+        }
+
         oicSanctionRepository.deleteAll(exitingOicSanctions);
 
-        return transform(adjudicationNumber, oicSanctionRequests, result, nextSanctionSeq);
+        Long nextSanctionSeq = oicSanctionRepository.getNextSanctionSeq(result.offenderBookId());
+        updatedSanctions.addAll(transform(adjudicationNumber, oicSanctionRequests, result, nextSanctionSeq));
+        return updatedSanctions;
     }
 
     @Transactional
