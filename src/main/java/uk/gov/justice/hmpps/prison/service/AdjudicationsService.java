@@ -535,12 +535,12 @@ public class AdjudicationsService {
 
         var result = validateOicSanction(adjudicationNumber);
 
-        List<OicSanction> exitingOicSanctionsToDeleteAndRecreate = oicSanctionRepository.findByOicHearingId(result.oicHearingId());
+        List<OicSanction> exitingOicSanctionsToDeleteAndRecreate = new ArrayList<>(oicSanctionRepository.findByOicHearingId(result.oicHearingId()));
 
         var existingAdaSanctions = exitingOicSanctionsToDeleteAndRecreate.stream().filter(
             sanction -> Objects.nonNull(sanction.getOicSanctionCode()) && sanction.getOicSanctionCode().equals(OicSanctionCode.ADA)).toList();
 
-        if (!existingAdaSanctions.isEmpty()) {
+       if (!existingAdaSanctions.isEmpty()) {
             for (var adaSanction : existingAdaSanctions) {
                 var optionalLinkedSanctionForThisBookId = oicSanctionRepository.findById(new OicSanction.PK(adaSanction.getOffenderBookId(), adaSanction.getSanctionSeq()));
 
@@ -562,12 +562,14 @@ public class AdjudicationsService {
             }
         }
 
-        // Get this *before* we delete the existing ones
-        Long nextSanctionSeq = oicSanctionRepository.getNextSanctionSeq(result.offenderBookId());
-        // Now delete
-        oicSanctionRepository.deleteAll(exitingOicSanctionsToDeleteAndRecreate);
+       if (!exitingOicSanctionsToDeleteAndRecreate.isEmpty()) {
+           // Get this *before* we delete the existing ones
+           Long nextSanctionSeq = oicSanctionRepository.getNextSanctionSeq(result.offenderBookId());
+           // Now delete
+           oicSanctionRepository.deleteAll(exitingOicSanctionsToDeleteAndRecreate);
 
-        updatedSanctions.addAll(transform(adjudicationNumber, oicSanctionRequests, result, nextSanctionSeq));
+           updatedSanctions.addAll(transform(adjudicationNumber, oicSanctionRequests, result, nextSanctionSeq));
+       }
         return updatedSanctions;
     }
 
