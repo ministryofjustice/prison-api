@@ -84,6 +84,22 @@ public class ScheduledAppointmentRepositoryTest {
                         .locationId(-28L)
                         .agencyId("LEI")
                         .createUserId("SA")
+                        .build(),
+                ScheduledAppointment
+                        .builder()
+                        .eventId(-33L)
+                        .offenderNo("A1234AB")
+                        .firstName("GILLIAN")
+                        .lastName("ANDERSON")
+                        .eventDate(date)
+                        .startTime(LocalDateTime.parse("2017-01-02T19:30"))
+                        .endTime(LocalDateTime.parse("2017-01-02T20:30"))
+                        .appointmentTypeDescription("Medical - Dentist")
+                        .appointmentTypeCode("MEDE")
+                        .locationDescription("Visiting Room")
+                        .locationId(-28L)
+                        .agencyId("LEI")
+                        .createUserId("SA")
                         .build()
         );
     }
