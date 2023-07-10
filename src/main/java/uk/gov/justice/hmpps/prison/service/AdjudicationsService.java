@@ -538,7 +538,7 @@ public class AdjudicationsService {
         List<OicSanction> exitingOicSanctionsToDeleteAndRecreate = oicSanctionRepository.findByOicHearingId(result.oicHearingId());
 
         var existingAdaSanctions = exitingOicSanctionsToDeleteAndRecreate.stream().filter(
-            sanction -> sanction.getOicSanctionCode().equals(OicSanctionCode.ADA)).toList();
+            sanction -> Objects.nonNull(sanction.getOicSanctionCode()) && sanction.getOicSanctionCode().equals(OicSanctionCode.ADA)).toList();
 
         if (!existingAdaSanctions.isEmpty()) {
             for (var adaSanction : existingAdaSanctions) {
@@ -562,9 +562,11 @@ public class AdjudicationsService {
             }
         }
 
+        // Get this *before* we delete the existing ones
+        Long nextSanctionSeq = oicSanctionRepository.getNextSanctionSeq(result.offenderBookId());
+        // Now delete
         oicSanctionRepository.deleteAll(exitingOicSanctionsToDeleteAndRecreate);
 
-        Long nextSanctionSeq = oicSanctionRepository.getNextSanctionSeq(result.offenderBookId());
         updatedSanctions.addAll(transform(adjudicationNumber, oicSanctionRequests, result, nextSanctionSeq));
         return updatedSanctions;
     }
