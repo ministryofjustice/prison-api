@@ -535,36 +535,34 @@ public class AdjudicationsService {
 
         var result = validateOicSanction(adjudicationNumber);
 
-        List<OicSanction> exitingOicSanctions = oicSanctionRepository.findByOicHearingId(result.oicHearingId());
+        List<OicSanction> exitingOicSanctionsToDeleteAndRecreate = oicSanctionRepository.findByOicHearingId(result.oicHearingId());
 
-        var existingAdaSanctions = exitingOicSanctions.stream().filter(
+        var existingAdaSanctions = exitingOicSanctionsToDeleteAndRecreate.stream().filter(
             sanction -> sanction.getOicSanctionCode().equals(OicSanctionCode.ADA)).toList();
 
         if (!existingAdaSanctions.isEmpty()) {
-            var sanctionDays = oicSanctionRequests.get(0).getSanctionDays();
-
-            exitingOicSanctions.removeAll(existingAdaSanctions);
-
             for (var adaSanction : existingAdaSanctions) {
-                var optionalSanctionForThisBookId = oicSanctionRepository.findById(new OicSanction.PK(adaSanction.getOffenderBookId(), adaSanction.getSanctionSeq()));
+                var optionalLinkedSanctionForThisBookId = oicSanctionRepository.findById(new OicSanction.PK(adaSanction.getOffenderBookId(), adaSanction.getSanctionSeq()));
 
-                if (optionalSanctionForThisBookId.isPresent()) {
-                    var sanctionForThisBookId = optionalSanctionForThisBookId.get();
-                    var validStatuses = Set.of(Status.IMMEDIATE, Status.PROSPECTIVE);
-                    if (!validStatuses.contains(sanctionForThisBookId.getStatus()))
-                        throw new ValidationException(format("some error"));
+                if (optionalLinkedSanctionForThisBookId.isPresent()) {
+                    var linkedSanctionForThisBookId = optionalLinkedSanctionForThisBookId.get();
 
-                    sanctionForThisBookId.setSanctionDays(sanctionDays);
-                    oicSanctionRepository.save(sanctionForThisBookId);
+                    if (Objects.equals(adaSanction.getStatus(), linkedSanctionForThisBookId.getStatus())) {
+                        var sanctionDays = oicSanctionRequests.get(0).getSanctionDays();
+                        linkedSanctionForThisBookId.setSanctionDays(sanctionDays);
+                        oicSanctionRepository.save(linkedSanctionForThisBookId);
+
+                        adaSanction.setSanctionDays(sanctionDays);
+                        oicSanctionRepository.save(adaSanction);
+                        exitingOicSanctionsToDeleteAndRecreate.remove(adaSanction);
+
+                        updatedSanctions.addAll(transform(List.of(adaSanction, linkedSanctionForThisBookId)));
+                    }
                 }
-
-                adaSanction.setSanctionDays(sanctionDays);
-                oicSanctionRepository.save(adaSanction);
             }
-            updatedSanctions.addAll(transform(exitingOicSanctions));
         }
 
-        oicSanctionRepository.deleteAll(exitingOicSanctions);
+        oicSanctionRepository.deleteAll(exitingOicSanctionsToDeleteAndRecreate);
 
         Long nextSanctionSeq = oicSanctionRepository.getNextSanctionSeq(result.offenderBookId());
         updatedSanctions.addAll(transform(adjudicationNumber, oicSanctionRequests, result, nextSanctionSeq));
