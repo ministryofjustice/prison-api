@@ -664,8 +664,9 @@ public class OffenderResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Gets the offender non-association details for a given offender for ALL bookings", description = "Get offender non-association details by offender No")
+    @Operation(summary = "Gets the offender non-association details for a given offender for ALL bookings", description = "Do NOT use, please use Non-Associations API at https://non-associations-api.hmpps.service.justice.gov.uk/swagger-ui/index.html")
     @GetMapping("/{offenderNo}/non-association-details")
+    @Deprecated
     @SlowReportQuery
     public OffenderNonAssociationDetails getNonAssociationDetails(
         @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo) {
