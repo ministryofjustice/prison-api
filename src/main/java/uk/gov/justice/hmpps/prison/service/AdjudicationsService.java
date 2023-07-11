@@ -476,10 +476,10 @@ public class AdjudicationsService {
 
         Long nextSanctionSeq = oicSanctionRepository.getNextSanctionSeq(result.offenderBookId());
 
-        return transform(adjudicationNumber, oicSanctionRequests, result, nextSanctionSeq);
+        return saveToDto(adjudicationNumber, oicSanctionRequests, result, nextSanctionSeq);
     }
 
-    private List<Sanction> transform(Long adjudicationNumber, List<OicSanctionRequest> oicSanctionRequests, OicSanctionValidationResult oicSanctionValidationResult, Long nextSanctionSeq) {
+    private List<Sanction> saveToDto(Long adjudicationNumber, List<OicSanctionRequest> oicSanctionRequests, OicSanctionValidationResult oicSanctionValidationResult, Long nextSanctionSeq) {
         final var oicSanctions = new ArrayList<OicSanction>();
         int index = 0;
         for (var request : oicSanctionRequests) {
@@ -508,10 +508,10 @@ public class AdjudicationsService {
             index++;
         }
 
-        return transform(oicSanctions);
+        return toDto(oicSanctions);
     }
 
-    private List<Sanction> transform(List<OicSanction> oicSanctions) {
+    private List<Sanction> toDto(List<OicSanction> oicSanctions) {
         return oicSanctions.stream().map(oicSanction -> Sanction.builder()
             .sanctionType(oicSanction.getOicSanctionCode().name())
             .sanctionDays(oicSanction.getSanctionDays())
@@ -530,15 +530,45 @@ public class AdjudicationsService {
     public List<Sanction> updateOicSanctions(
         final Long adjudicationNumber,
         final List<OicSanctionRequest> oicSanctionRequests) {
+        List<Sanction> updatedSanctions = Lists.newArrayList();
 
         var result = validateOicSanction(adjudicationNumber);
 
-        Long nextSanctionSeq = oicSanctionRepository.getNextSanctionSeq(result.offenderBookId());
+        List<OicSanction> existingOicSanctionsToDeleteAndRecreate = new ArrayList<>(oicSanctionRepository.findByOicHearingId(result.oicHearingId()));
 
-        List<OicSanction> exitingOicSanctions = oicSanctionRepository.findByOicHearingId(result.oicHearingId());
-        oicSanctionRepository.deleteAll(exitingOicSanctions);
+        var existingAdaSanctions = existingOicSanctionsToDeleteAndRecreate.stream().filter(
+            sanction -> Objects.nonNull(sanction.getOicSanctionCode()) && sanction.getOicSanctionCode().equals(OicSanctionCode.ADA)).toList();
 
-        return transform(adjudicationNumber, oicSanctionRequests, result, nextSanctionSeq);
+       if (!existingAdaSanctions.isEmpty()) {
+            for (var adaSanction : existingAdaSanctions) {
+                var optionalLinkedSanctionForThisBookId = oicSanctionRepository.findById(new OicSanction.PK(adaSanction.getOffenderBookId(), adaSanction.getSanctionSeq()));
+
+                optionalLinkedSanctionForThisBookId.ifPresent(linkedSanctionForThisBookId -> {
+                    if (Objects.equals(adaSanction.getStatus(), linkedSanctionForThisBookId.getStatus())) {
+                        var sanctionDays = oicSanctionRequests.get(0).getSanctionDays();
+                        linkedSanctionForThisBookId.setSanctionDays(sanctionDays);
+                        oicSanctionRepository.save(linkedSanctionForThisBookId);
+
+                        adaSanction.setSanctionDays(sanctionDays);
+                        oicSanctionRepository.save(adaSanction);
+                        existingOicSanctionsToDeleteAndRecreate.remove(adaSanction);
+
+                        updatedSanctions.addAll(toDto(List.of(adaSanction, linkedSanctionForThisBookId)));
+                    }
+                });
+            }
+        }
+
+       if (!existingOicSanctionsToDeleteAndRecreate.isEmpty()) {
+           // Get this *before* we delete the existing ones
+           Long nextSanctionSeq = oicSanctionRepository.getNextSanctionSeq(result.offenderBookId());
+           // Now delete
+           oicSanctionRepository.deleteAll(existingOicSanctionsToDeleteAndRecreate);
+
+           updatedSanctions.addAll(saveToDto(adjudicationNumber, oicSanctionRequests, result, nextSanctionSeq));
+       }
+
+       return updatedSanctions;
     }
 
     @Transactional
@@ -555,7 +585,7 @@ public class AdjudicationsService {
             oicSanctions.add(oicSanctionRepository.save(oicSanction));
         }
 
-        return transform(oicSanctions);
+        return toDto(oicSanctions);
     }
 
     @Transactional
