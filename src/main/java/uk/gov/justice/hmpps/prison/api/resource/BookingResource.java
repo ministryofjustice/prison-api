@@ -1183,8 +1183,9 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Gets the offender non-association details for a given booking", description = "Get offender non-association details")
+    @Operation(summary = "Gets the offender non-association details for a given booking (DEPRECATED)", description = "Do not use this endpoint, calls should be made in the context of a prisoner, not their current booking")
     @GetMapping("/{bookingId}/non-association-details")
+    @Deprecated
     @SlowReportQuery
     public OffenderNonAssociationDetails getNonAssociationDetails(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
         return offenderNonAssociationsService.retrieve(bookingId);
