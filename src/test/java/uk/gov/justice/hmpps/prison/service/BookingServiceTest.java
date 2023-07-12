@@ -132,8 +132,11 @@ public class BookingServiceTest {
     @Mock
     private AgencyService agencyService;
     @Mock
+    private AdjustmentService adjustmentService;
+    @Mock
+    private OffenderFixedTermRecallService offenderFixedTermRecallService;
+    @Mock
     private AgencyInternalLocationRepository agencyInternalLocationRepository;
-
     @Mock
     private OffenderContactPersonsRepository offenderContactPersonsRepository;
     @Mock
@@ -182,6 +185,8 @@ public class BookingServiceTest {
                 sentenceTermRepository,
                 sentenceCalcTypeRepository,
                 agencyService,
+                adjustmentService,
+                offenderFixedTermRecallService,
                 caseLoadService,
                 caseloadToAgencyMappingService,
                 agencyInternalLocationRepository,

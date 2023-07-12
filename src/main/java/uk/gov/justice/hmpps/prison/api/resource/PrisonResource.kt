@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
-import uk.gov.justice.hmpps.prison.api.model.SentenceSummary
+import uk.gov.justice.hmpps.prison.api.model.calculation.CalculableSentenceEnvelope
 import uk.gov.justice.hmpps.prison.service.BookingService
 
 @RestController
@@ -43,12 +43,12 @@ class PrisonResource(private val bookingService: BookingService) {
   )
   @Operation(summary = "Details of the active offender booking and calculable sentences at a particular establishment")
   @PreAuthorize("hasRole('RELEASE_DATE_MANUAL_COMPARER')")
-  @GetMapping("/{establishmentId}/booking/latest/sentence-summary")
-  fun getActiveOffenderBookingsByEstablishment(
+  @GetMapping("/{establishmentId}/booking/latest/calculable-sentence-envelope")
+  fun getCalculableSentenceEnvelopeByEstablishment(
     @PathVariable
     @Parameter(description = "The identifier of the establishment(prison) to get the active bookings for", required = true)
     establishmentId: String,
-  ): List<SentenceSummary> {
-    return this.bookingService.getActiveBookingsForEstablishment(establishmentId)
+  ): List<CalculableSentenceEnvelope> {
+    return this.bookingService.getCalculableSentenceEnvelopeByEstablishment(establishmentId)
   }
 }

@@ -15,6 +15,8 @@ import jakarta.persistence.IdClass;
 import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Objects;
 
 @Getter
 @Entity
@@ -63,5 +65,14 @@ public class SentenceCalcType extends AuditableEntity {
     @Column(name = "ACTIVE_FLAG")
     @Convert(converter = YesNoConverter.class)
     private boolean active;
+
+    public Boolean isAFine() {
+        return Objects.equals(calculationType, "A/FINE");
+    }
+
+    public Boolean isRecallType(){
+        var licenceRecallTypes = new String[]{"LR", "LR_ORA", "LR_YOI_ORA", "LR_SEC91_ORA", "LRSEC250_ORA"};
+        return Arrays.stream(licenceRecallTypes).filter(Objects::nonNull).anyMatch(licenceRecallType -> licenceRecallType.equals(calculationType));
+    }
 
 }

@@ -22,6 +22,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.BookingActivity;
 import uk.gov.justice.hmpps.prison.api.model.CourtCase;
+import uk.gov.justice.hmpps.prison.api.model.FixedTermRecallDetails;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecord;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
@@ -53,12 +54,14 @@ import uk.gov.justice.hmpps.prison.api.model.VisitSummary;
 import uk.gov.justice.hmpps.prison.api.model.VisitWithVisitors;
 import uk.gov.justice.hmpps.prison.api.model.Visitor;
 import uk.gov.justice.hmpps.prison.api.model.VisitorRestriction;
+import uk.gov.justice.hmpps.prison.api.model.calculation.CalculableSentenceEnvelope;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.repository.BookingRepository;
 import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq;
 import uk.gov.justice.hmpps.prison.repository.SentenceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Caseload;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.GlobalVisitorRestriction;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
@@ -70,6 +73,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Person;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.RelationshipType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalcType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.KeyDateValues;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitVisitor;
@@ -154,6 +158,8 @@ public class BookingService {
     private final SentenceCalcTypeRepository sentenceCalcTypeRepository;
     private final AgencyService agencyService;
     private final CaseLoadService caseLoadService;
+    private final AdjustmentService adjustmentService;
+    private final OffenderFixedTermRecallService offenderFixedTermRecallService;
     private final CaseloadToAgencyMappingService caseloadToAgencyMappingService;
     private final AgencyInternalLocationRepository agencyInternalLocationRepository;
     private final OffenderContactPersonsRepository offenderContactPersonsRepository;
@@ -176,7 +182,10 @@ public class BookingService {
                           final VisitVisitorRepository visitVisitorRepository,
                           final SentenceRepository sentenceRepository,
                           final SentenceTermRepository sentenceTermRepository,
-                          SentenceCalcTypeRepository sentenceCalcTypeRepository, final AgencyService agencyService,
+                          SentenceCalcTypeRepository sentenceCalcTypeRepository,
+                          final AgencyService agencyService,
+                          final AdjustmentService adjustmentService,
+                          final OffenderFixedTermRecallService offenderFixedTermRecallService,
                           final CaseLoadService caseLoadService,
                           final CaseloadToAgencyMappingService caseloadToAgencyMappingService,
                           final AgencyInternalLocationRepository agencyInternalLocationRepository,
@@ -203,6 +212,8 @@ public class BookingService {
         this.sentenceTermRepository = sentenceTermRepository;
         this.sentenceCalcTypeRepository = sentenceCalcTypeRepository;
         this.agencyService = agencyService;
+        this.adjustmentService = adjustmentService;
+        this.offenderFixedTermRecallService = offenderFixedTermRecallService;
         this.caseLoadService = caseLoadService;
         this.caseloadToAgencyMappingService = caseloadToAgencyMappingService;
         this.agencyInternalLocationRepository = agencyInternalLocationRepository;
@@ -822,11 +833,16 @@ public class BookingService {
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     public List<OffenderFinePaymentDto> getOffenderFinePayments(final Long bookingId) {
+        return getOffenderFinePaymentsFromRepository(bookingId);
+    }
+
+    private List<OffenderFinePaymentDto>  getOffenderFinePaymentsFromRepository(final Long bookingId) {
         final var offenderFinePayments = offenderFinePaymentRepository.findByOffenderBooking_BookingId(bookingId);
         return offenderFinePayments.stream()
             .map(OffenderFinePayment::getOffenderFinePaymentDto)
             .collect(toList());
     }
+
 
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     public Optional<SentenceSummary> getSentenceSummary(final String offenderNo) {
@@ -839,7 +855,7 @@ public class BookingService {
             .build());
     }
 
-    public List<SentenceSummary> getActiveBookingsForEstablishment(String caseLoad){
+    public List<CalculableSentenceEnvelope> getCalculableSentenceEnvelopeByEstablishment(String caseLoad){
         final var agencyLocation = agencyLocationRepository.getReferenceById(caseLoad);
 
         // Cached because Sentence Types are reference data that rarely change
@@ -852,15 +868,42 @@ public class BookingService {
             validCalcTypes
         );
 
-        return activeBookings.stream().map(this::buildSentencesFromBooking).toList();
+        return activeBookings.stream().map(this::determineCalculableSentenceEnvelope).toList();
     }
 
-    private SentenceSummary buildSentencesFromBooking(OffenderBooking offenderBooking)
+    private CalculableSentenceEnvelope determineCalculableSentenceEnvelope(OffenderBooking offenderBooking)
     {
-        return SentenceSummary.builder()
-            .prisonerNumber(offenderBooking.getOffender().getNomsId())
-            .latestPrisonTerm(PrisonTerm.transform(offenderBooking))
-            .build();
+        var person = new uk.gov.justice.hmpps.prison.api.model.calculation.Person(
+            offenderBooking.getOffender().getNomsId(),
+            offenderBooking.getOffender().getBirthDate()
+        );
+
+        var sentenceAdjustments = offenderBooking.getSentenceAdjustments();
+        var bookingAdjustments = offenderBooking.getBookingAdjustments();
+
+        var containsFine = offenderBooking.getSentences().stream().filter(Objects::nonNull).anyMatch(sentence -> sentence.getCalculationType().isAFine());
+        var containsRecall = offenderBooking.getSentences().stream().filter(Objects::nonNull).anyMatch(sentence -> sentence.getCalculationType().isRecallType());
+
+        List<OffenderFinePaymentDto> offenderFinePaymentDtoList = new ArrayList();
+
+        if(containsFine) {
+            offenderFinePaymentDtoList = this.getOffenderFinePaymentsFromRepository(offenderBooking.getBookingId());
+        }
+        FixedTermRecallDetails fixedTermRecallDetails = null;
+
+
+        if (containsRecall) {
+            fixedTermRecallDetails = offenderFixedTermRecallService.getFixedTermRecallDetails(offenderBooking.getBookingId());
+        }
+
+        return new CalculableSentenceEnvelope(
+            person,
+            PrisonTerm.transform(offenderBooking),
+            sentenceAdjustments,
+            bookingAdjustments,
+            offenderFinePaymentDtoList,
+            fixedTermRecallDetails
+        );
     }
 
     public OffenderContacts getOffenderContacts(final Long bookingId, boolean approvedVisitorOnly, boolean activeOnly) {
