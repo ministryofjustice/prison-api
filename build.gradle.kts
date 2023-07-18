@@ -84,7 +84,7 @@ dependencies {
   testImplementation("com.github.tomakehurst:wiremock-jre8-standalone:2.35.0")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.11.5")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.16")
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.15") // Unable to upgrade to 2.1.16 as attempting to use the parser caused a 500 from /v3/api-docs. It seems there's an incorrect dependency on an OAS3.1 type but I couldn't work out which project is wrong - so hopefully this will get sorted by the maintainers in due course.
   testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.28.0")
 
   testCompileOnly("org.projectlombok:lombok:1.18.28")
