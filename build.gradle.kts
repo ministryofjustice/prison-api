@@ -1,8 +1,8 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.2.2"
-  kotlin("plugin.spring") version "1.8.22"
-  kotlin("plugin.jpa") version "1.8.22"
-  kotlin("plugin.lombok") version "1.8.22"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.2.4"
+  kotlin("plugin.spring") version "1.9.0"
+  kotlin("plugin.jpa") version "1.9.0"
+  kotlin("plugin.lombok") version "1.9.0"
 }
 
 configurations {
@@ -51,7 +51,7 @@ dependencies {
 
   implementation("org.apache.commons:commons-lang3:3.12.0")
   implementation("commons-io:commons-io:2.13.0")
-  implementation("com.google.guava:guava:32.0.1-jre")
+  implementation("com.google.guava:guava:32.1.1-jre")
   implementation("org.apache.commons:commons-text:1.10.0")
   implementation("com.oracle.database.jdbc:ojdbc10:19.19.0.0")
   implementation("org.hibernate.orm:hibernate-community-dialects")
@@ -74,18 +74,18 @@ dependencies {
   testImplementation("org.powermock:powermock-module-junit4:2.0.9")
 
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.38.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:3.0.0")
 
-  testImplementation("net.serenity-bdd:serenity-core:3.8.1")
-  testImplementation("net.serenity-bdd:serenity-junit:3.8.1")
-  testImplementation("net.serenity-bdd:serenity-spring:3.8.1")
-  testImplementation("net.serenity-bdd:serenity-cucumber:3.8.1")
+  testImplementation("net.serenity-bdd:serenity-core:3.9.7")
+  testImplementation("net.serenity-bdd:serenity-junit:3.9.7")
+  testImplementation("net.serenity-bdd:serenity-spring:3.9.7")
+  testImplementation("net.serenity-bdd:serenity-cucumber:3.9.7")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
   testImplementation("com.github.tomakehurst:wiremock-jre8-standalone:2.35.0")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.11.5")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.15")
-  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.27.0")
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.16")
+  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.28.0")
 
   testCompileOnly("org.projectlombok:lombok:1.18.28")
 }
