@@ -194,7 +194,7 @@ public class OffenderSentenceResource {
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Sentence term details for a prisoner.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = OffenderSentenceTerms.class))}),
+            @ApiResponse(responseCode = "200", description = "Sentence term details for a prisoner."),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Sentence term details for a prisoner")
     @GetMapping("/booking/{bookingId}/sentenceTerms")
