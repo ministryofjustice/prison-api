@@ -7,6 +7,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderFinePaymentDto
 import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentValues
 import uk.gov.justice.hmpps.prison.api.model.SentenceSummary
 
+@Schema(description = "The active sentence envelope is a combination of the person information, the active booking and calculable sentences at a particular establishment")
 data class CalculableSentenceEnvelope(
   @Schema(description = "The identifiers of a person necessary for a calculation")
   var person: Person,

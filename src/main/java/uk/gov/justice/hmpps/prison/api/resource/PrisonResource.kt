@@ -41,7 +41,7 @@ class PrisonResource(private val bookingService: BookingService) {
       content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
     ),
   )
-  @Operation(summary = "Details of the active offender booking and calculable sentences at a particular establishment")
+  @Operation(summary = "Details of the active sentence envelope, a combination of the person information, the active booking and calculable sentences at a particular establishment")
   @PreAuthorize("hasRole('RELEASE_DATE_MANUAL_COMPARER')")
   @GetMapping("/{establishmentId}/booking/latest/calculable-sentence-envelope")
   fun getCalculableSentenceEnvelopeByEstablishment(

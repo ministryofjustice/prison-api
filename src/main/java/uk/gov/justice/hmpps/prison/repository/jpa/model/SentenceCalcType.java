@@ -1,29 +1,29 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.type.YesNoConverter;
-import jakarta.persistence.Convert;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.IdClass;
-import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.Objects;
+import java.util.Set;
 
 @Getter
 @Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode( callSuper = false)
 @Table(name = "SENTENCE_CALC_TYPES")
 @IdClass(SentenceCalcType.PK.class)
 public class SentenceCalcType extends AuditableEntity {
@@ -66,13 +66,30 @@ public class SentenceCalcType extends AuditableEntity {
     @Convert(converter = YesNoConverter.class)
     private boolean active;
 
-    public Boolean isAFine() {
+    public boolean isAFine() {
         return Objects.equals(calculationType, "A/FINE");
     }
 
-    public Boolean isRecallType(){
-        var licenceRecallTypes = new String[]{"LR", "LR_ORA", "LR_YOI_ORA", "LR_SEC91_ORA", "LRSEC250_ORA"};
-        return Arrays.stream(licenceRecallTypes).filter(Objects::nonNull).anyMatch(licenceRecallType -> licenceRecallType.equals(calculationType));
+    public boolean isRecallType(){
+        return licenceRecallTypes.contains(calculationType);
     }
 
+    private static final Set<String> licenceRecallTypes = Set.of("LR", "LR_ORA", "LR_YOI_ORA", "LR_SEC91_ORA", "LRSEC250_ORA");
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        SentenceCalcType that = (SentenceCalcType) o;
+        return getCalculationType() != null && Objects.equals(getCalculationType(), that.getCalculationType())
+            && getCategory() != null && Objects.equals(getCategory(), that.getCategory());
+    }
+
+    @Override
+    public final int hashCode() {
+        return Objects.hash(calculationType, category);
+    }
 }
