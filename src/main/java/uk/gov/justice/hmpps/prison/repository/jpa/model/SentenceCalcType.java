@@ -67,7 +67,7 @@ public class SentenceCalcType extends AuditableEntity {
     private boolean active;
 
     public boolean isAFine() {
-        return Objects.equals(calculationType, "A/FINE");
+        return "A/FINE".equals(calculationType);
     }
 
     public boolean isRecallType(){
