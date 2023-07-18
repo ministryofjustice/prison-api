@@ -361,6 +361,15 @@ public class AgencyService {
                 .collect(toList());
     }
 
+    public List<OffenderCell> getReceptionsWithCapacityInAgency(@NotNull final String agencyId, final String attribute) {
+        final var receptions = agencyInternalLocationRepository.findWithProfilesAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive(agencyId, "AREA", true);
+        return receptions.stream()
+            .filter(l -> l.hasSpace(true) && l.getDescription().endsWith("-RECP"))
+            .map(recep -> transform(recep, true))
+            .filter(recep -> attribute == null || recep.getAttributes().stream().anyMatch(a -> a.getCode().equals(attribute)))
+            .collect(toList());
+    }
+
     public OffenderCell getCellAttributes(@NotNull final Long locationId) {
         final var agencyInternalLocation = agencyInternalLocationRepository.findOneByLocationId(locationId);
         final var offenderCell = agencyInternalLocation.map(cell -> transform(cell, false)).orElse(null);

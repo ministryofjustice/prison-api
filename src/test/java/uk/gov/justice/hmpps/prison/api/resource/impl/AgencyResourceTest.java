@@ -710,6 +710,22 @@ public class AgencyResourceTest extends ResourceTest {
         assertThatJsonFileAndStatus(response, 200, "courts_by_type.json");
     }
 
+    @Test
+    public void testCanFindReceptionsWithCapacity() {
+        final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
+
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+            "/api/agencies/LEI/receptionsWithCapacity",
+            HttpMethod.GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            });
+        System.out.println(response);
+        assertThatJsonFileAndStatus(response, 200, "reception_with_capacity.json");
+    }
+
 
     @Test
     public void testCanFindCellsWithCapacity() {
