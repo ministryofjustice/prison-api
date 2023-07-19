@@ -10,6 +10,8 @@ import lombok.Setter;
 import lombok.ToString.Exclude;
 import lombok.With;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import org.springframework.data.annotation.CreatedDate;
 
 import jakarta.persistence.Column;
@@ -57,6 +59,7 @@ public class OffenderImprisonmentStatus extends AuditableEntity {
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "IMPRISONMENT_STATUS", nullable = false, referencedColumnName = "IMPRISONMENT_STATUS")
     @Exclude
+    @NotFound(action = NotFoundAction.IGNORE)
     private ImprisonmentStatus imprisonmentStatus;
 
     @Column(name = "EFFECTIVE_DATE", nullable = false)
