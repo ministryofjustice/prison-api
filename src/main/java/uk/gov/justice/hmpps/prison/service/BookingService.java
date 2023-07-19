@@ -61,7 +61,6 @@ import uk.gov.justice.hmpps.prison.repository.BookingRepository;
 import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq;
 import uk.gov.justice.hmpps.prison.repository.SentenceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Caseload;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.GlobalVisitorRestriction;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
@@ -73,7 +72,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Person;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.RelationshipType;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalcType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.KeyDateValues;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitVisitor;
@@ -110,6 +108,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -158,7 +157,6 @@ public class BookingService {
     private final SentenceCalcTypeRepository sentenceCalcTypeRepository;
     private final AgencyService agencyService;
     private final CaseLoadService caseLoadService;
-    private final AdjustmentService adjustmentService;
     private final OffenderFixedTermRecallService offenderFixedTermRecallService;
     private final CaseloadToAgencyMappingService caseloadToAgencyMappingService;
     private final AgencyInternalLocationRepository agencyInternalLocationRepository;
@@ -182,9 +180,8 @@ public class BookingService {
                           final VisitVisitorRepository visitVisitorRepository,
                           final SentenceRepository sentenceRepository,
                           final SentenceTermRepository sentenceTermRepository,
-                          SentenceCalcTypeRepository sentenceCalcTypeRepository,
+                          final SentenceCalcTypeRepository sentenceCalcTypeRepository,
                           final AgencyService agencyService,
-                          final AdjustmentService adjustmentService,
                           final OffenderFixedTermRecallService offenderFixedTermRecallService,
                           final CaseLoadService caseLoadService,
                           final CaseloadToAgencyMappingService caseloadToAgencyMappingService,
@@ -212,7 +209,6 @@ public class BookingService {
         this.sentenceTermRepository = sentenceTermRepository;
         this.sentenceCalcTypeRepository = sentenceCalcTypeRepository;
         this.agencyService = agencyService;
-        this.adjustmentService = adjustmentService;
         this.offenderFixedTermRecallService = offenderFixedTermRecallService;
         this.caseLoadService = caseLoadService;
         this.caseloadToAgencyMappingService = caseloadToAgencyMappingService;
@@ -873,28 +869,19 @@ public class BookingService {
 
     private CalculableSentenceEnvelope determineCalculableSentenceEnvelope(OffenderBooking offenderBooking)
     {
-        var person = new uk.gov.justice.hmpps.prison.api.model.calculation.Person(
+        final var person = new uk.gov.justice.hmpps.prison.api.model.calculation.Person(
             offenderBooking.getOffender().getNomsId(),
             offenderBooking.getOffender().getBirthDate()
         );
 
-        var sentenceAdjustments = offenderBooking.getSentenceAdjustments();
-        var bookingAdjustments = offenderBooking.getBookingAdjustments();
+        final var sentenceAdjustments = offenderBooking.getSentenceAdjustments();
+        final var bookingAdjustments = offenderBooking.getBookingAdjustments();
 
-        var containsFine = offenderBooking.getSentences().stream().filter(Objects::nonNull).anyMatch(sentence -> sentence.getCalculationType().isAFine());
-        var containsRecall = offenderBooking.getSentences().stream().filter(Objects::nonNull).anyMatch(sentence -> sentence.getCalculationType().isRecallType());
+        final var containsFine = offenderBooking.getSentences().stream().filter(Objects::nonNull).anyMatch(sentence -> sentence.getCalculationType().isAFine());
+        final var containsRecall = offenderBooking.getSentences().stream().filter(Objects::nonNull).anyMatch(sentence -> sentence.getCalculationType().isRecallType());
 
-        List<OffenderFinePaymentDto> offenderFinePaymentDtoList = new ArrayList();
-
-        if(containsFine) {
-            offenderFinePaymentDtoList = this.getOffenderFinePaymentsFromRepository(offenderBooking.getBookingId());
-        }
-        FixedTermRecallDetails fixedTermRecallDetails = null;
-
-
-        if (containsRecall) {
-            fixedTermRecallDetails = offenderFixedTermRecallService.getFixedTermRecallDetails(offenderBooking.getBookingId());
-        }
+        final List<OffenderFinePaymentDto> offenderFinePaymentDtoList = this.getFinesIfRequired(containsFine, offenderBooking.getBookingId());
+        final FixedTermRecallDetails fixedTermRecallDetails = getFixedTermRecall(containsRecall, offenderBooking.getBookingId());
 
         return new CalculableSentenceEnvelope(
             person,
@@ -904,6 +891,21 @@ public class BookingService {
             offenderFinePaymentDtoList,
             fixedTermRecallDetails
         );
+    }
+
+    private List<OffenderFinePaymentDto> getFinesIfRequired(boolean containsFine, Long bookingId){
+        if(containsFine) {
+            return this.getOffenderFinePaymentsFromRepository(bookingId);
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    private FixedTermRecallDetails getFixedTermRecall(boolean containsRecall, Long bookingId) {
+        if (containsRecall) {
+            return offenderFixedTermRecallService.getFixedTermRecallDetails(bookingId);
+        }
+        return null;
     }
 
     public OffenderContacts getOffenderContacts(final Long bookingId, boolean approvedVisitorOnly, boolean activeOnly) {
