@@ -11,18 +11,17 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.type.YesNoConverter;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.Objects;
 import java.util.Set;
 
 @Getter
 @Entity
 @Builder
 @NoArgsConstructor
+@EqualsAndHashCode
 @AllArgsConstructor
 @Table(name = "SENTENCE_CALC_TYPES")
 @IdClass(SentenceCalcType.PK.class)
@@ -67,29 +66,14 @@ public class SentenceCalcType extends AuditableEntity {
     private boolean active;
 
     public boolean isAFine() {
-        return "A/FINE".equals(calculationType);
+        return A_FINE_TYPE.equals(calculationType);
     }
 
     public boolean isRecallType(){
-        return licenceRecallTypes.contains(calculationType);
+        return LICENCE_RECALL_TYPES.contains(calculationType);
     }
 
-    private static final Set<String> licenceRecallTypes = Set.of("LR", "LR_ORA", "LR_YOI_ORA", "LR_SEC91_ORA", "LRSEC250_ORA");
+    private static final Set<String> LICENCE_RECALL_TYPES = Set.of("LR", "LR_ORA", "LR_YOI_ORA", "LR_SEC91_ORA", "LRSEC250_ORA");
+    private static final String A_FINE_TYPE = "A/FINE";
 
-    @Override
-    public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
-        if (thisEffectiveClass != oEffectiveClass) return false;
-        SentenceCalcType that = (SentenceCalcType) o;
-        return getCalculationType() != null && Objects.equals(getCalculationType(), that.getCalculationType())
-            && getCategory() != null && Objects.equals(getCategory(), that.getCategory());
-    }
-
-    @Override
-    public final int hashCode() {
-        return Objects.hash(calculationType, category);
-    }
 }
