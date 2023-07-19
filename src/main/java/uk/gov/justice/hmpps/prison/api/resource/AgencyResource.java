@@ -193,6 +193,18 @@ public class AgencyResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "List of receptions with capacity for agency.", description = "List of active receptions with capacity for agency.")
+    @GetMapping("/{agencyId}/receptionsWithCapacity")
+    @SlowReportQuery
+    public List<OffenderCell> getAgencyActiveReceptionsWithCapacity(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestParam(value = "attribute", required = false) @Parameter(description = "Restricts list of receptions returned to those that have a specified attribute.") final String attribute) {
+        return agencyService.getReceptionsWithCapacityInAgency(agencyId, attribute);
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of active internal locations for agency by type.", description = "List of active internal locations for agency by type.")
     @GetMapping("/{agencyId}/locations/type/{type}")
     public List<Location> getAgencyLocationsByType(@PathVariable("agencyId") @Parameter(description = "The prison", required = true) final String agencyId, @PathVariable("type") @Parameter(description = "Restricts list of locations returned to those of the passed type.", required = true) final String type) {
