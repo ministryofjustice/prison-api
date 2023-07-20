@@ -38,16 +38,16 @@ public class OffenderSentenceTerms {
     @Schema(description = "Start date of sentence term.", example = "2018-12-31")
     private LocalDate startDate;
 
-    @Schema(description = "Sentence length years.")
+    @Schema(description = "Sentence length years.", example = "1")
     private Integer years;
 
-    @Schema(description = "Sentence length months.")
+    @Schema(description = "Sentence length months.", example = "2")
     private Integer months;
 
-    @Schema(description = "Sentence length weeks.")
+    @Schema(description = "Sentence length weeks.", example = "3")
     private Integer weeks;
 
-    @Schema(description = "Sentence length days.")
+    @Schema(description = "Sentence length days.", example = "4")
     private Integer days;
 
     @Schema(description = "Whether this is a life sentence.")
