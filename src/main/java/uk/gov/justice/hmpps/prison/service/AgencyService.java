@@ -362,7 +362,7 @@ public class AgencyService {
     }
 
     public List<OffenderCell> getReceptionsWithCapacityInAgency(@NotNull final String agencyId, final String attribute) {
-        final var receptions = agencyInternalLocationRepository.findWithProfilesAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive(agencyId, "AREA", true);
+        final var receptions = agencyInternalLocationRepository.findWithProfilesAgencyInternalLocationsByAgencyIdAndLocationCodeAndActive(agencyId, "RECP", true);
         return receptions.stream()
             .filter(l -> l.isActiveReceptionWithSpace(true))
             .map(recep -> transform(recep, true))

@@ -124,7 +124,7 @@ public class AgencyInternalLocation {
         return locationType != null && locationType.equals("CELL");
     }
     public boolean isReception() {
-        return locationType != null && locationType.equals("AREA") && description.endsWith("-RECP");
+        return locationCode != null && locationCode.equals("RECP");
     }
 
     public boolean isCellSwap() {

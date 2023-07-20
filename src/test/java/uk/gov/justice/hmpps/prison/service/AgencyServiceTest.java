@@ -174,9 +174,9 @@ public class AgencyServiceTest {
 
     @Test
     public void shouldReturnAllActiveReceptionsWithSpaceForAgency() {
-        when(agencyInternalLocationRepository.findWithProfilesAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive("LEI", "AREA", true)).thenReturn(List.of(
-            AgencyInternalLocation.builder().locationId(-1L).description("LEI-RECP").locationType("AREA").operationalCapacity(2).currentOccupancy(1).active(true).profiles(buildAgencyInternalLocationProfiles()).build(),
-            AgencyInternalLocation.builder().locationId(-2L).description("LEI-RECEP").locationType("AREA").operationalCapacity(2).currentOccupancy(1).active(true).profiles(buildAgencyInternalLocationProfiles()).build()
+        when(agencyInternalLocationRepository.findWithProfilesAgencyInternalLocationsByAgencyIdAndLocationCodeAndActive("LEI", "RECP", true)).thenReturn(List.of(
+            AgencyInternalLocation.builder().locationId(-1L).description("LEI-RECP").locationCode("RECP").operationalCapacity(2).currentOccupancy(1).active(true).profiles(buildAgencyInternalLocationProfiles()).build(),
+            AgencyInternalLocation.builder().locationId(-2L).description("LEI-RECEP").locationCode("AREA").operationalCapacity(2).currentOccupancy(1).active(true).profiles(buildAgencyInternalLocationProfiles()).build()
         ));
 
         final var receptions = service.getReceptionsWithCapacityInAgency("LEI", null);
@@ -185,10 +185,10 @@ public class AgencyServiceTest {
 
     @Test
     public void shouldReturnAllActiveReceptionsWithSpaceForAgencyWithAttribute() {
-        when(agencyInternalLocationRepository.findWithProfilesAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive("LEI", "AREA", true)).thenReturn(List.of(
-            AgencyInternalLocation.builder().locationId(-1L).description("LEI-RECP").locationType("AREA").operationalCapacity(2).currentOccupancy(1).active(true).profiles(buildAgencyInternalLocationProfiles()).build(),
-            AgencyInternalLocation.builder().locationId(-2L).description("LEI-RECP").locationType("AREA").capacity(2).currentOccupancy(1).active(true).profiles(List.of()).build(),
-            AgencyInternalLocation.builder().locationId(-3L).description("LEI-RECP").locationType("AREA").operationalCapacity(2).currentOccupancy(2).active(true).profiles(List.of()).build()
+        when(agencyInternalLocationRepository.findWithProfilesAgencyInternalLocationsByAgencyIdAndLocationCodeAndActive("LEI", "RECP", true)).thenReturn(List.of(
+            AgencyInternalLocation.builder().locationId(-1L).description("LEI-RECP").locationCode("RECP").operationalCapacity(2).currentOccupancy(1).active(true).profiles(buildAgencyInternalLocationProfiles()).build(),
+            AgencyInternalLocation.builder().locationId(-2L).description("LEI-RECP").locationCode("RECP").capacity(2).currentOccupancy(1).active(true).profiles(List.of()).build(),
+            AgencyInternalLocation.builder().locationId(-3L).description("LEI-RECP").locationCode("RECP").operationalCapacity(2).currentOccupancy(2).active(true).profiles(List.of()).build()
         ));
 
         final var offenderCells = service.getReceptionsWithCapacityInAgency("LEI", "DO");
@@ -197,9 +197,9 @@ public class AgencyServiceTest {
 
     @Test
     public void shouldReturnAllActiveReceptionsWithIgnoringZeroOperationalCapacityForAgencyWithAttribute() {
-        when(agencyInternalLocationRepository.findWithProfilesAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive("LEI", "AREA", true)).thenReturn(List.of(
-            AgencyInternalLocation.builder().locationId(-1L).description("LEI-RECP").locationType("AREA").operationalCapacity(0).capacity(3).currentOccupancy(2).active(true).profiles(buildAgencyInternalLocationProfiles()).build(),
-            AgencyInternalLocation.builder().locationId(-2L).description("LEI-RECP").locationType("AREA").operationalCapacity(0).capacity(2).currentOccupancy(2).active(true).profiles(emptyList()).build()
+        when(agencyInternalLocationRepository.findWithProfilesAgencyInternalLocationsByAgencyIdAndLocationCodeAndActive("LEI", "RECP", true)).thenReturn(List.of(
+            AgencyInternalLocation.builder().locationId(-1L).description("LEI-RECP").locationCode("RECP").operationalCapacity(0).capacity(3).currentOccupancy(2).active(true).profiles(buildAgencyInternalLocationProfiles()).build(),
+            AgencyInternalLocation.builder().locationId(-2L).description("LEI-RECP").locationCode("RECP").operationalCapacity(0).capacity(2).currentOccupancy(2).active(true).profiles(emptyList()).build()
         ));
 
         final var offenderCells = service.getReceptionsWithCapacityInAgency("LEI", "DO");
