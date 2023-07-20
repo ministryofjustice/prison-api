@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import uk.gov.justice.hmpps.prison.api.model.CellMoveResult
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
+import uk.gov.justice.hmpps.prison.api.model.InternalMoveResult
 import uk.gov.justice.hmpps.prison.core.ProxyUser
 import uk.gov.justice.hmpps.prison.service.BookingService
 import uk.gov.justice.hmpps.prison.service.MovementUpdateService
@@ -44,7 +44,7 @@ class OffenderMovementsResource(
   @Tag(name = "unilink")
   @PutMapping("/{offenderNo}/living-unit/{internalLocationDescription}")
   @ProxyUser
-  fun moveToCell(
+  fun moveToCellOrReception(
     @PathVariable("offenderNo")
     @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true)
     offenderNo: @NotNull String?,
@@ -58,8 +58,8 @@ class OffenderMovementsResource(
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @Parameter(description = "The date / time of the move (defaults to current)", example = "2020-03-24T12:13:40")
     dateTime: LocalDateTime?,
-  ): CellMoveResult {
+  ): InternalMoveResult {
     val booking = bookingService.getLatestBookingByOffenderNo(offenderNo)
-    return movementUpdateService.moveToCell(booking.bookingId, internalLocationDescription, reasonCode, dateTime)
+    return movementUpdateService.moveToCellOrReception(booking.bookingId, internalLocationDescription, reasonCode, dateTime)
   }
 }
