@@ -1,27 +1,28 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.type.YesNoConverter;
-import jakarta.persistence.Convert;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.IdClass;
-import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Set;
 
 @Getter
 @Entity
 @Builder
 @NoArgsConstructor
+@EqualsAndHashCode
 @AllArgsConstructor
-@EqualsAndHashCode( callSuper = false)
 @Table(name = "SENTENCE_CALC_TYPES")
 @IdClass(SentenceCalcType.PK.class)
 public class SentenceCalcType extends AuditableEntity {
@@ -63,5 +64,16 @@ public class SentenceCalcType extends AuditableEntity {
     @Column(name = "ACTIVE_FLAG")
     @Convert(converter = YesNoConverter.class)
     private boolean active;
+
+    public boolean isAFine() {
+        return A_FINE_TYPE.equals(calculationType);
+    }
+
+    public boolean isRecallType(){
+        return LICENCE_RECALL_TYPES.contains(calculationType);
+    }
+
+    private static final Set<String> LICENCE_RECALL_TYPES = Set.of("LR", "LR_ORA", "LR_YOI_ORA", "LR_SEC91_ORA", "LRSEC250_ORA");
+    private static final String A_FINE_TYPE = "A/FINE";
 
 }
