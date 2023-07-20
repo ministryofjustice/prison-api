@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.MediaType
-import uk.gov.justice.hmpps.prison.api.model.SentenceSummary
+import uk.gov.justice.hmpps.prison.api.model.calculation.CalculableSentenceEnvelope
 
 class PrisonResourceTest : ResourceTest() {
 
@@ -17,11 +17,11 @@ class PrisonResourceTest : ResourceTest() {
   fun `Test that endpoint returns a summary list when authorised`() {
     val establishment = "LEI"
 
-    val json = getPrisonResourceAsText("prison_resource_single_sentencesummary.json")
-    val sentenceSummary: SentenceSummary = objectMapper.readValue(json)
+    val json = getPrisonResourceAsText("prison_resource_single_calculable_sentence_envelope.json")
+    val calculableSentenceEnvelope = objectMapper.readValue<CalculableSentenceEnvelope>(json)
 
     webTestClient.get()
-      .uri("/api/prison/{establishment}/booking/latest/sentence-summary", establishment)
+      .uri("/api/prison/{establishment}/booking/latest/calculable-sentence-envelope", establishment)
       .headers(
         setAuthorisation(
           listOf("ROLE_RELEASE_DATE_MANUAL_COMPARER"),
@@ -31,8 +31,8 @@ class PrisonResourceTest : ResourceTest() {
       .accept(MediaType.APPLICATION_JSON)
       .exchange()
       .expectStatus().isOk
-      .expectBodyList(object : ParameterizedTypeReference<SentenceSummary>() {})
-      .contains(sentenceSummary)
+      .expectBodyList(object : ParameterizedTypeReference<CalculableSentenceEnvelope>() {})
+      .contains(calculableSentenceEnvelope)
   }
 
   @Test
@@ -40,7 +40,7 @@ class PrisonResourceTest : ResourceTest() {
     val establishment = "LEI"
 
     webTestClient.get()
-      .uri("/api/prison/{establishment}/booking/latest/sentence-summary", establishment)
+      .uri("/api/prison/{establishment}/booking/latest/calculable-sentence-envelope", establishment)
       .headers(
         setAuthorisation(
           listOf("ROLE_RELEASE_DATES_CALCULATOR"),
