@@ -3,7 +3,7 @@ package uk.gov.justice.hmpps.prison.service;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uk.gov.justice.hmpps.prison.api.model.InternalMoveResult;
+import uk.gov.justice.hmpps.prison.api.model.CellMoveResult;
 import uk.gov.justice.hmpps.prison.api.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
@@ -47,7 +47,7 @@ public class MovementUpdateService {
     @Transactional
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "UNILINK"})
     @HasWriteScope
-    public InternalMoveResult moveToCellOrReception(final Long bookingId, final String internalLocationDescription, final String reasonCode, final LocalDateTime dateTime) {
+    public CellMoveResult moveToCellOrReception(final Long bookingId, final String internalLocationDescription, final String reasonCode, final LocalDateTime dateTime) {
         validateInternalMove(reasonCode, dateTime);
 
         final var movementDateTime = dateTime != null ? dateTime : LocalDateTime.now(clock);
@@ -68,7 +68,7 @@ public class MovementUpdateService {
     @Transactional
     @VerifyBookingAccess
     @HasWriteScope
-    public InternalMoveResult moveToCellSwap(final Long bookingId, final String reasonCode, final LocalDateTime dateTime) {
+    public CellMoveResult moveToCellSwap(final Long bookingId, final String reasonCode, final LocalDateTime dateTime) {
         final var reason = reasonCode == null ? "ADM" : reasonCode;
 
         validateInternalMove(reason, dateTime);
@@ -84,9 +84,9 @@ public class MovementUpdateService {
         return saveAndReturnInternalMoveResult(bookingId, reason, movementDateTime, internalLocation);
     }
 
-    private InternalMoveResult saveAndReturnInternalMoveResult(final long bookingId, final String reasonCode,
-                                                               final LocalDateTime movementDateTime,
-                                                               final AgencyInternalLocation location) {
+    private CellMoveResult saveAndReturnInternalMoveResult(final long bookingId, final String reasonCode,
+                                                           final LocalDateTime movementDateTime,
+                                                           final AgencyInternalLocation location) {
 
         bookingService.updateLivingUnit(bookingId, location);
 
@@ -119,12 +119,12 @@ public class MovementUpdateService {
         );
     }
 
-    private InternalMoveResult transformToCellSwapResult(final OffenderBooking offenderBooking) {
+    private CellMoveResult transformToCellSwapResult(final OffenderBooking offenderBooking) {
         return transformToCellSwapResult(offenderBooking, null);
     }
 
-    private InternalMoveResult transformToCellSwapResult(final OffenderBooking offenderBooking, final Integer bedAssignmentHistorySequence) {
-        return InternalMoveResult.builder()
+    private CellMoveResult transformToCellSwapResult(final OffenderBooking offenderBooking, final Integer bedAssignmentHistorySequence) {
+        return CellMoveResult.builder()
                 .bookingId(offenderBooking.getBookingId())
                 .agencyId(offenderBooking.getAgencyId())
                 .assignedLivingUnitId(offenderBooking.getAssignedLivingUnitId())

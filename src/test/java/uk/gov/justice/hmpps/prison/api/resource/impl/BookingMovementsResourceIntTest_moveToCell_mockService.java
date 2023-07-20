@@ -8,7 +8,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.orm.jpa.JpaSystemException;
-import uk.gov.justice.hmpps.prison.api.model.InternalMoveResult;
+import uk.gov.justice.hmpps.prison.api.model.CellMoveResult;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 import uk.gov.justice.hmpps.prison.service.MovementUpdateService;
 
@@ -216,8 +216,8 @@ public class BookingMovementsResourceIntTest_moveToCell_mockService extends Reso
         return createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
     }
 
-    private InternalMoveResult aCellMoveResult(final Long bookingId, final Long livingUnitId, final String livingUnitDesc, final Integer bedAssignmentHistorySequence) {
-        return InternalMoveResult.builder()
+    private CellMoveResult aCellMoveResult(final Long bookingId, final Long livingUnitId, final String livingUnitDesc, final Integer bedAssignmentHistorySequence) {
+        return CellMoveResult.builder()
                 .bookingId(bookingId)
                 .assignedLivingUnitId(livingUnitId)
                 .assignedLivingUnitDesc(livingUnitDesc)

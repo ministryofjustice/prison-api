@@ -13,7 +13,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class InternalMoveResult {
+public class CellMoveResult {
     @Schema(requiredMode = REQUIRED, description = "Unique, numeric booking id.", example = "1234134")
     private Long bookingId;
 

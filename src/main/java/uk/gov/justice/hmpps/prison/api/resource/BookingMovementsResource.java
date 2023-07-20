@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.justice.hmpps.prison.api.model.InternalMoveResult;
+import uk.gov.justice.hmpps.prison.api.model.CellMoveResult;
 import uk.gov.justice.hmpps.prison.api.model.CourtHearing;
 import uk.gov.justice.hmpps.prison.api.model.CourtHearingDateAmendment;
 import uk.gov.justice.hmpps.prison.api.model.CourtHearings;
@@ -104,7 +104,7 @@ public class BookingMovementsResource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @PutMapping("/{bookingId}/living-unit/{internalLocationDescription}")
     @ProxyUser
-    public InternalMoveResult moveToCell(@PathVariable("bookingId") @Parameter(description = "The offender booking id", example = "1200866", required = true) final Long bookingId, @PathVariable("internalLocationDescription") @Parameter(description = "The cell location the offender has been moved to", example = "MDI-1-1", required = true) final String internalLocationDescription, @RequestParam("reasonCode") @Parameter(description = "The reason code for the move (from reason code domain CHG_HOUS_RSN)", example = "ADM", required = true) final String reasonCode, @RequestParam(value = "dateTime", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @Parameter(description = "The date / time of the move (defaults to current)", example = "2020-03-24T12:13:40") final LocalDateTime dateTime) {
+    public CellMoveResult moveToCell(@PathVariable("bookingId") @Parameter(description = "The offender booking id", example = "1200866", required = true) final Long bookingId, @PathVariable("internalLocationDescription") @Parameter(description = "The cell location the offender has been moved to", example = "MDI-1-1", required = true) final String internalLocationDescription, @RequestParam("reasonCode") @Parameter(description = "The reason code for the move (from reason code domain CHG_HOUS_RSN)", example = "ADM", required = true) final String reasonCode, @RequestParam(value = "dateTime", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @Parameter(description = "The date / time of the move (defaults to current)", example = "2020-03-24T12:13:40") final LocalDateTime dateTime) {
         log.debug("Received moveToCell request for booking id {}, cell location {}, reasonCode {}, date/time {}",
                 bookingId,
                 internalLocationDescription,
@@ -120,7 +120,7 @@ public class BookingMovementsResource {
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @PutMapping("/{bookingId}/move-to-cell-swap")
-    public InternalMoveResult moveToCellSwap(@PathVariable("bookingId") @Parameter(description = "The offender booking id", example = "1200866", required = true) final Long bookingId, @RequestBody final RequestMoveToCellSwap requestMoveToCellSwap) {
+    public CellMoveResult moveToCellSwap(@PathVariable("bookingId") @Parameter(description = "The offender booking id", example = "1200866", required = true) final Long bookingId, @RequestBody final RequestMoveToCellSwap requestMoveToCellSwap) {
         final var dateTime = requestMoveToCellSwap.getDateTime();
         final var reasonCode = requestMoveToCellSwap.getReasonCode();
 
