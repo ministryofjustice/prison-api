@@ -111,7 +111,7 @@ public class BookingMovementsResource {
                 reasonCode,
                 dateTime != null ? dateTime.format(ISO_DATE_TIME) : "null");
 
-        return movementUpdateService.moveToCell(bookingId, internalLocationDescription, reasonCode, dateTime);
+        return movementUpdateService.moveToCellOrReception(bookingId, internalLocationDescription, reasonCode, dateTime);
     }
 
     @ApiResponses({

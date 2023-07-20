@@ -153,7 +153,7 @@ public class BookingMovementsResourceIntTest_moveToCell extends ResourceTest {
 
         final var response = requestMoveToCell(validToken(), BOOKING_ID_S, wing, "BEH", dateTime.format(ISO_LOCAL_DATE_TIME));
 
-        verifyErrorResponse(response, BAD_REQUEST, "Location LEI-A-1-3 is either not a cell, active or is at maximum capacity");
+        verifyErrorResponse(response, BAD_REQUEST, "Location LEI-A-1-3 is either not a cell or reception, active or is at maximum capacity");
         verifyOffenderBookingLivingUnit(BOOKING_ID, INITIAL_CELL);
         verifyLastBedAssignmentHistory(BOOKING_ID, INITIAL_CELL);
     }

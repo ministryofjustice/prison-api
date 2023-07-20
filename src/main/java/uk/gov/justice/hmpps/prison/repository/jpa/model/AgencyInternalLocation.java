@@ -123,6 +123,9 @@ public class AgencyInternalLocation {
     public boolean isCell() {
         return locationType != null && locationType.equals("CELL");
     }
+    public boolean isReception() {
+        return locationCode != null && locationCode.equals("RECP");
+    }
 
     public boolean isCellSwap() {
         return !isCertifiedFlag() &&
@@ -134,6 +137,9 @@ public class AgencyInternalLocation {
 
     private boolean isActiveCell() {
         return isActive() && isCell();
+    }
+    private boolean isActiveReception() {
+        return isActive() && isReception();
     }
 
     public boolean hasSpace(final boolean treatZeroOperationalCapacityAsNull) {
@@ -153,6 +159,9 @@ public class AgencyInternalLocation {
 
     public boolean isActiveCellWithSpace(final boolean treatZeroOperationalCapacityAsNull) {
         return isActiveCell() && hasSpace(treatZeroOperationalCapacityAsNull);
+    }
+    public boolean isActiveReceptionWithSpace(final boolean treatZeroOperationalCapacityAsNull) {
+        return isActiveReception() && hasSpace(treatZeroOperationalCapacityAsNull);
     }
 
     public Integer getActualCapacity(final boolean treatZeroOperationalCapacityAsNull) {

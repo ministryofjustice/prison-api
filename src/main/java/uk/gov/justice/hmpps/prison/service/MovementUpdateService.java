@@ -47,8 +47,8 @@ public class MovementUpdateService {
     @Transactional
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "UNILINK"})
     @HasWriteScope
-    public CellMoveResult moveToCell(final Long bookingId, final String internalLocationDescription, final String reasonCode, final LocalDateTime dateTime) {
-        validateMoveToCell(reasonCode, dateTime);
+    public CellMoveResult moveToCellOrReception(final Long bookingId, final String internalLocationDescription, final String reasonCode, final LocalDateTime dateTime) {
+        validateInternalMove(reasonCode, dateTime);
 
         final var movementDateTime = dateTime != null ? dateTime : LocalDateTime.now(clock);
         final var offenderBooking = getActiveOffenderBooking(bookingId);
@@ -57,10 +57,12 @@ public class MovementUpdateService {
         if (offenderBooking.getAssignedLivingUnitId().equals(internalLocation.getLocationId()))
             return transformToCellSwapResult(offenderBooking);
 
-        if (!internalLocation.isActiveCellWithSpace(false))
-            throw new IllegalArgumentException(String.format("Location %s is either not a cell, active or is at maximum capacity", internalLocation.getDescription()));
+        if (internalLocation.isActiveCellWithSpace(false) || internalLocation.isActiveReceptionWithSpace(false) )
+        {
+            return saveAndReturnInternalMoveResult(bookingId, reasonCode, movementDateTime, internalLocation);
+        }
+        throw new IllegalArgumentException(String.format("Location %s is either not a cell or reception, active or is at maximum capacity", internalLocation.getDescription()));
 
-        return saveAndReturnCellMoveResult(bookingId, reasonCode, movementDateTime, internalLocation);
     }
 
     @Transactional
@@ -69,7 +71,7 @@ public class MovementUpdateService {
     public CellMoveResult moveToCellSwap(final Long bookingId, final String reasonCode, final LocalDateTime dateTime) {
         final var reason = reasonCode == null ? "ADM" : reasonCode;
 
-        validateMoveToCell(reason, dateTime);
+        validateInternalMove(reason, dateTime);
 
         final var movementDateTime = dateTime != null ? dateTime : LocalDateTime.now(clock);
         final var offenderBooking = getActiveOffenderBooking(bookingId);
@@ -79,12 +81,12 @@ public class MovementUpdateService {
         if (offenderBooking.getAssignedLivingUnitId().equals(internalLocation.getLocationId()))
             return transformToCellSwapResult(offenderBooking);
 
-        return saveAndReturnCellMoveResult(bookingId, reason, movementDateTime, internalLocation);
+        return saveAndReturnInternalMoveResult(bookingId, reason, movementDateTime, internalLocation);
     }
 
-    private CellMoveResult saveAndReturnCellMoveResult(final long bookingId, final String reasonCode,
-                                                       final LocalDateTime movementDateTime,
-                                                       final AgencyInternalLocation location) {
+    private CellMoveResult saveAndReturnInternalMoveResult(final long bookingId, final String reasonCode,
+                                                           final LocalDateTime movementDateTime,
+                                                           final AgencyInternalLocation location) {
 
         bookingService.updateLivingUnit(bookingId, location);
 
@@ -96,7 +98,7 @@ public class MovementUpdateService {
         return transformToCellSwapResult(latestOffenderBooking, bookingAndSequence.getSequence());
     }
 
-    private void validateMoveToCell(final String reasonCode, final LocalDateTime dateTime) {
+    private void validateInternalMove(final String reasonCode, final LocalDateTime dateTime) {
         checkReasonCode(reasonCode);
         checkArgument(!StringUtils.isEmpty(reasonCode), "Reason code is mandatory");
         checkDate(dateTime);

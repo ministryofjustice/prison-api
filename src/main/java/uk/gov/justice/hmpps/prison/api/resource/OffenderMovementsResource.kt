@@ -44,7 +44,7 @@ class OffenderMovementsResource(
   @Tag(name = "unilink")
   @PutMapping("/{offenderNo}/living-unit/{internalLocationDescription}")
   @ProxyUser
-  fun moveToCell(
+  fun moveToCellOrReception(
     @PathVariable("offenderNo")
     @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true)
     offenderNo: @NotNull String?,
@@ -60,6 +60,6 @@ class OffenderMovementsResource(
     dateTime: LocalDateTime?,
   ): CellMoveResult {
     val booking = bookingService.getLatestBookingByOffenderNo(offenderNo)
-    return movementUpdateService.moveToCell(booking.bookingId, internalLocationDescription, reasonCode, dateTime)
+    return movementUpdateService.moveToCellOrReception(booking.bookingId, internalLocationDescription, reasonCode, dateTime)
   }
 }

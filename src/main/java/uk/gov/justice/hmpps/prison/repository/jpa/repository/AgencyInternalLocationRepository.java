@@ -17,6 +17,8 @@ public interface AgencyInternalLocationRepository extends JpaRepository<AgencyIn
     @EntityGraph(type = EntityGraphType.FETCH, value = "agency-internal-location-with-profiles")
     List<AgencyInternalLocation> findWithProfilesAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive(final String agencyId, final String locationType, final boolean active);
 
+    List<AgencyInternalLocation> findWithProfilesAgencyInternalLocationsByAgencyIdAndLocationCodeAndActive(final String agencyId, final String locationCode, final boolean active);
+
     List<AgencyInternalLocation> findAgencyInternalLocationsByAgencyIdAndLocationType(final String agencyId, final String locationType);
 
     Optional<AgencyInternalLocation> findOneByDescription(final String description);

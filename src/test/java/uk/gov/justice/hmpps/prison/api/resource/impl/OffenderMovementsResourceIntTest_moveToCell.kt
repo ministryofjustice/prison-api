@@ -182,7 +182,7 @@ class OffenderMovementsResourceIntTest_moveToCell : ResourceTest() {
     verifyErrorResponse(
       response,
       HttpStatus.BAD_REQUEST,
-      "Location LEI-A-1-3 is either not a cell, active or is at maximum capacity",
+      "Location LEI-A-1-3 is either not a cell or reception, active or is at maximum capacity",
     )
     verifyOffenderBookingLivingUnit(BOOKING_ID, INITIAL_CELL)
     verifyLastBedAssignmentHistory(BOOKING_ID, INITIAL_CELL)
