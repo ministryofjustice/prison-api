@@ -122,6 +122,16 @@ enum class InmateAlertRepositorySql(val sql: String) {
     """,
   ),
 
+  LOCK_ALERT(
+    """
+        SELECT 1
+        FROM OFFENDER_ALERTS
+        WHERE OFFENDER_BOOK_ID = :bookingId
+        AND ALERT_SEQ = :alertSeq
+        FOR UPDATE
+    """,
+  ),
+
   EXPIRE_ALERT(
     """
         UPDATE OFFENDER_ALERTS SET
