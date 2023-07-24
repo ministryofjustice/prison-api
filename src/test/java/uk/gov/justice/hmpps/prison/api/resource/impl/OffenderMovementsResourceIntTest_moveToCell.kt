@@ -75,20 +75,6 @@ class OffenderMovementsResourceIntTest_moveToCell : ResourceTest() {
   }
 
   @Test
-  fun validRequestWithNoDate() {
-    val dateTime = LocalDateTime.now().minusHours(1)
-    val response = requestMoveToCellWithNoDate(
-      validToken(),
-      OFFENDER_NO,
-      NEW_CELL_DESC,
-      "BEH",
-    )
-    verifySuccessResponse(response, BOOKING_ID, NEW_CELL, NEW_CELL_DESC)
-    verifyOffenderBookingLivingUnit(BOOKING_ID, NEW_CELL)
-    verifyLastBedAssignmentHistory(BOOKING_ID, NEW_CELL, "BEH", dateTime)
-  }
-
-  @Test
   fun missingDate_defaultsToNow() {
     val expectedDateTime = clock.instant().atZone(ZoneId.systemDefault()).toLocalDateTime()
     val response = requestMoveToCell(validToken(), OFFENDER_NO, NEW_CELL_DESC, "BEH", "")
@@ -287,20 +273,6 @@ class OffenderMovementsResourceIntTest_moveToCell : ResourceTest() {
     val entity = createHttpEntity(bearerToken, null)
     return testRestTemplate.exchange(
       "/api/offenders/$offenderNo/living-unit/$livingUnitId?reasonCode=$reasonCode&dateTime=$dateTime",
-      HttpMethod.PUT,
-      entity,
-      object : ParameterizedTypeReference<String?>() {},
-    )
-  }
-  private fun requestMoveToCellWithNoDate(
-    bearerToken: String,
-    offenderNo: String,
-    livingUnitId: String,
-    reasonCode: String,
-  ): ResponseEntity<String?>? {
-    val entity = createHttpEntity(bearerToken, null)
-    return testRestTemplate.exchange(
-      "/api/offenders/$offenderNo/living-unit/$livingUnitId?reasonCode=$reasonCode",
       HttpMethod.PUT,
       entity,
       object : ParameterizedTypeReference<String?>() {},
