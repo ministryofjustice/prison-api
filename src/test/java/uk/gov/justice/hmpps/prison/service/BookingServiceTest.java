@@ -1379,6 +1379,7 @@ public class BookingServiceTest {
         final Long NEW_LIVING_UNIT_ID = 12L;
         final String NEW_LIVING_UNIT_DESC = "Z-1";
         final String SOME_AGENCY_ID = "MDI";
+        final String LOCATION_CODE = "RECP";
         final String DIFFERENT_AGENCY_ID = "NOT_MDI";
 
         @Test
@@ -1443,6 +1444,19 @@ public class BookingServiceTest {
             verify(offenderBookingRepository).save(updatedOffenderBooking.capture());
             assertThat(updatedOffenderBooking.getValue().getAssignedLivingUnit().getLocationId()).isEqualTo(NEW_LIVING_UNIT_ID);
         }
+        @Test
+        void ok_updatesRepoForReception() {
+            when(offenderBookingRepository.findById(SOME_BOOKING_ID))
+                .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
+            when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC))
+                .thenReturn(Optional.of(receptionLocation(NEW_LIVING_UNIT_ID, LOCATION_CODE)));
+
+            bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC);
+
+            ArgumentCaptor<OffenderBooking> updatedOffenderBooking = ArgumentCaptor.forClass(OffenderBooking.class);
+            verify(offenderBookingRepository).save(updatedOffenderBooking.capture());
+            assertThat(updatedOffenderBooking.getValue().getAssignedLivingUnit().getLocationId()).isEqualTo(NEW_LIVING_UNIT_ID);
+        }
 
         @Test
         void cellSwap() {
@@ -1495,6 +1509,24 @@ public class BookingServiceTest {
                     .locationType(locationType)
                     .build();
         }
+        private AgencyInternalLocation receptionLocation(final Long locationId, final String locationCode) {
+            return
+                AgencyInternalLocation.builder()
+                    .locationId(locationId)
+                    .operationalCapacity(null)
+                    .currentOccupancy(1)
+                    .locationType("AREA")
+                    .agencyId("MDI")
+                    .locationCode(locationCode)
+                    .userDescription(null)
+                    .certifiedFlag(false)
+                    .active(true)
+                    .capacity(100)
+                    .description("MDI-RECP")
+                    .livingUnit(null)
+                    .build();
+        }
+
     }
 
     @Nested

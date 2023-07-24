@@ -998,8 +998,8 @@ public class BookingService {
         );
         if (!location.isCellSwap()) {
             checkArgument(
-                    location.isCell(),
-                    "Living unit %s of type %s is not a cell",
+                    location.isCell() || location.isReception(),
+                    "Living unit %s of type %s is not a cell or reception",
                     location.getDescription(), location.getLocationType()
             );
         }
