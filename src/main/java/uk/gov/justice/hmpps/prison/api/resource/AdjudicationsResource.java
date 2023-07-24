@@ -353,9 +353,8 @@ public class AdjudicationsResource {
         @ApiResponse(responseCode = "403", description = "The client is not authorised for this operation"),
         @ApiResponse(responseCode = "404", description = "No match was found for the parameters", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
     })
-    @Operation(summary = "Validates a charge", description = "Requires MAINTAIN_ADJUDICATIONS access")
+    @Operation(summary = "Validates a charge")
     @GetMapping("/adjudication/{adjudicationNumber}/sanction/{status}/{offenderNo}/validate")
-    @PreAuthorize("hasRole('MAINTAIN_ADJUDICATIONS')")
     @ResponseStatus(HttpStatus.OK)
     public void validateCharge(
         @PathVariable("adjudicationNumber") @Parameter(description = "adjudicationNo", required = true) final Long adjudicationNumber,

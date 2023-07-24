@@ -1282,12 +1282,6 @@ public class AdjudicationsResourceTest extends ResourceTest  {
         final String offenderNo = "A1234AE";
 
         @Test
-        public void validateChargeReturns403ForInvalidRoles () {
-            validateCharge(List.of("ROLE_SYSTEM_USER"), -9L, Status.IMMEDIATE, offenderNo)
-                .expectStatus().isForbidden();
-        }
-
-        @Test
         public void validateChargeReturns404DueToNoBooking() {
             validateCharge(validRole, -9L, Status.IMMEDIATE, "fakeOffenderNo")
                 .expectStatus().isNotFound()
