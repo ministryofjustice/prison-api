@@ -296,15 +296,18 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request - e.g. validation error.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to attend activity.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Resource not found - booking or event does not exist or is not accessible to user.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "423", description = "Record in use for this booking id (possibly in P-Nomis).", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Internal server error.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Update offender attendance and pay.", description = "Update offender attendance and pay.")
     @PutMapping("/{bookingId}/activities/{activityId}/attendance")
     @ProxyUser
-    public ResponseEntity<Void> updateAttendance(@NotNull @PathVariable("bookingId") @Parameter(description = "The booking Id of the prisoner", required = true, example = "213531") final Long bookingId,
-                                                 @NotNull @PathVariable("activityId") @Parameter(description = "The activity id", required = true, example = "1212131") final Long activityId,
-                                                 @RequestParam(value = "lockTimeout", required = false) @Parameter(description = "Whether to timeout if locked", example = "true") final Boolean lockTimeout,
-                                                 @RequestBody @NotNull @Parameter(required = true) final UpdateAttendance updateAttendance) {
-        bookingService.updateAttendance(bookingId, activityId, updateAttendance, lockTimeout == Boolean.TRUE);
+    public ResponseEntity<Void> updateAttendance(
+        @NotNull @PathVariable("bookingId") @Parameter(description = "The booking Id of the prisoner", required = true, example = "213531") final Long bookingId,
+        @NotNull @PathVariable("activityId") @Parameter(description = "The activity id", required = true, example = "1212131") final Long activityId,
+        @RequestParam(value = "lockTimeout", required = false, defaultValue = "false") @Parameter(description = "Whether to timeout if locked", example = "true") final Boolean lockTimeout,
+        @RequestBody @NotNull @Parameter(required = true) final UpdateAttendance updateAttendance
+    ) {
+        bookingService.updateAttendance(bookingId, activityId, updateAttendance, lockTimeout);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -356,13 +359,19 @@ public class BookingResource {
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "423", description = "Record in use for this booking id (possibly in P-Nomis).", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
     })
     @Operation(summary = "Update an alert")
     @PutMapping("/{bookingId}/alert/{alertSeq}")
     @ProxyUser
-    public Alert updateAlert(@PathVariable("bookingId") @Parameter(description = "bookingId", required = true) final Long bookingId, @PathVariable("alertSeq") @Parameter(description = "alertSeq", required = true) final Long alertSeq, @Valid @RequestBody @Parameter(description = "Alert details", required = true) final AlertChanges alert) {
-        return inmateAlertService.updateAlert(bookingId, alertSeq, alert);
+    public Alert updateAlert(
+        @PathVariable("bookingId") @Parameter(description = "bookingId", required = true) final Long bookingId,
+        @PathVariable("alertSeq") @Parameter(description = "alertSeq", required = true) final Long alertSeq,
+        @RequestParam(value = "lockTimeout", required = false, defaultValue = "false") @Parameter(description = "Whether to timeout if locked", example = "true") final Boolean lockTimeout,
+        @Valid @RequestBody @Parameter(description = "Alert details", required = true) final AlertChanges alert
+    ) {
+        return inmateAlertService.updateAlert(bookingId, alertSeq, alert, lockTimeout);
     }
 
     @ApiResponses({
