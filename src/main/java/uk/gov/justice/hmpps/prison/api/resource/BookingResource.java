@@ -284,7 +284,9 @@ public class BookingResource {
         @ApiResponse(responseCode = "500", description = "Internal server error.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @PutMapping("/offenderNo/{offenderNo}/activities/{activityId}/attendance")
     @ProxyUser
-    public ResponseEntity<Void> updateAttendance(@PathVariable("offenderNo") @Parameter(description = "The offenderNo of the prisoner", required = true, example = "A1234AA") final String offenderNo, @PathVariable("activityId") @Parameter(description = "The activity id", required = true, example = "1212131") final Long activityId, @RequestBody @Parameter(required = true, example = "{eventOutcome = 'ATT', performance = 'ACCEPT' outcomeComment = 'Turned up very late'}") @NotNull final UpdateAttendance updateAttendance) {
+    public ResponseEntity<Void> updateAttendance(@PathVariable("offenderNo") @Parameter(description = "The offenderNo of the prisoner", required = true, example = "A1234AA") final String offenderNo,
+                                                 @PathVariable("activityId") @Parameter(description = "The activity id", required = true, example = "1212131") final Long activityId,
+                                                 @RequestBody @Parameter(required = true, example = "{eventOutcome = 'ATT', performance = 'ACCEPT' outcomeComment = 'Turned up very late'}") @NotNull final UpdateAttendance updateAttendance) {
         bookingService.updateAttendance(offenderNo, activityId, updateAttendance);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -298,8 +300,11 @@ public class BookingResource {
     @Operation(summary = "Update offender attendance and pay.", description = "Update offender attendance and pay.")
     @PutMapping("/{bookingId}/activities/{activityId}/attendance")
     @ProxyUser
-    public ResponseEntity<Void> updateAttendance(@NotNull @PathVariable("bookingId") @Parameter(description = "The booking Id of the prisoner", required = true, example = "213531") final Long bookingId, @NotNull @PathVariable("activityId") @Parameter(description = "The activity id", required = true, example = "1212131") final Long activityId, @RequestBody @NotNull @Parameter(required = true) final UpdateAttendance updateAttendance) {
-        bookingService.updateAttendance(bookingId, activityId, updateAttendance);
+    public ResponseEntity<Void> updateAttendance(@NotNull @PathVariable("bookingId") @Parameter(description = "The booking Id of the prisoner", required = true, example = "213531") final Long bookingId,
+                                                 @NotNull @PathVariable("activityId") @Parameter(description = "The activity id", required = true, example = "1212131") final Long activityId,
+                                                 @RequestParam(value = "lockTimeout", required = false) @Parameter(description = "Whether to timeout if locked", example = "true") final Boolean lockTimeout,
+                                                 @RequestBody @NotNull @Parameter(required = true) final UpdateAttendance updateAttendance) {
+        bookingService.updateAttendance(bookingId, activityId, updateAttendance, lockTimeout == Boolean.TRUE);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
