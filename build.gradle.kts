@@ -1,8 +1,8 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.2.4"
-  kotlin("plugin.spring") version "1.8.22"
-  kotlin("plugin.jpa") version "1.8.22"
-  kotlin("plugin.lombok") version "1.8.22"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.3.0-beta"
+  kotlin("plugin.spring") version "1.9.0"
+  kotlin("plugin.jpa") version "1.9.0"
+  kotlin("plugin.lombok") version "1.9.0"
 }
 
 configurations {
@@ -24,7 +24,13 @@ val jsqlParserVersion by extra("4.3")
 // Temporarily keep at 2.5.1 until can switch to h2 instead (tests break anyway with 2.6.1)
 val hsqldbVersion by extra("2.5.1")
 
+// Unable to upgrade to 2.1.16 as attempting to use the parser caused a 500 from /v3/api-docs. It seems there's an incorrect dependency on an OAS3.1 type but I couldn't work out which project is wrong - so hopefully this will get sorted by the maintainers in due course.
+val swaggerParserVersion by extra("2.1.15")
+
 ext["rest-assured.version"] = "5.1.1"
+
+// Temporarily keep hibernate at 6.2.5 until https://hibernate.atlassian.net/jira/software/c/projects/HHH/issues/HHH-16926 is fixed in 6.2.7
+ext["hibernate.version"] = "6.2.5.Final"
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
@@ -84,7 +90,7 @@ dependencies {
   testImplementation("com.github.tomakehurst:wiremock-jre8-standalone:2.35.0")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.11.5")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.15") // Unable to upgrade to 2.1.16 as attempting to use the parser caused a 500 from /v3/api-docs. It seems there's an incorrect dependency on an OAS3.1 type but I couldn't work out which project is wrong - so hopefully this will get sorted by the maintainers in due course.
+  testImplementation("io.swagger.parser.v3:swagger-parser:$swaggerParserVersion")
   testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.28.0")
 
   testCompileOnly("org.projectlombok:lombok:1.18.28")
