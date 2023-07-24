@@ -161,6 +161,24 @@ public class BookingResourceIntTest extends ResourceTest {
     }
 
     @Test
+    public void testUpdateAttendance_WithLockTimeout() {
+        final var token = authTokenHelper.getToken(AuthToken.PAY);
+
+        final var body = Map.of("eventOutcome", "ATT", "performance", "STANDARD");
+        final var httpEntity = createHttpEntity(token, body);
+
+        final var response = testRestTemplate.exchange(
+            "/api/bookings/{bookingId}/activities/{activityId}/attendance?lockTimeout=true",
+            HttpMethod.PUT,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            -2, -11);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+    }
+
+    @Test
     public void testUpdateAttendance_WithInvalidBookingId() {
         final var token = authTokenHelper.getToken(AuthToken.PAY);
         final var body = Map.of("eventOutcome", "ATT", "performance", "STANDARD");
@@ -177,6 +195,46 @@ public class BookingResourceIntTest extends ResourceTest {
                 .status(404)
                 .userMessage("Resource with id [0] not found.")
                 .developerMessage("Resource with id [0] not found.")
+                .build());
+    }
+
+    @Test
+    public void testUpdateAttendance_WithInvalidBookingIdAndLockTimeout() {
+        final var token = authTokenHelper.getToken(AuthToken.PAY);
+        final var body = Map.of("eventOutcome", "ATT", "performance", "STANDARD");
+        final var request = createHttpEntity(token, body);
+
+        final var response = testRestTemplate.exchange(
+            "/api/bookings/{bookingId}/activities/{activityId}/attendance?lockTimeout=true",
+            HttpMethod.PUT,
+            request,
+            ErrorResponse.class, 0, -11);
+
+        assertThat(response.getBody()).isEqualTo(
+            ErrorResponse.builder()
+                .status(404)
+                .userMessage("Resource with id [0] not found.")
+                .developerMessage("Resource with id [0] not found.")
+                .build());
+    }
+
+    @Test
+    public void testUpdateAttendance_WithInvalidEventIdAndLockTimeout() {
+        final var token = authTokenHelper.getToken(AuthToken.PAY);
+        final var body = Map.of("eventOutcome", "ATT", "performance", "STANDARD");
+        final var request = createHttpEntity(token, body);
+
+        final var response = testRestTemplate.exchange(
+            "/api/bookings/{bookingId}/activities/{activityId}/attendance?lockTimeout=true",
+            HttpMethod.PUT,
+            request,
+            ErrorResponse.class, -2, 999);
+
+        assertThat(response.getBody()).isEqualTo(
+            ErrorResponse.builder()
+                .status(404)
+                .userMessage("Activity with booking Id -2 and activityId 999 not found")
+                .developerMessage("Activity with booking Id -2 and activityId 999 not found")
                 .build());
     }
 
