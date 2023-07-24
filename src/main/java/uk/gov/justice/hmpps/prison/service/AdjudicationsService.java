@@ -492,7 +492,7 @@ public class AdjudicationsService {
             oicSanctions.add(oicSanctionRepository.saveAndFlush(OicSanction.builder()
                 .offenderBookId(oicSanctionValidationResult.offenderBookId())
                 .sanctionSeq(nextSanctionSeq + index)
-                .consecutiveSanctionSeq(oicSanction == null ? null : oicSanction.getConsecutiveSanctionSeq())
+                .consecutiveSanctionSeq(oicSanction == null ? null : oicSanction.getSanctionSeq())
                 .consecutiveOffenderBookId(oicSanction == null ? null : oicSanction.getOffenderBookId())
                 .oicSanctionCode(request.getOicSanctionCode())
                 .compensationAmount(request.getCompensationAmount() == null ? null : BigDecimal.valueOf(request.getCompensationAmount()))
