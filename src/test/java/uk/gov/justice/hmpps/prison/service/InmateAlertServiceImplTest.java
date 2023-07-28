@@ -168,10 +168,7 @@ public class InmateAlertServiceImplTest {
         when(inmateAlertRepository.updateAlert(anyLong(), anyLong(), any())).thenReturn(Optional.of(alert));
         when(inmateAlertRepository.getAlert(anyLong(), anyLong())).thenReturn(Optional.of(alert));
 
-        final var updatedAlert = service.updateAlert(-1L, 4L, AlertChanges
-                .builder()
-                .expiryDate(LocalDate.now())
-                .build());
+        final var updatedAlert = service.updateAlert(-1L, 4L, AlertChanges.builder().expiryDate(LocalDate.now()).build(), false);
 
         assertThat(updatedAlert).isEqualTo(alert);
 
@@ -183,9 +180,9 @@ public class InmateAlertServiceImplTest {
 
     @Test
     public void testExceptionIsThrown_WhenExpiryDateAndCommentAreNull() {
-        assertThatThrownBy(() -> service.updateAlert(1L, 2L, AlertChanges.builder().build()))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Please provide an expiry date, or a comment");
+        assertThatThrownBy(() -> service.updateAlert(1L, 2L, AlertChanges.builder().build(), false))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("Please provide an expiry date, or a comment");
     }
 
     @Test
@@ -194,9 +191,20 @@ public class InmateAlertServiceImplTest {
 
         when(inmateAlertRepository.updateAlert(anyLong(), anyLong(), any())).thenReturn(Optional.of(Alert.builder().build()));
 
-        service.updateAlert(1L, 2L, AlertChanges.builder().comment("Test").build());
+        service.updateAlert(1L, 2L, AlertChanges.builder().comment("Test").build(), false);
 
         verify(inmateAlertRepository).updateAlert(1L, 2L, AlertChanges.builder().comment("Test").build());
+    }
+
+    @Test
+    public void testAlertRepository_LockingIsCalled() {
+        when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
+
+        when(inmateAlertRepository.updateAlert(anyLong(), anyLong(), any())).thenReturn(Optional.of(Alert.builder().build()));
+
+        service.updateAlert(1L, 2L, AlertChanges.builder().comment("Test").build(), true);
+
+        verify(inmateAlertRepository).lockAlert(1L, 2L);
     }
 
     @Test
@@ -207,7 +215,7 @@ public class InmateAlertServiceImplTest {
         when(inmateAlertRepository.updateAlert(anyLong(), anyLong(), any()))
                 .thenReturn(Optional.of(Alert.builder().alertCode("X").alertType("XX").build()));
 
-        service.updateAlert(1L, 2L, AlertChanges.builder().comment("Test").build());
+        service.updateAlert(1L, 2L, AlertChanges.builder().comment("Test").build(), false);
 
         verify(inmateAlertRepository).updateAlert(1L, 2L, AlertChanges.builder().comment("Test").build());
 
@@ -276,10 +284,7 @@ public class InmateAlertServiceImplTest {
         when(inmateAlertRepository.updateAlert(anyLong(), anyLong(), any()))
                 .thenReturn(Optional.of(Alert.builder().build()));
 
-        service.updateAlert(-1L, -2L, AlertChanges
-                .builder()
-                .expiryDate(LocalDate.now())
-                .build());
+        service.updateAlert(-1L, -2L, AlertChanges.builder().expiryDate(LocalDate.now()).build(), false);
 
         verify(telemetryClient).trackEvent("Alert updated", Map.of(
                 "bookingId", "-1",
@@ -323,7 +328,8 @@ public class InmateAlertServiceImplTest {
         when(inmateAlertRepository.getAlert(anyLong(), anyLong())).thenReturn(Optional.of(Alert.builder().active(false).build()));
 
         assertThatThrownBy(() ->
-                service.updateAlert(-14, 1, AlertChanges.builder().expiryDate(LocalDate.now()).build()))
+                service.updateAlert(-14, 1, AlertChanges.builder().expiryDate(LocalDate.now()).build(),
+            false))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Alert is already inactive.");
     }

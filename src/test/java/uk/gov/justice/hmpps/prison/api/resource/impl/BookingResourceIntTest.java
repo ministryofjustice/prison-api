@@ -161,6 +161,24 @@ public class BookingResourceIntTest extends ResourceTest {
     }
 
     @Test
+    public void testUpdateAttendance_WithLockTimeout() {
+        final var token = authTokenHelper.getToken(AuthToken.PAY);
+
+        final var body = Map.of("eventOutcome", "ATT", "performance", "STANDARD");
+        final var httpEntity = createHttpEntity(token, body);
+
+        final var response = testRestTemplate.exchange(
+            "/api/bookings/{bookingId}/activities/{activityId}/attendance?lockTimeout=true",
+            HttpMethod.PUT,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {
+            },
+            -2, -11);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+    }
+
+    @Test
     public void testUpdateAttendance_WithInvalidBookingId() {
         final var token = authTokenHelper.getToken(AuthToken.PAY);
         final var body = Map.of("eventOutcome", "ATT", "performance", "STANDARD");
@@ -177,6 +195,46 @@ public class BookingResourceIntTest extends ResourceTest {
                 .status(404)
                 .userMessage("Resource with id [0] not found.")
                 .developerMessage("Resource with id [0] not found.")
+                .build());
+    }
+
+    @Test
+    public void testUpdateAttendance_WithInvalidBookingIdAndLockTimeout() {
+        final var token = authTokenHelper.getToken(AuthToken.PAY);
+        final var body = Map.of("eventOutcome", "ATT", "performance", "STANDARD");
+        final var request = createHttpEntity(token, body);
+
+        final var response = testRestTemplate.exchange(
+            "/api/bookings/{bookingId}/activities/{activityId}/attendance?lockTimeout=true",
+            HttpMethod.PUT,
+            request,
+            ErrorResponse.class, 0, -11);
+
+        assertThat(response.getBody()).isEqualTo(
+            ErrorResponse.builder()
+                .status(404)
+                .userMessage("Resource with id [0] not found.")
+                .developerMessage("Resource with id [0] not found.")
+                .build());
+    }
+
+    @Test
+    public void testUpdateAttendance_WithInvalidEventIdAndLockTimeout() {
+        final var token = authTokenHelper.getToken(AuthToken.PAY);
+        final var body = Map.of("eventOutcome", "ATT", "performance", "STANDARD");
+        final var request = createHttpEntity(token, body);
+
+        final var response = testRestTemplate.exchange(
+            "/api/bookings/{bookingId}/activities/{activityId}/attendance?lockTimeout=true",
+            HttpMethod.PUT,
+            request,
+            ErrorResponse.class, -2, 999);
+
+        assertThat(response.getBody()).isEqualTo(
+            ErrorResponse.builder()
+                .status(404)
+                .userMessage("Activity with booking Id -2 and activityId 999 not found")
+                .developerMessage("Activity with booking Id -2 and activityId 999 not found")
                 .build());
     }
 
@@ -251,162 +309,194 @@ public class BookingResourceIntTest extends ResourceTest {
         assertThat(response.getBody()).contains("Activity with booking Id 999 and activityId -11 not found");
     }
 
-    @Test
-    public void testCreateNewAlert_UnAuthorised() {
-        final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
+    @Nested
+    public class Alerts {
+        @Test
+        public void testCreateNewAlert_UnAuthorised() {
+            final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
 
-        final var body = CreateAlert.builder().alertCode("X").alertType("XX").comment("XXX")
-            .alertDate(LocalDate.now()).build();
+            final var body = CreateAlert.builder().alertCode("X").alertType("XX").comment("XXX")
+                .alertDate(LocalDate.now()).build();
 
-        final var response = testRestTemplate.exchange(
-            "/api/bookings/{bookingId}/alert",
-            HttpMethod.POST,
-            createHttpEntity(token, body),
-            new ParameterizedTypeReference<ErrorResponse>() {
-            }, -10L);
+            final var response = testRestTemplate.exchange(
+                "/api/bookings/{bookingId}/alert",
+                HttpMethod.POST,
+                createHttpEntity(token, body),
+                new ParameterizedTypeReference<ErrorResponse>() {
+                }, -10L);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-    }
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        }
 
-    @Test
-    public void testUpdateAlert_UnAuthorised() {
-        final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
+        @Test
+        public void testUpdateAlert_UnAuthorised() {
+            final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
 
-        final var body = AlertChanges.builder().expiryDate(LocalDate.now()).build();
+            final var body = AlertChanges.builder().expiryDate(LocalDate.now()).build();
 
-        final var response = testRestTemplate.exchange(
-            "/api/bookings/{bookingId}/alert/{alertSeq}",
-            HttpMethod.PUT,
-            createHttpEntity(token, body),
-            new ParameterizedTypeReference<ErrorResponse>() {
-            }, -1L, 4);
+            final var response = testRestTemplate.exchange(
+                "/api/bookings/{bookingId}/alert/{alertSeq}",
+                HttpMethod.PUT,
+                createHttpEntity(token, body),
+                new ParameterizedTypeReference<ErrorResponse>() {
+                }, -1L, 4);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-    }
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        }
 
-    @Test
-    public void testUpdateAlert() {
-        final var token = authTokenHelper.getToken(AuthToken.UPDATE_ALERT);
+        @Test
+        public void testUpdateAlert() {
+            final var token = authTokenHelper.getToken(AuthToken.UPDATE_ALERT);
 
-        final var createdAlert = testRestTemplate.exchange(
-            "/api/bookings/{bookingId}/alert",
-            HttpMethod.POST,
-            createHttpEntity(token,
-                CreateAlert.builder()
-                    .alertType("L")
-                    .alertCode("LPQAA")
-                    .comment("XXX")
-                    .alertDate(LocalDate.now())
-                    .build()),
-            new ParameterizedTypeReference<Alert>() {
-            }, -14L).getBody();
+            final var createdAlert = testRestTemplate.exchange(
+                "/api/bookings/{bookingId}/alert",
+                HttpMethod.POST,
+                createHttpEntity(token,
+                    CreateAlert.builder()
+                        .alertType("L")
+                        .alertCode("LPQAA")
+                        .comment("XXX")
+                        .alertDate(LocalDate.now())
+                        .build()),
+                new ParameterizedTypeReference<Alert>() {
+                }, -14L).getBody();
 
-        final var body = AlertChanges.builder().expiryDate(LocalDate.now()).build();
+            final var body = AlertChanges.builder().expiryDate(LocalDate.now()).build();
 
-        final var response = testRestTemplate.exchange(
-            "/api/bookings/{bookingId}/alert/{alertSeq}",
-            HttpMethod.PUT,
-            createHttpEntity(token, body),
-            new ParameterizedTypeReference<AlertCreated>() {
-            }, -14L, createdAlert.getAlertId());
+            final var response = testRestTemplate.exchange(
+                "/api/bookings/{bookingId}/alert/{alertSeq}",
+                HttpMethod.PUT,
+                createHttpEntity(token, body),
+                new ParameterizedTypeReference<AlertCreated>() {
+                }, -14L, createdAlert.getAlertId());
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    }
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        }
 
-    @Test
-    public void testUpdateAlert_CommentTextOnly() {
-        final var token = authTokenHelper.getToken(AuthToken.UPDATE_ALERT);
+        @Test
+        public void testUpdateAlertWithLockTimeout() {
+            final var token = authTokenHelper.getToken(AuthToken.UPDATE_ALERT);
 
-        final var createdAlert = testRestTemplate.exchange(
-            "/api/bookings/{bookingId}/alert",
-            HttpMethod.POST,
-            createHttpEntity(token,
-                CreateAlert.builder()
-                    .alertType("L")
-                    .alertCode("LPQAA")
-                    .comment("XXX")
-                    .alertDate(LocalDate.now())
-                    .build()),
-            new ParameterizedTypeReference<Alert>() {
-            }, -14L).getBody();
+            final var createdAlert = testRestTemplate.exchange(
+                "/api/bookings/{bookingId}/alert",
+                HttpMethod.POST,
+                createHttpEntity(token,
+                    CreateAlert.builder()
+                        .alertType("L")
+                        .alertCode("LPQAA")
+                        .comment("XXX")
+                        .alertDate(LocalDate.now())
+                        .build()),
+                new ParameterizedTypeReference<Alert>() {
+                }, -15L).getBody();
 
-        final var body = AlertChanges.builder().comment("New comment").build();
+            final var body = AlertChanges.builder().comment("Test comment").build();
 
-        final var response = testRestTemplate.exchange(
-            "/api/bookings/{bookingId}/alert/{alertSeq}",
-            HttpMethod.PUT,
-            createHttpEntity(token, body),
-            new ParameterizedTypeReference<AlertCreated>() {
-            }, -14L, createdAlert.getAlertId());
+            final var response = testRestTemplate.exchange(
+                "/api/bookings/{bookingId}/alert/{alertSeq}?lockTimeout=true",
+                HttpMethod.PUT,
+                createHttpEntity(token, body),
+                new ParameterizedTypeReference<AlertCreated>() {
+                }, -15L, createdAlert.getAlertId());
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    }
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        }
 
-    @Test
-    public void testCreateNewAlert_BadRequest() {
-        final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
+        @Test
+        public void testUpdateAlert_CommentTextOnly() {
+            final var token = authTokenHelper.getToken(AuthToken.UPDATE_ALERT);
 
-        final var body = CreateAlert.builder().build();
+            final var createdAlert = testRestTemplate.exchange(
+                "/api/bookings/{bookingId}/alert",
+                HttpMethod.POST,
+                createHttpEntity(token,
+                    CreateAlert.builder()
+                        .alertType("L")
+                        .alertCode("LPQAA")
+                        .comment("XXX")
+                        .alertDate(LocalDate.now())
+                        .build()),
+                new ParameterizedTypeReference<Alert>() {
+                }, -14L).getBody();
 
-        final var response = testRestTemplate.exchange(
-            "/api/bookings/{bookingId}/alert",
-            HttpMethod.POST,
-            createHttpEntity(token, body),
-            new ParameterizedTypeReference<ErrorResponse>() {
-            }, -10L);
+            final var body = AlertChanges.builder().comment("New comment").build();
 
-        final var validationMessages = response.getBody().getUserMessage();
+            final var response = testRestTemplate.exchange(
+                "/api/bookings/{bookingId}/alert/{alertSeq}",
+                HttpMethod.PUT,
+                createHttpEntity(token, body),
+                new ParameterizedTypeReference<AlertCreated>() {
+                }, -14L, createdAlert.getAlertId());
 
-        assertThat(validationMessages).contains("alertType");
-        assertThat(validationMessages).contains("alertCode");
-        assertThat(validationMessages).contains("comment");
-        assertThat(validationMessages).contains("alertDate");
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-    }
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        }
 
-    @Test
-    public void testCreateNewAlert_MaximumLengths() {
-        final var token = authTokenHelper.getToken(AuthToken.UPDATE_ALERT);
-        final var largeText = IntStream.range(1, 1002).mapToObj(i -> "A").collect(Collectors.joining(""));
+        @Test
+        public void testCreateNewAlert_BadRequest() {
+            final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
 
-        final var body = CreateAlert.builder()
-            .alertCode(largeText.substring(0, 13))
-            .alertType(largeText.substring(0, 13))
-            .comment(largeText)
-            .alertDate(LocalDate.now()).build();
+            final var body = CreateAlert.builder().build();
 
-        final var response = testRestTemplate.exchange(
-            "/api/bookings/{bookingId}/alert",
-            HttpMethod.POST,
-            createHttpEntity(token, body),
-            new ParameterizedTypeReference<ErrorResponse>() {
-            }, -10L);
+            final var response = testRestTemplate.exchange(
+                "/api/bookings/{bookingId}/alert",
+                HttpMethod.POST,
+                createHttpEntity(token, body),
+                new ParameterizedTypeReference<ErrorResponse>() {
+                }, -10L);
 
-        final var validationMessages = response.getBody().getUserMessage();
+            final var validationMessages = response.getBody().getUserMessage();
 
-        assertThat(validationMessages).contains("alertType");
-        assertThat(validationMessages).contains("alertCode");
-        assertThat(validationMessages).contains("comment");
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-    }
+            assertThat(validationMessages).contains("alertType");
+            assertThat(validationMessages).contains("alertCode");
+            assertThat(validationMessages).contains("comment");
+            assertThat(validationMessages).contains("alertDate");
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        }
+
+        @Test
+        public void testCreateNewAlert_MaximumLengths() {
+            final var token = authTokenHelper.getToken(AuthToken.UPDATE_ALERT);
+            final var largeText = IntStream.range(1, 1002).mapToObj(i -> "A").collect(Collectors.joining(""));
+
+            final var body = CreateAlert.builder()
+                .alertCode(largeText.substring(0, 13))
+                .alertType(largeText.substring(0, 13))
+                .comment(largeText)
+                .alertDate(LocalDate.now()).build();
+
+            final var response = testRestTemplate.exchange(
+                "/api/bookings/{bookingId}/alert",
+                HttpMethod.POST,
+                createHttpEntity(token, body),
+                new ParameterizedTypeReference<ErrorResponse>() {
+                }, -10L);
+
+            final var validationMessages = response.getBody().getUserMessage();
+
+            assertThat(validationMessages).contains("alertType");
+            assertThat(validationMessages).contains("alertCode");
+            assertThat(validationMessages).contains("comment");
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        }
 
 
-    @Test
-    public void testCreateNewAlert() {
-        final var token = authTokenHelper.getToken(AuthToken.UPDATE_ALERT);
+        @Test
+        public void testCreateNewAlert() {
+            final var token = authTokenHelper.getToken(AuthToken.UPDATE_ALERT);
 
-        final var body = CreateAlert.builder().alertType("L").alertCode("LPQAA").comment("comments")
-            .alertDate(LocalDate.now()).build();
+            final var body = CreateAlert.builder().alertType("L").alertCode("LPQAA").comment("comments")
+                .alertDate(LocalDate.now()).build();
 
-        final var response = testRestTemplate.exchange(
-            "/api/bookings/{bookingId}/alert",
-            HttpMethod.POST,
-            createHttpEntity(token, body),
-            new ParameterizedTypeReference<AlertCreated>() {
-            }, -10L);
+            final var response = testRestTemplate.exchange(
+                "/api/bookings/{bookingId}/alert",
+                HttpMethod.POST,
+                createHttpEntity(token, body),
+                new ParameterizedTypeReference<AlertCreated>() {
+                }, -10L);
 
-        assertThat(response.getBody().getAlertId()).isGreaterThan(1);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+            assertThat(response.getBody().getAlertId()).isGreaterThan(1);
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        }
     }
 
     @Test

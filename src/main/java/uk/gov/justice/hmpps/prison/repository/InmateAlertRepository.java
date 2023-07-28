@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.repository;
 import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.api.model.Alert;
@@ -12,11 +13,13 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSummaryDto;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
+import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException;
 import uk.gov.justice.hmpps.prison.repository.mapping.DataClassByColumnRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.FieldMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.PageAwareRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.Row2BeanRowMapper;
 import uk.gov.justice.hmpps.prison.repository.sql.InmateAlertRepositorySql;
+import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
 import java.time.LocalDateTime;
@@ -28,6 +31,12 @@ import java.util.Optional;
 @Repository
 @Slf4j
 public class InmateAlertRepository extends RepositoryBase {
+
+    private final ConditionalSqlService conditionalSqlService;
+
+    public InmateAlertRepository(ConditionalSqlService conditionalSqlService) {
+        this.conditionalSqlService = conditionalSqlService;
+    }
 
     private final Map<String, FieldMapper> alertMapping = new ImmutableMap.Builder<String, FieldMapper>()
             .put("ALERT_SEQ", new FieldMapper("alertId"))
@@ -147,6 +156,29 @@ public class InmateAlertRepository extends RepositoryBase {
         return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
     }
 
+    private final static int lockWaitTime = 25;
+
+    public void lockAlert(final Long bookingId, final Long alertSeq) {
+        final var sql = InmateAlertRepositorySql.LOCK_ALERT.getSql() + conditionalSqlService.getWaitClause(lockWaitTime);
+        try {
+            jdbcTemplate.queryForObject(
+                sql,
+                createParams(
+                    "bookingId", bookingId,
+                    "alertSeq", alertSeq
+                ),
+                Integer.class);
+        } catch (EmptyResultDataAccessException e) {
+            throw EntityNotFoundException.withId(alertSeq);
+        } catch (UncategorizedSQLException e) {
+            log.error("Error getting lock", e);
+            if (e.getCause().getMessage().contains("ORA-30006")) {
+                throw new DatabaseRowLockedException("Failed to get OFFENDER_ALERTS lock for (bookingId=" + bookingId + ", alertSeq=" + alertSeq + ") after " + lockWaitTime + " seconds");
+            } else {
+                throw e;
+            }
+        }
+    }
 
     public Optional<Alert> updateAlert(final long bookingId, final long alertSeq, final AlertChanges alert) {
         final var expireAlertSql = InmateAlertRepositorySql.EXPIRE_ALERT.getSql();

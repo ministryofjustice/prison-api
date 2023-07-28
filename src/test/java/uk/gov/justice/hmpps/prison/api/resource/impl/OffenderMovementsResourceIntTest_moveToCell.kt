@@ -268,7 +268,7 @@ class OffenderMovementsResourceIntTest_moveToCell : ResourceTest() {
     offenderNo: String,
     livingUnitId: String,
     reasonCode: String,
-    dateTime: String,
+    dateTime: String?,
   ): ResponseEntity<String?>? {
     val entity = createHttpEntity(bearerToken, null)
     return testRestTemplate.exchange(

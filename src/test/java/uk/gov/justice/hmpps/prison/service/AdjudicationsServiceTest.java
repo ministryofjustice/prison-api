@@ -1863,7 +1863,7 @@ public class AdjudicationsServiceTest {
                 .offenderBookId(offenderBookId)
                 .oicSanctionCode(OicSanctionCode.ADA)
                 .status(Status.IMMEDIATE)
-                .consecutiveSanctionSeq(250L)
+                .sanctionSeq(250L)
                 .build();
             when(oicSanctionRepository.findByOicHearingIdIn(List.of(oicHearingId)))
                 .thenReturn(List.of(oicSanctionForConsecutive));

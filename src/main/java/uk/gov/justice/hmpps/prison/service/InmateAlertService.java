@@ -225,13 +225,16 @@ public class InmateAlertService {
 
     @Transactional
     @PreAuthorize("hasAnyRole('UPDATE_ALERT')")
-    public Alert updateAlert(final long bookingId, final long alertSeq, final AlertChanges alertChanges) {
-        if (alertChanges.getExpiryDate() == null && StringUtils.isBlank(alertChanges.getComment()))
+    public Alert updateAlert(final long bookingId, final long alertSeq, final AlertChanges alertChanges, final boolean lockTimeout) {
+        if (alertChanges.getExpiryDate() == null && StringUtils.isBlank(alertChanges.getComment())) {
             throw new IllegalArgumentException("Please provide an expiry date, or a comment");
-
-        if (alertChanges.getExpiryDate() == null && StringUtils.isNotBlank(alertChanges.getComment()))
+        }
+        if (lockTimeout) {
+            inmateAlertRepository.lockAlert(bookingId, alertSeq);
+        }
+        if (alertChanges.getExpiryDate() == null && StringUtils.isNotBlank(alertChanges.getComment())) {
             return updateAlertComment(bookingId, alertSeq, alertChanges);
-
+        }
         return expireAlert(bookingId, alertSeq, alertChanges);
     }
 
@@ -241,7 +244,7 @@ public class InmateAlertService {
         var alert = inmateAlertRepository.updateAlert(bookingId, alertSeq, alertChanges)
                 .orElseThrow(EntityNotFoundException.withId(alertSeq));
 
-        log.info("Alert updated {}", alert);
+        log.info("updateAlertComment() Alert updated {}", alert);
         telemetryClient.trackEvent("Alert updated", Map.of(
                 "bookingId", String.valueOf(bookingId),
                 "alertSeq", String.valueOf(alertSeq),
@@ -264,7 +267,7 @@ public class InmateAlertService {
         final var alert = inmateAlertRepository.updateAlert(bookingId, alertSeq, alertChanges)
                 .orElseThrow(EntityNotFoundException.withId(alertSeq));
 
-        log.info("Alert updated {}", alert);
+        log.info("expireAlert() Alert updated {}", alert);
         telemetryClient.trackEvent("Alert updated", Map.of(
                 "bookingId", String.valueOf(bookingId),
                 "alertSeq", String.valueOf(alertSeq),
@@ -278,7 +281,7 @@ public class InmateAlertService {
         var expiredAlert = false;
 
         if (alert.getDateExpires() != null) {
-            expiredAlert = alert.getDateExpires().compareTo(LocalDate.now()) <= 0;
+            expiredAlert = !alert.getDateExpires().isAfter(LocalDate.now());
         }
 
         return expiredAlert;

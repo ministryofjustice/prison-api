@@ -313,9 +313,13 @@ public class BookingService {
 
     @Transactional
     @PreAuthorize("hasRole('ROLE_PAY')")
-    public void updateAttendance(final Long bookingId, final Long activityId, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance) {
+    public void updateAttendance(final Long bookingId, final Long activityId, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance, boolean lockTimeout) {
+        final Long latestBookingId = getLatestBookingByBookingId(bookingId).getBookingId();
+        if (lockTimeout) {
+            bookingRepository.lockAttendance(latestBookingId, activityId);
+        }
         final var activityOutcome = bookingRepository.getPayableAttendanceOutcome("PRISON_ACT", updateAttendance.getEventOutcome());
-        updateAttendance(activityId, updateAttendance, getLatestBookingByBookingId(bookingId).getBookingId(), activityOutcome);
+        updateAttendance(activityId, updateAttendance, latestBookingId, activityOutcome);
     }
 
     @Transactional
@@ -963,8 +967,8 @@ public class BookingService {
         );
         if (!location.isCellSwap()) {
             checkArgument(
-                    location.isCell(),
-                    "Living unit %s of type %s is not a cell",
+                    location.isCell() || location.isReception(),
+                    "Living unit %s of type %s is not a cell or reception",
                     location.getDescription(), location.getLocationType()
             );
         }

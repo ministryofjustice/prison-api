@@ -41,6 +41,7 @@ class MovementUpdateServiceTest {
     private static final Long NEW_LIVING_UNIT_ID = 3L;
     private static final String NEW_LIVING_UNIT_DESC = "MDI-1-3";
     private static final String NEW_RECEPTION_DESC = "MDI-RECP";
+    private static final String RECEPTION_CODE = "RECP";
     private static final String SOME_AGENCY_ID = "MDI";
     private static final String SOME_REASON_CODE = "ADM";
     private static final String CELL_SWAP_LOCATION_CODE = "CSWAP";
@@ -170,13 +171,12 @@ class MovementUpdateServiceTest {
         }
         @Test
         void updatesBookingReception() {
-            mockSuccess();
+            mockSuccessForReception();
 
             service.moveToCellOrReception(SOME_BOOKING_ID, NEW_RECEPTION_DESC, SOME_REASON_CODE, SOME_TIME);
 
-            verify(bookingService).updateLivingUnit(SOME_BOOKING_ID, aLocation(NEW_LIVING_UNIT_ID, NEW_RECEPTION_DESC).get());
+            verify(bookingService).updateLivingUnit(SOME_BOOKING_ID, receptionLocation(NEW_LIVING_UNIT_ID, NEW_RECEPTION_DESC).get());
         }
-
         @Test
         void writesToBedAssignmentHistories() {
             mockSuccess();
@@ -234,6 +234,17 @@ class MovementUpdateServiceTest {
                     .thenReturn(aLocation(NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC));
             when(agencyInternalLocationRepository.findOneByDescription(NEW_RECEPTION_DESC))
                     .thenReturn(aLocation(NEW_LIVING_UNIT_ID, NEW_RECEPTION_DESC));
+        }
+        private void mockSuccessForReception() {
+            when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), eq(false)))
+                .thenReturn(Optional.of(mock(ReferenceCode.class)));
+            when(offenderBookingRepository.findById(anyLong()))
+                .thenReturn(anOffenderBooking(SOME_BOOKING_ID, SOME_AGENCY_ID, OLD_LIVING_UNIT_ID, OLD_LIVING_UNIT_DESC, true))
+                .thenReturn(anOffenderBooking(SOME_BOOKING_ID, SOME_AGENCY_ID, NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC, true));
+            when(agencyInternalLocationRepository.findOneByDescription(NEW_RECEPTION_DESC))
+                .thenReturn(receptionLocation(NEW_LIVING_UNIT_ID, RECEPTION_CODE));
+            when(agencyInternalLocationRepository.findOneByDescription(NEW_RECEPTION_DESC))
+                .thenReturn(receptionLocation(NEW_LIVING_UNIT_ID, RECEPTION_CODE));
         }
 
         private void mockCellNotChanged() {
@@ -402,4 +413,21 @@ class MovementUpdateServiceTest {
                         .build()
         );
     }
-}
+    private Optional<AgencyInternalLocation> receptionLocation(final Long locationId, final String locationCode) {
+        return Optional.of(
+            AgencyInternalLocation.builder()
+                .locationId(locationId)
+                .operationalCapacity(null)
+                .currentOccupancy(1)
+                .locationType("AREA")
+                .locationCode(locationCode)
+                .userDescription(null)
+                .certifiedFlag(false)
+                .active(true)
+                .capacity(100)
+                .description("NMI-RECP")
+                .livingUnit(null)
+                .build()
+        );
+    }
+   }

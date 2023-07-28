@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
+import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -33,6 +34,7 @@ import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentDefault
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentDetails;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
+import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException;
 import uk.gov.justice.hmpps.prison.repository.mapping.DataClassByColumnRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.FieldMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.PageAwareRowMapper;
@@ -66,8 +68,16 @@ import java.util.stream.Collectors;
 @Slf4j
 public class BookingRepository extends RepositoryBase {
 
+    private final ConditionalSqlService conditionalSqlService;
+
+    public BookingRepository(ConditionalSqlService conditionalSqlService) {
+        this.conditionalSqlService = conditionalSqlService;
+    }
+
     private static final DataClassByColumnRowMapper<ScheduledEventDto> EVENT_ROW_MAPPER =
             new DataClassByColumnRowMapper<>(ScheduledEventDto.class);
+
+    private static final String ATTENDANCE_NOT_FOUND = "Activity with booking Id %d and activityId %d not found";
 
     private final RowMapper<AlertResult> ALERTS_MAPPER = new StandardBeanPropertyRowMapper<>(AlertResult.class);
 
@@ -236,7 +246,7 @@ public class BookingRepository extends RepositoryBase {
     /**
      * @param bookingIds Booking IDs
      * @param cutoffDate Omit alerts which have expired before this date-time
-     * @return a list of active alert codes for each booking id
+     * @return a map of active alert codes for each booking id
      */
     public Map<Long, List<String>> getAlertCodesForBookings(final List<Long> bookingIds, final LocalDateTime cutoffDate) {
         if (CollectionUtils.isEmpty(bookingIds)) {
@@ -309,22 +319,44 @@ public class BookingRepository extends RepositoryBase {
         return activities.stream().map(ScheduledEventDto::toScheduledEvent).collect(Collectors.toList());
     }
 
+    private final static int lockWaitTime = 25;
+
+    public void lockAttendance(final Long bookingId, final Long activityId) {
+        final var sql = BookingRepositorySql.LOCK_ATTENDANCE.getSql() + conditionalSqlService.getWaitClause(lockWaitTime);
+        try {
+            jdbcTemplate.queryForObject(
+                sql,
+                createParams(
+                    "bookingId", bookingId,
+                    "eventId", activityId
+                ), Integer.class);
+        } catch (EmptyResultDataAccessException e) {
+            throw EntityNotFoundException.withMessage(ATTENDANCE_NOT_FOUND, bookingId, activityId);
+        } catch (UncategorizedSQLException e) {
+            log.error("Error getting lock", e);
+            if (e.getCause().getMessage().contains("ORA-30006")) {
+                throw new DatabaseRowLockedException("Failed to get OFFENDER_COURSE_ATTENDANCES lock for (bookingId=" + bookingId + ", eventId=" + activityId + ") after " + lockWaitTime + " seconds");
+            } else {
+                throw e;
+            }
+        }
+    }
+
     public void updateAttendance(final Long bookingId, final Long activityId, final UpdateAttendance updateAttendance, final boolean paid, final boolean authorisedAbsence) {
         final var sql = BookingRepositorySql.UPDATE_ATTENDANCE.getSql();
         final var rows = jdbcTemplate.update(
-                sql,
-                createParams(
-                        "bookingId", bookingId,
-                        "eventId", activityId,
-                        "eventOutcome", updateAttendance.getEventOutcome(),
-                        "performanceCode", updateAttendance.getPerformance(),
-                        "commentText", updateAttendance.getOutcomeComment(),
-                        "paid", paid ? "Y" : "N",
-                        "authorisedAbsence", authorisedAbsence ? "Y" : "N"
-                ));
+            sql,
+            createParams(
+                "bookingId", bookingId,
+                "eventId", activityId,
+                "eventOutcome", updateAttendance.getEventOutcome(),
+                "performanceCode", updateAttendance.getPerformance(),
+                "commentText", updateAttendance.getOutcomeComment(),
+                "paid", paid ? "Y" : "N",
+                "authorisedAbsence", authorisedAbsence ? "Y" : "N"
+            ));
         if (rows != 1) {
-            throw EntityNotFoundException.withMessage("Activity with booking Id %d and activityId %d not found",
-                    bookingId, activityId);
+            throw EntityNotFoundException.withMessage(ATTENDANCE_NOT_FOUND, bookingId, activityId);
         }
     }
 
@@ -426,8 +458,6 @@ public class BookingRepository extends RepositoryBase {
         Objects.requireNonNull(bookingId, "bookingIds is a required parameter");
         final var sql = BookingRepositorySql.INSERT_VO_PVO_BALANCE.getSql();
 
-        VisitBalancesDto visitBalances;
-
         return jdbcTemplate.update(
                 sql,
                 createParams("bookingId", bookingId, "voBalance", voBalance, "pvoBalance", pvoBalance)) == 1;
@@ -461,7 +491,7 @@ public class BookingRepository extends RepositoryBase {
                     BookingRepositorySql.GET_NEXT_BOOKING_VISIT.getSql(),
                     createParams("bookingId", bookingId, "fromDate", DateTimeConverter.fromLocalDateTime(from)),
                     VISIT_ROW_MAPPER);
-            return Optional.of(result)
+            return Optional.ofNullable(result)
                 .map(vd -> vd.toVisitDetails().toBuilder().leadVisitor(StringUtils.trimToNull(vd.getLeadVisitor())).build());
         } catch (final EmptyResultDataAccessException e) {
             return Optional.empty();
