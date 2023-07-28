@@ -19,41 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.client.HttpClientErrorException;
-import uk.gov.justice.hmpps.prison.api.model.Agency;
-import uk.gov.justice.hmpps.prison.api.model.BookingActivity;
-import uk.gov.justice.hmpps.prison.api.model.CourtCase;
-import uk.gov.justice.hmpps.prison.api.model.FixedTermRecallDetails;
-import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
-import uk.gov.justice.hmpps.prison.api.model.MilitaryRecord;
-import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
-import uk.gov.justice.hmpps.prison.api.model.OffenceDetail;
-import uk.gov.justice.hmpps.prison.api.model.OffenceHistoryDetail;
-import uk.gov.justice.hmpps.prison.api.model.OffenderContact;
-import uk.gov.justice.hmpps.prison.api.model.OffenderContacts;
-import uk.gov.justice.hmpps.prison.api.model.OffenderFinePaymentDto;
-import uk.gov.justice.hmpps.prison.api.model.OffenderRestriction;
-import uk.gov.justice.hmpps.prison.api.model.OffenderRestrictions;
-import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences;
-import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceCalculation;
-import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
-import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetailDto;
-import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
-import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
-import uk.gov.justice.hmpps.prison.api.model.PrisonDetails;
-import uk.gov.justice.hmpps.prison.api.model.PrisonerBookingSummary;
-import uk.gov.justice.hmpps.prison.api.model.PropertyContainer;
-import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
-import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentDetail;
-import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
-import uk.gov.justice.hmpps.prison.api.model.SentenceSummary;
+import uk.gov.justice.hmpps.prison.api.model.*;
 import uk.gov.justice.hmpps.prison.api.model.SentenceSummary.PrisonTerm;
-import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
-import uk.gov.justice.hmpps.prison.api.model.VisitBalances;
-import uk.gov.justice.hmpps.prison.api.model.VisitDetails;
-import uk.gov.justice.hmpps.prison.api.model.VisitSummary;
-import uk.gov.justice.hmpps.prison.api.model.VisitWithVisitors;
-import uk.gov.justice.hmpps.prison.api.model.Visitor;
-import uk.gov.justice.hmpps.prison.api.model.VisitorRestriction;
 import uk.gov.justice.hmpps.prison.api.model.calculation.CalculableSentenceEnvelope;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
@@ -824,7 +791,7 @@ public class BookingService {
         final var offenderSentences = offenderSentenceRepository.findByOffenderBooking_BookingId_AndCalculationType_CalculationTypeNotLikeAndCalculationType_CategoryNot(bookingId, "%AGG%", "LICENCE");
         return offenderSentences.stream()
             .map(OffenderSentence::getSentenceAndOffenceDetail)
-            .collect(toList());
+            .toList();
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
@@ -836,7 +803,7 @@ public class BookingService {
         final var offenderFinePayments = offenderFinePaymentRepository.findByOffenderBooking_BookingId(bookingId);
         return offenderFinePayments.stream()
             .map(OffenderFinePayment::getOffenderFinePaymentDto)
-            .collect(toList());
+            .toList();
     }
 
 
@@ -874,14 +841,15 @@ public class BookingService {
             offenderBooking.getOffender().getBirthDate()
         );
 
-        final var sentenceAdjustments = offenderBooking.getSentenceAdjustments();
-        final var bookingAdjustments = offenderBooking.getBookingAdjustments();
+        final List<SentenceAdjustmentValues> sentenceAdjustments = offenderBooking.getSentenceAdjustments();
+        final List<BookingAdjustment> bookingAdjustments = offenderBooking.getBookingAdjustments();
 
-        final var containsFine = offenderBooking.getSentences().stream().filter(Objects::nonNull).anyMatch(sentence -> sentence.getCalculationType().isAFine());
-        final var containsRecall = offenderBooking.getSentences().stream().filter(Objects::nonNull).anyMatch(sentence -> sentence.getCalculationType().isRecallType());
+        final boolean containsFine = offenderBooking.getSentences().stream().filter(Objects::nonNull).anyMatch(sentence -> sentence.getCalculationType().isAFine());
+        final boolean containsRecall = offenderBooking.getSentences().stream().filter(Objects::nonNull).anyMatch(sentence -> sentence.getCalculationType().isRecallType());
 
         final List<OffenderFinePaymentDto> offenderFinePaymentDtoList = this.getFinesIfRequired(containsFine, offenderBooking.getBookingId());
         final FixedTermRecallDetails fixedTermRecallDetails = getFixedTermRecall(containsRecall, offenderBooking.getBookingId());
+        final SentenceCalcDates sentenceCalcDates = this.getBookingSentenceCalcDatesV1_1(offenderBooking.getBookingId());
 
         return new CalculableSentenceEnvelope(
             person,
@@ -889,7 +857,8 @@ public class BookingService {
             sentenceAdjustments,
             bookingAdjustments,
             offenderFinePaymentDtoList,
-            fixedTermRecallDetails
+            fixedTermRecallDetails,
+            sentenceCalcDates
         );
     }
 

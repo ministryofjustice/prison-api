@@ -5,6 +5,7 @@ import uk.gov.justice.hmpps.prison.api.model.BookingAdjustment
 import uk.gov.justice.hmpps.prison.api.model.FixedTermRecallDetails
 import uk.gov.justice.hmpps.prison.api.model.OffenderFinePaymentDto
 import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentValues
+import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates
 import uk.gov.justice.hmpps.prison.api.model.SentenceSummary
 
 @Schema(description = "The active sentence envelope is a combination of the person information, the active booking and calculable sentences at a particular establishment")
@@ -26,4 +27,8 @@ data class CalculableSentenceEnvelope(
 
   @Schema(description = "Fixed term recall details")
   val fixedTermRecallDetails: FixedTermRecallDetails? = null,
+
+  @Schema(description = "The current set of sentence dates determined by NOMIS or recorded via overrides")
+  val sentenceCalcDates: SentenceCalcDates? = null,
+
 )
