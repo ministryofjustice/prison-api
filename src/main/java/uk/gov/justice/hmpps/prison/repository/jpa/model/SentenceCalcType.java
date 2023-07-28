@@ -21,7 +21,7 @@ import java.util.Set;
 @Entity
 @Builder
 @NoArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper=false)
 @AllArgsConstructor
 @Table(name = "SENTENCE_CALC_TYPES")
 @IdClass(SentenceCalcType.PK.class)
