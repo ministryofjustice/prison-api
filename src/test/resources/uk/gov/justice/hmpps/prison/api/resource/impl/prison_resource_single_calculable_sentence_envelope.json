@@ -1,7 +1,7 @@
 {
     "person": {
-        "dateOfBirth": "1966-01-01",
-        "prisonerNumber": "Z0020ZZ"
+        "prisonerNumber": "Z0020ZZ",
+        "dateOfBirth": "1966-01-01"
     },
     "latestPrisonTerm": {
         "bookNumber": "Z00020",
@@ -123,5 +123,18 @@
     "sentenceAdjustments": [],
     "bookingAdjustments": [],
     "offenderFinePayments": [],
-    "fixedTermRecallDetails": null
+    "fixedTermRecallDetails": null,
+    "sentenceCalcDates": {
+        "sentenceExpiryDate": "2020-03-27",
+        "conditionalReleaseDate": "2019-03-24",
+        "actualParoleDate": "2018-09-27",
+        "bookingId": -20,
+        "sentenceStartDate": "2017-03-25",
+        "conditionalReleaseOverrideDate": "2019-03-25",
+        "nonDtoReleaseDate": "2019-03-25",
+        "sentenceExpiryCalculatedDate": "2020-03-24",
+        "sentenceExpiryOverrideDate": "2020-03-27",
+        "nonDtoReleaseDateType": "CRD",
+        "releaseDate": "2018-09-27"
+    }
 }
