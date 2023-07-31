@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class OffenderResourceImplIntTest_getNonAssociationDetails extends ResourceTest {
 
     @Test
-    public void shouldReturnListOfContacts() {
+    public void shouldReturnListOfNonAssociations() {
         final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
 
         final var request = createHttpEntity(token, null);

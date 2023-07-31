@@ -79,14 +79,14 @@ public class OffenderNonAssociation extends AuditableEntity {
     private NonAssociationReason recipNonAssociationReason;
 
     public Optional<String> getNsAgencyDescription() {
-        return Optional.ofNullable(nsOffenderBooking.getLocation()).map(AgencyLocation::getDescription);
+        return nsOffender.getLatestBooking().map(OffenderBooking::getLocation).map(AgencyLocation::getDescription);
     }
 
     public Optional<String> getNsAssignedLivingUnitDescription() {
-        return Optional.ofNullable(nsOffenderBooking.getAssignedLivingUnit()).map(AgencyInternalLocation::getDescription);
+        return nsOffender.getLatestBooking().map(OffenderBooking::getAssignedLivingUnit).map(AgencyInternalLocation::getDescription);
     }
 
     public Optional<Long> getNsAssignedLivingUnitId() {
-        return Optional.ofNullable(nsOffenderBooking.getAssignedLivingUnit()).map(AgencyInternalLocation::getLocationId);
+        return nsOffender.getLatestBooking().map(OffenderBooking::getAssignedLivingUnit).map(AgencyInternalLocation::getLocationId);
     }
 }
