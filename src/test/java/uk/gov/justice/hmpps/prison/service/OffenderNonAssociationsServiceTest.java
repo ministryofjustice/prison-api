@@ -213,8 +213,8 @@ public class OffenderNonAssociationsServiceTest {
                         .assignedLivingUnitId(200L)
                         .nonAssociations(List.of(
                                 OffenderNonAssociationDetail.builder()
-                                        .effectiveDate(LocalDate.now(clock).minusDays(1))
-                                        .expiryDate(LocalDate.now(clock).minusDays(1))
+                                        .effectiveDate(LocalDate.now(clock).minusDays(1).atStartOfDay())
+                                        .expiryDate(LocalDate.now(clock).minusDays(1).atStartOfDay())
                                         .reasonCode("VIC")
                                         .reasonDescription("Victim")
                                         .typeCode("WING")
@@ -254,8 +254,8 @@ public class OffenderNonAssociationsServiceTest {
                         .assignedLivingUnitId(200L)
                         .nonAssociations(List.of(
                                 OffenderNonAssociationDetail.builder()
-                                        .effectiveDate(LocalDate.now(clock).minusDays(15))
-                                        .expiryDate(LocalDate.now(clock).minusDays(1))
+                                        .effectiveDate(LocalDate.now(clock).minusDays(15).atStartOfDay())
+                                        .expiryDate(LocalDate.now(clock).minusDays(1).atStartOfDay())
                                         .reasonCode("VIC")
                                         .reasonDescription("Victim")
                                         .typeCode("WING")
@@ -275,7 +275,7 @@ public class OffenderNonAssociationsServiceTest {
                                                 .build())
                                         .build(),
                                 OffenderNonAssociationDetail.builder()
-                                        .effectiveDate(LocalDate.now(clock))
+                                        .effectiveDate(LocalDate.now(clock).atStartOfDay())
                                         .reasonCode("VIC")
                                         .reasonDescription("Victim")
                                         .typeCode("WING")
@@ -295,8 +295,8 @@ public class OffenderNonAssociationsServiceTest {
                                                 .build())
                                         .build(),
                                 OffenderNonAssociationDetail.builder()
-                                        .effectiveDate(LocalDate.now(clock).minusDays(1))
-                                        .expiryDate(LocalDate.now(clock).plusDays(1))
+                                        .effectiveDate(LocalDate.now(clock).minusDays(1).atStartOfDay())
+                                        .expiryDate(LocalDate.now(clock).plusDays(1).atStartOfDay())
                                         .reasonCode("VIC")
                                         .reasonDescription("Victim")
                                         .typeCode("WING")
@@ -336,7 +336,7 @@ public class OffenderNonAssociationsServiceTest {
                         .assignedLivingUnitId(200L)
                         .nonAssociations(List.of(
                                 OffenderNonAssociationDetail.builder()
-                                        .effectiveDate(LocalDate.now(clock))
+                                        .effectiveDate(LocalDate.now(clock).atStartOfDay())
                                         .reasonCode("VIC")
                                         .reasonDescription("Victim")
                                         .typeCode("WING")
@@ -376,7 +376,7 @@ public class OffenderNonAssociationsServiceTest {
                         .assignedLivingUnitId(200L)
                         .nonAssociations(List.of(
                                 OffenderNonAssociationDetail.builder()
-                                        .effectiveDate(LocalDate.now(clock))
+                                        .effectiveDate(LocalDate.now(clock).atStartOfDay())
                                         .reasonCode("VIC")
                                         .reasonDescription("Victim")
                                         .typeCode("WING")
@@ -416,7 +416,7 @@ public class OffenderNonAssociationsServiceTest {
                         .assignedLivingUnitId(200L)
                         .nonAssociations(List.of(
                                 OffenderNonAssociationDetail.builder()
-                                        .effectiveDate(LocalDate.now(clock))
+                                        .effectiveDate(LocalDate.now(clock).atStartOfDay())
                                         .reasonCode("VIC")
                                         .reasonDescription("Victim")
                                         .typeCode("WING")
@@ -436,8 +436,8 @@ public class OffenderNonAssociationsServiceTest {
                                                 .build())
                                         .build(),
                                 OffenderNonAssociationDetail.builder()
-                                        .effectiveDate(LocalDate.now(clock).minusDays(1))
-                                        .expiryDate(LocalDate.now(clock).plusDays(1))
+                                        .effectiveDate(LocalDate.now(clock).minusDays(1).atStartOfDay())
+                                        .expiryDate(LocalDate.now(clock).plusDays(1).atStartOfDay())
                                         .reasonCode("VIC")
                                         .reasonDescription("Victim")
                                         .typeCode("WING")
@@ -509,8 +509,8 @@ public class OffenderNonAssociationsServiceTest {
                 .assignedLivingUnitId(null)
                 .nonAssociations(List.of(
                         OffenderNonAssociationDetail.builder()
-                                .effectiveDate(LocalDate.now(clock).minusDays(1))
-                                .expiryDate(LocalDate.now(clock).minusDays(1))
+                                .effectiveDate(LocalDate.now(clock).minusDays(1).atStartOfDay())
+                                .expiryDate(LocalDate.now(clock).minusDays(1).atStartOfDay())
                                 .reasonCode("VIC")
                                 .reasonDescription("Victim")
                                 .typeCode("WING")

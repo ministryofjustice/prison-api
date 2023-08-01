@@ -35,10 +35,10 @@ public class OffenderNonAssociationDetail {
     private String typeDescription;
 
     @Schema(requiredMode = REQUIRED, description = "Date and time the non-association is effective from", example = "2019-12-01")
-    private LocalDate effectiveDate;
+    private LocalDateTime effectiveDate;
 
     @Schema(description = "Date and time the non-association expires", example = "2019-12-01")
-    private LocalDate expiryDate;
+    private LocalDateTime expiryDate;
 
     @Schema(description = "The person who authorised the non-association (free text).")
     private String authorisedBy;

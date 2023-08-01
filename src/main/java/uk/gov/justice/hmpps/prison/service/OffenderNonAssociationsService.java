@@ -19,6 +19,7 @@ import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 
 import java.time.Clock;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -68,8 +69,8 @@ public class OffenderNonAssociationsService {
 
     private uk.gov.justice.hmpps.prison.api.model.OffenderNonAssociationDetail transform(final OffenderNonAssociationDetail detail) {
         return uk.gov.justice.hmpps.prison.api.model.OffenderNonAssociationDetail.builder()
-                .effectiveDate(detail.getEffectiveDate())
-                .expiryDate(detail.getExpiryDate())
+                .effectiveDate(detail.getEffectiveDate() != null ? detail.getEffectiveDate().atStartOfDay() : null)
+                .expiryDate(detail.getExpiryDate() != null ? detail.getExpiryDate().atStartOfDay() : null)
                 .comments(detail.getComments())
                 .authorisedBy(detail.getAuthorizedBy())
                 .reasonCode(detail.getNonAssociationReason().getCode())
