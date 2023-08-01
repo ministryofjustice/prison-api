@@ -141,11 +141,11 @@ public class OffenderNonAssociationDetail extends AuditableEntity {
     private OffenderNonAssociation nonAssociation;
 
     public Optional<String> getAgencyId() {
-        return offender.getLatestBooking().map(b -> b.getLocation().getDescription());
+        return offender.getLatestBooking().map(b -> b.getLocation().getId());
     }
 
     public Optional<String> getAgencyDescription() {
-        return offender.getLatestBooking().map(b -> b.getLocation().getId());
+        return offender.getLatestBooking().map(b -> b.getLocation().getDescription());
     }
 }
 

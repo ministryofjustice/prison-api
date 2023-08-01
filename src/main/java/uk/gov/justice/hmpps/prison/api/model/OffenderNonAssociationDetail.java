@@ -34,10 +34,10 @@ public class OffenderNonAssociationDetail {
     @Schema(requiredMode = REQUIRED, description = "The non-association type description", example = "Do Not Locate on Same Wing")
     private String typeDescription;
 
-    @Schema(requiredMode = REQUIRED, description = "Date and time the mom-association is effective from", example = "2019-12-01")
+    @Schema(requiredMode = REQUIRED, description = "Date and time the non-association is effective from", example = "2019-12-01")
     private LocalDate effectiveDate;
 
-    @Schema(description = "Date and time the mom-association expires", example = "2019-12-01")
+    @Schema(description = "Date and time the non-association expires", example = "2019-12-01")
     private LocalDate expiryDate;
 
     @Schema(description = "The person who authorised the non-association (free text).")
