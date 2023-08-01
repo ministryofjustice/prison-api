@@ -15,7 +15,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderNonAssociationDetail;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderNonAssociationDetailRepository;
-import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 
 import java.util.List;
@@ -30,19 +29,6 @@ public class OffenderNonAssociationsService {
 
     private final OffenderBookingRepository bookingRepository;
     private final OffenderNonAssociationDetailRepository offenderNonAssociationDetailRepository;
-
-    @VerifyBookingAccess
-    public OffenderNonAssociationDetails retrieve(final Long bookingId) {
-        log.debug("Fetching non-associations for booking id '{}'", bookingId);
-
-        final var booking = bookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId));
-
-        final var nonAssociations = offenderNonAssociationDetailRepository.findAllByOffenderBooking_BookingIdOrderByEffectiveDateAsc(bookingId);
-
-        log.debug("'{}' non-association(s) found for booking '{}'", nonAssociations.size(), bookingId);
-
-        return getOffenderNonAssociationDetails(booking, nonAssociations);
-    }
 
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"} )
     public OffenderNonAssociationDetails retrieveByOffenderNo(final String offenderNo) {
