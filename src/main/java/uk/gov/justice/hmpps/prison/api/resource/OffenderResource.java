@@ -669,9 +669,11 @@ public class OffenderResource {
     @Deprecated
     @SlowReportQuery
     public OffenderNonAssociationDetails getNonAssociationDetails(
-        @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo) {
+        @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo,
+        @RequestParam(value = "currentPrisonOnly", required = false, defaultValue = "false") @Parameter(description = "Returns only non-association details for this prisoner in the same prison") final Boolean currentPrisonOnly,
+        @RequestParam(value = "excludeInactive", required = false, defaultValue = "false") @Parameter(description = "Returns only active non-association details for this prisoner") final Boolean excludeInactive) {
         try {
-            return offenderNonAssociationsService.retrieveByOffenderNo(offenderNo);
+            return offenderNonAssociationsService.retrieveByOffenderNo(offenderNo, currentPrisonOnly, excludeInactive);
         } catch (EntityNotFoundException e) {
             // rethrow against the offender number rather than the booking id
             throw EntityNotFoundException.withId(offenderNo);

@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
@@ -33,11 +34,11 @@ public class OffenderNonAssociationDetail {
     @Schema(requiredMode = REQUIRED, description = "The non-association type description", example = "Do Not Locate on Same Wing")
     private String typeDescription;
 
-    @Schema(requiredMode = REQUIRED, description = "Date and time the mom-association is effective from. In Europe/London (ISO 8601) format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS.", example = "2019-12-01T13:34:00")
-    private LocalDateTime effectiveDate;
+    @Schema(requiredMode = REQUIRED, description = "Date and time the mom-association is effective from", example = "2019-12-01")
+    private LocalDate effectiveDate;
 
-    @Schema(description = "Date and time the mom-association expires. In Europe/London (ISO 8601) format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS.", example = "2019-12-01T13:34:00")
-    private LocalDateTime expiryDate;
+    @Schema(description = "Date and time the mom-association expires", example = "2019-12-01")
+    private LocalDate expiryDate;
 
     @Schema(description = "The person who authorised the non-association (free text).")
     private String authorisedBy;
