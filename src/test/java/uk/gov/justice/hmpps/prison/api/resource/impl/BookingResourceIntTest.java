@@ -889,28 +889,6 @@ public class BookingResourceIntTest extends ResourceTest {
         assertThat(getBodyAsJsonContent(responseLei)).extractingJsonPathNumberValue("$.numberOfElements").isEqualTo(2);
     }
 
-    @Test
-    public void getNonAssociationDetails_victim_rival_gang_and_perpetrator() {
-        final var response = testRestTemplate.exchange(
-            "/api/bookings/-1/non-association-details",
-            HttpMethod.GET,
-            createHttpEntity(authTokenHelper.getToken(AuthToken.NORMAL_USER), Map.of()),
-            String.class);
-
-        assertThatJsonFileAndStatus(response, 200, "offender_non_association_details_vic_rival_gang_and_per.json");
-    }
-
-    @Test
-    public void getNonAssociationDetails_perpetrator_and_victim() {
-        final var response = testRestTemplate.exchange(
-            "/api/bookings/-2/non-association-details",
-            HttpMethod.GET,
-            createHttpEntity(authTokenHelper.getToken(AuthToken.NORMAL_USER), Map.of()),
-            String.class);
-
-        assertThatJsonFileAndStatus(response, 200, "offender_non_association_details_per_vic.json");
-    }
-
     @Nested
     public class GetProvenAdjudications {
 
