@@ -522,7 +522,7 @@ public class AdjudicationsService {
             .sanctionSeq(oicSanction.getSanctionSeq())
             .oicHearingId(oicSanction.getOicHearingId())
             .resultSeq(oicSanction.getResultSeq())
-            .consecutiveSanctionSeq(oicSanction.getConsecutiveSanctionSeq())
+            .consecutiveSanctionSeq(oicSanction.getConsecutiveSanctionSeq() == null ? null : oicSanction.getConsecutiveSanctionSeq())
             .build()).collect(Collectors.toList());
     }
 
@@ -534,6 +534,7 @@ public class AdjudicationsService {
 
         var result = validateOicSanction(adjudicationNumber);
 
+        List<OicSanctionRequest> requestsToPersist = new ArrayList<>(oicSanctionRequests);
         List<OicSanction> existingOicSanctionsToDeleteAndRecreate = new ArrayList<>(oicSanctionRepository.findByOicHearingId(result.oicHearingId()));
 
         var existingAdaSanctions = existingOicSanctionsToDeleteAndRecreate.stream().filter(
@@ -545,7 +546,10 @@ public class AdjudicationsService {
 
                 optionalLinkedSanctionForThisBookId.ifPresent(linkedSanctionForThisBookId -> {
                     if (Objects.equals(adaSanction.getStatus(), linkedSanctionForThisBookId.getStatus())) {
-                        var sanctionDays = oicSanctionRequests.get(0).getSanctionDays();
+                        var adaSanctionRequest = requestsToPersist.stream().filter(sanctionRequest -> sanctionRequest.getOicSanctionCode().equals(OicSanctionCode.ADA)).toList().get(0);
+                        requestsToPersist.remove(adaSanctionRequest);
+                        var sanctionDays = adaSanctionRequest.getSanctionDays();
+
                         linkedSanctionForThisBookId.setSanctionDays(sanctionDays);
                         oicSanctionRepository.save(linkedSanctionForThisBookId);
 
@@ -559,13 +563,13 @@ public class AdjudicationsService {
             }
         }
 
-       if (!existingOicSanctionsToDeleteAndRecreate.isEmpty()) {
+       if (!requestsToPersist.isEmpty()) {
            // Get this *before* we delete the existing ones
            Long nextSanctionSeq = oicSanctionRepository.getNextSanctionSeq(result.offenderBookId());
            // Now delete
            oicSanctionRepository.deleteAll(existingOicSanctionsToDeleteAndRecreate);
 
-           updatedSanctions.addAll(saveToDto(adjudicationNumber, oicSanctionRequests, result, nextSanctionSeq));
+           updatedSanctions.addAll(saveToDto(adjudicationNumber, requestsToPersist, result, nextSanctionSeq));
        }
 
        return updatedSanctions;

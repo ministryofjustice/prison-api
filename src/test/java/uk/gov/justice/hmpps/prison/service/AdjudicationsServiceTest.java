@@ -2189,6 +2189,115 @@ public class AdjudicationsServiceTest {
         }
 
         @Test
+        public void updateSanctionsIncludingLinkedOneAndCreateAnother() {
+            // Given
+            final var offenderBookId = 200L;
+            final var sanctionSeq = 6L;
+            final var initialSanctionDays = 30L;
+            final var updatedSanctionDays = 45L;
+            final var today = LocalDate.now();
+
+            when(adjudicationsRepository.findByParties_AdjudicationNumber(2L))
+                .thenReturn(Optional.of(
+                    Adjudication.builder()
+                        .agencyIncidentId(10L)
+                        .parties(List.of(AdjudicationParty.builder()
+                            .incidentRole(INCIDENT_ROLE_OFFENDER)
+                            .offenderBooking(OffenderBooking.builder()
+                                .bookingId(offenderBookId).build())
+                            .adjudicationNumber(2L).build())).build()
+                ));
+
+            when(oicHearingResultRepository.findByAgencyIncidentIdAndFindingCode(10L, FindingCode.PROVED)).thenReturn(List.of(
+                OicHearingResult.builder()
+                    .oicHearingId(3L)
+                    .resultSeq(1L)
+                    .build()
+            ));
+
+            when(oicSanctionRepository.findByOicHearingId(3L))
+                .thenReturn(List.of(OicSanction.builder()
+                    .offenderBookId(offenderBookId)
+                    .sanctionSeq(sanctionSeq)
+                    .oicSanctionCode(OicSanctionCode.ADA)
+                    .compensationAmount(new BigDecimal("1000.0"))
+                    .sanctionDays(initialSanctionDays)
+                    .commentText("comment")
+                    .effectiveDate(today)
+                    .status(Status.IMMEDIATE)
+                    .oicHearingId(3L)
+                    .resultSeq(1L)
+                    .oicIncidentId(2L)
+                    .build()));
+
+            OicSanction linkedOicSanction = OicSanction.builder()
+                .offenderBookId(offenderBookId)
+                .sanctionSeq(sanctionSeq)
+                .oicSanctionCode(OicSanctionCode.ADA)
+                .compensationAmount(new BigDecimal("1000.0"))
+                .sanctionDays(initialSanctionDays)
+                .commentText("comment")
+                .effectiveDate(today)
+                .status(Status.IMMEDIATE)
+                .oicHearingId(3L)
+                .resultSeq(1L)
+                .oicIncidentId(2L)
+                .build();
+
+            when(oicSanctionRepository.findById(new OicSanction.PK(offenderBookId, sanctionSeq)))
+                .thenReturn(Optional.of(linkedOicSanction));
+
+            when(oicSanctionRepository.getNextSanctionSeq(200L))
+                .thenReturn(6L);
+
+            OicSanction oicSanctionCreatedFromRequest = OicSanction.builder()
+                .offenderBookId(offenderBookId)
+                .sanctionSeq(sanctionSeq)
+                .oicSanctionCode(OicSanctionCode.OIC)
+                .compensationAmount(new BigDecimal("1000.0"))
+                .sanctionDays(updatedSanctionDays)
+                .commentText("comment")
+                .effectiveDate(today)
+                .status(Status.SUSPENDED)
+                .oicHearingId(3L)
+                .resultSeq(1L)
+                .oicIncidentId(2L)
+                .build();
+            when(oicSanctionRepository.saveAndFlush(oicSanctionCreatedFromRequest)).thenReturn(oicSanctionCreatedFromRequest);
+
+            // When
+            List<Sanction> result = service.updateOicSanctions(2L, List.of(
+                OicSanctionRequest.builder()
+                    .oicSanctionCode(OicSanctionCode.ADA)
+                    .sanctionDays(updatedSanctionDays)
+                    .commentText("comment")
+                    .compensationAmount(1000.0)
+                    .effectiveDate(today)
+                    .status(Status.IMMEDIATE)
+                    .build(),
+                OicSanctionRequest.builder()
+                    .oicSanctionCode(OicSanctionCode.OIC)
+                    .sanctionDays(updatedSanctionDays)
+                    .commentText("comment")
+                    .compensationAmount(1000.0)
+                    .effectiveDate(today)
+                    .status(Status.SUSPENDED)
+                    .build()));
+
+            // Then
+            final var updateCapture = ArgumentCaptor.forClass(OicSanction.class);
+            verify(oicSanctionRepository, times(2)).save(updateCapture.capture());
+
+            verify(oicSanctionRepository, times(1)).saveAndFlush(oicSanctionCreatedFromRequest);
+            verify(oicSanctionRepository, times(0)).delete(any());
+
+            assertThat(result.get(0).getSanctionDays()).isEqualTo(updatedSanctionDays);
+            assertThat(result.get(1).getSanctionDays()).isEqualTo(updatedSanctionDays);
+            assertThat(result.get(2).getSanctionDays()).isEqualTo(updatedSanctionDays);
+            assertThat(result.get(2).getStatus()).isEqualTo(oicSanctionCreatedFromRequest.getStatus().name());
+        }
+
+        @Test
         public void updateSanctionsLinkedOneHasDifferentStatus() {
             // Given
             final var offenderBookId = 200L;
