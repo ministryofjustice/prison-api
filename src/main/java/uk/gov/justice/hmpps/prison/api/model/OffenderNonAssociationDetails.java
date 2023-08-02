@@ -34,6 +34,8 @@ public class OffenderNonAssociationDetails {
     @Schema(requiredMode = REQUIRED, description = "Description of the agency (e.g. prison) the offender is assigned to.", example = "Moorland (HMP & YOI)")
     private String agencyDescription;
 
+    @Schema(requiredMode = REQUIRED, description = "Prison ID", example = "MDI")
+    private String agencyId;
 
     @Schema(requiredMode = REQUIRED, description = "Description of living unit (e.g. cell) the offender is assigned to.", example = "MDI-1-1-3")
     private String assignedLivingUnitDescription;
@@ -42,6 +44,7 @@ public class OffenderNonAssociationDetails {
     @Builder.Default
     private Collection<OffenderNonAssociationDetail> nonAssociations = new ArrayList<>();
 
-    @Schema(requiredMode = REQUIRED, description = "Id of living unit (e.g. cell) the offender is assigned to.", example = "123")
+    @Deprecated
+    @Schema(requiredMode = REQUIRED, description = "Id of living unit (e.g. cell) the offender is assigned to., will be removed in new API", example = "123")
     private Long assignedLivingUnitId;
 }

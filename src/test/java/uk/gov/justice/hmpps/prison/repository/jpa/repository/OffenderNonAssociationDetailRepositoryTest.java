@@ -16,6 +16,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,7 +60,7 @@ public class OffenderNonAssociationDetailRepositoryTest {
         assertThat(expected.getOffender()).isEqualTo(offender(-1001L));
         assertThat(expected.getNsOffender()).isEqualTo(offender(-1002L));
         assertThat(expected.getTypeSequence()).isEqualTo(1);
-        assertThat(expected.getEffectiveDate()).isEqualTo(LocalDateTime.of(2001, 1, 1, 0, 0));
+        assertThat(expected.getEffectiveDate()).isEqualTo(LocalDate.of(2001, 1, 1));
         assertThat(expected.getExpiryDate()).isNull();
         assertThat(expected.getNonAssociationReason()).isEqualTo(referenceCode(NonAssociationReason.DOMAIN, "VIC"));
         assertThat(expected.getNonAssociationType()).isEqualTo(referenceCode(NonAssociationType.DOMAIN, "WING"));

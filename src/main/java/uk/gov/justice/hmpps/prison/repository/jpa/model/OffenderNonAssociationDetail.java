@@ -23,6 +23,7 @@ import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.NotFound;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -113,10 +114,10 @@ public class OffenderNonAssociationDetail extends AuditableEntity {
     private NonAssociationType nonAssociationType;
 
     @Column(name = "NS_EFFECTIVE_DATE", nullable = false)
-    private LocalDateTime effectiveDate;
+    private LocalDate effectiveDate;
 
     @Column(name = "NS_EXPIRY_DATE")
-    private LocalDateTime expiryDate;
+    private LocalDate expiryDate;
 
     @Column(name = "AUTHORIZED_STAFF")
     private String authorizedBy;
@@ -139,8 +140,12 @@ public class OffenderNonAssociationDetail extends AuditableEntity {
     })
     private OffenderNonAssociation nonAssociation;
 
+    public Optional<String> getAgencyId() {
+        return offender.getLatestBooking().map(b -> b.getLocation().getId());
+    }
+
     public Optional<String> getAgencyDescription() {
-        return Optional.ofNullable(offenderBooking.getLocation()).map(AgencyLocation::getDescription);
+        return offender.getLatestBooking().map(b -> b.getLocation().getDescription());
     }
 }
 
