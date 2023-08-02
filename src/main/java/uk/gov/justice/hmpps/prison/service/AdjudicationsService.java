@@ -522,7 +522,7 @@ public class AdjudicationsService {
             .sanctionSeq(oicSanction.getSanctionSeq())
             .oicHearingId(oicSanction.getOicHearingId())
             .resultSeq(oicSanction.getResultSeq())
-            .consecutiveSanctionSeq(oicSanction.getConsecutiveSanctionSeq() == null ? null : oicSanction.getConsecutiveSanctionSeq())
+            .consecutiveSanctionSeq(oicSanction.getConsecutiveSanctionSeq())
             .build()).collect(Collectors.toList());
     }
 
