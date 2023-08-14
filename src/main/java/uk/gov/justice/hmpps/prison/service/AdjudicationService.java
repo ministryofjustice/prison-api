@@ -14,7 +14,6 @@ import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSummary;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.Award;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.Hearing;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.OffenderAdjudicationHearing;
-import uk.gov.justice.hmpps.prison.api.model.adjudications.ProvenAdjudicationSummary;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import uk.gov.justice.hmpps.prison.repository.AdjudicationsRepository;
@@ -180,18 +179,6 @@ public class AdjudicationService {
             }
         }
         return adjudicationCount;
-    }
-
-    public List<ProvenAdjudicationSummary> getProvenAdjudications(final List<Long> bookingIds,
-                                                                  final LocalDate cutoffDateParam) {
-        return repository.findAwardsForMultipleBookings(bookingIds).stream()
-            .collect(groupingBy(Award::getBookingId))
-            .entrySet().stream().map(e -> {
-
-                    int provenAdjudicationCount = getAdjudicationCount(null, cutoffDateParam, e.getValue());
-                    return ProvenAdjudicationSummary.builder().bookingId(e.getKey()).provenAdjudicationCount(provenAdjudicationCount).build();
-                }
-            ).toList();
     }
 
     public List<OffenderAdjudicationHearing> findOffenderAdjudicationHearings(final String agencyId,
