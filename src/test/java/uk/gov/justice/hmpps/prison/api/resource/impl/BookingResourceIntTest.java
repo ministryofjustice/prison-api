@@ -890,55 +890,6 @@ public class BookingResourceIntTest extends ResourceTest {
     }
 
     @Nested
-    public class GetProvenAdjudications {
-
-        @Test
-        public void returns403IfInvalidRole() {
-            final var token = validToken(List.of("ROLE_DUMMY"));
-            final var httpEntity = createHttpEntity(token, List.of(-5, -200));
-
-            final var response = testRestTemplate.exchange(
-                "/api/bookings/proven-adjudications",
-                HttpMethod.POST,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                });
-
-            assertThatStatus(response, 403);
-        }
-
-        @Test
-        public void returnsDataForValidRole() {
-            final var token = validToken(List.of("ROLE_VIEW_ADJUDICATIONS"));
-            final var httpEntity = createHttpEntity(token, List.of(-5, -200));
-
-            final var response = testRestTemplate.exchange(
-                "/api/bookings/proven-adjudications",
-                HttpMethod.POST,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                });
-
-            assertThatStatus(response, 200);
-        }
-
-        @Test
-        public void returnsValidData() {
-            final var token = validToken(List.of("ROLE_VIEW_ADJUDICATIONS"));
-            final var httpEntity = createHttpEntity(token, List.of(-5,-8));
-
-            final var response = testRestTemplate.exchange(
-                "/api/bookings/proven-adjudications?adjudicationCutoffDate=2017-09-13",
-                HttpMethod.POST,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                });
-
-            assertThatJsonFileAndStatus(response, 200, "proven_adjudications.json");
-        }
-    }
-
-    @Nested
     public class getBookingVisitsPrisons {
         @Test
         public void success() {
