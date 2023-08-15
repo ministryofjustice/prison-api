@@ -84,7 +84,6 @@ import uk.gov.justice.hmpps.prison.api.model.VisitDetails;
 import uk.gov.justice.hmpps.prison.api.model.VisitSummary;
 import uk.gov.justice.hmpps.prison.api.model.VisitWithVisitors;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSummary;
-import uk.gov.justice.hmpps.prison.api.model.adjudications.ProvenAdjudicationSummary;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
@@ -928,23 +927,6 @@ public class BookingResource {
     public AdjudicationSummary getAdjudicationSummary(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId, @RequestParam(value = "awardCutoffDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Only awards ending on or after this date (in YYYY-MM-DD format) will be considered.") final LocalDate awardCutoffDate, @RequestParam(value = "adjudicationCutoffDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Only proved adjudications ending on or after this date (in YYYY-MM-DD format) will be counted.") final LocalDate adjudicationCutoffDate) {
         return adjudicationService.getAdjudicationSummary(bookingId,
             awardCutoffDate, adjudicationCutoffDate);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Offender proven adjudications count")
-    @PostMapping("/proven-adjudications")
-    @PreAuthorize("hasRole('VIEW_ADJUDICATIONS')")
-    @SlowReportQuery
-    public List<ProvenAdjudicationSummary> getProvenAdjudicationSummaryForBookings(
-        @RequestParam(value = "adjudicationCutoffDate", required = false)
-        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-        @Parameter(description = "Only proved adjudications ending on or after this date (in YYYY-MM-DD format) will be counted. Default is 3 months") final LocalDate adjudicationCutoffDate,
-        @NotNull @RequestBody List<Long> bookingIds) {
-        return adjudicationService.getProvenAdjudications(bookingIds, adjudicationCutoffDate);
     }
 
     @ApiResponses({
