@@ -63,7 +63,6 @@ public class AdjudicationService {
     @Value("${api.cutoff.award.months:0}")
     private int awardCutoffDefault;
 
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public AdjudicationDetail findAdjudication(final String offenderNo, final long adjudicationNo) {
         return repository.findAdjudicationDetails(offenderNo, adjudicationNo)
             .map(this::enrich)
@@ -143,7 +142,6 @@ public class AdjudicationService {
      * Get awards that have not expired, i.e. the end date is today or later, and
      * count proved adjudications which expired on or later than the from date.
      */
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public AdjudicationSummary getAdjudicationSummary(final Long bookingId, final LocalDate awardCutoffDateParam,
                                                       final LocalDate adjudicationCutoffDateParam) {
         val list = repository.findAwards(bookingId);
