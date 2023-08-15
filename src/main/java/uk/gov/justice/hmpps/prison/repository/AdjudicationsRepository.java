@@ -61,11 +61,6 @@ public class AdjudicationsRepository extends RepositoryBase {
         return awards.stream().map(AwardDto::toAward).collect(toList());
     }
 
-    public List<Award> findAwardsForMultipleBookings(final List<Long> bookingIds) {
-        final var awards = jdbcTemplate.query(AdjudicationsRepositorySql.FIND_AWARDS_BY_BOOKINGS.getSql(), createParams("bookingIds", bookingIds), rowMapper);
-        return awards.stream().map(AwardDto::toAward).collect(toList());
-    }
-
     public List<AdjudicationOffence> findAdjudicationOffences(final String offenderNumber) {
         final var adjudications = jdbcTemplate.query(AdjudicationsRepositorySql.FIND_LATEST_ADJUDICATION_OFFENCE_TYPES_FOR_OFFENDER.getSql(),
             createParams("offenderNo", offenderNumber),
