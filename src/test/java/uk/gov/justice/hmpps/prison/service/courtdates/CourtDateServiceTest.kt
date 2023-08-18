@@ -79,7 +79,8 @@ class CourtDateServiceTest {
               )
               .withOffenderBooking(
                 OffenderBooking()
-                  .withBookingId(4),
+                  .withBookingId(4)
+                  .withBookNumber("ABC123")
               ),
             CourtEvent()
               .withId(2),
@@ -98,6 +99,7 @@ class CourtDateServiceTest {
             resultDescription = null,
             resultDispositionCode = null,
             bookingId = 4,
+            bookNumber = "ABC123",
             charge = CourtDateCharge()
               .withChargeId(1)
               .withOffenceCode("OFF")
@@ -120,6 +122,7 @@ class CourtDateServiceTest {
             resultDescription = null,
             resultDispositionCode = null,
             bookingId = 4,
+            bookNumber = "ABC123",
             charge = CourtDateCharge()
               .withChargeId(5)
               .withOffenceCode("OFF")
@@ -167,7 +170,8 @@ class CourtDateServiceTest {
               )
               .withOffenderBooking(
                 OffenderBooking()
-                  .withBookingId(4),
+                  .withBookingId(4)
+                  .withBookNumber("ABC123"),
               )
               .withDateOfOffence(LocalDate.of(2021, 1, 1))
               .withEndDate(LocalDate.of(2021, 6, 1))
@@ -207,6 +211,7 @@ class CourtDateServiceTest {
             resultDescription = "Imprisonment",
             resultDispositionCode = "F",
             bookingId = 4,
+            bookNumber = "ABC123",
             charge = CourtDateCharge()
               .withChargeId(1)
               .withOffenceCode("OFF")

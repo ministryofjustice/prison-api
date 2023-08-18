@@ -37,6 +37,7 @@ class CourtDateService(
           charge.resultCodeOne?.description,
         ),
         charge.offenderBooking.bookingId,
+        charge.offenderBooking.bookNumber,
       )
     }
       .sortedBy { it.date }
