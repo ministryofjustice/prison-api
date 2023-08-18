@@ -27,5 +27,8 @@ data class CourtDateResult(
   val charge: CourtDateCharge,
 
   @Schema(description = "The id of the booking this court date was linked to")
-  val bookingId: Long?,
+  val bookingId: Long,
+
+  @Schema(description = "The user readable ID for a booking")
+  val bookNumber: String,
 )
