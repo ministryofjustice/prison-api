@@ -59,7 +59,8 @@ class CourtDateServiceTest {
               )
               .withOffenderBooking(
                 OffenderBooking()
-                  .withBookingId(4),
+                  .withBookingId(4)
+                  .withBookNumber("ABC123"),
               ),
             CourtEvent()
               .withId(2),
