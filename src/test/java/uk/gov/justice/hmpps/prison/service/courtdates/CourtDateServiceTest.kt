@@ -193,7 +193,7 @@ class CourtDateServiceTest {
               .withResultCodeOne(offenceResult),
             CourtEvent()
               .withId(2)
-              .withEventDate(LocalDate.of(2022, 1, 1))
+              .withEventDate(LocalDate.of(2022, 1, 1)),
           ),
         ),
       )
