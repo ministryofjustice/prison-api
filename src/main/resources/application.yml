@@ -41,6 +41,11 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
 
+  data:
+    web:
+      pageable:
+        max-page-size: 5000
+
 logging:
   level:
     org.springframework.security: INFO
