@@ -2,6 +2,9 @@
   {
     "id": -215,
     "date": "2017-06-21",
+    "resultCode":"1002",
+    "resultDescription": "Imprisonment",
+    "resultDispositionCode": "F",
     "charge": {
       "chargeId": -11,
       "offenceCode": "M4",
