@@ -1314,10 +1314,10 @@ public class InmateRepositoryTest {
     public void getPersonalCareNeeds() {
         final var info = repository.findPersonalCareNeeds(-1, Set.of("DISAB", "MATSTAT"));
         assertThat(info).containsExactly(
-                PersonalCareNeed.builder().problemType("DISAB").problemCode("ND").problemStatus("ON")
+                PersonalCareNeed.builder().personalCareNeedId(-201L).problemType("DISAB").problemCode("ND").problemStatus("ON")
                         .problemDescription("No Disability").commentText("Some Description Text 1")
                         .startDate(LocalDate.parse("2010-06-21")).build(),
-                PersonalCareNeed.builder().problemType("MATSTAT").problemCode("ACCU9").problemStatus("ON")
+                PersonalCareNeed.builder().personalCareNeedId(-206L).problemType("MATSTAT").problemCode("ACCU9").problemStatus("ON")
                         .problemDescription("Preg, acc under 9mths").commentText("P1")
                         .startDate(LocalDate.parse("2010-06-21")).build());
     }
@@ -1326,19 +1326,19 @@ public class InmateRepositoryTest {
     public void getPersonalCareNeedsForOffenderNos() {
         final var info = repository.findPersonalCareNeeds(List.of("A1234AA", "A1234AB", "A1234AC", "A1234AD"), Set.of("DISAB", "MATSTAT"));
         assertThat(info).containsExactly(
-                PersonalCareNeed.builder().problemType("MATSTAT").problemCode("ACCU9").problemStatus("ON")
+                PersonalCareNeed.builder().personalCareNeedId(-206L).problemType("MATSTAT").problemCode("ACCU9").problemStatus("ON")
                         .problemDescription("Preg, acc under 9mths").commentText("P1")
                         .startDate(LocalDate.parse("2010-06-21")).endDate(null).offenderNo("A1234AA").build(),
-                PersonalCareNeed.builder().problemType("DISAB").problemCode("ND").problemStatus("ON")
+                PersonalCareNeed.builder().personalCareNeedId(-201L).problemType("DISAB").problemCode("ND").problemStatus("ON")
                         .problemDescription("No Disability").commentText("Some Description Text 1")
                         .startDate(LocalDate.parse("2010-06-21")).endDate(null).offenderNo("A1234AA").build(),
-                PersonalCareNeed.builder().problemType("DISAB").problemCode("ND").problemStatus("ON")
+                PersonalCareNeed.builder().personalCareNeedId(-202L).problemType("DISAB").problemCode("ND").problemStatus("ON")
                         .problemDescription("No Disability").commentText(null)
                         .startDate(LocalDate.parse("2010-06-22")).endDate(null).offenderNo("A1234AB").build(),
-                PersonalCareNeed.builder().problemType("DISAB").problemCode("ND").problemStatus("ON")
+                PersonalCareNeed.builder().personalCareNeedId(-203L).problemType("DISAB").problemCode("ND").problemStatus("ON")
                         .problemDescription("No Disability").commentText(null)
                         .startDate(LocalDate.parse("2010-06-22")).endDate(null).offenderNo("A1234AC").build(),
-                PersonalCareNeed.builder().problemType("DISAB").problemCode("ND").problemStatus("ON")
+                PersonalCareNeed.builder().personalCareNeedId(-204L).problemType("DISAB").problemCode("ND").problemStatus("ON")
                         .problemDescription("No Disability").commentText("Some Description Text 2")
                         .startDate(LocalDate.parse("2010-06-24")).endDate(null).offenderNo("A1234AD").build());
     }
@@ -1353,12 +1353,14 @@ public class InmateRepositoryTest {
                         .startDate(LocalDate.of(2010, 6, 21))
                         .agencyId("LEI")
                         .agencyDescription("Leeds")
+                        .personalCareNeedId(-206L)
                         .build(),
                 ReasonableAdjustment.builder()
                         .treatmentCode("WHEELCHR_ACC")
                         .treatmentDescription("Wheelchair accessibility")
                         .commentText("Some Comment Text")
                         .startDate(LocalDate.of(2010, 6, 21))
+                        .personalCareNeedId(-206L)
                         .build());
         final var treatmentCodes = List.of("WHEELCHR_ACC", "COMP SOFT");
         final var info = repository.findReasonableAdjustments(-1, treatmentCodes);

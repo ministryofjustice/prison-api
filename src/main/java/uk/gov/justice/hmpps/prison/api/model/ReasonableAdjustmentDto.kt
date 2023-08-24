@@ -10,6 +10,7 @@ data class ReasonableAdjustmentDto(
   val agencyId: String?,
   val agencyDescription: String?,
   val treatmentDescription: String?,
+  val personalCareNeedId: Long,
 ) {
   fun toReasonableAdjustment() = ReasonableAdjustment(
     this.treatmentCode,
@@ -19,5 +20,6 @@ data class ReasonableAdjustmentDto(
     this.agencyId,
     LocationProcessor.formatLocation(this.agencyDescription),
     this.treatmentDescription,
+    this.personalCareNeedId,
   )
 }

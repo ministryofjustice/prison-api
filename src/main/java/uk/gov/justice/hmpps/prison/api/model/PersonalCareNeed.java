@@ -16,6 +16,9 @@ import java.time.LocalDate;
 @EqualsAndHashCode
 public class PersonalCareNeed {
 
+    @Schema(description = "ID", example = "1")
+    private Long personalCareNeedId;
+
     @Schema(description = "Problem Type", example = "MATSTAT")
     private String problemType;
 
@@ -40,7 +43,8 @@ public class PersonalCareNeed {
     @JsonIgnore
     private String offenderNo;
 
-    public PersonalCareNeed(String problemType, String problemCode, String problemStatus, String problemDescription, String commentText, LocalDate startDate, LocalDate endDate, String offenderNo) {
+    public PersonalCareNeed(Long personalCareNeedId, String problemType, String problemCode, String problemStatus, String problemDescription, String commentText, LocalDate startDate, LocalDate endDate, String offenderNo) {
+        this.personalCareNeedId = personalCareNeedId;
         this.problemType = problemType;
         this.problemCode = problemCode;
         this.problemStatus = problemStatus;

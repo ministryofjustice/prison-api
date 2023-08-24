@@ -146,8 +146,8 @@ public class BookingResourceImplIntTest extends ResourceTest {
         final var treatmentCodes = List.of("WHEELCHR_ACC", "PEEP");
         when(inmateRepository.findReasonableAdjustments(bookingId, treatmentCodes)).thenReturn(
                 List.of(
-                        new ReasonableAdjustment("WHEELCHR_ACC", "abcd", LocalDate.of(2010, 6, 21), null, "LEI", "Leeds (HMP)", "Wheelchair accessibility"),
-                        new ReasonableAdjustment("PEEP", "efgh", LocalDate.of(2010, 6, 21), null, "LEI", "Leeds (HMP)", "Some other description"))
+                        new ReasonableAdjustment("WHEELCHR_ACC", "abcd", LocalDate.of(2010, 6, 21), null, "LEI", "Leeds (HMP)", "Wheelchair accessibility", -202L),
+                        new ReasonableAdjustment("PEEP", "efgh", LocalDate.of(2010, 6, 21), null, "LEI", "Leeds (HMP)", "Some other description", -202L))
         );
 
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of(), Map.of());
@@ -160,24 +160,24 @@ public class BookingResourceImplIntTest extends ResourceTest {
     }
 
     private PersonalCareNeed createPersonalCareNeeds() {
-        return PersonalCareNeed.builder().problemType("MATSTAT").problemCode("ACCU9").problemStatus("ON").problemDescription("Preg, acc under 9mths").startDate(LocalDate.of(2010, 6, 21)).build();
+        return PersonalCareNeed.builder().personalCareNeedId(-201L).problemType("MATSTAT").problemCode("ACCU9").problemStatus("ON").problemDescription("Preg, acc under 9mths").startDate(LocalDate.of(2010, 6, 21)).build();
     }
 
     private List<PersonalCareNeed> createPersonalCareNeedsForOffenders() {
         return List.of(
-                PersonalCareNeed.builder().problemType("MATSTAT").problemCode("ACCU9").problemStatus("ON")
+                PersonalCareNeed.builder().personalCareNeedId(-201L).problemType("MATSTAT").problemCode("ACCU9").problemStatus("ON")
                         .problemDescription("Preg, acc under 9mths").commentText("P1")
                         .startDate(LocalDate.parse("2010-06-21")).endDate(null).offenderNo("A1234AA").build(),
-                PersonalCareNeed.builder().problemType("DISAB").problemCode("RM").problemStatus("ON")
+                PersonalCareNeed.builder().personalCareNeedId(-202L).problemType("DISAB").problemCode("RM").problemStatus("ON")
                         .problemDescription("No Disability").commentText("description 1")
                         .startDate(LocalDate.parse("2010-06-21")).endDate(null).offenderNo("A1234AA").build(),
-                PersonalCareNeed.builder().problemType("DISAB").problemCode("RC").problemStatus("ON")
+                PersonalCareNeed.builder().personalCareNeedId(-203L).problemType("DISAB").problemCode("RC").problemStatus("ON")
                         .problemDescription("No Disability").commentText(null)
                         .startDate(LocalDate.parse("2010-06-22")).endDate(null).offenderNo("A1234AB").build(),
-                PersonalCareNeed.builder().problemType("DISAB").problemCode("RC").problemStatus("ON")
+                PersonalCareNeed.builder().personalCareNeedId(-204L).problemType("DISAB").problemCode("RC").problemStatus("ON")
                         .problemDescription("No Disability").commentText(null)
                         .startDate(LocalDate.parse("2010-06-22")).endDate(null).offenderNo("A1234AC").build(),
-                PersonalCareNeed.builder().problemType("DISAB").problemCode("ND").problemStatus("ON")
+                PersonalCareNeed.builder().personalCareNeedId(-205L).problemType("DISAB").problemCode("ND").problemStatus("ON")
                         .problemDescription("No Disability").commentText("description 2")
                         .startDate(LocalDate.parse("2010-06-24")).endDate(null).offenderNo("A1234AD").build());
     }

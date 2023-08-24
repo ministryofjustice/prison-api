@@ -7,7 +7,8 @@
       "endDate": null,
       "agencyId": "LEI",
       "agencyDescription": "Leeds (HMP)",
-      "treatmentDescription": "Wheelchair accessibility"
+      "treatmentDescription": "Wheelchair accessibility",
+      "personalCareNeedId": -202
     },
     {
       "treatmentCode": "PEEP",
@@ -16,7 +17,8 @@
       "endDate": null,
       "agencyId": "LEI",
       "agencyDescription": "Leeds (HMP)",
-      "treatmentDescription": "Some other description"
+      "treatmentDescription": "Some other description",
+      "personalCareNeedId": -202
     }
   ]
 }
