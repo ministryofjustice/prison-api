@@ -1,8 +1,8 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.3.0-beta"
-  kotlin("plugin.spring") version "1.9.0"
-  kotlin("plugin.jpa") version "1.9.0"
-  kotlin("plugin.lombok") version "1.9.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.4.0"
+  kotlin("plugin.spring") version "1.9.10"
+  kotlin("plugin.jpa") version "1.9.10"
+  kotlin("plugin.lombok") version "1.9.10"
 }
 
 configurations {
@@ -53,13 +53,13 @@ dependencies {
   implementation("com.zaxxer:HikariCP:5.0.1")
 
   implementation("io.swagger:swagger-annotations:1.6.11")
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
 
-  implementation("org.apache.commons:commons-lang3:3.12.0")
+  implementation("org.apache.commons:commons-lang3:3.13.0")
   implementation("commons-io:commons-io:2.13.0")
-  implementation("com.google.guava:guava:32.1.1-jre")
+  implementation("com.google.guava:guava:32.1.2-jre")
   implementation("org.apache.commons:commons-text:1.10.0")
-  implementation("com.oracle.database.jdbc:ojdbc10:19.19.0.0")
+  implementation("com.oracle.database.jdbc:ojdbc10:19.20.0.0")
   implementation("org.hibernate.orm:hibernate-community-dialects")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
@@ -82,16 +82,16 @@ dependencies {
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:3.0.0")
 
-  testImplementation("net.serenity-bdd:serenity-core:3.9.7")
-  testImplementation("net.serenity-bdd:serenity-junit:3.9.7")
-  testImplementation("net.serenity-bdd:serenity-spring:3.9.7")
-  testImplementation("net.serenity-bdd:serenity-cucumber:3.9.7")
+  testImplementation("net.serenity-bdd:serenity-core:3.9.8")
+  testImplementation("net.serenity-bdd:serenity-junit:3.9.8")
+  testImplementation("net.serenity-bdd:serenity-spring:3.9.8")
+  testImplementation("net.serenity-bdd:serenity-cucumber:3.9.8")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
   testImplementation("com.github.tomakehurst:wiremock-jre8-standalone:2.35.0")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.11.5")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
   testImplementation("io.swagger.parser.v3:swagger-parser:$swaggerParserVersion")
-  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.28.0")
+  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.29.0")
 
   testCompileOnly("org.projectlombok:lombok:1.18.28")
 }
