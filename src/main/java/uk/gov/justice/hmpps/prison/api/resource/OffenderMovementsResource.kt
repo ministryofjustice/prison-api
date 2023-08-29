@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.hmpps.prison.api.model.CellMoveResult
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
+import uk.gov.justice.hmpps.prison.core.HasWriteScope
 import uk.gov.justice.hmpps.prison.core.ProxyUser
+import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess
 import uk.gov.justice.hmpps.prison.service.BookingService
 import uk.gov.justice.hmpps.prison.service.MovementUpdateService
 import java.time.LocalDateTime
@@ -44,6 +46,8 @@ class OffenderMovementsResource(
   @Tag(name = "unilink")
   @PutMapping("/{offenderNo}/living-unit/{internalLocationDescription}")
   @ProxyUser
+  @VerifyOffenderAccess(overrideRoles = ["SYSTEM_USER", "UNILINK", "MAINTAIN_CELL_MOVEMENTS"])
+  @HasWriteScope
   fun moveToCellOrReception(
     @PathVariable("offenderNo")
     @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true)

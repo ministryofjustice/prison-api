@@ -65,7 +65,6 @@ public class BookingMovementsResourceIntTest_moveToCell extends ResourceTest {
 
     private static final Long NEW_CELL = -18L;
     private static final String NEW_CELL_DESC = "LEI-H-1-4";
-    private static final Long CELL_DIFF_PRISON = -41L;
     private static final String CELL_DIFF_PRISON_S = "MDI-1-1-001";
 
     @AfterEach
@@ -222,7 +221,7 @@ public class BookingMovementsResourceIntTest_moveToCell extends ResourceTest {
                 format("/api/bookings/%s/living-unit/%s?reasonCode=%s&dateTime=%s", bookingId, livingUnitId, reasonCode, dateTime),
                 PUT,
                 entity,
-                new ParameterizedTypeReference<String>() {
+                new ParameterizedTypeReference<>() {
                 });
 
     }
