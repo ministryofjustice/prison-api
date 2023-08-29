@@ -42,12 +42,12 @@ public class BookingMovementsResourceIntTest_moveToCell_mockService extends Reso
     @Test
     public void validRequest() {
         when(movementUpdateService.moveToCellOrReception(anyLong(), anyString(), anyString(), any(LocalDateTime.class)))
-                .thenReturn(aCellMoveResult(1L, 2L, "LEI-A-1-1", 2));
+                .thenReturn(aCellMoveResult(-1L, 2L, "LEI-A-1-1", 2));
 
-        final var response = testRestTemplate.exchange("/api/bookings/1/living-unit/LEI-A-1-1?reasonCode=ADM&dateTime=2020-03-24T13:24:35", PUT, anEntity(), String.class);
+        final var response = testRestTemplate.exchange("/api/bookings/-1/living-unit/LEI-A-1-1?reasonCode=ADM&dateTime=2020-03-24T13:24:35", PUT, anEntity(), String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(OK);
-        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.bookingId").isEqualTo(1);
+        assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.bookingId").isEqualTo(-1);
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.assignedLivingUnitId").isEqualTo(2);
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathStringValue("$.assignedLivingUnitDesc").isEqualTo("LEI-A-1-1");
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.bedAssignmentHistorySequence")
@@ -57,24 +57,24 @@ public class BookingMovementsResourceIntTest_moveToCell_mockService extends Reso
     @Test
     public void validRequest_passesParametersToService() {
         when(movementUpdateService.moveToCellOrReception(anyLong(), anyString(), anyString(), any(LocalDateTime.class)))
-                .thenReturn(aCellMoveResult(1L, 2L, "LEI-A-1-1", 1));
+                .thenReturn(aCellMoveResult(-1L, 2L, "LEI-A-1-1", 1));
 
-        final var response = testRestTemplate.exchange("/api/bookings/1/living-unit/LEI-A-1-1?reasonCode=ADM&dateTime=2020-03-24T13:24:35", PUT, anEntity(), String.class);
+        final var response = testRestTemplate.exchange("/api/bookings/-1/living-unit/LEI-A-1-1?reasonCode=ADM&dateTime=2020-03-24T13:24:35", PUT, anEntity(), String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(OK);
-        verify(movementUpdateService).moveToCellOrReception(1L, "LEI-A-1-1", "ADM", LocalDateTime.of(2020, 3, 24, 13, 24, 35));
+        verify(movementUpdateService).moveToCellOrReception(-1L, "LEI-A-1-1", "ADM", LocalDateTime.of(2020, 3, 24, 13, 24, 35));
     }
 
     @Test
     public void validRequest_missingOptionalDateTimeValue_isOk() {
-        final var response = testRestTemplate.exchange("/api/bookings/1/living-unit/LEI-A-1-1?reasonCode=ADM&dateTime=", PUT, anEntity(), String.class);
+        final var response = testRestTemplate.exchange("/api/bookings/-1/living-unit/LEI-A-1-1?reasonCode=ADM&dateTime=", PUT, anEntity(), String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(OK);
     }
 
     @Test
     public void validRequest_missingOptionalDateTime_isOk() {
-        final var response = testRestTemplate.exchange("/api/bookings/1/living-unit/LEI-A-1-1?reasonCode=ADM", PUT, anEntity(), String.class);
+        final var response = testRestTemplate.exchange("/api/bookings/-1/living-unit/LEI-A-1-1?reasonCode=ADM", PUT, anEntity(), String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(OK);
     }
@@ -90,7 +90,7 @@ public class BookingMovementsResourceIntTest_moveToCell_mockService extends Reso
 
     @Test
     public void bookingId_notFound() {
-        final var bookingNotFoundError = "Booking id 123 not found.";
+        final var bookingNotFoundError = "Offender booking with id 123 not found.";
         when(movementUpdateService.moveToCellOrReception(anyLong(), anyString(), anyString(), any(LocalDateTime.class)))
                 .thenThrow(EntityNotFoundException.withMessage(bookingNotFoundError));
 
@@ -107,7 +107,7 @@ public class BookingMovementsResourceIntTest_moveToCell_mockService extends Reso
         when(movementUpdateService.moveToCellOrReception(anyLong(), anyString(), anyString(), any(LocalDateTime.class)))
                 .thenThrow(EntityNotFoundException.withMessage(livingUnitNotFoundError));
 
-        final var response = testRestTemplate.exchange("/api/bookings/1/living-unit/Z-1?reasonCode=ADM&dateTime=2020-03-24T13:24:35", PUT, anEntity(), String.class);
+        final var response = testRestTemplate.exchange("/api/bookings/-1/living-unit/Z-1?reasonCode=ADM&dateTime=2020-03-24T13:24:35", PUT, anEntity(), String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(NOT_FOUND);
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.status").isEqualTo(404);
@@ -120,7 +120,7 @@ public class BookingMovementsResourceIntTest_moveToCell_mockService extends Reso
         when(movementUpdateService.moveToCellOrReception(anyLong(), anyString(), anyString(), any(LocalDateTime.class)))
                 .thenThrow(new IllegalArgumentException(livingUnitNotFoundError));
 
-        final var response = testRestTemplate.exchange("/api/bookings/1/living-unit/Z-1?reasonCode=ADM&dateTime=2020-03-24T13:24:35", PUT, anEntity(), String.class);
+        final var response = testRestTemplate.exchange("/api/bookings/-1/living-unit/Z-1?reasonCode=ADM&dateTime=2020-03-24T13:24:35", PUT, anEntity(), String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(BAD_REQUEST);
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.status").isEqualTo(400);
@@ -133,7 +133,7 @@ public class BookingMovementsResourceIntTest_moveToCell_mockService extends Reso
         when(movementUpdateService.moveToCellOrReception(anyLong(), anyString(), anyString(), any(LocalDateTime.class)))
                 .thenThrow(new IllegalArgumentException(reasonCodeNotFoundError, EntityNotFoundException.withMessage(reasonCodeNotFoundError)));
 
-        final var response = testRestTemplate.exchange("/api/bookings/1/living-unit/LEI-A-1-1?reasonCode=123&dateTime=2020-03-24T13:24:35", PUT, anEntity(), String.class);
+        final var response = testRestTemplate.exchange("/api/bookings/-1/living-unit/LEI-A-1-1?reasonCode=123&dateTime=2020-03-24T13:24:35", PUT, anEntity(), String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(BAD_REQUEST);
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.status").isEqualTo(400);
@@ -146,7 +146,7 @@ public class BookingMovementsResourceIntTest_moveToCell_mockService extends Reso
         when(movementUpdateService.moveToCellOrReception(anyLong(), anyString(), anyString(), any(LocalDateTime.class)))
                 .thenThrow(new IllegalArgumentException(reasonCodeMissingError));
 
-        final var response = testRestTemplate.exchange("/api/bookings/1/living-unit/LEI-A-1-1?reasonCode=&dateTime=2020-03-24T13:24:35", PUT, anEntity(), String.class);
+        final var response = testRestTemplate.exchange("/api/bookings/-1/living-unit/LEI-A-1-1?reasonCode=&dateTime=2020-03-24T13:24:35", PUT, anEntity(), String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(BAD_REQUEST);
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.status").isEqualTo(400);
@@ -155,7 +155,7 @@ public class BookingMovementsResourceIntTest_moveToCell_mockService extends Reso
 
     @Test
     public void reasonCode_missing_badRequest() {
-        final var response = testRestTemplate.exchange("/api/bookings/1/living-unit/LEI-A-1-1?dateTime=2020-03-24T13:24:35", PUT, anEntity(), String.class);
+        final var response = testRestTemplate.exchange("/api/bookings/-1/living-unit/LEI-A-1-1?dateTime=2020-03-24T13:24:35", PUT, anEntity(), String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(BAD_REQUEST);
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.status").isEqualTo(400);
@@ -164,7 +164,7 @@ public class BookingMovementsResourceIntTest_moveToCell_mockService extends Reso
 
     @Test
     public void dateTime_invalid_badRequest() {
-        final var response = testRestTemplate.exchange("/api/bookings/1/living-unit/LEI-A-1-1?reasonCode=ADM&dateTime=invalid_date", PUT, anEntity(), String.class);
+        final var response = testRestTemplate.exchange("/api/bookings/-1/living-unit/LEI-A-1-1?reasonCode=ADM&dateTime=invalid_date", PUT, anEntity(), String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(BAD_REQUEST);
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.status").isEqualTo(400);
@@ -177,7 +177,7 @@ public class BookingMovementsResourceIntTest_moveToCell_mockService extends Reso
         when(movementUpdateService.moveToCellOrReception(anyLong(), anyString(), anyString(), any(LocalDateTime.class)))
                 .thenThrow(new IllegalArgumentException(dateTimeError));
 
-        final var response = testRestTemplate.exchange("/api/bookings/1/living-unit/LEI-A-1-1?reasonCode=ADM&dateTime=3020-03-24T13:24:35", PUT, anEntity(), String.class);
+        final var response = testRestTemplate.exchange("/api/bookings/-1/living-unit/LEI-A-1-1?reasonCode=ADM&dateTime=3020-03-24T13:24:35", PUT, anEntity(), String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(BAD_REQUEST);
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.status").isEqualTo(400);
@@ -189,7 +189,7 @@ public class BookingMovementsResourceIntTest_moveToCell_mockService extends Reso
         when(movementUpdateService.moveToCellOrReception(anyLong(), anyString(), anyString(), any(LocalDateTime.class)))
                 .thenThrow(new RuntimeException("Some exception"));
 
-        final var response = testRestTemplate.exchange("/api/bookings/456/living-unit/LEI-A-1-1?reasonCode=ADM&dateTime=2020-03-24T13:24:35", PUT, anEntity(), String.class);
+        final var response = testRestTemplate.exchange("/api/bookings/-1/living-unit/LEI-A-1-1?reasonCode=ADM&dateTime=2020-03-24T13:24:35", PUT, anEntity(), String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(INTERNAL_SERVER_ERROR);
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.status").isEqualTo(500);
@@ -201,7 +201,7 @@ public class BookingMovementsResourceIntTest_moveToCell_mockService extends Reso
         when(movementUpdateService.moveToCellOrReception(anyLong(), anyString(), anyString(), any(LocalDateTime.class)))
                 .thenThrow(capacityReachedException());
 
-        final var response = testRestTemplate.exchange("/api/bookings/456/living-unit/LEI-A-1-1?reasonCode=ADM&dateTime=2020-03-24T13:24:35", PUT, anEntity(), String.class);
+        final var response = testRestTemplate.exchange("/api/bookings/-1/living-unit/LEI-A-1-1?reasonCode=ADM&dateTime=2020-03-24T13:24:35", PUT, anEntity(), String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(BAD_REQUEST);
         assertThat(getBodyAsJsonContent(response)).extractingJsonPathNumberValue("$.status").isEqualTo(400);
