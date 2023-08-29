@@ -781,8 +781,6 @@ public class BookingService {
     }
 
     @Transactional
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "UNILINK"})
-    @HasWriteScope
     public void updateLivingUnit(final Long bookingId, final AgencyInternalLocation location) {
         final var offenderBooking = offenderBookingRepository.findById(bookingId)
                 .orElseThrow(EntityNotFoundException.withMessage(format("Offender booking with booking id %d not found", bookingId)));

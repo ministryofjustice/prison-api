@@ -129,6 +129,17 @@ public class BookingMovementsResourceIntTest_moveToCellSwap extends ResourceTest
     }
 
     @Test
+    public void overrideNoBookingAccess_Success() {
+        final var dateTime = LocalDateTime.now().minusHours(1);
+
+        final var response = requestMoveToCellSwap(noUserInContext(), BOOKING_ID_S, "BEH", dateTime.format(ISO_LOCAL_DATE_TIME));
+
+        verifySuccessResponse(response, BOOKING_ID, NEW_CELL, NEW_CELL_DESC);
+        verifyOffenderBookingLivingUnit(BOOKING_ID, NEW_CELL);
+        verifyLastBedAssignmentHistory(BOOKING_ID, NEW_CELL, "BEH", dateTime);
+    }
+
+    @Test
     public void userReadOnly_forbidden() {
         final var dateTime = LocalDateTime.now().minusHours(1);
 
@@ -161,6 +172,17 @@ public class BookingMovementsResourceIntTest_moveToCellSwap extends ResourceTest
                         .roles(List.of())
                         .expiryTime(Duration.ofDays(365 * 10))
                         .build()
+        );
+    }
+
+    private String noUserInContext() {
+        return jwtAuthenticationHelper.createJwt(
+            JwtParameters.builder()
+                .username("a-system-client-id")
+                .scope(List.of("read", "write"))
+                .roles(List.of("MAINTAIN_CELL_MOVEMENTS"))
+                .expiryTime(Duration.ofDays(365 * 10))
+                .build()
         );
     }
 

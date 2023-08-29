@@ -45,8 +45,6 @@ public class MovementUpdateService {
     }
 
     @Transactional
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "UNILINK"})
-    @HasWriteScope
     public CellMoveResult moveToCellOrReception(final Long bookingId, final String internalLocationDescription, final String reasonCode, final LocalDateTime dateTime) {
         validateInternalMove(reasonCode, dateTime);
 
@@ -66,8 +64,6 @@ public class MovementUpdateService {
     }
 
     @Transactional
-    @VerifyBookingAccess
-    @HasWriteScope
     public CellMoveResult moveToCellSwap(final Long bookingId, final String reasonCode, final LocalDateTime dateTime) {
         final var reason = reasonCode == null ? "ADM" : reasonCode;
 
