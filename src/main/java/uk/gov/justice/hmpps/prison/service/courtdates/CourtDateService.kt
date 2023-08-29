@@ -18,9 +18,9 @@ class CourtDateService(
       CourtDateResult(
         event.id,
         event.eventDate,
-        event.outcomeReasonCode?.code,
-        event.outcomeReasonCode?.description,
-        event.outcomeReasonCode?.dispositionCode,
+        it.resultCodeOne?.code,
+        it.resultCodeOne?.description,
+        it.resultCodeOne?.dispositionCode,
         CourtDateCharge(
           charge.id,
           charge.offence.code,
@@ -37,6 +37,7 @@ class CourtDateService(
           charge.resultCodeOne?.description,
         ),
         charge.offenderBooking.bookingId,
+        charge.offenderBooking.bookNumber,
       )
     }
       .sortedBy { it.date }

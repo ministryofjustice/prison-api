@@ -2,6 +2,9 @@
   {
     "id": -215,
     "date": "2017-06-21",
+    "resultCode":"1002",
+    "resultDescription": "Imprisonment",
+    "resultDispositionCode": "F",
     "charge": {
       "chargeId": -11,
       "offenceCode": "M4",
@@ -14,6 +17,7 @@
       "courtCaseRef": "ABC123",
       "courtLocation": "Court 1"
     },
-    "bookingId": -59
+    "bookingId": -59,
+    "bookNumber": "Z00059"
   }
 ]

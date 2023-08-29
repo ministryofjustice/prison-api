@@ -14,7 +14,6 @@ import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSummary;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.Award;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.Hearing;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.OffenderAdjudicationHearing;
-import uk.gov.justice.hmpps.prison.api.model.adjudications.ProvenAdjudicationSummary;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import uk.gov.justice.hmpps.prison.repository.AdjudicationsRepository;
@@ -34,7 +33,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static uk.gov.justice.hmpps.prison.repository.support.StatusFilter.ALL;
 
@@ -65,7 +63,6 @@ public class AdjudicationService {
     @Value("${api.cutoff.award.months:0}")
     private int awardCutoffDefault;
 
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public AdjudicationDetail findAdjudication(final String offenderNo, final long adjudicationNo) {
         return repository.findAdjudicationDetails(offenderNo, adjudicationNo)
             .map(this::enrich)
@@ -145,7 +142,6 @@ public class AdjudicationService {
      * Get awards that have not expired, i.e. the end date is today or later, and
      * count proved adjudications which expired on or later than the from date.
      */
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public AdjudicationSummary getAdjudicationSummary(final Long bookingId, final LocalDate awardCutoffDateParam,
                                                       final LocalDate adjudicationCutoffDateParam) {
         val list = repository.findAwards(bookingId);
@@ -180,18 +176,6 @@ public class AdjudicationService {
             }
         }
         return adjudicationCount;
-    }
-
-    public List<ProvenAdjudicationSummary> getProvenAdjudications(final List<Long> bookingIds,
-                                                                  final LocalDate cutoffDateParam) {
-        return repository.findAwardsForMultipleBookings(bookingIds).stream()
-            .collect(groupingBy(Award::getBookingId))
-            .entrySet().stream().map(e -> {
-
-                    int provenAdjudicationCount = getAdjudicationCount(null, cutoffDateParam, e.getValue());
-                    return ProvenAdjudicationSummary.builder().bookingId(e.getKey()).provenAdjudicationCount(provenAdjudicationCount).build();
-                }
-            ).toList();
     }
 
     public List<OffenderAdjudicationHearing> findOffenderAdjudicationHearings(final String agencyId,
