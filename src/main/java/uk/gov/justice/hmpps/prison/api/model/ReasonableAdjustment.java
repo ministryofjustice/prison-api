@@ -34,7 +34,10 @@ public class ReasonableAdjustment {
     @Schema(description = "Treatment Description", example = "Wheelchair accessibility")
     private String treatmentDescription;
 
-    public ReasonableAdjustment(String treatmentCode, String commentText, LocalDate startDate, LocalDate endDate, String agencyId, String agencyDescription, String treatmentDescription) {
+    @Schema(description = "Personal care need ID", example = "1")
+    private Long personalCareNeedId;
+
+    public ReasonableAdjustment(String treatmentCode, String commentText, LocalDate startDate, LocalDate endDate, String agencyId, String agencyDescription, String treatmentDescription, Long personalCareNeedId) {
         this.treatmentCode = treatmentCode;
         this.commentText = commentText;
         this.startDate = startDate;
@@ -42,6 +45,7 @@ public class ReasonableAdjustment {
         this.agencyId = agencyId;
         this.agencyDescription = agencyDescription;
         this.treatmentDescription = treatmentDescription;
+        this.personalCareNeedId = personalCareNeedId;
     }
 
     public ReasonableAdjustment() {

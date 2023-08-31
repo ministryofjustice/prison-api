@@ -3,6 +3,7 @@
     "offenderNo": "A1234AA",
     "personalCareNeeds": [
       {
+        "personalCareNeedId": -201,
         "problemType": "MATSTAT",
         "problemCode": "ACCU9",
         "problemStatus": "ON",
@@ -12,6 +13,7 @@
         "endDate": null
       },
       {
+        "personalCareNeedId": -202,
         "problemType": "DISAB",
         "problemCode": "RM",
         "problemStatus": "ON",
@@ -26,6 +28,7 @@
     "offenderNo": "A1234AB",
     "personalCareNeeds": [
       {
+        "personalCareNeedId": -203,
         "problemType": "DISAB",
         "problemCode": "RC",
         "problemStatus": "ON",
@@ -40,6 +43,7 @@
     "offenderNo": "A1234AC",
     "personalCareNeeds": [
       {
+        "personalCareNeedId": -204,
         "problemType": "DISAB",
         "problemCode": "RC",
         "problemStatus": "ON",

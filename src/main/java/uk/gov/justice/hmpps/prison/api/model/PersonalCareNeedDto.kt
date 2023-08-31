@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.api.model
 import java.time.LocalDate
 data class PersonalCareNeedDto(
+  val personalCareNeedId: Long,
   val problemType: String?,
   val problemCode: String?,
   val problemStatus: String?,
@@ -11,6 +12,7 @@ data class PersonalCareNeedDto(
   val offenderNo: String?,
 ) {
   fun toPersonalCareNeed() = PersonalCareNeed(
+    this.personalCareNeedId,
     this.problemType,
     this.problemCode,
     this.problemStatus,
