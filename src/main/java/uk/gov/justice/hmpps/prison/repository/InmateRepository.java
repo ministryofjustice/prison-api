@@ -1006,7 +1006,7 @@ public class InmateRepository extends RepositoryBase {
     static void appendNonBlankCriteria(final StringBuilder query, final String criteriaName, final String criteriaValue,
                                        final String operatorTemplate, final String logicOperator) {
         if (StringUtils.isNotBlank(criteriaValue)) {
-            if (query.length() > 0) {
+            if (!query.isEmpty()) {
                 query.append(",").append(logicOperator);
             }
 
@@ -1036,7 +1036,7 @@ public class InmateRepository extends RepositoryBase {
                 throw new IllegalArgumentException("Incorrectly formatted PNC number.");
             }
 
-            if (query.length() > 0) {
+            if (!query.isEmpty()) {
                 query.append(",").append(logicOperator);
             }
 

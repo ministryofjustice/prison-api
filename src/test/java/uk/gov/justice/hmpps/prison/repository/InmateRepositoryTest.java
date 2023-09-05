@@ -1540,5 +1540,4 @@ public class InmateRepositoryTest {
 
         return page.getItems();
     }
-
 }
