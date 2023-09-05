@@ -66,6 +66,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -201,7 +202,7 @@ public class InmateService {
         }
 
         if (extraInfo) {
-            inmate.setIdentifiers(repository.getOffenderIdentifiersByOffenderId(inmate.getOffenderId()));
+            inmate.setIdentifiers(repository.getOffenderIdentifiersByRootOffenderId(inmate.getRootOffenderId()));
         }
 
         if (inmate.getBookingId() != null) {
@@ -706,7 +707,7 @@ public class InmateService {
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public Page<Alias> findInmateAliases(final Long bookingId, final String orderBy, final Order order, final long offset, final long limit) {
-        final var defaultOrderBy = StringUtils.defaultString(StringUtils.trimToNull(orderBy), "createDate");
+        final var defaultOrderBy = Objects.toString(StringUtils.trimToNull(orderBy), "createDate");
         final var sortOrder = ObjectUtils.defaultIfNull(order, Order.DESC);
 
         return repository.findInmateAliases(bookingId, defaultOrderBy, sortOrder, offset, limit);

@@ -432,12 +432,12 @@ public class InmateRepository extends RepositoryBase {
         return identifiers.stream().map(OffenderIdentifierDto::toOffenderIdentifier).collect(Collectors.toList());
     }
 
-    public List<OffenderIdentifier> getOffenderIdentifiersByOffenderId(final long offenderId) {
-        final var sql = InmateRepositorySql.GET_OFFENDER_IDENTIFIERS_BY_OFFENDER_ID.getSql();
+    public List<OffenderIdentifier> getOffenderIdentifiersByRootOffenderId(final long rootOffenderId) {
+        final var sql = InmateRepositorySql.GET_OFFENDER_IDENTIFIERS_BY_ROOT_OFFENDER_ID.getSql();
 
         final var identifiers = jdbcTemplate.query(
             sql,
-            createParams("offenderId", offenderId),
+            createParams("rootOffenderId", rootOffenderId),
             OFFENDER_IDENTIFIER_MAPPER);
         return identifiers.stream().map(OffenderIdentifierDto::toOffenderIdentifier).collect(Collectors.toList());
     }
@@ -1006,7 +1006,7 @@ public class InmateRepository extends RepositoryBase {
     static void appendNonBlankCriteria(final StringBuilder query, final String criteriaName, final String criteriaValue,
                                        final String operatorTemplate, final String logicOperator) {
         if (StringUtils.isNotBlank(criteriaValue)) {
-            if (query.length() > 0) {
+            if (!query.isEmpty()) {
                 query.append(",").append(logicOperator);
             }
 
@@ -1036,7 +1036,7 @@ public class InmateRepository extends RepositoryBase {
                 throw new IllegalArgumentException("Incorrectly formatted PNC number.");
             }
 
-            if (query.length() > 0) {
+            if (!query.isEmpty()) {
                 query.append(",").append(logicOperator);
             }
 
