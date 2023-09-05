@@ -175,8 +175,8 @@ public class InmateRepositoryTest {
         final var results = foundInmates.getItems();
 
         assertThat(results).hasSize(8);
-        assertThat(results).extracting("convictedStatus").containsOnlyElementsOf(List.of("Convicted"));
-        assertThat(results).extracting("imprisonmentStatus").containsOnlyElementsOf(List.of("SENT", "DEPORT"));
+        assertThat(results).extracting("convictedStatus").containsOnly("Convicted");
+        assertThat(results).extracting("imprisonmentStatus").containsOnly("SENT", "DEPORT");
     }
 
     @Test
@@ -194,8 +194,8 @@ public class InmateRepositoryTest {
         final var results = foundInmates.getItems();
 
         assertThat(results).hasSize(3);
-        assertThat(results).extracting("convictedStatus").containsOnlyElementsOf(List.of("Remand"));
-        assertThat(results).extracting("imprisonmentStatus").containsOnlyElementsOf(List.of("TRL"));
+        assertThat(results).extracting("convictedStatus").containsOnly("Remand");
+        assertThat(results).extracting("imprisonmentStatus").containsOnly("TRL");
     }
 
     @Test
@@ -1272,7 +1272,7 @@ public class InmateRepositoryTest {
 
     @Test
     public void testAccessToAllData_WithActiveOnlyTrue() {
-        //Offender without an an active booking
+        //Offender without an active booking
         final var offenders = repository.getBasicInmateDetailsForOffenders(Set.of("Z0020ZZ"), true, Collections.emptySet(), true);
         assertThat(offenders).isEmpty();
     }
@@ -1291,11 +1291,22 @@ public class InmateRepositoryTest {
                 , new InmateBasicDetails(-4L, "A00114", "A1234AD", "CHARLES", "JAMES", "CHAPLIN", "LEI", -2L, "LEI-A-1", parse("1970-01-01")));
     }
 
+    @Test
+    public void testGetOffenderIdentifiersByRootOffenderId() {
+        final var offenders = repository.getOffenderIdentifiersByRootOffenderId(-1040);
+        assertThat(offenders.get(0).getType()).isEqualTo("PNC");
+        assertThat(offenders.get(0).getValue()).isEqualTo("1999/1234567B");
+        assertThat(offenders.get(0).getOffenderNo()).isEqualTo("A1184JR");
+        assertThat(offenders.get(1).getType()).isEqualTo("CRO");
+        assertThat(offenders.get(1).getValue()).isEqualTo("123456/99L");
+        assertThat(offenders.get(1).getOffenderNo()).isEqualTo("A1184JR");
+        assertThat(offenders).hasSize(2);
+    }
 
     @Test
     public void findPhysicalAttributes() {
         final var physicalAttributes = repository.findPhysicalAttributes(-1);
-        assertThat(physicalAttributes).get().isEqualTo(
+        assertThat(physicalAttributes.get()).isEqualTo(
             PhysicalAttributes.builder()
                 .gender("Male")
                 .sexCode("M")

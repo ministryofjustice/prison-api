@@ -329,7 +329,7 @@ enum class InmateRepositorySql(val sql: String) {
     """,
   ),
 
-  GET_OFFENDER_IDENTIFIERS_BY_OFFENDER_ID(
+  GET_OFFENDER_IDENTIFIERS_BY_ROOT_OFFENDER_ID(
     """
         SELECT
         IDENTIFIER_TYPE "TYPE",
@@ -342,10 +342,10 @@ enum class InmateRepositorySql(val sql: String) {
         OI.CREATE_DATETIME AS WHEN_CREATED
         FROM OFFENDER_IDENTIFIERS OI
         JOIN OFFENDERS O ON O.OFFENDER_ID = OI.OFFENDER_ID
-        WHERE O.OFFENDER_ID = :offenderId
+        WHERE O.ROOT_OFFENDER_ID = :rootOffenderId
         AND OI.OFFENDER_ID_SEQ = (SELECT MAX(OFFENDER_ID_SEQ)
                 FROM OFFENDER_IDENTIFIERS OI2
-                WHERE OI2.OFFENDER_ID = OI.OFFENDER_ID
+                WHERE OI2.ROOT_OFFENDER_ID = OI.ROOT_OFFENDER_ID
                 AND OI2.IDENTIFIER_TYPE = OI.IDENTIFIER_TYPE )
     """,
   ),
