@@ -30,7 +30,7 @@ class OpenApiConfiguration(buildProperties: BuildProperties) {
   fun customOpenAPI(): OpenAPI = OpenAPI()
     .servers(
       listOf(
-        Server().url("https://api-dev.prison.service.justice.gov.uk").description("Development"),
+        Server().url("https://prison-api-dev.prison.service.justice.gov.uk").description("Development"),
         Server().url("https://api-preprod.prison.service.justice.gov.uk").description("PreProd"),
         Server().url("https://api.prison.service.justice.gov.uk").description("Prod"),
         Server().url("http://localhost:8080").description("Local"),
