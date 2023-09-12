@@ -60,6 +60,7 @@ public class OffenderAlertTransformer {
                 .map(StaffUserAccount::getStaff)
                 .map(Staff::getLastName)
                 .orElse(null))
+            .modifiedDateTime(offenderAlert.getModifyDateTime())
             .build();
     }
 

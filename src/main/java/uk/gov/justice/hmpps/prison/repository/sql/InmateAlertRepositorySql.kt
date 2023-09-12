@@ -10,6 +10,7 @@ enum class InmateAlertRepositorySql(val sql: String) {
         ALERT_CODE,
         COALESCE(alCode.DESCRIPTION, ALERT_CODE) as ALERT_CODE_DESC,
         EXPIRY_DATE,
+        MODIFY_DATETIME,
         ALERT_STATUS,
         COMMENT_TEXT,
         SMC.FIRST_NAME                              ADD_FIRST_NAME,
@@ -42,6 +43,7 @@ enum class InmateAlertRepositorySql(val sql: String) {
         ALERT_CODE,
         COALESCE(alCode.DESCRIPTION, ALERT_CODE) as ALERT_CODE_DESC,
         EXPIRY_DATE,
+        MODIFY_DATETIME,
         COMMENT_TEXT,
         SMC.FIRST_NAME                              ADD_FIRST_NAME,
         SMC.LAST_NAME                               ADD_LAST_NAME,
@@ -72,6 +74,7 @@ enum class InmateAlertRepositorySql(val sql: String) {
         OA.ALERT_CODE,
         COALESCE(ALCODE.DESCRIPTION, OA.ALERT_CODE) AS ALERT_CODE_DESC,
         OA.EXPIRY_DATE,
+        OA.MODIFY_DATETIME,
         OA.ALERT_STATUS,
         OA.COMMENT_TEXT
         FROM OFFENDER_ALERTS OA

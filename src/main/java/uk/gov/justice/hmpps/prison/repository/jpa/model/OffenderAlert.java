@@ -25,6 +25,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
@@ -109,6 +110,10 @@ public class OffenderAlert extends AuditableEntity {
     @ManyToOne
     @NotFound(action = IGNORE)
     private StaffUserAccount modifyUser;
+
+    @Column(name = "MODIFY_DATETIME", updatable = false, insertable = false)
+    @NotFound(action = IGNORE)
+    private LocalDateTime modifyDateTime;
 
     @NoArgsConstructor
     @AllArgsConstructor
