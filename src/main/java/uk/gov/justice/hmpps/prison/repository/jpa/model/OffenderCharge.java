@@ -149,6 +149,7 @@ public class OffenderCharge extends AuditableEntity {
             .offenderChargeId(id)
             .offenceStartDate(dateOfOffence)
             .offenceEndDate(endDate)
+            .offenceStatute(offence.getStatute().getCode())
             .offenceCode(offence.getCode())
             .offenceDescription(offence.getDescription())
             .indicators(offence.getOffenceIndicators().stream()

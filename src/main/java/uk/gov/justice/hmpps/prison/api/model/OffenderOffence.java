@@ -23,6 +23,8 @@ public class OffenderOffence {
     private LocalDate offenceStartDate;
     @Schema(description = "Offence End Date")
     private LocalDate offenceEndDate;
+    @Schema(description = "Offence statute")
+    private String offenceStatute;
     @Schema(description = "Offence Code")
     private String offenceCode;
     @Schema(description = "Offence Description")
