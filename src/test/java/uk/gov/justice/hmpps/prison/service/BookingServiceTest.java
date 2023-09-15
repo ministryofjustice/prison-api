@@ -66,6 +66,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.RelationshipType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalcType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Statute;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitVisitor;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.WarZone;
@@ -1276,6 +1277,10 @@ public class BookingServiceTest {
                                         .offenceIndicators(List.of(
                                             OffenceIndicator.builder().indicatorCode("INDICATOR").build()
                                         ))
+                                        .code("STA1234")
+                                        .statute(
+                                            Statute.builder().code("STA").build()
+                                        )
                                         .build())
                                     .build()
                                 )
@@ -1337,6 +1342,8 @@ public class BookingServiceTest {
                     OffenderOffence.builder()
                         .offenceStartDate(LocalDate.of(2021, 1, 2))
                         .offenceEndDate(LocalDate.of(2021, 1, 25))
+                        .offenceStatute("STA")
+                        .offenceCode("STA1234")
                         .indicators(List.of("INDICATOR"))
                         .build()
                 ))
