@@ -2,6 +2,7 @@
 # Values here are the same across all environments
 generic-service:
   nameOverride: prison-api
+  productId: DPS060
   replicaCount: 6
 
   image:
