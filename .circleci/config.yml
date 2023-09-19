@@ -126,26 +126,10 @@ workflows:
                 - main
       - hmpps/deploy_env:
           name: deploy_dev
-          env: "t3"
+          env: "dev"
           jira_update: true
           context:
             - hmpps-common-vars
-          filters:
-            branches:
-              only:
-                - main
-          requires:
-            - build_docker
-            - check
-            - test-integration
-            - test-schema-nomis
-      - hmpps/deploy_env:
-          name: deploy_cp_dev
-          env: "cp-dev"
-          jira_update: true
-          context:
-            - hmpps-common-vars
-            - prison-api-cp-dev
           filters:
             branches:
               only:
