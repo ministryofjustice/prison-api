@@ -46,7 +46,7 @@ class OffenderMovementsResource(
   @Tag(name = "unilink")
   @PutMapping("/{offenderNo}/living-unit/{internalLocationDescription}")
   @ProxyUser
-  @VerifyOffenderAccess(overrideRoles = ["SYSTEM_USER", "UNILINK", "MAINTAIN_CELL_MOVEMENTS"])
+  @VerifyOffenderAccess(overrideRoles = ["UNILINK", "MAINTAIN_CELL_MOVEMENTS"])
   @HasWriteScope
   fun moveToCellOrReception(
     @PathVariable("offenderNo")
