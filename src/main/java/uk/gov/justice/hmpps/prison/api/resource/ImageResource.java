@@ -73,7 +73,7 @@ public class ImageResource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Image details related to offender.")
     @GetMapping("/offenders/{offenderNo}")
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
+    @VerifyOffenderAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
     public List<ImageDetail> getImagesByOffender(@PathVariable("offenderNo") final String offenderNo) {
         return imageService.findOffenderImagesFor(offenderNo);
     }
