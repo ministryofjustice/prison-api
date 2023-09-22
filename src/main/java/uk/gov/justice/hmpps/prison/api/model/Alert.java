@@ -83,7 +83,7 @@ public class Alert {
     private LocalDate dateExpires;
 
     @Schema(description = "The date and time the alert was last modified in Europe/London (ISO 8601) format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS. If this Alert hasn't been modified since its creation this field will be null", example = "2020-08-20T12:34:56", requiredMode = RequiredMode.NOT_REQUIRED)
-    @JsonProperty("modifiedDateTimegg")
+    @JsonProperty("modifiedDateTime")
     private LocalDateTime modifiedDateTime;
 
     @Schema(description = "True / False based on presence of expiry date", example = "true", requiredMode = RequiredMode.NOT_REQUIRED)
