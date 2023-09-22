@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 /**
@@ -80,6 +81,10 @@ public class Alert {
     @Schema(description = "Date the alert expires", example = "2020-08-20")
     @JsonProperty("dateExpires")
     private LocalDate dateExpires;
+
+    @Schema(description = "The date and time the alert was last modified in Europe/London (ISO 8601) format without timezone offset e.g. YYYY-MM-DDTHH:MM:SS. If this Alert hasn't been modified since its creation this field will be null", example = "2020-08-20T12:34:56", requiredMode = RequiredMode.NOT_REQUIRED)
+    @JsonProperty("modifiedDateTime")
+    private LocalDateTime modifiedDateTime;
 
     @Schema(description = "True / False based on presence of expiry date", example = "true", requiredMode = RequiredMode.NOT_REQUIRED)
     @JsonProperty("expired")

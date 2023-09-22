@@ -14,6 +14,7 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingDetailSt
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
@@ -491,12 +492,19 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
             .dateExpires(convertTodayAndParse(entry.get("dateExpires")))
             .expired(Boolean.parseBoolean(entry.get("expired")))
             .active(Boolean.parseBoolean(entry.get("active")))
+            .modifiedDateTime(convertTodayAndParseDateTime(entry.get("dateModified")))
             .build();
     }
 
-    private LocalDate convertTodayAndParse(final String dateCreated) {
-        if (StringUtils.isBlank(dateCreated)) return null;
-        if (dateCreated.equals("today")) return LocalDate.now();
-        return LocalDate.parse(dateCreated);
+    private LocalDate convertTodayAndParse(final String dateAsString) {
+        if (StringUtils.isBlank(dateAsString)) return null;
+        if (dateAsString.equals("today")) return LocalDate.now();
+        return LocalDate.parse(dateAsString);
+    }
+
+    private LocalDateTime convertTodayAndParseDateTime(final String dateTimeAsString) {
+        if (StringUtils.isBlank(dateTimeAsString)) return null;
+        if (dateTimeAsString.equals("today")) return LocalDateTime.now();
+        return LocalDateTime.parse(dateTimeAsString);
     }
 }
