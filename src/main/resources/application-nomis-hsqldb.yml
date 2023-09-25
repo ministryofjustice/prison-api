@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:hsqldb:mem:nomis-db;sql.syntax_ora=true;get_column_name=false;shutdown=false;sql.nulls_first=false;sql.nulls_order=false
+    url: jdbc:hsqldb:mem:nomis-db;sql.syntax_ora=true;get_column_name=false;shutdown=false;sql.nulls_first=false;sql.nulls_order=false;sql.enforce_refs=true
     username: sa
     password:
 
@@ -9,7 +9,7 @@ spring:
 
   replica:
     datasource:
-      url: jdbc:hsqldb:mem:nomis-db;sql.syntax_ora=true;get_column_name=false;shutdown=false;sql.nulls_first=false;sql.nulls_order=false
+      url: jdbc:hsqldb:mem:nomis-db;sql.syntax_ora=true;get_column_name=false;shutdown=false;sql.nulls_first=false;sql.nulls_order=false;sql.enforce_refs=true
       username: sa
       password:
       hikari:
