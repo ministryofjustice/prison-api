@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import uk.gov.justice.hmpps.prison.web.config.AuthAwareAuthenticationToken;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -55,8 +56,7 @@ public class AuthenticationFacade {
     }
 
     public boolean isOverrideRole(final String... overrideRoles) {
-        final var roles = overrideRoles.length > 0 ? getRoles(overrideRoles) : List.of("SYSTEM_USER");
-        return hasMatchingRole(roles, getAuthentication());
+        return hasMatchingRole(getRoles(overrideRoles), getAuthentication());
     }
 
     private static boolean hasMatchingRole(final List<String> roles, final Authentication authentication) {
