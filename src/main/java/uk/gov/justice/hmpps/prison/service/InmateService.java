@@ -164,7 +164,7 @@ public class InmateService {
     }
 
     private boolean isViewAllOffenders() {
-        return authenticationFacade.isOverrideRole("SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA");
+        return authenticationFacade.isOverrideRole("GLOBAL_SEARCH", "VIEW_PRISONER_DATA");
     }
 
     private Set<String> loadCaseLoadsOrThrow() {
