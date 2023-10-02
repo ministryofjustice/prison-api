@@ -34,8 +34,8 @@ ext["hibernate.version"] = "6.2.5.Final"
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-  annotationProcessor("org.projectlombok:lombok:1.18.28")
-  testAnnotationProcessor("org.projectlombok:lombok:1.18.28")
+  annotationProcessor("org.projectlombok:lombok:1.18.30")
+  testAnnotationProcessor("org.projectlombok:lombok:1.18.30")
 
   implementation("org.springframework.boot:spring-boot-starter-aop")
   implementation("org.springframework.boot:spring-boot-starter-validation")
@@ -56,23 +56,23 @@ dependencies {
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
 
   implementation("org.apache.commons:commons-lang3:3.13.0")
-  implementation("commons-io:commons-io:2.13.0")
+  implementation("commons-io:commons-io:2.14.0")
   implementation("com.google.guava:guava:32.1.2-jre")
   implementation("org.apache.commons:commons-text:1.10.0")
   implementation("com.oracle.database.jdbc:ojdbc10:19.20.0.0")
   implementation("org.hibernate.orm:hibernate-community-dialects")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
-  compileOnly("org.projectlombok:lombok:1.18.28")
+  compileOnly("org.projectlombok:lombok:1.18.30")
 
   runtimeOnly("org.hsqldb:hsqldb:$hsqldbVersion")
   runtimeOnly("org.flywaydb:flyway-core")
 
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
-  testImplementation("io.rest-assured:rest-assured:5.3.1")
-  testImplementation("io.rest-assured:json-schema-validator:5.3.1")
-  testImplementation("io.rest-assured:spring-mock-mvc:5.3.1")
+  testImplementation("io.rest-assured:rest-assured:5.3.2")
+  testImplementation("io.rest-assured:json-schema-validator:5.3.2")
+  testImplementation("io.rest-assured:spring-mock-mvc:5.3.2")
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("com.google.code.gson:gson:2.10.1")
   testImplementation("org.mockito:mockito-inline:5.2.0")
@@ -80,20 +80,20 @@ dependencies {
   testImplementation("org.powermock:powermock-module-junit4:2.0.9")
 
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:3.0.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:3.2.2")
 
   testImplementation("net.serenity-bdd:serenity-core:3.9.8")
   testImplementation("net.serenity-bdd:serenity-junit:3.9.8")
   testImplementation("net.serenity-bdd:serenity-spring:3.9.8")
   testImplementation("net.serenity-bdd:serenity-cucumber:3.9.8")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
-  testImplementation("org.wiremock:wiremock:3.0.3")
+  testImplementation("org.wiremock:wiremock:3.2.0")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.11.5")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
   testImplementation("io.swagger.parser.v3:swagger-parser:$swaggerParserVersion")
-  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.29.0")
+  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.30.1")
 
-  testCompileOnly("org.projectlombok:lombok:1.18.28")
+  testCompileOnly("org.projectlombok:lombok:1.18.30")
 }
 
 java {
