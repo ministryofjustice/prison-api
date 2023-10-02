@@ -51,7 +51,7 @@ public class SearchOffenderService {
         Objects.requireNonNull(request.getLocationPrefix(), "locationPrefix is a required parameter");
         log.info("Searching for offenders, criteria: {}", request);
 
-        final Set<String> caseloads = securityUtils.isOverrideRole() ? Set.of() : userService.getCaseLoadIds(request.getUsername());
+        final Set<String> caseloads = userService.getCaseLoadIds(request.getUsername());
 
         final var bookingsPage = getBookings(request, caseloads);
         final var bookings = bookingsPage.getItems();
