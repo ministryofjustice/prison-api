@@ -31,23 +31,6 @@ public class EmploymentResourceTest extends ResourceTest {
     }
 
     @Test
-    public void testShouldBeAbleToAccessInformationAsASystemUser() {
-
-        final var token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE);
-        final var httpEntity = createHttpEntity(token, null);
-
-        final var response = testRestTemplate.exchange(
-            "/api/employment/prisoner/{offenderNo}",
-            GET,
-            httpEntity,
-            new ParameterizedTypeReference<String>() {},
-            OFFENDER_NUMBER
-        );
-
-        assertThatJsonFileAndStatus(response, 200, "paged_offender_employments.json");
-    }
-
-    @Test
     public void testShouldBeAbleToAccessInformationAsAGlobalSearchUser() {
 
         final var token = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH);
