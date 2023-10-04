@@ -461,7 +461,7 @@ public class InmateService {
                                                         final boolean mostRecentOnly) {
         final List<Assessment> results = new ArrayList<>();
         if (!CollectionUtils.isEmpty(offenderNos)) {
-            final Set<String> caseLoadIds = authenticationFacade.isOverrideRole( "SYSTEM_USER")
+            final Set<String> caseLoadIds = authenticationFacade.isOverrideRole("VIEW_ASSESSMENTS", "VIEW_PRISONER_DATA")
                     ? Collections.emptySet()
                     : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
 
