@@ -43,6 +43,7 @@ import uk.gov.justice.hmpps.prison.api.model.CaseNoteCount;
 import uk.gov.justice.hmpps.prison.api.model.Contact;
 import uk.gov.justice.hmpps.prison.api.model.ContactDetail;
 import uk.gov.justice.hmpps.prison.api.model.CourtCase;
+import uk.gov.justice.hmpps.prison.api.model.CourtEventOutcome;
 import uk.gov.justice.hmpps.prison.api.model.CreateAlert;
 import uk.gov.justice.hmpps.prison.api.model.CreatePersonalCareNeed;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
@@ -59,7 +60,6 @@ import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.OffenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenceHistoryDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifier;
-import uk.gov.justice.hmpps.prison.api.model.OffenderNonAssociationDetails;
 import uk.gov.justice.hmpps.prison.api.model.OffenderRelationship;
 import uk.gov.justice.hmpps.prison.api.model.PersonalCareCounterDto;
 import uk.gov.justice.hmpps.prison.api.model.PersonalCareNeeds;
@@ -1213,5 +1213,18 @@ public class BookingResource {
     @GetMapping("/{bookingId}/fixed-term-recall")
     public FixedTermRecallDetails getFixedTermRecallDetails(@PathVariable("bookingId") @Parameter(description = "The offenders bookingID", required = true) final Long bookingId) {
         return fixedTermRecallService.getFixedTermRecallDetails(bookingId);
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "No Fixed Term Recall exists for this booking", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
+    })
+    @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
+    @Operation(summary = "Get court event outcome reason codes for active court cases for a booking")
+    @GetMapping("/{bookingId}/court-event-outcomes")
+    public List<CourtEventOutcome> getCourtEventOutcomes(@PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId) {
+        return bookingService.getOffenderCourtEventOutcomes(bookingId);
     }
 }
