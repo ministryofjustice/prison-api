@@ -1098,7 +1098,7 @@ public class BookingService {
     }
 
     private boolean isViewInactiveBookings() {
-        return authenticationFacade.isOverrideRole("INACTIVE_BOOKINGS", "SYSTEM_USER");
+        return authenticationFacade.isOverrideRole("INACTIVE_BOOKINGS");
     }
 
     private static String quotedAndPipeDelimited(final Stream<String> values) {
