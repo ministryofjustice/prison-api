@@ -52,7 +52,7 @@ public class FinanceService {
     private final OffenderDamageObligationService offenderDamageObligationService;
     private final Currency currency;
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public Account getBalances(final Long bookingId) {
 
         final var offenderSummary = bookingRepository.getLatestBookingByBookingId(bookingId)

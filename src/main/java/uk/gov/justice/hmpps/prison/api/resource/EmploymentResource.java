@@ -39,7 +39,7 @@ public class EmploymentResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "A list of offender employments.", description = "A list of offender employments.")
     @GetMapping("/prisoner/{offenderNo}")
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH', 'VIEW_PRISONER_DATA')")
+    @PreAuthorize("hasAnyRole('GLOBAL_SEARCH', 'VIEW_PRISONER_DATA')")
     public Page<Employment> getPrisonerEmployments(
         @PathVariable(value = "offenderNo") @Parameter(description = "List of offender NOMS numbers. NOMS numbers have the format:<b>ANNNNAA</b>") final String offenderNo,
         @RequestParam(value = "page", defaultValue = "0", required = false) @Parameter(description = "The page number of the paged results") final Integer page,
