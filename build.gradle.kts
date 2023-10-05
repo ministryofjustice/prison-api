@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.4.1"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.5.0"
   kotlin("plugin.spring") version "1.9.10"
   kotlin("plugin.jpa") version "1.9.10"
   kotlin("plugin.lombok") version "1.9.10"
@@ -31,6 +31,9 @@ ext["rest-assured.version"] = "5.1.1"
 
 // Temporarily keep hibernate at 6.2.5 until https://hibernate.atlassian.net/jira/software/c/projects/HHH/issues/HHH-16926 is fixed in 6.2.7
 ext["hibernate.version"] = "6.2.5.Final"
+
+// Temporarily keep serenity at 3.x until can upgrade
+val serenityVersion by extra("3.9.8")
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
@@ -82,14 +85,14 @@ dependencies {
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:3.2.2")
 
-  testImplementation("net.serenity-bdd:serenity-core:3.9.8")
-  testImplementation("net.serenity-bdd:serenity-junit:3.9.8")
-  testImplementation("net.serenity-bdd:serenity-spring:3.9.8")
-  testImplementation("net.serenity-bdd:serenity-cucumber:3.9.8")
+  testImplementation("net.serenity-bdd:serenity-core:$serenityVersion")
+  testImplementation("net.serenity-bdd:serenity-junit:$serenityVersion")
+  testImplementation("net.serenity-bdd:serenity-spring:$serenityVersion")
+  testImplementation("net.serenity-bdd:serenity-cucumber:$serenityVersion")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
   testImplementation("org.wiremock:wiremock:3.2.0")
-  testImplementation("io.jsonwebtoken:jjwt-impl:0.11.5")
-  testImplementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
+  testImplementation("io.jsonwebtoken:jjwt-impl:0.12.0")
+  testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.0")
   testImplementation("io.swagger.parser.v3:swagger-parser:$swaggerParserVersion")
   testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.30.1")
 
@@ -116,6 +119,9 @@ tasks {
     }
     minHeapSize = "128m"
     maxHeapSize = "2048m"
+
+    // required for jjwt 0.12 - see https://github.com/jwtk/jjwt/issues/849
+    jvmArgs("--add-exports", "java.base/sun.security.util=ALL-UNNAMED")
   }
 
   register<Test>("testIntegration") {
@@ -124,6 +130,9 @@ tasks {
     }
     minHeapSize = "128m"
     maxHeapSize = "2048m"
+
+    // required for jjwt 0.12 - see https://github.com/jwtk/jjwt/issues/849
+    jvmArgs("--add-exports", "java.base/sun.security.util=ALL-UNNAMED")
   }
 
   register<Test>("testWithSchemaNomis") {
@@ -133,6 +142,9 @@ tasks {
     }
     minHeapSize = "128m"
     maxHeapSize = "2048m"
+
+    // required for jjwt 0.12 - see https://github.com/jwtk/jjwt/issues/849
+    jvmArgs("--add-exports", "java.base/sun.security.util=ALL-UNNAMED")
   }
 
   register<Test>("testWithSchemaNomisOracle") {
@@ -147,6 +159,9 @@ tasks {
     useJUnitPlatform {
       include("**/executablespecification/*")
     }
+
+    // required for jjwt 0.12 - see https://github.com/jwtk/jjwt/issues/849
+    jvmArgs("--add-exports", "java.base/sun.security.util=ALL-UNNAMED")
   }
 
   withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
