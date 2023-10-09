@@ -61,7 +61,7 @@ public class OffenderTransactionHistoryService {
         this.entityManager = entityManager;
     }
 
-    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<OffenderTransactionHistoryDto> getTransactionHistory(final String offenderNo,
                                                                      final String accountCode,
                                                                      final LocalDate fromDate,

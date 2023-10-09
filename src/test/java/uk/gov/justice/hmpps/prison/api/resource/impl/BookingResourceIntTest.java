@@ -501,7 +501,7 @@ public class BookingResourceIntTest extends ResourceTest {
 
     @Test
     public void testGetBasicInmateDetailsForOffendersActiveOnlyFalse() {
-        final var token = authTokenHelper.getToken(AuthToken.VIEW_PRISONER_DATA);
+        final var token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE);
 
         final var body = List.of("Z0020ZZ");
 

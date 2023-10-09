@@ -1098,7 +1098,7 @@ public class BookingService {
     }
 
     private boolean isViewInactiveBookings() {
-        return authenticationFacade.isOverrideRole("INACTIVE_BOOKINGS");
+        return authenticationFacade.isOverrideRole("INACTIVE_BOOKINGS", "SYSTEM_USER");
     }
 
     private static String quotedAndPipeDelimited(final Stream<String> values) {
@@ -1144,7 +1144,7 @@ public class BookingService {
             throw new BadRequestException("At least one attribute of a prisonId, bookingId or offenderNo must be specified");
         }
 
-        final var viewAllPrisoners = authenticationFacade.isOverrideRole("VIEW_PRISONER_DATA");
+        final var viewAllPrisoners = authenticationFacade.isOverrideRole("SYSTEM_USER", "VIEW_PRISONER_DATA");
 
         final var filter = OffenderBookingFilter
             .builder()

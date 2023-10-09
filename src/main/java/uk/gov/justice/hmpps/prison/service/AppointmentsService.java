@@ -203,7 +203,7 @@ public class AppointmentsService {
 
         try {
             final var appointmentLocation = locationService.getLocation(newAppointment.getLocationId());
-            final var skipLocationAgencyCheck = authenticationFacade.isOverrideRole("GLOBAL_APPOINTMENT");
+            final var skipLocationAgencyCheck = authenticationFacade.isOverrideRole("SYSTEM_USER", "GLOBAL_APPOINTMENT");
 
             if (skipLocationAgencyCheck) return appointmentLocation.getAgencyId();
 

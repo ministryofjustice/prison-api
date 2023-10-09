@@ -34,7 +34,7 @@ public class OffenderNonAssociationsService {
     private final OffenderNonAssociationDetailRepository offenderNonAssociationDetailRepository;
     private final Clock clock;
 
-    @VerifyOffenderAccess(overrideRoles = {"VIEW_PRISONER_DATA"} )
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"} )
     public OffenderNonAssociationDetails retrieveByOffenderNo(final String offenderNo, final boolean currentPrisonOnly, final boolean excludeInactive) {
         log.debug("Fetching non-associations for offender no '{}'", offenderNo);
         final var now = LocalDate.now(clock);

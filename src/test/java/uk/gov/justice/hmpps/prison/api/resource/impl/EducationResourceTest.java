@@ -29,6 +29,23 @@ public class EducationResourceTest extends ResourceTest {
     }
 
     @Test
+    public void testShouldBeAbleToAccessInformationAsASystemUser() {
+
+        final var token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE);
+        final var httpEntity = createHttpEntity(token, null);
+
+        final var response = testRestTemplate.exchange(
+            "/api/education/prisoner/{offenderNo}",
+            GET,
+            httpEntity,
+            new ParameterizedTypeReference<String>() {},
+            OFFENDER_NUMBER
+        );
+
+        assertThatJsonFileAndStatus(response, 200, "paged_offender_educations.json");
+    }
+
+    @Test
     public void testShouldBeAbleToAccessInformationAsAGlobalSearchUser() {
 
         final var token = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH);
@@ -87,6 +104,17 @@ public class EducationResourceTest extends ResourceTest {
         final var response = testRestTemplate.postForEntity("/api/education/prisoners", httpEntity, String.class);
 
         assertThat(response.getStatusCodeValue()).isEqualTo(403);
+    }
+
+    @Test
+    public void testShouldBeAbleToAccessInformationAsASystemUser_POST() {
+
+        final var token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE);
+        final var httpEntity = createHttpEntity(token, Set.of(OFFENDER_NUMBER));
+
+        final var response = testRestTemplate.postForEntity("/api/education/prisoners", httpEntity, String.class);
+
+        assertThatJsonFileAndStatus(response, 200, "offender_educations.json");
     }
 
     @Test

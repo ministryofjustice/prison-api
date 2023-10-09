@@ -20,7 +20,7 @@ public class OffenderEmploymentService {
     private final OffenderEmploymentRepository repository;
     private final OffenderEmploymentTransformer transformer;
 
-    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public Page<Employment> getOffenderEmployments(@NotNull final String nomisId, final PageRequest pageRequest) {
         return repository.findAllByNomisId(nomisId, pageRequest).map(transformer::convert);
     }

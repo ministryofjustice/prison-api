@@ -46,7 +46,7 @@ public class PrisonerInformationService {
         this.maxBatchSize = maxBatchSize;
     }
 
-    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public PrisonerInformation getPrisonerInformationById(final @NotNull String offenderNo) {
         final var entity = prisonerStatusInformationRepository.getByNomsId(offenderNo).orElseThrow(() -> new EntityNotFoundException(format("Resource with id [%s] not found.", offenderNo)));
 
