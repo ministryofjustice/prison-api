@@ -227,7 +227,7 @@ public class AgencyService {
         return LocationProcessor.processLocations(rawLocations);
     }
 
-    @VerifyAgencyAccess
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
     public List<Location> getAgencyLocationsByType(final String agencyId, final String type) {
         final var agencyInternalLocations = agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive(agencyId, type, true);
 

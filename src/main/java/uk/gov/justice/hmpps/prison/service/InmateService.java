@@ -426,7 +426,7 @@ public class InmateService {
         return repository.getBasicInmateDetail(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
     }
 
-    @VerifyAgencyAccess
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
     public List<InmateBasicDetails> getBasicInmateDetailsByBookingIds(final String caseload, final Set<Long> bookingIds) {
         final List<InmateBasicDetails> results = new ArrayList<>();
         if (!CollectionUtils.isEmpty(bookingIds)) {
@@ -508,7 +508,7 @@ public class InmateService {
     }
 
 
-    @VerifyAgencyAccess
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
     public List<OffenderCategorise> getOffenderCategorisations(final String agencyId, final Set<Long> bookingIds, final boolean latestOnly) {
         return doGetOffenderCategorisations(agencyId, bookingIds, latestOnly);
     }
@@ -559,7 +559,7 @@ public class InmateService {
                 .build();
     }
 
-    @VerifyAgencyAccess
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
     public List<OffenderCategorise> getCategory(final String agencyId, final CategoryInformationType type, final LocalDate date) {
         return switch (type) {
             case UNCATEGORISED -> repository.getUncategorised(agencyId);
