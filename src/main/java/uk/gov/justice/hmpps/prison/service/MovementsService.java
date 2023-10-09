@@ -106,7 +106,7 @@ public class MovementsService {
         return movementsRepository.getRecentMovementsByDate(fromDateTime, movementDate, movementTypes);
     }
 
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public Optional<Movement> getMovementByBookingIdAndSequence(@NotNull final Long bookingId, @NotNull final Integer sequenceNumber) {
         return movementsRepository.getMovementByBookingIdAndSequence(bookingId, sequenceNumber)
             .map(movement -> movement.toBuilder()
@@ -429,7 +429,7 @@ public class MovementsService {
             .build();
     }
 
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public Page<OffenderIn> getOffendersIn(final String agencyId, final LocalDateTime fromDate, final LocalDateTime toDate, final Pageable pageable, final boolean allMovements) {
         final var page = allMovements
             ? externalMovementRepository.findAllMovements(agencyId, MovementDirection.IN, fromDate, toDate, pageable)

@@ -30,7 +30,7 @@ public class IncidentService {
         return repository.getIncidentCases(List.of(incidentCaseId)).stream().findFirst().orElseThrow(EntityNotFoundException.withId(incidentCaseId));
     }
 
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public List<IncidentCase> getIncidentCasesByBookingId(@NotNull final long bookingId, final List<String> incidentTypes, final List<String> participationRoles) {
         bookingService.checkBookingExists(bookingId);
         return repository.getIncidentCasesByBookingId(bookingId, incidentTypes, participationRoles);
