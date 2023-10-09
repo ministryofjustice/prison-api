@@ -44,6 +44,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitVisitor;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderChargeRepository;
@@ -113,6 +114,7 @@ public class BookingService {
     private final Comparator<ScheduledEvent> startTimeComparator = Comparator.comparing(ScheduledEvent::getStartTime, nullsLast(naturalOrder()));
 
     private final BookingRepository bookingRepository;
+    private final CourtEventRepository courtEventRepository;
     private final OffenderBookingRepository offenderBookingRepository;
     private final OffenderChargeRepository offenderChargeRepository;
     private final OffenderRepository offenderRepository;
@@ -139,6 +141,7 @@ public class BookingService {
     private final int maxBatchSize;
 
     public BookingService(final BookingRepository bookingRepository,
+                          final CourtEventRepository courtEventRepository,
                           final OffenderBookingRepository offenderBookingRepository,
                           final OffenderChargeRepository offenderChargeRepository,
                           final OffenderRepository offenderRepository,
@@ -166,6 +169,7 @@ public class BookingService {
                           @Value("${batch.max.size:1000}")
                           final int maxBatchSize) {
         this.bookingRepository = bookingRepository;
+        this.courtEventRepository = courtEventRepository;
         this.offenderBookingRepository = offenderBookingRepository;
         this.offenderChargeRepository = offenderChargeRepository;
         this.offenderRepository = offenderRepository;
@@ -836,8 +840,12 @@ public class BookingService {
         return activeBookings.stream().map(this::determineCalculableSentenceEnvelope).toList();
     }
 
-    private CalculableSentenceEnvelope determineCalculableSentenceEnvelope(OffenderBooking offenderBooking)
-    {
+    public List<CourtEventOutcome> getOffenderCourtEventOutcomes(final Long bookingId) {
+        final var courtEvents = courtEventRepository.findByOffenderBooking_BookingIdAndOffenderCourtCase_CaseStatus_Code(bookingId, "A");
+        return courtEvents.stream().map(event -> new CourtEventOutcome(event.getId(), event.getOutcomeReasonCode() != null ? event.getOutcomeReasonCode().getCode() : null)).toList();
+    }
+
+    private CalculableSentenceEnvelope determineCalculableSentenceEnvelope(OffenderBooking offenderBooking) {
         final var person = new uk.gov.justice.hmpps.prison.api.model.calculation.Person(
             offenderBooking.getOffender().getNomsId(),
             offenderBooking.getOffender().getBirthDate()

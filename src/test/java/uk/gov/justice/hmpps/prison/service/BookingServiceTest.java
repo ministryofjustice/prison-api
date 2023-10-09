@@ -50,6 +50,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryDischarge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryRank;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenceIndicator;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenceResult;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge;
@@ -72,6 +73,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitVisitor;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.WarZone;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderChargeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPersonsRepository;
@@ -118,6 +120,8 @@ import static org.mockito.Mockito.when;
 public class BookingServiceTest {
     @Mock
     private BookingRepository bookingRepository;
+    @Mock
+    private CourtEventRepository courtEventRepository;
     @Mock
     private OffenderBookingRepository offenderBookingRepository;
     @Mock
@@ -174,6 +178,7 @@ public class BookingServiceTest {
     public void init() {
         bookingService = new BookingService(
                 bookingRepository,
+                courtEventRepository,
                 offenderBookingRepository,
                 offenderChargeRepository,
                 offenderRepository,
@@ -1375,6 +1380,28 @@ public class BookingServiceTest {
                 .paymentAmount(new BigDecimal("9.99"))
                 .build()
         );
+    }
+
+    @Test
+    public void getOffenderCourtEventOutcomes() {
+        final var bookingId = 1L;
+
+        final var courtEvent1 = CourtEvent.builder()
+            .id(54L)
+            .outcomeReasonCode(new OffenceResult().withCode("4016"))
+            .build();
+        final var courtEvent2 = CourtEvent.builder()
+            .id(93L)
+            .outcomeReasonCode(new OffenceResult().withCode("5011"))
+            .build();
+
+        final var courtEvents =  List.of(courtEvent1, courtEvent2);
+        when(courtEventRepository.findByOffenderBooking_BookingIdAndOffenderCourtCase_CaseStatus_Code(bookingId, "A")).thenReturn(courtEvents);
+        final var courtEventOutcomes = bookingService.getOffenderCourtEventOutcomes(bookingId);
+
+        assertThat(courtEventOutcomes.size()).isEqualTo(2);
+        assertThat(courtEventOutcomes.get(0).getOutcomeReasonCode()).isEqualTo("4016");
+        assertThat(courtEventOutcomes.get(1).getOutcomeReasonCode()).isEqualTo("5011");
     }
 
     @Nested
