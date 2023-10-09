@@ -57,11 +57,12 @@ public class AuthenticationFacade {
     }
 
     public boolean isOverrideRole(final String... overrideRoles) {
-        return hasMatchingRole(getRoles(overrideRoles), getAuthentication());
+        if (overrideRoles.length > 0) log.error("Matching role check failed - no roles to match against");
+        final var roles = overrideRoles.length > 0 ? getRoles(overrideRoles) : List.of("SYSTEM_USER");
+        return hasMatchingRole(roles, getAuthentication());
     }
 
     private static boolean hasMatchingRole(final List<String> roles, final Authentication authentication) {
-        if (roles.isEmpty()) log.error("Matching role check failed - no roles to match against");
         return authentication != null &&
                 authentication.getAuthorities().stream()
                         .anyMatch(a -> roles.contains(RegExUtils.replaceFirst(a.getAuthority(), "ROLE_", "")));
