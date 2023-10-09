@@ -769,7 +769,7 @@ public class OffenderResource {
         <p>At least one offender number must be supplied if not then an exception will be thrown.</p>
         <p>If the time slot is provided then the results will be further restricted to the hearings that fall in that time slot.</p>
         """)
-    @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
+    @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA', 'VIEW_ADJUDICATIONS')")
     @PostMapping("/adjudication-hearings")
     public List<OffenderAdjudicationHearing> getOffenderAdjudicationHearings(
         @Parameter(description = "The offender numbers. Offender numbers have the format:<b>G0364GX</b>", required = true) @RequestBody final Set<String> offenderNos,
