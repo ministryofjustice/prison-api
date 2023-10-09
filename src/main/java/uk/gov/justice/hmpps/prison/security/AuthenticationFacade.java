@@ -57,7 +57,7 @@ public class AuthenticationFacade {
     }
 
     public boolean isOverrideRole(final String... overrideRoles) {
-        if (overrideRoles.length > 0) log.error("Matching role check failed - no roles to match against");
+        if (overrideRoles.length == 0) log.error("Matching role check failed - no roles to match against");
         final var roles = overrideRoles.length > 0 ? getRoles(overrideRoles) : List.of("SYSTEM_USER");
         return hasMatchingRole(roles, getAuthentication());
     }
