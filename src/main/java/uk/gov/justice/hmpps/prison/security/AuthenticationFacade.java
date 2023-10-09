@@ -7,6 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import uk.gov.justice.hmpps.prison.exception.MissingRoleCheckException;
 import uk.gov.justice.hmpps.prison.web.config.AuthAwareAuthenticationToken;
 
 import java.util.Arrays;
@@ -57,12 +58,11 @@ public class AuthenticationFacade {
     }
 
     public boolean isOverrideRole(final String... overrideRoles) {
-        if (overrideRoles.length == 0) log.error("Matching role check failed - no roles to match against");
-        final var roles = overrideRoles.length > 0 ? getRoles(overrideRoles) : List.of("SYSTEM_USER");
-        return hasMatchingRole(roles, getAuthentication());
+        return hasMatchingRole(getRoles(overrideRoles), getAuthentication());
     }
 
     private static boolean hasMatchingRole(final List<String> roles, final Authentication authentication) {
+        if (roles.isEmpty()) throw new MissingRoleCheckException("Authentication override role is missing");
         return authentication != null &&
                 authentication.getAuthorities().stream()
                         .anyMatch(a -> roles.contains(RegExUtils.replaceFirst(a.getAuthority(), "ROLE_", "")));
