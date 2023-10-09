@@ -175,14 +175,14 @@ public class CaseNoteService {
     }
 
     @Transactional
-    @VerifyOffenderAccess
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER"})
     public CaseNote createCaseNote(String offenderNo, @NotNull @Valid @CaseNoteTypeSubTypeValid NewCaseNote caseNote, String username) {
         final var latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
         return createCaseNote(latestBookingByOffenderNo.getBookingId(), caseNote, username);
     }
 
     @Transactional
-    @VerifyOffenderAccess
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER"})
     public CaseNote updateCaseNote(String offenderNo, Long caseNoteId, String username, @NotBlank(message = "{caseNoteTextBlank}") String newCaseNoteText) {
         final var latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
         return updateCaseNote(latestBookingByOffenderNo.getBookingId(), caseNoteId, username, newCaseNoteText);
