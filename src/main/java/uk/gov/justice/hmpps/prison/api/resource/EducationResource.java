@@ -43,7 +43,7 @@ public class EducationResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "A list of offender educations.", description = "A list of offender educations.")
     @GetMapping("/prisoner/{offenderNo}")
-    @PreAuthorize("hasAnyRole('GLOBAL_SEARCH', 'VIEW_PRISONER_DATA')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH', 'VIEW_PRISONER_DATA')")
     public Page<Education> getPrisonerEducations(
         @PathVariable(value = "offenderNo") @Parameter(description = "The offender NOMS number. NOMS numbers have the format:<b>G0364GX</b>") final String offenderNo,
         @RequestParam(value = "page", defaultValue = "0", required = false) @Parameter(description = "The page number of the paged results") final Integer page,
@@ -59,7 +59,7 @@ public class EducationResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "A list of offender educations.", description = "A list of offender educations given a list of offender identifiers")
     @PostMapping("/prisoners")
-    @PreAuthorize("hasAnyRole('GLOBAL_SEARCH', 'VIEW_PRISONER_DATA')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH', 'VIEW_PRISONER_DATA')")
     public List<Education> getPrisonerEducationsInBulk(
         @RequestBody @Parameter(description = "List of offender NOMS numbers. NOMS numbers have the format:<b>G0364GX</b>", required = true) final List<String> offenderIds
     ) {

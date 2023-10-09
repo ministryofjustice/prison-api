@@ -117,7 +117,7 @@ public class MovementsService {
                 .build());
     }
 
-    @VerifyOffenderAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     public PrisonerInPrisonSummary getPrisonerInPrisonSummary(final String offenderNo) {
         final var latestBooking = offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(offenderNo, 1).orElseThrow(EntityNotFoundException.withId(offenderNo));
 

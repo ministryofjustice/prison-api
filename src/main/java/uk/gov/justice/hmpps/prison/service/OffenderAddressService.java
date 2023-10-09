@@ -19,7 +19,7 @@ public class OffenderAddressService {
     private final OffenderBookingRepository offenderBookingRepository;
     private final OffenderAddressRepository offenderAddressRepository;
 
-    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<AddressDto> getAddressesByOffenderNo(@NotNull final String offenderNo) {
         final var offenderBooking = offenderBookingRepository.findByOffenderNomsIdAndActive(offenderNo, true)
             .orElseThrow(EntityNotFoundException.withMessage(String.format("No active offender bookings found for offender number %s\n", offenderNo)));

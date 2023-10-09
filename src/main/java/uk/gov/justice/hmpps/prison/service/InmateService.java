@@ -164,7 +164,7 @@ public class InmateService {
     }
 
     private boolean isViewAllOffenders() {
-        return authenticationFacade.isOverrideRole("GLOBAL_SEARCH", "VIEW_PRISONER_DATA");
+        return authenticationFacade.isOverrideRole("SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA");
     }
 
     private Set<String> loadCaseLoadsOrThrow() {
@@ -461,7 +461,7 @@ public class InmateService {
                                                         final boolean mostRecentOnly) {
         final List<Assessment> results = new ArrayList<>();
         if (!CollectionUtils.isEmpty(offenderNos)) {
-            final Set<String> caseLoadIds = authenticationFacade.isOverrideRole("VIEW_ASSESSMENTS", "VIEW_PRISONER_DATA")
+            final Set<String> caseLoadIds = authenticationFacade.isOverrideRole("SYSTEM_USER", "VIEW_ASSESSMENTS", "VIEW_PRISONER_DATA")
                     ? Collections.emptySet()
                     : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
 
