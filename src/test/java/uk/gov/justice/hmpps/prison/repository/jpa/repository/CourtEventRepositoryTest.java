@@ -18,6 +18,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent.CourtEventBuilder;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenceResult;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
@@ -63,6 +64,9 @@ public class CourtEventRepositoryTest {
 
     @Autowired
     private CourtEventChargeRepository courtEventChargeRepository;
+
+    @Autowired
+    private OffenceResultRepository offenceResultRepository;
 
     @Autowired
     private OffenderBookingRepository offenderBookingRepository;
@@ -243,5 +247,22 @@ public class CourtEventRepositoryTest {
                 .contains(Tuple.tuple("A1234AB", LocalDateTime.of(2017, 2, 20, 10, 11), "ABDRCT", "court 2", "CA", "Court Appearance", "N"),
                         Tuple.tuple("A1234AH", LocalDateTime.of(2050, 1, 1, 11, 0), "ABDRCT", "court 2", "DC", "Discharged to Court", "Y"));
 
+    }
+
+    @Test
+    void court_events_by_booking_id() {
+        final var offenceResult = new OffenceResult()
+            .withCode("4016")
+            .withDescription("Imprisonment")
+            .withDispositionCode("F");
+        offenceResultRepository.save(offenceResult);
+
+        final var bookingId = -2L;
+        final var courtEvents = courtEventRepository.findByOffenderBooking_BookingIdAndOffenderCourtCase_CaseStatus_Code(bookingId, "A");
+        assertThat(courtEvents.size()).isEqualTo(2);
+        courtEvents.forEach(event -> {
+            assertThat(event.getOffenderBooking().getBookingId()).isEqualTo(bookingId);
+            assertThat(event.getOutcomeReasonCode().getCode()).isEqualTo(offenceResult.getCode());
+        });
     }
 }

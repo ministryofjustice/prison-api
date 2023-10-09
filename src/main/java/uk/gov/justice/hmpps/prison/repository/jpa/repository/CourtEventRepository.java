@@ -32,4 +32,5 @@ public interface CourtEventRepository extends CrudRepository<CourtEvent, Long>, 
 
     Optional<CourtEvent> findOneByOffenderBookingBookingIdAndParentCourtEventId(Long bookingId, Long parentCourtEventId);
 
+    List<CourtEvent> findByOffenderBooking_BookingIdAndOffenderCourtCase_CaseStatus_Code(Long bookingId, String caseStatusCode);
 }
