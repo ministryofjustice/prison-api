@@ -88,7 +88,7 @@ public class StaffService {
         }
     }
 
-    @VerifyAgencyAccess
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
     public Page<StaffLocationRole> getStaffByAgencyPositionRole(final GetStaffRoleRequest request, final PageRequest pageRequest) {
         Validate.notNull(request, "Staff role request details are required.");
         Validate.notNull(pageRequest, "Page request details are required.");

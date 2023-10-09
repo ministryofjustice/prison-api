@@ -359,7 +359,7 @@ public class InmateService {
      * @param bookingId tacit
      * @return latest assessment of each code for the offender
      */
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public List<Assessment> getAssessments(final Long bookingId) {
         final var assessmentsDto = repository.findAssessments(Collections.singletonList(bookingId), null, Collections.emptySet());
 
@@ -371,17 +371,17 @@ public class InmateService {
         return assessments;
     }
 
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public List<PhysicalMark> getPhysicalMarks(final Long bookingId) {
         return repository.findPhysicalMarks(bookingId);
     }
 
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public ReasonableAdjustments getReasonableAdjustments(final Long bookingId, final List<String> treatmentCodes) {
         return new ReasonableAdjustments(repository.findReasonableAdjustments(bookingId, treatmentCodes));
     }
 
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public List<ProfileInformation> getProfileInformation(final Long bookingId) {
         return repository.getProfileInformation(bookingId);
     }
@@ -393,12 +393,12 @@ public class InmateService {
             .orElseThrow(EntityNotFoundException.withMessage(String.format("No Image found for booking Id %d", bookingId)));
     }
 
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public List<PhysicalCharacteristic> getPhysicalCharacteristics(final Long bookingId) {
         return repository.findPhysicalCharacteristics(bookingId);
     }
 
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public PhysicalAttributes getPhysicalAttributes(final Long bookingId) {
         final var physicalAttributes = repository.findPhysicalAttributes(bookingId).orElse(null);
         if (physicalAttributes != null && physicalAttributes.getHeightCentimetres() != null) {
@@ -426,7 +426,7 @@ public class InmateService {
         return repository.getBasicInmateDetail(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
     }
 
-    @VerifyAgencyAccess
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
     public List<InmateBasicDetails> getBasicInmateDetailsByBookingIds(final String caseload, final Set<Long> bookingIds) {
         final List<InmateBasicDetails> results = new ArrayList<>();
         if (!CollectionUtils.isEmpty(bookingIds)) {
@@ -508,7 +508,7 @@ public class InmateService {
     }
 
 
-    @VerifyAgencyAccess
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
     public List<OffenderCategorise> getOffenderCategorisations(final String agencyId, final Set<Long> bookingIds, final boolean latestOnly) {
         return doGetOffenderCategorisations(agencyId, bookingIds, latestOnly);
     }
@@ -559,7 +559,7 @@ public class InmateService {
                 .build();
     }
 
-    @VerifyAgencyAccess
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
     public List<OffenderCategorise> getCategory(final String agencyId, final CategoryInformationType type, final LocalDate date) {
         return switch (type) {
             case UNCATEGORISED -> repository.getUncategorised(agencyId);
@@ -568,7 +568,7 @@ public class InmateService {
         };
     }
 
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     @PreAuthorize("hasAnyRole('SYSTEM_USER','CREATE_CATEGORISATION','CREATE_RECATEGORISATION')")
     @Transactional
     public Map<String, Long> createCategorisation(final Long bookingId, final CategorisationDetail categorisationDetail) {
@@ -582,7 +582,7 @@ public class InmateService {
         return responseKeyMap;
     }
 
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     @PreAuthorize("hasAnyRole('SYSTEM_USER','CREATE_CATEGORISATION','CREATE_RECATEGORISATION')")
     @Transactional
     public void updateCategorisation(final Long bookingId, final CategorisationUpdateDetail detail) {
@@ -593,7 +593,7 @@ public class InmateService {
         telemetryClient.trackEvent("CategorisationUpdated", ImmutableMap.of("bookingId", bookingId.toString(), "seq", detail.getAssessmentSeq().toString()), null);
     }
 
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     @PreAuthorize("hasAnyRole('SYSTEM_USER','APPROVE_CATEGORISATION')")
     @Transactional
     public void approveCategorisation(final Long bookingId, final CategoryApprovalDetail detail) {
@@ -604,7 +604,7 @@ public class InmateService {
         telemetryClient.trackEvent("CategorisationApproved", ImmutableMap.of("bookingId", bookingId.toString(), "category", detail.getCategory()), null);
     }
 
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     @PreAuthorize("hasAnyRole('SYSTEM_USER','APPROVE_CATEGORISATION')")
     @Transactional
     public void rejectCategorisation(final Long bookingId, final CategoryRejectionDetail detail) {
@@ -712,7 +712,7 @@ public class InmateService {
         return repository.findInmateAliases(bookingId, defaultOrderBy, sortOrder, offset, limit);
     }
 
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public List<SecondaryLanguage> getSecondaryLanguages(final Long bookingId) {
         return offenderLanguageRepository
                 .findByOffenderBookId(bookingId)

@@ -462,7 +462,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @GetMapping("/{bookingId}/caseNotes")
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     @SlowReportQuery
     public Page<CaseNote> getOffenderCaseNotes(@PathVariable("bookingId") @Parameter(description = "The booking id of offender", example = "23412312", required = true) final Long bookingId,
                                                @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "start contact date to search from", example = "2021-02-03") final LocalDate from,

@@ -87,7 +87,7 @@ public class BedAssignmentHistoryService {
             .toList();
     }
 
-    @VerifyAgencyAccess
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
     public List<BedAssignment> getBedAssignmentsHistoryByDateForAgency(final String agencyId, final LocalDate assignmentDate) {
         final var livingUnitIdsForAgency = locationRepository.findAgencyInternalLocationsByAgencyIdAndLocationType(agencyId, "CELL")
             .stream()

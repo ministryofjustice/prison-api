@@ -278,7 +278,7 @@ public class BookingService {
         return alerts;
     }
 
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public uk.gov.justice.hmpps.prison.api.support.Page<ScheduledEvent> getBookingActivities(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final long offset, final long limit, final String orderByFields, final Order order) {
         validateScheduledEventsRequest(fromDate, toDate);
 
@@ -297,7 +297,7 @@ public class BookingService {
         return bookingRepository.getBookingActivities(bookingIds, fromDate, toDate, sortFields, sortOrder);
     }
 
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public List<ScheduledEvent> getBookingActivities(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order) {
         validateScheduledEventsRequest(fromDate, toDate);
 
@@ -345,7 +345,7 @@ public class BookingService {
         bookingRepository.updateAttendance(bookingId, activityId, updateAttendance, activityOutcome.isPaid(), activityOutcome.isAuthorisedAbsence());
     }
 
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public uk.gov.justice.hmpps.prison.api.support.Page<ScheduledEvent> getBookingVisits(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final long offset, final long limit, final String orderByFields, final Order order) {
         validateScheduledEventsRequest(fromDate, toDate);
 
@@ -355,7 +355,7 @@ public class BookingService {
         return bookingRepository.getBookingVisits(bookingId, fromDate, toDate, offset, limit, sortFields, sortOrder);
     }
 
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public List<ScheduledEvent> getBookingVisits(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order) {
         validateScheduledEventsRequest(fromDate, toDate);
 
@@ -365,7 +365,7 @@ public class BookingService {
         return bookingRepository.getBookingVisits(bookingId, fromDate, toDate, sortFields, sortOrder);
     }
 
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public Page<VisitWithVisitors> getBookingVisitsWithVisitor(final VisitInformationFilter filter, final Pageable pageable) {
         checkState(filter.getBookingId() != null, "BookingId required");
         final var visits = visitInformationRepository.findAll(filter, pageable);
@@ -470,7 +470,7 @@ public class BookingService {
             .map(OffenderContactPerson::getRelationshipType);
     }
 
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public Optional<VisitBalances> getBookingVisitBalances(final Long bookingId) {
         return bookingRepository.getBookingVisitBalances(bookingId);
     }
@@ -512,7 +512,7 @@ public class BookingService {
         return offenderIdentifier;
     }
 
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public uk.gov.justice.hmpps.prison.api.support.Page<ScheduledEvent> getBookingAppointments(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final long offset, final long limit, final String orderByFields, final Order order) {
         validateScheduledEventsRequest(fromDate, toDate);
 
@@ -522,7 +522,7 @@ public class BookingService {
         return bookingRepository.getBookingAppointments(bookingId, fromDate, toDate, offset, limit, sortFields, sortOrder);
     }
 
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public List<ScheduledEvent> getBookingAppointments(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order) {
         validateScheduledEventsRequest(fromDate, toDate);
 
@@ -728,7 +728,7 @@ public class BookingService {
             .orElseThrow(EntityNotFoundException.withMessage(format("No prisoner found for prisoner number %s", offenderNo)));
     }
 
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public MilitaryRecords getMilitaryRecords(final Long bookingId) {
         return offenderBookingRepository.findById(bookingId).map(b ->
                 new MilitaryRecords(b.getMilitaryRecords().stream().map(mr ->
@@ -763,7 +763,7 @@ public class BookingService {
                 .orElseThrow(EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId));
     }
 
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public List<PropertyContainer> getOffenderPropertyContainers(final Long bookingId) {
         return offenderBookingRepository.findById(bookingId)
                 .map(OffenderBooking::getActivePropertyContainers)
@@ -772,7 +772,7 @@ public class BookingService {
     }
 
     @Transactional
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     @HasWriteScope
     public void updateLivingUnit(final Long bookingId, final String livingUnitDescription) {
         final var offenderBooking = offenderBookingRepository.findById(bookingId)

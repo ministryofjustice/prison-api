@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.security;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RegExUtils;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -14,6 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Component
+@Slf4j
 public class AuthenticationFacade {
 
     public Authentication getAuthentication() {
@@ -55,6 +57,7 @@ public class AuthenticationFacade {
     }
 
     public boolean isOverrideRole(final String... overrideRoles) {
+        if (overrideRoles.length == 0) log.error("Matching role check failed - no roles to match against");
         final var roles = overrideRoles.length > 0 ? getRoles(overrideRoles) : List.of("SYSTEM_USER");
         return hasMatchingRole(roles, getAuthentication());
     }

@@ -184,7 +184,7 @@ public class OffenderResource {
     @PutMapping("/{offenderNo}/release")
     @PreAuthorize("hasRole('RELEASE_PRISONER') and hasAuthority('SCOPE_write')")
     @ProxyUser
-    @VerifyOffenderAccess
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER"})
     public InmateDetail releasePrisoner(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToReleasePrisoner requestToReleasePrisoner) {

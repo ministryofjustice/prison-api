@@ -47,7 +47,7 @@ public class KeyWorkerAllocationService {
     }
 
 
-    @VerifyAgencyAccess
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
     public List<Keyworker> getAvailableKeyworkers(final String agencyId) {
         return repository.getAvailableKeyworkers(agencyId);
     }
@@ -106,7 +106,7 @@ public class KeyWorkerAllocationService {
                 .collect(toList());
     }
 
-    @VerifyAgencyAccess
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
     public Page<OffenderKeyWorker> getAllocationHistoryByAgency(final String agencyId, final PageRequest pageRequest) {
         Validate.notBlank(agencyId, "Agency id is required.");
         Validate.notNull(pageRequest, "Page request details are requreid.");

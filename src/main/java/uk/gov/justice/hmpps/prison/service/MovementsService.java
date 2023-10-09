@@ -106,7 +106,7 @@ public class MovementsService {
         return movementsRepository.getRecentMovementsByDate(fromDateTime, movementDate, movementTypes);
     }
 
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public Optional<Movement> getMovementByBookingIdAndSequence(@NotNull final Long bookingId, @NotNull final Integer sequenceNumber) {
         return movementsRepository.getMovementByBookingIdAndSequence(bookingId, sequenceNumber)
             .map(movement -> movement.toBuilder()
@@ -141,17 +141,17 @@ public class MovementsService {
             .collect(toList());
     }
 
-    @VerifyAgencyAccess
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
     public List<RollCount> getRollCount(final String agencyId, final boolean unassigned) {
         return movementsRepository.getRollCount(agencyId, unassigned ? "N" : "Y");
     }
 
-    @VerifyAgencyAccess
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
     public MovementCount getMovementCount(final String agencyId, final LocalDate date) {
         return movementsRepository.getMovementCount(agencyId, date == null ? LocalDate.now() : date);
     }
 
-    @VerifyAgencyAccess
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
     public List<OffenderOutTodayDto> getOffendersOut(final String agencyId, final LocalDate movementDate, final String movementType) {
 
         final var offenders = movementsRepository.getOffendersOut(agencyId, movementDate, upperCase(stripToNull(movementType)));
@@ -174,7 +174,7 @@ public class MovementsService {
             .build();
     }
 
-    @VerifyAgencyAccess
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
     public List<OffenderMovement> getEnrouteOffenderMovements(final String agencyId, final LocalDate date) {
 
         final var movements = movementsRepository.getEnrouteMovementsOffenderMovementList(agencyId, date);
@@ -192,7 +192,7 @@ public class MovementsService {
         return movementsRepository.getEnrouteMovementsOffenderCount(agencyId, defaultedDate);
     }
 
-    @VerifyAgencyAccess
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
     public List<OffenderIn> getOffendersIn(final String agencyId, final LocalDate date) {
         final var offendersIn = movementsRepository.getOffendersIn(agencyId, date);
 
@@ -210,7 +210,7 @@ public class MovementsService {
             .collect(toList());
     }
 
-    @VerifyAgencyAccess
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
     public List<OffenderInReception> getOffendersInReception(final String agencyId) {
         return movementsRepository.getOffendersInReception(agencyId)
             .stream()
@@ -429,7 +429,7 @@ public class MovementsService {
             .build();
     }
 
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public Page<OffenderIn> getOffendersIn(final String agencyId, final LocalDateTime fromDate, final LocalDateTime toDate, final Pageable pageable, final boolean allMovements) {
         final var page = allMovements
             ? externalMovementRepository.findAllMovements(agencyId, MovementDirection.IN, fromDate, toDate, pageable)
