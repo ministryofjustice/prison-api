@@ -94,7 +94,7 @@ dependencies {
   testImplementation("io.jsonwebtoken:jjwt-impl:0.12.2")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.2")
   testImplementation("io.swagger.parser.v3:swagger-parser:$swaggerParserVersion")
-  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.31.0")
+  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.30.1")
 
   testCompileOnly("org.projectlombok:lombok:1.18.30")
 }
@@ -119,9 +119,6 @@ tasks {
     }
     minHeapSize = "128m"
     maxHeapSize = "2048m"
-
-    // required for jjwt 0.12 - see https://github.com/jwtk/jjwt/issues/849
-    jvmArgs("--add-exports", "java.base/sun.security.util=ALL-UNNAMED")
   }
 
   register<Test>("testIntegration") {
@@ -130,9 +127,6 @@ tasks {
     }
     minHeapSize = "128m"
     maxHeapSize = "2048m"
-
-    // required for jjwt 0.12 - see https://github.com/jwtk/jjwt/issues/849
-    jvmArgs("--add-exports", "java.base/sun.security.util=ALL-UNNAMED")
   }
 
   register<Test>("testWithSchemaNomis") {
@@ -142,9 +136,6 @@ tasks {
     }
     minHeapSize = "128m"
     maxHeapSize = "2048m"
-
-    // required for jjwt 0.12 - see https://github.com/jwtk/jjwt/issues/849
-    jvmArgs("--add-exports", "java.base/sun.security.util=ALL-UNNAMED")
   }
 
   register<Test>("testWithSchemaNomisOracle") {
@@ -159,9 +150,6 @@ tasks {
     useJUnitPlatform {
       include("**/executablespecification/*")
     }
-
-    // required for jjwt 0.12 - see https://github.com/jwtk/jjwt/issues/849
-    jvmArgs("--add-exports", "java.base/sun.security.util=ALL-UNNAMED")
   }
 
   withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
