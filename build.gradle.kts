@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.5.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.5.1"
   kotlin("plugin.spring") version "1.9.10"
   kotlin("plugin.jpa") version "1.9.10"
   kotlin("plugin.lombok") version "1.9.10"
@@ -60,7 +60,7 @@ dependencies {
 
   implementation("org.apache.commons:commons-lang3:3.13.0")
   implementation("commons-io:commons-io:2.14.0")
-  implementation("com.google.guava:guava:32.1.2-jre")
+  implementation("com.google.guava:guava:32.1.3-jre")
   implementation("org.apache.commons:commons-text:1.10.0")
   implementation("com.oracle.database.jdbc:ojdbc10:19.20.0.0")
   implementation("org.hibernate.orm:hibernate-community-dialects")
@@ -91,8 +91,8 @@ dependencies {
   testImplementation("net.serenity-bdd:serenity-cucumber:$serenityVersion")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
   testImplementation("org.wiremock:wiremock:3.2.0")
-  testImplementation("io.jsonwebtoken:jjwt-impl:0.12.0")
-  testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.0")
+  testImplementation("io.jsonwebtoken:jjwt-impl:0.12.2")
+  testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.2")
   testImplementation("io.swagger.parser.v3:swagger-parser:$swaggerParserVersion")
   testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.30.1")
 
@@ -119,9 +119,6 @@ tasks {
     }
     minHeapSize = "128m"
     maxHeapSize = "2048m"
-
-    // required for jjwt 0.12 - see https://github.com/jwtk/jjwt/issues/849
-    jvmArgs("--add-exports", "java.base/sun.security.util=ALL-UNNAMED")
   }
 
   register<Test>("testIntegration") {
@@ -130,9 +127,6 @@ tasks {
     }
     minHeapSize = "128m"
     maxHeapSize = "2048m"
-
-    // required for jjwt 0.12 - see https://github.com/jwtk/jjwt/issues/849
-    jvmArgs("--add-exports", "java.base/sun.security.util=ALL-UNNAMED")
   }
 
   register<Test>("testWithSchemaNomis") {
@@ -142,9 +136,6 @@ tasks {
     }
     minHeapSize = "128m"
     maxHeapSize = "2048m"
-
-    // required for jjwt 0.12 - see https://github.com/jwtk/jjwt/issues/849
-    jvmArgs("--add-exports", "java.base/sun.security.util=ALL-UNNAMED")
   }
 
   register<Test>("testWithSchemaNomisOracle") {
@@ -159,9 +150,6 @@ tasks {
     useJUnitPlatform {
       include("**/executablespecification/*")
     }
-
-    // required for jjwt 0.12 - see https://github.com/jwtk/jjwt/issues/849
-    jvmArgs("--add-exports", "java.base/sun.security.util=ALL-UNNAMED")
   }
 
   withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
