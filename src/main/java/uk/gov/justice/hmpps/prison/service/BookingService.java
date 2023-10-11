@@ -840,9 +840,9 @@ public class BookingService {
         return activeBookings.stream().map(this::determineCalculableSentenceEnvelope).toList();
     }
 
-    public List<CourtEventOutcome> getOffenderCourtEventOutcomes(final Long bookingId) {
-        final var courtEvents = courtEventRepository.findByOffenderBooking_BookingIdAndOffenderCourtCase_CaseStatus_Code(bookingId, "A");
-        return courtEvents.stream().map(event -> new CourtEventOutcome(event.getId(), event.getOutcomeReasonCode() != null ? event.getOutcomeReasonCode().getCode() : null)).toList();
+    public List<CourtEventOutcome> getOffenderCourtEventOutcomes(final Set<Long> bookingIds) {
+        final var courtEvents = courtEventRepository.findByOffenderBooking_BookingIdInAndOffenderCourtCase_CaseStatus_Code(bookingIds, "A");
+        return courtEvents.stream().map(event -> new CourtEventOutcome(event.getOffenderBooking().getBookingId(), event.getId(), event.getOutcomeReasonCode() != null ? event.getOutcomeReasonCode().getCode() : null)).toList();
     }
 
     private CalculableSentenceEnvelope determineCalculableSentenceEnvelope(OffenderBooking offenderBooking) {

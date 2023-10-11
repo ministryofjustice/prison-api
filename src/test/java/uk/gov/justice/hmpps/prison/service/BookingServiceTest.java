@@ -1384,24 +1384,28 @@ public class BookingServiceTest {
 
     @Test
     public void getOffenderCourtEventOutcomes() {
-        final var bookingId = 1L;
+        final var bookingIds = Set.of(1L, 2L);
 
         final var courtEvent1 = CourtEvent.builder()
             .id(54L)
+            .offenderBooking(new OffenderBooking().withBookingId(1L))
             .outcomeReasonCode(new OffenceResult().withCode("4016"))
             .build();
         final var courtEvent2 = CourtEvent.builder()
             .id(93L)
+            .offenderBooking(new OffenderBooking().withBookingId(2L))
             .outcomeReasonCode(new OffenceResult().withCode("5011"))
             .build();
 
         final var courtEvents =  List.of(courtEvent1, courtEvent2);
-        when(courtEventRepository.findByOffenderBooking_BookingIdAndOffenderCourtCase_CaseStatus_Code(bookingId, "A")).thenReturn(courtEvents);
-        final var courtEventOutcomes = bookingService.getOffenderCourtEventOutcomes(bookingId);
+        when(courtEventRepository.findByOffenderBooking_BookingIdInAndOffenderCourtCase_CaseStatus_Code(bookingIds, "A")).thenReturn(courtEvents);
+        final var courtEventOutcomes = bookingService.getOffenderCourtEventOutcomes(bookingIds);
 
         assertThat(courtEventOutcomes.size()).isEqualTo(2);
         assertThat(courtEventOutcomes.get(0).getOutcomeReasonCode()).isEqualTo("4016");
+        assertThat(courtEventOutcomes.get(0).getBookingId()).isEqualTo(1L);
         assertThat(courtEventOutcomes.get(1).getOutcomeReasonCode()).isEqualTo("5011");
+        assertThat(courtEventOutcomes.get(1).getBookingId()).isEqualTo(2L);
     }
 
     @Nested
