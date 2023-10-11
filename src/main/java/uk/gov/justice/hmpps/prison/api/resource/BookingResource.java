@@ -1222,8 +1222,8 @@ public class BookingResource {
     })
     @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
     @Operation(summary = "Get court event outcome reason codes for active court cases for a booking")
-    @GetMapping("/{bookingId}/court-event-outcomes")
-    public List<CourtEventOutcome> getCourtEventOutcomes(@PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId) {
-        return bookingService.getOffenderCourtEventOutcomes(bookingId);
+    @PostMapping("/court-event-outcomes")
+    public List<CourtEventOutcome> getCourtEventOutcomes(@RequestBody @Parameter(description = "The booking ids", required = true) final Set<Long> bookingIds) {
+        return bookingService.getOffenderCourtEventOutcomes(bookingIds);
     }
 }
