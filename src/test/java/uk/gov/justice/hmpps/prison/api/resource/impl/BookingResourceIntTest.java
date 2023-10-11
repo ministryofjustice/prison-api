@@ -1004,15 +1004,15 @@ public class BookingResourceIntTest extends ResourceTest {
 
     @Test
     public void getCourtEventOutcomes() {
-        final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/court-event-outcomes", GET,
-            createHttpEntity(AuthToken.VIEW_PRISONER_DATA, null),
-            String.class, -4L);
+        final var response = testRestTemplate.exchange("/api/bookings/court-event-outcomes", POST,
+            createHttpEntity(AuthToken.VIEW_PRISONER_DATA, Set.of(-4)),
+            new ParameterizedTypeReference<String>() {
+            });
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         final var bodyAsJsonContent = getBodyAsJsonContent(response);
         assertThat(bodyAsJsonContent).extractingJsonPathNumberValue("$[0].eventId").isEqualTo(-204);
         assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$[0].outcomeReasonCode").isEqualTo("1024");
-
     }
 }

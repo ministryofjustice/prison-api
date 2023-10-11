@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public interface CourtEventRepository extends CrudRepository<CourtEvent, Long>, JpaSpecificationExecutor<CourtEvent> {
 
@@ -32,5 +33,5 @@ public interface CourtEventRepository extends CrudRepository<CourtEvent, Long>, 
 
     Optional<CourtEvent> findOneByOffenderBookingBookingIdAndParentCourtEventId(Long bookingId, Long parentCourtEventId);
 
-    List<CourtEvent> findByOffenderBooking_BookingIdAndOffenderCourtCase_CaseStatus_Code(Long bookingId, String caseStatusCode);
+    List<CourtEvent> findByOffenderBooking_BookingIdInAndOffenderCourtCase_CaseStatus_Code(Set<Long> bookingIds, String caseStatusCode);
 }
