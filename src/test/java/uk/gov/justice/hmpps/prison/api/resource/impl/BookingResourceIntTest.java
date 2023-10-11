@@ -1013,6 +1013,7 @@ public class BookingResourceIntTest extends ResourceTest {
 
         final var bodyAsJsonContent = getBodyAsJsonContent(response);
         assertThat(bodyAsJsonContent).extractingJsonPathNumberValue("$[0].eventId").isEqualTo(-204);
+        assertThat(bodyAsJsonContent).extractingJsonPathNumberValue("$[0].bookingId").isEqualTo(-4);
         assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$[0].outcomeReasonCode").isEqualTo("1024");
     }
 }
