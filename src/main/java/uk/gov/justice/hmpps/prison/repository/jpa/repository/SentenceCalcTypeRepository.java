@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface SentenceCalcTypeRepository extends CrudRepository<SentenceCalcType, SentenceCalcType.PK> {
 
-    @Cacheable("calculable_sentence_calculation_types")
+    @Cacheable("calculableSentenceCalculationTypes")
     List<SentenceCalcType> findByCalculationTypeNotContainingAndCategoryIsNot(String excludeCalcTypeContains, String excludeCategory);
 
 }
