@@ -29,6 +29,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -257,11 +258,11 @@ public class CourtEventRepositoryTest {
             .withDispositionCode("F");
         offenceResultRepository.save(offenceResult);
 
-        final var bookingId = -2L;
-        final var courtEvents = courtEventRepository.findByOffenderBooking_BookingIdAndOffenderCourtCase_CaseStatus_Code(bookingId, "A");
+        final var bookingIds = Set.of(-2L);
+        final var courtEvents = courtEventRepository.findByOffenderBooking_BookingIdInAndOffenderCourtCase_CaseStatus_Code(bookingIds, "A");
         assertThat(courtEvents.size()).isEqualTo(2);
         courtEvents.forEach(event -> {
-            assertThat(event.getOffenderBooking().getBookingId()).isEqualTo(bookingId);
+            assertThat(event.getOffenderBooking().getBookingId()).isEqualTo(-2L);
             assertThat(event.getOutcomeReasonCode().getCode()).isEqualTo(offenceResult.getCode());
         });
     }
