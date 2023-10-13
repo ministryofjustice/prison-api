@@ -21,7 +21,7 @@ import java.util.Set;
 @Entity
 @Builder
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper = false)
 @AllArgsConstructor
 @Table(name = "SENTENCE_CALC_TYPES")
 @IdClass(SentenceCalcType.PK.class)
@@ -69,11 +69,11 @@ public class SentenceCalcType extends AuditableEntity {
         return A_FINE_TYPE.equals(calculationType);
     }
 
-    public boolean isRecallType(){
-        return LICENCE_RECALL_TYPES.contains(calculationType);
+    public boolean isFixedTermRecallType() {
+        return FIXED_TERM_RECALL_TYPES.contains(calculationType);
     }
 
-    private static final Set<String> LICENCE_RECALL_TYPES = Set.of("LR", "LR_ORA", "LR_YOI_ORA", "LR_SEC91_ORA", "LRSEC250_ORA");
+    private static final Set<String> FIXED_TERM_RECALL_TYPES = Set.of("14FTR_ORA", "FTR_14_ORA", "FTR", "FTR_ORA", "FTR_SCH15", "FTRSCH15_ORA", "FTRSCH18", "FTRSCH18_ORA");
     private static final String A_FINE_TYPE = "A/FINE";
 
 }
