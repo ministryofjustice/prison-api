@@ -137,6 +137,16 @@ public abstract class ResourceTest {
         );
     }
 
+    protected String clientToken(final List<String> roles) {
+        return jwtAuthenticationHelper.createJwt(
+            JwtParameters.builder()
+                .scope(List.of("read", "write"))
+                .roles(roles)
+                .expiryTime(Duration.ofDays(365 * 10))
+                .build()
+        );
+    }
+
     protected <T> void assertThatStatus(final ResponseEntity<T> response, final int status) {
         assertThatStatus(response, HttpStatusCode.valueOf(status));
     }
@@ -178,5 +188,9 @@ public abstract class ResourceTest {
 
     protected Consumer<HttpHeaders> setAuthorisation(String username, List<String> roles) {
         return (httpHeaders -> httpHeaders.add("Authorization", "Bearer " + createJwt(username, roles)));
+    }
+
+    protected Consumer<HttpHeaders> setClientAuthorisation(List<String> roles) {
+        return (httpHeaders -> httpHeaders.add("Authorization", "Bearer " + clientToken(roles)));
     }
 }
