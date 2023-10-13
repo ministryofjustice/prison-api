@@ -1,0 +1,154 @@
+{
+  "person": {
+    "prisonerNumber": "A1234AE",
+    "dateOfBirth": "1956-02-28"
+  },
+  "latestPrisonTerm": {
+    "bookNumber": "A00115",
+    "bookingId": -5,
+    "courtSentences": [
+      {
+        "id": -5,
+        "caseSeq": 1,
+        "beginDate": "2017-08-31",
+        "court": {
+          "agencyId": "COURT1",
+          "description": "Court 1",
+          "agencyType": "CRT",
+          "active": true,
+          "courtType": "MC"
+        },
+        "caseType": "Adult",
+        "caseStatus": "ACTIVE",
+        "sentences": [
+          {
+            "sentenceSequence": 1,
+            "sentenceStatus": "A",
+            "sentenceCategory": "LICENCE",
+            "sentenceCalculationType": "R",
+            "sentenceTypeDescription": "Prohibited Activity",
+            "sentenceStartDate": "2017-07-05",
+            "sentenceEndDate": "2017-11-04",
+            "fineAmount": 120.0,
+            "lineSeq": 1,
+            "offences": [],
+            "terms": [
+              {
+                "termSequence": 1,
+                "sentenceTermCode": "IMP",
+                "startDate": "2017-02-08",
+                "years": 6,
+                "months": 6,
+                "lifeSentence": false
+              }
+            ]
+          },
+          {
+            "sentenceSequence": 2,
+            "consecutiveToSequence": 1,
+            "sentenceStatus": "A",
+            "sentenceCategory": "2003",
+            "sentenceCalculationType": "FTR_ORA",
+            "sentenceTypeDescription": "ORA 28 Day Fixed Term Recall",
+            "sentenceStartDate": "2017-07-05",
+            "sentenceEndDate": "2017-11-04",
+            "fineAmount": 120.0,
+            "lineSeq": 1,
+            "offences": [],
+            "terms": [
+              {
+                "termSequence": 1,
+                "sentenceTermCode": "IMP",
+                "startDate": "2023-08-07",
+                "years": 3,
+                "months": 2,
+                "lifeSentence": false
+              },
+              {
+                "termSequence": 2,
+                "sentenceTermCode": "IMP",
+                "startDate": "2023-09-17",
+                "years": 0,
+                "months": 4,
+                "lifeSentence": false
+              }
+            ]
+          }
+        ],
+        "issuingCourt": {
+          "agencyId": "COURT1",
+          "description": "Court 1",
+          "agencyType": "CRT",
+          "active": true,
+          "courtType": "MC"
+        },
+        "issuingCourtDate": "2017-06-21"
+      }
+    ],
+    "licenceSentences": [],
+    "keyDates": {
+      "sentenceStartDate": "2017-02-08",
+      "additionalDaysAwarded": 14,
+      "nonDtoReleaseDate": "2023-02-07",
+      "nonDtoReleaseDateType": "CRD",
+      "releaseDate": "2023-05-07",
+      "sentenceExpiryDate": "2023-08-07",
+      "conditionalReleaseDate": "2023-02-07",
+      "nonParoleDate": "2022-02-02",
+      "homeDetentionCurfewEligibilityDate": "2019-06-02",
+      "paroleEligibilityDate": "2019-06-01",
+      "earlyTermDate": "2023-02-07",
+      "midTermDate": "2023-05-07",
+      "lateTermDate": "2023-08-07"
+    },
+    "sentenceAdjustments": {
+      "additionalDaysAwarded": 14
+    }
+  },
+  "sentenceAdjustments": [],
+  "bookingAdjustments": [
+    {
+      "type": "ADDITIONAL_DAYS_AWARDED",
+      "numberOfDays": 6,
+      "fromDate": null,
+      "toDate": null,
+      "active": true
+    },
+    {
+      "type": "ADDITIONAL_DAYS_AWARDED",
+      "numberOfDays": 8,
+      "fromDate": null,
+      "toDate": null,
+      "active": true
+    }
+  ],
+  "offenderFinePayments": [],
+  "fixedTermRecallDetails": {
+    "bookingId": -5,
+    "returnToCustodyDate": "2001-01-01",
+    "recallLength": 14
+  },
+  "sentenceCalcDates": {
+    "sentenceExpiryDate": "2023-08-07",
+    "conditionalReleaseDate": "2023-02-07",
+    "nonParoleDate": "2022-02-15",
+    "homeDetentionCurfewEligibilityDate": "2019-06-02",
+    "paroleEligibilityDate": "2019-06-01",
+    "earlyTermDate": "2023-02-07",
+    "midTermDate": "2023-05-07",
+    "lateTermDate": "2023-08-07",
+    "bookingId": -5,
+    "sentenceStartDate": "2017-02-08",
+    "additionalDaysAwarded": 14,
+    "nonParoleOverrideDate": "2022-02-02",
+    "nonDtoReleaseDate": "2023-02-07",
+    "sentenceExpiryCalculatedDate": "2023-08-07",
+    "paroleEligibilityCalculatedDate": "2019-06-01",
+    "homeDetentionCurfewEligibilityCalculatedDate": "2019-06-02",
+    "nonDtoReleaseDateType": "CRD",
+    "releaseDate": "2023-05-07",
+    "etdCalculatedDate": "2023-02-07",
+    "mtdCalculatedDate": "2023-05-07",
+    "ltdCalculatedDate": "2023-08-07"
+  }
+}

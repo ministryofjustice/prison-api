@@ -20,6 +20,8 @@ class PrisonResourceTest : ResourceTest() {
     val json = getPrisonResourceAsText("prison_resource_single_calculable_sentence_envelope.json")
     val calculableSentenceEnvelope = objectMapper.readValue<CalculableSentenceEnvelope>(json)
 
+    val fixedRecallCalculableSentenceEnvelope = objectMapper.readValue<CalculableSentenceEnvelope>(getPrisonResourceAsText("prison_resource_fixed_recall_calculable_sentence_envelope.json"))
+
     webTestClient.get()
       .uri("/api/prison/{establishment}/booking/latest/calculable-sentence-envelope", establishment)
       .headers(
@@ -32,7 +34,7 @@ class PrisonResourceTest : ResourceTest() {
       .exchange()
       .expectStatus().isOk
       .expectBodyList(object : ParameterizedTypeReference<CalculableSentenceEnvelope>() {})
-      .contains(calculableSentenceEnvelope)
+      .contains(calculableSentenceEnvelope, fixedRecallCalculableSentenceEnvelope)
   }
 
   @Test
