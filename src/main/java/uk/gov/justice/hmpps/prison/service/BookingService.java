@@ -855,10 +855,10 @@ public class BookingService {
         final List<BookingAdjustment> bookingAdjustments = offenderBooking.getBookingAdjustments();
 
         final boolean containsFine = offenderBooking.getSentences().stream().filter(Objects::nonNull).anyMatch(sentence -> sentence.getCalculationType().isAFine());
-        final boolean containsRecall = offenderBooking.getSentences().stream().filter(Objects::nonNull).anyMatch(sentence -> sentence.getCalculationType().isRecallType());
+        final boolean containsFixedTermRecall = offenderBooking.getSentences().stream().filter(Objects::nonNull).anyMatch(sentence -> sentence.getCalculationType().isFixedTermRecallType());
 
         final List<OffenderFinePaymentDto> offenderFinePaymentDtoList = this.getFinesIfRequired(containsFine, offenderBooking.getBookingId());
-        final FixedTermRecallDetails fixedTermRecallDetails = getFixedTermRecall(containsRecall, offenderBooking.getBookingId());
+        final FixedTermRecallDetails fixedTermRecallDetails = getFixedTermRecall(containsFixedTermRecall, offenderBooking.getBookingId());
         final SentenceCalcDates sentenceCalcDates = this.getBookingSentenceCalcDatesV1_1(offenderBooking.getBookingId());
 
         return new CalculableSentenceEnvelope(
