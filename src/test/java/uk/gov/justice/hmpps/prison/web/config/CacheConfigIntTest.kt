@@ -22,6 +22,7 @@ import uk.gov.justice.hmpps.prison.repository.AgencyRepository
 import uk.gov.justice.hmpps.prison.repository.CaseNoteRepository
 import uk.gov.justice.hmpps.prison.repository.ReferenceDataRepository
 import uk.gov.justice.hmpps.prison.repository.StaffRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.SentenceCalcTypeRepository
 import uk.gov.justice.hmpps.prison.service.AgencyService
 import uk.gov.justice.hmpps.prison.service.CaseNoteService
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
@@ -62,6 +63,9 @@ class CacheConfigIntTest {
 
   @SpyBean
   private lateinit var agencyRepository: AgencyRepository
+
+  @SpyBean
+  private lateinit var sentenceCalcTypeRepository: SentenceCalcTypeRepository
 
   @Test
   fun `test that each cache is tested by this class`() {
@@ -299,6 +303,20 @@ class CacheConfigIntTest {
       agencyResource.getAgencyEventLocationsBooked("MDI", LocalDate.now(), null)
 
       verify(agencyService).getAgencyEventLocationsBooked("MDI", LocalDate.now(), null)
+    }
+  }
+
+  @Nested
+  inner class calculableSentenceCalculationTypes_cache {
+
+    @Test
+    fun `test calculable sentence calculation types is added to cache`() {
+      val result = sentenceCalcTypeRepository.findByCalculationTypeNotContainingAndCategoryIsNot("AGG", "LICENCE")
+      assertThat(result).isNotNull
+
+      sentenceCalcTypeRepository.findByCalculationTypeNotContainingAndCategoryIsNot("AGG", "LICENCE")
+
+      verify(sentenceCalcTypeRepository).findByCalculationTypeNotContainingAndCategoryIsNot("AGG", "LICENCE")
     }
   }
 }

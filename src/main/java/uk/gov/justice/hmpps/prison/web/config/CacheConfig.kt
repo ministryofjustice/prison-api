@@ -36,6 +36,9 @@ class CacheConfig : CachingConfigurer {
   @Value("\${cache.timeout.seconds.activity:3600}")
   private val activityTimeoutSeconds = 0L
 
+  @Value("\${cache.timeout.seconds.sentence-calc-type:3600}")
+  private val sentenceCalcTypeTimeoutSeconds = 0L
+
   @Bean
   fun cacheConfiguration(): JCacheManagerCustomizer = JCacheManagerCustomizer { cm: CacheManager ->
     // single item cache jwks json with no expiry
@@ -102,6 +105,13 @@ class CacheConfig : CachingConfigurer {
       java.util.List::class.java,
       500,
       activityTimeoutSeconds,
+    )
+    cm.createCache(
+      "calculableSentenceCalculationTypes",
+      SimpleKey::class.java,
+      java.util.List::class.java,
+      1000,
+      sentenceCalcTypeTimeoutSeconds,
     )
   }
 
