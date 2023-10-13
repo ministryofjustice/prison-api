@@ -50,6 +50,7 @@ class JwtAuthenticationHelper {
     val claims = mutableMapOf<String, Any?>(
       "client_id" to clientId,
       "internalUser" to internalUser,
+      "sub" to (username ?: clientId),
     ).apply {
       username?.let { this["user_name"] = username }
       roles?.let {
@@ -60,7 +61,6 @@ class JwtAuthenticationHelper {
     }
     return Jwts.builder()
       .setId(UUID.randomUUID().toString())
-      .setSubject(username)
       .addClaims(claims)
       .setExpiration(Date(System.currentTimeMillis() + expiryTime.toMillis()))
       .signWith(keyPair.private, SignatureAlgorithm.RS256)
