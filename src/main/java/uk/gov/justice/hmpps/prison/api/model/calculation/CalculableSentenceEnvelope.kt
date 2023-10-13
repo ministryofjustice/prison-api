@@ -1,7 +1,12 @@
 package uk.gov.justice.hmpps.prison.api.model.calculation
 
 import io.swagger.v3.oas.annotations.media.Schema
-import uk.gov.justice.hmpps.prison.api.model.*
+import uk.gov.justice.hmpps.prison.api.model.BookingAdjustment
+import uk.gov.justice.hmpps.prison.api.model.FixedTermRecallDetails
+import uk.gov.justice.hmpps.prison.api.model.OffenderFinePaymentDto
+import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences
+import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentValues
+import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates
 
 @Schema(description = "The active sentence envelope is a combination of the person information, the active booking and calculable sentences at a particular establishment")
 data class CalculableSentenceEnvelope(
