@@ -32,4 +32,4 @@ data class CalculableSentenceEnvelope(
   @Schema(description = "The current set of sentence dates determined by NOMIS or recorded via overrides")
   val sentenceCalcDates: SentenceCalcDates? = null,
 
-  )
+)
