@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.api.resource
 
-import io.swagger.v3.oas.annotations.Hidden
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
@@ -35,7 +34,6 @@ class ServiceAgencySwitchesResource(private val service: ServiceAgencySwitchesSe
   @Operation(summary = "Retrieve a list of prisons switched on for the service code")
   @PreAuthorize("hasRole('SERVICE_AGENCY_SWITCHES')")
   @GetMapping("/{serviceCode}")
-  @Hidden // TODO SDIT-797 Remove annotation once tables EXTERNAL_SERVICES  and SERVICE_AGENCY_SWITCHES are live
   fun getServicePrisons(
     @PathVariable
     @Parameter(name = "The code of the service from the EXTERNAL_SERVICES table")
@@ -55,7 +53,6 @@ class ServiceAgencySwitchesResource(private val service: ServiceAgencySwitchesSe
   @PreAuthorize("hasRole('SERVICE_AGENCY_SWITCHES')")
   @PostMapping("/{serviceCode}/prison/{prisonId}")
   @ResponseStatus(HttpStatus.CREATED)
-  @Hidden // TODO SDIT-797 Remove annotation once tables EXTERNAL_SERVICES  and SERVICE_AGENCY_SWITCHES are live
   fun addServicePrison(
     @PathVariable
     @Parameter(name = "The code of the service from the EXTERNAL_SERVICES table")
@@ -77,7 +74,6 @@ class ServiceAgencySwitchesResource(private val service: ServiceAgencySwitchesSe
   @PreAuthorize("hasRole('SERVICE_AGENCY_SWITCHES')")
   @DeleteMapping("/{serviceCode}/prison/{prisonId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @Hidden // TODO SDIT-797 Remove annotation once tables EXTERNAL_SERVICES  and SERVICE_AGENCY_SWITCHES are live
   fun removeServicePrison(
     @PathVariable
     @Parameter(name = "The code of the service from the EXTERNAL_SERVICES table")

@@ -75,6 +75,7 @@ internal class PrisonerReleaseAndTransferServiceTest {
   private val offenderIndividualScheduleRepository: OffenderIndividualScheduleRepository = mock()
   private val eventStatusRepository: ReferenceCodeRepository<EventStatus> = mock()
   private val bookingIntoPrisonService: BookingIntoPrisonService = mock()
+  private val serviceAgencySwitchesService: ServiceAgencySwitchesService = mock()
 
   private val service: PrisonerReleaseAndTransferService = PrisonerReleaseAndTransferService(
     offenderBookingRepository,
@@ -105,6 +106,7 @@ internal class PrisonerReleaseAndTransferServiceTest {
     offenderIndividualScheduleRepository,
     eventStatusRepository,
     bookingIntoPrisonService,
+    serviceAgencySwitchesService,
   )
 
   @Nested

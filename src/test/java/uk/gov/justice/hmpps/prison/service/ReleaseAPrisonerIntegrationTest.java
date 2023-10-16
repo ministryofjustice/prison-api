@@ -12,11 +12,16 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.hmpps.prison.api.model.RequestToReleasePrisoner;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalServiceEntity;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCaseNote;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceAdjustment;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ServiceAgencySwitch;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ServiceAgencySwitchId;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalServiceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCaseNoteRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderNoPayPeriodRepository;
@@ -26,8 +31,11 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdj
 
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ServiceAgencySwitchesRepository;
+
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -71,6 +79,15 @@ public class ReleaseAPrisonerIntegrationTest {
 
     @Autowired
     private EntityManager entityManager;
+
+    @Autowired
+    private ExternalServiceRepository externalServiceRepository;
+
+    @Autowired
+    private ServiceAgencySwitchesRepository serviceAgencySwitchesRepository;
+
+    @Autowired
+    private AgencyLocationRepository agencyLocationRepository;
 
     @Autowired
     private Clock clock;
@@ -144,6 +161,28 @@ public class ReleaseAPrisonerIntegrationTest {
                 .count();
 
         assertThat(activeProgramProfiles).isZero();
+    }
+
+    @Test
+    public void dontDeactivateAllProgramProfiles() {
+        final var prison = agencyLocationRepository.findById("LEI").orElseThrow();
+        final var service = new ExternalServiceEntity("ACTIVITY", "Activities", new ArrayList<>());
+        service.getServiceAgencySwitches().add(new ServiceAgencySwitch(new ServiceAgencySwitchId(service, prison)));
+        externalServiceRepository.save(service);
+
+        releasePrisoner(OFFENDER_NO);
+
+        final var activeProgramProfiles =
+            offenderProgramProfileRepository.findByOffenderBooking_BookingIdAndProgramStatus(-1L, "ALLOC")
+                .stream().filter(offenderProgramProfile -> offenderProgramProfile.getEndDate() == null)
+                .count();
+
+        // Didn't end the active program profiles because the ACTIVITY service is feature switched on for LEI
+        assertThat(activeProgramProfiles).isEqualTo(2);
+
+        // clean up
+        serviceAgencySwitchesRepository.deleteAll();
+        externalServiceRepository.deleteAll();
     }
 
     @Test
