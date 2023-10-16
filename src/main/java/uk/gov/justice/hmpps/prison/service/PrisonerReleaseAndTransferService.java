@@ -107,6 +107,7 @@ public class PrisonerReleaseAndTransferService {
     private final OffenderIndividualScheduleRepository offenderIndividualScheduleRepository;
     private final ReferenceCodeRepository<EventStatus> eventStatusRepository;
     private final BookingIntoPrisonService bookingIntoPrisonService;
+    private final ServiceAgencySwitchesService serviceAgencySwitchesService;
 
 
     public InmateDetail releasePrisoner(final String prisonerIdentifier, final RequestToReleasePrisoner requestToReleasePrisoner, RequestToDischargePrisoner requestToDischargePrisoner) {
@@ -136,7 +137,7 @@ public class PrisonerReleaseAndTransferService {
 
         updatePayPeriods(booking.getBookingId(), releaseDateTime.toLocalDate());
 
-        deactivateEvents(booking.getBookingId());
+        deactivateEvents(booking.getBookingId(), booking.getLocation().getId());
 
         // update the booking record
         booking.setInOutStatus("OUT");
@@ -600,7 +601,10 @@ public class PrisonerReleaseAndTransferService {
             });
     }
 
-    private void deactivateEvents(final Long bookingId) {
+    private void deactivateEvents(final Long bookingId, final String prisonId) {
+        // This means the DPS Activities service is handling all updates via hmpps-prisoner-to-nomis-updates, so don't update here
+        if (serviceAgencySwitchesService.checkServiceSwitchedOnForPrison("ACTIVITY", prisonId)) return;
+
         final var programProfiles = offenderProgramProfileRepository.findByOffenderBooking_BookingIdAndProgramStatus(bookingId, "ALLOC");
 
         programProfiles.forEach(profile -> profile.setEndDate(LocalDate.now()));

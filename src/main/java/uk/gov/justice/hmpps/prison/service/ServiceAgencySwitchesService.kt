@@ -21,6 +21,12 @@ class ServiceAgencySwitchesService(
       .serviceAgencySwitches
       .map { PrisonDetails(it.id.agencyLocation.id, it.id.agencyLocation.description) }
 
+  fun checkServiceSwitchedOnForPrison(serviceCode: String, prisonId: String): Boolean =
+    externalServiceRepository.findByIdOrNull(serviceCode)
+      ?.serviceAgencySwitches
+      ?.any { it.id.agencyLocation.id == prisonId }
+      ?: false
+
   fun addServicePrison(serviceCode: String, prisonId: String): PrisonDetails {
     val service = findExternalServiceOrThrow(serviceCode)
     val agency = findAgencyLocationOrThrow(prisonId)
