@@ -55,14 +55,30 @@ class AuthenticationFacadeTest {
     )
     assertThat(AuthenticationFacade.hasRoles(role)).isEqualTo(expected)
     assertThat(authenticationFacade.isOverrideRole(role)).isEqualTo(expected)
+    assertThat(authenticationFacade.isClientOnly).isFalse
+  }
+
+  @ParameterizedTest
+  @CsvSource("ROLE_SYSTEM_USER,true", "SYSTEM_USER,true", "SYSTEMUSER,false")
+  fun hasClientRolesTest(role: String, expected: Boolean) {
+    setAuthentication(
+      "auth",
+      setOf<GrantedAuthority>(
+        SimpleGrantedAuthority("ROLE_SYSTEM_USER"),
+      ),
+      true,
+    )
+    assertThat(AuthenticationFacade.hasRoles(role)).isEqualTo(expected)
+    assertThat(authenticationFacade.isOverrideRole(role)).isEqualTo(expected)
+    assertThat(authenticationFacade.isClientOnly).isTrue
   }
 
   private fun setAuthentication(source: String?) {
     setAuthentication(source, emptySet())
   }
 
-  private fun setAuthentication(source: String?, authoritySet: Set<GrantedAuthority>) {
-    val auth: Authentication = AuthAwareAuthenticationToken(mock(Jwt::class.java), "client", source, authoritySet)
+  private fun setAuthentication(source: String?, authoritySet: Set<GrantedAuthority>, clientOnly: Boolean = false) {
+    val auth: Authentication = AuthAwareAuthenticationToken(mock(Jwt::class.java), "client", clientOnly, source, authoritySet)
     SecurityContextHolder.getContext().authentication = auth
   }
 

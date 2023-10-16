@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import com.google.common.collect.Lists;
+import com.microsoft.applicationinsights.TelemetryClient;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -138,7 +139,9 @@ public class BookingService {
     private final OffenderTransformer offenderTransformer;
     private final AuthenticationFacade authenticationFacade;
     private final OffenderChargeTransformer offenderChargeTransformer;
+    private final TelemetryClient telemetryClient;
     private final int maxBatchSize;
+
 
     public BookingService(final BookingRepository bookingRepository,
                           final CourtEventRepository courtEventRepository,
@@ -166,6 +169,7 @@ public class BookingService {
                           final OffenderRestrictionRepository offenderRestrictionRepository,
                           final OffenderChargeTransformer offenderChargeTransformer,
                           final AgencyLocationRepository agencyLocationRepository,
+                          final TelemetryClient telemetryClient,
                           @Value("${batch.max.size:1000}")
                           final int maxBatchSize) {
         this.bookingRepository = bookingRepository;
@@ -193,6 +197,7 @@ public class BookingService {
         this.offenderFinePaymentRepository = offenderFinePaymentRepository;
         this.offenderRestrictionRepository = offenderRestrictionRepository;
         this.offenderChargeTransformer = offenderChargeTransformer;
+        this.telemetryClient = telemetryClient;
         this.maxBatchSize = maxBatchSize;
         this.agencyLocationRepository = agencyLocationRepository;
     }
@@ -578,13 +583,36 @@ public class BookingService {
             agencyIds.addAll(Set.of("OUT", "TRN"));
         }
         if (agencyIds.isEmpty()) {
+            if (authenticationFacade.isClientOnly()) {
+                logClientUnauthorisedAccess(bookingId, rolesAllowed);
+            }
             throw EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId);
         }
         if (!bookingRepository.verifyBookingAccess(bookingId, agencyIds)) {
+            logUserUnauthorisedAccess(bookingId, agencyIds, rolesAllowed);
             throw EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId);
         }
     }
 
+    private void logClientUnauthorisedAccess(final Long bookingId, final String... rolesAllowed) {
+        final Map<String, String> logMap = new HashMap<>();
+        logMap.put("bookingId", bookingId.toString());
+        logMap.put("currentClientRoles", StringUtils.join(authenticationFacade.getCurrentRoles(), ","));
+        logMap.put("rolesAllowed", StringUtils.join(rolesAllowed,","));
+        telemetryClient.trackEvent("ClientUnauthorisedBookingAccess", logMap, null);
+    }
+
+    private void logUserUnauthorisedAccess(final Long bookingId, final Set<String> agencyIds, final String... rolesAllowed) {
+        String bookingAgencyId = bookingRepository.getBookingAgency(bookingId).orElse(null);
+        final Map<String, String> logMap = new HashMap<>();
+        logMap.put("bookingId", bookingId.toString());
+        logMap.put("bookingCaseload", bookingAgencyId);
+        logMap.put("currentUser", authenticationFacade.getCurrentUsername());
+        logMap.put("currentUserRoles", StringUtils.join(authenticationFacade.getCurrentRoles(), ","));
+        logMap.put("currentUserCaseloads", StringUtils.join(agencyIds, ","));
+        logMap.put("rolesAllowed", StringUtils.join(rolesAllowed,","));
+        telemetryClient.trackEvent("UserUnauthorisedBookingAccess", logMap, null);
+    }
     public void checkBookingExists(final Long bookingId) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 

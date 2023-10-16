@@ -19,12 +19,14 @@ public class AuthAwareAuthenticationConverter implements Converter<Jwt, Abstract
 
     public AuthAwareAuthenticationToken convert(final Jwt jwt) {
         Map<String, Object> map = jwt.getClaims();
+        final var clientId = jwt.getClaims().get("client_id");
+        final var clientOnly = jwt.getSubject() != null && jwt.getSubject().equals(clientId);
 
         final var principal = map.get("user_name");
         final var authorities = extractAuthorities(jwt);
         final var authSourceObject = map.get("auth_source");
         final var authSource = authSourceObject instanceof String ? (String) authSourceObject : null;
-        return new AuthAwareAuthenticationToken(jwt, principal, authSource, authorities);
+        return new AuthAwareAuthenticationToken(jwt, principal, clientOnly, authSource, authorities);
     }
 
     @SuppressWarnings("ConstantConditions")

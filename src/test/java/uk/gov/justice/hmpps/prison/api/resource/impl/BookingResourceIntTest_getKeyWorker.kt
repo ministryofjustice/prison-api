@@ -2,10 +2,19 @@
 
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
+import com.microsoft.applicationinsights.TelemetryClient
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.isNull
+import org.mockito.kotlin.verify
+import org.springframework.boot.test.mock.mockito.SpyBean
 
 class BookingResourceIntTest_getKeyWorker : ResourceTest() {
+
+  @SpyBean
+  protected lateinit var telemetryClient: TelemetryClient
 
   @Nested
   inner class Authorisation {
@@ -78,13 +87,24 @@ class BookingResourceIntTest_getKeyWorker : ResourceTest() {
           .expectStatus().isNotFound
           .expectBody().jsonPath("userMessage").isEqualTo("Key worker not found for booking Id -30")
       }
+
+      @Test
+      fun `invalid client access produces telemetry event`() {
+        webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/key-worker")
+          .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isNotFound
+          .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -1 not found.")
+
+        verify(telemetryClient).trackEvent(eq("ClientUnauthorisedBookingAccess"), any(), isNull())
+      }
     }
 
     @Nested
     inner class UserAccess {
 
       @Test
-      fun `returns 404 when user does not have any roles`() {
+      fun `returns 404 when user does not have any caseloads`() {
         webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/key-worker")
           .headers(setAuthorisation("RO_USER", listOf()))
           .exchange()
@@ -147,6 +167,17 @@ class BookingResourceIntTest_getKeyWorker : ResourceTest() {
       fun `returns 200 if key worker`() {
         webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/key-worker")
           .headers(setAuthorisation("ITAG_USER", listOf(""))).exchange().expectStatus().isOk
+      }
+
+      @Test
+      fun `invalid user access produces telemetry event`() {
+        webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/key-worker")
+          .headers(setAuthorisation("WAI_USER", listOf()))
+          .exchange()
+          .expectStatus().isNotFound
+          .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -1 not found.")
+
+        verify(telemetryClient).trackEvent(eq("UserUnauthorisedBookingAccess"), any(), isNull())
       }
     }
   }

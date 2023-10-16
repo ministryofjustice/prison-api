@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import com.microsoft.applicationinsights.TelemetryClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -174,6 +175,9 @@ public class BookingServiceTest {
     private AgencyLocationRepository agencyLocationRepository;
     private BookingService bookingService;
 
+    @Mock
+    private TelemetryClient telemetryClient;
+
     @BeforeEach
     public void init() {
         bookingService = new BookingService(
@@ -203,6 +207,7 @@ public class BookingServiceTest {
                 offenderRestrictionRepository,
                 offenderChargeTransformer,
                 agencyLocationRepository,
+                telemetryClient,
                 10);
     }
 
