@@ -12,10 +12,12 @@ import java.util.Collection;
 public class AuthAwareAuthenticationToken extends JwtAuthenticationToken {
     private final AuthSource authSource;
     private final Object principal;
+    private final boolean clientOnly;
 
-    public AuthAwareAuthenticationToken(final Jwt jwt, final Object principal, final String authSource, final Collection<? extends GrantedAuthority> authorities) {
+    public AuthAwareAuthenticationToken(final Jwt jwt, final Object principal, final boolean clientOnly, final String authSource, final Collection<? extends GrantedAuthority> authorities) {
         super(jwt, authorities);
         this.authSource = AuthSource.fromName(authSource);
+        this.clientOnly = clientOnly;
         this.principal = principal;
     }
 }

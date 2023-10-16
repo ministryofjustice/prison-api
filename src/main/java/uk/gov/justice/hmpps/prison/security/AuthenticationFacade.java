@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RegExUtils;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -11,6 +12,7 @@ import uk.gov.justice.hmpps.prison.exception.MissingRoleCheckException;
 import uk.gov.justice.hmpps.prison.web.config.AuthAwareAuthenticationToken;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -42,6 +44,17 @@ public class AuthenticationFacade {
         return username;
     }
 
+    public Collection<? extends GrantedAuthority> currentRoles() {
+        return getAuthentication() == null ? getAuthentication().getAuthorities() : null;
+    }
+
+    public boolean isClientOnly() {
+        final var authentication = getAuthentication();
+        if (!(authentication instanceof AuthAwareAuthenticationToken)) return false;
+
+        final var token = (AuthAwareAuthenticationToken) authentication;
+        return token.isClientOnly();
+    }
 
     public AuthSource getAuthenticationSource() {
         final var auth = getAuthentication();
