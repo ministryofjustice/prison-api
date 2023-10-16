@@ -36,7 +36,7 @@ class ServiceAgencySwitchesResource(private val service: ServiceAgencySwitchesSe
   @GetMapping("/{serviceCode}")
   fun getServicePrisons(
     @PathVariable
-    @Parameter(name = "The code of the service from the EXTERNAL_SERVICES table")
+    @Parameter(description = "The code of the service from the EXTERNAL_SERVICES table")
     serviceCode: String,
   ): List<PrisonDetails> =
     service.getServicePrisons(serviceCode)
@@ -55,10 +55,10 @@ class ServiceAgencySwitchesResource(private val service: ServiceAgencySwitchesSe
   @ResponseStatus(HttpStatus.CREATED)
   fun addServicePrison(
     @PathVariable
-    @Parameter(name = "The code of the service from the EXTERNAL_SERVICES table")
+    @Parameter(description = "The code of the service from the EXTERNAL_SERVICES table")
     serviceCode: String,
     @PathVariable
-    @Parameter(name = "The id of the prison from the AGENCY_LOCATIONS table")
+    @Parameter(description = "The id of the prison from the AGENCY_LOCATIONS table")
     prisonId: String,
   ): PrisonDetails =
     service.addServicePrison(serviceCode, prisonId)
@@ -76,10 +76,10 @@ class ServiceAgencySwitchesResource(private val service: ServiceAgencySwitchesSe
   @ResponseStatus(HttpStatus.NO_CONTENT)
   fun removeServicePrison(
     @PathVariable
-    @Parameter(name = "The code of the service from the EXTERNAL_SERVICES table")
+    @Parameter(description = "The code of the service from the EXTERNAL_SERVICES table")
     serviceCode: String,
     @PathVariable
-    @Parameter(name = "The id of the prison from the AGENCY_LOCATIONS table")
+    @Parameter(description = "The id of the prison from the AGENCY_LOCATIONS table")
     prisonId: String,
   ) =
     service.removeServicePrison(serviceCode, prisonId)
