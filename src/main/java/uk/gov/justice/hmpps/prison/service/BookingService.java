@@ -851,11 +851,12 @@ public class BookingService {
             offenderBooking.getOffender().getBirthDate()
         );
 
-        final List<SentenceAdjustmentValues> sentenceAdjustments = offenderBooking.getSentenceAdjustments();
-        final List<BookingAdjustment> bookingAdjustments = offenderBooking.getBookingAdjustments();
+        final List<SentenceAdjustmentValues> sentenceAdjustments = offenderBooking.getSentenceAdjustments().stream().filter(SentenceAdjustmentValues::isActive).toList();
+        final List<BookingAdjustment> bookingAdjustments = offenderBooking.getBookingAdjustments().stream().filter(BookingAdjustment::isActive).toList();
+        final List<OffenderSentence> sentences = offenderBooking.getSentences().stream().filter(Objects::nonNull).filter(sentence -> Objects.equals(sentence.getStatus(), "A")).toList();
 
-        final boolean containsFine = offenderBooking.getSentences().stream().filter(Objects::nonNull).anyMatch(sentence -> sentence.getCalculationType().isAFine());
-        final boolean containsFixedTermRecall = offenderBooking.getSentences().stream().filter(Objects::nonNull).anyMatch(sentence -> sentence.getCalculationType().isFixedTermRecallType());
+        final boolean containsFine = sentences.stream().anyMatch(sentence -> sentence.getCalculationType().isAFine());
+        final boolean containsFixedTermRecall = sentences.stream().anyMatch(sentence -> sentence.getCalculationType().isFixedTermRecallType());
 
         final List<OffenderFinePaymentDto> offenderFinePaymentDtoList = this.getFinesIfRequired(containsFine, offenderBooking.getBookingId());
         final FixedTermRecallDetails fixedTermRecallDetails = getFixedTermRecall(containsFixedTermRecall, offenderBooking.getBookingId());
@@ -863,7 +864,9 @@ public class BookingService {
 
         return new CalculableSentenceEnvelope(
             person,
-            PrisonTerm.transform(offenderBooking),
+            offenderBooking.getBookingId(),
+            sentences.stream().map(OffenderSentence::getSentenceAndOffenceDetail)
+                .toList(),
             sentenceAdjustments,
             bookingAdjustments,
             offenderFinePaymentDtoList,

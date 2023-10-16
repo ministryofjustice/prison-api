@@ -3,125 +3,255 @@
         "prisonerNumber": "Z0020ZZ",
         "dateOfBirth": "1966-01-01"
     },
-    "latestPrisonTerm": {
-        "bookNumber": "Z00020",
-        "bookingId": -20,
-        "courtSentences": [{
-            "caseInfoNumber": "ABC123",
-            "id": -20,
-            "caseSeq": 1,
-            "beginDate": "2017-08-31",
-            "court": {
-                "agencyId": "COURT1",
-                "description": "Court 1",
-                "agencyType": "CRT",
-                "active": true,
-                "courtType": "MC"
-            },
-            "caseType": "Adult",
-            "caseStatus": "ACTIVE",
-            "sentences": [{
-                "sentenceSequence": 1,
-                "sentenceStatus": "A",
-                "sentenceCategory": "2003",
-                "sentenceCalculationType": "ADIMP_ORA",
-                "sentenceTypeDescription": "ORA CJA03 Standard Determinate Sentence",
-                "sentenceStartDate": "2017-07-05",
-                "sentenceEndDate": "2017-11-04",
-                "fineAmount": 100.15,
-                "lineSeq": 1,
-                "offences": [{
+    "bookingId": -20,
+    "sentenceAndOffences": [
+        {
+            "bookingId": -20,
+            "sentenceSequence": 1,
+            "lineSequence": 1,
+            "caseSequence": 1,
+            "caseReference": "ABC123",
+            "courtDescription": "Court 1",
+            "sentenceStatus": "A",
+            "sentenceCategory": "2003",
+            "sentenceCalculationType": "ADIMP_ORA",
+            "sentenceTypeDescription": "ORA CJA03 Standard Determinate Sentence",
+            "sentenceDate": "2017-06-21",
+            "terms": [
+                {
+                    "years": 3,
+                    "months": 0,
+                    "weeks": 0,
+                    "days": 0,
+                    "code": "IMP"
+                },
+                {
+                    "years": 3,
+                    "months": 0,
+                    "weeks": 0,
+                    "days": 0,
+                    "code": "IMP"
+                }
+            ],
+            "offences": [
+                {
                     "offenderChargeId": -10,
                     "offenceStartDate": "2015-01-04",
                     "offenceEndDate": "2015-01-25",
                     "offenceStatute": "RC86",
                     "offenceCode": "RC86355",
                     "offenceDescription": "Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury",
-                    "indicators": ["S15/CJIB", "SOR"]
-                }],
-                "terms": [{
-                    "termSequence": 1,
-                    "sentenceTermCode": "IMP",
-                    "startDate": "2017-03-25",
-                    "years": 3,
-                    "lifeSentence": false
-                }, {
-                    "termSequence": 2,
-                    "sentenceTermCode": "IMP",
-                    "startDate": "2017-03-25",
-                    "years": 3,
-                    "lifeSentence": false
-                }]
-            }, {
-                "sentenceSequence": 2,
-                "sentenceStatus": "A",
-                "sentenceCategory": "2003",
-                "sentenceCalculationType": "ADIMP_ORA",
-                "sentenceTypeDescription": "ORA CJA03 Standard Determinate Sentence",
-                "sentenceStartDate": "2017-07-05",
-                "sentenceEndDate": "2017-11-04",
-                "fineAmount": 20.5,
-                "lineSeq": 2,
-                "offences": [{
+                    "indicators": [
+                        "S15/CJIB",
+                        "SOR"
+                    ]
+                }
+            ],
+            "fineAmount": 100.15
+        },
+        {
+            "bookingId": -20,
+            "sentenceSequence": 2,
+            "lineSequence": 2,
+            "caseSequence": 1,
+            "caseReference": "ABC123",
+            "courtDescription": "Court 1",
+            "sentenceStatus": "A",
+            "sentenceCategory": "2003",
+            "sentenceCalculationType": "ADIMP_ORA",
+            "sentenceTypeDescription": "ORA CJA03 Standard Determinate Sentence",
+            "sentenceDate": "2017-06-21",
+            "terms": [
+                {
+                    "years": 5,
+                    "months": 0,
+                    "weeks": 0,
+                    "days": 0,
+                    "code": "IMP"
+                }
+            ],
+            "offences": [
+                {
                     "offenderChargeId": -9,
                     "offenceStatute": "RC86",
                     "offenceCode": "RC86355",
                     "offenceDescription": "Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury",
-                    "indicators": ["S15/CJIB", "SOR"]
-                }],
-                "terms": [{
-                    "termSequence": 2,
-                    "sentenceTermCode": "IMP",
-                    "startDate": "2017-03-25",
-                    "years": 5,
-                    "lifeSentence": false
-                }]
-            }],
-            "issuingCourt": {
-                "agencyId": "COURT1",
-                "description": "Court 1",
-                "agencyType": "CRT",
-                "active": true,
-                "courtType": "MC"
-            },
-            "issuingCourtDate": "2017-06-21"
-        }],
-        "licenceSentences": [{
-            "sentenceSequence": 4,
-            "sentenceStatus": "A",
-            "sentenceCategory": "LICENCE",
-            "sentenceCalculationType": "R",
-            "sentenceTypeDescription": "Prohibited Activity",
-            "sentenceStartDate": "2017-07-05",
-            "sentenceEndDate": "2017-11-04",
-            "fineAmount": 95.29,
-            "lineSeq": 1,
-            "offences": [],
-            "terms": []
-        }, {
-            "sentenceSequence": 4,
-            "sentenceStatus": "A",
-            "sentenceCategory": "LICENCE",
-            "sentenceCalculationType": "R",
-            "sentenceTypeDescription": "Prohibited Activity",
-            "sentenceStartDate": "2017-07-05",
-            "sentenceEndDate": "2017-11-04",
-            "fineAmount": 95.29,
-            "lineSeq": 1,
-            "offences": [],
-            "terms": []
-        }],
-        "keyDates": {
-            "sentenceStartDate": "2017-03-25",
-            "nonDtoReleaseDate": "2019-03-25",
-            "nonDtoReleaseDateType": "CRD",
-            "releaseDate": "2018-09-27",
-            "sentenceExpiryDate": "2020-03-27",
-            "conditionalReleaseDate": "2019-03-25",
-            "actualParoleDate": "2018-09-27"
+                    "indicators": [
+                        "S15/CJIB",
+                        "SOR"
+                    ]
+                }
+            ],
+            "fineAmount": 20.5
         },
-        "sentenceAdjustments": {}
-    },
+        {
+            "bookingId": -20,
+            "sentenceSequence": 3,
+            "lineSequence": 1,
+            "sentenceStatus": "A",
+            "sentenceCategory": "1991",
+            "sentenceCalculationType": "AGG_IND_ORA",
+            "sentenceTypeDescription": "Aggregate Record for Determinate ORA sentences",
+            "terms": [],
+            "offences": [
+                {
+                    "offenderChargeId": -8,
+                    "offenceStatute": "RC86",
+                    "offenceCode": "RC86360",
+                    "offenceDescription": "Cause another to use a vehicle where the seat belt is not securely fastened to the anchorage point.",
+                    "indicators": []
+                }
+            ],
+            "fineAmount": 120.65
+        },
+        {
+            "bookingId": -20,
+            "sentenceSequence": 4,
+            "lineSequence": 1,
+            "sentenceStatus": "A",
+            "sentenceCategory": "LICENCE",
+            "sentenceCalculationType": "R",
+            "sentenceTypeDescription": "Prohibited Activity",
+            "terms": [],
+            "offences": [],
+            "fineAmount": 95.29
+        },
+        {
+            "bookingId": -20,
+            "sentenceSequence": 5,
+            "lineSequence": 1,
+            "sentenceStatus": "A",
+            "sentenceCategory": "2020",
+            "sentenceCalculationType": "20AGG-FINE",
+            "sentenceTypeDescription": "2020 Aggregate fine",
+            "terms": [],
+            "offences": [],
+            "fineAmount": 95.29
+        },
+        {
+            "bookingId": -20,
+            "sentenceSequence": 1,
+            "lineSequence": 1,
+            "caseSequence": 1,
+            "caseReference": "ABC123",
+            "courtDescription": "Court 1",
+            "sentenceStatus": "A",
+            "sentenceCategory": "2003",
+            "sentenceCalculationType": "ADIMP_ORA",
+            "sentenceTypeDescription": "ORA CJA03 Standard Determinate Sentence",
+            "sentenceDate": "2017-06-21",
+            "terms": [
+                {
+                    "years": 3,
+                    "months": 0,
+                    "weeks": 0,
+                    "days": 0,
+                    "code": "IMP"
+                },
+                {
+                    "years": 3,
+                    "months": 0,
+                    "weeks": 0,
+                    "days": 0,
+                    "code": "IMP"
+                }
+            ],
+            "offences": [
+                {
+                    "offenderChargeId": -10,
+                    "offenceStartDate": "2015-01-04",
+                    "offenceEndDate": "2015-01-25",
+                    "offenceStatute": "RC86",
+                    "offenceCode": "RC86355",
+                    "offenceDescription": "Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury",
+                    "indicators": [
+                        "S15/CJIB",
+                        "SOR"
+                    ]
+                }
+            ],
+            "fineAmount": 100.15
+        },
+        {
+            "bookingId": -20,
+            "sentenceSequence": 2,
+            "lineSequence": 2,
+            "caseSequence": 1,
+            "caseReference": "ABC123",
+            "courtDescription": "Court 1",
+            "sentenceStatus": "A",
+            "sentenceCategory": "2003",
+            "sentenceCalculationType": "ADIMP_ORA",
+            "sentenceTypeDescription": "ORA CJA03 Standard Determinate Sentence",
+            "sentenceDate": "2017-06-21",
+            "terms": [
+                {
+                    "years": 5,
+                    "months": 0,
+                    "weeks": 0,
+                    "days": 0,
+                    "code": "IMP"
+                }
+            ],
+            "offences": [
+                {
+                    "offenderChargeId": -9,
+                    "offenceStatute": "RC86",
+                    "offenceCode": "RC86355",
+                    "offenceDescription": "Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury",
+                    "indicators": [
+                        "S15/CJIB",
+                        "SOR"
+                    ]
+                }
+            ],
+            "fineAmount": 20.5
+        },
+        {
+            "bookingId": -20,
+            "sentenceSequence": 3,
+            "lineSequence": 1,
+            "sentenceStatus": "A",
+            "sentenceCategory": "1991",
+            "sentenceCalculationType": "AGG_IND_ORA",
+            "sentenceTypeDescription": "Aggregate Record for Determinate ORA sentences",
+            "terms": [],
+            "offences": [
+                {
+                    "offenderChargeId": -8,
+                    "offenceStatute": "RC86",
+                    "offenceCode": "RC86360",
+                    "offenceDescription": "Cause another to use a vehicle where the seat belt is not securely fastened to the anchorage point.",
+                    "indicators": []
+                }
+            ],
+            "fineAmount": 120.65
+        },
+        {
+            "bookingId": -20,
+            "sentenceSequence": 4,
+            "lineSequence": 1,
+            "sentenceStatus": "A",
+            "sentenceCategory": "LICENCE",
+            "sentenceCalculationType": "R",
+            "sentenceTypeDescription": "Prohibited Activity",
+            "terms": [],
+            "offences": [],
+            "fineAmount": 95.29
+        },
+        {
+            "bookingId": -20,
+            "sentenceSequence": 5,
+            "lineSequence": 1,
+            "sentenceStatus": "A",
+            "sentenceCategory": "2020",
+            "sentenceCalculationType": "20AGG-FINE",
+            "sentenceTypeDescription": "2020 Aggregate fine",
+            "terms": [],
+            "offences": [],
+            "fineAmount": 95.29
+        }
+    ],
     "sentenceAdjustments": [],
     "bookingAdjustments": [],
     "offenderFinePayments": [],
