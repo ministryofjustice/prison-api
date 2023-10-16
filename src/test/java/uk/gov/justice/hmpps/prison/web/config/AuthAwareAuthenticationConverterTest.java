@@ -3,7 +3,6 @@ package uk.gov.justice.hmpps.prison.web.config;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtClaimNames;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -63,6 +62,14 @@ public class AuthAwareAuthenticationConverterTest {
         assertThat(authToken.getAuthSource()).isEqualTo(NONE);
     }
 
+    @Test
+    public void convert_missingAuthorities_noGrantedAuthority() {
+        when(jwt.getClaims()).thenReturn(claims("some_user", "some_auth_source", null, null));
+
+        final var authToken = authenticationConverter.convert(jwt);
+
+        assertThat(authToken.getAuthorities()).isEmpty();
+    }
 
     private Map<String, Object> claims(String username, String authSource, String scope, String clientId) {
         Map<String, Object> claims = new HashMap<>();
