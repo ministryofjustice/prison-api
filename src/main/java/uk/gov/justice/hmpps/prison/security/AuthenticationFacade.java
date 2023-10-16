@@ -44,8 +44,8 @@ public class AuthenticationFacade {
         return username;
     }
 
-    public Collection<? extends GrantedAuthority> currentRoles() {
-        return getAuthentication() == null ? getAuthentication().getAuthorities() : null;
+    public Collection<? extends GrantedAuthority> getCurrentRoles() {
+        return getAuthentication() != null ? getAuthentication().getAuthorities() : null;
     }
 
     public boolean isClientOnly() {

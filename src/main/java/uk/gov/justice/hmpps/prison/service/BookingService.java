@@ -597,8 +597,7 @@ public class BookingService {
     private void logClientUnauthorisedAccess(final Long bookingId, final String... rolesAllowed) {
         final Map<String, String> logMap = new HashMap<>();
         logMap.put("bookingId", bookingId.toString());
-        logMap.put("currentClientRoles", StringUtils.join(
-            authenticationFacade.getAuthentication() == null ? null : authenticationFacade.getAuthentication().getAuthorities(), ","));
+        logMap.put("currentClientRoles", StringUtils.join(authenticationFacade.getCurrentRoles(), ","));
         logMap.put("rolesAllowed", StringUtils.join(rolesAllowed,","));
         telemetryClient.trackEvent("ClientUnauthorisedBookingAccess", logMap, null);
     }
@@ -609,8 +608,7 @@ public class BookingService {
         logMap.put("bookingId", bookingId.toString());
         logMap.put("bookingCaseload", bookingAgencyId);
         logMap.put("currentUser", authenticationFacade.getCurrentUsername());
-        logMap.put("currentUserRoles", StringUtils.join(
-            authenticationFacade.getAuthentication() == null ? null : authenticationFacade.getAuthentication().getAuthorities(), ","));
+        logMap.put("currentUserRoles", StringUtils.join(authenticationFacade.getCurrentRoles(), ","));
         logMap.put("currentUserCaseloads", StringUtils.join(agencyIds, ","));
         logMap.put("rolesAllowed", StringUtils.join(rolesAllowed,","));
         telemetryClient.trackEvent("UserUnauthorisedBookingAccess", logMap, null);
