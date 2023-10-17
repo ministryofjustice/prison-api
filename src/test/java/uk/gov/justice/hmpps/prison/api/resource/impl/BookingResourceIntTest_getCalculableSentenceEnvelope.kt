@@ -2,6 +2,7 @@
 
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.junit.jupiter.api.Test
@@ -13,7 +14,7 @@ import uk.gov.justice.hmpps.prison.api.model.calculation.CalculableSentenceEnvel
 class BookingResourceIntTest_getCalculableSentenceEnvelope : ResourceTest() {
 
   @Autowired
-  val objectMapper = jacksonObjectMapper()
+  lateinit var objectMapper: ObjectMapper
 
   @Test
   fun `Test that endpoint returns a summary list when authorised`() {
