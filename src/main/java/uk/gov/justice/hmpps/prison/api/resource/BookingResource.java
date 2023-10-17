@@ -84,6 +84,7 @@ import uk.gov.justice.hmpps.prison.api.model.VisitDetails;
 import uk.gov.justice.hmpps.prison.api.model.VisitSummary;
 import uk.gov.justice.hmpps.prison.api.model.VisitWithVisitors;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSummary;
+import uk.gov.justice.hmpps.prison.api.model.calculation.CalculableSentenceEnvelope;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
@@ -1227,4 +1228,18 @@ public class BookingResource {
     public List<CourtEventOutcome> getCourtEventOutcomes(@RequestBody @Parameter(description = "The booking ids", required = true) final Set<Long> bookingIds) {
         return bookingService.getOffenderCourtEventOutcomes(bookingIds);
     }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
+    })
+    @Operation(summary = "Details of the active sentence envelope, a combination of the person information, the active booking and calculable sentences for offenders")
+    @PreAuthorize("hasRole('RELEASE_DATE_MANUAL_COMPARER')")
+    @GetMapping("/latest/calculable-sentence-envelope")
+    public List<CalculableSentenceEnvelope> getCalculableSentenceEnvelopeByOffenderNos(@RequestParam(value = "offenderNo") @Parameter(description = "Filter by a list of offender numbers") final Set<String> offenderNumbers) {
+        return bookingService.getCalculableSentenceEnvelopeByOffenderNumbers(offenderNumbers);
+    }
+
+
 }

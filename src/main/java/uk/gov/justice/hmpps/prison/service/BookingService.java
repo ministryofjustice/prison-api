@@ -868,6 +868,19 @@ public class BookingService {
         return activeBookings.stream().map(this::determineCalculableSentenceEnvelope).toList();
     }
 
+    public List<CalculableSentenceEnvelope> getCalculableSentenceEnvelopeByOffenderNumbers(Set<String> offenderNumbers) {
+        final var validCalcTypes = sentenceCalcTypeRepository.findByCalculationTypeNotContainingAndCategoryIsNot(
+            "AGG",
+            "LICENCE"
+        );
+
+        final var activeBookings = offenderBookingRepository.findAllOffenderBookingsByActiveTrueAndOffenderNomsIdInAndSentences_CalculationTypeIsIn(
+            offenderNumbers,
+            validCalcTypes
+        );
+        return activeBookings.stream().map(this::determineCalculableSentenceEnvelope).toList();
+    }
+
     public List<CourtEventOutcome> getOffenderCourtEventOutcomes(final Set<Long> bookingIds) {
         final var courtEvents = courtEventRepository.findByOffenderBooking_BookingIdInAndOffenderCourtCase_CaseStatus_Code(bookingIds, "A");
         return courtEvents.stream().map(event -> new CourtEventOutcome(event.getOffenderBooking().getBookingId(), event.getId(), event.getOutcomeReasonCode() != null ? event.getOutcomeReasonCode().getCode() : null)).toList();

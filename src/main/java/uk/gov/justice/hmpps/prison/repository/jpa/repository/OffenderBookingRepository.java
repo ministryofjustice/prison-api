@@ -16,6 +16,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalcType;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface OffenderBookingRepository extends
@@ -38,6 +39,12 @@ public interface OffenderBookingRepository extends
        AgencyLocation agencyLocation,
        List<SentenceCalcType> validCalcTypes
        );
+
+    @EntityGraph(type = EntityGraphType.FETCH, value = "booking-with-sentence-summary")
+    List<OffenderBooking> findAllOffenderBookingsByActiveTrueAndOffenderNomsIdInAndSentences_CalculationTypeIsIn(
+        Set<String> nomsIds,
+        List<SentenceCalcType> validCalcTypes
+    );
 
     Optional<OffenderBooking> findByBookingId(Long bookingId);
 
