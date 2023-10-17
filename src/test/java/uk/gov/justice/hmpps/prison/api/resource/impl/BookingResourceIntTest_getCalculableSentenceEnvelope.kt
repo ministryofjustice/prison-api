@@ -23,8 +23,6 @@ class BookingResourceIntTest_getCalculableSentenceEnvelope : ResourceTest() {
     val fixedRecallCalculableSentenceEnvelope = objectMapper.readValue<CalculableSentenceEnvelope>(getPrisonResourceAsText("prison_resource_fixed_recall_calculable_sentence_envelope.json"))
 
     webTestClient.get()
-
-
       .uri { uriBuilder ->
         uriBuilder.path("/api/bookings/latest/calculable-sentence-envelope")
           .queryParam("offenderNo", "Z0020ZZ", "A1234AE")
