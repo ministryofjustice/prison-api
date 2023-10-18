@@ -32,26 +32,9 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     @Autowired
     private CaseNoteSteps caseNote;
 
-    private CaseNote seededCaseNote;
-    private CaseNote updatedCaseNote;
-
     @And("^case note test harness initialized$")
     public void caseNoteTestHarnessInitialized() throws Throwable {
         caseNote.init();
-
-        seedCaseNoteForUpdateTest();
-    }
-
-    private void seedCaseNoteForUpdateTest() {
-        final var newCaseNote = buildNewCaseNote(
-                "CHAP",
-                "FAMMAR",
-                "Hello this is a new case note",
-                null);
-
-        // this must exist and must be accessible to test user
-        final Long caseNoteBookingId = -32L;
-        seededCaseNote = caseNote.createCaseNote(caseNoteBookingId, newCaseNote);
     }
 
     @When("^a case note is created for booking:$")
@@ -99,49 +82,6 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     @Then("^case note validation error \"([^\"]*)\" occurs$")
     public void caseNoteValidationErrorOccurs(final String error) {
         caseNote.verifyBadRequest(error);
-    }
-
-    @When("^existing case note is updated with text \"([^\"]*)\"$")
-    public void theCaseNoteIsUpdatedWithText(final String caseNoteText) throws Throwable {
-        updatedCaseNote = caseNote.updateCaseNote(seededCaseNote, UpdateCaseNote.builder().text(caseNoteText).build());
-    }
-
-    @When("^existing case note is updated with valid text$")
-    public void theCaseNoteIsUpdatedWithValidText() throws Throwable {
-        final var existingCaseNote = caseNote.getCaseNote(-5, -2);
-        // Allow 100 chars for the 1st part of the updated text which includes the
-        // original text and the user/timestamp text
-        final var caseNoteText = StringUtils.repeat("a", 100);
-        updatedCaseNote = caseNote.updateCaseNote(existingCaseNote, UpdateCaseNote.builder().text(caseNoteText).build());
-    }
-
-    @When("^existing case note for a different user is updated with valid text$")
-    public void existingCaseNoteForADifferentUserIsUpdatedWithValidText() throws Throwable {
-        final var existingCaseNote = caseNote.getCaseNote(-1, -1);
-        final var caseNoteText = StringUtils.repeat("a", 100);
-        updatedCaseNote = caseNote.updateCaseNote(existingCaseNote, UpdateCaseNote.builder().text(caseNoteText).build());
-    }
-
-    @When("^the created case note is updated with long text$")
-    public void theCaseNoteIsUpdatedWithInvalidText() throws Throwable {
-        final var caseNoteText = StringUtils.repeat("a", 3950); // total text will be over 4000
-        updatedCaseNote = caseNote.updateCaseNote(seededCaseNote, UpdateCaseNote.builder().text(caseNoteText).build());
-    }
-
-    @When("^a case note is created to use up all free space$")
-    public void aCaseNoteIsCreatedToUseUpAllFreeSpace() throws Throwable {
-        final var caseNoteText = StringUtils.repeat("a", 3900);
-        updatedCaseNote = caseNote.updateCaseNote(seededCaseNote, UpdateCaseNote.builder().text(caseNoteText).build());
-    }
-
-    @Then("^case note is successfully updated with valid text$")
-    public void caseNoteIsSuccessfullyUpdated() throws Throwable {
-        assertThat(updatedCaseNote.getText()).contains(StringUtils.repeat("a", 100));
-    }
-
-    @And("^the original text is not replaced$")
-    public void theAmendedFlagIsSet() throws Throwable {
-        assertThat(updatedCaseNote.getText()).contains(seededCaseNote.getText());
     }
 
     @And("^correct case note source is used$")
@@ -231,17 +171,6 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     @And("^\"([^\"]*)\" case notes are available$")
     public void caseNotesAreAvailable(final String count) throws Throwable {
         caseNote.verifyTotalResourceRecordsAvailable(Long.valueOf(count));
-    }
-
-    @When("^attempt is made to update case note for booking with id \"([^\"]*)\"$")
-    public void attemptIsMadeToUpdateCaseNoteForBookingWithId(final String bookingId) throws Throwable {
-        seededCaseNote.setBookingId(Long.valueOf(bookingId));
-        caseNote.updateCaseNote(seededCaseNote, UpdateCaseNote.builder().text("Updated text").build());
-    }
-
-    @When("^a case note is requested for offender booking \"([^\"]*)\"")
-    public void caseNotesDifferentCaseloadGet(final long bookingId) throws Throwable {
-        caseNote.getCaseNote(bookingId, -1L);
     }
 
     @Then("^resource not found response is received from casenotes API")
