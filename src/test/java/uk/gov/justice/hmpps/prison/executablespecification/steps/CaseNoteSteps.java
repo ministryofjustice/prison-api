@@ -100,24 +100,9 @@ public class CaseNoteSteps extends CommonSteps {
         return caseNote;
     }
 
-    @Step("Update case note")
-    public CaseNote updateCaseNote(final CaseNote originalCaseNote, final UpdateCaseNote updatedCaseNote) {
-        dispatchUpdateRequest(originalCaseNote.getBookingId(), originalCaseNote.getCaseNoteId(), updatedCaseNote);
-        dispatchGetRequest(originalCaseNote.getBookingId(), originalCaseNote.getCaseNoteId());
-
-        return caseNote;
-    }
-
     @Step("Get case notes")
     public void getCaseNotes(final Long bookingId) {
         dispatchQueryRequest(bookingId);
-    }
-
-    @Step("Get case note")
-    public CaseNote getCaseNote(final long bookingId, final long caseNoteId) {
-        dispatchGetRequest(bookingId, caseNoteId);
-
-        return caseNote;
     }
 
     @Step("Get case note count")
@@ -237,16 +222,6 @@ public class CaseNoteSteps extends CommonSteps {
                     createEntity(), CaseNote.class, bookingId, caseNoteId);
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             caseNote = response.getBody();
-        } catch (final PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
-
-    private void dispatchUpdateRequest(final Long bookingId, final Long caseNoteId, final UpdateCaseNote caseNote) {
-        try {
-            final var response = restTemplate.exchange(API_REQUEST_FOR_CASENOTE, HttpMethod.PUT,
-                    createEntity(caseNote), CaseNote.class, bookingId, caseNoteId);
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }

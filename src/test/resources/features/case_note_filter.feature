@@ -63,14 +63,6 @@ Feature: Case Note Retrieval and Filtering
       | -3        |                |                    | 2017-06-01 | 2017-08-31 | LEI      | 3     | 1      | 1      | 4     |
       | -3        |                |                    |            |            | BXI      | 10    | 0      | 1      | 1     |
 
-  Scenario: A specific case note is requested for booking that is not part of any of logged on staff user's caseloads
-    When a case note is requested for offender booking "-16"
-    Then resource not found response is received from casenotes API
-
-  Scenario: A specific case note is requested for booking that does not exist
-    When a case note is requested for offender booking "-99"
-    Then resource not found response is received from casenotes API
-
   Scenario: Case note list is requested for booking that is not part of any of logged on staff user's caseloads
     When case notes are requested for offender booking "-16"
     Then resource not found response is received from casenotes API
