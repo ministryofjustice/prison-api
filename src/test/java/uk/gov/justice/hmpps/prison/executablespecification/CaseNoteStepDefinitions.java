@@ -6,9 +6,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import uk.gov.justice.hmpps.prison.api.model.CaseNote;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
-import uk.gov.justice.hmpps.prison.api.model.UpdateCaseNote;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.CaseNoteSteps;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
@@ -35,77 +33,6 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     @And("^case note test harness initialized$")
     public void caseNoteTestHarnessInitialized() throws Throwable {
         caseNote.init();
-    }
-
-    @When("^a case note is created for booking:$")
-    public void aCaseNoteIsCreatedForBooking(final DataTable rawData) throws Throwable {
-        final Map<String, String> caseNoteData = rawData.asMap(String.class, String.class);
-
-        final var bookingId = Long.valueOf(caseNoteData.get("bookingId"));
-
-        final var newCaseNote =
-                buildNewCaseNote(StringUtils.defaultString(caseNoteData.get("type")),
-                        StringUtils.defaultString(caseNoteData.get("subType")),
-                        caseNoteData.get("text"),
-                        caseNoteData.get("occurrenceDateTime"));
-
-        caseNote.createCaseNote(bookingId, newCaseNote);
-    }
-
-    @When("^attempt is made to create case note for booking:$")
-    public void attemptIsMadeToCreateCaseNoteForBooking(final DataTable rawData) throws Throwable {
-        final Map<String, String> caseNoteData = rawData.asMap(String.class, String.class);
-
-        final var bookingId = Long.valueOf(caseNoteData.get("bookingId"));
-
-        final var newCaseNote =
-                buildNewCaseNote(caseNoteData.get("type"),
-                        caseNoteData.get("subType"),
-                        caseNoteData.get("text"),
-                        caseNoteData.get("occurrenceDateTime"));
-
-        caseNote.createCaseNote(bookingId, newCaseNote);
-        caseNote.verifyNotCreated();
-    }
-
-    @Then("^case note is successfully created$")
-    public void caseNoteIsSuccessfullyCreated() {
-        caseNote.verify();
-    }
-
-    @Then("case note validation errors are:")
-    public void caseNoteValidationErrorsAre(final DataTable rawData) {
-        final List<String> errors = rawData.transpose().asList(String.class);
-        caseNote.verifyBadRequest(errors);
-    }
-
-    @Then("^case note validation error \"([^\"]*)\" occurs$")
-    public void caseNoteValidationErrorOccurs(final String error) {
-        caseNote.verifyBadRequest(error);
-    }
-
-    @And("^correct case note source is used$")
-    public void correctCaseNoteSourceIsUsed() throws Throwable {
-        caseNote.verifyCaseNoteSource();
-    }
-
-    @Then("^case note is not created$")
-    public void caseNoteIsNotCreated() throws Throwable {
-        caseNote.verifyNotCreated();
-    }
-
-    private NewCaseNote buildNewCaseNote(final String type, final String subType, final String text, final String occurrenceDateTime) {
-        final var newCaseNote = new NewCaseNote();
-
-        newCaseNote.setType(type);
-        newCaseNote.setSubType(subType);
-        newCaseNote.setText(text);
-
-        if (StringUtils.isNotBlank(occurrenceDateTime)) {
-            newCaseNote.setOccurrenceDateTime(DateTimeConverter.fromISO8601DateTimeToLocalDateTime(occurrenceDateTime, ZoneOffset.UTC));
-        }
-
-        return newCaseNote;
     }
 
     @When("^case notes are requested for offender booking \"([^\"]*)\"$")

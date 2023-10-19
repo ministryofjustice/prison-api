@@ -5,8 +5,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.api.model.CaseNote
@@ -112,7 +112,6 @@ class BookingCaseNotesResourceIntTest : ResourceTest() {
 
   @Nested
   @DisplayName("PUT /api/bookings/{bookingId}/caseNotes/{caseNoteId}")
-  @TestInstance(TestInstance.Lifecycle.PER_CLASS)
   inner class UpdateCaseNotes {
 
     @Test
@@ -250,7 +249,6 @@ class BookingCaseNotesResourceIntTest : ResourceTest() {
         .expectStatus().isCreated
 
       val cn = resp.returnResult(CaseNote::class.java).responseBody.blockFirst()!!
-
       assertThat(cn.text).contains("Hello this is a new case note")
       assertThat(cn.text).contains(caseNoteText)
 
@@ -297,14 +295,290 @@ class BookingCaseNotesResourceIntTest : ResourceTest() {
         .exchange()
         .expectStatus().isCreated
 
-      val cn = resp.returnResult(CaseNote::class.java).responseBody.blockFirst()
+      val cn = resp.returnResult(CaseNote::class.java).responseBody.blockFirst()!!
       return cn.caseNoteId
     }
+  }
 
-    private fun removeCaseNoteCreated(caseNoteId: Long) {
-      val ocn = offenderCaseNoteRepository.findById(caseNoteId).get()
-      offenderCaseNoteRepository.delete(ocn)
+  @Nested
+  @DisplayName("POST /api/bookings/{bookingId}/caseNotes/{caseNoteId}")
+  inner class CreateCaseNote {
+
+    @Value("\${api.caseNote.sourceCode:AUTO}")
+    lateinit var caseNoteSource: String
+
+    @Test
+    fun `A case note is successfully created for booking`() {
+      val resp = webTestClient.post().uri("/api/bookings/-32/caseNotes")
+        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+            {
+              "type": "OBSERVE",
+              "subType": "OBS_GEN",
+              "text": "A new case note (from Serenity BDD test **)",
+              "occurrenceDateTime": "2017-04-14T10:15:30"      
+            }
+            """,
+        )
+        .exchange()
+        .expectStatus().isCreated
+
+      val caseNote = resp.returnResult(CaseNote::class.java).responseBody.blockFirst()!!
+      assertThat(caseNote.caseNoteId).isGreaterThan(0)
+      assertThat(caseNote.source).isEqualTo(caseNoteSource)
+      assertThat(caseNote.type).isEqualTo("OBSERVE")
+      assertThat(caseNote.subType).isEqualTo("OBS_GEN")
+      assertThat(caseNote.text).isEqualTo("A new case note (from Serenity BDD test **)")
+      assertThat(caseNote.occurrenceDateTime).isEqualTo("2017-04-14T10:15:30")
+      assertThat(caseNote.creationDateTime).isNotNull()
+
+      removeCaseNoteCreated(caseNote.caseNoteId)
     }
+
+    @Test
+    fun `A second case note is successfully created for booking`() {
+      val resp = webTestClient.post().uri("/api/bookings/-32/caseNotes")
+        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+            {
+              "type": "OBSERVE",
+              "subType": "OBS_GEN",
+              "text": "A new case note (from Serenity BDD test **)",
+              "occurrenceDateTime": "2017-04-14T10:15:30"      
+            }
+            """,
+        )
+        .exchange()
+        .expectStatus().isCreated
+
+      val caseNote = resp.returnResult(CaseNote::class.java).responseBody.blockFirst()!!
+      assertThat(caseNote.caseNoteId).isGreaterThan(0)
+      assertThat(caseNote.source).isEqualTo(caseNoteSource)
+
+      removeCaseNoteCreated(caseNote.caseNoteId)
+    }
+
+    @Test
+    fun `Validation error when create a case note with invalid type`() {
+      webTestClient.post().uri("/api/bookings/-32/caseNotes")
+        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+            {
+              "type": "doesnotexist",
+              "subType": "OSE",
+              "text": "A new case note (from Serenity BDD test **)",
+              "occurrenceDateTime": "2017-04-14T10:15:30"      
+            }
+            """,
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().jsonPath("userMessage").isEqualTo("createCaseNote.caseNote: CaseNote (type,subtype)=(doesnotexist,OSE) does not exist")
+    }
+
+    @Test
+    fun `Validation error when create a case note with invalid subtype`() {
+      webTestClient.post().uri("/api/bookings/-32/caseNotes")
+        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+            {
+              "type":"GEN",
+              "subType":"doesnotexist",
+              "text":"A new case note (from Serenity BDD test **)",
+              "occurrenceDateTime":"2017-04-14T10:15:30"
+            }
+            """,
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().jsonPath("userMessage").isEqualTo("createCaseNote.caseNote: CaseNote (type,subtype)=(GEN,doesnotexist) does not exist")
+    }
+
+    @Test
+    fun `Validation error when create a case note with invalid combination of type and sub-type`() {
+      webTestClient.post().uri("/api/bookings/-32/caseNotes")
+        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+            {
+              "type": "DRR",
+              "subType": "HIS",
+              "text": "A new case note (from Serenity BDD test **)",
+              "occurrenceDateTime": "2017-04-14T10:15:30"      
+            }
+            """,
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().jsonPath("userMessage").isEqualTo("createCaseNote.caseNote: CaseNote (type,subtype)=(DRR,HIS) does not exist")
+    }
+
+    @Test
+    fun `Validation error when create a case note with type and sub-type combination that is valid for different caseload but not current caseload`() {
+      webTestClient.post().uri("/api/bookings/-32/caseNotes")
+        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+            {
+              "type": "REC",
+              "subType": "RECRP",
+              "text": "A new case note (from Serenity BDD test **)",
+              "occurrenceDateTime": "2017-04-14T10:15:30"      
+            }
+            """,
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().jsonPath("userMessage").isEqualTo("createCaseNote.caseNote: CaseNote (type,subtype)=(REC,RECRP) does not exist")
+    }
+
+    @Test
+    fun `Validation error when create a case note with type too long`() {
+      webTestClient.post().uri("/api/bookings/-32/caseNotes")
+        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+            {
+              "type": "toolongtoolongtoolong",
+              "subType": "OSE",
+              "text": "A new case note (from Serenity BDD test **)",
+              "occurrenceDateTime": "2017-04-14T10:15:30"      
+            }
+            """,
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().jsonPath("$.userMessage").value<String> { message ->
+          assertThat(message).contains("createCaseNote.caseNote.type: Value is too long: max length is 12")
+          assertThat(message).contains("createCaseNote.caseNote: CaseNote (type,subtype)=(toolongtoolongtoolong,OSE) does not exist")
+        }
+    }
+
+    @Test
+    fun `Validation error when create a case note with subtype too long`() {
+      val resp = webTestClient.post().uri("/api/bookings/-32/caseNotes")
+        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+            {
+              "type": "GEN",
+              "subType": "toolongtoolongtoolong",
+              "text": "A new case note (from Serenity BDD test **)",
+              "occurrenceDateTime": "2017-04-14T10:15:30"      
+            }
+            """,
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("$.userMessage").value<String> { message ->
+          assertThat(message).contains("createCaseNote.caseNote.subType: Value is too long: max length is 12")
+          assertThat(message).contains("createCaseNote.caseNote: CaseNote (type,subtype)=(GEN,toolongtoolongtoolong) does not exist")
+        }
+    }
+
+    @Test
+    fun `Validation error when create a case note with blank type`() {
+      webTestClient.post().uri("/api/bookings/-32/caseNotes")
+        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+            {
+              "type": "",
+              "subType": "OSE",
+              "text": "A new case note (from Serenity BDD test **)",
+              "occurrenceDateTime": "2017-04-14T10:15:30"      
+            }
+            """,
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().jsonPath("$.userMessage").value<String> { message ->
+          assertThat(message).contains("createCaseNote.caseNote.type: Value cannot be blank")
+          assertThat(message).contains("createCaseNote.caseNote: CaseNote (type,subtype)=(,OSE) does not exist")
+        }
+    }
+
+    @Test
+    fun `Validation error when create a case note with blank subtype`() {
+      webTestClient.post().uri("/api/bookings/-32/caseNotes")
+        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+            {
+              "type": "GEN",
+              "subType": "",
+              "text": "A new case note (from Serenity BDD test **)",
+              "occurrenceDateTime": "2017-04-14T10:15:30"      
+            }
+            """,
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().jsonPath("$.userMessage").value<String> { message ->
+          assertThat(message).contains("createCaseNote.caseNote.subType: Value cannot be blank")
+          assertThat(message).contains("createCaseNote.caseNote: CaseNote (type,subtype)=(GEN,) does not exist")
+        }
+    }
+
+    @Test
+    fun `Attempt to create case note for offender is not part of any of logged on staff user's caseloads`() {
+      webTestClient.post().uri("/api/bookings/-16/caseNotes")
+        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+            {
+              "type": "GEN",
+              "subType": "OSE",
+              "text": "A new case note (from Serenity BDD test **)",
+              "occurrenceDateTime": "2017-04-14T10:15:30"      
+            }
+            """,
+        )
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -16 not found.")
+    }
+
+    @Test
+    fun `Attempt to create case note for offender that does not exist`() {
+      webTestClient.post().uri("/api/bookings/-99/caseNotes")
+        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+            {
+              "type": "GEN",
+              "subType": "OSE",
+              "text": "A new case note (from Serenity BDD test **)",
+              "occurrenceDateTime": "2017-04-14T10:15:30"      
+            }
+            """,
+        )
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -99 not found.")
+    }
+  }
+
+  private fun removeCaseNoteCreated(caseNoteId: Long) {
+    val ocn = offenderCaseNoteRepository.findById(caseNoteId).get()
+    offenderCaseNoteRepository.delete(ocn)
   }
 
   internal fun String.readFile(): String = this@BookingCaseNotesResourceIntTest::class.java.getResource(this).readText()
