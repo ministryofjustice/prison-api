@@ -33,6 +33,9 @@ public class RollCount {
     private Integer currentlyInCell;
 
     @NotNull
+    private Integer outOfLivingUnits;
+
+    @NotNull
     private Integer currentlyOut;
 
     @NotNull
@@ -50,11 +53,16 @@ public class RollCount {
     @NotNull
     private Integer outOfOrder;
 
-    public RollCount(@NotNull Long livingUnitId, @NotBlank String livingUnitDesc, @NotNull Integer bedsInUse, @NotNull Integer currentlyInCell, @NotNull Integer currentlyOut, @NotNull Integer operationalCapacity, @NotNull Integer netVacancies, @NotNull Integer maximumCapacity, @NotNull Integer availablePhysical, @NotNull Integer outOfOrder) {
+    public RollCount(@NotNull Long livingUnitId, @NotBlank String livingUnitDesc,
+                     @NotNull Integer bedsInUse, @NotNull Integer currentlyInCell,
+                     @NotNull Integer outOfLivingUnits, @NotNull Integer currentlyOut, @NotNull Integer operationalCapacity,
+                     @NotNull Integer netVacancies, @NotNull Integer maximumCapacity,
+                     @NotNull Integer availablePhysical, @NotNull Integer outOfOrder) {
         this.livingUnitId = livingUnitId;
         this.livingUnitDesc = livingUnitDesc;
         this.bedsInUse = bedsInUse;
         this.currentlyInCell = currentlyInCell;
+        this.outOfLivingUnits = outOfLivingUnits;
         this.currentlyOut = currentlyOut;
         this.operationalCapacity = operationalCapacity;
         this.netVacancies = netVacancies;
@@ -115,6 +123,16 @@ public class RollCount {
 
     public void setCurrentlyInCell(final Integer currentlyInCell) {
         this.currentlyInCell = currentlyInCell;
+    }
+
+    @Schema(requiredMode = REQUIRED, description = "No of residential prisoners in internal locations")
+    @JsonProperty("outOfLivingUnits")
+    public Integer getOutOfLivingUnits() {
+        return outOfLivingUnits;
+    }
+
+    public void setOutOfLivingUnits(final Integer outOfLivingUnits) {
+        this.outOfLivingUnits = outOfLivingUnits;
     }
 
     /**
@@ -197,22 +215,18 @@ public class RollCount {
 
     @Override
     public String toString() {
-        final var sb = new StringBuilder();
-
-        sb.append("class RollCount {\n");
-
-        sb.append("  livingUnitId: ").append(livingUnitId).append("\n");
-        sb.append("  livingUnitDesc: ").append(livingUnitDesc).append("\n");
-        sb.append("  bedsInUse: ").append(bedsInUse).append("\n");
-        sb.append("  currentlyInCell: ").append(currentlyInCell).append("\n");
-        sb.append("  currentlyOut: ").append(currentlyOut).append("\n");
-        sb.append("  operationalCapacity: ").append(operationalCapacity).append("\n");
-        sb.append("  netVacancies: ").append(netVacancies).append("\n");
-        sb.append("  maximumCapacity: ").append(maximumCapacity).append("\n");
-        sb.append("  availablePhysical: ").append(availablePhysical).append("\n");
-        sb.append("  outOfOrder: ").append(outOfOrder).append("\n");
-        sb.append("}\n");
-
-        return sb.toString();
+        return "class RollCount {\n" +
+            "  livingUnitId: " + livingUnitId + "\n" +
+            "  livingUnitDesc: " + livingUnitDesc + "\n" +
+            "  bedsInUse: " + bedsInUse + "\n" +
+            "  currentlyInCell: " + currentlyInCell + "\n" +
+            "  currentlyOut: " + currentlyOut + "\n" +
+            "  outOfLivingUnits: " + outOfLivingUnits + "\n" +
+            "  operationalCapacity: " + operationalCapacity + "\n" +
+            "  netVacancies: " + netVacancies + "\n" +
+            "  maximumCapacity: " + maximumCapacity + "\n" +
+            "  availablePhysical: " + availablePhysical + "\n" +
+            "  outOfOrder: " + outOfOrder + "\n" +
+            "}\n";
     }
 }

@@ -64,10 +64,10 @@ public class MovementsRepositoryTest {
         final var rollCountList = repository.getRollCount("LEI", "Y");
         assertThat(rollCountList).hasSize(2);
         assertThat(rollCountList).asList()
-                .extracting("livingUnitDesc", "bedsInUse", "currentlyInCell", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
+                .extracting("livingUnitDesc", "bedsInUse", "currentlyInCell", "outOfLivingUnits", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
                 .contains(
-                        tuple("Block A", 12, 12, 0, 13, 1, 14, 2, 3),
-                        tuple("H", 14, 12, 2, 20, 6, 20, 6, 0));
+                        tuple("Block A", 12, 11, 1, 0, 13, 1, 14, 2, 3),
+                        tuple("H", 14, 12, 0, 2, 20, 6, 20, 6, 0));
     }
 
     @Test
@@ -75,9 +75,9 @@ public class MovementsRepositoryTest {
         final var rollCountList = repository.getRollCount("LEI", "N");
         assertThat(rollCountList).hasSize(1);
         assertThat(rollCountList).asList()
-                .extracting("livingUnitDesc", "bedsInUse", "currentlyInCell", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
+                .extracting("livingUnitDesc", "bedsInUse", "currentlyInCell", "outOfLivingUnits", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
                 .contains(
-                        tuple("Chapel", 0, 0, 0, null, null, null, null, 0));
+                        tuple("Chapel", 0, 0, 0, 0, null, null, null, null, 0));
     }
 
     @Test
