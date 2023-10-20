@@ -5,14 +5,17 @@ import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.api.model.courtdates.CourtDateCharge
 import uk.gov.justice.hmpps.prison.api.model.courtdates.CourtDateResult
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventChargeRepository
+import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess
+
 @Service
 @Transactional(readOnly = true)
 class CourtDateService(
   private val courtEventChargeRepository: CourtEventChargeRepository,
 ) {
 
-  fun getCourtDateResults(offenderId: String): List<CourtDateResult> {
-    return courtEventChargeRepository.findByOffender(offenderId).map {
+  @VerifyOffenderAccess(overrideRoles = ["SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"])
+  fun getCourtDateResults(offenderNo: String): List<CourtDateResult> {
+    return courtEventChargeRepository.findByOffender(offenderNo).map {
       val event = it.eventAndCharge.courtEvent
       val charge = it.eventAndCharge.offenderCharge
       CourtDateResult(
