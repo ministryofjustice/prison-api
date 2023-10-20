@@ -894,10 +894,10 @@ public class BookingService {
 
         final List<SentenceAdjustmentValues> sentenceAdjustments = offenderBooking.getSentenceAdjustments().stream().filter(SentenceAdjustmentValues::isActive).toList();
         final List<BookingAdjustment> bookingAdjustments = offenderBooking.getBookingAdjustments().stream().filter(BookingAdjustment::isActive).toList();
-        final List<OffenderSentence> sentences = offenderBooking.getSentences().stream().filter(Objects::nonNull).filter(sentence -> Objects.equals(sentence.getStatus(), "A")).toList();
+        final List<OffenderSentenceAndOffences> sentences = this.getSentenceAndOffenceDetails(offenderBooking.getBookingId()).stream().filter(Objects::nonNull).filter(sentence -> Objects.equals(sentence.getSentenceStatus(), "A")).toList();
 
-        final boolean containsFine = sentences.stream().anyMatch(sentence -> sentence.getCalculationType().isAFine());
-        final boolean containsFixedTermRecall = sentences.stream().anyMatch(sentence -> sentence.getCalculationType().isFixedTermRecallType());
+        final boolean containsFine = sentences.stream().anyMatch(OffenderSentenceAndOffences::isAFine);
+        final boolean containsFixedTermRecall = sentences.stream().anyMatch(OffenderSentenceAndOffences::isFixedTermRecallType);
 
         final List<OffenderFinePaymentDto> offenderFinePaymentDtoList = this.getFinesIfRequired(containsFine, offenderBooking.getBookingId());
         final FixedTermRecallDetails fixedTermRecallDetails = getFixedTermRecall(containsFixedTermRecall, offenderBooking.getBookingId());
@@ -906,8 +906,7 @@ public class BookingService {
         return new CalculableSentenceEnvelope(
             person,
             offenderBooking.getBookingId(),
-            sentences.stream().map(OffenderSentence::getSentenceAndOffenceDetail)
-                .toList(),
+            sentences,
             sentenceAdjustments,
             bookingAdjustments,
             offenderFinePaymentDtoList,

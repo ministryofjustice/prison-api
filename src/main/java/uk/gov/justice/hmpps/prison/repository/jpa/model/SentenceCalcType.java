@@ -65,15 +65,4 @@ public class SentenceCalcType extends AuditableEntity {
     @Convert(converter = YesNoConverter.class)
     private boolean active;
 
-    public boolean isAFine() {
-        return A_FINE_TYPE.equals(calculationType);
-    }
-
-    public boolean isFixedTermRecallType() {
-        return FIXED_TERM_RECALL_TYPES.contains(calculationType);
-    }
-
-    private static final Set<String> FIXED_TERM_RECALL_TYPES = Set.of("14FTR_ORA", "FTR_14_ORA", "FTR", "FTR_ORA", "FTR_SCH15", "FTRSCH15_ORA", "FTRSCH18", "FTRSCH18_ORA");
-    private static final String A_FINE_TYPE = "A/FINE";
-
 }
