@@ -9,7 +9,7 @@ import java.util.List;
 public class CourtDateResourceImplIntTest extends ResourceTest {
     @Test
     public void courtDateResults() {
-        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_VIEW_PRISON_DATA"), null)
+        final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_VIEW_PRISON_DATA"), null);
 
         final var responseEntity = testRestTemplate
             .exchange(
