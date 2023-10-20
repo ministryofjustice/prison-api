@@ -31,7 +31,13 @@ class BookingCaseNotesResourceIntTest : ResourceTest() {
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .json("case_notes_offender_1.json".readFile())
+        .jsonPath("totalElements").isEqualTo(4)
+        .jsonPath("$.content[0].caseNoteId").isEqualTo(-5)
+        .jsonPath("$.content[0].bookingId").isEqualTo(-2)
+        .jsonPath("$.content[0].type").isEqualTo("COMMS")
+        .jsonPath("$.content[0].typeDescription").isEqualTo("Communication")
+        .jsonPath("$.content[0].subType").isEqualTo("COM_OUT")
+        .jsonPath("$.content[0].subTypeDescription").isEqualTo("Communication OUT")
     }
 
     @Test
@@ -42,7 +48,9 @@ class BookingCaseNotesResourceIntTest : ResourceTest() {
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .json("case_notes_offender_filter_by_type.json".readFile())
+        .jsonPath("totalElements").isEqualTo(1)
+        .jsonPath("$.content[0].caseNoteId").isEqualTo(-4)
+        .jsonPath("$.content[0].type").isEqualTo("ETE")
     }
 
     @Test
@@ -53,7 +61,9 @@ class BookingCaseNotesResourceIntTest : ResourceTest() {
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .json("case_notes_offender_filter_by_subtype.json".readFile())
+        .jsonPath("totalElements").isEqualTo(1)
+        .jsonPath("$.content[0].caseNoteId").isEqualTo(-2)
+        .jsonPath("$.content[0].subType").isEqualTo("COM_IN")
     }
 
     @Test
@@ -64,7 +74,10 @@ class BookingCaseNotesResourceIntTest : ResourceTest() {
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .json("case_notes_offender_filter_by_dates.json".readFile())
+        .jsonPath("totalElements").isEqualTo(2)
+        .jsonPath("$.content[0].caseNoteId").isEqualTo(-4)
+        .jsonPath("$.content[0].occurrenceDateTime").isEqualTo("2017-04-17T09:05:00")
+        .jsonPath("$.content[1].occurrenceDateTime").isEqualTo("2017-04-11T18:42:00")
     }
 
     @Test
@@ -75,7 +88,8 @@ class BookingCaseNotesResourceIntTest : ResourceTest() {
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .json("case_notes_offender_filter_by_prison.json".readFile())
+        .jsonPath("totalElements").isEqualTo(1)
+        .jsonPath("$.content[0].agencyId").isEqualTo("BXI")
     }
   }
 
