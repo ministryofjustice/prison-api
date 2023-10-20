@@ -94,37 +94,6 @@ class BookingCaseNotesResourceIntTest : ResourceTest() {
   }
 
   @Nested
-  @DisplayName("GET /api/bookings/{bookingId}/caseNotes/{caseNoteId}")
-  inner class GetCaseNote {
-    @Test
-    fun `A specific case note is requested for booking that is not part of any of logged on staff user's caseloads`() {
-      webTestClient.get()
-        .uri("/api/bookings/-16/caseNotes/-1")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
-        .exchange()
-        .expectStatus().isNotFound
-    }
-
-    @Test
-    fun `A specific case note part of staff user's caseload is requested successfully`() {
-      webTestClient.get()
-        .uri("/api/bookings/-9/caseNotes/-90")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
-        .exchange()
-        .expectStatus().isOk
-    }
-
-    @Test
-    fun `A specific case note is requested for booking that does not exist`() {
-      webTestClient.get()
-        .uri("/api/bookings/-99/caseNotes/-1")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
-        .exchange()
-        .expectStatus().isNotFound
-    }
-  }
-
-  @Nested
   @DisplayName("PUT /api/bookings/{bookingId}/caseNotes/{caseNoteId}")
   inner class UpdateCaseNotes {
 
