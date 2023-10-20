@@ -485,12 +485,6 @@ public class BookingResource {
         return caseNoteService.getCaseNotes(caseNoteFilter, pageable);
     }
 
-    @Operation(summary = "Offender case note detail.", description = "Offender case note detail.", hidden = true)
-    @GetMapping("/{bookingId}/caseNotes/{caseNoteId}")
-    public CaseNote getOffenderCaseNote(@PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId, @PathVariable("caseNoteId") @Parameter(description = "The case note id", required = true) final Long caseNoteId) {
-        return caseNoteService.getCaseNote(bookingId, caseNoteId);
-    }
-
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
