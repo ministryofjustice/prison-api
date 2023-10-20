@@ -48,21 +48,19 @@ class OffenderResourceIntTest_getCaseNotes : ResourceTest() {
       }
 
       @Test
-      fun `returns 404 if has override ROLE_GLOBAL_SEARCH`() {
+      fun `returns 200 if has override ROLE_GLOBAL_SEARCH`() {
         webTestClient.get().uri("/api/offenders/A1234AC/case-notes/-11")
           .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
           .exchange()
-          .expectStatus().isNotFound
-          .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [A1234AC] not found.")
+          .expectStatus().isOk
       }
 
       @Test
-      fun `returns 404 if has override ROLE_VIEW_CASE_NOTES`() {
+      fun `returns 200 if has override ROLE_VIEW_CASE_NOTES`() {
         webTestClient.get().uri("/api/offenders/A1234AC/case-notes/-11")
           .headers(setClientAuthorisation(listOf("ROLE_VIEW_CASE_NOTES")))
           .exchange()
-          .expectStatus().isNotFound
-          .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [A1234AC] not found.")
+          .expectStatus().isOk
       }
 
       @Test
@@ -114,21 +112,19 @@ class OffenderResourceIntTest_getCaseNotes : ResourceTest() {
       }
 
       @Test
-      fun `returns 404 if has override ROLE_GLOBAL_SEARCH`() {
+      fun `returns 200 if has override ROLE_GLOBAL_SEARCH`() {
         webTestClient.get().uri("/api/offenders/A1234AC/case-notes/-11")
           .headers(setAuthorisation("RO_USER", listOf("ROLE_GLOBAL_SEARCH")))
           .exchange()
-          .expectStatus().isNotFound
-          .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [A1234AC] not found.")
+          .expectStatus().isOk
       }
 
       @Test
-      fun `returns 404 if has override ROLE_VIEW_CASE_NOTES`() {
+      fun `returns 200 if has override ROLE_VIEW_CASE_NOTES`() {
         webTestClient.get().uri("/api/offenders/A1234AC/case-notes/-11")
           .headers(setAuthorisation("RO_USER", listOf("ROLE_VIEW_CASE_NOTES")))
           .exchange()
-          .expectStatus().isNotFound
-          .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [A1234AC] not found.")
+          .expectStatus().isOk
       }
 
       @Test
