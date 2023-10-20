@@ -35,15 +35,16 @@ public interface OffenderBookingRepository extends
     Optional<OffenderBooking> findWithSentenceSummaryByOffenderNomsIdAndBookingSequence(String nomsId, Integer bookingSequence);
 
     @EntityGraph(type = EntityGraphType.FETCH, value = "booking-with-sentence-summary")
-    List<OffenderBooking> findAllOffenderBookingsByActiveTrueAndLocationAndSentences_CalculationTypeIsIn(
-       AgencyLocation agencyLocation,
-       List<SentenceCalcType> validCalcTypes
+    List<OffenderBooking> findAllOffenderBookingsByActiveTrueAndLocationAndSentences_statusAndSentences_CalculationType_CalculationTypeNotLikeAndSentences_CalculationType_CategoryNot(
+       AgencyLocation agencyLocation, String status,
+       String calculationType, String category
        );
 
     @EntityGraph(type = EntityGraphType.FETCH, value = "booking-with-sentence-summary")
-    List<OffenderBooking> findAllOffenderBookingsByActiveTrueAndOffenderNomsIdInAndSentences_CalculationTypeIsIn(
+    List<OffenderBooking> findAllOffenderBookingsByActiveTrueAndOffenderNomsIdInAndSentences_statusAndSentences_CalculationType_CalculationTypeNotLikeAndSentences_CalculationType_CategoryNot(
         Set<String> nomsIds,
-        List<SentenceCalcType> validCalcTypes
+        String status,
+        String calculationType, String category
     );
 
     Optional<OffenderBooking> findByBookingId(Long bookingId);
