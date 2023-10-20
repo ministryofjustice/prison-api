@@ -22,13 +22,13 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 @EqualsAndHashCode
 @Data
 @ToString
-public class MovementDate {
+public class SignificantMovement {
     @Schema(description = "Reason for movement into prison", example = "Unconvicted Remand", requiredMode = REQUIRED)
     private String reasonInToPrison;
     private LocalDateTime dateInToPrison;
     @Schema(description = "Type of movement into prison", requiredMode = REQUIRED, allowableValues = {"ADM", "TAP"})
     private String inwardType;
-    @Schema(description = "Reason for movement into prison", example = "Conditional Release (CJA91) -SH Term>1YR", requiredMode = NOT_REQUIRED)
+    @Schema(description = "Reason for movement out from prison", example = "Conditional Release (CJA91) -SH Term>1YR", requiredMode = NOT_REQUIRED)
     private String reasonOutOfPrison;
     @Schema(description = "Date this sub-period ended - if it has ended", requiredMode = NOT_REQUIRED)
     private LocalDateTime dateOutOfPrison;

@@ -25,7 +25,7 @@ import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 import org.springframework.data.annotation.CreatedDate;
-import uk.gov.justice.hmpps.prison.api.model.MovementDate;
+import uk.gov.justice.hmpps.prison.api.model.SignificantMovement;
 import uk.gov.justice.hmpps.prison.api.model.PrisonPeriod;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerInPrisonSummary;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIdentifier.OffenderIdentifierPK;
@@ -251,7 +251,7 @@ public class Offender extends AuditableEntity {
 
                 pp.setReleaseDate(pp.getLastMovement()
                     .filter(m -> "REL".equals(m.getOutwardType()))
-                    .map(MovementDate::getDateOutOfPrison).orElse(null));
+                    .map(SignificantMovement::getDateOutOfPrison).orElse(null));
             }
         );
 
@@ -260,10 +260,10 @@ public class Offender extends AuditableEntity {
         return summary;
     }
 
-    private List<MovementDate> buildMovements(final List<ExternalMovement> externalMovements) {
-        final var movements = new ArrayList<MovementDate>();
+    private List<SignificantMovement> buildMovements(final List<ExternalMovement> externalMovements) {
+        final var movements = new ArrayList<SignificantMovement>();
 
-        MovementDate lastMovement = null;
+        SignificantMovement lastMovement = null;
         for (ExternalMovement externalMovement : externalMovements) {
             final var movementRange = createMovementRange(externalMovement, lastMovement);
             if (movementRange.isPresent()) {
@@ -275,13 +275,13 @@ public class Offender extends AuditableEntity {
         return movements;
     }
 
-    private Optional<MovementDate> createMovementRange(final ExternalMovement m, final MovementDate md) {
+    private Optional<SignificantMovement> createMovementRange(final ExternalMovement m, final SignificantMovement md) {
 
-        MovementDate newMovement = md;
+        SignificantMovement newMovement = md;
         boolean newEntry = false;
         if (md == null || (md.getDateInToPrison() != null && md.getDateOutOfPrison() != null)) {
             // new entry
-            newMovement = MovementDate.builder().build();
+            newMovement = SignificantMovement.builder().build();
             newEntry = true;
         }
         if ("ADM".equals(m.getMovementType().getCode()) && newMovement.getDateInToPrison() == null) {
@@ -309,14 +309,14 @@ public class Offender extends AuditableEntity {
             .toList();
     }
 
-    private void outward(final ExternalMovement m, final MovementDate md) {
+    private void outward(final ExternalMovement m, final SignificantMovement md) {
         md.setDateOutOfPrison(m.getMovementTime());
         md.setReasonOutOfPrison(m.getMovementReason().getDescription());
         md.setOutwardType(m.getMovementType().getCode());
         md.setReleaseFromPrisonId(Optional.ofNullable(m.getFromAgency()).map(AgencyLocation::getId).orElse(null));
     }
 
-    private void inward(final ExternalMovement m, final MovementDate md) {
+    private void inward(final ExternalMovement m, final SignificantMovement md) {
         md.setDateInToPrison(m.getMovementTime());
         md.setReasonInToPrison(m.getMovementReason().getDescription());
         md.setInwardType(m.getMovementType().getCode());
