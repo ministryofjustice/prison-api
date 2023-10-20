@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @Schema(description = "Offender sentence and offence details")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -61,4 +63,16 @@ public class OffenderSentenceAndOffences {
 
     @Schema(description = "The amount of fine related to the sentence and offence")
     private Double fineAmount;
+
+    @JsonIgnore
+    public boolean isAFine() { return A_FINE_TYPE.equals(sentenceCalculationType); }
+
+    @JsonIgnore
+    public boolean isFixedTermRecallType() {
+        return FIXED_TERM_RECALL_TYPES.contains(sentenceCalculationType);
+    }
+
+
+    private static final Set<String> FIXED_TERM_RECALL_TYPES = Set.of("14FTR_ORA", "FTR_14_ORA", "FTR", "FTR_ORA", "FTR_SCH15", "FTRSCH15_ORA", "FTRSCH18", "FTRSCH18_ORA");
+    private static final String A_FINE_TYPE = "A/FINE";
 }
