@@ -313,12 +313,14 @@ public class Offender extends AuditableEntity {
         md.setDateOutOfPrison(m.getMovementTime());
         md.setReasonOutOfPrison(m.getMovementReason().getDescription());
         md.setOutwardType(m.getMovementType().getCode());
+        md.setReleaseFromPrisonId(Optional.ofNullable(m.getFromAgency()).map(AgencyLocation::getId).orElse(null));
     }
 
     private void inward(final ExternalMovement m, final MovementDate md) {
         md.setDateInToPrison(m.getMovementTime());
         md.setReasonInToPrison(m.getMovementReason().getDescription());
         md.setInwardType(m.getMovementType().getCode());
+        md.setAdmittedIntoPrisonId(Optional.ofNullable(m.getToAgency()).map(AgencyLocation::getId).orElse(null));
     }
 
     public String getMiddleNames() {

@@ -110,10 +110,31 @@ class OffenderBookingTest {
           )
           it.addExternalMovement(
             ExternalMovement.builder()
+              .movementType(MovementType("TRN", "Admission"))
+              .movementDirection(MovementDirection.OUT)
+              .movementReason(MovementReason("NOTR", "Transfer"))
+              .movementTime(LocalDateTime.of(2019, 1, 5, 9, 30))
+              .fromAgency(AgencyLocation.builder().id("WWI").build())
+              .toAgency(AgencyLocation.builder().id("BXI").build())
+              .build(),
+          )
+          it.addExternalMovement(
+            ExternalMovement.builder()
+              .movementType(MovementType("ADM", "Admission"))
+              .movementDirection(MovementDirection.IN)
+              .movementReason(MovementReason("INT", "Transfer"))
+              .movementTime(LocalDateTime.of(2019, 1, 5, 10, 30))
+              .fromAgency(AgencyLocation.builder().id("WWI").build())
+              .toAgency(AgencyLocation.builder().id("BXI").build())
+              .build(),
+          )
+          it.addExternalMovement(
+            ExternalMovement.builder()
               .movementType(MovementType("REL", "Release"))
               .movementDirection(MovementDirection.OUT)
               .movementReason(MovementReason("CR", "Conditional Release"))
               .movementTime(LocalDateTime.of(2019, 2, 28, 15, 30))
+              .fromAgency(AgencyLocation.builder().id("BXI").build())
               .build(),
           )
         }
@@ -139,6 +160,7 @@ class OffenderBookingTest {
               .movementDirection(MovementDirection.OUT)
               .movementReason(MovementReason("C4", "Wedding"))
               .movementTime(LocalDateTime.of(2020, 1, 15, 9, 30))
+              .fromAgency(AgencyLocation.builder().id("MDI").build())
               .build(),
           )
           it.addExternalMovement(
@@ -147,6 +169,7 @@ class OffenderBookingTest {
               .movementDirection(MovementDirection.IN)
               .movementReason(MovementReason("C4", "Wedding"))
               .movementTime(LocalDateTime.of(2020, 1, 15, 15, 30))
+              .toAgency(AgencyLocation.builder().id("MDI").build())
               .build(),
           )
           it.addExternalMovement(
@@ -155,6 +178,7 @@ class OffenderBookingTest {
               .movementDirection(MovementDirection.OUT)
               .movementReason(MovementReason("BL", "Bailed"))
               .movementTime(LocalDateTime.of(2020, 2, 28, 15, 30))
+              .fromAgency(AgencyLocation.builder().id("MDI").build())
               .build(),
           )
         }
@@ -179,14 +203,16 @@ class OffenderBookingTest {
               .movementDirection(MovementDirection.OUT)
               .movementReason(MovementReason("CRT", "Court Appearance"))
               .movementTime(LocalDateTime.of(2021, 1, 15, 9, 30))
+              .fromAgency(AgencyLocation.builder().id("MDI").build())
               .build(),
           )
           it.addExternalMovement(
             ExternalMovement.builder()
-              .movementType(MovementType("CRT", "Court"))
+              .movementType(MovementType("ADM", "Admission"))
               .movementDirection(MovementDirection.IN)
-              .movementReason(MovementReason("CRT", "Court Appearance"))
+              .movementReason(MovementReason("TRNCRT", "Transfer via Court"))
               .movementTime(LocalDateTime.of(2021, 1, 15, 15, 30))
+              .toAgency(AgencyLocation.builder().id("FSI").build())
               .build(),
           )
           it.addExternalMovement(
@@ -195,6 +221,7 @@ class OffenderBookingTest {
               .movementDirection(MovementDirection.OUT)
               .movementReason(MovementReason("HP", "Hospital"))
               .movementTime(LocalDateTime.of(2021, 2, 28, 15, 30))
+              .fromAgency(AgencyLocation.builder().id("FSI").build())
               .build(),
           )
         }
@@ -204,14 +231,20 @@ class OffenderBookingTest {
 
         assertThat(prisonPeriod).extracting<String> { it.bookNumber }.containsExactly("R1234K", "R1234T", "R1234Q")
         assertThat(prisonPeriod).extracting<Int> { it.movementDates.size }.containsExactly(1, 2, 1)
-        assertThat(prisonPeriod).extracting<List<String>> { it.prisons }.containsExactly(listOf("WWI"), listOf("MDI"), listOf("MDI"))
+        assertThat(prisonPeriod).extracting<List<String>> { it.prisons }.containsExactly(listOf("WWI", "BXI"), listOf("MDI"), listOf("MDI", "FSI"))
 
         assertThat(prisonPeriod[0].entryDate).isEqualTo(LocalDateTime.of(2019, 1, 4, 9, 30))
         assertThat(prisonPeriod[0].releaseDate).isEqualTo(LocalDateTime.of(2019, 2, 28, 15, 30))
+        assertThat(prisonPeriod[0].movementDates[0].admittedIntoPrisonId).isEqualTo("WWI")
+        assertThat(prisonPeriod[0].movementDates[0].releaseFromPrisonId).isEqualTo("BXI")
         assertThat(prisonPeriod[1].entryDate).isEqualTo(LocalDateTime.of(2020, 1, 4, 9, 30))
         assertThat(prisonPeriod[1].releaseDate).isEqualTo(LocalDateTime.of(2020, 2, 28, 15, 30))
+        assertThat(prisonPeriod[1].movementDates[0].admittedIntoPrisonId).isEqualTo("MDI")
+        assertThat(prisonPeriod[1].movementDates[0].releaseFromPrisonId).isEqualTo("MDI")
         assertThat(prisonPeriod[2].entryDate).isEqualTo(LocalDateTime.of(2021, 1, 4, 9, 30))
         assertThat(prisonPeriod[2].releaseDate).isEqualTo(LocalDateTime.of(2021, 2, 28, 15, 30))
+        assertThat(prisonPeriod[2].movementDates[0].admittedIntoPrisonId).isEqualTo("MDI")
+        assertThat(prisonPeriod[2].movementDates[0].releaseFromPrisonId).isEqualTo("FSI")
       }
     }
 
