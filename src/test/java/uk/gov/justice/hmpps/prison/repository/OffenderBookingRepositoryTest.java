@@ -143,7 +143,7 @@ public class OffenderBookingRepositoryTest {
             "LICENCE"
         );
 
-        Assertions.assertEquals(2, result.size());
+       assertThat(result).hasSize(2);
 
     }
 
