@@ -563,6 +563,4 @@ class BookingCaseNotesResourceIntTest : ResourceTest() {
     val ocn = offenderCaseNoteRepository.findById(caseNoteId).get()
     offenderCaseNoteRepository.delete(ocn)
   }
-
-  internal fun String.readFile(): String = this@BookingCaseNotesResourceIntTest::class.java.getResource(this).readText()
 }
