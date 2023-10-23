@@ -150,6 +150,7 @@ public class OffenderSentence extends AuditableEntity {
             .sentenceCalculationType(calculationType.getCalculationType())
             .sentenceTypeDescription(calculationType.getDescription())
             .sentenceDate(sentenceDate)
+            .sentenceEnd(sentenceEndDate)
             .fineAmount(fineAmount)
             .terms(terms == null ? null : terms
                 .stream()

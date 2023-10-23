@@ -55,6 +55,9 @@ public class OffenderSentenceAndOffences {
     @Schema(description = "The sentenced date for this sentence (aka court date)")
     private LocalDate sentenceDate;
 
+    @Schema(description = "Date that this sentence would expire")
+    private LocalDate sentenceEnd;
+
     @Schema(description = "The sentence terms of the sentence")
     private List<OffenderSentenceTerm> terms;
 
