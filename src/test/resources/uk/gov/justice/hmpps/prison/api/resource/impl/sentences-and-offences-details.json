@@ -11,7 +11,8 @@
     "sentenceCalculationType": "ADIMP_ORA",
     "sentenceTypeDescription": "ORA CJA03 Standard Determinate Sentence",
     "sentenceDate": "2017-06-21",
-    "sentenceEnd": "2017-11-04",
+    "sentenceStartDate": "2017-07-05",
+    "sentenceEndDate": "2017-11-04",
     "terms": [
       {
         "years": 3,
