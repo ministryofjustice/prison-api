@@ -1,6 +1,14 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model
 
-import jakarta.persistence.*
+import jakarta.persistence.CascadeType
+import jakarta.persistence.Column
+import jakarta.persistence.Convert
+import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.Table
 import org.hibernate.Hibernate
 import org.hibernate.type.YesNoConverter
 import uk.gov.justice.hmpps.prison.repository.jpa.helper.EntityOpen
@@ -32,7 +40,7 @@ class Gang(
   @ManyToOne(optional = true, fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
   val parent: Gang? = null,
 
-  ) {
+) {
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other == null || Hibernate.getClass(this) != Hibernate.getClass(other)) return false

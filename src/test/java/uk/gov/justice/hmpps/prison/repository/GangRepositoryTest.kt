@@ -1,17 +1,16 @@
 package uk.gov.justice.hmpps.prison.repository
 
-
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.test.context.ActiveProfiles
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.GangRepository
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
 import org.springframework.test.context.transaction.TestTransaction
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Gang
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.GangRepository
 
 private const val NEW_GANG_CODE = "NEW_GANG"
 
@@ -35,7 +34,7 @@ class GangRepositoryTest {
     gang = Gang(
       code = NEW_GANG_CODE,
       name = "The New Gang",
-      parent = Gang(code = "PARENT_GANG", name = "Parent Gang")
+      parent = Gang(code = "PARENT_GANG", name = "Parent Gang"),
     )
     repository.save(gang)
     TestTransaction.flagForCommit()
