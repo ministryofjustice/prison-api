@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.api.resource.impl;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import uk.gov.justice.hmpps.prison.api.model.CourtHearing;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.PrisonToCourtHearing;
@@ -111,6 +112,7 @@ public class BookingMovementsResourceIntTest_rescheduleCourtHearing extends Reso
                 request,
                 ErrorResponse.class);
 
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
         assertThat(response.getBody()).isEqualTo(
                 ErrorResponse.builder()
                         .status(403)

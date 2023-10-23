@@ -2,7 +2,6 @@ package uk.gov.justice.hmpps.prison.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -18,7 +17,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepos
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderIndividualScheduleRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
-import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.service.transformers.AgencyTransformer;
 
 import java.time.Clock;
@@ -72,8 +70,6 @@ public class PrisonToPrisonMoveSchedulingService {
     }
 
     @Transactional
-    @VerifyBookingAccess(overrideRoles = "PRISON_MOVE_MAINTAINER")
-    @PreAuthorize("hasRole('PRISON_MOVE_MAINTAINER') and hasAuthority('SCOPE_write')")
     public ScheduledPrisonToPrisonMove schedule(final Long bookingId, final SchedulePrisonToPrisonMove move) {
         log.debug("Scheduling a prison to prison move for booking: {} with details: {}", bookingId, move);
 
@@ -154,11 +150,9 @@ public class PrisonToPrisonMoveSchedulingService {
     }
 
     @Transactional
-    @VerifyBookingAccess(overrideRoles = "PRISON_MOVE_MAINTAINER")
-    @PreAuthorize("hasRole('PRISON_MOVE_MAINTAINER') and hasAuthority('SCOPE_write')")
     public void cancel(final Long bookingId, final Long scheduledMoveId, final String transferCancellationReasonCode) {
+        activeOffenderBookingFor(bookingId);
         final var move = scheduleRepository.findById(scheduledMoveId).orElseThrow(() -> EntityNotFoundException.withMessage("Scheduled prison move with id %s not found.", scheduledMoveId));
-
         checkIsPrison(move);
         checkIsAssociated(bookingId, move);
         checkIsActive(move.getOffenderBooking());

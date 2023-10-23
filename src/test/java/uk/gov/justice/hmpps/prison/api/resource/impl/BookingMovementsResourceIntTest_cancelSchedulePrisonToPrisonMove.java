@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
 
@@ -103,6 +104,7 @@ public class BookingMovementsResourceIntTest_cancelSchedulePrisonToPrisonMove ex
                 request,
                 ErrorResponse.class);
 
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
         assertThat(response.getBody()).isEqualTo(
                 ErrorResponse.builder()
                         .status(403)
