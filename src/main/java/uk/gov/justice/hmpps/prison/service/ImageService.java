@@ -61,12 +61,6 @@ public class ImageService {
             .map(i -> fullSizeImage ? i.getFullSizeImage() : i.getThumbnailImage());
     }
 
-    public Page<OffenderNumber> getOffendersWithImagesCapturedAfter(final LocalDateTime start,
-                                                                    final Pageable pageable) {
-        return offenderRepository.getOffendersWithImagesCapturedAfter(start, pageable)
-            .map(offender -> new OffenderNumber(offender.getNomsId()));
-    }
-
     @PreAuthorize("hasRole('IMAGE_UPLOAD') and hasAuthority('SCOPE_write')")
     @Transactional
     public ImageDetail putImageForOffender(final String offenderNumber, final InputStream receivedImage) {
