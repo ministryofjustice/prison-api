@@ -158,3 +158,7 @@ tasks {
     }
   }
 }
+
+allOpen {
+  annotation("uk.gov.justice.hmpps.prison.repository.jpa.helper.EntityOpen")
+}
