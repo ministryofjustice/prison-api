@@ -151,8 +151,8 @@ public class PrisonToPrisonMoveSchedulingService {
 
     @Transactional
     public void cancel(final Long bookingId, final Long scheduledMoveId, final String transferCancellationReasonCode) {
+        activeOffenderBookingFor(bookingId);
         final var move = scheduleRepository.findById(scheduledMoveId).orElseThrow(() -> EntityNotFoundException.withMessage("Scheduled prison move with id %s not found.", scheduledMoveId));
-
         checkIsPrison(move);
         checkIsAssociated(bookingId, move);
         checkIsActive(move.getOffenderBooking());

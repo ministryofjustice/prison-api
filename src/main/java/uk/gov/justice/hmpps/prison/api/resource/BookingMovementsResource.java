@@ -73,9 +73,10 @@ public class BookingMovementsResource {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{bookingId}/court-cases/{courtCaseId}/prison-to-court-hearings")
     @ProxyUser
-    @VerifyBookingAccess(overrideRoles = "COURT_HEARING_MAINTAINER")
     @PreAuthorize("hasRole('COURT_HEARING_MAINTAINER') and hasAuthority('SCOPE_write')")
-    public CourtHearing prisonToCourt(@PathVariable("bookingId") @Parameter(description = "The offender booking to associate the court hearing with.", required = true) final Long bookingId, @PathVariable("courtCaseId") @Parameter(description = "The court case to associate the hearing with.", required = true) final Long courtCaseId, @RequestBody @Parameter(description = "The prison to court hearing to be scheduled for the offender booking.", required = true) final @Valid PrisonToCourtHearing hearing) {
+    public CourtHearing prisonToCourt(@PathVariable("bookingId") @Parameter(description = "The offender booking to associate the court hearing with.", required = true) final Long bookingId,
+                                      @PathVariable("courtCaseId") @Parameter(description = "The court case to associate the hearing with.", required = true) final Long courtCaseId,
+                                      @RequestBody @Parameter(description = "The prison to court hearing to be scheduled for the offender booking.", required = true) final @Valid PrisonToCourtHearing hearing) {
         return courtHearingsService.scheduleHearing(bookingId, courtCaseId, hearing);
     }
 
@@ -88,9 +89,9 @@ public class BookingMovementsResource {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{bookingId}/prison-to-court-hearings")
     @ProxyUser
-    @VerifyBookingAccess(overrideRoles = "COURT_HEARING_MAINTAINER")
     @PreAuthorize("hasRole('COURT_HEARING_MAINTAINER') and hasAuthority('SCOPE_write')")
-    public CourtHearing prisonToCourt(@PathVariable("bookingId") @Parameter(description = "The offender booking to associate the court hearing with.", required = true) final Long bookingId, @RequestBody @Parameter(description = "The prison to court hearing to be scheduled for the offender booking.", required = true) final @Valid PrisonToCourtHearing hearing) {
+    public CourtHearing prisonToCourt(@PathVariable("bookingId") @Parameter(description = "The offender booking to associate the court hearing with.", required = true) final Long bookingId,
+                                      @RequestBody @Parameter(description = "The prison to court hearing to be scheduled for the offender booking.", required = true) final @Valid PrisonToCourtHearing hearing) {
         return courtHearingsService.scheduleHearing(bookingId, hearing);
     }
 
@@ -159,7 +160,6 @@ public class BookingMovementsResource {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{bookingId}/prison-to-prison")
     @ProxyUser
-    @VerifyBookingAccess(overrideRoles = "PRISON_MOVE_MAINTAINER")
     @PreAuthorize("hasRole('PRISON_MOVE_MAINTAINER') and hasAuthority('SCOPE_write')")
     public ScheduledPrisonToPrisonMove prisonToPrison(@PathVariable("bookingId") @Parameter(description = "The offender booking to associate the prison to prison move with.", required = true) final Long bookingId, @RequestBody @Parameter(description = "The prison to prison move to be scheduled for the offender booking.", required = true) final @Valid SchedulePrisonToPrisonMove prisonMove) {
         return prisonToPrisonMoveSchedulingService.schedule(bookingId, prisonMove);
@@ -173,7 +173,6 @@ public class BookingMovementsResource {
     @Operation(summary = "Cancels a scheduled prison to prison move for an offender.", description = "Cancels a scheduled prison to prison move for an offender.")
     @PutMapping("/{bookingId}/prison-to-prison/{eventId}/cancel")
     @ProxyUser
-    @VerifyBookingAccess(overrideRoles = "PRISON_MOVE_MAINTAINER")
     @PreAuthorize("hasRole('PRISON_MOVE_MAINTAINER') and hasAuthority('SCOPE_write')")
     public ResponseEntity<Void> cancelPrisonToPrisonMove(@PathVariable("bookingId") @Parameter(description = "The offender booking linked to the scheduled event.", required = true) final Long bookingId, @PathVariable("eventId") @Parameter(description = "The identifier of the scheduled event to be cancelled.", required = true) final Long eventId, @RequestBody @Parameter(description = "The cancellation details.", required = true) @Valid final PrisonMoveCancellation cancellation) {
         prisonToPrisonMoveSchedulingService.cancel(bookingId, eventId, cancellation.getReasonCode());
@@ -189,7 +188,6 @@ public class BookingMovementsResource {
     @Operation(summary = "Amends the scheduled court hearing date and/or time for an offender.", description = "Amends the scheduled court hearing date and/or time for an offender.")
     @PutMapping("/{bookingId}/court-hearings/{hearingId}/hearing-date")
     @ProxyUser
-    @VerifyBookingAccess(overrideRoles = "COURT_HEARING_MAINTAINER")
     @PreAuthorize("hasRole('COURT_HEARING_MAINTAINER') and hasAuthority('SCOPE_write')")
     public CourtHearing courtHearingDateAmendment(@PathVariable("bookingId") @Parameter(description = "The offender booking to associate the update with.", required = true) final Long bookingId, @PathVariable @Parameter(description = "The  court hearing to be updated.", required = true) final Long hearingId, @RequestBody @Parameter(description = "The amendments for the scheduled court hearing.", required = true) @Valid CourtHearingDateAmendment amendment) {
         return courtHearingReschedulingService.reschedule(bookingId, hearingId, amendment.getHearingDateTime());
@@ -202,7 +200,6 @@ public class BookingMovementsResource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Cancels the scheduled court hearing for an offender.", description = "Cancels the scheduled court hearing for an offender.")
     @DeleteMapping("/{bookingId}/court-hearings/{hearingId}/cancel")
-    @VerifyBookingAccess(overrideRoles = "COURT_HEARING_MAINTAINER")
     @PreAuthorize("hasRole('COURT_HEARING_MAINTAINER') and hasAuthority('SCOPE_write')")
     public ResponseEntity<Void> cancelCourtHearing(@PathVariable("bookingId") @Parameter(description = "The offender booking to linked to the scheduled event.", required = true) final Long bookingId, @PathVariable("hearingId") @Parameter(description = "The identifier of the scheduled event to be cancelled.", required = true) final Long hearingId) {
         courtHearingCancellationService.cancel(bookingId, hearingId);

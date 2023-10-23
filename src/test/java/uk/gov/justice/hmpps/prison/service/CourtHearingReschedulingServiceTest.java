@@ -13,6 +13,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.service.transformers.AgencyTransformer;
 
 import java.time.Clock;
@@ -34,6 +35,8 @@ public class CourtHearingReschedulingServiceTest {
 
     @Mock
     private CourtEventRepository eventRepository;
+    @Mock
+    private OffenderBookingRepository offenderBookingRepository;
 
     private final Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
 
@@ -96,7 +99,7 @@ public class CourtHearingReschedulingServiceTest {
 
     @BeforeEach
     void setup() {
-        service = new CourtHearingReschedulingService(eventRepository, clock);
+        service = new CourtHearingReschedulingService(eventRepository, offenderBookingRepository, clock);
     }
 
     @Test
