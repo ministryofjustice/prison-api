@@ -15,6 +15,8 @@
             "sentenceCalculationType": "FTR_ORA",
             "sentenceTypeDescription": "ORA 28 Day Fixed Term Recall",
             "sentenceDate": "2017-06-21",
+            "sentenceStartDate": "2017-07-05",
+            "sentenceEndDate": "2017-11-04",
             "terms": [
                 {
                     "years": 2,

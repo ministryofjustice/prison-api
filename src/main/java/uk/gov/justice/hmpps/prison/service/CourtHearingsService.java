@@ -1,7 +1,6 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -19,7 +18,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
-import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.service.transformers.AgencyTransformer;
 
 import java.time.Clock;
@@ -66,8 +64,6 @@ public class CourtHearingsService {
     }
 
     @Transactional
-    @VerifyBookingAccess(overrideRoles = "COURT_HEARING_MAINTAINER")
-    @PreAuthorize("hasRole('COURT_HEARING_MAINTAINER') and hasAuthority('SCOPE_write')")
     public CourtHearing scheduleHearing(final Long bookingId, final Long courtCaseId, final PrisonToCourtHearing hearing) {
         checkHearingIsInFuture(hearing.getCourtHearingDateTime());
 
@@ -98,8 +94,6 @@ public class CourtHearingsService {
     }
 
     @Transactional
-    @VerifyBookingAccess(overrideRoles = "COURT_HEARING_MAINTAINER")
-    @PreAuthorize("hasRole('COURT_HEARING_MAINTAINER') and hasAuthority('SCOPE_write')")
     public CourtHearing scheduleHearing(final Long bookingId, final PrisonToCourtHearing hearing) {
         checkHearingIsInFuture(hearing.getCourtHearingDateTime());
 
@@ -129,7 +123,6 @@ public class CourtHearingsService {
     /**
      * Returns all court hearings for a given booking ID for the given date range.
      */
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "COURT_HEARING_MAINTAINER"})
     public CourtHearings getCourtHearingsFor(final Long bookingId, final LocalDate fromDate, final LocalDate toDate) {
         checkFromAndToDatesAreValid(fromDate, toDate);
 

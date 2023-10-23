@@ -13,6 +13,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.service.transformers.AgencyTransformer;
 
 import java.time.Clock;
@@ -34,6 +35,8 @@ public class CourtHearingReschedulingServiceTest {
 
     @Mock
     private CourtEventRepository eventRepository;
+    @Mock
+    private OffenderBookingRepository offenderBookingRepository;
 
     private final Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
 
@@ -96,7 +99,7 @@ public class CourtHearingReschedulingServiceTest {
 
     @BeforeEach
     void setup() {
-        service = new CourtHearingReschedulingService(eventRepository, clock);
+        service = new CourtHearingReschedulingService(eventRepository, offenderBookingRepository, clock);
     }
 
     @Test
@@ -198,7 +201,9 @@ public class CourtHearingReschedulingServiceTest {
 
     @Test
     void reschedule_fails_when_booking_does_not_match_hearings() {
-        given(scheduledFutureHearing);
+        when (offenderBookingRepository.existsById(3L)).thenReturn(true);
+        when(eventRepository.findById(scheduledFutureHearing.getId())).thenReturn(Optional.of(scheduledFutureHearing));
+        when (offenderBookingRepository.existsById(3L)).thenReturn(true);
 
         final var revisedDateTime = scheduledFutureHearing.getEventDateTime().plusDays(1).plusMinutes(1);
 
@@ -245,6 +250,7 @@ public class CourtHearingReschedulingServiceTest {
     }
 
     private CourtHearingReschedulingServiceTest given(final CourtEvent hearing) {
+        when (offenderBookingRepository.existsById(hearing.getOffenderBooking().getBookingId())).thenReturn(true);
         when(eventRepository.findById(hearing.getId())).thenReturn(Optional.of(hearing));
 
         return this;
