@@ -78,19 +78,6 @@ public class ImageResource {
         return imageService.findOffenderImagesFor(offenderNo);
     }
 
-    @GetMapping("/offenders")
-    @Operation(summary = "Get offenders with images captured in provided range")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @PreAuthorize("hasRole('SYSTEM_USER')")
-    public Page<OffenderNumber> getOffendersWithImagesCapturedInRange(
-        @Parameter(description = "fromDateTime", required = true) @DateTimeFormat(iso = DATE_TIME) @RequestParam("fromDateTime") final LocalDateTime fromDate,
-        @ParameterObject @PageableDefault(direction = ASC, sort = "nomsId") final Pageable pageable) {
-        return imageService.getOffendersWithImagesCapturedAfter(fromDate, pageable);
-    }
-
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ImageDetail.class))}),
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
