@@ -402,6 +402,7 @@ class SchedulePrisonToPrisonMoveSchedulingServiceTest {
 
     @Test
     void cancel_scheduled_move_errors_when_scheduled_move_not_found() {
+        when(offenderBookingRepository.findById(OFFENDER_BOOKING_ID)).thenReturn(Optional.of(ACTIVE_BOOKING));
         assertThatThrownBy(() -> service.cancel(OFFENDER_BOOKING_ID, 2L, ADMINISTRATIVE_CANCELLATION_REASON))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("Scheduled prison move with id %s not found.", 2L);
@@ -409,7 +410,9 @@ class SchedulePrisonToPrisonMoveSchedulingServiceTest {
 
     @Test
     void cancel_scheduled_move_errors_when_booking_not_associated_with_move() {
-        givenScheduledMoveWith(ACTIVE_BOOKING);
+        scheduledPrisonMove.setOffenderBooking(ACTIVE_BOOKING);
+        when(scheduleRepository.findById(scheduledPrisonMove.getId())).thenReturn(Optional.of(scheduledPrisonMove));
+        when(offenderBookingRepository.findById(99L)).thenReturn(Optional.of(ACTIVE_BOOKING));
 
         assertThatThrownBy(() -> service.cancel(99L, scheduledPrisonMove.getId(), ADMINISTRATIVE_CANCELLATION_REASON))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -509,12 +512,15 @@ class SchedulePrisonToPrisonMoveSchedulingServiceTest {
         scheduledPrisonMove.setEventStatus(new EventStatus("COMP", "Completed"));
         scheduledPrisonMove.setOffenderBooking(ACTIVE_BOOKING);
 
+        when(offenderBookingRepository.findById(OFFENDER_BOOKING_ID)).thenReturn(Optional.of(ACTIVE_BOOKING));
         when(scheduleRepository.findById(scheduledPrisonMove.getId())).thenReturn(Optional.of(scheduledPrisonMove));
 
         return this;
     }
 
     private SchedulePrisonToPrisonMoveSchedulingServiceTest given(final OffenderIndividualSchedule scheduledMove) {
+        when(offenderBookingRepository.findById(OFFENDER_BOOKING_ID)).thenReturn(Optional.of(ACTIVE_BOOKING));
+        when(scheduleRepository.findById(scheduledMove.getId())).thenReturn(Optional.of(scheduledMove));
         when(scheduleRepository.findById(scheduledMove.getId())).thenReturn(Optional.of(scheduledMove));
 
         return this;
@@ -523,6 +529,7 @@ class SchedulePrisonToPrisonMoveSchedulingServiceTest {
     private SchedulePrisonToPrisonMoveSchedulingServiceTest givenScheduledMoveWith(final OffenderBooking booking) {
         scheduledPrisonMove.setOffenderBooking(booking);
 
+        when(offenderBookingRepository.findById(OFFENDER_BOOKING_ID)).thenReturn(Optional.of(ACTIVE_BOOKING));
         when(scheduleRepository.findById(scheduledPrisonMove.getId())).thenReturn(Optional.of(scheduledPrisonMove));
 
         return this;

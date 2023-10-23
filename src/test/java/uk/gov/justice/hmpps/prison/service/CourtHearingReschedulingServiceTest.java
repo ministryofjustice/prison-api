@@ -201,7 +201,9 @@ public class CourtHearingReschedulingServiceTest {
 
     @Test
     void reschedule_fails_when_booking_does_not_match_hearings() {
-        given(scheduledFutureHearing);
+        when (offenderBookingRepository.existsById(3L)).thenReturn(true);
+        when(eventRepository.findById(scheduledFutureHearing.getId())).thenReturn(Optional.of(scheduledFutureHearing));
+        when (offenderBookingRepository.existsById(3L)).thenReturn(true);
 
         final var revisedDateTime = scheduledFutureHearing.getEventDateTime().plusDays(1).plusMinutes(1);
 
@@ -248,6 +250,7 @@ public class CourtHearingReschedulingServiceTest {
     }
 
     private CourtHearingReschedulingServiceTest given(final CourtEvent hearing) {
+        when (offenderBookingRepository.existsById(hearing.getOffenderBooking().getBookingId())).thenReturn(true);
         when(eventRepository.findById(hearing.getId())).thenReturn(Optional.of(hearing));
 
         return this;
