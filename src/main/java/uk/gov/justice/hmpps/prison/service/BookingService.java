@@ -855,28 +855,22 @@ public class BookingService {
     public List<CalculableSentenceEnvelope> getCalculableSentenceEnvelopeByEstablishment(String caseLoad){
         final var agencyLocation = agencyLocationRepository.getReferenceById(caseLoad);
 
-        // Cached because Sentence Types are reference data that rarely change
-        final var validCalcTypes = sentenceCalcTypeRepository.findByCalculationTypeNotContainingAndCategoryIsNot(
-            "AGG",
-            "LICENCE"
-        );
-        final var activeBookings =  offenderBookingRepository.findAllOffenderBookingsByActiveTrueAndLocationAndSentences_CalculationTypeIsIn(
+        final var activeBookings =  offenderBookingRepository.findAllOffenderBookingsByActiveTrueAndLocationAndSentences_statusAndSentences_CalculationType_CalculationTypeNotLikeAndSentences_CalculationType_CategoryNot(
             agencyLocation,
-            validCalcTypes
+            "A",
+            "%AGG%",
+            "LICENCE"
         );
 
         return activeBookings.stream().map(this::determineCalculableSentenceEnvelope).toList();
     }
 
     public List<CalculableSentenceEnvelope> getCalculableSentenceEnvelopeByOffenderNumbers(Set<String> offenderNumbers) {
-        final var validCalcTypes = sentenceCalcTypeRepository.findByCalculationTypeNotContainingAndCategoryIsNot(
-            "AGG",
-            "LICENCE"
-        );
-
-        final var activeBookings = offenderBookingRepository.findAllOffenderBookingsByActiveTrueAndOffenderNomsIdInAndSentences_CalculationTypeIsIn(
+        final var activeBookings = offenderBookingRepository.findAllOffenderBookingsByActiveTrueAndOffenderNomsIdInAndSentences_statusAndSentences_CalculationType_CalculationTypeNotLikeAndSentences_CalculationType_CategoryNot(
             offenderNumbers,
-            validCalcTypes
+            "A",
+            "%AGG%",
+            "LICENCE"
         );
         return activeBookings.stream().map(this::determineCalculableSentenceEnvelope).toList();
     }

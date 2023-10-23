@@ -135,15 +135,14 @@ public class OffenderBookingRepositoryTest {
 
         final var location = agencyLocationRepository.getReferenceById("LEI");
 
-        final var validCalcTypes = sentenceCalcTypeRepository.findByCalculationTypeNotContainingAndCategoryIsNot(
-            "LICENCE",
-            "AGG"
+        final var result = repository.findAllOffenderBookingsByActiveTrueAndLocationAndSentences_statusAndSentences_CalculationType_CalculationTypeNotLikeAndSentences_CalculationType_CategoryNot(
+            location,
+            "A",
+            "%AGG%",
+            "LICENCE"
         );
 
-        repository.findAllOffenderBookingsByActiveTrueAndLocationAndSentences_CalculationTypeIsIn(
-            location,
-            validCalcTypes
-        );
+       assertThat(result).hasSize(2);
 
     }
 

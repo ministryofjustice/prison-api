@@ -305,18 +305,4 @@ class CacheConfigIntTest {
       verify(agencyService).getAgencyEventLocationsBooked("MDI", LocalDate.now(), null)
     }
   }
-
-  @Nested
-  inner class calculableSentenceCalculationTypes_cache {
-
-    @Test
-    fun `test calculable sentence calculation types is added to cache`() {
-      val result = sentenceCalcTypeRepository.findByCalculationTypeNotContainingAndCategoryIsNot("AGG", "LICENCE")
-      assertThat(result).isNotNull
-
-      sentenceCalcTypeRepository.findByCalculationTypeNotContainingAndCategoryIsNot("AGG", "LICENCE")
-
-      verify(sentenceCalcTypeRepository).findByCalculationTypeNotContainingAndCategoryIsNot("AGG", "LICENCE")
-    }
-  }
 }

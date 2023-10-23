@@ -31,9 +31,6 @@ interface OffenderRepository : JpaRepository<Offender, Long> {
   @Query("select o from Offender o left join fetch o.bookings b WHERE o.nomsId = :nomsId and b.bookingSequence = 1")
   fun findOffenderWithLatestBookingByNomsId(@Param("nomsId") nomsId: String): Optional<Offender>
 
-  @Query("select o from Offender o left join fetch o.bookings b left join fetch b.sentences s WHERE o.nomsId = :nomsId and b.bookingSequence = 1")
-  fun findOffenderWithAllBookingsByNomsId(@Param("nomsId") nomsId: String): Optional<Offender>
-
   @Query(value = "select o from Offender o join o.bookings ob join ob.images oi WHERE oi.captureDateTime > :start")
   fun getOffendersWithImagesCapturedAfter(@Param("start")start: LocalDateTime, pageable: Pageable): Page<Offender>
 

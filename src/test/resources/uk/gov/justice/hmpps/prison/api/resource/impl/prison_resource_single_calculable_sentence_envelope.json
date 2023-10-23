@@ -1,105 +1,66 @@
 {
     "person": {
-        "prisonerNumber": "Z0020ZZ",
-        "dateOfBirth": "1966-01-01"
+        "prisonerNumber": "A1234AB",
+        "dateOfBirth": "1998-08-28"
     },
-    "bookingId": -20,
+    "bookingId": -2,
     "sentenceAndOffences": [
         {
-            "bookingId": -20,
-            "sentenceSequence": 1,
+            "bookingId": -2,
+            "sentenceSequence": 2,
             "lineSequence": 1,
             "caseSequence": 1,
-            "caseReference": "ABC123",
-            "courtDescription": "Court 1",
             "sentenceStatus": "A",
             "sentenceCategory": "2003",
-            "sentenceCalculationType": "ADIMP_ORA",
-            "sentenceTypeDescription": "ORA CJA03 Standard Determinate Sentence",
+            "sentenceCalculationType": "FTR_ORA",
+            "sentenceTypeDescription": "ORA 28 Day Fixed Term Recall",
             "sentenceDate": "2017-06-21",
             "terms": [
                 {
-                    "years": 3,
+                    "years": 2,
                     "months": 0,
                     "weeks": 0,
                     "days": 0,
                     "code": "IMP"
                 },
                 {
-                    "years": 3,
+                    "years": 0,
+                    "months": 0,
+                    "weeks": 2,
+                    "days": 3,
+                    "code": "IMP"
+                },
+                {
+                    "years": 25,
                     "months": 0,
                     "weeks": 0,
                     "days": 0,
                     "code": "IMP"
                 }
             ],
-            "offences": [
-                {
-                    "offenderChargeId": -10,
-                    "offenceStartDate": "2015-01-04",
-                    "offenceEndDate": "2015-01-25",
-                    "offenceStatute": "RC86",
-                    "offenceCode": "RC86355",
-                    "offenceDescription": "Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury",
-                    "indicators": [
-                        "S15/CJIB",
-                        "SOR"
-                    ]
-                }
-            ],
-            "fineAmount": 100.15
-        },
-        {
-            "bookingId": -20,
-            "sentenceSequence": 2,
-            "lineSequence": 2,
-            "caseSequence": 1,
-            "caseReference": "ABC123",
-            "courtDescription": "Court 1",
-            "sentenceStatus": "A",
-            "sentenceCategory": "2003",
-            "sentenceCalculationType": "ADIMP_ORA",
-            "sentenceTypeDescription": "ORA CJA03 Standard Determinate Sentence",
-            "sentenceDate": "2017-06-21",
-            "terms": [
-                {
-                    "years": 5,
-                    "months": 0,
-                    "weeks": 0,
-                    "days": 0,
-                    "code": "IMP"
-                }
-            ],
-            "offences": [
-                {
-                    "offenderChargeId": -9,
-                    "offenceStatute": "RC86",
-                    "offenceCode": "RC86355",
-                    "offenceDescription": "Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury",
-                    "indicators": [
-                        "S15/CJIB",
-                        "SOR"
-                    ]
-                }
-            ],
-            "fineAmount": 20.5
+            "offences": [],
+            "fineAmount": 120.0
         }
     ],
     "sentenceAdjustments": [],
     "bookingAdjustments": [],
     "offenderFinePayments": [],
-    "fixedTermRecallDetails": null,
+    "fixedTermRecallDetails": {
+        "bookingId": -2,
+        "returnToCustodyDate": "2001-01-01",
+        "recallLength": 14
+    },
     "sentenceCalcDates": {
-        "sentenceExpiryDate": "2020-03-27",
-        "conditionalReleaseDate": "2019-03-24",
-        "actualParoleDate": "2018-09-27",
-        "bookingId": -20,
-        "sentenceStartDate": "2017-03-25",
-        "conditionalReleaseOverrideDate": "2019-03-25",
-        "nonDtoReleaseDate": "2019-03-25",
-        "sentenceExpiryCalculatedDate": "2020-03-24",
-        "sentenceExpiryOverrideDate": "2020-03-27",
-        "nonDtoReleaseDateType": "CRD",
-        "releaseDate": "2018-09-27"
+        "sentenceExpiryDate": "2019-05-21",
+        "automaticReleaseDate": "2018-05-21",
+        "releaseOnTemporaryLicenceDate": "2018-02-25",
+        "bookingId": -2,
+        "sentenceStartDate": "2017-05-22",
+        "automaticReleaseOverrideDate": "2018-04-21",
+        "nonDtoReleaseDate": "2018-04-21",
+        "sentenceExpiryCalculatedDate": "2019-05-21",
+        "nonDtoReleaseDateType": "ARD",
+        "confirmedReleaseDate": "2018-04-19",
+        "releaseDate": "2018-04-19"
     }
 }

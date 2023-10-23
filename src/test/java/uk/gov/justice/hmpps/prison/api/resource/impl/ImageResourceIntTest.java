@@ -15,14 +15,11 @@ import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
 
 import java.io.File;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.PRISON_API_USER;
-import static uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.SYSTEM_USER_READ_WRITE;
 
 @TestMethodOrder(OrderAnnotation.class)
 public class ImageResourceIntTest extends ResourceTest {
@@ -80,61 +77,6 @@ public class ImageResourceIntTest extends ResourceTest {
         final var responseEntity = testRestTemplate.exchange("/api/images/9999/data", HttpMethod.GET, requestEntity, String.class);
 
         assertThatStatus(responseEntity, 404);
-    }
-
-
-    @Test
-    @Order(1)
-    public void getOffendersWithImages() {
-
-        final var requestEntity = createHttpEntity(authTokenHelper.getToken(SYSTEM_USER_READ_WRITE), null);
-
-        final var responseEntity = testRestTemplate.exchange(
-            "/api/images/offenders?fromDateTime={fromDateTime}",
-            HttpMethod.GET, requestEntity, String.class, LocalDateTime.of(2020, 1, 1, 0, 0));
-
-        assertThatStatus(responseEntity, 200);
-        assertThat(getBodyAsJsonContent(responseEntity)).isStrictlyEqualToJson("offenders_with_images.json");
-    }
-
-    @Test
-    @Order(2)
-    public void getOffendersWithImagesPaged() {
-
-        final var requestEntity = createHttpEntity(authTokenHelper.getToken(SYSTEM_USER_READ_WRITE), null);
-
-        final var responseEntity = testRestTemplate.exchange(
-            "/api/images/offenders?fromDateTime={fromDateTime}&paged=true&size=3&page=1",
-            HttpMethod.GET, requestEntity, String.class, LocalDateTime.of(2020, 1, 1, 0, 0));
-
-        assertThatStatus(responseEntity, 200);
-        assertThat(getBodyAsJsonContent(responseEntity)).isStrictlyEqualToJson("offenders_with_images_paged.json");
-    }
-
-    @Test
-    @Order(3)
-    public void getOffendersWithImagesIsBadRequestWhenDateMissing() {
-
-        final var requestEntity = createHttpEntity(authTokenHelper.getToken(SYSTEM_USER_READ_WRITE), null);
-
-        final var responseEntity = testRestTemplate.exchange(
-            "/api/images/offenders",
-            HttpMethod.GET, requestEntity, String.class);
-
-        assertThatStatus(responseEntity, 400);
-    }
-
-    @Test
-    @Order(4)
-    public void getOffendersWithImagesIsForbiddenWhenNonSystemUser() {
-
-        final var requestEntity = createHttpEntity(authTokenHelper.getToken(PRISON_API_USER), null);
-
-        final var responseEntity = testRestTemplate.exchange(
-            "/api/images/offenders?fromDateTime={fromDateTime}",
-            HttpMethod.GET, requestEntity, String.class, LocalDateTime.of(2020, 1, 1, 0, 0));
-
-        assertThatStatus(responseEntity, 403);
     }
 
     @Test

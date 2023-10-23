@@ -25,7 +25,7 @@ class BookingResourceIntTest_getCalculableSentenceEnvelope : ResourceTest() {
     webTestClient.get()
       .uri { uriBuilder ->
         uriBuilder.path("/api/bookings/latest/calculable-sentence-envelope")
-          .queryParam("offenderNo", "Z0020ZZ", "A1234AE")
+          .queryParam("offenderNo", "A1234AB", "A1234AE")
           .build()
       }
       .headers(
