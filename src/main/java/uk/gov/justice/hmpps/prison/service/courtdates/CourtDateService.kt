@@ -5,7 +5,6 @@ import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.api.model.courtdates.CourtDateCharge
 import uk.gov.justice.hmpps.prison.api.model.courtdates.CourtDateResult
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventChargeRepository
-import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess
 
 @Service
 @Transactional(readOnly = true)
