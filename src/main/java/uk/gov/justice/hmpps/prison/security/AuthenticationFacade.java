@@ -8,7 +8,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import uk.gov.justice.hmpps.prison.exception.MissingRoleCheckException;
 import uk.gov.justice.hmpps.prison.web.config.AuthAwareAuthenticationToken;
 
 import java.util.Arrays;
