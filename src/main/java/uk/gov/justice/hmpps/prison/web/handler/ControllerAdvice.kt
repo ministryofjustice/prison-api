@@ -23,7 +23,6 @@ import org.springframework.web.client.RestClientException
 import org.springframework.web.client.RestClientResponseException
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
-import uk.gov.justice.hmpps.prison.exception.MissingRoleCheckException
 import uk.gov.justice.hmpps.prison.service.BadRequestException
 import uk.gov.justice.hmpps.prison.service.ConflictingRequestException
 import uk.gov.justice.hmpps.prison.service.EntityAlreadyExistsException
@@ -375,21 +374,6 @@ class ControllerAdvice {
           .userMessage(e.message)
           .status(HttpStatus.LOCKED.value())
           .developerMessage(e.developerMessage)
-          .build(),
-      )
-  }
-
-  @ExceptionHandler(MissingRoleCheckException::class)
-  fun handleMissingRoleCheckException(e: MissingRoleCheckException): ResponseEntity<ErrorResponse> {
-    log.debug("Mandatory role required {}", e.message)
-    return ResponseEntity
-      .status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .body(
-        ErrorResponse
-          .builder()
-          .userMessage("An unexpected error occurred")
-          .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-          .developerMessage(e.message)
           .build(),
       )
   }
