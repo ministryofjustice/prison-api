@@ -6,13 +6,18 @@ import net.minidev.json.JSONArray
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
+import uk.gov.justice.hmpps.prison.repository.OffenderDeletionRepository
 import uk.gov.justice.hmpps.prison.service.OffenderLocation
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
 
 @DisplayName("GET /offenders/{offenderNo}/housing-location")
 class OffenderResourceIntTest_getHousingLocation : ResourceTest() {
+  @Autowired
+  lateinit var offenderDeletionRepository: OffenderDeletionRepository
+
   @Test
   internal fun `404 when offender not found`() {
     val offenderNo = "Z9999ZZ"
@@ -50,6 +55,9 @@ class OffenderResourceIntTest_getHousingLocation : ResourceTest() {
       .responseBody.blockFirst()!!
 
     assertThat(location).isEqualTo(OffenderLocation())
+
+    // tidy up
+    offenderDeletionRepository.deleteAllOffenderDataIncludingBaseRecord(offenderNo)
   }
 
   @Test
@@ -75,6 +83,9 @@ class OffenderResourceIntTest_getHousingLocation : ResourceTest() {
       .jsonPath("levels[*].type").isEqualTo(JSONArray().also { it.addAll(listOf("WING", "LAND", "CELL")) })
       .jsonPath("levels[*].description").isEqualTo(JSONArray().also { it.addAll(listOf("Block A", "Landing A/1", "Cell 10")) })
       .jsonPath("lastPermanentLevels").doesNotExist()
+
+    // tidy up
+    offenderDeletionRepository.deleteAllOffenderDataIncludingBaseRecord(offenderNo)
   }
 
   @Test
@@ -100,5 +111,7 @@ class OffenderResourceIntTest_getHousingLocation : ResourceTest() {
       .jsonPath("levels[0].type").doesNotExist()
       .jsonPath("levels[*].description").isEqualTo(JSONArray().also { it.addAll(listOf("RECP")) })
       .jsonPath("lastPermanentLevels").doesNotExist()
+
+    offenderDeletionRepository.deleteAllOffenderDataIncludingBaseRecord(offenderNo)
   }
 }
