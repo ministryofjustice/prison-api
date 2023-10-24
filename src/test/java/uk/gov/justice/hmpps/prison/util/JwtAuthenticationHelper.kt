@@ -1,7 +1,6 @@
 package uk.gov.justice.hmpps.prison.util
 
 import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.SignatureAlgorithm
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
@@ -16,13 +15,7 @@ import java.util.UUID
 
 @Configuration
 class JwtAuthenticationHelper {
-  private val keyPair: KeyPair
-
-  init {
-    val gen = KeyPairGenerator.getInstance("RSA")
-    gen.initialize(2048)
-    keyPair = gen.generateKeyPair()
-  }
+  private val keyPair: KeyPair = KeyPairGenerator.getInstance("RSA").apply { initialize(2048) }.generateKeyPair()
 
   @Bean
   @Primary
@@ -60,12 +53,11 @@ class JwtAuthenticationHelper {
       scope?.let { this["scope"] = scope }
     }
     return Jwts.builder()
-      .setId(UUID.randomUUID().toString())
-      .addClaims(claims)
-      .setExpiration(Date(System.currentTimeMillis() + expiryTime.toMillis()))
-      .signWith(keyPair.private, SignatureAlgorithm.RS256)
-      .setHeaderParam("typ", "JWT")
-      .setHeaderParam("kid", "dps-client-key")
+      .id(UUID.randomUUID().toString())
+      .claims(claims)
+      .expiration(Date(System.currentTimeMillis() + expiryTime.toMillis()))
+      .signWith(keyPair.private, Jwts.SIG.RS256)
+      .header().add("typ", "JWT").add("kid", "dps-client-key").and()
       .compact()
   }
 }

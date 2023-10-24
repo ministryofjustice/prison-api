@@ -124,7 +124,6 @@ public class BookingService {
     private final VisitVisitorRepository visitVisitorRepository;
     private final SentenceRepository sentenceRepository;
     private final SentenceTermRepository sentenceTermRepository;
-    private final SentenceCalcTypeRepository sentenceCalcTypeRepository;
     private final AgencyService agencyService;
     private final CaseLoadService caseLoadService;
     private final OffenderFixedTermRecallService offenderFixedTermRecallService;
@@ -153,7 +152,6 @@ public class BookingService {
                           final VisitVisitorRepository visitVisitorRepository,
                           final SentenceRepository sentenceRepository,
                           final SentenceTermRepository sentenceTermRepository,
-                          final SentenceCalcTypeRepository sentenceCalcTypeRepository,
                           final AgencyService agencyService,
                           final OffenderFixedTermRecallService offenderFixedTermRecallService,
                           final CaseLoadService caseLoadService,
@@ -182,7 +180,6 @@ public class BookingService {
         this.visitVisitorRepository = visitVisitorRepository;
         this.sentenceRepository = sentenceRepository;
         this.sentenceTermRepository = sentenceTermRepository;
-        this.sentenceCalcTypeRepository = sentenceCalcTypeRepository;
         this.agencyService = agencyService;
         this.offenderFixedTermRecallService = offenderFixedTermRecallService;
         this.caseLoadService = caseLoadService;
@@ -287,7 +284,7 @@ public class BookingService {
     public uk.gov.justice.hmpps.prison.api.support.Page<ScheduledEvent> getBookingActivities(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final long offset, final long limit, final String orderByFields, final Order order) {
         validateScheduledEventsRequest(fromDate, toDate);
 
-        final var sortFields = StringUtils.defaultString(orderByFields, "startTime");
+        final var sortFields = Objects.toString(orderByFields, "startTime");
         final var sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
 
         return bookingRepository.getBookingActivities(bookingId, fromDate, toDate, offset, limit, sortFields, sortOrder);
@@ -296,7 +293,7 @@ public class BookingService {
     private List<ScheduledEvent> getBookingActivities(final Collection<Long> bookingIds, final LocalDate fromDate, final LocalDate toDate) {
         validateScheduledEventsRequest(fromDate, toDate);
 
-        final var sortFields = StringUtils.defaultString(null, "startTime");
+        final var sortFields = Objects.toString(null, "startTime");
         final var sortOrder = ObjectUtils.defaultIfNull(null, Order.ASC);
 
         return bookingRepository.getBookingActivities(bookingIds, fromDate, toDate, sortFields, sortOrder);
@@ -306,7 +303,7 @@ public class BookingService {
     public List<ScheduledEvent> getBookingActivities(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order) {
         validateScheduledEventsRequest(fromDate, toDate);
 
-        final var sortFields = StringUtils.defaultString(orderByFields, "startTime");
+        final var sortFields = Objects.toString(orderByFields, "startTime");
         final var sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
 
         return bookingRepository.getBookingActivities(bookingId, fromDate, toDate, sortFields, sortOrder);
@@ -354,7 +351,7 @@ public class BookingService {
     public uk.gov.justice.hmpps.prison.api.support.Page<ScheduledEvent> getBookingVisits(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final long offset, final long limit, final String orderByFields, final Order order) {
         validateScheduledEventsRequest(fromDate, toDate);
 
-        final var sortFields = StringUtils.defaultString(orderByFields, "startTime");
+        final var sortFields = Objects.toString(orderByFields, "startTime");
         final var sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
 
         return bookingRepository.getBookingVisits(bookingId, fromDate, toDate, offset, limit, sortFields, sortOrder);
@@ -364,7 +361,7 @@ public class BookingService {
     public List<ScheduledEvent> getBookingVisits(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order) {
         validateScheduledEventsRequest(fromDate, toDate);
 
-        final var sortFields = StringUtils.defaultString(orderByFields, "startTime");
+        final var sortFields = Objects.toString(orderByFields, "startTime");
         final var sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
 
         return bookingRepository.getBookingVisits(bookingId, fromDate, toDate, sortFields, sortOrder);
@@ -483,7 +480,7 @@ public class BookingService {
     private List<ScheduledEvent> getBookingVisits(final Collection<Long> bookingIds, final LocalDate fromDate, final LocalDate toDate) {
         validateScheduledEventsRequest(fromDate, toDate);
 
-        final var sortFields = StringUtils.defaultString(null, "startTime");
+        final var sortFields = Objects.toString(null, "startTime");
         final var sortOrder = ObjectUtils.defaultIfNull(null, Order.ASC);
 
         return bookingRepository.getBookingVisits(bookingIds, fromDate, toDate, sortFields, sortOrder);
@@ -521,7 +518,7 @@ public class BookingService {
     public uk.gov.justice.hmpps.prison.api.support.Page<ScheduledEvent> getBookingAppointments(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final long offset, final long limit, final String orderByFields, final Order order) {
         validateScheduledEventsRequest(fromDate, toDate);
 
-        final var sortFields = StringUtils.defaultString(orderByFields, "startTime");
+        final var sortFields = Objects.toString(orderByFields, "startTime");
         final var sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
 
         return bookingRepository.getBookingAppointments(bookingId, fromDate, toDate, offset, limit, sortFields, sortOrder);
@@ -531,7 +528,7 @@ public class BookingService {
     public List<ScheduledEvent> getBookingAppointments(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order) {
         validateScheduledEventsRequest(fromDate, toDate);
 
-        final var sortFields = StringUtils.defaultString(orderByFields, "startTime");
+        final var sortFields = Objects.toString(orderByFields, "startTime");
         final var sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
 
         return bookingRepository.getBookingAppointments(bookingId, fromDate, toDate, sortFields, sortOrder);
@@ -540,7 +537,7 @@ public class BookingService {
     private List<ScheduledEvent> getBookingAppointments(final Collection<Long> bookingIds, final LocalDate fromDate, final LocalDate toDate) {
         validateScheduledEventsRequest(fromDate, toDate);
 
-        final var sortFields = StringUtils.defaultString(null, "startTime");
+        final var sortFields = Objects.toString(null, "startTime");
         final var sortOrder = ObjectUtils.defaultIfNull(null, Order.ASC);
 
         return bookingRepository.getBookingAppointments(bookingIds, fromDate, toDate, sortFields, sortOrder);
@@ -828,7 +825,6 @@ public class BookingService {
             .toList();
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     public List<OffenderFinePaymentDto> getOffenderFinePayments(final Long bookingId) {
         return getOffenderFinePaymentsFromRepository(bookingId);
     }
