@@ -8,7 +8,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import uk.gov.justice.hmpps.prison.exception.MissingRoleCheckException;
 import uk.gov.justice.hmpps.prison.web.config.AuthAwareAuthenticationToken;
 
 import java.util.Arrays;
@@ -75,7 +74,6 @@ public class AuthenticationFacade {
     }
 
     private static boolean hasMatchingRole(final List<String> roles, final Authentication authentication) {
-        if (roles.isEmpty()) throw new MissingRoleCheckException("No role supplied to check against authentication");
         return authentication != null &&
                 authentication.getAuthorities().stream()
                         .anyMatch(a -> roles.contains(RegExUtils.replaceFirst(a.getAuthority(), "ROLE_", "")));

@@ -1,7 +1,6 @@
 package uk.gov.justice.hmpps.prison.security
 
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
@@ -11,7 +10,6 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.jwt.Jwt
-import uk.gov.justice.hmpps.prison.exception.MissingRoleCheckException
 import uk.gov.justice.hmpps.prison.security.AuthSource.AUTH
 import uk.gov.justice.hmpps.prison.security.AuthSource.NOMIS
 import uk.gov.justice.hmpps.prison.security.AuthSource.NONE
@@ -84,15 +82,11 @@ class AuthenticationFacadeTest {
 
   @Test
   fun isOverrideRole_NoOverrideRoleSet() {
-    assertThatThrownBy { authenticationFacade.isOverrideRole() }
-      .isInstanceOf(MissingRoleCheckException::class.java)
-      .hasMessage("No role supplied to check against authentication")
+    assertThat(authenticationFacade.isOverrideRole()).isFalse()
   }
 
   @Test
   fun hasRoles_NoAllowedRoleSet() {
-    assertThatThrownBy { AuthenticationFacade.hasRoles() }
-      .isInstanceOf(MissingRoleCheckException::class.java)
-      .hasMessage("No role supplied to check against authentication")
+    assertThat(AuthenticationFacade.hasRoles()).isFalse()
   }
 }
