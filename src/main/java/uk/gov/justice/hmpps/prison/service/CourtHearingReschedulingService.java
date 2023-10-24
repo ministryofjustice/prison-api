@@ -1,7 +1,6 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -9,7 +8,7 @@ import uk.gov.justice.hmpps.prison.api.model.CourtHearing;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
-import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.service.transformers.AgencyTransformer;
 
 import java.time.Clock;
@@ -28,18 +27,23 @@ import static com.google.common.base.Preconditions.checkState;
 public class CourtHearingReschedulingService {
 
     private final CourtEventRepository courtEventRepository;
+    private final OffenderBookingRepository offenderBookingRepository;
 
     private final Clock clock;
 
-    public CourtHearingReschedulingService(final CourtEventRepository courtEventRepository, final Clock clock) {
+    public CourtHearingReschedulingService(final CourtEventRepository courtEventRepository,
+                                           final OffenderBookingRepository offenderBookingRepository,
+                                           final Clock clock) {
         this.courtEventRepository = courtEventRepository;
+        this.offenderBookingRepository = offenderBookingRepository;
         this.clock = clock;
     }
 
     @Transactional
-    @VerifyBookingAccess(overrideRoles = "COURT_HEARING_MAINTAINER")
-    @PreAuthorize("hasRole('COURT_HEARING_MAINTAINER') and hasAuthority('SCOPE_write')")
     public CourtHearing reschedule(final Long bookingId, final Long hearingId, final LocalDateTime revisedDateTime) {
+        if (!offenderBookingRepository.existsById(bookingId)) {
+            throw EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId);
+        }
         final var scheduledCourtHearing = getScheduledHearingFor(hearingId);
 
         checkBookingsMatch(bookingId, scheduledCourtHearing.getOffenderBooking());
@@ -56,10 +60,10 @@ public class CourtHearingReschedulingService {
         final var rescheduledCourtHearing = courtEventRepository.save(scheduledCourtHearing);
 
         log.debug("Rescheduled court hearing '{}' for offender '{}' from '{}' to '{}'",
-                rescheduledCourtHearing.getId(),
-                rescheduledCourtHearing.getOffenderBooking().getOffender().getNomsId(),
-                originalHearingDateTime,
-                revisedDateTime);
+            rescheduledCourtHearing.getId(),
+            rescheduledCourtHearing.getOffenderBooking().getOffender().getNomsId(),
+            originalHearingDateTime,
+            revisedDateTime);
 
         return transformToCourtHearing(rescheduledCourtHearing);
     }
@@ -86,9 +90,9 @@ public class CourtHearingReschedulingService {
 
     private CourtHearing transformToCourtHearing(final CourtEvent event) {
         return CourtHearing.builder()
-                .id(event.getId())
-                .location(AgencyTransformer.transform(event.getCourtLocation(), false))
-                .dateTime(event.getEventDateTime())
-                .build();
+            .id(event.getId())
+            .location(AgencyTransformer.transform(event.getCourtLocation(), false))
+            .dateTime(event.getEventDateTime())
+            .build();
     }
 }

@@ -450,7 +450,7 @@ class BookingCaseNotesResourceIntTest : ResourceTest() {
 
     @Test
     fun `Validation error when create a case note with subtype too long`() {
-      val resp = webTestClient.post().uri("/api/bookings/-32/caseNotes")
+      webTestClient.post().uri("/api/bookings/-32/caseNotes")
         .headers(setAuthorisation("ITAG_USER", listOf("")))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .bodyValue(
@@ -563,6 +563,4 @@ class BookingCaseNotesResourceIntTest : ResourceTest() {
     val ocn = offenderCaseNoteRepository.findById(caseNoteId).get()
     offenderCaseNoteRepository.delete(ocn)
   }
-
-  internal fun String.readFile(): String = this@BookingCaseNotesResourceIntTest::class.java.getResource(this).readText()
 }
