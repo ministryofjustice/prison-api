@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.courtdates.CourtDateResult;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
+import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.courtdates.CourtDateService;
 
 import java.util.List;
@@ -34,9 +35,10 @@ public class CourtDateResource {
         @ApiResponse(responseCode = "200", description = "The court date results.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CourtDateResult.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Returns details of all court dates and the result of each.")
-    @GetMapping("/{offenderId}")
+    @GetMapping("/{offenderNo}")
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @SlowReportQuery
-    public List<CourtDateResult> getCourtDateResults(@PathVariable("offenderId") @Parameter(description = "The required offender id (mandatory)", required = true) final String offenderId) {
-        return courtDateService.getCourtDateResults(offenderId);
+    public List<CourtDateResult> getCourtDateResults(@PathVariable("offenderNo") @Parameter(description = "The required offender id (mandatory)", required = true) final String offenderNo) {
+        return courtDateService.getCourtDateResults(offenderNo);
     }
 }

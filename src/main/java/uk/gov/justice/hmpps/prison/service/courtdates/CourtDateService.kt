@@ -13,7 +13,6 @@ class CourtDateService(
   private val courtEventChargeRepository: CourtEventChargeRepository,
 ) {
 
-  @VerifyOffenderAccess(overrideRoles = ["GLOBAL_SEARCH", "VIEW_PRISONER_DATA"])
   fun getCourtDateResults(offenderNo: String): List<CourtDateResult> {
     return courtEventChargeRepository.findByOffender(offenderNo).map {
       val event = it.eventAndCharge.courtEvent
