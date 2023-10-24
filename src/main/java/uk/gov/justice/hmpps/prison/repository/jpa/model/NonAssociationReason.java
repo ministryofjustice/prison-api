@@ -15,4 +15,9 @@ public class NonAssociationReason extends ReferenceCode {
     public NonAssociationReason(final String code, final String description) {
         super(DOMAIN, code, description);
     }
+
+    public static ReferenceCode.Pk pk(final String code) {
+        return new ReferenceCode.Pk(DOMAIN, code);
+    }
+
 }
