@@ -488,7 +488,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     private fun resetTestData() {
       webTestClient.delete()
         .uri("/api/offender-sentences/booking/-2/home-detention-curfews/latest/checks-passed")
-        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_HDC")))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
     }
 
@@ -531,10 +531,10 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     }
 
     @Test
-    fun `should return success when user has VIEW_PRISONER_DATA role`() {
+    fun `should return success when user has MAINTAIN_HDC role`() {
       webTestClient.put()
         .uri("/api/offender-sentences/booking/-2/home-detention-curfews/latest/checks-passed")
-        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_HDC")))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .bodyValue(
           """
@@ -574,10 +574,10 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     }
 
     @Test
-    fun `should return success when user has VIEW_PRISONER_DATA role`() {
+    fun `should return success when user has MAINTAIN_HDC role`() {
       webTestClient.delete()
         .uri("/api/offender-sentences/booking/-2/home-detention-curfews/latest/checks-passed")
-        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_HDC")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isNoContent
@@ -592,13 +592,13 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     private fun resetTestData() {
       webTestClient.delete()
         .uri("/api/offender-sentences/booking/-5/home-detention-curfews/latest/approval-status")
-        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_HDC")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isNoContent
       webTestClient.delete()
         .uri("/api/offender-sentences/booking/-5/home-detention-curfews/latest/checks-passed")
-        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_HDC")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isNoContent
@@ -660,11 +660,11 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     }
 
     @Test
-    fun `should return success when user has VIEW_PRISONER_DATA role`() {
+    fun `should return success when user has MAINTAIN_HDC role`() {
       // Set checks first
       webTestClient.put()
         .uri("/api/offender-sentences/booking/-5/home-detention-curfews/latest/checks-passed")
-        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_HDC")))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .bodyValue(
           """
@@ -680,7 +680,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
 
       webTestClient.put()
         .uri("/api/offender-sentences/booking/-5/home-detention-curfews/latest/approval-status")
-        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_HDC")))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .bodyValue(
           """
@@ -720,10 +720,10 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     }
 
     @Test
-    fun `should return success when user has VIEW_PRISONER_DATA role`() {
+    fun `should return success when user has MAINTAIN_HDC role`() {
       webTestClient.delete()
         .uri("/api/offender-sentences/booking/-2/home-detention-curfews/latest/approval-status")
-        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_HDC")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isNoContent
