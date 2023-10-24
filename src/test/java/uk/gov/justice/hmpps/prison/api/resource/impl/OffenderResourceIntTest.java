@@ -315,6 +315,19 @@ public class OffenderResourceIntTest extends ResourceTest {
     }
 
     @Test
+    public void testGetIncidentsNoRoles() {
+        final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
+
+        final var response = testRestTemplate.exchange(
+            "/api/incidents/-4",
+            GET,
+            createHttpEntity(token, null),
+            new ParameterizedTypeReference<IncidentCase>() {
+            });
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+    }
+
+    @Test
     public void testCanRetrieveIncidentCandidatesWithSystemUser() {
         final var token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE);
 

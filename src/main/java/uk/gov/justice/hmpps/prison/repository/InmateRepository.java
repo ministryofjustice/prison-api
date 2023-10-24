@@ -442,17 +442,6 @@ public class InmateRepository extends RepositoryBase {
         return identifiers.stream().map(OffenderIdentifierDto::toOffenderIdentifier).collect(Collectors.toList());
     }
 
-    public List<OffenderIdentifier> getOffenderIdentifiersByTypeAndValue(final String identifierType, final String identifierValue) {
-        final var sql = InmateRepositorySql.FIND_IDENTIFIER_RECORDS_BY_TYPE_AND_VALUE.getSql();
-
-        final var identifiers = jdbcTemplate.query(
-            sql,
-            createParams("identifierType", identifierType, "identifierValue", identifierValue),
-            OFFENDER_IDENTIFIER_MAPPER);
-        return identifiers.stream().map(OffenderIdentifierDto::toOffenderIdentifier).collect(Collectors.toList());
-    }
-
-
     public Optional<PhysicalAttributes> findPhysicalAttributes(final long bookingId) {
         final var sql = InmateRepositorySql.FIND_PHYSICAL_ATTRIBUTES_BY_BOOKING.getSql();
 

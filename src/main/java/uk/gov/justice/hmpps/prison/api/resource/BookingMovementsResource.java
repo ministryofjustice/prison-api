@@ -69,7 +69,7 @@ public class BookingMovementsResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Schedules a prison to court hearing for an offender and given court case.", description = "Schedules a prison to court hearing for an offender and given court case.")
+    @Operation(summary = "Schedules a prison to court hearing for an offender and given court case.", description = "Schedules a prison to court hearing for an offender and given court case. Requires role COURT_HEARING_MAINTAINER and scope write")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{bookingId}/court-cases/{courtCaseId}/prison-to-court-hearings")
     @ProxyUser
@@ -85,7 +85,7 @@ public class BookingMovementsResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Schedules a prison to court hearing for an offender.", description = "Schedules a prison to court hearing for an offender.")
+    @Operation(summary = "Schedules a prison to court hearing for an offender.", description = "Schedules a prison to court hearing for an offender. Requires role COURT_HEARING_MAINTAINER and scope write")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{bookingId}/prison-to-court-hearings")
     @ProxyUser
@@ -156,7 +156,7 @@ public class BookingMovementsResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Schedules a future prison to prison move for an offender.", description = "Schedules a future prison to prison move for an offender.")
+    @Operation(summary = "Schedules a future prison to prison move for an offender.", description = "Schedules a future prison to prison move for an offender. Requires role PRISON_MOVE_MAINTAINER and scope write.")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{bookingId}/prison-to-prison")
     @ProxyUser
@@ -170,7 +170,7 @@ public class BookingMovementsResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Cancels a scheduled prison to prison move for an offender.", description = "Cancels a scheduled prison to prison move for an offender.")
+    @Operation(summary = "Cancels a scheduled prison to prison move for an offender.", description = "Cancels a scheduled prison to prison move for an offender. Requires role PRISON_MOVE_MAINTAINER and scope write")
     @PutMapping("/{bookingId}/prison-to-prison/{eventId}/cancel")
     @ProxyUser
     @PreAuthorize("hasRole('PRISON_MOVE_MAINTAINER') and hasAuthority('SCOPE_write')")
@@ -185,7 +185,7 @@ public class BookingMovementsResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Amends the scheduled court hearing date and/or time for an offender.", description = "Amends the scheduled court hearing date and/or time for an offender.")
+    @Operation(summary = "Amends the scheduled court hearing date and/or time for an offender.", description = "Amends the scheduled court hearing date and/or time for an offender. Requires role COURT_HEARING_MAINTAINER and scope write")
     @PutMapping("/{bookingId}/court-hearings/{hearingId}/hearing-date")
     @ProxyUser
     @PreAuthorize("hasRole('COURT_HEARING_MAINTAINER') and hasAuthority('SCOPE_write')")
@@ -198,7 +198,7 @@ public class BookingMovementsResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Cancels the scheduled court hearing for an offender.", description = "Cancels the scheduled court hearing for an offender.")
+    @Operation(summary = "Cancels the scheduled court hearing for an offender.", description = "Cancels the scheduled court hearing for an offender. Requires role COURT_HEARING_MAINTAINER and scope write")
     @DeleteMapping("/{bookingId}/court-hearings/{hearingId}/cancel")
     @PreAuthorize("hasRole('COURT_HEARING_MAINTAINER') and hasAuthority('SCOPE_write')")
     public ResponseEntity<Void> cancelCourtHearing(@PathVariable("bookingId") @Parameter(description = "The offender booking to linked to the scheduled event.", required = true) final Long bookingId, @PathVariable("hearingId") @Parameter(description = "The identifier of the scheduled event to be cancelled.", required = true) final Long hearingId) {

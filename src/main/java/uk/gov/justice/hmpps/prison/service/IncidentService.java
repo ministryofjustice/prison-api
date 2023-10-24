@@ -25,7 +25,6 @@ public class IncidentService {
         this.bookingService = bookingService;
     }
 
-    @PreAuthorize("hasAnyRole('SYSTEM_USER')")
     public IncidentCase getIncidentCase(@NotNull final long incidentCaseId) {
         return repository.getIncidentCases(List.of(incidentCaseId)).stream().findFirst().orElseThrow(EntityNotFoundException.withId(incidentCaseId));
     }
