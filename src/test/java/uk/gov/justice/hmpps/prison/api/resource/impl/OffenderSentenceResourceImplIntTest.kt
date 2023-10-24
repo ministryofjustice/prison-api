@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import org.assertj.core.api.Assertions
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -482,6 +483,15 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
   @Nested
   @DisplayName("PUT /api/offender-sentences/booking/{bookingId}/home-detention-curfews/latest/checks-passed")
   inner class SetHDCChecksPassedFlag {
+
+    @AfterEach
+    private fun resetTestData() {
+      webTestClient.delete()
+        .uri("/api/offender-sentences/booking/-2/home-detention-curfews/latest/checks-passed")
+        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_HDC")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+    }
+
     @Test
     fun `should return success when user has SYSTEM_USER role`() {
       webTestClient.put()
@@ -499,12 +509,6 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isNoContent
-
-      // Tidy up
-      webTestClient.delete()
-        .uri("/api/offender-sentences/booking/-2/home-detention-curfews/latest/checks-passed")
-        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
     }
 
     @Test
@@ -527,10 +531,10 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     }
 
     @Test
-    fun `should return 403 when user has VIEW_PRISONER_DATA role`() {
+    fun `should return success when user has MAINTAIN_HDC role`() {
       webTestClient.put()
         .uri("/api/offender-sentences/booking/-2/home-detention-curfews/latest/checks-passed")
-        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_HDC")))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .bodyValue(
           """
@@ -542,7 +546,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
         )
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
-        .expectStatus().isForbidden
+        .expectStatus().isNoContent
     }
   }
 
@@ -570,19 +574,35 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     }
 
     @Test
-    fun `should return 403 when user has VIEW_PRISONER_DATA role`() {
+    fun `should return success when user has MAINTAIN_HDC role`() {
       webTestClient.delete()
         .uri("/api/offender-sentences/booking/-2/home-detention-curfews/latest/checks-passed")
-        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_HDC")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
-        .expectStatus().isForbidden
+        .expectStatus().isNoContent
     }
   }
 
   @Nested
   @DisplayName("PUT /api/offender-sentences/booking/{bookingId}/home-detention-curfews/latest/approval-status")
   inner class SetHDCApprovalStatus {
+
+    @AfterEach
+    private fun resetTestData() {
+      webTestClient.delete()
+        .uri("/api/offender-sentences/booking/-5/home-detention-curfews/latest/approval-status")
+        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_HDC")))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isNoContent
+      webTestClient.delete()
+        .uri("/api/offender-sentences/booking/-5/home-detention-curfews/latest/checks-passed")
+        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_HDC")))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isNoContent
+    }
 
     @Test
     fun `should return success when user has SYSTEM_USER role`() {
@@ -618,20 +638,6 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isNoContent
-
-      // tidy up
-      webTestClient.delete()
-        .uri("/api/offender-sentences/booking/-5/home-detention-curfews/latest/approval-status")
-        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isNoContent
-      webTestClient.delete()
-        .uri("/api/offender-sentences/booking/-5/home-detention-curfews/latest/checks-passed")
-        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isNoContent
     }
 
     @Test
@@ -654,10 +660,27 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     }
 
     @Test
-    fun `should return 403 when user has VIEW_PRISONER_DATA role`() {
+    fun `should return success when user has MAINTAIN_HDC role`() {
+      // Set checks first
+      webTestClient.put()
+        .uri("/api/offender-sentences/booking/-5/home-detention-curfews/latest/checks-passed")
+        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_HDC")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+              {
+                "passed": true,
+                "date": "2018-12-30"
+              }
+          """,
+        )
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isNoContent
+
       webTestClient.put()
         .uri("/api/offender-sentences/booking/-5/home-detention-curfews/latest/approval-status")
-        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_HDC")))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .bodyValue(
           """
@@ -669,7 +692,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
         )
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
-        .expectStatus().isForbidden
+        .expectStatus().isNoContent
     }
   }
 
@@ -697,13 +720,13 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     }
 
     @Test
-    fun `should return 403 when user has VIEW_PRISONER_DATA role`() {
+    fun `should return success when user has MAINTAIN_HDC role`() {
       webTestClient.delete()
         .uri("/api/offender-sentences/booking/-2/home-detention-curfews/latest/approval-status")
-        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_HDC")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
-        .expectStatus().isForbidden
+        .expectStatus().isNoContent
     }
   }
 
