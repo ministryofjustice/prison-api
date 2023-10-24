@@ -75,7 +75,6 @@ public class AuthenticationFacade {
     }
 
     private static boolean hasMatchingRole(final List<String> roles, final Authentication authentication) {
-        if (roles.isEmpty()) throw new MissingRoleCheckException("No role supplied to check against authentication");
         return authentication != null &&
                 authentication.getAuthorities().stream()
                         .anyMatch(a -> roles.contains(RegExUtils.replaceFirst(a.getAuthority(), "ROLE_", "")));
