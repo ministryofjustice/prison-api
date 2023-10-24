@@ -136,19 +136,19 @@ public class OffenderCurfewService {
     }
 
     @Transactional
-    @PreAuthorize("hasRole('SYSTEM_USER') and hasAuthority('SCOPE_write')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'VIEW_PRISONER_DATA') and hasAuthority('SCOPE_write')")
     public void setHdcChecks(final long bookingId, @Valid final HdcChecks hdcChecks) {
         withCurrentCurfewState(bookingId).setHdcChecks(hdcChecks);
     }
 
     @Transactional
-    @PreAuthorize("hasRole('SYSTEM_USER') and hasAuthority('SCOPE_write')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'VIEW_PRISONER_DATA') and hasAuthority('SCOPE_write')")
     public void deleteHdcChecks(Long bookingId) {
         withCurrentCurfewState(bookingId).deleteHdcChecks();
     }
 
     @Transactional
-    @PreAuthorize("hasRole('SYSTEM_USER') and hasAuthority('SCOPE_write')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'VIEW_PRISONER_DATA') and hasAuthority('SCOPE_write')")
     public void setApprovalStatus(final long bookingId, @Valid final ApprovalStatus approvalStatus) {
 
         if (!referenceDomainService.isReferenceCodeActive(HDC_APPROVE_DOMAIN, approvalStatus.getApprovalStatus())) {
@@ -165,7 +165,7 @@ public class OffenderCurfewService {
     }
 
     @Transactional
-    @PreAuthorize("hasRole('SYSTEM_USER') and hasAuthority('SCOPE_write')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'VIEW_PRISONER_DATA') and hasAuthority('SCOPE_write')")
     public void deleteApprovalStatus(Long bookingId) {
         withCurrentCurfewState(bookingId).deleteApprovalStatus();
     }
