@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model
 import jakarta.persistence.Column
 import jakarta.persistence.Convert
 import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
 import jakarta.persistence.Id
 import jakarta.persistence.IdClass
 import jakarta.persistence.JoinColumn
@@ -23,12 +24,12 @@ import java.io.Serializable
 class GangNonAssociation(
 
   @Id
-  @ManyToOne(optional = false)
+  @ManyToOne(optional = false, fetch = FetchType.LAZY)
   @JoinColumn(name = "GANG_CODE", nullable = false)
   val primaryGang: Gang,
 
   @Id
-  @ManyToOne(optional = false)
+  @ManyToOne(optional = false, fetch = FetchType.LAZY)
   @JoinColumn(name = "NS_GANG_CODE", nullable = false)
   val secondaryGang: Gang,
 

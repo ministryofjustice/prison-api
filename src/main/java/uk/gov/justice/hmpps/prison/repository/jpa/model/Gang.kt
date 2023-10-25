@@ -44,7 +44,18 @@ class Gang(
   @OneToMany(mappedBy = "gang", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
   val members: MutableList<GangMember> = mutableListOf(),
 
+  @OneToMany(mappedBy = "primaryGang", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+  val nonAssociationsPrimary: List<GangNonAssociation> = listOf(),
+
+  @OneToMany(mappedBy = "secondaryGang", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+  val nonAssociationsSecondary: List<GangNonAssociation> = listOf(),
+
 ) {
+
+  fun getNonAssociations(): List<Pair<Gang, NonAssociationReason>> =
+    nonAssociationsPrimary.plus(nonAssociationsSecondary).map { naGang ->
+      Pair(naGang.primaryGang.takeIf { it != this } ?: naGang.secondaryGang, naGang.nonAssociationReason)
+    }
 
   fun addMember(booking: OffenderBooking, commentText: String? = null) {
     members.add(GangMember(this, booking, commentText))

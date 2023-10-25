@@ -1,14 +1,15 @@
-package uk.gov.justice.hmpps.prison.repository
+package uk.gov.justice.hmpps.prison.service
 
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.security.test.context.support.WithAnonymousUser
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.transaction.TestTransaction
+import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Gang
 import uk.gov.justice.hmpps.prison.repository.jpa.model.GangNonAssociation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.NonAssociationReason
@@ -22,10 +23,14 @@ private const val NEW_GANG_CODE_1 = "NEW_GANG_1"
 private const val NEW_GANG_CODE_2 = "NEW_GANG_2"
 private const val NEW_GANG_CODE_3 = "NEW_GANG_3"
 
-@DataJpaTest
 @ActiveProfiles("test")
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class GangMemberRepositoryTest {
+@SpringBootTest
+@Transactional
+@WithAnonymousUser
+class GangServiceIntTest {
+
+  @Autowired
+  lateinit var gangService: GangService
 
   @Autowired
   lateinit var gangRepository: GangRepository
@@ -45,10 +50,6 @@ class GangMemberRepositoryTest {
 
   @AfterEach
   fun teardown() {
-    gangNonAssociationRepository.deleteAll(gangNonAssociationRepository.findAllByGangCode(primaryGang.code))
-    gangNonAssociationRepository.deleteAll(gangNonAssociationRepository.findAllByGangCode(secondaryGang.code))
-    gangNonAssociationRepository.deleteAll(gangNonAssociationRepository.findAllByGangCode(gang3.code))
-
     gangRepository.delete(primaryGang)
     gangRepository.delete(secondaryGang)
     gangRepository.delete(gang3)
@@ -123,20 +124,8 @@ class GangMemberRepositoryTest {
   }
 
   @Test
-  fun canFindGangMembers() {
-    TestTransaction.start()
-    repository.findAllByBookingOffenderNomsId("A1234AE").let {
-      Assertions.assertThat(it).hasSize(1)
-      Assertions.assertThat(it[0].gang.code).isEqualTo(NEW_GANG_CODE_2)
-      Assertions.assertThat(it[0].booking.bookingId).isEqualTo(-5)
-      Assertions.assertThat(it[0].commentText).isEqualTo("gang 2 - member 1 added")
-      Assertions.assertThat(
-        it[0].gang.getNonAssociations().let { naGangs ->
-          Assertions.assertThat(naGangs).hasSize(2)
-          Assertions.assertThat(naGangs[0].first.code).isEqualTo(NEW_GANG_CODE_3)
-          Assertions.assertThat(naGangs[1].first.code).isEqualTo(NEW_GANG_CODE_1)
-        },
-      )
-    }
+  fun getNonAssociatesInGangs() {
+    val gangNas = gangService.getNonAssociatesInGangs("A1234AE")
+    Assertions.assertThat(gangNas.gangNonAssociations).hasSize(2)
   }
 }

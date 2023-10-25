@@ -1,12 +1,6 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model
 
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.Id
-import jakarta.persistence.IdClass
-import jakarta.persistence.JoinColumn
-import jakarta.persistence.ManyToOne
-import jakarta.persistence.Table
+import jakarta.persistence.*
 import org.hibernate.Hibernate
 import uk.gov.justice.hmpps.prison.repository.jpa.helper.EntityOpen
 import java.io.Serializable
@@ -18,12 +12,12 @@ import java.io.Serializable
 class GangMember(
 
   @Id
-  @ManyToOne(optional = false)
+  @ManyToOne(optional = false, fetch = FetchType.LAZY)
   @JoinColumn(name = "GANG_CODE", nullable = false)
   val gang: Gang,
 
   @Id
-  @ManyToOne(optional = false)
+  @ManyToOne(optional = false, fetch = FetchType.LAZY)
   @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
   val booking: OffenderBooking,
 
