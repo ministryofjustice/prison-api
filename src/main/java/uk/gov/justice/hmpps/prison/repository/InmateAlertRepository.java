@@ -9,12 +9,9 @@ import org.springframework.stereotype.Repository;
 import uk.gov.justice.hmpps.prison.api.model.Alert;
 import uk.gov.justice.hmpps.prison.api.model.AlertChanges;
 import uk.gov.justice.hmpps.prison.api.model.CreateAlert;
-import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
-import uk.gov.justice.hmpps.prison.api.model.OffenderSummaryDto;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException;
-import uk.gov.justice.hmpps.prison.repository.mapping.DataClassByColumnRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.FieldMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.PageAwareRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.Row2BeanRowMapper;
@@ -22,7 +19,6 @@ import uk.gov.justice.hmpps.prison.repository.sql.InmateAlertRepositorySql;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -56,10 +52,6 @@ public class InmateAlertRepository extends RepositoryBase {
             .put("UPDATE_FIRST_NAME", new FieldMapper("expiredByFirstName"))
             .put("UPDATE_LAST_NAME", new FieldMapper("expiredByLastName"))
             .build();
-
-    private final DataClassByColumnRowMapper<OffenderSummaryDto> CANDIDATE_MAPPER =
-            new DataClassByColumnRowMapper<>(OffenderSummaryDto.class);
-
 
     public List<Alert> getActiveAlerts(final long bookingId) {
         final var sql = InmateAlertRepositorySql.FIND_INMATE_ALERTS.getSql();
@@ -134,27 +126,6 @@ public class InmateAlertRepository extends RepositoryBase {
                         "offenderNos", offenderNos,
                         "agencyId", agencyId),
                 alertMapper);
-    }
-
-
-    public Page<String> getAlertCandidates(final LocalDateTime cutoffTimestamp, final long offset, final long limit) {
-        final var builder = queryBuilderFactory.getQueryBuilder(InmateAlertRepositorySql.GET_ALERT_CANDIDATES.getSql(), CANDIDATE_MAPPER.getFieldMap());
-
-        final var sql = builder
-                .addRowCount()
-                .addPagination()
-                .build();
-
-        final var rowMapper = Row2BeanRowMapper.makeMapping(OffenderSummary.class, CANDIDATE_MAPPER.getFieldMap());
-        final var paRowMapper = new PageAwareRowMapper<>(rowMapper);
-
-        final var offenderSummaries = jdbcTemplate.query(
-                sql,
-                createParams("cutoffTimestamp", cutoffTimestamp, "offset", offset, "limit", limit),
-                paRowMapper);
-        final var results = offenderSummaries.stream().map(OffenderSummary::getOffenderNo).toList();
-
-        return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
     }
 
     private final static int lockWaitTime = 25;
