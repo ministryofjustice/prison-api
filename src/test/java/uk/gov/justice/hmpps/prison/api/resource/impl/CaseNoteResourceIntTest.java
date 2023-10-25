@@ -111,7 +111,7 @@ public class CaseNoteResourceIntTest extends ResourceTest {
 
         final var types = List.of("POS", "NEG");
 
-        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of(), CaseNoteTypeSummaryRequest.builder()
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_VIEW_CASE_NOTES"), CaseNoteTypeSummaryRequest.builder()
             .types(types)
             .bookingFromDateSelection(bookingDatePairs)
             .build());
