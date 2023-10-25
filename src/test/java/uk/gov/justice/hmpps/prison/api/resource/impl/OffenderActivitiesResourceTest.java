@@ -43,7 +43,7 @@ public class OffenderActivitiesResourceTest extends ResourceTest {
 
         @Test
         public void badRequest_NoEndDateParameter() {
-            final var entity = createHttpEntity(validToken(), null);
+            final var entity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_NOMIS_ACTIVITIES"), Map.of());
 
             final var response = testRestTemplate.exchange(
                 "/api/offender-activities/1234/activities-history",
@@ -228,7 +228,7 @@ public class OffenderActivitiesResourceTest extends ResourceTest {
             final var entity = createHttpEntity(validToken(), null);
 
             final var response = testRestTemplate.exchange(
-                "/api/offender-activities/A1234AB/attendance-history",
+                "/api/offender-activities/A1234AB/attendance-history?fromDate=2017-01-01&toDate=2017-01-02",
                 HttpMethod.GET,
                 entity,
                 String.class);
@@ -238,7 +238,7 @@ public class OffenderActivitiesResourceTest extends ResourceTest {
 
         @Test
         public void badRequest_NoFromDateParameter() {
-            final var entity = createHttpEntity(validToken(), null);
+            final var entity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_NOMIS_ACTIVITIES"), Map.of());
 
             final var response = testRestTemplate.exchange(
                 "/api/offender-activities/1234/attendance-history?toDate=2017-01-01",
@@ -252,7 +252,7 @@ public class OffenderActivitiesResourceTest extends ResourceTest {
 
         @Test
         public void badRequest_NoToDateParameter() {
-            final var entity = createHttpEntity(validToken(), null);
+            final var entity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_NOMIS_ACTIVITIES"), Map.of());
 
             final var response = testRestTemplate.exchange(
                 "/api/offender-activities/1234/attendance-history?fromDate=2017-01-01",
