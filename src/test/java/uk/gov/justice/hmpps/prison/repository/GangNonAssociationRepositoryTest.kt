@@ -100,6 +100,7 @@ class GangNonAssociationRepositoryTest {
 
   @Test
   fun canFindAGangNa() {
+    TestTransaction.start()
     repository.findAllByGangCode(NEW_GANG_CODE_2).let {
       Assertions.assertThat(it).hasSize(2)
       Assertions.assertThat(it[0].primaryGang).isEqualTo(primaryGang)

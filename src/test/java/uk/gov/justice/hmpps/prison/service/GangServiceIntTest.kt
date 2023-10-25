@@ -50,6 +50,10 @@ class GangServiceIntTest {
 
   @AfterEach
   fun teardown() {
+    gangNonAssociationRepository.deleteAll(gangNonAssociationRepository.findAllByGangCode(primaryGang.code))
+    gangNonAssociationRepository.deleteAll(gangNonAssociationRepository.findAllByGangCode(secondaryGang.code))
+    gangNonAssociationRepository.deleteAll(gangNonAssociationRepository.findAllByGangCode(gang3.code))
+
     gangRepository.delete(primaryGang)
     gangRepository.delete(secondaryGang)
     gangRepository.delete(gang3)
