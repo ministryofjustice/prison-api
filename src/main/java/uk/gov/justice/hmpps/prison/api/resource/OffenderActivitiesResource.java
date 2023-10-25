@@ -66,10 +66,3 @@ public class OffenderActivitiesResource {
         return activitiesService.getHistoricalAttendancies(offenderNo, earliestActivityDate, latestActivityDate, outcome, pageable);
     }
 }
-/*
-prisonstaffhubclient-2
-hmpps-prisoner-profile-system
-hmpps-education-employment-ui-client-2
-whereabouts-api-client-2
-hmpps-prisoner-profile-system
- */
