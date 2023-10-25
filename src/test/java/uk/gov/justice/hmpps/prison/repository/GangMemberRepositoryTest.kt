@@ -137,5 +137,6 @@ class GangMemberRepositoryTest {
         },
       )
     }
+    TestTransaction.end()
   }
 }

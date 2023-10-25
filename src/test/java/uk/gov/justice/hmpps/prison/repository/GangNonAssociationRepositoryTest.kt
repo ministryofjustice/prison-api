@@ -110,5 +110,6 @@ class GangNonAssociationRepositoryTest {
       Assertions.assertThat(it[1].secondaryGang).isEqualTo(secondaryGang)
       Assertions.assertThat(it[1].nonAssociationReason.code).isEqualTo("RIV")
     }
+    TestTransaction.end()
   }
 }
