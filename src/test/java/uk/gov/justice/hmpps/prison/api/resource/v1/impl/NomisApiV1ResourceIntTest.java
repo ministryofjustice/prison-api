@@ -178,6 +178,24 @@ public class NomisApiV1ResourceIntTest extends ResourceTest {
     }
 
     @Test
+    public void transferTransaction_wrong_role() {
+        final var transaction = new CreateTransaction();
+        transaction.setAmount(1234L);
+        transaction.setClientUniqueRef("clientRef");
+        transaction.setDescription("desc");
+        transaction.setType("type");
+        transaction.setClientTransactionId("transId");
+
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("ROLE_WRONG"), transaction);
+
+        when(postTransfer.execute(any(SqlParameterSource.class))).thenReturn(Map.of(P_TXN_ID, "someId", P_TXN_ENTRY_SEQ, "someSeq", P_CURRENT_AGY_DESC, "someDesc", P_CURRENT_AGY_LOC_ID, "someLoc"));
+
+        final var responseEntity = testRestTemplate.exchange("/api/v1/prison/CKI/offenders/G1408GC/transfer_transactions", HttpMethod.POST, requestEntity, String.class);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+    }
+
+    @Test
     public void transferTransaction_duplicate() {
         final var transaction = new CreateTransaction();
         transaction.setAmount(1234L);
@@ -218,84 +236,85 @@ public class NomisApiV1ResourceIntTest extends ResourceTest {
     public void getOffenderPssDetail() throws SQLException {
 
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
-        final var eventData = "{\n" +
-                "        \"offender_details\": {\n" +
-                "            \"personal_details\": {\n" +
-                "                \"offender_surname\": \"ABDORIA\",\n" +
-                "                \"offender_given_name_1\": \"ONGMETAIN\",\n" +
-                "                \"offender_dob\": \"1990-12-06 00:00:00\",\n" +
-                "                \"gender\": {\n" +
-                "                    \"code\": \"M\",\n" +
-                "                    \"desc\": \"Male\"\n" +
-                "                },\n" +
-                "                \"religion\": {\n" +
-                "                    \"code\": \"NIL\",\n" +
-                "                    \"desc\": \"EfJSmIEfJSm\"\n" +
-                "                },\n" +
-                "                \"security_category\": {\n" +
-                "                    \"code\": \"C\",\n" +
-                "                    \"desc\": \"Cat C\"\n" +
-                "                },\n" +
-                "                \"nationality\": {\n" +
-                "                    \"code\": \"BRIT\",\n" +
-                "                    \"desc\": \"sxiVsxi\"\n" +
-                "                },\n" +
-                "                \"ethnicity\": {\n" +
-                "                    \"code\": \"W1\",\n" +
-                "                    \"desc\": \"White: Eng./Welsh/Scot./N.Irish/British\"\n" +
-                "                }\n" +
-                "            },\n" +
-                "            \"sentence_information\": {\n" +
-                "                \"reception_arrival_date_and_time\": \"2017-05-03 15:50:00\",\n" +
-                "                \"status\": \"Convicted\",\n" +
-                "                \"imprisonment_status\": {\n" +
-                "                    \"code\": \"LR\",\n" +
-                "                    \"desc\": \"Recalled to Prison from Parole (Non HDC)\"\n" +
-                "                }\n" +
-                "            },\n" +
-                "            \"location\": {\n" +
-                "                \"agency_location\": \"LEI\",\n" +
-                "                \"internal_location\": \"LEI-E-5-004\",\n" +
-                "                \"location_type\": \"CELL\"\n" +
-                "            },\n" +
-                "            \"warnings\": [\n" +
-                "                {\n" +
-                "                    \"warning_type\": {\n" +
-                "                        \"code\": \"P\",\n" +
-                "                        \"desc\": \"MAPPP Case\"\n" +
-                "                    },\n" +
-                "                    \"warning_sub_type\": {\n" +
-                "                        \"code\": \"P2\",\n" +
-                "                        \"desc\": \"MAPPA Level 2 Case\"\n" +
-                "                    },\n" +
-                "                    \"warning_date\": \"2015-06-03 00:00:00\",\n" +
-                "                    \"status\": \"ACTIVE\"\n" +
-                "                },\n" +
-                "                {\n" +
-                "                    \"warning_type\": {\n" +
-                "                        \"code\": \"R\",\n" +
-                "                        \"desc\": \"Risk\"\n" +
-                "                    },\n" +
-                "                    \"warning_sub_type\": {\n" +
-                "                        \"code\": \"RCS\",\n" +
-                "                        \"desc\": \"Risk to Children - Custody\"\n" +
-                "                    },\n" +
-                "                    \"warning_date\": \"2013-06-04 00:00:00\",\n" +
-                "                    \"status\": \"ACTIVE\"\n" +
-                "                }\n" +
-                "            ],\n" +
-                "            \"entitlement\": {\n" +
-                "                \"canteen_adjudication\": false,\n" +
-                "                \"iep_level\": {\n" +
-                "                    \"code\": \"STD\",\n" +
-                "                    \"desc\": \"Standard\"\n" +
-                "                }\n" +
-                "            },\n" +
-                "            \"case_details\": {\n" +
-                "                \"personal_officer\": \"Griffine, Ymmnatpher\"\n" +
-                "            }\n" +
-                "        }\n" +
-                "     }";
+        final var eventData = """
+            {
+                    "offender_details": {
+                        "personal_details": {
+                            "offender_surname": "ABDORIA",
+                            "offender_given_name_1": "ONGMETAIN",
+                            "offender_dob": "1990-12-06 00:00:00",
+                            "gender": {
+                                "code": "M",
+                                "desc": "Male"
+                            },
+                            "religion": {
+                                "code": "NIL",
+                                "desc": "EfJSmIEfJSm"
+                            },
+                            "security_category": {
+                                "code": "C",
+                                "desc": "Cat C"
+                            },
+                            "nationality": {
+                                "code": "BRIT",
+                                "desc": "sxiVsxi"
+                            },
+                            "ethnicity": {
+                                "code": "W1",
+                                "desc": "White: Eng./Welsh/Scot./N.Irish/British"
+                            }
+                        },
+                        "sentence_information": {
+                            "reception_arrival_date_and_time": "2017-05-03 15:50:00",
+                            "status": "Convicted",
+                            "imprisonment_status": {
+                                "code": "LR",
+                                "desc": "Recalled to Prison from Parole (Non HDC)"
+                            }
+                        },
+                        "location": {
+                            "agency_location": "LEI",
+                            "internal_location": "LEI-E-5-004",
+                            "location_type": "CELL"
+                        },
+                        "warnings": [
+                            {
+                                "warning_type": {
+                                    "code": "P",
+                                    "desc": "MAPPP Case"
+                                },
+                                "warning_sub_type": {
+                                    "code": "P2",
+                                    "desc": "MAPPA Level 2 Case"
+                                },
+                                "warning_date": "2015-06-03 00:00:00",
+                                "status": "ACTIVE"
+                            },
+                            {
+                                "warning_type": {
+                                    "code": "R",
+                                    "desc": "Risk"
+                                },
+                                "warning_sub_type": {
+                                    "code": "RCS",
+                                    "desc": "Risk to Children - Custody"
+                                },
+                                "warning_date": "2013-06-04 00:00:00",
+                                "status": "ACTIVE"
+                            }
+                        ],
+                        "entitlement": {
+                            "canteen_adjudication": false,
+                            "iep_level": {
+                                "code": "STD",
+                                "desc": "Standard"
+                            }
+                        },
+                        "case_details": {
+                            "personal_officer": "Griffine, Ymmnatpher"
+                        }
+                    }
+                 }""";
 
         final var testClob = new javax.sql.rowset.serial.SerialClob(eventData.toCharArray());
         final var timestamp = Timestamp.valueOf("2019-07-09 00:00:00.000");
@@ -402,23 +421,25 @@ public class NomisApiV1ResourceIntTest extends ResourceTest {
         final var requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_NOMIS_API_V1"), null);
 
         final var events = List.of(
-                new EventSP(3L, LocalDateTime.parse("2019-03-31T00:01:00.12456"), "LEI", "AB1256B", "ALERT", null, null,
-                        "{\"case_note\":{\"id\":47004657,\"contact_datetime\":\"2019-03-31 00:00:00\"\n" +
-                                ",\"source\":{\"code\":\"AUTO\"\n" +
-                                ",\"desc\":\"System\"\n" +
-                                "},\"type\":{\"code\":\"ALERT\"\n" +
-                                ",\"desc\":\"Alert\"\n" +
-                                "},\"sub_type\":{\"code\":\"INACTIVE\"\n" +
-                                ",\"desc\":\"Made Inactive\"\n" +
-                                "},\"staff_member\":{\"id\":1,\"name\":\"Cnomis, Admin&Onb\"\n" +
-                                ",\"userid\":\"\"\n" +
-                                "},\"text\":\"Alert Other and Charged under Harassment Act made inactive.\"\n" +
-                                ",\"amended\":false}}"),
-                new EventSP(4L, LocalDateTime.parse("2019-04-30T00:00:01.234567"), "MDI", "BC1256B", "INTERNAL_LOCATION_CHANGED", null,
-                        "{\"account\":{\"code\":\"REG\"\n" +
-                                ",\"desc\":\"Private Cash\"\n" +
-                                "},\"balance\":0}", null),
-                new EventSP(5L, LocalDateTime.parse("2019-03-31T00:00:01"), "MDI", "CD1256B", "PERSONAL_DETAILS_CHANGED", null, null, null)
+            new EventSP(3L, LocalDateTime.parse("2019-03-31T00:01:00.12456"), "LEI", "AB1256B", "ALERT", null, null,
+                """
+                    {"case_note":{"id":47004657,"contact_datetime":"2019-03-31 00:00:00"
+                    ,"source":{"code":"AUTO"
+                    ,"desc":"System"
+                    },"type":{"code":"ALERT"
+                    ,"desc":"Alert"
+                    },"sub_type":{"code":"INACTIVE"
+                    ,"desc":"Made Inactive"
+                    },"staff_member":{"id":1,"name":"Cnomis, Admin&Onb"
+                    ,"userid":""
+                    },"text":"Alert Other and Charged under Harassment Act made inactive."
+                    ,"amended":false}}"""),
+            new EventSP(4L, LocalDateTime.parse("2019-04-30T00:00:01.234567"), "MDI", "BC1256B", "INTERNAL_LOCATION_CHANGED", null,
+                """
+                    {"account":{"code":"REG"
+                    ,"desc":"Private Cash"
+                    },"balance":0}""", null),
+            new EventSP(5L, LocalDateTime.parse("2019-03-31T00:00:01"), "MDI", "CD1256B", "PERSONAL_DETAILS_CHANGED", null, null, null)
         );
 
         final var captor = ArgumentCaptor.forClass(SqlParameterSource.class);
@@ -444,17 +465,18 @@ public class NomisApiV1ResourceIntTest extends ResourceTest {
 
         final var events = List.of(
             new EventSP(3L, LocalDateTime.parse("2019-03-31T00:01:00.12456"), "LEI", "AB1256B", "ALERT", "{\"case_note\":{\"id\":47004657,\"contact_datetime\":\"2019-03-31 ", null,
-                "00:00:00\"\n" +
-                    ",\"source\":{\"code\":\"AUTO\"\n" +
-                    ",\"desc\":\"System\"\n" +
-                    "},\"type\":{\"code\":\"ALERT\"\n" +
-                    ",\"desc\":\"Alert\"\n" +
-                    "},\"sub_type\":{\"code\":\"INACTIVE\"\n" +
-                    ",\"desc\":\"Made Inactive\"\n" +
-                    "},\"staff_member\":{\"id\":1,\"name\":\"Cnomis, Admin&Onb\"\n" +
-                    ",\"userid\":\"\"\n" +
-                    "},\"text\":\"Alert Other and Charged under Harassment Act made inactive.\"\n" +
-                    ",\"amended\":false}}"),
+                """
+                    00:00:00"
+                    ,"source":{"code":"AUTO"
+                    ,"desc":"System"
+                    },"type":{"code":"ALERT"
+                    ,"desc":"Alert"
+                    },"sub_type":{"code":"INACTIVE"
+                    ,"desc":"Made Inactive"
+                    },"staff_member":{"id":1,"name":"Cnomis, Admin&Onb"
+                    ,"userid":""
+                    },"text":"Alert Other and Charged under Harassment Act made inactive."
+                    ,"amended":false}}"""),
             new EventSP(4L, LocalDateTime.parse("2019-04-30T00:00:01.234567"), "MDI", "BC1256B", "INTERNAL_LOCATION_CHANGED", "{\"account\":{\"code\":\"REG\"\n" +
                 ",\"desc\":\"Private",
                 " Cash\"\n" +

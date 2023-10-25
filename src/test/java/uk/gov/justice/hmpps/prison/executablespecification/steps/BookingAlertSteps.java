@@ -17,12 +17,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class BookingAlertSteps extends CommonSteps {
     private static final String API_REQUEST_BASE_URL = API_PREFIX + "bookings/{bookingId}/alerts/v2";
-    private static final String API_REQUEST_ALERT_URL = API_PREFIX + "bookings/{bookingId}/alerts/{alertId}";
     private static final String API_REQUEST_ALERT_POST_URL_AGENCY = API_PREFIX + "bookings/offenderNo/{agencyId}/alerts";
     private static final String API_REQUEST_ALERT_POST_URL = API_PREFIX + "bookings/offenderNo/alerts";
 
     private List<Alert> alerts;
-    private Alert alert;
 
     @Step("Retrieve alerts for offender booking")
     public void getAlerts(final Long bookingId) {
@@ -62,29 +60,6 @@ public class BookingAlertSteps extends CommonSteps {
         }
     }
 
-
-    private void doSingleResultApiCall(final Long bookingId, final Long alertId) {
-        init();
-
-        try {
-            final var response =
-                    restTemplate.exchange(
-                            API_REQUEST_ALERT_URL,
-                            HttpMethod.GET,
-                            createEntity(null, null),
-                            new ParameterizedTypeReference<Alert>() {
-                            },
-                            bookingId,
-                            alertId);
-
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-            alert = response.getBody();
-        } catch (final PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
-
     private void doPostApiCall(final String agencyId, final List<String> offenderNoBody) {
         init();
         try {
@@ -109,17 +84,6 @@ public class BookingAlertSteps extends CommonSteps {
         super.init();
 
         alerts = null;
-        alert = null;
-    }
-
-    @Step("Retrieve specific alert detail for offender booking")
-    public void getAlert(final Long bookingId, final Long alertId) {
-        doSingleResultApiCall(bookingId, alertId);
-    }
-
-    @Step("Verify value of specific field in alert detail")
-    public void verifyAlertField(final String field, final String value) throws ReflectiveOperationException {
-        verifyField(alert, field, value);
     }
 
     @Step("Verify alert list")

@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
@@ -76,7 +75,6 @@ import static uk.gov.justice.hmpps.prison.values.AccountCode.codeForNameOrEmpty;
 @Slf4j
 @Service
 @Transactional(readOnly = true)
-@PreAuthorize("hasAnyRole('SYSTEM_USER','NOMIS_API_V1', 'UNILINK')")
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class NomisApiV1Service {
 
@@ -320,7 +318,7 @@ public class NomisApiV1Service {
         return financeV1Repository.getAccountTransactions(prisonId, nomsId, accountType, fromDate, toDate)
                 .stream()
                 .map(t -> AccountTransaction.builder()
-                        .id("" + t.getTxnId() + "-" + t.getTxnEntrySeq())
+                        .id(t.getTxnId() + "-" + t.getTxnEntrySeq())
                         .type(CodeDescription.safeNullBuild(t.getTxnType(), t.getTxnTypeDesc()))
                         .description(t.getTxnEntryDesc())
                         .amount(poundsToPence(t.getTxnEntryAmount()))
@@ -334,7 +332,7 @@ public class NomisApiV1Service {
         final var response = financeV1Repository.getTransactionByClientUniqueRef(prisonId, nomsId, uniqueClientId)
                 .stream()
                 .map(t -> AccountTransaction.builder()
-                        .id("" + t.getTxnId() + "-" + t.getTxnEntrySeq())
+                        .id(t.getTxnId() + "-" + t.getTxnEntrySeq())
                         .type(CodeDescription.safeNullBuild(t.getTxnType(), t.getTxnTypeDesc()))
                         .description(t.getTxnEntryDesc())
                         .amount(poundsToPence(t.getTxnEntryAmount()))
@@ -345,7 +343,7 @@ public class NomisApiV1Service {
         if (response.size() == 1) {
             return response.get(0);
         }
-        if (response.size() == 0) {
+        if (response.isEmpty()) {
             throw EntityNotFoundException.withId(uniqueClientId);
         }
         throw new RuntimeException("Found two transaction with same Client Unique Ref which shouldn't happen");

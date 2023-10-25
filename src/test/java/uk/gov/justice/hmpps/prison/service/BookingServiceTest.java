@@ -82,7 +82,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderFinePayment
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRestrictionRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.SentenceCalcTypeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.SentenceTermRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
@@ -157,9 +156,6 @@ public class BookingServiceTest {
     private OffenderSentenceRepository offenderSentenceRepository;
     @Mock
     private SentenceRepository sentenceRepository;
-
-    @Mock
-    private SentenceCalcTypeRepository sentenceCalcTypeRepository;
     @Mock
     private SentenceTermRepository sentenceTermRepository;
     @Mock
@@ -191,7 +187,6 @@ public class BookingServiceTest {
                 visitVisitorRepository,
                 sentenceRepository,
                 sentenceTermRepository,
-                sentenceCalcTypeRepository,
                 agencyService,
                 offenderFixedTermRecallService,
                 caseLoadService,

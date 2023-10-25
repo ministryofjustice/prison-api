@@ -79,7 +79,7 @@ public class InmateAlertService {
         return alerts;
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
+    @VerifyBookingAccess
     public Alert getInmateAlert(final Long bookingId, final Long alertSeqId) {
         final var alert = inmateAlertRepository.getAlert(bookingId, alertSeqId)
                 .orElseThrow(EntityNotFoundException.withId(alertSeqId));

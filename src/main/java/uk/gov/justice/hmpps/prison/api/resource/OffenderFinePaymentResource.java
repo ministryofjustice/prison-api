@@ -8,17 +8,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
-import uk.gov.justice.hmpps.prison.api.model.*;
-import uk.gov.justice.hmpps.prison.core.ProxyUser;
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
+import uk.gov.justice.hmpps.prison.api.model.OffenderFinePaymentDto;
+import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.service.BookingService;
-import uk.gov.justice.hmpps.prison.service.curfews.OffenderCurfewService;
 
 import java.util.List;
 
@@ -40,6 +38,7 @@ public class OffenderFinePaymentResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Offender fine payments for a prisoner")
     @GetMapping("/booking/{bookingId}")
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     public List<OffenderFinePaymentDto> getOffenderFinePayments(@PathVariable("bookingId") @Parameter(description = "The required booking id (mandatory)", required = true) final Long bookingId) {
         return bookingService.getOffenderFinePayments(bookingId);
     }

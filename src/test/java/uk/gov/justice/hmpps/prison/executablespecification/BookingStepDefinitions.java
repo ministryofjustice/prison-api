@@ -28,7 +28,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
  * <ul>
  *     <li>/booking/{bookingId}</li>
  *     <li>/booking/{bookingId}/alerts</li>
- *     <li>/booking/{bookingId}/alerts/{alertId}</li>
  *     <li>/booking/{bookingId}/aliases</li>
  *     <li>/bookings/{bookingId}/sentenceDetail</li>
  *     <li>/bookings/{bookingId}/balances</li>
@@ -187,16 +186,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @And("alerts codes match \"([^\"]*)\"$")
     public void alertsCodesMatch(final String codes) {
         bookingAlerts.verifyCodeList(codes);
-    }
-
-    @When("^alert is requested for an offender booking \"([^\"]*)\" and alert id \"([^\"]*)\"$")
-    public void alertIsRequestedForOffenderBooking(final Long bookingId, final Long alertId) {
-        bookingAlerts.getAlert(bookingId, alertId);
-    }
-
-    @Then("^alert (\\w+) is \"([^\"]*)\"$")
-    public void alertValueIs(final String field, final String value) throws Throwable {
-        bookingAlerts.verifyAlertField(field, value);
     }
 
     @When("^alerts are requested for offender nos \"([^\"]*)\" and agency \"([^\"]*)\"$")
