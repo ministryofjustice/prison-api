@@ -11,8 +11,9 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.transaction.TestTransaction
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Gang
 import uk.gov.justice.hmpps.prison.repository.jpa.model.GangNonAssociation
-import uk.gov.justice.hmpps.prison.repository.jpa.model.GangNonAssociationId
 import uk.gov.justice.hmpps.prison.repository.jpa.model.NonAssociationReason
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.GangMemberRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.GangNonAssociationRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.GangRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
@@ -24,13 +25,16 @@ private const val NEW_GANG_CODE_3 = "NEW_GANG_3"
 @DataJpaTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class GangNonAssociationRepositoryTest {
+class GangMemberRepositoryTest {
 
   @Autowired
   lateinit var gangRepository: GangRepository
 
   @Autowired
-  lateinit var repository: GangNonAssociationRepository
+  lateinit var gangNonAssociationRepository: GangNonAssociationRepository
+
+  @Autowired
+  lateinit var repository: GangMemberRepository
 
   @Autowired
   lateinit var nonAssociationReasonRepository: ReferenceCodeRepository<NonAssociationReason>
@@ -41,9 +45,9 @@ class GangNonAssociationRepositoryTest {
 
   @AfterEach
   fun teardown() {
-    repository.deleteAll(repository.findAllByGangCode(primaryGang.code))
-    repository.deleteAll(repository.findAllByGangCode(secondaryGang.code))
-    repository.deleteAll(repository.findAllByGangCode(gang3.code))
+    gangNonAssociationRepository.deleteAll(gangNonAssociationRepository.findAllByGangCode(primaryGang.code))
+    gangNonAssociationRepository.deleteAll(gangNonAssociationRepository.findAllByGangCode(secondaryGang.code))
+    gangNonAssociationRepository.deleteAll(gangNonAssociationRepository.findAllByGangCode(gang3.code))
 
     gangRepository.delete(primaryGang)
     gangRepository.delete(secondaryGang)
@@ -56,11 +60,29 @@ class GangNonAssociationRepositoryTest {
       code = NEW_GANG_CODE_1,
       name = "The First Gang",
     )
+
+    primaryGang.addMember(
+      booking = OffenderBooking.builder().bookingId(-2).build(),
+      commentText = "gang 1 - member 1 added",
+    )
+    primaryGang.addMember(
+      booking = OffenderBooking.builder().bookingId(-3).build(),
+      commentText = "gang 1 - member 2 added",
+    )
+    primaryGang.addMember(
+      booking = OffenderBooking.builder().bookingId(-4).build(),
+      commentText = "gang 1 - member 3 added",
+    )
+
     gangRepository.save(primaryGang)
 
     secondaryGang = Gang(
       code = NEW_GANG_CODE_2,
       name = "The Second Gang",
+    )
+    secondaryGang.addMember(
+      booking = OffenderBooking.builder().bookingId(-5).build(),
+      commentText = "gang 2 - member 1 added",
     )
     gangRepository.save(secondaryGang)
 
@@ -68,21 +90,31 @@ class GangNonAssociationRepositoryTest {
       code = NEW_GANG_CODE_3,
       name = "The Third Gang",
     )
+    gang3.addMember(
+      booking = OffenderBooking.builder().bookingId(-6).build(),
+      commentText = "gang 3 - member 1 added",
+    )
+    gang3.addMember(
+      booking = OffenderBooking.builder().bookingId(-7).build(),
+      commentText = "gang 3 - member 2 added",
+    )
     gangRepository.save(gang3)
 
-    repository.save(
+    gangNonAssociationRepository.save(
       GangNonAssociation(
         primaryGang = primaryGang,
         secondaryGang = secondaryGang,
-        nonAssociationReason = nonAssociationReasonRepository.findById(NonAssociationReason.pk("BUL")).orElseThrow(),
+        nonAssociationReason = nonAssociationReasonRepository.findById(NonAssociationReason.pk("BUL"))
+          .orElseThrow(),
       ),
     )
 
-    repository.save(
+    gangNonAssociationRepository.save(
       GangNonAssociation(
         primaryGang = gang3,
         secondaryGang = secondaryGang,
-        nonAssociationReason = nonAssociationReasonRepository.findById(NonAssociationReason.pk("RIV")).orElseThrow(),
+        nonAssociationReason = nonAssociationReasonRepository.findById(NonAssociationReason.pk("RIV"))
+          .orElseThrow(),
       ),
     )
 
@@ -91,24 +123,12 @@ class GangNonAssociationRepositoryTest {
   }
 
   @Test
-  fun canRetrieveAGangNa() {
-    val findAGangNa = repository.findById(GangNonAssociationId(primaryGang, secondaryGang)).orElseThrow()
-    Assertions.assertThat(findAGangNa.primaryGang).isEqualTo(primaryGang)
-    Assertions.assertThat(findAGangNa.secondaryGang).isEqualTo(secondaryGang)
-    Assertions.assertThat(findAGangNa.nonAssociationReason.code).isEqualTo("BUL")
-  }
-
-  @Test
-  fun canFindAGangNa() {
-    repository.findAllByGangCode(NEW_GANG_CODE_2).let {
-      Assertions.assertThat(it).hasSize(2)
-      Assertions.assertThat(it[0].primaryGang).isEqualTo(primaryGang)
-      Assertions.assertThat(it[0].secondaryGang).isEqualTo(secondaryGang)
-      Assertions.assertThat(it[0].nonAssociationReason.code).isEqualTo("BUL")
-
-      Assertions.assertThat(it[1].primaryGang).isEqualTo(gang3)
-      Assertions.assertThat(it[1].secondaryGang).isEqualTo(secondaryGang)
-      Assertions.assertThat(it[1].nonAssociationReason.code).isEqualTo("RIV")
+  fun canFindGangMembers() {
+    repository.findAllByBookingBookingId(-5).let {
+      Assertions.assertThat(it).hasSize(1)
+      Assertions.assertThat(it[0].gang.code).isEqualTo(NEW_GANG_CODE_2)
+      Assertions.assertThat(it[0].booking.bookingId).isEqualTo(-5)
+      Assertions.assertThat(it[0].commentText).isEqualTo("gang 2 - member 1 added")
     }
   }
 }

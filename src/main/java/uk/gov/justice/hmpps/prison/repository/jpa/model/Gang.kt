@@ -8,6 +8,7 @@ import jakarta.persistence.FetchType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
+import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 import org.hibernate.Hibernate
 import org.hibernate.type.YesNoConverter
@@ -40,7 +41,19 @@ class Gang(
   @ManyToOne(optional = true, fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
   val parent: Gang? = null,
 
+  @OneToMany(mappedBy = "gang", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+  val members: MutableList<GangMember> = mutableListOf(),
+
 ) {
+
+  fun addMember(booking: OffenderBooking, commentText: String? = null) {
+    members.add(GangMember(this, booking, commentText))
+  }
+
+  fun removeMember(booking: OffenderBooking) {
+    members.removeIf { it.booking == booking }
+  }
+
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other == null || Hibernate.getClass(this) != Hibernate.getClass(other)) return false
