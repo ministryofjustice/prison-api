@@ -27,7 +27,7 @@ private const val NEW_GANG_CODE_3 = "NEW_GANG_3"
 @SpringBootTest
 @Transactional
 @WithAnonymousUser
-class GangServiceIntTest {
+class GangServiceImplIntTest {
 
   @Autowired
   lateinit var gangService: GangService
@@ -50,13 +50,12 @@ class GangServiceIntTest {
 
   @AfterEach
   fun teardown() {
-    gangNonAssociationRepository.deleteAll(gangNonAssociationRepository.findAllByGangCode(primaryGang.code))
-    gangNonAssociationRepository.deleteAll(gangNonAssociationRepository.findAllByGangCode(secondaryGang.code))
-    gangNonAssociationRepository.deleteAll(gangNonAssociationRepository.findAllByGangCode(gang3.code))
-
+    TestTransaction.start()
     gangRepository.delete(primaryGang)
     gangRepository.delete(secondaryGang)
     gangRepository.delete(gang3)
+    TestTransaction.flagForCommit()
+    TestTransaction.end()
   }
 
   @BeforeEach

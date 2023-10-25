@@ -41,13 +41,12 @@ class GangNonAssociationRepositoryTest {
 
   @AfterEach
   fun teardown() {
-    repository.deleteAll(repository.findAllByGangCode(primaryGang.code))
-    repository.deleteAll(repository.findAllByGangCode(secondaryGang.code))
-    repository.deleteAll(repository.findAllByGangCode(gang3.code))
-
+    TestTransaction.start()
     gangRepository.delete(primaryGang)
     gangRepository.delete(secondaryGang)
     gangRepository.delete(gang3)
+    TestTransaction.flagForCommit()
+    TestTransaction.end()
   }
 
   @BeforeEach
