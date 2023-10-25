@@ -9,6 +9,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Map;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,7 +26,7 @@ public class OffenderActivitiesResourceTest extends ResourceTest {
     class GetActivitiesHistoryTest {
         @Test
         public void successfulRequest_returnsCorrectData() {
-            final var entity = createHttpEntity(validToken(), null);
+            final var entity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_NOMIS_ACTIVITIES"), Map.of());
 
             final var response = testRestTemplate.exchange(
                 "/api/offender-activities/A1234AC/activities-history?earliestEndDate=2021-01-01",
@@ -55,7 +57,7 @@ public class OffenderActivitiesResourceTest extends ResourceTest {
 
         @Test
         public void successfulRequest_page() {
-            final var entity = createHttpEntity(validToken(), null);
+            final var entity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_NOMIS_ACTIVITIES"), Map.of());
 
             final var response = testRestTemplate.exchange(
                 "/api/offender-activities/A1234AC/activities-history?earliestEndDate=2021-01-01&page=1&size=2",
@@ -70,13 +72,26 @@ public class OffenderActivitiesResourceTest extends ResourceTest {
             assertThat(jsonContent).extractingJsonPathNumberValue("$.totalPages").isEqualTo(3);
             assertThat(jsonContent).extractingJsonPathNumberValue("$.totalElements").isEqualTo(5);
         }
+
+        @Test
+        public void noAuthorisation() {
+            final var entity = createHttpEntity(validToken(), null);
+
+            final var response = testRestTemplate.exchange(
+                "/api/offender-activities/A1234AC/activities-history?earliestEndDate=2021-01-01",
+                HttpMethod.GET,
+                entity,
+                String.class);
+
+            assertThatStatus(response, HttpStatus.FORBIDDEN.value());
+        }
     }
 
     @Nested
     class GetHistoricalAttendancesTest {
         @Test
         public void successfulRequest_returnsCorrectDataPage_0() {
-            final var entity = createHttpEntity(validToken(), null);
+            final var entity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_NOMIS_ACTIVITIES"), Map.of());
 
             final var response = testRestTemplate.exchange(
                 "/api/offender-activities/A1234AB/attendance-history?fromDate=2017-01-01&toDate=" + today + "&page=0&size=2&sort=eventId,desc",
@@ -135,7 +150,7 @@ public class OffenderActivitiesResourceTest extends ResourceTest {
 
         @Test
         public void successfulRequest_returnsCorrectDataPage_1() {
-            final var entity = createHttpEntity(validToken(), null);
+            final var entity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_NOMIS_ACTIVITIES"), Map.of());
 
             final var response = testRestTemplate.exchange(
                 "/api/offender-activities/A1234AB/attendance-history?fromDate=2017-01-01&toDate=" + today + "&page=1&size=2&sort=eventId,desc",
@@ -193,7 +208,7 @@ public class OffenderActivitiesResourceTest extends ResourceTest {
 
         @Test
         public void successfulRequest_returnsCorrectData_Outcome() {
-            final var entity = createHttpEntity(validToken(), null);
+            final var entity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_NOMIS_ACTIVITIES"), Map.of());
 
             final var response = testRestTemplate.exchange(
                 "/api/offender-activities/A1234AB/attendance-history?fromDate=2017-01-01&toDate=" + today + "&outcome=UNACAB&page=0&size=10&sort=eventId,desc",
@@ -206,6 +221,19 @@ public class OffenderActivitiesResourceTest extends ResourceTest {
             assertThat(jsonContent).extractingJsonPathArrayValue("$.content").hasSize(1);
             assertThat(jsonContent).extractingJsonPathStringValue("$.content[0].eventDate").isEqualTo("2017-09-13");
             assertThat(jsonContent).extractingJsonPathStringValue("$.content[0].outcome").isEqualTo("UNACAB");
+        }
+
+        @Test
+        public void noAuthorisation() {
+            final var entity = createHttpEntity(validToken(), null);
+
+            final var response = testRestTemplate.exchange(
+                "/api/offender-activities/A1234AB/attendance-history",
+                HttpMethod.GET,
+                entity,
+                String.class);
+
+            assertThatStatus(response, HttpStatus.FORBIDDEN.value());
         }
 
         @Test

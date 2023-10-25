@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,6 +31,7 @@ import java.time.LocalDate;
 @Tag(name = "offender-activities")
 @Validated
 @RequestMapping(value = "${api.base.path}/offender-activities", produces = "application/json")
+@PreAuthorize("hasRole('NOMIS_ACTIVITIES')")
 public class OffenderActivitiesResource {
 
     private final OffenderActivitiesService activitiesService;
@@ -64,3 +66,10 @@ public class OffenderActivitiesResource {
         return activitiesService.getHistoricalAttendancies(offenderNo, earliestActivityDate, latestActivityDate, outcome, pageable);
     }
 }
+/*
+prisonstaffhubclient-2
+hmpps-prisoner-profile-system
+hmpps-education-employment-ui-client-2
+whereabouts-api-client-2
+hmpps-prisoner-profile-system
+ */
