@@ -27,7 +27,7 @@ class GangService(
         lastName = currentBooking.offender.lastName,
         prisonId = currentBooking.location.id,
         prisonName = LocationProcessor.formatLocation(currentBooking.location.description),
-        cellLocation = currentBooking.assignedLivingUnit.description,
+        cellLocation = currentBooking.assignedLivingUnit?.description,
       ),
       currentGangs = gangsInvolved.map { gang ->
         GangSummary(
