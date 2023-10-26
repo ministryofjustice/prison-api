@@ -572,18 +572,6 @@ public class BookingResource {
     }
 
     @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "The Case Note has been recorded. The updated object is returned including the status.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CaseNote.class))}),
-        @ApiResponse(responseCode = "409", description = "The case note has already been recorded under the booking. The current unmodified object (including status) is returned.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Create case note for offender.", description = "Create case note for offender.", hidden = true)
-    @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/offenderNo/{offenderNo}/caseNotes")
-    @HasWriteScope
-    @ProxyUser
-    public CaseNote createOffenderCaseNote(@PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", required = true) final String offenderNo, @RequestBody @Parameter(required = true) final NewCaseNote body) {
-        return caseNoteService.createCaseNote(offenderNo, body, authenticationFacade.getCurrentUsername());
-    }
-
-    @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Case Note amendment processed successfully. Updated case note is returned.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CaseNote.class))}),
         @ApiResponse(responseCode = "400", description = "Invalid request - e.g. amendment text not provided.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to amend case note.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),

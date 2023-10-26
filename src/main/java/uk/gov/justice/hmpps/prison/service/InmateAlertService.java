@@ -171,11 +171,6 @@ public class InmateAlertService {
             .toList());
     }
 
-    @PreAuthorize("hasAnyRole('SYSTEM_USER')")
-    public Page<String> getAlertCandidates(final LocalDateTime cutoffTimestamp, final long offset, final long limit) {
-        return inmateAlertRepository.getAlertCandidates(cutoffTimestamp, offset, limit);
-    }
-
     @Transactional
     @PreAuthorize("hasAnyRole('UPDATE_ALERT')")
     public long createNewAlert(final long bookingId, final CreateAlert alert) {

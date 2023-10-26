@@ -20,7 +20,6 @@ import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -74,30 +73,6 @@ public class InmateAlertRepositoryTest {
                         Tuple.tuple(-7L, 2L, "A1234AG", "X"),
                         Tuple.tuple(-1L, 1L, "A1234AA", "X"),
                         Tuple.tuple(-1L, 4L, "A1234AA", "X"));
-    }
-
-    @Test
-    public void testGetAlertCandidates() {
-        final var results = repository.getAlertCandidates(LocalDateTime.of(2016, 1, 1, 0, 0), 0, 10);
-        assertThat(results.getItems()).containsExactlyInAnyOrder("A1234AC", "A1234AD");
-    }
-
-    @Test
-    public void testGetAlertCandidatesPage1() {
-        final var results = repository.getAlertCandidates(LocalDateTime.of(2016, 1, 1, 0, 0), 0, 1);
-        assertThat(results.getItems()).containsExactlyInAnyOrder("A1234AC");
-    }
-
-    @Test
-    public void testGetAlertCandidatesPage2() {
-        final var results = repository.getAlertCandidates(LocalDateTime.of(2016, 1, 1, 0, 0), 1, 2);
-        assertThat(results.getItems()).containsExactlyInAnyOrder("A1234AD");
-    }
-
-    @Test
-    public void testGetAlertCandidatesNone() {
-        final var results = repository.getAlertCandidates(LocalDateTime.of(2017, 1, 1, 0, 0), 0, 10);
-        assertThat(results.getItems()).hasSize(0);
     }
 
     @Test
