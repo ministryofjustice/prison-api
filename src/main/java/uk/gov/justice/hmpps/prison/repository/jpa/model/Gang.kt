@@ -41,8 +41,14 @@ class Gang(
   @ManyToOne(optional = true, fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
   val parent: Gang? = null,
 
-  @OneToMany(mappedBy = "gang", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+  @OneToMany(mappedBy = "gang", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
   val members: MutableList<GangMember> = mutableListOf(),
+
+  @OneToMany(mappedBy = "primaryGang", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
+  val nonAssociationsPrimary: MutableList<GangNonAssociation> = mutableListOf(),
+
+  @OneToMany(mappedBy = "secondaryGang", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
+  val nonAssociationsSecondary: MutableList<GangNonAssociation> = mutableListOf(),
 
 ) {
 
@@ -50,9 +56,14 @@ class Gang(
     members.add(GangMember(this, booking, commentText))
   }
 
-  fun removeMember(booking: OffenderBooking) {
-    members.removeIf { it.booking == booking }
+  fun addNonAssociation(gang: Gang, reason: NonAssociationReason) {
+    nonAssociationsPrimary.add(GangNonAssociation(this, gang, reason))
   }
+
+  fun getNonAssociations(): List<Pair<Gang, NonAssociationReason>> =
+    nonAssociationsPrimary.plus(nonAssociationsSecondary).map { naGang ->
+      Pair(naGang.primaryGang.takeIf { it != this } ?: naGang.secondaryGang, naGang.nonAssociationReason)
+    }
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true

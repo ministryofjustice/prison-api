@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
 import jakarta.persistence.Id
 import jakarta.persistence.IdClass
 import jakarta.persistence.JoinColumn
@@ -21,12 +22,12 @@ import java.io.Serializable
 class GangMemberInvestigation(
 
   @Id
-  @ManyToOne(optional = false)
+  @ManyToOne(optional = false, fetch = FetchType.LAZY)
   @JoinColumn(name = "GANG_CODE", nullable = false)
   val gang: Gang,
 
   @Id
-  @ManyToOne(optional = false)
+  @ManyToOne(optional = false, fetch = FetchType.LAZY)
   @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
   val booking: OffenderBooking,
 
