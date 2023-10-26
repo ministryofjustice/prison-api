@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.repository
+package uk.gov.justice.hmpps.prison.helper.builder
 
 import jakarta.persistence.EntityManager
 import org.springframework.stereotype.Component
@@ -15,7 +15,7 @@ const val NEW_GANG_CODE_3 = "NEW_GANG_3"
 
 @Component
 @Transactional
-class GangTestData(
+class GangBuilder(
   private val gangRepository: GangRepository,
   private val nonAssociationReasonRepository: ReferenceCodeRepository<NonAssociationReason>,
   private val offenderBookingRepository: OffenderBookingRepository,

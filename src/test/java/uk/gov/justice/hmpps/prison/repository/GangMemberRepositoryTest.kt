@@ -9,28 +9,30 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
+import uk.gov.justice.hmpps.prison.helper.builder.GangBuilder
+import uk.gov.justice.hmpps.prison.helper.builder.NEW_GANG_CODE_2
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.GangMemberRepository
 
 @DataJpaTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import(GangTestData::class)
+@Import(GangBuilder::class)
 class GangMemberRepositoryTest {
 
   @Autowired
   lateinit var repository: GangMemberRepository
 
   @Autowired
-  lateinit var gangTestData: GangTestData
+  lateinit var gangBuilder: GangBuilder
 
   @BeforeEach
   fun setup() {
-    gangTestData.initGangs()
+    gangBuilder.initGangs()
   }
 
   @AfterEach
   internal fun tearDown() {
-    gangTestData.teardown()
+    gangBuilder.teardown()
   }
 
   @Test

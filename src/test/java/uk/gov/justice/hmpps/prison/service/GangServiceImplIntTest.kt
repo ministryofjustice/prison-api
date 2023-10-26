@@ -7,9 +7,9 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
-import uk.gov.justice.hmpps.prison.repository.GangTestData
-import uk.gov.justice.hmpps.prison.repository.NEW_GANG_CODE_1
-import uk.gov.justice.hmpps.prison.repository.NEW_GANG_CODE_3
+import uk.gov.justice.hmpps.prison.helper.builder.GangBuilder
+import uk.gov.justice.hmpps.prison.helper.builder.NEW_GANG_CODE_1
+import uk.gov.justice.hmpps.prison.helper.builder.NEW_GANG_CODE_3
 
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -19,16 +19,16 @@ class GangServiceImplIntTest {
   lateinit var gangService: GangService
 
   @Autowired
-  lateinit var gangTestData: GangTestData
+  lateinit var gangBuilder: GangBuilder
 
   @BeforeEach
   internal fun setup() {
-    gangTestData.initGangs()
+    gangBuilder.initGangs()
   }
 
   @AfterEach
   internal fun tearDown() {
-    gangTestData.teardown()
+    gangBuilder.teardown()
   }
 
   @Test
@@ -41,8 +41,8 @@ class GangServiceImplIntTest {
       },
     ).containsExactlyInAnyOrder(NEW_GANG_CODE_1, NEW_GANG_CODE_3)
     Assertions.assertThat(
-      gangNas.gangNonAssociations.flatMap {
-        it.members.map {
+      gangNas.gangNonAssociations.flatMap { nonAssociationSummary ->
+        nonAssociationSummary.members.map {
           it.offenderNo
         }
       },
