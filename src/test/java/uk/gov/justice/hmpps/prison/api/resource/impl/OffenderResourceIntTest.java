@@ -367,57 +367,6 @@ public class OffenderResourceIntTest extends ResourceTest {
     }
 
     @Test
-    public void testCanRetrieveAlertCandidatesWithSystemUser() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.SYSTEM_USER_READ_WRITE);
-        final var httpEntity = createHttpEntity(token, null);
-
-        final var response = testRestTemplate.exchange(
-            "/api/offenders/alerts/candidates?fromDateTime=2016-02-02T14:00:00",
-            GET,
-            httpEntity,
-            new ParameterizedTypeReference<String>() {
-            });
-
-        assertThatJsonFileAndStatus(response, 200, "alerts_candidates.json");
-    }
-
-    @Test
-    public void testCanRetrieveAlertCandidatesPage() {
-        final var paging = new HashMap<String, String>();
-        paging.put("Page-Offset", "1");
-        paging.put("Page-Limit", "2");
-        final var httpEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_SYSTEM_USER"), paging);
-
-        final var response = testRestTemplate.exchange(
-            "/api/offenders/alerts/candidates?fromDateTime=2016-02-02T14:00:00",
-            GET,
-            httpEntity,
-            new ParameterizedTypeReference<String>() {
-            });
-
-        assertThat(response.getHeaders().get("Page-Offset")).containsExactly("1");
-        assertThat(response.getHeaders().get("Page-Limit")).containsExactly("2");
-        assertThat(response.getHeaders().get("Total-Records")).containsExactly("2");
-        assertThatJsonFileAndStatus(response, 200, "alerts_candidates_page.json");
-    }
-
-    @Test
-    public void testCannotRetrieveAlertCandidatesWithViewData() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA);
-
-        final var httpEntity = createHttpEntity(token, null);
-
-        final var response = testRestTemplate.exchange(
-            "/api/offenders/alerts/candidates?fromDateTime=2016-02-02T14:00:00",
-            GET,
-            httpEntity,
-            new ParameterizedTypeReference<String>() {
-            });
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(403);
-    }
-
-    @Test
     public void testViewPrisonTimeline() {
         final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA);
 
