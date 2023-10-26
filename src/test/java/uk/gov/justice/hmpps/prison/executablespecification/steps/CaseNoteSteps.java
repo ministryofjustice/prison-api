@@ -4,7 +4,6 @@ import com.google.common.base.Splitter;
 import lombok.Data;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -12,8 +11,6 @@ import uk.gov.justice.hmpps.prison.api.model.CaseNote;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteCount;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteStaffUsage;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsage;
-import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
-import uk.gov.justice.hmpps.prison.api.model.UpdateCaseNote;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CaseNoteFilter;
 import uk.gov.justice.hmpps.prison.test.PrisonApiClientException;
 
@@ -28,7 +25,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class CaseNoteSteps extends CommonSteps {
     private static final String API_REQUEST_BASE_URL = API_PREFIX + "bookings/{bookingId}/caseNotes";
-    private static final String API_REQUEST_FOR_CASENOTE_COUNT = API_REQUEST_BASE_URL + "/{type}/{subType}/count";
     private static final String API_REQUEST_FOR_CASENOTE_USAGE = API_PREFIX + "case-notes/usage";
     private static final String API_REQUEST_FOR_CASENOTE_SUMMARY = API_PREFIX + "case-notes/summary";
     private static final String API_REQUEST_FOR_CASENOTE_STAFF_USAGE = API_PREFIX + "case-notes/staff-usage";
@@ -63,11 +59,6 @@ public class CaseNoteSteps extends CommonSteps {
         dispatchQueryRequest(bookingId);
     }
 
-    @Step("Get case note count")
-    public void getCaseNoteCount(final long bookingId, final String type, final String subType, final String fromDate, final String toDate) {
-        dispatchGetCaseNoteCountRequest(bookingId, type, subType, fromDate, toDate);
-    }
-
     @Step("Get case note usage")
     public void getCaseNoteUsage(final String offenderNos, final String staffId, final String agencyId, final String type, final String subType, final String fromDate, final String toDate) {
         dispatchGetCaseNoteUsageRequest(offenderNos, staffId, agencyId, type, subType, fromDate, toDate);
@@ -91,11 +82,6 @@ public class CaseNoteSteps extends CommonSteps {
     @Step("Verify case note sub types")
     public void verifyCaseNoteSubTypes(final String caseNoteSubTypes) {
         verifyPropertyValues(caseNotes, CaseNote::getSubType, caseNoteSubTypes);
-    }
-
-    @Step("Verify case note count response property value")
-    public void verifyCaseNoteCountPropertyValue(final String propertyName, final String expectedValue) throws Exception {
-        verifyPropertyValue(caseNoteCount, propertyName, expectedValue);
     }
 
     @Step("Verify case note usage response property value")
@@ -201,43 +187,6 @@ public class CaseNoteSteps extends CommonSteps {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             buildResourceData(response.getBody());
             caseNotes = response.getBody().getContent();
-        } catch (final PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
-
-    private void dispatchGetCaseNoteCountRequest(final Long bookingId, final String type, final String subType, final String fromDate, final String toDate) {
-        init();
-
-        var urlModifier = "";
-
-        if (StringUtils.isNotBlank(fromDate)) {
-            urlModifier += (FROM_DATE_QUERY_PARAM_PREFIX + fromDate);
-        }
-
-        if (StringUtils.isNotBlank(toDate)) {
-            urlModifier += (TO_DATE_QUERY_PARAM_PREFIX + toDate);
-        }
-
-        if (StringUtils.isNotBlank(urlModifier)) {
-            urlModifier = "?" + urlModifier.substring(1);
-        }
-
-        final var url = API_REQUEST_FOR_CASENOTE_COUNT + urlModifier;
-
-        try {
-            final var response = restTemplate.exchange(
-                    url,
-                    HttpMethod.GET,
-                    createEntity(),
-                    CaseNoteCount.class,
-                    bookingId,
-                    type,
-                    subType);
-
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-            caseNoteCount = response.getBody();
         } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
