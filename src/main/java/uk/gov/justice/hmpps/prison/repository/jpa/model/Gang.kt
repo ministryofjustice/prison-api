@@ -41,29 +41,29 @@ class Gang(
   @ManyToOne(optional = true, fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
   val parent: Gang? = null,
 
-  @OneToMany(mappedBy = "gang", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+  @OneToMany(mappedBy = "gang", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
   val members: MutableList<GangMember> = mutableListOf(),
 
-  @OneToMany(mappedBy = "primaryGang", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
-  val nonAssociationsPrimary: List<GangNonAssociation> = listOf(),
+  @OneToMany(mappedBy = "primaryGang", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
+  val nonAssociationsPrimary: MutableList<GangNonAssociation> = mutableListOf(),
 
-  @OneToMany(mappedBy = "secondaryGang", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
-  val nonAssociationsSecondary: List<GangNonAssociation> = listOf(),
+  @OneToMany(mappedBy = "secondaryGang", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
+  val nonAssociationsSecondary: MutableList<GangNonAssociation> = mutableListOf(),
 
 ) {
-
-  fun getNonAssociations(): List<Pair<Gang, NonAssociationReason>> =
-    nonAssociationsPrimary.plus(nonAssociationsSecondary).map { naGang ->
-      Pair(naGang.primaryGang.takeIf { it != this } ?: naGang.secondaryGang, naGang.nonAssociationReason)
-    }
 
   fun addMember(booking: OffenderBooking, commentText: String? = null) {
     members.add(GangMember(this, booking, commentText))
   }
 
-  fun removeMember(booking: OffenderBooking) {
-    members.removeIf { it.booking == booking }
+  fun addNonAssociation(gang: Gang, reason: NonAssociationReason) {
+    nonAssociationsPrimary.add(GangNonAssociation(this, gang, reason))
   }
+
+  fun getNonAssociations(): List<Pair<Gang, NonAssociationReason>> =
+    nonAssociationsPrimary.plus(nonAssociationsSecondary).map { naGang ->
+      Pair(naGang.primaryGang.takeIf { it != this } ?: naGang.secondaryGang, naGang.nonAssociationReason)
+    }
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true

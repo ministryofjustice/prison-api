@@ -14,44 +14,51 @@ class GangService(
 
   fun getNonAssociatesInGangs(offenderNo: String): GangMemberSummary {
     val gangsInvolved = gangMemberRepository.findAllByBookingOffenderNomsId(offenderNo)
-    val currentBooking = gangsInvolved[0].booking
+    if (gangsInvolved.isNotEmpty()) {
+      val currentBooking = gangsInvolved[0].booking
 
-    return GangMemberSummary(
-      member = GangMemberDetail(
-        offenderNo = currentBooking.offender.nomsId,
-        firstName = currentBooking.offender.firstName,
-        lastName = currentBooking.offender.lastName,
-        prisonId = currentBooking.location.id,
-        prisonName = LocationProcessor.formatLocation(currentBooking.location.description),
-        cellLocation = currentBooking.assignedLivingUnit.description,
-      ),
-      currentGangs = gangsInvolved.map { gang ->
-        GangSummary(
-          code = gang.gang.code,
-          name = gang.gang.name,
-          comment = gang.commentText,
-          memberOfMembers = gang.gang.members.size.toLong(),
-        )
-      },
-      gangNonAssociations = gangsInvolved.map {
-        it.gang.getNonAssociations().map { (naGang, reason) ->
-          GangNonAssociationSummary(
-            code = naGang.code,
-            name = naGang.name,
-            reason = reason.description,
-            members = naGang.members.map { member ->
-              GangMemberDetail(
-                offenderNo = member.booking.offender.nomsId,
-                firstName = member.booking.offender.firstName,
-                lastName = member.booking.offender.lastName,
-                prisonId = member.booking.location.id,
-                prisonName = LocationProcessor.formatLocation(member.booking.location.description),
-                cellLocation = member.booking.assignedLivingUnit.description,
-              )
-            },
+      return GangMemberSummary(
+        member = GangMemberDetail(
+          offenderNo = currentBooking.offender.nomsId,
+          firstName = currentBooking.offender.firstName,
+          lastName = currentBooking.offender.lastName,
+          prisonId = currentBooking.location.id,
+          prisonName = LocationProcessor.formatLocation(currentBooking.location.description),
+          cellLocation = currentBooking.assignedLivingUnit.description,
+        ),
+        currentGangs = gangsInvolved.map { gang ->
+          GangSummary(
+            code = gang.gang.code,
+            name = gang.gang.name,
+            comment = gang.commentText,
+            memberOfMembers = gang.gang.members.size.toLong(),
           )
-        }
-      }.flatten(),
+        },
+        gangNonAssociations = gangsInvolved.map {
+          it.gang.getNonAssociations().map { (naGang, reason) ->
+            GangNonAssociationSummary(
+              code = naGang.code,
+              name = naGang.name,
+              reason = reason.description,
+              members = naGang.members.map { member ->
+                GangMemberDetail(
+                  offenderNo = member.booking.offender.nomsId,
+                  firstName = member.booking.offender.firstName,
+                  lastName = member.booking.offender.lastName,
+                  prisonId = member.booking.location.id,
+                  prisonName = LocationProcessor.formatLocation(member.booking.location.description),
+                  cellLocation = member.booking.assignedLivingUnit.description,
+                )
+              },
+            )
+          }
+        }.flatten(),
+      )
+    }
+    return GangMemberSummary(
+      member = null,
+      currentGangs = emptyList(),
+      gangNonAssociations = emptyList(),
     )
   }
 }
@@ -59,7 +66,7 @@ class GangService(
 @Schema(description = "Summary of Gangs for a specified prisoner")
 data class GangMemberSummary(
   @Schema(description = "The details of the gang member")
-  val member: GangMemberDetail,
+  val member: GangMemberDetail?,
   @Schema(description = "Current gang involvement")
   val currentGangs: List<GangSummary>,
   @Schema(description = "Non associations with other gangs")

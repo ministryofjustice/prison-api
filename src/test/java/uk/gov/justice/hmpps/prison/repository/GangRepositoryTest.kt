@@ -7,44 +7,36 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
+import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.transaction.TestTransaction
-import uk.gov.justice.hmpps.prison.repository.jpa.model.Gang
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.GangRepository
-
-private const val NEW_GANG_CODE = "NEW_GANG"
 
 @DataJpaTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Import(GangTestData::class)
 class GangRepositoryTest {
 
   @Autowired
-  lateinit var repository: GangRepository
+  lateinit var gangRepository: GangRepository
 
-  lateinit var gang: Gang
-
-  @AfterEach
-  fun teardown() {
-    repository.delete(gang)
-  }
+  @Autowired
+  lateinit var gangTestData: GangTestData
 
   @BeforeEach
   fun setup() {
-    gang = Gang(
-      code = NEW_GANG_CODE,
-      name = "The New Gang",
-      parent = Gang(code = "PARENT_GANG", name = "Parent Gang"),
-    )
-    repository.save(gang)
-    TestTransaction.flagForCommit()
-    TestTransaction.end()
+    gangTestData.initGangs()
+  }
+
+  @AfterEach
+  internal fun tearDown() {
+    gangTestData.teardown()
   }
 
   @Test
   fun canRetrieveAGang() {
-    val findAGang = repository.findById(NEW_GANG_CODE)
+    val findAGang = gangRepository.findById(NEW_GANG_CODE_1)
     assertThat(findAGang.isPresent).isTrue()
-    assertThat(findAGang.get()).isEqualTo(gang)
+    assertThat(findAGang.get().code).isEqualTo(NEW_GANG_CODE_1)
   }
 }
