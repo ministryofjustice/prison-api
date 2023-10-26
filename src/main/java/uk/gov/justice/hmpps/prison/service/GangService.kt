@@ -14,51 +14,48 @@ class GangService(
 
   fun getNonAssociatesInGangs(offenderNo: String): GangMemberSummary {
     val gangsInvolved = gangMemberRepository.findAllByBookingOffenderNomsId(offenderNo)
-    if (gangsInvolved.isNotEmpty()) {
-      val currentBooking = gangsInvolved[0].booking
-
-      return GangMemberSummary(
-        member = GangMemberDetail(
-          offenderNo = currentBooking.offender.nomsId,
-          firstName = currentBooking.offender.firstName,
-          lastName = currentBooking.offender.lastName,
-          prisonId = currentBooking.location.id,
-          prisonName = LocationProcessor.formatLocation(currentBooking.location.description),
-          cellLocation = currentBooking.assignedLivingUnit.description,
-        ),
-        currentGangs = gangsInvolved.map { gang ->
-          GangSummary(
-            code = gang.gang.code,
-            name = gang.gang.name,
-            comment = gang.commentText,
-            memberOfMembers = gang.gang.members.size.toLong(),
-          )
-        },
-        gangNonAssociations = gangsInvolved.map {
-          it.gang.getNonAssociations().map { (naGang, reason) ->
-            GangNonAssociationSummary(
-              code = naGang.code,
-              name = naGang.name,
-              reason = reason.description,
-              members = naGang.members.map { member ->
-                GangMemberDetail(
-                  offenderNo = member.booking.offender.nomsId,
-                  firstName = member.booking.offender.firstName,
-                  lastName = member.booking.offender.lastName,
-                  prisonId = member.booking.location.id,
-                  prisonName = LocationProcessor.formatLocation(member.booking.location.description),
-                  cellLocation = member.booking.assignedLivingUnit.description,
-                )
-              },
-            )
-          }
-        }.flatten(),
-      )
+    if (gangsInvolved.isEmpty()) {
+      throw EntityNotFoundException("No gangs found for offender $offenderNo")
     }
+
+    val currentBooking = gangsInvolved[0].booking
+
     return GangMemberSummary(
-      member = null,
-      currentGangs = emptyList(),
-      gangNonAssociations = emptyList(),
+      member = GangMemberDetail(
+        offenderNo = currentBooking.offender.nomsId,
+        firstName = currentBooking.offender.firstName,
+        lastName = currentBooking.offender.lastName,
+        prisonId = currentBooking.location.id,
+        prisonName = LocationProcessor.formatLocation(currentBooking.location.description),
+        cellLocation = currentBooking.assignedLivingUnit.description,
+      ),
+      currentGangs = gangsInvolved.map { gang ->
+        GangSummary(
+          code = gang.gang.code,
+          name = gang.gang.name,
+          comment = gang.commentText,
+          numberOfMembers = gang.gang.members.size.toLong(),
+        )
+      },
+      gangNonAssociations = gangsInvolved.map {
+        it.gang.getNonAssociations().map { (naGang, reason) ->
+          GangNonAssociationSummary(
+            code = naGang.code,
+            name = naGang.name,
+            reason = reason.description,
+            members = naGang.members.map { member ->
+              GangMemberDetail(
+                offenderNo = member.booking.offender.nomsId,
+                firstName = member.booking.offender.firstName,
+                lastName = member.booking.offender.lastName,
+                prisonId = member.booking.location.id,
+                prisonName = LocationProcessor.formatLocation(member.booking.location.description),
+                cellLocation = member.booking.assignedLivingUnit.description,
+              )
+            },
+          )
+        }
+      }.flatten(),
     )
   }
 }
@@ -82,7 +79,7 @@ data class GangSummary(
   @Schema(description = "Information about this member within the gang", example = "Leader of gang")
   val comment: String?,
   @Schema(description = "Number of members in this gang", example = "15")
-  val memberOfMembers: Long,
+  val numberOfMembers: Long,
 )
 
 @Schema(description = "Non associations Gang information")
