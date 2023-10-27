@@ -37,14 +37,14 @@ class GangMemberRepositoryTest {
 
   @Test
   fun canFindGangMembers() {
-    repository.findAllByBookingOffenderNomsId("A1234AD").let {
+    repository.findAllByBookingOffenderNomsIdAndGangActiveIsTrue("A1234AD").let {
       Assertions.assertThat(it).hasSize(1)
       Assertions.assertThat(it[0].gang.code).isEqualTo(NEW_GANG_CODE_2)
       Assertions.assertThat(it[0].booking.offender.nomsId).isEqualTo("A1234AD")
       Assertions.assertThat(it[0].commentText).isEqualTo("gang 2 - member 1 added")
       Assertions.assertThat(
         it[0].gang.getNonAssociations().let { naGangs ->
-          Assertions.assertThat(naGangs).hasSize(2)
+          Assertions.assertThat(naGangs).hasSize(3)
         },
       )
     }

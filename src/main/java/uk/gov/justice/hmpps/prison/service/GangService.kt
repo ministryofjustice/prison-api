@@ -14,7 +14,7 @@ class GangService(
 ) {
 
   fun getNonAssociatesInGangs(offenderNo: String): GangMemberSummary {
-    val gangsInvolved = gangMemberRepository.findAllByBookingOffenderNomsId(offenderNo)
+    val gangsInvolved = gangMemberRepository.findAllByBookingOffenderNomsIdAndGangActiveIsTrue(offenderNo)
     if (gangsInvolved.isEmpty()) {
       throw EntityNotFoundException("No gangs found for offender $offenderNo")
     }
@@ -31,15 +31,17 @@ class GangService(
           numberOfMembers = gang.gang.members.size.toLong(),
         )
       },
-      gangNonAssociations = gangsInvolved.map {
-        it.gang.getNonAssociations().map { (naGang, reason) ->
-          GangNonAssociationSummary(
-            code = naGang.code,
-            name = naGang.name,
-            reason = reason.description,
-            members = naGang.members.map { member -> gangMemberDetail(member.booking) },
-          )
-        }
+      gangNonAssociations = gangsInvolved.map { gangMember ->
+        gangMember.gang.getNonAssociations()
+          .filter { (naGang, _) -> naGang.active }
+          .map { (naGang, reason) ->
+            GangNonAssociationSummary(
+              code = naGang.code,
+              name = naGang.name,
+              reason = reason.description,
+              members = naGang.members.map { member -> gangMemberDetail(member.booking) },
+            )
+          }
       }.flatten(),
     )
   }
