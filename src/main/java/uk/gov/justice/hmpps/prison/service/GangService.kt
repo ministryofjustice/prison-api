@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.service
 import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.GangMemberRepository
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor
 
@@ -21,14 +22,7 @@ class GangService(
     val currentBooking = gangsInvolved[0].booking
 
     return GangMemberSummary(
-      member = GangMemberDetail(
-        offenderNo = currentBooking.offender.nomsId,
-        firstName = currentBooking.offender.firstName,
-        lastName = currentBooking.offender.lastName,
-        prisonId = currentBooking.location.id,
-        prisonName = LocationProcessor.formatLocation(currentBooking.location.description),
-        cellLocation = currentBooking.assignedLivingUnit?.description,
-      ),
+      member = gangMemberDetail(currentBooking),
       currentGangs = gangsInvolved.map { gang ->
         GangSummary(
           code = gang.gang.code,
@@ -43,21 +37,22 @@ class GangService(
             code = naGang.code,
             name = naGang.name,
             reason = reason.description,
-            members = naGang.members.map { member ->
-              GangMemberDetail(
-                offenderNo = member.booking.offender.nomsId,
-                firstName = member.booking.offender.firstName,
-                lastName = member.booking.offender.lastName,
-                prisonId = member.booking.location.id,
-                prisonName = LocationProcessor.formatLocation(member.booking.location.description),
-                cellLocation = member.booking.assignedLivingUnit.description,
-              )
-            },
+            members = naGang.members.map { member -> gangMemberDetail(member.booking) },
           )
         }
       }.flatten(),
     )
   }
+
+  private fun gangMemberDetail(currentBooking: OffenderBooking) =
+    GangMemberDetail(
+      offenderNo = currentBooking.offender.nomsId,
+      firstName = currentBooking.offender.firstName,
+      lastName = currentBooking.offender.lastName,
+      prisonId = currentBooking.location.id,
+      prisonName = LocationProcessor.formatLocation(currentBooking.location.description),
+      cellLocation = currentBooking.assignedLivingUnit?.description,
+    )
 }
 
 @Schema(description = "Summary of Gangs for a specified prisoner")
