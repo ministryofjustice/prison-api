@@ -41,13 +41,13 @@ class GangService(
         gang.getNonAssociations()
           .filter { (naGang, _) -> naGang.active }
           .map { (naGang, reason) ->
-          GangNonAssociationSummary(
-            code = naGang.code,
-            name = naGang.name,
-            reason = reason.description,
-            members = naGang.members.filter { it.booking.isActive }.map { member -> gangMemberDetail(member.booking) },
-          )
-        }.distinct()
+            GangNonAssociationSummary(
+              code = naGang.code,
+              name = naGang.name,
+              reason = reason.description,
+              members = naGang.members.filter { it.booking.isActive }.map { member -> gangMemberDetail(member.booking) },
+            )
+          }.distinct()
       }.flatten(),
     )
   }
