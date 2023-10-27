@@ -28,7 +28,7 @@ class Gang(
   val name: String,
 
   @Column(name = "LIST_SEQ")
-  val sequence: Int = 99,
+  val sequence: Int? = 99,
 
   @Column(name = "ACTIVE_FLAG", nullable = false)
   @Convert(converter = YesNoConverter::class)
