@@ -52,7 +52,7 @@ public class AuthTokenHelper {
         RELEASE_DATE_MANUAL_COMPARER,
         UPDATE_OFFENCE_SCHEDULES,
         VIEW_CASE_NOTES,
-
+        KEY_WORKER,
     }
 
 
@@ -90,6 +90,7 @@ public class AuthTokenHelper {
         tokens.put(String.valueOf(AuthToken.UPDATE_OFFENCE_SCHEDULES), someClientUser("ROLE_UPDATE_OFFENCE_SCHEDULES"));
         tokens.put(String.valueOf(AuthToken.RELEASE_DATE_MANUAL_COMPARER), someClientUser("ROLE_RELEASE_DATE_MANUAL_COMPARER"));
         tokens.put(String.valueOf(AuthToken.VIEW_CASE_NOTES), someClientUser("ROLE_VIEW_CASE_NOTES"));
+        tokens.put(String.valueOf(AuthToken.KEY_WORKER), someClientUser("ROLE_KEY_WORKER"));
     }
 
     public String getToken() {

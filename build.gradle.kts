@@ -130,7 +130,7 @@ tasks {
   }
 
   register<Test>("testWithSchemaNomis") {
-    environment(mapOf("api.db.target" to "nomis", "cucumber.options" to "--tags \"not (@wip or @broken)\""))
+    environment(mapOf("api.db.target" to "nomis"))
     useJUnitPlatform {
       include("**/executablespecification/*")
     }
@@ -139,14 +139,7 @@ tasks {
   }
 
   register<Test>("testWithSchemaNomisOracle") {
-    environment(
-      mapOf(
-        "api.db.target" to "nomis",
-        "api.db.dialect" to "oracle",
-        "cucumber.options" to "--tags \"not (@wip or @broken)\""
-      )
-    )
-
+    environment(mapOf("api.db.target" to "nomis", "api.db.dialect" to "oracle"))
     useJUnitPlatform {
       include("**/executablespecification/*")
     }

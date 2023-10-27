@@ -153,15 +153,10 @@ docker-compose up -d
 
 All feature tests can be run from `uk.gov.justice.hmpps.prison.executablespecification.AllFeatureTest`
 
-Tests can be run individually by adding a `@wip` tag to the top of the feature file, or to an individual feature scenario, and
-then adding the environment variable `cucumber.options=--tags '@wip'` to the executable arguments in 'Edit Confgurations'.
+Tests can be run individually by adding an e.g. `@wip` tag to the top of the feature file, or to an individual feature scenario, and
+then adding the environment variable `cucumber.filter.tags=@wip` to the executable arguments in 'Edit Confgurations'.
 
-To run all feature tests in IntelliJ, avoiding known @wip or @broken tests, add the following env vars into the 'Edit Configurations' tab:-
-
-| Env var        | Value                         |
-| -------------- | ------------------------------|
-|api.db.target   | nomis                         | 
-|cucumber.options| --tags 'not(@wip or @broken)' |
+To run all feature tests in IntelliJ, avoiding any known @wip or @broken tests, set `cucumber.filter.tags=not(@wip or @broken)`
 
 ### Authorize with Swagger UI ###
 * Without correct authorisation calling endpoints will return http 401 - Unauthorized

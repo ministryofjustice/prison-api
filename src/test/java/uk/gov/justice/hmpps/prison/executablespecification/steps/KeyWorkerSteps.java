@@ -4,7 +4,6 @@ import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import uk.gov.justice.hmpps.prison.api.model.KeyWorkerAllocationDetail;
 import uk.gov.justice.hmpps.prison.api.model.Keyworker;
 import uk.gov.justice.hmpps.prison.api.model.OffenderKeyWorker;
@@ -18,16 +17,12 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 public class KeyWorkerSteps extends CommonSteps {
-    private static final String ALLOCATION_HISTORY_URL_FOR_STAFF = API_PREFIX + "key-worker/staff/allocationHistory";
     private static final String ALLOCATION_HISTORY_URL_FOR_OFFENDERS = API_PREFIX + "key-worker/offenders/allocationHistory";
     private static final String KEY_WORKER_API_URL_WITH_AGENCY_PARAM = API_PREFIX + "key-worker/%s/available";
-    private static final String KEY_WORKER_API_DETAILS = API_PREFIX + "key-worker/{staffId}";
-    private static final String KEY_WORKER_API_URL_WITH_STAFF_ID_PARAM = API_PREFIX + "key-worker/{staffId}/agency/{agencyId}/offenders";
     private static final String KEY_WORKER_CURRENT_ALLOCS_BY_STAFF = API_PREFIX + "key-worker/{agencyId}/current-allocations";
     private static final String KEY_WORKER_CURRENT_ALLOCS_BY_OFFENDER = API_PREFIX + "key-worker/{agencyId}/current-allocations/offenders";
 
     private List<Keyworker> keyworkerList;
-    private Keyworker keyworker;
     private List<KeyWorkerAllocationDetail> allocationsList;
     private List<OffenderKeyWorker> allocationHistoryList;
 
@@ -60,31 +55,6 @@ public class KeyWorkerSteps extends CommonSteps {
         } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
-    }
-
-    private void doAllocationsApiCall(final Long staffId, final String agencyId) {
-        init();
-        try {
-            final var response =
-                    restTemplate.exchange(
-                            KEY_WORKER_API_URL_WITH_STAFF_ID_PARAM,
-                            HttpMethod.GET,
-                            createEntity(),
-                            new ParameterizedTypeReference<List<KeyWorkerAllocationDetail>>() {
-                            }, staffId, agencyId);
-
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-            allocationsList = response.getBody();
-
-        } catch (final PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
-
-    private void doAllocationHistoryApiCallByStaffList(final List<Long> staffIds) {
-        init();
-        callPostApiForAllocationHistory(ALLOCATION_HISTORY_URL_FOR_STAFF, staffIds);
     }
 
     private void doAllocationHistoryApiCallByOffenderList(final List<String> offenderNos) {
@@ -140,38 +110,10 @@ public class KeyWorkerSteps extends CommonSteps {
         }
     }
 
-    private void doDetailsApiCall(final Long staffId) {
-        init();
-
-        final ResponseEntity<Keyworker> response;
-
-        try {
-            response = restTemplate.exchange(KEY_WORKER_API_DETAILS, HttpMethod.GET, createEntity(),
-                    Keyworker.class, staffId);
-
-            keyworker = response.getBody();
-        } catch (final PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
-
     @Override
     protected void init() {
         super.init();
         keyworkerList = null;
-        keyworker = null;
-    }
-
-    @Step("Get Key worker details")
-    public void getKeyworkerDetails(final Long staffId) {
-        doDetailsApiCall(staffId);
-    }
-
-    @Step("Verify Key worker details")
-    public void verifyKeyworkerDetails() {
-        assertThat(keyworker.getStaffId()).isEqualTo(-5);
-        assertThat(keyworker.getFirstName()).isEqualTo("Another");
-        assertThat(keyworker.getLastName()).isEqualTo("User");
     }
 
     @Step("Verify number of offender allocations for Key worker")
@@ -184,20 +126,12 @@ public class KeyWorkerSteps extends CommonSteps {
         assertThat(allocationHistoryList).hasSize(expectedAllocationCount);
     }
 
-    public void getKeyworkerAllocations(final Long staffId, final String agencyId) {
-        doAllocationsApiCall(staffId, agencyId);
-    }
-
     public void getKeyworkerAllocationsByStaffIds(final List<Long> staffIds, final String agencyId) {
         doAllocationsApiCallByStaffList(staffIds, agencyId);
     }
 
     public void getKeyworkerAllocationsByOffenderNos(final List<String> offenderNos, final String agencyId) {
         doAllocationsApiCallByOffenderList(offenderNos, agencyId);
-    }
-
-    public void getKeyworkerAllocationHistoryByStaffIds(final List<Long> staffIds) {
-        doAllocationHistoryApiCallByStaffList(staffIds);
     }
 
     public void getKeyworkerAllocationHistoryByOffenderNos(final List<String> offenderNos) {
