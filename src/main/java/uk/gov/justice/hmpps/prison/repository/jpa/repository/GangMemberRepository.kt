@@ -7,5 +7,5 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.GangMemberId
 
 @Repository
 interface GangMemberRepository : JpaRepository<GangMember, GangMemberId> {
-  fun findAllByBookingOffenderNomsId(nomsId: String): List<GangMember>
+  fun findAllByBookingOffenderNomsIdAndGangActiveIsTrue(nomsId: String): List<GangMember>
 }
