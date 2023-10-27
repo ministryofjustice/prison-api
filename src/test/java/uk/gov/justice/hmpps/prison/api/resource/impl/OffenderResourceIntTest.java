@@ -821,7 +821,7 @@ public class OffenderResourceIntTest extends ResourceTest {
             requestEntity,
             new ParameterizedTypeReference<String>() {
             },
-            "A1181HH", "NOT_PROVED");
+            "A1181HH", "NOT_PROVEN");
 
         assertThatJsonFileAndStatus(response, 200, "adjudications_by_finding_code.json");
     }
