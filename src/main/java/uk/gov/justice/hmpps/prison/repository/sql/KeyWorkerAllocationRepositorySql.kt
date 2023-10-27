@@ -67,27 +67,6 @@ enum class KeyWorkerAllocationRepositorySql(val sql: String) {
     """,
   ),
 
-  GET_ALLOCATION_HISTORY_BY_AGENCY(
-    """
-        SELECT
-        O.OFFENDER_ID_DISPLAY OFFENDER_NO,
-        OKW.OFFICER_ID        STAFF_ID,
-        OKW.AGY_LOC_ID        AGENCY_ID,
-        OKW.ASSIGNED_TIME     ASSIGNED,
-        OKW.EXPIRY_DATE       EXPIRED,
-        OKW.USER_ID           USER_ID,
-        OKW.ACTIVE_FLAG       ACTIVE,
-        OKW.CREATE_DATETIME   CREATED,
-        OKW.CREATE_USER_ID    CREATED_BY,
-        OKW.MODIFY_DATETIME   MODIFIED,
-        OKW.MODIFY_USER_ID    MODIFIED_BY
-                FROM OFFENDER_KEY_WORKERS OKW
-        INNER JOIN OFFENDER_BOOKINGS OB         ON OB.OFFENDER_BOOK_ID = OKW.OFFENDER_BOOK_ID
-                INNER JOIN OFFENDERS O                  ON OB.OFFENDER_ID = O.OFFENDER_ID
-                WHERE OKW.AGY_LOC_ID = :agencyId
-    """,
-  ),
-
   GET_ALLOCATION_HISTORY_BY_OFFENDER(
     """
         SELECT
