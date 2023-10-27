@@ -110,7 +110,6 @@ import uk.gov.justice.hmpps.prison.service.InmateService;
 import uk.gov.justice.hmpps.prison.service.MovementsService;
 import uk.gov.justice.hmpps.prison.service.NoContentException;
 import uk.gov.justice.hmpps.prison.service.OffenderFixedTermRecallService;
-import uk.gov.justice.hmpps.prison.service.OffenderNonAssociationsService;
 import uk.gov.justice.hmpps.prison.service.keyworker.KeyWorkerAllocationService;
 
 import jakarta.validation.Valid;
@@ -150,7 +149,6 @@ public class BookingResource {
     private final IncidentService incidentService;
     private final MovementsService movementsService;
     private final AppointmentsService appointmentsService;
-    private final OffenderNonAssociationsService offenderNonAssociationsService;
     private final OffenderFixedTermRecallService fixedTermRecallService;
 
     @ApiResponses({
