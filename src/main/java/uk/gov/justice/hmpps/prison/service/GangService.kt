@@ -38,14 +38,16 @@ class GangService(
       }.distinct(),
 
       gangNonAssociations = gangs.map { gang ->
-        gang.getNonAssociations().map { (naGang, reason) ->
+        gang.getNonAssociations()
+          .filter { (naGang, _) -> naGang.active }
+          .map { (naGang, reason) ->
           GangNonAssociationSummary(
             code = naGang.code,
             name = naGang.name,
             reason = reason.description,
-            members = naGang.members.map { member -> gangMemberDetail(member.booking) },
+            members = naGang.members.filter { it.booking.isActive }.map { member -> gangMemberDetail(member.booking) },
           )
-        }
+        }.distinct()
       }.flatten(),
     )
   }
