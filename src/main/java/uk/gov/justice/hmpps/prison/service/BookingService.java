@@ -67,6 +67,7 @@ import uk.gov.justice.hmpps.prison.repository.SentenceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Caseload;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.GlobalVisitorRestriction;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderAlert;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderContactPerson;
@@ -102,6 +103,7 @@ import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 import uk.gov.justice.hmpps.prison.service.support.PayableAttendanceOutcomeDto;
 import uk.gov.justice.hmpps.prison.service.transformers.CourtCaseTransformer;
+import uk.gov.justice.hmpps.prison.service.transformers.OffenderAlertTransformer;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderBookingTransformer;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderChargeTransformer;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
@@ -914,7 +916,8 @@ public class BookingService {
     private CalculableSentenceEnvelope determineCalculableSentenceEnvelope(OffenderBooking offenderBooking) {
         final var person = new uk.gov.justice.hmpps.prison.api.model.calculation.Person(
             offenderBooking.getOffender().getNomsId(),
-            offenderBooking.getOffender().getBirthDate()
+            offenderBooking.getOffender().getBirthDate(),
+            offenderBooking.getAlerts().stream().filter(OffenderAlert::isActive).map(OffenderAlertTransformer::transformForOffender).collect(toList())
         );
 
         final List<SentenceAdjustmentValues> sentenceAdjustments = offenderBooking.getSentenceAdjustments().stream().filter(SentenceAdjustmentValues::isActive).toList();

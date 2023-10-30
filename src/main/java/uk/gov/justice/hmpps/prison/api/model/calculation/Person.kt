@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.api.model.calculation
 
 import io.swagger.v3.oas.annotations.media.Schema
+import uk.gov.justice.hmpps.prison.api.model.Alert
 import java.time.LocalDate
 
 data class Person(
@@ -9,4 +10,6 @@ data class Person(
   var prisonerNumber: String,
 
   var dateOfBirth: LocalDate,
+
+  val alerts: List<Alert>,
 )
