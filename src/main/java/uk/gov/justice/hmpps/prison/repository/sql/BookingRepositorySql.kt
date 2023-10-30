@@ -638,60 +638,6 @@ enum class BookingRepositorySql(val sql: String) {
     """,
   ),
 
-  FIND_BOOKINGS_BY_PERSON_CONTACT(
-    """
-        SELECT  OB.OFFENDER_BOOK_ID                            booking_id,
-        O.OFFENDER_ID_DISPLAY                          offender_no,
-        O.TITLE,
-        O.SUFFIX,
-        O.FIRST_NAME,
-        CONCAT(O.middle_name, CASE WHEN middle_name_2 IS NOT NULL
-                THEN concat(' ', O.middle_name_2)
-        ELSE '' END)                MIDDLE_NAMES,
-        O.LAST_NAME,
-        OB.ACTIVE_FLAG                                 currently_in_prison,
-        OB.agy_loc_id                                  agency_location_id,
-        AIL.description                                agency_location_desc,
-        OB.LIVING_UNIT_ID                              internal_location_id,
-        AIL.DESCRIPTION                                internal_location_desc
-                FROM OFFENDER_BOOKINGS OB
-        JOIN OFFENDERS O ON OB.OFFENDER_ID = O.OFFENDER_ID
-        JOIN OFFENDER_CONTACT_PERSONS OCP ON OCP.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID
-        JOIN PERSONS P ON P.PERSON_ID = OCP.PERSON_ID
-        JOIN PERSON_IDENTIFIERS PI ON PI.PERSON_ID = P.PERSON_ID AND PI.IDENTIFIER_TYPE = :identifierType
-                AND PI.ID_SEQ = (SELECT MAX(ID_SEQ) FROM PERSON_IDENTIFIERS pi1 where pi1.PERSON_ID = PI.PERSON_ID AND pi1.IDENTIFIER_TYPE = PI.IDENTIFIER_TYPE )
-        LEFT JOIN AGENCY_INTERNAL_LOCATIONS AIL ON OB.LIVING_UNIT_ID = AIL.INTERNAL_LOCATION_ID
-                WHERE PI.IDENTIFIER = :identifier
-        AND OCP.RELATIONSHIP_TYPE = COALESCE(:relationshipType, OCP.RELATIONSHIP_TYPE)
-        AND OB.ACTIVE_FLAG = 'Y'
-    """,
-  ),
-
-  FIND_BOOKINGS_BY_PERSON_ID_CONTACT(
-    """
-        SELECT  OB.OFFENDER_BOOK_ID                            booking_id,
-        O.OFFENDER_ID_DISPLAY                          offender_no,
-        O.TITLE,
-        O.SUFFIX,
-        O.FIRST_NAME,
-        CONCAT(O.middle_name, CASE WHEN middle_name_2 IS NOT NULL
-                THEN concat(' ', O.middle_name_2)
-        ELSE '' END)                MIDDLE_NAMES,
-        O.LAST_NAME,
-        OB.ACTIVE_FLAG                                 currently_in_prison,
-        OB.agy_loc_id                                  agency_location_id,
-        AIL.description                                agency_location_desc,
-        OB.LIVING_UNIT_ID                              internal_location_id,
-        AIL.DESCRIPTION                                internal_location_desc
-                FROM OFFENDER_BOOKINGS OB
-        JOIN OFFENDERS O ON OB.OFFENDER_ID = O.OFFENDER_ID
-        JOIN OFFENDER_CONTACT_PERSONS OCP ON OCP.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID AND OCP.PERSON_ID = :personId
-                LEFT JOIN AGENCY_INTERNAL_LOCATIONS AIL ON OB.LIVING_UNIT_ID = AIL.INTERNAL_LOCATION_ID
-                WHERE OCP.RELATIONSHIP_TYPE = COALESCE(:relationshipType, OCP.RELATIONSHIP_TYPE)
-        AND OB.ACTIVE_FLAG = 'Y'
-    """,
-  ),
-
   FIND_BOOKING_IDS_IN_AGENCY(
     """
         SELECT OB.OFFENDER_BOOK_ID booking_id

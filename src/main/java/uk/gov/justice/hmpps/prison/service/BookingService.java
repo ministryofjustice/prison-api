@@ -133,7 +133,6 @@ import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsLast;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static uk.gov.justice.hmpps.prison.service.ContactService.EXTERNAL_REL;
 import static uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer.filterSentenceTerms;
 
 /**
@@ -534,15 +533,6 @@ public class BookingService {
         }
         return visit;
     }
-
-    public List<OffenderSummary> getBookingsByExternalRefAndType(final String externalRef, final String relationshipType) {
-        return bookingRepository.getBookingsByRelationship(externalRef, relationshipType, EXTERNAL_REL);
-    }
-
-    public List<OffenderSummary> getBookingsByPersonIdAndType(final Long personId, final String relationshipType) {
-        return bookingRepository.getBookingsByRelationship(personId, relationshipType);
-    }
-
 
     public OffenderBookingIdSeq getOffenderIdentifiers(final String offenderNo, final String... rolesAllowed) {
         final var offenderIdentifier = bookingRepository.getLatestBookingIdentifierForOffender(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
