@@ -146,7 +146,7 @@ public class OffenderResourceIntTest extends ResourceTest {
             },
             OFFENDER_NUMBER);
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(404);
+        assertThat(response.getStatusCodeValue()).isEqualTo(403);
     }
 
     @Test
