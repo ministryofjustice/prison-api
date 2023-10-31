@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.microsoft.applicationinsights.TelemetryClient;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -58,7 +59,9 @@ import uk.gov.justice.hmpps.prison.service.transformers.AgencyTransformer;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -96,6 +99,7 @@ public class AgencyService {
     private final ReferenceCodeRepository<City> cityReferenceCodeRepository;
     private final ReferenceCodeRepository<County> countyReferenceCodeRepository;
     private final ReferenceCodeRepository<Country> countryReferenceCodeRepository;
+    private final TelemetryClient telemetryClient;
 
     public Agency getAgency(final String agencyId, @NotNull final StatusFilter filter, final String agencyType, final boolean withAddresses, final boolean skipFormatLocation) {
         final var criteria = AgencyLocationFilter.builder()
@@ -211,9 +215,22 @@ public class AgencyService {
         if (AuthenticationFacade.hasRoles("INACTIVE_BOOKINGS")) {
             agencyIds.addAll(Set.of("OUT", "TRN"));
         }
+        if (agencyIds.isEmpty()) {
+            if (authenticationFacade.isClientOnly()) {
+                logClientUnauthorisedAccess(agencyId);
+            }
+            throw EntityNotFoundException.withId(agencyId);
+        }
         if (!agencyIds.contains(agencyId)) {
             throw EntityNotFoundException.withId(agencyId);
         }
+    }
+
+    private void logClientUnauthorisedAccess(final String agencyId) {
+        final Map<String, String> logMap = new HashMap<>();
+        logMap.put("agencyId", agencyId);
+        logMap.put("currentClientRoles", StringUtils.join(authenticationFacade.getCurrentRoles(), ","));
+        telemetryClient.trackEvent("ClientUnauthorisedAgencyAccess", logMap, null);
     }
 
     public List<Location> getAgencyLocations(final String agencyId, final String eventType, final String sortFields, final Order sortOrder) {
