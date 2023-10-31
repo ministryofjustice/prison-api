@@ -7,23 +7,13 @@ import uk.gov.justice.hmpps.prison.api.model.IncidentCase;
 import uk.gov.justice.hmpps.prison.api.model.IncidentParty;
 import uk.gov.justice.hmpps.prison.api.model.IncidentPartyDto;
 import uk.gov.justice.hmpps.prison.api.model.IncidentResponse;
-import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
-import uk.gov.justice.hmpps.prison.api.model.OffenderSummaryDto;
-import uk.gov.justice.hmpps.prison.api.model.Questionnaire;
-import uk.gov.justice.hmpps.prison.api.model.QuestionnaireAnswer;
-import uk.gov.justice.hmpps.prison.api.model.QuestionnaireQuestion;
-import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.repository.mapping.DataClassByColumnRowMapper;
-import uk.gov.justice.hmpps.prison.repository.mapping.PageAwareRowMapper;
-import uk.gov.justice.hmpps.prison.repository.mapping.Row2BeanRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
 import uk.gov.justice.hmpps.prison.repository.sql.IncidentCaseRepositorySql;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -38,31 +28,11 @@ public class IncidentCaseRepository extends RepositoryBase {
     private final RowMapper<IncidentPartyDto> INCIDENT_PARTY_MAPPER =
             new DataClassByColumnRowMapper<>(IncidentPartyDto.class);
 
-    private final RowMapper<FlatQuestionnaire> QUESTIONNAIRE_MAPPER =
-            new StandardBeanPropertyRowMapper<>(FlatQuestionnaire.class);
-
-    private final DataClassByColumnRowMapper<OffenderSummaryDto> CANDIDATE_MAPPER =
-            new DataClassByColumnRowMapper<>(OffenderSummaryDto.class);
-
     public List<IncidentCase> getIncidentCasesByOffenderNo(final String offenderNo, final List<String> incidentTypes, final List<String> participationRoles) {
         final var sql = generateSql(incidentTypes, participationRoles, IncidentCaseRepositorySql.GET_INCIDENT_CASES_BY_OFFENDER_NO);
         final var incidentCaseIds = jdbcTemplate.queryForList(sql,
                 createParams("offenderNo", offenderNo, "incidentTypes", incidentTypes, "participationRoles", participationRoles),
                 Long.class);
-        if (!incidentCaseIds.isEmpty()) {
-            return getIncidentCases(incidentCaseIds);
-        }
-
-        return Collections.emptyList();
-    }
-
-    public List<IncidentCase> getIncidentCasesByBookingId(final Long bookingId, final List<String> incidentTypes, final List<String> participationRoles) {
-        final var sql = generateSql(incidentTypes, participationRoles, IncidentCaseRepositorySql.GET_INCIDENT_CASES_BY_BOOKING_ID);
-
-        final var incidentCaseIds = jdbcTemplate.queryForList(sql,
-                createParams("bookingId", bookingId, "incidentTypes", incidentTypes, "participationRoles", participationRoles),
-                Long.class);
-
         if (!incidentCaseIds.isEmpty()) {
             return getIncidentCases(incidentCaseIds);
         }
@@ -89,7 +59,7 @@ public class IncidentCaseRepository extends RepositoryBase {
                 INCIDENT_CASE_MAPPER);
         final var incidentCases = new ArrayList<IncidentCase>();
 
-        if (flatIncidentCases.size() > 0) {
+        if (!flatIncidentCases.isEmpty()) {
             final var incidentParties = jdbcTemplate.query(IncidentCaseRepositorySql.GET_PARTIES_INVOLVED.getSql(),
                     createParams("incidentCaseIds", incidentCaseIds),
                     INCIDENT_PARTY_MAPPER);
@@ -150,88 +120,5 @@ public class IncidentCaseRepository extends RepositoryBase {
         }
 
         return incidentCases;
-    }
-
-    public Optional<Questionnaire> getQuestionnaire(final String category, final String code) {
-
-        final var questionnaireData = jdbcTemplate.query(IncidentCaseRepositorySql.QUESTIONNAIRE.getSql(),
-                createParams(
-                        "category", category,
-                        "code", code),
-                QUESTIONNAIRE_MAPPER);
-
-        if (!questionnaireData.isEmpty()) {
-            final var collect = questionnaireData.stream()
-                    .collect(groupingBy(FlatQuestionnaire::getQuestionnaireId,
-                            groupingBy(FlatQuestionnaire::getQuestionnaireQueId)));
-
-            final var questionnaireBuilder = Questionnaire.builder().code(code);
-
-            collect.forEach((key, value) -> {
-                final var questions = new TreeSet<QuestionnaireQuestion>();
-                questionnaireBuilder.questionnaireId(key);
-                questionnaireBuilder.questions(questions);
-
-                final var quesId = new AtomicReference<Long>();
-                value.forEach((k, v) -> {
-                    final var answers = new TreeSet<QuestionnaireAnswer>();
-
-                    v.forEach(q -> {
-                        if (quesId.get() == null || !quesId.get().equals(q.getQuestionnaireQueId())) {
-                            questions.add(QuestionnaireQuestion.builder()
-                                    .questionDesc(q.getQuestionDesc())
-                                    .multipleAnswerFlag(q.getMultipleAnswerFlag())
-                                    .nextQuestionnaireQueId(q.getNextQuestionnaireQueId())
-                                    .questionActiveFlag(q.getQuestionActiveFlag())
-                                    .questionExpiryDate(q.getQuestionExpiryDate())
-                                    .questionListSeq(q.getQuestionListSeq())
-                                    .questionnaireQueId(q.getQuestionnaireQueId())
-                                    .questionSeq(q.getQuestionSeq())
-                                    .answers(answers)
-                                    .build());
-
-                            quesId.set(q.getQuestionnaireQueId());
-                        }
-
-                        answers.add(QuestionnaireAnswer.builder()
-                                .answerDesc(q.getAnswerDesc())
-                                .answerActiveFlag(q.getAnswerActiveFlag())
-                                .answerExpiryDate(q.getAnswerExpiryDate())
-                                .answerListSeq(q.getAnswerListSeq())
-                                .answerSeq(q.getAnswerSeq())
-                                .commentRequiredFlag(q.getCommentRequiredFlag())
-                                .dateRequiredFlag(q.getDateRequiredFlag())
-                                .questionnaireAnsId(q.getQuestionnaireAnsId())
-                                .build());
-                    });
-
-                });
-
-            });
-            return Optional.of(questionnaireBuilder.build());
-        }
-
-        return Optional.empty();
-
-    }
-
-    public Page<String> getIncidentCandidates(LocalDateTime cutoffTimestamp, final long offset, final long limit) {
-        final var builder = queryBuilderFactory.getQueryBuilder(IncidentCaseRepositorySql.GET_INCIDENT_CANDIDATES.getSql(), CANDIDATE_MAPPER.getFieldMap());
-
-        final var sql = builder
-                .addRowCount()
-                .addPagination()
-                .build();
-
-        final var rowMapper = Row2BeanRowMapper.makeMapping(OffenderSummary.class, CANDIDATE_MAPPER.getFieldMap());
-        final var paRowMapper = new PageAwareRowMapper<>(rowMapper);
-
-        final List<OffenderSummary> offenderSummaries = jdbcTemplate.query(
-                sql,
-                createParams("cutoffTimestamp", cutoffTimestamp, "offset", offset, "limit", limit),
-                paRowMapper);
-        final var results = offenderSummaries.stream().map(OffenderSummary::getOffenderNo).toList();
-
-        return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
     }
 }

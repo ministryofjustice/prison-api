@@ -1,18 +1,11 @@
 package uk.gov.justice.hmpps.prison.service;
 
-import org.springframework.security.access.prepost.PreAuthorize;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.hmpps.prison.api.model.IncidentCase;
-import uk.gov.justice.hmpps.prison.api.model.Questionnaire;
-import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.repository.IncidentCaseRepository;
-import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 
-import jakarta.validation.constraints.NotNull;
-import java.time.LocalDateTime;
 import java.util.List;
-
-import static java.lang.String.format;
 
 @Service
 public class IncidentService {
@@ -29,24 +22,8 @@ public class IncidentService {
         return repository.getIncidentCases(List.of(incidentCaseId)).stream().findFirst().orElseThrow(EntityNotFoundException.withId(incidentCaseId));
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
-    public List<IncidentCase> getIncidentCasesByBookingId(@NotNull final long bookingId, final List<String> incidentTypes, final List<String> participationRoles) {
-        bookingService.checkBookingExists(bookingId);
-        return repository.getIncidentCasesByBookingId(bookingId, incidentTypes, participationRoles);
-    }
-
-    @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA','SYSTEM_USER')")
     public List<IncidentCase> getIncidentCasesByOffenderNo(@NotNull final String offenderNo, final List<String> incidentTypes, final List<String> participationRoles) {
         bookingService.getOffenderIdentifiers(offenderNo, "SYSTEM_USER");
         return repository.getIncidentCasesByOffenderNo(offenderNo, incidentTypes, participationRoles);
-    }
-
-    public Questionnaire getQuestionnaire(@NotNull final String category, @NotNull final String code) {
-        return repository.getQuestionnaire(category, code).orElseThrow(EntityNotFoundException.withId(format("%s/%s", category, code)));
-    }
-
-    @PreAuthorize("hasAnyRole('SYSTEM_USER')")
-    public Page<String> getIncidentCandidates(LocalDateTime cutoffTimestamp, final long offset, final long limit) {
-        return repository.getIncidentCandidates(cutoffTimestamp, offset, limit);
     }
 }

@@ -22,8 +22,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -325,58 +323,6 @@ public class OffenderResourceIntTest extends ResourceTest {
             new ParameterizedTypeReference<IncidentCase>() {
             });
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-    }
-
-    @Test
-    public void testCanRetrieveIncidentCandidatesWithSystemUser() {
-        final var token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE);
-
-        final var httpEntity = createHttpEntity(token, null);
-
-        final var response = testRestTemplate.exchange(
-            "/api/offenders/incidents/candidates?fromDateTime=2016-02-02T14:00:00",
-            GET,
-            httpEntity,
-            new ParameterizedTypeReference<String>() {
-            });
-
-        assertThatJsonFileAndStatus(response, 200, "incidents_candidates.json");
-    }
-
-    @Test
-    public void testCanRetrieveIncidentCandidatesPage() {
-        final var paging = new HashMap<String, String>();
-        paging.put("Page-Offset", "1");
-        paging.put("Page-Limit", "2");
-        final var httpEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_SYSTEM_USER"), paging);
-
-        final var response = testRestTemplate.exchange(
-            "/api/offenders/incidents/candidates?fromDateTime=2016-02-02T14:00:00",
-            GET,
-            httpEntity,
-            new ParameterizedTypeReference<String>() {
-            });
-
-        assertThat(response.getHeaders().get("Page-Offset")).containsExactly("1");
-        assertThat(response.getHeaders().get("Page-Limit")).containsExactly("2");
-        assertThat(response.getHeaders().get("Total-Records")).containsExactly("4");
-        assertThatJsonFileAndStatus(response, 200, "incidents_candidates_page.json");
-    }
-
-    @Test
-    public void testCannotRetrieveIncidentCandidatesWithViewPrisonerDataRole() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA);
-
-        final var httpEntity = createHttpEntity(token, null);
-
-        final var response = testRestTemplate.exchange(
-            "/api/offenders/incidents/candidates?fromDateTime=2016-02-02T14:00:00",
-            GET,
-            httpEntity,
-            new ParameterizedTypeReference<String>() {
-            });
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(403);
     }
 
     @Test
