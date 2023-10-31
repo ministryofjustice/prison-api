@@ -7,6 +7,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.springdoc.core.annotations.ParameterObject;
@@ -90,11 +93,7 @@ import uk.gov.justice.hmpps.prison.service.receiveandtransfer.BookingIntoPrisonS
 import uk.gov.justice.hmpps.prison.service.receiveandtransfer.PrisonTransferService;
 import uk.gov.justice.hmpps.prison.service.receiveandtransfer.PrisonerCreationService;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -345,18 +344,9 @@ public class OffenderResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Return a set Incidents for a given offender No.", description = "Can be filtered by participation type and incident type")
     @GetMapping("/{offenderNo}/incidents")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'VIEW_INCIDENTS')")
     public List<IncidentCase> getIncidentsByOffenderNo(@PathVariable("offenderNo") @Parameter(description = "offenderNo", required = true, example = "A1234AA") @NotNull final String offenderNo, @RequestParam("incidentType") @Parameter(description = "incidentType", example = "ASSAULT") final List<String> incidentTypes, @RequestParam("participationRoles") @Parameter(description = "participationRoles", example = "ASSIAL", schema = @Schema(implementation = String.class, allowableValues = {"ACTINV","ASSIAL","FIGHT","IMPED","PERP","SUSASS","SUSINV","VICT","AI","PAS","AO"})) final List<String> participationRoles) {
         return incidentService.getIncidentCasesByOffenderNo(offenderNo, incidentTypes, participationRoles);
-    }
-
-    @Operation(summary = "Return a list of offender nos across the estate for which an incident has recently occurred or changed", description = "This query is slow and can take several minutes")
-    @GetMapping("/incidents/candidates")
-    public ResponseEntity<List<String>> getIncidentCandidates(@RequestParam("fromDateTime") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @Parameter(description = "A recent timestamp that indicates the earliest time to consider. NOTE More than a few days in the past can result in huge amounts of data.", required = true, example = "2019-10-22T03:00") @NotNull final LocalDateTime fromDateTime, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first offender in returned list.") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "1000", required = false) @Parameter(description = "Requested limit to number of offenders returned.") final Long pageLimit) {
-        var paged = incidentService.getIncidentCandidates(fromDateTime,
-            nvl(pageOffset, 0L),
-            nvl(pageLimit, 1000L));
-
-        return ResponseEntity.ok().headers(paged.getPaginationHeaders()).body(paged.getItems());
     }
 
     @ApiResponses({

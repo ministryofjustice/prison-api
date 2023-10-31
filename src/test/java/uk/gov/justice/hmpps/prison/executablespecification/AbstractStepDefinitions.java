@@ -33,7 +33,6 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.MovementsSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.MyAssignmentsSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.NomisApiV1Steps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.OffenderAdjudicationSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.OffenderIdentifierSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.OffenderSearchSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.OffenderSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.PersonIdentifierSteps;
@@ -213,11 +212,6 @@ abstract class AbstractStepDefinitions {
         @Bean
         public PersonIdentifierSteps personIdentifierSteps() {
             return new PersonIdentifierSteps();
-        }
-
-        @Bean
-        public OffenderIdentifierSteps offenderIdentifierSteps() {
-            return new OffenderIdentifierSteps();
         }
 
         @Bean

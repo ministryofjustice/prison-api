@@ -24,6 +24,6 @@ public class PersonIdentifierSteps extends CommonSteps {
     }
 
     public void verifyPersonIdentifiers(final List<PersonIdentifier> expectedIdentifiers) {
-        assertThat(actualIdentifiers).containsOnlyElementsOf(expectedIdentifiers);
+        assertThat(actualIdentifiers).containsOnly(expectedIdentifiers.toArray(new PersonIdentifier[0]));
     }
 }
