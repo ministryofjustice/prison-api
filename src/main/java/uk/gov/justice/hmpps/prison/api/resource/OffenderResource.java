@@ -7,6 +7,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.springdoc.core.annotations.ParameterObject;
@@ -38,7 +41,6 @@ import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.OffenderContacts;
 import uk.gov.justice.hmpps.prison.api.model.OffenderDamageObligationResponse;
-import uk.gov.justice.hmpps.prison.api.model.OffenderNumber;
 import uk.gov.justice.hmpps.prison.api.model.OffenderRestrictions;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
@@ -75,7 +77,6 @@ import uk.gov.justice.hmpps.prison.service.AdjudicationService;
 import uk.gov.justice.hmpps.prison.service.BookingService;
 import uk.gov.justice.hmpps.prison.service.CaseNoteService;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
-import uk.gov.justice.hmpps.prison.service.GlobalSearchService;
 import uk.gov.justice.hmpps.prison.service.IncidentService;
 import uk.gov.justice.hmpps.prison.service.InmateAlertService;
 import uk.gov.justice.hmpps.prison.service.InmateService;
@@ -90,9 +91,6 @@ import uk.gov.justice.hmpps.prison.service.receiveandtransfer.BookingIntoPrisonS
 import uk.gov.justice.hmpps.prison.service.receiveandtransfer.PrisonTransferService;
 import uk.gov.justice.hmpps.prison.service.receiveandtransfer.PrisonerCreationService;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -116,7 +114,6 @@ public class OffenderResource {
     private final AdjudicationService adjudicationService;
     private final CaseNoteService caseNoteService;
     private final BookingService bookingService;
-    private final GlobalSearchService globalSearchService;
     private final AuthenticationFacade authenticationFacade;
     private final PrisonerCreationService prisonerCreationService;
     private final PrisonerReleaseAndTransferService prisonerReleaseAndTransferService;
@@ -557,23 +554,24 @@ public class OffenderResource {
         return bookingService.getSentenceSummary(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
     }
 
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Return a list of all unique Noms IDs (also called Prisoner number and offenderNo).")
-    @GetMapping("/ids")
-    @SlowReportQuery
-    public ResponseEntity<List<OffenderNumber>> getOffenderNumbers(@RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first Noms ID in returned list.") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "100", required = false) @Parameter(description = "Requested limit to the Noms IDs returned.") final Long pageLimit) {
-
-        final var offenderNumbers = globalSearchService.getOffenderNumbers(
-            nvl(pageOffset, 0L),
-            nvl(pageLimit, 100L));
-
-        return ResponseEntity.ok()
-            .headers(offenderNumbers.getPaginationHeaders())
-            .body(offenderNumbers.getItems());
-    }
+//    @ApiResponses({
+//        @ApiResponse(responseCode = "200", description = "OK"),
+//        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+//        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+//    @Operation(summary = "Return a list of all unique Noms IDs (also called Prisoner number and offenderNo).")
+//    @GetMapping("/ids")
+//    @PreAuthorize("hasRole('PRISONER_INDEX')")
+//    @SlowReportQuery
+//    public ResponseEntity<List<OffenderNumber>> getOffenderNumbers(@RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first Noms ID in returned list.") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "100", required = false) @Parameter(description = "Requested limit to the Noms IDs returned.") final Long pageLimit) {
+//
+//        final var offenderNumbers = globalSearchService.getOffenderNumbers(
+//            nvl(pageOffset, 0L),
+//            nvl(pageLimit, 100L));
+//
+//        return ResponseEntity.ok()
+//            .headers(offenderNumbers.getPaginationHeaders())
+//            .body(offenderNumbers.getItems());
+//    }
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
