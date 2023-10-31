@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.MediaType
 import uk.gov.justice.hmpps.prison.api.model.calculation.CalculableSentenceEnvelope
+import java.time.LocalDate
 
 class BookingResourceIntTest_getCalculableSentenceEnvelope : ResourceTest() {
 
@@ -19,8 +20,8 @@ class BookingResourceIntTest_getCalculableSentenceEnvelope : ResourceTest() {
   fun `Test that endpoint returns a summary list when authorised`() {
     val json = getPrisonResourceAsText("prison_resource_single_calculable_sentence_envelope.json")
     val calculableSentenceEnvelope = objectMapper.readValue<CalculableSentenceEnvelope>(json)
-
     val fixedRecallCalculableSentenceEnvelope = objectMapper.readValue<CalculableSentenceEnvelope>(getPrisonResourceAsText("prison_resource_fixed_recall_calculable_sentence_envelope.json"))
+    fixedRecallCalculableSentenceEnvelope.person.alerts.forEach { it.dateCreated = LocalDate.now() }
 
     webTestClient.get()
       .uri { uriBuilder ->
