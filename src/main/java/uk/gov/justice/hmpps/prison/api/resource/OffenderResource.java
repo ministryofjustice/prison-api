@@ -554,25 +554,6 @@ public class OffenderResource {
         return bookingService.getSentenceSummary(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
     }
 
-//    @ApiResponses({
-//        @ApiResponse(responseCode = "200", description = "OK"),
-//        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-//        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-//    @Operation(summary = "Return a list of all unique Noms IDs (also called Prisoner number and offenderNo).")
-//    @GetMapping("/ids")
-//    @PreAuthorize("hasRole('PRISONER_INDEX')")
-//    @SlowReportQuery
-//    public ResponseEntity<List<OffenderNumber>> getOffenderNumbers(@RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first Noms ID in returned list.") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "100", required = false) @Parameter(description = "Requested limit to the Noms IDs returned.") final Long pageLimit) {
-//
-//        final var offenderNumbers = globalSearchService.getOffenderNumbers(
-//            nvl(pageOffset, 0L),
-//            nvl(pageLimit, 100L));
-//
-//        return ResponseEntity.ok()
-//            .headers(offenderNumbers.getPaginationHeaders())
-//            .body(offenderNumbers.getItems());
-//    }
-
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "404", description = "Offender does not exists or is in a different caseload to the user", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
