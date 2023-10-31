@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -609,6 +610,7 @@ public class BookingService {
         if (agencyIds.isEmpty()) {
             if (authenticationFacade.isClientOnly()) {
                 logClientUnauthorisedAccess(bookingId, rolesAllowed);
+                throw new AccessDeniedException(format("Client not authorised to access booking with id %d.", bookingId));
             }
             throw EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId);
         }
