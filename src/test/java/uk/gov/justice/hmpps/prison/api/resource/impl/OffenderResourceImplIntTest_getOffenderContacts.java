@@ -116,7 +116,7 @@ public class OffenderResourceImplIntTest_getOffenderContacts extends ResourceTes
     }
 
     @Test
-    public void shouldReturn404IfNotAuthorised() {
+    public void shouldReturn403IfNotAuthorised() {
         final var token = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH);
 
         final var request = createHttpEntity(token, null);
@@ -127,6 +127,6 @@ public class OffenderResourceImplIntTest_getOffenderContacts extends ResourceTes
                 request,
                 ErrorResponse.class);
 
-        assertThat(response.getBody().getStatus()).isEqualTo(404);
+        assertThat(response.getBody().getStatus()).isEqualTo(403);
     }
 }

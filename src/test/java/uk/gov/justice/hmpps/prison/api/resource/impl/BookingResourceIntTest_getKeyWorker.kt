@@ -29,39 +29,39 @@ class BookingResourceIntTest_getKeyWorker : ResourceTest() {
     inner class ClientAccess {
 
       @Test
-      fun `returns 404 when client does not have any roles`() {
+      fun `returns 403 when client does not have any roles`() {
         webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/key-worker")
           .headers(setClientAuthorisation(listOf()))
           .exchange()
-          .expectStatus().isNotFound
-          .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -1 not found.")
+          .expectStatus().isForbidden
+          .expectBody().jsonPath("userMessage").isEqualTo("Client not authorised to access booking with id -1.")
       }
 
       @Test
-      fun `returns 404 as ROLE_BANANAS is not override role`() {
+      fun `returns 403 as ROLE_BANANAS is not override role`() {
         webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/key-worker")
           .headers(setClientAuthorisation(listOf("ROLE_BANANAS")))
           .exchange()
-          .expectStatus().isNotFound
-          .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -1 not found.")
+          .expectStatus().isForbidden
+          .expectBody().jsonPath("userMessage").isEqualTo("Client not authorised to access booking with id -1.")
       }
 
       @Test
-      fun `returns 404 if has override ROLE_GLOBAL_SEARCH`() {
+      fun `returns 403 if has override ROLE_GLOBAL_SEARCH`() {
         webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/key-worker")
           .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
           .exchange()
-          .expectStatus().isNotFound
-          .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -1 not found.")
+          .expectStatus().isForbidden
+          .expectBody().jsonPath("userMessage").isEqualTo("Client not authorised to access booking with id -1.")
       }
 
       @Test
-      fun `returns 404 if has override ROLE_VIEW_PRISONER_DATA`() {
+      fun `returns 403 if has override ROLE_VIEW_PRISONER_DATA`() {
         webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/key-worker")
           .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
           .exchange()
-          .expectStatus().isNotFound
-          .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -1 not found.")
+          .expectStatus().isForbidden
+          .expectBody().jsonPath("userMessage").isEqualTo("Client not authorised to access booking with id -1.")
       }
 
       @Test
@@ -93,8 +93,8 @@ class BookingResourceIntTest_getKeyWorker : ResourceTest() {
         webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/key-worker")
           .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
           .exchange()
-          .expectStatus().isNotFound
-          .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -1 not found.")
+          .expectStatus().isForbidden
+          .expectBody().jsonPath("userMessage").isEqualTo("Client not authorised to access booking with id -1.")
 
         verify(telemetryClient).trackEvent(eq("ClientUnauthorisedBookingAccess"), any(), isNull())
       }
