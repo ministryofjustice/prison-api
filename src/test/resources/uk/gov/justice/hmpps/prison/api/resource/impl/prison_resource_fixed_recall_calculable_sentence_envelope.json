@@ -1,7 +1,35 @@
 {
   "person": {
     "prisonerNumber": "A1234AE",
-    "dateOfBirth": "1956-02-28"
+    "dateOfBirth": "1956-02-28",
+    "alerts": [{
+      "alertId": 1,
+      "bookingId": -5,
+      "offenderNo": "A1234AE",
+      "alertType": "V",
+      "alertTypeDescription": "Vulnerability",
+      "alertCode": "V46",
+      "alertCodeDescription": "Rule 46 - GOOD",
+      "comment": "Alert Text 5",
+      "dateCreated": "2023-10-30",
+      "modifiedDateTime": "2006-12-10T03:52:25",
+      "expired": false,
+      "active": true
+    },
+      {
+        "alertId": 2,
+        "bookingId": -5,
+        "offenderNo": "A1234AE",
+        "alertType": "X",
+        "alertTypeDescription": "Security",
+        "alertCode": "XTACT",
+        "alertCodeDescription": "XTACT",
+        "comment": "Alert XTACT 5",
+        "dateCreated": "2023-10-30",
+        "modifiedDateTime": "2006-12-10T03:52:25",
+        "expired": false,
+        "active": true
+      }]
   },
   "bookingId": -5,
   "sentenceAndOffences": [

@@ -1,7 +1,6 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model
 
 import jakarta.persistence.Column
-import jakarta.persistence.Convert
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.Id
@@ -13,70 +12,71 @@ import org.hibernate.Hibernate
 import org.hibernate.annotations.JoinColumnOrFormula
 import org.hibernate.annotations.JoinColumnsOrFormulas
 import org.hibernate.annotations.JoinFormula
-import org.hibernate.type.YesNoConverter
 import uk.gov.justice.hmpps.prison.repository.jpa.helper.EntityOpen
 import java.io.Serializable
 
 @Entity
-@Table(name = "GANG_NON_ASSOCIATIONS")
+@Table(name = "OFFENDER_GANG_INVESTS")
 @EntityOpen
-@IdClass(GangNonAssociationId::class)
-class GangNonAssociation(
+@IdClass(GangMemberInvestigationId::class)
+class GangMemberInvestigation(
 
   @Id
   @ManyToOne(optional = false, fetch = FetchType.LAZY)
   @JoinColumn(name = "GANG_CODE", nullable = false)
-  val primaryGang: Gang,
+  val gang: Gang,
 
   @Id
   @ManyToOne(optional = false, fetch = FetchType.LAZY)
-  @JoinColumn(name = "NS_GANG_CODE", nullable = false)
-  val secondaryGang: Gang,
+  @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
+  val booking: OffenderBooking,
+
+  @Id
+  @Column(name = "INVESTIGATE_SEQ", nullable = false)
+  val sequence: Int = 1,
 
   @ManyToOne(optional = false)
   @JoinColumnsOrFormulas(
     value = [
       JoinColumnOrFormula(
         formula = JoinFormula(
-          value = "'" + NonAssociationReason.DOMAIN + "'",
+          value = "'" + MembershipStatus.DOMAIN + "'",
           referencedColumnName = "domain",
         ),
       ),
-      JoinColumnOrFormula(column = JoinColumn(name = "NS_REASON_CODE", referencedColumnName = "code")),
+      JoinColumnOrFormula(column = JoinColumn(name = "GANG_MBR_STS", referencedColumnName = "code")),
     ],
   )
-  val nonAssociationReason: NonAssociationReason,
+  val membershipStatus: MembershipStatus,
 
-  @Column(name = "INTERNAL_LOCATION_FLAG", nullable = false)
-  @Convert(converter = YesNoConverter::class)
-  var withinPrisonOnly: Boolean = true,
-
-  @Column(name = "TRANSPORT_FLAG", nullable = false)
-  @Convert(converter = YesNoConverter::class)
-  var transportPurposes: Boolean = false,
+  @Column(name = "COMMENT_TEXT")
+  val commentText: String? = null,
 
 )
 
-class GangNonAssociationId(
-  val primaryGang: Gang? = null,
-  val secondaryGang: Gang? = null,
+class GangMemberInvestigationId(
+  val gang: Gang? = null,
+  val booking: OffenderBooking? = null,
+  val sequence: Int = 1,
 
 ) : Serializable {
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other == null || Hibernate.getClass(this) != Hibernate.getClass(other)) return false
 
-    other as GangNonAssociationId
+    other as GangMemberInvestigationId
 
-    if (primaryGang != other.primaryGang) return false
-    if (secondaryGang != other.secondaryGang) return false
+    if (gang != other.gang) return false
+    if (booking != other.booking) return false
+    if (sequence != other.sequence) return false
 
     return true
   }
 
   override fun hashCode(): Int {
-    var result = primaryGang?.hashCode() ?: 0
-    result = 31 * result + (secondaryGang?.hashCode() ?: 0)
+    var result = gang?.hashCode() ?: 0
+    result = 31 * result + (booking?.hashCode() ?: 0)
+    result = 31 * result + sequence
     return result
   }
 }

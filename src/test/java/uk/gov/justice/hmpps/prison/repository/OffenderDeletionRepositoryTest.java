@@ -167,11 +167,6 @@ public class OffenderDeletionRepositoryTest {
         queryByOffenderBookId("OFFENDER_BOOKING_DETAILS").is(condition);
         queryByOffenderBookId("OFFENDER_ASSESSMENTS").is(condition);
         queryByOffenderBookId("OFFENDER_ASSESSMENT_ITEMS").is(condition);
-        queryByOffenderBookId("OFFENDER_GANG_AFFILIATIONS").is(condition);
-        queryByOffenderBookId("OFFENDER_GANG_EVIDENCES").is(condition);
-        queryByOffenderBookId("OFFENDER_GANG_INVESTS").is(condition);
-        queryByOffenderBookId("OFFENDER_NON_ASSOCIATIONS").is(condition);
-        queryByOffenderBookId("OFFENDER_NA_DETAILS").is(condition);
 
         //Movements
         queryByOffenderBookId("OFFENDER_EXTERNAL_MOVEMENTS").is(condition);

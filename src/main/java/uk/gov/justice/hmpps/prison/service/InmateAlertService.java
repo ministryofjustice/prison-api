@@ -79,7 +79,7 @@ public class InmateAlertService {
         return alerts;
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
+    @VerifyBookingAccess
     public Alert getInmateAlert(final Long bookingId, final Long alertSeqId) {
         final var alert = inmateAlertRepository.getAlert(bookingId, alertSeqId)
                 .orElseThrow(EntityNotFoundException.withId(alertSeqId));
@@ -169,11 +169,6 @@ public class InmateAlertService {
                 .by(mapSortProperty(order.getProperty()))
                 .with(order.getDirection()))
             .toList());
-    }
-
-    @PreAuthorize("hasAnyRole('SYSTEM_USER')")
-    public Page<String> getAlertCandidates(final LocalDateTime cutoffTimestamp, final long offset, final long limit) {
-        return inmateAlertRepository.getAlertCandidates(cutoffTimestamp, offset, limit);
     }
 
     @Transactional

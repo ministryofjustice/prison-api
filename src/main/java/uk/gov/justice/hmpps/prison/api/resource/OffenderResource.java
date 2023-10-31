@@ -38,7 +38,6 @@ import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.OffenderContacts;
 import uk.gov.justice.hmpps.prison.api.model.OffenderDamageObligationResponse;
-import uk.gov.justice.hmpps.prison.api.model.OffenderNonAssociationDetails;
 import uk.gov.justice.hmpps.prison.api.model.OffenderNumber;
 import uk.gov.justice.hmpps.prison.api.model.OffenderRestrictions;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
@@ -70,7 +69,6 @@ import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation.Status;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CaseNoteFilter;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
-import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.AdjudicationSearchCriteria;
 import uk.gov.justice.hmpps.prison.service.AdjudicationService;
@@ -86,7 +84,6 @@ import uk.gov.justice.hmpps.prison.service.OffenderAddressService;
 import uk.gov.justice.hmpps.prison.service.OffenderDamageObligationService;
 import uk.gov.justice.hmpps.prison.service.OffenderLocation;
 import uk.gov.justice.hmpps.prison.service.OffenderLocationService;
-import uk.gov.justice.hmpps.prison.service.OffenderNonAssociationsService;
 import uk.gov.justice.hmpps.prison.service.OffenderTransactionHistoryService;
 import uk.gov.justice.hmpps.prison.service.PrisonerReleaseAndTransferService;
 import uk.gov.justice.hmpps.prison.service.receiveandtransfer.BookingIntoPrisonService;
@@ -126,7 +123,6 @@ public class OffenderResource {
     private final OffenderDamageObligationService offenderDamageObligationService;
     private final OffenderTransactionHistoryService offenderTransactionHistoryService;
     private final MovementsService movementsService;
-    private final OffenderNonAssociationsService offenderNonAssociationsService;
     private final BookingIntoPrisonService bookingIntoPrisonService;
     private final PrisonTransferService prisonTransferService;
     private final OffenderLocationService offenderLocationService;
@@ -468,15 +464,6 @@ public class OffenderResource {
             Direction.fromString(direction));
     }
 
-    @Operation(summary = "Return a list of offender nos across the estate for which an alert has recently been created or changed", description = "This query is slow and can take several minutes")
-    @GetMapping("/alerts/candidates")
-    @SlowReportQuery
-    public ResponseEntity<List<String>> getAlertCandidates(@RequestParam("fromDateTime") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @Parameter(description = "A recent timestamp that indicates the earliest time to consider. NOTE More than a few days in the past can result in huge amounts of data.", required = true, example = "2019-11-22T03:00") @NotNull final LocalDateTime fromDateTime, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first offender in returned list.") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "1000", required = false) @Parameter(description = "Requested limit to number of offenders returned.") final Long pageLimit) {
-        return alertService.getAlertCandidates(fromDateTime,
-            nvl(pageOffset, 0L),
-            nvl(pageLimit, 1000L)).getResponse();
-    }
-
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CaseNote.class))})})
     @Operation(summary = "Offender case notes", description = "Retrieve an offenders case notes for latest booking", hidden = true)
@@ -663,27 +650,6 @@ public class OffenderResource {
     ) {
         final var booking = bookingService.getLatestBookingByOffenderNo(offenderNo);
         return bookingService.getOffenderContacts(booking.getBookingId(), approvedVisitors, activeOnly);
-    }
-
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Gets the offender non-association details for a given offender for ALL bookings", description = "Do NOT use, please use Non-Associations API at https://non-associations-api.hmpps.service.justice.gov.uk/swagger-ui/index.html")
-    @GetMapping("/{offenderNo}/non-association-details")
-    @Deprecated
-    @SlowReportQuery
-    public OffenderNonAssociationDetails getNonAssociationDetails(
-        @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo,
-        @RequestParam(value = "currentPrisonOnly", required = false, defaultValue = "false") @Parameter(description = "Returns only non-association details for this prisoner in the same prison") final Boolean currentPrisonOnly,
-        @RequestParam(value = "excludeInactive", required = false, defaultValue = "false") @Parameter(description = "Returns only active non-association details for this prisoner") final Boolean excludeInactive) {
-        try {
-            return offenderNonAssociationsService.retrieveByOffenderNo(offenderNo, currentPrisonOnly, excludeInactive);
-        } catch (EntityNotFoundException e) {
-            // rethrow against the offender number rather than the booking id
-            throw EntityNotFoundException.withId(offenderNo);
-        }
     }
 
     @ApiResponses({

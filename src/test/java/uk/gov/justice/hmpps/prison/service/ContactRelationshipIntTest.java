@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.Contact;
 import uk.gov.justice.hmpps.prison.api.model.OffenderRelationship;
@@ -22,9 +21,6 @@ public class ContactRelationshipIntTest {
 
     @Autowired
     private ContactService contactService;
-
-    @Autowired
-    private BookingService bookingService;
 
     @Test
     @WithMockUser(username = "ITAG_USER", roles = {"CONTACT_CREATE"})
@@ -53,15 +49,6 @@ public class ContactRelationshipIntTest {
         assertThat(contactList).hasSize(1);
         assertThat(contactList.get(0).getFirstName()).isEqualTo("TESTFIRST");
         assertThat(contactList.get(0).getLastName()).isEqualTo("TESTLAST");
-
-        var offenders = bookingService.getBookingsByExternalRefAndType("EX123", "COM");
-        assertThat(offenders).hasSize(1);
-        assertThat(offenders.get(0).getBookingId()).isEqualTo(BOOKING1_ID);
-
-
-        offenders = bookingService.getBookingsByPersonIdAndType(relationship.getPersonId(), "COM");
-        assertThat(offenders).hasSize(1);
-        assertThat(offenders.get(0).getBookingId()).isEqualTo(BOOKING1_ID);
 
         // update relationship
         final var updatedRelationship = contactService.createRelationship(BOOKING1_ID,
@@ -115,9 +102,6 @@ public class ContactRelationshipIntTest {
         contactList = contactService.getRelationships(BOOKING2_ID, "COM", true);
         assertThat(contactList.get(0).getFirstName()).isEqualTo("MoreAnotherFirstName");
         assertThat(contactList.get(0).getLastName()).isEqualTo("MoreAnotherLastName");
-
-        offenders = bookingService.getBookingsByExternalRefAndType("EX123", "COM");
-        assertThat(offenders).hasSize(2);
 
         final var makeInactiveActiveRel = contactService.createRelationship(BOOKING2_ID,
                 OffenderRelationship.builder()

@@ -211,12 +211,6 @@ public class OffenderBooking extends AuditableEntity {
     @Convert(converter = YesNoConverter.class)
     private boolean active = false;
 
-    @OrderBy("effectiveDate ASC")
-    @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
-    @Default
-    @Exclude
-    private List<OffenderNonAssociationDetail> nonAssociationDetails = new ArrayList<>();
-
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default
     @Exclude

@@ -110,7 +110,6 @@ import uk.gov.justice.hmpps.prison.service.InmateService;
 import uk.gov.justice.hmpps.prison.service.MovementsService;
 import uk.gov.justice.hmpps.prison.service.NoContentException;
 import uk.gov.justice.hmpps.prison.service.OffenderFixedTermRecallService;
-import uk.gov.justice.hmpps.prison.service.OffenderNonAssociationsService;
 import uk.gov.justice.hmpps.prison.service.keyworker.KeyWorkerAllocationService;
 
 import jakarta.validation.Valid;
@@ -150,7 +149,6 @@ public class BookingResource {
     private final IncidentService incidentService;
     private final MovementsService movementsService;
     private final AppointmentsService appointmentsService;
-    private final OffenderNonAssociationsService offenderNonAssociationsService;
     private final OffenderFixedTermRecallService fixedTermRecallService;
 
     @ApiResponses({
@@ -569,18 +567,6 @@ public class BookingResource {
     @ProxyUser
     public CaseNote createBookingCaseNote(@PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId, @RequestBody @Parameter(required = true) final NewCaseNote body) {
         return caseNoteService.createCaseNote(bookingId, body, authenticationFacade.getCurrentUsername());
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "The Case Note has been recorded. The updated object is returned including the status.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CaseNote.class))}),
-        @ApiResponse(responseCode = "409", description = "The case note has already been recorded under the booking. The current unmodified object (including status) is returned.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Create case note for offender.", description = "Create case note for offender.", hidden = true)
-    @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/offenderNo/{offenderNo}/caseNotes")
-    @HasWriteScope
-    @ProxyUser
-    public CaseNote createOffenderCaseNote(@PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", required = true) final String offenderNo, @RequestBody @Parameter(required = true) final NewCaseNote body) {
-        return caseNoteService.createCaseNote(offenderNo, body, authenticationFacade.getCurrentUsername());
     }
 
     @ApiResponses({
