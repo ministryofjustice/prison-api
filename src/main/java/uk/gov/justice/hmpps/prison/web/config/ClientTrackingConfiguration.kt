@@ -28,7 +28,6 @@ class ClientTrackingConfiguration(private val clientTrackingInterceptor: ClientT
 @Configuration
 class ClientTrackingInterceptor : HandlerInterceptor {
   override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
-
     val claimSet = getClaimSet(request)
     val span = Span.current()
 
