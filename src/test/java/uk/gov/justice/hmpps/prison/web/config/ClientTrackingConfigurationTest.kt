@@ -40,8 +40,8 @@ class ClientTrackingConfigurationTest {
   private val tracer: Tracer = otelTesting.openTelemetry.getTracer("test")
 
   @Test
-  fun shouldAddClientIdAndUserNameToInsightTelemetry() {
-    val token = jwtAuthHelper.createJwt(JwtParameters.builder().username("bob").build())
+  fun shouldAddClientIdUserNameAndAuthoritiesToInsightTelemetry() {
+    val token = jwtAuthHelper.createJwt(JwtParameters.builder().username("bob").roles(listOf("ROLE_BANANAS")).build())
     req.addHeader(HttpHeaders.AUTHORIZATION, "Bearer $token")
     tracer.spanBuilder("span").startSpan().run {
       makeCurrent().use { clientTrackingInterceptor.preHandle(req, res, "null") }
@@ -51,12 +51,13 @@ class ClientTrackingConfigurationTest {
       t.hasSpansSatisfyingExactly({
         it.hasAttribute(AttributeKey.stringKey("username"), "bob")
         it.hasAttribute(AttributeKey.stringKey("clientId"), "prison-api-client")
+        it.hasAttribute(AttributeKey.stringKey("authorities"), "[ROLE_BANANAS]")
       },)
     },)
   }
 
   @Test
-  fun shouldAddOnlyClientIdIfUsernameNullToInsightTelemetry() {
+  fun shouldAddOnlyClientIdIfOthersNullToInsightTelemetry() {
     val token = jwtAuthHelper.createJwt(JwtParameters.builder().build())
     req.addHeader(HttpHeaders.AUTHORIZATION, "Bearer $token")
     val res = MockHttpServletResponse()
