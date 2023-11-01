@@ -72,7 +72,7 @@ public class SchedulesService {
         this.maxBatchSize = maxBatchSize;
     }
 
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
+    @VerifyAgencyAccess
     public List<PrisonerSchedule> getLocationGroupEventsByLocationId(final String agencyId, final List<Long> locationIds, final LocalDate date,
                                                                      final TimeSlot timeSlot, final String sortFields, final Order sortOrder) {
 
