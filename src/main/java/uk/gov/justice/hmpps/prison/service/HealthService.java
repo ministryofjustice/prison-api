@@ -109,7 +109,6 @@ public class HealthService {
     }
 
     @Transactional
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public void addPersonalCareNeed(final Long bookingId, final CreatePersonalCareNeed createPersonalCareNeed) {
         final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
         if (!offenderBooking.isActive()) {
