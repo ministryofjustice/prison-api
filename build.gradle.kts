@@ -1,8 +1,8 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.7.0"
-  kotlin("plugin.spring") version "1.9.10"
-  kotlin("plugin.jpa") version "1.9.10"
-  kotlin("plugin.lombok") version "1.9.10"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.8.0"
+  kotlin("plugin.spring") version "1.9.20"
+  kotlin("plugin.jpa") version "1.9.20"
+  kotlin("plugin.lombok") version "1.9.20"
 }
 
 configurations {
@@ -59,9 +59,9 @@ dependencies {
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
 
   implementation("org.apache.commons:commons-lang3:3.13.0")
-  implementation("commons-io:commons-io:2.14.0")
+  implementation("commons-io:commons-io:2.15.0")
   implementation("com.google.guava:guava:32.1.3-jre")
-  implementation("org.apache.commons:commons-text:1.10.0")
+  implementation("org.apache.commons:commons-text:1.11.0")
   implementation("com.oracle.database.jdbc:ojdbc10:19.20.0.0")
   implementation("org.hibernate.orm:hibernate-community-dialects")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -94,20 +94,20 @@ dependencies {
   testImplementation("io.jsonwebtoken:jjwt-impl:0.12.3")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
   testImplementation("io.swagger.parser.v3:swagger-parser:$swaggerParserVersion")
-  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.30.1")
+  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.31.0")
 
   testCompileOnly("org.projectlombok:lombok:1.18.30")
 }
 
 java {
-  toolchain.languageVersion.set(JavaLanguageVersion.of(20))
+  toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
 
 tasks {
   withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {
       freeCompilerArgs = listOf("-Xjvm-default=all")
-      jvmTarget = "20"
+      jvmTarget = "21"
     }
   }
 
@@ -149,12 +149,6 @@ tasks {
 
     useJUnitPlatform {
       include("**/executablespecification/*")
-    }
-  }
-
-  withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions {
-      jvmTarget = "20"
     }
   }
 }
