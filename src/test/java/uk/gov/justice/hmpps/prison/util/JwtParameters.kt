@@ -5,6 +5,7 @@ import java.time.Duration
 class JwtParameters internal constructor(
   internal val username: String?,
   internal val scope: List<String>?,
+  internal val grantType: String?,
   internal val roles: List<String>?,
   internal val expiryTime: Duration,
   internal val clientId: String,
@@ -13,6 +14,7 @@ class JwtParameters internal constructor(
   class JwtParametersBuilder {
     private var username: String? = null
     private var scope: List<String>? = null
+    private var grantType: String? = null
     private var roles: List<String>? = null
     private var expiryTime = Duration.ofDays(1)
     private var clientId = "prison-api-client"
@@ -25,6 +27,11 @@ class JwtParameters internal constructor(
 
     fun scope(scope: List<String>): JwtParametersBuilder {
       this.scope = scope
+      return this
+    }
+
+    fun grantType(grantType: String): JwtParametersBuilder {
+      this.grantType = grantType
       return this
     }
 
@@ -48,10 +55,10 @@ class JwtParameters internal constructor(
       return this
     }
 
-    fun build(): JwtParameters = JwtParameters(username, scope, roles, expiryTime, clientId, internalUser)
+    fun build(): JwtParameters = JwtParameters(username, scope, grantType, roles, expiryTime, clientId, internalUser)
 
     override fun toString(): String =
-      "JwtParameters.JwtParametersBuilder(username=$username, scope=$scope, roles=$roles, expiryTime=$expiryTime, clientId=$clientId, internalUser=$internalUser)"
+      "JwtParameters.JwtParametersBuilder(username=$username, scope=$scope, grantType=$grantType, roles=$roles, expiryTime=$expiryTime, clientId=$clientId, internalUser=$internalUser)"
   }
 
   companion object {

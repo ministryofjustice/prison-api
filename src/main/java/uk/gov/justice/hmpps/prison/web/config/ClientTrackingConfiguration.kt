@@ -28,21 +28,27 @@ class ClientTrackingConfiguration(private val clientTrackingInterceptor: ClientT
 @Configuration
 class ClientTrackingInterceptor : HandlerInterceptor {
   override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
-    val (user, clientId) = findUserAndClient(request)
+    val claimSet = getClaimSet(request)
+    val span = Span.current()
+
+    val user = claimSet?.getClaim("user_name") as String?
+    val clientId = claimSet?.getClaim("client_id") as String?
+    val grantType = claimSet?.getClaim("grant_type") as String?
+
     user?.let {
-      Span.current().setAttribute("username", it) // username in customDimensions
-      Span.current().setAttribute("enduser.id", it) // user_Id at the top level of the request
+      span.setAttribute("username", it) // username in customDimensions
+      span.setAttribute("enduser.id", it) // user_Id at the top level of the request
     }
-    clientId?.let { Span.current().setAttribute("clientId", clientId) }
+    clientId?.let { span.setAttribute("clientId", clientId) }
+    grantType?.let { span.setAttribute("grantType", grantType) }
     return true
   }
 
-  private fun findUserAndClient(req: HttpServletRequest): Pair<String?, String?> =
-    req.getHeader(HttpHeaders.AUTHORIZATION)
+  private fun getClaimSet(request: HttpServletRequest): JWTClaimsSet? {
+    return request.getHeader(HttpHeaders.AUTHORIZATION)
       ?.takeIf { it.startsWith("Bearer ") }
       ?.let { getClaimsFromJWT(it) }
-      ?.let { it.getClaim("user_name") as String? to it.getClaim("client_id") as String? }
-      ?: (null to null)
+  }
 
   private fun getClaimsFromJWT(token: String): JWTClaimsSet? =
     try {

@@ -21,79 +21,6 @@ class BookingResourceIntTest_caseNotes : ResourceTest() {
   lateinit var offenderCaseNoteRepository: OffenderCaseNoteRepository
 
   @Nested
-  @DisplayName("GET /api/bookings/{bookingId}/caseNotes")
-  inner class GetCaseNotes {
-    @Test
-    fun testCanRetrieveCaseNotes() {
-      webTestClient.get()
-        .uri("/api/bookings/-2/caseNotes")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
-        .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .jsonPath("totalElements").isEqualTo(4)
-        .jsonPath("$.content[0].caseNoteId").isEqualTo(-5)
-        .jsonPath("$.content[0].bookingId").isEqualTo(-2)
-        .jsonPath("$.content[0].type").isEqualTo("COMMS")
-        .jsonPath("$.content[0].typeDescription").isEqualTo("Communication")
-        .jsonPath("$.content[0].subType").isEqualTo("COM_OUT")
-        .jsonPath("$.content[0].subTypeDescription").isEqualTo("Communication OUT")
-    }
-
-    @Test
-    fun testCanFilterCaseNotesByType() {
-      webTestClient.get()
-        .uri("/api/bookings/-2/caseNotes?type=ETE")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
-        .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .jsonPath("totalElements").isEqualTo(1)
-        .jsonPath("$.content[0].caseNoteId").isEqualTo(-4)
-        .jsonPath("$.content[0].type").isEqualTo("ETE")
-    }
-
-    @Test
-    fun testCanFilterCaseNotesBySubType() {
-      webTestClient.get()
-        .uri("/api/bookings/-2/caseNotes?type=COMMS&subType=COM_IN")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
-        .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .jsonPath("totalElements").isEqualTo(1)
-        .jsonPath("$.content[0].caseNoteId").isEqualTo(-2)
-        .jsonPath("$.content[0].subType").isEqualTo("COM_IN")
-    }
-
-    @Test
-    fun testCanFilterCaseNotesByDates() {
-      webTestClient.get()
-        .uri("/api/bookings/-2/caseNotes?from=2017-04-06&to=2017-05-05")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
-        .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .jsonPath("totalElements").isEqualTo(2)
-        .jsonPath("$.content[0].caseNoteId").isEqualTo(-4)
-        .jsonPath("$.content[0].occurrenceDateTime").isEqualTo("2017-04-17T09:05:00")
-        .jsonPath("$.content[1].occurrenceDateTime").isEqualTo("2017-04-11T18:42:00")
-    }
-
-    @Test
-    fun testCanFilterCaseNotesByPrison() {
-      webTestClient.get()
-        .uri("/api/bookings/-3/caseNotes?prisonId=BXI")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
-        .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .jsonPath("totalElements").isEqualTo(1)
-        .jsonPath("$.content[0].agencyId").isEqualTo("BXI")
-    }
-  }
-
-  @Nested
   @DisplayName("PUT /api/bookings/{bookingId}/caseNotes/{caseNoteId}")
   inner class UpdateCaseNotes {
 
@@ -578,13 +505,13 @@ class BookingResourceIntTest_caseNotes : ResourceTest() {
     }
 
     @Test
-    fun `returns 404 as ROLE_BANANAS is not override role`() {
+    fun `returns 403 as ROLE_BANANAS is not override role`() {
       webTestClient.get()
         .uri("/api/bookings/-16/caseNotes/CHAP/FAMMAR/count")
         .headers(setClientAuthorisation(listOf("ROLE_BANANAS")))
         .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -16 not found.")
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("Client not authorised to access booking with id -16.")
     }
 
     @Test

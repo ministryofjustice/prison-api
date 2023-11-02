@@ -21,10 +21,14 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCalculatedKeyDates;
 import uk.gov.justice.hmpps.prison.api.model.OffenderKeyDates;
+import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceCalculation;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateOffenderDates;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
+import uk.gov.justice.hmpps.prison.service.BookingService;
 import uk.gov.justice.hmpps.prison.service.OffenderDatesService;
+
+import java.util.List;
 
 @RestController
 @Validated
@@ -34,6 +38,7 @@ import uk.gov.justice.hmpps.prison.service.OffenderDatesService;
 public class OffenderDatesResource {
 
     private final OffenderDatesService offenderDatesService;
+    private final BookingService bookingService;
 
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Offender key dates calculation created", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = SentenceCalcDates.class))}),
@@ -66,5 +71,21 @@ public class OffenderDatesResource {
     public ResponseEntity<OffenderCalculatedKeyDates> getOffenderKeyDates(@PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId) {
         return ResponseEntity.status(HttpStatus.OK)
             .body(offenderDatesService.getOffenderKeyDates(bookingId));
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Offender calculations found", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = OffenderSentenceCalculation.class))}),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to update an offender's dates", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
+    })
+    @Operation(summary = "Get the key dates for an offender.", description = "Requires RELEASE_DATES_CALCULATOR")
+    @GetMapping("/calculations/{nomsId}")
+    @PreAuthorize("hasRole('RELEASE_DATES_CALCULATOR')")
+    @ProxyUser
+    public ResponseEntity<List<OffenderSentenceCalculation>> getOffenderCalculations(@PathVariable("nomsId") @Parameter(description = "The booking id of offender", required = true) final String nomsId) {
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(bookingService.getOffenderSentenceCalculationsForPrisoner(nomsId));
     }
 }
