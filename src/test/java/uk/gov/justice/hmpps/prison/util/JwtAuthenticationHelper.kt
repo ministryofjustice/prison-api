@@ -25,6 +25,7 @@ class JwtAuthenticationHelper {
     createJwt(
       username = username,
       scope = scope,
+      grantType = grantType,
       roles = roles,
       expiryTime = expiryTime,
       clientId = clientId,
@@ -35,6 +36,7 @@ class JwtAuthenticationHelper {
   fun createJwt(
     username: String? = null,
     scope: List<String>? = null,
+    grantType: String? = null,
     roles: List<String>? = null,
     expiryTime: Duration = Duration.ofDays(1),
     clientId: String = "prison-api-client",
@@ -51,6 +53,7 @@ class JwtAuthenticationHelper {
         this["authorities"] = roles.map { "ROLE_${it.substringAfter("ROLE_")}" }
       }
       scope?.let { this["scope"] = scope }
+      grantType?.let { this["grant_type"] = grantType }
     }
     return Jwts.builder()
       .id(UUID.randomUUID().toString())
