@@ -140,6 +140,7 @@ public abstract class ResourceTest {
     protected String clientToken(final List<String> roles) {
         return jwtAuthenticationHelper.createJwt(
             JwtParameters.builder()
+                .clientId("api-client-id")
                 .scope(List.of("read", "write"))
                 .roles(roles)
                 .expiryTime(Duration.ofDays(365 * 10))

@@ -8,13 +8,10 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import uk.gov.justice.hmpps.prison.api.model.CaseNote;
-import uk.gov.justice.hmpps.prison.api.model.CaseNoteCount;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteStaffUsage;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsage;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.CaseNoteFilter;
 import uk.gov.justice.hmpps.prison.test.PrisonApiClientException;
 
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,7 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * BDD step implementations for Case Note domain.
  */
 public class CaseNoteSteps extends CommonSteps {
-    private static final String API_REQUEST_BASE_URL = API_PREFIX + "bookings/{bookingId}/caseNotes";
     private static final String API_REQUEST_FOR_CASENOTE_USAGE = API_PREFIX + "case-notes/usage";
     private static final String API_REQUEST_FOR_CASENOTE_SUMMARY = API_PREFIX + "case-notes/summary";
     private static final String API_REQUEST_FOR_CASENOTE_STAFF_USAGE = API_PREFIX + "case-notes/staff-usage";
@@ -37,26 +33,14 @@ public class CaseNoteSteps extends CommonSteps {
     private static final String CASENOTE_STAFF_ID_QUERY_PARAM_PREFIX = "&staffId=";
     private static final String CASENOTE_AGENCY_ID_QUERY_PARAM_PREFIX = "&agencyId=";
 
-    private List<CaseNote> caseNotes;
-    private CaseNoteCount caseNoteCount;
     private List<CaseNoteUsage> caseNoteUsageList;
     private CaseNoteUsage caseNoteUsage;
     private List<CaseNoteStaffUsage> caseNoteStaffUsageList;
     private CaseNoteStaffUsage caseNoteStaffUsage;
 
-    private CaseNoteFilter caseNoteFilter;
-
     @Step("Initialisation")
     public void init() {
         super.init();
-
-        caseNoteFilter = CaseNoteFilter.builder().build();
-        caseNoteCount = null;
-    }
-
-    @Step("Get case notes")
-    public void getCaseNotes(final Long bookingId) {
-        dispatchQueryRequest(bookingId);
     }
 
     @Step("Get case note usage")
@@ -72,16 +56,6 @@ public class CaseNoteSteps extends CommonSteps {
     @Step("Get case note staff usage")
     public void getCaseNoteStaffUsage(final String staffIds, final String type, final String subType, final String fromDate, final String toDate) {
         dispatchGetCaseNoteStaffUsageRequest(staffIds, type, subType, fromDate, toDate);
-    }
-
-    @Step("Verify case note types")
-    public void verifyCaseNoteTypes(final String caseNoteTypes) {
-        verifyPropertyValues(caseNotes, CaseNote::getType, caseNoteTypes);
-    }
-
-    @Step("Verify case note sub types")
-    public void verifyCaseNoteSubTypes(final String caseNoteSubTypes) {
-        verifyPropertyValues(caseNotes, CaseNote::getSubType, caseNoteSubTypes);
     }
 
     @Step("Verify case note usage response property value")
@@ -104,93 +78,12 @@ public class CaseNoteSteps extends CommonSteps {
         assertThat(size).isEqualTo(caseNoteStaffUsageList.size());
     }
 
-
-    @Step("Apply case note type filter")
-    public void applyCaseNoteTypeFilter(final String caseNoteType) {
-        if (StringUtils.isNotBlank(caseNoteType)) {
-            caseNoteFilter = caseNoteFilter.toBuilder().type(caseNoteType).build();
-        }
-    }
-
-    @Step("Apply case note sub type filter")
-    public void applyCaseNoteSubTypeFilter(final String caseNoteSubType) {
-        if (StringUtils.isNotBlank(caseNoteSubType)) {
-            caseNoteFilter = caseNoteFilter.toBuilder().subType(caseNoteSubType).build();
-        }
-    }
-
-    @Step("Apply case note agency filter")
-    public void applyAgencyFilter(final String agencyId) {
-        if (StringUtils.isNotBlank(agencyId)) {
-            caseNoteFilter = caseNoteFilter.toBuilder().prisonId(agencyId).build();
-        }
-    }
-
-
-    @Step("Apply date from filter")
-    public void applyDateFromFilter(final String dateFrom) {
-        if (StringUtils.isNotBlank(dateFrom)) {
-            caseNoteFilter = caseNoteFilter.toBuilder().startDate(LocalDate.parse(dateFrom)).build();
-        }
-    }
-
-    @Step("Apply date to filter")
-    public void applyDateToFilter(final String dateTo) {
-        if (StringUtils.isNotBlank(dateTo)) {
-            caseNoteFilter = caseNoteFilter.toBuilder().endDate(LocalDate.parse(dateTo)).build();
-        }
-    }
-
     @Data
     public static class CaseNoteWrapper {
         private List<CaseNote> content;
     }
 
-    private void dispatchQueryRequest(final Long bookingId) {
-        caseNotes = null;
 
-        StringBuilder params = new StringBuilder();
-
-        if (caseNoteFilter.getStartDate() != null) {
-            if (params.length() == 0) { params.append("?"); } else { params.append("&"); }
-            params.append("from=").append(caseNoteFilter.getStartDate());
-        }
-
-        if (caseNoteFilter.getEndDate() != null) {
-            if (params.length() == 0) { params.append("?"); } else { params.append("&"); }
-            params.append("to=").append(caseNoteFilter.getEndDate());
-        }
-
-        if (caseNoteFilter.getType() != null) {
-            if (params.length() == 0) { params.append("?"); } else { params.append("&"); }
-            params.append("type=").append(caseNoteFilter.getType());
-        }
-
-        if (caseNoteFilter.getSubType() != null) {
-            if (params.length() == 0) { params.append("?"); } else { params.append("&"); }
-            params.append("subType=").append(caseNoteFilter.getSubType());
-        }
-
-        if (caseNoteFilter.getPrisonId() != null) {
-            if (params.length() == 0) { params.append("?"); } else { params.append("&"); }
-            params.append("prisonId=").append(caseNoteFilter.getPrisonId());
-        }
-
-        if (params.length() == 0) { params.append("?"); } else { params.append("&"); }
-        params.append(getPaginationParams());
-
-        try {
-            final var response = restTemplate.exchange(API_REQUEST_BASE_URL + params, HttpMethod.GET,
-                    createEntity(null, addPaginationHeaders()), new ParameterizedTypeReference<RestResponsePage<CaseNote>>() {
-                }, bookingId);
-
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-            buildResourceData(response.getBody());
-            caseNotes = response.getBody().getContent();
-        } catch (final PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
 
     private void dispatchGetCaseNoteUsageRequest(final String offenderNos, final String staffId, final String agencyId, final String type, final String subType, final String fromDate, final String toDate) {
         init();

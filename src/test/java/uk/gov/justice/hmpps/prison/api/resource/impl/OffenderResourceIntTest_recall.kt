@@ -468,7 +468,7 @@ class OffenderResourceIntTest_recall : ResourceTest() {
 
       @Test
       internal fun `will create admission case note`() {
-        val bookingId = recallOffender(
+        recallOffender(
           offenderNo,
 
           """
@@ -477,9 +477,9 @@ class OffenderResourceIntTest_recall : ResourceTest() {
                "movementReasonCode": "24" 
             }
           """.trimIndent(),
-        ).inmate().bookingId
+        )
 
-        val caseNote = testDataContext.getCaseNotes(bookingId).maxBy { it.creationDateTime }
+        val caseNote = testDataContext.getCaseNotes(offenderNo).maxBy { it.creationDateTime }
         assertThat(caseNote.type).isEqualTo("TRANSFER")
         assertThat(caseNote.subType).isEqualTo("FROMTOL")
         assertThat(caseNote.text).isEqualTo("Offender admitted to MOORLAND for reason: Recall From Intermittent Custody from OUTSIDE.")
