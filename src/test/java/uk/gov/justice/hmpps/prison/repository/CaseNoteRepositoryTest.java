@@ -1,7 +1,7 @@
 package uk.gov.justice.hmpps.prison.repository;
 
+import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
-import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
-import uk.gov.justice.hmpps.prison.api.model.CaseNoteEvent;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteSubType;
@@ -25,11 +24,9 @@ import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl;
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs;
 
-import jakarta.persistence.EntityManager;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -106,7 +103,6 @@ public class CaseNoteRepositoryTest {
         final long bookingId = -16;
         final var newCaseNote = newCaseNote();
         final var sourceCode = "source code";
-        final var username = "ITAG_USER";
         final long caseNoteId = createCaseNote(bookingId, newCaseNote, sourceCode);
 
         final var caseNote = offenderCaseNoteRepository.findByIdAndOffenderBooking_BookingId(caseNoteId, bookingId).orElseThrow();
@@ -117,61 +113,6 @@ public class CaseNoteRepositoryTest {
         assertThat(contactDateTime).isBetween(createDateTime.minusSeconds(2), createDateTime.plusSeconds(1));
 
         jdbcTemplate.update("delete from offender_case_notes where case_note_id = ?", caseNoteId);
-    }
-
-    @Test
-    public void getCaseNoteEvents() {
-        // NOTE: offender_case_notes.audit_timestamp is populated by hsqldb with a value TRUNCATED to the millisecond level, so it is
-        // possible that it could end up earlier than LocalDateTime.now(), causing a test failure!
-        final var start = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-        final var caseNote = newCaseNote();
-        caseNote.setText("Testing of getCaseNoteEvents");
-        final var id = createCaseNote(-16, caseNote, "source");
-
-        final var caseNoteEvents = repository.getCaseNoteEvents(start, Set.of("GEN", "BOB"), 1000);
-        log.info("Used start time of {}", start);
-        assertThat(caseNoteEvents).extracting(
-            CaseNoteEvent::getNomsId,
-            CaseNoteEvent::getId,
-            CaseNoteEvent::getContent,
-            CaseNoteEvent::getEstablishmentCode,
-            CaseNoteEvent::getNoteType,
-            CaseNoteEvent::getStaffName
-        ).contains(Tuple.tuple(
-            "A1234AP",
-            id,
-            "Testing of getCaseNoteEvents",
-            "MUL",
-            "GEN HIS",
-            "User, Api"
-        ));
-        final var event = caseNoteEvents.stream().filter((e) -> e.getContent().equals("Testing of getCaseNoteEvents")).findFirst().orElseThrow();
-        assertThat(event.getContactTimestamp()).isBetween(start.minusSeconds(1), LocalDateTime.now().plusSeconds(1));
-        assertThat(event.getNotificationTimestamp()).isBetween(start.minusSeconds(1), LocalDateTime.now().plusSeconds(1));
-    }
-
-    @Test
-    public void getCaseNoteEvents_Limit() {
-        final var start = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-        final var caseNote = newCaseNote();
-        caseNote.setText("Testing of getCaseNoteEvents_Limit");
-        createCaseNote(-16, caseNote, "source");
-        createCaseNote(-16, caseNote, "source");
-
-        final var caseNoteEvents = repository.getCaseNoteEvents(start, Set.of("GEN", "BOB"), 1);
-        assertThat(caseNoteEvents).hasSize(1);
-    }
-
-    @Test
-    public void getCaseNoteEvents_Types() {
-        final var start = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-        final var caseNote = newCaseNote();
-        caseNote.setText("Testing of getCaseNoteEvents_Types");
-        createCaseNote(-16, caseNote, "source");
-        createCaseNote(-16, caseNote, "source");
-
-        final var caseNoteEvents = repository.getCaseNoteEvents(start, Set.of("BOB"), 1);
-        assertThat(caseNoteEvents).hasSize(0);
     }
 
     private NewCaseNote newCaseNote() {

@@ -36,28 +36,28 @@ enum class CaseNoteRepositorySql(val sql: String) {
     """,
   ),
 
-  RECENT_CASE_NOTE_EVENTS(
-    """
-        SELECT O.OFFENDER_ID_DISPLAY       noms_id,
-        OC.CASE_NOTE_ID             id,
-        OB.AGY_LOC_ID               establishment_code,
-        TO_DATE(TO_CHAR(OC.CONTACT_DATE, 'YYYYMMDD') || TO_CHAR(OC.CONTACT_TIME, 'HH24MISS'),
-                'YYYYMMDDHH24MISS') contact_timestamp,
-        OC.CASE_NOTE_TYPE           main_note_type,
-        OC.CASE_NOTE_SUB_TYPE       sub_note_type,
-        SM.LAST_NAME,
-        SM.FIRST_NAME,
-        OC.CASE_NOTE_TEXT           content,
-        OC.AUDIT_TIMESTAMP          notification_timestamp
-                FROM OFFENDER_CASE_NOTES OC
-        JOIN OFFENDER_BOOKINGS OB ON OB.OFFENDER_BOOK_ID = OC.OFFENDER_BOOK_ID
-        JOIN OFFENDERS O ON O.OFFENDER_ID = OB.OFFENDER_ID
-        JOIN STAFF_MEMBERS SM ON SM.STAFF_ID = OC.STAFF_ID
-        WHERE OC.AUDIT_TIMESTAMP >= :fromDate
-        AND OC.CASE_NOTE_TYPE in (:types)
-        ORDER BY OC.AUDIT_TIMESTAMP
-    """,
-  ),
+//  RECENT_CASE_NOTE_EVENTS(
+//    """
+//        SELECT O.OFFENDER_ID_DISPLAY       noms_id,
+//        OC.CASE_NOTE_ID             id,
+//        OB.AGY_LOC_ID               establishment_code,
+//        TO_DATE(TO_CHAR(OC.CONTACT_DATE, 'YYYYMMDD') || TO_CHAR(OC.CONTACT_TIME, 'HH24MISS'),
+//                'YYYYMMDDHH24MISS') contact_timestamp,
+//        OC.CASE_NOTE_TYPE           main_note_type,
+//        OC.CASE_NOTE_SUB_TYPE       sub_note_type,
+//        SM.LAST_NAME,
+//        SM.FIRST_NAME,
+//        OC.CASE_NOTE_TEXT           content,
+//        OC.AUDIT_TIMESTAMP          notification_timestamp
+//                FROM OFFENDER_CASE_NOTES OC
+//        JOIN OFFENDER_BOOKINGS OB ON OB.OFFENDER_BOOK_ID = OC.OFFENDER_BOOK_ID
+//        JOIN OFFENDERS O ON O.OFFENDER_ID = OB.OFFENDER_ID
+//        JOIN STAFF_MEMBERS SM ON SM.STAFF_ID = OC.STAFF_ID
+//        WHERE OC.AUDIT_TIMESTAMP >= :fromDate
+//        AND OC.CASE_NOTE_TYPE in (:types)
+//        ORDER BY OC.AUDIT_TIMESTAMP
+//    """,
+//  ),
 
   GET_CASE_NOTE_TYPES_WITH_SUB_TYPES_BY_CASELOAD_TYPE(
     """

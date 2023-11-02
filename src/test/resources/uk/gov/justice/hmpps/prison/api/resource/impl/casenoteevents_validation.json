@@ -1,5 +1,0 @@
-{
-  "status": 400,
-  "userMessage": "Required request parameter 'limit' for method parameter type Long is not present",
-  "developerMessage": "Required request parameter 'limit' for method parameter type Long is not present"
-}

@@ -34,7 +34,7 @@ public class IncidentsResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Return an Incident for a given incident ID", description = "Requires the VIEW_PRISONER_DATA role.")
+    @Operation(summary = "Return an Incident for a given incident ID", description = "Requires the VIEW_INCIDENTS role.")
     @GetMapping("/{incidentId}")
     @PreAuthorize("hasAnyRole('SYSTEM_USER', 'VIEW_INCIDENTS')")
     public IncidentCase getIncident(@NotNull @PathVariable("incidentId") @Parameter(description = "Incident Id", required = true) final Long incidentId) {

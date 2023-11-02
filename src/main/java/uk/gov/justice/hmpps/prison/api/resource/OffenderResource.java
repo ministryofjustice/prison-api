@@ -97,7 +97,6 @@ import java.util.List;
 import java.util.Set;
 
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
-import static uk.gov.justice.hmpps.prison.util.ResourceUtils.nvl;
 
 @RestController
 @Tag(name = "offenders")
@@ -339,7 +338,7 @@ public class OffenderResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Return a set Incidents for a given offender No.", description = "Can be filtered by participation type and incident type")
+    @Operation(summary = "Return a set Incidents for a given offender No.", description = "Can be filtered by participation type and incident type. Requires the VIEW_INCIDENTS role.")
     @GetMapping("/{offenderNo}/incidents")
     @PreAuthorize("hasAnyRole('SYSTEM_USER', 'VIEW_INCIDENTS')")
     public List<IncidentCase> getIncidentsByOffenderNo(@PathVariable("offenderNo") @Parameter(description = "offenderNo", required = true, example = "A1234AA") @NotNull final String offenderNo, @RequestParam("incidentType") @Parameter(description = "incidentType", example = "ASSAULT") final List<String> incidentTypes, @RequestParam("participationRoles") @Parameter(description = "participationRoles", example = "ASSIAL", schema = @Schema(implementation = String.class, allowableValues = {"ACTINV","ASSIAL","FIGHT","IMPED","PERP","SUSASS","SUSINV","VICT","AI","PAS","AO"})) final List<String> participationRoles) {
