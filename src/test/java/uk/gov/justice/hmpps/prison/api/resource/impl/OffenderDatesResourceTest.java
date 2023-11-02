@@ -5,13 +5,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.jdbc.core.JdbcTemplate;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
+import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceCalculation;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateOffenderDates;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
 import uk.gov.justice.hmpps.prison.service.OffenderDatesServiceTest;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -158,5 +162,22 @@ public class OffenderDatesResourceTest extends ResourceTest {
                 .build());
     }
 
+    @Test
+    public void testGetAllCalculationsForPrisoner() {
+        // Given
+        final var request = createEmptyHttpEntity(AuthToken.CRD_USER);
+        final var type = new ParameterizedTypeReference<List<OffenderSentenceCalculation>>() {};
+        // When
+        final var response = testRestTemplate.exchange(
+            "/api/offender-dates/calculations/{nomsId}",
+            HttpMethod.GET,
+            request,
+            type,
+            Map.of("nomsId", "A1234AA"));
+
+        // Then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).hasSize(1);
+    }
 
 }

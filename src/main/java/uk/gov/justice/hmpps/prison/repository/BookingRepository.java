@@ -723,6 +723,16 @@ public class BookingRepository extends RepositoryBase {
                         SENTENCE_CALC_ROW_MAPPER);
     }
 
+
+    public List<OffenderSentenceCalculation> getOffenderSentenceCalculationsForPrisoner(final String prisonerId) {
+        final var sql = BookingRepositorySql.GET_OFFENDER_SENT_CALCULATIONS_FOR_PRISONER.getSql();
+        return jdbcTemplate
+            .query(
+                sql,
+                createParams("offenderId", prisonerId, "activeFlag", "Y", "bookingSeq", 1),
+                SENTENCE_CALC_ROW_MAPPER);
+    }
+
     public long createAppointment(final AppointmentDetails details, final AppointmentDefaults defaults, final String agencyId) {
         final var generatedKeyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(
