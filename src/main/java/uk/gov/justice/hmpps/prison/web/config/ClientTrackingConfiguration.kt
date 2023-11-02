@@ -33,14 +33,14 @@ class ClientTrackingInterceptor : HandlerInterceptor {
 
     val user = claimSet?.getClaim("user_name") as String?
     val clientId = claimSet?.getClaim("client_id") as String?
-    val authorities = claimSet?.getClaim("authorities") as List<*>?
+    val grantType = claimSet?.getClaim("grant_type") as String?
 
     user?.let {
       span.setAttribute("username", it) // username in customDimensions
       span.setAttribute("enduser.id", it) // user_Id at the top level of the request
     }
     clientId?.let { span.setAttribute("clientId", clientId) }
-    authorities?.let { span.setAttribute("authorities", authorities.toString()) }
+    grantType?.let { span.setAttribute("grantType", grantType) }
     return true
   }
 
