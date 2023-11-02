@@ -627,7 +627,7 @@ public class OffenderResource {
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Gets the offender visit restrictions for a given offender using the latest booking", description = "Get offender visit restrictions by offender No")
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER"})
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "OFFENDER_RESTRICTIONS"})
     @GetMapping("/{offenderNo}/offender-restrictions")
     public OffenderRestrictions getVisitRestrictions(
             @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo,
