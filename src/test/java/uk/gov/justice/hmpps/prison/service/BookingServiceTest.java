@@ -22,6 +22,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenceHistoryDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderFinePaymentDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOffence;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences;
+import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceCalculation;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetailDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerm;
@@ -109,6 +110,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -177,33 +179,31 @@ public class BookingServiceTest {
     @BeforeEach
     public void init() {
         bookingService = new BookingService(
-                bookingRepository,
-                courtEventRepository,
-                offenderBookingRepository,
-                offenderChargeRepository,
-                offenderRepository,
-                visitorRepository,
-                visitInformationRepository,
-                visitVisitorRepository,
-                sentenceRepository,
-                sentenceTermRepository,
-                agencyService,
-                offenderFixedTermRecallService,
-                caseLoadService,
-                caseloadToAgencyMappingService,
-                agencyInternalLocationRepository,
-                offenderContactPersonsRepository,
-                staffUserAccountRepository,
-                offenderBookingTransformer,
-                offenderTransformer,
-                authenticationFacade,
-                offenderSentenceRepository,
-                offenderFinePaymentRepository,
-                offenderRestrictionRepository,
-                offenderChargeTransformer,
-                agencyLocationRepository,
-                telemetryClient,
-                10);
+            bookingRepository,
+            courtEventRepository,offenderBookingRepository,
+            offenderChargeRepository,
+            offenderRepository,
+            visitorRepository,
+            visitInformationRepository,
+            visitVisitorRepository,
+            sentenceRepository,
+            sentenceTermRepository,
+
+            agencyService,offenderFixedTermRecallService,
+            caseLoadService,
+            caseloadToAgencyMappingService,
+            agencyInternalLocationRepository,
+            offenderContactPersonsRepository,
+            staffUserAccountRepository,
+            offenderBookingTransformer,
+            offenderTransformer,
+            authenticationFacade,
+            offenderSentenceRepository,
+            offenderFinePaymentRepository,
+            offenderRestrictionRepository,
+            offenderChargeTransformer,
+            agencyLocationRepository,telemetryClient,
+            10);
     }
 
     @Test
@@ -230,8 +230,8 @@ public class BookingServiceTest {
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(false);
 
         assertThatThrownBy(() ->
-                bookingService.getOffenderIdentifiers("off-1"))
-                .isInstanceOf(EntityNotFoundException.class);
+            bookingService.getOffenderIdentifiers("off-1"))
+            .isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test
@@ -257,7 +257,7 @@ public class BookingServiceTest {
         bookingService.getOffenderIdentifiers("off-1", "SYSTEM_USER", "GLOBAL_SEARCH");
 
         verify(authenticationFacade).isOverrideRole(
-                "SYSTEM_USER", "GLOBAL_SEARCH"
+            "SYSTEM_USER", "GLOBAL_SEARCH"
         );
     }
 
@@ -272,8 +272,8 @@ public class BookingServiceTest {
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(false);
 
         assertThatThrownBy(() ->
-                bookingService.getOffenderIdentifiers("off-1"))
-                .isInstanceOf(EntityNotFoundException.class);
+            bookingService.getOffenderIdentifiers("off-1"))
+            .isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test
@@ -401,7 +401,7 @@ public class BookingServiceTest {
                 List.of(
                     ScheduledEvent.builder().bookingId(-5L).eventType("app").eventStatus("SCH").build(),
                     ScheduledEvent.builder().bookingId(-6L).eventType("app").eventStatus("CANC").build()
-                    )
+                )
             );
             final var events = bookingService.getScheduledEvents(bookingId, null, null);
             assertThat(events).extracting(ScheduledEvent::getEventStatus).containsOnly("SCH");
@@ -429,54 +429,54 @@ public class BookingServiceTest {
     @Test
     public void getMilitaryRecords_map() {
         when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.of(OffenderBooking.builder()
-                .militaryRecords(List.of(
-                        OffenderMilitaryRecord.builder()
-                                .startDate(LocalDate.parse("2000-01-01"))
-                                .endDate(LocalDate.parse("2020-10-17"))
-                                .militaryDischarge(new MilitaryDischarge("DIS", "Dishonourable"))
-                                .warZone(new WarZone("AFG", "Afghanistan"))
-                                .militaryBranch(new MilitaryBranch("ARM", "Army"))
-                                .description("left")
-                                .unitNumber("auno")
-                                .enlistmentLocation("Somewhere")
-                                .militaryRank(new MilitaryRank("LCPL_RMA", "Lance Corporal  (Royal Marines)"))
-                                .serviceNumber("asno")
-                                .disciplinaryAction(new DisciplinaryAction("CM", "Court Martial"))
-                                .dischargeLocation("Sheffield")
-                                .build(),
-                        OffenderMilitaryRecord.builder()
-                                .startDate(LocalDate.parse("2001-01-01"))
-                                .militaryBranch(new MilitaryBranch("NAV", "Navy"))
-                                .description("second record")
-                                .build()))
-                .build()));
+            .militaryRecords(List.of(
+                OffenderMilitaryRecord.builder()
+                    .startDate(LocalDate.parse("2000-01-01"))
+                    .endDate(LocalDate.parse("2020-10-17"))
+                    .militaryDischarge(new MilitaryDischarge("DIS", "Dishonourable"))
+                    .warZone(new WarZone("AFG", "Afghanistan"))
+                    .militaryBranch(new MilitaryBranch("ARM", "Army"))
+                    .description("left")
+                    .unitNumber("auno")
+                    .enlistmentLocation("Somewhere")
+                    .militaryRank(new MilitaryRank("LCPL_RMA", "Lance Corporal  (Royal Marines)"))
+                    .serviceNumber("asno")
+                    .disciplinaryAction(new DisciplinaryAction("CM", "Court Martial"))
+                    .dischargeLocation("Sheffield")
+                    .build(),
+                OffenderMilitaryRecord.builder()
+                    .startDate(LocalDate.parse("2001-01-01"))
+                    .militaryBranch(new MilitaryBranch("NAV", "Navy"))
+                    .description("second record")
+                    .build()))
+            .build()));
         final var militaryRecords = bookingService.getMilitaryRecords(-1L);
         assertThat(militaryRecords).usingRecursiveComparison().isEqualTo(new MilitaryRecords(List.of(
-                MilitaryRecord.builder()
-                        .startDate(LocalDate.parse("2000-01-01"))
-                        .endDate(LocalDate.parse("2020-10-17"))
-                        .militaryDischargeCode("DIS")
-                        .militaryDischargeDescription("Dishonourable")
-                        .warZoneCode("AFG")
-                        .warZoneDescription("Afghanistan")
-                        .militaryBranchCode("ARM")
-                        .militaryBranchDescription("Army")
-                        .description("left")
-                        .unitNumber("auno")
-                        .enlistmentLocation("Somewhere")
-                        .militaryRankCode("LCPL_RMA")
-                        .militaryRankDescription("Lance Corporal  (Royal Marines)")
-                        .serviceNumber("asno")
-                        .disciplinaryActionCode("CM")
-                        .disciplinaryActionDescription("Court Martial")
-                        .dischargeLocation("Sheffield")
-                        .build(),
-                MilitaryRecord.builder()
-                        .startDate(LocalDate.parse("2001-01-01"))
-                        .militaryBranchCode("NAV")
-                        .militaryBranchDescription("Navy")
-                        .description("second record")
-                        .build())));
+            MilitaryRecord.builder()
+                .startDate(LocalDate.parse("2000-01-01"))
+                .endDate(LocalDate.parse("2020-10-17"))
+                .militaryDischargeCode("DIS")
+                .militaryDischargeDescription("Dishonourable")
+                .warZoneCode("AFG")
+                .warZoneDescription("Afghanistan")
+                .militaryBranchCode("ARM")
+                .militaryBranchDescription("Army")
+                .description("left")
+                .unitNumber("auno")
+                .enlistmentLocation("Somewhere")
+                .militaryRankCode("LCPL_RMA")
+                .militaryRankDescription("Lance Corporal  (Royal Marines)")
+                .serviceNumber("asno")
+                .disciplinaryActionCode("CM")
+                .disciplinaryActionDescription("Court Martial")
+                .dischargeLocation("Sheffield")
+                .build(),
+            MilitaryRecord.builder()
+                .startDate(LocalDate.parse("2001-01-01"))
+                .militaryBranchCode("NAV")
+                .militaryBranchDescription("Navy")
+                .description("second record")
+                .build())));
     }
 
     @Test
@@ -489,24 +489,24 @@ public class BookingServiceTest {
     public void getBookingVisitsWithVisitor() {
         Pageable pageable = PageRequest.of(0, 20);
         var visits = List.of(VisitInformation
-                .builder()
-                .visitId(-1L)
-                .visitorPersonId(-1L)
-                .cancellationReason(null)
-                .cancelReasonDescription(null)
-                .eventStatus("ATT")
-                .eventStatusDescription("Attended")
-                .eventOutcome("ATT")
-                .eventOutcomeDescription("Attended")
-                .startTime(LocalDateTime.parse("2019-10-10T14:00"))
-                .endTime(LocalDateTime.parse("2019-10-10T15:00"))
-                .location("Visits")
-                .visitType("SOC")
-                .visitTypeDescription("Social")
-                .leadVisitor("John Smith")
-                .searchType("FULL")
-                .searchTypeDescription("Full Search")
-                .build());
+            .builder()
+            .visitId(-1L)
+            .visitorPersonId(-1L)
+            .cancellationReason(null)
+            .cancelReasonDescription(null)
+            .eventStatus("ATT")
+            .eventStatusDescription("Attended")
+            .eventOutcome("ATT")
+            .eventOutcomeDescription("Attended")
+            .startTime(LocalDateTime.parse("2019-10-10T14:00"))
+            .endTime(LocalDateTime.parse("2019-10-10T15:00"))
+            .location("Visits")
+            .visitType("SOC")
+            .visitTypeDescription("Social")
+            .leadVisitor("John Smith")
+            .searchType("FULL")
+            .searchTypeDescription("Full Search")
+            .build());
 
         var page = new PageImpl<>(visits);
         when(offenderContactPersonsRepository.findAllByOffenderBooking_BookingIdAndPersonIdIn(-1L, List.of(-1L, -2L))).thenReturn(List.of(
@@ -533,90 +533,40 @@ public class BookingServiceTest {
 
         ));
         when(visitInformationRepository.findAll(VisitInformationFilter.builder().bookingId(-1L).build(), pageable))
-                .thenReturn(page);
+            .thenReturn(page);
 
         when(visitVisitorRepository.findByVisitIdInAndOffenderBookingIsNullOrderByPerson_BirthDateDesc(List.of(-1L))).thenReturn(List.of(
-                VisitVisitor.builder()
-                        .visitId(-1L)
-                        .person(Person.builder()
-                                .id(-1L)
-                                .birthDate(LocalDate.parse("1980-10-01"))
-                                .firstName("John")
-                                .lastName("Smith")
-                                .build())
-                        .groupLeader(true)
-                        .eventOutcome(new EventOutcome("ABS", "Absent"))
-                        .build(),
-                VisitVisitor.builder()
-                        .visitId(-1L)
-                        .person(Person.builder()
-                                .id(-2L)
-                                .birthDate(LocalDate.parse("2010-10-01"))
-                                .firstName("Jenny")
-                                .lastName("Smith")
-                                .build())
-                        .groupLeader(false)
-                        .eventOutcome(new EventOutcome("ATT", "Attended"))
-                        .build()
+            VisitVisitor.builder()
+                .visitId(-1L)
+                .person(Person.builder()
+                    .id(-1L)
+                    .birthDate(LocalDate.parse("1980-10-01"))
+                    .firstName("John")
+                    .lastName("Smith")
+                    .build())
+                .groupLeader(true)
+                .eventOutcome(new EventOutcome("ABS", "Absent"))
+                .build(),
+            VisitVisitor.builder()
+                .visitId(-1L)
+                .person(Person.builder()
+                    .id(-2L)
+                    .birthDate(LocalDate.parse("2010-10-01"))
+                    .firstName("Jenny")
+                    .lastName("Smith")
+                    .build())
+                .groupLeader(false)
+                .eventOutcome(new EventOutcome("ATT", "Attended"))
+                .build()
 
         ));
 
         final var visitsWithVisitors = bookingService.getBookingVisitsWithVisitor(VisitInformationFilter.builder().bookingId(-1L).build(), pageable);
         assertThat(visitsWithVisitors).containsOnly(
-                VisitWithVisitors.builder()
-                        .visitDetail(
-                                VisitDetails
-                                        .builder()
-                                        .cancellationReason(null)
-                                        .cancelReasonDescription(null)
-                                        .eventStatus("ATT")
-                                        .eventStatusDescription("Attended")
-                                        .eventOutcome("ATT")
-                                        .eventOutcomeDescription("Attended")
-                                        .startTime(LocalDateTime.parse("2019-10-10T14:00"))
-                                        .endTime(LocalDateTime.parse("2019-10-10T15:00"))
-                                        .location("Visits")
-                                        .visitType("SOC")
-                                        .visitTypeDescription("Social")
-                                        .leadVisitor("John Smith")
-                                        .relationship("FRI")
-                                        .relationshipDescription("Friend")
-                                        .attended(true)
-                                        .searchType("FULL")
-                                        .searchTypeDescription("Full Search")
-                                        .build())
-                        .visitors(List.of(
-                                Visitor
-                                        .builder()
-                                        .dateOfBirth(LocalDate.parse("1980-10-01"))
-                                        .firstName("John")
-                                        .lastName("Smith")
-                                        .leadVisitor(true)
-                                        .personId(-1L)
-                                        .relationship("Friend")
-                                        .attended(false)
-                                        .build(),
-                                Visitor
-                                        .builder()
-                                        .dateOfBirth(LocalDate.parse("2010-10-01"))
-                                        .firstName("Jenny")
-                                        .lastName("Smith")
-                                        .leadVisitor(false)
-                                        .personId(-2L)
-                                        .relationship("Niece")
-                                        .attended(true)
-                                        .build()))
-                        .build());
-    }
-
-    @Test
-    public void getBookingVisitsWithVisitor_filtered() {
-        Pageable pageable = PageRequest.of(0, 20);
-        var visits = List.of(VisitInformation
+            VisitWithVisitors.builder()
+                .visitDetail(
+                    VisitDetails
                         .builder()
-                        .visitId(-1L)
-
-                        .visitorPersonId(-1L)
                         .cancellationReason(null)
                         .cancelReasonDescription(null)
                         .eventStatus("ATT")
@@ -626,58 +576,108 @@ public class BookingServiceTest {
                         .startTime(LocalDateTime.parse("2019-10-10T14:00"))
                         .endTime(LocalDateTime.parse("2019-10-10T15:00"))
                         .location("Visits")
-                        .visitType("SCON")
+                        .visitType("SOC")
                         .visitTypeDescription("Social")
                         .leadVisitor("John Smith")
-                        .build(),
-                VisitInformation
+                        .relationship("FRI")
+                        .relationshipDescription("Friend")
+                        .attended(true)
+                        .searchType("FULL")
+                        .searchTypeDescription("Full Search")
+                        .build())
+                .visitors(List.of(
+                    Visitor
                         .builder()
-                        .visitId(-2L)
-                        .bookingId(-1L)
-                        .visitorPersonId(-1L)
-                        .cancellationReason(null)
-                        .cancelReasonDescription(null)
-                        .eventStatus("ATT")
-                        .eventStatusDescription("Attended")
-                        .eventOutcome("ATT")
-                        .eventOutcomeDescription("Attended")
-                        .startTime(LocalDateTime.parse("2019-10-12T14:00"))
-                        .endTime(LocalDateTime.parse("2019-10-12T15:00"))
-                        .location("Visits")
-                        .visitType("SCON")
-                        .visitTypeDescription("Social")
-                        .leadVisitor("John Smith")
-                        .build());
+                        .dateOfBirth(LocalDate.parse("1980-10-01"))
+                        .firstName("John")
+                        .lastName("Smith")
+                        .leadVisitor(true)
+                        .personId(-1L)
+                        .relationship("Friend")
+                        .attended(false)
+                        .build(),
+                    Visitor
+                        .builder()
+                        .dateOfBirth(LocalDate.parse("2010-10-01"))
+                        .firstName("Jenny")
+                        .lastName("Smith")
+                        .leadVisitor(false)
+                        .personId(-2L)
+                        .relationship("Niece")
+                        .attended(true)
+                        .build()))
+                .build());
+    }
+
+    @Test
+    public void getBookingVisitsWithVisitor_filtered() {
+        Pageable pageable = PageRequest.of(0, 20);
+        var visits = List.of(VisitInformation
+                .builder()
+                .visitId(-1L)
+
+                .visitorPersonId(-1L)
+                .cancellationReason(null)
+                .cancelReasonDescription(null)
+                .eventStatus("ATT")
+                .eventStatusDescription("Attended")
+                .eventOutcome("ATT")
+                .eventOutcomeDescription("Attended")
+                .startTime(LocalDateTime.parse("2019-10-10T14:00"))
+                .endTime(LocalDateTime.parse("2019-10-10T15:00"))
+                .location("Visits")
+                .visitType("SCON")
+                .visitTypeDescription("Social")
+                .leadVisitor("John Smith")
+                .build(),
+            VisitInformation
+                .builder()
+                .visitId(-2L)
+                .bookingId(-1L)
+                .visitorPersonId(-1L)
+                .cancellationReason(null)
+                .cancelReasonDescription(null)
+                .eventStatus("ATT")
+                .eventStatusDescription("Attended")
+                .eventOutcome("ATT")
+                .eventOutcomeDescription("Attended")
+                .startTime(LocalDateTime.parse("2019-10-12T14:00"))
+                .endTime(LocalDateTime.parse("2019-10-12T15:00"))
+                .location("Visits")
+                .visitType("SCON")
+                .visitTypeDescription("Social")
+                .leadVisitor("John Smith")
+                .build());
 
         var page = new PageImpl<>(visits);
         when(offenderContactPersonsRepository.findAllByOffenderBooking_BookingIdAndPersonIdIn(-1L, List.of(-1L, -2L, -1L, -2L))).thenReturn(List.of(
-                OffenderContactPerson.builder()
-                        .relationshipType(new RelationshipType("UN", "Uncle"))
-                        .modifyDateTime(LocalDateTime.parse("2019-10-10T14:00"))
-                        .id(-1L)
-                        .personId(-1L)
-                        .build(),
-                OffenderContactPerson.builder()
-                        .relationshipType(new RelationshipType("FRI", "Friend"))
-                        .modifyDateTime(LocalDateTime.parse("2019-10-11T14:00"))
-                        .id(-2L)
-                        .personId(-1L)
-                        .build(),
-                OffenderContactPerson.builder()
-                    .relationshipType(new RelationshipType("NIE", "Niece"))
-                    .modifyDateTime(LocalDateTime.parse("2019-10-10T14:00"))
-                    .id(-3L)
-                    .personId(-2L)
-                    .build()
+            OffenderContactPerson.builder()
+                .relationshipType(new RelationshipType("UN", "Uncle"))
+                .modifyDateTime(LocalDateTime.parse("2019-10-10T14:00"))
+                .id(-1L)
+                .personId(-1L)
+                .build(),
+            OffenderContactPerson.builder()
+                .relationshipType(new RelationshipType("FRI", "Friend"))
+                .modifyDateTime(LocalDateTime.parse("2019-10-11T14:00"))
+                .id(-2L)
+                .personId(-1L)
+                .build(),
+            OffenderContactPerson.builder()
+                .relationshipType(new RelationshipType("NIE", "Niece"))
+                .modifyDateTime(LocalDateTime.parse("2019-10-10T14:00"))
+                .id(-3L)
+                .personId(-2L)
+                .build()
 
         ));
         when(visitInformationRepository.findAll(VisitInformationFilter.builder()
-                .bookingId(-1L)
-                .fromDate(LocalDate.of(2019, 10, 10))
-                .toDate(LocalDate.of(2019, 10, 12))
-                .visitType("SCON")
-                .build(), pageable))
-                .thenReturn(page);
+            .bookingId(-1L)
+            .fromDate(LocalDate.of(2019, 10, 10))
+            .toDate(LocalDate.of(2019, 10, 12))
+            .visitType("SCON")
+            .build(), pageable))
+            .thenReturn(page);
 
 
         when(visitVisitorRepository.findByVisitIdInAndOffenderBookingIsNullOrderByPerson_BirthDateDesc(List.of(-1L, -2L))).thenReturn(List.of(
@@ -737,136 +737,136 @@ public class BookingServiceTest {
                 .build(),
             pageable);
         assertThat(visitsWithVisitors).containsOnly(
-                VisitWithVisitors.builder()
-                        .visitDetail(
-                                VisitDetails
-                                        .builder()
-                                        .cancellationReason(null)
-                                        .cancelReasonDescription(null)
-                                        .eventStatus("ATT")
-                                        .eventStatusDescription("Attended")
-                                        .eventOutcome("ATT")
-                                        .eventOutcomeDescription("Attended")
-                                        .startTime(LocalDateTime.parse("2019-10-10T14:00"))
-                                        .endTime(LocalDateTime.parse("2019-10-10T15:00"))
-                                        .location("Visits")
-                                        .visitType("SCON")
-                                        .visitTypeDescription("Social")
-                                        .leadVisitor("John Smith")
-                                        .relationship("FRI")
-                                        .relationshipDescription("Friend")
-                                        .attended(true)
-                                        .build())
-                        .visitors(List.of(
-                                Visitor
-                                        .builder()
-                                        .dateOfBirth(LocalDate.parse("1980-10-01"))
-                                        .firstName("John")
-                                        .lastName("Smith")
-                                        .leadVisitor(true)
-                                        .personId(-1L)
-                                        .relationship("Friend")
-                                        .attended(false)
-                                        .build(),
-                                Visitor
-                                        .builder()
-                                        .dateOfBirth(LocalDate.parse("2010-10-01"))
-                                        .firstName("Jenny")
-                                        .lastName("Smith")
-                                        .leadVisitor(false)
-                                        .personId(-2L)
-                                        .relationship("Niece")
-                                        .attended(true)
-                                        .build()))
+            VisitWithVisitors.builder()
+                .visitDetail(
+                    VisitDetails
+                        .builder()
+                        .cancellationReason(null)
+                        .cancelReasonDescription(null)
+                        .eventStatus("ATT")
+                        .eventStatusDescription("Attended")
+                        .eventOutcome("ATT")
+                        .eventOutcomeDescription("Attended")
+                        .startTime(LocalDateTime.parse("2019-10-10T14:00"))
+                        .endTime(LocalDateTime.parse("2019-10-10T15:00"))
+                        .location("Visits")
+                        .visitType("SCON")
+                        .visitTypeDescription("Social")
+                        .leadVisitor("John Smith")
+                        .relationship("FRI")
+                        .relationshipDescription("Friend")
+                        .attended(true)
+                        .build())
+                .visitors(List.of(
+                    Visitor
+                        .builder()
+                        .dateOfBirth(LocalDate.parse("1980-10-01"))
+                        .firstName("John")
+                        .lastName("Smith")
+                        .leadVisitor(true)
+                        .personId(-1L)
+                        .relationship("Friend")
+                        .attended(false)
                         .build(),
-                VisitWithVisitors.builder()
-                        .visitDetail(
-                                VisitDetails
-                                        .builder()
-                                        .cancellationReason(null)
-                                        .cancelReasonDescription(null)
-                                        .eventStatus("ATT")
-                                        .eventStatusDescription("Attended")
-                                        .eventOutcome("ATT")
-                                        .eventOutcomeDescription("Attended")
-                                        .startTime(LocalDateTime.parse("2019-10-12T14:00"))
-                                        .endTime(LocalDateTime.parse("2019-10-12T15:00"))
-                                        .location("Visits")
-                                        .visitType("SCON")
-                                        .visitTypeDescription("Social")
-                                        .leadVisitor("John Smith")
-                                        .relationship("FRI")
-                                        .relationshipDescription("Friend")
-                                        .attended(true)
-                                        .build())
-                        .visitors(List.of(
-                                Visitor
-                                        .builder()
-                                        .dateOfBirth(LocalDate.parse("1980-10-01"))
-                                        .firstName("John")
-                                        .lastName("Smith")
-                                        .leadVisitor(true)
-                                        .personId(-1L)
-                                        .relationship("Friend")
-                                        .attended(false)
-                                        .build(),
-                                Visitor
-                                        .builder()
-                                        .dateOfBirth(LocalDate.parse("2010-10-01"))
-                                        .firstName("Jenny")
-                                        .lastName("Smith")
-                                        .leadVisitor(false)
-                                        .personId(-2L)
-                                        .relationship("Niece")
-                                        .attended(true)
-                                        .build()))
-                        .build());
+                    Visitor
+                        .builder()
+                        .dateOfBirth(LocalDate.parse("2010-10-01"))
+                        .firstName("Jenny")
+                        .lastName("Smith")
+                        .leadVisitor(false)
+                        .personId(-2L)
+                        .relationship("Niece")
+                        .attended(true)
+                        .build()))
+                .build(),
+            VisitWithVisitors.builder()
+                .visitDetail(
+                    VisitDetails
+                        .builder()
+                        .cancellationReason(null)
+                        .cancelReasonDescription(null)
+                        .eventStatus("ATT")
+                        .eventStatusDescription("Attended")
+                        .eventOutcome("ATT")
+                        .eventOutcomeDescription("Attended")
+                        .startTime(LocalDateTime.parse("2019-10-12T14:00"))
+                        .endTime(LocalDateTime.parse("2019-10-12T15:00"))
+                        .location("Visits")
+                        .visitType("SCON")
+                        .visitTypeDescription("Social")
+                        .leadVisitor("John Smith")
+                        .relationship("FRI")
+                        .relationshipDescription("Friend")
+                        .attended(true)
+                        .build())
+                .visitors(List.of(
+                    Visitor
+                        .builder()
+                        .dateOfBirth(LocalDate.parse("1980-10-01"))
+                        .firstName("John")
+                        .lastName("Smith")
+                        .leadVisitor(true)
+                        .personId(-1L)
+                        .relationship("Friend")
+                        .attended(false)
+                        .build(),
+                    Visitor
+                        .builder()
+                        .dateOfBirth(LocalDate.parse("2010-10-01"))
+                        .firstName("Jenny")
+                        .lastName("Smith")
+                        .leadVisitor(false)
+                        .personId(-2L)
+                        .relationship("Niece")
+                        .attended(true)
+                        .build()))
+                .build());
     }
 
     @Test
     public void getBookingVisitsWithVisitor_noVisitors() {
         Pageable pageable = PageRequest.of(0, 20);
         var visits = List.of(VisitInformation
-                .builder()
-                .visitId(-1L)
-                .cancellationReason(null)
-                .cancelReasonDescription(null)
-                .startTime(LocalDateTime.parse("2019-10-10T14:00"))
-                .endTime(LocalDateTime.parse("2019-10-10T15:00"))
-                .location("Visits")
-                .visitType("SOC")
-                .visitTypeDescription("Social")
-                .build());
+            .builder()
+            .visitId(-1L)
+            .cancellationReason(null)
+            .cancelReasonDescription(null)
+            .startTime(LocalDateTime.parse("2019-10-10T14:00"))
+            .endTime(LocalDateTime.parse("2019-10-10T15:00"))
+            .location("Visits")
+            .visitType("SOC")
+            .visitTypeDescription("Social")
+            .build());
 
         var page = new PageImpl<>(visits);
         when(visitInformationRepository.findAll(VisitInformationFilter.builder().bookingId(-1L).build(), pageable))
-                .thenReturn(page);
+            .thenReturn(page);
 
         when(visitVisitorRepository.findByVisitIdInAndOffenderBookingIsNullOrderByPerson_BirthDateDesc(List.of(-1L)))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
 
         final var visitsWithVisitors = bookingService.getBookingVisitsWithVisitor(VisitInformationFilter.builder().bookingId(-1L).build(), pageable);
         assertThat(visitsWithVisitors).containsOnly(
-                VisitWithVisitors.builder()
-                        .visitDetail(
-                                VisitDetails
-                                        .builder()
-                                        .cancellationReason(null)
-                                        .cancelReasonDescription(null)
-                                        .eventStatus(null)
-                                        .eventStatusDescription(null)
-                                        .eventOutcome(null)
-                                        .eventOutcomeDescription(null)
-                                        .startTime(LocalDateTime.parse("2019-10-10T14:00"))
-                                        .endTime(LocalDateTime.parse("2019-10-10T15:00"))
-                                        .location("Visits")
-                                        .visitType("SOC")
-                                        .visitTypeDescription("Social")
-                                        .leadVisitor(null)
-                                        .attended(false)
-                                        .build())
-                        .visitors(List.of())
-                        .build());
+            VisitWithVisitors.builder()
+                .visitDetail(
+                    VisitDetails
+                        .builder()
+                        .cancellationReason(null)
+                        .cancelReasonDescription(null)
+                        .eventStatus(null)
+                        .eventStatusDescription(null)
+                        .eventOutcome(null)
+                        .eventOutcomeDescription(null)
+                        .startTime(LocalDateTime.parse("2019-10-10T14:00"))
+                        .endTime(LocalDateTime.parse("2019-10-10T15:00"))
+                        .location("Visits")
+                        .visitType("SOC")
+                        .visitTypeDescription("Social")
+                        .leadVisitor(null)
+                        .attended(false)
+                        .build())
+                .visitors(List.of())
+                .build());
     }
 
 
@@ -876,27 +876,27 @@ public class BookingServiceTest {
         final var inactiveCourtCase = caseWithDefaults().id(-2L).caseSeq(-2).caseStatus(new CaseStatus("I", "Inactive")).build();
 
         when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.of(OffenderBooking.builder()
-                .courtCases(List.of(activeCourtCase, inactiveCourtCase))
-                .build()));
+            .courtCases(List.of(activeCourtCase, inactiveCourtCase))
+            .build()));
 
         final var activeOnlyCourtCases = bookingService.getOffenderCourtCases(-1L, true);
 
         assertThat(activeOnlyCourtCases).containsExactly(CourtCase.builder()
-                .id(-1L)
-                .caseSeq(-1)
-                .beginDate(LocalDate.EPOCH)
-                .agency(Agency.builder()
-                        .agencyId("agency_id")
-                        .active(true)
-                        .agencyType("CRT")
-                        .description("The Agency Description")
-                        .build())
-                .caseType("Adult")
-                .caseInfoPrefix("cip")
-                .caseInfoNumber("cin")
-                .caseStatus("Active")
-                .courtHearings(Collections.emptyList())
-                .build());
+            .id(-1L)
+            .caseSeq(-1)
+            .beginDate(LocalDate.EPOCH)
+            .agency(Agency.builder()
+                .agencyId("agency_id")
+                .active(true)
+                .agencyType("CRT")
+                .description("The Agency Description")
+                .build())
+            .caseType("Adult")
+            .caseInfoPrefix("cip")
+            .caseInfoNumber("cin")
+            .caseStatus("Active")
+            .courtHearings(Collections.emptyList())
+            .build());
     }
 
     @Test
@@ -905,57 +905,57 @@ public class BookingServiceTest {
         final var inactiveCourtCase = caseWithDefaults().id(-2L).caseSeq(-2).caseStatus(new CaseStatus("I", "Inactive")).build();
 
         when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.of(OffenderBooking.builder()
-                .courtCases(List.of(activeCourtCase, inactiveCourtCase))
-                .build()));
+            .courtCases(List.of(activeCourtCase, inactiveCourtCase))
+            .build()));
 
         final var allCourtCases = bookingService.getOffenderCourtCases(-1L, false);
 
         assertThat(allCourtCases).containsExactly(
-                CourtCase.builder()
-                        .id(-1L)
-                        .caseSeq(-1)
-                        .beginDate(LocalDate.EPOCH)
-                        .agency(Agency.builder()
-                                .agencyId("agency_id")
-                                .active(true)
-                                .agencyType("CRT")
-                                .description("The Agency Description")
-                                .build())
-                        .caseType("Adult")
-                        .caseInfoPrefix("cip")
-                        .caseInfoNumber("cin")
-                        .caseStatus("Active")
-                        .courtHearings(Collections.emptyList())
-                        .build(),
-                CourtCase.builder()
-                        .id(-2L)
-                        .caseSeq(-2)
-                        .beginDate(LocalDate.EPOCH)
-                        .agency(Agency.builder()
-                                .agencyId("agency_id")
-                                .active(true)
-                                .agencyType("CRT")
-                                .description("The Agency Description")
-                                .build())
-                        .caseType("Adult")
-                        .caseInfoPrefix("cip")
-                        .caseInfoNumber("cin")
-                        .caseStatus("Inactive")
-                        .courtHearings(Collections.emptyList())
-                        .build());
+            CourtCase.builder()
+                .id(-1L)
+                .caseSeq(-1)
+                .beginDate(LocalDate.EPOCH)
+                .agency(Agency.builder()
+                    .agencyId("agency_id")
+                    .active(true)
+                    .agencyType("CRT")
+                    .description("The Agency Description")
+                    .build())
+                .caseType("Adult")
+                .caseInfoPrefix("cip")
+                .caseInfoNumber("cin")
+                .caseStatus("Active")
+                .courtHearings(Collections.emptyList())
+                .build(),
+            CourtCase.builder()
+                .id(-2L)
+                .caseSeq(-2)
+                .beginDate(LocalDate.EPOCH)
+                .agency(Agency.builder()
+                    .agencyId("agency_id")
+                    .active(true)
+                    .agencyType("CRT")
+                    .description("The Agency Description")
+                    .build())
+                .caseType("Adult")
+                .caseInfoPrefix("cip")
+                .caseInfoNumber("cin")
+                .caseStatus("Inactive")
+                .courtHearings(Collections.emptyList())
+                .build());
     }
 
     private OffenderCourtCase.OffenderCourtCaseBuilder caseWithDefaults() {
         return OffenderCourtCase.builder().beginDate(LocalDate.EPOCH)
-                .agencyLocation(AgencyLocation.builder()
-                        .id("agency_id")
-                        .active(true)
-                        .type(AgencyLocationType.COURT_TYPE)
-                        .description("The agency description")
-                        .build())
-                .legalCaseType(new LegalCaseType("A", "Adult"))
-                .caseInfoPrefix("cip")
-                .caseInfoNumber("cin");
+            .agencyLocation(AgencyLocation.builder()
+                .id("agency_id")
+                .active(true)
+                .type(AgencyLocationType.COURT_TYPE)
+                .description("The agency description")
+                .build())
+            .legalCaseType(new LegalCaseType("A", "Adult"))
+            .caseInfoPrefix("cip")
+            .caseInfoNumber("cin");
     }
 
     @Test
@@ -964,20 +964,20 @@ public class BookingServiceTest {
         final var inactivePropertyContainer = containerWithDefaults().containerId(-2L).active(false).build();
 
         when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.of(OffenderBooking.builder()
-                .propertyContainers(List.of(activePropertyContainer, inactivePropertyContainer))
-                .build()));
+            .propertyContainers(List.of(activePropertyContainer, inactivePropertyContainer))
+            .build()));
 
         final var propertyContainers = bookingService.getOffenderPropertyContainers(-1L);
 
         assertThat(propertyContainers).containsExactly(uk.gov.justice.hmpps.prison.api.model.PropertyContainer.builder()
-                .sealMark("TEST1")
-                .location(Location.builder()
-                        .locationId(10L)
-                        .description(null)
-                        .subLocations(false)
-                        .build())
-                .containerType("Bulk")
-                .build());
+            .sealMark("TEST1")
+            .location(Location.builder()
+                .locationId(10L)
+                .description(null)
+                .subLocations(false)
+                .build())
+            .containerType("Bulk")
+            .build());
     }
 
     @Test
@@ -985,143 +985,143 @@ public class BookingServiceTest {
         final var activePropertyContainer = containerWithDefaults().containerId(-1L).internalLocation(null).active(true).build();
 
         when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.of(OffenderBooking.builder()
-                .propertyContainers(List.of(activePropertyContainer))
-                .build()));
+            .propertyContainers(List.of(activePropertyContainer))
+            .build()));
 
         final var propertyContainers = bookingService.getOffenderPropertyContainers(-1L);
 
         assertThat(propertyContainers).containsExactly(uk.gov.justice.hmpps.prison.api.model.PropertyContainer.builder()
-                .sealMark("TEST1")
-                .location(null)
-                .containerType("Bulk")
-                .build());
+            .sealMark("TEST1")
+            .location(null)
+            .containerType("Bulk")
+            .build());
     }
 
     private OffenderPropertyContainer.OffenderPropertyContainerBuilder containerWithDefaults() {
         return OffenderPropertyContainer.builder()
-                .sealMark("TEST1")
-                .internalLocation(AgencyInternalLocation.builder()
-                        .active(true)
-                        .locationId(10L)
-                        .build())
-                .containerType(new PropertyContainer("BULK", "Bulk"));
+            .sealMark("TEST1")
+            .internalLocation(AgencyInternalLocation.builder()
+                .active(true)
+                .locationId(10L)
+                .build())
+            .containerType(new PropertyContainer("BULK", "Bulk"));
     }
 
     @Test
     void getSentenceAdjustments() {
         final var offenderSentenceAdjustments = List.of(
-                SentenceAdjustment.builder()
-                        .id(-8L)
-                    .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
-                        .sentenceAdjustCode("RSR")
-                        .active(true)
-                        .adjustDays(4)
-                        .build(),
-                SentenceAdjustment.builder()
-                        .id(-9L)
-                    .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
-                        .sentenceAdjustCode("RST")
-                        .active(false)
-                        .adjustDays(4)
-                        .build(),
-                SentenceAdjustment.builder()
-                        .id(-10L)
-                    .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
-                        .sentenceAdjustCode("RX")
-                        .active(true)
-                        .adjustDays(4)
-                        .build(),
-                SentenceAdjustment.builder()
-                        .id(-11L)
-                    .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
-                        .sentenceAdjustCode("S240A")
-                        .active(false)
-                        .adjustDays(4)
-                        .build(),
-                SentenceAdjustment.builder()
-                        .id(-12L)
-                    .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
-                        .sentenceAdjustCode("UR")
-                        .active(true)
-                        .adjustDays(4)
-                        .build(),
-                SentenceAdjustment.builder()
-                        .id(-13L)
-                    .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
-                        .sentenceAdjustCode("RX")
-                        .active(true)
-                        .adjustDays(4)
-                        .build()
+            SentenceAdjustment.builder()
+                .id(-8L)
+                .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
+                .sentenceAdjustCode("RSR")
+                .active(true)
+                .adjustDays(4)
+                .build(),
+            SentenceAdjustment.builder()
+                .id(-9L)
+                .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
+                .sentenceAdjustCode("RST")
+                .active(false)
+                .adjustDays(4)
+                .build(),
+            SentenceAdjustment.builder()
+                .id(-10L)
+                .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
+                .sentenceAdjustCode("RX")
+                .active(true)
+                .adjustDays(4)
+                .build(),
+            SentenceAdjustment.builder()
+                .id(-11L)
+                .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
+                .sentenceAdjustCode("S240A")
+                .active(false)
+                .adjustDays(4)
+                .build(),
+            SentenceAdjustment.builder()
+                .id(-12L)
+                .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
+                .sentenceAdjustCode("UR")
+                .active(true)
+                .adjustDays(4)
+                .build(),
+            SentenceAdjustment.builder()
+                .id(-13L)
+                .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
+                .sentenceAdjustCode("RX")
+                .active(true)
+                .adjustDays(4)
+                .build()
         );
 
         final var offenderKeyDateAdjustments = List.of(
-                KeyDateAdjustment
-                        .builder()
-                        .id(-8L)
-                        .sentenceAdjustCode("ADA")
-                        .active(true)
-                    .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
-                        .adjustDays(4)
-                        .build(),
-                KeyDateAdjustment
-                        .builder()
-                        .id(-9L)
-                        .sentenceAdjustCode("ADA")
-                        .active(false)
-                    .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
-                        .adjustDays(9)
-                        .build(),
-                KeyDateAdjustment
-                        .builder()
-                        .id(-10L)
-                        .sentenceAdjustCode("ADA")
-                        .active(true)
-                    .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
-                        .adjustDays(13)
-                        .build(),
-                KeyDateAdjustment
-                        .builder()
-                        .id(-11L)
-                        .sentenceAdjustCode("UAL")
-                        .active(false)
-                    .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
-                        .adjustDays(1)
-                        .build(),
-                KeyDateAdjustment
-                        .builder()
-                        .id(-12L)
-                        .sentenceAdjustCode("RADA")
-                        .active(true)
-                    .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
-                        .adjustDays(2)
-                        .build(),
-                KeyDateAdjustment
-                        .builder()
-                        .id(-13L)
-                        .sentenceAdjustCode("UAL")
-                        .active(true)
-                    .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
-                        .adjustDays(7)
-                        .build()
+            KeyDateAdjustment
+                .builder()
+                .id(-8L)
+                .sentenceAdjustCode("ADA")
+                .active(true)
+                .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
+                .adjustDays(4)
+                .build(),
+            KeyDateAdjustment
+                .builder()
+                .id(-9L)
+                .sentenceAdjustCode("ADA")
+                .active(false)
+                .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
+                .adjustDays(9)
+                .build(),
+            KeyDateAdjustment
+                .builder()
+                .id(-10L)
+                .sentenceAdjustCode("ADA")
+                .active(true)
+                .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
+                .adjustDays(13)
+                .build(),
+            KeyDateAdjustment
+                .builder()
+                .id(-11L)
+                .sentenceAdjustCode("UAL")
+                .active(false)
+                .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
+                .adjustDays(1)
+                .build(),
+            KeyDateAdjustment
+                .builder()
+                .id(-12L)
+                .sentenceAdjustCode("RADA")
+                .active(true)
+                .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
+                .adjustDays(2)
+                .build(),
+            KeyDateAdjustment
+                .builder()
+                .id(-13L)
+                .sentenceAdjustCode("UAL")
+                .active(true)
+                .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
+                .adjustDays(7)
+                .build()
         );
 
         when(offenderBookingRepository.findById(-6L)).thenReturn(
             Optional.of(OffenderBooking.builder()
                 .keyDateAdjustments(offenderKeyDateAdjustments)
                 .sentenceAdjustments(offenderSentenceAdjustments)
-            .build()));
+                .build()));
 
         final SentenceAdjustmentDetail sentenceAdjustmentDetail = bookingService.getBookingSentenceAdjustments(-6L);
 
         assertThat(sentenceAdjustmentDetail).isEqualTo(
-                SentenceAdjustmentDetail.builder()
-                        .additionalDaysAwarded(17)
-                        .unlawfullyAtLarge(7)
-                        .restoredAdditionalDaysAwarded(2)
-                        .recallSentenceRemand(4)
-                        .remand(8)
-                        .unusedRemand(4)
-                        .build());
+            SentenceAdjustmentDetail.builder()
+                .additionalDaysAwarded(17)
+                .unlawfullyAtLarge(7)
+                .restoredAdditionalDaysAwarded(2)
+                .recallSentenceRemand(4)
+                .remand(8)
+                .unusedRemand(4)
+                .build());
     }
 
 
@@ -1129,21 +1129,21 @@ public class BookingServiceTest {
     void getOffenderSentenceDetail_most_recent_active_booking() {
         final var offender =
             Offender.builder().bookings(
-                List.of(
-                    OffenderBooking.builder()
-                        .bookingSequence(2)
-                        .active(false)
-                        .location(AgencyLocation.builder()
-                            .description("Agency Description 2 An Inactive Booking")
-                            .build())
-                        .build(),
-                    OffenderBooking.builder()
-                        .bookingSequence(1)
-                        .active(true)
-                        .location(AgencyLocation.builder()
-                            .description("Agency Description 1 An Active Booking")
-                            .build())
-                        .build()))
+                    List.of(
+                        OffenderBooking.builder()
+                            .bookingSequence(2)
+                            .active(false)
+                            .location(AgencyLocation.builder()
+                                .description("Agency Description 2 An Inactive Booking")
+                                .build())
+                            .build(),
+                        OffenderBooking.builder()
+                            .bookingSequence(1)
+                            .active(true)
+                            .location(AgencyLocation.builder()
+                                .description("Agency Description 1 An Active Booking")
+                                .build())
+                            .build()))
                 .build();
 
         when(offenderRepository.findOffenderWithLatestBookingByNomsId("NomsId")).thenReturn(Optional.of(offender));
@@ -1163,10 +1163,10 @@ public class BookingServiceTest {
     void getOffenderSentencesSummary_most_recent_active_booking() {
         final var OffenderSentenceDetailDtos
             = List.of(
-                OffenderSentenceDetailDto.builder()
-                    .bookingId(1L)
-                    .mostRecentActiveBooking(true)
-                    .build(),
+            OffenderSentenceDetailDto.builder()
+                .bookingId(1L)
+                .mostRecentActiveBooking(true)
+                .build(),
             OffenderSentenceDetailDto.builder()
                 .bookingId(2L)
                 .mostRecentActiveBooking(false)
@@ -1187,8 +1187,8 @@ public class BookingServiceTest {
         when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> bookingService.getOffenderCourtCases(-1L, true))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage("Offender booking with id -1 not found.");
+            .isInstanceOf(EntityNotFoundException.class)
+            .hasMessage("Offender booking with id -1 not found.");
     }
 
     @Test
@@ -1196,15 +1196,15 @@ public class BookingServiceTest {
         when(offenderBookingRepository.findById(-1L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> bookingService.getOffenderPropertyContainers(-1L))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage("Offender booking with id -1 not found.");
+            .isInstanceOf(EntityNotFoundException.class)
+            .hasMessage("Offender booking with id -1 not found.");
     }
 
     private ScheduledEvent createEvent(final String type, final String time) {
         return ScheduledEvent.builder().bookingId(-1L)
-                .startTime(Optional.ofNullable(time).map(t -> "2019-01-02T" + t).map(LocalDateTime::parse).orElse(null))
-                .eventStatus("SCH")
-                .eventType(type + time).build();
+            .startTime(Optional.ofNullable(time).map(t -> "2019-01-02T" + t).map(LocalDateTime::parse).orElse(null))
+            .eventStatus("SCH")
+            .eventType(type + time).build();
     }
 
     @Test
@@ -1212,7 +1212,7 @@ public class BookingServiceTest {
         when(authenticationFacade.isOverrideRole(any(String[].class))).thenReturn(true);
         when(caseloadToAgencyMappingService.agenciesForUsersWorkingCaseload(any())).thenReturn(List.of());
         assertThatThrownBy(() -> bookingService.getOffenderSentencesSummary(null, List.of()))
-                .isInstanceOf(HttpClientErrorException.class).hasMessage("400 Request must be restricted to either a caseload, agency or list of offenders");
+            .isInstanceOf(HttpClientErrorException.class).hasMessage("400 Request must be restricted to either a caseload, agency or list of offenders");
     }
 
     @Test
@@ -1221,8 +1221,8 @@ public class BookingServiceTest {
         when(offenderSentenceRepository.findByOffenderBooking_BookingId_AndCalculationType_CalculationTypeNotLikeAndCalculationType_CategoryNot(bookingId, "%AGG%", "LICENCE"))
             .thenReturn(
                 List.of(OffenderSentence.builder()
-                        .id(new OffenderSentence.PK(-99L, 1))
-                        .calculationType(SentenceCalcType.builder().build()
+                    .id(new OffenderSentence.PK(-99L, 1))
+                    .calculationType(SentenceCalcType.builder().build()
                     ).build()
                 )
             );
@@ -1256,60 +1256,60 @@ public class BookingServiceTest {
         when(offenderSentenceRepository.findByOffenderBooking_BookingId_AndCalculationType_CalculationTypeNotLikeAndCalculationType_CategoryNot(bookingId, "%AGG%", "LICENCE"))
             .thenReturn(
                 List.of(OffenderSentence.builder()
-                        .id(new OffenderSentence.PK(-98L, 2))
-                        .lineSequence(5L)
-                        .consecutiveToSentenceSequence(1)
-                        .status("A")
-                        .calculationType(
-                            SentenceCalcType.builder()
-                                .category("CAT")
-                                .calculationType("CALC")
-                                .description("Calc description")
-                                .build()
-                            )
-                        .courtOrder(
-                            CourtOrder.builder()
-                                .courtDate(LocalDate.of(2021,1,1))
-                                .build()
-                            )
-                        .terms(terms)
-                        .offenderSentenceCharges(List.of(
-                            OffenderSentenceCharge.builder()
-                                .offenderCharge(OffenderCharge.builder()
-                                    .dateOfOffence(LocalDate.of(2021, 1, 2))
-                                    .endDate(LocalDate.of(2021, 1, 25))
-                                    .offence(Offence.builder()
-                                        .offenceIndicators(List.of(
-                                            OffenceIndicator.builder().indicatorCode("INDICATOR").build()
-                                        ))
-                                        .code("STA1234")
+                    .id(new OffenderSentence.PK(-98L, 2))
+                    .lineSequence(5L)
+                    .consecutiveToSentenceSequence(1)
+                    .status("A")
+                    .calculationType(
+                        SentenceCalcType.builder()
+                            .category("CAT")
+                            .calculationType("CALC")
+                            .description("Calc description")
+                            .build()
+                    )
+                    .courtOrder(
+                        CourtOrder.builder()
+                            .courtDate(LocalDate.of(2021, 1, 1))
+                            .build()
+                    )
+                    .terms(terms)
+                    .offenderSentenceCharges(List.of(
+                        OffenderSentenceCharge.builder()
+                            .offenderCharge(OffenderCharge.builder()
+                                .dateOfOffence(LocalDate.of(2021, 1, 2))
+                                .endDate(LocalDate.of(2021, 1, 25))
+                                .offence(Offence.builder()
+                                    .offenceIndicators(List.of(
+                                        OffenceIndicator.builder().indicatorCode("INDICATOR").build()
+                                    ))
+                                    .code("STA1234")
                                         .statute(
                                             Statute.builder().code("STA").build()
                                         )
                                         .build())
-                                    .build()
-                                )
                                 .build()
-                        ))
-                        .courtCase(
-                            OffenderCourtCase.builder()
-                                .caseSeq(10)
-                                .caseInfoNumber("XYZ789")
-                                .courtEvents(
-                                    List.of(CourtEvent.builder()
-                                        .eventDate(LocalDate.of(2021,1,1))
-                                        .courtLocation(
-                                            AgencyLocation.builder()
-                                                .description("A court")
-                                                .build()
-                                        )
-                                        .build())
-                                )
-                                .build()
-                        )
-                        .build()
+                            )
+                            .build()
+                    ))
+                    .courtCase(
+                        OffenderCourtCase.builder()
+                            .caseSeq(10)
+                            .caseInfoNumber("XYZ789")
+                            .courtEvents(
+                                List.of(CourtEvent.builder()
+                                    .eventDate(LocalDate.of(2021, 1, 1))
+                                    .courtLocation(
+                                        AgencyLocation.builder()
+                                            .description("A court")
+                                            .build()
+                                    )
+                                    .build())
+                            )
+                            .build()
                     )
-                );
+                    .build()
+                )
+            );
 
         final var sentencesAndOffences = bookingService.getSentenceAndOffenceDetails(bookingId);
 
@@ -1326,7 +1326,7 @@ public class BookingServiceTest {
                 .sentenceCategory("CAT")
                 .sentenceCalculationType("CALC")
                 .sentenceTypeDescription("Calc description")
-                .sentenceDate(LocalDate.of(2021,1,1))
+                .sentenceDate(LocalDate.of(2021, 1, 1))
                 .terms(List.of(
                     OffenderSentenceTerm.builder()
                         .days(0)
@@ -1425,12 +1425,12 @@ public class BookingServiceTest {
             when(offenderBookingRepository.findById(BAD_BOOKING_ID)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> bookingService.updateLivingUnit(BAD_BOOKING_ID, NEW_LIVING_UNIT_DESC))
-                    .isInstanceOf(EntityNotFoundException.class)
-                    .hasMessageContaining(valueOf(BAD_BOOKING_ID));
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining(valueOf(BAD_BOOKING_ID));
 
             assertThatThrownBy(() -> bookingService.updateLivingUnit(BAD_BOOKING_ID, aCellSwapLocation()))
-                    .isInstanceOf(EntityNotFoundException.class)
-                    .hasMessageContaining(valueOf(BAD_BOOKING_ID));
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining(valueOf(BAD_BOOKING_ID));
         }
 
         @Test
@@ -1439,42 +1439,42 @@ public class BookingServiceTest {
             when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC))
-                    .isInstanceOf(EntityNotFoundException.class)
-                    .hasMessageContaining(NEW_LIVING_UNIT_DESC);
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining(NEW_LIVING_UNIT_DESC);
         }
 
         @Test
         void livingUnitNotCell_throws() {
             when(offenderBookingRepository.findById(SOME_BOOKING_ID))
-                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
+                .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
             when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC))
-                    .thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, SOME_AGENCY_ID, "WING")));
+                .thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, SOME_AGENCY_ID, "WING")));
 
             assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining(NEW_LIVING_UNIT_DESC)
-                    .hasMessageContaining("WING");
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining(NEW_LIVING_UNIT_DESC)
+                .hasMessageContaining("WING");
         }
 
         @Test
         void differentAgency_throws() {
             when(offenderBookingRepository.findById(SOME_BOOKING_ID))
-                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
+                .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
             when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC))
-                    .thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, DIFFERENT_AGENCY_ID)));
+                .thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, DIFFERENT_AGENCY_ID)));
 
             assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining(SOME_AGENCY_ID)
-                    .hasMessageContaining(DIFFERENT_AGENCY_ID);
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining(SOME_AGENCY_ID)
+                .hasMessageContaining(DIFFERENT_AGENCY_ID);
         }
 
         @Test
         void ok_updatesRepo() {
             when(offenderBookingRepository.findById(SOME_BOOKING_ID))
-                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
+                .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
             when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC))
-                    .thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, SOME_AGENCY_ID)));
+                .thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, SOME_AGENCY_ID)));
 
             bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC);
 
@@ -1499,7 +1499,7 @@ public class BookingServiceTest {
         @Test
         void cellSwap() {
             when(offenderBookingRepository.findById(SOME_BOOKING_ID))
-                    .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
+                .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
 
             final var cellSwapLocation = aCellSwapLocation();
 
@@ -1516,23 +1516,23 @@ public class BookingServiceTest {
             final var livingUnit = AgencyInternalLocation.builder().locationId(livingUnitId).build();
             final var offender = Offender.builder().nomsId("any noms id").build();
             return Optional.of(
-                    OffenderBooking.builder()
-                            .bookingId(bookingId)
-                            .assignedLivingUnit(livingUnit)
-                            .location(agencyLocation)
-                            .offender(offender)
-                            .build());
+                OffenderBooking.builder()
+                    .bookingId(bookingId)
+                    .assignedLivingUnit(livingUnit)
+                    .location(agencyLocation)
+                    .offender(offender)
+                    .build());
         }
 
         private AgencyInternalLocation aCellSwapLocation() {
             return AgencyInternalLocation.builder()
-                    .locationId(-99L)
-                    .locationCode("CSWAP")
-                    .certifiedFlag(false)
-                    .active(true)
-                    .agencyId("MDI")
-                    .description("CSWAP-MDI")
-                    .build();
+                .locationId(-99L)
+                .locationCode("CSWAP")
+                .certifiedFlag(false)
+                .active(true)
+                .agencyId("MDI")
+                .description("CSWAP-MDI")
+                .build();
         }
 
         private AgencyInternalLocation aLocation(final Long locationId, final String agencyId) {
@@ -1541,11 +1541,11 @@ public class BookingServiceTest {
 
         private AgencyInternalLocation aLocation(final Long locationId, final String agencyId, final String locationType) {
             return AgencyInternalLocation.builder()
-                    .locationId(locationId)
-                    .description("Z-1")
-                    .agencyId(agencyId)
-                    .locationType(locationType)
-                    .build();
+                .locationId(locationId)
+                .description("Z-1")
+                .agencyId(agencyId)
+                .locationType(locationType)
+                .build();
         }
         private AgencyInternalLocation receptionLocation(final Long locationId, final String locationCode) {
             return
@@ -1580,6 +1580,7 @@ public class BookingServiceTest {
             assertThat(summary.getStartDateTime()).isEqualTo(startTime);
             assertThat(summary.getHasVisits()).isTrue();
         }
+
         @Test
         void noVisits() {
             when(visitInformationRepository.countByBookingId(anyLong())).thenReturn(0L);
@@ -1601,5 +1602,36 @@ public class BookingServiceTest {
         verify(offenderChargeRepository).findByOffenderBooking_BookingIdInAndChargeStatusAndOffenderCourtCase_CaseStatus_Code(bookingIds, "A", "A");
         assertThat(offenceHistoryDetails).isNotNull();
         assertThat(offenceHistoryDetails).hasSize(charges.size());
+    }
+
+
+    @Test
+    public void givenCalculationsThenReturnAll() {
+        when(bookingService.getOffenderSentenceCalculationsForPrisoner(anyString())).thenReturn(offenderSentenceCalculations());
+        final var results = bookingService.getOffenderSentenceCalculationsForPrisoner("ABZ123A");
+        verify(bookingRepository).getOffenderSentenceCalculationsForPrisoner(eq("ABZ123A"));
+        assertThat(results).hasSize(5);
+    }
+
+    private static final LocalDate TODAY = LocalDate.of(2017, 6, 15);
+    private static final int CUTOFF_DAYS_OFFSET = 28;
+
+    private List<OffenderSentenceCalculation> offenderSentenceCalculations() {
+
+        return List.of(
+            offenderSentenceDetail(1L, TODAY.plusDays(CUTOFF_DAYS_OFFSET - 2)),
+            offenderSentenceDetail(2L, TODAY.plusDays(CUTOFF_DAYS_OFFSET - 1)),
+            offenderSentenceDetail(3L, TODAY.plusDays(CUTOFF_DAYS_OFFSET)),
+            offenderSentenceDetail(4L, TODAY.plusDays(CUTOFF_DAYS_OFFSET + 1)),
+            offenderSentenceDetail(5L, TODAY.plusDays(CUTOFF_DAYS_OFFSET + 2)));
+    }
+
+    private OffenderSentenceCalculation offenderSentenceDetail(final Long bookingId,
+                                                               final LocalDate automaticReleaseDate) {
+
+        return OffenderSentenceCalculation.builder()
+            .bookingId(bookingId)
+            .automaticReleaseDate(automaticReleaseDate)
+            .build();
     }
 }
