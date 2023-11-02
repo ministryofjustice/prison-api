@@ -91,7 +91,6 @@ import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.CaseNoteFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
@@ -438,35 +437,6 @@ public class BookingResource {
     @GetMapping("/{bookingId}/assessments")
     public List<Assessment> getAssessments(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
         return inmateService.getAssessments(bookingId);
-    }
-
-    @Operation(summary = "Offender case notes.", description = "Offender case notes.", hidden = true)
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @GetMapping("/{bookingId}/caseNotes")
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
-    @SlowReportQuery
-    public Page<CaseNote> getOffenderCaseNotes(@PathVariable("bookingId") @Parameter(description = "The booking id of offender", example = "23412312", required = true) final Long bookingId,
-                                               @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "start contact date to search from", example = "2021-02-03") final LocalDate from,
-                                               @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "end contact date to search up to (including this date)", example = "2021-02-04") final LocalDate to,
-                                               @RequestParam(value = "type", required = false) @Parameter(description = "Filter by case note type", example = "GEN") final String type,
-                                               @RequestParam(value = "subType", required = false) @Parameter(description = "Filter by case note sub-type", example = "OBS") final String subType,
-                                               @RequestParam(value = "prisonId", required = false) @Parameter(description = "Filter by the ID of the prison", example = "LEI") final String prisonId,
-                                               @ParameterObject @PageableDefault(sort = {"occurrenceDateTime"}, direction = Sort.Direction.DESC) final Pageable pageable) {
-
-        final var caseNoteFilter = CaseNoteFilter.builder()
-            .type(type)
-            .subType(subType)
-            .prisonId(prisonId)
-            .startDate(from)
-            .endDate(to)
-            .bookingId(bookingId)
-            .build();
-
-        return caseNoteService.getCaseNotes(caseNoteFilter, pageable);
     }
 
     @ApiResponses({

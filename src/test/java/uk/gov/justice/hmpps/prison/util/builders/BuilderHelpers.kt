@@ -235,8 +235,8 @@ fun TestDataContext.getMovements(bookingId: Long): List<ExternalMovement> = this
 fun TestDataContext.getBedAssignments(bookingId: Long): List<BedAssignmentHistory> =
   this.dataLoader.bedAssignmentHistoriesRepository.findAllByBedAssignmentHistoryPKOffenderBookingId(bookingId)
 
-fun TestDataContext.getCaseNotes(bookingId: Long): List<CaseNote> = webTestClient.get()
-  .uri("/api/bookings/{bookingId}/caseNotes?size=999", bookingId)
+fun TestDataContext.getCaseNotes(offenderNo: String): List<CaseNote> = webTestClient.get()
+  .uri("/api/offenders/{offenderNo}/case-notes/v2?size=999", offenderNo)
   .headers(
     setAuthorisation(
       listOf("ROLE_SYSTEM_USER"),
