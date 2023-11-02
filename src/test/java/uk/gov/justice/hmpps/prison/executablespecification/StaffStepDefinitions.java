@@ -47,16 +47,6 @@ public class StaffStepDefinitions extends AbstractStepDefinitions {
         staff.verifyResourceNotFound();
     }
 
-    @When("^request is submitted for staff members having role \"([^\"]*)\" in agency \"([^\"]*)\"$")
-    public void requestIsSubmittedForStaffMembersHavingRoleInAgency(final String role, final String agencyId) {
-        staff.findStaffByAgencyRole(agencyId, role, null, null);
-    }
-
-    @When("^request is submitted for staff members having role \"([^\"]*)\" in agency \"([^\"]*)\" with name filter \"([^\"]*)\" and staff id filter \"([^\"]*)\"$")
-    public void requestIsSubmittedForStaffMembersHavingRoleInAgencyWithNameFilter(final String role, final String agencyId, final String nameFilter, final Long staffId) {
-        staff.findStaffByAgencyRole(agencyId, role, nameFilter, staffId);
-    }
-
     @Then("^\"([^\"]*)\" staff detail records are returned$")
     public void staffDetailRecordsAreReturned(final String expectedCount) {
         staff.verifyResourceRecordsReturned(Long.parseLong(expectedCount));

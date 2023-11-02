@@ -578,13 +578,13 @@ class BookingResourceIntTest_caseNotes : ResourceTest() {
     }
 
     @Test
-    fun `returns 404 as ROLE_BANANAS is not override role`() {
+    fun `returns 403 as ROLE_BANANAS is not override role`() {
       webTestClient.get()
         .uri("/api/bookings/-16/caseNotes/CHAP/FAMMAR/count")
         .headers(setClientAuthorisation(listOf("ROLE_BANANAS")))
         .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -16 not found.")
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("Client not authorised to access booking with id -16.")
     }
 
     @Test

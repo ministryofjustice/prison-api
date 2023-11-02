@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import com.google.common.collect.ImmutableList;
+import com.microsoft.applicationinsights.TelemetryClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -78,11 +79,13 @@ public class AgencyServiceTest {
     private ReferenceCodeRepository<County> countyReferenceCodeRepository;
     @Mock
     private ReferenceCodeRepository<Country> countryReferenceCodeRepository;
+    @Mock
+    private TelemetryClient telemetryClient;
 
     @BeforeEach
     public void setUp() {
         service = new AgencyService(authenticationFacade, agencyRepo, availablePrisonIepLevelRepository, agencyLocationRepository, referenceDomainService, agencyLocationTypeReferenceCodeRepository, courtTypeReferenceCodeRepository, agencyInternalLocationRepository,
-        addressPhoneRepository, agencyAddressRepository, addressTypeReferenceCodeRepository, cityReferenceCodeRepository, countyReferenceCodeRepository, countryReferenceCodeRepository);
+        addressPhoneRepository, agencyAddressRepository, addressTypeReferenceCodeRepository, cityReferenceCodeRepository, countyReferenceCodeRepository, countryReferenceCodeRepository, telemetryClient);
     }
 
     @Test
