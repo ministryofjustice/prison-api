@@ -35,49 +35,9 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
         caseNote.init();
     }
 
-    @When("^case notes are requested for offender booking \"([^\"]*)\"$")
-    public void caseNotesAreRequestedForOffenderBooking(final String bookingId) throws Throwable {
-        caseNote.getCaseNotes(Long.valueOf(bookingId));
-    }
-
     @Then("^\"([^\"]*)\" case notes are returned$")
     public void caseNotesAreReturned(final String count) throws Throwable {
         caseNote.verifyResourceRecordsReturned(Long.valueOf(count));
-    }
-
-    @And("^case note types match \"([^\"]*)\"$")
-    public void caseNoteTypesMatch(final String caseNoteTypes) throws Throwable {
-        caseNote.verifyCaseNoteTypes(caseNoteTypes);
-    }
-
-    @And("^case note sub types match \"([^\"]*)\"$")
-    public void caseNoteSubTypesMatch(final String caseNoteSubTypes) throws Throwable {
-        caseNote.verifyCaseNoteSubTypes(caseNoteSubTypes);
-    }
-
-    @And("^case note type \"([^\"]*)\" filter applied$")
-    public void caseNoteTypeFilterApplied(final String caseNoteType) throws Throwable {
-        caseNote.applyCaseNoteTypeFilter(caseNoteType);
-    }
-
-    @And("^case note sub type \"([^\"]*)\" filter applied$")
-    public void caseNoteSubTypeFilterApplied(final String caseNoteSubType) throws Throwable {
-        caseNote.applyCaseNoteSubTypeFilter(caseNoteSubType);
-    }
-
-    @And("^case note agency \"([^\"]*)\" filter applied$")
-    public void caseNoteAgencyFilterApplied(final String agencyId) throws Throwable {
-        caseNote.applyAgencyFilter(agencyId);
-    }
-
-    @And("^date from \"([^\"]*)\" filter applied$")
-    public void dateFromFilterApplied(final String dateFrom) throws Throwable {
-        caseNote.applyDateFromFilter(dateFrom);
-    }
-
-    @And("^date to \"([^\"]*)\" filter applied$")
-    public void dateToFilterApplied(final String dateTo) throws Throwable {
-        caseNote.applyDateToFilter(dateTo);
     }
 
     @And("^pagination with limit \"([0-9]*)\" and offset \"([0-9]*)\" applied$")
@@ -88,11 +48,6 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     @And("^pagination with size \"([0-9]*)\" and page number \"([0-9]*)\" applied$")
     public void paginationWithPageNumberAndSizeApplied(final Long size, final Long pageNumber) throws Throwable {
         caseNote.applyPageNumberAndSize(pageNumber, size);
-    }
-
-    @And("^filtered case notes are requested for offender booking \"([^\"]*)\"$")
-    public void filteredCaseNotesAreRequestedForOffenderBooking(final String bookingId) throws Throwable {
-        caseNote.getCaseNotes(Long.valueOf(bookingId));
     }
 
     @And("^\"([^\"]*)\" case notes are available$")
