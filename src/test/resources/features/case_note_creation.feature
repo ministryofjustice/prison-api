@@ -5,6 +5,7 @@ Feature: Case Note Usage
 
   Background:
     Given a user has authenticated with the API
+    And a user has a token name of "VIEW_CASE_NOTES"
     And case note test harness initialized
 
   Scenario Outline: Get case note usage for a list of offenders and date ranges
