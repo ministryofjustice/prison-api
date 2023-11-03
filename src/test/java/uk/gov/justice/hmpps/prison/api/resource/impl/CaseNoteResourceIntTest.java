@@ -56,13 +56,12 @@ public class CaseNoteResourceIntTest extends ResourceTest {
                 new PrisonerCaseNoteTypeAndSubType(-18L, "NEG", "IEP_WARN", fromDate3.minusDays(5)),
                 new PrisonerCaseNoteTypeAndSubType(-18L, "NEG", "IEP_WARN", fromDate3.minusDays(1)),
                 new PrisonerCaseNoteTypeAndSubType(-18L, "NEG", "IEP_WARN", fromDate3.minusDays(2))
-
             )
         );
 
         final var types = List.of("POS", "NEG");
 
-        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of(), CaseNoteTypeSummaryRequest.builder()
+        final var requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", List.of("VIEW_CASE_NOTES"), CaseNoteTypeSummaryRequest.builder()
             .types(types)
             .bookingFromDateSelection(bookingDatePairs)
             .build());
