@@ -181,7 +181,7 @@ public class MovementsService {
         return movementsRepository.getEnrouteMovementsOffenderCount(agencyId, defaultedDate);
     }
 
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
+    @VerifyAgencyAccess
     public List<OffenderIn> getOffendersIn(final String agencyId, final LocalDate date) {
         final var offendersIn = movementsRepository.getOffendersIn(agencyId, date);
 
@@ -199,7 +199,7 @@ public class MovementsService {
             .collect(toList());
     }
 
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
+    @VerifyAgencyAccess
     public List<OffenderInReception> getOffendersInReception(final String agencyId) {
         return movementsRepository.getOffendersInReception(agencyId)
             .stream()
