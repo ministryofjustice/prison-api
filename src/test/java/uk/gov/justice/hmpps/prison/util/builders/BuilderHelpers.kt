@@ -16,8 +16,13 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EscortAgencyType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
+import uk.gov.justice.hmpps.prison.repository.jpa.model.KeyDateAdjustment
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIndividualSchedule
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderNoPayPeriod
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPayStatus
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramProfile
+import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceAdjustment
 import uk.gov.justice.hmpps.prison.service.DataLoaderRepository
 import uk.gov.justice.hmpps.prison.util.JwtAuthenticationHelper
 import uk.gov.justice.hmpps.prison.util.JwtParameters
@@ -98,7 +103,7 @@ fun TestDataContext.release(offenderNo: String) {
     .jsonPath("assignedLivingUnit.description").doesNotExist()
 }
 
-fun TestDataContext.transferOutToCourt(offenderNo: String, toLocation: String, shouldReleaseBed: Boolean = false, courtHearingEventId: Long? = null): LocalDateTime {
+fun TestDataContext.transferOutToCourt(offenderNo: String, toLocation: String, shouldReleaseBed: Boolean = false, courtHearingEventId: Long? = null, expectedAgency: String = "LEI"): LocalDateTime {
   val movementTime = LocalDateTime.now().minusHours(1)
   val request = RequestToTransferOutToCourt(
     /* toLocation = */ toLocation,
@@ -122,7 +127,7 @@ fun TestDataContext.transferOutToCourt(offenderNo: String, toLocation: String, s
     .jsonPath("status").isEqualTo("ACTIVE OUT")
     .jsonPath("lastMovementTypeCode").isEqualTo("CRT")
     .jsonPath("lastMovementReasonCode").isEqualTo("19")
-    .jsonPath("assignedLivingUnit.agencyId").isEqualTo("LEI")
+    .jsonPath("assignedLivingUnit.agencyId").isEqualTo(expectedAgency)
 
   return movementTime
 }
@@ -253,3 +258,18 @@ fun TestDataContext.getCourtHearings(bookingId: Long): List<CourtEvent> =
 
 fun TestDataContext.getScheduledMovements(bookingId: Long): List<OffenderIndividualSchedule> =
   this.dataLoader.scheduleRepository.findByOffenderBooking_BookingIdOrderByIdAsc(bookingId)
+
+fun TestDataContext.getSentenceAdjustments(bookingId: Long): List<SentenceAdjustment> =
+  this.dataLoader.offenderSentenceAdjustmentRepository.findAllByOffenderBooking_BookingId(bookingId)
+
+fun TestDataContext.getKeyDateAdjustments(bookingId: Long): List<KeyDateAdjustment> =
+  this.dataLoader.offenderKeyDateAdjustmentRepository.findAllByOffenderBooking_BookingId(bookingId)
+
+fun TestDataContext.getOffenderPayStatus(bookingId: Long): List<OffenderPayStatus> =
+  this.dataLoader.offenderPayStatusRepository.findAllByBookingId(bookingId)
+
+fun TestDataContext.getOffenderNoPayPeriods(bookingId: Long): List<OffenderNoPayPeriod> =
+  this.dataLoader.offenderNoPayPeriodRepository.findAllByBookingId(bookingId)
+
+fun TestDataContext.getOffenderProgramProfiles(bookingId: Long, programStatus: String): List<OffenderProgramProfile> =
+  this.dataLoader.offenderProgramProfileRepository.findByOffenderBooking_BookingIdAndProgramStatus(bookingId, programStatus)

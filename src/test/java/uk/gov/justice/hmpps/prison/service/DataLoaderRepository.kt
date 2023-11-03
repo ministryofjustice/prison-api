@@ -15,13 +15,19 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistor
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourseActivityRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalServiceRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCourtCaseRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderIndividualScheduleRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderNoPayPeriodRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderPayStatusRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProgramProfileRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdjustmentRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTeamAssignmentRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ServiceAgencySwitchesRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.TeamRepository
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
 import uk.gov.justice.hmpps.prison.util.builders.TeamBuilder
@@ -48,6 +54,12 @@ class DataLoaderRepository(
   val bedAssignmentHistoriesRepository: BedAssignmentHistoriesRepository,
   val courtEventRepository: CourtEventRepository,
   val offenderRepository: OffenderRepository,
+  val offenderSentenceAdjustmentRepository: OffenderSentenceAdjustmentRepository,
+  val offenderKeyDateAdjustmentRepository: OffenderKeyDateAdjustmentRepository,
+  val offenderPayStatusRepository: OffenderPayStatusRepository,
+  val externalServiceRepository: ExternalServiceRepository,
+  val serviceAgencySwitchesRepository: ServiceAgencySwitchesRepository,
+  val offenderNoPayPeriodRepository: OffenderNoPayPeriodRepository,
   val jdbcTemplate: JdbcTemplate,
 )
 
@@ -74,4 +86,7 @@ class DataLoaderTransaction {
 
   @Transactional
   fun <T> get(operation: () -> T) = operation()
+
+  @Transactional
+  fun <T> transaction(operation: () -> T) = operation()
 }

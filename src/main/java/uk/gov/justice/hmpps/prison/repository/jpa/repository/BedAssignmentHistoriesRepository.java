@@ -36,4 +36,6 @@ public interface BedAssignmentHistoriesRepository extends
 
     @EntityGraph(type = EntityGraphType.FETCH, value = "bed-history-with-booking")
     List<BedAssignmentHistory> findBedAssignmentHistoriesByAssignmentDateAndLivingUnitIdIn(LocalDate assignmentDate, Set<Long> livingUnitIds);
+
+    void deleteByOffenderBooking_BookingId(Long bookingId);
 }
