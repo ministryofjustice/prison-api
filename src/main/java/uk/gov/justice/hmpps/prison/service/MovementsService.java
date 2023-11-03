@@ -106,17 +106,6 @@ public class MovementsService {
         return movementsRepository.getRecentMovementsByDate(fromDateTime, movementDate, movementTypes);
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
-    public Optional<Movement> getMovementByBookingIdAndSequence(@NotNull final Long bookingId, @NotNull final Integer sequenceNumber) {
-        return movementsRepository.getMovementByBookingIdAndSequence(bookingId, sequenceNumber)
-            .map(movement -> movement.toBuilder()
-                .fromAgencyDescription(StringUtils.trimToEmpty(LocationProcessor.formatLocation(movement.getFromAgencyDescription())))
-                .toAgencyDescription(StringUtils.trimToEmpty(LocationProcessor.formatLocation(movement.getToAgencyDescription())))
-                .toCity(capitalizeFully(StringUtils.trimToEmpty(movement.getToCity())))
-                .fromCity(capitalizeFully(StringUtils.trimToEmpty(movement.getFromCity())))
-                .build());
-    }
-
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     public PrisonerInPrisonSummary getPrisonerInPrisonSummary(final String offenderNo) {
         final var latestBooking = offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(offenderNo, 1).orElseThrow(EntityNotFoundException.withId(offenderNo));

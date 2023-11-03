@@ -517,36 +517,6 @@ public class BookingResourceIntTest extends ResourceTest {
     }
 
     @Test
-    public void testGetMovementForBooking() {
-        final var token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE);
-
-        final var response = testRestTemplate.exchange(
-            "/api/bookings/{bookingId}/movement/{sequenceNumber}",
-            GET,
-            createHttpEntity(token, null),
-            Movement.class, "-29", "2");
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isNotNull();
-
-        assertThat(response.getBody().getFromAgency()).isEqualTo("LEI");
-        assertThat(response.getBody().getToAgency()).isEqualTo("BMI");
-    }
-
-    @Test
-    public void testGetMovementForBookingNoResults() {
-        final var token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE);
-
-        final var response = testRestTemplate.exchange(
-            "/api/bookings/{bookingId}/movement/{sequenceNumber}",
-            GET,
-            createHttpEntity(token, null),
-            Movement.class, "-29", "999");
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-    }
-
-    @Test
     public void getMainOffence_testRetrieveSingleOffence() {
         final var response = testRestTemplate.exchange("/api/bookings/{bookingId}/mainOffence", GET,
             createHttpEntity(AuthToken.NORMAL_USER, null),
