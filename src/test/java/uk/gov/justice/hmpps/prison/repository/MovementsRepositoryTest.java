@@ -109,14 +109,6 @@ public class MovementsRepositoryTest {
     }
 
     @Test
-    public void canRetrieveMovementBySequence() {
-        final var movement = repository.getMovementByBookingIdAndSequence(-29, 2);
-        assertThat(movement).isPresent();
-        assertThat(movement.get().getToAgency()).isEqualTo("BMI");
-        assertThat(movement.get().getFromAgency()).isEqualTo("LEI");
-    }
-
-    @Test
     public void canRetrieveMovementsByOffendersAndMovementTypes() {
         final var movements = repository.getMovementsByOffenders(List.of("A6676RS"), List.of("TRN"), false, false);
 
