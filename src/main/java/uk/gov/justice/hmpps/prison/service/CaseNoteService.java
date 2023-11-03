@@ -278,27 +278,6 @@ public class CaseNoteService {
         return caseNoteStaffUsage;
     }
 
-//    @PreAuthorize("hasAnyRole('SYSTEM_USER','CASE_NOTE_EVENTS')")
-//    public List<CaseNoteEvent> getCaseNotesEvents(final List<String> noteTypes, @NotNull final LocalDateTime createdDate) {
-//        return getCaseNotesEvents(noteTypes, createdDate, Long.MAX_VALUE);
-//    }
-//
-//    @PreAuthorize("hasAnyRole('SYSTEM_USER','CASE_NOTE_EVENTS')")
-//    public List<CaseNoteEvent> getCaseNotesEvents(@NotEmpty final List<String> noteTypes, @NotNull final LocalDateTime createdDate, @Min(1) @Max(5000) @NotNull final Long limit) {
-//        final var noteTypesMap = QueryParamHelper.splitTypes(noteTypes);
-//
-//        final var events = caseNoteRepository.getCaseNoteEvents(createdDate, noteTypesMap.keySet(), limit);
-//
-//        // now filter out notes based on required note types
-//        return events.stream().filter((event) -> {
-//            final var subTypes = noteTypesMap.get(event.getMainNoteType());
-//            // will be null if not in map, otherwise will be empty if type in map with no sub type set
-//            return subTypes != null && (subTypes.isEmpty() || subTypes.contains(event.getSubNoteType()));
-//        }).toList();
-//    }
-
-
-
     private static class DeriveDates {
         private LocalDate fromDateToUse;
         private LocalDate toDateToUse;
@@ -331,4 +310,3 @@ public class CaseNoteService {
         }
     }
 }
-

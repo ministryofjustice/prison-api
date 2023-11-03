@@ -74,15 +74,6 @@ public class CaseNoteRepository extends RepositoryBase {
         return usages.stream().map(CaseNoteUsageDto::toCaseNoteUsage).collect(Collectors.toList());
     }
 
-//    public List<CaseNoteEvent> getCaseNoteEvents(final LocalDateTime fromDate, final Set<String> events, final long limit) {
-//        final var casenoteevents = jdbcTemplate.query(queryBuilderFactory.getQueryBuilder(CaseNoteRepositorySql.RECENT_CASE_NOTE_EVENTS.getSql(), Map.of()).addPagination().build(),
-//            createParamSource(new PageRequest(0L, limit),
-//                "fromDate", new SqlParameterValue(Types.TIMESTAMP, fromDate),
-//                "types", events),
-//            CASE_NOTE_EVENT_ROW_MAPPER);
-//        return casenoteevents.stream().map(CaseNoteEventDto::toCaseNoteEvent).collect(Collectors.toList());
-//    }
-
     public List<CaseNoteStaffUsage> getCaseNoteStaffUsage(final String type, final String subType, final List<Integer> staffIds, final LocalDate fromDate, final LocalDate toDate) {
 
         final var usage = jdbcTemplate.query(CaseNoteRepositorySql.GROUP_BY_TYPES_AND_STAFF.getSql(),
