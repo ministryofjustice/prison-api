@@ -87,10 +87,10 @@ class OffenderResourceImplIntTest_getOffenderRestrictions : ResourceTest() {
     }
 
     @Test
-    fun `returns 200 if has override role OFFENDER_RESTRICTIONS`() {
+    fun `returns 200 if has override role VISIT_SCHEDULER`() {
       webTestClient.get()
         .uri("/api/offenders/A1234AH/offender-restrictions")
-        .headers(setClientAuthorisation(listOf("ROLE_OFFENDER_RESTRICTIONS")))
+        .headers(setClientAuthorisation(listOf("ROLE_VISIT_SCHEDULER")))
         .exchange()
         .expectStatus().isOk
     }
