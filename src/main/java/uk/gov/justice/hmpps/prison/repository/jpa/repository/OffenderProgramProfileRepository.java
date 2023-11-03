@@ -47,4 +47,5 @@ public interface OffenderProgramProfileRepository extends CrudRepository<Offende
     @Query("select OP from  OffenderProgramProfile OP where OP.programStatus <> 'WAIT' and (OP.endDate is null or OP.endDate > :endDate) and OP.offenderBooking = :booking and OP.agencyLocation = :agency")
     List<OffenderProgramProfile> findActiveActivitiesForBookingAtPrison(@Param("booking") OffenderBooking booking, @Param("agency") AgencyLocation agency, @Param("endDate") LocalDate date);
 
+    void deleteByOffenderBooking_BookingId(Long bookingId);
 }

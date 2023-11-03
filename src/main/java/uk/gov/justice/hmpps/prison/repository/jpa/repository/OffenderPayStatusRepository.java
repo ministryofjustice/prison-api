@@ -10,5 +10,5 @@ public interface OffenderPayStatusRepository extends CrudRepository<OffenderPayS
 
     List<OffenderPayStatus> findAllByBookingId(Long bookingId);
 
-
+    void deleteByBookingId(Long bookingId);
 }

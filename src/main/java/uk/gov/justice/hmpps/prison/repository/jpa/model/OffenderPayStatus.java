@@ -1,21 +1,21 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 
 @Data
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -43,4 +43,8 @@ public class OffenderPayStatus extends AuditableEntity {
 
     @Column(name = "END_DATE")
     private LocalDate endDate;
+
+    // From reference domain PAY_TYPE. Not modelled as a reference code (yet) as it's not being used in production code.
+    @Column(name = "SPECIAL_PAY_TYPE_CODE")
+    private String specialPayTypeCode;
 }
