@@ -18,7 +18,7 @@ import static org.mockito.Mockito.verify;
 
 @ActiveProfiles("test")
 @SpringBootTest
-public class CaseNoteServiceImplIntTest {
+public class CaseNoteMovementServiceImplIntTest {
     @SuppressWarnings("unused")
     @MockBean
     private CaseNoteRepository repository;

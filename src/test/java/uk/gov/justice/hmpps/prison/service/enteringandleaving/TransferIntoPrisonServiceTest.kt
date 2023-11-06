@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.service.receiveandtransfer
+package uk.gov.justice.hmpps.prison.service.enteringandleaving
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -40,13 +40,13 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Optional
 
-internal class PrisonTransferServiceTest {
-  private val externalMovementService: ExternalMovementTransferService = mock()
-  private val bedAssignmentTransferService: BedAssignmentTransferService = mock()
+internal class TransferIntoPrisonServiceTest {
+  private val externalMovementService: ExternalMovementService = mock()
+  private val bedAssignmentMovementService: BedAssignmentMovementService = mock()
   private val trustAccountService: TrustAccountService = mock()
-  private val caseNoteTransferService: CaseNoteTransferService = mock()
+  private val caseNoteMovementService: CaseNoteMovementService = mock()
   private val offenderBookingRepository: OffenderBookingRepository = mock()
-  private val activityTransferService: ActivityTransferService = mock()
+  private val activityTransferService: ActivityMovementService = mock()
   private val courtHearingService: CourtHearingsService = mock()
   private val prisonToPrisonMoveSchedulingService: PrisonToPrisonMoveSchedulingService = mock()
   private val agencyInternalLocationRepository: AgencyInternalLocationRepository = mock()
@@ -74,11 +74,11 @@ internal class PrisonTransferServiceTest {
   private val bookingLastMovementTAPWithEventId =
     getMovement(toCityIn = toCity, movementReasonCode = "C3", movementTypeCode = "TAP", eventIdIn = 123)
 
-  private val service = PrisonTransferService(
+  private val service = TransferIntoPrisonService(
     externalMovementService,
-    bedAssignmentTransferService,
+    bedAssignmentMovementService,
     trustAccountService,
-    caseNoteTransferService,
+    caseNoteMovementService,
     offenderBookingRepository,
     agencyInternalLocationRepository,
     agencyLocationRepository,
@@ -181,7 +181,7 @@ internal class PrisonTransferServiceTest {
 
       @Test
       internal fun `will change booking to in the new prison`() {
-        val details = service.transferFromPrison("A1234AK", request)
+        val details = service.transferInFromPrison("A1234AK", request)
         assertThat(details.status).isEqualTo("ACTIVE IN")
         assertThat(details.inOutStatus).isEqualTo("IN")
         assertThat(details.assignedLivingUnit.description).isEqualTo("1-1")
@@ -210,7 +210,7 @@ internal class PrisonTransferServiceTest {
           ),
         ).thenReturn(newMovement)
 
-        val details = service.transferFromPrison(
+        val details = service.transferInFromPrison(
           "A1234AK",
           RequestToTransferIn().apply {
             this.commentText = "😎"
@@ -222,7 +222,7 @@ internal class PrisonTransferServiceTest {
 
       @Test
       internal fun `will request movements are updated`() {
-        service.transferFromPrison("A1234AK", request)
+        service.transferInFromPrison("A1234AK", request)
 
         verify(externalMovementService).updateMovementsForTransfer(
           request,
@@ -233,7 +233,7 @@ internal class PrisonTransferServiceTest {
 
       @Test
       internal fun `will request trust accounts are created`() {
-        service.transferFromPrison("A1234AK", request)
+        service.transferInFromPrison("A1234AK", request)
 
         verify(trustAccountService).createTrustAccount(
           booking,
@@ -244,9 +244,9 @@ internal class PrisonTransferServiceTest {
 
       @Test
       internal fun `will request case note is created`() {
-        service.transferFromPrison("A1234AK", request)
+        service.transferInFromPrison("A1234AK", request)
 
-        verify(caseNoteTransferService).createGenerateAdmissionNote(booking, newMovement)
+        verify(caseNoteMovementService).createGenerateAdmissionNote(booking, newMovement)
       }
     }
 
@@ -262,7 +262,7 @@ internal class PrisonTransferServiceTest {
         ).thenReturn(Optional.empty())
 
         assertThrows<EntityNotFoundException> {
-          service.transferFromPrison("A1234AK", request)
+          service.transferInFromPrison("A1234AK", request)
         }
       }
     }
@@ -286,7 +286,7 @@ internal class PrisonTransferServiceTest {
         ),
       )
       assertThrows<BadRequestException> {
-        service.transferFromPrison("A1234AK", request)
+        service.transferInFromPrison("A1234AK", request)
       }
     }
 
@@ -309,7 +309,7 @@ internal class PrisonTransferServiceTest {
         ),
       )
       assertThrows<EntityNotFoundException> {
-        service.transferFromPrison("A1234AK", request)
+        service.transferInFromPrison("A1234AK", request)
       }
     }
 
@@ -334,7 +334,7 @@ internal class PrisonTransferServiceTest {
         ),
       )
       assertThrows<BadRequestException> {
-        service.transferFromPrison("A1234AK", request)
+        service.transferInFromPrison("A1234AK", request)
       }
     }
 
@@ -359,14 +359,14 @@ internal class PrisonTransferServiceTest {
         ),
       )
       assertThrows<BadRequestException> {
-        service.transferFromPrison("A1234AK", request)
+        service.transferInFromPrison("A1234AK", request)
       }
     }
 
     @Test
     internal fun `will throw exception if cell not found`() {
       assertThrows<EntityNotFoundException> {
-        service.transferFromPrison(
+        service.transferInFromPrison(
           "A1234AK",
           RequestToTransferIn().apply {
             this.commentText = "😎"
@@ -388,7 +388,7 @@ internal class PrisonTransferServiceTest {
       )
 
       assertThrows<ConflictingRequestException> {
-        service.transferFromPrison("A1234AK", request)
+        service.transferInFromPrison("A1234AK", request)
       }
     }
   }
@@ -463,7 +463,7 @@ internal class PrisonTransferServiceTest {
 
       @Test
       internal fun `will request movements are updated`() {
-        service.transferViaCourt("A1234AK", requestCourtSamePrison)
+        service.transferInViaCourt("A1234AK", requestCourtSamePrison)
 
         verify(externalMovementService).updateMovementsForCourtTransferToSamePrison(
           requestCourtSamePrison.movementReasonCode,
@@ -508,20 +508,20 @@ internal class PrisonTransferServiceTest {
             commentText = requestCourtSamePrison.commentText,
           ),
         ).thenReturn(newMovement)
-        service.transferViaCourt("A1234AK", requestCourtSamePrison)
+        service.transferInViaCourt("A1234AK", requestCourtSamePrison)
 
         verify(courtHearingService).completeScheduledChildHearingEvent(booking.bookingId, 123)
       }
 
       @Test
       internal fun `will not request court events are updated if event id present`() {
-        service.transferViaCourt("A1234AK", requestCourtSamePrison)
+        service.transferInViaCourt("A1234AK", requestCourtSamePrison)
         verifyNoInteractions(courtHearingService)
       }
 
       @Test
       internal fun `will update booking status`() {
-        val inmateDetails = service.transferViaCourt("A1234AK", requestCourtSamePrison)
+        val inmateDetails = service.transferInViaCourt("A1234AK", requestCourtSamePrison)
         with(inmateDetails) {
           assertThat(inOutStatus).isEqualTo(MovementDirection.IN.name)
           assertThat(statusReason).isEqualTo("CRT-CRT")
@@ -541,7 +541,7 @@ internal class PrisonTransferServiceTest {
         ).thenReturn(Optional.empty())
 
         assertThrows<EntityNotFoundException> {
-          service.transferViaCourt("A1234AK", requestCourtSamePrison)
+          service.transferInViaCourt("A1234AK", requestCourtSamePrison)
         }
       }
     }
@@ -565,7 +565,7 @@ internal class PrisonTransferServiceTest {
         ),
       )
       assertThrows<BadRequestException> {
-        service.transferViaCourt("A1234AK", requestCourtSamePrison)
+        service.transferInViaCourt("A1234AK", requestCourtSamePrison)
       }
     }
 
@@ -588,7 +588,7 @@ internal class PrisonTransferServiceTest {
         ),
       )
       assertThrows<EntityNotFoundException> {
-        service.transferViaCourt("A1234AK", requestCourtSamePrison)
+        service.transferInViaCourt("A1234AK", requestCourtSamePrison)
       }
     }
 
@@ -613,7 +613,7 @@ internal class PrisonTransferServiceTest {
         ),
       )
       assertThrows<BadRequestException> {
-        service.transferViaCourt("A1234AK", requestCourtSamePrison)
+        service.transferInViaCourt("A1234AK", requestCourtSamePrison)
       }
     }
 
@@ -636,7 +636,7 @@ internal class PrisonTransferServiceTest {
         ),
       )
       assertThrows<BadRequestException> {
-        service.transferViaCourt("A1234AK", requestCourtSamePrison)
+        service.transferInViaCourt("A1234AK", requestCourtSamePrison)
       }
     }
   }
@@ -722,7 +722,7 @@ internal class PrisonTransferServiceTest {
 
       @Test
       internal fun `will change booking to in the new prison`() {
-        val details = service.transferViaCourt("A1234AK", requestCourtDifferentPrison)
+        val details = service.transferInViaCourt("A1234AK", requestCourtDifferentPrison)
         assertThat(details.status).isEqualTo("ACTIVE IN")
         assertThat(details.inOutStatus).isEqualTo("IN")
         assertThat(details.assignedLivingUnit.description).isEqualTo("RECP")
@@ -732,13 +732,13 @@ internal class PrisonTransferServiceTest {
 
       @Test
       internal fun `will allocate reception cell`() {
-        val details = service.transferViaCourt("A1234AK", requestCourtDifferentPrison)
+        val details = service.transferInViaCourt("A1234AK", requestCourtDifferentPrison)
         assertThat(details.assignedLivingUnit.description).isEqualTo("RECP")
       }
 
       @Test
       internal fun `will request movements are updated`() {
-        service.transferViaCourt("A1234AK", requestCourtDifferentPrison)
+        service.transferInViaCourt("A1234AK", requestCourtDifferentPrison)
 
         verify(externalMovementService).updateMovementsForCourtTransferToDifferentPrison(
           requestCourtDifferentPrison.dateTime,
@@ -751,7 +751,7 @@ internal class PrisonTransferServiceTest {
 
       @Test
       internal fun `will request trust accounts are created`() {
-        service.transferViaCourt("A1234AK", requestCourtDifferentPrison)
+        service.transferInViaCourt("A1234AK", requestCourtDifferentPrison)
 
         verify(trustAccountService).createTrustAccount(
           booking,
@@ -762,7 +762,7 @@ internal class PrisonTransferServiceTest {
 
       @Test
       internal fun `will request to end activities and wait list at previous prison`() {
-        service.transferViaCourt("A1234AK", requestCourtDifferentPrison)
+        service.transferInViaCourt("A1234AK", requestCourtDifferentPrison)
 
         verify(activityTransferService).endActivitiesAndWaitlist(
           booking,
@@ -774,9 +774,9 @@ internal class PrisonTransferServiceTest {
 
       @Test
       internal fun `will request case note is created`() {
-        service.transferViaCourt("A1234AK", requestCourtDifferentPrison)
+        service.transferInViaCourt("A1234AK", requestCourtDifferentPrison)
 
-        verify(caseNoteTransferService).createGenerateAdmissionNote(booking, newMovement)
+        verify(caseNoteMovementService).createGenerateAdmissionNote(booking, newMovement)
       }
     }
 
@@ -792,7 +792,7 @@ internal class PrisonTransferServiceTest {
         ).thenReturn(Optional.empty())
 
         assertThrows<EntityNotFoundException> {
-          service.transferViaCourt("A1234AK", requestCourtDifferentPrison)
+          service.transferInViaCourt("A1234AK", requestCourtDifferentPrison)
         }
       }
     }
@@ -816,7 +816,7 @@ internal class PrisonTransferServiceTest {
         ),
       )
       assertThrows<BadRequestException> {
-        service.transferViaCourt("A1234AK", requestCourtDifferentPrison)
+        service.transferInViaCourt("A1234AK", requestCourtDifferentPrison)
       }
     }
 
@@ -839,7 +839,7 @@ internal class PrisonTransferServiceTest {
         ),
       )
       assertThrows<EntityNotFoundException> {
-        service.transferViaCourt("A1234AK", requestCourtDifferentPrison)
+        service.transferInViaCourt("A1234AK", requestCourtDifferentPrison)
       }
     }
 
@@ -864,7 +864,7 @@ internal class PrisonTransferServiceTest {
         ),
       )
       assertThrows<BadRequestException> {
-        service.transferViaCourt("A1234AK", requestCourtDifferentPrison)
+        service.transferInViaCourt("A1234AK", requestCourtDifferentPrison)
       }
     }
   }
@@ -1252,7 +1252,7 @@ internal class PrisonTransferServiceTest {
       internal fun `will request case note is created`() {
         service.transferInAfterTemporaryAbsence("A1234AK", requestTAPArrivalDifferentPrison)
 
-        verify(caseNoteTransferService).createGenerateAdmissionNote(booking, newMovement)
+        verify(caseNoteMovementService).createGenerateAdmissionNote(booking, newMovement)
       }
     }
 

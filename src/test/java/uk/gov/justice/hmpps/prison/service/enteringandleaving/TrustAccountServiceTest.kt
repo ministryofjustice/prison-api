@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.service.receiveandtransfer
+package uk.gov.justice.hmpps.prison.service.enteringandleaving
 
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName

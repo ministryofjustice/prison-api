@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.service.receiveandtransfer
+package uk.gov.justice.hmpps.prison.service.enteringandleaving
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -30,21 +30,21 @@ import kotlin.Result.Companion.success
 
 @Transactional
 @Service
-class PrisonTransferService(
-  private val externalMovementService: ExternalMovementTransferService,
-  private val bedAssignmentTransferService: BedAssignmentTransferService,
+class TransferIntoPrisonService(
+  private val externalMovementService: ExternalMovementService,
+  private val bedAssignmentMovementService: BedAssignmentMovementService,
   private val trustAccountService: TrustAccountService,
-  private val caseNoteTransferService: CaseNoteTransferService,
+  private val caseNoteMovementService: CaseNoteMovementService,
   private val offenderBookingRepository: OffenderBookingRepository,
   private val agencyInternalLocationRepository: AgencyInternalLocationRepository,
   private val agencyLocationRepository: AgencyLocationRepository,
-  private val activityTransferService: ActivityTransferService,
+  private val activityMovementService: ActivityMovementService,
   private val courtHearingsService: CourtHearingsService,
   private val prisonToPrisonMoveSchedulingService: PrisonToPrisonMoveSchedulingService,
   private val teamWorkflowNotificationService: TeamWorkflowNotificationService,
   private val transformer: OffenderTransformer,
 ) {
-  fun transferFromPrison(offenderNo: String, request: RequestToTransferIn): InmateDetail {
+  fun transferInFromPrison(offenderNo: String, request: RequestToTransferIn): InmateDetail {
     val booking = getLatestOffenderBooking(offenderNo).flatMap { it.assertIsBeingTransferred() }.getOrThrow()
     val transferMovement = booking.getLatestMovement().flatMap { it.assertIsActiveTransfer() }.getOrThrow()
     val cellLocation =
@@ -65,7 +65,7 @@ class PrisonTransferService(
         lastMovement = transferMovement,
       ).also { movement ->
         statusReason = "${movement.movementType.code}-${movement.movementReason.code}"
-        bedAssignmentTransferService.createBedHistory(
+        bedAssignmentMovementService.createBedHistory(
           booking = this,
           cellLocation = cellLocation,
           receiveTime = movement.movementTime,
@@ -76,29 +76,29 @@ class PrisonTransferService(
           fromAgency = transferMovement.fromAgency,
           movementIn = movement,
         )
-        caseNoteTransferService.createGenerateAdmissionNote(booking = this, transferMovement = movement)
+        caseNoteMovementService.createGenerateAdmissionNote(booking = this, transferMovement = movement)
       }
     }
 
     return transformer.transform(booking)
   }
 
-  fun transferViaCourt(offenderNo: String, request: RequestForCourtTransferIn): InmateDetail {
+  fun transferInViaCourt(offenderNo: String, request: RequestForCourtTransferIn): InmateDetail {
     val booking = getLatestOffenderBooking(offenderNo).flatMap { it.assertIsOut() }.getOrThrow()
     val transferMovement = booking.getLatestMovement().flatMap { it.assertIsActiveCourtTransfer() }.getOrThrow()
 
     return if (request.agencyId.equals(transferMovement.fromAgency.id)) {
-      transferViaCourtFromSamePrison(
+      transferInViaCourtFromSamePrison(
         booking,
         request,
         transferMovement,
       )
     } else {
-      transferViaCourtFromDifferentPrison(booking, request, transferMovement)
+      transferInViaCourtFromDifferentPrison(booking, request, transferMovement)
     }
   }
 
-  fun transferViaCourtFromDifferentPrison(
+  fun transferInViaCourtFromDifferentPrison(
     booking: OffenderBooking,
     request: RequestForCourtTransferIn,
     toCourtMovement: ExternalMovement,
@@ -121,12 +121,12 @@ class PrisonTransferService(
           commentText = request.commentText,
         ).also { createdMovement ->
           statusReason = "${createdMovement.movementType.code}-${createdMovement.movementReason.code}"
-          bedAssignmentTransferService.createBedHistory(
+          bedAssignmentMovementService.createBedHistory(
             booking = this,
             cellLocation = reception,
             receiveTime = createdMovement.movementTime,
           )
-          activityTransferService.endActivitiesAndWaitlist(
+          activityMovementService.endActivitiesAndWaitlist(
             booking,
             toCourtMovement.fromAgency,
             createdMovement.movementDate,
@@ -137,14 +137,14 @@ class PrisonTransferService(
             fromAgency = toCourtMovement.fromAgency,
             movementIn = createdMovement,
           )
-          caseNoteTransferService.createGenerateAdmissionNote(booking = this, transferMovement = createdMovement)
+          caseNoteMovementService.createGenerateAdmissionNote(booking = this, transferMovement = createdMovement)
         }
       }
     }
     return transformer.transform(booking)
   }
 
-  fun transferViaCourtFromSamePrison(
+  fun transferInViaCourtFromSamePrison(
     booking: OffenderBooking,
     request: RequestForCourtTransferIn,
     toCourtMovement: ExternalMovement,
@@ -232,12 +232,12 @@ class PrisonTransferService(
           commentText = request.commentText,
         ).also { createdMovement ->
           statusReason = "${createdMovement.movementType.code}-${createdMovement.movementReason.code}"
-          bedAssignmentTransferService.createBedHistory(
+          bedAssignmentMovementService.createBedHistory(
             booking = this,
             cellLocation = reception,
             receiveTime = createdMovement.movementTime,
           )
-          activityTransferService.endActivitiesAndWaitlist(
+          activityMovementService.endActivitiesAndWaitlist(
             booking,
             releaseTAPMovement.fromAgency,
             createdMovement.movementDate,
@@ -248,7 +248,7 @@ class PrisonTransferService(
             fromAgency = releaseTAPMovement.fromAgency,
             movementIn = createdMovement,
           )
-          caseNoteTransferService.createGenerateAdmissionNote(booking = this, transferMovement = createdMovement)
+          caseNoteMovementService.createGenerateAdmissionNote(booking = this, transferMovement = createdMovement)
         }
       }
     }

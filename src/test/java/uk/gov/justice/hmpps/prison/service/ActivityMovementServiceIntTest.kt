@@ -15,7 +15,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramEndReason
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramProfile
-import uk.gov.justice.hmpps.prison.service.receiveandtransfer.ActivityTransferService
+import uk.gov.justice.hmpps.prison.service.enteringandleaving.ActivityMovementService
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderProgramProfileBuilder
@@ -27,9 +27,9 @@ import java.time.format.DateTimeFormatter
  * KOTLIN
  */
 @WithMockUser
-class ActivityTransferServiceIntTest : ResourceTest() {
+class ActivityMovementServiceIntTest : ResourceTest() {
   @Autowired
-  private lateinit var transferService: ActivityTransferService
+  private lateinit var transferService: ActivityMovementService
 
   @Nested
   @DisplayName("Successful transfer from different prison via court")

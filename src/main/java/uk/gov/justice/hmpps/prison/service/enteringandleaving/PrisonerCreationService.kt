@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.service.receiveandtransfer
+package uk.gov.justice.hmpps.prison.service.enteringandleaving
 
 import org.apache.commons.codec.language.Soundex
 import org.springframework.data.repository.findByIdOrNull
@@ -53,24 +53,25 @@ class PrisonerCreationService(
     val dateOfBirth = validDateOfBirth(requestToCreate.dateOfBirth).getOrThrow()
 
     val prisoner = offenderRepository.save(
-      Offender()
-        .withLastName(lastName)
-        .withFirstName(firstName)
-        .withMiddleName(requestToCreate.middleName1?.uppercase())
-        .withMiddleName2(requestToCreate.middleName2?.uppercase())
-        .withBirthDate(dateOfBirth)
-        .withGender(gender)
-        .withTitle(title)
-        .withSuffix(suffix)
-        .withEthnicity(ethnicity)
-        .withCreateDate(LocalDate.now())
-        .withNomsId(getNextPrisonerIdentifier().getId())
-        .withIdSourceCode("SEQ")
-        .withNameSequence("1234")
-        .withCaseloadType("INST")
-        .withLastNameKey(lastName)
-        .withLastNameAlphaKey(lastName.take(1))
-        .withLastNameSoundex(Soundex().soundex(lastName)),
+      Offender.builder()
+        .lastName(lastName)
+        .firstName(firstName)
+        .middleName(requestToCreate.middleName1?.uppercase())
+        .middleName2(requestToCreate.middleName2?.uppercase())
+        .birthDate(dateOfBirth)
+        .gender(gender)
+        .title(title)
+        .suffix(suffix)
+        .ethnicity(ethnicity)
+        .createDate(LocalDate.now())
+        .nomsId(getNextPrisonerIdentifier().getId())
+        .idSourceCode("SEQ")
+        .nameSequence("1234")
+        .caseloadType("INST")
+        .lastNameKey(lastName)
+        .lastNameAlphaKey(lastName.take(1))
+        .lastNameSoundex(Soundex().soundex(lastName))
+        .build(),
     ).also { newPrisoner ->
       newPrisoner.rootOffenderId = newPrisoner.id
       newPrisoner.rootOffender = newPrisoner
@@ -96,7 +97,7 @@ class PrisonerCreationService(
     if (!updated) {
       throw RuntimeException("Prisoner Identifier cannot be generated, please try again")
     }
-    return PrisonerIdentifier().withId(currentSequence.prisonerIdentifier)
+    return PrisonerIdentifier.builder().id(currentSequence.prisonerIdentifier).build()
   }
 
   private fun gender(code: String): Result<Gender> =

@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.service.receiveandtransfer
+package uk.gov.justice.hmpps.prison.service.enteringandleaving
 
 import jakarta.persistence.EntityManager
 import org.springframework.data.repository.findByIdOrNull
@@ -22,7 +22,7 @@ import kotlin.Result.Companion.failure
 import kotlin.Result.Companion.success
 
 @Service
-class ExternalMovementTransferService(
+class ExternalMovementService(
   private val movementReasonRepository: ReferenceCodeRepository<MovementReason>,
   private val externalMovementRepository: ExternalMovementRepository,
   private val movementTypeRepository: ReferenceCodeRepository<MovementType>,
@@ -219,29 +219,21 @@ class ExternalMovementTransferService(
     fromAddressId: Long? = null,
   ): ExternalMovement = this.setPreviousMovementsToInactive().also { entityManager.flush() }.let {
     this.addExternalMovement(
-      ExternalMovement(
-        /* offenderBooking = */ this,
-        /* movementSequence = */ null,
-        /* movementDate = */ movementDateTime.toLocalDate(),
-        /* reportingDate = */ null,
-        /* movementTime = */ movementDateTime,
-        /* eventId = */ eventId,
-        /* parentEventId = */ parentEventId,
-        /* arrestAgencyLocation = */ null,
-        /* fromAgency = */ fromLocation,
-        /* toAgency = */ prison, // the passed in agency in the request is just for validation
-        /* active = */ true,
-        /* escortText = */ null,
-        /* escortCode = */ escortCode,
-        /* commentText = */ commentText,
-        /* toCity = */ null,
-        /* fromCity = */ fromCity,
-        /* movementReason = */ movementReason,
-        /* movementDirection = */ MovementDirection.IN,
-        /* movementType = */ movementType,
-        /* toAddressId = */ null,
-        /* fromAddressId = */ fromAddressId,
-      ),
+      ExternalMovement.builder()
+        .movementDate(movementDateTime.toLocalDate())
+        .movementTime(movementDateTime)
+        .eventId(eventId)
+        .parentEventId(parentEventId)
+        .fromAgency(fromLocation)
+        .toAgency(prison)
+        .escortCode(escortCode)
+        .commentText(commentText)
+        .fromCity(fromCity)
+        .movementReason(movementReason)
+        .movementDirection(MovementDirection.IN)
+        .movementType(movementType)
+        .fromAddressId(fromAddressId)
+        .build(),
     )
   }
 }
