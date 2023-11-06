@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.service.receiveandtransfer
+package uk.gov.justice.hmpps.prison.service.enteringandleaving
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -28,7 +28,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Optional
 
-internal class CaseNoteTransferServiceTest {
+internal class CaseNoteMovementServiceTest {
   private val caseNoteRepository: OffenderCaseNoteRepository = mock()
   private val caseNoteTypeReferenceCodeRepository: ReferenceCodeRepository<CaseNoteType> = mock()
   private val caseNoteSubTypeReferenceCodeRepository: ReferenceCodeRepository<CaseNoteSubType> = mock()
@@ -50,7 +50,7 @@ internal class CaseNoteTransferServiceTest {
     whenever(caseNoteRepository.save(any())).thenAnswer { it.getArgument<OffenderCaseNote>(0) }
   }
 
-  private val service = CaseNoteTransferService(
+  private val service = CaseNoteMovementService(
     caseNoteRepository = caseNoteRepository,
     caseNoteTypeReferenceCodeRepository = caseNoteTypeReferenceCodeRepository,
     caseNoteSubTypeReferenceCodeRepository = caseNoteSubTypeReferenceCodeRepository,

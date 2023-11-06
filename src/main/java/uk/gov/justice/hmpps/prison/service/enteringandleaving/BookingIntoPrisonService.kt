@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.service.receiveandtransfer
+package uk.gov.justice.hmpps.prison.service.enteringandleaving
 
 import jakarta.persistence.EntityManager
 import org.springframework.data.repository.findByIdOrNull
@@ -54,20 +54,20 @@ class BookingIntoPrisonService(
   private val imprisonmentStatusRepository: ImprisonmentStatusRepository,
   private val agencyLocationTypeRepository: ReferenceCodeRepository<AgencyLocationType>,
   private val agencyInternalLocationRepository: AgencyInternalLocationRepository,
-  private val externalMovementTransferService: ExternalMovementTransferService,
+  private val externalMovementService: ExternalMovementService,
   private val bookNumberGenerationService: BookNumberGenerationService,
   private val offenderBookingRepository: OffenderBookingRepository,
   private val entityManager: EntityManager,
-  private val bedAssignmentTransferService: BedAssignmentTransferService,
+  private val bedAssignmentMovementService: BedAssignmentMovementService,
   private val copyTableRepository: CopyTableRepository,
   private val copyPreviousBookingService: CopyPreviousBookingService,
   private val profileTypeRepository: ProfileTypeRepository,
   private val profileCodeRepository: ProfileCodeRepository,
   private val trustAccountService: TrustAccountService,
-  private val caseNoteTransferService: CaseNoteTransferService,
+  private val caseNoteMovementService: CaseNoteMovementService,
   staffUserAccountRepository: StaffUserAccountRepository,
   authenticationFacade: AuthenticationFacade,
-) : StaffAwareTransferService(
+) : StaffAwareMovementService(
   staffUserAccountRepository = staffUserAccountRepository,
   authenticationFacade = authenticationFacade,
 ) {
@@ -88,7 +88,7 @@ class BookingIntoPrisonService(
       requestForNewBooking.cellLocation,
     ).let { cellOrLocationWithSpace(it, prison).getOrThrow() }
     val receiveTime =
-      externalMovementTransferService.getReceiveDateTime(requestForNewBooking.bookingInTime, previousBooking)
+      externalMovementService.getReceiveDateTime(requestForNewBooking.bookingInTime, previousBooking)
         .getOrThrow()
     val bookNumber: String = bookNumberGenerationService.generateBookNumber()
     val staff = getLoggedInStaff().getOrThrow().staff
@@ -97,29 +97,30 @@ class BookingIntoPrisonService(
     offender.bookings.forEach(OffenderBooking::incBookingSequence)
 
     return offenderBookingRepository.save(
-      OffenderBooking()
-        .withBookingBeginDate(receiveTime)
-        .withBookNumber(bookNumber)
-        .withOffender(offender)
-        .withLocation(prison)
-        .withAssignedLivingUnit(cellOrReception)
-        .withDisclosureFlag("N")
-        .withInOutStatus(MovementDirection.IN.name)
-        .withActive(true)
-        .withBookingStatus("O")
-        .withYouthAdultCode("N")
-        .withAssignedStaff(staff)
-        .withCreateLocation(prison)
-        .withBookingType("INST")
-        .withRootOffender(offender.rootOffender)
-        .withAdmissionReason("NCO")
-        .withBookingSequence(1)
-        .withStatusReason("${MovementType.ADM.code}-${requestForNewBooking.movementReasonCode}"),
+      OffenderBooking.builder()
+        .bookingBeginDate(receiveTime)
+        .bookNumber(bookNumber)
+        .offender(offender)
+        .location(prison)
+        .assignedLivingUnit(cellOrReception)
+        .disclosureFlag("N")
+        .inOutStatus(MovementDirection.IN.name)
+        .active(true)
+        .bookingStatus("O")
+        .youthAdultCode("N")
+        .assignedStaff(staff)
+        .createLocation(prison)
+        .bookingType("INST")
+        .rootOffender(offender.rootOffender)
+        .admissionReason("NCO")
+        .bookingSequence(1)
+        .statusReason("${MovementType.ADM.code}-${requestForNewBooking.movementReasonCode}")
+        .build(),
     ).also { newBooking ->
       entityManager.flush()
       val fromLocation = fromLocation(requestForNewBooking.fromLocationId).getOrThrow()
 
-      externalMovementTransferService.updateMovementsForNewOrRecalledBooking(
+      externalMovementService.updateMovementsForNewOrRecalledBooking(
         booking = newBooking,
         movementReasonCode = requestForNewBooking.movementReasonCode,
         fromLocation = fromLocation,
@@ -127,19 +128,20 @@ class BookingIntoPrisonService(
         receiveDateTime = receiveTime,
         commentText = "New Booking",
       ).also { movement ->
-        bedAssignmentTransferService.createBedHistory(newBooking, cellOrReception, receiveTime, MovementType.ADM.code)
+        bedAssignmentMovementService.createBedHistory(newBooking, cellOrReception, receiveTime, MovementType.ADM.code)
         previousBooking?.copyKeyDataFromPreviousBooking(newBooking, movement).also {
           // status needs resetting since copy would set to previous value
           newBooking.resetYouthStatus(requestForNewBooking.isYouthOffender)
         }
         trustAccountService.createTrustAccount(newBooking, fromLocation, movement)
         newBooking.setImprisonmentStatus(
-          OffenderImprisonmentStatus()
-            .withAgyLocId(prison.id)
-            .withImprisonmentStatus(imprisonmentStatus),
+          OffenderImprisonmentStatus.builder()
+            .agyLocId(prison.id)
+            .imprisonmentStatus(imprisonmentStatus)
+            .build(),
           receiveTime,
         )
-        caseNoteTransferService.createGenerateAdmissionNote(newBooking, movement)
+        caseNoteMovementService.createGenerateAdmissionNote(newBooking, movement)
       }
     }.let { offenderTransformer.transform(it) }
   }
@@ -160,20 +162,21 @@ class BookingIntoPrisonService(
 
       val fromLocation = fromLocation(fromLocationId).getOrThrow()
       val receiveTime =
-        externalMovementTransferService.getReceiveDateTime(recallTime, booking)
+        externalMovementService.getReceiveDateTime(recallTime, booking)
           .getOrThrow()
 
       imprisonmentStatus?.let { imprisonmentStatus(imprisonmentStatus).getOrThrow() }
         ?.also {
           booking.setImprisonmentStatus(
-            OffenderImprisonmentStatus()
-              .withAgyLocId(prison.id)
-              .withImprisonmentStatus(it),
+            OffenderImprisonmentStatus.builder()
+              .agyLocId(prison.id)
+              .imprisonmentStatus(it)
+              .build(),
             receiveTime,
           )
         }
 
-      externalMovementTransferService.updateMovementsForNewOrRecalledBooking(
+      externalMovementService.updateMovementsForNewOrRecalledBooking(
         booking = booking,
         movementReasonCode = movementReasonCode,
         fromLocation = fromLocation,
@@ -181,11 +184,11 @@ class BookingIntoPrisonService(
         receiveDateTime = receiveTime,
         commentText = "Recall",
       ).also { movement ->
-        bedAssignmentTransferService.createBedHistory(booking, cellOrReception, receiveTime, MovementType.ADM.code)
+        bedAssignmentMovementService.createBedHistory(booking, cellOrReception, receiveTime, MovementType.ADM.code)
         booking.resetYouthStatus(isYouthOffender)
         booking.statusReason = "${movement.movementType.code}-$movementReasonCode"
         trustAccountService.createTrustAccount(booking, fromLocation, movement)
-        caseNoteTransferService.createGenerateAdmissionNote(booking, movement)
+        caseNoteMovementService.createGenerateAdmissionNote(booking, movement)
       }
       return offenderTransformer.transform(booking)
     }

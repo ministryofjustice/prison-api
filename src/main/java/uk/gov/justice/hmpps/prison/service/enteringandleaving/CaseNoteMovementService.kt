@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.service.receiveandtransfer
+package uk.gov.justice.hmpps.prison.service.enteringandleaving
 
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -14,13 +14,13 @@ import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 
 @Service
-class CaseNoteTransferService(
+class CaseNoteMovementService(
   private val caseNoteRepository: OffenderCaseNoteRepository,
   private val caseNoteTypeReferenceCodeRepository: ReferenceCodeRepository<CaseNoteType>,
   private val caseNoteSubTypeReferenceCodeRepository: ReferenceCodeRepository<CaseNoteSubType>,
   staffUserAccountRepository: StaffUserAccountRepository,
   authenticationFacade: AuthenticationFacade,
-) : StaffAwareTransferService(
+) : StaffAwareMovementService(
   staffUserAccountRepository = staffUserAccountRepository,
   authenticationFacade = authenticationFacade,
 ) {
@@ -31,24 +31,17 @@ class CaseNoteTransferService(
     val note =
       "Offender admitted to ${transferMovement.toAgency.description} for reason: ${transferMovement.movementReason.description} from ${transferMovement.fromAgency.description}."
 
-    val caseNote = OffenderCaseNote(
-      /* id = */ null,
-      /* offenderBooking = */ booking,
-      null,
-      /* occurrenceDate = */ transferMovement.movementTime.toLocalDate(),
-      /* occurrenceDateTime = */ transferMovement.movementTime,
-      /* type = */ type,
-      null,
-      /* subType = */ subType,
-      null,
-      /* caseNoteText = */ note,
-      /* amendmentFlag = */ false,
-      /* agencyLocation = */ booking.location,
-      /* author = */ staff,
-      /* noteSourceCode = */ "AUTO",
-      /* dateCreation = */ null,
-      /* timeCreation = */ null,
-    )
+    val caseNote = OffenderCaseNote.builder()
+      .offenderBooking(booking)
+      .occurrenceDate(transferMovement.movementTime.toLocalDate())
+      .occurrenceDateTime(transferMovement.movementTime)
+      .type(type)
+      .subType(subType)
+      .caseNoteText(note)
+      .agencyLocation(booking.location)
+      .author(staff)
+      .noteSourceCode("AUTO")
+      .build()
 
     caseNoteRepository.save(caseNote)
   }

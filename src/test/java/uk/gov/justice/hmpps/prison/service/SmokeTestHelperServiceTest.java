@@ -8,7 +8,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ImprisonmentStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImprisonmentStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
-import uk.gov.justice.hmpps.prison.service.receiveandtransfer.BookingIntoPrisonService;
+import uk.gov.justice.hmpps.prison.service.enteringandleaving.BookingIntoPrisonService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
