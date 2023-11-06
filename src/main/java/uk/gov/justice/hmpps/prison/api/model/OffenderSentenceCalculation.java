@@ -47,4 +47,5 @@ public class OffenderSentenceCalculation {
     private LocalDate tariffDate;
     private LocalDate rotl;
     private LocalDate ersed;
+    private String commentText;
 }
