@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.service.receiveandtransfer
+package uk.gov.justice.hmpps.prison.service.enteringandleaving
 
 import org.springframework.data.repository.findByIdOrNull
 import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount
@@ -6,7 +6,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRep
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 
-abstract class StaffAwareTransferService(
+abstract class StaffAwareMovementService(
   private val staffUserAccountRepository: StaffUserAccountRepository,
   private val authenticationFacade: AuthenticationFacade,
 ) {

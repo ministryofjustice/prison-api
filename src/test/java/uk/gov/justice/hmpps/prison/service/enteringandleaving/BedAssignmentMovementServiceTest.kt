@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.service.receiveandtransfer
+package uk.gov.justice.hmpps.prison.service.enteringandleaving
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
@@ -17,10 +17,10 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistor
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-internal class BedAssignmentTransferServiceTest {
+internal class BedAssignmentMovementServiceTest {
 
   private val bedAssignmentHistoryRepository: BedAssignmentHistoriesRepository = mock()
-  private val service = BedAssignmentTransferService(bedAssignmentHistoryRepository)
+  private val service = BedAssignmentMovementService(bedAssignmentHistoryRepository)
 
   @Nested
   @DisplayName("createBedHistory")

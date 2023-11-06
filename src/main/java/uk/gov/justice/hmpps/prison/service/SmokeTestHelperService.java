@@ -8,7 +8,7 @@ import uk.gov.justice.hmpps.prison.api.model.RequestToReleasePrisoner;
 import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
-import uk.gov.justice.hmpps.prison.service.receiveandtransfer.BookingIntoPrisonService;
+import uk.gov.justice.hmpps.prison.service.enteringandleaving.BookingIntoPrisonService;
 
 import java.time.LocalDateTime;
 

@@ -41,7 +41,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdj
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
-import uk.gov.justice.hmpps.prison.service.receiveandtransfer.BookingIntoPrisonService
+import uk.gov.justice.hmpps.prison.service.enteringandleaving.BookingIntoPrisonService
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer
 import java.util.Optional
 

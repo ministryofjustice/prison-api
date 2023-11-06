@@ -30,7 +30,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection.IN
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection.OUT
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Team
 import uk.gov.justice.hmpps.prison.service.DataLoaderTransaction
-import uk.gov.justice.hmpps.prison.service.receiveandtransfer.WorkflowTaskService
+import uk.gov.justice.hmpps.prison.service.enteringandleaving.WorkflowTaskService
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderCourtCaseBuilder

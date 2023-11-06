@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.service.receiveandtransfer
+package uk.gov.justice.hmpps.prison.service.enteringandleaving
 
 import jakarta.persistence.EntityManager
 import org.assertj.core.api.Assertions.assertThat
@@ -31,7 +31,7 @@ import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.Optional
 
-internal class ExternalMovementTransferServiceTest {
+internal class ExternalMovementServiceTest {
   private val movementReasonRepository: ReferenceCodeRepository<MovementReason> = mock()
   private val externalMovementRepository: ExternalMovementRepository = mock()
   private val movementTypeRepository: ReferenceCodeRepository<MovementType> = mock()
@@ -75,7 +75,7 @@ internal class ExternalMovementTransferServiceTest {
     toAddressId = toCorporateAddressId
   }
 
-  private val service = ExternalMovementTransferService(
+  private val service = ExternalMovementService(
     movementReasonRepository = movementReasonRepository,
     externalMovementRepository = externalMovementRepository,
     movementTypeRepository = movementTypeRepository,
