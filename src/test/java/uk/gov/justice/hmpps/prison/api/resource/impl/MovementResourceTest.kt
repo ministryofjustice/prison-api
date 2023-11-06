@@ -10,9 +10,12 @@ import org.springframework.http.HttpMethod.GET
 import org.springframework.http.HttpMethod.POST
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.MediaType
+import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.http.ResponseEntity
 import org.springframework.web.util.UriComponentsBuilder
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
+import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.NORMAL_USER
+import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.SYSTEM_USER_READ_WRITE
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalDateTime.now
@@ -26,7 +29,7 @@ class MovementResourceTest : ResourceTest() {
   inner class Movements {
     @Test
     fun testReadTodaysMovementsForbidden() {
-      val token = authTokenHelper.getToken(AuthToken.NORMAL_USER)
+      val token = authTokenHelper.getToken(NORMAL_USER)
       val response = testRestTemplate.exchange(
         "/api/movements?fromDateTime={fromDateTime}",
         GET,
@@ -86,12 +89,92 @@ class MovementResourceTest : ResourceTest() {
   }
 
   @Nested
+  @DisplayName("GET /api/movements/rollcount/{agencyId}")
+  inner class GetRollcount {
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("/api/movements/rollcount/BMI")
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return 404 when does not have override role`() {
+      webTestClient.get().uri("/api/movements/rollcount/BMI")
+        .headers(setClientAuthorisation(listOf("")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isNotFound
+    }
+
+    @Test
+    fun `should return success when has SYSTEM_USER override role`() {
+      webTestClient.get().uri("/api/movements/rollcount/BMI")
+        .headers(setClientAuthorisation(listOf("SYSTEM_USER")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `should return success when has ESTABLISHMENT_ROLL override role`() {
+      webTestClient.get().uri("/api/movements/rollcount/BMI")
+        .headers(setClientAuthorisation(listOf("ESTABLISHMENT_ROLL")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+    }
+  }
+
+  @Nested
   @DisplayName("GET /api/movements/rollcount/{agencyId}/movements")
   inner class GetMovementRollcount {
 
     @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("/api/movements/rollcount/BMI/movements")
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return 404 when does not have override role`() {
+      webTestClient.get().uri("/api/movements/rollcount/BMI/movements")
+        .headers(setClientAuthorisation(listOf("")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isNotFound
+    }
+
+    @Test
+    fun `should return success when has SYSTEM_USER override role`() {
+      webTestClient.get().uri("/api/movements/rollcount/BMI/movements")
+        .headers(setClientAuthorisation(listOf("SYSTEM_USER")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `should return success when has ESTABLISHMENT_ROLL override role`() {
+      webTestClient.get().uri("/api/movements/rollcount/BMI/movements")
+        .headers(setClientAuthorisation(listOf("ESTABLISHMENT_ROLL")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
     fun testReadRollcountByAgency() {
-      val token = authTokenHelper.getToken(AuthToken.NORMAL_USER)
+      val token = authTokenHelper.getToken(NORMAL_USER)
       val response = testRestTemplate.exchange(
         "/api/movements/rollcount/{agencyId}/movements",
         GET,
@@ -109,8 +192,46 @@ class MovementResourceTest : ResourceTest() {
   inner class GetMovementsByAgencyEnRoute {
 
     @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("api/movements/LEI/enroute")
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return 404 when does not have override role`() {
+      webTestClient.get().uri("api/movements/LEI/enroute")
+        .headers(setClientAuthorisation(listOf("")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isNotFound
+    }
+
+    @Test
+    fun `should return success when has SYSTEM_USER override role`() {
+      webTestClient.get().uri("api/movements/LEI/enroute")
+        .headers(setClientAuthorisation(listOf("SYSTEM_USER")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `should return success when has ESTABLISHMENT_ROLL override role`() {
+      webTestClient.get().uri("api/movements/LEI/enroute")
+        .headers(setClientAuthorisation(listOf("ESTABLISHMENT_ROLL")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
     fun testReadTodaysMovementsByAgencyEnRoute() {
-      val token = authTokenHelper.getToken(AuthToken.NORMAL_USER)
+      val token = authTokenHelper.getToken(NORMAL_USER)
       val response = testRestTemplate.exchange(
         "/api/movements/{agencyId}/enroute",
         GET,
@@ -163,7 +284,7 @@ class MovementResourceTest : ResourceTest() {
 
     @Test
     fun testGetRolllcountByAgencyEnroute() {
-      val token = authTokenHelper.getToken(AuthToken.NORMAL_USER)
+      val token = authTokenHelper.getToken(NORMAL_USER)
       val response = testRestTemplate.exchange(
         "/api/movements/rollcount/{agencyId}/enroute",
         GET,
@@ -192,7 +313,7 @@ class MovementResourceTest : ResourceTest() {
       webTestClient.get().uri("/api/movements/BMI/in/2019-01-10")
         .headers(setAuthorisation(listOf("")))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
+        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isNotFound
     }
@@ -202,7 +323,7 @@ class MovementResourceTest : ResourceTest() {
       webTestClient.get().uri("/api/movements/LEI/in/2019-01-10")
         .headers(setAuthorisation(listOf("")))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
+        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
     }
@@ -234,7 +355,7 @@ class MovementResourceTest : ResourceTest() {
       webTestClient.get().uri("/api/movements/rollcount/LEI/in-reception")
         .headers(setAuthorisation(listOf("")))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
+        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
     }
@@ -256,17 +377,37 @@ class MovementResourceTest : ResourceTest() {
       webTestClient.get().uri("/api/movements/BMI/in?fromDateTime=2019-01-10T10:35:17")
         .headers(setAuthorisation(listOf("")))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
+        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isNotFound
     }
 
     @Test
-    fun `should return success when has override role`() {
+    fun `should return 404 when does not have override role`() {
+      webTestClient.get().uri("/api/movements/BMI/in?fromDateTime=2019-01-10T10:35:17")
+        .headers(setClientAuthorisation(listOf("")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isNotFound
+    }
+
+    @Test
+    fun `should return success when has SYSTEM_USER override role`() {
       webTestClient.get().uri("/api/movements/BMI/in?fromDateTime=2019-01-10T10:35:17")
         .headers(setClientAuthorisation(listOf("SYSTEM_USER")))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `should return success when has ESTABLISHMENT_ROLL override role`() {
+      webTestClient.get().uri("/api/movements/BMI/in?fromDateTime=2019-01-10T10:35:17")
+        .headers(setClientAuthorisation(listOf("ESTABLISHMENT_ROLL")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
     }
@@ -276,14 +417,14 @@ class MovementResourceTest : ResourceTest() {
       webTestClient.get().uri("/api/movements/LEI/in?fromDateTime=2019-01-10T10:35:17")
         .headers(setAuthorisation(listOf("")))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
+        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
     }
 
     @Test
     fun testGetMovementsSince() {
-      val token = authTokenHelper.getToken(AuthToken.NORMAL_USER)
+      val token = authTokenHelper.getToken(NORMAL_USER)
       val response = testRestTemplate.exchange(
         "/api/movements/{agencyId}/in?fromDateTime={fromDateTime}",
         GET,
@@ -298,7 +439,7 @@ class MovementResourceTest : ResourceTest() {
 
     @Test
     fun testGetAllMovementsSince() {
-      val token = authTokenHelper.getToken(AuthToken.NORMAL_USER)
+      val token = authTokenHelper.getToken(NORMAL_USER)
       val response = testRestTemplate.exchange(
         "/api/movements/{agencyId}/in?fromDateTime={fromDateTime}&allMovements=true",
         GET,
@@ -313,7 +454,7 @@ class MovementResourceTest : ResourceTest() {
 
     @Test
     fun testGetMovementsPagination() {
-      val token = authTokenHelper.getToken(AuthToken.NORMAL_USER)
+      val token = authTokenHelper.getToken(NORMAL_USER)
       val response = testRestTemplate.exchange(
         "/api/movements/{agencyId}/in?fromDateTime={fromDateTime}",
         GET,
@@ -333,7 +474,7 @@ class MovementResourceTest : ResourceTest() {
 
     @Test
     fun testGetMovementsBetween() {
-      val token = authTokenHelper.getToken(AuthToken.NORMAL_USER)
+      val token = authTokenHelper.getToken(NORMAL_USER)
       val response = testRestTemplate.exchange(
         "/api/movements/{agencyId}/in?fromDateTime={fromDateTime}&toDateTime={toDateTime}",
         GET,
@@ -353,7 +494,7 @@ class MovementResourceTest : ResourceTest() {
   inner class UpcomingCourtAppearances {
     @Test
     fun testGetUpcomingCourtAppearances() {
-      val token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE)
+      val token = authTokenHelper.getToken(SYSTEM_USER_READ_WRITE)
       val response = testRestTemplate.exchange(
         "/api/movements/upcomingCourtAppearances",
         GET,
@@ -369,8 +510,46 @@ class MovementResourceTest : ResourceTest() {
   @DisplayName("GET /api/movements/{agencyId}/out/{isoDate}")
   inner class MovementsOutByDate {
     @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("/api/movements/LEI/out/2012-07-16")
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return 404 when does not have override role`() {
+      webTestClient.get().uri("/api/movements/LEI/out/2012-07-16")
+        .headers(setClientAuthorisation(listOf("")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isNotFound
+    }
+
+    @Test
+    fun `should return success when has SYSTEM_USER override role`() {
+      webTestClient.get().uri("/api/movements/LEI/out/2012-07-16")
+        .headers(setClientAuthorisation(listOf("SYSTEM_USER")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `should return success when has ESTABLISHMENT_ROLL override role`() {
+      webTestClient.get().uri("/api/movements/LEI/out/2012-07-16")
+        .headers(setClientAuthorisation(listOf("ESTABLISHMENT_ROLL")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
     fun testGetAllMovementsOutForAGivenDate() {
-      val token = authTokenHelper.getToken(AuthToken.NORMAL_USER)
+      val token = authTokenHelper.getToken(NORMAL_USER)
       val movementsOutOnDayResponse = testRestTemplate.exchange(
         "/api/movements/{agencyId}/out/{isoDate}",
         GET,
@@ -385,7 +564,7 @@ class MovementResourceTest : ResourceTest() {
 
     @Test
     fun testGetAllMovementsOutForAGivenDateAndMovementType() {
-      val token = authTokenHelper.getToken(AuthToken.NORMAL_USER)
+      val token = authTokenHelper.getToken(NORMAL_USER)
       val temporaryAbsenceMovementOnDayResponse = testRestTemplate.exchange(
         "/api/movements/{agencyId}/out/{isoDate}?movementType={movementType}",
         GET,
@@ -416,7 +595,7 @@ class MovementResourceTest : ResourceTest() {
   inner class GetOffendersOutOnTemporaryAbsence {
     @Test
     fun testGetOffendersOutOnTemporaryAbsence() {
-      val token = authTokenHelper.getToken(AuthToken.NORMAL_USER)
+      val token = authTokenHelper.getToken(NORMAL_USER)
       val response = testRestTemplate.exchange(
         "/api/movements/agency/{agencyId}/temporary-absences",
         GET,

@@ -130,17 +130,17 @@ public class MovementsService {
             .collect(toList());
     }
 
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "ESTABLISHMENT_ROLL"})
     public List<RollCount> getRollCount(final String agencyId, final boolean unassigned) {
         return movementsRepository.getRollCount(agencyId, unassigned ? "N" : "Y");
     }
 
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "ESTABLISHMENT_ROLL"})
     public MovementCount getMovementCount(final String agencyId, final LocalDate date) {
         return movementsRepository.getMovementCount(agencyId, date == null ? LocalDate.now() : date);
     }
 
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "ESTABLISHMENT_ROLL"})
     public List<OffenderOutTodayDto> getOffendersOut(final String agencyId, final LocalDate movementDate, final String movementType) {
 
         final var offenders = movementsRepository.getOffendersOut(agencyId, movementDate, upperCase(stripToNull(movementType)));
@@ -163,7 +163,7 @@ public class MovementsService {
             .build();
     }
 
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "ESTABLISHMENT_ROLL"})
     public List<OffenderMovement> getEnrouteOffenderMovements(final String agencyId, final LocalDate date) {
 
         final var movements = movementsRepository.getEnrouteMovementsOffenderMovementList(agencyId, date);
@@ -418,7 +418,7 @@ public class MovementsService {
             .build();
     }
 
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "ESTABLISHMENT_ROLL"})
     public Page<OffenderIn> getOffendersIn(final String agencyId, final LocalDateTime fromDate, final LocalDateTime toDate, final Pageable pageable, final boolean allMovements) {
         final var page = allMovements
             ? externalMovementRepository.findAllMovements(agencyId, MovementDirection.IN, fromDate, toDate, pageable)
