@@ -52,7 +52,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeReposi
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
-import uk.gov.justice.hmpps.prison.service.receiveandtransfer.BookingIntoPrisonService;
+import uk.gov.justice.hmpps.prison.service.enteringandleaving.BookingIntoPrisonService;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
 
 import jakarta.persistence.EntityManager;
@@ -591,7 +591,7 @@ public class PrisonerReleaseAndTransferService {
                     p.setEndDate(now);
                 }
 
-                if (now.compareTo(p.getStartDate()) >= 0 && now.compareTo(p.getEndDate() != null ? p.getEndDate() : now) < 0) {
+                if (!now.isBefore(p.getStartDate()) && now.isBefore(p.getEndDate() != null ? p.getEndDate() : now)) {
                     p.setEndDate(p.getStartDate().isBefore(movementDate) ? movementDate : p.getStartDate());
                 }
 

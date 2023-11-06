@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.service.receiveandtransfer
+package uk.gov.justice.hmpps.prison.service.enteringandleaving
 
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Profile

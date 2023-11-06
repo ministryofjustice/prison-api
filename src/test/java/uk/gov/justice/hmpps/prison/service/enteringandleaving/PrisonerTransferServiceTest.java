@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.service.receiveandtransfer;
+package uk.gov.justice.hmpps.prison.service.enteringandleaving;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,7 +37,7 @@ public class PrisonerTransferServiceTest {
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
-    PrisonTransferService prisonerReleaseAndTransferService;
+    TransferIntoPrisonService prisonerReleaseAndTransferService;
 
     @Autowired
     EntityManager entityManager;
@@ -54,7 +54,7 @@ public class PrisonerTransferServiceTest {
     public void scheduledPrisonerReturnFromCourt() {
         RequestForCourtTransferIn requestForCourtTransferIn = new RequestForCourtTransferIn();
         requestForCourtTransferIn.setAgencyId("BXI");
-        InmateDetail inmateDetail = prisonerReleaseAndTransferService.transferViaCourt(OFFENDER_NO, requestForCourtTransferIn);
+        InmateDetail inmateDetail = prisonerReleaseAndTransferService.transferInViaCourt(OFFENDER_NO, requestForCourtTransferIn);
         TestTransaction.flagForCommit();
         TestTransaction.end();
         List<Map<String, Object>> offenderBookings = jdbcTemplate.queryForList("select * from OFFENDER_BOOKINGS where OFFENDER_BOOK_ID=1176156");
@@ -86,7 +86,7 @@ public class PrisonerTransferServiceTest {
     public void unscheduledPrisonerReturnFromCourt() {
         RequestForCourtTransferIn requestForCourtTransferIn = new RequestForCourtTransferIn();
         requestForCourtTransferIn.setAgencyId("BXI");
-        InmateDetail inmateDetail = prisonerReleaseAndTransferService.transferViaCourt(OFFENDER_NO, requestForCourtTransferIn);
+        InmateDetail inmateDetail = prisonerReleaseAndTransferService.transferInViaCourt(OFFENDER_NO, requestForCourtTransferIn);
         TestTransaction.flagForCommit();
         TestTransaction.end();
         List<Map<String, Object>> offenderBookings = jdbcTemplate.queryForList("select * from OFFENDER_BOOKINGS where OFFENDER_BOOK_ID=1176156");
