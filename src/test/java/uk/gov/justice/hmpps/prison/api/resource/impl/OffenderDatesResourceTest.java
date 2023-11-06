@@ -178,6 +178,7 @@ public class OffenderDatesResourceTest extends ResourceTest {
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).hasSize(1);
+        assertThat(response.getBody().get(0).getCommentText()).isEqualTo("Some Comment Text");
     }
 
 }
