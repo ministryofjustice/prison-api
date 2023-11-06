@@ -418,7 +418,7 @@ public class MovementsService {
             .build();
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
     public Page<OffenderIn> getOffendersIn(final String agencyId, final LocalDateTime fromDate, final LocalDateTime toDate, final Pageable pageable, final boolean allMovements) {
         final var page = allMovements
             ? externalMovementRepository.findAllMovements(agencyId, MovementDirection.IN, fromDate, toDate, pageable)
@@ -430,8 +430,8 @@ public class MovementsService {
     public List<OutOnTemporaryAbsenceSummary> getOffendersOutOnTemporaryAbsence(final String agencyId) {
         return
             externalMovementRepository.findCurrentTemporaryAbsencesForPrison(
-                agencyId,
-                movementTypeRepository.findById(MovementType.TAP).orElseThrow())
+                    agencyId,
+                    movementTypeRepository.findById(MovementType.TAP).orElseThrow())
                 .stream().map(MovementsService::transformToOutOnTemporaryAbsenceSummary).collect(toList());
     }
 
