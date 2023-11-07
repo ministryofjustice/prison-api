@@ -18,14 +18,11 @@ dependencyCheck {
   suppressionFiles.add("dependency-check-suppress-h2.xml")
 }
 
-// Temporarily kept at 4.3 due to bug in 4.4 parser
-val jsqlParserVersion by extra("4.3")
+// Temporarily kept at 4.6 as 4.7 not compatible with spring data jpa
+val jsqlParserVersion by extra("4.6")
 
 // Temporarily keep at 2.5.1 until can switch to h2 instead (tests break anyway with 2.6.1)
 val hsqldbVersion by extra("2.5.1")
-
-// Unable to upgrade to 2.1.16 as attempting to use the parser caused a 500 from /v3/api-docs. It seems there's an incorrect dependency on an OAS3.1 type but I couldn't work out which project is wrong - so hopefully this will get sorted by the maintainers in due course.
-val swaggerParserVersion by extra("2.1.15")
 
 ext["rest-assured.version"] = "5.3.2"
 
@@ -47,7 +44,7 @@ dependencies {
   implementation("commons-codec:commons-codec:1.16.0")
   implementation("com.github.jsqlparser:jsqlparser:$jsqlParserVersion")
   implementation("org.ehcache:ehcache:3.10.8")
-  implementation("com.zaxxer:HikariCP:5.0.1")
+  implementation("com.zaxxer:HikariCP:5.1.0")
 
   implementation("io.swagger:swagger-annotations:1.6.12")
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
@@ -56,7 +53,7 @@ dependencies {
   implementation("commons-io:commons-io:2.15.0")
   implementation("com.google.guava:guava:32.1.3-jre")
   implementation("org.apache.commons:commons-text:1.11.0")
-  implementation("com.oracle.database.jdbc:ojdbc10:19.20.0.0")
+  implementation("com.oracle.database.jdbc:ojdbc10:19.21.0.0")
   implementation("org.hibernate.orm:hibernate-community-dialects")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
@@ -87,7 +84,10 @@ dependencies {
   testImplementation("org.wiremock:wiremock:3.3.1")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.12.3")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
-  testImplementation("io.swagger.parser.v3:swagger-parser:$swaggerParserVersion")
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.18") {
+    exclude(group = "io.swagger.core.v3")
+  }
+  testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.18")
   testImplementation("commons-beanutils:commons-beanutils:1.9.4")
   testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.31.0")
 
