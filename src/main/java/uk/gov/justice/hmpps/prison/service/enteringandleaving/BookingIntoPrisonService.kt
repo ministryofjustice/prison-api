@@ -88,7 +88,7 @@ class BookingIntoPrisonService(
       requestForNewBooking.cellLocation,
     ).let { cellOrLocationWithSpace(it, prison).getOrThrow() }
     val receiveTime =
-      externalMovementService.getReceiveDateTime(requestForNewBooking.bookingInTime, previousBooking)
+      externalMovementService.getMovementDateTime(requestForNewBooking.bookingInTime, previousBooking)
         .getOrThrow()
     val bookNumber: String = bookNumberGenerationService.generateBookNumber()
     val staff = getLoggedInStaff().getOrThrow().staff
@@ -162,7 +162,7 @@ class BookingIntoPrisonService(
 
       val fromLocation = fromLocation(fromLocationId).getOrThrow()
       val receiveTime =
-        externalMovementService.getReceiveDateTime(recallTime, booking)
+        externalMovementService.getMovementDateTime(recallTime, booking)
           .getOrThrow()
 
       imprisonmentStatus?.let { imprisonmentStatus(imprisonmentStatus).getOrThrow() }

@@ -1,6 +1,6 @@
 package uk.gov.justice.hmpps.prison.executablespecification.steps;
 
-import net.thucydides.core.annotations.Step;
+import net.serenitybdd.annotations.Step;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifier;
 
 import java.util.List;

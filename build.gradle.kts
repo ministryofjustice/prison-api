@@ -27,13 +27,7 @@ val hsqldbVersion by extra("2.5.1")
 // Unable to upgrade to 2.1.16 as attempting to use the parser caused a 500 from /v3/api-docs. It seems there's an incorrect dependency on an OAS3.1 type but I couldn't work out which project is wrong - so hopefully this will get sorted by the maintainers in due course.
 val swaggerParserVersion by extra("2.1.15")
 
-ext["rest-assured.version"] = "5.1.1"
-
-// Temporarily keep hibernate at 6.2.5 until https://hibernate.atlassian.net/jira/software/c/projects/HHH/issues/HHH-16926 is fixed in 6.2.7
-ext["hibernate.version"] = "6.2.5.Final"
-
-// Temporarily keep serenity at 3.x until can upgrade
-val serenityVersion by extra("3.9.8")
+ext["rest-assured.version"] = "5.3.2"
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
@@ -85,15 +79,16 @@ dependencies {
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:3.2.2")
 
-  testImplementation("net.serenity-bdd:serenity-core:$serenityVersion")
-  testImplementation("net.serenity-bdd:serenity-junit:$serenityVersion")
-  testImplementation("net.serenity-bdd:serenity-spring:$serenityVersion")
-  testImplementation("net.serenity-bdd:serenity-cucumber:$serenityVersion")
+  testImplementation("net.serenity-bdd:serenity-core:4.0.19")
+  testImplementation("net.serenity-bdd:serenity-junit:4.0.19")
+  testImplementation("net.serenity-bdd:serenity-spring:4.0.19")
+  testImplementation("net.serenity-bdd:serenity-cucumber:4.0.19")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
-  testImplementation("org.wiremock:wiremock:3.2.0")
+  testImplementation("org.wiremock:wiremock:3.3.1")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.12.3")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
   testImplementation("io.swagger.parser.v3:swagger-parser:$swaggerParserVersion")
+  testImplementation("commons-beanutils:commons-beanutils:1.9.4")
   testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.31.0")
 
   testCompileOnly("org.projectlombok:lombok:1.18.30")

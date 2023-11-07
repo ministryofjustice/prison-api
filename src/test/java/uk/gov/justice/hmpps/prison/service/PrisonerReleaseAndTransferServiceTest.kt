@@ -28,7 +28,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistor
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ImprisonmentStatusRepository
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.MovementTypeAndReasonRespository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.MovementTypeAndReasonRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCaseNoteRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderIndividualScheduleRepository
@@ -55,7 +55,7 @@ internal class PrisonerReleaseAndTransferServiceTest {
   private val movementReasonRepository: ReferenceCodeRepository<MovementReason> = mock()
   private val bedAssignmentHistoriesRepository: BedAssignmentHistoriesRepository = mock()
   private val agencyInternalLocationRepository: AgencyInternalLocationRepository = mock()
-  private val movementTypeAndReasonRespository: MovementTypeAndReasonRespository = mock()
+  private val movementTypeAndReasonRepository: MovementTypeAndReasonRepository = mock()
   private val offenderSentenceAdjustmentRepository: OffenderSentenceAdjustmentRepository = mock()
   private val offenderKeyDateAdjustmentRepository: OffenderKeyDateAdjustmentRepository = mock()
   private val caseNoteRepository: OffenderCaseNoteRepository = mock()
@@ -87,7 +87,7 @@ internal class PrisonerReleaseAndTransferServiceTest {
     movementReasonRepository,
     bedAssignmentHistoriesRepository,
     agencyInternalLocationRepository,
-    movementTypeAndReasonRespository,
+    movementTypeAndReasonRepository,
     offenderSentenceAdjustmentRepository,
     offenderKeyDateAdjustmentRepository,
     caseNoteRepository,
