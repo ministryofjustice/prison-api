@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import com.google.common.collect.Lists;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,15 +43,13 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.MovementTypeAndReasonRespository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.MovementTypeAndReasonRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
-import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
-import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -77,7 +76,7 @@ public class MovementsService {
     private final ReferenceCodeRepository<MovementType> movementTypeRepository;
     private final ReferenceCodeRepository<MovementReason> movementReasonRepository;
     private final OffenderBookingRepository offenderBookingRepository;
-    private final MovementTypeAndReasonRespository movementTypeAndReasonRespository;
+    private final MovementTypeAndReasonRepository movementTypeAndReasonRespository;
     private final int maxBatchSize;
 
 
@@ -88,7 +87,7 @@ public class MovementsService {
                             final ReferenceCodeRepository<MovementType> movementTypeRepository,
                             final ReferenceCodeRepository<MovementReason> movementReasonRepository,
                             final OffenderBookingRepository offenderBookingRepository,
-                            final MovementTypeAndReasonRespository movementTypeAndReasonRespository,
+                            final MovementTypeAndReasonRepository movementTypeAndReasonRespository,
                             @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.movementsRepository = movementsRepository;
         this.externalMovementRepository = externalMovementRepository;
