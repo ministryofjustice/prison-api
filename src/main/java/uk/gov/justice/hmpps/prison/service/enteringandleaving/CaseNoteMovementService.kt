@@ -12,6 +12,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeReposi
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
+import java.time.LocalDateTime
 
 @Service
 class CaseNoteMovementService(
@@ -25,16 +26,34 @@ class CaseNoteMovementService(
   authenticationFacade = authenticationFacade,
 ) {
   fun createGenerateAdmissionNote(booking: OffenderBooking, transferMovement: ExternalMovement) {
+    createMovementCaseNote(
+      booking = booking,
+      typeCode = "TRANSFER",
+      subTypeCode = "FROMTOL",
+      note = "Offender admitted to ${transferMovement.toAgency.description} for reason: ${transferMovement.movementReason.description} from ${transferMovement.fromAgency.description}.",
+      movementTime = transferMovement.movementTime,
+    )
+  }
+
+  fun createReleaseNote(booking: OffenderBooking, movement: ExternalMovement) {
+    createMovementCaseNote(
+      booking = booking,
+      typeCode = "PRISON",
+      subTypeCode = "RELEASE",
+      note = "Released from ${movement.fromAgency.description} for reason: ${movement.movementReason.description}.",
+      movementTime = movement.movementTime,
+    )
+  }
+
+  private fun createMovementCaseNote(booking: OffenderBooking, typeCode: String, subTypeCode: String, note: String, movementTime: LocalDateTime) {
     val staff = getLoggedInStaff().getOrThrow().staff
-    val type = getType().getOrThrow()
-    val subType = getSubType().getOrThrow()
-    val note =
-      "Offender admitted to ${transferMovement.toAgency.description} for reason: ${transferMovement.movementReason.description} from ${transferMovement.fromAgency.description}."
+    val type = getType(typeCode).getOrThrow()
+    val subType = getSubType(subTypeCode).getOrThrow()
 
     val caseNote = OffenderCaseNote.builder()
       .offenderBooking(booking)
-      .occurrenceDate(transferMovement.movementTime.toLocalDate())
-      .occurrenceDateTime(transferMovement.movementTime)
+      .occurrenceDate(movementTime.toLocalDate())
+      .occurrenceDateTime(movementTime)
       .type(type)
       .subType(subType)
       .caseNoteText(note)
@@ -46,11 +65,11 @@ class CaseNoteMovementService(
     caseNoteRepository.save(caseNote)
   }
 
-  private fun getType(): Result<CaseNoteType> =
-    caseNoteTypeReferenceCodeRepository.findByIdOrNull(CaseNoteType.pk("TRANSFER"))?.let { Result.success(it) }
-      ?: Result.failure(EntityNotFoundException.withId("TRANSFER"))
+  private fun getType(typeCode: String): Result<CaseNoteType> =
+    caseNoteTypeReferenceCodeRepository.findByIdOrNull(CaseNoteType.pk(typeCode))?.let { Result.success(it) }
+      ?: Result.failure(EntityNotFoundException.withId(typeCode))
 
-  private fun getSubType(): Result<CaseNoteSubType> =
-    caseNoteSubTypeReferenceCodeRepository.findByIdOrNull(CaseNoteSubType.pk("FROMTOL"))?.let { Result.success(it) }
-      ?: Result.failure(EntityNotFoundException.withId("FROMTOL"))
+  private fun getSubType(subTypeCode: String): Result<CaseNoteSubType> =
+    caseNoteSubTypeReferenceCodeRepository.findByIdOrNull(CaseNoteSubType.pk(subTypeCode))?.let { Result.success(it) }
+      ?: Result.failure(EntityNotFoundException.withId(subTypeCode))
 }

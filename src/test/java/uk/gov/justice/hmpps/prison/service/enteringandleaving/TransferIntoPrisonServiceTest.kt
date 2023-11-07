@@ -171,7 +171,7 @@ internal class TransferIntoPrisonServiceTest {
       @BeforeEach
       internal fun setUp() {
         whenever(
-          externalMovementService.updateMovementsForTransfer(
+          externalMovementService.updateMovementsForTransferIn(
             request,
             booking,
             lastMovement = bookingLastMovementTransfer,
@@ -203,7 +203,7 @@ internal class TransferIntoPrisonServiceTest {
           ),
         )
         whenever(
-          externalMovementService.updateMovementsForTransfer(
+          externalMovementService.updateMovementsForTransferIn(
             request,
             booking,
             lastMovement = bookingLastMovementTransfer,
@@ -224,7 +224,7 @@ internal class TransferIntoPrisonServiceTest {
       internal fun `will request movements are updated`() {
         service.transferInFromPrison("A1234AK", request)
 
-        verify(externalMovementService).updateMovementsForTransfer(
+        verify(externalMovementService).updateMovementsForTransferIn(
           request,
           booking,
           lastMovement = bookingLastMovementTransfer,

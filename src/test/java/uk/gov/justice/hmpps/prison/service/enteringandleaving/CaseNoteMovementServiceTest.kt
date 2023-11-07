@@ -131,4 +131,60 @@ internal class CaseNoteMovementServiceTest {
       }
     }
   }
+
+  @Nested
+  inner class CreateReleaseNote {
+    private lateinit var fromPrison: AgencyLocation
+    private lateinit var out: AgencyLocation
+    private lateinit var booking: OffenderBooking
+    private lateinit var movement: ExternalMovement
+
+    @BeforeEach
+    internal fun setUp() {
+      fromPrison = AgencyLocation().apply { description = "HMP Brixton" }
+      out = AgencyLocation().apply { id = "OUT"; description = "Out" }
+      booking = OffenderBooking().apply { bookingId = 99L; location = out }
+      movement = ExternalMovement().apply {
+        offenderBooking = booking
+        movementTime = LocalDateTime.parse("2020-01-01T00:00:00")
+        this.fromAgency = fromPrison
+        this.toAgency = out
+        movementReason = MovementReason().apply { code = "TRANSFERRED"; description = "Transferred" }
+      }
+    }
+
+    @Test
+    internal fun `will create case note for release`() {
+      booking = OffenderBooking().apply { bookingId = 99L; location = out }
+      movement = ExternalMovement().apply {
+        offenderBooking = booking
+        movementTime = LocalDateTime.parse("2020-01-01T00:00:00")
+        this.fromAgency = fromPrison
+        this.toAgency = out
+        movementReason = MovementReason().apply { code = "CR"; description = "Conditional Release" }
+      }
+      whenever(caseNoteTypeReferenceCodeRepository.findById(CaseNoteType.pk("PRISON"))).thenReturn(
+        Optional.of(CaseNoteType().apply { code = "PRISON"; description = "Prison" }),
+      )
+      whenever(caseNoteSubTypeReferenceCodeRepository.findById(CaseNoteSubType.pk("RELEASE"))).thenReturn(
+        Optional.of(CaseNoteSubType().apply { code = "RELEASE"; description = "Release" }),
+      )
+
+      service.createReleaseNote(booking, movement)
+
+      verify(caseNoteRepository).save(
+        check {
+          assertThat(it.type.code).isEqualTo("PRISON")
+          assertThat(it.subType.code).isEqualTo("RELEASE")
+          assertThat(it.offenderBooking).isEqualTo(booking)
+          assertThat(it.agencyLocation).isEqualTo(out)
+          assertThat(it.noteSourceCode).isEqualTo("AUTO")
+          assertThat(it.author).isEqualTo(loggedInStaff)
+          assertThat(it.occurrenceDate).isEqualTo(LocalDate.parse("2020-01-01"))
+          assertThat(it.occurrenceDateTime).isEqualTo(LocalDateTime.parse("2020-01-01T00:00:00"))
+          assertThat(it.caseNoteText).isEqualTo("Released from HMP Brixton for reason: Conditional Release.")
+        },
+      )
+    }
+  }
 }
