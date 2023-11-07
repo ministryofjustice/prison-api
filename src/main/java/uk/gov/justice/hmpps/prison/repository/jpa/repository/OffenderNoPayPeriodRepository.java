@@ -8,4 +8,6 @@ import java.util.List;
 public interface OffenderNoPayPeriodRepository extends CrudRepository<OffenderNoPayPeriod, Long> {
 
     List<OffenderNoPayPeriod> findAllByBookingId(Long bookingId);
+
+    void deleteByBookingId(Long bookingId);
 }

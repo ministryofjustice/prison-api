@@ -70,20 +70,6 @@ public class MovementsRepository extends RepositoryBase {
         return movements.stream().map(MovementDto::toMovement).collect(Collectors.toList());
     }
 
-
-    public Optional<Movement> getMovementByBookingIdAndSequence(final long bookingId, final int sequenceNumber) {
-        try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject(MovementsRepositorySql.GET_MOVEMENT_BY_BOOKING_AND_SEQUENCE.getSql(),
-                createParams(
-                    "bookingId", bookingId,
-                    "sequenceNumber", sequenceNumber),
-                MOVEMENT_MAPPER)).map(MovementDto::toMovement);
-        } catch (final EmptyResultDataAccessException ex) {
-            return Optional.empty();
-        }
-    }
-
-
     public List<Movement> getMovementsByOffenders(final List<String> offenderNumbers, final List<String> movementTypes, final boolean latestOnly, final boolean allBookings) {
         final var firstSeqOnly = allBookings ? "" : "AND OB.BOOKING_SEQ = 1";
         final List<MovementDto> movements;

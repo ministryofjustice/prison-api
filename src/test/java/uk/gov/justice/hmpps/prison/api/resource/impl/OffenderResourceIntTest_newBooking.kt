@@ -16,7 +16,7 @@ import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
-import uk.gov.justice.hmpps.prison.service.receiveandtransfer.TrustAccountService
+import uk.gov.justice.hmpps.prison.service.enteringandleaving.TrustAccountService
 import uk.gov.justice.hmpps.prison.util.builders.OffenderAliasBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder

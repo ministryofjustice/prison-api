@@ -87,9 +87,9 @@ import uk.gov.justice.hmpps.prison.service.OffenderLocation;
 import uk.gov.justice.hmpps.prison.service.OffenderLocationService;
 import uk.gov.justice.hmpps.prison.service.OffenderTransactionHistoryService;
 import uk.gov.justice.hmpps.prison.service.PrisonerReleaseAndTransferService;
-import uk.gov.justice.hmpps.prison.service.receiveandtransfer.BookingIntoPrisonService;
-import uk.gov.justice.hmpps.prison.service.receiveandtransfer.PrisonTransferService;
-import uk.gov.justice.hmpps.prison.service.receiveandtransfer.PrisonerCreationService;
+import uk.gov.justice.hmpps.prison.service.enteringandleaving.BookingIntoPrisonService;
+import uk.gov.justice.hmpps.prison.service.enteringandleaving.TransferIntoPrisonService;
+import uk.gov.justice.hmpps.prison.service.enteringandleaving.PrisonerCreationService;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -97,7 +97,6 @@ import java.util.List;
 import java.util.Set;
 
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
-import static uk.gov.justice.hmpps.prison.util.ResourceUtils.nvl;
 
 @RestController
 @Tag(name = "offenders")
@@ -120,7 +119,7 @@ public class OffenderResource {
     private final OffenderTransactionHistoryService offenderTransactionHistoryService;
     private final MovementsService movementsService;
     private final BookingIntoPrisonService bookingIntoPrisonService;
-    private final PrisonTransferService prisonTransferService;
+    private final TransferIntoPrisonService transferIntoPrisonService;
     private final OffenderLocationService offenderLocationService;
 
     @ApiResponses({
@@ -289,7 +288,7 @@ public class OffenderResource {
     public InmateDetail transferInPrisoner(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToTransferIn requestToTransferIn) {
-        return prisonTransferService.transferFromPrison(offenderNo, requestToTransferIn);
+        return transferIntoPrisonService.transferInFromPrison(offenderNo, requestToTransferIn);
     }
 
     @ApiResponses({
@@ -305,7 +304,7 @@ public class OffenderResource {
     public InmateDetail courtTransferIn(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestForCourtTransferIn requestForCourtTransferIn) {
-        return prisonTransferService.transferViaCourt(offenderNo, requestForCourtTransferIn);
+        return transferIntoPrisonService.transferInViaCourt(offenderNo, requestForCourtTransferIn);
     }
 
     @ApiResponses({
@@ -321,7 +320,7 @@ public class OffenderResource {
     public InmateDetail temporaryAbsenceArrival(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestForTemporaryAbsenceArrival requestForTemporaryAbsenceArrival) {
-        return prisonTransferService.transferInAfterTemporaryAbsence(offenderNo, requestForTemporaryAbsenceArrival);
+        return transferIntoPrisonService.transferInAfterTemporaryAbsence(offenderNo, requestForTemporaryAbsenceArrival);
     }
 
     @ApiResponses({
@@ -626,8 +625,9 @@ public class OffenderResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Gets the offender visit restrictions for a given offender using the latest booking", description = "Get offender visit restrictions by offender No")
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER"})
+    @Operation(summary = "Gets the offender visit restrictions for a given offender using the latest booking",
+        description = "Get offender visit restrictions by offender No. <p>Requires a relationship (via caseload) with the offender or VISIT_SCHEDULER role.</p>")
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "VISIT_SCHEDULER"})
     @GetMapping("/{offenderNo}/offender-restrictions")
     public OffenderRestrictions getVisitRestrictions(
             @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo,

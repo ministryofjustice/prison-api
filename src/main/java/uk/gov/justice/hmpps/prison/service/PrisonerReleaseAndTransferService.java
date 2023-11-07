@@ -38,7 +38,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistor
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ImprisonmentStatusRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.MovementTypeAndReasonRespository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.MovementTypeAndReasonRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCaseNoteRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderIndividualScheduleRepository;
@@ -52,7 +52,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeReposi
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
-import uk.gov.justice.hmpps.prison.service.receiveandtransfer.BookingIntoPrisonService;
+import uk.gov.justice.hmpps.prison.service.enteringandleaving.BookingIntoPrisonService;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
 
 import jakarta.persistence.EntityManager;
@@ -87,7 +87,7 @@ public class PrisonerReleaseAndTransferService {
     private final ReferenceCodeRepository<MovementReason> movementReasonRepository;
     private final BedAssignmentHistoriesRepository bedAssignmentHistoriesRepository;
     private final AgencyInternalLocationRepository agencyInternalLocationRepository;
-    private final MovementTypeAndReasonRespository movementTypeAndReasonRespository;
+    private final MovementTypeAndReasonRepository movementTypeAndReasonRepository;
     private final OffenderSentenceAdjustmentRepository offenderSentenceAdjustmentRepository;
     private final OffenderKeyDateAdjustmentRepository offenderKeyDateAdjustmentRepository;
     private final OffenderCaseNoteRepository caseNoteRepository;
@@ -479,7 +479,7 @@ public class PrisonerReleaseAndTransferService {
     private void checkMovementTypes(final String movementCode, final String reasonCode) {
         final var movementTypeAndReason = Pk.builder().type(movementCode).reasonCode(reasonCode).build();
 
-        movementTypeAndReasonRespository.findById(movementTypeAndReason)
+        movementTypeAndReasonRepository.findById(movementTypeAndReason)
             .orElseThrow(EntityNotFoundException.withMessage(format("No movement type found for %s", movementTypeAndReason)));
     }
 
@@ -591,7 +591,7 @@ public class PrisonerReleaseAndTransferService {
                     p.setEndDate(now);
                 }
 
-                if (now.compareTo(p.getStartDate()) >= 0 && now.compareTo(p.getEndDate() != null ? p.getEndDate() : now) < 0) {
+                if (!now.isBefore(p.getStartDate()) && now.isBefore(p.getEndDate() != null ? p.getEndDate() : now)) {
                     p.setEndDate(p.getStartDate().isBefore(movementDate) ? movementDate : p.getStartDate());
                 }
 
