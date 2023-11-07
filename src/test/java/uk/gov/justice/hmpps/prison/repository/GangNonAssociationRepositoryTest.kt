@@ -38,7 +38,7 @@ class GangNonAssociationRepositoryTest {
   @Test
   fun canFindAGangNa() {
     repository.findAllByGangCode(NEW_GANG_CODE_2).let {
-      Assertions.assertThat(it).hasSize(2)
+      Assertions.assertThat(it).hasSize(3)
     }
   }
 }

@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import com.google.common.collect.Lists;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,15 +43,13 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.MovementTypeAndReasonRespository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.MovementTypeAndReasonRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
-import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
-import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -77,7 +76,7 @@ public class MovementsService {
     private final ReferenceCodeRepository<MovementType> movementTypeRepository;
     private final ReferenceCodeRepository<MovementReason> movementReasonRepository;
     private final OffenderBookingRepository offenderBookingRepository;
-    private final MovementTypeAndReasonRespository movementTypeAndReasonRespository;
+    private final MovementTypeAndReasonRepository movementTypeAndReasonRespository;
     private final int maxBatchSize;
 
 
@@ -88,7 +87,7 @@ public class MovementsService {
                             final ReferenceCodeRepository<MovementType> movementTypeRepository,
                             final ReferenceCodeRepository<MovementReason> movementReasonRepository,
                             final OffenderBookingRepository offenderBookingRepository,
-                            final MovementTypeAndReasonRespository movementTypeAndReasonRespository,
+                            final MovementTypeAndReasonRepository movementTypeAndReasonRespository,
                             @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.movementsRepository = movementsRepository;
         this.externalMovementRepository = externalMovementRepository;
@@ -104,17 +103,6 @@ public class MovementsService {
     @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH')")
     public List<Movement> getRecentMovementsByDate(final LocalDateTime fromDateTime, final LocalDate movementDate, final List<String> movementTypes) {
         return movementsRepository.getRecentMovementsByDate(fromDateTime, movementDate, movementTypes);
-    }
-
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
-    public Optional<Movement> getMovementByBookingIdAndSequence(@NotNull final Long bookingId, @NotNull final Integer sequenceNumber) {
-        return movementsRepository.getMovementByBookingIdAndSequence(bookingId, sequenceNumber)
-            .map(movement -> movement.toBuilder()
-                .fromAgencyDescription(StringUtils.trimToEmpty(LocationProcessor.formatLocation(movement.getFromAgencyDescription())))
-                .toAgencyDescription(StringUtils.trimToEmpty(LocationProcessor.formatLocation(movement.getToAgencyDescription())))
-                .toCity(capitalizeFully(StringUtils.trimToEmpty(movement.getToCity())))
-                .fromCity(capitalizeFully(StringUtils.trimToEmpty(movement.getFromCity())))
-                .build());
     }
 
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
@@ -141,17 +129,17 @@ public class MovementsService {
             .collect(toList());
     }
 
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "ESTABLISHMENT_ROLL"})
     public List<RollCount> getRollCount(final String agencyId, final boolean unassigned) {
         return movementsRepository.getRollCount(agencyId, unassigned ? "N" : "Y");
     }
 
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "ESTABLISHMENT_ROLL"})
     public MovementCount getMovementCount(final String agencyId, final LocalDate date) {
         return movementsRepository.getMovementCount(agencyId, date == null ? LocalDate.now() : date);
     }
 
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "ESTABLISHMENT_ROLL"})
     public List<OffenderOutTodayDto> getOffendersOut(final String agencyId, final LocalDate movementDate, final String movementType) {
 
         final var offenders = movementsRepository.getOffendersOut(agencyId, movementDate, upperCase(stripToNull(movementType)));
@@ -174,7 +162,7 @@ public class MovementsService {
             .build();
     }
 
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "ESTABLISHMENT_ROLL"})
     public List<OffenderMovement> getEnrouteOffenderMovements(final String agencyId, final LocalDate date) {
 
         final var movements = movementsRepository.getEnrouteMovementsOffenderMovementList(agencyId, date);
@@ -192,7 +180,7 @@ public class MovementsService {
         return movementsRepository.getEnrouteMovementsOffenderCount(agencyId, defaultedDate);
     }
 
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
+    @VerifyAgencyAccess
     public List<OffenderIn> getOffendersIn(final String agencyId, final LocalDate date) {
         final var offendersIn = movementsRepository.getOffendersIn(agencyId, date);
 
@@ -210,7 +198,7 @@ public class MovementsService {
             .collect(toList());
     }
 
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
+    @VerifyAgencyAccess
     public List<OffenderInReception> getOffendersInReception(final String agencyId) {
         return movementsRepository.getOffendersInReception(agencyId)
             .stream()
@@ -429,7 +417,7 @@ public class MovementsService {
             .build();
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "ESTABLISHMENT_ROLL"})
     public Page<OffenderIn> getOffendersIn(final String agencyId, final LocalDateTime fromDate, final LocalDateTime toDate, final Pageable pageable, final boolean allMovements) {
         final var page = allMovements
             ? externalMovementRepository.findAllMovements(agencyId, MovementDirection.IN, fromDate, toDate, pageable)
@@ -441,8 +429,8 @@ public class MovementsService {
     public List<OutOnTemporaryAbsenceSummary> getOffendersOutOnTemporaryAbsence(final String agencyId) {
         return
             externalMovementRepository.findCurrentTemporaryAbsencesForPrison(
-                agencyId,
-                movementTypeRepository.findById(MovementType.TAP).orElseThrow())
+                    agencyId,
+                    movementTypeRepository.findById(MovementType.TAP).orElseThrow())
                 .stream().map(MovementsService::transformToOutOnTemporaryAbsenceSummary).collect(toList());
     }
 

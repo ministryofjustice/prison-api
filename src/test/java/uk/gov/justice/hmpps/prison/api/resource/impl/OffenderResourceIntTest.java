@@ -1,8 +1,10 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
 import com.google.gson.Gson;
+import lombok.val;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
@@ -11,9 +13,9 @@ import org.springframework.test.context.ContextConfiguration;
 import uk.gov.justice.hmpps.prison.api.model.CaseNote;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.IncidentCase;
-import uk.gov.justice.hmpps.prison.api.model.Movement;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
+import uk.gov.justice.hmpps.prison.repository.MovementsRepository;
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -22,7 +24,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +35,9 @@ import static uk.gov.justice.hmpps.prison.executablespecification.steps.AuthToke
 
 @ContextConfiguration(classes = OffenderResourceIntTest.TestClock.class)
 public class OffenderResourceIntTest extends ResourceTest {
+
+    @Autowired
+    MovementsRepository movementsRepository;
 
     @TestConfiguration
     static class TestClock {
@@ -146,7 +150,7 @@ public class OffenderResourceIntTest extends ResourceTest {
             },
             OFFENDER_NUMBER);
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(404);
+        assertThat(response.getStatusCodeValue()).isEqualTo(403);
     }
 
     @Test
@@ -315,55 +319,16 @@ public class OffenderResourceIntTest extends ResourceTest {
     }
 
     @Test
-    public void testCanRetrieveIncidentCandidatesWithSystemUser() {
-        final var token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE);
-
-        final var httpEntity = createHttpEntity(token, null);
+    public void testGetIncidentsNoRoles() {
+        final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
 
         final var response = testRestTemplate.exchange(
-            "/api/offenders/incidents/candidates?fromDateTime=2016-02-02T14:00:00",
+            "/api/incidents/-4",
             GET,
-            httpEntity,
-            new ParameterizedTypeReference<String>() {
+            createHttpEntity(token, null),
+            new ParameterizedTypeReference<IncidentCase>() {
             });
-
-        assertThatJsonFileAndStatus(response, 200, "incidents_candidates.json");
-    }
-
-    @Test
-    public void testCanRetrieveIncidentCandidatesPage() {
-        final var paging = new HashMap<String, String>();
-        paging.put("Page-Offset", "1");
-        paging.put("Page-Limit", "2");
-        final var httpEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", List.of("ROLE_SYSTEM_USER"), paging);
-
-        final var response = testRestTemplate.exchange(
-            "/api/offenders/incidents/candidates?fromDateTime=2016-02-02T14:00:00",
-            GET,
-            httpEntity,
-            new ParameterizedTypeReference<String>() {
-            });
-
-        assertThat(response.getHeaders().get("Page-Offset")).containsExactly("1");
-        assertThat(response.getHeaders().get("Page-Limit")).containsExactly("2");
-        assertThat(response.getHeaders().get("Total-Records")).containsExactly("4");
-        assertThatJsonFileAndStatus(response, 200, "incidents_candidates_page.json");
-    }
-
-    @Test
-    public void testCannotRetrieveIncidentCandidatesWithViewPrisonerDataRole() {
-        final var token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA);
-
-        final var httpEntity = createHttpEntity(token, null);
-
-        final var response = testRestTemplate.exchange(
-            "/api/offenders/incidents/candidates?fromDateTime=2016-02-02T14:00:00",
-            GET,
-            httpEntity,
-            new ParameterizedTypeReference<String>() {
-            });
-
-        assertThat(response.getStatusCodeValue()).isEqualTo(403);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
     @Test
@@ -567,16 +532,12 @@ public class OffenderResourceIntTest extends ResourceTest {
         assertThat(releaseResponse.getStatusCodeValue()).isEqualTo(200);
 
         // check that no new movement is created
-        final var movementCheck1 =  testRestTemplate.exchange(
-            "/api/bookings/{bookingId}/movement/{sequenceNumber}",
-            GET,
-            createHttpEntity(token, null),
-            new ParameterizedTypeReference<String>() {
-            },
-            bookingId, 2
-        );
-
-        assertThatJsonFileAndStatus(movementCheck1, 200, "movement_discharge_1.json");
+        val latestMovement = movementsRepository.getMovementsByOffenders(List.of(offenderNo.toString()), null, true, false ).get(0);
+        assertThat(latestMovement.getFromAgency()).isEqualTo("SYI");
+        assertThat(latestMovement.getToAgency()).isEqualTo("OUT");
+        assertThat(latestMovement.getMovementType()).isEqualTo("REL");
+        assertThat(latestMovement.getDirectionCode()).isEqualTo("OUT");
+        assertThat(latestMovement.getMovementReason()).isEqualTo("Conditional Release (CJA91) -SH Term>1YR");
 
         final var dischargeRequest = Map.of(
             "hospitalLocationCode", "HAZLWD",
@@ -595,16 +556,12 @@ public class OffenderResourceIntTest extends ResourceTest {
         assertThatJsonFileAndStatus(dischargeResponse, 200, "discharged_from_prison.json");
 
         // check that no new movement is created
-        final var movementCheck2 =  testRestTemplate.exchange(
-            "/api/bookings/{bookingId}/movement/{sequenceNumber}",
-            GET,
-            createHttpEntity(token, null),
-            new ParameterizedTypeReference<String>() {
-            },
-            bookingId, 2
-        );
-
-        assertThatJsonFileAndStatus(movementCheck2, 200, "movement_discharge_2.json");
+        val noMovement = movementsRepository.getMovementsByOffenders(List.of(offenderNo.toString()), null, true, false ).get(0);
+        assertThat(noMovement.getFromAgency()).isEqualTo("SYI");
+        assertThat(noMovement.getToAgency()).isEqualTo("HAZLWD");
+        assertThat(noMovement.getMovementType()).isEqualTo("REL");
+        assertThat(noMovement.getDirectionCode()).isEqualTo("OUT");
+        assertThat(noMovement.getMovementReason()).isEqualTo("Final Discharge To Hospital-Psychiatric");
 
         final var response = testRestTemplate.exchange(
             "/api/offenders/{nomsId}",
@@ -689,19 +646,12 @@ public class OffenderResourceIntTest extends ResourceTest {
 
         assertThat(releaseResponse.getStatusCodeValue()).isEqualTo(200);
 
-        final var lastMovement =  testRestTemplate.exchange(
-            "/api/bookings/{bookingId}/movement/{sequenceNumber}",
-            GET,
-            createHttpEntity(token, null),
-            new ParameterizedTypeReference<Movement>() {
-            },
-            bookingId, 2
-        );
+        val latestMovement = movementsRepository.getMovementsByOffenders(List.of(offenderNo.toString()), null, true, false).get(0);
 
-        assertThat(lastMovement.getBody().getFromAgency()).isEqualTo("SYI");
-        assertThat(lastMovement.getBody().getToAgency()).isEqualTo("OUT");
-        assertThat(lastMovement.getBody().getMovementType()).isEqualTo("REL");
-        assertThat(lastMovement.getBody().getMovementReason()).isEqualTo("Final Discharge To Hospital-Psychiatric");
+        assertThat(latestMovement.getFromAgency()).isEqualTo("SYI");
+        assertThat(latestMovement.getToAgency()).isEqualTo("OUT");
+        assertThat(latestMovement.getMovementType()).isEqualTo("REL");
+        assertThat(latestMovement.getMovementReason()).isEqualTo("Final Discharge To Hospital-Psychiatric");
 
         final var caseNotes =  testRestTemplate.exchange(
             "/api/offenders/{nomsId}/case-notes/v2?sort=id,asc",

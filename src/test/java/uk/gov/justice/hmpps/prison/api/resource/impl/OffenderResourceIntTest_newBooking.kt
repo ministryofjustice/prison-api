@@ -16,7 +16,7 @@ import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
-import uk.gov.justice.hmpps.prison.service.receiveandtransfer.TrustAccountService
+import uk.gov.justice.hmpps.prison.service.enteringandleaving.TrustAccountService
 import uk.gov.justice.hmpps.prison.util.builders.OffenderAliasBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
@@ -1092,7 +1092,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
 
       @Test
       internal fun `will create admission case note`() {
-        val bookingId = webTestClient.post()
+        webTestClient.post()
           .uri("/api/offenders/{offenderNo}/booking", offenderNo)
           .headers(
             setAuthorisation(
@@ -1113,10 +1113,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
           .expectStatus().isOk
-          .returnResult(InmateDetail::class.java)
-          .responseBody.blockFirst()!!.bookingId
 
-        assertThat(testDataContext.getCaseNotes(bookingId))
+        assertThat(testDataContext.getCaseNotes(offenderNo))
           .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getText)
           .contains(
             tuple(

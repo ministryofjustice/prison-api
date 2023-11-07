@@ -17,7 +17,7 @@ import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
-import uk.gov.justice.hmpps.prison.service.receiveandtransfer.TrustAccountService
+import uk.gov.justice.hmpps.prison.service.enteringandleaving.TrustAccountService
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
 import uk.gov.justice.hmpps.prison.util.builders.getBedAssignments
@@ -468,7 +468,7 @@ class OffenderResourceIntTest_recall : ResourceTest() {
 
       @Test
       internal fun `will create admission case note`() {
-        val bookingId = recallOffender(
+        recallOffender(
           offenderNo,
 
           """
@@ -477,9 +477,9 @@ class OffenderResourceIntTest_recall : ResourceTest() {
                "movementReasonCode": "24" 
             }
           """.trimIndent(),
-        ).inmate().bookingId
+        )
 
-        val caseNote = testDataContext.getCaseNotes(bookingId).maxBy { it.creationDateTime }
+        val caseNote = testDataContext.getCaseNotes(offenderNo).maxBy { it.creationDateTime }
         assertThat(caseNote.type).isEqualTo("TRANSFER")
         assertThat(caseNote.subType).isEqualTo("FROMTOL")
         assertThat(caseNote.text).isEqualTo("Offender admitted to MOORLAND for reason: Recall From Intermittent Custody from OUTSIDE.")

@@ -248,7 +248,50 @@ enum class BookingRepositorySql(val sql: String) {
                 LEFT JOIN OFFENDER_RELEASE_DETAILS ORD ON ORD.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID
     """,
   ),
-
+  GET_OFFENDER_SENT_CALCULATIONS_FOR_PRISONER(
+    """
+        SELECT OB.OFFENDER_BOOK_ID                                     BOOKING_ID,
+        O.OFFENDER_ID_DISPLAY                                   OFFENDER_NO,
+        O.FIRST_NAME,
+        O.LAST_NAME,
+        OB.AGY_LOC_ID                                           agency_location_id,
+        OFFENDER_SENT_CALCULATION_ID,
+        CALCULATION_DATE,
+        STAFF_ID,
+        COMMENT_TEXT,
+        CALC_REASON_CODE,
+        OSC.CREATE_USER_ID,
+        COALESCE(SED_OVERRIDED_DATE, SED_CALCULATED_DATE)       SENTENCE_EXPIRY_DATE,
+        COALESCE(LED_OVERRIDED_DATE, LED_CALCULATED_DATE)       LICENCE_EXPIRY_DATE,
+        COALESCE(PED_OVERRIDED_DATE, PED_CALCULATED_DATE)       PAROLE_ELIGIBILITY_DATE,
+        COALESCE(HDCED_OVERRIDED_DATE, HDCED_CALCULATED_DATE)   HOME_DET_CURF_ELIGIBILITY_DATE,
+        COALESCE(HDCAD_OVERRIDED_DATE, HDCAD_CALCULATED_DATE)   HOME_DET_CURF_ACTUAL_DATE,
+        COALESCE(ARD_OVERRIDED_DATE, ARD_CALCULATED_DATE)       AUTOMATIC_RELEASE_DATE,
+        COALESCE(CRD_OVERRIDED_DATE, CRD_CALCULATED_DATE)       CONDITIONAL_RELEASE_DATE,
+        COALESCE(NPD_OVERRIDED_DATE, NPD_CALCULATED_DATE)       NON_PAROLE_DATE,
+        COALESCE(PRRD_OVERRIDED_DATE, PRRD_CALCULATED_DATE)     POST_RECALL_RELEASE_DATE,
+        COALESCE(APD_OVERRIDED_DATE, APD_CALCULATED_DATE)       ACTUAL_PAROLE_DATE,
+        COALESCE(TUSED_OVERRIDED_DATE, TUSED_CALCULATED_DATE)   TOPUP_SUPERVISION_EXPIRY_DATE,
+        COALESCE(ETD_OVERRIDED_DATE, ETD_CALCULATED_DATE)       EARLY_TERM_DATE,
+        COALESCE(MTD_OVERRIDED_DATE, MTD_CALCULATED_DATE)       MID_TERM_DATE,
+        COALESCE(LTD_OVERRIDED_DATE, LTD_CALCULATED_DATE)       LATE_TERM_DATE,
+        COALESCE(TARIFF_OVERRIDED_DATE, TARIFF_CALCULATED_DATE) TARIFF_DATE,
+        ROTL_OVERRIDED_DATE                                     ROTL,
+        ERSED_OVERRIDED_DATE                                    ERSED
+                FROM OFFENDER_BOOKINGS OB
+        INNER JOIN OFFENDER_SENT_CALCULATIONS OSC ON OSC.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID
+                INNER JOIN OFFENDERS O ON OB.OFFENDER_ID = O.OFFENDER_ID
+        WHERE OSC.OFFENDER_SENT_CALCULATION_ID IN (
+            SELECT MAX(OSC.OFFENDER_SENT_CALCULATION_ID)
+            FROM OFFENDER_BOOKINGS OB
+                     INNER JOIN OFFENDER_SENT_CALCULATIONS OSC ON OSC.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID
+                WHERE O.OFFENDER_ID_DISPLAY = :offenderId
+                  AND OB.ACTIVE_FLAG = :activeFlag
+                  AND OB.BOOKING_SEQ = :bookingSeq
+                GROUP BY OB.OFFENDER_BOOK_ID
+        )
+    """,
+  ),
   GET_OFFENDER_SENT_CALCULATIONS(
     """
         SELECT OB.OFFENDER_BOOK_ID                                     BOOKING_ID,
@@ -635,60 +678,6 @@ enum class BookingRepositorySql(val sql: String) {
         INNER JOIN AGENCY_LOCATIONS AL ON AL.AGY_LOC_ID = OB.AGY_LOC_ID
                 LEFT JOIN AGENCY_INTERNAL_LOCATIONS AIL ON AIL.INTERNAL_LOCATION_ID = OB.LIVING_UNIT_ID
                 WHERE O.OFFENDER_ID_DISPLAY = :offenderNo
-    """,
-  ),
-
-  FIND_BOOKINGS_BY_PERSON_CONTACT(
-    """
-        SELECT  OB.OFFENDER_BOOK_ID                            booking_id,
-        O.OFFENDER_ID_DISPLAY                          offender_no,
-        O.TITLE,
-        O.SUFFIX,
-        O.FIRST_NAME,
-        CONCAT(O.middle_name, CASE WHEN middle_name_2 IS NOT NULL
-                THEN concat(' ', O.middle_name_2)
-        ELSE '' END)                MIDDLE_NAMES,
-        O.LAST_NAME,
-        OB.ACTIVE_FLAG                                 currently_in_prison,
-        OB.agy_loc_id                                  agency_location_id,
-        AIL.description                                agency_location_desc,
-        OB.LIVING_UNIT_ID                              internal_location_id,
-        AIL.DESCRIPTION                                internal_location_desc
-                FROM OFFENDER_BOOKINGS OB
-        JOIN OFFENDERS O ON OB.OFFENDER_ID = O.OFFENDER_ID
-        JOIN OFFENDER_CONTACT_PERSONS OCP ON OCP.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID
-        JOIN PERSONS P ON P.PERSON_ID = OCP.PERSON_ID
-        JOIN PERSON_IDENTIFIERS PI ON PI.PERSON_ID = P.PERSON_ID AND PI.IDENTIFIER_TYPE = :identifierType
-                AND PI.ID_SEQ = (SELECT MAX(ID_SEQ) FROM PERSON_IDENTIFIERS pi1 where pi1.PERSON_ID = PI.PERSON_ID AND pi1.IDENTIFIER_TYPE = PI.IDENTIFIER_TYPE )
-        LEFT JOIN AGENCY_INTERNAL_LOCATIONS AIL ON OB.LIVING_UNIT_ID = AIL.INTERNAL_LOCATION_ID
-                WHERE PI.IDENTIFIER = :identifier
-        AND OCP.RELATIONSHIP_TYPE = COALESCE(:relationshipType, OCP.RELATIONSHIP_TYPE)
-        AND OB.ACTIVE_FLAG = 'Y'
-    """,
-  ),
-
-  FIND_BOOKINGS_BY_PERSON_ID_CONTACT(
-    """
-        SELECT  OB.OFFENDER_BOOK_ID                            booking_id,
-        O.OFFENDER_ID_DISPLAY                          offender_no,
-        O.TITLE,
-        O.SUFFIX,
-        O.FIRST_NAME,
-        CONCAT(O.middle_name, CASE WHEN middle_name_2 IS NOT NULL
-                THEN concat(' ', O.middle_name_2)
-        ELSE '' END)                MIDDLE_NAMES,
-        O.LAST_NAME,
-        OB.ACTIVE_FLAG                                 currently_in_prison,
-        OB.agy_loc_id                                  agency_location_id,
-        AIL.description                                agency_location_desc,
-        OB.LIVING_UNIT_ID                              internal_location_id,
-        AIL.DESCRIPTION                                internal_location_desc
-                FROM OFFENDER_BOOKINGS OB
-        JOIN OFFENDERS O ON OB.OFFENDER_ID = O.OFFENDER_ID
-        JOIN OFFENDER_CONTACT_PERSONS OCP ON OCP.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID AND OCP.PERSON_ID = :personId
-                LEFT JOIN AGENCY_INTERNAL_LOCATIONS AIL ON OB.LIVING_UNIT_ID = AIL.INTERNAL_LOCATION_ID
-                WHERE OCP.RELATIONSHIP_TYPE = COALESCE(:relationshipType, OCP.RELATIONSHIP_TYPE)
-        AND OB.ACTIVE_FLAG = 'Y'
     """,
   ),
 

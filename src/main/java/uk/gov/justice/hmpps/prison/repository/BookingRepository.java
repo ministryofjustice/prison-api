@@ -515,32 +515,6 @@ public class BookingRepository extends RepositoryBase {
         private Integer bookingSeq;
     }
 
-    public List<OffenderSummary> getBookingsByRelationship(final String externalRef, final String relationshipType, final String identifierType) {
-
-        final var sql = BookingRepositorySql.FIND_BOOKINGS_BY_PERSON_CONTACT.getSql();
-
-        final var summaries = jdbcTemplate.query(
-                sql,
-                createParams("identifierType", identifierType,
-                        "identifier", externalRef,
-                        "relationshipType", relationshipType),
-                OFFENDER_SUMMARY_ROW_MAPPER);
-        return summaries.stream().map(OffenderSummaryDto::toOffenderSummary).toList();
-    }
-
-    public List<OffenderSummary> getBookingsByRelationship(final Long personId, final String relationshipType) {
-
-        final var sql = BookingRepositorySql.FIND_BOOKINGS_BY_PERSON_ID_CONTACT.getSql();
-
-        final var summaries = jdbcTemplate.query(
-                sql,
-                createParams(
-                        "personId", personId,
-                        "relationshipType", relationshipType),
-                OFFENDER_SUMMARY_ROW_MAPPER);
-        return summaries.stream().map(OffenderSummaryDto::toOffenderSummary).toList();
-    }
-
     public Page<ScheduledEvent> getBookingAppointments(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final long offset, final long limit, final String orderByFields, final Order order) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
@@ -678,7 +652,7 @@ public class BookingRepository extends RepositoryBase {
             additionSql.append(InmateRepositorySql.CASELOAD_FILTER.getSql());
         }
 
-        if (additionSql.length() > 0) {
+        if (!additionSql.isEmpty()) {
             initialSql += additionSql.toString();
         }
 
@@ -695,7 +669,7 @@ public class BookingRepository extends RepositoryBase {
     }
 
     private void appendWhereOrAnd(final StringBuilder additionSql) {
-        if (additionSql.length() == 0) {
+        if (additionSql.isEmpty()) {
             additionSql.append(" WHERE ");
         } else {
             additionSql.append(" AND ");
@@ -747,6 +721,16 @@ public class BookingRepository extends RepositoryBase {
                         sql,
                         createParams("agencyIds", agencyIds, "activeFlag", "Y", "bookingSeq", 1),
                         SENTENCE_CALC_ROW_MAPPER);
+    }
+
+
+    public List<OffenderSentenceCalculation> getOffenderSentenceCalculationsForPrisoner(final String prisonerId) {
+        final var sql = BookingRepositorySql.GET_OFFENDER_SENT_CALCULATIONS_FOR_PRISONER.getSql();
+        return jdbcTemplate
+            .query(
+                sql,
+                createParams("offenderId", prisonerId, "activeFlag", "Y", "bookingSeq", 1),
+                SENTENCE_CALC_ROW_MAPPER);
     }
 
     public long createAppointment(final AppointmentDetails details, final AppointmentDefaults defaults, final String agencyId) {

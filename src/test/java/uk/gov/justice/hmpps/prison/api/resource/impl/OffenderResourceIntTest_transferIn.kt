@@ -30,7 +30,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection.IN
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection.OUT
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Team
 import uk.gov.justice.hmpps.prison.service.DataLoaderTransaction
-import uk.gov.justice.hmpps.prison.service.receiveandtransfer.WorkflowTaskService
+import uk.gov.justice.hmpps.prison.service.enteringandleaving.WorkflowTaskService
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderCourtCaseBuilder
@@ -242,7 +242,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
       @Test
       internal fun `will create a transfer in case note`() {
-        assertThat(testDataContext.getCaseNotes(bookingId))
+        assertThat(testDataContext.getCaseNotes(offenderNo))
           .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getText)
           .contains(
             tuple(
@@ -272,7 +272,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           .exchange()
           .expectStatus().isOk
 
-        assertThat(testDataContext.getCaseNotes(bookingId))
+        assertThat(testDataContext.getCaseNotes(offenderNo))
           .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getText)
           .contains(
             tuple(
@@ -784,7 +784,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
           @Test
           internal fun `will create a transfer via court case note`() {
-            assertThat(testDataContext.getCaseNotes(bookingId))
+            assertThat(testDataContext.getCaseNotes(offenderNo))
               .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getText)
               .contains(
                 tuple(
@@ -812,7 +812,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               .exchange()
               .expectStatus().isOk
 
-            assertThat(testDataContext.getCaseNotes(bookingId))
+            assertThat(testDataContext.getCaseNotes(offenderNo))
               .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getText)
               .contains(
                 tuple(
@@ -1560,7 +1560,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
           @Test
           internal fun `will create a transfer via TAP note`() {
-            assertThat(testDataContext.getCaseNotes(bookingId))
+            assertThat(testDataContext.getCaseNotes(offenderNo))
               .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getText)
               .contains(
                 tuple(
@@ -1572,7 +1572,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
             temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "MDI"))
 
-            assertThat(testDataContext.getCaseNotes(bookingId))
+            assertThat(testDataContext.getCaseNotes(offenderNo))
               .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getText)
               .contains(
                 tuple(

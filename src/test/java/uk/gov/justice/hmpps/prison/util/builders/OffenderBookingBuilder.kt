@@ -27,6 +27,8 @@ class OffenderBookingBuilder(
   var teamAssignment: OffenderTeamAssignmentBuilder? = null,
   var released: Boolean = false,
   var youthOffender: Boolean = false,
+  var payStatuses: List<OffenderPayStatusBuilder> = emptyList(),
+  var noPayPeriods: List<OffenderNoPayPeriodBuilder> = emptyList(),
 ) : WebClientEntityBuilder() {
 
   fun withIEPLevel(iepLevel: String): OffenderBookingBuilder {
@@ -120,6 +122,12 @@ class OffenderBookingBuilder(
       }
       this.teamAssignment?.also {
         it.save(offenderBookingId = inmateDetail.bookingId, dataLoader = dataLoader)
+      }
+      this.payStatuses.forEach {
+        it.save(bookingId = inmateDetail.bookingId, dataLoader = dataLoader)
+      }
+      this.noPayPeriods.forEach {
+        it.save(bookingId = inmateDetail.bookingId, dataLoader = dataLoader)
       }
     }
   }

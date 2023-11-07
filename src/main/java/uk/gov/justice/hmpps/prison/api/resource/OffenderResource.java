@@ -7,6 +7,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.springdoc.core.annotations.ParameterObject;
@@ -38,8 +41,6 @@ import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.OffenderContacts;
 import uk.gov.justice.hmpps.prison.api.model.OffenderDamageObligationResponse;
-import uk.gov.justice.hmpps.prison.api.model.OffenderNonAssociationDetails;
-import uk.gov.justice.hmpps.prison.api.model.OffenderNumber;
 import uk.gov.justice.hmpps.prison.api.model.OffenderRestrictions;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
@@ -70,14 +71,12 @@ import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation.Status;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CaseNoteFilter;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
-import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.AdjudicationSearchCriteria;
 import uk.gov.justice.hmpps.prison.service.AdjudicationService;
 import uk.gov.justice.hmpps.prison.service.BookingService;
 import uk.gov.justice.hmpps.prison.service.CaseNoteService;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
-import uk.gov.justice.hmpps.prison.service.GlobalSearchService;
 import uk.gov.justice.hmpps.prison.service.IncidentService;
 import uk.gov.justice.hmpps.prison.service.InmateAlertService;
 import uk.gov.justice.hmpps.prison.service.InmateService;
@@ -86,24 +85,18 @@ import uk.gov.justice.hmpps.prison.service.OffenderAddressService;
 import uk.gov.justice.hmpps.prison.service.OffenderDamageObligationService;
 import uk.gov.justice.hmpps.prison.service.OffenderLocation;
 import uk.gov.justice.hmpps.prison.service.OffenderLocationService;
-import uk.gov.justice.hmpps.prison.service.OffenderNonAssociationsService;
 import uk.gov.justice.hmpps.prison.service.OffenderTransactionHistoryService;
 import uk.gov.justice.hmpps.prison.service.PrisonerReleaseAndTransferService;
-import uk.gov.justice.hmpps.prison.service.receiveandtransfer.BookingIntoPrisonService;
-import uk.gov.justice.hmpps.prison.service.receiveandtransfer.PrisonTransferService;
-import uk.gov.justice.hmpps.prison.service.receiveandtransfer.PrisonerCreationService;
+import uk.gov.justice.hmpps.prison.service.enteringandleaving.BookingIntoPrisonService;
+import uk.gov.justice.hmpps.prison.service.enteringandleaving.TransferIntoPrisonService;
+import uk.gov.justice.hmpps.prison.service.enteringandleaving.PrisonerCreationService;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
-import static uk.gov.justice.hmpps.prison.util.ResourceUtils.nvl;
 
 @RestController
 @Tag(name = "offenders")
@@ -119,16 +112,14 @@ public class OffenderResource {
     private final AdjudicationService adjudicationService;
     private final CaseNoteService caseNoteService;
     private final BookingService bookingService;
-    private final GlobalSearchService globalSearchService;
     private final AuthenticationFacade authenticationFacade;
     private final PrisonerCreationService prisonerCreationService;
     private final PrisonerReleaseAndTransferService prisonerReleaseAndTransferService;
     private final OffenderDamageObligationService offenderDamageObligationService;
     private final OffenderTransactionHistoryService offenderTransactionHistoryService;
     private final MovementsService movementsService;
-    private final OffenderNonAssociationsService offenderNonAssociationsService;
     private final BookingIntoPrisonService bookingIntoPrisonService;
-    private final PrisonTransferService prisonTransferService;
+    private final TransferIntoPrisonService transferIntoPrisonService;
     private final OffenderLocationService offenderLocationService;
 
     @ApiResponses({
@@ -297,7 +288,7 @@ public class OffenderResource {
     public InmateDetail transferInPrisoner(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToTransferIn requestToTransferIn) {
-        return prisonTransferService.transferFromPrison(offenderNo, requestToTransferIn);
+        return transferIntoPrisonService.transferInFromPrison(offenderNo, requestToTransferIn);
     }
 
     @ApiResponses({
@@ -313,7 +304,7 @@ public class OffenderResource {
     public InmateDetail courtTransferIn(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestForCourtTransferIn requestForCourtTransferIn) {
-        return prisonTransferService.transferViaCourt(offenderNo, requestForCourtTransferIn);
+        return transferIntoPrisonService.transferInViaCourt(offenderNo, requestForCourtTransferIn);
     }
 
     @ApiResponses({
@@ -329,7 +320,7 @@ public class OffenderResource {
     public InmateDetail temporaryAbsenceArrival(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestForTemporaryAbsenceArrival requestForTemporaryAbsenceArrival) {
-        return prisonTransferService.transferInAfterTemporaryAbsence(offenderNo, requestForTemporaryAbsenceArrival);
+        return transferIntoPrisonService.transferInAfterTemporaryAbsence(offenderNo, requestForTemporaryAbsenceArrival);
     }
 
     @ApiResponses({
@@ -349,18 +340,9 @@ public class OffenderResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Return a set Incidents for a given offender No.", description = "Can be filtered by participation type and incident type")
     @GetMapping("/{offenderNo}/incidents")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'VIEW_INCIDENTS')")
     public List<IncidentCase> getIncidentsByOffenderNo(@PathVariable("offenderNo") @Parameter(description = "offenderNo", required = true, example = "A1234AA") @NotNull final String offenderNo, @RequestParam("incidentType") @Parameter(description = "incidentType", example = "ASSAULT") final List<String> incidentTypes, @RequestParam("participationRoles") @Parameter(description = "participationRoles", example = "ASSIAL", schema = @Schema(implementation = String.class, allowableValues = {"ACTINV","ASSIAL","FIGHT","IMPED","PERP","SUSASS","SUSINV","VICT","AI","PAS","AO"})) final List<String> participationRoles) {
         return incidentService.getIncidentCasesByOffenderNo(offenderNo, incidentTypes, participationRoles);
-    }
-
-    @Operation(summary = "Return a list of offender nos across the estate for which an incident has recently occurred or changed", description = "This query is slow and can take several minutes")
-    @GetMapping("/incidents/candidates")
-    public ResponseEntity<List<String>> getIncidentCandidates(@RequestParam("fromDateTime") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @Parameter(description = "A recent timestamp that indicates the earliest time to consider. NOTE More than a few days in the past can result in huge amounts of data.", required = true, example = "2019-10-22T03:00") @NotNull final LocalDateTime fromDateTime, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first offender in returned list.") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "1000", required = false) @Parameter(description = "Requested limit to number of offenders returned.") final Long pageLimit) {
-        var paged = incidentService.getIncidentCandidates(fromDateTime,
-            nvl(pageOffset, 0L),
-            nvl(pageLimit, 1000L));
-
-        return ResponseEntity.ok().headers(paged.getPaginationHeaders()).body(paged.getItems());
     }
 
     @ApiResponses({
@@ -563,24 +545,6 @@ public class OffenderResource {
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Return a list of all unique Noms IDs (also called Prisoner number and offenderNo).")
-    @GetMapping("/ids")
-    @SlowReportQuery
-    public ResponseEntity<List<OffenderNumber>> getOffenderNumbers(@RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first Noms ID in returned list.") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "100", required = false) @Parameter(description = "Requested limit to the Noms IDs returned.") final Long pageLimit) {
-
-        final var offenderNumbers = globalSearchService.getOffenderNumbers(
-            nvl(pageOffset, 0L),
-            nvl(pageLimit, 100L));
-
-        return ResponseEntity.ok()
-            .headers(offenderNumbers.getPaginationHeaders())
-            .body(offenderNumbers.getItems());
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "404", description = "Offender does not exists or is in a different caseload to the user", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Return a list of damage obligations")
@@ -661,29 +625,9 @@ public class OffenderResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Gets the offender non-association details for a given offender for ALL bookings", description = "Do NOT use, please use Non-Associations API at https://non-associations-api.hmpps.service.justice.gov.uk/swagger-ui/index.html")
-    @GetMapping("/{offenderNo}/non-association-details")
-    @Deprecated
-    @SlowReportQuery
-    public OffenderNonAssociationDetails getNonAssociationDetails(
-        @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo,
-        @RequestParam(value = "currentPrisonOnly", required = false, defaultValue = "false") @Parameter(description = "Returns only non-association details for this prisoner in the same prison") final Boolean currentPrisonOnly,
-        @RequestParam(value = "excludeInactive", required = false, defaultValue = "false") @Parameter(description = "Returns only active non-association details for this prisoner") final Boolean excludeInactive) {
-        try {
-            return offenderNonAssociationsService.retrieveByOffenderNo(offenderNo, currentPrisonOnly, excludeInactive);
-        } catch (EntityNotFoundException e) {
-            // rethrow against the offender number rather than the booking id
-            throw EntityNotFoundException.withId(offenderNo);
-        }
-    }
-
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Gets the offender visit restrictions for a given offender using the latest booking", description = "Get offender visit restrictions by offender No")
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER"})
+    @Operation(summary = "Gets the offender visit restrictions for a given offender using the latest booking",
+        description = "Get offender visit restrictions by offender No. <p>Requires a relationship (via caseload) with the offender or VISIT_SCHEDULER role.</p>")
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "VISIT_SCHEDULER"})
     @GetMapping("/{offenderNo}/offender-restrictions")
     public OffenderRestrictions getVisitRestrictions(
             @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo,

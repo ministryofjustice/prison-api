@@ -5,6 +5,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramProfile
 import uk.gov.justice.hmpps.prison.service.BadRequestException
 import uk.gov.justice.hmpps.prison.service.DataLoaderRepository
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 class OffenderProgramProfileBuilder(
   var startDate: LocalDate = LocalDate.of(2016, 11, 9),
@@ -32,9 +33,17 @@ class OffenderProgramProfileBuilder(
     )
 
     val offenderProgramProfile =
-      OffenderProgramProfile.builder().offenderBooking(offenderBooking).programStatus(programStatus)
-        .programId(programId).agencyLocation(prison).courseActivity(courseActivity).startDate(startDate)
-        .waitlistDecisionCode(waitListDecisionCode).build()
+      OffenderProgramProfile.builder()
+        .offenderBooking(offenderBooking)
+        .programStatus(programStatus)
+        .programId(programId)
+        .agencyLocation(prison)
+        .courseActivity(courseActivity)
+        .startDate(startDate)
+        .waitlistDecisionCode(waitListDecisionCode)
+        .createDatetime(LocalDateTime.now())
+        .createUserId("BUILDER")
+        .build()
 
     return dataLoader.offenderProgramProfileRepository.save(offenderProgramProfile)
   }

@@ -1,10 +1,8 @@
 package uk.gov.justice.hmpps.prison.executablespecification.steps;
 
-import net.thucydides.core.annotations.Step;
-import org.apache.commons.lang3.StringUtils;
+import net.serenitybdd.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.justice.hmpps.prison.api.model.StaffDetail;
 import uk.gov.justice.hmpps.prison.api.model.StaffLocationRole;
@@ -21,10 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class StaffSteps extends CommonSteps {
     private static final String API_STAFF_DETAIL_REQUEST_URL = API_PREFIX + "staff/{staffId}";
-    private static final String API_STAFF_BY_AGENCY_ROLE_REQUEST_URL = API_PREFIX + "staff/roles/{agencyId}/role/{role}";
     private static final String API_STAFF_ROLES = API_PREFIX + "staff/{staffId}/{agencyId}/roles";
-    private static final String QUERY_PARAM_NAME_FILTER = "nameFilter";
-    private static final String QUERY_PARAM_STAFF_ID_FILTER = "staffId";
     private static final String API_STAFF_EMAILS_URL = API_PREFIX + "staff/{staffId}/emails";
 
     private StaffDetail staffDetail;
@@ -64,20 +59,6 @@ public class StaffSteps extends CommonSteps {
         } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
-    }
-
-    @Step("Find staff members having role in agency")
-    public void findStaffByAgencyRole(final String agencyId, final String role, final String nameFilter, final Long staffId) {
-        var builder = UriComponentsBuilder.fromUriString(API_STAFF_BY_AGENCY_ROLE_REQUEST_URL);
-
-        if (StringUtils.isNotBlank(nameFilter)) {
-            builder = builder.queryParam(QUERY_PARAM_NAME_FILTER, nameFilter);
-        }
-        if (staffId != null) {
-            builder = builder.queryParam(QUERY_PARAM_STAFF_ID_FILTER, staffId);
-        }
-
-        dispatchStaffByAgencyPositionRoleRequest(builder.buildAndExpand(agencyId, role).toUri());
     }
 
     @Step("Verify staff details - first name")
@@ -137,28 +118,6 @@ public class StaffSteps extends CommonSteps {
 
             roles = response.getBody();
 
-        } catch (final PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
-
-    private void dispatchStaffByAgencyPositionRoleRequest(final URI uri) {
-        init();
-
-        final ResponseEntity<List<StaffLocationRole>> response;
-
-        try {
-            response =
-                    restTemplate.exchange(
-                            uri,
-                            HttpMethod.GET,
-                            createEntity(),
-                            new ParameterizedTypeReference<>() {
-                            });
-
-            staffDetails = response.getBody();
-
-            buildResourceData(response);
         } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }

@@ -3,61 +3,64 @@ package uk.gov.justice.hmpps.prison.service
 import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.GangMemberRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor
 
 @Service
 @Transactional(readOnly = true)
 class GangService(
   private val gangMemberRepository: GangMemberRepository,
+  private val offenderBookingRepository: OffenderBookingRepository,
 ) {
 
   fun getNonAssociatesInGangs(offenderNo: String): GangMemberSummary {
-    val gangsInvolved = gangMemberRepository.findAllByBookingOffenderNomsId(offenderNo)
+    val currentBooking = offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(offenderNo, 1)
+      .orElseThrow(EntityNotFoundException("No booking found for offender $offenderNo"))
+
+    val gangsInvolved = gangMemberRepository.findAllByBookingOffenderNomsIdAndGangActiveIsTrue(offenderNo)
     if (gangsInvolved.isEmpty()) {
       throw EntityNotFoundException("No gangs found for offender $offenderNo")
     }
 
-    val currentBooking = gangsInvolved[0].booking
+    val gangs = gangsInvolved.map { it.gang }.filter { it.active }.distinct()
 
     return GangMemberSummary(
-      member = GangMemberDetail(
-        offenderNo = currentBooking.offender.nomsId,
-        firstName = currentBooking.offender.firstName,
-        lastName = currentBooking.offender.lastName,
-        prisonId = currentBooking.location.id,
-        prisonName = LocationProcessor.formatLocation(currentBooking.location.description),
-        cellLocation = currentBooking.assignedLivingUnit?.description,
-      ),
-      currentGangs = gangsInvolved.map { gang ->
+      member = gangMemberDetail(currentBooking),
+      currentGangs = gangsInvolved.map { gangMember ->
         GangSummary(
-          code = gang.gang.code,
-          name = gang.gang.name,
-          comment = gang.commentText,
-          numberOfMembers = gang.gang.members.size.toLong(),
+          code = gangMember.gang.code,
+          name = gangMember.gang.name,
+          comment = gangMember.commentText,
+          numberOfMembers = gangMember.gang.members.size.toLong(),
         )
-      },
-      gangNonAssociations = gangsInvolved.map {
-        it.gang.getNonAssociations().map { (naGang, reason) ->
-          GangNonAssociationSummary(
-            code = naGang.code,
-            name = naGang.name,
-            reason = reason.description,
-            members = naGang.members.map { member ->
-              GangMemberDetail(
-                offenderNo = member.booking.offender.nomsId,
-                firstName = member.booking.offender.firstName,
-                lastName = member.booking.offender.lastName,
-                prisonId = member.booking.location.id,
-                prisonName = LocationProcessor.formatLocation(member.booking.location.description),
-                cellLocation = member.booking.assignedLivingUnit.description,
-              )
-            },
-          )
-        }
+      }.distinct(),
+
+      gangNonAssociations = gangs.map { gang ->
+        gang.getNonAssociations()
+          .filter { (naGang, _) -> naGang.active }
+          .map { (naGang, reason) ->
+            GangNonAssociationSummary(
+              code = naGang.code,
+              name = naGang.name,
+              reason = reason.description,
+              members = naGang.members.filter { it.booking.isActive }.map { member -> gangMemberDetail(member.booking) },
+            )
+          }.distinct()
       }.flatten(),
     )
   }
+
+  private fun gangMemberDetail(currentBooking: OffenderBooking) =
+    GangMemberDetail(
+      offenderNo = currentBooking.offender.nomsId,
+      firstName = currentBooking.offender.firstName,
+      lastName = currentBooking.offender.lastName,
+      prisonId = currentBooking.location.id,
+      prisonName = LocationProcessor.formatLocation(currentBooking.location.description),
+      cellLocation = currentBooking.assignedLivingUnit?.description,
+    )
 }
 
 @Schema(description = "Summary of Gangs for a specified prisoner")
@@ -80,7 +83,21 @@ data class GangSummary(
   val comment: String?,
   @Schema(description = "Number of members in this gang", example = "15")
   val numberOfMembers: Long,
-)
+
+) {
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (javaClass != other?.javaClass) return false
+
+    other as GangSummary
+
+    return code == other.code
+  }
+
+  override fun hashCode(): Int {
+    return code.hashCode()
+  }
+}
 
 @Schema(description = "Non associations Gang information")
 data class GangNonAssociationSummary(
@@ -92,7 +109,20 @@ data class GangNonAssociationSummary(
   val reason: String,
   @Schema(description = "List of members of this gang")
   val members: List<GangMemberDetail>,
-)
+) {
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (javaClass != other?.javaClass) return false
+
+    other as GangNonAssociationSummary
+
+    return code == other.code
+  }
+
+  override fun hashCode(): Int {
+    return code.hashCode()
+  }
+}
 
 @Schema(description = "Gang Member Detail")
 data class GangMemberDetail(
