@@ -12,7 +12,6 @@ import uk.gov.justice.hmpps.prison.api.resource.impl.ResourceTest
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-@Suppress("SpringJavaInjectionPointsAutowiringInspection")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 class OpenApiDocsTest : ResourceTest() {
@@ -39,13 +38,13 @@ class OpenApiDocsTest : ResourceTest() {
   }
 
   @Test
-  fun `the swagger json is valid`() {
+  fun `the open api json contains documentation`() {
     webTestClient.get()
       .uri("/v3/api-docs")
       .accept(MediaType.APPLICATION_JSON)
       .exchange()
       .expectStatus().isOk
-      .expectBody().jsonPath("messages").doesNotExist()
+      .expectBody().jsonPath("paths").isNotEmpty
   }
 
   @Test
@@ -56,7 +55,7 @@ class OpenApiDocsTest : ResourceTest() {
   }
 
   @Test
-  fun `the swagger json contains the version number`() {
+  fun `the open api json contains the version number`() {
     webTestClient.get()
       .uri("/v3/api-docs")
       .accept(MediaType.APPLICATION_JSON)
@@ -98,7 +97,7 @@ class OpenApiDocsTest : ResourceTest() {
   }
 
   @Test
-  fun `the swagger json doesn't include LocalTime`() {
+  fun `the open api json doesn't include LocalTime`() {
     webTestClient.get()
       .uri("/v3/api-docs")
       .accept(MediaType.APPLICATION_JSON)
