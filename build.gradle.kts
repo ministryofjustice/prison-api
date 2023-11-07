@@ -29,9 +29,6 @@ val swaggerParserVersion by extra("2.1.15")
 
 ext["rest-assured.version"] = "5.3.2"
 
-// Temporarily keep serenity at 3.x until can upgrade
-val serenityVersion by extra("3.9.8")
-
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
   annotationProcessor("org.projectlombok:lombok:1.18.30")
