@@ -45,25 +45,8 @@ public class OffenceService {
     private final StatuteRepository statuteRepository;
     private final OffenceIndicatorRepository offenceIndicatorRepository;
 
-    public Page<OffenceDto> getOffences(final boolean activeOnly, Pageable pageable) {
-        return convertToPaginatedDto(activeOnly ? offenceRepository.findAllByActive(true, pageable)
-            : offenceRepository.findAll(pageable), pageable);
-    }
-
     public Page<OffenceDto> getOffencesThatStartWith(final String codeStartsWith, Pageable pageable) {
         return convertToPaginatedDto(offenceRepository.findAllByCodeStartsWithIgnoreCase(codeStartsWith, pageable), pageable);
-    }
-
-    public Page<OffenceDto> findOffences(final String offenceDescription, Pageable pageable) {
-        return convertToPaginatedDto(offenceRepository.findAllByDescriptionLike("%" + offenceDescription + "%", pageable), pageable);
-    }
-
-    public Page<OffenceDto> findByStatute(final String statuteCode, Pageable pageable) {
-        return convertToPaginatedDto(offenceRepository.findAllByStatute(Statute.builder().code(statuteCode).build(), pageable), pageable);
-    }
-
-    public Page<OffenceDto> findByHoCode(final String hoCode, Pageable pageable) {
-        return convertToPaginatedDto(offenceRepository.findAllByHoCode(HOCode.builder().code(hoCode).build(), pageable), pageable);
     }
 
     @Transactional
