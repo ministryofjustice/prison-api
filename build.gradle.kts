@@ -29,9 +29,6 @@ val swaggerParserVersion by extra("2.1.15")
 
 ext["rest-assured.version"] = "5.3.2"
 
-// Temporarily keep hibernate at 6.2.5 until https://hibernate.atlassian.net/jira/software/c/projects/HHH/issues/HHH-16926 is fixed in 6.2.7
-ext["hibernate.version"] = "6.2.5.Final"
-
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
   annotationProcessor("org.projectlombok:lombok:1.18.30")
