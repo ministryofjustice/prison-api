@@ -25,28 +25,24 @@ class GangBuilder(
 ) {
 
   fun initGangs() {
-    val firstGang = Gang(
+    val firstGang = gangRepository.save(Gang(
       code = NEW_GANG_CODE_1,
       name = "The First Gang",
-    )
-    val secondGang = Gang(
+    ))
+    val secondGang = gangRepository.save(Gang(
       code = NEW_GANG_CODE_2,
       name = "The Second Gang",
-    )
-    val thirdGang = Gang(
+    ))
+    val thirdGang = gangRepository.save(Gang(
       code = NEW_GANG_CODE_3,
       name = "The Third Gang",
-    )
-    val forthGangInactive = Gang(
+    ))
+    val forthGangInactive = gangRepository.save(Gang(
       code = NEW_GANG_CODE_4,
       name = "The Forth Inactive Gang",
       active = false,
       expiryDate = LocalDate.now().minusDays(1),
-    )
-    gangRepository.save(firstGang)
-    gangRepository.save(secondGang)
-    gangRepository.save(thirdGang)
-    gangRepository.save(forthGangInactive)
+    ))
 
     firstGang.addMember(
       booking = offenderBookingRepository.findByOffenderNomsIdAndActive("A1234AA", true).orElseThrow(),
@@ -76,6 +72,7 @@ class GangBuilder(
       booking = offenderBookingRepository.findByOffenderNomsIdAndActive("A1234AG", true).orElseThrow(),
       commentText = "gang 4 - member 1 added",
     )
+
     val bullying = nonAssociationReasonRepository.findById(NonAssociationReason.pk("BUL")).orElseThrow()
     val rival = nonAssociationReasonRepository.findById(NonAssociationReason.pk("RIV")).orElseThrow()
 
