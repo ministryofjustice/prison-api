@@ -885,7 +885,7 @@ public class BookingResource {
     @Operation(summary = "visits with visitor list for offender.", description = "visits with visitor list for offender.")
     @GetMapping("/{bookingId}/visits-with-visitors")
     @SlowReportQuery
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "NOMIS_VISITS"})
+    @VerifyBookingAccess
     public Page<VisitWithVisitors> getBookingVisitsWithVisitor(
         @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
         @RequestParam(value = "fromDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Returned visits must be scheduled on or after this date (in YYYY-MM-DD format).") final LocalDate fromDate,

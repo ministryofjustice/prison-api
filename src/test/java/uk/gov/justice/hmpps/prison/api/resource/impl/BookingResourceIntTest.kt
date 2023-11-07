@@ -755,27 +755,11 @@ class BookingResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `should return 403 when does not have override role`() {
+    fun `should return 403 as endpoint does not have override role`() {
       webTestClient.get().uri("/api/bookings/-6/visits-with-visitors")
         .headers(setClientAuthorisation(listOf("")))
         .exchange()
         .expectStatus().isForbidden
-    }
-
-    @Test
-    fun `should return success when has SYSTEM_USER override role`() {
-      webTestClient.get().uri("/api/bookings/-6/visits-with-visitors")
-        .headers(setClientAuthorisation(listOf("SYSTEM_USER")))
-        .exchange()
-        .expectStatus().isOk
-    }
-
-    @Test
-    fun `should return success when has NOMIS_VISITS override role`() {
-      webTestClient.get().uri("/api/bookings/-6/visits-with-visitors")
-        .headers(setClientAuthorisation(listOf("NOMIS_VISITS")))
-        .exchange()
-        .expectStatus().isOk
     }
 
     @Test
