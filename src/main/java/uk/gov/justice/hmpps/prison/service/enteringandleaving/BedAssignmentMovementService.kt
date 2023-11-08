@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service.enteringandleaving
 
+import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory
@@ -9,6 +10,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistor
 import java.time.LocalDateTime
 
 @Service
+@Transactional
 class BedAssignmentMovementService(private val bedAssignmentHistoriesRepository: BedAssignmentHistoriesRepository) {
   fun createBedHistory(
     booking: OffenderBooking,
@@ -32,6 +34,17 @@ class BedAssignmentMovementService(private val bedAssignmentHistoriesRepository:
         .assignmentReason(reasonCode)
         .build(),
     )
+
+  fun endBedHistory(bookingId: Long, time: LocalDateTime) =
+    bedAssignmentHistoriesRepository.findByBedAssignmentHistoryPKOffenderBookingIdAndBedAssignmentHistoryPKSequence(
+      bookingId,
+      bedAssignmentHistoriesRepository.getMaxSeqForBookingId(bookingId),
+    ).ifPresent {
+      if (it.assignmentEndDate == null && it.assignmentEndDateTime == null) {
+        it.assignmentEndDate = time.toLocalDate()
+        it.assignmentEndDateTime = time
+      }
+    }
 
   private fun getNextSequence(booking: OffenderBooking) = bedAssignmentHistoriesRepository.getMaxSeqForBookingId(booking.bookingId) + 1
 }

@@ -231,7 +231,7 @@ internal class ExternalMovementServiceTest {
           )
         }
           .isInstanceOf(BadRequestException::class.java)
-          .hasMessage("Transfer cannot be done in the future")
+          .hasMessage("Movement cannot be done in the future")
       }
 
       @Test
@@ -453,7 +453,7 @@ internal class ExternalMovementServiceTest {
           )
         }
           .isInstanceOf(BadRequestException::class.java)
-          .hasMessage("Transfer cannot be done in the future")
+          .hasMessage("Movement cannot be done in the future")
       }
 
       @Test
@@ -681,7 +681,7 @@ internal class ExternalMovementServiceTest {
           )
         }
           .isInstanceOf(BadRequestException::class.java)
-          .hasMessage("Transfer cannot be done in the future")
+          .hasMessage("Movement cannot be done in the future")
       }
 
       @Test
@@ -897,7 +897,7 @@ internal class ExternalMovementServiceTest {
           )
         }
           .isInstanceOf(BadRequestException::class.java)
-          .hasMessage("Transfer cannot be done in the future")
+          .hasMessage("Movement cannot be done in the future")
       }
 
       @Test
@@ -1109,7 +1109,7 @@ internal class ExternalMovementServiceTest {
           )
         }
           .isInstanceOf(BadRequestException::class.java)
-          .hasMessage("Transfer cannot be done in the future")
+          .hasMessage("Movement cannot be done in the future")
       }
 
       @Test

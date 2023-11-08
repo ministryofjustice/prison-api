@@ -340,7 +340,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
       }
 
       @Test
-      internal fun `400 when trying to book in prisoner in the future (and return a slightly inaccurate message)`() {
+      internal fun `400 when trying to book in prisoner in the future`() {
         val offenderNo = createInactiveBooking()
 
         // when booking is created then the request is rejected
@@ -370,7 +370,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .expectStatus().isBadRequest
           .expectBody()
           .jsonPath("userMessage")
-          .isEqualTo("Transfer cannot be done in the future")
+          .isEqualTo("Movement cannot be done in the future")
       }
 
       @Test
