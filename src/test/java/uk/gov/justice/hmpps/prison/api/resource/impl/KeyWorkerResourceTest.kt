@@ -40,7 +40,6 @@ class KeyWorkerResourceTest : ResourceTest() {
     @Test
     fun `returns 404 if user has no caseloads`() {
       webTestClient.get().uri("/api/key-worker/LEI/available")
-        // RO_USER has no caseloads
         .headers(setAuthorisation("RO_USER", listOf(""))).exchange()
         .expectStatus().isNotFound
         .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [LEI] not found.")
@@ -49,7 +48,6 @@ class KeyWorkerResourceTest : ResourceTest() {
     @Test
     fun `returns 404 if not in user caseload`() {
       webTestClient.get().uri("/api/key-worker/LEI/available")
-        // RO_USER has no caseloads
         .headers(setAuthorisation("WAI_USER", listOf(""))).exchange()
         .expectStatus().isNotFound
         .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [LEI] not found.")
@@ -106,7 +104,6 @@ class KeyWorkerResourceTest : ResourceTest() {
     @Test
     fun `returns 404 if not in user caseload`() {
       webTestClient.get().uri("/api/key-worker/LEI/allocationHistory")
-        // RO_USER has no caseloads
         .headers(setAuthorisation("WAI_USER", listOf(""))).exchange()
         .expectStatus().isNotFound
         .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [LEI] not found.")
