@@ -19,7 +19,6 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 public class KeyWorkerSteps extends CommonSteps {
     private static final String ALLOCATION_HISTORY_URL_FOR_OFFENDERS = API_PREFIX + "key-worker/offenders/allocationHistory";
     private static final String KEY_WORKER_CURRENT_ALLOCS_BY_STAFF = API_PREFIX + "key-worker/{agencyId}/current-allocations";
-    private static final String KEY_WORKER_CURRENT_ALLOCS_BY_OFFENDER = API_PREFIX + "key-worker/{agencyId}/current-allocations/offenders";
 
     private List<KeyWorkerAllocationDetail> allocationsList;
     private List<OffenderKeyWorker> allocationHistoryList;
@@ -32,11 +31,6 @@ public class KeyWorkerSteps extends CommonSteps {
     private void doAllocationsApiCallByStaffList(final List<Long> staffIds, final String agencyId) {
         init();
         callPostApiForAllocations(KEY_WORKER_CURRENT_ALLOCS_BY_STAFF, staffIds, agencyId);
-    }
-
-    private void doAllocationsApiCallByOffenderList(final List<String> offenderNos, final String agencyId) {
-        init();
-        callPostApiForAllocations(KEY_WORKER_CURRENT_ALLOCS_BY_OFFENDER, offenderNos, agencyId);
     }
 
     private void callPostApiForAllocations(final String url, final List<?> lists, final String agencyId) {
@@ -94,10 +88,6 @@ public class KeyWorkerSteps extends CommonSteps {
 
     public void getKeyworkerAllocationsByStaffIds(final List<Long> staffIds, final String agencyId) {
         doAllocationsApiCallByStaffList(staffIds, agencyId);
-    }
-
-    public void getKeyworkerAllocationsByOffenderNos(final List<String> offenderNos, final String agencyId) {
-        doAllocationsApiCallByOffenderList(offenderNos, agencyId);
     }
 
     public void getKeyworkerAllocationHistoryByOffenderNos(final List<String> offenderNos) {

@@ -40,11 +40,6 @@ public class KeyworkerStepDefinitions extends AbstractStepDefinitions {
         keyworker.getKeyworkerAllocationsByStaffIds(Arrays.stream(StringUtils.split(staffIds, ",")).map(Long::valueOf).toList(), agencyId);
     }
 
-    @When("^a key worker allocations request is made with nomis ids \"([^\"]*)\" and agency \"([^\"]*)\"$")
-    public void aKeyWorkerAllocationsRequestIsMadeWithNomisIdsAndAgency(final String offenderNos, final String agencyId) {
-        keyworker.getKeyworkerAllocationsByOffenderNos(Arrays.asList(StringUtils.split(offenderNos, ",")), agencyId);
-    }
-
     @When("^a key worker allocation history request is made with nomis ids \"([^\"]*)\"$")
     public void aKeyWorkerAllocationHistoryRequestIsMadeWithNomisIdsAndAgency(final String offenderNos) {
         keyworker.getKeyworkerAllocationHistoryByOffenderNos(Arrays.asList(StringUtils.split(offenderNos, ",")));
