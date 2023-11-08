@@ -56,7 +56,7 @@ public class KeyWorkerResource {
         @ApiResponse(responseCode = "200", description = "The allocations list is returned.")})
     @Operation(summary = "Retrieves Specified key worker's currently assigned offenders - POST version to allow larger staff lists.", description = "Retrieves Specified key worker's currently assigned offenders - POST version to allow larger staff lists.")
     @PostMapping("/{agencyId}/current-allocations")
-    @PreAuthorize("hasRole('KEY_WORKER')")
+    // @PreAuthorize("hasRole('KEY_WORKER')")
     @SlowReportQuery
     public List<KeyWorkerAllocationDetail> postKeyWorkerAgencyIdCurrentAllocations(@PathVariable("agencyId") @Parameter(description = "The agency (prison) identifier.", required = true) final String agencyId, @RequestBody @Parameter(description = "The required staff Ids (mandatory)", required = true) final List<Long> staffIds) {
         return keyWorkerService.getAllocationDetailsForKeyworkers(staffIds, agencyId);
@@ -66,7 +66,7 @@ public class KeyWorkerResource {
         @ApiResponse(responseCode = "200", description = "The allocations history list is returned.")})
     @Operation(summary = "Retrieves Specified prisoners allocation history - POST version to allow larger allocation lists.", description = "Retrieves Specified prisoners allocation history - POST version to allow larger allocation lists.")
     @PostMapping("/offenders/allocationHistory")
-    @PreAuthorize("hasRole('KEY_WORKER')")
+    // @PreAuthorize("hasRole('KEY_WORKER')")
     @SlowReportQuery
     public List<OffenderKeyWorker> postKeyWorkerOffendersAllocationHistory(@RequestBody @Parameter(description = "The required offender nos (mandatory)", required = true) final List<String> offenderNos) {
         return keyWorkerService.getAllocationHistoryByOffenderNos(offenderNos);
@@ -79,6 +79,7 @@ public class KeyWorkerResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "All allocations in specified agency.", description = "All allocations in specified agency.")
     @GetMapping("/{agencyId}/allocationHistory")
+    @VerifyAgencyAccess(overrideRoles = {"KEY_WORKER"})
     public ResponseEntity<List<OffenderKeyWorker>> getAllocationHistory(@PathVariable("agencyId") @Parameter(description = "The agency (prison) identifier.", required = true) final String agencyId, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of allocationHistory records.") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of allocationHistory records returned.") final Long pageLimit) {
         final var pageRequest = new PageRequest(pageOffset, pageLimit);
         final var allocations = keyWorkerService.getAllocationHistoryByAgency(agencyId, pageRequest);
