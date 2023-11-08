@@ -18,6 +18,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.KeyDateAdjustment
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIndividualSchedule
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderNoPayPeriod
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPayStatus
@@ -105,15 +106,14 @@ fun TestDataContext.release(offenderNo: String) {
 
 fun TestDataContext.transferOutToCourt(offenderNo: String, toLocation: String, shouldReleaseBed: Boolean = false, courtHearingEventId: Long? = null, expectedAgency: String = "LEI"): LocalDateTime {
   val movementTime = LocalDateTime.now().minusHours(1)
-  val request = RequestToTransferOutToCourt(
-    /* toLocation = */ toLocation,
-    /* movementTime = */ movementTime,
-    /* escortType = */ null,
-    /* transferReasonCode = */ "19",
-    /* commentText = */ "court appearance",
-    /* shouldReleaseBed = */ shouldReleaseBed,
-    /* courtEventId = */ courtHearingEventId,
-  )
+  val request = RequestToTransferOutToCourt.builder()
+    .toLocation(toLocation)
+    .movementTime(movementTime)
+    .transferReasonCode("19")
+    .commentText("court appearance")
+    .shouldReleaseBed(shouldReleaseBed)
+    .courtEventId(courtHearingEventId)
+    .build()
   webTestClient.put()
     .uri("/api/offenders/{nomsId}/court-transfer-out", offenderNo)
     .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER_ALPHA")))
@@ -139,15 +139,14 @@ fun TestDataContext.transferOutToTemporaryAbsence(
   tapIndividualScheduleEventId: Long? = null,
 ): LocalDateTime {
   val movementTime = LocalDateTime.now().minusHours(1)
-  val request = RequestToTransferOutToTemporaryAbsence(
-    toLocation,
-    movementTime,
-    null,
-    "C3",
-    "day release",
-    shouldReleaseBed,
-    tapIndividualScheduleEventId,
-  )
+  val request = RequestToTransferOutToTemporaryAbsence.builder()
+    .toCity(toLocation)
+    .movementTime(movementTime)
+    .transferReasonCode("C3")
+    .commentText("day release")
+    .shouldReleaseBed(shouldReleaseBed)
+    .scheduleEventId(tapIndividualScheduleEventId)
+    .build()
   webTestClient.put()
     .uri("/api/offenders/{nomsId}/temporary-absence-out", offenderNo)
     .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER_ALPHA")))
@@ -190,23 +189,24 @@ fun TestDataContext.createScheduledTemporaryAbsence(
   startTime: LocalDateTime,
 ): OffenderIndividualSchedule = this.dataLoader.offenderBookingRepository.findByIdOrNull(bookingId)!!.let {
   this.dataLoader.scheduleRepository.save(
-    OffenderIndividualSchedule()
-      .withEventDate(startTime.toLocalDate())
-      .withStartTime(startTime)
-      .withEventClass(OffenderIndividualSchedule.EventClass.EXT_MOV)
-      .withEventType("TAP")
-      .withEventSubType("ET")
-      .withEventStatus(this.dataLoader.eventStatusRepository.findById(EventStatus.SCHEDULED_APPROVED).orElseThrow())
-      .withEscortAgencyType(
+    OffenderIndividualSchedule.builder()
+      .eventDate(startTime.toLocalDate())
+      .startTime(startTime)
+      .eventClass(OffenderIndividualSchedule.EventClass.EXT_MOV)
+      .eventType("TAP")
+      .eventSubType("ET")
+      .eventStatus(this.dataLoader.eventStatusRepository.findById(EventStatus.SCHEDULED_APPROVED).orElseThrow())
+      .escortAgencyType(
         this.dataLoader.escortAgencyTypeRepository.findByIdOrNull(
           EscortAgencyType.pk("L"),
         ),
       )
-      .withFromLocation(it.location)
-      .withToAddressOwnerClass("CORP")
-      .withToAddressId(toAddressId)
-      .withMovementDirection(MovementDirection.OUT)
-      .withOffenderBooking(it),
+      .fromLocation(it.location)
+      .toAddressOwnerClass("CORP")
+      .toAddressId(toAddressId)
+      .movementDirection(MovementDirection.OUT)
+      .offenderBooking(it)
+      .build(),
   )
 }
 
@@ -273,3 +273,6 @@ fun TestDataContext.getOffenderNoPayPeriods(bookingId: Long): List<OffenderNoPay
 
 fun TestDataContext.getOffenderProgramProfiles(bookingId: Long, programStatus: String): List<OffenderProgramProfile> =
   this.dataLoader.offenderProgramProfileRepository.findByOffenderBooking_BookingIdAndProgramStatus(bookingId, programStatus)
+
+fun TestDataContext.getOffenderBooking(bookingId: Long): OffenderBooking? =
+  this.dataLoader.offenderBookingRepository.findByBookingId(bookingId).orElse(null)

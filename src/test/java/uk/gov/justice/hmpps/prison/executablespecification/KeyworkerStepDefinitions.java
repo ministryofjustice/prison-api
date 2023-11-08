@@ -14,16 +14,6 @@ public class KeyworkerStepDefinitions extends AbstractStepDefinitions {
     @Autowired
     private KeyWorkerSteps keyworker;
 
-    @When("^an available key worker request is made with agency id \"([^\"]*)\"$")
-    public void anAvailableKeyWorkerRequestIsMadeWithAgencyId(final String agencyId) {
-        keyworker.getAvailableKeyworkersList(agencyId);
-    }
-
-    @Then("^a list of \"([^\"]*)\" key workers are returned$")
-    public void aListOfKeyWorkersAreReturned(final int count) {
-        keyworker.verifyAListOfKeyworkersIsReturned(count);
-    }
-
     @Then("^the key worker service returns a resource not found response with message \"([^\"]*)\"$")
     public void aResourceNotFoundResponseIsReceivedWithMessage(final String message) {
         keyworker.verifyResourceNotFound();

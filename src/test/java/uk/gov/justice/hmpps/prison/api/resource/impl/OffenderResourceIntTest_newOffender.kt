@@ -581,7 +581,7 @@ class OffenderResourceIntTest_newOffender : ResourceTest() {
         }
 
         @Test
-        internal fun `400 when trying to book in prisoner in the future (and return a slightly inaccurate message)`() {
+        internal fun `400 when trying to book in prisoner in the future`() {
           webTestClient.post().uri("/api/offenders").headers(setAuthorisation(listOf("ROLE_BOOKING_CREATE")))
             .header("Content-Type", MediaType.APPLICATION_JSON_VALUE).bodyValue(
               """
@@ -605,7 +605,7 @@ class OffenderResourceIntTest_newOffender : ResourceTest() {
             .expectStatus().isBadRequest
             .expectBody()
             .jsonPath("userMessage")
-            .isEqualTo("Transfer cannot be done in the future")
+            .isEqualTo("Movement cannot be done in the future")
         }
       }
 

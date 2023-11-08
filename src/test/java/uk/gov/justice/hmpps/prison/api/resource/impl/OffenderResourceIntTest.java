@@ -727,7 +727,7 @@ public class OffenderResourceIntTest extends ResourceTest {
         final var error = response.getBody();
 
         assertThat(response.getStatusCodeValue()).isEqualTo(400);
-        assertThat(error.getUserMessage()).contains("Prisoner is not currently active");
+        assertThat(error.getUserMessage()).contains("Booking -20 is not active");
     }
 
     @Test
