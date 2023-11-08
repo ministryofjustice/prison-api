@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.util.UriComponentsBuilder
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.NORMAL_USER
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.SYSTEM_USER_READ_WRITE
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalDateTime.now
@@ -492,17 +491,67 @@ class MovementResourceTest : ResourceTest() {
   @Nested
   @DisplayName("GET /api/movements/upcomingCourtAppearances")
   inner class UpcomingCourtAppearances {
+
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("/api/movements/upcomingCourtAppearances")
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return 403 when not does not have correct role`() {
+      webTestClient.get().uri("/api/movements/upcomingCourtAppearances")
+        .headers(setClientAuthorisation(listOf("")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should return success when has authorised SYSTEM_USER role`() {
+      webTestClient.get().uri("/api/movements/upcomingCourtAppearances")
+        .headers(setClientAuthorisation(listOf("SYSTEM_USER")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `should return success when has authorised VIEW_COURT_EVENTS role`() {
+      webTestClient.get().uri("/api/movements/upcomingCourtAppearances")
+        .headers(setClientAuthorisation(listOf("VIEW_COURT_EVENTS")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+    }
+
     @Test
     fun testGetUpcomingCourtAppearances() {
-      val token = authTokenHelper.getToken(SYSTEM_USER_READ_WRITE)
-      val response = testRestTemplate.exchange(
-        "/api/movements/upcomingCourtAppearances",
-        GET,
-        createHttpEntity(token, null),
-        object : ParameterizedTypeReference<String>() {},
-      )
-      assertThatStatus(response, OK.value())
-      assertThatJson(response.body).isEqualTo("movements_upcoming_court.json".readFile())
+      webTestClient.get().uri("/api/movements/upcomingCourtAppearances")
+        .headers(setClientAuthorisation(listOf("VIEW_COURT_EVENTS")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectBody()
+        .jsonPath("$[0].court").isEqualTo("COURT1")
+        .jsonPath("$[0].courtDescription").isEqualTo("Court 1")
+        .jsonPath("$[0].startTime").isEqualTo("2040-01-01T12:00:00")
+        .jsonPath("$[0].offenderNo").isEqualTo("A1234AH")
+        .jsonPath("$[0].eventSubType").isEqualTo("CRT")
+        .jsonPath("$[0].eventDescription").isEqualTo("Court Appearance")
+        .jsonPath("$[0].hold").isEqualTo(false)
+        .jsonPath("$[1].court").isEqualTo("ABDRCT")
+        .jsonPath("$[1].courtDescription").isEqualTo("Court 2")
+        .jsonPath("$[1].startTime").isEqualTo("2050-01-01T11:00:00")
+        .jsonPath("$[1].offenderNo").isEqualTo("A1234AH")
+        .jsonPath("$[1].eventSubType").isEqualTo("DC")
+        .jsonPath("$[1].eventDescription").isEqualTo("Discharged to Court")
+        .jsonPath("$[1].hold").isEqualTo(true)
     }
   }
 
