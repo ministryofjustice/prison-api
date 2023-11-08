@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
-import com.microsoft.applicationinsights.TelemetryClient
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -9,13 +8,9 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.isNull
 import org.mockito.kotlin.verify
-import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.http.MediaType
 
 class KeyWorkerResourceTest : ResourceTest() {
-
-  @SpyBean
-  protected lateinit var telemetryClient: TelemetryClient
 
   @Nested
   @DisplayName("GET /api/key-worker/{agencyId}/available")
@@ -40,7 +35,6 @@ class KeyWorkerResourceTest : ResourceTest() {
     @Test
     fun `returns 404 if user has no caseloads`() {
       webTestClient.get().uri("/api/key-worker/LEI/available")
-        // RO_USER has no caseloads
         .headers(setAuthorisation("RO_USER", listOf(""))).exchange()
         .expectStatus().isNotFound
         .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [LEI] not found.")
@@ -49,7 +43,6 @@ class KeyWorkerResourceTest : ResourceTest() {
     @Test
     fun `returns 404 if not in user caseload`() {
       webTestClient.get().uri("/api/key-worker/LEI/available")
-        // RO_USER has no caseloads
         .headers(setAuthorisation("WAI_USER", listOf(""))).exchange()
         .expectStatus().isNotFound
         .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [LEI] not found.")
@@ -106,7 +99,6 @@ class KeyWorkerResourceTest : ResourceTest() {
     @Test
     fun `returns 404 if not in user caseload`() {
       webTestClient.get().uri("/api/key-worker/LEI/allocationHistory")
-        // RO_USER has no caseloads
         .headers(setAuthorisation("WAI_USER", listOf(""))).exchange()
         .expectStatus().isNotFound
         .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [LEI] not found.")
