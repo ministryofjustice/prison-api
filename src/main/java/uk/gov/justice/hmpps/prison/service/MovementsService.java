@@ -334,7 +334,7 @@ public class MovementsService {
         return List.of(fromDateTime.toLocalDate());
     }
 
-    @PreAuthorize("hasRole('SYSTEM_USER')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'VIEW_COURT_EVENTS')")
     public List<CourtEventBasic> getUpcomingCourtAppearances() {
         return courtEventRepository.getCourtEventsUpcoming(LocalDate.now().atStartOfDay())
             .stream()
