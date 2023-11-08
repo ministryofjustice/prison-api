@@ -37,7 +37,6 @@ public class KeyWorkerAllocationService {
         this.maxBatchSize = maxBatchSize;
     }
 
-
     public List<Keyworker> getAvailableKeyworkers(final String agencyId) {
         return repository.getAvailableKeyworkers(agencyId);
     }
@@ -68,23 +67,6 @@ public class KeyWorkerAllocationService {
                 .collect(toList());
     }
 
-//    public List<KeyWorkerAllocationDetail> getAllocationDetailsForOffenders(final List<String> offenderNos, final String agencyId) {
-//        Validate.notEmpty(offenderNos, "Offender Nos must be specified.");
-//        Validate.notNull(agencyId, "agencyId must be specified.");
-//
-//        final var allocations = repository.getAllocationDetailsForOffenders(offenderNos, Collections.singletonList(agencyId));
-//
-//        allocations.forEach(a -> a.setInternalLocationDesc(LocationProcessor.stripAgencyId(a.getInternalLocationDesc(), a.getAgencyId())));
-//
-//        return allocations.stream()
-//                .sorted(Comparator
-//                        .comparing(KeyWorkerAllocationDetail::getBookingId)
-//                        .thenComparing(KeyWorkerAllocationDetail::getStaffId)
-//                        .thenComparing(KeyWorkerAllocationDetail::getAssigned).reversed())
-//                .collect(toList());
-//    }
-
-    @VerifyAgencyAccess
     public Page<OffenderKeyWorker> getAllocationHistoryByAgency(final String agencyId, final PageRequest pageRequest) {
         Validate.notBlank(agencyId, "Agency id is required.");
         Validate.notNull(pageRequest, "Page request details are requreid.");

@@ -167,7 +167,6 @@ public class ReferenceDomainResource {
                     final var message = String.format("Reference code for domain [%s] and code [%s] does not have sub-codes.", domain, code);
                     throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, message);
                 });
-
     }
 
     @ApiResponses({
