@@ -20,47 +20,14 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 public class KeyWorkerSteps extends CommonSteps {
     private static final String ALLOCATION_HISTORY_URL_FOR_STAFF = API_PREFIX + "key-worker/staff/allocationHistory";
     private static final String ALLOCATION_HISTORY_URL_FOR_OFFENDERS = API_PREFIX + "key-worker/offenders/allocationHistory";
-    private static final String KEY_WORKER_API_URL_WITH_AGENCY_PARAM = API_PREFIX + "key-worker/%s/available";
     private static final String KEY_WORKER_API_DETAILS = API_PREFIX + "key-worker/{staffId}";
     private static final String KEY_WORKER_API_URL_WITH_STAFF_ID_PARAM = API_PREFIX + "key-worker/{staffId}/agency/{agencyId}/offenders";
     private static final String KEY_WORKER_CURRENT_ALLOCS_BY_STAFF = API_PREFIX + "key-worker/{agencyId}/current-allocations";
     private static final String KEY_WORKER_CURRENT_ALLOCS_BY_OFFENDER = API_PREFIX + "key-worker/{agencyId}/current-allocations/offenders";
 
-    private List<Keyworker> keyworkerList;
     private Keyworker keyworker;
     private List<KeyWorkerAllocationDetail> allocationsList;
     private List<OffenderKeyWorker> allocationHistoryList;
-
-    public void getAvailableKeyworkersList(final String agencyId) {
-        doListApiCall(agencyId);
-    }
-
-    public void verifyAListOfKeyworkersIsReturned(final int count) {
-        assertThat(keyworkerList).hasSize(count);
-    }
-
-    private void doListApiCall(final String agencyId) {
-        init();
-
-        final var queryUrl = String.format(KEY_WORKER_API_URL_WITH_AGENCY_PARAM, agencyId);
-
-        try {
-            final var response =
-                    restTemplate.exchange(
-                            queryUrl,
-                            HttpMethod.GET,
-                            createEntity(null),
-                            new ParameterizedTypeReference<List<Keyworker>>() {
-                            });
-
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-            keyworkerList = response.getBody();
-
-        } catch (final PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
 
     private void doAllocationsApiCall(final Long staffId, final String agencyId) {
         init();
@@ -158,7 +125,6 @@ public class KeyWorkerSteps extends CommonSteps {
     @Override
     protected void init() {
         super.init();
-        keyworkerList = null;
         keyworker = null;
     }
 
