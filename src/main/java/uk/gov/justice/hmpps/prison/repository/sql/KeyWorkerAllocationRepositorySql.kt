@@ -23,28 +23,6 @@ enum class KeyWorkerAllocationRepositorySql(val sql: String) {
     """,
   ),
 
-//  GET_ALLOCATION_DETAIL_FOR_OFFENDERS(
-//    """
-//        SELECT
-//        OKW.OFFENDER_BOOK_ID   BOOKING_ID,
-//        O.OFFENDER_ID_DISPLAY  OFFENDER_NO,
-//        OKW.OFFICER_ID         STAFF_ID,
-//        O.FIRST_NAME,
-//        O.LAST_NAME,
-//        OKW.ASSIGNED_TIME      ASSIGNED,
-//        OKW.AGY_LOC_ID         AGENCY_ID,
-//        AIL.DESCRIPTION        INTERNAL_LOCATION_DESC
-//                FROM OFFENDER_KEY_WORKERS OKW
-//        INNER JOIN OFFENDER_BOOKINGS OB         ON OB.OFFENDER_BOOK_ID = OKW.OFFENDER_BOOK_ID
-//                INNER JOIN OFFENDERS O                  ON OB.OFFENDER_ID = O.OFFENDER_ID
-//                LEFT JOIN AGENCY_INTERNAL_LOCATIONS AIL ON OB.LIVING_UNIT_ID = AIL.INTERNAL_LOCATION_ID
-//                WHERE O.OFFENDER_ID_DISPLAY IN (:offenderNos)
-//        AND OB.AGY_LOC_ID IN (:agencyIds)
-//        AND OB.ACTIVE_FLAG = 'Y'
-//        AND OKW.ACTIVE_FLAG = 'Y'
-//    """,
-//  ),
-
   GET_AVAILABLE_KEY_WORKERS(
     """
         SELECT DISTINCT SM.LAST_NAME,
