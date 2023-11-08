@@ -217,7 +217,7 @@ class ExternalMovementService(
     val now = LocalDateTime.now()
     return movementTime?.let {
       return if (movementTime.isAfter(now)) {
-        failure(BadRequestException("Transfer cannot be done in the future"))
+        failure(BadRequestException("Movement cannot be done in the future"))
       } else if (booking?.hasMovementsAfter(movementTime) == true) {
         failure(BadRequestException("Movement cannot be before the previous active movement"))
       } else {

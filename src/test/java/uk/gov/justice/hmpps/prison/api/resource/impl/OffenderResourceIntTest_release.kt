@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.StatusAssertions
-import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.service.DataLoaderTransaction
 import uk.gov.justice.hmpps.prison.util.builders.ExternalServiceBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
@@ -242,7 +241,7 @@ class OffenderResourceIntTest_release : ResourceTest() {
           .isBadRequest
           .expectBody()
           .jsonPath("userMessage")
-          .isEqualTo("Transfer cannot be done in the future") // TODO SDIT-548 the message should say release rather than transfer - or maybe the more generic "movement"?
+          .isEqualTo("Transfer cannot be done in the future")
       }
 
       @Test
@@ -317,6 +316,8 @@ class OffenderResourceIntTest_release : ResourceTest() {
           .also {
             assertThat(it.type).isEqualTo("PRISON")
             assertThat(it.subType).isEqualTo("RELEASE")
+            // TODO SDIT-548 This should be the text on the release case note
+            //  assertThat(it.text).isEqualTo("Released from SHREWSBURY for reason: Conditional Release.")
           }
       }
 
@@ -487,10 +488,6 @@ class OffenderResourceIntTest_release : ResourceTest() {
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus()
-
-    private fun StatusAssertions.inmate() = this.isOk
-      .returnResult(InmateDetail::class.java)
-      .responseBody.blockFirst()!!
 
     private fun releaseRequest(
       movementReasonCode: String = "CR",
