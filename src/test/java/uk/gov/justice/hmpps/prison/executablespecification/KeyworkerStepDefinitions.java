@@ -8,22 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.KeyWorkerSteps;
 
 import java.util.Arrays;
-import java.util.stream.Collectors;
 
 public class KeyworkerStepDefinitions extends AbstractStepDefinitions {
 
     @Autowired
     private KeyWorkerSteps keyworker;
-
-    @When("^an available key worker request is made with agency id \"([^\"]*)\"$")
-    public void anAvailableKeyWorkerRequestIsMadeWithAgencyId(final String agencyId) throws Throwable {
-        keyworker.getAvailableKeyworkersList(agencyId);
-    }
-
-    @Then("^a list of \"([^\"]*)\" key workers are returned$")
-    public void aListOfKeyWorkersAreReturned(final int count) throws Throwable {
-        keyworker.verifyAListOfKeyworkersIsReturned(count);
-    }
 
     @When("^a key worker details request is made with staff id \"([^\"]*)\"$")
     public void anAvailableKeyWorkerRequestIsMadeWithAgencyId(final Long staffId) throws Throwable {
@@ -55,7 +44,6 @@ public class KeyworkerStepDefinitions extends AbstractStepDefinitions {
     public void keyWorkerAllocationsRequestIsMade(final Long staffId, final String agency) throws Throwable {
         keyworker.getKeyworkerAllocations(staffId, agency);
     }
-
 
     @Then("^the correct key worker allocations are returned$")
     public void correctKeyWorkerAllocationsReceived() throws Throwable {
