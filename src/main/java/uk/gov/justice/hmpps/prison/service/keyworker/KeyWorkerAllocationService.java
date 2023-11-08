@@ -68,21 +68,21 @@ public class KeyWorkerAllocationService {
                 .collect(toList());
     }
 
-    public List<KeyWorkerAllocationDetail> getAllocationDetailsForOffenders(final List<String> offenderNos, final String agencyId) {
-        Validate.notEmpty(offenderNos, "Offender Nos must be specified.");
-        Validate.notNull(agencyId, "agencyId must be specified.");
-
-        final var allocations = repository.getAllocationDetailsForOffenders(offenderNos, Collections.singletonList(agencyId));
-
-        allocations.forEach(a -> a.setInternalLocationDesc(LocationProcessor.stripAgencyId(a.getInternalLocationDesc(), a.getAgencyId())));
-
-        return allocations.stream()
-                .sorted(Comparator
-                        .comparing(KeyWorkerAllocationDetail::getBookingId)
-                        .thenComparing(KeyWorkerAllocationDetail::getStaffId)
-                        .thenComparing(KeyWorkerAllocationDetail::getAssigned).reversed())
-                .collect(toList());
-    }
+//    public List<KeyWorkerAllocationDetail> getAllocationDetailsForOffenders(final List<String> offenderNos, final String agencyId) {
+//        Validate.notEmpty(offenderNos, "Offender Nos must be specified.");
+//        Validate.notNull(agencyId, "agencyId must be specified.");
+//
+//        final var allocations = repository.getAllocationDetailsForOffenders(offenderNos, Collections.singletonList(agencyId));
+//
+//        allocations.forEach(a -> a.setInternalLocationDesc(LocationProcessor.stripAgencyId(a.getInternalLocationDesc(), a.getAgencyId())));
+//
+//        return allocations.stream()
+//                .sorted(Comparator
+//                        .comparing(KeyWorkerAllocationDetail::getBookingId)
+//                        .thenComparing(KeyWorkerAllocationDetail::getStaffId)
+//                        .thenComparing(KeyWorkerAllocationDetail::getAssigned).reversed())
+//                .collect(toList());
+//    }
 
     @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
     public Page<OffenderKeyWorker> getAllocationHistoryByAgency(final String agencyId, final PageRequest pageRequest) {

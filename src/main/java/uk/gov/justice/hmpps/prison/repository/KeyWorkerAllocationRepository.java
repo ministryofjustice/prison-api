@@ -73,15 +73,15 @@ public class KeyWorkerAllocationRepository extends RepositoryBase {
     }
 
 
-    public List<KeyWorkerAllocationDetail> getAllocationDetailsForOffenders(final List<String> offenderNos, final List<String> agencyIds) {
-        final var sql = KeyWorkerAllocationRepositorySql.GET_ALLOCATION_DETAIL_FOR_OFFENDERS.getSql();
-
-        final var details = jdbcTemplate.query(
-                sql,
-                createParams("offenderNos", offenderNos, "agencyIds", agencyIds),
-                KEY_WORKER_ALLOCATION_DETAIL_ROW_MAPPER);
-        return details.stream().map(KeyWorkerAllocationDetailDto::toKeyWorkerAllocationDetail).toList();
-    }
+//    public List<KeyWorkerAllocationDetail> getAllocationDetailsForOffenders(final List<String> offenderNos, final List<String> agencyIds) {
+//        final var sql = KeyWorkerAllocationRepositorySql.GET_ALLOCATION_DETAIL_FOR_OFFENDERS.getSql();
+//
+//        final var details = jdbcTemplate.query(
+//                sql,
+//                createParams("offenderNos", offenderNos, "agencyIds", agencyIds),
+//                KEY_WORKER_ALLOCATION_DETAIL_ROW_MAPPER);
+//        return details.stream().map(KeyWorkerAllocationDetailDto::toKeyWorkerAllocationDetail).toList();
+//    }
 
 
     public boolean checkKeyworkerExists(final Long staffId) {

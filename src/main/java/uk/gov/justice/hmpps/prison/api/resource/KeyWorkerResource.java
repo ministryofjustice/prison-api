@@ -62,15 +62,15 @@ public class KeyWorkerResource {
         return keyWorkerService.getAllocationDetailsForKeyworkers(staffIds, agencyId);
     }
 
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "The allocations list is returned.")})
-    @Operation(summary = "Retrieves Specified key worker's currently assigned offenders - POST version to allow larger staff lists.", description = "Retrieves Specified key worker's currently assigned offenders - POST version to allow larger staff lists.")
-    @PostMapping("/{agencyId}/current-allocations/offenders") // NOT USED
-    @PreAuthorize("hasRole('KEY_WORKER')")
-    @SlowReportQuery
-    public List<KeyWorkerAllocationDetail> postKeyWorkerAgencyIdCurrentAllocationsOffenders(@PathVariable("agencyId") @Parameter(description = "The agency (prison) identifier.", required = true) final String agencyId, @RequestBody @Parameter(description = "The required offender Nos (mandatory)", required = true) final List<String> offenderNos) {
-        return keyWorkerService.getAllocationDetailsForOffenders(offenderNos, agencyId);
-    }
+//    @ApiResponses({
+//        @ApiResponse(responseCode = "200", description = "The allocations list is returned.")})
+//    @Operation(summary = "Retrieves Specified key worker's currently assigned offenders - POST version to allow larger staff lists.", description = "Retrieves Specified key worker's currently assigned offenders - POST version to allow larger staff lists.")
+//    @PostMapping("/{agencyId}/current-allocations/offenders") // NOT USED
+//    @PreAuthorize("hasRole('KEY_WORKER')")
+//    @SlowReportQuery
+//    public List<KeyWorkerAllocationDetail> postKeyWorkerAgencyIdCurrentAllocationsOffenders(@PathVariable("agencyId") @Parameter(description = "The agency (prison) identifier.", required = true) final String agencyId, @RequestBody @Parameter(description = "The required offender Nos (mandatory)", required = true) final List<String> offenderNos) {
+//        return keyWorkerService.getAllocationDetailsForOffenders(offenderNos, agencyId);
+//    }
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "The allocations history list is returned.")})
