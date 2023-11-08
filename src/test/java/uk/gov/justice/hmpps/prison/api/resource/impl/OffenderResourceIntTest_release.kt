@@ -21,6 +21,7 @@ import uk.gov.justice.hmpps.prison.util.builders.getBedAssignments
 import uk.gov.justice.hmpps.prison.util.builders.getCaseNotes
 import uk.gov.justice.hmpps.prison.util.builders.getKeyDateAdjustments
 import uk.gov.justice.hmpps.prison.util.builders.getMovements
+import uk.gov.justice.hmpps.prison.util.builders.getOffenderBooking
 import uk.gov.justice.hmpps.prison.util.builders.getOffenderNoPayPeriods
 import uk.gov.justice.hmpps.prison.util.builders.getOffenderPayStatus
 import uk.gov.justice.hmpps.prison.util.builders.getOffenderProgramProfiles
@@ -200,7 +201,7 @@ class OffenderResourceIntTest_release : ResourceTest() {
         ).isBadRequest
           .expectBody()
           .jsonPath("userMessage")
-          .isEqualTo("Prisoner is not currently active")
+          .isEqualTo("Booking $bookingId is not active")
       }
 
       @Test
@@ -213,7 +214,7 @@ class OffenderResourceIntTest_release : ResourceTest() {
         ).isBadRequest
           .expectBody()
           .jsonPath("userMessage")
-          .isEqualTo("Prisoner is not currently IN")
+          .isEqualTo("Booking $bookingId is not IN")
       }
 
       @Test
@@ -227,7 +228,7 @@ class OffenderResourceIntTest_release : ResourceTest() {
           .isNotFound
           .expectBody()
           .jsonPath("userMessage")
-          .isEqualTo("No movement type found for MovementTypeAndReason.Pk(type=REL, reasonCode=ZZZ)")
+          .isEqualTo("No movement reason ZZZ found")
       }
 
       @Test
@@ -241,7 +242,7 @@ class OffenderResourceIntTest_release : ResourceTest() {
           .isBadRequest
           .expectBody()
           .jsonPath("userMessage")
-          .isEqualTo("Transfer cannot be done in the future")
+          .isEqualTo("Movement cannot be done in the future")
       }
 
       @Test
@@ -279,6 +280,28 @@ class OffenderResourceIntTest_release : ResourceTest() {
       @BeforeEach
       fun setUp() {
         createBooking()
+      }
+
+      @Test
+      fun `should update booking`() {
+        releaseOffender(offenderNo, releaseRequest())
+          .isOk
+          .expectBody()
+          .jsonPath("offenderNo").isEqualTo(offenderNo)
+          .jsonPath("bookingId").isEqualTo("$bookingId")
+          .jsonPath("activeFlag").isEqualTo(false)
+          .jsonPath("agencyId").isEqualTo("OUT")
+          .jsonPath("assignedLivingUnitId").doesNotExist()
+          .jsonPath("inOutStatus").isEqualTo("OUT")
+          .jsonPath("status").isEqualTo("INACTIVE OUT")
+          .jsonPath("statusReason").isEqualTo("REL-CR")
+          .jsonPath("lastMovementTypeCode").isEqualTo("REL")
+          .jsonPath("lastMovementReasonCode").isEqualTo("CR")
+
+        testDataContext.getOffenderBooking(bookingId!!)?.also {
+          assertThat(it.isActive).isFalse()
+          assertThat(it.location.id).isEqualTo("OUT")
+        }
       }
 
       @Test

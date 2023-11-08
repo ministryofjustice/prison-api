@@ -88,6 +88,7 @@ import uk.gov.justice.hmpps.prison.service.OffenderLocationService;
 import uk.gov.justice.hmpps.prison.service.OffenderTransactionHistoryService;
 import uk.gov.justice.hmpps.prison.service.PrisonerReleaseAndTransferService;
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.BookingIntoPrisonService;
+import uk.gov.justice.hmpps.prison.service.enteringandleaving.ReleasePrisonerService;
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.TransferIntoPrisonService;
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.PrisonerCreationService;
 
@@ -121,6 +122,7 @@ public class OffenderResource {
     private final BookingIntoPrisonService bookingIntoPrisonService;
     private final TransferIntoPrisonService transferIntoPrisonService;
     private final OffenderLocationService offenderLocationService;
+    private final ReleasePrisonerService releasePrisonerService;
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
@@ -175,11 +177,11 @@ public class OffenderResource {
     @PutMapping("/{offenderNo}/release")
     @PreAuthorize("hasRole('RELEASE_PRISONER') and hasAuthority('SCOPE_write')")
     @ProxyUser
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER"})
+    @VerifyOffenderAccess
     public InmateDetail releasePrisoner(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToReleasePrisoner requestToReleasePrisoner) {
-        return prisonerReleaseAndTransferService.releasePrisoner(offenderNo, requestToReleasePrisoner, null);
+        return releasePrisonerService.releasePrisoner(offenderNo, requestToReleasePrisoner);
     }
 
     @ApiResponses({
