@@ -2,19 +2,14 @@
 
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
-import com.microsoft.applicationinsights.TelemetryClient
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.isNull
 import org.mockito.kotlin.verify
-import org.springframework.boot.test.mock.mockito.SpyBean
 
 class BookingResourceIntTest_getVisitBalances : ResourceTest() {
-
-  @SpyBean
-  protected lateinit var telemetryClient: TelemetryClient
 
   @Nested
   inner class Authorisation {

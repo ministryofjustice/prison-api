@@ -1,7 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import com.google.gson.Gson
-import com.microsoft.applicationinsights.TelemetryClient
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -11,7 +10,6 @@ import org.mockito.kotlin.eq
 import org.mockito.kotlin.isNull
 import org.mockito.kotlin.verify
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
@@ -25,9 +23,6 @@ import java.time.LocalTime
 class ScheduleResourceTest : ResourceTest() {
   @Autowired
   private lateinit var gson: Gson
-
-  @SpyBean
-  private lateinit var telemetryClient: TelemetryClient
 
   @Nested
   @DisplayName("GET /api/schedules/{agencyId}/activities-by-date-range")
