@@ -33,6 +33,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenceActivationDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenceDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenceToScheduleMappingDto;
 import uk.gov.justice.hmpps.prison.api.model.StatuteDto;
+import uk.gov.justice.hmpps.prison.core.ReferenceData;
 import uk.gov.justice.hmpps.prison.service.reference.OffenceService;
 
 import java.util.List;
@@ -54,6 +55,7 @@ public class OffenceResource {
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @ReferenceData(description = "Only offence reference data is returned")
     public Page<OffenceDto> getOffencesThatStartWith(
         @Parameter(required = true, example = "AA1256A", description = "The offence code")
         @PathVariable("offenceCode")
