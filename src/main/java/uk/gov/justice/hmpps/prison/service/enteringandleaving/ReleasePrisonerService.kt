@@ -12,7 +12,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepo
 import uk.gov.justice.hmpps.prison.service.BadRequestException
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer
-import java.time.LocalDateTime
 import kotlin.Result.Companion.failure
 import kotlin.Result.Companion.success
 
@@ -34,15 +33,33 @@ class ReleasePrisonerService(
     val booking = getOffenderBooking(prisonerIdentifier).flatMap { it.isActiveIn() }.getOrThrow()
     val toLocation = getAgencyLocation(request.toLocationCode).getOrThrow()
 
-    val movement = externalMovementService.updateMovementsForRelease(request.releaseTime, request.movementReasonCode, booking, toLocation, request.commentText)
+    val movement = externalMovementService.updateMovementsForRelease(
+      request.releaseTime,
+      request.movementReasonCode,
+      booking,
+      toLocation,
+      request.commentText,
+    )
 
-    caseNoteMovementService.createReleaseNote(booking, movement)
-    bedAssignmentMovementService.endBedHistory(booking.bookingId, movement.movementTime)
-    sentenceMovementService.deactivateSentences(booking.bookingId)
-    paymentsMovementService.endPaymentRules(booking.bookingId, movement.movementDate)
-    activityMovementService.endActivitiesAndWaitlist(booking, movement.fromAgency, movement.movementDate, request.movementReasonCode)
-
-    return booking.release(toLocation, movement.movementTime, movement.movementReason.code)
+    return booking
+      .also {
+        caseNoteMovementService.createReleaseNote(it, movement)
+        bedAssignmentMovementService.endBedHistory(it.bookingId, movement.movementTime)
+        sentenceMovementService.deactivateSentences(it.bookingId)
+        paymentsMovementService.endPaymentRules(it.bookingId, movement.movementDate)
+        activityMovementService.endActivitiesAndWaitlist(it, movement.fromAgency, movement.movementDate, request.movementReasonCode)
+      }
+      .apply {
+        inOutStatus = "OUT"
+        isActive = false
+        bookingStatus = "C"
+        livingUnitMv = null
+        assignedLivingUnit = null
+        location = toLocation
+        bookingEndDate = movement.movementTime
+        statusReason = "REL-${movement.movementReason.code}"
+        commStatus = null
+      }
       .let { transformer.transform(it) }
   }
 
@@ -58,19 +75,6 @@ class ReleasePrisonerService(
       failure(BadRequestException("Booking $bookingId is not IN"))
     } else {
       success(this)
-    }
-
-  private fun OffenderBooking.release(toLocation: AgencyLocation, releaseTime: LocalDateTime, reasonCode: String) =
-    apply {
-      inOutStatus = "OUT"
-      isActive = false
-      bookingStatus = "C"
-      livingUnitMv = null
-      assignedLivingUnit = null
-      location = toLocation
-      bookingEndDate = releaseTime
-      statusReason = "REL-$reasonCode"
-      commStatus = null
     }
 
   private fun getAgencyLocation(prisonId: String): Result<AgencyLocation> =
