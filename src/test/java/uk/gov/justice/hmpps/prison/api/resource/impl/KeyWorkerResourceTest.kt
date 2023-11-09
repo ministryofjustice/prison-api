@@ -168,52 +168,5 @@ class KeyWorkerResourceTest : ResourceTest() {
         .expectBody()
         .jsonPath("[*].offenderNo").value<List<Int>> { assertThat(it).hasSize(5) }
     }
-    /*
-    Scenario: Request for key worker allocations for multiple staff Ids
-    When a key worker allocations request is made with staff ids "-5,-4" and agency "LEI"
-     private void callPostApiForAllocations(final String url, final List<?> lists, final String agencyId) {
-        try {
-            final var response =
-                    restTemplate.exchange(
-                            "/key-worker/{agencyId}/current-allocations";,
-                            HttpMethod.POST,
-                            createEntity(lists, null),
-                            new ParameterizedTypeReference<List<KeyWorkerAllocationDetail>>() {
-                            }, agencyId);
-
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-            allocationsList = response.getBody();
-
-        } catch (final PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
-    Then the key worker has 5 allocations
-    assertThat(allocationsList).hasSize(expectedAllocationCount);
-
-  Scenario: Request for key worker allocation history for multiple offender Nos
-    When a key worker allocation history request is made with nomis ids "A9876RS,A5576RS,A1176RS,A1234AP"
-     private void callPostApiForAllocationHistory(final String url, final List<?> lists) {
-        try {
-            final var response =
-                    restTemplate.exchange(
-                            "key-worker/offenders/allocationHistory";,
-                            HttpMethod.POST,
-                            createEntity(lists, null),
-                            new ParameterizedTypeReference<List<OffenderKeyWorker>>() {
-                            });
-
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-            allocationHistoryList = response.getBody();
-
-        } catch (final PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
-    Then the key worker has 5 allocation history entries
-            assertThat(allocationHistoryList).hasSize(expectedAllocationCount);
-     */
   }
 }
