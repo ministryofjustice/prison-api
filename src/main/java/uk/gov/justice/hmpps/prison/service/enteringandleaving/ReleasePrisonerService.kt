@@ -42,6 +42,13 @@ class ReleasePrisonerService(
     )
 
     return booking
+      .also {
+        caseNoteMovementService.createReleaseNote(it, movement)
+        bedAssignmentMovementService.endBedHistory(it.bookingId, movement.movementTime)
+        sentenceMovementService.deactivateSentences(it.bookingId)
+        paymentsMovementService.endPaymentRules(it.bookingId, movement.movementDate)
+        activityMovementService.endActivitiesAndWaitlist(it, movement.fromAgency, movement.movementDate, request.movementReasonCode)
+      }
       .apply {
         inOutStatus = "OUT"
         isActive = false
@@ -52,13 +59,6 @@ class ReleasePrisonerService(
         bookingEndDate = movement.movementTime
         statusReason = "REL-${movement.movementReason.code}"
         commStatus = null
-      }
-      .also {
-        caseNoteMovementService.createReleaseNote(it, movement)
-        bedAssignmentMovementService.endBedHistory(it.bookingId, movement.movementTime)
-        sentenceMovementService.deactivateSentences(it.bookingId)
-        paymentsMovementService.endPaymentRules(it.bookingId, movement.movementDate)
-        activityMovementService.endActivitiesAndWaitlist(it, movement.fromAgency, movement.movementDate, request.movementReasonCode)
       }
       .let { transformer.transform(it) }
   }
