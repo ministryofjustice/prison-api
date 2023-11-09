@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.StatusAssertions
-import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.service.DataLoaderTransaction
 import uk.gov.justice.hmpps.prison.util.builders.ExternalServiceBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
@@ -22,6 +21,7 @@ import uk.gov.justice.hmpps.prison.util.builders.getBedAssignments
 import uk.gov.justice.hmpps.prison.util.builders.getCaseNotes
 import uk.gov.justice.hmpps.prison.util.builders.getKeyDateAdjustments
 import uk.gov.justice.hmpps.prison.util.builders.getMovements
+import uk.gov.justice.hmpps.prison.util.builders.getOffenderBooking
 import uk.gov.justice.hmpps.prison.util.builders.getOffenderNoPayPeriods
 import uk.gov.justice.hmpps.prison.util.builders.getOffenderPayStatus
 import uk.gov.justice.hmpps.prison.util.builders.getOffenderProgramProfiles
@@ -201,7 +201,7 @@ class OffenderResourceIntTest_release : ResourceTest() {
         ).isBadRequest
           .expectBody()
           .jsonPath("userMessage")
-          .isEqualTo("Prisoner is not currently active")
+          .isEqualTo("Booking $bookingId is not active")
       }
 
       @Test
@@ -214,7 +214,7 @@ class OffenderResourceIntTest_release : ResourceTest() {
         ).isBadRequest
           .expectBody()
           .jsonPath("userMessage")
-          .isEqualTo("Prisoner is not currently IN")
+          .isEqualTo("Booking $bookingId is not IN")
       }
 
       @Test
@@ -228,7 +228,7 @@ class OffenderResourceIntTest_release : ResourceTest() {
           .isNotFound
           .expectBody()
           .jsonPath("userMessage")
-          .isEqualTo("No movement type found for MovementTypeAndReason.Pk(type=REL, reasonCode=ZZZ)")
+          .isEqualTo("No movement reason ZZZ found")
       }
 
       @Test
@@ -242,7 +242,7 @@ class OffenderResourceIntTest_release : ResourceTest() {
           .isBadRequest
           .expectBody()
           .jsonPath("userMessage")
-          .isEqualTo("Transfer cannot be done in the future") // TODO SDIT-548 the message should say release rather than transfer - or maybe the more generic "movement"?
+          .isEqualTo("Movement cannot be done in the future")
       }
 
       @Test
@@ -283,6 +283,28 @@ class OffenderResourceIntTest_release : ResourceTest() {
       }
 
       @Test
+      fun `should update booking`() {
+        releaseOffender(offenderNo, releaseRequest())
+          .isOk
+          .expectBody()
+          .jsonPath("offenderNo").isEqualTo(offenderNo)
+          .jsonPath("bookingId").isEqualTo("$bookingId")
+          .jsonPath("activeFlag").isEqualTo(false)
+          .jsonPath("agencyId").isEqualTo("OUT")
+          .jsonPath("assignedLivingUnitId").doesNotExist()
+          .jsonPath("inOutStatus").isEqualTo("OUT")
+          .jsonPath("status").isEqualTo("INACTIVE OUT")
+          .jsonPath("statusReason").isEqualTo("REL-CR")
+          .jsonPath("lastMovementTypeCode").isEqualTo("REL")
+          .jsonPath("lastMovementReasonCode").isEqualTo("CR")
+
+        testDataContext.getOffenderBooking(bookingId!!)?.also {
+          assertThat(it.isActive).isFalse()
+          assertThat(it.location.id).isEqualTo("OUT")
+        }
+      }
+
+      @Test
       fun `should create an outbound movement`() {
         releaseOffender(offenderNo, releaseRequest()).isOk
 
@@ -317,6 +339,8 @@ class OffenderResourceIntTest_release : ResourceTest() {
           .also {
             assertThat(it.type).isEqualTo("PRISON")
             assertThat(it.subType).isEqualTo("RELEASE")
+            // TODO SDIT-548 This should be the text on the release case note
+            //  assertThat(it.text).isEqualTo("Released from SHREWSBURY for reason: Conditional Release.")
           }
       }
 
@@ -487,10 +511,6 @@ class OffenderResourceIntTest_release : ResourceTest() {
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus()
-
-    private fun StatusAssertions.inmate() = this.isOk
-      .returnResult(InmateDetail::class.java)
-      .responseBody.blockFirst()!!
 
     private fun releaseRequest(
       movementReasonCode: String = "CR",

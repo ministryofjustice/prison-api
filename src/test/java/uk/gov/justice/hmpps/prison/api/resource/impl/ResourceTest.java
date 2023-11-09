@@ -1,10 +1,12 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
+import com.microsoft.applicationinsights.TelemetryClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.json.JsonContent;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -47,6 +49,9 @@ public abstract class ResourceTest {
 
     @Autowired
     protected WebTestClient webTestClient;
+
+    @SpyBean
+    protected TelemetryClient telemetryClient;
 
     @Autowired
     protected JwtAuthenticationHelper jwtAuthenticationHelper;

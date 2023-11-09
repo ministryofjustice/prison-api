@@ -8,77 +8,40 @@ import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.KeyWorkerSteps;
 
 import java.util.Arrays;
-import java.util.stream.Collectors;
 
 public class KeyworkerStepDefinitions extends AbstractStepDefinitions {
 
     @Autowired
     private KeyWorkerSteps keyworker;
 
-    @When("^an available key worker request is made with agency id \"([^\"]*)\"$")
-    public void anAvailableKeyWorkerRequestIsMadeWithAgencyId(final String agencyId) throws Throwable {
-        keyworker.getAvailableKeyworkersList(agencyId);
-    }
-
-    @Then("^a list of \"([^\"]*)\" key workers are returned$")
-    public void aListOfKeyWorkersAreReturned(final int count) throws Throwable {
-        keyworker.verifyAListOfKeyworkersIsReturned(count);
-    }
-
-    @When("^a key worker details request is made with staff id \"([^\"]*)\"$")
-    public void anAvailableKeyWorkerRequestIsMadeWithAgencyId(final Long staffId) throws Throwable {
-        keyworker.getKeyworkerDetails(staffId);
-    }
-
-    @Then("^the key worker details are returned$")
-    public void aListOfKeyWorkersAreReturned() throws Throwable {
-        keyworker.verifyKeyworkerDetails();
-    }
-
     @Then("^the key worker service returns a resource not found response with message \"([^\"]*)\"$")
-    public void aResourceNotFoundResponseIsReceivedWithMessage(final String message) throws Throwable {
+    public void aResourceNotFoundResponseIsReceivedWithMessage(final String message) {
         keyworker.verifyResourceNotFound();
         keyworker.verifyErrorUserMessage(message);
     }
 
     @And("^the key worker has (\\d+) allocations$")
-    public void theKeyWorkerHasAllocations(final int expectedAllocationCount) throws Throwable {
+    public void theKeyWorkerHasAllocations(final int expectedAllocationCount) {
         keyworker.verifyKeyWorkerAllocationCount(expectedAllocationCount);
     }
 
     @And("^the key worker has (\\d+) allocation history entries$")
-    public void theKeyWorkerHasAllocationHistoryEntries(final int expectedAllocationCount) throws Throwable {
+    public void theKeyWorkerHasAllocationHistoryEntries(final int expectedAllocationCount) {
         keyworker.verifyKeyWorkerAllocationHistoryCount(expectedAllocationCount);
     }
 
-    @When("^a key worker allocations request is made with staff id \"([^\"]*)\" and agency \"([^\"]*)\"$")
-    public void keyWorkerAllocationsRequestIsMade(final Long staffId, final String agency) throws Throwable {
-        keyworker.getKeyworkerAllocations(staffId, agency);
-    }
-
-
     @Then("^the correct key worker allocations are returned$")
-    public void correctKeyWorkerAllocationsReceived() throws Throwable {
+    public void correctKeyWorkerAllocationsReceived() {
         keyworker.verifyKeyWorkerAllocations();
     }
 
     @When("^a key worker allocations request is made with staff ids \"([^\"]*)\" and agency \"([^\"]*)\"$")
-    public void aKeyWorkerAllocationsRequestIsMadeWithStaffIdsAndAgency(final String staffIds, final String agencyId) throws Throwable {
+    public void aKeyWorkerAllocationsRequestIsMadeWithStaffIdsAndAgency(final String staffIds, final String agencyId) {
         keyworker.getKeyworkerAllocationsByStaffIds(Arrays.stream(StringUtils.split(staffIds, ",")).map(Long::valueOf).toList(), agencyId);
     }
 
-    @When("^a key worker allocations request is made with nomis ids \"([^\"]*)\" and agency \"([^\"]*)\"$")
-    public void aKeyWorkerAllocationsRequestIsMadeWithNomisIdsAndAgency(final String offenderNos, final String agencyId) throws Throwable {
-        keyworker.getKeyworkerAllocationsByOffenderNos(Arrays.asList(StringUtils.split(offenderNos, ",")), agencyId);
-    }
-
-    @When("^a key worker allocation history request is made with staff ids \"([^\"]*)\"$")
-    public void aKeyWorkerAllocationHistoryRequestIsMadeWithStaffIdsAndAgency(final String staffIds) throws Throwable {
-        keyworker.getKeyworkerAllocationHistoryByStaffIds(Arrays.stream(StringUtils.split(staffIds, ",")).map(Long::valueOf).toList());
-    }
-
     @When("^a key worker allocation history request is made with nomis ids \"([^\"]*)\"$")
-    public void aKeyWorkerAllocationHistoryRequestIsMadeWithNomisIdsAndAgency(final String offenderNos) throws Throwable {
+    public void aKeyWorkerAllocationHistoryRequestIsMadeWithNomisIdsAndAgency(final String offenderNos) {
         keyworker.getKeyworkerAllocationHistoryByOffenderNos(Arrays.asList(StringUtils.split(offenderNos, ",")));
     }
 }

@@ -130,7 +130,6 @@ Feature: Agencies
       | locationId | description    | userDescription    |
       | -25        | Chapel         | Chapel             |
 
-@wip
   Scenario: Retrieve IEP levels for an agency
     When a request is submitted to retrieve IEP levels for agency "LEI"
     Then the returned IEP levels are as follows:

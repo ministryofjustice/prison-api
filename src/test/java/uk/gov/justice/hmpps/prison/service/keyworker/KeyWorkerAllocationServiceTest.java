@@ -6,9 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.OffenderKeyWorker;
-import uk.gov.justice.hmpps.prison.repository.AgencyRepository;
 import uk.gov.justice.hmpps.prison.repository.KeyWorkerAllocationRepository;
-import uk.gov.justice.hmpps.prison.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,18 +22,12 @@ import static org.mockito.internal.verification.VerificationModeFactory.times;
 public class KeyWorkerAllocationServiceTest {
     @Mock
     private KeyWorkerAllocationRepository repository;
-    @Mock
-    private AgencyRepository agencyRepository;
-    @Mock
-    private UserRepository userRepository;
 
     private KeyWorkerAllocationService keyWorkerAllocationService;
 
     @BeforeEach
     public void init() {
         keyWorkerAllocationService = new KeyWorkerAllocationService(repository,
-            agencyRepository,
-            userRepository,
             1000);
     }
 
@@ -78,8 +70,6 @@ public class KeyWorkerAllocationServiceTest {
     public void getAllocationHistoryByOffenderNos_CallsKeyworkerRepoInBatches() {
 
         final var keyWorkerAllocationServiceWithSmallBatchSize = new KeyWorkerAllocationService(repository,
-            agencyRepository,
-            userRepository,
             2);
 
         keyWorkerAllocationServiceWithSmallBatchSize.getAllocationHistoryByOffenderNos(List.of("off1", "off2", "off3"));

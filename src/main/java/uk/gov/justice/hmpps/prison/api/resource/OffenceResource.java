@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
@@ -34,9 +33,9 @@ import uk.gov.justice.hmpps.prison.api.model.OffenceActivationDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenceDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenceToScheduleMappingDto;
 import uk.gov.justice.hmpps.prison.api.model.StatuteDto;
+import uk.gov.justice.hmpps.prison.core.ReferenceData;
 import uk.gov.justice.hmpps.prison.service.reference.OffenceService;
 
-import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 
 
@@ -50,36 +49,13 @@ public class OffenceResource {
 
     private final OffenceService service;
 
-    @GetMapping()
-    @Operation(summary = "Paged List of active offences")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    public Page<OffenceDto> getActiveOffences(
-        @ParameterObject @PageableDefault(sort = {"code"}, direction = Sort.Direction.ASC) final Pageable pageable) {
-
-        return service.getOffences(true, pageable);
-    }
-
-    @GetMapping("/all")
-    @Operation(summary = "Paged List of all offences")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    public Page<OffenceDto> getOffences(
-        @ParameterObject @PageableDefault(sort = {"code"}, direction = Sort.Direction.ASC) final Pageable pageable) {
-
-        return service.getOffences(false, pageable);
-    }
-
     @GetMapping("/code/{offenceCode}")
     @Operation(summary = "Paged List of all offences where the offence code starts with the passed in offenceCode param")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @ReferenceData(description = "Only offence reference data is returned")
     public Page<OffenceDto> getOffencesThatStartWith(
         @Parameter(required = true, example = "AA1256A", description = "The offence code")
         @PathVariable("offenceCode")
@@ -87,42 +63,6 @@ public class OffenceResource {
         @ParameterObject @PageableDefault(sort = {"code"}, direction = Sort.Direction.ASC) final Pageable pageable) {
         log.info("Request received to fetch offences that start with offenceCode {}", offenceCode);
         return service.getOffencesThatStartWith(offenceCode, pageable);
-    }
-
-    @GetMapping("/ho-code")
-    @Operation(summary = "Paged List of offences by HO Code")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    public Page<OffenceDto> getOffencesByHoCode(
-        @Parameter(description = "HO Code", required = true, example = "825/99") @RequestParam("code") @NotBlank final String code,
-        @ParameterObject @PageableDefault(sort = {"code"}, direction = Sort.Direction.ASC) final Pageable pageable) {
-        return service.findByHoCode(code, pageable);
-    }
-
-    @GetMapping("/statute")
-    @Operation(summary = "Paged List of offences by Statute")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    public Page<OffenceDto> getOffencesByStatute(
-        @Parameter(description = "Statute Code", required = true, example = "RR84") @RequestParam("code") @NotBlank final String code,
-        @ParameterObject @PageableDefault(sort = {"code"}, direction = Sort.Direction.ASC) final Pageable pageable) {
-        return service.findByStatute(code, pageable);
-    }
-
-    @GetMapping("/search")
-    @Operation(summary = "Paged List of offences matching offence description")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    public Page<OffenceDto> getOffencesByDescription(
-        @Parameter(description = "Search text of the offence", required = true, example = "RR84") @RequestParam("searchText") @NotBlank final String searchText,
-        @PageableDefault(sort = {"code"}, direction = Sort.Direction.ASC) final Pageable pageable) {
-        return service.findOffences(searchText, pageable);
     }
 
     @PostMapping("/ho-code")

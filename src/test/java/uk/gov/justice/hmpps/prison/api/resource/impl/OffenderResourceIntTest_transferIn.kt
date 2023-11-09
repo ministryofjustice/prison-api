@@ -385,7 +385,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           .exchange()
           .expectStatus().isEqualTo(400)
           .expectBody()
-          .jsonPath("userMessage").isEqualTo("Transfer cannot be done in the future")
+          .jsonPath("userMessage").isEqualTo("Movement cannot be done in the future")
       }
 
       @Test
@@ -1225,7 +1225,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             .exchange()
             .expectStatus().isEqualTo(400)
             .expectBody()
-            .jsonPath("userMessage").isEqualTo("Transfer cannot be done in the future")
+            .jsonPath("userMessage").isEqualTo("Movement cannot be done in the future")
         }
 
         @Test
@@ -1926,7 +1926,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           )
             .isBadRequest
             .expectBody()
-            .jsonPath("userMessage").isEqualTo("Transfer cannot be done in the future")
+            .jsonPath("userMessage").isEqualTo("Movement cannot be done in the future")
         }
 
         @Test

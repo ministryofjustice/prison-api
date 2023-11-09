@@ -18,7 +18,6 @@ import uk.gov.justice.hmpps.prison.repository.sql.KeyWorkerAllocationRepositoryS
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,7 +34,6 @@ public class KeyWorkerAllocationRepository extends RepositoryBase {
             new DataClassByColumnRowMapper<>(OffenderKeyWorkerDto.class);
 
 
-
     public List<Keyworker> getAvailableKeyworkers(final String agencyId) {
         final var sql = KeyWorkerAllocationRepositorySql.GET_AVAILABLE_KEY_WORKERS.getSql();
 
@@ -45,7 +43,6 @@ public class KeyWorkerAllocationRepository extends RepositoryBase {
                 KEY_WORKER_ROW_MAPPER);
         return keyworkers.stream().map(KeyworkerDto::toKeyworker).toList();
     }
-
 
     public Optional<Keyworker> getKeyworkerDetailsByBooking(final Long bookingId) {
         KeyworkerDto keyworker;
@@ -62,12 +59,6 @@ public class KeyWorkerAllocationRepository extends RepositoryBase {
         return Optional.ofNullable(keyworker).map(KeyworkerDto::toKeyworker);
     }
 
-
-    public List<KeyWorkerAllocationDetail> getAllocationDetailsForKeyworker(final Long staffId, final List<String> agencyIds) {
-        return getAllocationDetailsForKeyworkers(Collections.singletonList(staffId), agencyIds);
-    }
-
-
     public List<KeyWorkerAllocationDetail> getAllocationDetailsForKeyworkers(final List<Long> staffIds, final List<String> agencyIds) {
         final var sql = KeyWorkerAllocationRepositorySql.GET_ALLOCATION_DETAIL_FOR_KEY_WORKERS.getSql();
 
@@ -77,18 +68,6 @@ public class KeyWorkerAllocationRepository extends RepositoryBase {
                 KEY_WORKER_ALLOCATION_DETAIL_ROW_MAPPER);
         return details.stream().map(KeyWorkerAllocationDetailDto::toKeyWorkerAllocationDetail).toList();
     }
-
-
-    public List<KeyWorkerAllocationDetail> getAllocationDetailsForOffenders(final List<String> offenderNos, final List<String> agencyIds) {
-        final var sql = KeyWorkerAllocationRepositorySql.GET_ALLOCATION_DETAIL_FOR_OFFENDERS.getSql();
-
-        final var details = jdbcTemplate.query(
-                sql,
-                createParams("offenderNos", offenderNos, "agencyIds", agencyIds),
-                KEY_WORKER_ALLOCATION_DETAIL_ROW_MAPPER);
-        return details.stream().map(KeyWorkerAllocationDetailDto::toKeyWorkerAllocationDetail).toList();
-    }
-
 
     public boolean checkKeyworkerExists(final Long staffId) {
         try {
@@ -100,7 +79,6 @@ public class KeyWorkerAllocationRepository extends RepositoryBase {
         }
     }
 
-
     public Page<OffenderKeyWorker> getAllocationHistoryByAgency(final String agencyId, final PageRequest pageRequest) {
         Validate.notBlank(agencyId, "Agency id is required.");
         Validate.notNull(pageRequest, "Page request details are requreid.");
@@ -110,21 +88,20 @@ public class KeyWorkerAllocationRepository extends RepositoryBase {
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_KEY_WORKER_ROW_MAPPER.getFieldMap());
 
         final var sql = builder
-                .addRowCount()
-                .addPagination()
-                .build();
+            .addRowCount()
+            .addPagination()
+            .build();
 
         final var paRowMapper = new PageAwareRowMapper<>(OFFENDER_KEY_WORKER_ROW_MAPPER);
 
         final var dtos = jdbcTemplate.query(
-                sql,
-                createParamSource(pageRequest, "agencyId", agencyId),
-                paRowMapper);
+            sql,
+            createParamSource(pageRequest, "agencyId", agencyId),
+            paRowMapper);
         final var results = dtos.stream().map(OffenderKeyWorkerDto::toOffenderKeyWorker).toList();
 
         return new Page<>(results, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
     }
-
 
     public List<OffenderKeyWorker> getAllocationHistoryByOffenderNos(final List<String> offenderNos) {
         Validate.notEmpty(offenderNos, "At least 1 offender No is required.");
@@ -137,18 +114,4 @@ public class KeyWorkerAllocationRepository extends RepositoryBase {
                 OFFENDER_KEY_WORKER_ROW_MAPPER);
         return results.stream().map(OffenderKeyWorkerDto::toOffenderKeyWorker).toList();
     }
-
-
-    public List<OffenderKeyWorker> getAllocationHistoryByStaffIds(final List<Long> staffIds) {
-        Validate.notEmpty(staffIds, "At least 1 staff Id is required.");
-
-        final var sql = KeyWorkerAllocationRepositorySql.GET_ALLOCATION_HISTORY_BY_STAFF.getSql();
-
-        final var results = jdbcTemplate.query(
-                sql,
-                createParams("staffIds", staffIds),
-                OFFENDER_KEY_WORKER_ROW_MAPPER);
-        return results.stream().map(OffenderKeyWorkerDto::toOffenderKeyWorker).toList();
-    }
-
 }

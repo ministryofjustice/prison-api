@@ -404,7 +404,6 @@ public class BookingService {
         return bookingRepository.getBookingVisits(bookingId, fromDate, toDate, sortFields, sortOrder);
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public Page<VisitWithVisitors> getBookingVisitsWithVisitor(final VisitInformationFilter filter, final Pageable pageable) {
         checkState(filter.getBookingId() != null, "BookingId required");
         final var visits = visitInformationRepository.findAll(filter, pageable);
