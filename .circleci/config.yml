@@ -187,10 +187,11 @@ workflows:
       - hmpps/trivy_latest_scan:
           context:
             - hmpps-common-vars
-      - hmpps/veracode_pipeline_scan:
-          context:
-            - hmpps-common-vars
-            - veracode-credentials
+# Disable until fixed by veracode - see #veracode channel
+#      - hmpps/veracode_pipeline_scan:
+#          context:
+#            - hmpps-common-vars
+#            - veracode-credentials
   security-weekly:
     triggers:
       - schedule:
