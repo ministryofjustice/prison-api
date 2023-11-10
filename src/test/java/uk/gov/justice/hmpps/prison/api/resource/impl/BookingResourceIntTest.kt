@@ -682,16 +682,95 @@ class BookingResourceIntTest : ResourceTest() {
     assertThatJsonFileAndStatus(response, 200, "offence-history-by-bookingids.json")
   }
 
-  @Test
-  fun secondaryLanguages() {
-    val response = testRestTemplate.exchange(
-      "/api/bookings/{bookingId}/secondary-languages",
-      GET,
-      createHttpEntity(NORMAL_USER, null),
-      String::class.java,
-      -3L,
-    )
-    assertThatJsonFileAndStatus(response, 200, "secondary_languages.json")
+  @Nested
+  @DisplayName("GET /api/bookings/{bookingId}/secondary-languages")
+  inner class SecondaryLanguages {
+
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("/api/bookings/-3/secondary-languages")
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return 403 if does not have override role`() {
+      webTestClient.get().uri("/api/bookings/-3/secondary-languages")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should return success when has SYSTEM_USER override role`() {
+      webTestClient.get().uri("/api/bookings/-3/secondary-languages")
+        .headers(setClientAuthorisation(listOf("SYSTEM_USER")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `should return success when has VIEW_PRISONER_DATA override role`() {
+      webTestClient.get().uri("/api/bookings/-3/secondary-languages")
+        .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns 404 if user has no caseloads`() {
+      webTestClient.get().uri("/api/bookings/-3/secondary-languages")
+        .headers(setAuthorisation("RO_USER", listOf()))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -3 not found.")
+    }
+
+    @Test
+    fun `returns 404 if not in user caseload`() {
+      webTestClient.get().uri("/api/bookings/-3/secondary-languages")
+        .headers(setAuthorisation("WAI_USER", listOf()))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -3 not found.")
+    }
+
+    @Test
+    fun `returns 404 if booking not found`() {
+      webTestClient.get().uri("/api/bookings/-99999/secondary-languages")
+        .headers(setAuthorisation("WAI_USER", listOf()))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -99999 not found.")
+    }
+
+    @Test
+    fun `should return success when user has booking in caseload`() {
+      webTestClient.get().uri("/api/bookings/-3/secondary-languages")
+        .headers(setAuthorisation(listOf()))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("length()").isEqualTo(3)
+        .jsonPath("[*].bookingId").value<List<Int>> { assertThat(it).containsOnly(-3) }
+        .jsonPath("[*].code").value<List<String>> { assertThat(it).containsOnly("ENG", "KUR", "SPA") }
+        .jsonPath("[*].description").value<List<String>> { assertThat(it).containsOnly("English", "Kurdish", "Spanish; Castilian") }
+        .jsonPath("[0].canRead").isEqualTo(true)
+        .jsonPath("[0].canWrite").isEqualTo(true)
+        .jsonPath("[0].canSpeak").isEqualTo(true)
+        .jsonPath("[1].canRead").isEqualTo(false)
+        .jsonPath("[1].canWrite").isEqualTo(false)
+        .jsonPath("[1].canSpeak").isEqualTo(true)
+    }
   }
 
   @Test
@@ -757,7 +836,7 @@ class BookingResourceIntTest : ResourceTest() {
     @Test
     fun `should return 403 as endpoint does not have override role`() {
       webTestClient.get().uri("/api/bookings/-6/assessments")
-        .headers(setClientAuthorisation(listOf("")))
+        .headers(setClientAuthorisation(listOf()))
         .exchange()
         .expectStatus().isForbidden
     }
@@ -785,7 +864,7 @@ class BookingResourceIntTest : ResourceTest() {
     @Test
     fun `returns 404 if user has no caseloads`() {
       webTestClient.get().uri("/api/bookings/-6/assessments")
-        .headers(setAuthorisation("RO_USER", listOf("")))
+        .headers(setAuthorisation("RO_USER", listOf()))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isNotFound
@@ -795,7 +874,7 @@ class BookingResourceIntTest : ResourceTest() {
     @Test
     fun `returns 404 if not in user caseload`() {
       webTestClient.get().uri("/api/bookings/-6/assessments")
-        .headers(setAuthorisation("WAI_USER", listOf("")))
+        .headers(setAuthorisation("WAI_USER", listOf()))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isNotFound
@@ -805,7 +884,7 @@ class BookingResourceIntTest : ResourceTest() {
     @Test
     fun `returns 404 if booking not found`() {
       webTestClient.get().uri("/api/bookings/-99999/assessments")
-        .headers(setAuthorisation("WAI_USER", listOf("")))
+        .headers(setAuthorisation("WAI_USER", listOf()))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isNotFound
@@ -815,7 +894,7 @@ class BookingResourceIntTest : ResourceTest() {
     @Test
     fun `should return success when user has booking in caseload`() {
       webTestClient.get().uri("/api/bookings/-6/assessments")
-        .headers(setAuthorisation(listOf("")))
+        .headers(setAuthorisation(listOf()))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isOk
@@ -839,7 +918,7 @@ class BookingResourceIntTest : ResourceTest() {
     @Test
     fun `should return 403 as endpoint does not have override role`() {
       webTestClient.get().uri("/api/bookings/-6/visits-with-visitors")
-        .headers(setClientAuthorisation(listOf("")))
+        .headers(setClientAuthorisation(listOf()))
         .exchange()
         .expectStatus().isForbidden
     }
