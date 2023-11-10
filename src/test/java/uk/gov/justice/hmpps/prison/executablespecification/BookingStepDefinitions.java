@@ -334,11 +334,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingDetail.verifyAlertTypes(types);
     }
 
-    @When("^assessment information is requested for Booking Id \"([^\"]*)\"$")
-    public void assessmentInformationIsRequestedForBookingId(final String bookingId) {
-        bookingAssessment.getAssessments(Long.valueOf(bookingId));
-    }
-
     @Then("^\"(\\d+)\" row of assessment data is returned$")
     public void rowOfDataIsReturned(final long expectedCount) {
         bookingAssessment.verifyResourceRecordsReturned(expectedCount);

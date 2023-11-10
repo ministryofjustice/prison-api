@@ -359,8 +359,7 @@ public class InmateService {
      * @param bookingId tacit
      * @return latest assessment of each code for the offender
      */
-    // @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_ASSESSMENTS"})
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_ASSESSMENTS"})
     public List<Assessment> getAssessments(final Long bookingId) {
         final var assessmentsDto = repository.findAssessments(Collections.singletonList(bookingId), null, Collections.emptySet());
 
