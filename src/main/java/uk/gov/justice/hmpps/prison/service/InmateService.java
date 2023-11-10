@@ -715,8 +715,7 @@ public class InmateService {
         return repository.findInmateAliases(bookingId, defaultOrderBy, sortOrder, offset, limit);
     }
 
-    // @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"}) // no calls
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     public List<SecondaryLanguage> getSecondaryLanguages(final Long bookingId) {
         return offenderLanguageRepository
                 .findByOffenderBookId(bookingId)
