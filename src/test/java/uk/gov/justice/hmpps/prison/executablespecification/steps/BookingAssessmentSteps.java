@@ -31,15 +31,10 @@ public class BookingAssessmentSteps extends CommonSteps {
     private Assessment assessment;
     private List<Assessment> assessments;
     private List<OffenderCategorise> offenderCatList;
-    private ResponseEntity updateResponse;
     private Map createResponse;
 
     public void getAssessmentByCode(final Long bookingId, final String assessmentCode) {
         doSingleResultApiCall(API_BOOKING_PREFIX + bookingId + "/assessment/" + assessmentCode);
-    }
-
-    public void getAssessments(final Long bookingId) {
-        doListResultApiCall(API_BOOKING_PREFIX + bookingId + "/assessments");
     }
 
     private void doSingleResultApiCall(final String url) {
@@ -92,20 +87,6 @@ public class BookingAssessmentSteps extends CommonSteps {
         } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
             return null;
-        }
-    }
-
-    private void doListResultApiCall(final String url) {
-        init();
-        try {
-            final var response = restTemplate.exchange(url, HttpMethod.GET,
-                    createEntity(null, null), new ParameterizedTypeReference<List<Assessment>>() {
-                    });
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-            assessment = response.getBody().isEmpty() ? null : response.getBody().get(0);
-            buildResourceData(response);
-        } catch (final PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
         }
     }
 
@@ -163,17 +144,16 @@ public class BookingAssessmentSteps extends CommonSteps {
     private void doApproveCategorisationApiCall(final Long bookingId, final String category, final LocalDate date, final String comment) {
         init();
         try {
-            updateResponse =
-                    restTemplate.exchange(
-                            API_ASSESSMENTS_PREFIX + "category/approve",
-                            PUT,
-                            createEntity(CategoryApprovalDetail.builder()
-                                    .bookingId(bookingId)
-                                    .category(category)
-                                    .evaluationDate(date)
-                                    .approvedCategoryComment(comment)
-                                    .reviewCommitteeCode("GOV")
-                                    .build()), ResponseEntity.class);
+            restTemplate.exchange(
+                API_ASSESSMENTS_PREFIX + "category/approve",
+                PUT,
+                createEntity(CategoryApprovalDetail.builder()
+                        .bookingId(bookingId)
+                        .category(category)
+                        .evaluationDate(date)
+                        .approvedCategoryComment(comment)
+                        .reviewCommitteeCode("GOV")
+                        .build()), ResponseEntity.class);
 
         } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
@@ -186,7 +166,6 @@ public class BookingAssessmentSteps extends CommonSteps {
         assessment = null;
         assessments = null;
         offenderCatList = null;
-        updateResponse = null;
         createResponse = null;
     }
 

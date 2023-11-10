@@ -239,10 +239,6 @@ Feature: Booking Details
       | -2        | 2            | 0              | H          |
       | -11       | 0            | 0              |            |
 
-  Scenario: Request for assessment data
-    When assessment information is requested for Booking Id "-6"
-    Then "3" row of assessment data is returned
-
   Scenario Outline: Request for physical attributes
     When an physical attributes request is made with booking id "<bookingId>"
     And gender matches "<gender>"
