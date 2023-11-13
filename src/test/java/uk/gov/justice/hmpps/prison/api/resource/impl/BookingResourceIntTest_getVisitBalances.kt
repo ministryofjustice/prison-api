@@ -58,7 +58,15 @@ class BookingResourceIntTest_getVisitBalances : ResourceTest() {
       }
 
       @Test
-      fun `returns 200 when client has override ROLE_SYSTEM_USER`() {
+      fun `returns 200 when client has override role ROLE_VISIT_SCHEDULER`() {
+        webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/visit/balances")
+          .headers(setClientAuthorisation(listOf("ROLE_VISIT_SCHEDULER")))
+          .exchange()
+          .expectStatus().isOk
+      }
+
+      @Test
+      fun `returns 200 when client has override role ROLE_SYSTEM_USER`() {
         webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/visit/balances")
           .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
           .exchange()
