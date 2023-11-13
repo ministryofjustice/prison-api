@@ -56,7 +56,6 @@ import uk.gov.justice.hmpps.prison.api.model.InmateBasicDetails;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.Keyworker;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
-import uk.gov.justice.hmpps.prison.api.model.Movement;
 import uk.gov.justice.hmpps.prison.api.model.NewAppointment;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.OffenceDetail;
@@ -65,12 +64,8 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifier;
 import uk.gov.justice.hmpps.prison.api.model.OffenderRelationship;
 import uk.gov.justice.hmpps.prison.api.model.PersonalCareCounterDto;
 import uk.gov.justice.hmpps.prison.api.model.PersonalCareNeeds;
-import uk.gov.justice.hmpps.prison.api.model.PhysicalAttributes;
-import uk.gov.justice.hmpps.prison.api.model.PhysicalCharacteristic;
-import uk.gov.justice.hmpps.prison.api.model.PhysicalMark;
 import uk.gov.justice.hmpps.prison.api.model.PrisonDetails;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerBookingSummary;
-import uk.gov.justice.hmpps.prison.api.model.ProfileInformation;
 import uk.gov.justice.hmpps.prison.api.model.PropertyContainer;
 import uk.gov.justice.hmpps.prison.api.model.ReasonableAdjustments;
 import uk.gov.justice.hmpps.prison.api.model.ReturnToCustodyDate;
@@ -107,7 +102,6 @@ import uk.gov.justice.hmpps.prison.service.HealthService;
 import uk.gov.justice.hmpps.prison.service.ImageService;
 import uk.gov.justice.hmpps.prison.service.InmateAlertService;
 import uk.gov.justice.hmpps.prison.service.InmateService;
-import uk.gov.justice.hmpps.prison.service.MovementsService;
 import uk.gov.justice.hmpps.prison.service.NoContentException;
 import uk.gov.justice.hmpps.prison.service.OffenderFixedTermRecallService;
 import uk.gov.justice.hmpps.prison.service.keyworker.KeyWorkerAllocationService;
@@ -142,7 +136,6 @@ public class BookingResource {
     private final AdjudicationService adjudicationService;
     private final ImageService imageService;
     private final KeyWorkerAllocationService keyworkerService;
-    private final MovementsService movementsService;
     private final AppointmentsService appointmentsService;
     private final OffenderFixedTermRecallService fixedTermRecallService;
 
@@ -587,38 +580,6 @@ public class BookingResource {
         return bookingService.getActiveOffencesForBookings(bookingIds);
     }
 
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Offender Physical Attributes.", description = "Offender Physical Attributes.")
-    @GetMapping("/{bookingId}/physicalAttributes")
-    public PhysicalAttributes getPhysicalAttributes(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
-        return inmateService.getPhysicalAttributes(bookingId);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Physical Characteristics", description = "Physical Characteristics")
-    @GetMapping("/{bookingId}/physicalCharacteristics")
-    public List<PhysicalCharacteristic> getPhysicalCharacteristics(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
-        return inmateService.getPhysicalCharacteristics(bookingId);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Physical Mark Information", description = "Physical Mark Information")
-    @GetMapping("/{bookingId}/physicalMarks")
-    public List<PhysicalMark> getPhysicalMarks(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
-        return inmateService.getPhysicalMarks(bookingId);
-    }
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
@@ -692,17 +653,6 @@ public class BookingResource {
     @GetMapping("/{bookingId}/reasonable-adjustments")
     public ReasonableAdjustments getReasonableAdjustments(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId, @RequestParam(value = "type", required = false) @NotEmpty(message = "treatmentCodes: must not be empty") @Parameter(description = "a list of treatment codes to search.", example = "PEEP", required = true) final List<String> treatmentCodes) {
         return inmateService.getReasonableAdjustments(bookingId, treatmentCodes);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Profile Information", description = "Profile Information")
-    @GetMapping("/{bookingId}/profileInformation")
-    public List<ProfileInformation> getProfileInformation(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
-        return inmateService.getProfileInformation(bookingId);
     }
 
     @ApiResponses({
