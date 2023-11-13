@@ -334,11 +334,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingDetail.verifyAlertTypes(types);
     }
 
-    @When("^assessment information is requested for Booking Id \"([^\"]*)\"$")
-    public void assessmentInformationIsRequestedForBookingId(final String bookingId) {
-        bookingAssessment.getAssessments(Long.valueOf(bookingId));
-    }
-
     @Then("^\"(\\d+)\" row of assessment data is returned$")
     public void rowOfDataIsReturned(final long expectedCount) {
         bookingAssessment.verifyResourceRecordsReturned(expectedCount);
@@ -436,11 +431,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingDetail.findBookingDetails(List.of(offenders.split(",")));
     }
 
-    @When("^a request is made with booking Ids \"([^\"]*)\" for prison \"([^\"]*)\"$")
-    public void aRequestIsMadeForBookingIds(final String bookingsIds, final String agency) {
-        bookingDetail.findInmateDetailsNyBookingIds(agency, Arrays.stream(bookingsIds.split(",")).map(Long::valueOf).toList());
-    }
-
     @Then("^data is returned that includes \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\"$")
     public void dataIsReturnedThatIncludes(final String firstName, final String lastName, final String middleName, final String offenderNo, final String bookingId, final String agencyId) {
         bookingDetail.verifyOffenders(firstName, lastName, middleName, offenderNo, bookingId, agencyId);
@@ -449,16 +439,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @Then("^the total records returned are \"([^\"]*)\"$")
     public void theTotalRecordsReturnedAre(final int size) {
         bookingDetail.verifyOffenderCount(size);
-    }
-
-    @When("^a request is made for offender categorisation details at \"([^\"]*)\" with booking id \"([^\"]*)\", latest cat only$")
-    public void aRequestIsMadeForOffenderCategorisationDetailsAtWithBookingIdLatest(final String agency, final String bookingId) {
-        bookingAssessment.getOffendersCategorisations(agency, Collections.singletonList(Long.valueOf(bookingId)), true);
-    }
-
-    @When("^a request is made for offender categorisation details at \"([^\"]*)\" with booking id \"([^\"]*)\", all cats$")
-    public void aRequestIsMadeForOffenderCategorisationDetailsAtWithBookingIdAll(final String agency, final String bookingId) {
-        bookingAssessment.getOffendersCategorisations(agency, Collections.singletonList(Long.valueOf(bookingId)), false);
     }
 
     @Then("^\"([^\"]*)\" rows of basic inmate details are returned$")

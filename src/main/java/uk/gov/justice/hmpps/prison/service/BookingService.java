@@ -508,7 +508,6 @@ public class BookingService {
             .map(OffenderContactPerson::getRelationshipType);
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public Optional<VisitBalances> getBookingVisitBalances(final Long bookingId) {
         return bookingRepository.getBookingVisitBalances(bookingId);
     }

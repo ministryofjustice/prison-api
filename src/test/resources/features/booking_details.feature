@@ -164,18 +164,6 @@ Feature: Booking Details
     When a request is made for categorised offenders at "LEI" with an approval from Date of ""
     Then 0 categorised offenders are returned
 
-  Scenario: Request for latest categorisation details for given booking ids
-    When a request is made for offender categorisation details at "LEI" with booking id "-31", latest cat only
-    Then 1 categorised offenders are returned
-
-  Scenario: Request for latest categorisation details for given booking ids that do not match the given agency
-    When a request is made for offender categorisation details at "MDI" with booking id "-31", latest cat only
-    Then 0 categorised offenders are returned
-
-  Scenario: Request for all categorisation details for given booking ids
-    When a request is made for offender categorisation details at "LEI" with booking id "-31", all cats
-    Then 2 categorised offenders are returned
-
   Scenario: Request for offenders who need to be recategorised
     When a request is made for offenders who need to be recategorised at "LEI" with cutoff Date of "2018-07-01"
     Then 4 categorised offenders are returned
@@ -239,10 +227,6 @@ Feature: Booking Details
       | -2        | 2            | 0              | H          |
       | -11       | 0            | 0              |            |
 
-  Scenario: Request for assessment data
-    When assessment information is requested for Booking Id "-6"
-    Then "3" row of assessment data is returned
-
   Scenario Outline: Request for physical attributes
     When an physical attributes request is made with booking id "<bookingId>"
     And gender matches "<gender>"
@@ -278,10 +262,6 @@ Feature: Booking Details
   Scenario: Request for physical characteristics
     When physical characteristic information is requested for Booking Id "-1"
     Then "2" row of physical characteristics is returned
-
-  Scenario: Request for basic inmate details by bookingIds
-    When a request is made with booking Ids "-3,-4" for prison "LEI"
-    Then "2" rows of basic inmate details are returned
 
   Scenario: Request for image metadata
     When image metadata is requested for Booking Id "-1"

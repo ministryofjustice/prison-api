@@ -166,16 +166,6 @@ public class OffenderAssessmentResource {
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "The list of offenders with categorisation details is returned if categorisation record exists and their create agency is in the caseload")})
-    @Operation(summary = "Returns Categorisation details for supplied Offenders - POST version to allow large offender lists.", description = "Categorisation details for supplied Offenders where agencyId is their create agency and is in the caseload")
-    @PostMapping("/category/{agencyId}")
-    @SlowReportQuery
-    public List<OffenderCategorise> getOffenderCategorisations(@PathVariable("agencyId") @Parameter(description = "Prison id", required = true) final String agencyId, @RequestBody @Parameter(description = "The required booking Ids (mandatory)", required = true) final Set<Long> bookingIds, @RequestParam(value = "latestOnly", required = false, defaultValue = "true") @Parameter(description = "Only get the latest category for each booking") final Boolean latestOnly) {
-        final var latest = latestOnly == null || latestOnly;
-        return inmateService.getOffenderCategorisations(agencyId, bookingIds, latest);
-    }
-
-    @ApiResponses({
             @ApiResponse(responseCode = "200", description = "The list of offenders with categorisation details is returned if categorisation record exists")})
     @Operation(summary = "Returns Categorisation details for supplied Offenders - POST version to allow large offender lists.", description = "Categorisation details for all supplied Offenders using SYSTEM access")
     @PostMapping("/category")

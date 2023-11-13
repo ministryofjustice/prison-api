@@ -99,22 +99,22 @@ public class InmateService {
     private final TelemetryClient telemetryClient;
 
     public InmateService(final InmateRepository repository,
-                         final CaseLoadService caseLoadService,
-                         final InmateAlertService inmateAlertService,
-                         final ReferenceDomainService referenceDomainService,
-                         final BookingService bookingService,
-                         final AgencyService agencyService,
-                         final HealthService healthService,
-                         final UserService userService,
-                         final AuthenticationFacade authenticationFacade,
-                         final TelemetryClient telemetryClient,
-                         @Value("${batch.max.size:1000}") final int maxBatchSize,
-                         final OffenderAssessmentService offenderAssessmentService,
-                         final OffenderLanguageRepository offenderLanguageRepository,
-                         final OffenderRepository offenderRepository,
-                         final ExternalMovementRepository externalMovementRepository,
-                         final OffenderImageRepository offenderImageRepository
-                         ) {
+                          final CaseLoadService caseLoadService,
+                          final InmateAlertService inmateAlertService,
+                          final ReferenceDomainService referenceDomainService,
+                          final BookingService bookingService,
+                          final AgencyService agencyService,
+                          final HealthService healthService,
+                          final UserService userService,
+                          final AuthenticationFacade authenticationFacade,
+                          final TelemetryClient telemetryClient,
+                          @Value("${batch.max.size:1000}") final int maxBatchSize,
+                          final OffenderAssessmentService offenderAssessmentService,
+                          final OffenderLanguageRepository offenderLanguageRepository,
+                          final OffenderRepository offenderRepository,
+                          final ExternalMovementRepository externalMovementRepository,
+                          final OffenderImageRepository offenderImageRepository
+    ) {
         this.repository = repository;
         this.caseLoadService = caseLoadService;
         this.inmateAlertService = inmateAlertService;
@@ -147,17 +147,17 @@ public class InmateService {
 
         final var results = new ArrayList<InmateBasicDetails>();
         Lists.partition(Lists.newArrayList(offenders), maxBatchSize).forEach(offenderList ->
-                results.addAll(
-                        repository.getBasicInmateDetailsForOffenders(new HashSet<>(offenderList), canViewAllOffenders, caseloads, active)
-                                .stream()
-                                .map(offender ->
-                                        offender.toBuilder()
-                                                .firstName(WordUtils.capitalizeFully(offender.getFirstName()))
-                                                .middleName(WordUtils.capitalizeFully(offender.getMiddleName()))
-                                                .lastName(WordUtils.capitalizeFully(offender.getLastName()))
-                                                .build()
-                                ).toList()
-                ));
+            results.addAll(
+                repository.getBasicInmateDetailsForOffenders(new HashSet<>(offenderList), canViewAllOffenders, caseloads, active)
+                    .stream()
+                    .map(offender ->
+                        offender.toBuilder()
+                            .firstName(WordUtils.capitalizeFully(offender.getFirstName()))
+                            .middleName(WordUtils.capitalizeFully(offender.getMiddleName()))
+                            .lastName(WordUtils.capitalizeFully(offender.getLastName()))
+                            .build()
+                    ).toList()
+            ));
 
         log.info("getBasicInmateDetailsForOffenders, {} records returned", results.size());
         return results;
@@ -275,24 +275,24 @@ public class InmateService {
 
     public static String calculateReleaseLocationDescription(final ExternalMovement lastMovement) {
         return REL.getCode().equals(lastMovement.getMovementType().getCode())
-                ? "Outside - released from " + lastMovement.getFromAgency().getDescription()
-                : "Outside - " + lastMovement.getMovementType().getDescription();
+            ? "Outside - released from " + lastMovement.getFromAgency().getDescription()
+            : "Outside - " + lastMovement.getMovementType().getDescription();
     }
 
     private Optional<OffenderLanguage> getFirstPreferredSpokenLanguage(final List<OffenderLanguage> languages) {
         return languages
-                .stream()
-                .filter(l -> "PREF_SPEAK".equals(l.getType()) && l.getReferenceCode() != null)
-                .sorted(Comparator.comparing(right -> right.getReferenceCode().getDescription()))
-                .reduce((first, second) -> second);
+            .stream()
+            .filter(l -> "PREF_SPEAK".equals(l.getType()) && l.getReferenceCode() != null)
+            .sorted(Comparator.comparing(right -> right.getReferenceCode().getDescription()))
+            .reduce((first, second) -> second);
     }
 
     private Optional<OffenderLanguage> getFirstPreferredWrittenLanguage(final List<OffenderLanguage> languages) {
         return languages
-                .stream()
-                .filter(l -> "PREF_WRITE".equals(l.getType()) && l.getReferenceCode() != null)
-                .sorted(Comparator.comparing(right -> right.getReferenceCode().getDescription()))
-                .reduce((first, second) -> second);
+            .stream()
+            .filter(l -> "PREF_WRITE".equals(l.getType()) && l.getReferenceCode() != null)
+            .sorted(Comparator.comparing(right -> right.getReferenceCode().getDescription()))
+            .reduce((first, second) -> second);
     }
 
     private void setAssessmentsFields(final Long bookingId, final InmateDetail inmate, final boolean csraSummary) {
@@ -359,7 +359,7 @@ public class InmateService {
      * @param bookingId tacit
      * @return latest assessment of each code for the offender
      */
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_ASSESSMENTS"})
     public List<Assessment> getAssessments(final Long bookingId) {
         final var assessmentsDto = repository.findAssessments(Collections.singletonList(bookingId), null, Collections.emptySet());
 
@@ -371,16 +371,18 @@ public class InmateService {
         return assessments;
     }
 
+    // @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public List<PhysicalMark> getPhysicalMarks(final Long bookingId) {
         return repository.findPhysicalMarks(bookingId);
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     public ReasonableAdjustments getReasonableAdjustments(final Long bookingId, final List<String> treatmentCodes) {
         return new ReasonableAdjustments(repository.findReasonableAdjustments(bookingId, treatmentCodes));
     }
 
+    // @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public List<ProfileInformation> getProfileInformation(final Long bookingId) {
         return repository.getProfileInformation(bookingId);
@@ -393,11 +395,13 @@ public class InmateService {
             .orElseThrow(EntityNotFoundException.withMessage(String.format("No Image found for booking Id %d", bookingId)));
     }
 
+    // @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public List<PhysicalCharacteristic> getPhysicalCharacteristics(final Long bookingId) {
         return repository.findPhysicalCharacteristics(bookingId);
     }
 
+    // @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public PhysicalAttributes getPhysicalAttributes(final Long bookingId) {
         final var physicalAttributes = repository.findPhysicalAttributes(bookingId).orElse(null);
@@ -410,28 +414,15 @@ public class InmateService {
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<OffenderIdentifier> getOffenderIdentifiers(final Long bookingId, @Nullable final String identifierType) {
         return repository.getOffenderIdentifiers(bookingId)
-                .stream()
-                .filter(i -> identifierType == null || identifierType.equalsIgnoreCase(i.getType()))
-                .toList();
+            .stream()
+            .filter(i -> identifierType == null || identifierType.equalsIgnoreCase(i.getType()))
+            .toList();
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @Transactional // route to primary in live so that we can get the latest data after a trigger
     public InmateDetail getBasicInmateDetail(final Long bookingId) {
         return repository.getBasicInmateDetail(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
-    }
-
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
-    public List<InmateBasicDetails> getBasicInmateDetailsByBookingIds(final String caseload, final Set<Long> bookingIds) {
-        final List<InmateBasicDetails> results = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(bookingIds)) {
-            final var batch = Lists.partition(new ArrayList<>(bookingIds), maxBatchSize);
-            batch.forEach(offenderBatch -> {
-                final var offenderList = repository.getBasicInmateDetailsByBookingIds(caseload, offenderBatch);
-                results.addAll(offenderList);
-            });
-        }
-        return results;
     }
 
     /**
@@ -457,8 +448,8 @@ public class InmateService {
         final List<Assessment> results = new ArrayList<>();
         if (!CollectionUtils.isEmpty(offenderNos)) {
             final Set<String> caseLoadIds = authenticationFacade.isOverrideRole("SYSTEM_USER", "VIEW_ASSESSMENTS", "VIEW_PRISONER_DATA")
-                    ? Collections.emptySet()
-                    : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
+                ? Collections.emptySet()
+                : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
 
             final var batch = Lists.partition(offenderNos, maxBatchSize);
             batch.forEach(offenderBatch -> {
@@ -468,7 +459,7 @@ public class InmateService {
 
                     if (mostRecentOnly) {
                         if(!csra){
-                           results.add(createAssessment(assessmentForBooking.get(0)));
+                            results.add(createAssessment(assessmentForBooking.get(0)));
                         }else {
                             final var firstAssessment = createAssessment(
                                 assessmentForBooking
@@ -502,12 +493,6 @@ public class InmateService {
             && assessmentDto.getOverridedSupLevelType() == null;
     }
 
-
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
-    public List<OffenderCategorise> getOffenderCategorisations(final String agencyId, final Set<Long> bookingIds, final boolean latestOnly) {
-        return doGetOffenderCategorisations(agencyId, bookingIds, latestOnly);
-    }
-
     @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA','SYSTEM_USER')")
     public List<OffenderCategorise> getOffenderCategorisationsSystem(final Set<Long> bookingIds, final boolean latestOnly) {
         return doGetOffenderCategorisations(null, bookingIds, latestOnly);
@@ -535,26 +520,26 @@ public class InmateService {
 
     private Assessment createAssessment(final AssessmentDto assessmentDto) {
         return Assessment.builder()
-                .bookingId(assessmentDto.getBookingId())
-                .offenderNo(assessmentDto.getOffenderNo())
-                .assessmentCode(assessmentDto.getAssessmentCode())
-                .assessmentDescription(assessmentDto.getAssessmentDescription())
-                .classification(deriveClassification(assessmentDto))
-                .classificationCode(deriveClassificationCode(assessmentDto))
-                .assessmentDate(assessmentDto.getAssessmentDate())
-                .cellSharingAlertFlag(assessmentDto.isCellSharingAlertFlag())
-                .nextReviewDate(assessmentDto.getNextReviewDate())
-                .approvalDate(assessmentDto.getApprovalDate())
-                .assessmentAgencyId(assessmentDto.getAssessmentCreateLocation())
-                .assessmentStatus(assessmentDto.getAssessStatus())
-                .assessmentSeq(assessmentDto.getAssessmentSeq())
-                .assessmentComment(assessmentDto.getAssessCommentText())
-                .assessorId(assessmentDto.getAssessStaffId())
-                .assessorUser(assessmentDto.getCreationUser())
-                .build();
+            .bookingId(assessmentDto.getBookingId())
+            .offenderNo(assessmentDto.getOffenderNo())
+            .assessmentCode(assessmentDto.getAssessmentCode())
+            .assessmentDescription(assessmentDto.getAssessmentDescription())
+            .classification(deriveClassification(assessmentDto))
+            .classificationCode(deriveClassificationCode(assessmentDto))
+            .assessmentDate(assessmentDto.getAssessmentDate())
+            .cellSharingAlertFlag(assessmentDto.isCellSharingAlertFlag())
+            .nextReviewDate(assessmentDto.getNextReviewDate())
+            .approvalDate(assessmentDto.getApprovalDate())
+            .assessmentAgencyId(assessmentDto.getAssessmentCreateLocation())
+            .assessmentStatus(assessmentDto.getAssessStatus())
+            .assessmentSeq(assessmentDto.getAssessmentSeq())
+            .assessmentComment(assessmentDto.getAssessCommentText())
+            .assessorId(assessmentDto.getAssessStaffId())
+            .assessorUser(assessmentDto.getCreationUser())
+            .build();
     }
 
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "VIEW_ASSESSMENTS"})
     public List<OffenderCategorise> getCategory(final String agencyId, final CategoryInformationType type, final LocalDate date) {
         return switch (type) {
             case UNCATEGORISED -> repository.getUncategorised(agencyId);
@@ -563,8 +548,8 @@ public class InmateService {
         };
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','CREATE_CATEGORISATION','CREATE_RECATEGORISATION')")
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "MAINTAIN_ASSESSMENTS"})
+    @PreAuthorize("hasAnyRole('SYSTEM_USER','MAINTAIN_ASSESSMENTS','CREATE_CATEGORISATION','CREATE_RECATEGORISATION')")
     @Transactional
     public Map<String, Long> createCategorisation(final Long bookingId, final CategorisationDetail categorisationDetail) {
         validate(categorisationDetail);
@@ -577,8 +562,8 @@ public class InmateService {
         return responseKeyMap;
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','CREATE_CATEGORISATION','CREATE_RECATEGORISATION')")
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "MAINTAIN_ASSESSMENTS"})
+    @PreAuthorize("hasAnyRole('SYSTEM_USER','MAINTAIN_ASSESSMENTS','CREATE_CATEGORISATION','CREATE_RECATEGORISATION')")
     @Transactional
     public void updateCategorisation(final Long bookingId, final CategorisationUpdateDetail detail) {
         validate(detail);
@@ -588,8 +573,8 @@ public class InmateService {
         telemetryClient.trackEvent("CategorisationUpdated", ImmutableMap.of("bookingId", bookingId.toString(), "seq", detail.getAssessmentSeq().toString()), null);
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','APPROVE_CATEGORISATION')")
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "MAINTAIN_ASSESSMENTS"})
+    @PreAuthorize("hasAnyRole('SYSTEM_USER','MAINTAIN_ASSESSMENTS','APPROVE_CATEGORISATION')")
     @Transactional
     public void approveCategorisation(final Long bookingId, final CategoryApprovalDetail detail) {
         validate(detail);
@@ -599,8 +584,8 @@ public class InmateService {
         telemetryClient.trackEvent("CategorisationApproved", ImmutableMap.of("bookingId", bookingId.toString(), "category", detail.getCategory()), null);
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','APPROVE_CATEGORISATION')")
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "MAINTAIN_ASSESSMENTS"})
+    @PreAuthorize("hasAnyRole('SYSTEM_USER','MAINTAIN_ASSESSMENTS','APPROVE_CATEGORISATION')")
     @Transactional
     public void rejectCategorisation(final Long bookingId, final CategoryRejectionDetail detail) {
         validate(detail);
@@ -611,18 +596,20 @@ public class InmateService {
     }
 
     @Transactional
+    // @PreAuthorize("hasAnyRole('SYSTEM_USER','MAINTAIN_ASSESSMENTS')")
     @PreAuthorize("hasRole('SYSTEM_USER')")
     public void setCategorisationInactive(final Long bookingId, final AssessmentStatusType status) {
         final var count = repository.setCategorisationInactive(bookingId, status);
 
         // Log event
         telemetryClient.trackEvent("CategorisationSetInactive", ImmutableMap.of(
-                "bookingId", bookingId.toString(),
-                "count", String.valueOf(count),
-                "status", String.valueOf(status)), null);
+            "bookingId", bookingId.toString(),
+            "count", String.valueOf(count),
+            "status", String.valueOf(status)), null);
     }
 
     @Transactional
+    // @PreAuthorize("hasAnyRole('SYSTEM_USER','MAINTAIN_ASSESSMENTS')")
     @PreAuthorize("hasRole('SYSTEM_USER')")
     public void updateCategorisationNextReviewDate(final Long bookingId, final LocalDate nextReviewDate) {
         repository.updateActiveCategoryNextReviewDate(bookingId, nextReviewDate);
@@ -634,13 +621,13 @@ public class InmateService {
     private void validate(final CategorisationDetail detail) {
         try {
             referenceDomainService.getReferenceCodeByDomainAndCode(uk.gov.justice.hmpps.prison.service.support.ReferenceDomain.CATEGORY.getDomain(),
-                    detail.getCategory(), false);
+                detail.getCategory(), false);
         } catch (final EntityNotFoundException ex) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Category not recognised.");
         }
         try {
             referenceDomainService.getReferenceCodeByDomainAndCode(uk.gov.justice.hmpps.prison.service.support.ReferenceDomain.ASSESSMENT_COMMITTEE_CODE.getDomain(),
-                    detail.getCommittee(), false);
+                detail.getCommittee(), false);
         } catch (final EntityNotFoundException ex) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Committee Code not recognised.");
         }
@@ -657,7 +644,7 @@ public class InmateService {
         if (detail.getCategory() != null) {
             try {
                 referenceDomainService.getReferenceCodeByDomainAndCode(uk.gov.justice.hmpps.prison.service.support.ReferenceDomain.CATEGORY.getDomain(),
-                        detail.getCategory(), false);
+                    detail.getCategory(), false);
             } catch (final EntityNotFoundException ex) {
                 throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Category not recognised.");
             }
@@ -707,22 +694,22 @@ public class InmateService {
         return repository.findInmateAliases(bookingId, defaultOrderBy, sortOrder, offset, limit);
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     public List<SecondaryLanguage> getSecondaryLanguages(final Long bookingId) {
         return offenderLanguageRepository
-                .findByOffenderBookId(bookingId)
-                .stream()
-                .filter(lang -> "SEC".equalsIgnoreCase(lang.getType()))
-                .map(lang -> SecondaryLanguage
-                        .builder()
-                        .bookingId(lang.getOffenderBookId())
-                        .code(lang.getCode())
-                        .description(lang.getReferenceCode() != null ? lang.getReferenceCode().getDescription() : null)
-                        .canRead("Y".equalsIgnoreCase(lang.getReadSkill()))
-                        .canWrite("Y".equalsIgnoreCase(lang.getWriteSkill()))
-                        .canSpeak("Y".equalsIgnoreCase(lang.getSpeakSkill()))
-                        .build()
-                ).toList();
+            .findByOffenderBookId(bookingId)
+            .stream()
+            .filter(lang -> "SEC".equalsIgnoreCase(lang.getType()))
+            .map(lang -> SecondaryLanguage
+                .builder()
+                .bookingId(lang.getOffenderBookId())
+                .code(lang.getCode())
+                .description(lang.getReferenceCode() != null ? lang.getReferenceCode().getDescription() : null)
+                .canRead("Y".equalsIgnoreCase(lang.getReadSkill()))
+                .canWrite("Y".equalsIgnoreCase(lang.getWriteSkill()))
+                .canSpeak("Y".equalsIgnoreCase(lang.getSpeakSkill()))
+                .build()
+            ).toList();
     }
 
     private Set<String> getUserCaseloadIds(final String username) {
