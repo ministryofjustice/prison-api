@@ -1272,25 +1272,17 @@ public class InmateRepositoryTest {
 
     @Test
     public void testAccessToAllData_WithActiveOnlyTrue() {
-        //Offender without an an active booking
+        // Offender without an active booking
         final var offenders = repository.getBasicInmateDetailsForOffenders(Set.of("Z0020ZZ"), true, Collections.emptySet(), true);
         assertThat(offenders).isEmpty();
     }
 
     @Test
     public void testAccessToAllData_WithActiveOnlyFalse() {
-        //Offender without an an active booking
+        // Offender without an active booking
         final var offenders = repository.getBasicInmateDetailsForOffenders(Set.of("Z0020ZZ"), true, Collections.emptySet(), false);
         assertThat(offenders).hasSize(1);
     }
-
-    @Test
-    public void testGetBasicInmateDetailsByBookingIds() {
-        final var offenders = repository.getBasicInmateDetailsByBookingIds("LEI", List.of(-3L, -4L, -35L));  //-35L ignored as it is MDI agency
-        assertThat(offenders).containsExactlyInAnyOrder(new InmateBasicDetails(-3L, "A00113", "A1234AC", "NORMAN", "JOHN", "BATES", "LEI", -3L, "LEI-A-1-1", parse("1999-10-27"))
-                , new InmateBasicDetails(-4L, "A00114", "A1234AD", "CHARLES", "JAMES", "CHAPLIN", "LEI", -2L, "LEI-A-1", parse("1970-01-01")));
-    }
-
 
     @Test
     public void findPhysicalAttributes() {

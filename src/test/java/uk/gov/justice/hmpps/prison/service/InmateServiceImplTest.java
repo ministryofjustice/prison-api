@@ -268,8 +268,8 @@ public class InmateServiceImplTest {
     public void testGetOffenderCategorisationsBatching() {
 
         final var setOf150Longs = Stream.iterate(1L, n -> n + 1)
-                .limit(150)
-                .collect(Collectors.toSet());
+            .limit(150)
+            .collect(Collectors.toSet());
 
         final var agencyArgument = ArgumentCaptor.forClass(String.class);
 
@@ -278,12 +278,12 @@ public class InmateServiceImplTest {
         final var catDetail3 = OffenderCategorise.builder().bookingId(-3L).category("C").build();
 
         final var listOf100Longs = Stream.iterate(1L, n -> n + 1)
-                .limit(100)
-                .toList();
+            .limit(100)
+            .toList();
 
         final var listOf50Longs = Stream.iterate(101L, n -> n + 1)
-                .limit(50)
-                .toList();
+            .limit(50)
+            .toList();
 
         when(repository.getOffenderCategorisations(listOf100Longs, "LEI", true)).thenReturn(Collections.singletonList(catDetail1));
         when(repository.getOffenderCategorisations(listOf50Longs, "LEI", true)).thenReturn(ImmutableList.of(catDetail2, catDetail3));
@@ -297,41 +297,6 @@ public class InmateServiceImplTest {
         assertThat(capturedArguments.get(0)).containsAll(listOf100Longs);
         assertThat(capturedArguments.get(1)).containsAll(listOf50Longs);
     }
-
-    @Test
-    public void testGetBasicInmateDetailsByBookingIdsBatching() {
-
-        final var setOf150Longs = Stream.iterate(1L, n -> n + 1)
-                .limit(150)
-                .collect(Collectors.toSet());
-
-        final var agencyArgument = ArgumentCaptor.forClass(String.class);
-
-        final var detail1 = InmateBasicDetails.builder().bookingId(-5L).lastName("D").build();
-        final var detail2 = InmateBasicDetails.builder().bookingId(-4L).lastName("B").build();
-        final var detail3 = InmateBasicDetails.builder().bookingId(-3L).lastName("C").build();
-
-        final var listOf100Longs = Stream.iterate(1L, n -> n + 1)
-                .limit(100)
-                .toList();
-
-        final var listOf50Longs = Stream.iterate(101L, n -> n + 1)
-                .limit(50)
-                .toList();
-
-        when(repository.getBasicInmateDetailsByBookingIds("LEI", listOf100Longs)).thenReturn(Collections.singletonList(detail1));
-        when(repository.getBasicInmateDetailsByBookingIds("LEI", listOf50Longs)).thenReturn(ImmutableList.of(detail2, detail3));
-
-        final var results = serviceToTest.getBasicInmateDetailsByBookingIds("LEI", setOf150Longs);
-
-        assertThat(results).hasSize(3);
-
-        verify(repository, Mockito.times(2)).getBasicInmateDetailsByBookingIds(agencyArgument.capture(), bookingIdsArgument.capture());
-        final var capturedArguments = bookingIdsArgument.getAllValues();
-        assertThat(capturedArguments.get(0)).containsAll(listOf100Longs);
-        assertThat(capturedArguments.get(1)).containsAll(listOf50Longs);
-    }
-
 
     @Test
     public void testMappingForOffenderDetailsAreCorrect() {
