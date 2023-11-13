@@ -235,22 +235,8 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
   }
 
   @Nested
-  @DisplayName("POST /api/offender-assessments/category/{agencyId}")
+  @DisplayName("POST /api/offender-assessments/category")
   inner class PostOffenderCategorisations {
-    @Test
-    fun testGetOffenderCategorisationsPost() {
-      val token = authTokenHelper.getToken(NORMAL_USER)
-      val httpEntity = createHttpEntity(token, listOf("-1", "-2", "-3", "-38", "-39", "-40", "-41"))
-      val response = testRestTemplate.exchange(
-        "/api/offender-assessments/category/LEI?latest=false",
-        POST,
-        httpEntity,
-        object : ParameterizedTypeReference<String>() {},
-      )
-      assertThatStatus(response, OK.value())
-      assertThatJson(response.body).isArray().hasSize(1)
-      assertThatJson(response.body).node("[0].bookingId").isEqualTo(JsonAssertions.value(-1))
-    }
 
     @Test
     fun testGetOffenderCategorisationsSystem() {
