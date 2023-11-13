@@ -27,7 +27,6 @@ public class BookingDetailSteps extends CommonSteps {
     private static final String API_BOOKING_REQUEST_URL = API_PREFIX + "bookings/{bookingId}";
     private static final String API_OFFENDER_IMAGE_REQUEST_URL = API_PREFIX + "bookings/offenderNo/{offenderNo}/image/data";
     private static final String API_BOOKING_DETAILS_BY_OFFENDERS = API_PREFIX + "bookings/offenders";
-    private static final String API_BOOKING_DETAILS_BY_BOOKING_IDS = API_PREFIX + "bookings/offenders/{agencyId}/list";
 
     private InmateDetail inmateDetail;
     private PhysicalAttributes physicalAttributes;
@@ -330,22 +329,6 @@ public class BookingDetailSteps extends CommonSteps {
         }
     }
 
-    public void findInmateDetailsNyBookingIds(final String agencyId, final List<Long> bookingIds) {
-        init();
-        try {
-            final var response =
-                    restTemplate.exchange(
-                            API_BOOKING_DETAILS_BY_BOOKING_IDS,
-                            HttpMethod.POST,
-                            createEntity(bookingIds),
-                            new ParameterizedTypeReference<List<InmateBasicDetails>>() {
-                            }, agencyId);
-
-            offendersBasic = response.getBody();
-        } catch (final PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
 
     public void verifyOffenders(final String firstName, final String lastName, final String middleName, final String offenderNo, final String bookingId, final String agencyId) {
 

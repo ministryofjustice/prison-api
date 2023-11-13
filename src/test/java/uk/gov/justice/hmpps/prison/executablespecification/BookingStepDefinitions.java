@@ -431,11 +431,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingDetail.findBookingDetails(List.of(offenders.split(",")));
     }
 
-    @When("^a request is made with booking Ids \"([^\"]*)\" for prison \"([^\"]*)\"$")
-    public void aRequestIsMadeForBookingIds(final String bookingsIds, final String agency) {
-        bookingDetail.findInmateDetailsNyBookingIds(agency, Arrays.stream(bookingsIds.split(",")).map(Long::valueOf).toList());
-    }
-
     @Then("^data is returned that includes \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\"$")
     public void dataIsReturnedThatIncludes(final String firstName, final String lastName, final String middleName, final String offenderNo, final String bookingId, final String agencyId) {
         bookingDetail.verifyOffenders(firstName, lastName, middleName, offenderNo, bookingId, agencyId);

@@ -116,7 +116,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
-import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static uk.gov.justice.hmpps.prison.util.ResourceUtils.nvl;
@@ -203,18 +202,6 @@ public class BookingResource {
     public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(@RequestBody @Parameter(description = "The offenderNo of offender", required = true) final Set<String> offenders, @RequestParam(value = "activeOnly", required = false, defaultValue = "true") @Parameter(description = "Returns only Offender details with an active booking if true, otherwise Offenders without an active booking are included") final Boolean activeOnly) {
         final var active = activeOnly == null || activeOnly;
         return inmateService.getBasicInmateDetailsForOffenders(offenders, active);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Basic offender details by booking ids - POST version to allow for large numbers", description = "Basic offender details by booking ids")
-    @PostMapping("/offenders/{agencyId}/list")
-    @SlowReportQuery
-    public List<InmateBasicDetails> getBasicInmateDetailsByBookingIds(@PathVariable("agencyId") @Parameter(description = "The prison where the offenders are booked - the response is restricted to bookings at this prison", required = true) final String caseload, @RequestBody @Parameter(description = "The bookingIds to identify the offenders", required = true) final Set<Long> bookingIds) {
-        return inmateService.getBasicInmateDetailsByBookingIds(caseload, bookingIds);
     }
 
     @ApiResponses({

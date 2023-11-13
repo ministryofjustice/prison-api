@@ -275,10 +275,6 @@ Feature: Booking Details
     When physical characteristic information is requested for Booking Id "-1"
     Then "2" row of physical characteristics is returned
 
-  Scenario: Request for basic inmate details by bookingIds
-    When a request is made with booking Ids "-3,-4" for prison "LEI"
-    Then "2" rows of basic inmate details are returned
-
   Scenario: Request for image metadata
     When image metadata is requested for Booking Id "-1"
     Then image metadata is returned
