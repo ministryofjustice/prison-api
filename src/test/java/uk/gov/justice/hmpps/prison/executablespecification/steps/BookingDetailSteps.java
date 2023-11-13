@@ -34,7 +34,6 @@ public class BookingDetailSteps extends CommonSteps {
     private ImageDetail imageDetail;
     private byte[] imageBytes;
     private List<InmateDetail> offenders;
-    private List<InmateBasicDetails> offendersBasic;
     private List<ProfileInformation> profileInformation;
 
     @Override
@@ -67,58 +66,6 @@ public class BookingDetailSteps extends CommonSteps {
             inmateDetail = response.getBody();
             physicalAttributes = inmateDetail.getPhysicalAttributes();
             physicalCharacteristics = inmateDetail.getPhysicalCharacteristics();
-        } catch (final PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
-
-    public void getPhysicalAttributes(final Long bookingId) {
-        init();
-
-        final ResponseEntity<PhysicalAttributes> response;
-
-        try {
-            response =
-                    restTemplate.exchange(
-                            API_BOOKING_REQUEST_URL + "/physicalAttributes",
-                            HttpMethod.GET,
-                            createEntity(),
-                            PhysicalAttributes.class,
-                            bookingId);
-
-            physicalAttributes = response.getBody();
-        } catch (final PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
-
-    public void getPhysicalCharacteristics(final Long bookingId) {
-        init();
-        try {
-            final var response = restTemplate.exchange(
-                    API_BOOKING_REQUEST_URL + "/physicalCharacteristics", HttpMethod.GET,
-                    createEntity(null, null),
-                    new ParameterizedTypeReference<List<PhysicalCharacteristic>>() {
-                    }, bookingId);
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-            physicalCharacteristics = response.getBody();
-            buildResourceData(response);
-        } catch (final PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
-
-    public void getProfileInformation(final Long bookingId) {
-        init();
-        try {
-            final var response = restTemplate.exchange(
-                    API_BOOKING_REQUEST_URL + "/profileInformation", HttpMethod.GET,
-                    createEntity(null, null),
-                    new ParameterizedTypeReference<List<ProfileInformation>>() {
-                    }, bookingId);
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-            profileInformation = response.getBody();
-            buildResourceData(response);
         } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
@@ -348,7 +295,4 @@ public class BookingDetailSteps extends CommonSteps {
         assertThat(offenders).hasSize(size);
     }
 
-    public void verifyOffendersBasicCount(final int size) {
-        assertThat(offendersBasic).hasSize(size);
-    }
 }

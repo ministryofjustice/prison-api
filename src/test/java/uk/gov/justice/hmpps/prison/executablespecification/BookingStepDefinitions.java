@@ -344,16 +344,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingDetail.getOffenderIdentifiers(Long.valueOf(bookingId));
     }
 
-    @When("^profile information is requested for Booking Id \"([^\"]*)\"$")
-    public void profileInformationIsRequestedForBookingId(final String bookingId) {
-        bookingDetail.getProfileInformation(Long.valueOf(bookingId));
-    }
-
-    @When("^physical characteristic information is requested for Booking Id \"([^\"]*)\"$")
-    public void physicalCharacteristicInformationIsRequestedForBookingId(final String bookingId) {
-        bookingDetail.getPhysicalCharacteristics(Long.valueOf(bookingId));
-    }
-
     @When("^image metadata is requested for Booking Id \"([^\"]*)\"$")
     public void imageMetadataIsRequestedForBookingId(final String bookingId) {
         bookingDetail.getImageMetadata(Long.valueOf(bookingId));
@@ -372,11 +362,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @When("^full size image is requested by Noms Id \"([^\"]*)\"$")
     public void fullSizeImageDataIsRequestedByNomsId(final String nomsId) {
         bookingDetail.getImageData(nomsId, true);
-    }
-
-    @When("^an physical attributes request is made with booking id \"([^\"]*)\"$")
-    public void anPhysicalAttributesRequestIsMadeWithBookingId(final String bookingId) {
-        bookingDetail.getPhysicalAttributes(Long.valueOf(bookingId));
     }
 
     @Then("^\"(\\d+)\" row of offender identifiers is returned$")
@@ -439,11 +424,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @Then("^the total records returned are \"([^\"]*)\"$")
     public void theTotalRecordsReturnedAre(final int size) {
         bookingDetail.verifyOffenderCount(size);
-    }
-
-    @Then("^\"([^\"]*)\" rows of basic inmate details are returned$")
-    public void rowsOfBasicInmateDetailsAreReturned(final String count) {
-        bookingDetail.verifyOffendersBasicCount(Integer.parseInt(count));
     }
 
     @DataTableType
