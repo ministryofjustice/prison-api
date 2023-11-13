@@ -371,8 +371,6 @@ public class InmateService {
         return assessments;
     }
 
-    // @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public List<PhysicalMark> getPhysicalMarks(final Long bookingId) {
         return repository.findPhysicalMarks(bookingId);
     }
@@ -382,8 +380,6 @@ public class InmateService {
         return new ReasonableAdjustments(repository.findReasonableAdjustments(bookingId, treatmentCodes));
     }
 
-    // @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public List<ProfileInformation> getProfileInformation(final Long bookingId) {
         return repository.getProfileInformation(bookingId);
     }
@@ -395,14 +391,10 @@ public class InmateService {
             .orElseThrow(EntityNotFoundException.withMessage(String.format("No Image found for booking Id %d", bookingId)));
     }
 
-    // @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public List<PhysicalCharacteristic> getPhysicalCharacteristics(final Long bookingId) {
         return repository.findPhysicalCharacteristics(bookingId);
     }
 
-    // @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public PhysicalAttributes getPhysicalAttributes(final Long bookingId) {
         final var physicalAttributes = repository.findPhysicalAttributes(bookingId).orElse(null);
         if (physicalAttributes != null && physicalAttributes.getHeightCentimetres() != null) {

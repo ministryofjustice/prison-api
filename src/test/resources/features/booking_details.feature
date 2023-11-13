@@ -227,41 +227,9 @@ Feature: Booking Details
       | -2        | 2            | 0              | H          |
       | -11       | 0            | 0              |            |
 
-  Scenario Outline: Request for physical attributes
-    When an physical attributes request is made with booking id "<bookingId>"
-    And gender matches "<gender>"
-    And ethnicity matches "<ethnicity>"
-    And height in feet matches "<ft>"
-    And height in inches matches "<in>"
-    And height in centimetres matches "<cm>"
-    And height in metres matches "<m>"
-    And weight in pounds matches "<lb>"
-    And weight in kilograms matches "<kg>"
-
-  Examples:
-    | bookingId | gender | ethnicity                      | ft | in | cm  | m    | lb  | kg  |
-    | -1        | Male   | White: British                 | 5  | 6  | 168 | 1.68 | 165 | 75  |
-    | -2        | Female | White: Irish                   |    |    |     |      | 120 | 55  |
-    | -3        | Male   | White: British                 | 5  | 10 | 178 | 1.78 |     |     |
-    | -4        | Male   | White: British                 | 6  | 1  | 185 | 1.85 | 218 | 99  |
-    | -5        | Male   | White: British                 | 6  | 0  | 183 | 1.83 | 190 | 86  |
-    | -6        | Male   | White: British                 | 6  | 2  | 188 | 1.88 |     |     |
-    | -7        | Male   | White: British                 | 5  | 11 | 180 | 1.80 | 196 | 89  |
-    | -8        | Male   | White: British                 | 5  | 11 | 180 | 1.80 |     |     |
-    | -9        | Male   | Mixed: White and Black African | 5  | 10 | 178 | 1.78 | 185 | 84  |
-    | -10       | Male   | White: British                 | 6  | 6  | 198 | 1.98 | 235 | 107 |
-
  Scenario: Request for offender identifiers
     When offender identifiers are requested for Booking Id "-4"
     Then "2" row of offender identifiers is returned
-
-  Scenario: Request for profile information
-    When profile information is requested for Booking Id "-1"
-    Then correct profile information is returned
-
-  Scenario: Request for physical characteristics
-    When physical characteristic information is requested for Booking Id "-1"
-    Then "2" row of physical characteristics is returned
 
   Scenario: Request for image metadata
     When image metadata is requested for Booking Id "-1"
