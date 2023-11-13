@@ -493,12 +493,6 @@ public class InmateService {
             && assessmentDto.getOverridedSupLevelType() == null;
     }
 
-    // TODO remove - UNUSED
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER"})
-    public List<OffenderCategorise> getOffenderCategorisations(final String agencyId, final Set<Long> bookingIds, final boolean latestOnly) {
-        return doGetOffenderCategorisations(agencyId, bookingIds, latestOnly);
-    }
-
     @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA','SYSTEM_USER')")
     public List<OffenderCategorise> getOffenderCategorisationsSystem(final Set<Long> bookingIds, final boolean latestOnly) {
         return doGetOffenderCategorisations(null, bookingIds, latestOnly);

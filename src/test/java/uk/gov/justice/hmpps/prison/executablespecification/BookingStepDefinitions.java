@@ -441,16 +441,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingDetail.verifyOffenderCount(size);
     }
 
-    @When("^a request is made for offender categorisation details at \"([^\"]*)\" with booking id \"([^\"]*)\", latest cat only$")
-    public void aRequestIsMadeForOffenderCategorisationDetailsAtWithBookingIdLatest(final String agency, final String bookingId) {
-        bookingAssessment.getOffendersCategorisations(agency, Collections.singletonList(Long.valueOf(bookingId)), true);
-    }
-
-    @When("^a request is made for offender categorisation details at \"([^\"]*)\" with booking id \"([^\"]*)\", all cats$")
-    public void aRequestIsMadeForOffenderCategorisationDetailsAtWithBookingIdAll(final String agency, final String bookingId) {
-        bookingAssessment.getOffendersCategorisations(agency, Collections.singletonList(Long.valueOf(bookingId)), false);
-    }
-
     @Then("^\"([^\"]*)\" rows of basic inmate details are returned$")
     public void rowsOfBasicInmateDetailsAreReturned(final String count) {
         bookingDetail.verifyOffendersBasicCount(Integer.parseInt(count));

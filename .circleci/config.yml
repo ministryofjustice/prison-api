@@ -101,6 +101,7 @@ jobs:
           path: build/serenity
       - store_artifacts:
           path: build/libs
+    resource_class: large
 
 workflows:
   version: 2

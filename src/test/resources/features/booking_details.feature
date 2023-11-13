@@ -164,18 +164,6 @@ Feature: Booking Details
     When a request is made for categorised offenders at "LEI" with an approval from Date of ""
     Then 0 categorised offenders are returned
 
-  Scenario: Request for latest categorisation details for given booking ids
-    When a request is made for offender categorisation details at "LEI" with booking id "-31", latest cat only
-    Then 1 categorised offenders are returned
-
-  Scenario: Request for latest categorisation details for given booking ids that do not match the given agency
-    When a request is made for offender categorisation details at "MDI" with booking id "-31", latest cat only
-    Then 0 categorised offenders are returned
-
-  Scenario: Request for all categorisation details for given booking ids
-    When a request is made for offender categorisation details at "LEI" with booking id "-31", all cats
-    Then 2 categorised offenders are returned
-
   Scenario: Request for offenders who need to be recategorised
     When a request is made for offenders who need to be recategorised at "LEI" with cutoff Date of "2018-07-01"
     Then 4 categorised offenders are returned

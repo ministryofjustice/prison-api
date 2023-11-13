@@ -265,40 +265,6 @@ public class InmateServiceImplTest {
     }
 
     @Test
-    public void testGetOffenderCategorisationsBatching() {
-
-        final var setOf150Longs = Stream.iterate(1L, n -> n + 1)
-            .limit(150)
-            .collect(Collectors.toSet());
-
-        final var agencyArgument = ArgumentCaptor.forClass(String.class);
-
-        final var catDetail1 = OffenderCategorise.builder().bookingId(-5L).category("D").build();
-        final var catDetail2 = OffenderCategorise.builder().bookingId(-4L).category("B").build();
-        final var catDetail3 = OffenderCategorise.builder().bookingId(-3L).category("C").build();
-
-        final var listOf100Longs = Stream.iterate(1L, n -> n + 1)
-            .limit(100)
-            .toList();
-
-        final var listOf50Longs = Stream.iterate(101L, n -> n + 1)
-            .limit(50)
-            .toList();
-
-        when(repository.getOffenderCategorisations(listOf100Longs, "LEI", true)).thenReturn(Collections.singletonList(catDetail1));
-        when(repository.getOffenderCategorisations(listOf50Longs, "LEI", true)).thenReturn(ImmutableList.of(catDetail2, catDetail3));
-
-        final var results = serviceToTest.getOffenderCategorisations("LEI", setOf150Longs, true);
-
-        assertThat(results).hasSize(3);
-
-        verify(repository, Mockito.times(2)).getOffenderCategorisations(bookingIdsArgument.capture(), agencyArgument.capture(), eq(true));
-        final var capturedArguments = bookingIdsArgument.getAllValues();
-        assertThat(capturedArguments.get(0)).containsAll(listOf100Longs);
-        assertThat(capturedArguments.get(1)).containsAll(listOf50Longs);
-    }
-
-    @Test
     public void testMappingForOffenderDetailsAreCorrect() {
         final var offenderNumbers = Set.of("A123");
         final var caseLoadsIds = Set.of("1");
