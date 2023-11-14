@@ -66,6 +66,13 @@ public class KeyWorkerAllocationService {
                 .collect(toList());
     }
 
+    public Page<OffenderKeyWorker> getAllocationHistoryByAgency(final String agencyId, final PageRequest pageRequest) {
+        Validate.notBlank(agencyId, "Agency id is required.");
+        Validate.notNull(pageRequest, "Page request details are requreid.");
+
+        return repository.getAllocationHistoryByAgency(agencyId, pageRequest);
+    }
+
     public List<OffenderKeyWorker> getAllocationHistoryByOffenderNos(final List<String> offenderNos) {
         Validate.notEmpty(offenderNos, "At lease 1 offender no is required.");
         final var batch = Lists.partition(new ArrayList<>(offenderNos), maxBatchSize);

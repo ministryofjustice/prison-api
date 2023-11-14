@@ -162,7 +162,7 @@ class KeyWorkerResourceTest : ResourceTest() {
     fun `Request for key worker allocation history for multiple offender Nos`() {
       webTestClient.post().uri("/api/key-worker/offenders/allocationHistory")
         .headers(setAuthorisation("ITAG_USER", listOf("KEY_WORKER")))
-        .body(BodyInserters.fromValue(listOf("A9876RS","A5576RS","A1176RS","A1234AP")))
+        .body(BodyInserters.fromValue(listOf("A9876RS", "A5576RS", "A1176RS", "A1234AP")))
         .exchange()
         .expectStatus().isOk
         .expectBody()
