@@ -40,18 +40,34 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
   @DisplayName("PUT /api/offender-assessments/category/{bookingId}/nextReviewDate/{nextReviewDate}")
   inner class NextReviewDate {
     @Test
-    fun testSystemUserCanUpdateCategoryNextReviewDate() {
-      val token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE)
-      val httpEntity = createHttpEntity(token, null)
-      val response = testRestTemplate.exchange(
-        "/api/offender-assessments/category/{bookingId}/nextReviewDate/{nextReviewDate}",
-        PUT,
-        httpEntity,
-        object : ParameterizedTypeReference<String>() {},
-        "-1",
-        "2018-06-05",
-      )
-      assertThatStatus(response, OK.value())
+    fun `returns 401 without an auth token`() {
+      webTestClient.put().uri("/api/offender-assessments/category/-1/nextReviewDate/2018-06-05")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `returns 403 when client does not have any roles`() {
+      webTestClient.put().uri("/api/offender-assessments/category/-1/nextReviewDate/2018-06-05")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 200 when client has override role ROLE_SYSTEM_USER`() {
+      webTestClient.put().uri("/api/offender-assessments/category/-1/nextReviewDate/2018-06-05")
+        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns 200 when client has override role ROLE_MAINTAIN_ASSESSMENTS`() {
+      webTestClient.put().uri("/api/offender-assessments/category/-1/nextReviewDate/2018-06-05")
+        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_ASSESSMENTS")))
+        .exchange()
+        .expectStatus().isOk
     }
 
     @Test
@@ -88,36 +104,44 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
   @Nested
   @DisplayName("PUT /api/offender-assessments/category/{bookingId}/inactive")
   inner class Inactive {
-    @Test
-    fun testSystemUserCanUpdateCategorySetActiveInactive() {
-      val token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE)
-      val httpEntity = createHttpEntity(token, null)
 
-      // choose a booking that doesnt actually have any active
-      val response = testRestTemplate.exchange(
-        "/api/offender-assessments/category/{bookingId}/inactive",
-        PUT,
-        httpEntity,
-        object : ParameterizedTypeReference<String>() {},
-        "-34",
-      )
-      assertThatStatus(response, OK.value())
+    @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.put().uri("/api/offender-assessments/category/-34/inactive")
+        .exchange()
+        .expectStatus().isUnauthorized
     }
 
     @Test
-    fun testSystemUserCanUpdateCategorySetPendingInactive() {
-      val token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE)
-      val httpEntity = createHttpEntity(token, null)
+    fun `returns 403 when client does not have any roles`() {
+      webTestClient.put().uri("/api/offender-assessments/category/-34/inactive")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
 
-      // choose a booking that doesnt actually have any active
-      val response = testRestTemplate.exchange(
-        "/api/offender-assessments/category/{bookingId}/inactive?status=PENDING",
-        PUT,
-        httpEntity,
-        object : ParameterizedTypeReference<String>() {},
-        "-31",
-      )
-      assertThatStatus(response, OK.value())
+    @Test
+    fun `returns 200 when client has override role ROLE_SYSTEM_USER`() {
+      webTestClient.put().uri("/api/offender-assessments/category/-34/inactive")
+        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns 200 when client has override role ROLE_MAINTAIN_ASSESSMENTS`() {
+      webTestClient.put().uri("/api/offender-assessments/category/-34/inactive")
+        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_ASSESSMENTS")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns 200 when client has override role ROLE_SYSTEM_USER and sets pending inactive`() {
+      webTestClient.put().uri("/api/offender-assessments/category/-31/inactive?status=PENDING")
+        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+        .exchange()
+        .expectStatus().isOk
     }
 
     @Test
@@ -167,7 +191,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       @Test
       fun `should return 404 if client does not have authorised role`() {
         webTestClient.get().uri("/api/offender-assessments/category/LEI?type=UNCATEGORISED")
-          .headers(setClientAuthorisation(listOf("")))
+          .headers(setClientAuthorisation(listOf()))
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
           .expectStatus().isNotFound
@@ -194,7 +218,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       @Test
       fun `returns 404 if user has no caseloads`() {
         webTestClient.get().uri("/api/offender-assessments/category/LEI?type=UNCATEGORISED")
-          .headers(setAuthorisation("RO_USER", listOf("")))
+          .headers(setAuthorisation("RO_USER", listOf()))
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
           .expectStatus().isNotFound
@@ -713,7 +737,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       @Test
       fun `returns 403 if user has no role`() {
         webTestClient.put().uri("/api/offender-assessments/category/categorise")
-          .headers(setAuthorisation("ITAG_USER", listOf("")))
+          .headers(setAuthorisation("ITAG_USER", listOf()))
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .accept(MediaType.APPLICATION_JSON)
           .bodyValue(
@@ -1046,7 +1070,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       @Test
       fun `returns 403 if user has no role`() {
         webTestClient.put().uri("/api/offender-assessments/category/approve")
-          .headers(setAuthorisation("ITAG_USER", listOf("")))
+          .headers(setAuthorisation("ITAG_USER", listOf()))
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .accept(MediaType.APPLICATION_JSON)
           .bodyValue(
@@ -1352,7 +1376,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       @Test
       fun `returns 403 if user has no role`() {
         webTestClient.put().uri("/api/offender-assessments/category/reject")
-          .headers(setAuthorisation("ITAG_USER", listOf("")))
+          .headers(setAuthorisation("ITAG_USER", listOf()))
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .accept(MediaType.APPLICATION_JSON)
           .bodyValue(
