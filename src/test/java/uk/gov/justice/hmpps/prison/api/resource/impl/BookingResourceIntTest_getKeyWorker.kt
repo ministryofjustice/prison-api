@@ -60,6 +60,14 @@ class BookingResourceIntTest_getKeyWorker : ResourceTest() {
       }
 
       @Test
+      fun `returns 200 if has override ROLE_KEY_WORKER`() {
+        webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/key-worker")
+          .headers(setClientAuthorisation(listOf("ROLE_KEY_WORKER")))
+          .exchange()
+          .expectStatus().isOk
+      }
+
+      @Test
       fun `returns 200 if has override ROLE_SYSTEM_USER`() {
         webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/key-worker")
           .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
