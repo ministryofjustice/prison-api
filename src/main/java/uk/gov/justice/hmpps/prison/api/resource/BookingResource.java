@@ -667,17 +667,6 @@ public class BookingResource {
     }
 
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "The contact details and their relationship to the offender", description = "The contact details and their relationship to the offender")
-    @GetMapping("/offenderNo/{offenderNo}/relationships")
-    public List<Contact> getRelationshipsByOffenderNo(@PathVariable("offenderNo") @Parameter(description = "The offender Offender No", required = true) final String offenderNo, @RequestParam("relationshipType") @Parameter(description = "filter by the relationship type") final String relationshipType) {
-        return contactService.getRelationshipsByOffenderNo(offenderNo, relationshipType);
-    }
-
-    @ApiResponses({
         @ApiResponse(responseCode = "201", description = "If successful the Contact object is returned.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Contact.class))})})
     @Operation(summary = "Create a relationship with an offender", description = "Create a relationship with an offender")
     @ResponseStatus(HttpStatus.CREATED)
@@ -685,16 +674,6 @@ public class BookingResource {
     @ProxyUser
     public Contact createRelationship(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId, @RequestBody @Parameter(description = "The person details and their relationship to the offender", required = true) final OffenderRelationship relationshipDetail) {
         return contactService.createRelationship(bookingId, relationshipDetail);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "If successful the Contact object is returned.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Contact.class))})})
-    @Operation(summary = "Create a relationship with an offender", description = "Create a relationship with an offender")
-    @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/offenderNo/{offenderNo}/relationships")
-    @ProxyUser
-    public Contact createRelationshipByOffenderNo(@PathVariable("offenderNo") @Parameter(description = "The offender Offender No", required = true) final String offenderNo, @RequestBody @Parameter(description = "The person details and their relationship to the offender", required = true) final OffenderRelationship relationshipDetail) {
-        return contactService.createRelationshipByOffenderNo(offenderNo, relationshipDetail);
     }
 
     @ApiResponses({

@@ -68,18 +68,6 @@ public class ContactService {
                 .toList();
     }
 
-    public List<Contact> getRelationshipsByOffenderNo(final String offenderNo, final String relationshipType) {
-        final var identifiers = bookingService.getOffenderIdentifiers(offenderNo, "SYSTEM_USER").getBookingAndSeq().orElseThrow(EntityNotFoundException.withMessage("No bookings found for offender {}", offenderNo));
-        return getRelationships(identifiers.getBookingId(), relationshipType, true);
-    }
-    
-    @PreAuthorize("hasRole('CONTACT_CREATE')")
-    @Transactional
-    public Contact createRelationshipByOffenderNo(final String offenderNo, final OffenderRelationship relationshipDetail) {
-        final var identifiers = bookingService.getOffenderIdentifiers(offenderNo, "SYSTEM_USER").getBookingAndSeq().orElseThrow(EntityNotFoundException.withMessage("No bookings found for offender {}", offenderNo));
-        return createRelationship(identifiers.getBookingId(), relationshipDetail);
-    }
-
     @PreAuthorize("hasRole('CONTACT_CREATE')")
     @Transactional
     public Contact createRelationship(final Long bookingId, final OffenderRelationship relationshipDetail) {
