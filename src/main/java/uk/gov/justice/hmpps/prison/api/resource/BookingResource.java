@@ -868,12 +868,12 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Key worker details.", description = "Key worker details. This should not be used - call keywork API instead")
+    @Operation(summary = "Key worker details.", description = "Key worker details. This should not be used - call keyworker API instead")
     @GetMapping("/offenderNo/{offenderNo}/key-worker")
     @Deprecated
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "KEY_WORKER"})
     public Keyworker getKeyworkerByOffenderNo(@PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", required = true) final String offenderNo) {
-        final var offenderIdentifiers = bookingService.getOffenderIdentifiers(offenderNo, "SYSTEM_USER").getBookingAndSeq()
+        final var offenderIdentifiers = bookingService.getOffenderIdentifiers(offenderNo, "SYSTEM_USER", "KEY_WORKER").getBookingAndSeq()
             .orElseThrow(EntityNotFoundException.withMessage("No bookings found for offender %s", offenderNo));
         return keyworkerService.getKeyworkerDetailsByBooking(offenderIdentifiers.getBookingId());
     }
