@@ -588,8 +588,7 @@ public class InmateService {
     }
 
     @Transactional
-    // @PreAuthorize("hasAnyRole('SYSTEM_USER','MAINTAIN_ASSESSMENTS')")
-    @PreAuthorize("hasRole('SYSTEM_USER')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER','MAINTAIN_ASSESSMENTS')")
     public void setCategorisationInactive(final Long bookingId, final AssessmentStatusType status) {
         final var count = repository.setCategorisationInactive(bookingId, status);
 
@@ -601,8 +600,7 @@ public class InmateService {
     }
 
     @Transactional
-    // @PreAuthorize("hasAnyRole('SYSTEM_USER','MAINTAIN_ASSESSMENTS')")
-    @PreAuthorize("hasRole('SYSTEM_USER')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER','MAINTAIN_ASSESSMENTS')")
     public void updateCategorisationNextReviewDate(final Long bookingId, final LocalDate nextReviewDate) {
         repository.updateActiveCategoryNextReviewDate(bookingId, nextReviewDate);
 
