@@ -11,11 +11,9 @@ import java.util.List;
 public class IncidentService {
 
     private final IncidentCaseRepository repository;
-    private final BookingService bookingService;
 
-    public IncidentService(final IncidentCaseRepository repository, final BookingService bookingService) {
+    public IncidentService(final IncidentCaseRepository repository) {
         this.repository = repository;
-        this.bookingService = bookingService;
     }
 
     public IncidentCase getIncidentCase(@NotNull final long incidentCaseId) {
@@ -23,7 +21,6 @@ public class IncidentService {
     }
 
     public List<IncidentCase> getIncidentCasesByOffenderNo(@NotNull final String offenderNo, final List<String> incidentTypes, final List<String> participationRoles) {
-        bookingService.getOffenderIdentifiers(offenderNo, "SYSTEM_USER");
         return repository.getIncidentCasesByOffenderNo(offenderNo, incidentTypes, participationRoles);
     }
 }
