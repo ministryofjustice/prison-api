@@ -101,13 +101,13 @@ class ScheduleResourceTest : ResourceTest() {
   @DisplayName("POST /api/schedules/{agencyId}/events-by-location-id")
   inner class EventsByLocationIds {
     @Test
-    fun `returns 404 if does not have override role`() {
+    fun `returns 403 if does not have override role`() {
       webTestClient.post()
         .uri("/api/schedules/RNI/events-by-location-ids")
         .headers(setClientAuthorisation(listOf("")))
         .bodyValue(locationIdsNoSchedules)
         .exchange()
-        .expectStatus().isNotFound
+        .expectStatus().isForbidden
 
       verify(telemetryClient).trackEvent(eq("ClientUnauthorisedAgencyAccess"), any(), isNull())
     }
