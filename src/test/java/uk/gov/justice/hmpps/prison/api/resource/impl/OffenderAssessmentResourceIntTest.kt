@@ -264,22 +264,25 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
 
     @Test
     fun testGetOffenderCategorisationsSystem() {
-      val token = authTokenHelper.getToken(AuthToken.VIEW_PRISONER_DATA)
-      val httpEntity = createHttpEntity(token, listOf("-1", "-2", "-3", "-38", "-39", "-40", "-41"))
-      val response = testRestTemplate.exchange(
-        "/api/offender-assessments/category?latest=false",
-        POST,
-        httpEntity,
-        object : ParameterizedTypeReference<String>() {},
-      )
-      assertThatStatus(response, OK.value())
-      assertThatJson(response.body).isArray().hasSize(6)
-      assertThatJson(response.body).node("[0].bookingId").isEqualTo(JsonAssertions.value(-1))
-      assertThatJson(response.body).node("[1].bookingId").isEqualTo(JsonAssertions.value(-3))
-      assertThatJson(response.body).node("[2].bookingId").isEqualTo(JsonAssertions.value(-38))
-      assertThatJson(response.body).node("[3].bookingId").isEqualTo(JsonAssertions.value(-39))
-      assertThatJson(response.body).node("[4].bookingId").isEqualTo(JsonAssertions.value(-40))
-      assertThatJson(response.body).node("[5].bookingId").isEqualTo(JsonAssertions.value(-41))
+      webTestClient.post().uri("/api/offender-assessments/category?latest=false")
+        .headers(setAuthorisation("ITAG_USER", listOf("VIEW_PRISONER_DATA")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .accept(MediaType.APPLICATION_JSON)
+        .bodyValue(
+          """
+           [ "-1", "-2", "-3", "-38", "-39", "-40", "-41"]
+            """,
+        )
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("length()").isEqualTo(6)
+        .jsonPath("[0].bookingId").isEqualTo(-1)
+        .jsonPath("[1].bookingId").isEqualTo(-3)
+        .jsonPath("[2].bookingId").isEqualTo(-38)
+        .jsonPath("[3].bookingId").isEqualTo(-39)
+        .jsonPath("[4].bookingId").isEqualTo(-40)
+        .jsonPath("[5].bookingId").isEqualTo(-41)
     }
   }
 
@@ -308,7 +311,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         String::class.java,
       )
       assertThatStatus(response, BAD_REQUEST.value())
-      assertThatJson(response.body).node("userMessage").asString().contains("postOffenderAssessmentsCsraRatings.offenderList: must not be empty")
+      assertThatJson(response.body!!).node("userMessage").asString().contains("postOffenderAssessmentsCsraRatings.offenderList: must not be empty")
     }
   }
 
@@ -338,7 +341,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         String::class.java,
       )
       assertThatStatus(response, NOT_FOUND.value())
-      assertThatJson(response.body).node("userMessage").asString().contains("Offender booking with id -43 not found.")
+      assertThatJson(response.body!!).node("userMessage").asString().contains("Offender booking with id -43 not found.")
     }
 
     @Test
@@ -351,7 +354,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         String::class.java,
       )
       assertThatStatus(response, NOT_FOUND.value())
-      assertThatJson(response.body).node("userMessage").asString().contains("Offender booking with id -999 not found.")
+      assertThatJson(response.body!!).node("userMessage").asString().contains("Offender booking with id -999 not found.")
     }
 
     @Test
@@ -364,7 +367,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         String::class.java,
       )
       assertThatStatus(response, NOT_FOUND.value())
-      assertThatJson(response.body).node("userMessage").asString().contains("Csra assessment for booking -43 and sequence 200 not found.")
+      assertThatJson(response.body!!).node("userMessage").asString().contains("Csra assessment for booking -43 and sequence 200 not found.")
     }
   }
 
@@ -394,7 +397,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         String::class.java,
       )
       assertThatStatus(response, NOT_FOUND.value())
-      assertThatJson(response.body).node("userMessage").asString().contains("Offender booking with id -43 not found.")
+      assertThatJson(response.body!!).node("userMessage").asString().contains("Offender booking with id -43 not found.")
     }
 
     @Test
@@ -407,7 +410,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         String::class.java,
       )
       assertThatStatus(response, NOT_FOUND.value())
-      assertThatJson(response.body).node("userMessage").asString().contains("Resource with id [A1234BB] not found.")
+      assertThatJson(response.body!!).node("userMessage").asString().contains("Resource with id [A1234BB] not found.")
     }
   }
 
@@ -437,8 +440,8 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         String::class.java,
       )
       assertThatStatus(response, OK.value())
-      assertThatJson(response.body).isArray().hasSize(1)
-      assertThatJson(response.body).node("[0].assessmentSeq").isEqualTo(JsonAssertions.value(1))
+      assertThatJson(response.body!!).isArray().hasSize(1)
+      assertThatJson(response.body!!).node("[0].assessmentSeq").isEqualTo(JsonAssertions.value(1))
     }
 
     @Test
@@ -451,7 +454,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         String::class.java,
       )
       assertThatStatus(response, BAD_REQUEST.value())
-      assertThatJson(response.body).node("userMessage").asString().contains("Required request parameter 'offenderNo' for method parameter type List is not present")
+      assertThatJson(response.body!!).node("userMessage").asString().contains("Required request parameter 'offenderNo' for method parameter type List is not present")
     }
   }
 
@@ -658,7 +661,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       )
 
       assertThatStatus(response, BAD_REQUEST.value())
-      val body = response.body
+      val body = response.body!!
       assertThatJson(body).node("userMessage").asString().contains("bookingId must be provided")
       assertThatJson(body).node("userMessage").asString().contains("category must be provided")
       assertThatJson(body).node("userMessage").asString().contains("committee must be provided")
@@ -684,7 +687,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         object : ParameterizedTypeReference<String>() {},
       )
       assertThatStatus(response, BAD_REQUEST.value())
-      assertThatJson(response.body).node("userMessage").asString().contains("Placement agency id not recognised.")
+      assertThatJson(response.body!!).node("userMessage").asString().contains("Placement agency id not recognised.")
     }
 
     private fun resetCreatedCategorisation() =
@@ -921,7 +924,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         object : ParameterizedTypeReference<String>() {},
       )
       assertThatStatus(response, BAD_REQUEST.value())
-      val body = response.body
+      val body = response.body!!
       assertThatJson(body).node("userMessage").asString().contains("bookingId must be provided")
       assertThatJson(body).node("userMessage").asString().contains("Sequence number must be provided")
       assertThatJson(body).node("userMessage").asString().contains("Comment text must be a maximum of 4000 characters")
@@ -945,7 +948,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         object : ParameterizedTypeReference<String>() {},
       )
       assertThatStatus(response, BAD_REQUEST.value())
-      assertThatJson(response.body).node("userMessage").isEqualTo("Category not recognised.")
+      assertThatJson(response.body!!).node("userMessage").isEqualTo("Category not recognised.")
     }
 
     @Test
@@ -966,7 +969,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         object : ParameterizedTypeReference<String>() {},
       )
       assertThatStatus(response, BAD_REQUEST.value())
-      assertThatJson(response.body).node("userMessage").isEqualTo("Committee Code not recognised.")
+      assertThatJson(response.body!!).node("userMessage").isEqualTo("Committee Code not recognised.")
     }
   }
 
@@ -1251,7 +1254,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         object : ParameterizedTypeReference<String>() {},
       )
       assertThatStatus(response, BAD_REQUEST.value())
-      val body = response.body
+      val body = response.body!!
       assertThatJson(body).node("userMessage").asString().contains("Committee Code not recognised.")
     }
 
@@ -1276,7 +1279,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         object : ParameterizedTypeReference<String>() {},
       )
       assertThatStatus(response, BAD_REQUEST.value())
-      val body = response.body
+      val body = response.body!!
       assertThatJson(body).node("userMessage").asString().contains("Review placement agency id not recognised.")
     }
 
@@ -1530,7 +1533,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         object : ParameterizedTypeReference<String>() {},
       )
       assertThatStatus(response, BAD_REQUEST.value())
-      val body = response.body
+      val body = response.body!!
       assertThatJson(body).node("userMessage").asString().contains("bookingId must be provided")
       assertThatJson(body).node("userMessage").asString().contains("Sequence number must be provided")
       assertThatJson(body).node("userMessage").asString().contains("Comment text must be a maximum of 240 characters")
@@ -1558,7 +1561,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         object : ParameterizedTypeReference<String>() {},
       )
       assertThatStatus(response, BAD_REQUEST.value())
-      assertThatJson(response.body).node("userMessage").isEqualTo("Committee Code not recognised.")
+      assertThatJson(response.body!!).node("userMessage").isEqualTo("Committee Code not recognised.")
     }
   }
 }
