@@ -200,7 +200,7 @@ class ScheduleResourceTest : ResourceTest() {
         createHttpEntity(token, locationIds),
         ErrorResponse::class.java,
       )
-      val error = response.body
+      val error = response.body!!
       assertThat(response.statusCode.value()).isEqualTo(404)
       assertThat(error.userMessage).contains(notAnAgency).contains("not found")
     }
@@ -214,7 +214,7 @@ class ScheduleResourceTest : ResourceTest() {
         createHttpEntity(token, listOf<Any>()),
         ErrorResponse::class.java,
       )
-      val error = response.body
+      val error = response.body!!
       assertThat(response.statusCode.value()).isEqualTo(400)
       assertThat(error.userMessage).contains("must not be empty")
     }
@@ -292,7 +292,7 @@ class ScheduleResourceTest : ResourceTest() {
         createHttpEntity(token, null),
         ErrorResponse::class.java,
       )
-      assertThat(response.body.userMessage).contains("Required request parameter 'timeSlots'")
+      assertThat(response.body!!.userMessage).contains("Required request parameter 'timeSlots'")
       assertThat(response.statusCode.value()).isEqualTo(400)
     }
 
@@ -305,7 +305,7 @@ class ScheduleResourceTest : ResourceTest() {
         createHttpEntity(token, null),
         ErrorResponse::class.java,
       )
-      assertThat(response.body.userMessage).contains("Required request parameter 'fromDate'")
+      assertThat(response.body!!.userMessage).contains("Required request parameter 'fromDate'")
       assertThat(response.statusCode.value()).isEqualTo(400)
     }
 
@@ -318,7 +318,7 @@ class ScheduleResourceTest : ResourceTest() {
         createHttpEntity(token, null),
         ErrorResponse::class.java,
       )
-      assertThat(response.body.userMessage).contains("Required request parameter 'toDate'")
+      assertThat(response.body!!.userMessage).contains("Required request parameter 'toDate'")
       assertThat(response.statusCode.value()).isEqualTo(400)
     }
 
@@ -331,7 +331,7 @@ class ScheduleResourceTest : ResourceTest() {
         createHttpEntity(token, "{}"),
         ErrorResponse::class.java,
       )
-      assertThat(response.body.userMessage).contains("Resource with id [LEI] not found")
+      assertThat(response.body!!.userMessage).contains("Resource with id [LEI] not found")
       assertThat(response.statusCode.value()).isEqualTo(404)
     }
 
