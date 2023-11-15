@@ -1283,10 +1283,10 @@ public class BookingServiceTest {
                                         OffenceIndicator.builder().indicatorCode("INDICATOR").build()
                                     ))
                                     .code("STA1234")
-                                        .statute(
-                                            Statute.builder().code("STA").build()
-                                        )
-                                        .build())
+                                    .statute(
+                                        Statute.builder().code("STA").build()
+                                    )
+                                    .build())
                                 .build()
                             )
                             .build()
@@ -1430,23 +1430,11 @@ public class BookingServiceTest {
         }
 
         @Test
-        void livingUnitNotFound_throws() {
-            when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
-            when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC)).thenReturn(Optional.empty());
-
-            assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, aCellSwapLocation()))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining(NEW_LIVING_UNIT_DESC);
-        }
-
-        @Test
         void livingUnitNotCell_throws() {
             when(offenderBookingRepository.findById(SOME_BOOKING_ID))
                 .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
-            when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC))
-                .thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, SOME_AGENCY_ID, "WING")));
 
-            assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, aCellSwapLocation()))
+            assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, aLocation(NEW_LIVING_UNIT_ID, SOME_AGENCY_ID, "WING")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining(NEW_LIVING_UNIT_DESC)
                 .hasMessageContaining("WING");
@@ -1456,10 +1444,8 @@ public class BookingServiceTest {
         void differentAgency_throws() {
             when(offenderBookingRepository.findById(SOME_BOOKING_ID))
                 .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
-            when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC))
-                .thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, DIFFERENT_AGENCY_ID)));
 
-            assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, aCellSwapLocation()))
+            assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, aLocation(NEW_LIVING_UNIT_ID, DIFFERENT_AGENCY_ID)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining(SOME_AGENCY_ID)
                 .hasMessageContaining(DIFFERENT_AGENCY_ID);
@@ -1469,23 +1455,20 @@ public class BookingServiceTest {
         void ok_updatesRepo() {
             when(offenderBookingRepository.findById(SOME_BOOKING_ID))
                 .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
-            when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC))
-                .thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, SOME_AGENCY_ID)));
 
-            bookingService.updateLivingUnit(SOME_BOOKING_ID, aCellSwapLocation());
+            bookingService.updateLivingUnit(SOME_BOOKING_ID, aLocation(NEW_LIVING_UNIT_ID, SOME_AGENCY_ID));
 
             ArgumentCaptor<OffenderBooking> updatedOffenderBooking = ArgumentCaptor.forClass(OffenderBooking.class);
             verify(offenderBookingRepository).save(updatedOffenderBooking.capture());
             assertThat(updatedOffenderBooking.getValue().getAssignedLivingUnit().getLocationId()).isEqualTo(NEW_LIVING_UNIT_ID);
         }
+
         @Test
         void ok_updatesRepoForReception() {
             when(offenderBookingRepository.findById(SOME_BOOKING_ID))
                 .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
-            when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC))
-                .thenReturn(Optional.of(receptionLocation(NEW_LIVING_UNIT_ID, LOCATION_CODE)));
 
-            bookingService.updateLivingUnit(SOME_BOOKING_ID, aCellSwapLocation());
+            bookingService.updateLivingUnit(SOME_BOOKING_ID, receptionLocation(NEW_LIVING_UNIT_ID, LOCATION_CODE));
 
             ArgumentCaptor<OffenderBooking> updatedOffenderBooking = ArgumentCaptor.forClass(OffenderBooking.class);
             verify(offenderBookingRepository).save(updatedOffenderBooking.capture());
