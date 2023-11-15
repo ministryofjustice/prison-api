@@ -9,6 +9,7 @@ import org.mockito.kotlin.eq
 import org.mockito.kotlin.isNull
 import org.mockito.kotlin.verify
 import org.springframework.http.MediaType
+import org.springframework.web.reactive.function.BodyInserters
 
 class KeyWorkerResourceTest : ResourceTest() {
 
@@ -120,6 +121,52 @@ class KeyWorkerResourceTest : ResourceTest() {
         .expectStatus().isOk
         .expectBody()
         .jsonPath("[*].offenderNo").value<List<Int>> { assertThat(it).hasSize(10) }
+    }
+  }
+
+  @Nested
+  @DisplayName("POST /api/key-worker/{agencyId}/current-allocations")
+  inner class CurrentAllocations {
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.post().uri("/api/key-worker/LEI/current-allocations")
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `Request for key worker allocations for multiple staff Ids`() {
+      webTestClient.post().uri("/api/key-worker/LEI/current-allocations")
+        .headers(setAuthorisation("ITAG_USER", listOf("KEY_WORKER")))
+        .body(BodyInserters.fromValue(listOf(-5, -4)))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("[*].offenderNo").value<List<Int>> { assertThat(it).hasSize(5) }
+    }
+  }
+
+  @Nested
+  @DisplayName("POST /api/key-worker/offenders/allocationHistory")
+  inner class OffendersAllocationHistory {
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.post().uri("/api/key-worker/offenders/allocationHistory")
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `Request for key worker allocation history for multiple offender Nos`() {
+      webTestClient.post().uri("/api/key-worker/offenders/allocationHistory")
+        .headers(setAuthorisation("ITAG_USER", listOf("KEY_WORKER")))
+        .body(BodyInserters.fromValue(listOf("A9876RS", "A5576RS", "A1176RS", "A1234AP")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("[*].offenderNo").value<List<Int>> { assertThat(it).hasSize(5) }
     }
   }
 }
