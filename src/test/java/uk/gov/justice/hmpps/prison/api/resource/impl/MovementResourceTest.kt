@@ -99,13 +99,13 @@ class MovementResourceTest : ResourceTest() {
     }
 
     @Test
-    fun `should return 404 when does not have override role`() {
+    fun `should return 403 when does not have override role`() {
       webTestClient.get().uri("/api/movements/rollcount/BMI")
         .headers(setClientAuthorisation(listOf("")))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .accept(APPLICATION_JSON)
         .exchange()
-        .expectStatus().isNotFound
+        .expectStatus().isForbidden
     }
 
     @Test
@@ -142,13 +142,13 @@ class MovementResourceTest : ResourceTest() {
     }
 
     @Test
-    fun `should return 404 when does not have override role`() {
+    fun `should return 403 when does not have override role`() {
       webTestClient.get().uri("/api/movements/rollcount/BMI/movements")
         .headers(setClientAuthorisation(listOf("")))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .accept(APPLICATION_JSON)
         .exchange()
-        .expectStatus().isNotFound
+        .expectStatus().isForbidden
     }
 
     @Test
@@ -199,13 +199,13 @@ class MovementResourceTest : ResourceTest() {
     }
 
     @Test
-    fun `should return 404 when does not have override role`() {
+    fun `should return 403 when does not have override role`() {
       webTestClient.get().uri("api/movements/LEI/enroute")
         .headers(setClientAuthorisation(listOf("")))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .accept(APPLICATION_JSON)
         .exchange()
-        .expectStatus().isNotFound
+        .expectStatus().isForbidden
     }
 
     @Test
@@ -382,13 +382,13 @@ class MovementResourceTest : ResourceTest() {
     }
 
     @Test
-    fun `should return 404 when does not have override role`() {
+    fun `should return 403 when does not have override role`() {
       webTestClient.get().uri("/api/movements/BMI/in?fromDateTime=2019-01-10T10:35:17")
         .headers(setClientAuthorisation(listOf("")))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .accept(APPLICATION_JSON)
         .exchange()
-        .expectStatus().isNotFound
+        .expectStatus().isForbidden
     }
 
     @Test
@@ -567,13 +567,13 @@ class MovementResourceTest : ResourceTest() {
     }
 
     @Test
-    fun `should return 404 when does not have override role`() {
+    fun `should return 403 when does not have override role`() {
       webTestClient.get().uri("/api/movements/LEI/out/2012-07-16")
         .headers(setClientAuthorisation(listOf("")))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .accept(APPLICATION_JSON)
         .exchange()
-        .expectStatus().isNotFound
+        .expectStatus().isForbidden
     }
 
     @Test

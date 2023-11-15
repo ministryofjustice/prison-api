@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.AddressDto;
@@ -207,6 +208,7 @@ public class AgencyService {
      *
      * @param agencyId the agency.
      * @throws EntityNotFoundException if current user does not have access to this agency.
+     * @throws AccessDeniedException if current client does not have access to this agency.
      */
     public void verifyAgencyAccess(final String agencyId) {
         Objects.requireNonNull(agencyId, "agencyId is a required parameter");
@@ -218,10 +220,12 @@ public class AgencyService {
         if (agencyIds.isEmpty()) {
             if (authenticationFacade.isClientOnly()) {
                 logClientUnauthorisedAccess(agencyId);
+                throw new AccessDeniedException(format("Client not authorised to access agency with id %s.", agencyId));
             }
             throw EntityNotFoundException.withId(agencyId);
         }
         if (!agencyIds.contains(agencyId)) {
+            logUserUnauthorisedAccess(agencyId, agencyIds);
             throw EntityNotFoundException.withId(agencyId);
         }
     }
@@ -231,6 +235,14 @@ public class AgencyService {
         logMap.put("agencyId", agencyId);
         logMap.put("currentClientRoles", StringUtils.join(authenticationFacade.getCurrentRoles(), ","));
         telemetryClient.trackEvent("ClientUnauthorisedAgencyAccess", logMap, null);
+    }
+
+    private void logUserUnauthorisedAccess(final String agencyId, final Set<String> agencyIds) {
+        final Map<String, String> logMap = new HashMap<>();
+        logMap.put("agencyId", agencyId);
+        logMap.put("currentUser", authenticationFacade.getCurrentUsername());
+        logMap.put("currentUserCaseloads", StringUtils.join(agencyIds, ","));
+        telemetryClient.trackEvent("UserUnauthorisedAgencyAccess", logMap, null);
     }
 
     public List<Location> getAgencyLocations(final String agencyId, final String eventType, final String sortFields, final Order sortOrder) {
