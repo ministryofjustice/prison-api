@@ -137,13 +137,14 @@ class StaffResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `should return not found if does not have override role`() {
+    fun `should return 403 if does not have override role`() {
       webTestClient.get()
         .uri("/api/staff/roles/BMI/role/KW")
         .headers(setClientAuthorisation(listOf("")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
-        .expectStatus().isNotFound
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("Client not authorised to access agency with id BMI.")
 
       verify(telemetryClient).trackEvent(eq("ClientUnauthorisedAgencyAccess"), any(), isNull())
     }

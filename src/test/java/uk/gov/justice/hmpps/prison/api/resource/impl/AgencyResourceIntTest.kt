@@ -4,6 +4,10 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.isNull
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.boot.test.mock.mockito.SpyBean
@@ -30,7 +34,7 @@ class AgencyResourceIntTest : ResourceTest() {
       whenever(repository.getLocationGroupData("LEI")).thenReturn(listOf(location1))
 
       webTestClient.get().uri("/api/agencies/LEI/locations/groups")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -59,7 +63,7 @@ class AgencyResourceIntTest : ResourceTest() {
     @Test
     fun locationsByType_singleResult_returnsSuccessAndData() {
       webTestClient.get().uri("/api/agencies/SYI/locations/type/AREA")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -86,7 +90,7 @@ class AgencyResourceIntTest : ResourceTest() {
     @Test
     fun locationsByType_agencyNotFound_returnsNotFound() {
       webTestClient.get().uri("/api/agencies/XYZ/locations/type/AREA")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .exchange()
         .expectStatus().isNotFound
         .expectBody()
@@ -95,14 +99,16 @@ class AgencyResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `returns 404 as no override role on endpoint`() {
+    fun `returns 403 as no override role on endpoint`() {
       webTestClient.get().uri("/api/agencies/SYI/locations/type/CELL")
         .headers(setClientAuthorisation(listOf("")))
         .exchange()
-        .expectStatus().isNotFound
+        .expectStatus().isForbidden
         .expectBody()
         .jsonPath("userMessage")
-        .isEqualTo("Resource with id [SYI] not found.")
+        .isEqualTo("Client not authorised to access agency with id SYI.")
+
+      verify(telemetryClient).trackEvent(eq("ClientUnauthorisedAgencyAccess"), any(), isNull())
     }
 
     @Test
