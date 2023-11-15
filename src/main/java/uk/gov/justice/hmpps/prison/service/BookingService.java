@@ -784,7 +784,7 @@ public class BookingService {
             .orElseThrow(EntityNotFoundException.withMessage(format("No prisoner found for prisoner number %s", offenderNo)));
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     public MilitaryRecords getMilitaryRecords(final Long bookingId) {
         return offenderBookingRepository.findById(bookingId).map(b ->
                 new MilitaryRecords(b.getMilitaryRecords().stream().map(mr ->
