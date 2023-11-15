@@ -144,7 +144,8 @@ class StaffResourceIntTest : ResourceTest() {
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isForbidden
-        .expectBody().jsonPath("userMessage").isEqualTo("Client not authorised to access agency with id BMI.")
+        .expectBody().jsonPath("userMessage")
+        .isEqualTo("Client not authorised to access agency with id BMI due to missing override role.")
 
       verify(telemetryClient).trackEvent(eq("ClientUnauthorisedAgencyAccess"), any(), isNull())
     }

@@ -220,7 +220,7 @@ public class AgencyService {
         if (agencyIds.isEmpty()) {
             if (authenticationFacade.isClientOnly()) {
                 logClientUnauthorisedAccess(agencyId);
-                throw new AccessDeniedException(format("Client not authorised to access agency with id %s.", agencyId));
+                throw new AccessDeniedException(format("Client not authorised to access agency with id %s due to missing override role.", agencyId));
             }
             throw EntityNotFoundException.withId(agencyId);
         }

@@ -195,7 +195,8 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
           .expectStatus().isForbidden
-          .expectBody().jsonPath("userMessage").isEqualTo("Client not authorised to access agency with id LEI.")
+          .expectBody().jsonPath("userMessage")
+          .isEqualTo("Client not authorised to access agency with id LEI due to missing override role.")
       }
 
       @Test
