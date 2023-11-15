@@ -37,8 +37,6 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter.ISO_DATE_TIME
 import java.time.temporal.ChronoUnit.DAYS
 import java.time.temporal.ChronoUnit.HOURS
-import java.util.Map
-import java.util.Set
 import java.util.stream.Collectors
 import java.util.stream.IntStream
 
@@ -78,7 +76,7 @@ class BookingResourceIntTest : ResourceTest() {
       GET,
       httpEntity,
       object : ParameterizedTypeReference<String?>() {},
-      Map.of("prisonId", "BXI", "sort", "bookingId,asc", "imageRequired", "true", "legalInfo", "true"),
+      mapOf("prisonId" to "BXI", "sort" to "bookingId,asc", "imageRequired" to "true", "legalInfo" to "true"),
     )
     assertThatJsonFileAndStatus(response, 200, "bxi_caseload_bookings.json")
   }
@@ -92,7 +90,7 @@ class BookingResourceIntTest : ResourceTest() {
       GET,
       httpEntity,
       object : ParameterizedTypeReference<String?>() {},
-      Map.of("prisonId", "LEI", "pageNum", "2", "pageSize", "3", "imageRequired", "true", "legalInfo", "true"),
+      mapOf("prisonId" to "LEI", "pageNum" to "2", "pageSize" to "3", "imageRequired" to "true", "legalInfo" to "true"),
     )
     assertThatJsonFileAndStatus(response, 200, "lei_bookings.json")
   }
@@ -106,7 +104,7 @@ class BookingResourceIntTest : ResourceTest() {
       GET,
       httpEntity,
       object : ParameterizedTypeReference<String?>() {},
-      Map.of("bookingId1", "-1", "bookingId2", "-2", "bookingId3", "-3", "imageRequired", "true", "legalInfo", "true"),
+      mapOf("bookingId1" to "-1", "bookingId2" to "-2", "bookingId3" to "-3", "imageRequired" to "true", "legalInfo" to "true"),
     )
     assertThatJsonFileAndStatus(response, 200, "bookings_by_id.json")
   }
@@ -120,7 +118,7 @@ class BookingResourceIntTest : ResourceTest() {
       GET,
       httpEntity,
       object : ParameterizedTypeReference<String?>() {},
-      Map.of("nomsId1", "A1234AA", "nomsId2", "A1234AB", "imageRequired", "true", "legalInfo", "true"),
+      mapOf("nomsId1" to "A1234AA", "nomsId2" to "A1234AB", "imageRequired" to "true", "legalInfo" to "true"),
     )
     assertThatJsonFileAndStatus(response, 200, "bookings_by_nomsId.json")
   }
@@ -131,7 +129,7 @@ class BookingResourceIntTest : ResourceTest() {
     @Test
     fun testThatUpdateAttendanceIsLockedDown_WhenPayRoleIsMissing() {
       val token = authTokenHelper.getToken(NORMAL_USER)
-      val body = Map.of("eventOutcome", "ATT", "performance", "STANDARD")
+      val body = mapOf("eventOutcome" to "ATT", "performance" to "STANDARD")
       val httpEntity = createHttpEntity(token, body)
       val response = testRestTemplate.exchange(
         "/api/bookings/{bookingId}/activities/{activityId}/attendance",
@@ -147,7 +145,7 @@ class BookingResourceIntTest : ResourceTest() {
     @Test
     fun testUpdateAttendance_WithTheValidRole() {
       val token = authTokenHelper.getToken(AuthToken.PAY)
-      val body = Map.of("eventOutcome", "ATT", "performance", "STANDARD")
+      val body = mapOf("eventOutcome" to "ATT", "performance" to "STANDARD")
       val httpEntity = createHttpEntity(token, body)
       val response = testRestTemplate.exchange(
         "/api/bookings/{bookingId}/activities/{activityId}/attendance",
@@ -163,7 +161,7 @@ class BookingResourceIntTest : ResourceTest() {
     @Test
     fun testUpdateAttendance_WithLockTimeout() {
       val token = authTokenHelper.getToken(AuthToken.PAY)
-      val body = Map.of("eventOutcome", "ATT", "performance", "STANDARD")
+      val body = mapOf("eventOutcome" to "ATT", "performance" to "STANDARD")
       val httpEntity = createHttpEntity(token, body)
       val response = testRestTemplate.exchange(
         "/api/bookings/{bookingId}/activities/{activityId}/attendance?lockTimeout=true",
@@ -179,7 +177,7 @@ class BookingResourceIntTest : ResourceTest() {
     @Test
     fun testUpdateAttendance_WithInvalidBookingId() {
       val token = authTokenHelper.getToken(AuthToken.PAY)
-      val body = Map.of("eventOutcome", "ATT", "performance", "STANDARD")
+      val body = mapOf("eventOutcome" to "ATT", "performance" to "STANDARD")
       val request = createHttpEntity(token, body)
       val response = testRestTemplate.exchange(
         "/api/bookings/{bookingId}/activities/{activityId}/attendance",
@@ -201,7 +199,7 @@ class BookingResourceIntTest : ResourceTest() {
     @Test
     fun testUpdateAttendance_WithInvalidBookingIdAndLockTimeout() {
       val token = authTokenHelper.getToken(AuthToken.PAY)
-      val body = Map.of("eventOutcome", "ATT", "performance", "STANDARD")
+      val body = mapOf("eventOutcome" to "ATT", "performance" to "STANDARD")
       val request = createHttpEntity(token, body)
       val response = testRestTemplate.exchange(
         "/api/bookings/{bookingId}/activities/{activityId}/attendance?lockTimeout=true",
@@ -223,7 +221,7 @@ class BookingResourceIntTest : ResourceTest() {
     @Test
     fun testUpdateAttendance_WithInvalidEventIdAndLockTimeout() {
       val token = authTokenHelper.getToken(AuthToken.PAY)
-      val body = Map.of("eventOutcome", "ATT", "performance", "STANDARD")
+      val body = mapOf("eventOutcome" to "ATT", "performance" to "STANDARD")
       val request = createHttpEntity(token, body)
       val response = testRestTemplate.exchange(
         "/api/bookings/{bookingId}/activities/{activityId}/attendance?lockTimeout=true",
@@ -249,7 +247,7 @@ class BookingResourceIntTest : ResourceTest() {
         .builder()
         .eventOutcome("ATT")
         .performance("STANDARD")
-        .bookingActivities(Set.of(BookingActivity.builder().activityId(-11L).bookingId(-2L).build()))
+        .bookingActivities(setOf(BookingActivity.builder().activityId(-11L).bookingId(-2L).build()))
         .build()
       val httpEntity = createHttpEntity(token, body)
       val response = testRestTemplate.exchange(
@@ -268,7 +266,7 @@ class BookingResourceIntTest : ResourceTest() {
         .builder()
         .eventOutcome("ATT")
         .performance("STANDARD")
-        .bookingActivities(Set.of(BookingActivity.builder().activityId(999L).bookingId(-2L).build()))
+        .bookingActivities(setOf(BookingActivity.builder().activityId(999L).bookingId(-2L).build()))
         .build()
       val httpEntity = createHttpEntity(token, body)
       val response = testRestTemplate.exchange(
@@ -288,7 +286,7 @@ class BookingResourceIntTest : ResourceTest() {
         .builder()
         .eventOutcome("ATT")
         .performance("STANDARD")
-        .bookingActivities(Set.of(BookingActivity.builder().activityId(-11L).bookingId(999L).build()))
+        .bookingActivities(setOf(BookingActivity.builder().activityId(-11L).bookingId(999L).build()))
         .build()
       val httpEntity = createHttpEntity(token, body)
       val response = testRestTemplate.exchange(
@@ -359,7 +357,7 @@ class BookingResourceIntTest : ResourceTest() {
         createHttpEntity(token, body),
         object : ParameterizedTypeReference<AlertCreated?>() {},
         -14L,
-        createdAlert.alertId,
+        createdAlert!!.alertId,
       )
       assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
     }
@@ -389,7 +387,7 @@ class BookingResourceIntTest : ResourceTest() {
         createHttpEntity(token, body),
         object : ParameterizedTypeReference<AlertCreated?>() {},
         -15L,
-        createdAlert.alertId,
+        createdAlert!!.alertId,
       )
       assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
     }
@@ -419,7 +417,7 @@ class BookingResourceIntTest : ResourceTest() {
         createHttpEntity(token, body),
         object : ParameterizedTypeReference<AlertCreated?>() {},
         -14L,
-        createdAlert.alertId,
+        createdAlert!!.alertId,
       )
       assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
     }
@@ -446,7 +444,7 @@ class BookingResourceIntTest : ResourceTest() {
     @Test
     fun testCreateNewAlert_MaximumLengths() {
       val token = authTokenHelper.getToken(AuthToken.UPDATE_ALERT)
-      val largeText = IntStream.range(1, 1002).mapToObj { i: Int -> "A" }.collect(Collectors.joining(""))
+      val largeText = IntStream.range(1, 1002).mapToObj { _: Int -> "A" }.collect(Collectors.joining(""))
       val body = CreateAlert.builder()
         .alertCode(largeText.substring(0, 13))
         .alertType(largeText.substring(0, 13))
@@ -493,7 +491,7 @@ class BookingResourceIntTest : ResourceTest() {
       createHttpEntity(token, body),
       object : ParameterizedTypeReference<List<InmateBasicDetails>>() {},
     )
-    assertThat(response.body[0].bookingId).isEqualTo(-20)
+    assertThat(response.body!![0].bookingId).isEqualTo(-20)
     assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
   }
 
@@ -534,7 +532,7 @@ class BookingResourceIntTest : ResourceTest() {
   }
 
   @Nested
-  @DisplayName("/api/bookings/offenderNo/{offenderNo}")
+  @DisplayName("GET /api/bookings/offenderNo/{offenderNo}")
   inner class OffenderDetails {
 
     @Test
@@ -1054,6 +1052,72 @@ class BookingResourceIntTest : ResourceTest() {
   }
 
   @Nested
+  @DisplayName("GET /api/bookings/{bookingId}/military-records")
+  inner class GetMilitaryRecords {
+
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("/api/bookings/-6/military-records")
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return 403 as endpoint does not have override role`() {
+      webTestClient.get().uri("/api/bookings/-6/military-records")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should return success when has ROLE_SYSTEM_USER override role`() {
+      webTestClient.get().uri("/api/bookings/-6/military-records")
+        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `should return success when has ROLE_VIEW_PRISONER_DATA override role`() {
+      webTestClient.get().uri("/api/bookings/-6/military-records")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns 404 if not in user caseload`() {
+      webTestClient.get().uri("/api/bookings/-6/military-records")
+        .headers(setAuthorisation("WAI_USER", listOf()))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -6 not found.")
+    }
+
+    @Test
+    fun `returns 404 if booking not found`() {
+      webTestClient.get().uri("/api/bookings/-99999/military-records")
+        .headers(setAuthorisation(listOf()))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -99999 not found.")
+    }
+
+    @Test
+    fun `should return success when user has booking in caseload`() {
+      webTestClient.get().uri("/api/bookings/-6/military-records")
+        .headers(setAuthorisation(listOf()))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .exchange()
+        .expectStatus().isOk
+    }
+  }
+
+  @Nested
   @DisplayName("GET /api/bookings/{bookingId}/visits-with-visitors")
   inner class VisitsWithVisitors {
 
@@ -1413,7 +1477,7 @@ class BookingResourceIntTest : ResourceTest() {
     val response = testRestTemplate.exchange(
       "/api/bookings/court-event-outcomes",
       POST,
-      createHttpEntity(VIEW_PRISONER_DATA, Set.of(-4)),
+      createHttpEntity(VIEW_PRISONER_DATA, setOf(-4)),
       object : ParameterizedTypeReference<String?>() {},
     )
     assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
