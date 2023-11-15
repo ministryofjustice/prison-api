@@ -13,9 +13,9 @@ class PaymentsMovementService(
   private val noPayPeriodRepository: OffenderNoPayPeriodRepository,
 ) {
 
-  fun endPaymentRules(bookingId: Long, movementDate: LocalDate) {
+  fun endPaymentRules(bookingId: Long) {
     endPayStatus(bookingId)
-    endNoPayPeriods(bookingId, movementDate)
+    endNoPayPeriods(bookingId)
   }
 
   private fun endPayStatus(bookingId: Long) {
@@ -24,7 +24,7 @@ class PaymentsMovementService(
       .forEach { it.endDate = LocalDate.now() }
   }
 
-  private fun endNoPayPeriods(bookingId: Long, movementDate: LocalDate) {
+  private fun endNoPayPeriods(bookingId: Long) {
     noPayPeriodRepository.findAllByBookingId(bookingId)
       .filter { it.endDate == null || it.endDate.isAfter(LocalDate.now()) }
       .forEach { it.endDate = LocalDate.now() }
