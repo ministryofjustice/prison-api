@@ -189,12 +189,14 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       }
 
       @Test
-      fun `should return 404 if client does not have authorised role`() {
+      fun `should return 403 if client does not have authorised role`() {
         webTestClient.get().uri("/api/offender-assessments/category/LEI?type=UNCATEGORISED")
           .headers(setClientAuthorisation(listOf()))
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
-          .expectStatus().isNotFound
+          .expectStatus().isForbidden
+          .expectBody().jsonPath("userMessage")
+          .isEqualTo("Client not authorised to access agency with id LEI due to missing override role.")
       }
 
       @Test

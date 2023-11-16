@@ -25,11 +25,11 @@ class KeyWorkerResourceTest : ResourceTest() {
     }
 
     @Test
-    fun `should return 404 as endpoint does not have override role`() {
+    fun `should return 403 as endpoint does not have override role`() {
       webTestClient.get().uri("/api/key-worker/LEI/available")
         .headers(setClientAuthorisation(listOf("")))
         .exchange()
-        .expectStatus().isNotFound
+        .expectStatus().isForbidden
       verify(telemetryClient).trackEvent(eq("ClientUnauthorisedAgencyAccess"), any(), isNull())
     }
 
@@ -80,11 +80,11 @@ class KeyWorkerResourceTest : ResourceTest() {
     }
 
     @Test
-    fun `should return 404 as endpoint does not have override role`() {
+    fun `should return 403 as endpoint does not have override role`() {
       webTestClient.get().uri("/api/key-worker/LEI/allocationHistory")
         .headers(setClientAuthorisation(listOf("")))
         .exchange()
-        .expectStatus().isNotFound
+        .expectStatus().isForbidden
       verify(telemetryClient).trackEvent(eq("ClientUnauthorisedAgencyAccess"), any(), isNull())
     }
 
