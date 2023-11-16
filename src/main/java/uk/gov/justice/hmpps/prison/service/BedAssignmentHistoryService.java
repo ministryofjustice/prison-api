@@ -9,15 +9,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.BedAssignment;
-import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory.BedAssignmentHistoryPK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository;
-import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
-import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -63,7 +60,6 @@ public class BedAssignmentHistoryService {
         return bookingAndSequence;
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     public Page<BedAssignment> getBedAssignmentsHistory(final Long bookingId, final PageRequest pageRequest) {
         final var bedAssignmentsHistory = repository.findAllByBedAssignmentHistoryPKOffenderBookingId(bookingId, pageRequest);
         final var results = bedAssignmentsHistory.getContent()
@@ -87,7 +83,6 @@ public class BedAssignmentHistoryService {
             .toList();
     }
 
-    @VerifyAgencyAccess
     public List<BedAssignment> getBedAssignmentsHistoryByDateForAgency(final String agencyId, final LocalDate assignmentDate) {
         final var livingUnitIdsForAgency = locationRepository.findAgencyInternalLocationsByAgencyIdAndLocationType(agencyId, "CELL")
             .stream()
