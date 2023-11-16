@@ -192,7 +192,6 @@ public class BookingServiceTest {
             agencyService,offenderFixedTermRecallService,
             caseLoadService,
             caseloadToAgencyMappingService,
-            agencyInternalLocationRepository,
             offenderContactPersonsRepository,
             staffUserAccountRepository,
             offenderBookingTransformer,
