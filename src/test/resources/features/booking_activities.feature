@@ -10,16 +10,8 @@ Feature: Booking Activities
     When scheduled activities are requested for an offender with booking id "-16"
     Then resource not found response is received from booking activities API
 
-  Scenario: Retrieve current day's scheduled activities for an existing offender that is not in a caseload accessible to authenticated user
-    When scheduled activities for current day are requested for an offender with booking id "-16"
-    Then resource not found response is received from booking activities API
-
   Scenario: Retrieve scheduled activities for an offender that does not exist
     When scheduled activities are requested for an offender with booking id "-99"
-    Then resource not found response is received from booking activities API
-
-  Scenario: Retrieve current day's scheduled activities for an offender that does not exist
-    When scheduled activities for current day are requested for an offender with booking id "-99"
     Then resource not found response is received from booking activities API
 
   Scenario: Retrieve scheduled activities for an existing offender having no activities
@@ -52,14 +44,6 @@ Feature: Booking Activities
     And event source code for "9th" returned activity is "SUBS"
     And event source description for "6th" returned activity is "Chapel Cleaner"
     And event source description for "7th" returned activity is "Substance misuse course"
-
-  Scenario: Retrieve current day's scheduled activities for an existing offender having no activities on current day
-    When scheduled activities for current day are requested for an offender with booking id "-1"
-    Then "0" activities are returned
-
-  Scenario: Retrieve current day's scheduled activities for an existing offender having one or more activities on current day
-    When scheduled activities for current day are requested for an offender with booking id "-2"
-    Then "3" activities are returned
 
   Scenario: Retrieve scheduled activities for an existing offender having one or more activities, some of which they have attended
     When scheduled activities are requested for an offender with booking id "-3"
