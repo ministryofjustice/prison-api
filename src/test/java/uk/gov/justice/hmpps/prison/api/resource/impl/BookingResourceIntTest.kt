@@ -1052,6 +1052,68 @@ class BookingResourceIntTest : ResourceTest() {
   }
 
   @Nested
+  @DisplayName("GET /api/bookings/{bookingId}/property")
+  inner class GetProperty {
+
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("/api/bookings/-6/property")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return 403 if no override role`() {
+      webTestClient.get().uri("/api/bookings/-6/property")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should return success when has ROLE_SYSTEM_USER override role`() {
+      webTestClient.get().uri("/api/bookings/-6/property")
+        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `should return success when has ROLE_VIEW_PRISONER_DATA override role`() {
+      webTestClient.get().uri("/api/bookings/-6/property")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns 404 if not in user caseload`() {
+      webTestClient.get().uri("/api/bookings/-6/property")
+        .headers(setAuthorisation("WAI_USER", listOf()))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -6 not found.")
+    }
+
+    @Test
+    fun `returns 404 if booking not found`() {
+      webTestClient.get().uri("/api/bookings/-99999/property")
+        .headers(setAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -99999 not found.")
+    }
+
+    @Test
+    fun `should return success when user has booking in caseload`() {
+      webTestClient.get().uri("/api/bookings/-6/property")
+        .headers(setAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isOk
+    }
+  }
+
+  @Nested
   @DisplayName("GET /api/bookings/{bookingId}/military-records")
   inner class GetMilitaryRecords {
 
@@ -1064,7 +1126,7 @@ class BookingResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `should return 403 as endpoint does not have override role`() {
+    fun `should return 403 if no override role`() {
       webTestClient.get().uri("/api/bookings/-6/military-records")
         .headers(setClientAuthorisation(listOf()))
         .exchange()

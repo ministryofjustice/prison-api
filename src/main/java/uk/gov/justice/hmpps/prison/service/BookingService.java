@@ -61,7 +61,6 @@ import uk.gov.justice.hmpps.prison.api.model.Visitor;
 import uk.gov.justice.hmpps.prison.api.model.VisitorRestriction;
 import uk.gov.justice.hmpps.prison.api.model.calculation.CalculableSentenceEnvelope;
 import uk.gov.justice.hmpps.prison.api.support.Order;
-import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.repository.BookingRepository;
 import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq;
 import uk.gov.justice.hmpps.prison.repository.SentenceRepository;
@@ -81,7 +80,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.RelationshipType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.KeyDateValues;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitVisitor;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingFilter;
@@ -165,7 +163,6 @@ public class BookingService {
     private final CaseLoadService caseLoadService;
     private final OffenderFixedTermRecallService offenderFixedTermRecallService;
     private final CaseloadToAgencyMappingService caseloadToAgencyMappingService;
-    private final AgencyInternalLocationRepository agencyInternalLocationRepository;
     private final OffenderContactPersonsRepository offenderContactPersonsRepository;
     private final OffenderRestrictionRepository offenderRestrictionRepository;
     private final StaffUserAccountRepository staffUserAccountRepository;
@@ -193,7 +190,6 @@ public class BookingService {
                           final OffenderFixedTermRecallService offenderFixedTermRecallService,
                           final CaseLoadService caseLoadService,
                           final CaseloadToAgencyMappingService caseloadToAgencyMappingService,
-                          final AgencyInternalLocationRepository agencyInternalLocationRepository,
                           final OffenderContactPersonsRepository offenderContactPersonsRepository,
                           final StaffUserAccountRepository staffUserAccountRepository,
                           final OffenderBookingTransformer offenderBookingTransformer,
@@ -221,7 +217,6 @@ public class BookingService {
         this.offenderFixedTermRecallService = offenderFixedTermRecallService;
         this.caseLoadService = caseLoadService;
         this.caseloadToAgencyMappingService = caseloadToAgencyMappingService;
-        this.agencyInternalLocationRepository = agencyInternalLocationRepository;
         this.offenderContactPersonsRepository = offenderContactPersonsRepository;
         this.staffUserAccountRepository = staffUserAccountRepository;
         this.offenderBookingTransformer = offenderBookingTransformer;
@@ -819,7 +814,7 @@ public class BookingService {
                 .orElseThrow(EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId));
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     public List<PropertyContainer> getOffenderPropertyContainers(final Long bookingId) {
         return offenderBookingRepository.findById(bookingId)
                 .map(OffenderBooking::getActivePropertyContainers)
