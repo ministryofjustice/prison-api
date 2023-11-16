@@ -24,7 +24,6 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.BulkAppointment
 import uk.gov.justice.hmpps.prison.executablespecification.steps.CaseNoteSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.ContactSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.CurfewSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.FinanceSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.KeyWorkerAllocatedOffendersSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.LocationsSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.MovementsSteps;
@@ -140,11 +139,6 @@ abstract class AbstractStepDefinitions {
         @Bean
         public MyAssignmentsSteps userAssignment() {
             return new MyAssignmentsSteps();
-        }
-
-        @Bean
-        public FinanceSteps bookingFinance() {
-            return new FinanceSteps();
         }
 
         @Bean
