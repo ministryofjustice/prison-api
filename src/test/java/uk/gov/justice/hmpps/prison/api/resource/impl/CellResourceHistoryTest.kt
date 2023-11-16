@@ -57,7 +57,7 @@ class CellResourceHistoryTest : ResourceTest() {
         "/api/cell/{cellLocationId}/history?fromDate={fromDate}&toDate={toDate}",
         CELL_LOCATION_ID,
         fromDateTime.toString(),
-        toDateTime.toString()
+        toDateTime.toString(),
       )
       .headers(setClientAuthorisation(listOf("MAINTAIN_CELL_MOVEMENTS")))
       .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
@@ -78,7 +78,7 @@ class CellResourceHistoryTest : ResourceTest() {
         "/api/cell/{cellLocationId}/history?fromDate={fromDate}&toDate={toDate}",
         CELL_LOCATION_ID,
         "hello",
-        now().toString()
+        now().toString(),
       )
       .headers(setClientAuthorisation(listOf("MAINTAIN_CELL_MOVEMENTS")))
       .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
@@ -92,7 +92,7 @@ class CellResourceHistoryTest : ResourceTest() {
         "/api/cell/{cellLocationId}/history?fromDate={fromDate}&toDate={toDate}",
         CELL_LOCATION_ID,
         now().toString(),
-        "hello"
+        "hello",
       )
       .headers(setClientAuthorisation(listOf("MAINTAIN_CELL_MOVEMENTS")))
       .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
@@ -106,7 +106,7 @@ class CellResourceHistoryTest : ResourceTest() {
         "/api/cell/{cellLocationId}/history?fromDate={fromDate}&toDate={toDate}",
         -991873,
         now().toString(),
-        now().toString()
+        now().toString(),
       )
       .headers(setClientAuthorisation(listOf("MAINTAIN_CELL_MOVEMENTS")))
       .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
@@ -120,7 +120,7 @@ class CellResourceHistoryTest : ResourceTest() {
         "/api/cell/{cellLocationId}/history?fromDate={fromDate}&toDate={toDate}",
         CELL_LOCATION_ID,
         now().toString(),
-        now().toString()
+        now().toString(),
       )
       .headers(setClientAuthorisation(listOf()))
       .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
