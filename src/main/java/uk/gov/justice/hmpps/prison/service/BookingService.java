@@ -331,7 +331,6 @@ public class BookingService {
         return bookingRepository.getBookingActivities(bookingIds, fromDate, toDate, sortFields, sortOrder);
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public List<ScheduledEvent> getBookingActivities(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order) {
         validateScheduledEventsRequest(fromDate, toDate);
 

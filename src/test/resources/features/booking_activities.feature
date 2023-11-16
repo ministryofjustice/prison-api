@@ -53,14 +53,6 @@ Feature: Booking Activities
     And event source description for "6th" returned activity is "Chapel Cleaner"
     And event source description for "7th" returned activity is "Substance misuse course"
 
-  Scenario: Retrieve current day's scheduled activities for an existing offender having no activities on current day
-    When scheduled activities for current day are requested for an offender with booking id "-1"
-    Then "0" activities are returned
-
-  Scenario: Retrieve current day's scheduled activities for an existing offender having one or more activities on current day
-    When scheduled activities for current day are requested for an offender with booking id "-2"
-    Then "3" activities are returned
-
   Scenario: Retrieve scheduled activities for an existing offender having one or more activities, some of which they have attended
     When scheduled activities are requested for an offender with booking id "-3"
     Then "10" activities are returned

@@ -221,25 +221,6 @@ public class BookingResource {
     }
 
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Today's scheduled activities for offender.", description = "Today's scheduled activities for offender.")
-    @GetMapping("/{bookingId}/activities/today")
-    @SlowReportQuery
-    public List<ScheduledEvent> getBookingActivitiesForToday(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId, @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>eventDate, startTime, endTime, eventLocation</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
-        final var today = LocalDate.now();
-
-        return bookingService.getBookingActivities(
-            bookingId,
-            today,
-            today,
-            sortFields,
-            sortOrder);
-    }
-
-    @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Attendance data has been updated"),
         @ApiResponse(responseCode = "400", description = "Invalid request - e.g. validation error.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to attend activity.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
