@@ -83,11 +83,6 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
         user.verifyLocationPrefixes(expectedPrefixes);
     }
 
-//    @Then("^resource not found response is received from users API$")
-//    public void resourceNotFoundResponseIsReceivedFromUsersAPI() {
-//        user.verifyResourceNotFound();
-//    }
-
     @When("^a user role request is made for all roles$")
     public void aUserRoleRequestIsMadeForAllRoles() {
         user.getUserRoles(true);
@@ -117,35 +112,4 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
     public void eachCaseNoteTypeIsReturnedWithOneOrMoreSubTypes() {
         user.verifyCaseNoteTypesHaveSubTypes();
     }
-
-//    @When("^a request for users with usernames \"([^\"]*)\" is made$")
-//    public void aRequestForUsersByusernamesIsMade(final String usernames) {
-//        user.getUsers(Arrays.asList(usernames.split(",")));
-//    }
-
-//    @When("^a request for users by local administrator is made$")
-//    public void aRequestForLocalAdministratorUsersWithCaseloadIsMade() {
-//        user.getUsersByLaa(null, null);
-//    }
-
-//    @Then("^a list of users is returned with usernames \"([^\"]*)\"$")
-//    public void aListOfUsersIsReturnedWithUsernames(final String usernameList) {
-//        user.verifyUserList(usernameList);
-//    }
-
-//    @Then("^a list of roles is returned with role codes \"([^\"]*)\"$")
-//    public void aListOfRolesIsReturnedWithRoleCodes(final String roleCodeList) {
-//        user.verifyRoleList(roleCodeList);
-//    }
-
-//    @When("^a request for users by local administrator with namefilter \"([^\"]*)\" and role \"([^\"]*)\" is made$")
-//    public void aRequestForLocalAdminUsersWithCaseloadAndNamefilterAndRoleIsMade(final String nameFilter, final String roleCode) {
-//        user.getUsersByLaa(roleCode, nameFilter);
-//    }
-
-//    @Then("^the request requiring admin privileges is rejected$")
-//    public void theCreateAccessRoleRequestIsRejected() {
-//        user.verifyAccessDenied("Maintain roles Admin access required to perform this action");
-//    }
-
 }
