@@ -365,6 +365,25 @@ class ScheduleResourceTest : ResourceTest() {
     }
   }
 
+  @Nested
+  @DisplayName("GET /api/schedules/{prisonerNumber}/scheduledTransfers")
+  inner class ScheduledTransfers {
+
+    @Test
+    fun testThatScheduledTransfer_IsReturned() {
+      val token = authTokenHelper.getToken(NORMAL_USER)
+      val response: ResponseEntity<List<PrisonerSchedule>> = testRestTemplate.exchange(
+        "/api/schedules/A10/scheduledTransfers",
+        HttpMethod.GET,
+        createHttpEntity(token, ""),
+        object : ParameterizedTypeReference<List<PrisonerSchedule>>() {},
+      )
+      val transfers = response.body
+      assertThat(response.statusCode.value()).isEqualTo(200)
+      assertThat(transfers).hasSize(1)
+    }
+  }
+
   private val locationIdsNoSchedules: List<Long> = listOf(108582L, 108583L)
   private val locationIdsWithSchedules: List<Long> = listOf(
     -3L, -12L, -1101L, -1002L, -1003L, -1004L, -1005L, -1006L, -1007L, -1008L, -4L,
