@@ -301,10 +301,10 @@ public class ScheduleRepositoryTest {
 
     @Test
     public void testGetScheduledTransfersForPrisoner() {
-        final var results = repository.getScheduledTransfersForPrisoner("A1234AA");
+        final var results = repository.getScheduledTransfersForPrisoner("A1234AC");
 
-        assertThat(results).asList().hasSize(1);
-        assertThat(results).asList().extracting("offenderNo", "firstName", "lastName", "eventType", "event", "eventDescription", "eventStatus", "startTime").contains(
-            new Tuple("A1234AA", "Terry", "Scott", "TRN", "28", "28 Day Lie Down", "SCH", LocalDateTime.parse("2023-11-16T18:00:00")));
+        assertThat(results).asList().hasSize(4);
+        assertThat(results).asList().extracting("offenderNo", "firstName", "lastName", "event", "eventDescription", "eventStatus", "startTime").contains(
+            new Tuple("A1234AC", "NORMAN", "BATES", "COMP", "Compassionate Transfer", "SCH", LocalDateTime.of(2019, 5, 1, 13, 0, 0)));
     }
 }

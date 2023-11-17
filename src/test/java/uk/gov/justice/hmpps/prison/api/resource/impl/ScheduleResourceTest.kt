@@ -373,14 +373,14 @@ class ScheduleResourceTest : ResourceTest() {
     fun testThatScheduledTransfer_IsReturned() {
       val token = authTokenHelper.getToken(NORMAL_USER)
       val response: ResponseEntity<List<PrisonerSchedule>> = testRestTemplate.exchange(
-        "/api/schedules/A10/scheduledTransfers",
+        "/api/schedules/A1234AC/scheduledTransfers",
         HttpMethod.GET,
-        createHttpEntity(token, ""),
+        createHttpEntity(token, {}),
         object : ParameterizedTypeReference<List<PrisonerSchedule>>() {},
       )
       val transfers = response.body
       assertThat(response.statusCode.value()).isEqualTo(200)
-      assertThat(transfers).hasSize(1)
+      assertThat(transfers).hasSize(4)
     }
   }
 
