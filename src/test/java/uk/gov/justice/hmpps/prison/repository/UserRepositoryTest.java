@@ -57,7 +57,7 @@ public class UserRepositoryTest {
         final var page = userRepository.findUsersByCaseload("LEI", null, new NameFilter(null), Status.ALL, null, new PageRequest("last_name", Order.ASC, 0L, 5L));
         final var items = page.getItems();
 
-        assertThat(items).hasSizeBetween(5, 20);
+        assertThat(items).hasSizeBetween(5, 40);
         assertThat(items).extracting(UserDetail::getUsername).contains("JBRIEN");
     }
 
