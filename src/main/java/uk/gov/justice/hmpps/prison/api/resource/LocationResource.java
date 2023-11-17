@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -53,8 +54,9 @@ public class LocationResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "List of offenders at location.", description = "List of offenders at location.")
+    @Operation(summary = "List of offenders at location.", description = "Requires role VIEW_PRISONER_DATA and a user in the token.")
     @GetMapping("/description/{locationPrefix}/inmates")
+    @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
     @SlowReportQuery
     public ResponseEntity<List<OffenderBooking>> getOffendersAtLocationDescription(
             @PathVariable("locationPrefix") @Parameter(required = true) final String locationPrefix,
@@ -130,8 +132,9 @@ public class LocationResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "List of offenders at location.", description = "List of offenders at location.")
+    @Operation(summary = "List of offenders at location.", description = "Requires role VIEW_PRISONER_DATA and a user in the token.")
     @GetMapping("/{locationId}/inmates")
+    @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
     @SlowReportQuery
     public ResponseEntity<List<OffenderBooking>> getOffendersAtLocation(@PathVariable("locationId") @Parameter(description = "The location id of location", required = true) final Long locationId,
                                                                         @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of inmate records.") final Long pageOffset,
