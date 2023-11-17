@@ -10,9 +10,9 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingEventSte
 import java.util.List;
 
 /**
- * BDD step definitions for finance endpoints:
+ * BDD step definitions for events endpoints:
  * <ul>
- * <li>/bookings/{booking_id}/balances</li>
+ * <li>/bookings/{booking_id}/events</li>
  * </ul>
  */
 public class BookingEventsStepDefinitions extends AbstractStepDefinitions {

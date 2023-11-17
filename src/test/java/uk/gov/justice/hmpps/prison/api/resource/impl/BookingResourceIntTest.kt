@@ -976,6 +976,113 @@ class BookingResourceIntTest : ResourceTest() {
   }
 
   @Nested
+  @DisplayName("GET /api/bookings/{bookingId}/balances")
+  inner class Balances {
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("/api/bookings/-3/balances")
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return 403 if no override role`() {
+      webTestClient.get().uri("/api/bookings/-3/balances")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 404 for client if booking not found`() {
+      webTestClient.get().uri("/api/bookings/-99999/balances")
+        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -99999 not found.")
+    }
+
+    @Test
+    fun `returns 200 when client has override role ROLE_SYSTEM_USER`() {
+      webTestClient.get().uri("/api/bookings/-3/balances")
+        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns 200 when client has override role ROLE_VIEW_PRISONER_DATA`() {
+      webTestClient.get().uri("/api/bookings/-3/balances")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns 404 if user has no caseloads`() {
+      webTestClient.get().uri("/api/bookings/-3/balances")
+        .headers(setAuthorisation("RO_USER", listOf()))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -3 not found.")
+    }
+
+    @Test
+    fun `returns 404 if not in user caseload`() {
+      webTestClient.get().uri("/api/bookings/-3/balances")
+        .headers(setAuthorisation("WAI_USER", listOf()))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -3 not found.")
+      verify(telemetryClient).trackEvent(eq("UserUnauthorisedBookingAccess"), any(), isNull())
+    }
+
+    @Test
+    fun `returns 404 if booking not found`() {
+      webTestClient.get().uri("/api/bookings/-99999/balances")
+        .headers(setAuthorisation("WAI_USER", listOf()))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -99999 not found.")
+    }
+
+    @Test
+    fun `should return success when user has booking in caseload`() {
+      webTestClient.get().uri("/api/bookings/-3/balances")
+        .headers(setAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `should return balances`() {
+      webTestClient.get().uri("/api/bookings/-1/balances")
+        .headers(setAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("cash").isEqualTo("1.24")
+        .jsonPath("spends").isEqualTo("2.5")
+        .jsonPath("savings").isEqualTo("200.5")
+        .jsonPath("currency").isEqualTo("GBP")
+    }
+
+    @Test
+    fun `should return no finance for offender that has no finance records`() {
+      webTestClient.get().uri("/api/bookings/-32/balances")
+        .headers(setAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("cash").isEqualTo("0.0")
+        .jsonPath("spends").isEqualTo("0.0")
+        .jsonPath("savings").isEqualTo("0.0")
+        .jsonPath("currency").isEqualTo("GBP")
+    }
+  }
+
+  @Nested
   @DisplayName("GET /api/bookings/{bookingId}/reasonable-adjustments")
   inner class ReasonableAdjustments {
     @Test
