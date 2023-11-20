@@ -187,7 +187,7 @@ public class CaseNoteService {
         return updateCaseNote(latestBookingByOffenderNo.getBookingId(), caseNoteId, username, newCaseNoteText);
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_CASE_NOTES"})
     public CaseNoteCount getCaseNoteCount(final Long bookingId, final String type, final String subType, final LocalDate fromDate, final LocalDate toDate) {
         // Validate date range
         if (Objects.nonNull(fromDate) && Objects.nonNull(toDate) && toDate.isBefore(fromDate)) {
