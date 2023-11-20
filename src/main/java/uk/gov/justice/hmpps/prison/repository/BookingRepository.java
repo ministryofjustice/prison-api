@@ -515,25 +515,6 @@ public class BookingRepository extends RepositoryBase {
         private Integer bookingSeq;
     }
 
-    public Page<ScheduledEvent> getBookingAppointments(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final long offset, final long limit, final String orderByFields, final Order order) {
-        Objects.requireNonNull(bookingId, "bookingId is a required parameter");
-
-        final var initialSql = BookingRepositorySql.GET_BOOKING_APPOINTMENTS.getSql() + BookingRepositorySql.APPOINTMENTS_BOOKING_ID_CLAUSE.getSql();
-        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, EVENT_ROW_MAPPER.getFieldMap());
-
-        final var sql = buildOrderAndPagination(orderByFields, order, builder);
-
-        final var paRowMapper = new PageAwareRowMapper<>(EVENT_ROW_MAPPER);
-
-        final var visitDtos = jdbcTemplate.query(
-                sql,
-                buildParams(bookingId, fromDate, toDate, offset, limit),
-                paRowMapper);
-        final var visits = visitDtos.stream().map(ScheduledEventDto::toScheduledEvent).collect(Collectors.toList());
-
-        return new Page<>(visits, paRowMapper.getTotalRecords(), offset, limit);
-    }
-
     private MapSqlParameterSource buildParams(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final long offset, final long limit) {
         return createParams("bookingId", bookingId,
                 "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
