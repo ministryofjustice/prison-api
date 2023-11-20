@@ -323,6 +323,12 @@ public class SchedulesService {
                 .toList();
     }
 
+    public List<PrisonerSchedule> getScheduledTransfersForPrisoner(final String prisonerNumber) {
+        Validate.notBlank(prisonerNumber, "A prisoner number is required.");
+
+        return scheduleRepository.getScheduledTransfersForPrisoner(prisonerNumber);
+    }
+
     private List<PrisonerSchedule> filterByTimeSlot(final TimeSlot timeSlot, final List<PrisonerSchedule> events) {
 
         if (timeSlot == null) {

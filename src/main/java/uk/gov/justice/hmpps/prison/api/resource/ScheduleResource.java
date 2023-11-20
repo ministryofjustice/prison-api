@@ -203,4 +203,11 @@ public class ScheduleResource {
     public List<PrisonerSchedule> getExternalTransfers(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> body, @RequestParam("date") @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Date of scheduled transfer") final LocalDate date) {
         return schedulesService.getExternalTransfers(agencyId, body, date);
     }
+
+    @Operation
+    @GetMapping("/{prisonerNumber}/scheduledTransfers")
+    @SlowReportQuery
+    public List<PrisonerSchedule> getScheduledTransfersForPrisoner(@PathVariable("prisonerNumber") @Parameter(required = true) final String prisonerNumber) {
+        return schedulesService.getScheduledTransfersForPrisoner(prisonerNumber);
+    }
 }

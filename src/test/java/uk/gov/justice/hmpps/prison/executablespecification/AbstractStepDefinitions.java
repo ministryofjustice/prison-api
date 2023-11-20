@@ -20,17 +20,14 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingDetailSt
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingEventSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingSentenceDetailSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingVisitSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.BulkAppointmentSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.CaseNoteSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.ContactSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.CurfewSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.KeyWorkerAllocatedOffendersSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.LocationsSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.MovementsSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.MyAssignmentsSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.NomisApiV1Steps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.OffenderAdjudicationSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.OffenderSearchSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.OffenderSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.PersonIdentifierSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.PrisonContactDetailsSteps;
@@ -82,11 +79,6 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
-        public LocationsSteps location() {
-            return new LocationsSteps();
-        }
-
-        @Bean
         public BookingAliasSteps bookingAlias() {
             return new BookingAliasSteps();
         }
@@ -109,11 +101,6 @@ abstract class AbstractStepDefinitions {
         @Bean
         public BookingAlertSteps bookingAlert() {
             return new BookingAlertSteps();
-        }
-
-        @Bean
-        public OffenderSearchSteps offenderSearch() {
-            return new OffenderSearchSteps();
         }
 
         @Bean
@@ -199,11 +186,6 @@ abstract class AbstractStepDefinitions {
         @Bean
         public CurfewSteps curfewSteps() {
             return new CurfewSteps();
-        }
-
-        @Bean
-        public BulkAppointmentSteps bulkAppointmentSteps() {
-            return new BulkAppointmentSteps();
         }
 
         @Bean
