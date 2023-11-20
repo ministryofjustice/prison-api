@@ -140,7 +140,7 @@ public class AgencyResourceTest extends ResourceTest {
         final var update2 = Map.of(
             "agencyId", "LEI",
             "description", "LEEDS",
-            "longDescription", "This is a prison based in Leeds",
+            "longDescription", "HMP LEEDS",
             "agencyType", "INST",
             "active", "true");
 
