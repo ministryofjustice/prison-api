@@ -8,7 +8,6 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.repository.InmateRepository;
 import uk.gov.justice.hmpps.prison.repository.OffenderBookingSearchRequest;
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.support.SearchOffenderRequest;
 
 import java.util.List;
@@ -29,8 +28,6 @@ public class SearchOffenderServiceImplTest {
     UserService userService;
     @Mock
     InmateRepository inmateRepository;
-    @Mock
-    AuthenticationFacade authenticationFacade;
 
     @Test
     public void testFindOffenders_findAssessmentsCorrectlyBatchesQueries() {
@@ -44,7 +41,7 @@ public class SearchOffenderServiceImplTest {
 
         when(inmateRepository.searchForOffenderBookings(isA(OffenderBookingSearchRequest.class))).thenReturn(new Page<>(bookings, bookings.size(), 0, bookings.size()));
 
-        final var service = new SearchOffenderService(bookingService, userService, inmateRepository, authenticationFacade, offenderNoRegex, maxBatchSize);
+        final var service = new SearchOffenderService(bookingService, userService, inmateRepository, offenderNoRegex, maxBatchSize);
 
         service.findOffenders(SearchOffenderRequest.builder().keywords("firstName").locationPrefix("LEI").returnCategory(true).build());
 

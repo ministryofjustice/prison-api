@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +21,7 @@ import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.api.support.Order;
+import uk.gov.justice.hmpps.prison.core.ReferenceData;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
@@ -52,8 +54,9 @@ public class LocationResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "List of offenders at location.", description = "List of offenders at location.")
+    @Operation(summary = "List of offenders at location.", description = "Requires role VIEW_PRISONER_DATA and a user in the token.")
     @GetMapping("/description/{locationPrefix}/inmates")
+    @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
     @SlowReportQuery
     public ResponseEntity<List<OffenderBooking>> getOffendersAtLocationDescription(
             @PathVariable("locationPrefix") @Parameter(required = true) final String locationPrefix,
@@ -98,6 +101,7 @@ public class LocationResource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Location detail.", description = "Location detail.")
     @GetMapping("/{locationId}")
+    @ReferenceData(description = "Location properties only are returned, no prisoner data")
     public Location getLocation(
         @PathVariable("locationId")
         @Parameter(description = "The location id of location", required = true)
@@ -117,6 +121,7 @@ public class LocationResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Returns the location (internal) for a prison based on description")
     @GetMapping("/code/{code}")
+    @ReferenceData(description = "Location properties only are returned, no prisoner data")
     public Location getLocationByCode(
         @PathVariable("code") @Parameter(example = "MDI-1", required = true) final String code) {
            return locationService.getLocationByCode(code).orElseThrow(EntityNotFoundException.withId(code));
@@ -127,10 +132,15 @@ public class LocationResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "List of offenders at location.", description = "List of offenders at location.")
+    @Operation(summary = "List of offenders at location.", description = "Requires role VIEW_PRISONER_DATA and a user in the token.")
     @GetMapping("/{locationId}/inmates")
+    @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
     @SlowReportQuery
-    public ResponseEntity<List<OffenderBooking>> getOffendersAtLocation(@PathVariable("locationId") @Parameter(description = "The location id of location", required = true) final Long locationId, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of inmate records.") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of inmate records returned.") final Long pageLimit, @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, or assignedLivingUnitId</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
+    public ResponseEntity<List<OffenderBooking>> getOffendersAtLocation(@PathVariable("locationId") @Parameter(description = "The location id of location", required = true) final Long locationId,
+                                                                        @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of inmate records.") final Long pageOffset,
+                                                                        @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of inmate records returned.") final Long pageLimit,
+                                                                        @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, or assignedLivingUnitId</b>") final String sortFields,
+                                                                        @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
         final var inmates = locationService.getInmatesFromLocation(
                 locationId,
                 authenticationFacade.getCurrentUsername(),
