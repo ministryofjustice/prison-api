@@ -8,11 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.UserSteps;
 
-import java.util.Arrays;
-
-import static uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.ADMIN_TOKEN;
-import static uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.CATEGORISATION_CREATE;
-import static uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.GLOBAL_SEARCH;
 import static uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.NORMAL_USER;
 import static uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.PAY;
 import static uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA;
@@ -58,22 +53,6 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
         user.authenticateAsClient(PAY);
     }
 
-
-    @Given("^a categorisation user has authenticated with the API$")
-    public void aCategorisationUserHasAuthenticatedWithTheAPI() {
-        user.authenticateAsClient(CATEGORISATION_CREATE);
-    }
-
-    @Given("^a trusted client that can maintain access roles has authenticated with the API$")
-    public void aTrustedClientThatCanMaintainAccessRolesHasAuthenticatedWithTheAPI() {
-        user.authenticateAsClient(ADMIN_TOKEN);
-    }
-
-    @Given("^a trusted client with GLOBAL_SEARCH role has authenticated with the API$")
-    public void aTrustedClientThatHasGlobalSearchAuthenticatedWithTheAPI() {
-        user.authenticateAsClient(GLOBAL_SEARCH);
-    }
-
     @Given("^a trusted client with VIEW_PRISONER_DATA role has authenticated with the API$")
     public void aTrustedClientThatHasViewPrisonerDataAuthenticatedWithTheAPI() {
         user.authenticateAsClient(VIEW_PRISONER_DATA);
@@ -102,11 +81,6 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
     @And("^user location prefixes are \"([^\"]*)\"$")
     public void userLocationPrefixesAre(final String expectedPrefixes) {
         user.verifyLocationPrefixes(expectedPrefixes);
-    }
-
-    @Then("^resource not found response is received from users API$")
-    public void resourceNotFoundResponseIsReceivedFromUsersAPI() {
-        user.verifyResourceNotFound();
     }
 
     @When("^a user role request is made for all roles$")
@@ -138,35 +112,4 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
     public void eachCaseNoteTypeIsReturnedWithOneOrMoreSubTypes() {
         user.verifyCaseNoteTypesHaveSubTypes();
     }
-
-    @When("^a request for users with usernames \"([^\"]*)\" is made$")
-    public void aRequestForUsersByusernamesIsMade(final String usernames) {
-        user.getUsers(Arrays.asList(usernames.split(",")));
-    }
-
-    @When("^a request for users by local administrator is made$")
-    public void aRequestForLocalAdministratorUsersWithCaseloadIsMade() {
-        user.getUsersByLaa(null, null);
-    }
-
-    @Then("^a list of users is returned with usernames \"([^\"]*)\"$")
-    public void aListOfUsersIsReturnedWithUsernames(final String usernameList) {
-        user.verifyUserList(usernameList);
-    }
-
-    @Then("^a list of roles is returned with role codes \"([^\"]*)\"$")
-    public void aListOfRolesIsReturnedWithRoleCodes(final String roleCodeList) {
-        user.verifyRoleList(roleCodeList);
-    }
-
-    @When("^a request for users by local administrator with namefilter \"([^\"]*)\" and role \"([^\"]*)\" is made$")
-    public void aRequestForLocalAdminUsersWithCaseloadAndNamefilterAndRoleIsMade(final String nameFilter, final String roleCode) {
-        user.getUsersByLaa(roleCode, nameFilter);
-    }
-
-    @Then("^the request requiring admin privileges is rejected$")
-    public void theCreateAccessRoleRequestIsRejected() {
-        user.verifyAccessDenied("Maintain roles Admin access required to perform this action");
-    }
-
 }
