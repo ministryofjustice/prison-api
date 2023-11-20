@@ -210,7 +210,7 @@ class MovementUpdateServiceTest {
 
             service.moveToCellOrReception(SOME_BOOKING_ID, OLD_LIVING_UNIT_DESC, SOME_REASON_CODE, SOME_TIME);
 
-            verify(bookingService, never()).updateLivingUnit(SOME_BOOKING_ID, OLD_LIVING_UNIT_DESC);
+            verify(bookingService, never()).updateLivingUnit(any(), any());
             verify(bedAssignmentHistoryService, never()).add(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_REASON_CODE, SOME_TIME);
         }
 

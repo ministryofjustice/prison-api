@@ -40,18 +40,34 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
   @DisplayName("PUT /api/offender-assessments/category/{bookingId}/nextReviewDate/{nextReviewDate}")
   inner class NextReviewDate {
     @Test
-    fun testSystemUserCanUpdateCategoryNextReviewDate() {
-      val token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE)
-      val httpEntity = createHttpEntity(token, null)
-      val response = testRestTemplate.exchange(
-        "/api/offender-assessments/category/{bookingId}/nextReviewDate/{nextReviewDate}",
-        PUT,
-        httpEntity,
-        object : ParameterizedTypeReference<String>() {},
-        "-1",
-        "2018-06-05",
-      )
-      assertThatStatus(response, OK.value())
+    fun `returns 401 without an auth token`() {
+      webTestClient.put().uri("/api/offender-assessments/category/-1/nextReviewDate/2018-06-05")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `returns 403 when client does not have any roles`() {
+      webTestClient.put().uri("/api/offender-assessments/category/-1/nextReviewDate/2018-06-05")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 200 when client has override role ROLE_SYSTEM_USER`() {
+      webTestClient.put().uri("/api/offender-assessments/category/-1/nextReviewDate/2018-06-05")
+        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns 200 when client has override role ROLE_MAINTAIN_ASSESSMENTS`() {
+      webTestClient.put().uri("/api/offender-assessments/category/-1/nextReviewDate/2018-06-05")
+        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_ASSESSMENTS")))
+        .exchange()
+        .expectStatus().isOk
     }
 
     @Test
@@ -88,36 +104,44 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
   @Nested
   @DisplayName("PUT /api/offender-assessments/category/{bookingId}/inactive")
   inner class Inactive {
-    @Test
-    fun testSystemUserCanUpdateCategorySetActiveInactive() {
-      val token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE)
-      val httpEntity = createHttpEntity(token, null)
 
-      // choose a booking that doesnt actually have any active
-      val response = testRestTemplate.exchange(
-        "/api/offender-assessments/category/{bookingId}/inactive",
-        PUT,
-        httpEntity,
-        object : ParameterizedTypeReference<String>() {},
-        "-34",
-      )
-      assertThatStatus(response, OK.value())
+    @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.put().uri("/api/offender-assessments/category/-34/inactive")
+        .exchange()
+        .expectStatus().isUnauthorized
     }
 
     @Test
-    fun testSystemUserCanUpdateCategorySetPendingInactive() {
-      val token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE)
-      val httpEntity = createHttpEntity(token, null)
+    fun `returns 403 when client does not have any roles`() {
+      webTestClient.put().uri("/api/offender-assessments/category/-34/inactive")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
 
-      // choose a booking that doesnt actually have any active
-      val response = testRestTemplate.exchange(
-        "/api/offender-assessments/category/{bookingId}/inactive?status=PENDING",
-        PUT,
-        httpEntity,
-        object : ParameterizedTypeReference<String>() {},
-        "-31",
-      )
-      assertThatStatus(response, OK.value())
+    @Test
+    fun `returns 200 when client has override role ROLE_SYSTEM_USER`() {
+      webTestClient.put().uri("/api/offender-assessments/category/-34/inactive")
+        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns 200 when client has override role ROLE_MAINTAIN_ASSESSMENTS`() {
+      webTestClient.put().uri("/api/offender-assessments/category/-34/inactive")
+        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_ASSESSMENTS")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns 200 when client has override role ROLE_SYSTEM_USER and sets pending inactive`() {
+      webTestClient.put().uri("/api/offender-assessments/category/-31/inactive?status=PENDING")
+        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+        .exchange()
+        .expectStatus().isOk
     }
 
     @Test
@@ -165,12 +189,14 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       }
 
       @Test
-      fun `should return 404 if client does not have authorised role`() {
+      fun `should return 403 if client does not have authorised role`() {
         webTestClient.get().uri("/api/offender-assessments/category/LEI?type=UNCATEGORISED")
-          .headers(setClientAuthorisation(listOf("")))
+          .headers(setClientAuthorisation(listOf()))
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
-          .expectStatus().isNotFound
+          .expectStatus().isForbidden
+          .expectBody().jsonPath("userMessage")
+          .isEqualTo("Client not authorised to access agency with id LEI due to missing override role.")
       }
 
       @Test
@@ -194,7 +220,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       @Test
       fun `returns 404 if user has no caseloads`() {
         webTestClient.get().uri("/api/offender-assessments/category/LEI?type=UNCATEGORISED")
-          .headers(setAuthorisation("RO_USER", listOf("")))
+          .headers(setAuthorisation("RO_USER", listOf()))
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
           .expectStatus().isNotFound
@@ -240,22 +266,25 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
 
     @Test
     fun testGetOffenderCategorisationsSystem() {
-      val token = authTokenHelper.getToken(AuthToken.VIEW_PRISONER_DATA)
-      val httpEntity = createHttpEntity(token, listOf("-1", "-2", "-3", "-38", "-39", "-40", "-41"))
-      val response = testRestTemplate.exchange(
-        "/api/offender-assessments/category?latest=false",
-        POST,
-        httpEntity,
-        object : ParameterizedTypeReference<String>() {},
-      )
-      assertThatStatus(response, OK.value())
-      assertThatJson(response.body).isArray().hasSize(6)
-      assertThatJson(response.body).node("[0].bookingId").isEqualTo(JsonAssertions.value(-1))
-      assertThatJson(response.body).node("[1].bookingId").isEqualTo(JsonAssertions.value(-3))
-      assertThatJson(response.body).node("[2].bookingId").isEqualTo(JsonAssertions.value(-38))
-      assertThatJson(response.body).node("[3].bookingId").isEqualTo(JsonAssertions.value(-39))
-      assertThatJson(response.body).node("[4].bookingId").isEqualTo(JsonAssertions.value(-40))
-      assertThatJson(response.body).node("[5].bookingId").isEqualTo(JsonAssertions.value(-41))
+      webTestClient.post().uri("/api/offender-assessments/category?latest=false")
+        .headers(setAuthorisation("ITAG_USER", listOf("VIEW_PRISONER_DATA")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .accept(MediaType.APPLICATION_JSON)
+        .bodyValue(
+          """
+           [ "-1", "-2", "-3", "-38", "-39", "-40", "-41"]
+            """,
+        )
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("length()").isEqualTo(6)
+        .jsonPath("[0].bookingId").isEqualTo(-1)
+        .jsonPath("[1].bookingId").isEqualTo(-3)
+        .jsonPath("[2].bookingId").isEqualTo(-38)
+        .jsonPath("[3].bookingId").isEqualTo(-39)
+        .jsonPath("[4].bookingId").isEqualTo(-40)
+        .jsonPath("[5].bookingId").isEqualTo(-41)
     }
   }
 
@@ -284,7 +313,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         String::class.java,
       )
       assertThatStatus(response, BAD_REQUEST.value())
-      assertThatJson(response.body).node("userMessage").asString().contains("postOffenderAssessmentsCsraRatings.offenderList: must not be empty")
+      assertThatJson(response.body!!).node("userMessage").asString().contains("postOffenderAssessmentsCsraRatings.offenderList: must not be empty")
     }
   }
 
@@ -314,7 +343,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         String::class.java,
       )
       assertThatStatus(response, NOT_FOUND.value())
-      assertThatJson(response.body).node("userMessage").asString().contains("Offender booking with id -43 not found.")
+      assertThatJson(response.body!!).node("userMessage").asString().contains("Offender booking with id -43 not found.")
     }
 
     @Test
@@ -327,7 +356,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         String::class.java,
       )
       assertThatStatus(response, NOT_FOUND.value())
-      assertThatJson(response.body).node("userMessage").asString().contains("Offender booking with id -999 not found.")
+      assertThatJson(response.body!!).node("userMessage").asString().contains("Offender booking with id -999 not found.")
     }
 
     @Test
@@ -340,7 +369,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         String::class.java,
       )
       assertThatStatus(response, NOT_FOUND.value())
-      assertThatJson(response.body).node("userMessage").asString().contains("Csra assessment for booking -43 and sequence 200 not found.")
+      assertThatJson(response.body!!).node("userMessage").asString().contains("Csra assessment for booking -43 and sequence 200 not found.")
     }
   }
 
@@ -370,7 +399,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         String::class.java,
       )
       assertThatStatus(response, NOT_FOUND.value())
-      assertThatJson(response.body).node("userMessage").asString().contains("Offender booking with id -43 not found.")
+      assertThatJson(response.body!!).node("userMessage").asString().contains("Offender booking with id -43 not found.")
     }
 
     @Test
@@ -383,7 +412,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         String::class.java,
       )
       assertThatStatus(response, NOT_FOUND.value())
-      assertThatJson(response.body).node("userMessage").asString().contains("Resource with id [A1234BB] not found.")
+      assertThatJson(response.body!!).node("userMessage").asString().contains("Resource with id [A1234BB] not found.")
     }
   }
 
@@ -413,8 +442,8 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         String::class.java,
       )
       assertThatStatus(response, OK.value())
-      assertThatJson(response.body).isArray().hasSize(1)
-      assertThatJson(response.body).node("[0].assessmentSeq").isEqualTo(JsonAssertions.value(1))
+      assertThatJson(response.body!!).isArray().hasSize(1)
+      assertThatJson(response.body!!).node("[0].assessmentSeq").isEqualTo(JsonAssertions.value(1))
     }
 
     @Test
@@ -427,7 +456,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         String::class.java,
       )
       assertThatStatus(response, BAD_REQUEST.value())
-      assertThatJson(response.body).node("userMessage").asString().contains("Required request parameter 'offenderNo' for method parameter type List is not present")
+      assertThatJson(response.body!!).node("userMessage").asString().contains("Required request parameter 'offenderNo' for method parameter type List is not present")
     }
   }
 
@@ -634,7 +663,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       )
 
       assertThatStatus(response, BAD_REQUEST.value())
-      val body = response.body
+      val body = response.body!!
       assertThatJson(body).node("userMessage").asString().contains("bookingId must be provided")
       assertThatJson(body).node("userMessage").asString().contains("category must be provided")
       assertThatJson(body).node("userMessage").asString().contains("committee must be provided")
@@ -660,7 +689,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         object : ParameterizedTypeReference<String>() {},
       )
       assertThatStatus(response, BAD_REQUEST.value())
-      assertThatJson(response.body).node("userMessage").asString().contains("Placement agency id not recognised.")
+      assertThatJson(response.body!!).node("userMessage").asString().contains("Placement agency id not recognised.")
     }
 
     private fun resetCreatedCategorisation() =
@@ -713,7 +742,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       @Test
       fun `returns 403 if user has no role`() {
         webTestClient.put().uri("/api/offender-assessments/category/categorise")
-          .headers(setAuthorisation("ITAG_USER", listOf("")))
+          .headers(setAuthorisation("ITAG_USER", listOf()))
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .accept(MediaType.APPLICATION_JSON)
           .bodyValue(
@@ -897,7 +926,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         object : ParameterizedTypeReference<String>() {},
       )
       assertThatStatus(response, BAD_REQUEST.value())
-      val body = response.body
+      val body = response.body!!
       assertThatJson(body).node("userMessage").asString().contains("bookingId must be provided")
       assertThatJson(body).node("userMessage").asString().contains("Sequence number must be provided")
       assertThatJson(body).node("userMessage").asString().contains("Comment text must be a maximum of 4000 characters")
@@ -921,7 +950,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         object : ParameterizedTypeReference<String>() {},
       )
       assertThatStatus(response, BAD_REQUEST.value())
-      assertThatJson(response.body).node("userMessage").isEqualTo("Category not recognised.")
+      assertThatJson(response.body!!).node("userMessage").isEqualTo("Category not recognised.")
     }
 
     @Test
@@ -942,7 +971,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         object : ParameterizedTypeReference<String>() {},
       )
       assertThatStatus(response, BAD_REQUEST.value())
-      assertThatJson(response.body).node("userMessage").isEqualTo("Committee Code not recognised.")
+      assertThatJson(response.body!!).node("userMessage").isEqualTo("Committee Code not recognised.")
     }
   }
 
@@ -1046,7 +1075,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       @Test
       fun `returns 403 if user has no role`() {
         webTestClient.put().uri("/api/offender-assessments/category/approve")
-          .headers(setAuthorisation("ITAG_USER", listOf("")))
+          .headers(setAuthorisation("ITAG_USER", listOf()))
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .accept(MediaType.APPLICATION_JSON)
           .bodyValue(
@@ -1227,7 +1256,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         object : ParameterizedTypeReference<String>() {},
       )
       assertThatStatus(response, BAD_REQUEST.value())
-      val body = response.body
+      val body = response.body!!
       assertThatJson(body).node("userMessage").asString().contains("Committee Code not recognised.")
     }
 
@@ -1252,7 +1281,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         object : ParameterizedTypeReference<String>() {},
       )
       assertThatStatus(response, BAD_REQUEST.value())
-      val body = response.body
+      val body = response.body!!
       assertThatJson(body).node("userMessage").asString().contains("Review placement agency id not recognised.")
     }
 
@@ -1352,7 +1381,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       @Test
       fun `returns 403 if user has no role`() {
         webTestClient.put().uri("/api/offender-assessments/category/reject")
-          .headers(setAuthorisation("ITAG_USER", listOf("")))
+          .headers(setAuthorisation("ITAG_USER", listOf()))
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .accept(MediaType.APPLICATION_JSON)
           .bodyValue(
@@ -1506,7 +1535,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         object : ParameterizedTypeReference<String>() {},
       )
       assertThatStatus(response, BAD_REQUEST.value())
-      val body = response.body
+      val body = response.body!!
       assertThatJson(body).node("userMessage").asString().contains("bookingId must be provided")
       assertThatJson(body).node("userMessage").asString().contains("Sequence number must be provided")
       assertThatJson(body).node("userMessage").asString().contains("Comment text must be a maximum of 240 characters")
@@ -1534,7 +1563,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         object : ParameterizedTypeReference<String>() {},
       )
       assertThatStatus(response, BAD_REQUEST.value())
-      assertThatJson(response.body).node("userMessage").isEqualTo("Committee Code not recognised.")
+      assertThatJson(response.body!!).node("userMessage").isEqualTo("Committee Code not recognised.")
     }
   }
 }

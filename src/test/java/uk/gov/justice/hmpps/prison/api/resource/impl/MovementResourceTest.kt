@@ -20,7 +20,7 @@ import java.time.LocalDateTime
 import java.time.LocalDateTime.now
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.util.Map
+import java.util.Map.entry
 
 class MovementResourceTest : ResourceTest() {
   @Nested
@@ -50,7 +50,7 @@ class MovementResourceTest : ResourceTest() {
         now().truncatedTo(ChronoUnit.DAYS).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
       )
       assertThatStatus(response, 200)
-      assertThatJson(response.body).isEqualTo("[]")
+      assertThatJson(response.body!!).isEqualTo("[]")
     }
 
     @Test
@@ -65,7 +65,7 @@ class MovementResourceTest : ResourceTest() {
         LocalDate.of(2018, 5, 1).format(DateTimeFormatter.ISO_LOCAL_DATE),
       )
       assertThatStatus(response, 200)
-      assertThatJson(response.body).isEqualTo("movements_on_day.json".readFile())
+      assertThatJson(response.body!!).isEqualTo("movements_on_day.json".readFile())
     }
   }
 
@@ -83,7 +83,7 @@ class MovementResourceTest : ResourceTest() {
         object : ParameterizedTypeReference<String>() {},
       )
       assertThatStatus(response, 200)
-      assertThatJson(response.body).isEqualTo("movements_all_bookings.json".readFile())
+      assertThatJson(response.body!!).isEqualTo("movements_all_bookings.json".readFile())
     }
   }
 
@@ -99,13 +99,13 @@ class MovementResourceTest : ResourceTest() {
     }
 
     @Test
-    fun `should return 404 when does not have override role`() {
+    fun `should return 403 when does not have override role`() {
       webTestClient.get().uri("/api/movements/rollcount/BMI")
         .headers(setClientAuthorisation(listOf("")))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .accept(APPLICATION_JSON)
         .exchange()
-        .expectStatus().isNotFound
+        .expectStatus().isForbidden
     }
 
     @Test
@@ -142,13 +142,13 @@ class MovementResourceTest : ResourceTest() {
     }
 
     @Test
-    fun `should return 404 when does not have override role`() {
+    fun `should return 403 when does not have override role`() {
       webTestClient.get().uri("/api/movements/rollcount/BMI/movements")
         .headers(setClientAuthorisation(listOf("")))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .accept(APPLICATION_JSON)
         .exchange()
-        .expectStatus().isNotFound
+        .expectStatus().isForbidden
     }
 
     @Test
@@ -182,7 +182,7 @@ class MovementResourceTest : ResourceTest() {
         "LEI",
       )
       assertThatStatus(response, 200)
-      assertThatJson(response.body).isEqualTo("{\"in\":0,\"out\":0}")
+      assertThatJson(response.body!!).isEqualTo("{\"in\":0,\"out\":0}")
     }
   }
 
@@ -199,13 +199,13 @@ class MovementResourceTest : ResourceTest() {
     }
 
     @Test
-    fun `should return 404 when does not have override role`() {
+    fun `should return 403 when does not have override role`() {
       webTestClient.get().uri("api/movements/LEI/enroute")
         .headers(setClientAuthorisation(listOf("")))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .accept(APPLICATION_JSON)
         .exchange()
-        .expectStatus().isNotFound
+        .expectStatus().isForbidden
     }
 
     @Test
@@ -239,7 +239,7 @@ class MovementResourceTest : ResourceTest() {
         "LEI",
       )
       assertThatStatus(response, 200)
-      assertThatJson(response.body).isEqualTo(
+      assertThatJson(response.body!!).isEqualTo(
         """
       [{
         "offenderNo": "A1183SH",
@@ -292,7 +292,7 @@ class MovementResourceTest : ResourceTest() {
         "LEI",
       )
       assertThatStatus(response, 200)
-      assertThatJson(response.body).isEqualTo("2")
+      assertThatJson(response.body!!).isEqualTo("2")
     }
   }
 
@@ -382,13 +382,13 @@ class MovementResourceTest : ResourceTest() {
     }
 
     @Test
-    fun `should return 404 when does not have override role`() {
+    fun `should return 403 when does not have override role`() {
       webTestClient.get().uri("/api/movements/BMI/in?fromDateTime=2019-01-10T10:35:17")
         .headers(setClientAuthorisation(listOf("")))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .accept(APPLICATION_JSON)
         .exchange()
-        .expectStatus().isNotFound
+        .expectStatus().isForbidden
     }
 
     @Test
@@ -433,7 +433,7 @@ class MovementResourceTest : ResourceTest() {
         LocalDateTime.of(2019, 1, 1, 0, 1),
       )
       assertThatStatus(response, OK.value())
-      assertThatJson(response.body).isEqualTo("movements_since.json".readFile())
+      assertThatJson(response.body!!).isEqualTo("movements_since.json".readFile())
     }
 
     @Test
@@ -448,7 +448,7 @@ class MovementResourceTest : ResourceTest() {
         LocalDateTime.of(2019, 10, 1, 0, 0),
       )
       assertThatStatus(response, OK.value())
-      assertThatJson(response.body).isEqualTo("movements_since_all.json".readFile())
+      assertThatJson(response.body!!).isEqualTo("movements_since_all.json".readFile())
     }
 
     @Test
@@ -457,18 +457,18 @@ class MovementResourceTest : ResourceTest() {
       val response = testRestTemplate.exchange(
         "/api/movements/{agencyId}/in?fromDateTime={fromDateTime}",
         GET,
-        createHttpEntity(token, null, Map.of("Page-Offset", "1", "Page-Limit", "1")),
+        createHttpEntity(token, null, mapOf("Page-Offset" to "1", "Page-Limit" to "1")),
         object : ParameterizedTypeReference<String>() {},
         "LEI",
         LocalDateTime.of(2019, 1, 1, 0, 1),
       )
       assertThatStatus(response, OK.value())
       assertThat(response.headers.toSingleValueMap()).contains(
-        Map.entry("Page-Limit", "1"),
-        Map.entry("Page-Offset", "1"),
-        Map.entry("Total-Records", "2"),
+        entry("Page-Limit", "1"),
+        entry("Page-Offset", "1"),
+        entry("Total-Records", "2"),
       )
-      assertThatJson(response.body).isEqualTo("movements_paged.json".readFile())
+      assertThatJson(response.body!!).isEqualTo("movements_paged.json".readFile())
     }
 
     @Test
@@ -484,7 +484,7 @@ class MovementResourceTest : ResourceTest() {
         LocalDateTime.of(2019, 6, 1, 0, 1),
       )
       assertThatStatus(response, OK.value())
-      assertThatJson(response.body).isEqualTo("movements_between.json".readFile())
+      assertThatJson(response.body!!).isEqualTo("movements_between.json".readFile())
     }
   }
 
@@ -567,13 +567,13 @@ class MovementResourceTest : ResourceTest() {
     }
 
     @Test
-    fun `should return 404 when does not have override role`() {
+    fun `should return 403 when does not have override role`() {
       webTestClient.get().uri("/api/movements/LEI/out/2012-07-16")
         .headers(setClientAuthorisation(listOf("")))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .accept(APPLICATION_JSON)
         .exchange()
-        .expectStatus().isNotFound
+        .expectStatus().isForbidden
     }
 
     @Test
@@ -608,7 +608,7 @@ class MovementResourceTest : ResourceTest() {
         LocalDate.of(2012, 7, 16),
       )
       assertThatStatus(movementsOutOnDayResponse, OK.value())
-      assertThatJson(movementsOutOnDayResponse.body).isEqualTo("movements_out_on_given_day.json".readFile())
+      assertThatJson(movementsOutOnDayResponse.body!!).isEqualTo("movements_out_on_given_day.json".readFile())
     }
 
     @Test
@@ -653,7 +653,7 @@ class MovementResourceTest : ResourceTest() {
         "LEI",
       )
       assertThatStatus(response, OK.value())
-      assertThatJson(response.body).isEqualTo("movements_temporary_absence.json".readFile())
+      assertThatJson(response.body!!).isEqualTo("movements_temporary_absence.json".readFile())
     }
   }
 
@@ -673,7 +673,7 @@ class MovementResourceTest : ResourceTest() {
       val toDateTime = LocalDate.of(2018, 4, 23).atTime(20, 10)
       val response = getScheduledMovements(false, true, false, fromDateTime, toDateTime)
       assertThatStatus(response, OK.value())
-      assertThatJson(response.body).isEqualTo("get_release_events.json".readFile())
+      assertThatJson(response.body!!).isEqualTo("get_release_events.json".readFile())
     }
 
     @Test

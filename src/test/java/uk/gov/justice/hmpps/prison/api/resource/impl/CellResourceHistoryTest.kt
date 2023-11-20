@@ -7,7 +7,6 @@ import org.mockito.Mockito.doThrow
 import org.mockito.kotlin.whenever
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
-import org.springframework.test.web.reactive.server.WebTestClient.ResponseSpec
 import uk.gov.justice.hmpps.prison.service.AgencyService
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 import java.time.LocalDate
@@ -27,7 +26,11 @@ class CellResourceHistoryTest : ResourceTest() {
 
   @Test
   fun returnAllBedHistoriesForDateAndAgency() {
-    val response = makeRequest(AGENCY_ID, ASSIGNMENT_DATE)
+    val response = webTestClient.get()
+      .uri("/api/cell/{agencyId}/history/{assignmentDate}", AGENCY_ID, ASSIGNMENT_DATE)
+      .headers(setAuthorisation(listOf()))
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .exchange()
     response.expectStatus().isOk
     response.expectBody()
       .jsonPath("$.length()").isEqualTo(2)
@@ -38,14 +41,27 @@ class CellResourceHistoryTest : ResourceTest() {
   @Test
   fun returnsHttpNotFoundForAgenciesOutsideOfCurrentUsersCaseload() {
     doThrow(EntityNotFoundException("Not found")).whenever(agencyService).verifyAgencyAccess(anyString())
-    makeRequest(AGENCY_ID, ASSIGNMENT_DATE).expectStatus().isNotFound
+    webTestClient.get()
+      .uri("/api/cell/{agencyId}/history/{assignmentDate}", AGENCY_ID, ASSIGNMENT_DATE)
+      .headers(setAuthorisation(listOf()))
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .exchange().expectStatus().isNotFound
   }
 
   @Test
   fun returnAllBedHistoriesForDateRangeOnly() {
     val fromDateTime = LocalDateTime.of(2000, 10, 16, 10, 10, 10)
     val toDateTime = LocalDateTime.of(2020, 10, 10, 11, 11, 11)
-    val response = makeRequest(CELL_LOCATION_ID, fromDateTime.toString(), toDateTime.toString())
+    val response = webTestClient.get()
+      .uri(
+        "/api/cell/{cellLocationId}/history?fromDate={fromDate}&toDate={toDate}",
+        CELL_LOCATION_ID,
+        fromDateTime.toString(),
+        toDateTime.toString(),
+      )
+      .headers(setClientAuthorisation(listOf("MAINTAIN_CELL_MOVEMENTS")))
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .exchange()
     response.expectStatus().isOk
     response.expectBody()
       .jsonPath("$.length()").isEqualTo(3)
@@ -57,32 +73,57 @@ class CellResourceHistoryTest : ResourceTest() {
 
   @Test
   fun handleInvalidFromDate() {
-    makeRequest(CELL_LOCATION_ID, "hello", now().toString()).expectStatus().isBadRequest
+    webTestClient.get()
+      .uri(
+        "/api/cell/{cellLocationId}/history?fromDate={fromDate}&toDate={toDate}",
+        CELL_LOCATION_ID,
+        "hello",
+        now().toString(),
+      )
+      .headers(setClientAuthorisation(listOf("MAINTAIN_CELL_MOVEMENTS")))
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .exchange().expectStatus().isBadRequest
   }
 
   @Test
   fun handleInvalidToDate() {
-    makeRequest(CELL_LOCATION_ID, now().toString(), "hello").expectStatus().isBadRequest
+    webTestClient.get()
+      .uri(
+        "/api/cell/{cellLocationId}/history?fromDate={fromDate}&toDate={toDate}",
+        CELL_LOCATION_ID,
+        now().toString(),
+        "hello",
+      )
+      .headers(setClientAuthorisation(listOf("MAINTAIN_CELL_MOVEMENTS")))
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .exchange().expectStatus().isBadRequest
   }
 
   @Test
   fun handleCellNotFound() {
-    makeRequest(-991873, now().toString(), now().toString()).expectStatus().isNotFound
+    webTestClient.get()
+      .uri(
+        "/api/cell/{cellLocationId}/history?fromDate={fromDate}&toDate={toDate}",
+        -991873,
+        now().toString(),
+        now().toString(),
+      )
+      .headers(setClientAuthorisation(listOf("MAINTAIN_CELL_MOVEMENTS")))
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .exchange().expectStatus().isNotFound
   }
 
-  private fun makeRequest(locationId: Int, fromDate: String, toDate: String): ResponseSpec {
-    return webTestClient.get()
-      .uri("/api/cell/{cellLocationId}/history?fromDate={fromDate}&toDate={toDate}", locationId, fromDate, toDate)
-      .headers(setAuthorisation(listOf()))
+  @Test
+  fun forbiddenIfNoRole() {
+    webTestClient.get()
+      .uri(
+        "/api/cell/{cellLocationId}/history?fromDate={fromDate}&toDate={toDate}",
+        CELL_LOCATION_ID,
+        now().toString(),
+        now().toString(),
+      )
+      .headers(setClientAuthorisation(listOf()))
       .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-      .exchange()
-  }
-
-  private fun makeRequest(agencyId: String, assignmentDate: String): ResponseSpec {
-    return webTestClient.get()
-      .uri("/api/cell/{agencyId}/history/{assignmentDate}", agencyId, assignmentDate)
-      .headers(setAuthorisation(listOf()))
-      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-      .exchange()
+      .exchange().expectStatus().isForbidden
   }
 }

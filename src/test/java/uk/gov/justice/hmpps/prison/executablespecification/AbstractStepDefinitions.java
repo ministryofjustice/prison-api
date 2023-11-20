@@ -24,10 +24,7 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.BulkAppointment
 import uk.gov.justice.hmpps.prison.executablespecification.steps.CaseNoteSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.ContactSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.CurfewSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.FinanceSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.KeyWorkerAllocatedOffendersSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.KeyWorkerAllocationSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.KeyWorkerSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.LocationsSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.MovementsSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.MyAssignmentsSteps;
@@ -145,11 +142,6 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
-        public FinanceSteps bookingFinance() {
-            return new FinanceSteps();
-        }
-
-        @Bean
         public ContactSteps bookingContact() {
             return new ContactSteps();
         }
@@ -190,18 +182,8 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
-        public KeyWorkerAllocationSteps keyWorkerAllocation() {
-            return new KeyWorkerAllocationSteps();
-        }
-
-        @Bean
         public KeyWorkerAllocatedOffendersSteps keyWorkerAllocatedOffenders() {
             return new KeyWorkerAllocatedOffendersSteps();
-        }
-
-        @Bean
-        public KeyWorkerSteps keyWorker() {
-            return new KeyWorkerSteps();
         }
 
         @Bean
