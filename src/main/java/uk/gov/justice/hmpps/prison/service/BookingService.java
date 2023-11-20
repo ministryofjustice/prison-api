@@ -534,7 +534,6 @@ public class BookingService {
         return offenderIdentifier;
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public List<ScheduledEvent> getBookingAppointments(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order) {
         validateScheduledEventsRequest(fromDate, toDate);
 
