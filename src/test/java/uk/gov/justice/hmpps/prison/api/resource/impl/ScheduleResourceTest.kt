@@ -12,6 +12,7 @@ import org.mockito.kotlin.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpMethod
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
 import uk.gov.justice.hmpps.prison.api.model.PrisonerSchedule
@@ -371,16 +372,18 @@ class ScheduleResourceTest : ResourceTest() {
 
     @Test
     fun testThatScheduledTransfer_IsReturned() {
-      val token = authTokenHelper.getToken(NORMAL_USER)
-      val response: ResponseEntity<List<PrisonerSchedule>> = testRestTemplate.exchange(
-        "/api/schedules/A1234AC/scheduledTransfers",
-        HttpMethod.GET,
-        createHttpEntity(token, {}),
-        object : ParameterizedTypeReference<List<PrisonerSchedule>>() {},
-      )
-      val transfers = response.body
-      assertThat(response.statusCode.value()).isEqualTo(200)
-      assertThat(transfers).hasSize(4)
+      webTestClient.get()
+        .uri("/api/schedules/A1234AC/scheduledTransfers")
+        .headers(setClientAuthorisation(listOf()))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("\$.length()").value<Int> { assertThat(it).isEqualTo(4) }
+        .jsonPath("\$[*].firstName").value<List<String>> { assertThat(it).contains("NORMAN") }
+        .jsonPath("\$[*].lastName").value<List<String>> { assertThat(it).contains("BATES") }
+        .jsonPath("\$[*].eventLocation").value<List<String>> { assertThat(it).contains("Moorland (HMP & YOI)", "HMP LEEDS") }
     }
   }
 

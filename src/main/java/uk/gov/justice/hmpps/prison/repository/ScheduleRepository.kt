@@ -207,7 +207,7 @@ class ScheduleRepository : RepositoryBase() {
   }
 
   fun getScheduledTransfersForPrisoner(
-    prisonerNumber: String?,
+    prisonerNumber: String,
   ): List<PrisonerSchedule> {
     val schedules = jdbcTemplate.query(
       ScheduleRepositorySql.GET_SCHEDULED_TRANSFERS_FOR_PRISONER.sql,
