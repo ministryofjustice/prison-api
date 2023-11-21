@@ -205,7 +205,7 @@ public class ScheduleResource {
     }
 
     @Operation
-    @GetMapping("/{prisonerNumber}/scheduledTransfers")
+    @GetMapping("/{prisonerNumber}/scheduled-transfers")
     @SlowReportQuery
     public List<PrisonerSchedule> getScheduledTransfersForPrisoner(@PathVariable("prisonerNumber") @Parameter(required = true) final String prisonerNumber) {
         return schedulesService.getScheduledTransfersForPrisoner(prisonerNumber);

@@ -179,7 +179,7 @@ public class CaseNoteService {
     }
 
     @Transactional
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER"})
+    @VerifyOffenderAccess
     public CaseNote updateCaseNote(String offenderNo, Long caseNoteId, String username, @NotBlank(message = "{caseNoteTextBlank}") String newCaseNoteText) {
         final var latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
         return updateCaseNote(latestBookingByOffenderNo.getBookingId(), caseNoteId, username, newCaseNoteText);
