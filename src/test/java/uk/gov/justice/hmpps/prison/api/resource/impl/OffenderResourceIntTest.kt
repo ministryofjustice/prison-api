@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import com.google.gson.Gson
+import org.apache.commons.lang3.StringUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.groups.Tuple
 import org.junit.jupiter.api.DisplayName
@@ -14,16 +15,21 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpMethod.GET
 import org.springframework.http.HttpMethod.PUT
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ContextConfiguration
+import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.api.model.CaseNote
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
 import uk.gov.justice.hmpps.prison.api.model.IncidentCase
+import uk.gov.justice.hmpps.prison.api.model.NewCaseNote
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.CREATE_BOOKING_USER
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.GLOBAL_SEARCH
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA
 import uk.gov.justice.hmpps.prison.repository.MovementsRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCaseNoteRepository
+import uk.gov.justice.hmpps.prison.util.DateTimeConverter
 import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -36,6 +42,9 @@ import java.util.function.Function
 class OffenderResourceIntTest : ResourceTest() {
   @Autowired
   lateinit var movementsRepository: MovementsRepository
+
+  @Autowired
+  lateinit var offenderCaseNoteRepository: OffenderCaseNoteRepository
 
   @TestConfiguration
   internal class TestClock {
@@ -134,7 +143,7 @@ class OffenderResourceIntTest : ResourceTest() {
   }
 
   @Nested
-  @DisplayName("GET api/offenders/{offenderNo}")
+  @DisplayName("GET /api/offenders/{offenderNo}")
   inner class OffenderDetails {
 
     @Test
@@ -246,7 +255,7 @@ class OffenderResourceIntTest : ResourceTest() {
   }
 
   @Nested
-  @DisplayName("GET api/offenders/{offenderNo}/incidents")
+  @DisplayName("GET /api/offenders/{offenderNo}/incidents")
   inner class OffenderIncidents {
     @Test
     fun `returns 401 without an auth token`() {
@@ -712,6 +721,211 @@ class OffenderResourceIntTest : ResourceTest() {
       "NOT_PROVEN",
     )
     assertThatJsonFileAndStatus(response, 200, "adjudications_by_finding_code.json")
+  }
+
+  @Nested
+  @DisplayName("PUT /api/offenders/{offenderNo}/case-notes/{caseNoteId}")
+  inner class UpdateCaseNote {
+    private val caseNoteUpdate =
+      """ 
+        {
+          "type": "CHAP",
+          "subType": "FAMMAR",
+          "text" : "Hello this is a case note"
+        }
+      """
+
+    @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.put().uri("/api/offenders/A1234AP/case-notes/34")
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .body(BodyInserters.fromValue(caseNoteUpdate))
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `returns 403 if no user`() {
+      webTestClient.put().uri("/api/offenders/A1234AP/case-notes/34")
+        .headers(setClientAuthorisation(listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .body(BodyInserters.fromValue(caseNoteUpdate))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `Attempt to update case note for offender that is not part of any of logged on staff user's caseloads`() {
+      webTestClient.put().uri("/api/offenders/A1234AP/case-notes/34")
+        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .body(BodyInserters.fromValue(caseNoteUpdate))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [A1234AP] not found.")
+    }
+
+    @Test
+    fun `Attempt to update case note for offender that does not exist`() {
+      webTestClient.put().uri("/api/offenders/A1111ZZ/case-notes/34")
+        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .body(BodyInserters.fromValue(caseNoteUpdate))
+        .exchange()
+        .expectStatus().isNotFound
+    }
+
+    @Test
+    fun `validation error when update a case note with blank data`() {
+      val caseNoteId = createCaseNote()
+
+      webTestClient.put().uri("/api/offenders/A1176RS/case-notes/$caseNoteId")
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .body(
+          BodyInserters.fromValue(
+            """ {
+                "type": "CHAP",
+                "subType": "FAMMAR",
+                "text" : " "
+              }
+              """,
+          ),
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().jsonPath("userMessage").isEqualTo("updateCaseNote.newCaseNoteText: Case Note text is blank")
+
+      removeCaseNoteCreated(caseNoteId)
+    }
+
+    @Test
+    fun `Validation error when update a case note with which is too long`() {
+      val caseNoteId = createCaseNote()
+
+      val caseNoteText = StringUtils.repeat("a", 3950) // total text will be over 4000
+
+      webTestClient.put().uri("/api/offenders/A1176RS/case-notes/$caseNoteId")
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .body(
+          BodyInserters.fromValue(
+            """ {
+                "type": "CHAP",
+                "subType": "FAMMAR",
+                "text" : "$caseNoteText"
+              }
+              """,
+          ),
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().jsonPath("userMessage").isEqualTo("Length should not exceed 3880 characters")
+
+      removeCaseNoteCreated(caseNoteId)
+    }
+
+    @Test
+    fun `Validation error when update a case note when there is no space left`() {
+      val caseNoteText = StringUtils.repeat("a", 3900)
+      val caseNoteId = createCaseNote(text = caseNoteText)
+
+      webTestClient.put().uri("/api/offenders/A1176RS/case-notes/$caseNoteId")
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .body(
+          BodyInserters.fromValue(
+            """ {
+                "type": "CHAP",
+                "subType": "FAMMAR",
+                "text" : "$caseNoteText"
+              }
+              """,
+          ),
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().jsonPath("userMessage").isEqualTo("Amendments can no longer be made due to the maximum character limit being reached")
+
+      removeCaseNoteCreated(caseNoteId)
+    }
+
+    @Test
+    fun `A staff user can amend a case note they created`() {
+      val caseNoteId = createCaseNote()
+      val caseNoteText = StringUtils.repeat("z", 100)
+
+      val resp = webTestClient.put().uri("/api/offenders/A1176RS/case-notes/$caseNoteId")
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .body(
+          BodyInserters.fromValue(
+            """ {
+                "type": "CHAP",
+                "subType": "FAMMAR",
+                "text" : "$caseNoteText"
+              }
+              """,
+          ),
+        )
+        .exchange()
+        .expectStatus().isOk
+
+      val cn = resp.returnResult(CaseNote::class.java).responseBody.blockFirst()!!
+      assertThat(cn.text).contains("Hello this is a new case note")
+      assertThat(cn.text).contains(caseNoteText)
+
+      removeCaseNoteCreated(caseNoteId)
+    }
+
+    @Test
+    fun `A staff user cannot amend a case note that they did not create`() {
+      val caseNoteText = StringUtils.repeat("a", 100)
+
+      webTestClient.put().uri("/api/offenders/A1234AA/case-notes/-1")
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .body(
+          BodyInserters.fromValue(
+            """ {
+                "type": "CHAP",
+                "subType": "FAMMAR",
+                "text" : "$caseNoteText"
+              }
+              """,
+          ),
+        )
+        .exchange()
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to amend case note.")
+    }
+
+    private fun createCaseNote(type: String = "CHAP", subType: String = "FAMMAR", text: String = "Hello this is a new case note", occurrenceDateTime: String? = null): Long {
+      val newCaseNote = NewCaseNote()
+      newCaseNote.type = type
+      newCaseNote.subType = subType
+      newCaseNote.text = text
+      if (StringUtils.isNotBlank(occurrenceDateTime)) {
+        newCaseNote.occurrenceDateTime = DateTimeConverter.fromISO8601DateTimeToLocalDateTime(occurrenceDateTime, ZoneOffset.UTC)
+      }
+
+      val resp = webTestClient.post().uri("/api/offenders/A1176RS/case-notes")
+        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .body(
+          BodyInserters.fromValue(newCaseNote),
+        )
+        .exchange()
+        .expectStatus().isOk
+
+      val cn = resp.returnResult(CaseNote::class.java).responseBody.blockFirst()!!
+      return cn.caseNoteId
+    }
+
+    private fun removeCaseNoteCreated(caseNoteId: Long) {
+      val ocn = offenderCaseNoteRepository.findById(caseNoteId).get()
+      offenderCaseNoteRepository.delete(ocn)
+    }
   }
 
   @Test
