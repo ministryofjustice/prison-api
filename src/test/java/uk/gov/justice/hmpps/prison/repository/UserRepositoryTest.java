@@ -54,7 +54,7 @@ public class UserRepositoryTest {
     @Test
     public void testFindUsersByCaseload() {
 
-        final var page = userRepository.findUsersByCaseload("LEI", null, new NameFilter(null), Status.ALL, null, new PageRequest("last_name", Order.ASC, 0L, 5L));
+        final var page = userRepository.findUsersByCaseload("LEI", null, new NameFilter(null), Status.ALL, null, new PageRequest("last_name", Order.ASC, 0L, 40L));
         final var items = page.getItems();
 
         assertThat(items).hasSizeBetween(5, 40);
