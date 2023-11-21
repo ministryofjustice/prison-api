@@ -714,5 +714,5 @@ class MovementResourceTest : ResourceTest() {
       )
     }
   }
-  internal fun String.readFile(): String = this@MovementResourceTest::class.java.getResource(this).readText()
+  internal fun String.readFile(): String = this@MovementResourceTest::class.java.getResource(this)!!.readText()
 }

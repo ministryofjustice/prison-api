@@ -9,7 +9,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -46,13 +45,10 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRep
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.MovementTypeAndReasonRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
-import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
-import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -100,12 +96,10 @@ public class MovementsService {
         this.maxBatchSize = maxBatchSize;
     }
 
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH')")
     public List<Movement> getRecentMovementsByDate(final LocalDateTime fromDateTime, final LocalDate movementDate, final List<String> movementTypes) {
         return movementsRepository.getRecentMovementsByDate(fromDateTime, movementDate, movementTypes);
     }
 
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     public PrisonerInPrisonSummary getPrisonerInPrisonSummary(final String offenderNo) {
         final var latestBooking = offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(offenderNo, 1).orElseThrow(EntityNotFoundException.withId(offenderNo));
 
@@ -113,7 +107,6 @@ public class MovementsService {
     }
 
 
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH', 'VIEW_PRISONER_DATA')")
     public List<Movement> getMovementsByOffenders(final List<String> offenderNumbers, final List<String> movementTypes, final boolean latestOnly, final boolean allBookings) {
         final var movements = Lists.partition(offenderNumbers, maxBatchSize)
             .stream()
@@ -129,17 +122,14 @@ public class MovementsService {
             .collect(toList());
     }
 
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "ESTABLISHMENT_ROLL"})
     public List<RollCount> getRollCount(final String agencyId, final boolean unassigned) {
         return movementsRepository.getRollCount(agencyId, unassigned ? "N" : "Y");
     }
 
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "ESTABLISHMENT_ROLL"})
     public MovementCount getMovementCount(final String agencyId, final LocalDate date) {
         return movementsRepository.getMovementCount(agencyId, date == null ? LocalDate.now() : date);
     }
 
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "ESTABLISHMENT_ROLL"})
     public List<OffenderOutTodayDto> getOffendersOut(final String agencyId, final LocalDate movementDate, final String movementType) {
 
         final var offenders = movementsRepository.getOffendersOut(agencyId, movementDate, upperCase(stripToNull(movementType)));
@@ -162,7 +152,6 @@ public class MovementsService {
             .build();
     }
 
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "ESTABLISHMENT_ROLL"})
     public List<OffenderMovement> getEnrouteOffenderMovements(final String agencyId, final LocalDate date) {
 
         final var movements = movementsRepository.getEnrouteMovementsOffenderMovementList(agencyId, date);
@@ -180,7 +169,6 @@ public class MovementsService {
         return movementsRepository.getEnrouteMovementsOffenderCount(agencyId, defaultedDate);
     }
 
-    @VerifyAgencyAccess
     public List<OffenderIn> getOffendersIn(final String agencyId, final LocalDate date) {
         final var offendersIn = movementsRepository.getOffendersIn(agencyId, date);
 
@@ -198,7 +186,6 @@ public class MovementsService {
             .collect(toList());
     }
 
-    @VerifyAgencyAccess
     public List<OffenderInReception> getOffendersInReception(final String agencyId) {
         return movementsRepository.getOffendersInReception(agencyId)
             .stream()
@@ -231,7 +218,6 @@ public class MovementsService {
             .collect(toList());
     }
 
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH')")
     public TransferSummary getTransferMovementsForAgencies(final List<String> agencyIds,
                                                            final LocalDateTime fromDateTime, final LocalDateTime toDateTime,
                                                            final boolean courtEvents, final boolean releaseEvents, final boolean transferEvents, final boolean movements) {
@@ -288,7 +274,7 @@ public class MovementsService {
             logErrorAndThrowBadRequest("The supplied fromDateTime parameter is after the toDateTime value");
 
         // The time period requested must be shorter than or equal to 24 hours
-        if (toDateTime.isAfter(fromDateTime.plus(24, ChronoUnit.HOURS)))
+        if (toDateTime.isAfter(fromDateTime.plusHours(24)))
             logErrorAndThrowBadRequest("The supplied time period is more than 24 hours - limit to 24 hours maximum");
 
         // One of the event/movement type query parameters must be true
@@ -334,7 +320,6 @@ public class MovementsService {
         return List.of(fromDateTime.toLocalDate());
     }
 
-    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'VIEW_COURT_EVENTS')")
     public List<CourtEventBasic> getUpcomingCourtAppearances() {
         return courtEventRepository.getCourtEventsUpcoming(LocalDate.now().atStartOfDay())
             .stream()
@@ -417,7 +402,6 @@ public class MovementsService {
             .build();
     }
 
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "ESTABLISHMENT_ROLL"})
     public Page<OffenderIn> getOffendersIn(final String agencyId, final LocalDateTime fromDate, final LocalDateTime toDate, final Pageable pageable, final boolean allMovements) {
         final var page = allMovements
             ? externalMovementRepository.findAllMovements(agencyId, MovementDirection.IN, fromDate, toDate, pageable)
