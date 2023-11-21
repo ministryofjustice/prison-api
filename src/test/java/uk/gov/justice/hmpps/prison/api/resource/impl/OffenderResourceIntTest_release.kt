@@ -448,6 +448,17 @@ class OffenderResourceIntTest_release : ResourceTest() {
             assertThat(it.endDate).isNull()
           }
       }
+
+      @Test
+      fun `should allow missing comment text`() {
+        releaseOffender(offenderNo, releaseRequestWithoutComment())
+          .isOk
+
+        testDataContext.getOffenderBooking(bookingId!!)?.also {
+          assertThat(it.isActive).isFalse()
+          assertThat(it.location.id).isEqualTo("OUT")
+        }
+      }
     }
 
     private fun getOffender(offenderNo: String): StatusAssertions =
@@ -522,6 +533,20 @@ class OffenderResourceIntTest_release : ResourceTest() {
            "movementReasonCode": "$movementReasonCode", 
            "releaseTime": "${releaseTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}",
            "commentText": "released prisoner",
+           "toLocationCode": "$toLocationCode" 
+        }
+      """.trimIndent()
+
+    private fun releaseRequestWithoutComment(
+      movementReasonCode: String = "CR",
+      releaseTime: LocalDateTime = LocalDateTime.now(),
+      toLocationCode: String = "OUT",
+    ): String =
+      """
+        {
+           "movementReasonCode": "$movementReasonCode", 
+           "releaseTime": "${releaseTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}",
+           "commentText": null,
            "toLocationCode": "$toLocationCode" 
         }
       """.trimIndent()
