@@ -505,6 +505,15 @@ class BookingResourceIntTest_caseNotes : ResourceTest() {
     }
 
     @Test
+    fun `returns 200 if has override ROLE_VIEW_CASE_NOTES`() {
+      webTestClient.get()
+        .uri("/api/bookings/-16/caseNotes/CHAP/FAMMAR/count")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_CASE_NOTES")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
     fun `returns 403 as ROLE_BANANAS is not override role`() {
       webTestClient.get()
         .uri("/api/bookings/-16/caseNotes/CHAP/FAMMAR/count")

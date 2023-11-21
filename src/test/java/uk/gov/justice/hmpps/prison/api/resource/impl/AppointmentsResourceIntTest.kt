@@ -5,8 +5,9 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.MediaType
+import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.web.reactive.function.BodyInserters
+import uk.gov.justice.hmpps.prison.api.model.bulkappointments.CreatedAppointmentDetails
 import uk.gov.justice.hmpps.prison.api.support.Order
 import uk.gov.justice.hmpps.prison.repository.BookingRepository
 import java.time.LocalDate
@@ -20,19 +21,92 @@ class AppointmentsResourceIntTest : ResourceTest() {
   @Nested
   @DisplayName("POST /api/bookings/{bookingId}/appointments")
   inner class CreateAppointments {
+    private val now = LocalDateTime.now().withNano(0)
+    private val futureDateTime = futureDate(1, 0)
+
     private fun futureDate(day: Long, minutes: Int): String =
       now.plusDays(day).withHour(14).withMinute(minutes).format(ISO_LOCAL_DATE_TIME)
 
-    private val now: LocalDateTime = LocalDateTime.now().withNano(0)
+    private val defaultAppointment =
+      """
+            {
+              "appointmentDefaults": {
+                "appointmentType": "ACTI",
+                "locationId": -25,
+                "startTime": "$futureDateTime",
+                "comment": "A default comment"
+              },
+              "appointments": [
+                {
+                  "bookingId": -31
+                },
+                {
+                  "bookingId": -32,
+                  "startTime": "$futureDateTime",
+                  "endTime": "$futureDateTime",
+                  "comment": "Another comment"
+                }
+              ]
+            }
+          """
+
+    @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.post().uri("/api/appointments")
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .body(
+          BodyInserters.fromValue(defaultAppointment),
+        )
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `returns 400 when no user set`() {
+      webTestClient.post().uri("/api/appointments")
+        .headers(setClientAuthorisation(listOf("ROLE_BULK_APPOINTMENTS")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .body(
+          BodyInserters.fromValue(defaultAppointment),
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().jsonPath("userMessage").isEqualTo("Location does not exist or is not in your caseload.")
+    }
+
+    @Test
+    fun `returns 400 when user does not have role`() {
+      webTestClient.post().uri("/api/appointments")
+        .headers(setAuthorisation(listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .body(
+          BodyInserters.fromValue(defaultAppointment),
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().jsonPath("userMessage").isEqualTo("You do not have the 'BULK_APPOINTMENTS' role. Creating appointments for more than one offender is not permitted without this role.")
+    }
+
+    @Test
+    fun `returns 400 when user does not have offender in caseload`() {
+      webTestClient.post().uri("/api/appointments")
+        .headers(setAuthorisation("WAI_USER", listOf("ROLE_BULK_APPOINTMENTS")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .body(
+          BodyInserters.fromValue(defaultAppointment),
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().jsonPath("userMessage").isEqualTo("Location does not exist or is not in your caseload.")
+    }
 
     @Test
     fun `Appointments successfully created for tomorrow`() {
       val tomorrow: LocalDate = now.plusDays(1).toLocalDate()
 
-      webTestClient.post().uri("/api/appointments")
-        .headers(setAuthorisation(listOf("BULK_APPOINTMENTS")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
+      val appointments = webTestClient.post().uri("/api/appointments")
+        .headers(setAuthorisation(listOf("ROLE_BULK_APPOINTMENTS")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .body(
           BodyInserters.fromValue(
             """
@@ -61,7 +135,9 @@ class AppointmentsResourceIntTest : ResourceTest() {
         )
         .exchange()
         .expectStatus().isOk
+        .expectBodyList(CreatedAppointmentDetails::class.java).returnResult().responseBody
 
+      assertThat(appointments.size).isEqualTo(2)
       val appointment31 = bookingRepository.getBookingAppointments(-31, tomorrow, tomorrow, "startTime", Order.ASC)
       assertThat(appointment31.size).isEqualTo(1)
       assertThat(appointment31[0].bookingId).isEqualTo(-31)
@@ -77,16 +153,19 @@ class AppointmentsResourceIntTest : ResourceTest() {
       assertThat(appointment32[0].startTime).isEqualTo(futureDate(1, 35))
       assertThat(appointment32[0].endTime).isEqualTo(futureDate(1, 55))
       assertThat(appointment32[0].eventLocation).isEqualTo("Chapel")
+
+      // tidy up
+      for (appointment in appointments)
+        bookingRepository.deleteBookingAppointment(appointment.appointmentEventId)
     }
 
     @Test
     fun `Appointments successfully created for 2 days time`() {
       val twoDaysTime: LocalDate = now.plusDays(2).toLocalDate()
 
-      webTestClient.post().uri("/api/appointments")
-        .headers(setAuthorisation(listOf("BULK_APPOINTMENTS")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
+      val appointments = webTestClient.post().uri("/api/appointments")
+        .headers(setAuthorisation(listOf("ROLE_BULK_APPOINTMENTS")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .body(
           BodyInserters.fromValue(
             """
@@ -118,30 +197,34 @@ class AppointmentsResourceIntTest : ResourceTest() {
         )
         .exchange()
         .expectStatus().isOk
+        .expectBodyList(CreatedAppointmentDetails::class.java).returnResult().responseBody
 
-      val apptOne = bookingRepository.getBookingAppointments(-31, twoDaysTime, twoDaysTime, "startTime", Order.ASC)
-      assertThat(apptOne.size).isEqualTo(1)
-      assertThat(apptOne[0].bookingId).isEqualTo(-31)
-      assertThat(apptOne[0].eventSubType).isEqualTo("ACTI")
-      assertThat(apptOne[0].startTime).isEqualTo(futureDate(2, 30))
-      assertThat(apptOne[0].endTime).isNull()
-      assertThat(apptOne[0].eventLocation).isEqualTo("Chapel")
+      assertThat(appointments.size).isEqualTo(4)
+      val appointment31 = bookingRepository.getBookingAppointments(-31, twoDaysTime, twoDaysTime, "startTime", Order.ASC)
+      assertThat(appointment31[0].bookingId).isEqualTo(-31)
+      assertThat(appointment31[0].eventSubType).isEqualTo("ACTI")
+      assertThat(appointment31[0].startTime).isEqualTo(futureDate(2, 30))
+      assertThat(appointment31[0].endTime).isNull()
+      assertThat(appointment31[0].eventLocation).isEqualTo("Chapel")
 
-      val apptTwo = bookingRepository.getBookingAppointments(-32, twoDaysTime, twoDaysTime, "startTime", Order.ASC)
-      assertThat(apptTwo.size).isEqualTo(1)
-      assertThat(apptTwo[0].bookingId).isEqualTo(-32)
-      assertThat(apptTwo[0].eventSubType).isEqualTo("ACTI")
-      assertThat(apptTwo[0].startTime).isEqualTo(futureDate(2, 35))
-      assertThat(apptTwo[0].endTime).isEqualTo(futureDate(2, 55))
-      assertThat(apptTwo[0].eventLocation).isEqualTo("Chapel")
+      val appointment32 = bookingRepository.getBookingAppointments(-32, twoDaysTime, twoDaysTime, "startTime", Order.ASC)
+      assertThat(appointment32.size).isEqualTo(1)
+      assertThat(appointment32[0].bookingId).isEqualTo(-32)
+      assertThat(appointment32[0].eventSubType).isEqualTo("ACTI")
+      assertThat(appointment32[0].startTime).isEqualTo(futureDate(2, 35))
+      assertThat(appointment32[0].endTime).isEqualTo(futureDate(2, 55))
+      assertThat(appointment32[0].eventLocation).isEqualTo("Chapel")
+
+      // tidy up
+      for (appointment in appointments)
+        bookingRepository.deleteBookingAppointment(appointment.appointmentEventId)
     }
 
     @Test
     fun `Returns 400 if appointment date in past`() {
       webTestClient.post().uri("/api/appointments")
         .headers(setAuthorisation(listOf("BULK_APPOINTMENTS")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .body(
           BodyInserters.fromValue(
             """
