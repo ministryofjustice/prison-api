@@ -464,34 +464,6 @@ public class BookingResource {
     }
 
     @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "The Case Note has been recorded. The updated object is returned including the status.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CaseNote.class))}),
-        @ApiResponse(responseCode = "409", description = "The case note has already been recorded under the booking. The current unmodified object (including status) is returned.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Create case note for offender.", description = "Create case note for offender.", hidden = true)
-    @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/{bookingId}/caseNotes")
-    @HasWriteScope
-    @ProxyUser
-    public CaseNote createBookingCaseNote(@PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId, @RequestBody @Parameter(required = true) final NewCaseNote body) {
-        return caseNoteService.createCaseNote(bookingId, body, authenticationFacade.getCurrentUsername());
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Case Note amendment processed successfully. Updated case note is returned.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CaseNote.class))}),
-        @ApiResponse(responseCode = "400", description = "Invalid request - e.g. amendment text not provided.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to amend case note.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Resource not found - booking or case note does not exist or is not accessible to user.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Internal server error.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Amend offender case note.", description = "Amend offender case note.", hidden = true)
-    @ResponseStatus(HttpStatus.CREATED)
-    @PutMapping("/{bookingId}/caseNotes/{caseNoteId}")
-    @HasWriteScope
-    @ProxyUser
-    public CaseNote updateOffenderCaseNote(@PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true, example = "1231212") final Long bookingId, @PathVariable("caseNoteId") @Parameter(description = "The case note id", required = true, example = "1212134") final Long caseNoteId, @RequestBody @Parameter(required = true) final UpdateCaseNote body) {
-        return caseNoteService.updateCaseNote(
-            bookingId, caseNoteId, authenticationFacade.getCurrentUsername(), body.getText());
-    }
-
-    @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
