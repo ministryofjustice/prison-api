@@ -21,6 +21,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ScheduledActivityRe
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
 import uk.gov.justice.hmpps.prison.service.support.InmateDto;
+import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 import uk.gov.justice.hmpps.prison.service.support.ReferenceDomain;
 import uk.gov.justice.hmpps.prison.util.CalcDateRanges;
 
@@ -326,7 +327,23 @@ public class SchedulesService {
     public List<PrisonerSchedule> getScheduledTransfersForPrisoner(final String prisonerNumber) {
         Validate.notBlank(prisonerNumber, "A prisoner number is required.");
 
-        return scheduleRepository.getScheduledTransfersForPrisoner(prisonerNumber);
+        final var transfers = scheduleRepository.getScheduledTransfersForPrisoner(prisonerNumber);
+
+        return transfers.stream().map(
+            transfer -> PrisonerSchedule
+                .builder()
+                .offenderNo(transfer.getOffenderNo())
+                .startTime(transfer.getStartTime())
+                .endTime(transfer.getEndTime())
+                .event(transfer.getEvent())
+                .eventDescription(transfer.getEventDescription())
+                .eventStatus(transfer.getEvent())
+                .eventLocation(LocationProcessor.formatLocation(transfer.getEventLocation()))
+                .firstName(transfer.getFirstName())
+                .lastName(transfer.getLastName())
+                .comment(transfer.getComment())
+                .build()
+        ).toList();
     }
 
     private List<PrisonerSchedule> filterByTimeSlot(final TimeSlot timeSlot, final List<PrisonerSchedule> events) {
