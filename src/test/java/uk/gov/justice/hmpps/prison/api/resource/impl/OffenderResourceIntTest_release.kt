@@ -450,13 +450,15 @@ class OffenderResourceIntTest_release : ResourceTest() {
       }
 
       @Test
-      fun `should allow missing comment text`() {
-        releaseOffender(offenderNo, releaseRequestWithoutComment())
+      fun `should allow missing optional request fields`() {
+        releaseOffender(offenderNo, releaseRequestWithoutNullables(movementReasonCode = "CR"))
           .isOk
 
         testDataContext.getOffenderBooking(bookingId!!)?.also {
           assertThat(it.isActive).isFalse()
           assertThat(it.location.id).isEqualTo("OUT")
+          assertThat(it.statusReason).isEqualTo("REL-CR")
+          assertThat(it.bookingEndDate.toLocalDate()).isEqualTo("${LocalDate.now()}")
         }
       }
     }
@@ -537,17 +539,10 @@ class OffenderResourceIntTest_release : ResourceTest() {
         }
       """.trimIndent()
 
-    private fun releaseRequestWithoutComment(
-      movementReasonCode: String = "CR",
-      releaseTime: LocalDateTime = LocalDateTime.now(),
-      toLocationCode: String = "OUT",
-    ): String =
+    private fun releaseRequestWithoutNullables(movementReasonCode: String): String =
       """
         {
-           "movementReasonCode": "$movementReasonCode", 
-           "releaseTime": "${releaseTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}",
-           "commentText": null,
-           "toLocationCode": "$toLocationCode" 
+           "movementReasonCode": "$movementReasonCode"
         }
       """.trimIndent()
   }
