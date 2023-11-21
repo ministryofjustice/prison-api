@@ -760,25 +760,6 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "All scheduled visits for offender.", description = "All scheduled visits for offender.")
-    @GetMapping("/{bookingId}/visits")
-    public ResponseEntity<List<ScheduledEvent>> getBookingVisits(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId, @RequestParam(value = "fromDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Returned visits must be scheduled on or after this date (in YYYY-MM-DD format).") final LocalDate fromDate, @RequestParam(value = "toDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Returned visits must be scheduled on or before this date (in YYYY-MM-DD format).") final LocalDate toDate, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of visit records.") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of visit records returned.") final Long pageLimit, @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>eventDate, startTime, endTime, eventLocation</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
-        return bookingService.getBookingVisits(
-                bookingId,
-                fromDate,
-                toDate,
-                nvl(pageOffset, 0L),
-                nvl(pageLimit, 10L),
-                sortFields,
-                sortOrder)
-            .getResponse();
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "visits with visitor list for offender.", description = "visits with visitor list for offender.")
     @GetMapping("/{bookingId}/visits-with-visitors")
     @SlowReportQuery
@@ -806,23 +787,6 @@ public class BookingResource {
             .cancellationReason(cancellationReason)
             .prisonId(prisonId)
             .build(), pageRequest);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Today's scheduled visits for offender.", description = "Today's scheduled visits for offender.")
-    @GetMapping("/{bookingId}/visits/today")
-    public List<ScheduledEvent> getBookingVisitsForToday(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId, @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>eventDate, startTime, endTime, eventLocation</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
-        final var today = LocalDate.now();
-        return bookingService.getBookingVisits(
-            bookingId,
-            today,
-            today,
-            sortFields,
-            sortOrder);
     }
 
     @ApiResponses({
