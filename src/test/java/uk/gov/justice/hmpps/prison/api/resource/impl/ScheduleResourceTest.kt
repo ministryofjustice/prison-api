@@ -367,13 +367,13 @@ class ScheduleResourceTest : ResourceTest() {
   }
 
   @Nested
-  @DisplayName("GET /api/schedules/{prisonerNumber}/scheduledTransfers")
+  @DisplayName("GET /api/schedules/{prisonerNumber}/scheduled-transfers")
   inner class ScheduledTransfers {
 
     @Test
     fun testThatScheduledTransfer_IsReturned() {
       webTestClient.get()
-        .uri("/api/schedules/A1234AC/scheduledTransfers")
+        .uri("/api/schedules/A1234AC/scheduled-transfers")
         .headers(setClientAuthorisation(listOf()))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .accept(MediaType.APPLICATION_JSON)
