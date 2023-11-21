@@ -400,4 +400,20 @@ class SchedulesServiceImplTest {
         assertThat(counts).isEqualTo(new PrisonerActivitiesCount(4, 1, 1));
         verify(scheduledActivityRepository).getActivities("MDI", startDate, endDate);
     }
+
+
+    @Test
+    void testGetScheduledTransfersForPrisoner() {
+        final var transfer = PrisonerSchedule.builder()
+            .offenderNo("A10")
+            .startTime(TIME_1000)
+            .event("28")
+            .eventStatus("SCH")
+            .build();
+        final var transfers = List.of(transfer);
+        when(scheduleRepository.getScheduledTransfersForPrisoner("A10")).thenReturn(transfers);
+
+        final var results = schedulesService.getScheduledTransfersForPrisoner("A10");
+        assertThat(results.get(0).getOffenderNo()).isEqualTo("A10");
+    }
 }

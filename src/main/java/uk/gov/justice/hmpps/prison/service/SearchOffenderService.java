@@ -12,7 +12,6 @@ import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.repository.InmateRepository;
 import uk.gov.justice.hmpps.prison.repository.OffenderBookingSearchRequest;
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.support.InmatesHelper;
 import uk.gov.justice.hmpps.prison.service.support.SearchOffenderRequest;
 
@@ -29,20 +28,17 @@ public class SearchOffenderService {
     private final BookingService bookingService;
     private final UserService userService;
     private final InmateRepository repository;
-    private final AuthenticationFacade securityUtils;
     private final Pattern offenderNoRegex;
     private final int maxBatchSize;
 
     public SearchOffenderService(final BookingService bookingService,
                                      final UserService userService,
                                      final InmateRepository repository,
-                                     final AuthenticationFacade securityUtils,
                                      @Value("${api.offender.no.regex.pattern:^[A-Za-z]\\d{4}[A-Za-z]{2}$}") final String offenderNoRegex,
                                      @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.bookingService = bookingService;
         this.userService = userService;
         this.repository = repository;
-        this.securityUtils = securityUtils;
         this.offenderNoRegex = Pattern.compile(offenderNoRegex);
         this.maxBatchSize = maxBatchSize;
     }
@@ -51,7 +47,7 @@ public class SearchOffenderService {
         Objects.requireNonNull(request.getLocationPrefix(), "locationPrefix is a required parameter");
         log.info("Searching for offenders, criteria: {}", request);
 
-        final Set<String> caseloads = securityUtils.isOverrideRole("SYSTEM_USER") ? Set.of() : userService.getCaseLoadIds(request.getUsername());
+        final Set<String> caseloads = userService.getCaseLoadIds(request.getUsername());
 
         final var bookingsPage = getBookings(request, caseloads);
         final var bookings = bookingsPage.getItems();

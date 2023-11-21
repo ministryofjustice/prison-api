@@ -298,4 +298,13 @@ public class ScheduleRepositoryTest {
         assertThat(activities).asList().extracting("offenderNo", "event", "eventDescription", "eventStatus", "startTime", "suspended").contains(
                 new Tuple("A1234AF", "EDUC", "Education", null, LocalDateTime.parse("1985-01-01T13:10:00"), true));
     }
+
+    @Test
+    public void testGetScheduledTransfersForPrisoner() {
+        final var results = repository.getScheduledTransfersForPrisoner("A1234AC");
+
+        assertThat(results).asList().hasSize(4);
+        assertThat(results).asList().extracting("offenderNo", "firstName", "lastName", "event", "eventDescription", "eventStatus", "startTime", "eventLocation").contains(
+            new Tuple("A1234AC", "NORMAN", "BATES", "COMP", "Compassionate Transfer", "SCH", LocalDateTime.of(2019, 5, 1, 13, 0, 0), "HMP LEEDS"));
+    }
 }

@@ -206,6 +206,20 @@ class ScheduleRepository : RepositoryBase() {
     return schedules.toPrisonerSchedules()
   }
 
+  fun getScheduledTransfersForPrisoner(
+    prisonerNumber: String,
+  ): List<PrisonerSchedule> {
+    val schedules = jdbcTemplate.query(
+      ScheduleRepositorySql.GET_SCHEDULED_TRANSFERS_FOR_PRISONER.sql,
+      createParams(
+        "prisonerNumber",
+        prisonerNumber,
+      ),
+      EVENT_ROW_MAPPER,
+    )
+    return schedules.toPrisonerSchedules()
+  }
+
   private companion object {
     private val EVENT_ROW_MAPPER = DataClassByColumnRowMapper(PrisonerScheduleDto::class.java)
   }

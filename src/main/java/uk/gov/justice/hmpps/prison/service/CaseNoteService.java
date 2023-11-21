@@ -121,7 +121,6 @@ public class CaseNoteService {
     }
 
     @Transactional
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public CaseNote createCaseNote(final Long bookingId, @NotNull @Valid @CaseNoteTypeSubTypeValid final NewCaseNote caseNote, final String username) {
         final var userDetail = staffUserAccountRepository.findById(username).orElseThrow(EntityNotFoundException.withId(username));
         final var booking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
@@ -144,7 +143,6 @@ public class CaseNoteService {
     }
 
     @Transactional
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public CaseNote updateCaseNote(final Long bookingId, final Long caseNoteId, final String username, @NotBlank(message = "{caseNoteTextBlank}") final String newCaseNoteText) {
         final var caseNote = offenderCaseNoteRepository.findByIdAndOffenderBooking_BookingId(caseNoteId, bookingId)
                 .orElseThrow(EntityNotFoundException.withId(caseNoteId));
@@ -181,13 +179,13 @@ public class CaseNoteService {
     }
 
     @Transactional
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER"})
+    @VerifyOffenderAccess
     public CaseNote updateCaseNote(String offenderNo, Long caseNoteId, String username, @NotBlank(message = "{caseNoteTextBlank}") String newCaseNoteText) {
         final var latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
         return updateCaseNote(latestBookingByOffenderNo.getBookingId(), caseNoteId, username, newCaseNoteText);
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_CASE_NOTES"})
     public CaseNoteCount getCaseNoteCount(final Long bookingId, final String type, final String subType, final LocalDate fromDate, final LocalDate toDate) {
         // Validate date range
         if (Objects.nonNull(fromDate) && Objects.nonNull(toDate) && toDate.isBefore(fromDate)) {

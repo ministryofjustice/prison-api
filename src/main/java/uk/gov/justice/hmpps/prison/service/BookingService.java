@@ -378,17 +378,6 @@ public class BookingService {
         bookingRepository.updateAttendance(bookingId, activityId, updateAttendance, activityOutcome.isPaid(), activityOutcome.isAuthorisedAbsence());
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
-    public uk.gov.justice.hmpps.prison.api.support.Page<ScheduledEvent> getBookingVisits(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final long offset, final long limit, final String orderByFields, final Order order) {
-        validateScheduledEventsRequest(fromDate, toDate);
-
-        final var sortFields = Objects.toString(orderByFields, "startTime");
-        final var sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
-
-        return bookingRepository.getBookingVisits(bookingId, fromDate, toDate, offset, limit, sortFields, sortOrder);
-    }
-
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public List<ScheduledEvent> getBookingVisits(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order) {
         validateScheduledEventsRequest(fromDate, toDate);
 
@@ -534,17 +523,6 @@ public class BookingService {
         return offenderIdentifier;
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
-    public uk.gov.justice.hmpps.prison.api.support.Page<ScheduledEvent> getBookingAppointments(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final long offset, final long limit, final String orderByFields, final Order order) {
-        validateScheduledEventsRequest(fromDate, toDate);
-
-        final var sortFields = Objects.toString(orderByFields, "startTime");
-        final var sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
-
-        return bookingRepository.getBookingAppointments(bookingId, fromDate, toDate, offset, limit, sortFields, sortOrder);
-    }
-
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
     public List<ScheduledEvent> getBookingAppointments(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order) {
         validateScheduledEventsRequest(fromDate, toDate);
 

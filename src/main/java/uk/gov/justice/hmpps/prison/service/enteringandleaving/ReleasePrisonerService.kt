@@ -38,7 +38,7 @@ class ReleasePrisonerService(
       request.movementReasonCode,
       booking,
       toLocation,
-      request.commentText,
+      request.commentText ?: "",
     )
 
     return booking
