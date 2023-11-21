@@ -24,26 +24,6 @@ public class BookingAppointmentSteps extends ScheduledEventSteps {
         return BOOKING_APPOINTMENTS_API_URL;
     }
 
-    @Step("Get appointments for booking")
-    public void getBookingAppointments(final Long bookingId, final String fromDate, final String toDate, final String sortFields, final Order sortOrder) {
-        dispatchRequest(bookingId, fromDate, toDate, sortFields, sortOrder);
-    }
-
-    @Step("Get appointments for booking for current day only")
-    public void getBookingAppointmentsForCurrentDay(final Long bookingId) {
-        dispatchRequestForPeriod(bookingId, ScheduledEventPeriod.TODAY);
-    }
-
-    @Step("Get appointments for booking for 7 days ahead starting from current day")
-    public void getBookingAppointmentsForThisWeek(final Long bookingId) {
-        dispatchRequestForPeriod(bookingId, ScheduledEventPeriod.THISWEEK);
-    }
-
-    @Step("Get appointments for booking for 7 days ahead starting from a week from current day")
-    public void getBookingAppointmentsForNextWeek(final Long bookingId) {
-        dispatchRequestForPeriod(bookingId, ScheduledEventPeriod.NEXTWEEK);
-    }
-
     @Step("Create appointment")
     public void createAppointment(final Long bookingId, final String eventType, final LocalDateTime startDateTime, final Long locationId, final String comment) {
         dispatchCreateRequest(bookingId, NewAppointment.builder()
