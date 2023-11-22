@@ -305,6 +305,6 @@ public class ScheduleRepositoryTest {
 
         assertThat(results).asList().hasSize(4);
         assertThat(results).asList().extracting("offenderNo", "firstName", "lastName", "event", "eventDescription", "eventStatus", "startTime", "eventLocation").contains(
-            new Tuple("A1234AC", "NORMAN", "BATES", "COMP", "Compassionate Transfer", "SCH", LocalDateTime.of(2019, 5, 1, 13, 0, 0), "LEEDS"));
+            new Tuple("A1234AC", "NORMAN", "BATES", "COMP", "Compassionate Transfer", "SCH", LocalDateTime.of(2019, 5, 1, 13, 0, 0), "Leeds"));
     }
 }

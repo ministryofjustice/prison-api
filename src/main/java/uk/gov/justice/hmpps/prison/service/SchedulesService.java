@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
+import uk.gov.justice.hmpps.prison.api.model.PrisonerPrisonSchedule;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerSchedule;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.support.Order;
@@ -21,7 +22,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ScheduledActivityRe
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
 import uk.gov.justice.hmpps.prison.service.support.InmateDto;
-import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 import uk.gov.justice.hmpps.prison.service.support.ReferenceDomain;
 import uk.gov.justice.hmpps.prison.util.CalcDateRanges;
 
@@ -324,26 +324,10 @@ public class SchedulesService {
                 .toList();
     }
 
-    public List<PrisonerSchedule> getScheduledTransfersForPrisoner(final String prisonerNumber) {
+    public List<PrisonerPrisonSchedule> getScheduledTransfersForPrisoner(final String prisonerNumber) {
         Validate.notBlank(prisonerNumber, "A prisoner number is required.");
 
-        final var transfers = scheduleRepository.getScheduledTransfersForPrisoner(prisonerNumber);
-
-        return transfers.stream().map(
-            transfer -> PrisonerSchedule
-                .builder()
-                .offenderNo(transfer.getOffenderNo())
-                .startTime(transfer.getStartTime())
-                .endTime(transfer.getEndTime())
-                .event(transfer.getEvent())
-                .eventDescription(transfer.getEventDescription())
-                .eventStatus(transfer.getEvent())
-                .eventLocation(LocationProcessor.formatLocation(transfer.getEventLocation()))
-                .firstName(transfer.getFirstName())
-                .lastName(transfer.getLastName())
-                .comment(transfer.getComment())
-                .build()
-        ).toList();
+        return scheduleRepository.getScheduledTransfersForPrisoner(prisonerNumber);
     }
 
     private List<PrisonerSchedule> filterByTimeSlot(final TimeSlot timeSlot, final List<PrisonerSchedule> events) {
