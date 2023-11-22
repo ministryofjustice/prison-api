@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.core.ParameterizedTypeReference
+import org.springframework.data.domain.Pageable.unpaged
 import org.springframework.http.HttpMethod.GET
 import org.springframework.http.HttpMethod.POST
 import org.springframework.http.HttpMethod.PUT
@@ -30,6 +31,7 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.GLOBAL_SEARCH
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA
 import uk.gov.justice.hmpps.prison.repository.MovementsRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.CaseNoteFilter.builder
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCaseNoteRepository
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter
 import java.time.Clock
@@ -1081,8 +1083,10 @@ class OffenderResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `A second case note is successfully created for booking`() {
-      val resp = webTestClient.post().uri("/api/offenders/A1176RS/case-notes")
+    fun `Multiple case notes successfully created for offender`() {
+      assertThat(offenderCaseNoteRepository.findAll(builder().bookingId(-32).build(), unpaged())).size().isEqualTo(8)
+
+      val caseNote1 = webTestClient.post().uri("/api/offenders/A1176RS/case-notes")
         .headers(setAuthorisation(listOf()))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(
@@ -1097,12 +1101,32 @@ class OffenderResourceIntTest : ResourceTest() {
         )
         .exchange()
         .expectStatus().isOk
+        .returnResult(CaseNote::class.java).responseBody.blockFirst()
 
-      val caseNote = resp.returnResult(CaseNote::class.java).responseBody.blockFirst()!!
-      assertThat(caseNote.caseNoteId).isGreaterThan(0)
-      assertThat(caseNote.source).isEqualTo(caseNoteSource)
+      assertThat(caseNote1.caseNoteId).isGreaterThan(0)
+      assertThat(caseNote1.source).isEqualTo(caseNoteSource)
 
-      removeCaseNoteCreated(caseNote.caseNoteId)
+      val caseNote2 = webTestClient.post().uri("/api/offenders/A1176RS/case-notes")
+        .headers(setAuthorisation(listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+            {
+              "type": "OBSERVE",
+              "subType": "OBS_GEN",
+              "text": "A new case note",
+              "occurrenceDateTime": "2017-04-14T10:15:30"      
+            }
+          """,
+        )
+        .exchange()
+        .expectStatus().isOk
+        .returnResult(CaseNote::class.java).responseBody.blockFirst()
+
+      assertThat(offenderCaseNoteRepository.findAll(builder().bookingId(-32).build(), unpaged())).size().isEqualTo(10)
+
+      removeCaseNoteCreated(caseNote1.caseNoteId)
+      removeCaseNoteCreated(caseNote2.caseNoteId)
     }
 
     @Test
