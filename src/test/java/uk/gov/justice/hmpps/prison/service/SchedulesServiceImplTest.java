@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.justice.hmpps.prison.api.model.PrisonerPrisonSchedule;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerSchedule;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
@@ -404,7 +405,7 @@ class SchedulesServiceImplTest {
 
     @Test
     void testGetScheduledTransfersForPrisoner() {
-        final var transfer = PrisonerSchedule.builder()
+        final var transfer = PrisonerPrisonSchedule.builder()
             .offenderNo("A10")
             .startTime(TIME_1000)
             .event("28")

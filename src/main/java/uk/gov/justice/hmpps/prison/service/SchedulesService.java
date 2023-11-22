@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
+import uk.gov.justice.hmpps.prison.api.model.PrisonerPrisonSchedule;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerSchedule;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.support.Order;
@@ -323,7 +324,7 @@ public class SchedulesService {
                 .toList();
     }
 
-    public List<PrisonerSchedule> getScheduledTransfersForPrisoner(final String prisonerNumber) {
+    public List<PrisonerPrisonSchedule> getScheduledTransfersForPrisoner(final String prisonerNumber) {
         Validate.notBlank(prisonerNumber, "A prisoner number is required.");
 
         return scheduleRepository.getScheduledTransfersForPrisoner(prisonerNumber);
