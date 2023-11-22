@@ -383,7 +383,7 @@ class ScheduleResourceTest : ResourceTest() {
         .jsonPath("\$.length()").value<Int> { assertThat(it).isEqualTo(4) }
         .jsonPath("\$[*].firstName").value<List<String>> { assertThat(it).contains("NORMAN") }
         .jsonPath("\$[*].lastName").value<List<String>> { assertThat(it).contains("BATES") }
-        .jsonPath("\$[*].eventLocation").value<List<String>> { assertThat(it).contains("Moorland (HMP & YOI)", "HMP LEEDS") }
+        .jsonPath("\$[*].eventLocation").value<List<String>> { assertThat(it).contains("Moorland", "Leeds") }
     }
   }
 

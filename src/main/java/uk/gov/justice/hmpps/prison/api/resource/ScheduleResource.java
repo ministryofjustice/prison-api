@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
+import uk.gov.justice.hmpps.prison.api.model.PrisonerPrisonSchedule;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerSchedule;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledAppointmentDto;
 import uk.gov.justice.hmpps.prison.api.support.Order;
@@ -207,7 +208,7 @@ public class ScheduleResource {
     @Operation
     @GetMapping("/{prisonerNumber}/scheduled-transfers")
     @SlowReportQuery
-    public List<PrisonerSchedule> getScheduledTransfersForPrisoner(@PathVariable("prisonerNumber") @Parameter(required = true) final String prisonerNumber) {
+    public List<PrisonerPrisonSchedule> getScheduledTransfersForPrisoner(@PathVariable("prisonerNumber") @Parameter(required = true) final String prisonerNumber) {
         return schedulesService.getScheduledTransfersForPrisoner(prisonerNumber);
     }
 }
