@@ -75,7 +75,10 @@ fun TestDataContext.transferOut(offenderNo: String, toLocation: String = "MDI") 
     .jsonPath("assignedLivingUnit.description").doesNotExist()
 }
 
-fun TestDataContext.release(offenderNo: String) {
+fun TestDataContext.release(
+  offenderNo: String,
+  movementTime: LocalDateTime = LocalDateTime.now().minusHours(1),
+) {
   webTestClient.put()
     .uri("/api/offenders/{nomsId}/release", offenderNo)
     .headers(setAuthorisation(listOf("ROLE_RELEASE_PRISONER")))
@@ -87,7 +90,7 @@ fun TestDataContext.release(offenderNo: String) {
           {
             "movementReasonCode":"CR",
             "commentText":"released prisoner today",
-            "movementTime": "${LocalDateTime.now().minusHours(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
+            "movementTime": "${movementTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
             
           }
         """.trimIndent(),
@@ -276,3 +279,6 @@ fun TestDataContext.getOffenderProgramProfiles(bookingId: Long, programStatus: S
 
 fun TestDataContext.getOffenderBooking(bookingId: Long): OffenderBooking? =
   this.dataLoader.offenderBookingRepository.findByBookingId(bookingId).orElse(null)
+
+fun TestDataContext.getOffenderBooking(offenderNo: String, active: Boolean = true): OffenderBooking? =
+  this.dataLoader.offenderBookingRepository.findByOffenderNomsIdAndActive(offenderNo, active).orElse(null)
