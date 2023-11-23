@@ -339,8 +339,7 @@ class OffenderResourceIntTest_release : ResourceTest() {
           .also {
             assertThat(it.type).isEqualTo("PRISON")
             assertThat(it.subType).isEqualTo("RELEASE")
-            // TODO SDIT-548 This should be the text on the release case note
-            //  assertThat(it.text).isEqualTo("Released from SHREWSBURY for reason: Conditional Release.")
+            assertThat(it.text).contains("Released from SHREWSBURY for reason: Conditional Release")
           }
       }
 
