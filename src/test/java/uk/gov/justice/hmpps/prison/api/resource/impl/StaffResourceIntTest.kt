@@ -154,20 +154,10 @@ class StaffResourceIntTest : ResourceTest() {
     fun `should return not found if agency does not exist`() {
       webTestClient.get()
         .uri("/api/staff/roles/XYZ/role/KW")
-        .headers(setClientAuthorisation(listOf("SYSTEM_USER")))
+        .headers(setClientAuthorisation(listOf("STAFF_SEARCH")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isNotFound
-    }
-
-    @Test
-    fun `should return success if has SYSTEM_USER override role`() {
-      webTestClient.get()
-        .uri("/api/staff/roles/BMI/role/KW")
-        .headers(setClientAuthorisation(listOf("SYSTEM_USER")))
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isOk
     }
 
     @Test
