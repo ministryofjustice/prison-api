@@ -1,10 +1,12 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpMethod
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
 
+@DisplayName("GET /api/adjustments/{bookingId}/sentence-and-booking")
 class AdjustmentResourceTest : ResourceTest() {
 
   @Test
@@ -15,11 +17,19 @@ class AdjustmentResourceTest : ResourceTest() {
   }
 
   @Test
-  fun `returns 403 when client does not have any roles`() {
+  fun `returns 403 when client does not have override role`() {
     webTestClient.get().uri("/api/adjustments/$BOOKING_ID/sentence-and-booking")
       .headers(setClientAuthorisation(listOf()))
       .exchange()
       .expectStatus().isForbidden
+  }
+
+  @Test
+  fun `returns success when client has override role ROLE_VIEW_PRISONER_DATA `() {
+    webTestClient.get().uri("/api/adjustments/$BOOKING_ID/sentence-and-booking")
+      .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+      .exchange()
+      .expectStatus().isOk
   }
 
   @Test
