@@ -40,7 +40,7 @@ class AppointmentsResourceTest : ResourceTest() {
   private lateinit var bookingRepository: BookingRepository
 
   @Nested
-  @DisplayName("POST /api/bookings/{bookingId}/appointments")
+  @DisplayName("POST /api/appointments")
   inner class CreateAppointments {
     @Test
     @Throws(Throwable::class)

@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
-import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.CreatedAppointmentDetails
 import uk.gov.justice.hmpps.prison.api.support.Order
 import uk.gov.justice.hmpps.prison.repository.BookingRepository
@@ -19,7 +18,7 @@ class AppointmentsResourceIntTest : ResourceTest() {
   private lateinit var bookingRepository: BookingRepository
 
   @Nested
-  @DisplayName("POST /api/bookings/{bookingId}/appointments")
+  @DisplayName("POST /api/appointments")
   inner class CreateAppointments {
     private val now = LocalDateTime.now().withNano(0)
     private val futureDateTime = futureDate(1, 0)
@@ -29,34 +28,32 @@ class AppointmentsResourceIntTest : ResourceTest() {
 
     private val defaultAppointment =
       """
+        {
+          "appointmentDefaults": {
+          "appointmentType": "ACTI",
+          "locationId": -25,
+          "startTime": "$futureDateTime",
+          "comment": "A default comment"
+          },
+          "appointments": [
             {
-              "appointmentDefaults": {
-                "appointmentType": "ACTI",
-                "locationId": -25,
-                "startTime": "$futureDateTime",
-                "comment": "A default comment"
-              },
-              "appointments": [
-                {
-                  "bookingId": -31
-                },
-                {
-                  "bookingId": -32,
-                  "startTime": "$futureDateTime",
-                  "endTime": "$futureDateTime",
-                  "comment": "Another comment"
-                }
-              ]
+              "bookingId": -31
+            },
+            {
+              "bookingId": -32,
+              "startTime": "$futureDateTime",
+              "endTime": "$futureDateTime",
+              "comment": "Another comment"
             }
-          """
+          ]
+        }
+      """
 
     @Test
     fun `returns 401 without an auth token`() {
       webTestClient.post().uri("/api/appointments")
         .header("Content-Type", APPLICATION_JSON_VALUE)
-        .body(
-          BodyInserters.fromValue(defaultAppointment),
-        )
+        .bodyValue(defaultAppointment)
         .exchange()
         .expectStatus().isUnauthorized
     }
@@ -66,9 +63,7 @@ class AppointmentsResourceIntTest : ResourceTest() {
       webTestClient.post().uri("/api/appointments")
         .headers(setClientAuthorisation(listOf("ROLE_BULK_APPOINTMENTS")))
         .header("Content-Type", APPLICATION_JSON_VALUE)
-        .body(
-          BodyInserters.fromValue(defaultAppointment),
-        )
+        .bodyValue(defaultAppointment)
         .exchange()
         .expectStatus().isBadRequest
         .expectBody().jsonPath("userMessage").isEqualTo("Location does not exist or is not in your caseload.")
@@ -79,9 +74,7 @@ class AppointmentsResourceIntTest : ResourceTest() {
       webTestClient.post().uri("/api/appointments")
         .headers(setAuthorisation(listOf()))
         .header("Content-Type", APPLICATION_JSON_VALUE)
-        .body(
-          BodyInserters.fromValue(defaultAppointment),
-        )
+        .bodyValue(defaultAppointment)
         .exchange()
         .expectStatus().isBadRequest
         .expectBody().jsonPath("userMessage").isEqualTo("You do not have the 'BULK_APPOINTMENTS' role. Creating appointments for more than one offender is not permitted without this role.")
@@ -92,9 +85,7 @@ class AppointmentsResourceIntTest : ResourceTest() {
       webTestClient.post().uri("/api/appointments")
         .headers(setAuthorisation("WAI_USER", listOf("ROLE_BULK_APPOINTMENTS")))
         .header("Content-Type", APPLICATION_JSON_VALUE)
-        .body(
-          BodyInserters.fromValue(defaultAppointment),
-        )
+        .bodyValue(defaultAppointment)
         .exchange()
         .expectStatus().isBadRequest
         .expectBody().jsonPath("userMessage").isEqualTo("Location does not exist or is not in your caseload.")
@@ -107,9 +98,8 @@ class AppointmentsResourceIntTest : ResourceTest() {
       val appointments = webTestClient.post().uri("/api/appointments")
         .headers(setAuthorisation(listOf("ROLE_BULK_APPOINTMENTS")))
         .header("Content-Type", APPLICATION_JSON_VALUE)
-        .body(
-          BodyInserters.fromValue(
-            """
+        .bodyValue(
+          """
             {
               "appointmentDefaults": {
                 "appointmentType": "ACTI",
@@ -131,7 +121,6 @@ class AppointmentsResourceIntTest : ResourceTest() {
               ]
             }
           """,
-          ),
         )
         .exchange()
         .expectStatus().isOk
@@ -166,9 +155,8 @@ class AppointmentsResourceIntTest : ResourceTest() {
       val appointments = webTestClient.post().uri("/api/appointments")
         .headers(setAuthorisation(listOf("ROLE_BULK_APPOINTMENTS")))
         .header("Content-Type", APPLICATION_JSON_VALUE)
-        .body(
-          BodyInserters.fromValue(
-            """
+        .bodyValue(
+          """
             {
               "appointmentDefaults": {
                 "appointmentType": "ACTI",
@@ -193,7 +181,6 @@ class AppointmentsResourceIntTest : ResourceTest() {
               }
             }
           """,
-          ),
         )
         .exchange()
         .expectStatus().isOk
@@ -225,9 +212,8 @@ class AppointmentsResourceIntTest : ResourceTest() {
       webTestClient.post().uri("/api/appointments")
         .headers(setAuthorisation(listOf("BULK_APPOINTMENTS")))
         .header("Content-Type", APPLICATION_JSON_VALUE)
-        .body(
-          BodyInserters.fromValue(
-            """
+        .bodyValue(
+          """
             {
               "appointmentDefaults": {
                 "appointmentType": "ACTI",
@@ -237,7 +223,6 @@ class AppointmentsResourceIntTest : ResourceTest() {
                }
             }
           """,
-          ),
         )
         .exchange()
         .expectStatus().isBadRequest
