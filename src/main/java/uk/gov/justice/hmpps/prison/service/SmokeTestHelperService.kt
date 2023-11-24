@@ -1,14 +1,15 @@
 package uk.gov.justice.hmpps.prison.service
 
-import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.api.model.RequestToRecall
 import uk.gov.justice.hmpps.prison.api.model.RequestToReleasePrisoner
+import uk.gov.justice.hmpps.prison.api.resource.UpdatePrisonerDetails
 import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq
 import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq.BookingAndSeq
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
-import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.findOffenderByNomsIdOrNull
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.BookingIntoPrisonService
 import java.time.LocalDateTime
 
@@ -18,10 +19,18 @@ class SmokeTestHelperService(
   private val offenderBookingRepository: OffenderBookingRepository,
   private val prisonerReleaseAndTransferService: PrisonerReleaseAndTransferService,
   private val bookingIntoPrisonService: BookingIntoPrisonService,
+  private val offenderRepository: OffenderRepository,
 ) {
   @Transactional
-  @VerifyBookingAccess(overrideRoles = ["SMOKE_TEST"])
-  @PreAuthorize("hasRole('SMOKE_TEST') and hasAuthority('SCOPE_write')")
+  fun updatePrisonerDetails(offenderNo: String, prisonerDetails: UpdatePrisonerDetails) {
+    offenderRepository.findOffenderByNomsIdOrNull(offenderNo)?.apply {
+      firstName = prisonerDetails.firstName.uppercase()
+      lastName = prisonerDetails.lastName.uppercase()
+      offenderRepository.save(this)
+    } ?: throw EntityNotFoundException.withMessage("Offender $offenderNo not found")
+  }
+
+  @Transactional
   fun imprisonmentDataSetup(offenderNo: String) {
     val latestOffenderBooking = bookingService.getOffenderIdentifiers(offenderNo, "SMOKE_TEST")
     val bookingAndSeq = getBookingAndSeqOrThrow(offenderNo, latestOffenderBooking)
@@ -40,8 +49,6 @@ class SmokeTestHelperService(
       .orElseThrow { EntityNotFoundException.withMessage("No booking found for offender $offenderNo") }
 
   @Transactional
-  @VerifyBookingAccess(overrideRoles = ["SMOKE_TEST"])
-  @PreAuthorize("hasRole('SMOKE_TEST') and hasAuthority('SCOPE_write')")
   fun releasePrisoner(offenderNo: String) {
     val requestToReleasePrisoner = RequestToReleasePrisoner.builder()
       .commentText("Prisoner was released as part of smoke test")
@@ -51,8 +58,6 @@ class SmokeTestHelperService(
   }
 
   @Transactional
-  @VerifyBookingAccess(overrideRoles = ["SMOKE_TEST"])
-  @PreAuthorize("hasRole('SMOKE_TEST') and hasAuthority('SCOPE_write')")
   fun recallPrisoner(offenderNo: String) {
     val requestToRecall = RequestToRecall.builder()
       .prisonId("LEI")
