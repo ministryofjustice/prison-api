@@ -26,24 +26,6 @@ class ScheduleResourceTest : ResourceTest() {
   private lateinit var gson: Gson
 
   @Nested
-  @DisplayName("GET /api/schedules/{agencyId}/activities-by-date-range")
-  inner class ActivitiesByDateRange {
-    @Test
-    fun testThatScheduleActivitiesByDateRange_ReturnsData() {
-      val token = authTokenHelper.getToken(NORMAL_USER)
-      val response: ResponseEntity<List<PrisonerSchedule>> = testRestTemplate.exchange(
-        "/api/schedules/LEI/activities-by-date-range?timeSlot=PM&fromDate=2017-09-11&toDate=2017-09-12",
-        HttpMethod.GET,
-        createHttpEntity(token, ""),
-        object : ParameterizedTypeReference<List<PrisonerSchedule>>() {},
-      )
-      val activities = response.body
-      assertThat(response.statusCode.value()).isEqualTo(200)
-      assertThat(activities).isNotEmpty()
-    }
-  }
-
-  @Nested
   @DisplayName("GET /api/schedules/{agencyId}/suspended-activities-by-date-range")
   inner class SuspendedActivitiesByDateRange {
     @Test
@@ -92,8 +74,8 @@ class ScheduleResourceTest : ResourceTest() {
         createHttpEntity(token, ""),
         object : ParameterizedTypeReference<List<PrisonerSchedule>>() {},
       )
-      val activities = response.body
       assertThat(response.statusCode.value()).isEqualTo(200)
+      val activities = response.body
       assertThat(activities).hasSize(1)
     }
   }
