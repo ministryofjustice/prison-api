@@ -143,7 +143,7 @@ public class SchedulesService {
                 .build();
     }
 
-    public List<PrisonerSchedule> getLocationEvents(final String agencyId, final Long locationId, final String usage,
+    public List<PrisonerSchedule> getLocationEvents(final Long locationId, final String usage,
                                                     final LocalDate date, final TimeSlot timeSlot, final String sortFields, final Order sortOrder) {
 
         validateLocation(locationId);

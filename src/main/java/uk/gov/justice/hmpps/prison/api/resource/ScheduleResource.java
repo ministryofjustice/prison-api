@@ -90,7 +90,7 @@ public class ScheduleResource {
                                                     @RequestParam(value = "timeSlot", required = false) @Parameter(description = "AM, PM or ED") final TimeSlot timeSlot,
                                                     @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>cellLocation or lastName</b>") final String sortFields,
                                                     @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
-        return schedulesService.getLocationEvents(agencyId, locationId, usage, date, timeSlot, sortFields, sortOrder);
+        return schedulesService.getLocationEvents(locationId, usage, date, timeSlot, sortFields, sortOrder);
     }
 
     @ApiResponses({
