@@ -7,6 +7,10 @@ import org.assertj.core.groups.Tuple
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.isNull
+import org.mockito.kotlin.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.TestConfiguration
@@ -687,17 +691,75 @@ class OffenderResourceIntTest : ResourceTest() {
     assertThat(error.userMessage).contains("Booking -20 is not active")
   }
 
-  @Test
-  fun testCanRetrieveAddresses() {
-    val requestEntity = createHttpEntity(authTokenHelper.getToken(AuthToken.PRISON_API_USER), null, mapOf())
-    val response = testRestTemplate.exchange(
-      "/api/offenders/{offenderNumber}/addresses",
-      GET,
-      requestEntity,
-      object : ParameterizedTypeReference<String?>() {},
-      OFFENDER_NUMBER,
-    )
-    assertThatJsonFileAndStatus(response, 200, "offender-address.json")
+  @DisplayName("/api/offenders/{offenderNo}/addresses")
+  @Nested
+  inner class GetAddresses {
+
+    @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.get().uri("/api/offenders/$OFFENDER_NUMBER/addresses")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `returns 403 when client does not have override role`() {
+      webTestClient.get().uri("/api/offenders/$OFFENDER_NUMBER/addresses")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns success if has authorised ROLE_GLOBAL_SEARCH`() {
+      webTestClient.get().uri("/api/offenders/$OFFENDER_NUMBER/addresses")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns success if has authorised ROLE_VIEW_PRISONER_DATA`() {
+      webTestClient.get().uri("/api/offenders/$OFFENDER_NUMBER/addresses")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `Attempt to get address for offender that is not part of any of logged on staff user's caseloads`() {
+      webTestClient.get().uri("/api/offenders/$OFFENDER_NUMBER/addresses")
+        .headers(setAuthorisation("WAI_USER", listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -2 not found.")
+
+      verify(telemetryClient).trackEvent(eq("UserUnauthorisedBookingAccess"), any(), isNull())
+    }
+
+    @Test
+    fun `Attempt to get address for offender that does not exist`() {
+      webTestClient.get().uri("/api/offenders/A1111ZZ/addresses")
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [A1111ZZ] not found.")
+    }
+
+    @Test
+    fun testCanRetrieveAddresses() {
+      val requestEntity = createHttpEntity(authTokenHelper.getToken(AuthToken.PRISON_API_USER), null, mapOf())
+      val response = testRestTemplate.exchange(
+        "/api/offenders/{offenderNo}/addresses",
+        GET,
+        requestEntity,
+        object : ParameterizedTypeReference<String?>() {},
+        OFFENDER_NUMBER,
+      )
+      assertThatJsonFileAndStatus(response, 200, "offender-address.json")
+    }
   }
 
   @Test
