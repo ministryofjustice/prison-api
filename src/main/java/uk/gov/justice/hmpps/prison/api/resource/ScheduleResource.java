@@ -99,7 +99,7 @@ public class ScheduleResource {
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Get all Prisoner activities for given date at location.", description = "Get all Prisoner activities for given date at location.")
-    @PreAuthorize("hasRole('NOMIS_ACTIVITIES')") // called from prison-staff-hub with authorization_code
+    @PreAuthorize("hasRole('NOMIS_ACTIVITIES')")
     @GetMapping("/locations/{locationId}/activities")
     @SlowReportQuery
     public List<PrisonerSchedule> getActivitiesAtLocation(@PathVariable("locationId") @Parameter(description = "The location id where activity is held.", required = true) final Long locationId,
@@ -163,7 +163,7 @@ public class ScheduleResource {
     }
 
     @Operation
-    @PreAuthorize("hasRole('NOMIS_ACTIVITIES')") // called by prison-staff-hub with authorization_code
+    @PreAuthorize("hasRole('NOMIS_ACTIVITIES')")
     @PostMapping("/{agencyId}/appointments")
     @SlowReportQuery
     public List<PrisonerSchedule> getAppointmentsForOffenders(@PathVariable("agencyId") @Parameter(required = true) final String agencyId,
@@ -174,7 +174,7 @@ public class ScheduleResource {
     }
 
     @Operation
-    @PreAuthorize("hasRole('NOMIS_ACTIVITIES')") // called by whereabouts-api-client with client_credentials
+    @PreAuthorize("hasRole('NOMIS_ACTIVITIES')")
     @GetMapping("/{agencyId}/appointments")
     @SlowReportQuery
     public List<ScheduledAppointmentDto> getAppointments(@PathVariable("agencyId") @Parameter(required = true) final String agencyId,
@@ -185,7 +185,7 @@ public class ScheduleResource {
     }
 
     @Operation
-    @PreAuthorize("hasRole('NOMIS_ACTIVITIES')") // called by prison-staff-hub with authorization_code AND activities-management-admin with client_credentials
+    @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
     @PostMapping("/{agencyId}/visits")
     @SlowReportQuery
     public List<PrisonerSchedule> getVisits(@PathVariable("agencyId") @Parameter(required = true) final String agencyId,
@@ -196,7 +196,7 @@ public class ScheduleResource {
     }
 
     @Operation
-    @PreAuthorize("hasRole('NOMIS_ACTIVITIES')") // called by prison-staff-hub with authorization_code
+    @PreAuthorize("hasRole('NOMIS_ACTIVITIES')")
     @PostMapping("/{agencyId}/activities")
     @SlowReportQuery
     public List<PrisonerSchedule> getActivitiesForBookings(@PathVariable("agencyId") @Parameter(required = true) final String agencyId,
@@ -217,7 +217,7 @@ public class ScheduleResource {
     }
 
     @Operation
-    @PreAuthorize("hasRole('NOMIS_ACTIVITIES')") // called by prison-staff-hub with authorization_code AND activities-management-admin with client_credentials
+    @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
     @PostMapping("/{agencyId}/courtEvents")
     @SlowReportQuery
     public List<PrisonerSchedule> getCourtEvents(@PathVariable("agencyId") @Parameter(required = true) final String agencyId,
@@ -228,7 +228,7 @@ public class ScheduleResource {
     }
 
     @Operation
-    @PreAuthorize("hasRole('NOMIS_ACTIVITIES')") // called by prison-staff-hub with authorization_code AND activities-management-admin with client_credentials
+    @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
     @PostMapping("/{agencyId}/externalTransfers")
     @SlowReportQuery
     public List<PrisonerSchedule> getExternalTransfers(@PathVariable("agencyId") @Parameter(required = true) final String agencyId,
@@ -238,7 +238,7 @@ public class ScheduleResource {
     }
 
     @Operation
-    @PreAuthorize("hasRole('NOMIS_ACTIVITIES')") // New endpoint called by hmpps-prisoner-profile-system with client_credentials
+    @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
     @GetMapping("/{prisonerNumber}/scheduled-transfers")
     @SlowReportQuery
     public List<PrisonerPrisonSchedule> getScheduledTransfersForPrisoner(@PathVariable("prisonerNumber") @Parameter(required = true) final String prisonerNumber) {
