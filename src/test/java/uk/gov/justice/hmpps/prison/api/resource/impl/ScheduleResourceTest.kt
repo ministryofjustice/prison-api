@@ -397,7 +397,7 @@ class ScheduleResourceTest : ResourceTest() {
     fun scheduledAppointmentsReturned() {
       webTestClient.post()
         .uri("/api/schedules/LEI/visits")
-        .headers(setClientAuthorisation(listOf("ROLE_NOMIS_ACTIVITIES")))
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
         .body(BodyInserters.fromValue(listOf("A1234AB")))
         .exchange()
         .expectStatus().isOk
@@ -413,7 +413,7 @@ class ScheduleResourceTest : ResourceTest() {
     fun `Request an offenders scheduled visits for today`(table: VisitsRow) {
       webTestClient.post()
         .uri("/api/schedules/LEI/visits?timeSlot=${table.timeSlot}&date=${LocalDate.now()}")
-        .headers(setClientAuthorisation(listOf("ROLE_NOMIS_ACTIVITIES")))
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .body(BodyInserters.fromValue(listOf(table.offenderNo)))
         .exchange()
@@ -433,7 +433,7 @@ class ScheduleResourceTest : ResourceTest() {
     fun `Request scheduled court events for offender list`(table: CourtEventRow) {
       webTestClient.post()
         .uri("/api/schedules/LEI/courtEvents?timeSlot=${table.timeSlot}&date=${table.date}")
-        .headers(setClientAuthorisation(listOf("ROLE_NOMIS_ACTIVITIES")))
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .body(BodyInserters.fromValue(table.offenderNoList))
         .exchange()
@@ -587,7 +587,7 @@ class ScheduleResourceTest : ResourceTest() {
     fun testThatScheduledTransfer_IsReturned() {
       webTestClient.get()
         .uri("/api/schedules/A1234AC/scheduled-transfers")
-        .headers(setClientAuthorisation(listOf("ROLE_NOMIS_ACTIVITIES")))
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
@@ -607,7 +607,7 @@ class ScheduleResourceTest : ResourceTest() {
     fun `Request an offenders external transfers for a given date`() {
       webTestClient.post()
         .uri("/api/schedules/LEI/externalTransfers?date=${LocalDate.now()}")
-        .headers(setClientAuthorisation(listOf("ROLE_NOMIS_ACTIVITIES")))
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .body(BodyInserters.fromValue(listOf("A1234AC")))
         .exchange()
