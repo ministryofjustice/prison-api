@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.anyBoolean
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.doThrow
 import org.mockito.kotlin.whenever
@@ -40,7 +41,7 @@ class CellResourceHistoryTest : ResourceTest() {
 
   @Test
   fun returnsHttpNotFoundForAgenciesOutsideOfCurrentUsersCaseload() {
-    doThrow(EntityNotFoundException("Not found")).whenever(agencyService).verifyAgencyAccess(anyString())
+    doThrow(EntityNotFoundException("Not found")).whenever(agencyService).verifyAgencyAccess(anyString(), anyBoolean())
     webTestClient.get()
       .uri("/api/cell/{agencyId}/history/{assignmentDate}", AGENCY_ID, ASSIGNMENT_DATE)
       .headers(setAuthorisation(listOf()))

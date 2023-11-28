@@ -42,7 +42,7 @@ public class GlobalSearchService {
         this.prisonerRepository = prisonerRepository;
     }
 
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
+    @VerifyOffenderAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
     public Page<PrisonerDetail> findOffender(final String offenderNo, final PageRequest pageRequest) {
         val criteria = PrisonerDetailSearchCriteria.builder()
             .offenderNos(List.of(offenderNo))

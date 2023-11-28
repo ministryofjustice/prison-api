@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.BookingActivity;
@@ -73,7 +74,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Statute;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitVisitor;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.WarZone;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
@@ -140,8 +140,6 @@ public class BookingServiceTest {
     private AgencyService agencyService;
     @Mock
     private OffenderFixedTermRecallService offenderFixedTermRecallService;
-    @Mock
-    private AgencyInternalLocationRepository agencyInternalLocationRepository;
     @Mock
     private OffenderContactPersonsRepository offenderContactPersonsRepository;
     @Mock
@@ -215,7 +213,7 @@ public class BookingServiceTest {
         when(agencyService.getAgencyIds()).thenReturn(agencyIds);
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(true);
 
-        bookingService.getOffenderIdentifiers("off-1");
+        bookingService.getOffenderIdentifiers("off-1", false);
     }
 
     @Test
@@ -229,8 +227,23 @@ public class BookingServiceTest {
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(false);
 
         assertThatThrownBy(() ->
-            bookingService.getOffenderIdentifiers("off-1"))
+            bookingService.getOffenderIdentifiers("off-1", false))
             .isInstanceOf(EntityNotFoundException.class);
+    }
+
+    @Test
+    public void testVerifyCannotAccessLatestBookingForAccessDenied() {
+
+        final var agencyIds = Set.of("agency-1");
+        final var bookingId = 1L;
+
+        when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(new OffenderBookingIdSeq("off-1", bookingId, 1)));
+        when(agencyService.getAgencyIds()).thenReturn(agencyIds);
+        when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(false);
+
+        assertThatThrownBy(() ->
+            bookingService.getOffenderIdentifiers("off-1", true))
+            .isInstanceOf(AccessDeniedException.class);
     }
 
     @Test
@@ -244,7 +257,7 @@ public class BookingServiceTest {
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(true);
 
 
-        bookingService.getOffenderIdentifiers("off-1");
+        bookingService.getOffenderIdentifiers("off-1", false);
     }
 
     @Test
@@ -253,7 +266,7 @@ public class BookingServiceTest {
 
         when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(new OffenderBookingIdSeq("off-1", -1L, 1)));
 
-        bookingService.getOffenderIdentifiers("off-1", "SYSTEM_USER", "GLOBAL_SEARCH");
+        bookingService.getOffenderIdentifiers("off-1", false, "SYSTEM_USER", "GLOBAL_SEARCH");
 
         verify(authenticationFacade).isOverrideRole(
             "SYSTEM_USER", "GLOBAL_SEARCH"
@@ -271,7 +284,7 @@ public class BookingServiceTest {
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(false);
 
         assertThatThrownBy(() ->
-            bookingService.getOffenderIdentifiers("off-1"))
+            bookingService.getOffenderIdentifiers("off-1", false))
             .isInstanceOf(EntityNotFoundException.class);
     }
 
