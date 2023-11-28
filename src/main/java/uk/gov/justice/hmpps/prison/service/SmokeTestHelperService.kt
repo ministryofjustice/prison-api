@@ -32,7 +32,7 @@ class SmokeTestHelperService(
 
   @Transactional
   fun imprisonmentDataSetup(offenderNo: String) {
-    val latestOffenderBooking = bookingService.getOffenderIdentifiers(offenderNo, "SMOKE_TEST")
+    val latestOffenderBooking = bookingService.getOffenderIdentifiers(offenderNo, false, "SMOKE_TEST")
     val bookingAndSeq = getBookingAndSeqOrThrow(offenderNo, latestOffenderBooking)
     val booking = offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(offenderNo, bookingAndSeq.bookingSeq)
       .orElseThrow(
