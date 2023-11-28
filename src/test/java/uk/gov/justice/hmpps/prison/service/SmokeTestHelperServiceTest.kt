@@ -6,6 +6,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.anyBoolean
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.any
 import org.mockito.kotlin.check
@@ -46,7 +47,7 @@ class SmokeTestHelperServiceTest {
     internal inner class NotFound {
       @Test
       fun noOffender() {
-        whenever(bookingService.getOffenderIdentifiers(eq(SOME_OFFENDER_NO), anyString()))
+        whenever(bookingService.getOffenderIdentifiers(eq(SOME_OFFENDER_NO), anyBoolean(), anyString()))
           .thenThrow(EntityNotFoundException.withId(SOME_OFFENDER_NO))
         assertThatThrownBy { smokeTestHelperService.imprisonmentDataSetup(SOME_OFFENDER_NO) }
           .isInstanceOf(EntityNotFoundException::class.java)
@@ -55,7 +56,7 @@ class SmokeTestHelperServiceTest {
 
       @Test
       fun noBooking() {
-        whenever(bookingService.getOffenderIdentifiers(eq(SOME_OFFENDER_NO), anyString()))
+        whenever(bookingService.getOffenderIdentifiers(eq(SOME_OFFENDER_NO), anyBoolean(), anyString()))
           .thenReturn(OffenderBookingIdSeq(SOME_OFFENDER_NO, null, null))
         assertThatThrownBy { smokeTestHelperService.imprisonmentDataSetup(SOME_OFFENDER_NO) }
           .isInstanceOf(EntityNotFoundException::class.java)
@@ -148,7 +149,7 @@ class SmokeTestHelperServiceTest {
   }
 
   private fun mockOffenderBooking() {
-    whenever(bookingService.getOffenderIdentifiers(eq(SOME_OFFENDER_NO), anyString()))
+    whenever(bookingService.getOffenderIdentifiers(eq(SOME_OFFENDER_NO), anyBoolean(), anyString()))
       .thenReturn(SOME_BOOKING_ID_SEQ)
   }
 

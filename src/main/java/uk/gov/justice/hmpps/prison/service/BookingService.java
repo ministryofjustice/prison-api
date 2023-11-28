@@ -516,10 +516,10 @@ public class BookingService {
         return visit;
     }
 
-    public OffenderBookingIdSeq getOffenderIdentifiers(final String offenderNo, final String... rolesAllowed) {
+    public OffenderBookingIdSeq getOffenderIdentifiers(final String offenderNo, final boolean accessDeniedError, final String... rolesAllowed) {
         final var offenderIdentifier = bookingRepository.getLatestBookingIdentifierForOffender(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
 
-        offenderIdentifier.getBookingAndSeq().ifPresent(b -> verifyBookingAccess(b.getBookingId(), rolesAllowed));
+        offenderIdentifier.getBookingAndSeq().ifPresent(b -> verifyBookingAccess(b.getBookingId(), accessDeniedError, rolesAllowed));
         return offenderIdentifier;
     }
 
@@ -565,9 +565,10 @@ public class BookingService {
      * exception is thrown.
      *
      * @param bookingId offender booking id.
-     * @throws EntityNotFoundException if current user does not have access to specified booking.
+     * @throws EntityNotFoundException if current user does not have access to specified booking and accessDeniedError is false.
+     * @throws AccessDeniedException if current user does not have access to specified booking and accessDeniedError is true.
      */
-    public void verifyBookingAccess(final Long bookingId, final String... rolesAllowed) {
+    public void verifyBookingAccess(final Long bookingId, boolean accessDeniedError, final String... rolesAllowed) {
         // system user has access to everything
         if (isAllowedToViewAllPrisonerData(rolesAllowed)) return;
 
@@ -586,6 +587,9 @@ public class BookingService {
         }
         if (!bookingRepository.verifyBookingAccess(bookingId, agencyIds)) {
             logUserUnauthorisedAccess(bookingId, agencyIds, rolesAllowed);
+            if (accessDeniedError) {
+                throw new AccessDeniedException(format("User not authorised to access booking with id %d.", bookingId));
+            }
             throw EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId);
         }
     }

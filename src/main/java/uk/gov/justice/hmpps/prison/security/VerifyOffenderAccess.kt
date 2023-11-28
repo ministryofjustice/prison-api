@@ -7,4 +7,4 @@ import kotlin.annotation.AnnotationTarget.PROPERTY_SETTER
 
 @Target(FUNCTION, PROPERTY_GETTER, PROPERTY_SETTER)
 @Retention(RUNTIME)
-annotation class VerifyOffenderAccess(val overrideRoles: Array<String> = [])
+annotation class VerifyOffenderAccess(val accessDeniedError: Boolean = false, val overrideRoles: Array<String> = [])

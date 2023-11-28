@@ -207,10 +207,10 @@ public class AgencyService {
      * exception is thrown.
      *
      * @param agencyId the agency.
-     * @throws EntityNotFoundException if current user does not have access to this agency.
-     * @throws AccessDeniedException if current client does not have access to this agency.
+     * @throws EntityNotFoundException if current user does not have access to this agency and accessDeniedError is false.
+     * @throws AccessDeniedException if current user does not have access to this agency and accessDeniedError is true.
      */
-    public void verifyAgencyAccess(final String agencyId) {
+    public void verifyAgencyAccess(final String agencyId, boolean accessDeniedError) {
         Objects.requireNonNull(agencyId, "agencyId is a required parameter");
 
         final var agencyIds = getAgencyIds();
@@ -226,6 +226,9 @@ public class AgencyService {
         }
         if (!agencyIds.contains(agencyId)) {
             logUserUnauthorisedAccess(agencyId, agencyIds);
+            if (accessDeniedError) {
+                throw new AccessDeniedException(format("User not authorised to access agency with id %d.", agencyId));
+            }
             throw EntityNotFoundException.withId(agencyId);
         }
     }
