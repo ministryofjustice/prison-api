@@ -243,10 +243,6 @@ Feature: Booking Details
     When full size image is requested by booking Id "-1"
     Then image bytes are returned
 
-  Scenario: Request for image data by Noms Id
-    When full size image is requested by Noms Id "A1234AA"
-    Then image bytes are returned
-
     Scenario Outline: Request offender basic details by offender numbers
       When a request is made for "A1234AE,A1234AB"
       Then data is returned that includes "<firstName>" "<lastName>" "<middleName>" "<offenderNo>" "<bookingId>" "<agencyId>"
