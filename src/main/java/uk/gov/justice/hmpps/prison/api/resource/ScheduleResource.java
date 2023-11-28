@@ -70,8 +70,7 @@ public class ScheduleResource {
                                                         @RequestParam(value = "timeSlot", required = false) @Parameter(description = "AM, PM or ED") final TimeSlot timeSlot,
                                                         @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>cellLocation or lastName</b>") final String sortFields,
                                                         @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
-        return schedulesService.getLocationGroupEventsByLocationId(agencyId, locationIds,
-                date, timeSlot, sortFields, sortOrder);
+        return schedulesService.getLocationGroupEventsByLocationId(agencyId, locationIds, date, timeSlot, sortFields, sortOrder);
     }
 
     @ApiResponses({
@@ -80,7 +79,7 @@ public class ScheduleResource {
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Get all Prisoner events for given date at location.", description = "Get all Prisoner events for given date at location.")
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @VerifyAgencyAccess(overrideRoles = {"GLOBAL_SEARCH"})
     @GetMapping("/{agencyId}/locations/{locationId}/usage/{usage}")
     @SlowReportQuery
     public List<PrisonerSchedule> getLocationEvents(@PathVariable("agencyId") @Parameter(description = "The prison.", required = true) final String agencyId,
@@ -99,7 +98,7 @@ public class ScheduleResource {
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Get all Prisoner activities for given date at location.", description = "Get all Prisoner activities for given date at location.")
-    @PreAuthorize("hasRole('NOMIS_ACTIVITIES')")
+    @PreAuthorize("hasRole('VIEW_ACTIVITIES')")
     @GetMapping("/locations/{locationId}/activities")
     @SlowReportQuery
     public List<PrisonerSchedule> getActivitiesAtLocation(@PathVariable("locationId") @Parameter(description = "The location id where activity is held.", required = true) final Long locationId,
@@ -117,7 +116,7 @@ public class ScheduleResource {
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Get all Prisoner activities for given date.", description = "Get all Prisoner activities for given date")
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @VerifyAgencyAccess(overrideRoles = {"GLOBAL_SEARCH"})
     @GetMapping("/{agencyId}/activities")
     @SlowReportQuery
     public List<PrisonerSchedule> getActivitiesAtAllLocations(@PathVariable("agencyId") @Parameter(description = "The prison.", required = true) final String agencyId,
@@ -135,7 +134,7 @@ public class ScheduleResource {
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Get all Prisoner activities for given date.", description = "Get all Prisoner activities for given date range")
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @VerifyAgencyAccess(overrideRoles = {"GLOBAL_SEARCH"})
     @GetMapping("/{agencyId}/suspended-activities-by-date-range")
     @SlowReportQuery
     public List<PrisonerSchedule> getSuspendedActivitiesAtAllLocationsByDateRange(@PathVariable("agencyId") @Parameter(description = "The prison.", required = true) final String agencyId,
@@ -151,7 +150,7 @@ public class ScheduleResource {
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Get all Prisoner activities for given date.", description = "Get count of suspended prisoner activities for given date range")
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @VerifyAgencyAccess(overrideRoles = {"GLOBAL_SEARCH"})
     @PostMapping("/{agencyId}/count-activities")
     @SlowReportQuery
     public PrisonerActivitiesCount getCountActivitiesByDateRange(@PathVariable("agencyId") @Parameter(description = "The prison.", required = true, example = "MDI") final String agencyId,
@@ -163,7 +162,7 @@ public class ScheduleResource {
     }
 
     @Operation
-    @PreAuthorize("hasRole('NOMIS_ACTIVITIES')")
+    @PreAuthorize("hasRole('VIEW_ACTIVITIES')")
     @PostMapping("/{agencyId}/appointments")
     @SlowReportQuery
     public List<PrisonerSchedule> getAppointmentsForOffenders(@PathVariable("agencyId") @Parameter(required = true) final String agencyId,
@@ -174,7 +173,7 @@ public class ScheduleResource {
     }
 
     @Operation
-    @PreAuthorize("hasRole('NOMIS_ACTIVITIES')")
+    @PreAuthorize("hasRole('VIEW_ACTIVITIES')")
     @GetMapping("/{agencyId}/appointments")
     @SlowReportQuery
     public List<ScheduledAppointmentDto> getAppointments(@PathVariable("agencyId") @Parameter(required = true) final String agencyId,
@@ -196,7 +195,7 @@ public class ScheduleResource {
     }
 
     @Operation
-    @PreAuthorize("hasRole('NOMIS_ACTIVITIES')")
+    @PreAuthorize("hasRole('VIEW_ACTIVITIES')")
     @PostMapping("/{agencyId}/activities")
     @SlowReportQuery
     public List<PrisonerSchedule> getActivitiesForBookings(@PathVariable("agencyId") @Parameter(required = true) final String agencyId,
@@ -208,7 +207,7 @@ public class ScheduleResource {
     }
 
     @Operation
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+    @VerifyAgencyAccess(overrideRoles = {"GLOBAL_SEARCH"})
     @PostMapping("/{agencyId}/activities-by-event-ids")
     @SlowReportQuery
     public List<PrisonerSchedule> getActivitiesByEventIds(@PathVariable("agencyId") @Parameter(required = true) final String agencyId,

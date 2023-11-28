@@ -81,7 +81,7 @@ class ScheduleResourceTest : ResourceTest() {
     fun activitiesReturned() {
       webTestClient.post()
         .uri("/api/schedules/LEI/activities")
-        .headers(setClientAuthorisation(listOf("ROLE_NOMIS_ACTIVITIES")))
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_ACTIVITIES")))
         .body(BodyInserters.fromValue(listOf("A1234AB")))
         .exchange()
         .expectStatus().isOk
@@ -95,7 +95,7 @@ class ScheduleResourceTest : ResourceTest() {
     fun `Request an offenders scheduled activities for a specific date`(table: ActivitiesRow) {
       webTestClient.post()
         .uri("/api/schedules/LEI/activities?date=${table.date}&timeSlot=${table.timeSlot}")
-        .headers(setClientAuthorisation(listOf("ROLE_NOMIS_ACTIVITIES")))
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_ACTIVITIES")))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .body(BodyInserters.fromValue(listOf(table.offenderNo)))
         .exchange()
@@ -122,7 +122,7 @@ class ScheduleResourceTest : ResourceTest() {
     fun testThatSuspendedActivity_IsReturned() {
       webTestClient.get()
         .uri("/api/schedules/locations/-27/activities?timeSlot=PM&date=1985-01-01&includeSuspended=true")
-        .headers(setClientAuthorisation(listOf("ROLE_NOMIS_ACTIVITIES")))
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_ACTIVITIES")))
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -277,7 +277,7 @@ class ScheduleResourceTest : ResourceTest() {
     fun scheduledAppointmentsReturned() {
       webTestClient.get()
         .uri("/api/schedules/LEI/appointments?date=2017-01-02")
-        .headers(setClientAuthorisation(listOf("ROLE_NOMIS_ACTIVITIES")))
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_ACTIVITIES")))
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -351,7 +351,7 @@ class ScheduleResourceTest : ResourceTest() {
     fun scheduledAppointmentsReturned() {
       webTestClient.post()
         .uri("/api/schedules/LEI/appointments")
-        .headers(setClientAuthorisation(listOf("ROLE_NOMIS_ACTIVITIES")))
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_ACTIVITIES")))
         .body(BodyInserters.fromValue(listOf("A1234AB")))
         .exchange()
         .expectStatus().isOk
@@ -367,7 +367,7 @@ class ScheduleResourceTest : ResourceTest() {
     fun `Request an offenders scheduled appointments for today`(table: AppointmentScheduleRow) {
       webTestClient.post()
         .uri("/api/schedules/LEI/appointments?timeSlot=${table.timeSlot}&date=${LocalDate.now()}")
-        .headers(setClientAuthorisation(listOf("ROLE_NOMIS_ACTIVITIES")))
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_ACTIVITIES")))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .body(BodyInserters.fromValue(listOf(table.offenderNo)))
         .exchange()
