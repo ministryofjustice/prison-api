@@ -45,10 +45,11 @@ class AuthorisationAspect(private val bookingService: BookingService, private va
     val method = signature.method
     val annotation = method.getAnnotation(VerifyBookingAccess::class.java)
     val overrideRoles = annotation.overrideRoles
+    val accessDeniedError = annotation.accessDeniedError
     if (AuthenticationFacade.hasRoles(*overrideRoles)) {
       bookingService.checkBookingExists(bookingId)
     } else {
-      bookingService.verifyBookingAccess(bookingId, *overrideRoles)
+      bookingService.verifyBookingAccess(bookingId, accessDeniedError, *overrideRoles)
     }
   }
 
@@ -59,34 +60,28 @@ class AuthorisationAspect(private val bookingService: BookingService, private va
     val method = signature.method
     val annotation = method.getAnnotation(VerifyOffenderAccess::class.java)
     val overrideRoles = annotation.overrideRoles
-    bookingService.getOffenderIdentifiers(offenderNo, *overrideRoles)
+    val accessDeniedError = annotation.accessDeniedError
+    bookingService.getOffenderIdentifiers(offenderNo, accessDeniedError, *overrideRoles)
   }
 
   @Before(value = "verifyAgencyAccessPointcut(agencyId)", argNames = "jp,agencyId")
   fun verifyAgencyAccess(jp: JoinPoint, agencyId: String) {
     log.debug("Verifying agency access for agency [{}]", agencyId)
-    if (AuthenticationFacade.hasRoles(*getOverrideRoles(jp))) {
+    val signature = jp.signature as MethodSignature
+    val method = signature.method
+    val annotation = method.getAnnotation(VerifyAgencyAccess::class.java)
+    val overrideRoles = annotation.overrideRoles
+    val accessDeniedError = annotation.accessDeniedError
+    if (AuthenticationFacade.hasRoles(*overrideRoles)) {
       agencyService.checkAgencyExists(agencyId)
     } else {
-      agencyService.verifyAgencyAccess(agencyId)
+      agencyService.verifyAgencyAccess(agencyId, accessDeniedError)
     }
   }
 
   @Before(value = "verifyAgencyRequestAccessPointcut(request)", argNames = "jp,request")
   fun verifyAgencyRequestAccess(jp: JoinPoint, request: AgencyRequest) {
-    log.debug("Verifying agency access for agency [{}]", request.agencyId)
-    if (AuthenticationFacade.hasRoles(*getOverrideRoles(jp))) {
-      agencyService.checkAgencyExists(request.agencyId)
-    } else {
-      agencyService.verifyAgencyAccess(request.agencyId)
-    }
-  }
-
-  private fun getOverrideRoles(jp: JoinPoint): Array<String> {
-    val signature = jp.signature as MethodSignature
-    val method = signature.method
-    val annotation = method.getAnnotation(VerifyAgencyAccess::class.java)
-    return annotation.overrideRoles
+    verifyAgencyAccess(jp, request.agencyId)
   }
 
   private companion object {
