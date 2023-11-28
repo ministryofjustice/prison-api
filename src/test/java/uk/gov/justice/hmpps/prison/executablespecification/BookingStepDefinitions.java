@@ -359,11 +359,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingDetail.getImageData(Long.valueOf(bookingId), true);
     }
 
-    @When("^full size image is requested by Noms Id \"([^\"]*)\"$")
-    public void fullSizeImageDataIsRequestedByNomsId(final String nomsId) {
-        bookingDetail.getImageData(nomsId, true);
-    }
-
     @Then("^\"(\\d+)\" row of offender identifiers is returned$")
     public void rowOfOffenderIdentifiersIsReturned(final long expectedCount) {
         bookingDetail.verifyResourceRecordsReturned(expectedCount);
