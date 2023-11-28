@@ -91,7 +91,7 @@ class SchedulesServiceImplTest {
         final var apps = List.of(app);
         when(scheduleRepository.getLocationAppointments(-100L, DATE, DATE, "lastName", Order.ASC)).thenReturn(apps);
 
-        final var results = schedulesService.getLocationEvents("LEI", -100L, "APP", DATE, TimeSlot.AM, null, null);
+        final var results = schedulesService.getLocationEvents(-100L, "APP", DATE, TimeSlot.AM, null, null);
         assertThat(results.get(0).getOffenderNo()).isEqualTo("A10");
     }
 
@@ -106,7 +106,7 @@ class SchedulesServiceImplTest {
         final var visits = List.of(visit);
         when(scheduleRepository.getLocationVisits(-100L, DATE, DATE, "lastName", Order.ASC)).thenReturn(visits);
 
-        final var results = schedulesService.getLocationEvents("LEI", -100L, "VISIT", DATE, TimeSlot.PM, null, null);
+        final var results = schedulesService.getLocationEvents(-100L, "VISIT", DATE, TimeSlot.PM, null, null);
         assertThat(results.get(0).getOffenderNo()).isEqualTo("A10");
     }
 
@@ -121,7 +121,7 @@ class SchedulesServiceImplTest {
         final var visits = List.of(visit);
         when(scheduleRepository.getActivitiesAtLocation(-100L, DATE, DATE, "lastName", Order.ASC, false)).thenReturn(visits);
 
-        final var results = schedulesService.getLocationEvents("LEI", -100L, "PROG", DATE, TimeSlot.ED, null, null);
+        final var results = schedulesService.getLocationEvents(-100L, "PROG", DATE, TimeSlot.ED, null, null);
         assertThat(results.get(0).getOffenderNo()).isEqualTo("A10");
     }
 
