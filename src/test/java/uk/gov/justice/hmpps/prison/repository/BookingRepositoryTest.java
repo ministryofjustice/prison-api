@@ -84,6 +84,8 @@ public class BookingRepositoryTest {
 
         final var event = repository.getBookingAppointmentByEventId(eventId).orElseThrow();
 
+        repository.deleteBookingAppointment(eventId); // cleanup
+
         assertThat(event).isNotNull();
         assertThat(event.getEventSubType()).isEqualTo(appt.getAppointmentType());
         assertThat(event.getEventLocation()).isEqualTo("Medical Centre");
@@ -106,6 +108,8 @@ public class BookingRepositoryTest {
         final var eventId = repository.createBookingAppointment(-2L, appt, "LEI");
 
         final var event = repository.getBookingAppointmentByEventId(eventId).orElseThrow();
+
+        repository.deleteBookingAppointment(eventId); // cleanup
 
         assertThat(event).isNotNull();
         assertThat(event.getEventSubType()).isEqualTo(appt.getAppointmentType());
@@ -161,7 +165,7 @@ public class BookingRepositoryTest {
     public void findBalancesForVisitOrdersAndPrivilegeVisitOrders() {
         final var visitBalances = repository.getBookingVisitBalances(-1L);
 
-        assertThat(visitBalances).get().isEqualTo(
+        assertThat(visitBalances.get()).isEqualTo(
                 VisitBalances.builder().remainingVo(25).remainingPvo(2).latestIepAdjustDate(LocalDate.parse("2021-09-22")).latestPrivIepAdjustDate(LocalDate.parse("2021-10-22")).build());
     }
 

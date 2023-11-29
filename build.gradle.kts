@@ -1,8 +1,8 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.9.0"
-  kotlin("plugin.spring") version "1.9.20"
-  kotlin("plugin.jpa") version "1.9.20"
-  kotlin("plugin.lombok") version "1.9.20"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.10.0"
+  kotlin("plugin.spring") version "1.9.21"
+  kotlin("plugin.jpa") version "1.9.21"
+  kotlin("plugin.lombok") version "1.9.21"
 }
 
 configurations {
@@ -49,7 +49,7 @@ dependencies {
   implementation("io.swagger:swagger-annotations:1.6.12")
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
 
-  implementation("org.apache.commons:commons-lang3:3.13.0")
+  implementation("org.apache.commons:commons-lang3:3.14.0")
   implementation("commons-io:commons-io:2.15.0")
   implementation("com.google.guava:guava:32.1.3-jre")
   implementation("org.apache.commons:commons-text:1.11.0")
@@ -83,7 +83,7 @@ dependencies {
   testImplementation("org.wiremock:wiremock:3.3.1")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.12.3")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.18") {
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.19") {
     exclude(group = "io.swagger.core.v3")
   }
   testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.19")

@@ -31,7 +31,7 @@ import java.time.LocalDate;
 @Tag(name = "offender-activities")
 @Validated
 @RequestMapping(value = "${api.base.path}/offender-activities", produces = "application/json")
-@PreAuthorize("hasRole('NOMIS_ACTIVITIES')")
+@PreAuthorize("hasRole('VIEW_ACTIVITIES')")
 public class OffenderActivitiesResource {
 
     private final OffenderActivitiesService activitiesService;
