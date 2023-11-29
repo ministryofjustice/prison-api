@@ -360,7 +360,7 @@ public class NomisApiV1Resource {
     )
     @GetMapping("/prison/{prison_id}/offenders/{noms_id}/accounts")
     @Tag(name = "unilink")
-    @SlowReportQuery
+    // @SlowReportQuery Temporarily go to primary to investigate cause of unilink issue
     public AccountBalance getAccountBalance(@Size(max = 3) @NotNull @PathVariable("prison_id") @Parameter(name = "prison_id", description = "Prison ID", example = "WLI", required = true) final String prisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @Parameter(name = "noms_id", description = "Offender Noms Id", example = "A1404AE", required = true) final String nomsId) {
         return service.getAccountBalances(prisonId, nomsId);
     }
@@ -378,7 +378,7 @@ public class NomisApiV1Resource {
     )
     @GetMapping("/prison/{prison_id}/offenders/{noms_id}/accounts/")
     @Tag(name = "unilink")
-    @SlowReportQuery
+    // @SlowReportQuery Temporarily go to primary to investigate cause of unilink issue
     @Deprecated
     public AccountBalance getAccountBalanceTrailingSlash(@Size(max = 3) @NotNull @PathVariable("prison_id") @Parameter(name = "prison_id", description = "Prison ID", example = "WLI", required = true) final String prisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @Parameter(name = "noms_id", description = "Offender Noms Id", example = "A1404AE", required = true) final String nomsId) {
         return getAccountBalance(prisonId, nomsId);
@@ -390,14 +390,14 @@ public class NomisApiV1Resource {
             @ApiResponse(responseCode = "404", description = "Prison, offender or accountType not found", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Retrieve an offender's financial transaction history for cash, spends or savings.", description = """
-            Transactions are returned in NOMIS ordee (Descending date followed by id).<br/>
+            Transactions are returned in NOMIS order (Descending date followed by id).<br/>
             All transaction amounts are represented as pence values.<br/>
             Requires NOMIS_API_V1 or UNILINK role.
             """
     )
     @GetMapping("/prison/{prison_id}/offenders/{noms_id}/accounts/{account_code}/transactions")
     @Tag(name = "unilink")
-    @SlowReportQuery
+    // @SlowReportQuery Temporarily go to primary to investigate cause of unilink issue
     public AccountTransactions getAccountTransactions(@Size(max = 3) @NotNull @PathVariable("prison_id") @Parameter(name = "prison_id", description = "Prison ID", example = "WLI", required = true) final String prisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @Parameter(name = "noms_id", description = "Offender Noms Id", example = "A1404AE", required = true) final String nomsId, @NotNull @PathVariable("account_code") @Parameter(name = "account_code", description = "Account code", example = "spends", required = true, schema = @Schema(implementation = String.class, allowableValues = {"spends","cash","savings"})) final String accountCode, @RequestParam(value = "from_date", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(name = "from_date", description = "Start date for transactions (defaults to today if not supplied)", example = "2019-04-01") final LocalDate fromDate, @RequestParam(value = "to_date", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(name = "to_date", description = "To date for transactions (defaults to today if not supplied)", example = "2019-05-01") final LocalDate toDate) {
         final var transactions = service.getAccountTransactions(prisonId, nomsId, accountCode, fromDate, toDate);
         return new AccountTransactions(transactions);
@@ -415,7 +415,7 @@ public class NomisApiV1Resource {
     )
     @GetMapping("/prison/{prison_id}/offenders/{noms_id}/transactions/{client_unique_ref}")
     @Tag(name = "unilink")
-    @SlowReportQuery
+    // @SlowReportQuery Temporarily go to primary to investigate cause of unilink issue
     public AccountTransaction getTransactionByClientUniqueRef(@RequestHeader(value = "X-Client-Name", required = false) @Parameter(name = "X-Client-Name", description = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") final String clientName, @Size(max = 3) @NotNull @PathVariable("prison_id") @Parameter(name = "prison_id", description = "Prison ID", example = "WLI", required = true) final String prisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @Parameter(name = "noms_id", description = "Offender Noms Id", example = "A1404AE", required = true) final String nomsId, @Pattern(regexp = CLIENT_UNIQUE_REF_PATTERN) @Size(max = 64) @PathVariable("client_unique_ref") @Parameter(name = "client_unique_ref", description = "Client unique reference", required = true) final String clientUniqueRef) {
         final var uniqueClientId = getUniqueClientId(clientName, clientUniqueRef);
 
