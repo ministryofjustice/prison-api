@@ -586,10 +586,10 @@ public class BookingService {
             throw EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId);
         }
         if (!bookingRepository.verifyBookingAccess(bookingId, agencyIds)) {
-            logUserUnauthorisedAccess(bookingId, agencyIds, rolesAllowed);
             if (accessDeniedError) {
                 throw new AccessDeniedException(format("User not authorised to access booking with id %d.", bookingId));
             }
+            logUserUnauthorisedAccess(bookingId, agencyIds, rolesAllowed);
             throw EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId);
         }
     }
