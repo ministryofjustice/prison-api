@@ -225,10 +225,10 @@ public class AgencyService {
             throw EntityNotFoundException.withId(agencyId);
         }
         if (!agencyIds.contains(agencyId)) {
-            logUserUnauthorisedAccess(agencyId, agencyIds);
             if (accessDeniedError) {
                 throw new AccessDeniedException(format("User not authorised to access agency with id %d.", agencyId));
             }
+            logUserUnauthorisedAccess(agencyId, agencyIds);
             throw EntityNotFoundException.withId(agencyId);
         }
     }
