@@ -87,7 +87,6 @@ class PrisonResourceTest : ResourceTest() {
     assertFalse(firstPageResponse.isLast)
     assertThat(firstPageResponse.content).contains(calculableSentenceEnvelope, fixedRecallCalculableSentenceEnvelope)
 
-
     val secondPageResponse = webTestClient.get()
       .uri("/api/prison/{establishment}/booking/latest/paged/calculable-sentence-envelope?page=1&size=3", establishment)
       .headers(
