@@ -855,7 +855,7 @@ public class BookingService {
         return activeBookings.stream().map(this::determineCalculableSentenceEnvelope).toList();
     }
 
-    public Page<CalculableSentenceEnvelope> getPagedCalculableSentenceEnvelopeByEstablishment(String caseLoad, int pageNumber, int pageSize) {
+    public Page<CalculableSentenceEnvelope> getCalculableSentenceEnvelopeByEstablishment(String caseLoad, int pageNumber, int pageSize) {
         final var agencyLocation = agencyLocationRepository.getReferenceById(caseLoad);
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by("bookingId"));
         final var activeBookings = offenderBookingRepository.findAllOffenderBookingsByActiveTrueAndLocationAndSentences_statusAndSentences_CalculationType_CalculationTypeNotLikeAndSentences_CalculationType_CategoryNot(

@@ -75,7 +75,7 @@ class PrisonResource(private val bookingService: BookingService) {
   @Operation(summary = "Details of the active sentence envelope, a combination of the person information, the active booking and calculable sentences at a particular establishment (paged response)")
   @PreAuthorize("hasRole('RELEASE_DATE_MANUAL_COMPARER')")
   @GetMapping("/{establishmentId}/booking/latest/paged/calculable-sentence-envelope")
-  fun getPagedCalculableSentenceEnvelopeByEstablishment(
+  fun getCalculableSentenceEnvelopeByEstablishment(
     @PathVariable
     @Parameter(description = "The identifier of the establishment(prison) to get the active bookings for", required = true)
     establishmentId: String,
@@ -86,6 +86,6 @@ class PrisonResource(private val bookingService: BookingService) {
     @Parameter(description = "Requested limit of the page size (i.e. the number of bookings in response)")
     size: Int,
   ): Page<CalculableSentenceEnvelope> {
-    return this.bookingService.getPagedCalculableSentenceEnvelopeByEstablishment(establishmentId, page, size)
+    return this.bookingService.getCalculableSentenceEnvelopeByEstablishment(establishmentId, page, size)
   }
 }
