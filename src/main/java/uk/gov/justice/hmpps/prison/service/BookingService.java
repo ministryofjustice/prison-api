@@ -851,6 +851,17 @@ public class BookingService {
         return activeBookings.stream().map(this::determineCalculableSentenceEnvelope).toList();
     }
 
+    public Page<CalculableSentenceEnvelope> getPagedCalculableSentenceEnvelopeByEstablishment(String caseLoad, int pageNumber, int pageSize) {
+        final var agencyLocation = agencyLocationRepository.getReferenceById(caseLoad);
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by("bookingId"));
+        final var activeBookings = offenderBookingRepository.findAllOffenderBookingsByActiveTrueAndLocationAndSentences_statusAndSentences_CalculationType_CalculationTypeNotLikeAndSentences_CalculationType_CategoryNot(
+            agencyLocation, "A", "%AGG%", "LICENCE", pageRequest
+        );
+        final var calculableSentenceEnvelopes = activeBookings.stream().map(this::determineCalculableSentenceEnvelope).toList();
+
+        return new PageImpl<>(calculableSentenceEnvelopes, pageRequest, activeBookings.getTotalElements());
+    }
+
     public List<CalculableSentenceEnvelope> getCalculableSentenceEnvelopeByOffenderNumbers(Set<String> offenderNumbers) {
         final var activeBookings = offenderBookingRepository.findAllOffenderBookingsByActiveTrueAndOffenderNomsIdInAndSentences_statusAndSentences_CalculationType_CalculationTypeNotLikeAndSentences_CalculationType_CategoryNot(
             offenderNumbers,
