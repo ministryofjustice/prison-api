@@ -21,7 +21,7 @@ class OffenderLocationService(
   private val agencyInternalLocationRepository: AgencyInternalLocationRepository,
   private val bedAssignmentHistoriesRepository: BedAssignmentHistoriesRepository,
 ) {
-  @VerifyBookingAccess(overrideRoles = ["SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"])
+  @VerifyBookingAccess(overrideRoles = ["GLOBAL_SEARCH", "VIEW_PRISONER_DATA"])
   fun getOffenderLocation(@Suppress("UNUSED_PARAMETER") bookingId: Long, summary: OffenderSummary): OffenderLocation {
     // booking not active or no current internal location then no location to report
     if (summary.currentlyInPrison != "Y" || summary.internalLocationId == null) return OffenderLocation()
