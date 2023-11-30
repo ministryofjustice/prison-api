@@ -44,7 +44,7 @@ public class OffenderAssessmentService {
     }
 
     @Transactional(readOnly = true)
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public AssessmentDetail getOffenderAssessment(final Long bookingId, final Integer assessmentSeq) {
         final var assessment = repository.findByBookingIdAndAssessmentSeq(bookingId, assessmentSeq);
 
@@ -69,7 +69,7 @@ public class OffenderAssessmentService {
     }
 
     @Transactional(readOnly = true)
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<AssessmentSummary> getOffenderAssessments(final String offenderNo) {
         final var assessments = repository.findWithDetailsByOffenderBookingOffenderNomsIdInAndAssessmentTypeCellSharingAlertFlagOrderByAssessmentDateDescAssessmentSeqDesc(List.of(offenderNo), "Y");
 
