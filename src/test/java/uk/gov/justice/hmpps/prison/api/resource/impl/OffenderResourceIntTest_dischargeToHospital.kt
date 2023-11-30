@@ -214,7 +214,7 @@ class OffenderResourceIntTest_dischargeToHospital : ResourceTest() {
           .isBadRequest
           .expectBody()
           .jsonPath("userMessage")
-          .isEqualTo("Transfer cannot be done in the future") // TODO SDIT-549 This should be "movement" not "transfer"
+          .isEqualTo("Movement cannot be done in the future")
       }
 
       @Test
@@ -516,7 +516,7 @@ class OffenderResourceIntTest_dischargeToHospital : ResourceTest() {
 
         when (offenderType) {
           NO_BOOKING -> dischargeToHospital(offenderNo, dischargeRequestWithoutNullables(hospitalLocationCode = "HAZLWD"))
-            .is5xxServerError // TODO SDIT-549 This should be 400, cannot discharge an Offender without a booking unless you tell us the prison? Feels like a bug.
+            .isBadRequest
 
           else -> {
             dischargeToHospital(offenderNo, dischargeRequestWithoutNullables(hospitalLocationCode = "HAZLWD")).isOk

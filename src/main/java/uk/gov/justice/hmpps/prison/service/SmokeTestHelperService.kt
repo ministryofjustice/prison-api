@@ -11,13 +11,14 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepo
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.findOffenderByNomsIdOrNull
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.BookingIntoPrisonService
+import uk.gov.justice.hmpps.prison.service.enteringandleaving.ReleasePrisonerService
 import java.time.LocalDateTime
 
 @Service
 class SmokeTestHelperService(
   private val bookingService: BookingService,
   private val offenderBookingRepository: OffenderBookingRepository,
-  private val prisonerReleaseAndTransferService: PrisonerReleaseAndTransferService,
+  private val releasePrisonerService: ReleasePrisonerService,
   private val bookingIntoPrisonService: BookingIntoPrisonService,
   private val offenderRepository: OffenderRepository,
 ) {
@@ -54,7 +55,7 @@ class SmokeTestHelperService(
       .commentText("Prisoner was released as part of smoke test")
       .movementReasonCode("CR")
       .build()
-    prisonerReleaseAndTransferService.releasePrisoner(offenderNo, requestToReleasePrisoner, null)
+    releasePrisonerService.releasePrisoner(offenderNo, requestToReleasePrisoner)
   }
 
   @Transactional

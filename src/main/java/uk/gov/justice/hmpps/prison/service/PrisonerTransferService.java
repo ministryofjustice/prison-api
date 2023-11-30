@@ -1,15 +1,12 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import jakarta.persistence.EntityManager;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
-import uk.gov.justice.hmpps.prison.api.model.RequestForNewBooking;
-import uk.gov.justice.hmpps.prison.api.model.RequestToDischargePrisoner;
-import uk.gov.justice.hmpps.prison.api.model.RequestToReleasePrisoner;
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOut;
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOutToCourt;
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOutToTemporaryAbsence;
@@ -17,8 +14,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory.BedAssignmentHistoryPK;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteSubType;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.City;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EscortAgencyType;
@@ -29,7 +24,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementTypeAndReason.Pk;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCaseNote;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIndividualSchedule;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
@@ -37,35 +31,23 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepos
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.ImprisonmentStatusRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.MovementTypeAndReasonRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCaseNoteRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderIndividualScheduleRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderNoPayPeriodRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderPayStatusRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProgramProfileRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceAdjustmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
-import uk.gov.justice.hmpps.prison.service.enteringandleaving.BookingIntoPrisonService;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
 
-import jakarta.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static java.lang.String.format;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection.IN;
-import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason.AWAIT_REMOVAL_TO_PSY_HOSPITAL;
-import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason.DISCHARGE_TO_PSY_HOSPITAL;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.CRT;
-import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.REL;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.TAP;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.TRN;
 
@@ -74,7 +56,7 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.TRN;
 @Validated
 @Slf4j
 @AllArgsConstructor
-public class PrisonerReleaseAndTransferService {
+public class PrisonerTransferService {
 
     public static final String PSY_HOSP_FROM_PRISON = "S48MHA";
 
@@ -88,114 +70,16 @@ public class PrisonerReleaseAndTransferService {
     private final BedAssignmentHistoriesRepository bedAssignmentHistoriesRepository;
     private final AgencyInternalLocationRepository agencyInternalLocationRepository;
     private final MovementTypeAndReasonRepository movementTypeAndReasonRepository;
-    private final OffenderSentenceAdjustmentRepository offenderSentenceAdjustmentRepository;
-    private final OffenderKeyDateAdjustmentRepository offenderKeyDateAdjustmentRepository;
-    private final OffenderCaseNoteRepository caseNoteRepository;
-    private final AuthenticationFacade authenticationFacade;
     private final OffenderNoPayPeriodRepository offenderNoPayPeriodRepository;
     private final OffenderPayStatusRepository offenderPayStatusRepository;
-    private final ImprisonmentStatusRepository imprisonmentStatusRepository;
-    private final ReferenceCodeRepository<CaseNoteType> caseNoteTypeReferenceCodeRepository;
-    private final ReferenceCodeRepository<CaseNoteSubType> caseNoteSubTypeReferenceCodeRepository;
     private final ReferenceCodeRepository<City> cityReferenceCodeRepository;
-    private final StaffUserAccountRepository staffUserAccountRepository;
 
     private final OffenderTransformer offenderTransformer;
-    private final OffenderProgramProfileRepository offenderProgramProfileRepository;
     private final EntityManager entityManager;
     private final CourtEventRepository courtEventRepository;
     private final OffenderIndividualScheduleRepository offenderIndividualScheduleRepository;
     private final ReferenceCodeRepository<EventStatus> eventStatusRepository;
-    private final BookingIntoPrisonService bookingIntoPrisonService;
-    private final ServiceAgencySwitchesService serviceAgencySwitchesService;
 
-
-    public InmateDetail releasePrisoner(final String prisonerIdentifier, final RequestToReleasePrisoner requestToReleasePrisoner, RequestToDischargePrisoner requestToDischargePrisoner) {
-        final OffenderBooking booking = getAndCheckOffenderBooking(prisonerIdentifier, requestToDischargePrisoner != null);
-
-        final var movementReasonCode = requestToReleasePrisoner.getMovementReasonCode();
-        checkMovementTypes(REL.getCode(), movementReasonCode);
-
-        // Generate the external movement out
-        final var movementReason = movementReasonRepository.findById(MovementReason.pk(movementReasonCode)).orElseThrow(EntityNotFoundException.withMessage(format("No movement reason %s found", movementReasonCode)));
-
-        final var releaseDateTime = getAndCheckMovementTime(requestToReleasePrisoner.getReleaseTime(), booking.getBookingId());
-        // set previous active movements to false
-        deactivatePreviousMovements(booking);
-
-        final var supportingPrison = requestToDischargePrisoner != null && requestToDischargePrisoner.getSupportingPrisonId() != null ? agencyLocationRepository.findById(requestToDischargePrisoner.getSupportingPrisonId()).orElseThrow(EntityNotFoundException.withMessage(format("No %s agency found", requestToDischargePrisoner.getSupportingPrisonId()))) : booking.getLocation();
-        final var toLocation = agencyLocationRepository.findById(requestToReleasePrisoner.getToLocationCode()).orElseThrow(EntityNotFoundException.withMessage(format("No %s agency found", requestToReleasePrisoner.getToLocationCode())));
-
-        createOutMovement(booking, REL, movementReason, supportingPrison, toLocation, releaseDateTime, requestToReleasePrisoner.getCommentText(), null);
-
-        // generate the release case note
-        generateReleaseNote(booking, releaseDateTime, movementReason, toLocation);
-
-        updateBedAssignmentHistory(booking, releaseDateTime);
-
-        deactivateSentences(booking.getBookingId());
-
-        updatePayPeriods(booking.getBookingId(), releaseDateTime.toLocalDate());
-
-        deactivateEvents(booking.getBookingId(), booking.getLocation().getId());
-
-        // update the booking record
-        booking.setInOutStatus("OUT");
-        booking.setActive(false);
-        booking.setBookingStatus("C");
-        booking.setLivingUnitMv(null);
-        booking.setAssignedLivingUnit(null);
-        booking.setLocation(agencyLocationRepository.findById(AgencyLocation.OUT).orElseThrow(EntityNotFoundException.withMessage(format("No %s agency found", AgencyLocation.OUT))));
-        booking.setBookingEndDate(releaseDateTime);
-        booking.setStatusReason(REL.getCode() + "-" + movementReasonCode);
-        booking.setCommStatus(null);
-
-        return offenderTransformer.transform(booking);
-    }
-
-    @VerifyOffenderAccess(overrideRoles = {"RELEASE_PRISONER"})
-    public InmateDetail dischargeToHospital(final String prisonerIdentifier, final RequestToDischargePrisoner requestToDischargePrisoner) {
-        final var prisoner = offenderRepository.findOffenderByNomsId(prisonerIdentifier).orElseThrow(EntityNotFoundException.withMessage(format("No prisoner found for prisoner number %s", prisonerIdentifier)));
-
-        if (prisoner.getBookings().isEmpty()) {
-            log.debug("Prisoner booking not yet created, need to create one");
-            bookingIntoPrisonService.newBooking(prisonerIdentifier, RequestForNewBooking.builder()
-                .bookingInTime(requestToDischargePrisoner.getDischargeTime())
-                .fromLocationId(requestToDischargePrisoner.getFromLocationId())
-                .prisonId(requestToDischargePrisoner.getSupportingPrisonId())
-                .movementReasonCode(movementReasonRepository.findById(AWAIT_REMOVAL_TO_PSY_HOSPITAL).orElseThrow(EntityNotFoundException.withMessage(format("Movement Reason %s not found", AWAIT_REMOVAL_TO_PSY_HOSPITAL))).getCode()) // Awaiting Removal to Psychiatric Hospital TODO: config?
-                .imprisonmentStatus(imprisonmentStatusRepository.findByStatusAndActive(PSY_HOSP_FROM_PRISON, true).orElseThrow(EntityNotFoundException.withMessage(format("No imprisonment status %s found", PSY_HOSP_FROM_PRISON))).getStatus()) // Psychiatric Hospital from Prison (RX) TODO: config?
-                .build());
-        }
-
-        final var toLocation = agencyLocationRepository.findById(requestToDischargePrisoner.getHospitalLocationCode()).orElseThrow(EntityNotFoundException.withMessage(format("No %s agency found", requestToDischargePrisoner.getHospitalLocationCode())));
-        if (!toLocation.isHospital()) {
-            throw EntityNotFoundException.withMessage(format("%s is not a hospital", toLocation.getDescription()));
-        }
-
-        final var offenderBooking = getOffenderBooking(prisonerIdentifier);
-        final var lastMovement = offenderBooking.getLastMovement().orElse(null);
-        final var psychiatricComment = "Psychiatric Hospital Discharge to " + toLocation.getDescription();
-        if (lastMovement != null && REL.getCode().equals(lastMovement.getMovementType().getCode())) {
-            final var existingComment = StringUtils.trimToNull(lastMovement.getCommentText());
-            final var commentText = existingComment != null ? existingComment + ". " + psychiatricComment :
-                psychiatricComment;
-            // just update the external movement
-            lastMovement.setMovementReason(movementReasonRepository.findById(DISCHARGE_TO_PSY_HOSPITAL).orElseThrow(EntityNotFoundException.withMessage(format("No movement reason %s found", DISCHARGE_TO_PSY_HOSPITAL))));
-            lastMovement.setToAgency(toLocation);
-            // commentText has a max length of 240, so ensure that we don't blow that limit
-            lastMovement.setCommentText(StringUtils.left(commentText, 240));
-            offenderBooking.setStatusReason(REL.getCode() + "-" + DISCHARGE_TO_PSY_HOSPITAL.getCode());
-        } else {
-            releasePrisoner(prisonerIdentifier, RequestToReleasePrisoner.builder()
-                .commentText(psychiatricComment)
-                .releaseTime(requestToDischargePrisoner.getDischargeTime())
-                .movementReasonCode(DISCHARGE_TO_PSY_HOSPITAL.getCode())
-                .toLocationCode(toLocation.getId())
-                .build(), requestToDischargePrisoner);
-        }
-        return offenderTransformer.transform(offenderBooking);
-    }
 
     @VerifyOffenderAccess(overrideRoles = {"TRANSFER_PRISONER"})
     public InmateDetail transferOutPrisoner(final String prisonerIdentifier, final RequestToTransferOut requestToTransferOut) {
@@ -505,34 +389,6 @@ public class PrisonerReleaseAndTransferService {
         return optionalOffenderBooking.orElseThrow(EntityNotFoundException.withMessage(format("No bookings found for prisoner number %s", prisonerIdentifier)));
     }
 
-    private void generateReleaseNote(final OffenderBooking booking, final LocalDateTime releaseDateTime, final MovementReason movementReason, AgencyLocation toLocation) {
-        final var currentUsername = authenticationFacade.getCurrentUsername();
-        final var userDetail = staffUserAccountRepository.findById(currentUsername).orElseThrow(EntityNotFoundException.withId(currentUsername));
-
-        final var newCaseNote = OffenderCaseNote.builder()
-            .caseNoteText(getReleaseNoteText(movementReason, booking.getLocation(), toLocation))
-            .agencyLocation(booking.getLocation())
-            .type(caseNoteTypeReferenceCodeRepository.findById(CaseNoteType.pk("PRISON")).orElseThrow(EntityNotFoundException.withId("PRISON")))
-            .subType(caseNoteSubTypeReferenceCodeRepository.findById(CaseNoteSubType.pk("RELEASE")).orElseThrow(EntityNotFoundException.withId("RELEASE")))
-            .noteSourceCode("AUTO")
-            .author(userDetail.getStaff())
-            .occurrenceDateTime(releaseDateTime)
-            .occurrenceDate(releaseDateTime.toLocalDate())
-            .amendmentFlag(false)
-            .offenderBooking(booking)
-            .build();
-        caseNoteRepository.save(newCaseNote);
-    }
-
-    private String getReleaseNoteText(final MovementReason movementReason, final AgencyLocation fromLocation, final AgencyLocation toLocation) {
-        if (movementReason.getCode().equals(DISCHARGE_TO_PSY_HOSPITAL.getCode())
-            && !toLocation.getId().equals("OUT")
-        ) {
-            return format("Transferred from %s for reason: Moved to psychiatric hospital %s.", fromLocation.getDescription(), toLocation.getDescription());
-        }
-        return format("Released from %s for reason: %s.", fromLocation.getDescription(), movementReason.getDescription());
-    }
-
     private void updateBedAssignmentHistory(final OffenderBooking booking, final LocalDateTime releaseDateTime) {
         // Update Bed Assignment
         bedAssignmentHistoriesRepository.findByBedAssignmentHistoryPKOffenderBookingIdAndBedAssignmentHistoryPKSequence(booking.getBookingId(),
@@ -542,15 +398,6 @@ public class PrisonerReleaseAndTransferService {
                 b.setAssignmentEndDateTime(releaseDateTime);
             }
         });
-    }
-
-    private void deactivateSentences(final Long bookingId) {
-
-        offenderSentenceAdjustmentRepository.findAllByOffenderBooking_BookingIdAndActive(bookingId, true)
-            .forEach(s -> s.setActive(false));
-
-        offenderKeyDateAdjustmentRepository.findAllByOffenderBooking_BookingIdAndActive(bookingId, true)
-            .forEach(s -> s.setActive(false));
     }
 
     void updatePayPeriods(Long bookingId, LocalDate movementDate) {
@@ -599,15 +446,6 @@ public class PrisonerReleaseAndTransferService {
                     p.setEndDate(p.getStartDate());
                 }
             });
-    }
-
-    private void deactivateEvents(final Long bookingId, final String prisonId) {
-        // This means the DPS Activities service is handling all updates via hmpps-prisoner-to-nomis-updates, so don't update here
-        if (serviceAgencySwitchesService.checkServiceSwitchedOnForPrison("ACTIVITY", prisonId)) return;
-
-        final var programProfiles = offenderProgramProfileRepository.findByOffenderBooking_BookingIdAndProgramStatus(bookingId, "ALLOC");
-
-        programProfiles.forEach(profile -> profile.setEndDate(LocalDate.now()));
     }
 
 

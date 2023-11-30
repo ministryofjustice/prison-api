@@ -2,9 +2,12 @@ package uk.gov.justice.hmpps.prison.service.enteringandleaving
 
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteSubType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason.DISCHARGE_TO_PSY_HOSPITAL
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCaseNote
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCaseNoteRepository
@@ -40,10 +43,18 @@ class CaseNoteMovementService(
       booking = booking,
       typeCode = "PRISON",
       subTypeCode = "RELEASE",
-      note = "Released from ${movement.fromAgency.description} for reason: ${movement.movementReason.description}.",
+      note = releaseNoteText(movement.movementReason, movement.fromAgency, movement.toAgency),
       movementTime = movement.movementTime,
     )
   }
+
+  private fun releaseNoteText(movementReason: MovementReason, fromLocation: AgencyLocation, toLocation: AgencyLocation) =
+    when {
+      movementReason.code == DISCHARGE_TO_PSY_HOSPITAL.code && toLocation.id != AgencyLocation.OUT ->
+        "Transferred from ${fromLocation.description} for reason: Moved to psychiatric hospital ${toLocation.description}."
+      else ->
+        "Released from ${fromLocation.description} for reason: ${movementReason.description}."
+    }
 
   private fun createMovementCaseNote(booking: OffenderBooking, typeCode: String, subTypeCode: String, note: String, movementTime: LocalDateTime) {
     val staff = getLoggedInStaff().getOrThrow().staff
