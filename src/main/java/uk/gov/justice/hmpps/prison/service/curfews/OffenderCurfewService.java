@@ -124,31 +124,26 @@ public class OffenderCurfewService {
         return ocs.map(OffenderCurfew::getOffenderBookId).collect(toSet());
     }
 
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     public HomeDetentionCurfew getLatestHomeDetentionCurfew(final long bookingId) {
         return offenderCurfewRepository.getLatestHomeDetentionCurfew(bookingId, StatusTrackingCodes.REFUSED_REASON_CODES)
                 .orElseThrow(() -> new EntityNotFoundException("No 'latest' Home Detention Curfew found for bookingId " + bookingId));
     }
 
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     public List<HomeDetentionCurfew> getBatchLatestHomeDetentionCurfew(final List<Long> bookingIds) {
         return offenderCurfewRepository.getBatchLatestHomeDetentionCurfew(bookingIds, StatusTrackingCodes.REFUSED_REASON_CODES);
     }
 
     @Transactional
-    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'MAINTAIN_HDC') and hasAuthority('SCOPE_write')")
     public void setHdcChecks(final long bookingId, @Valid final HdcChecks hdcChecks) {
         withCurrentCurfewState(bookingId).setHdcChecks(hdcChecks);
     }
 
     @Transactional
-    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'MAINTAIN_HDC') and hasAuthority('SCOPE_write')")
     public void deleteHdcChecks(Long bookingId) {
         withCurrentCurfewState(bookingId).deleteHdcChecks();
     }
 
     @Transactional
-    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'MAINTAIN_HDC') and hasAuthority('SCOPE_write')")
     public void setApprovalStatus(final long bookingId, @Valid final ApprovalStatus approvalStatus) {
 
         if (!referenceDomainService.isReferenceCodeActive(HDC_APPROVE_DOMAIN, approvalStatus.getApprovalStatus())) {
@@ -165,7 +160,6 @@ public class OffenderCurfewService {
     }
 
     @Transactional
-    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'MAINTAIN_HDC') and hasAuthority('SCOPE_write')")
     public void deleteApprovalStatus(Long bookingId) {
         withCurrentCurfewState(bookingId).deleteApprovalStatus();
     }
