@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -50,12 +49,13 @@ public class OffenceResource {
     private final OffenceService service;
 
     @GetMapping("/code/{offenceCode}")
-    @Operation(summary = "Paged List of all offences where the offence code starts with the passed in offenceCode param")
+    @Operation(summary = "Paged List of all offences where the offence code starts with the passed in offenceCode param", description = "Deprecated - use https://manage-offences-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @ReferenceData(description = "Only offence reference data is returned")
+    @Deprecated
     public Page<OffenceDto> getOffencesThatStartWith(
         @Parameter(required = true, example = "AA1256A", description = "The offence code")
         @PathVariable("offenceCode")

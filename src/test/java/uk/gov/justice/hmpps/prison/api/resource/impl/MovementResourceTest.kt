@@ -61,7 +61,8 @@ class MovementResourceTest : ResourceTest() {
         GET,
         createHttpEntity(token, null),
         object : ParameterizedTypeReference<String>() {},
-        LocalDateTime.of(2018, 4, 25, 0, 0, 0).truncatedTo(ChronoUnit.DAYS).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+        LocalDateTime.of(2018, 4, 25, 0, 0, 0).truncatedTo(ChronoUnit.DAYS)
+          .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
         LocalDate.of(2018, 5, 1).format(DateTimeFormatter.ISO_LOCAL_DATE),
       )
       assertThatStatus(response, 200)
@@ -93,7 +94,6 @@ class MovementResourceTest : ResourceTest() {
     @Test
     fun `should return 401 when user does not even have token`() {
       webTestClient.get().uri("/api/movements/rollcount/BMI")
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isUnauthorized
     }
@@ -102,28 +102,14 @@ class MovementResourceTest : ResourceTest() {
     fun `should return 403 when does not have override role`() {
       webTestClient.get().uri("/api/movements/rollcount/BMI")
         .headers(setClientAuthorisation(listOf("")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isForbidden
-    }
-
-    @Test
-    fun `should return success when has SYSTEM_USER override role`() {
-      webTestClient.get().uri("/api/movements/rollcount/BMI")
-        .headers(setClientAuthorisation(listOf("SYSTEM_USER")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isOk
     }
 
     @Test
     fun `should return success when has ESTABLISHMENT_ROLL override role`() {
       webTestClient.get().uri("/api/movements/rollcount/BMI")
         .headers(setClientAuthorisation(listOf("ESTABLISHMENT_ROLL")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
     }
@@ -136,7 +122,6 @@ class MovementResourceTest : ResourceTest() {
     @Test
     fun `should return 401 when user does not even have token`() {
       webTestClient.get().uri("/api/movements/rollcount/BMI/movements")
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isUnauthorized
     }
@@ -145,28 +130,14 @@ class MovementResourceTest : ResourceTest() {
     fun `should return 403 when does not have override role`() {
       webTestClient.get().uri("/api/movements/rollcount/BMI/movements")
         .headers(setClientAuthorisation(listOf("")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isForbidden
-    }
-
-    @Test
-    fun `should return success when has SYSTEM_USER override role`() {
-      webTestClient.get().uri("/api/movements/rollcount/BMI/movements")
-        .headers(setClientAuthorisation(listOf("SYSTEM_USER")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isOk
     }
 
     @Test
     fun `should return success when has ESTABLISHMENT_ROLL override role`() {
       webTestClient.get().uri("/api/movements/rollcount/BMI/movements")
         .headers(setClientAuthorisation(listOf("ESTABLISHMENT_ROLL")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
     }
@@ -187,13 +158,12 @@ class MovementResourceTest : ResourceTest() {
   }
 
   @Nested
-  @DisplayName("GET /api/movements/rollcount/{agencyId}/movements")
+  @DisplayName("GET /api/movements/LEI/enroute")
   inner class GetMovementsByAgencyEnRoute {
 
     @Test
     fun `should return 401 when user does not even have token`() {
       webTestClient.get().uri("api/movements/LEI/enroute")
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isUnauthorized
     }
@@ -202,28 +172,14 @@ class MovementResourceTest : ResourceTest() {
     fun `should return 403 when does not have override role`() {
       webTestClient.get().uri("api/movements/LEI/enroute")
         .headers(setClientAuthorisation(listOf("")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isForbidden
-    }
-
-    @Test
-    fun `should return success when has SYSTEM_USER override role`() {
-      webTestClient.get().uri("api/movements/LEI/enroute")
-        .headers(setClientAuthorisation(listOf("SYSTEM_USER")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isOk
     }
 
     @Test
     fun `should return success when has ESTABLISHMENT_ROLL override role`() {
       webTestClient.get().uri("api/movements/LEI/enroute")
         .headers(setClientAuthorisation(listOf("ESTABLISHMENT_ROLL")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
     }
@@ -280,19 +236,33 @@ class MovementResourceTest : ResourceTest() {
     """,
       )
     }
+  }
+
+  @Nested
+  @DisplayName("GET /api/movements/rollcount/{agencyId}/enroute")
+  inner class RollcountEnroute {
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("api/movements/rollcount/LEI/enroute")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
 
     @Test
-    fun testGetRolllcountByAgencyEnroute() {
-      val token = authTokenHelper.getToken(NORMAL_USER)
-      val response = testRestTemplate.exchange(
-        "/api/movements/rollcount/{agencyId}/enroute",
-        GET,
-        createHttpEntity(token, null),
-        object : ParameterizedTypeReference<String>() {},
-        "LEI",
-      )
-      assertThatStatus(response, 200)
-      assertThatJson(response.body!!).isEqualTo("2")
+    fun `should return 403 when does not have override role`() {
+      webTestClient.get().uri("api/movements/rollcount/LEI/enroute")
+        .headers(setClientAuthorisation(emptyList()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun testGetRollcountByAgencyEnroute() {
+      webTestClient.get().uri("/api/movements/rollcount/LEI/enroute")
+        .headers(setClientAuthorisation(listOf("ESTABLISHMENT_ROLL")))
+        .exchange()
+        .expectBody()
+        .jsonPath("$").isEqualTo("2")
     }
   }
 
@@ -302,7 +272,6 @@ class MovementResourceTest : ResourceTest() {
     @Test
     fun `should return 401 when user does not even have token`() {
       webTestClient.get().uri("/api/movements/LEI/in/2019-01-10")
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isUnauthorized
     }
@@ -311,8 +280,6 @@ class MovementResourceTest : ResourceTest() {
     fun `should return 404 when does not have agency in caseload`() {
       webTestClient.get().uri("/api/movements/BMI/in/2019-01-10")
         .headers(setAuthorisation(listOf("")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isNotFound
     }
@@ -321,8 +288,6 @@ class MovementResourceTest : ResourceTest() {
     fun `should return success when user has agency in caseload`() {
       webTestClient.get().uri("/api/movements/LEI/in/2019-01-10")
         .headers(setAuthorisation(listOf("")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
     }
@@ -334,7 +299,6 @@ class MovementResourceTest : ResourceTest() {
     @Test
     fun `should return 401 when user does not even have token`() {
       webTestClient.get().uri("/api/movements/rollcount/LEI/in-reception")
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isUnauthorized
     }
@@ -343,8 +307,6 @@ class MovementResourceTest : ResourceTest() {
     fun `should return 404 when does not have agency in caseload`() {
       webTestClient.get().uri("/api/movements/rollcount/SFI/in-reception")
         .headers(setAuthorisation(listOf("")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isNotFound
     }
@@ -353,8 +315,6 @@ class MovementResourceTest : ResourceTest() {
     fun `should return success when user has agency in caseload`() {
       webTestClient.get().uri("/api/movements/rollcount/LEI/in-reception")
         .headers(setAuthorisation(listOf("")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
     }
@@ -366,7 +326,6 @@ class MovementResourceTest : ResourceTest() {
     @Test
     fun `should return 401 when user does not even have token`() {
       webTestClient.get().uri("/api/movements/LEI/in?fromDateTime=2019-01-10T10:35:17")
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isUnauthorized
     }
@@ -375,8 +334,6 @@ class MovementResourceTest : ResourceTest() {
     fun `should return 404 when does not have agency in caseload`() {
       webTestClient.get().uri("/api/movements/BMI/in?fromDateTime=2019-01-10T10:35:17")
         .headers(setAuthorisation(listOf("")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isNotFound
     }
@@ -385,28 +342,14 @@ class MovementResourceTest : ResourceTest() {
     fun `should return 403 when does not have override role`() {
       webTestClient.get().uri("/api/movements/BMI/in?fromDateTime=2019-01-10T10:35:17")
         .headers(setClientAuthorisation(listOf("")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isForbidden
-    }
-
-    @Test
-    fun `should return success when has SYSTEM_USER override role`() {
-      webTestClient.get().uri("/api/movements/BMI/in?fromDateTime=2019-01-10T10:35:17")
-        .headers(setClientAuthorisation(listOf("SYSTEM_USER")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isOk
     }
 
     @Test
     fun `should return success when has ESTABLISHMENT_ROLL override role`() {
       webTestClient.get().uri("/api/movements/BMI/in?fromDateTime=2019-01-10T10:35:17")
         .headers(setClientAuthorisation(listOf("ESTABLISHMENT_ROLL")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
     }
@@ -415,8 +358,6 @@ class MovementResourceTest : ResourceTest() {
     fun `should return success when user has agency in caseload`() {
       webTestClient.get().uri("/api/movements/LEI/in?fromDateTime=2019-01-10T10:35:17")
         .headers(setAuthorisation(listOf("")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
     }
@@ -495,7 +436,6 @@ class MovementResourceTest : ResourceTest() {
     @Test
     fun `should return 401 when user does not even have token`() {
       webTestClient.get().uri("/api/movements/upcomingCourtAppearances")
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isUnauthorized
     }
@@ -504,28 +444,14 @@ class MovementResourceTest : ResourceTest() {
     fun `should return 403 when not does not have correct role`() {
       webTestClient.get().uri("/api/movements/upcomingCourtAppearances")
         .headers(setClientAuthorisation(listOf("")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isForbidden
-    }
-
-    @Test
-    fun `should return success when has authorised SYSTEM_USER role`() {
-      webTestClient.get().uri("/api/movements/upcomingCourtAppearances")
-        .headers(setClientAuthorisation(listOf("SYSTEM_USER")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isOk
     }
 
     @Test
     fun `should return success when has authorised VIEW_COURT_EVENTS role`() {
       webTestClient.get().uri("/api/movements/upcomingCourtAppearances")
         .headers(setClientAuthorisation(listOf("VIEW_COURT_EVENTS")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
     }
@@ -534,8 +460,6 @@ class MovementResourceTest : ResourceTest() {
     fun testGetUpcomingCourtAppearances() {
       webTestClient.get().uri("/api/movements/upcomingCourtAppearances")
         .headers(setClientAuthorisation(listOf("VIEW_COURT_EVENTS")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(APPLICATION_JSON)
         .exchange()
         .expectBody()
         .jsonPath("$[0].court").isEqualTo("COURT1")
@@ -561,7 +485,6 @@ class MovementResourceTest : ResourceTest() {
     @Test
     fun `should return 401 when user does not even have token`() {
       webTestClient.get().uri("/api/movements/LEI/out/2012-07-16")
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isUnauthorized
     }
@@ -570,28 +493,14 @@ class MovementResourceTest : ResourceTest() {
     fun `should return 403 when does not have override role`() {
       webTestClient.get().uri("/api/movements/LEI/out/2012-07-16")
         .headers(setClientAuthorisation(listOf("")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isForbidden
-    }
-
-    @Test
-    fun `should return success when has SYSTEM_USER override role`() {
-      webTestClient.get().uri("/api/movements/LEI/out/2012-07-16")
-        .headers(setClientAuthorisation(listOf("SYSTEM_USER")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isOk
     }
 
     @Test
     fun `should return success when has ESTABLISHMENT_ROLL override role`() {
       webTestClient.get().uri("/api/movements/LEI/out/2012-07-16")
         .headers(setClientAuthorisation(listOf("ESTABLISHMENT_ROLL")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
     }
@@ -643,17 +552,43 @@ class MovementResourceTest : ResourceTest() {
   @DisplayName("GET /api/movements/agency/{agencyId}/temporary-absences")
   inner class GetOffendersOutOnTemporaryAbsence {
     @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("api/movements/agency/LEI/temporary-absences")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
     fun testGetOffendersOutOnTemporaryAbsence() {
-      val token = authTokenHelper.getToken(NORMAL_USER)
-      val response = testRestTemplate.exchange(
-        "/api/movements/agency/{agencyId}/temporary-absences",
-        GET,
-        createHttpEntity(token, null),
-        object : ParameterizedTypeReference<String>() {},
-        "LEI",
-      )
-      assertThatStatus(response, OK.value())
-      assertThatJson(response.body!!).isEqualTo("movements_temporary_absence.json".readFile())
+      webTestClient.get().uri("/api/movements/agency/LEI/temporary-absences")
+        .headers(setClientAuthorisation(listOf("ESTABLISHMENT_ROLL")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json(
+          """
+      [
+  {
+    "offenderNo": "Z0025ZZ",
+    "firstName": "MATTHEW",
+    "lastName": "SMITH",
+    "dateOfBirth": "1974-01-01",
+    "movementTime": "2021-12-01T00:00:00",
+    "toCity": "Birmingham",
+    "movementReasonCode": "C3",
+    "movementReason": "Funerals And Deaths"
+  }
+]
+       """,
+        )
+    }
+
+    @Test
+    fun `should return 403 when does not have override role`() {
+      webTestClient.get().uri("/api/movements/agency/LEI/temporary-absences")
+        .headers(setClientAuthorisation(emptyList()))
+        .exchange()
+        .expectStatus().isForbidden
     }
   }
 
@@ -683,7 +618,11 @@ class MovementResourceTest : ResourceTest() {
       assertThat(getBodyAsJsonContent<Any>(response)).isStrictlyEqualToJson("get_transfer_events.json")
     }
 
-    private fun getScheduledMovements(courtEvents: Boolean, releaseEvents: Boolean, transferEvents: Boolean): ResponseEntity<String> {
+    private fun getScheduledMovements(
+      courtEvents: Boolean,
+      releaseEvents: Boolean,
+      transferEvents: Boolean,
+    ): ResponseEntity<String> {
       val fromDateTime = LocalDate.of(2020, 1, 1).atTime(9, 0)
       val toDateTime = LocalDate.of(2020, 1, 1).atTime(12, 0)
       return getScheduledMovements(courtEvents, releaseEvents, transferEvents, fromDateTime, toDateTime)
@@ -714,5 +653,90 @@ class MovementResourceTest : ResourceTest() {
       )
     }
   }
+
+  @Nested
+  @DisplayName("GET /api/movements/livingUnit/{livingUnitId}/currently-out")
+  inner class CurrentlyOutLivingUnit {
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("/api/movements/livingUnit/1/currently-out")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return 403 when does not have override role`() {
+      webTestClient.get().uri("/api/movements/livingUnit/1/currently-out")
+        .headers(setClientAuthorisation(emptyList()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should return success when has ESTABLISHMENT_ROLL override role`() {
+      webTestClient.get().uri("/api/movements/livingUnit/-3001/currently-out")
+        .headers(setClientAuthorisation(listOf("ESTABLISHMENT_ROLL")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun testGetCurrentlyOutLivingUnit() {
+      webTestClient.get().uri("/api/movements/livingUnit/-13/currently-out")
+        .headers(setClientAuthorisation(listOf("ESTABLISHMENT_ROLL")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json(
+          """
+      [{"offenderNo":"Z0024ZZ","bookingId":-24,"dateOfBirth":"1958-01-01","firstName":"Lucius","lastName":"Fox","location":"Landing H/1"},
+       {"offenderNo":"Z0025ZZ","bookingId":-25,"dateOfBirth":"1974-01-01","firstName":"Matthew","lastName":"Smith","location":"Landing H/1"}]
+        """,
+        )
+    }
+  }
+
+  @Nested
+  @DisplayName("GET /api/agency/{agencyId}/currently-out")
+  inner class CurrentlyOutAgency {
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("/api/movements/agency/LEI/currently-out")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return 403 when does not have role`() {
+      webTestClient.get().uri("/api/movements/agency/LEI/currently-out")
+        .headers(setClientAuthorisation(emptyList()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should return success when has ESTABLISHMENT_ROLL override role`() {
+      webTestClient.get().uri("/api/movements/agency/LEI/currently-out")
+        .headers(setClientAuthorisation(listOf("ESTABLISHMENT_ROLL")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun testGetCurrentlyOutAgency() {
+      webTestClient.get().uri("/api/movements/agency/LEI/currently-out")
+        .headers(setClientAuthorisation(listOf("ESTABLISHMENT_ROLL")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json(
+          """
+      [{"offenderNo":"Z0024ZZ","bookingId":-24,"dateOfBirth":"1958-01-01","firstName":"Lucius","lastName":"Fox","location":"Landing H/1"},
+       {"offenderNo":"Z0025ZZ","bookingId":-25,"dateOfBirth":"1974-01-01","firstName":"Matthew","lastName":"Smith","location":"Landing H/1"}]
+         """,
+        )
+    }
+  }
+
   internal fun String.readFile(): String = this@MovementResourceTest::class.java.getResource(this)!!.readText()
 }
