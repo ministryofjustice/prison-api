@@ -2,7 +2,6 @@ package uk.gov.justice.hmpps.prison.service;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.text.WordUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,7 +19,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.PrisonerActivitiesC
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.PrisonerActivity;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ScheduledActivityRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
-import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
 import uk.gov.justice.hmpps.prison.service.support.InmateDto;
 import uk.gov.justice.hmpps.prison.service.support.ReferenceDomain;
 import uk.gov.justice.hmpps.prison.util.CalcDateRanges;
@@ -32,6 +30,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -73,7 +72,6 @@ public class SchedulesService {
         this.maxBatchSize = maxBatchSize;
     }
 
-    @VerifyAgencyAccess
     public List<PrisonerSchedule> getLocationGroupEventsByLocationId(final String agencyId, final List<Long> locationIds, final LocalDate date,
                                                                      final TimeSlot timeSlot, final String sortFields, final Order sortOrder) {
 
@@ -96,7 +94,7 @@ public class SchedulesService {
     }
 
     private Comparator<PrisonerSchedule> getPrisonerScheduleComparator(final String sortFields, final Order sortOrder) {
-        final var orderFields = StringUtils.defaultString(sortFields, "cellLocation");
+        final var orderFields = Objects.toString(sortFields, "cellLocation");
         var comparator = "cellLocation".equals(orderFields) ? BY_CELL_LOCATION : BY_LAST_NAME;
         comparator = comparator.thenComparing(PrisonerSchedule::getOffenderNo);
         if (sortOrder == Order.DESC) {
@@ -145,8 +143,7 @@ public class SchedulesService {
                 .build();
     }
 
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
-    public List<PrisonerSchedule> getLocationEvents(final String agencyId, final Long locationId, final String usage,
+    public List<PrisonerSchedule> getLocationEvents(final Long locationId, final String usage,
                                                     final LocalDate date, final TimeSlot timeSlot, final String sortFields, final Order sortOrder) {
 
         validateLocation(locationId);
@@ -160,20 +157,19 @@ public class SchedulesService {
         validateLocation(locationId);
 
         final var day = date == null ? LocalDate.now() : date;
-        final var orderByFields = StringUtils.defaultString(sortFields, "lastName");
+        final var orderByFields = Objects.toString(sortFields, "lastName");
         final var order = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);
 
         final var activities = scheduleRepository.getActivitiesAtLocation(locationId, day, day, orderByFields, order, includeSuspended);
         return filterByTimeSlot(timeSlot, activities);
     }
 
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public List<PrisonerSchedule> getActivitiesAtAllLocations(final String agencyId, final LocalDate fromDate, final LocalDate toDate, final TimeSlot timeSlot, final String sortFields, final Order sortOrder, final boolean includeSuspended) {
 
         final var startDate = fromDate == null ? LocalDate.now() : fromDate;
         final var endDate = toDate == null ? fromDate : toDate;
 
-        final var orderByFields = StringUtils.defaultString(sortFields, "lastName");
+        final var orderByFields = Objects.toString(sortFields, "lastName");
         final var order = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);
 
         final var activities = scheduleRepository.getAllActivitiesAtAgency(agencyId, startDate, endDate, orderByFields, order, includeSuspended, false);
@@ -181,7 +177,6 @@ public class SchedulesService {
         return filterByTimeSlot(timeSlot, activities);
     }
 
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public List<PrisonerSchedule> getSuspendedActivitiesAtAllLocations(final String agencyId, final LocalDate fromDate, final LocalDate toDate, final TimeSlot timeSlot) {
         final var startDate = fromDate == null ? LocalDate.now() : fromDate;
         final var endDate = toDate == null ? startDate : toDate;
@@ -190,7 +185,6 @@ public class SchedulesService {
         return filterByTimeSlot(timeSlot, activities);
     }
 
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public PrisonerActivitiesCount getCountActivities(final String agencyId, final LocalDate fromDate, final LocalDate toDate, final Set<TimeSlot> timeSlots, final Map<Long, Long> attendanceCounts) {
         final var activities = scheduledActivityRepository.getActivities(agencyId, fromDate, toDate);
         final var activitiesInTimeSlots = activities.stream()
@@ -212,7 +206,7 @@ public class SchedulesService {
     }
 
     private List<PrisonerSchedule> getPrisonerSchedules(final Long locationId, final String usage, final String sortFields, final Order sortOrder, final LocalDate day) {
-        final var orderByFields = StringUtils.defaultString(sortFields, "lastName");
+        final var orderByFields = Objects.toString(sortFields, "lastName");
         final var order = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);
         return switch (usage) {
             case "APP" -> scheduleRepository.getLocationAppointments(locationId, day, day, orderByFields, order);
@@ -268,7 +262,7 @@ public class SchedulesService {
         }
         return filtered.stream().filter(ps -> !ps.getExcluded()).toList();
     }
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
+
     public List<PrisonerSchedule> getActivitiesByEventIds(final String agencyId, final List<Long> eventIds) {
         Validate.notBlank(agencyId, "An agency id is required.");
         return Lists.partition(eventIds, maxBatchSize)

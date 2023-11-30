@@ -31,7 +31,6 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.PersonIdentifie
 import uk.gov.justice.hmpps.prison.executablespecification.steps.PrisonContactDetailsSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.PrisonerSearchSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.ReferenceDomainsSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.SchedulesSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.StaffSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.UserSteps;
 import uk.gov.justice.hmpps.prison.test.DatasourceActiveProfilesResolver;
@@ -144,11 +143,6 @@ abstract class AbstractStepDefinitions {
         @Bean
         public BookingAppointmentSteps bookingAppointment() {
             return new BookingAppointmentSteps();
-        }
-
-        @Bean
-        public SchedulesSteps schedules() {
-            return new SchedulesSteps();
         }
 
         @Bean

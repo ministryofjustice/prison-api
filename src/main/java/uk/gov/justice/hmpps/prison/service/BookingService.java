@@ -586,10 +586,10 @@ public class BookingService {
             throw EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId);
         }
         if (!bookingRepository.verifyBookingAccess(bookingId, agencyIds)) {
-            logUserUnauthorisedAccess(bookingId, agencyIds, rolesAllowed);
             if (accessDeniedError) {
                 throw new AccessDeniedException(format("User not authorised to access booking with id %d.", bookingId));
             }
+            logUserUnauthorisedAccess(bookingId, agencyIds, rolesAllowed);
             throw EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId);
         }
     }
@@ -853,6 +853,17 @@ public class BookingService {
         );
 
         return activeBookings.stream().map(this::determineCalculableSentenceEnvelope).toList();
+    }
+
+    public Page<CalculableSentenceEnvelope> getCalculableSentenceEnvelopeByEstablishment(String caseLoad, int pageNumber, int pageSize) {
+        final var agencyLocation = agencyLocationRepository.getReferenceById(caseLoad);
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by("bookingId"));
+        final var activeBookings = offenderBookingRepository.findAllOffenderBookingsByActiveTrueAndLocationAndSentences_statusAndSentences_CalculationType_CalculationTypeNotLikeAndSentences_CalculationType_CategoryNot(
+            agencyLocation, "A", "%AGG%", "LICENCE", pageRequest
+        );
+        final var calculableSentenceEnvelopes = activeBookings.stream().map(this::determineCalculableSentenceEnvelope).toList();
+
+        return new PageImpl<>(calculableSentenceEnvelopes, pageRequest, activeBookings.getTotalElements());
     }
 
     public List<CalculableSentenceEnvelope> getCalculableSentenceEnvelopeByOffenderNumbers(Set<String> offenderNumbers) {

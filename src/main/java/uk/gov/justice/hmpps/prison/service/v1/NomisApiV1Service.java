@@ -301,6 +301,7 @@ public class NomisApiV1Service {
 
     public AccountBalance getAccountBalances(final String prisonId, final String nomsId) {
         final var response = financeV1Repository.getAccountBalances(prisonId, nomsId);
+        log.debug("Account balance response for {}: {}", nomsId, response);
         return AccountBalance.builder()
                 .cash(poundsToPence(response.get("cash")))
                 .spends(poundsToPence(response.get("spends")))
