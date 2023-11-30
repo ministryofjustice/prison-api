@@ -407,7 +407,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.")})
     @Operation(summary = "Image data (as bytes).", description = "Image data (as bytes).")
     @GetMapping(value = "/offenderNo/{offenderNo}/image/data", produces = "image/jpeg")
-    @VerifyOffenderAccess(accessDeniedError = true, overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
+    @VerifyOffenderAccess(accessDeniedError = true, overrideRoles = {"VIEW_PRISONER_DATA"})
     public ResponseEntity<byte[]> getMainBookingImageDataByNo(@PathVariable("offenderNo") @Parameter(description = "The offender No of offender", required = true) final String offenderNo, @RequestParam(value = "fullSizeImage", defaultValue = "false", required = false) @Parameter(description = "Return full size image") final boolean fullSizeImage) {
         return imageService.getImageContent(offenderNo, fullSizeImage)
             .map(bytes -> new ResponseEntity<>(bytes, HttpStatus.OK))
