@@ -29,8 +29,8 @@ class ReleasePrisonerService(
   private val activityMovementService: ActivityMovementService,
 ) {
 
-  fun releasePrisoner(prisonerIdentifier: String, request: RequestToReleasePrisoner): InmateDetail {
-    val booking = getOffenderBooking(prisonerIdentifier).flatMap { it.isActiveIn() }.getOrThrow()
+  fun releasePrisoner(prisonerIdentifier: String, request: RequestToReleasePrisoner, mustBeActiveIn: Boolean = true): InmateDetail {
+    val booking = getOffenderBooking(prisonerIdentifier).flatMap { if (mustBeActiveIn) it.isActiveIn() else success(it) }.getOrThrow()
     val toLocation = getAgencyLocation(request.toLocationCode).getOrThrow()
 
     val movement = externalMovementService.updateMovementsForRelease(
@@ -55,7 +55,7 @@ class ReleasePrisonerService(
         bookingStatus = "C"
         livingUnitMv = null
         assignedLivingUnit = null
-        location = toLocation
+        location = getAgencyLocation(AgencyLocation.OUT).getOrThrow()
         bookingEndDate = movement.movementTime
         statusReason = "REL-${movement.movementReason.code}"
         commStatus = null

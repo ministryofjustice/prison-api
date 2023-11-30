@@ -23,6 +23,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImprisonmentStat
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.BookingIntoPrisonService
+import uk.gov.justice.hmpps.prison.service.enteringandleaving.ReleasePrisonerService
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Optional
@@ -31,12 +32,12 @@ class SmokeTestHelperServiceTest {
   private val bookingService: BookingService = mock()
   private val offenderBookingRepository: OffenderBookingRepository = mock()
   private val offenderRepository: OffenderRepository = mock()
-  private val prisonerReleaseAndTransferService: PrisonerReleaseAndTransferService = mock()
+  private val releasePrisonerService: ReleasePrisonerService = mock()
   private val bookingIntoPrisonService: BookingIntoPrisonService = mock()
   private val smokeTestHelperService = SmokeTestHelperService(
     bookingService,
     offenderBookingRepository,
-    prisonerReleaseAndTransferService,
+    releasePrisonerService,
     bookingIntoPrisonService,
     offenderRepository,
   )

@@ -208,7 +208,7 @@ class ExternalMovementService(
       ?: return failure(EntityNotFoundException.withMessage("No movement reason INT found"))
   }
 
-  private fun getMovementReason(movementReasonCode: String): Result<MovementReason> =
+  fun getMovementReason(movementReasonCode: String): Result<MovementReason> =
     movementReasonRepository.findByIdOrNull(MovementReason.pk(movementReasonCode))
       ?.let { success(it) }
       ?: failure(EntityNotFoundException.withMessage("No movement reason $movementReasonCode found"))
