@@ -24,6 +24,14 @@ class BookingResourceIntTest_getImageData : ResourceTest() {
   }
 
   @Test
+  fun `should return 403 when has SYSTEM_USER override role`() {
+    webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/image/data")
+      .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+      .exchange()
+      .expectStatus().isForbidden
+  }
+
+  @Test
   fun `should return success when has VIEW_PRISONER_DATA override role`() {
     webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/image/data")
       .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
