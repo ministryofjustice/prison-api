@@ -345,10 +345,7 @@ class OffenderResourceIntTest_dischargeToHospital : ResourceTest() {
           .also {
             assertThat(it.type).isEqualTo("PRISON")
             assertThat(it.subType).isEqualTo("RELEASE")
-            // TODO SDIT-549 Shouldn't the case note be updated if the offender was released before moving to hospital? This feels like a bug.
-            if (offenderType != RELEASED) {
-              assertThat(it.text).isEqualTo("Transferred from SHREWSBURY for reason: Moved to psychiatric hospital Hazelwood House.")
-            }
+            assertThat(it.text).isEqualTo("Transferred from SHREWSBURY for reason: Moved to psychiatric hospital Hazelwood House.")
             assertThat(it.creationDateTime.toLocalDate()).isEqualTo(LocalDate.now())
             assertThat(it.agencyId).isEqualTo("SYI")
           }
@@ -628,6 +625,23 @@ class OffenderResourceIntTest_dischargeToHospital : ResourceTest() {
             }
         }
       }
+
+      @Test
+      fun `should create a case note if the offender was released in NOMIS but not to a hospital`() {
+        createOffenderAndRelease(movementReasonCode = "CR")
+
+        dischargeToHospital(offenderNo, dischargeRequest()).isOk
+
+        testDataContext.getCaseNotes(offenderNo)
+          .maxBy { it.caseNoteId }
+          .also {
+            assertThat(it.type).isEqualTo("PRISON")
+            assertThat(it.subType).isEqualTo("RELEASE")
+            assertThat(it.text).isEqualTo("Transferred from SHREWSBURY for reason: Moved to psychiatric hospital Hazelwood House.")
+            assertThat(it.creationDateTime.toLocalDate()).isEqualTo(LocalDate.now())
+            assertThat(it.agencyId).isEqualTo("SYI")
+          }
+      }
     }
 
     private fun getOffender(offenderNo: String): StatusAssertions =
@@ -721,7 +735,7 @@ class OffenderResourceIntTest_dischargeToHospital : ResourceTest() {
     createOffenderBooking().also { testDataContext.transferOutToCourt(offenderNo, "COURT1", expectedAgency = "SYI") }
   }
 
-  private fun createOffenderAndRelease() {
-    createOffenderBooking().also { testDataContext.release(offenderNo) }
+  private fun createOffenderAndRelease(movementReasonCode: String = "HP") {
+    createOffenderBooking().also { testDataContext.release(offenderNo, movementReasonCode) }
   }
 }

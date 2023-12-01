@@ -35,6 +35,7 @@ class DischargeToHospitalService(
   private val bookingIntoPrisonService: BookingIntoPrisonService,
   private val externalMovementService: ExternalMovementService,
   private val releasePrisonerService: ReleasePrisonerService,
+  private val caseNoteMovementService: CaseNoteMovementService,
   private val transformer: OffenderTransformer,
 ) {
   private val log = LoggerFactory.getLogger(this::class.java)
@@ -49,6 +50,7 @@ class DischargeToHospitalService(
       dischargeToHospital(offenderNo, dischargeTime, toLocation)
     } else {
       lastMovement.changeToHospitalDischarge(toLocation)
+      caseNoteMovementService.createReleaseNote(offenderBooking, lastMovement)
       transformer.transform(offenderBooking)
     }
   }

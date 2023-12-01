@@ -77,6 +77,7 @@ fun TestDataContext.transferOut(offenderNo: String, toLocation: String = "MDI") 
 
 fun TestDataContext.release(
   offenderNo: String,
+  movementReasonCode: String = "CR",
   movementTime: LocalDateTime = LocalDateTime.now().minusHours(1),
 ) {
   webTestClient.put()
@@ -88,7 +89,7 @@ fun TestDataContext.release(
       BodyInserters.fromValue(
         """
           {
-            "movementReasonCode":"CR",
+            "movementReasonCode":"$movementReasonCode",
             "commentText":"released prisoner today",
             "movementTime": "${movementTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
             
@@ -102,7 +103,7 @@ fun TestDataContext.release(
     .jsonPath("inOutStatus").isEqualTo("OUT")
     .jsonPath("status").isEqualTo("INACTIVE OUT")
     .jsonPath("lastMovementTypeCode").isEqualTo("REL")
-    .jsonPath("lastMovementReasonCode").isEqualTo("CR")
+    .jsonPath("lastMovementReasonCode").isEqualTo(movementReasonCode)
     .jsonPath("assignedLivingUnit.agencyId").isEqualTo("OUT")
     .jsonPath("assignedLivingUnit.description").doesNotExist()
 }
