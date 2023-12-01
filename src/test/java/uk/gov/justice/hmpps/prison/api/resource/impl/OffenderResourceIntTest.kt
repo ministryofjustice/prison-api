@@ -1424,6 +1424,41 @@ class OffenderResourceIntTest : ResourceTest() {
     }
   }
 
+  @Nested
+  @DisplayName("GET /api/offenders/{offenderNo}/damage-obligations")
+  inner class GetDamageObligations {
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("/api/offenders/A1234AA/damage-obligations")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return 403 as endpoint does not have override role`() {
+      webTestClient.get().uri("/api/offenders/A1234AA/damage-obligations")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should return success when has VIEW_PRISONER_DATA override role`() {
+      webTestClient.get().uri("/api/offenders/A1234AA/damage-obligations")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `should return success when has GLOBAL_SEARCH override role`() {
+      webTestClient.get().uri("/api/offenders/A1234AA/damage-obligations")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+    }
+  }
+
   private fun removeCaseNoteCreated(caseNoteId: Long) {
     val ocn = offenderCaseNoteRepository.findById(caseNoteId).get()
     offenderCaseNoteRepository.delete(ocn)
