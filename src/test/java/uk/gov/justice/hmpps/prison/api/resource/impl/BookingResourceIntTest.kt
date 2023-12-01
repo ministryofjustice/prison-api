@@ -1182,18 +1182,18 @@ class BookingResourceIntTest : ResourceTest() {
     @Test
     fun `returns 404 for client if booking not found`() {
       webTestClient.get().uri("/api/bookings/-99999/balances")
-        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
         .exchange()
         .expectStatus().isNotFound
         .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -99999 not found.")
     }
 
     @Test
-    fun `returns 200 when client has override role ROLE_SYSTEM_USER`() {
+    fun `returns 403 when client has override role ROLE_SYSTEM_USER`() {
       webTestClient.get().uri("/api/bookings/-3/balances")
         .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
         .exchange()
-        .expectStatus().isOk
+        .expectStatus().isForbidden
     }
 
     @Test
