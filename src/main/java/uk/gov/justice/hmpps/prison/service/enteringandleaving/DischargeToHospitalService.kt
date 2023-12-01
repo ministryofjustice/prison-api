@@ -49,6 +49,7 @@ class DischargeToHospitalService(
     return if (!lastMovement.isRelease()) {
       dischargeToHospital(offenderNo, dischargeTime, toLocation)
     } else {
+      // this is to support the "Migrate into Restricted Patients" process where an offender was released in NOMIS instead of being moved to hospital in Restricted Patients
       lastMovement.changeToHospitalDischarge(toLocation)
       caseNoteMovementService.createReleaseNote(offenderBooking, lastMovement)
       transformer.transform(offenderBooking)
