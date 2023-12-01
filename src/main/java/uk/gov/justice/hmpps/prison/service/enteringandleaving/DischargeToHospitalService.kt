@@ -35,6 +35,7 @@ class DischargeToHospitalService(
   private val bookingIntoPrisonService: BookingIntoPrisonService,
   private val externalMovementService: ExternalMovementService,
   private val releasePrisonerService: ReleasePrisonerService,
+  private val caseNoteMovementService: CaseNoteMovementService,
   private val transformer: OffenderTransformer,
 ) {
   private val log = LoggerFactory.getLogger(this::class.java)
@@ -48,7 +49,9 @@ class DischargeToHospitalService(
     return if (!lastMovement.isRelease()) {
       dischargeToHospital(offenderNo, dischargeTime, toLocation)
     } else {
+      // this is to support the "Migrate into Restricted Patients" process where an offender was released in NOMIS instead of being moved to hospital in Restricted Patients
       lastMovement.changeToHospitalDischarge(toLocation)
+      caseNoteMovementService.createReleaseNote(offenderBooking, lastMovement)
       transformer.transform(offenderBooking)
     }
   }

@@ -297,8 +297,7 @@ class OffenderResourceIntTest_dischargeToHospital : ResourceTest() {
       fun `should create an outbound movement`(offenderType: OffenderType) {
         createOffender(offenderType)
 
-        // TODO SDIT-549 The comment text is ignored - why have it on the request object? Better to remove it.
-        dischargeToHospital(offenderNo, dischargeRequest(commentText = "This is ignored")).isOk
+        dischargeToHospital(offenderNo, dischargeRequest()).isOk
 
         bookingId = findBookingId(offenderType)
 
@@ -345,10 +344,7 @@ class OffenderResourceIntTest_dischargeToHospital : ResourceTest() {
           .also {
             assertThat(it.type).isEqualTo("PRISON")
             assertThat(it.subType).isEqualTo("RELEASE")
-            // TODO SDIT-549 Shouldn't the case note be updated if the offender was released before moving to hospital? This feels like a bug.
-            if (offenderType != RELEASED) {
-              assertThat(it.text).isEqualTo("Transferred from SHREWSBURY for reason: Moved to psychiatric hospital Hazelwood House.")
-            }
+            assertThat(it.text).isEqualTo("Transferred from SHREWSBURY for reason: Moved to psychiatric hospital Hazelwood House.")
             assertThat(it.creationDateTime.toLocalDate()).isEqualTo(LocalDate.now())
             assertThat(it.agencyId).isEqualTo("SYI")
           }
@@ -628,6 +624,23 @@ class OffenderResourceIntTest_dischargeToHospital : ResourceTest() {
             }
         }
       }
+
+      @Test
+      fun `should create a case note if the offender was released in NOMIS but not to a hospital`() {
+        createOffenderAndRelease(movementReasonCode = "CR")
+
+        dischargeToHospital(offenderNo, dischargeRequest()).isOk
+
+        testDataContext.getCaseNotes(offenderNo)
+          .maxBy { it.caseNoteId }
+          .also {
+            assertThat(it.type).isEqualTo("PRISON")
+            assertThat(it.subType).isEqualTo("RELEASE")
+            assertThat(it.text).isEqualTo("Transferred from SHREWSBURY for reason: Moved to psychiatric hospital Hazelwood House.")
+            assertThat(it.creationDateTime.toLocalDate()).isEqualTo(LocalDate.now())
+            assertThat(it.agencyId).isEqualTo("SYI")
+          }
+      }
     }
 
     private fun getOffender(offenderNo: String): StatusAssertions =
@@ -673,13 +686,11 @@ class OffenderResourceIntTest_dischargeToHospital : ResourceTest() {
       dischargeTime: LocalDateTime = LocalDateTime.now(),
       supportingPrisonId: String = "SYI",
       fromLocationId: String = "ABDRCT",
-      commentText: String = "Discharged Offender from $fromLocationId to $hospitalLocationCode",
     ): String =
       """
         {
            "hospitalLocationCode": "$hospitalLocationCode", 
            "dischargeTime": "${dischargeTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}",
-           "commentText": "$commentText",
            "supportingPrisonId": "$supportingPrisonId" ,
            "fromLocationId": "$fromLocationId" 
         }
@@ -721,7 +732,7 @@ class OffenderResourceIntTest_dischargeToHospital : ResourceTest() {
     createOffenderBooking().also { testDataContext.transferOutToCourt(offenderNo, "COURT1", expectedAgency = "SYI") }
   }
 
-  private fun createOffenderAndRelease() {
-    createOffenderBooking().also { testDataContext.release(offenderNo) }
+  private fun createOffenderAndRelease(movementReasonCode: String = "HP") {
+    createOffenderBooking().also { testDataContext.release(offenderNo, movementReasonCode) }
   }
 }

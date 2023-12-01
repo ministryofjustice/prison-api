@@ -576,12 +576,12 @@ class OffenderResourceIntTest : ResourceTest() {
       offenderNo,
     )
 
-    // TODO Possibly a bug - shows that case notes do not reflect the adjusted movement to hospital
     assertThat(caseNotes.body!!.content)
       .extracting(Function<CaseNote, Any> { obj: CaseNote -> obj.type }, Function<CaseNote, Any> { obj: CaseNote -> obj.subType }, Function<CaseNote, Any> { obj: CaseNote -> obj.agencyId }, Function<CaseNote, Any> { obj: CaseNote -> obj.text })
       .containsExactly(
         Tuple.tuple("TRANSFER", "FROMTOL", "SYI", "Offender admitted to SHREWSBURY for reason: Recall From Intermittent Custody from Court 1."),
         Tuple.tuple("PRISON", "RELEASE", "SYI", "Released from SHREWSBURY for reason: Conditional Release (CJA91) -SH Term>1YR."),
+        Tuple.tuple("PRISON", "RELEASE", "SYI", "Transferred from SHREWSBURY for reason: Moved to psychiatric hospital Hazelwood House."),
       )
   }
 
