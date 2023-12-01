@@ -297,7 +297,6 @@ class OffenderResourceIntTest_dischargeToHospital : ResourceTest() {
       fun `should create an outbound movement`(offenderType: OffenderType) {
         createOffender(offenderType)
 
-        // TODO SDIT-549 The comment text is ignored - why have it on the request object? Better to remove it.
         dischargeToHospital(offenderNo, dischargeRequest(commentText = "This is ignored")).isOk
 
         bookingId = findBookingId(offenderType)
