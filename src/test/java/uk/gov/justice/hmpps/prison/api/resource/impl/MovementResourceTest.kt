@@ -9,8 +9,6 @@ import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpMethod.GET
 import org.springframework.http.HttpMethod.POST
 import org.springframework.http.HttpStatus.OK
-import org.springframework.http.MediaType
-import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.http.ResponseEntity
 import org.springframework.web.util.UriComponentsBuilder
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
