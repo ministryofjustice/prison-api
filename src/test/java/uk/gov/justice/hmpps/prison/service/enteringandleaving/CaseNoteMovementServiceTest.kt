@@ -69,7 +69,7 @@ internal class CaseNoteMovementServiceTest {
     internal fun setUp() {
       fromPrison = AgencyLocation().apply { description = "HMP Brixton" }
       toPrison = AgencyLocation().apply { description = "HMP Wandsworth" }
-      booking = OffenderBooking().apply { bookingId = 99L; location = toPrison }
+      booking = OffenderBooking().apply { bookingId = 99L; createLocation = toPrison }
       movement = ExternalMovement().apply {
         offenderBooking = booking
         movementTime = LocalDateTime.parse("2020-01-01T00:00:00")
@@ -155,7 +155,7 @@ internal class CaseNoteMovementServiceTest {
 
     @Test
     internal fun `will create case note for release`() {
-      booking = OffenderBooking().apply { bookingId = 99L; location = out }
+      booking = OffenderBooking().apply { bookingId = 99L; createLocation = fromPrison; location = out }
       movement = ExternalMovement().apply {
         offenderBooking = booking
         movementTime = LocalDateTime.parse("2020-01-01T00:00:00")
@@ -177,7 +177,7 @@ internal class CaseNoteMovementServiceTest {
           assertThat(it.type.code).isEqualTo("PRISON")
           assertThat(it.subType.code).isEqualTo("RELEASE")
           assertThat(it.offenderBooking).isEqualTo(booking)
-          assertThat(it.agencyLocation).isEqualTo(out)
+          assertThat(it.agencyLocation).isEqualTo(fromPrison)
           assertThat(it.noteSourceCode).isEqualTo("AUTO")
           assertThat(it.author).isEqualTo(loggedInStaff)
           assertThat(it.occurrenceDate).isEqualTo(LocalDate.parse("2020-01-01"))

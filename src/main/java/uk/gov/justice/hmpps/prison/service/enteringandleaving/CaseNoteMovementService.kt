@@ -68,7 +68,7 @@ class CaseNoteMovementService(
       .type(type)
       .subType(subType)
       .caseNoteText(note)
-      .agencyLocation(booking.location)
+      .agencyLocation(booking.createLocation)
       .author(staff)
       .noteSourceCode("AUTO")
       .build()
