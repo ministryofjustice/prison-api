@@ -297,7 +297,7 @@ class OffenderResourceIntTest_dischargeToHospital : ResourceTest() {
       fun `should create an outbound movement`(offenderType: OffenderType) {
         createOffender(offenderType)
 
-        dischargeToHospital(offenderNo, dischargeRequest(commentText = "This is ignored")).isOk
+        dischargeToHospital(offenderNo, dischargeRequest()).isOk
 
         bookingId = findBookingId(offenderType)
 
@@ -686,13 +686,11 @@ class OffenderResourceIntTest_dischargeToHospital : ResourceTest() {
       dischargeTime: LocalDateTime = LocalDateTime.now(),
       supportingPrisonId: String = "SYI",
       fromLocationId: String = "ABDRCT",
-      commentText: String = "Discharged Offender from $fromLocationId to $hospitalLocationCode",
     ): String =
       """
         {
            "hospitalLocationCode": "$hospitalLocationCode", 
            "dischargeTime": "${dischargeTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}",
-           "commentText": "$commentText",
            "supportingPrisonId": "$supportingPrisonId" ,
            "fromLocationId": "$fromLocationId" 
         }

@@ -29,15 +29,6 @@ class RequestToDischargePrisoner(
   val dischargeTime: LocalDateTime? = null,
 
   @Schema(
-    description = "Additional comments about the release",
-    example = "DEPRECATED: this text is ignored anyway so will be removed",
-    deprecated = true,
-  )
-  @Deprecated("This text is ignored anyway so will be removed")
-  @Length(max = 240, message = "Comments size is a maximum of 240 characters")
-  val commentText: String? = null,
-
-  @Schema(
     description = "Supporting Prison for POM, can be null if prisoner is already in a prison, for prisoners already released this field will be ignored",
     example = "MDI",
   )
