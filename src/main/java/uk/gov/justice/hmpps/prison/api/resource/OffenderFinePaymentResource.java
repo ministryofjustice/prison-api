@@ -38,7 +38,7 @@ public class OffenderFinePaymentResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Offender fine payments for a prisoner")
     @GetMapping("/booking/{bookingId}")
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
     public List<OffenderFinePaymentDto> getOffenderFinePayments(@PathVariable("bookingId") @Parameter(description = "The required booking id (mandatory)", required = true) final Long bookingId) {
         return bookingService.getOffenderFinePayments(bookingId);
     }
