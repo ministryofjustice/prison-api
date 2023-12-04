@@ -656,26 +656,17 @@ class BookingResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `should return success when has ROLE_SYSTEM_USER override role`() {
+    fun `should return 403 when has ROLE_SYSTEM_USER override role`() {
       webTestClient.get().uri("/api/bookings/offenderNo/{offenderNo}?extraInfo=true", "A1234AA")
         .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
         .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .jsonPath("profileInformation").isNotEmpty
-        .jsonPath("physicalAttributes").isNotEmpty
-        .jsonPath("physicalCharacteristics").isNotEmpty
-        .jsonPath("physicalMarks").isNotEmpty
+        .expectStatus().isForbidden
     }
 
     @Test
     fun `should return success when has ROLE_GLOBAL_SEARCH override role`() {
       webTestClient.get().uri("/api/bookings/offenderNo/{offenderNo}?extraInfo=true", "A1234AA")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -689,8 +680,6 @@ class BookingResourceIntTest : ResourceTest() {
     fun `should return success when has ROLE_VIEW_PRISONER_DATA override role`() {
       webTestClient.get().uri("/api/bookings/offenderNo/{offenderNo}?extraInfo=true", "A1234AA")
         .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -882,8 +871,6 @@ class BookingResourceIntTest : ResourceTest() {
     fun `should return success when has SYSTEM_USER override role`() {
       webTestClient.get().uri("/api/bookings/-3/secondary-languages")
         .headers(setClientAuthorisation(listOf("SYSTEM_USER")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
     }
@@ -892,8 +879,6 @@ class BookingResourceIntTest : ResourceTest() {
     fun `should return success when has VIEW_PRISONER_DATA override role`() {
       webTestClient.get().uri("/api/bookings/-3/secondary-languages")
         .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
     }
@@ -902,7 +887,6 @@ class BookingResourceIntTest : ResourceTest() {
     fun `returns 404 if user has no caseloads`() {
       webTestClient.get().uri("/api/bookings/-3/secondary-languages")
         .headers(setAuthorisation("RO_USER", listOf()))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isNotFound
         .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -3 not found.")
@@ -912,7 +896,6 @@ class BookingResourceIntTest : ResourceTest() {
     fun `returns 404 if not in user caseload`() {
       webTestClient.get().uri("/api/bookings/-3/secondary-languages")
         .headers(setAuthorisation("WAI_USER", listOf()))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isNotFound
         .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -3 not found.")
@@ -922,7 +905,6 @@ class BookingResourceIntTest : ResourceTest() {
     fun `returns 404 if booking not found`() {
       webTestClient.get().uri("/api/bookings/-99999/secondary-languages")
         .headers(setAuthorisation("WAI_USER", listOf()))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isNotFound
         .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -99999 not found.")
@@ -932,7 +914,6 @@ class BookingResourceIntTest : ResourceTest() {
     fun `should return success when user has booking in caseload`() {
       webTestClient.get().uri("/api/bookings/-3/secondary-languages")
         .headers(setAuthorisation(listOf()))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -1689,8 +1670,109 @@ class BookingResourceIntTest : ResourceTest() {
   }
 
   @Nested
+  @DisplayName("GET /api/bookings/{bookingId}/sentenceDetail")
+  inner class GetBookingSentenceDetail {
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("api/bookings/-1/sentenceDetail")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return 403 if does not have override role`() {
+      webTestClient.get().uri("api/bookings/-1/sentenceDetail")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should return success when has ROLE_GLOBAL_SEARCH override role`() {
+      webTestClient.get().uri("api/bookings/-1/sentenceDetail")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `should return success when has ROLE_VIEW_PRISONER_DATA override role`() {
+      webTestClient.get().uri("api/bookings/-1/sentenceDetail")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+    }
+  }
+
+  @Nested
+  @DisplayName("GET /api/bookings/{bookingId}/sentenceAdjustments")
+  inner class GetBookingSentenceAdjustments {
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("api/bookings/-1/sentenceAdjustments")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return 403 if does not have override role`() {
+      webTestClient.get().uri("api/bookings/-1/sentenceAdjustments")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should return success when has ROLE_GLOBAL_SEARCH override role`() {
+      webTestClient.get().uri("api/bookings/-1/sentenceAdjustments")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `should return success when has ROLE_VIEW_PRISONER_DATA override role`() {
+      webTestClient.get().uri("api/bookings/-1/sentenceAdjustments")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+    }
+  }
+
+  @Nested
   @DisplayName("GET /api/bookings/{bookingId}/visits/prisons")
   inner class GetBookingVisitsPrisons {
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("/api/bookings/-1/visits/prisons")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return 403 if does not have override role`() {
+      webTestClient.get().uri("/api/bookings/-1/visits/prisons")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should return success when has ROLE_VIEW_PRISONER_DATA override role`() {
+      webTestClient.get().uri("/api/bookings/-1/visits/prisons")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `should return success when has ROLE_GLOBAL_SEARCH override role`() {
+      webTestClient.get().uri("/api/bookings/-1/visits/prisons")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
     @Test
     fun success() {
       val response = testRestTemplate.exchange(
@@ -1725,6 +1807,38 @@ class BookingResourceIntTest : ResourceTest() {
   @Nested
   @DisplayName("GET /api/bookings/{bookingId}/visits/summary")
   inner class GetBookingVisitsSummary {
+
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("/api/bookings/-1/visits/summary")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return 403 if does not have override role`() {
+      webTestClient.get().uri("/api/bookings/-1/visits/summary")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should return success when has ROLE_VIEW_PRISONER_DATA override role`() {
+      webTestClient.get().uri("/api/bookings/-1/visits/summary")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `should return success when has ROLE_GLOBAL_SEARCH override role`() {
+      webTestClient.get().uri("/api/bookings/-1/visits/summary")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
     @Test
     fun success_visits() {
       val response = testRestTemplate.exchange(

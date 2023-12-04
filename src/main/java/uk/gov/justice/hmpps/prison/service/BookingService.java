@@ -231,7 +231,7 @@ public class BookingService {
         this.agencyLocationRepository = agencyLocationRepository;
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public SentenceCalcDates getBookingSentenceCalcDates(final Long bookingId) {
 
         final var sentenceCalcDates = getSentenceCalcDates(bookingId);
@@ -247,7 +247,7 @@ public class BookingService {
      * @param bookingId prisoner booking Id
      * @return latest sentence calculations
      */
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
     public SentenceCalcDates getBookingSentenceCalcDatesV1_1(final Long bookingId) {
 
         return offenderBookingRepository.findById(bookingId)
@@ -284,7 +284,7 @@ public class BookingService {
             sentenceDetail.getConfirmedReleaseDate());
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public SentenceAdjustmentDetail getBookingSentenceAdjustments(final Long bookingId) {
         return offenderBookingRepository.findById(bookingId)
             .map(OffenderBooking::getSentenceAdjustmentDetail)
@@ -739,7 +739,7 @@ public class BookingService {
         return getOffenderSentenceDetails(offenderSentenceSummary);
     }
 
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public Optional<OffenderSentenceDetail> getOffenderSentenceDetail(final String offenderNo) {
         return offenderRepository.findOffenderWithLatestBookingByNomsId(offenderNo)
             .map(offender -> offender.getLatestBooking().map(booking ->
@@ -1221,7 +1221,7 @@ public class BookingService {
             .toList());
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<PrisonDetails> getBookingVisitsPrisons(final Long bookingId) {
         return visitInformationRepository.findByBookingIdGroupByPrisonId(bookingId)
             .stream().map(prison -> PrisonDetails.builder()
@@ -1231,7 +1231,7 @@ public class BookingService {
             .toList();
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public VisitSummary getBookingVisitsSummary(final Long bookingId) {
         final var visit = bookingRepository.getBookingVisitNext(bookingId, LocalDateTime.now());
         final var count = visitInformationRepository.countByBookingId(bookingId);
