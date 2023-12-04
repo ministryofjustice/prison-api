@@ -64,7 +64,7 @@ The preferred patterns going forward are:
 - Use Spring Rest Controllers for APIs
 - Use thin controllers and apply business logic in an associated service 
 - Use SpringJPA for database access
-- Use TestRestTemplate for integration testing (e.g. extend ResourceTest, do not use Cucumber)
+- Use WebTestClient for integration testing (e.g. extend ResourceTest, do not use Cucumber)
 - Use ControllerAdvice for error handling
 - Do not create interfaces with single implementations
 
