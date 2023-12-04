@@ -6,30 +6,28 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.test.context.support.WithMockUser
 import uk.gov.justice.hmpps.prison.util.builders.dsl.NomisDataBuilder
 
-/**
- * KOTLIN
- */
 @WithMockUser
 class OffenderResourceTimelineIntTest : ResourceTest() {
-  @Autowired
-  private lateinit var nomisDataBuilder: NomisDataBuilder
 
   @Nested
   @DisplayName("GET /api/offenders/{offenderNo}/prison-timeline")
   inner class GetPrisonTimeline {
     lateinit var offenderNo: String
+    lateinit var offenderNoWithNoBooking: String
 
     @BeforeEach
     fun setUp() {
-      nomisDataBuilder.build {
-        offenderNo = offender(lastName = "DUBOIS") {
-          booking {
-          }
-        }.nomsId
+      if (!::offenderNo.isInitialized) {
+        NomisDataBuilder(testDataContext).build {
+          offenderNo = offender(lastName = "DUBOIS") {
+            booking {}
+          }.nomsId
+          offenderNoWithNoBooking = offender(lastName = "MATES") {
+          }.nomsId
+        }
       }
     }
 
@@ -56,6 +54,33 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
         webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", offenderNo)
           .exchange()
           .expectStatus().isUnauthorized
+      }
+    }
+
+    @Nested
+    inner class Validation {
+      @Test
+      fun `404 when offender not found`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", "Z1234ZZ")
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isNotFound
+      }
+
+      @Test
+      fun `404 when offender has no booking`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", offenderNoWithNoBooking)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isNotFound
+      }
+
+      @Test
+      fun `200 when offender has booking`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk
       }
     }
   }

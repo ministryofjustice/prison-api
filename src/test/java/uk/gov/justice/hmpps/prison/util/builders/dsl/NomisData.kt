@@ -1,22 +1,20 @@
 package uk.gov.justice.hmpps.prison.util.builders.dsl
 
-import jakarta.transaction.Transactional
-import org.springframework.stereotype.Component
+import uk.gov.justice.hmpps.prison.util.builders.TestDataContext
 import uk.gov.justice.hmpps.prison.util.builders.randomName
 import java.time.LocalDate
 
-@Component
-@Transactional
 class NomisDataBuilder(
-  private val offenderBuilderFactory: OffenderBuilderFactory? = null,
+  testDataContext: TestDataContext,
 ) {
+  private val offenderBuilderFactory: OffenderBuilderFactory = OffenderBuilderFactory(testDataContext = testDataContext)
   fun build(dsl: NomisData.() -> Unit) = NomisData(
     offenderBuilderFactory,
   ).apply(dsl)
 }
 
 class NomisData(
-  private val offenderBuilderFactory: OffenderBuilderFactory? = null,
+  private val offenderBuilderFactory: OffenderBuilderFactory,
 ) : NomisDataDsl {
 
   @OffenderDslMarker
@@ -32,7 +30,7 @@ class NomisData(
     ethnicity: String?,
     dsl: OffenderDsl.() -> Unit,
   ): OffenderId =
-    offenderBuilderFactory!!.builder()
+    offenderBuilderFactory.builder()
       .let { builder ->
         builder.build(
           pncNumber = pncNumber,

@@ -1,10 +1,6 @@
 package uk.gov.justice.hmpps.prison.util.builders.dsl
 
-import org.springframework.stereotype.Component
-import org.springframework.test.web.reactive.server.WebTestClient
-import uk.gov.justice.hmpps.prison.service.DataLoaderRepository
-import uk.gov.justice.hmpps.prison.util.JwtAuthenticationHelper
-import uk.gov.justice.hmpps.prison.util.builders.randomName
+import uk.gov.justice.hmpps.prison.util.builders.TestDataContext
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -30,21 +26,18 @@ interface OffenderDsl {
   ): OffenderBookingId
 }
 
-@Component
 class OffenderBuilderRepository(
-  private val webTestClient: WebTestClient,
-  private val jwtAuthenticationHelper: JwtAuthenticationHelper,
-  private val dataLoader: DataLoaderRepository,
+  private val testDataContext: TestDataContext,
 ) {
   fun save(
-    pncNumber: String? = null,
-    croNumber: String? = null,
-    lastName: String = "NTHANDA",
-    firstName: String = randomName(),
-    middleName1: String? = null,
-    middleName2: String? = null,
-    birthDate: LocalDate = LocalDate.of(1965, 7, 19),
-    genderCode: String = "M",
+    pncNumber: String?,
+    croNumber: String?,
+    lastName: String,
+    firstName: String,
+    middleName1: String?,
+    middleName2: String?,
+    birthDate: LocalDate,
+    genderCode: String,
     ethnicity: String? = null,
   ): OffenderId = uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder(
     pncNumber = pncNumber,
@@ -56,18 +49,16 @@ class OffenderBuilderRepository(
     birthDate = birthDate,
     genderCode = genderCode,
     ethnicity = ethnicity,
-  ).save(
-    webTestClient = webTestClient,
-    jwtAuthenticationHelper = jwtAuthenticationHelper,
-    dataLoader = dataLoader,
-  ).let { OffenderId(it.offenderNo) }
+    bookingBuilders = emptyArray(),
+  ).save(testDataContext).let { OffenderId(it.offenderNo) }
 }
 
-@Component
 class OffenderBuilderFactory(
-  private val repository: OffenderBuilderRepository,
-  private val bookingBuilderFactory: BookingBuilderFactory,
+  testDataContext: TestDataContext,
 ) {
+  private val bookingBuilderFactory: BookingBuilderFactory = BookingBuilderFactory(testDataContext = testDataContext)
+  private val repository: OffenderBuilderRepository = OffenderBuilderRepository(testDataContext = testDataContext)
+
   fun builder(): OffenderBuilder {
     return OffenderBuilder(repository, bookingBuilderFactory)
   }
@@ -99,7 +90,9 @@ class OffenderBuilder(
     birthDate = birthDate,
     genderCode = genderCode,
     ethnicity = ethnicity,
-  )
+  ).also {
+    offenderId = it
+  }
 
   override fun booking(
     prisonId: String,

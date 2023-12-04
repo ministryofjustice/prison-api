@@ -41,7 +41,7 @@ class OffenderBuilder(
     testDataContext: TestDataContext,
   ): InmateDetail = save(testDataContext.webTestClient, testDataContext.jwtAuthenticationHelper, testDataContext.dataLoader)
 
-  fun save(
+  private fun save(
     webTestClient: WebTestClient,
     jwtAuthenticationHelper: JwtAuthenticationHelper,
     dataLoader: DataLoaderRepository,
