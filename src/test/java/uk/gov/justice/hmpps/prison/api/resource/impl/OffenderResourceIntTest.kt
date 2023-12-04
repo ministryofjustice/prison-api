@@ -21,14 +21,11 @@ import org.springframework.http.HttpMethod.GET
 import org.springframework.http.HttpMethod.POST
 import org.springframework.http.HttpMethod.PUT
 import org.springframework.http.HttpStatus.BAD_REQUEST
-import org.springframework.http.HttpStatus.FORBIDDEN
-import org.springframework.http.HttpStatus.OK
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ContextConfiguration
 import uk.gov.justice.hmpps.prison.api.model.CaseNote
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
-import uk.gov.justice.hmpps.prison.api.model.IncidentCase
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.CREATE_BOOKING_USER
@@ -281,19 +278,11 @@ class OffenderResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `returns 403 as ROLE_BANANAS is not override role`() {
-      webTestClient.get().uri("/api/offenders/A1234AA/incidents?incidentType=ASSAULT&participationRoles=FIGHT")
-        .headers(setClientAuthorisation(listOf("ROLE_BANANAS")))
-        .exchange()
-        .expectStatus().isForbidden
-    }
-
-    @Test
-    fun `returns success if has authorised ROLE_SYSTEM_USER`() {
+    fun `returns 403 if has authorised ROLE_SYSTEM_USER`() {
       webTestClient.get().uri("/api/offenders/A1234AA/incidents?incidentType=ASSAULT&participationRoles=FIGHT")
         .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
         .exchange()
-        .expectStatus().isOk
+        .expectStatus().isForbidden
     }
 
     @Test
@@ -311,49 +300,6 @@ class OffenderResourceIntTest : ResourceTest() {
         .exchange()
         .expectStatus().isForbidden
     }
-  }
-
-  @Test
-  fun testGetIncidents() {
-    val token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE)
-    val response = testRestTemplate.exchange(
-      "/api/incidents/-1",
-      GET,
-      createHttpEntity(token, null),
-      object : ParameterizedTypeReference<IncidentCase>() {},
-    )
-    assertThat(response.statusCode).isEqualTo(OK)
-    val result = response.body!!
-    assertThat(result).extracting("incidentCaseId", "incidentTitle", "incidentType")
-      .containsExactlyInAnyOrder(-1L, "Big Fight", "ASSAULT")
-    assertThat(result.responses).hasSize(19)
-    assertThat(result.parties).hasSize(6)
-  }
-
-  @Test
-  fun testGetIncidentsNoParties() {
-    val token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE)
-    val response = testRestTemplate.exchange(
-      "/api/incidents/-4",
-      GET,
-      createHttpEntity(token, null),
-      object : ParameterizedTypeReference<IncidentCase?>() {},
-    )
-    assertThat(response.statusCode).isEqualTo(OK)
-    assertThat(response.body).extracting("incidentCaseId", "incidentTitle")
-      .containsExactlyInAnyOrder(-4L, "Medium sized fight")
-  }
-
-  @Test
-  fun testGetIncidentsNoRoles() {
-    val token = authTokenHelper.getToken(AuthToken.NORMAL_USER)
-    val response = testRestTemplate.exchange(
-      "/api/incidents/-4",
-      GET,
-      createHttpEntity(token, null),
-      object : ParameterizedTypeReference<IncidentCase?>() {},
-    )
-    assertThat(response.statusCode).isEqualTo(FORBIDDEN)
   }
 
   @Test
@@ -691,7 +637,7 @@ class OffenderResourceIntTest : ResourceTest() {
     assertThat(error.userMessage).contains("Booking -20 is not active")
   }
 
-  @DisplayName("/api/offenders/{offenderNo}/addresses")
+  @DisplayName("GET /api/offenders/{offenderNo}/addresses")
   @Nested
   inner class GetAddresses {
 
