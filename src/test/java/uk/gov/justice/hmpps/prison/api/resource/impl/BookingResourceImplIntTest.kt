@@ -290,6 +290,7 @@ class BookingResourceImplIntTest : ResourceTest() {
 
     @Test
     fun `should return success when has ROLE_GLOBAL_SEARCH override role`() {
+      stubRepositoryCall()
       webTestClient.get().uri("/api/bookings/-1/court-cases")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
         .exchange()
@@ -298,6 +299,7 @@ class BookingResourceImplIntTest : ResourceTest() {
 
     @Test
     fun `should return success when has ROLE_VIEW_PRISONER_DATA override role`() {
+      stubRepositoryCall()
       webTestClient.get().uri("/api/bookings/-1/court-cases")
         .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
         .exchange()
@@ -306,6 +308,13 @@ class BookingResourceImplIntTest : ResourceTest() {
 
     @Test
     fun courtCases_returnsMatchingActiveCourtCase() {
+      stubRepositoryCall()
+      val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf(), mapOf())
+      val responseEntity = testRestTemplate.exchange("/api/bookings/-1/court-cases", GET, requestEntity, String::class.java)
+      assertThatJsonFileAndStatus(responseEntity, 200, "court_cases.json")
+    }
+
+    private fun stubRepositoryCall() {
       `when`(offenderBookingRepository.findById(-1L)).thenReturn(
         Optional.of(
           OffenderBooking.builder()
@@ -351,9 +360,6 @@ class BookingResourceImplIntTest : ResourceTest() {
             .build(),
         ),
       )
-      val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf(), mapOf())
-      val responseEntity = testRestTemplate.exchange("/api/bookings/-1/court-cases", GET, requestEntity, String::class.java)
-      assertThatJsonFileAndStatus(responseEntity, 200, "court_cases.json")
     }
   }
 
