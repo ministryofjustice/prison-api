@@ -182,7 +182,7 @@ class BookingResourceIntTest : ResourceTest() {
         .bodyValue(appointment)
         .exchange()
         .expectStatus().isCreated
-        .expectBody(ScheduledEvent::class.java).returnResult().responseBody
+        .expectBody(ScheduledEvent::class.java).returnResult().responseBody!!
 
       bookingRepository.deleteBookingAppointment(scheduledEvent.eventId)
     }
@@ -221,7 +221,7 @@ class BookingResourceIntTest : ResourceTest() {
         .bodyValue(appointment)
         .exchange()
         .expectStatus().isCreated
-        .expectBody(ScheduledEvent::class.java).returnResult().responseBody
+        .expectBody(ScheduledEvent::class.java).returnResult().responseBody!!
 
       bookingRepository.deleteBookingAppointment(scheduledEvent.eventId)
     }
@@ -876,7 +876,7 @@ class BookingResourceIntTest : ResourceTest() {
   @Test
   fun offenceHistoryForBookings() {
     val token = validToken(listOf("ROLE_VIEW_PRISONER_DATA"))
-    val httpEntity = createHttpEntity(token, java.util.List.of(-59, -7, -3))
+    val httpEntity = createHttpEntity(token, listOf(-59, -7, -3))
     val response = testRestTemplate.exchange(
       "/api/bookings/offence-history",
       POST,
@@ -1428,11 +1428,11 @@ class BookingResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `should return success when has ROLE_SYSTEM_USER override role`() {
+    fun `should return 403 when has ROLE_SYSTEM_USER override role`() {
       webTestClient.get().uri("/api/bookings/-6/military-records")
         .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
         .exchange()
-        .expectStatus().isOk
+        .expectStatus().isForbidden
     }
 
     @Test
