@@ -312,7 +312,7 @@ public class BookingService {
         return alerts;
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_SCHEDULES"})
+    @VerifyBookingAccess(overrideRoles = {"VIEW_SCHEDULES"})
     public uk.gov.justice.hmpps.prison.api.support.Page<ScheduledEvent> getBookingActivities(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final long offset, final long limit, final String orderByFields, final Order order) {
         validateScheduledEventsRequest(fromDate, toDate);
 
@@ -795,7 +795,7 @@ public class BookingService {
                 .orElseThrow(EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId));
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
     public List<PropertyContainer> getOffenderPropertyContainers(final Long bookingId) {
         return offenderBookingRepository.findById(bookingId)
                 .map(OffenderBooking::getActivePropertyContainers)
