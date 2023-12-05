@@ -968,52 +968,87 @@ class BookingResourceIntTest : ResourceTest() {
     }
   }
 
-  @Test
-  fun nextVisit() {
-    val response = testRestTemplate.exchange(
-      "/api/bookings/{bookingId}/visits/next",
-      GET,
-      createHttpEntity(NORMAL_USER, null),
-      String::class.java,
-      -3L,
-    )
-    assertThatJsonFileAndStatus(response, 200, "next-visit.json")
-  }
+  @Nested
+  @DisplayName("GET /api/bookings/{bookingId}/visits/next")
+  inner class VisitsNext {
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("/api/bookings/-3/visits/next")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
 
-  @Test
-  fun nextVisit_withVisitors() {
-    val response = testRestTemplate.exchange(
-      "/api/bookings/{bookingId}/visits/next?withVisitors=true",
-      GET,
-      createHttpEntity(NORMAL_USER, null),
-      String::class.java,
-      -3L,
-    )
-    assertThatJsonFileAndStatus(response, 200, "next-visit-with-visitors.json")
-  }
+    @Test
+    fun `should return 403 as endpoint does not have override role`() {
+      webTestClient.get().uri("/api/bookings/-3/visits/next")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
 
-  @Test
-  fun nextVisit_withVisitors_whenNotPresent() {
-    val response = testRestTemplate.exchange(
-      "/api/bookings/{bookingId}/visits/next?withVisitors=true",
-      GET,
-      createHttpEntity(NORMAL_USER, null),
-      String::class.java,
-      -1,
-    )
-    assertThatStatus(response, 200)
-  }
+    @Test
+    fun `should return success when has ROLE_GLOBAL_SEARCH override role`() {
+      webTestClient.get().uri("/api/bookings/-3/visits/next")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+    }
 
-  @Test
-  fun nextVisit_whenNotPresent() {
-    val response = testRestTemplate.exchange(
-      "/api/bookings/{bookingId}/visits/next",
-      GET,
-      createHttpEntity(NORMAL_USER, null),
-      String::class.java,
-      -1,
-    )
-    assertThatStatus(response, 200)
+    @Test
+    fun `should return success when has ROLE_VIEW_PRISONER_DATA override role`() {
+      webTestClient.get().uri("/api/bookings/-3/visits/next")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun nextVisit() {
+      val response = testRestTemplate.exchange(
+        "/api/bookings/{bookingId}/visits/next",
+        GET,
+        createHttpEntity(NORMAL_USER, null),
+        String::class.java,
+        -3L,
+      )
+      assertThatJsonFileAndStatus(response, 200, "next-visit.json")
+    }
+
+    @Test
+    fun nextVisit_withVisitors() {
+      val response = testRestTemplate.exchange(
+        "/api/bookings/{bookingId}/visits/next?withVisitors=true",
+        GET,
+        createHttpEntity(NORMAL_USER, null),
+        String::class.java,
+        -3L,
+      )
+      assertThatJsonFileAndStatus(response, 200, "next-visit-with-visitors.json")
+    }
+
+    @Test
+    fun nextVisit_withVisitors_whenNotPresent() {
+      val response = testRestTemplate.exchange(
+        "/api/bookings/{bookingId}/visits/next?withVisitors=true",
+        GET,
+        createHttpEntity(NORMAL_USER, null),
+        String::class.java,
+        -1,
+      )
+      assertThatStatus(response, 200)
+    }
+
+    @Test
+    fun nextVisit_whenNotPresent() {
+      val response = testRestTemplate.exchange(
+        "/api/bookings/{bookingId}/visits/next",
+        GET,
+        createHttpEntity(NORMAL_USER, null),
+        String::class.java,
+        -1,
+      )
+      assertThatStatus(response, 200)
+    }
   }
 
   @Nested

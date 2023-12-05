@@ -504,7 +504,7 @@ public class BookingService {
         return bookingRepository.getBookingVisits(bookingIds, fromDate, toDate, sortFields, sortOrder);
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public Optional<VisitDetails> getBookingVisitNext(final Long bookingId, final boolean withVisitors) {
         final var visit = bookingRepository.getBookingVisitNext(bookingId, LocalDateTime.now());
         if (withVisitors) {
@@ -687,7 +687,7 @@ public class BookingService {
                 .toList();
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<ScheduledEvent> getScheduledEvents(final Long bookingId, final LocalDate from, final LocalDate to) {
         final var fromDate = from == null ? now() : from;
         final var toDate = to == null ? fromDate : to;
@@ -787,7 +787,7 @@ public class BookingService {
                 )).orElseThrow(EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId));
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<CourtCase> getOffenderCourtCases(final Long bookingId, final boolean activeOnly) {
         return offenderBookingRepository.findById(bookingId)
                 .map(booking -> activeOnly ? booking.getActiveCourtCases() : booking.getCourtCases())
