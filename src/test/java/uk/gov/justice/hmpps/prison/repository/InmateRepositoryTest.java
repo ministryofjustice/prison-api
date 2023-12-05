@@ -722,39 +722,6 @@ public class InmateRepositoryTest {
     }
 
     @Test
-    public void testGetOffenderCategorisationsLatest() {
-        final var list = repository.getOffenderCategorisations(Arrays.asList(-1L, -31L), "LEI", true);
-
-        final var sortedList = list.stream().sorted(Comparator.comparing(OffenderCategorise::getOffenderNo)).toList();
-        assertThat(sortedList)
-            .extracting("offenderNo", "bookingId", "approverFirstName", "approverLastName", "categoriserFirstName", "categoriserLastName", "category", "assessStatus")
-            .containsExactly(
-                Tuple.tuple("A1234AA", -1L, "API", "USER", "PRISON", "USER", "B", "P"),
-                Tuple.tuple("A5576RS", -31L, "API", "USER", "CA", "USER", "A", "A"));
-    }
-
-    @Test
-    public void testGetOffenderCategorisationsAll() {
-        final var list = repository.getOffenderCategorisations(Arrays.asList(-1L, -31L), "LEI", false);
-        assertThat(list)
-            .extracting("offenderNo", "bookingId", "approverFirstName", "approverLastName", "categoriserFirstName", "categoriserLastName", "category", "assessStatus")
-            .containsExactlyInAnyOrder(
-                Tuple.tuple("A1234AA", -1L, "API", "USER", "PRISON", "USER", "LOW", "A"),
-                Tuple.tuple("A1234AA", -1L, "API", "USER", "PRISON", "USER", "B", "P"),
-                Tuple.tuple("A5576RS", -31L, "API", "USER", "CA", "USER", "A", "A"),
-                Tuple.tuple("A5576RS", -31L, "API", "USER", "API", "USER", "C", "A"));
-    }
-
-    @Test
-    public void testGetOffenderCategorisationsNoApprover() {
-        final var list = repository.getOffenderCategorisations(List.of(-41L), "SYI", false);
-        assertThat(list)
-            .extracting("offenderNo", "bookingId", "lastName", "approverFirstName", "approverLastName", "categoriserFirstName", "categoriserLastName", "category", "assessStatus")
-            .containsExactlyInAnyOrder(
-                Tuple.tuple("A1184MA", -41L, "ALI", null, null, "PRISON", "USER", "B", "A"));
-    }
-
-    @Test
     public void testGetApprovedCategorisedNoResults() {
         final var list = repository.getApprovedCategorised("MDI", LocalDate.of(2022, 5, 5));
         assertThat(list).hasSize(0);
@@ -1191,48 +1158,6 @@ public class InmateRepositoryTest {
                 .build();
 
         assertThatThrownBy(() -> repository.rejectCategory(catDetail)).isInstanceOf(HttpClientErrorException.class);
-    }
-
-    @Test
-    @Transactional
-    public void testUpdateCategorySetInactive() {
-
-        repository.setCategorisationInactive(-38L, null);
-
-        final List<OffenderCategorise> catList = repository.getOffenderCategorisations(List.of(-38L), "BMI", false);
-        // should have updated the 2 active and 1 pending record
-        assertThat(catList).extracting("assessmentSeq", "assessStatus").containsExactlyInAnyOrder(
-                Tuple.tuple(1, "I"),
-                Tuple.tuple(2, "I"),
-                Tuple.tuple(3, "P"));
-    }
-
-    @Test
-    @Transactional
-    public void testUpdateCategorySetInactivePending() {
-
-        repository.setCategorisationInactive(-38L, AssessmentStatusType.PENDING);
-
-        final List<OffenderCategorise> catList = repository.getOffenderCategorisations(List.of(-38L), "BMI", false);
-        // should have updated the 2 active and 1 pending record
-        assertThat(catList).extracting("assessmentSeq", "assessStatus").containsExactlyInAnyOrder(
-                Tuple.tuple(1, "A"),
-                Tuple.tuple(2, "A"),
-                Tuple.tuple(3, "I"));
-    }
-
-    @Test
-    @Transactional
-    public void testUpdateCategoryNextReviewDate() {
-
-        final var newNextReviewDate = LocalDate.of(2019, 2, 27);
-        final var existingNextReviewDate = LocalDate.of(2018, 6, 1);
-        repository.updateActiveCategoryNextReviewDate(-1L, newNextReviewDate);
-
-        final List<OffenderCategorise> catList = repository.getOffenderCategorisations(List.of(-1L), "LEI", false);
-        assertThat(catList.get(1).getNextReviewDate()).isEqualTo(newNextReviewDate);
-        //should not have updated the later pending record
-        assertThat(catList.get(0).getNextReviewDate()).isEqualTo(existingNextReviewDate);
     }
 
     @Test

@@ -485,23 +485,6 @@ public class InmateService {
             && assessmentDto.getOverridedSupLevelType() == null;
     }
 
-    @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA','SYSTEM_USER')")
-    public List<OffenderCategorise> getOffenderCategorisationsSystem(final Set<Long> bookingIds, final boolean latestOnly) {
-        return doGetOffenderCategorisations(null, bookingIds, latestOnly);
-    }
-
-    private List<OffenderCategorise> doGetOffenderCategorisations(final String agencyId, final Set<Long> bookingIds, final boolean latestOnly) {
-        final List<OffenderCategorise> results = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(bookingIds)) {
-            final var batch = Lists.partition(new ArrayList<>(bookingIds), maxBatchSize);
-            batch.forEach(offenderBatch -> {
-                final var categorisations = repository.getOffenderCategorisations(offenderBatch, agencyId, latestOnly);
-                results.addAll(categorisations);
-            });
-        }
-        return results;
-    }
-
     private Optional<Assessment> findCategory(final List<Assessment> assessmentsForOffender) {
         return assessmentsForOffender.stream().filter(a -> "CATEGORY".equals(a.getAssessmentCode())).findFirst();
     }

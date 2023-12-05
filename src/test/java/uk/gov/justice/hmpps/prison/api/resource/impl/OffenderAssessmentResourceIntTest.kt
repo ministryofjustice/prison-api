@@ -261,63 +261,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
   }
 
   @Nested
-  @DisplayName("POST /api/offender-assessments/category")
-  inner class PostOffenderCategorisations {
-
-    @Test
-    fun testGetOffenderCategorisationsSystem() {
-      webTestClient.post().uri("/api/offender-assessments/category?latest=false")
-        .headers(setAuthorisation("ITAG_USER", listOf("VIEW_PRISONER_DATA")))
-        .header("Content-Type", APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
-        .bodyValue(
-          """
-           [ "-1", "-2", "-3", "-38", "-39", "-40", "-41"]
-            """,
-        )
-        .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .jsonPath("length()").isEqualTo(6)
-        .jsonPath("[0].bookingId").isEqualTo(-1)
-        .jsonPath("[1].bookingId").isEqualTo(-3)
-        .jsonPath("[2].bookingId").isEqualTo(-38)
-        .jsonPath("[3].bookingId").isEqualTo(-39)
-        .jsonPath("[4].bookingId").isEqualTo(-40)
-        .jsonPath("[5].bookingId").isEqualTo(-41)
-    }
-  }
-
-  @Nested
-  @DisplayName("POST /api/offender-assessments/csra/rating")
-  inner class CRSARating {
-    @Test
-    fun testGetCsraRatings() {
-      val httpEntity = createHttpEntity(AuthToken.VIEW_PRISONER_DATA, listOf("A1183JE", "A1234BB"))
-      val response = testRestTemplate.exchange(
-        "/api/offender-assessments/csra/rating",
-        POST,
-        httpEntity,
-        String::class.java,
-      )
-      assertThatJsonFileAndStatus(response, OK.value(), "csra_ratings.json")
-    }
-
-    @Test
-    fun testGetCsraRatingsInvalidOffenderNos() {
-      val httpEntity = createHttpEntity(AuthToken.VIEW_PRISONER_DATA, listOf<Any>())
-      val response = testRestTemplate.exchange(
-        "/api/offender-assessments/csra/rating",
-        POST,
-        httpEntity,
-        String::class.java,
-      )
-      assertThatStatus(response, BAD_REQUEST.value())
-      assertThatJson(response.body!!).node("userMessage").asString().contains("postOffenderAssessmentsCsraRatings.offenderList: must not be empty")
-    }
-  }
-
-  @Nested
   @DisplayName("GET /api/offender-assessments/csra/{bookingId}/assessment/{assessmentSeq}")
   inner class CRSAAssessment {
 
@@ -485,50 +428,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       )
       assertThatStatus(response, NOT_FOUND.value())
       assertThatJson(response.body!!).node("userMessage").asString().contains("Resource with id [A1234BB] not found.")
-    }
-  }
-
-  @Nested
-  @DisplayName("GET /api/offender-assessments/assessments")
-  inner class CRSAAssessments {
-
-    @Test
-    fun testGetAssessments() {
-      val httpEntity = createHttpEntity(AuthToken.VIEW_PRISONER_DATA, null)
-      val response = testRestTemplate.exchange(
-        "/api/offender-assessments/assessments?offenderNo=A1234AD&latestOnly=false&activeOnly=false",
-        GET,
-        httpEntity,
-        String::class.java,
-      )
-      assertThatJsonFileAndStatus(response, OK.value(), "assessments.json")
-    }
-
-    @Test
-    fun testGetAssessmentsMostRecentTrue() {
-      val httpEntity = createHttpEntity(AuthToken.VIEW_PRISONER_DATA, null)
-      val response = testRestTemplate.exchange(
-        "/api/offender-assessments/assessments?offenderNo=A1234AD&latestOnly=false&activeOnly=false&mostRecentOnly=true",
-        GET,
-        httpEntity,
-        String::class.java,
-      )
-      assertThatStatus(response, OK.value())
-      assertThatJson(response.body!!).isArray().hasSize(1)
-      assertThatJson(response.body!!).node("[0].assessmentSeq").isEqualTo(JsonAssertions.value(1))
-    }
-
-    @Test
-    fun testGetAssessmentsMissingOffenderNo() {
-      val httpEntity = createHttpEntity(AuthToken.VIEW_PRISONER_DATA, null)
-      val response = testRestTemplate.exchange(
-        "/api/offender-assessments/assessments?latestOnly=false&activeOnly=false",
-        GET,
-        httpEntity,
-        String::class.java,
-      )
-      assertThatStatus(response, BAD_REQUEST.value())
-      assertThatJson(response.body!!).node("userMessage").asString().contains("Required request parameter 'offenderNo' for method parameter type List is not present")
     }
   }
 

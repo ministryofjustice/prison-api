@@ -118,16 +118,6 @@ public class OffenderAssessmentResource {
     }
 
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "The current CSRA rating for each offender.")})
-    @Operation(summary = "Retrieves CSRA ratings for multiple offenders - POST version to allow large offender lists.")
-    @PostMapping("/csra/rating")
-    @SlowReportQuery
-    public List<AssessmentClassification> postOffenderAssessmentsCsraRatings(@RequestBody @NotEmpty @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderList) {
-        validateOffenderList(offenderList);
-        return offenderAssessmentService.getOffendersAssessmentRatings(offenderList);
-    }
-
-    @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
@@ -147,25 +137,6 @@ public class OffenderAssessmentResource {
         @PathVariable("bookingId") @Parameter(description = "The booking id of offender") final Long bookingId, @PathVariable("assessmentSeq") @Parameter(description = "The assessment sequence number for the given offender booking") final Integer assessmentSeq
     ) {
         return offenderAssessmentService.getOffenderAssessment(bookingId, assessmentSeq);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request - e.g. no offender numbers provided.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Returns assessment information on Offenders at a prison.")
-    @GetMapping("/assessments")
-    @SlowReportQuery
-    public List<Assessment> getAssessments(
-        @RequestParam("offenderNo") @Parameter(description = "The required offender numbers Ids (mandatory)", required = true) final List<String> offenderList,
-        @RequestParam(value = "latestOnly", required = false, defaultValue = "true") @Parameter(description = "Returns only assessments for the current sentence if true, otherwise assessments for all previous sentences are included") final Boolean latestOnly,
-        @RequestParam(value = "activeOnly", required = false, defaultValue = "true") @Parameter(description = "Returns only active assessments if true, otherwise inactive and pending assessments are included") final Boolean activeOnly,
-        @RequestParam(value = "mostRecentOnly", required = false) @Parameter(description = "Returns only the last assessment per sentence if true, otherwise all assessments for the booking are included") final Boolean mostRecentOnly
-    ) {
-        final var latest = latestOnly == null || latestOnly;
-        final var active = activeOnly == null || activeOnly;
-        final var mostRecent = mostRecentOnly == null ? latest : mostRecentOnly; // backwards compatibility
-        validateOffenderList(offenderList);
-        return inmateService.getInmatesAssessmentsByCode(offenderList, null, latest, active, false, mostRecent);
     }
 
     @Operation(summary = "Returns category information on Offenders at a prison.")
@@ -190,19 +161,6 @@ public class OffenderAssessmentResource {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Categorisation type is invalid: " + type);
         }
         return inmateService.getCategory(agencyId, enumType, date);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "The list of offenders with categorisation details is returned if categorisation record exists")})
-    @Operation(summary = "Returns Categorisation details for supplied Offenders - POST version to allow large offender lists.", description = "Categorisation details for all supplied Offenders using SYSTEM access")
-    @PostMapping("/category")
-    @SlowReportQuery
-    public List<OffenderCategorise> getOffenderCategorisationsSystem(
-        @RequestBody @Parameter(description = "The required booking Ids (mandatory)", required = true) final Set<Long> bookingIds,
-        @RequestParam(value = "latestOnly", required = false, defaultValue = "true") @Parameter(description = "Only get the latest category for each booking") final Boolean latestOnly
-    ) {
-        final var latest = latestOnly == null || latestOnly;
-        return inmateService.getOffenderCategorisationsSystem(bookingIds, latest);
     }
 
     @ApiResponses({
@@ -285,7 +243,7 @@ public class OffenderAssessmentResource {
     @ProxyUser
     public ResponseEntity<Void> updateCategorisationNextReviewDate(
         @PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId,
-        @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @PathVariable("nextReviewDate") @Parameter(description = "The new next review date (in YYYY-MM-DD format)", required = true) final LocalDate nextReviewDate
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @PathVariable("nextReviewDate") @Parameter(description = "The new next review date (in YYYY-MM-DD format)", required = true) final LocalDate nextReviewDate
     ) {
         inmateService.updateCategorisationNextReviewDate(bookingId, nextReviewDate);
         return ResponseEntity.ok().build();
