@@ -654,7 +654,7 @@ public class BookingService {
         return offenderCharges.stream().map(offenderChargeTransformer::convert).collect(toList());
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<ScheduledEvent> getEventsToday(final Long bookingId) {
         final var today = now();
         return getEvents(bookingId, today, today);
@@ -664,19 +664,19 @@ public class BookingService {
         return getEvents(bookingIds, day, day);
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<ScheduledEvent> getEventsThisWeek(final Long bookingId) {
         final var today = now();
         return getEvents(bookingId, today, today.plusDays(6));
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<ScheduledEvent> getEventsNextWeek(final Long bookingId) {
         final var today = now();
         return getEvents(bookingId, today.plusDays(7), today.plusDays(13));
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<ScheduledEvent> getEvents(final Long bookingId, final LocalDate from, final LocalDate to) {
         final var activities = getBookingActivities(bookingId, from, to, null, null);
         final var visits = getBookingVisits(bookingId, from, to, null, null);
