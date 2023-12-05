@@ -987,6 +987,14 @@ class BookingResourceIntTest : ResourceTest() {
     }
 
     @Test
+    fun `should return success when has ROLE_GLOBAL_SEARCH override role`() {
+      webTestClient.get().uri("/api/bookings/-3/visits/next")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
     fun `should return success when has ROLE_VIEW_PRISONER_DATA override role`() {
       webTestClient.get().uri("/api/bookings/-3/visits/next")
         .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
