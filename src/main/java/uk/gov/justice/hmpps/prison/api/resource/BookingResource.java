@@ -407,7 +407,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.")})
     @Operation(summary = "Image data (as bytes).", description = "Image data (as bytes).")
     @GetMapping(value = "/offenderNo/{offenderNo}/image/data", produces = "image/jpeg")
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
+    @VerifyOffenderAccess(accessDeniedError = true, overrideRoles = {"VIEW_PRISONER_DATA"})
     public ResponseEntity<byte[]> getMainBookingImageDataByNo(@PathVariable("offenderNo") @Parameter(description = "The offender No of offender", required = true) final String offenderNo, @RequestParam(value = "fullSizeImage", defaultValue = "false", required = false) @Parameter(description = "Return full size image") final boolean fullSizeImage) {
         return imageService.getImageContent(offenderNo, fullSizeImage)
             .map(bytes -> new ResponseEntity<>(bytes, HttpStatus.OK))
@@ -774,7 +774,7 @@ public class BookingResource {
         @PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", required = true) final String offenderNo,
         @RequestParam(value = "allowNoContent", required = false) @Parameter(description = "Allow no content (204) response if no data rather than returning a not found (404)") final boolean allowNoContent
     ) {
-        final var identifiers = bookingService.getOffenderIdentifiers(offenderNo, "SYSTEM_USER", "VISIT_SCHEDULER").getBookingAndSeq().orElseThrow(EntityNotFoundException.withMessage("No bookings found for offender {}", offenderNo));
+        final var identifiers = bookingService.getOffenderIdentifiers(offenderNo, false, "SYSTEM_USER", "VISIT_SCHEDULER").getBookingAndSeq().orElseThrow(EntityNotFoundException.withMessage("No bookings found for offender {}", offenderNo));
         final var bookingId = identifiers.getBookingId();
         return bookingService.getBookingVisitBalances(bookingId).orElseThrow(
             allowNoContent ? NoContentException.withId(bookingId) : EntityNotFoundException.withId(bookingId));
@@ -790,7 +790,7 @@ public class BookingResource {
     @Deprecated
     @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "KEY_WORKER"})
     public Keyworker getKeyworkerByOffenderNo(@PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", required = true) final String offenderNo) {
-        final var offenderIdentifiers = bookingService.getOffenderIdentifiers(offenderNo, "SYSTEM_USER", "KEY_WORKER").getBookingAndSeq()
+        final var offenderIdentifiers = bookingService.getOffenderIdentifiers(offenderNo, false, "SYSTEM_USER", "KEY_WORKER").getBookingAndSeq()
             .orElseThrow(EntityNotFoundException.withMessage("No bookings found for offender %s", offenderNo));
         return keyworkerService.getKeyworkerDetailsByBooking(offenderIdentifiers.getBookingId());
     }

@@ -216,7 +216,7 @@ public class MovementsRepositoryTest {
     }
 
     @Test
-    public void canRetriveOffendersCurrentlyOut() {
+    public void canRetrieveOffendersCurrentlyOut() {
         final var offenders = repository.getOffendersCurrentlyOut(-13);
         assertThat(offenders).containsExactlyInAnyOrder(
                 OffenderOut.builder().offenderNo("Z0025ZZ").bookingId(-25L).dateOfBirth(LocalDate.of(1974, 1, 1)).firstName("MATTHEW").lastName("SMITH").location("Landing H/1").build(),

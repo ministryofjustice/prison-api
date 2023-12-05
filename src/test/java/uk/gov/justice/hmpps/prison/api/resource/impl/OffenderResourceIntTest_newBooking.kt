@@ -591,7 +591,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_SYSTEM_USER"),
+              listOf("ROLE_VIEW_PRISONER_DATA"),
             ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
@@ -666,7 +666,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_SYSTEM_USER"),
+              listOf("ROLE_VIEW_PRISONER_DATA"),
             ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
@@ -748,7 +748,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_SYSTEM_USER"),
+              listOf("ROLE_VIEW_PRISONER_DATA"),
             ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
@@ -823,7 +823,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_SYSTEM_USER"),
+              listOf("ROLE_VIEW_PRISONER_DATA"),
             ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
@@ -903,7 +903,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_SYSTEM_USER"),
+              listOf("ROLE_VIEW_PRISONER_DATA"),
             ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)

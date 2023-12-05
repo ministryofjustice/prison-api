@@ -86,8 +86,9 @@ import uk.gov.justice.hmpps.prison.service.OffenderDamageObligationService;
 import uk.gov.justice.hmpps.prison.service.OffenderLocation;
 import uk.gov.justice.hmpps.prison.service.OffenderLocationService;
 import uk.gov.justice.hmpps.prison.service.OffenderTransactionHistoryService;
-import uk.gov.justice.hmpps.prison.service.PrisonerReleaseAndTransferService;
+import uk.gov.justice.hmpps.prison.service.PrisonerTransferService;
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.BookingIntoPrisonService;
+import uk.gov.justice.hmpps.prison.service.enteringandleaving.DischargeToHospitalService;
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.ReleasePrisonerService;
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.TransferIntoPrisonService;
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.PrisonerCreationService;
@@ -115,7 +116,7 @@ public class OffenderResource {
     private final BookingService bookingService;
     private final AuthenticationFacade authenticationFacade;
     private final PrisonerCreationService prisonerCreationService;
-    private final PrisonerReleaseAndTransferService prisonerReleaseAndTransferService;
+    private final PrisonerTransferService prisonerTransferService;
     private final OffenderDamageObligationService offenderDamageObligationService;
     private final OffenderTransactionHistoryService offenderTransactionHistoryService;
     private final MovementsService movementsService;
@@ -123,6 +124,7 @@ public class OffenderResource {
     private final TransferIntoPrisonService transferIntoPrisonService;
     private final OffenderLocationService offenderLocationService;
     private final ReleasePrisonerService releasePrisonerService;
+    private final DischargeToHospitalService dischargeToHospitalService;
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
@@ -181,7 +183,7 @@ public class OffenderResource {
     public InmateDetail releasePrisoner(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToReleasePrisoner requestToReleasePrisoner) {
-        return releasePrisonerService.releasePrisoner(offenderNo, requestToReleasePrisoner);
+        return releasePrisonerService.releasePrisoner(offenderNo, requestToReleasePrisoner, true);
     }
 
     @ApiResponses({
@@ -190,16 +192,15 @@ public class OffenderResource {
         @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to release a prisoner.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "*** BETA *** Discharges a prisoner to hospital, requires the RELEASE_PRISONER role")
+    @Operation(summary = "Discharges a prisoner to hospital, requires the RELEASE_PRISONER role")
     @PutMapping("/{offenderNo}/discharge-to-hospital")
     @PreAuthorize("hasRole('RELEASE_PRISONER') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public InmateDetail dischargePrisonerToHospital(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToDischargePrisoner requestToDischargePrisoner) {
-        return prisonerReleaseAndTransferService.dischargeToHospital(offenderNo, requestToDischargePrisoner);
+        return dischargeToHospitalService.dischargeToHospital(offenderNo, requestToDischargePrisoner);
     }
-
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
@@ -245,7 +246,7 @@ public class OffenderResource {
     public InmateDetail transferOutPrisoner(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToTransferOut requestToTransferOut) {
-        return prisonerReleaseAndTransferService.transferOutPrisoner(offenderNo, requestToTransferOut);
+        return prisonerTransferService.transferOutPrisoner(offenderNo, requestToTransferOut);
     }
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
@@ -259,7 +260,7 @@ public class OffenderResource {
     public InmateDetail transferOutPrisonerToCourt(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToTransferOutToCourt requestToTransferOut) {
-        return prisonerReleaseAndTransferService.transferOutPrisonerToCourt(offenderNo, requestToTransferOut);
+        return prisonerTransferService.transferOutPrisonerToCourt(offenderNo, requestToTransferOut);
     }
 
     @ApiResponses({
@@ -274,7 +275,7 @@ public class OffenderResource {
     public InmateDetail transferOutPrisonerToTemporaryAbsence(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToTransferOutToTemporaryAbsence requestToTransferOut) {
-        return prisonerReleaseAndTransferService.transferOutPrisonerToTemporaryAbsence(offenderNo, requestToTransferOut);
+        return prisonerTransferService.transferOutPrisonerToTemporaryAbsence(offenderNo, requestToTransferOut);
     }
 
     @ApiResponses({
@@ -342,7 +343,7 @@ public class OffenderResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Return a set Incidents for a given offender No.", description = "Can be filtered by participation type and incident type")
     @GetMapping("/{offenderNo}/incidents")
-    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'VIEW_INCIDENTS')")
+    @PreAuthorize("hasRole('VIEW_INCIDENTS')")
     public List<IncidentCase> getIncidentsByOffenderNo(@PathVariable("offenderNo") @Parameter(description = "offenderNo", required = true, example = "A1234AA") @NotNull final String offenderNo, @RequestParam("incidentType") @Parameter(description = "incidentType", example = "ASSAULT") final List<String> incidentTypes, @RequestParam("participationRoles") @Parameter(description = "participationRoles", example = "ASSIAL", schema = @Schema(implementation = String.class, allowableValues = {"ACTINV","ASSIAL","FIGHT","IMPED","PERP","SUSASS","SUSINV","VICT","AI","PAS","AO"})) final List<String> participationRoles) {
         return incidentService.getIncidentCasesByOffenderNo(offenderNo, incidentTypes, participationRoles);
     }

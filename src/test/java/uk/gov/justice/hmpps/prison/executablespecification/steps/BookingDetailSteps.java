@@ -25,7 +25,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class BookingDetailSteps extends CommonSteps {
     private static final String API_BOOKING_REQUEST_URL = API_PREFIX + "bookings/{bookingId}";
-    private static final String API_OFFENDER_IMAGE_REQUEST_URL = API_PREFIX + "bookings/offenderNo/{offenderNo}/image/data";
     private static final String API_BOOKING_DETAILS_BY_OFFENDERS = API_PREFIX + "bookings/offenders";
 
     private InmateDetail inmateDetail;
@@ -118,25 +117,6 @@ public class BookingDetailSteps extends CommonSteps {
                             createEntity(),
                             byte[].class,
                             bookingId);
-
-            imageBytes = response.getBody();
-        } catch (final PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
-
-    public void getImageData(final String offenderNo, final boolean fullSizeImage) {
-        init();
-
-        final ResponseEntity<byte[]> response;
-        try {
-            response =
-                    restTemplate.exchange(
-                            API_OFFENDER_IMAGE_REQUEST_URL + format("?fullSizeImage=%s", (fullSizeImage ? "true" : "false")),
-                            HttpMethod.GET,
-                            createEntity(),
-                            byte[].class,
-                            offenderNo);
 
             imageBytes = response.getBody();
         } catch (final PrisonApiClientException ex) {

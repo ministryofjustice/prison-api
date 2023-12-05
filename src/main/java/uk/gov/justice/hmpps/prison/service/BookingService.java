@@ -231,7 +231,7 @@ public class BookingService {
         this.agencyLocationRepository = agencyLocationRepository;
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public SentenceCalcDates getBookingSentenceCalcDates(final Long bookingId) {
 
         final var sentenceCalcDates = getSentenceCalcDates(bookingId);
@@ -247,7 +247,7 @@ public class BookingService {
      * @param bookingId prisoner booking Id
      * @return latest sentence calculations
      */
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
     public SentenceCalcDates getBookingSentenceCalcDatesV1_1(final Long bookingId) {
 
         return offenderBookingRepository.findById(bookingId)
@@ -284,7 +284,7 @@ public class BookingService {
             sentenceDetail.getConfirmedReleaseDate());
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public SentenceAdjustmentDetail getBookingSentenceAdjustments(final Long bookingId) {
         return offenderBookingRepository.findById(bookingId)
             .map(OffenderBooking::getSentenceAdjustmentDetail)
@@ -516,10 +516,10 @@ public class BookingService {
         return visit;
     }
 
-    public OffenderBookingIdSeq getOffenderIdentifiers(final String offenderNo, final String... rolesAllowed) {
+    public OffenderBookingIdSeq getOffenderIdentifiers(final String offenderNo, final boolean accessDeniedError, final String... rolesAllowed) {
         final var offenderIdentifier = bookingRepository.getLatestBookingIdentifierForOffender(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
 
-        offenderIdentifier.getBookingAndSeq().ifPresent(b -> verifyBookingAccess(b.getBookingId(), rolesAllowed));
+        offenderIdentifier.getBookingAndSeq().ifPresent(b -> verifyBookingAccess(b.getBookingId(), accessDeniedError, rolesAllowed));
         return offenderIdentifier;
     }
 
@@ -565,9 +565,10 @@ public class BookingService {
      * exception is thrown.
      *
      * @param bookingId offender booking id.
-     * @throws EntityNotFoundException if current user does not have access to specified booking.
+     * @throws EntityNotFoundException if current user does not have access to specified booking and accessDeniedError is false.
+     * @throws AccessDeniedException if current user does not have access to specified booking and accessDeniedError is true.
      */
-    public void verifyBookingAccess(final Long bookingId, final String... rolesAllowed) {
+    public void verifyBookingAccess(final Long bookingId, boolean accessDeniedError, final String... rolesAllowed) {
         // system user has access to everything
         if (isAllowedToViewAllPrisonerData(rolesAllowed)) return;
 
@@ -585,6 +586,9 @@ public class BookingService {
             throw EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId);
         }
         if (!bookingRepository.verifyBookingAccess(bookingId, agencyIds)) {
+            if (accessDeniedError) {
+                throw new AccessDeniedException(format("User not authorised to access booking with id %d.", bookingId));
+            }
             logUserUnauthorisedAccess(bookingId, agencyIds, rolesAllowed);
             throw EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId);
         }
@@ -650,7 +654,7 @@ public class BookingService {
         return offenderCharges.stream().map(offenderChargeTransformer::convert).collect(toList());
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<ScheduledEvent> getEventsToday(final Long bookingId) {
         final var today = now();
         return getEvents(bookingId, today, today);
@@ -660,19 +664,19 @@ public class BookingService {
         return getEvents(bookingIds, day, day);
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<ScheduledEvent> getEventsThisWeek(final Long bookingId) {
         final var today = now();
         return getEvents(bookingId, today, today.plusDays(6));
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<ScheduledEvent> getEventsNextWeek(final Long bookingId) {
         final var today = now();
         return getEvents(bookingId, today.plusDays(7), today.plusDays(13));
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<ScheduledEvent> getEvents(final Long bookingId, final LocalDate from, final LocalDate to) {
         final var activities = getBookingActivities(bookingId, from, to, null, null);
         final var visits = getBookingVisits(bookingId, from, to, null, null);
@@ -735,7 +739,7 @@ public class BookingService {
         return getOffenderSentenceDetails(offenderSentenceSummary);
     }
 
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public Optional<OffenderSentenceDetail> getOffenderSentenceDetail(final String offenderNo) {
         return offenderRepository.findOffenderWithLatestBookingByNomsId(offenderNo)
             .map(offender -> offender.getLatestBooking().map(booking ->
@@ -849,6 +853,17 @@ public class BookingService {
         );
 
         return activeBookings.stream().map(this::determineCalculableSentenceEnvelope).toList();
+    }
+
+    public Page<CalculableSentenceEnvelope> getCalculableSentenceEnvelopeByEstablishment(String caseLoad, int pageNumber, int pageSize) {
+        final var agencyLocation = agencyLocationRepository.getReferenceById(caseLoad);
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by("bookingId"));
+        final var activeBookings = offenderBookingRepository.findAllOffenderBookingsByActiveTrueAndLocationAndSentences_statusAndSentences_CalculationType_CalculationTypeNotLikeAndSentences_CalculationType_CategoryNot(
+            agencyLocation, "A", "%AGG%", "LICENCE", pageRequest
+        );
+        final var calculableSentenceEnvelopes = activeBookings.stream().map(this::determineCalculableSentenceEnvelope).toList();
+
+        return new PageImpl<>(calculableSentenceEnvelopes, pageRequest, activeBookings.getTotalElements());
     }
 
     public List<CalculableSentenceEnvelope> getCalculableSentenceEnvelopeByOffenderNumbers(Set<String> offenderNumbers) {
@@ -1206,7 +1221,7 @@ public class BookingService {
             .toList());
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<PrisonDetails> getBookingVisitsPrisons(final Long bookingId) {
         return visitInformationRepository.findByBookingIdGroupByPrisonId(bookingId)
             .stream().map(prison -> PrisonDetails.builder()
@@ -1216,7 +1231,7 @@ public class BookingService {
             .toList();
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public VisitSummary getBookingVisitsSummary(final Long bookingId) {
         final var visit = bookingRepository.getBookingVisitNext(bookingId, LocalDateTime.now());
         final var count = visitInformationRepository.countByBookingId(bookingId);

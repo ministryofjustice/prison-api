@@ -7,7 +7,6 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.OffenderAdjudicationSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.OffenderSteps;
 
 import java.util.List;
 import java.util.Map;
@@ -17,20 +16,8 @@ import static uk.gov.justice.hmpps.prison.executablespecification.steps.Offender
 public class OffenderStepDefinitions extends AbstractStepDefinitions {
 
     @Autowired
-    private OffenderSteps offenderSteps;
-    @Autowired
     private OffenderAdjudicationSteps adjudicationSteps;
 
-
-    @When("^I view the addresses of offender with offender display number of \"([^\"]*)\"$")
-    public void viewAddressNumber(final String offenderNumber) {
-        offenderSteps.findAddresses(offenderNumber);
-    }
-
-    @Then("^the address results are returned$")
-    public void addressResultListIsAsFollows() {
-        offenderSteps.verifyAddressList();
-    }
 
     @When("^I view the adjudications of offender with offender display number of \"([^\"]*)\"$")
     public void viewAdjudicationsFor(final String offenderNumber) {
@@ -65,11 +52,6 @@ public class OffenderStepDefinitions extends AbstractStepDefinitions {
     @And("^the associated agencies for this offender are: \"([^\"]*)\"$")
     public void theAssociatedAgenciesForThisOffenderAre(String vals) {
         adjudicationSteps.verifyAgencies(Splitter.on(',').trimResults().splitToList(vals));
-    }
-
-    @Then("^resource not found response is received from offender API")
-    public void verifyResourceNotFoundForOffenderApi() {
-        offenderSteps.verifyResourceNotFound();
     }
 
     @Then("^resource not found response is received from adjudication API")

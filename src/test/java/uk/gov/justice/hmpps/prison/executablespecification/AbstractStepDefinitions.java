@@ -21,18 +21,15 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingEventSte
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingSentenceDetailSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.CaseNoteSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.ContactSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.CurfewSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.KeyWorkerAllocatedOffendersSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.MovementsSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.MyAssignmentsSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.NomisApiV1Steps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.OffenderAdjudicationSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.OffenderSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.PersonIdentifierSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.PrisonContactDetailsSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.PrisonerSearchSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.ReferenceDomainsSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.SchedulesSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.StaffSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.UserSteps;
 import uk.gov.justice.hmpps.prison.test.DatasourceActiveProfilesResolver;
@@ -103,11 +100,6 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
-        public OffenderSteps offenderSteps() {
-            return new OffenderSteps();
-        }
-
-        @Bean
         public OffenderAdjudicationSteps offenderAdjudicationSteps() {
             return new OffenderAdjudicationSteps();
         }
@@ -153,11 +145,6 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
-        public SchedulesSteps schedules() {
-            return new SchedulesSteps();
-        }
-
-        @Bean
         public PrisonContactDetailsSteps prison() {
             return new PrisonContactDetailsSteps();
         }
@@ -175,11 +162,6 @@ abstract class AbstractStepDefinitions {
         @Bean
         public PersonIdentifierSteps personIdentifierSteps() {
             return new PersonIdentifierSteps();
-        }
-
-        @Bean
-        public CurfewSteps curfewSteps() {
-            return new CurfewSteps();
         }
 
         @Bean

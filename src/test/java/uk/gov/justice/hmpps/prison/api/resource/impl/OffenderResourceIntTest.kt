@@ -7,27 +7,32 @@ import org.assertj.core.groups.Tuple
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.isNull
+import org.mockito.kotlin.verify
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.core.ParameterizedTypeReference
-import org.springframework.http.HttpMethod
+import org.springframework.data.domain.Pageable.unpaged
 import org.springframework.http.HttpMethod.GET
+import org.springframework.http.HttpMethod.POST
 import org.springframework.http.HttpMethod.PUT
-import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ContextConfiguration
-import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.api.model.CaseNote
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
-import uk.gov.justice.hmpps.prison.api.model.IncidentCase
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.CREATE_BOOKING_USER
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.GLOBAL_SEARCH
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA
 import uk.gov.justice.hmpps.prison.repository.MovementsRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.CaseNoteFilter.builder
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCaseNoteRepository
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter
 import java.time.Clock
@@ -58,46 +63,67 @@ class OffenderResourceIntTest : ResourceTest() {
 
   private val OFFENDER_NUMBER = "A1234AB"
 
-  @Test
-  fun testCanRetrieveSentenceDetailsForOffender() {
-    val token = authTokenHelper.getToken(AuthToken.NORMAL_USER)
-    val httpEntity = createHttpEntity(token, null)
-    val response = testRestTemplate.exchange(
-      "/api/offenders/{nomsId}/sentences",
-      GET,
-      httpEntity,
-      object : ParameterizedTypeReference<String?>() {},
-      OFFENDER_NUMBER,
-    )
-    assertThatJsonFileAndStatus(response, 200, "sentence.json")
-  }
+  @Nested
+  @DisplayName("GET /api/offenders/{offenderNo}/sentences")
+  inner class GetBookingSentences {
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("/api/offenders/A1234AB/sentences")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
 
-  @Test
-  fun testCanRetrieveSentenceDetailsForOffenderWithSystemUser() {
-    val token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE)
-    val httpEntity = createHttpEntity(token, null)
-    val response = testRestTemplate.exchange(
-      "/api/offenders/{nomsId}/sentences",
-      GET,
-      httpEntity,
-      object : ParameterizedTypeReference<String?>() {},
-      OFFENDER_NUMBER,
-    )
-    assertThatJsonFileAndStatus(response, 200, "sentence.json")
-  }
+    @Test
+    fun `should return 403 if does not have override role`() {
+      webTestClient.get().uri("/api/offenders/A1234AB/sentences")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
 
-  @Test
-  fun testCanRetrieveAlertsForOffenderWithViewDataRole() {
-    val token = authTokenHelper.getToken(VIEW_PRISONER_DATA)
-    val httpEntity = createHttpEntity(token, null)
-    val response = testRestTemplate.exchange(
-      "/api/offenders/{nomsId}/alerts/v2",
-      GET,
-      httpEntity,
-      object : ParameterizedTypeReference<String?>() {},
-      OFFENDER_NUMBER,
-    )
-    assertThatJsonFileAndStatus(response, 200, "alerts.json")
+    @Test
+    fun `should return success when has ROLE_GLOBAL_SEARCH override role`() {
+      webTestClient.get().uri("/api/offenders/A1234AB/sentences")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `should return success when has ROLE_VIEW_PRISONER_DATA override role`() {
+      webTestClient.get().uri("/api/offenders/A1234AB/sentences")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun testCanRetrieveSentenceDetailsForOffender() {
+      val token = authTokenHelper.getToken(AuthToken.NORMAL_USER)
+      val httpEntity = createHttpEntity(token, null)
+      val response = testRestTemplate.exchange(
+        "/api/offenders/{nomsId}/sentences",
+        GET,
+        httpEntity,
+        object : ParameterizedTypeReference<String?>() {},
+        OFFENDER_NUMBER,
+      )
+      assertThatJsonFileAndStatus(response, 200, "sentence.json")
+    }
+
+    @Test
+    fun testCanRetrieveAlertsForOffenderWithViewDataRole() {
+      val token = authTokenHelper.getToken(VIEW_PRISONER_DATA)
+      val httpEntity = createHttpEntity(token, null)
+      val response = testRestTemplate.exchange(
+        "/api/offenders/{nomsId}/alerts/v2",
+        GET,
+        httpEntity,
+        object : ParameterizedTypeReference<String?>() {},
+        OFFENDER_NUMBER,
+      )
+      assertThatJsonFileAndStatus(response, 200, "alerts.json")
+    }
   }
 
   @Test
@@ -273,19 +299,11 @@ class OffenderResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `returns 403 as ROLE_BANANAS is not override role`() {
-      webTestClient.get().uri("/api/offenders/A1234AA/incidents?incidentType=ASSAULT&participationRoles=FIGHT")
-        .headers(setClientAuthorisation(listOf("ROLE_BANANAS")))
-        .exchange()
-        .expectStatus().isForbidden
-    }
-
-    @Test
-    fun `returns success if has authorised ROLE_SYSTEM_USER`() {
+    fun `returns 403 if has authorised ROLE_SYSTEM_USER`() {
       webTestClient.get().uri("/api/offenders/A1234AA/incidents?incidentType=ASSAULT&participationRoles=FIGHT")
         .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
         .exchange()
-        .expectStatus().isOk
+        .expectStatus().isForbidden
     }
 
     @Test
@@ -303,49 +321,6 @@ class OffenderResourceIntTest : ResourceTest() {
         .exchange()
         .expectStatus().isForbidden
     }
-  }
-
-  @Test
-  fun testGetIncidents() {
-    val token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE)
-    val response = testRestTemplate.exchange(
-      "/api/incidents/-1",
-      GET,
-      createHttpEntity(token, null),
-      object : ParameterizedTypeReference<IncidentCase>() {},
-    )
-    assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-    val result = response.body!!
-    assertThat(result).extracting("incidentCaseId", "incidentTitle", "incidentType")
-      .containsExactlyInAnyOrder(-1L, "Big Fight", "ASSAULT")
-    assertThat(result.responses).hasSize(19)
-    assertThat(result.parties).hasSize(6)
-  }
-
-  @Test
-  fun testGetIncidentsNoParties() {
-    val token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE)
-    val response = testRestTemplate.exchange(
-      "/api/incidents/-4",
-      GET,
-      createHttpEntity(token, null),
-      object : ParameterizedTypeReference<IncidentCase?>() {},
-    )
-    assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-    assertThat(response.body).extracting("incidentCaseId", "incidentTitle")
-      .containsExactlyInAnyOrder(-4L, "Medium sized fight")
-  }
-
-  @Test
-  fun testGetIncidentsNoRoles() {
-    val token = authTokenHelper.getToken(AuthToken.NORMAL_USER)
-    val response = testRestTemplate.exchange(
-      "/api/incidents/-4",
-      GET,
-      createHttpEntity(token, null),
-      object : ParameterizedTypeReference<IncidentCase?>() {},
-    )
-    assertThat(response.statusCode).isEqualTo(HttpStatus.FORBIDDEN)
   }
 
   @Test
@@ -420,7 +395,7 @@ class OffenderResourceIntTest : ResourceTest() {
     val entity = createHttpEntity(token, body)
     val response = testRestTemplate.exchange(
       "/api/offenders",
-      HttpMethod.POST,
+      POST,
       entity,
       object : ParameterizedTypeReference<String?>() {},
     )
@@ -440,7 +415,7 @@ class OffenderResourceIntTest : ResourceTest() {
     val entity = createHttpEntity(token, body)
     val createResponse = testRestTemplate.exchange(
       "/api/offenders",
-      HttpMethod.POST,
+      POST,
       entity,
       object : ParameterizedTypeReference<String?>() {},
     )
@@ -489,7 +464,7 @@ class OffenderResourceIntTest : ResourceTest() {
     val entity = createHttpEntity(token, body)
     val createResponse = testRestTemplate.exchange(
       "/api/offenders",
-      HttpMethod.POST,
+      POST,
       entity,
       object : ParameterizedTypeReference<String?>() {},
     )
@@ -498,7 +473,7 @@ class OffenderResourceIntTest : ResourceTest() {
     val newBookingEntity = createHttpEntity(token, newBookingBody)
     val newBookingResponse = testRestTemplate.exchange(
       "/api/offenders/{nomsId}/booking",
-      HttpMethod.POST,
+      POST,
       newBookingEntity,
       object : ParameterizedTypeReference<String?>() {},
       offenderNo,
@@ -568,12 +543,12 @@ class OffenderResourceIntTest : ResourceTest() {
       offenderNo,
     )
 
-    // TODO Possibly a bug - shows that case notes do not reflect the adjusted movement to hospital
     assertThat(caseNotes.body!!.content)
       .extracting(Function<CaseNote, Any> { obj: CaseNote -> obj.type }, Function<CaseNote, Any> { obj: CaseNote -> obj.subType }, Function<CaseNote, Any> { obj: CaseNote -> obj.agencyId }, Function<CaseNote, Any> { obj: CaseNote -> obj.text })
       .containsExactly(
         Tuple.tuple("TRANSFER", "FROMTOL", "SYI", "Offender admitted to SHREWSBURY for reason: Recall From Intermittent Custody from Court 1."),
         Tuple.tuple("PRISON", "RELEASE", "SYI", "Released from SHREWSBURY for reason: Conditional Release (CJA91) -SH Term>1YR."),
+        Tuple.tuple("PRISON", "RELEASE", "SYI", "Transferred from SHREWSBURY for reason: Moved to psychiatric hospital Hazelwood House."),
       )
   }
 
@@ -590,7 +565,7 @@ class OffenderResourceIntTest : ResourceTest() {
     val entity = createHttpEntity(token, body)
     val createResponse = testRestTemplate.exchange(
       "/api/offenders",
-      HttpMethod.POST,
+      POST,
       entity,
       object : ParameterizedTypeReference<String?>() {},
     )
@@ -599,7 +574,7 @@ class OffenderResourceIntTest : ResourceTest() {
     val newBookingEntity = createHttpEntity(token, newBookingBody)
     val newBookingResponse = testRestTemplate.exchange(
       "/api/offenders/{nomsId}/booking",
-      HttpMethod.POST,
+      POST,
       newBookingEntity,
       object : ParameterizedTypeReference<String?>() {},
       offenderNo,
@@ -683,17 +658,75 @@ class OffenderResourceIntTest : ResourceTest() {
     assertThat(error.userMessage).contains("Booking -20 is not active")
   }
 
-  @Test
-  fun testCanRetrieveAddresses() {
-    val requestEntity = createHttpEntity(authTokenHelper.getToken(AuthToken.PRISON_API_USER), null, mapOf())
-    val response = testRestTemplate.exchange(
-      "/api/offenders/{offenderNumber}/addresses",
-      GET,
-      requestEntity,
-      object : ParameterizedTypeReference<String?>() {},
-      OFFENDER_NUMBER,
-    )
-    assertThatJsonFileAndStatus(response, 200, "offender-address.json")
+  @DisplayName("GET /api/offenders/{offenderNo}/addresses")
+  @Nested
+  inner class GetAddresses {
+
+    @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.get().uri("/api/offenders/$OFFENDER_NUMBER/addresses")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `returns 403 when client does not have override role`() {
+      webTestClient.get().uri("/api/offenders/$OFFENDER_NUMBER/addresses")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns success if has authorised ROLE_GLOBAL_SEARCH`() {
+      webTestClient.get().uri("/api/offenders/$OFFENDER_NUMBER/addresses")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns success if has authorised ROLE_VIEW_PRISONER_DATA`() {
+      webTestClient.get().uri("/api/offenders/$OFFENDER_NUMBER/addresses")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `Attempt to get address for offender that is not part of any of logged on staff user's caseloads`() {
+      webTestClient.get().uri("/api/offenders/$OFFENDER_NUMBER/addresses")
+        .headers(setAuthorisation("WAI_USER", listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -2 not found.")
+
+      verify(telemetryClient).trackEvent(eq("UserUnauthorisedBookingAccess"), any(), isNull())
+    }
+
+    @Test
+    fun `Attempt to get address for offender that does not exist`() {
+      webTestClient.get().uri("/api/offenders/A1111ZZ/addresses")
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [A1111ZZ] not found.")
+    }
+
+    @Test
+    fun testCanRetrieveAddresses() {
+      val requestEntity = createHttpEntity(authTokenHelper.getToken(AuthToken.PRISON_API_USER), null, mapOf())
+      val response = testRestTemplate.exchange(
+        "/api/offenders/{offenderNo}/addresses",
+        GET,
+        requestEntity,
+        object : ParameterizedTypeReference<String?>() {},
+        OFFENDER_NUMBER,
+      )
+      assertThatJsonFileAndStatus(response, 200, "offender-address.json")
+    }
   }
 
   @Test
@@ -739,7 +772,7 @@ class OffenderResourceIntTest : ResourceTest() {
     fun `returns 401 without an auth token`() {
       webTestClient.put().uri("/api/offenders/A1234AP/case-notes/34")
         .header("Content-Type", APPLICATION_JSON_VALUE)
-        .body(BodyInserters.fromValue(caseNoteUpdate))
+        .bodyValue(caseNoteUpdate)
         .exchange()
         .expectStatus().isUnauthorized
     }
@@ -749,7 +782,7 @@ class OffenderResourceIntTest : ResourceTest() {
       webTestClient.put().uri("/api/offenders/A1234AP/case-notes/34")
         .headers(setClientAuthorisation(listOf()))
         .header("Content-Type", APPLICATION_JSON_VALUE)
-        .body(BodyInserters.fromValue(caseNoteUpdate))
+        .bodyValue(caseNoteUpdate)
         .exchange()
         .expectStatus().isForbidden
     }
@@ -757,9 +790,9 @@ class OffenderResourceIntTest : ResourceTest() {
     @Test
     fun `Attempt to update case note for offender that is not part of any of logged on staff user's caseloads`() {
       webTestClient.put().uri("/api/offenders/A1234AP/case-notes/34")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .header("Content-Type", APPLICATION_JSON_VALUE)
-        .body(BodyInserters.fromValue(caseNoteUpdate))
+        .bodyValue(caseNoteUpdate)
         .exchange()
         .expectStatus().isNotFound
         .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [A1234AP] not found.")
@@ -768,9 +801,9 @@ class OffenderResourceIntTest : ResourceTest() {
     @Test
     fun `Attempt to update case note for offender that does not exist`() {
       webTestClient.put().uri("/api/offenders/A1111ZZ/case-notes/34")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .header("Content-Type", APPLICATION_JSON_VALUE)
-        .body(BodyInserters.fromValue(caseNoteUpdate))
+        .bodyValue(caseNoteUpdate)
         .exchange()
         .expectStatus().isNotFound
     }
@@ -781,16 +814,15 @@ class OffenderResourceIntTest : ResourceTest() {
 
       webTestClient.put().uri("/api/offenders/A1176RS/case-notes/$caseNoteId")
         .header("Content-Type", APPLICATION_JSON_VALUE)
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
-        .body(
-          BodyInserters.fromValue(
-            """ {
-                "type": "CHAP",
-                "subType": "FAMMAR",
-                "text" : " "
-              }
-              """,
-          ),
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .bodyValue(
+          """ 
+            {
+              "type": "CHAP",
+              "subType": "FAMMAR",
+               "text" : " "
+             }
+            """,
         )
         .exchange()
         .expectStatus().isBadRequest
@@ -807,16 +839,15 @@ class OffenderResourceIntTest : ResourceTest() {
 
       webTestClient.put().uri("/api/offenders/A1176RS/case-notes/$caseNoteId")
         .header("Content-Type", APPLICATION_JSON_VALUE)
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
-        .body(
-          BodyInserters.fromValue(
-            """ {
-                "type": "CHAP",
-                "subType": "FAMMAR",
-                "text" : "$caseNoteText"
-              }
-              """,
-          ),
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .bodyValue(
+          """
+            {
+              "type": "CHAP",
+              "subType": "FAMMAR",
+              "text" : "$caseNoteText"
+             }
+           """,
         )
         .exchange()
         .expectStatus().isBadRequest
@@ -832,16 +863,15 @@ class OffenderResourceIntTest : ResourceTest() {
 
       webTestClient.put().uri("/api/offenders/A1176RS/case-notes/$caseNoteId")
         .header("Content-Type", APPLICATION_JSON_VALUE)
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
-        .body(
-          BodyInserters.fromValue(
-            """ {
-                "type": "CHAP",
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .bodyValue(
+          """ 
+            {
+            "type": "CHAP",
                 "subType": "FAMMAR",
                 "text" : "$caseNoteText"
               }
               """,
-          ),
         )
         .exchange()
         .expectStatus().isBadRequest
@@ -857,16 +887,14 @@ class OffenderResourceIntTest : ResourceTest() {
 
       val resp = webTestClient.put().uri("/api/offenders/A1176RS/case-notes/$caseNoteId")
         .header("Content-Type", APPLICATION_JSON_VALUE)
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
-        .body(
-          BodyInserters.fromValue(
-            """ {
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .bodyValue(
+          """ {
                 "type": "CHAP",
                 "subType": "FAMMAR",
                 "text" : "$caseNoteText"
               }
               """,
-          ),
         )
         .exchange()
         .expectStatus().isOk
@@ -884,16 +912,15 @@ class OffenderResourceIntTest : ResourceTest() {
 
       webTestClient.put().uri("/api/offenders/A1234AA/case-notes/-1")
         .header("Content-Type", APPLICATION_JSON_VALUE)
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
-        .body(
-          BodyInserters.fromValue(
-            """ {
-                "type": "CHAP",
-                "subType": "FAMMAR",
-                "text" : "$caseNoteText"
-              }
-              """,
-          ),
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .bodyValue(
+          """ 
+            {
+              "type": "CHAP",
+              "subType": "FAMMAR",
+              "text" : "$caseNoteText"
+            }
+          """,
         )
         .exchange()
         .expectStatus().isForbidden
@@ -910,59 +937,497 @@ class OffenderResourceIntTest : ResourceTest() {
       }
 
       val resp = webTestClient.post().uri("/api/offenders/A1176RS/case-notes")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .header("Content-Type", APPLICATION_JSON_VALUE)
-        .body(
-          BodyInserters.fromValue(newCaseNote),
-        )
+        .bodyValue(newCaseNote)
         .exchange()
         .expectStatus().isOk
 
       val cn = resp.returnResult(CaseNote::class.java).responseBody.blockFirst()!!
       return cn.caseNoteId
     }
+  }
 
-    private fun removeCaseNoteCreated(caseNoteId: Long) {
-      val ocn = offenderCaseNoteRepository.findById(caseNoteId).get()
-      offenderCaseNoteRepository.delete(ocn)
+  @Nested
+  @DisplayName("POST /api/offenders/{offenderNo}/case-notes")
+  inner class CreateCaseNote {
+
+    @Value("\${api.caseNote.sourceCode:AUTO}")
+    lateinit var caseNoteSource: String
+
+    private val caseNote =
+      """ 
+        {
+          "type": "CHAP",
+          "subType": "FAMMAR",
+          "text" : "Hello this is a case note"
+        }
+      """
+
+    @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.post().uri("/api/offenders/$OFFENDER_NUMBER/case-notes")
+        .bodyValue(caseNote)
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `returns 403 when client does not have any roles`() {
+      webTestClient.post().uri("/api/offenders/$OFFENDER_NUMBER/case-notes")
+        .headers(setClientAuthorisation(listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(caseNote)
+        .exchange()
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("Client not authorised to access booking with id -2.")
+    }
+
+    @Test
+    fun `returns 400 when client has override role ROLE_ADD_CASE_NOTES but no user in context`() {
+      webTestClient.post().uri("/api/offenders/$OFFENDER_NUMBER/case-notes")
+        .headers(setClientAuthorisation(listOf("ROLE_ADD_CASE_NOTES")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+            {
+              "type": "ACP",
+              "subType": "PPR",
+              "text": "A new case note",
+              "occurrenceDateTime": "2017-04-14T10:15:30"
+            }
+            """,
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().jsonPath("userMessage").isEqualTo("createCaseNote.caseNote: CaseNote (type,subtype)=(ACP,PPR) does not exist")
+    }
+
+    @Test
+    fun `Create case note success for offender not in user caseloads but has override role ROLE_SYSTEM_USER`() {
+      val response = webTestClient.post().uri("/api/offenders/$OFFENDER_NUMBER/case-notes")
+        .headers(setAuthorisation("WAI_USER", listOf("ROLE_SYSTEM_USER")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+            {
+              "type": "GEN",
+              "subType": "OSE",
+              "text": "A new case note",
+              "occurrenceDateTime": "2017-04-14T10:15:30"      
+            }
+          """,
+        )
+        .exchange()
+        .expectStatus().isOk
+        .expectBody(CaseNote::class.java).returnResult().responseBody
+
+      removeCaseNoteCreated(response.caseNoteId)
+    }
+
+    @Test
+    fun `Create case note success for offender not in user caseloads but has override role ROLE_ADD_CASE_NOTES`() {
+      val response = webTestClient.post().uri("/api/offenders/A1234AP/case-notes")
+        .headers(setAuthorisation("WAI_USER", listOf("ROLE_ADD_CASE_NOTES")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+            {
+              "type": "GEN",
+              "subType": "OSE",
+              "text": "A new case note",
+              "occurrenceDateTime": "2017-04-14T10:15:30"      
+            }
+          """,
+        )
+        .exchange()
+        .expectStatus().isOk
+        .expectBody(CaseNote::class.java).returnResult().responseBody
+
+      removeCaseNoteCreated(response.caseNoteId)
+    }
+
+    @Test
+    fun `returns 200 when has override role ROLE_ADD_CASE_NOTES`() {
+      val response = webTestClient.post().uri("/api/offenders/$OFFENDER_NUMBER/case-notes")
+        .headers(setAuthorisation(listOf("ROLE_ADD_CASE_NOTES")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(caseNote)
+        .exchange()
+        .expectStatus().isOk
+        .expectBody(CaseNote::class.java).returnResult().responseBody
+
+      removeCaseNoteCreated(response.caseNoteId)
+    }
+
+    @Test
+    fun testCreateMovedCellCaseNote() {
+      val caseNote = webTestClient.post().uri("/api/offenders/A9876RS/case-notes")
+        .headers(setAuthorisation(listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+            {
+              "type": "MOVED_CELL",
+              "subType": "BEH",
+              "text": "This is a test comment"
+            }
+          """,
+        )
+        .exchange()
+        .expectStatus().isOk
+        .expectBody(CaseNote::class.java).returnResult().responseBody
+
+      removeCaseNoteCreated(caseNote.caseNoteId)
+    }
+
+    @Test
+    fun `A case note is successfully created for an offender`() {
+      val caseNote = webTestClient.post().uri("/api/offenders/A1176RS/case-notes")
+        .headers(setAuthorisation(listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+            {
+              "type": "OBSERVE",
+              "subType": "OBS_GEN",
+              "text": "A new case note",
+              "occurrenceDateTime": "2017-04-14T10:15:30"      
+            }
+          """,
+        )
+        .exchange()
+        .expectStatus().isOk
+        .expectBody(CaseNote::class.java).returnResult().responseBody
+
+      assertThat(caseNote.caseNoteId).isGreaterThan(0)
+      assertThat(caseNote.source).isEqualTo(caseNoteSource)
+      assertThat(caseNote.type).isEqualTo("OBSERVE")
+      assertThat(caseNote.subType).isEqualTo("OBS_GEN")
+      assertThat(caseNote.text).isEqualTo("A new case note")
+      assertThat(caseNote.occurrenceDateTime).isEqualTo("2017-04-14T10:15:30")
+      assertThat(caseNote.creationDateTime).isNotNull()
+
+      removeCaseNoteCreated(caseNote.caseNoteId)
+    }
+
+    @Test
+    fun `Multiple case notes successfully created for offender`() {
+      assertThat(offenderCaseNoteRepository.findAll(builder().bookingId(-32).build(), unpaged())).size().isEqualTo(8)
+
+      val caseNote1 = webTestClient.post().uri("/api/offenders/A1176RS/case-notes")
+        .headers(setAuthorisation(listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+            {
+              "type": "OBSERVE",
+              "subType": "OBS_GEN",
+              "text": "A new case note",
+              "occurrenceDateTime": "2017-04-14T10:15:30"      
+            }
+          """,
+        )
+        .exchange()
+        .expectStatus().isOk
+        .returnResult(CaseNote::class.java).responseBody.blockFirst()
+
+      assertThat(caseNote1.caseNoteId).isGreaterThan(0)
+      assertThat(caseNote1.source).isEqualTo(caseNoteSource)
+
+      val caseNote2 = webTestClient.post().uri("/api/offenders/A1176RS/case-notes")
+        .headers(setAuthorisation(listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+            {
+              "type": "OBSERVE",
+              "subType": "OBS_GEN",
+              "text": "A new case note",
+              "occurrenceDateTime": "2017-04-14T10:15:30"      
+            }
+          """,
+        )
+        .exchange()
+        .expectStatus().isOk
+        .returnResult(CaseNote::class.java).responseBody.blockFirst()
+
+      assertThat(offenderCaseNoteRepository.findAll(builder().bookingId(-32).build(), unpaged())).size().isEqualTo(10)
+
+      removeCaseNoteCreated(caseNote1.caseNoteId)
+      removeCaseNoteCreated(caseNote2.caseNoteId)
+    }
+
+    @Test
+    fun testInvalidMovedCellSubType() {
+      val token = authTokenHelper.getToken(AuthToken.NORMAL_USER)
+      val newCaseNote = mapOf(
+        "type" to "MOVED_CELL",
+        "subType" to "BEH1",
+        "text" to "This is a test comment",
+      )
+      val httpEntity = createHttpEntity(token, newCaseNote)
+      val response = testRestTemplate.exchange(
+        "/api/offenders/{offenderNo}/case-notes",
+        POST,
+        httpEntity,
+        object : ParameterizedTypeReference<String?>() {},
+        OFFENDER_NUMBER,
+      )
+      assertThat(response.statusCode).isEqualTo(BAD_REQUEST)
+    }
+
+    @Test
+    fun `Validation error when create a case note with invalid type`() {
+      webTestClient.post().uri("/api/offenders/A1176RS/case-notes")
+        .headers(setAuthorisation(listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+            {
+              "type": "doesnotexist",
+              "subType": "OSE",
+              "text": "A new case note",
+              "occurrenceDateTime": "2017-04-14T10:15:30"      
+            }
+          """,
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().jsonPath("userMessage").isEqualTo("createCaseNote.caseNote: CaseNote (type,subtype)=(doesnotexist,OSE) does not exist")
+    }
+
+    @Test
+    fun `Validation error when create a case note with invalid subtype`() {
+      webTestClient.post().uri("/api/offenders/A1176RS/case-notes")
+        .headers(setAuthorisation(listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+            {
+              "type":"GEN",
+              "subType":"doesnotexist",
+              "text":"A new case note",
+              "occurrenceDateTime":"2017-04-14T10:15:30"
+            }
+          """,
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().jsonPath("userMessage").isEqualTo("createCaseNote.caseNote: CaseNote (type,subtype)=(GEN,doesnotexist) does not exist")
+    }
+
+    @Test
+    fun `Validation error when create a case note with invalid combination of type and sub-type`() {
+      webTestClient.post().uri("/api/offenders/A1176RS/case-notes")
+        .headers(setAuthorisation(listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+            {
+              "type": "DRR",
+              "subType": "HIS",
+              "text": "A new case note",
+              "occurrenceDateTime": "2017-04-14T10:15:30"      
+            }
+          """,
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().jsonPath("userMessage").isEqualTo("createCaseNote.caseNote: CaseNote (type,subtype)=(DRR,HIS) does not exist")
+    }
+
+    @Test
+    fun `Validation error when create a case note with type and sub-type combination that is valid for different caseload but not current caseload`() {
+      webTestClient.post().uri("/api/offenders/A1176RS/case-notes")
+        .headers(setAuthorisation(listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+            {
+              "type": "REC",
+              "subType": "RECRP",
+              "text": "A new case note",
+              "occurrenceDateTime": "2017-04-14T10:15:30"      
+            }
+          """,
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().jsonPath("userMessage").isEqualTo("createCaseNote.caseNote: CaseNote (type,subtype)=(REC,RECRP) does not exist")
+    }
+
+    @Test
+    fun `Validation error when create a case note with type too long`() {
+      webTestClient.post().uri("/api/offenders/A1176RS/case-notes")
+        .headers(setAuthorisation(listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+            {
+              "type": "toolongtoolongtoolong",
+              "subType": "OSE",
+              "text": "A new case note",
+              "occurrenceDateTime": "2017-04-14T10:15:30"      
+            }
+          """,
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().jsonPath("$.userMessage").value<String> { message ->
+          assertThat(message).contains("createCaseNote.caseNote.type: Value is too long: max length is 12")
+          assertThat(message).contains("createCaseNote.caseNote: CaseNote (type,subtype)=(toolongtoolongtoolong,OSE) does not exist")
+        }
+    }
+
+    @Test
+    fun `Validation error when create a case note with subtype too long`() {
+      webTestClient.post().uri("/api/offenders/A1176RS/case-notes")
+        .headers(setAuthorisation(listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+            {
+              "type": "GEN",
+              "subType": "toolongtoolongtoolong",
+              "text": "A new case note",
+              "occurrenceDateTime": "2017-04-14T10:15:30"      
+            }
+          """,
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("$.userMessage").value<String> { message ->
+          assertThat(message).contains("createCaseNote.caseNote.subType: Value is too long: max length is 12")
+          assertThat(message).contains("createCaseNote.caseNote: CaseNote (type,subtype)=(GEN,toolongtoolongtoolong) does not exist")
+        }
+    }
+
+    @Test
+    fun `Validation error when create a case note with blank type`() {
+      webTestClient.post().uri("/api/offenders/A1176RS/case-notes")
+        .headers(setAuthorisation(listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+            {
+              "type": "",
+              "subType": "OSE",
+              "text": "A new case note",
+              "occurrenceDateTime": "2017-04-14T10:15:30"      
+            }
+          """,
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().jsonPath("$.userMessage").value<String> { message ->
+          assertThat(message).contains("createCaseNote.caseNote.type: Value cannot be blank")
+          assertThat(message).contains("createCaseNote.caseNote: CaseNote (type,subtype)=(,OSE) does not exist")
+        }
+    }
+
+    @Test
+    fun `Validation error when create a case note with blank subtype`() {
+      webTestClient.post().uri("/api/offenders/A1176RS/case-notes")
+        .headers(setAuthorisation(listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+            {
+              "type": "GEN",
+              "subType": "",
+              "text": "A new case note",
+              "occurrenceDateTime": "2017-04-14T10:15:30"      
+            }
+          """,
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().jsonPath("$.userMessage").value<String> { message ->
+          assertThat(message).contains("createCaseNote.caseNote.subType: Value cannot be blank")
+          assertThat(message).contains("createCaseNote.caseNote: CaseNote (type,subtype)=(GEN,) does not exist")
+        }
+    }
+
+    @Test
+    fun `Attempt to create case note for offender is not part of any of logged on staff user's caseloads`() {
+      webTestClient.post().uri("/api/offenders/A1234AP/case-notes")
+        .headers(setAuthorisation(listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+            {
+              "type": "GEN",
+              "subType": "OSE",
+              "text": "A new case note",
+              "occurrenceDateTime": "2017-04-14T10:15:30"      
+            }
+          """,
+        )
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [A1234AP] not found.")
+    }
+
+    @Test
+    fun `Attempt to create case note for offender that does not exist`() {
+      webTestClient.post().uri("/api/offenders/A1111ZZ/case-notes")
+        .headers(setAuthorisation(listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+            {
+              "type": "GEN",
+              "subType": "OSE",
+              "text": "A new case note",
+              "occurrenceDateTime": "2017-04-14T10:15:30"      
+            }
+          """,
+        )
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [A1111ZZ] not found.")
     }
   }
 
-  @Test
-  fun testInvalidMovedCellSubType() {
-    val token = authTokenHelper.getToken(AuthToken.NORMAL_USER)
-    val newCaseNote = mapOf(
-      "type" to "MOVED_CELL",
-      "subType" to "BEH1",
-      "text" to "This is a test comment",
-    )
-    val httpEntity = createHttpEntity(token, newCaseNote)
-    val response = testRestTemplate.exchange(
-      "/api/offenders/{nomsId}/case-notes",
-      HttpMethod.POST,
-      httpEntity,
-      object : ParameterizedTypeReference<String?>() {},
-      OFFENDER_NUMBER,
-    )
-    assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+  @Nested
+  @DisplayName("GET /api/offenders/{offenderNo}/damage-obligations")
+  inner class GetDamageObligations {
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("/api/offenders/A1234AA/damage-obligations")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return 403 as endpoint does not have override role`() {
+      webTestClient.get().uri("/api/offenders/A1234AA/damage-obligations")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should return success when has VIEW_PRISONER_DATA override role`() {
+      webTestClient.get().uri("/api/offenders/A1234AA/damage-obligations")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `should return success when has GLOBAL_SEARCH override role`() {
+      webTestClient.get().uri("/api/offenders/A1234AA/damage-obligations")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+    }
   }
 
-  @Test
-  fun testCreateMovedCellCaseNote() {
-    val token = authTokenHelper.getToken(AuthToken.NORMAL_USER)
-    val newCaseNote = mapOf(
-      "type" to "MOVED_CELL",
-      "subType" to "BEH",
-      "text" to "This is a test comment",
-    )
-    val httpEntity = createHttpEntity(token, newCaseNote)
-    val response = testRestTemplate.exchange(
-      "/api/offenders/{nomsId}/case-notes",
-      HttpMethod.POST,
-      httpEntity,
-      object : ParameterizedTypeReference<String?>() {},
-      "A9876RS",
-    )
-    assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+  private fun removeCaseNoteCreated(caseNoteId: Long) {
+    val ocn = offenderCaseNoteRepository.findById(caseNoteId).get()
+    offenderCaseNoteRepository.delete(ocn)
   }
 }
