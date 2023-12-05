@@ -621,12 +621,12 @@ public class BookingService {
         }
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<OffenceDetail> getMainOffenceDetails(final Long bookingId) {
         return sentenceRepository.getMainOffenceDetails(bookingId);
     }
 
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','VIEW_PRISONER_DATA')")
+    @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA')")
     public List<OffenceDetail> getMainOffenceDetails(final Set<Long> bookingIds) {
 
         final List<OffenceDetail> results = new ArrayList<>();
