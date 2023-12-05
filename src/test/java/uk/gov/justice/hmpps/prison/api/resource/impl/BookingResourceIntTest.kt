@@ -16,7 +16,7 @@ import org.springframework.http.HttpMethod.GET
 import org.springframework.http.HttpMethod.POST
 import org.springframework.http.HttpMethod.PUT
 import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
+import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ContextConfiguration
 import uk.gov.justice.hmpps.prison.api.model.Alert
@@ -158,7 +158,7 @@ class BookingResourceIntTest : ResourceTest() {
     @Test
     fun `should return 401 when user does not even have token`() {
       webTestClient.post().uri("/api/bookings/{bookingId}/appointments", "A1234AA")
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(appointment)
         .exchange()
         .expectStatus().isUnauthorized
@@ -168,7 +168,7 @@ class BookingResourceIntTest : ResourceTest() {
     fun `returns 403 when client has no override role`() {
       webTestClient.post().uri("/api/bookings/{bookingId}/appointments", "-2")
         .headers(setClientAuthorisation(listOf()))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(appointment)
         .exchange()
         .expectStatus().isForbidden
@@ -178,7 +178,7 @@ class BookingResourceIntTest : ResourceTest() {
     fun `returns success when client has override role ROLE_GLOBAL_APPOINTMENT`() {
       val scheduledEvent = webTestClient.post().uri("/api/bookings/{bookingId}/appointments", "-2")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_APPOINTMENT")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(appointment)
         .exchange()
         .expectStatus().isCreated
@@ -193,7 +193,7 @@ class BookingResourceIntTest : ResourceTest() {
 
       webTestClient.post().uri("/api/bookings/{bookingId}/appointments", "-2")
         .headers(setAuthorisation("WAI_USER", listOf()))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(appointment)
         .exchange()
         .expectStatus().isNotFound
@@ -206,7 +206,7 @@ class BookingResourceIntTest : ResourceTest() {
 
       webTestClient.post().uri("/api/bookings/{bookingId}/appointments", "-2")
         .headers(setAuthorisation("WAI_USER", listOf("ROLE_SYSTEM_USER")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(appointment)
         .exchange()
         .expectStatus().isNotFound
@@ -216,8 +216,8 @@ class BookingResourceIntTest : ResourceTest() {
     @Test
     fun `returns success when user has offender in caseload`() {
       val scheduledEvent = webTestClient.post().uri("/api/bookings/{bookingId}/appointments", "-2")
-        .headers(setAuthorisation(listOf("")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .headers(setAuthorisation(listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(appointment)
         .exchange()
         .expectStatus().isCreated
@@ -600,30 +600,6 @@ class BookingResourceIntTest : ResourceTest() {
   }
 
   @Test
-  fun mainOffence_testRetrieveSingleOffence() {
-    val response = testRestTemplate.exchange(
-      "/api/bookings/{bookingId}/mainOffence",
-      GET,
-      createHttpEntity(NORMAL_USER, null),
-      String::class.java,
-      "-1",
-    )
-    assertThatJsonFileAndStatus(response, 200, "offender_main_offence.json")
-  }
-
-  @Test
-  fun mainOffence_testRetrieveMultipleOffences() {
-    val response = testRestTemplate.exchange(
-      "/api/bookings/{bookingId}/mainOffence",
-      GET,
-      createHttpEntity(NORMAL_USER, null),
-      String::class.java,
-      "-7",
-    )
-    assertThatJsonFileAndStatus(response, 200, "offender_main_offences.json")
-  }
-
-  @Test
   fun fullOffenderInformation() {
     val response = testRestTemplate.exchange(
       "/api/bookings/{bookingId}?extraInfo=true",
@@ -642,7 +618,6 @@ class BookingResourceIntTest : ResourceTest() {
     @Test
     fun `should return 401 when user does not even have token`() {
       webTestClient.get().uri("/api/bookings/offenderNo/{offenderNo}?extraInfo=true", "A1234AA")
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isUnauthorized
     }
@@ -750,64 +725,128 @@ class BookingResourceIntTest : ResourceTest() {
     }
   }
 
-  @Test
-  fun mainOffence_notFound() {
-    val response = testRestTemplate.exchange(
-      "/api/bookings/{bookingId}/mainOffence",
-      GET,
-      createHttpEntity(NORMAL_USER, null),
-      String::class.java,
-      "-99",
-    )
-    assertThatStatus(response, 404)
+  @Nested
+  @DisplayName("GET /api/bookings/{bookingId}/mainOffence")
+  inner class GetMainOffence {
+
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("/api/bookings/-1/mainOffence")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return 403 if does not have override role`() {
+      webTestClient.get().uri("/api/bookings/-1/mainOffence")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should return 404 if booking not found`() {
+      webTestClient.get().uri("/api/bookings/-99999/mainOffence")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isNotFound
+    }
+
+    @Test
+    fun `returns 404 if not in user caseload`() {
+      webTestClient.get().uri("/api/bookings/-1/mainOffence")
+        .headers(setAuthorisation("WAI_USER", listOf())).exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -1 not found.")
+    }
+
+    @Test
+    fun `returns success for single offence`() {
+      webTestClient.get().uri("/api/bookings/-1/mainOffence")
+        .headers(setAuthorisation(listOf(""))).exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("length()").isEqualTo(1)
+        .jsonPath("[0].bookingId").isEqualTo("-1")
+        .jsonPath("[0].offenceDescription").isEqualTo("Cause exceed max permitted wt of artic' vehicle - No of axles/configuration (No MOT/Manufacturer's Plate)")
+        .jsonPath("[0].offenceCode").isEqualTo("RV98011")
+        .jsonPath("[0].statuteCode").isEqualTo("RV98")
+    }
+
+    @Test
+    fun `returns success for multiple offences`() {
+      webTestClient.get().uri("/api/bookings/-7/mainOffence")
+        .headers(setAuthorisation(listOf(""))).exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("length()").isEqualTo(2)
+        .jsonPath("[*].bookingId").value<List<Int>> { assertThat(it).containsOnly(-7) }
+        .jsonPath("[0].offenceDescription").isEqualTo("Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury")
+        .jsonPath("$[*].offenceCode").value<List<String>> { assertThat(it).containsExactlyElementsOf(listOf("RC86355", "RC86360")) }
+        .jsonPath("$[*].statuteCode").value<List<String>> { assertThat(it).containsOnly("RC86") }
+    }
+
+    @Test
+    fun `returns success for no offences`() {
+      webTestClient.get().uri("/api/bookings/-9/mainOffence")
+        .headers(setAuthorisation(listOf(""))).exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(0)
+    }
   }
 
-  @Test
-  fun mainOffence_notInCaseload() {
-    val response = testRestTemplate.exchange(
-      "/api/bookings/{bookingId}/mainOffence",
-      GET,
-      createHttpEntity(NORMAL_USER, null),
-      String::class.java,
-      "-16",
-    )
-    assertThatStatus(response, 404)
-  }
+  @Nested
+  @DisplayName("POST /api/bookings/mainOffence")
+  inner class MainOffence {
 
-  @Test
-  fun mainOffence_noOffences() {
-    val response = testRestTemplate.exchange(
-      "/api/bookings/{bookingId}/mainOffence",
-      GET,
-      createHttpEntity(NORMAL_USER, null),
-      String::class.java,
-      "-9",
-    )
-    assertThatStatus(response, 200)
-    assertThat(response.body).isEqualTo("[]")
-  }
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.post().uri("/api/bookings/mainOffence")
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("[-1, -7]")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
 
-  @Test
-  fun offenceHistory_post() {
-    val response = testRestTemplate.exchange(
-      "/api/bookings/mainOffence",
-      POST,
-      createHttpEntity(AuthToken.SYSTEM_USER_READ_WRITE, "[-1, -7]"),
-      String::class.java,
-    )
-    assertThatJsonFileAndStatus(response, 200, "offender_main_offences_post.json")
-  }
+    @Test
+    fun `returns 403 when client does not have authorized role`() {
+      webTestClient.post().uri("/api/bookings/mainOffence")
+        .headers(setClientAuthorisation(listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("[-1, -7]")
+        .exchange()
+        .expectStatus().isForbidden
+    }
 
-  @Test
-  fun offenceHistory_post_no_offences() {
-    val response = testRestTemplate.exchange(
-      "/api/bookings/mainOffence",
-      POST,
-      createHttpEntity(AuthToken.SYSTEM_USER_READ_WRITE, "[ -98, -99 ]"),
-      String::class.java,
-    )
-    assertThatStatus(response, 200)
-    assertThat(response.body).isEqualTo("[]")
+    @Test
+    fun offenceHistory_post() {
+      webTestClient.post().uri("/api/bookings/mainOffence")
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .bodyValue("[-1, -7]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("length()").isEqualTo(3)
+        .jsonPath("[*].bookingId").value<List<Int>> { assertThat(it).containsOnly(-1, -7) }
+        .jsonPath("[0].offenceDescription").isEqualTo("Cause another to use a vehicle where the seat belt is not securely fastened to the anchorage point.")
+        .jsonPath("[1].offenceDescription").isEqualTo("Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury")
+        .jsonPath("[2].offenceDescription").isEqualTo("Cause exceed max permitted wt of artic' vehicle - No of axles/configuration (No MOT/Manufacturer's Plate)")
+        .jsonPath("$[*].offenceCode").value<List<String>> { assertThat(it).containsExactlyElementsOf(listOf("RC86360", "RC86355", "RV98011")) }
+        .jsonPath("$[*].statuteCode").value<List<String>> { assertThat(it).containsOnly("RC86", "RV98") }
+    }
+
+    @Test
+    fun offenceHistory_post_no_offences() {
+      webTestClient.post().uri("/api/bookings/mainOffence")
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .bodyValue("[-98, -99]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("length()").isEqualTo(0)
+    }
   }
 
   @Test
@@ -854,7 +893,6 @@ class BookingResourceIntTest : ResourceTest() {
     @Test
     fun `should return 401 when user does not even have token`() {
       webTestClient.get().uri("/api/bookings/-3/secondary-languages")
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isUnauthorized
     }
@@ -985,7 +1023,6 @@ class BookingResourceIntTest : ResourceTest() {
     @Test
     fun `should return 401 when user does not even have token`() {
       webTestClient.get().uri("/api/bookings/-6/assessments")
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isUnauthorized
     }
@@ -1002,8 +1039,6 @@ class BookingResourceIntTest : ResourceTest() {
     fun `should return success when has SYSTEM_USER override role`() {
       webTestClient.get().uri("/api/bookings/-6/assessments")
         .headers(setClientAuthorisation(listOf("SYSTEM_USER")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
     }
@@ -1012,8 +1047,6 @@ class BookingResourceIntTest : ResourceTest() {
     fun `should return success when has VIEW_ASSESSMENTS override role`() {
       webTestClient.get().uri("/api/bookings/-6/assessments")
         .headers(setClientAuthorisation(listOf("VIEW_ASSESSMENTS")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
     }
@@ -1022,7 +1055,6 @@ class BookingResourceIntTest : ResourceTest() {
     fun `returns 404 if user has no caseloads`() {
       webTestClient.get().uri("/api/bookings/-6/assessments")
         .headers(setAuthorisation("RO_USER", listOf()))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isNotFound
         .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -6 not found.")
@@ -1032,7 +1064,6 @@ class BookingResourceIntTest : ResourceTest() {
     fun `returns 404 if not in user caseload`() {
       webTestClient.get().uri("/api/bookings/-6/assessments")
         .headers(setAuthorisation("WAI_USER", listOf()))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isNotFound
         .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -6 not found.")
@@ -1042,7 +1073,6 @@ class BookingResourceIntTest : ResourceTest() {
     fun `returns 404 if booking not found`() {
       webTestClient.get().uri("/api/bookings/-99999/assessments")
         .headers(setAuthorisation("WAI_USER", listOf()))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isNotFound
         .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -99999 not found.")
@@ -1052,7 +1082,6 @@ class BookingResourceIntTest : ResourceTest() {
     fun `should return success when user has booking in caseload`() {
       webTestClient.get().uri("/api/bookings/-6/assessments")
         .headers(setAuthorisation(listOf()))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -1066,7 +1095,6 @@ class BookingResourceIntTest : ResourceTest() {
     @Test
     fun `should return 401 when user does not even have token`() {
       webTestClient.get().uri("/api/bookings/-3/activities")
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isUnauthorized
     }
@@ -1147,7 +1175,6 @@ class BookingResourceIntTest : ResourceTest() {
     @Test
     fun `should return 401 when user does not even have token`() {
       webTestClient.get().uri("/api/bookings/-3/balances")
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isUnauthorized
     }
@@ -1254,7 +1281,6 @@ class BookingResourceIntTest : ResourceTest() {
     @Test
     fun `should return 401 when user does not even have token`() {
       webTestClient.get().uri("/api/bookings/-3/reasonable-adjustments?type=WHEELCHR_ACC")
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isUnauthorized
     }
@@ -1287,7 +1313,6 @@ class BookingResourceIntTest : ResourceTest() {
     fun `returns 404 if user has no caseloads`() {
       webTestClient.get().uri("/api/bookings/-3/reasonable-adjustments?type=WHEELCHR_ACC")
         .headers(setAuthorisation("RO_USER", listOf()))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isNotFound
         .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -3 not found.")
@@ -1297,7 +1322,6 @@ class BookingResourceIntTest : ResourceTest() {
     fun `returns 404 if not in user caseload`() {
       webTestClient.get().uri("/api/bookings/-3/reasonable-adjustments?type=WHEELCHR_ACC")
         .headers(setAuthorisation("WAI_USER", listOf()))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isNotFound
         .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -3 not found.")
@@ -1308,7 +1332,6 @@ class BookingResourceIntTest : ResourceTest() {
     fun `returns 404 if booking not found`() {
       webTestClient.get().uri("/api/bookings/-99999/reasonable-adjustments?type=WHEELCHR_ACC")
         .headers(setAuthorisation("WAI_USER", listOf()))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isNotFound
         .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -99999 not found.")
@@ -1318,7 +1341,6 @@ class BookingResourceIntTest : ResourceTest() {
     fun `should return success when user has booking in caseload`() {
       webTestClient.get().uri("/api/bookings/-3/reasonable-adjustments?type=WHEELCHR_ACC")
         .headers(setAuthorisation(listOf()))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isOk
     }
@@ -1393,7 +1415,6 @@ class BookingResourceIntTest : ResourceTest() {
     @Test
     fun `should return 401 when user does not even have token`() {
       webTestClient.get().uri("/api/bookings/-6/military-records")
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isUnauthorized
     }
@@ -1426,7 +1447,6 @@ class BookingResourceIntTest : ResourceTest() {
     fun `returns 404 if not in user caseload`() {
       webTestClient.get().uri("/api/bookings/-6/military-records")
         .headers(setAuthorisation("WAI_USER", listOf()))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isNotFound
         .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -6 not found.")
@@ -1436,7 +1456,6 @@ class BookingResourceIntTest : ResourceTest() {
     fun `returns 404 if booking not found`() {
       webTestClient.get().uri("/api/bookings/-99999/military-records")
         .headers(setAuthorisation(listOf()))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isNotFound
         .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -99999 not found.")
@@ -1446,7 +1465,6 @@ class BookingResourceIntTest : ResourceTest() {
     fun `should return success when user has booking in caseload`() {
       webTestClient.get().uri("/api/bookings/-6/military-records")
         .headers(setAuthorisation(listOf()))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isOk
     }
@@ -1459,7 +1477,6 @@ class BookingResourceIntTest : ResourceTest() {
     @Test
     fun `should return 401 when user does not even have token`() {
       webTestClient.get().uri("/api/bookings/-6/visits-with-visitors")
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isUnauthorized
     }
