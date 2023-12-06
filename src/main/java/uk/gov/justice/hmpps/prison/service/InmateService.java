@@ -10,7 +10,6 @@ import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -48,7 +47,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImageReposi
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderLanguageRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
-import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.support.AssessmentDto;
@@ -485,23 +483,6 @@ public class InmateService {
             && assessmentDto.getOverridedSupLevelType() == null;
     }
 
-    @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA','SYSTEM_USER')")
-    public List<OffenderCategorise> getOffenderCategorisationsSystem(final Set<Long> bookingIds, final boolean latestOnly) {
-        return doGetOffenderCategorisations(null, bookingIds, latestOnly);
-    }
-
-    private List<OffenderCategorise> doGetOffenderCategorisations(final String agencyId, final Set<Long> bookingIds, final boolean latestOnly) {
-        final List<OffenderCategorise> results = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(bookingIds)) {
-            final var batch = Lists.partition(new ArrayList<>(bookingIds), maxBatchSize);
-            batch.forEach(offenderBatch -> {
-                final var categorisations = repository.getOffenderCategorisations(offenderBatch, agencyId, latestOnly);
-                results.addAll(categorisations);
-            });
-        }
-        return results;
-    }
-
     private Optional<Assessment> findCategory(final List<Assessment> assessmentsForOffender) {
         return assessmentsForOffender.stream().filter(a -> "CATEGORY".equals(a.getAssessmentCode())).findFirst();
     }
@@ -531,7 +512,6 @@ public class InmateService {
             .build();
     }
 
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "VIEW_ASSESSMENTS"})
     public List<OffenderCategorise> getCategory(final String agencyId, final CategoryInformationType type, final LocalDate date) {
         return switch (type) {
             case UNCATEGORISED -> repository.getUncategorised(agencyId);
@@ -541,7 +521,6 @@ public class InmateService {
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "MAINTAIN_ASSESSMENTS"})
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','MAINTAIN_ASSESSMENTS','CREATE_CATEGORISATION','CREATE_RECATEGORISATION')")
     @Transactional
     public Map<String, Long> createCategorisation(final Long bookingId, final CategorisationDetail categorisationDetail) {
         validate(categorisationDetail);
@@ -555,7 +534,6 @@ public class InmateService {
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "MAINTAIN_ASSESSMENTS"})
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','MAINTAIN_ASSESSMENTS','CREATE_CATEGORISATION','CREATE_RECATEGORISATION')")
     @Transactional
     public void updateCategorisation(final Long bookingId, final CategorisationUpdateDetail detail) {
         validate(detail);
@@ -566,7 +544,6 @@ public class InmateService {
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "MAINTAIN_ASSESSMENTS"})
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','MAINTAIN_ASSESSMENTS','APPROVE_CATEGORISATION')")
     @Transactional
     public void approveCategorisation(final Long bookingId, final CategoryApprovalDetail detail) {
         validate(detail);
@@ -577,7 +554,6 @@ public class InmateService {
     }
 
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "MAINTAIN_ASSESSMENTS"})
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','MAINTAIN_ASSESSMENTS','APPROVE_CATEGORISATION')")
     @Transactional
     public void rejectCategorisation(final Long bookingId, final CategoryRejectionDetail detail) {
         validate(detail);
@@ -588,7 +564,6 @@ public class InmateService {
     }
 
     @Transactional
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','MAINTAIN_ASSESSMENTS')")
     public void setCategorisationInactive(final Long bookingId, final AssessmentStatusType status) {
         final var count = repository.setCategorisationInactive(bookingId, status);
 
@@ -600,7 +575,6 @@ public class InmateService {
     }
 
     @Transactional
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','MAINTAIN_ASSESSMENTS')")
     public void updateCategorisationNextReviewDate(final Long bookingId, final LocalDate nextReviewDate) {
         repository.updateActiveCategoryNextReviewDate(bookingId, nextReviewDate);
 

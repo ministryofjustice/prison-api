@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
-import net.javacrumbs.jsonunit.assertj.JsonAssertions
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import org.apache.commons.lang3.StringUtils
 import org.assertj.core.api.Assertions.assertThat
@@ -18,7 +17,6 @@ import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.HttpStatus.OK
-import org.springframework.http.MediaType
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.jdbc.core.JdbcTemplate
 import uk.gov.justice.hmpps.prison.api.model.CategorisationDetail
@@ -30,7 +28,7 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper
 import uk.gov.justice.hmpps.prison.util.Extractors
 import uk.gov.justice.hmpps.prison.util.Extractors.extractString
 import java.time.LocalDate
-import java.util.Date
+import java.util.*
 
 class OffenderAssessmentResourceIntTest : ResourceTest() {
   @Autowired
@@ -55,11 +53,11 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `returns 200 when client has override role ROLE_SYSTEM_USER`() {
+    fun `returns 403 when client has override role ROLE_SYSTEM_USER`() {
       webTestClient.put().uri("/api/offender-assessments/category/-1/nextReviewDate/2018-06-05")
         .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
         .exchange()
-        .expectStatus().isOk
+        .expectStatus().isForbidden
     }
 
     @Test
@@ -87,17 +85,10 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
 
     @Test
     fun testUpdateCategoryNextReviewDateActiveCategorisationDoesNotExist() {
-      val token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE)
-      val httpEntity = createHttpEntity(token, null)
-      val response = testRestTemplate.exchange(
-        "/api/offender-assessments/category/{bookingId}/nextReviewDate/{nextReviewDate}",
-        PUT,
-        httpEntity,
-        object : ParameterizedTypeReference<String>() {},
-        "-56",
-        "2018-06-05",
-      )
-      assertThatStatus(response, NOT_FOUND.value())
+      webTestClient.put().uri("/api/offender-assessments/category/{bookingId}/nextReviewDate/{nextReviewDate}", -56, "2018-06-05")
+        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_ASSESSMENTS")))
+        .exchange()
+        .expectStatus().isNotFound
     }
   }
 
@@ -121,11 +112,11 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `returns 200 when client has override role ROLE_SYSTEM_USER`() {
+    fun `returns 403 when client has override role ROLE_SYSTEM_USER`() {
       webTestClient.put().uri("/api/offender-assessments/category/-34/inactive")
         .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
         .exchange()
-        .expectStatus().isOk
+        .expectStatus().isForbidden
     }
 
     @Test
@@ -137,26 +128,21 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `returns 200 when client has override role ROLE_SYSTEM_USER and sets pending inactive`() {
+    fun `returns 200 when client has override role ROLE_MAINTAIN_ASSESSMENTS and sets pending inactive`() {
       webTestClient.put().uri("/api/offender-assessments/category/-31/inactive?status=PENDING")
-        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_ASSESSMENTS")))
         .exchange()
         .expectStatus().isOk
     }
 
     @Test
     fun testSetPendingInactiveValidationError() {
-      val token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE)
-      val httpEntity = createHttpEntity(token, null)
-      val response = testRestTemplate.exchange(
-        "/api/offender-assessments/category/{bookingId}/inactive?status=OTHER",
-        PUT,
-        httpEntity,
-        object : ParameterizedTypeReference<String>() {},
-        "-34",
-      )
-      assertThatStatus(response, BAD_REQUEST.value())
-      assertThat(response.body).contains("Assessment status type is invalid: OTHER")
+      webTestClient.put().uri("/api/offender-assessments/category/-34/inactive?status=OTHER")
+        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_ASSESSMENTS")))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("userMessage").isEqualTo("Assessment status type is invalid: OTHER")
     }
 
     @Test
@@ -192,7 +178,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       fun `should return 403 if client does not have authorised role`() {
         webTestClient.get().uri("/api/offender-assessments/category/LEI?type=UNCATEGORISED")
           .headers(setClientAuthorisation(listOf()))
-          .accept(MediaType.APPLICATION_JSON)
           .exchange()
           .expectStatus().isForbidden
           .expectBody().jsonPath("userMessage")
@@ -203,25 +188,22 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       fun `should return success if has VIEW_ASSESSMENTS override role`() {
         webTestClient.get().uri("/api/offender-assessments/category/LEI?type=UNCATEGORISED")
           .headers(setClientAuthorisation(listOf("VIEW_ASSESSMENTS")))
-          .accept(MediaType.APPLICATION_JSON)
           .exchange()
           .expectStatus().isOk
       }
 
       @Test
-      fun `should return success if has SYSTEM_USER override role`() {
+      fun `should return 403 if has SYSTEM_USER override role`() {
         webTestClient.get().uri("/api/offender-assessments/category/LEI?type=UNCATEGORISED")
           .headers(setClientAuthorisation(listOf("SYSTEM_USER")))
-          .accept(MediaType.APPLICATION_JSON)
           .exchange()
-          .expectStatus().isOk
+          .expectStatus().isForbidden
       }
 
       @Test
       fun `returns 404 if user has no caseloads`() {
         webTestClient.get().uri("/api/offender-assessments/category/LEI?type=UNCATEGORISED")
           .headers(setAuthorisation("RO_USER", listOf()))
-          .accept(MediaType.APPLICATION_JSON)
           .exchange()
           .expectStatus().isNotFound
           .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [LEI] not found.")
@@ -231,7 +213,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       fun `returns 404 if not in user caseload`() {
         webTestClient.get().uri("/api/offender-assessments/category/LEI?type=UNCATEGORISED")
           .headers(setAuthorisation("WAI_USER", listOf()))
-          .accept(MediaType.APPLICATION_JSON)
           .exchange()
           .expectStatus().isNotFound
           .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [LEI] not found.")
@@ -241,7 +222,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       fun `returns 404 if booking not found`() {
         webTestClient.get().uri("/api/offender-assessments/category/LEI?type=UNCATEGORISED")
           .headers(setAuthorisation("WAI_USER", listOf()))
-          .accept(MediaType.APPLICATION_JSON)
           .exchange()
           .expectStatus().isNotFound
           .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [LEI] not found.")
@@ -251,69 +231,11 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       fun `returns success if  in user caseload`() {
         webTestClient.get().uri("/api/offender-assessments/category/LEI?type=UNCATEGORISED")
           .headers(setAuthorisation("ITAG_USER", listOf()))
-          .accept(MediaType.APPLICATION_JSON)
           .exchange()
           .expectStatus().isOk
           .expectBody()
           .jsonPath("$.length()").isEqualTo(24)
       }
-    }
-  }
-
-  @Nested
-  @DisplayName("POST /api/offender-assessments/category")
-  inner class PostOffenderCategorisations {
-
-    @Test
-    fun testGetOffenderCategorisationsSystem() {
-      webTestClient.post().uri("/api/offender-assessments/category?latest=false")
-        .headers(setAuthorisation("ITAG_USER", listOf("VIEW_PRISONER_DATA")))
-        .header("Content-Type", APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
-        .bodyValue(
-          """
-           [ "-1", "-2", "-3", "-38", "-39", "-40", "-41"]
-            """,
-        )
-        .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .jsonPath("length()").isEqualTo(6)
-        .jsonPath("[0].bookingId").isEqualTo(-1)
-        .jsonPath("[1].bookingId").isEqualTo(-3)
-        .jsonPath("[2].bookingId").isEqualTo(-38)
-        .jsonPath("[3].bookingId").isEqualTo(-39)
-        .jsonPath("[4].bookingId").isEqualTo(-40)
-        .jsonPath("[5].bookingId").isEqualTo(-41)
-    }
-  }
-
-  @Nested
-  @DisplayName("POST /api/offender-assessments/csra/rating")
-  inner class CRSARating {
-    @Test
-    fun testGetCsraRatings() {
-      val httpEntity = createHttpEntity(AuthToken.VIEW_PRISONER_DATA, listOf("A1183JE", "A1234BB"))
-      val response = testRestTemplate.exchange(
-        "/api/offender-assessments/csra/rating",
-        POST,
-        httpEntity,
-        String::class.java,
-      )
-      assertThatJsonFileAndStatus(response, OK.value(), "csra_ratings.json")
-    }
-
-    @Test
-    fun testGetCsraRatingsInvalidOffenderNos() {
-      val httpEntity = createHttpEntity(AuthToken.VIEW_PRISONER_DATA, listOf<Any>())
-      val response = testRestTemplate.exchange(
-        "/api/offender-assessments/csra/rating",
-        POST,
-        httpEntity,
-        String::class.java,
-      )
-      assertThatStatus(response, BAD_REQUEST.value())
-      assertThatJson(response.body!!).node("userMessage").asString().contains("postOffenderAssessmentsCsraRatings.offenderList: must not be empty")
     }
   }
 
@@ -324,7 +246,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
     @Test
     fun `should return 401 when user does not even have token`() {
       webTestClient.get().uri("/api/offender-assessments/csra/-43/assessment/2")
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isUnauthorized
     }
@@ -341,8 +262,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
     fun `should return success when has ROLE_VIEW_PRISONER_DATA override role`() {
       webTestClient.get().uri("/api/offender-assessments/csra/-43/assessment/2")
         .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
     }
@@ -351,8 +270,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
     fun `should return success when has ROLE_GLOBAL_SEARCH override role`() {
       webTestClient.get().uri("/api/offender-assessments/csra/-43/assessment/2")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
     }
@@ -416,7 +333,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
     @Test
     fun `should return 401 when user does not even have token`() {
       webTestClient.get().uri("/api/offender-assessments/csra/A1183JE")
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isUnauthorized
     }
@@ -433,8 +350,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
     fun `should return success when has ROLE_VIEW_PRISONER_DATA override role`() {
       webTestClient.get().uri("/api/offender-assessments/csra/A1183JE")
         .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isOk
     }
@@ -443,8 +359,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
     fun `should return success when has ROLE_GLOBAL_SEARCH override role`() {
       webTestClient.get().uri("/api/offender-assessments/csra/A1183JE")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isOk
     }
@@ -489,50 +404,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
   }
 
   @Nested
-  @DisplayName("GET /api/offender-assessments/assessments")
-  inner class CRSAAssessments {
-
-    @Test
-    fun testGetAssessments() {
-      val httpEntity = createHttpEntity(AuthToken.VIEW_PRISONER_DATA, null)
-      val response = testRestTemplate.exchange(
-        "/api/offender-assessments/assessments?offenderNo=A1234AD&latestOnly=false&activeOnly=false",
-        GET,
-        httpEntity,
-        String::class.java,
-      )
-      assertThatJsonFileAndStatus(response, OK.value(), "assessments.json")
-    }
-
-    @Test
-    fun testGetAssessmentsMostRecentTrue() {
-      val httpEntity = createHttpEntity(AuthToken.VIEW_PRISONER_DATA, null)
-      val response = testRestTemplate.exchange(
-        "/api/offender-assessments/assessments?offenderNo=A1234AD&latestOnly=false&activeOnly=false&mostRecentOnly=true",
-        GET,
-        httpEntity,
-        String::class.java,
-      )
-      assertThatStatus(response, OK.value())
-      assertThatJson(response.body!!).isArray().hasSize(1)
-      assertThatJson(response.body!!).node("[0].assessmentSeq").isEqualTo(JsonAssertions.value(1))
-    }
-
-    @Test
-    fun testGetAssessmentsMissingOffenderNo() {
-      val httpEntity = createHttpEntity(AuthToken.VIEW_PRISONER_DATA, null)
-      val response = testRestTemplate.exchange(
-        "/api/offender-assessments/assessments?latestOnly=false&activeOnly=false",
-        GET,
-        httpEntity,
-        String::class.java,
-      )
-      assertThatStatus(response, BAD_REQUEST.value())
-      assertThatJson(response.body!!).node("userMessage").asString().contains("Required request parameter 'offenderNo' for method parameter type List is not present")
-    }
-  }
-
-  @Nested
   @DisplayName("POST /api/offender-assessments/category/categorise")
   inner class CreateCategorisation {
 
@@ -561,7 +432,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         webTestClient.post().uri("/api/offender-assessments/category/categorise")
           .headers(setClientAuthorisation(listOf()))
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .accept(MediaType.APPLICATION_JSON)
           .bodyValue(
             """
             {
@@ -580,7 +450,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         webTestClient.post().uri("/api/offender-assessments/category/categorise")
           .headers(setAuthorisation("RO_USER", listOf("CREATE_CATEGORISATION")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .accept(MediaType.APPLICATION_JSON)
           .bodyValue(
             """
             {
@@ -600,7 +469,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         webTestClient.post().uri("/api/offender-assessments/category/categorise")
           .headers(setAuthorisation("WAI_USER", listOf("CREATE_CATEGORISATION")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .accept(MediaType.APPLICATION_JSON)
           .bodyValue(
             """
             {
@@ -620,7 +488,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         webTestClient.post().uri("/api/offender-assessments/category/categorise")
           .headers(setAuthorisation("WAI_USER", listOf("CREATE_CATEGORISATION")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .accept(MediaType.APPLICATION_JSON)
           .bodyValue(
             """
             {
@@ -640,7 +507,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         webTestClient.post().uri("/api/offender-assessments/category/categorise")
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .headers(setAuthorisation("ITAG_USER", listOf("CREATE_CATEGORISATION")))
-          .accept(MediaType.APPLICATION_JSON)
           .bodyValue(
             """
             {
@@ -661,7 +527,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         webTestClient.post().uri("/api/offender-assessments/category/categorise")
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .headers(setAuthorisation("ITAG_USER", listOf("CREATE_RECATEGORISATION")))
-          .accept(MediaType.APPLICATION_JSON)
           .bodyValue(
             """
             {
@@ -797,7 +662,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         webTestClient.put().uri("/api/offender-assessments/category/categorise")
           .headers(setClientAuthorisation(listOf()))
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .accept(MediaType.APPLICATION_JSON)
           .bodyValue(
             """
             {
@@ -816,7 +680,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         webTestClient.put().uri("/api/offender-assessments/category/categorise")
           .headers(setAuthorisation("ITAG_USER", listOf()))
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .accept(MediaType.APPLICATION_JSON)
           .bodyValue(
             """
             {
@@ -835,7 +698,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         webTestClient.put().uri("/api/offender-assessments/category/categorise")
           .headers(setAuthorisation("RO_USER", listOf("CREATE_CATEGORISATION")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .accept(MediaType.APPLICATION_JSON)
           .bodyValue(
             """
             {
@@ -855,7 +717,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         webTestClient.put().uri("/api/offender-assessments/category/categorise")
           .headers(setAuthorisation("WAI_USER", listOf("CREATE_CATEGORISATION")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .accept(MediaType.APPLICATION_JSON)
           .bodyValue(
             """
             {
@@ -875,7 +736,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         webTestClient.put().uri("/api/offender-assessments/category/categorise")
           .headers(setAuthorisation("WAI_USER", listOf("CREATE_CATEGORISATION")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .accept(MediaType.APPLICATION_JSON)
           .bodyValue(
             """
             {
@@ -895,7 +755,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         webTestClient.put().uri("/api/offender-assessments/category/categorise")
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .headers(setAuthorisation("ITAG_USER", listOf("CREATE_CATEGORISATION")))
-          .accept(MediaType.APPLICATION_JSON)
           .bodyValue(
             """
             {
@@ -914,7 +773,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         webTestClient.put().uri("/api/offender-assessments/category/categorise")
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .headers(setAuthorisation("ITAG_USER", listOf("CREATE_RECATEGORISATION")))
-          .accept(MediaType.APPLICATION_JSON)
           .bodyValue(
             """
             {
@@ -1079,7 +937,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         webTestClient.put().uri("/api/offender-assessments/category/approve")
           .headers(setClientAuthorisation(listOf()))
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .accept(MediaType.APPLICATION_JSON)
           .bodyValue(
             """
             {
@@ -1100,7 +957,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       fun `should return success if has MAINTAIN_ASSESSMENTS override role`() {
         webTestClient.put().uri("/api/offender-assessments/category/approve")
           .headers(setClientAuthorisation(listOf("MAINTAIN_ASSESSMENTS")))
-          .accept(MediaType.APPLICATION_JSON)
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .bodyValue(
             """
@@ -1121,10 +977,9 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       }
 
       @Test
-      fun `should return success if has SYSTEM_USER override role`() {
+      fun `returns 403 if user has SYSTEM role`() {
         webTestClient.put().uri("/api/offender-assessments/category/approve")
           .headers(setClientAuthorisation(listOf("SYSTEM_USER")))
-          .accept(MediaType.APPLICATION_JSON)
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .bodyValue(
             """
@@ -1139,9 +994,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
             """,
           )
           .exchange()
-          .expectStatus().isCreated
-
-        resetApprovedCategorisation()
+          .expectStatus().isForbidden
       }
 
       @Test
@@ -1149,7 +1002,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         webTestClient.put().uri("/api/offender-assessments/category/approve")
           .headers(setAuthorisation("ITAG_USER", listOf()))
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .accept(MediaType.APPLICATION_JSON)
           .bodyValue(
             """
             {
@@ -1171,7 +1023,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         webTestClient.put().uri("/api/offender-assessments/category/approve")
           .headers(setAuthorisation("RO_USER", listOf("APPROVE_CATEGORISATION")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .accept(MediaType.APPLICATION_JSON)
           .bodyValue(
             """
             {
@@ -1194,7 +1045,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         webTestClient.put().uri("/api/offender-assessments/category/approve")
           .headers(setAuthorisation("WAI_USER", listOf("APPROVE_CATEGORISATION")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .accept(MediaType.APPLICATION_JSON)
           .bodyValue(
             """
             {
@@ -1217,7 +1067,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         webTestClient.put().uri("/api/offender-assessments/category/approve")
           .headers(setAuthorisation("WAI_USER", listOf("APPROVE_CATEGORISATION")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .accept(MediaType.APPLICATION_JSON)
           .bodyValue(
             """
             {
@@ -1240,7 +1089,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         webTestClient.put().uri("/api/offender-assessments/category/approve")
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .headers(setAuthorisation("ITAG_USER", listOf("APPROVE_CATEGORISATION")))
-          .accept(MediaType.APPLICATION_JSON)
           .bodyValue(
             """
             {
@@ -1392,7 +1240,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         webTestClient.put().uri("/api/offender-assessments/category/reject")
           .headers(setClientAuthorisation(listOf()))
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .accept(MediaType.APPLICATION_JSON)
           .bodyValue(
             """
             {
@@ -1412,7 +1259,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       fun `should return success if has MAINTAIN_ASSESSMENTS override role`() {
         webTestClient.put().uri("/api/offender-assessments/category/reject")
           .headers(setClientAuthorisation(listOf("MAINTAIN_ASSESSMENTS")))
-          .accept(MediaType.APPLICATION_JSON)
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .bodyValue(
             """
@@ -1430,10 +1276,9 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       }
 
       @Test
-      fun `should return success if has SYSTEM_USER override role`() {
+      fun `should return 403 if has SYSTEM_USER override role`() {
         webTestClient.put().uri("/api/offender-assessments/category/reject")
           .headers(setClientAuthorisation(listOf("SYSTEM_USER")))
-          .accept(MediaType.APPLICATION_JSON)
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .bodyValue(
             """
@@ -1447,7 +1292,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
             """,
           )
           .exchange()
-          .expectStatus().isCreated
+          .expectStatus().isForbidden
       }
 
       @Test
@@ -1455,7 +1300,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         webTestClient.put().uri("/api/offender-assessments/category/reject")
           .headers(setAuthorisation("ITAG_USER", listOf()))
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .accept(MediaType.APPLICATION_JSON)
           .bodyValue(
             """
             {
@@ -1476,7 +1320,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         webTestClient.put().uri("/api/offender-assessments/category/reject")
           .headers(setAuthorisation("RO_USER", listOf("APPROVE_CATEGORISATION")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .accept(MediaType.APPLICATION_JSON)
           .bodyValue(
             """
             {
@@ -1498,7 +1341,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         webTestClient.put().uri("/api/offender-assessments/category/reject")
           .headers(setAuthorisation("WAI_USER", listOf("APPROVE_CATEGORISATION")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .accept(MediaType.APPLICATION_JSON)
           .bodyValue(
             """
             {
@@ -1520,7 +1362,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         webTestClient.put().uri("/api/offender-assessments/category/reject")
           .headers(setAuthorisation("WAI_USER", listOf("APPROVE_CATEGORISATION")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .accept(MediaType.APPLICATION_JSON)
           .bodyValue(
             """
             {
@@ -1542,7 +1383,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         webTestClient.put().uri("/api/offender-assessments/category/reject")
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .headers(setAuthorisation("ITAG_USER", listOf("APPROVE_CATEGORISATION")))
-          .accept(MediaType.APPLICATION_JSON)
           .bodyValue(
             """
             {

@@ -156,7 +156,7 @@ class MovementResourceTest : ResourceTest() {
   }
 
   @Nested
-  @DisplayName("GET /api/movements/LEI/enroute")
+  @DisplayName("GET /api/movements/{agencyId}/enroute")
   inner class GetMovementsByAgencyEnRoute {
 
     @Test
