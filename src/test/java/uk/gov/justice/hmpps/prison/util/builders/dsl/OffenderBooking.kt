@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.util.builders.dsl
 
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
+import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingReleaseBuilder
 import uk.gov.justice.hmpps.prison.util.builders.TestDataContext
 import java.time.LocalDateTime
 
@@ -8,7 +9,14 @@ import java.time.LocalDateTime
 annotation class BookingDslMarker
 
 @NomisDataDslMarker
-interface BookingDsl
+interface BookingDsl {
+  @BookingDslMarker
+  fun release(
+    releaseTime: LocalDateTime = LocalDateTime.now().minusHours(1),
+    movementReasonCode: String = "CR",
+    commentText: String = "Conditional release",
+  )
+}
 
 class BookingBuilderRepository(
   private val testDataContext: TestDataContext,
@@ -41,9 +49,26 @@ class BookingBuilderRepository(
   ).save(
     webTestClient = testDataContext.webTestClient,
     jwtAuthenticationHelper = testDataContext.jwtAuthenticationHelper,
-    offenderNo = offenderId.nomsId,
+    offenderNo = offenderId.offenderNo,
     dataLoader = testDataContext.dataLoader,
-  ).let { OffenderBookingId(it.bookingId) }
+  ).let { OffenderBookingId(offenderNo = offenderId.offenderNo, it.bookingId) }
+
+  fun release(
+    offenderNo: String,
+    releaseTime: LocalDateTime,
+    movementReasonCode: String,
+    commentText: String,
+  ) {
+    OffenderBookingReleaseBuilder(
+      offenderNo = offenderNo,
+      releaseTime = releaseTime,
+      movementReasonCode = movementReasonCode,
+      commentText = commentText,
+    ).release(
+      webTestClient = testDataContext.webTestClient,
+      jwtAuthenticationHelper = testDataContext.jwtAuthenticationHelper,
+    )
+  }
 }
 
 class BookingBuilderFactory(
@@ -94,6 +119,15 @@ class BookingBuilder(
       youthOffender = youthOffender,
     ).also { offenderBookingId = it }
   }
+
+  override fun release(releaseTime: LocalDateTime, movementReasonCode: String, commentText: String) {
+    repository.release(
+      offenderNo = offenderBookingId.offenderNo,
+      releaseTime = releaseTime,
+      movementReasonCode = movementReasonCode,
+      commentText = commentText,
+    )
+  }
 }
 
-data class OffenderBookingId(val bookingId: Long)
+data class OffenderBookingId(val offenderNo: String, val bookingId: Long)

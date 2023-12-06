@@ -129,4 +129,4 @@ class OffenderBuilder(
     }
 }
 
-data class OffenderId(val nomsId: String)
+data class OffenderId(val offenderNo: String)
