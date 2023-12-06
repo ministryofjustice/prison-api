@@ -22,7 +22,7 @@ import java.util.Optional
 
 class OffenderResourceImplIntTest_getMilitaryRecords : ResourceTest() {
 
-  private fun setUpRepositoryCall() {
+  private fun stubRepositoryCall() {
     whenever(offenderBookingRepository.findById(anyLong())).thenReturn(
       Optional.of(
         OffenderBooking.builder()
@@ -74,7 +74,7 @@ class OffenderResourceImplIntTest_getMilitaryRecords : ResourceTest() {
 
   @Test
   fun `should return success when has ROLE_VIEW_PRISONER_DATA override role`() {
-    setUpRepositoryCall()
+    stubRepositoryCall()
     webTestClient.get().uri("/api/offenders/A1234AA/military-records")
       .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
       .exchange()
@@ -83,7 +83,7 @@ class OffenderResourceImplIntTest_getMilitaryRecords : ResourceTest() {
 
   @Test
   fun shouldReturnMilitaryRecords() {
-    setUpRepositoryCall()
+    stubRepositoryCall()
     val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf(), mapOf())
     val responseEntity = testRestTemplate.exchange(
       "/api/offenders/A1234AA/military-records",
