@@ -145,7 +145,7 @@ public class BookingService {
     private final AgencyLocationRepository agencyLocationRepository;
 
     private static final String AGENCY_LOCATION_ID_KEY = "agencyLocationId";
-    public static final String[] RESTRICTED_ALLOWED_ROLES = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "CREATE_CATEGORISATION", "APPROVE_CATEGORISATION"};
+    public static final String[] RESTRICTED_ALLOWED_ROLES = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "CREATE_CATEGORISATION", "APPROVE_CATEGORISATION"};
 
     private final Comparator<ScheduledEvent> startTimeComparator = Comparator.comparing(ScheduledEvent::getStartTime, nullsLast(naturalOrder()));
 
@@ -1191,7 +1191,7 @@ public class BookingService {
             throw new BadRequestException("At least one attribute of a prisonId, bookingId or offenderNo must be specified");
         }
 
-        final var viewAllPrisoners = authenticationFacade.isOverrideRole("SYSTEM_USER", "VIEW_PRISONER_DATA");
+        final var viewAllPrisoners = authenticationFacade.isOverrideRole("VIEW_PRISONER_DATA");
 
         final var filter = OffenderBookingFilter
             .builder()

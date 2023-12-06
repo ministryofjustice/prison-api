@@ -82,6 +82,30 @@ class BookingResourceIntTest : ResourceTest() {
   @Nested
   @DisplayName("GET /api/bookings/v2")
   inner class GetBookingsV2 {
+
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("/api/bookings/v2?prisonId=BXI")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `returns empty results if not in user caseload`() {
+      webTestClient.get().uri("/api/bookings/v2?prisonId=LEI")
+        .headers(setAuthorisation("WAI_USER", listOf())).exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("totalElements").isEqualTo(0)
+    }
+
+    @Test
+    fun `returns all bookings if not in user caseload but has ROLE_VIEW_PRISONER_DATA override role`() {
+      webTestClient.get().uri("/api/bookings/v2?prisonId=LEI")
+        .headers(setAuthorisation("WAI_USER", listOf("ROLE_VIEW_PRISONER_DATA"))).exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("totalElements").isEqualTo(27)
+    }
+
     @Test
     fun testGetBookingsV2ByPrison() {
       val token = authTokenHelper.getToken(NORMAL_USER)
