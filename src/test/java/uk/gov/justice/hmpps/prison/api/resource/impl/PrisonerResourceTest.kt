@@ -161,11 +161,11 @@ class PrisonerResourceTest : ResourceTest() {
     }
 
     @Test
-    fun `returns 200 when client has override role ROLE_SYSTEM_USER`() {
+    fun `returns 403 when client has override role ROLE_SYSTEM_USER`() {
       webTestClient.get().uri("/api/prisoners/A1234AA/full-status")
         .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
         .exchange()
-        .expectStatus().isOk
+        .expectStatus().isForbidden
     }
 
     @Test
