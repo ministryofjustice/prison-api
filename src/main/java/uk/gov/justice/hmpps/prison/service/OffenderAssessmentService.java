@@ -17,15 +17,15 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderAssessment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderAssessmentItem;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AssessmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderAssessmentRepository;
-import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
-import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 
 @Service
 @Validated

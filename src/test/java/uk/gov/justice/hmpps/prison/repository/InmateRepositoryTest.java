@@ -173,8 +173,8 @@ public class InmateRepositoryTest {
         final var results = foundInmates.getItems();
 
         assertThat(results).hasSize(8);
-        assertThat(results).extracting("convictedStatus").containsOnlyElementsOf(List.of("Convicted"));
-        assertThat(results).extracting("imprisonmentStatus").containsOnlyElementsOf(List.of("SENT", "DEPORT"));
+        assertThat(results).extracting("convictedStatus").containsOnly("Convicted");
+        assertThat(results).extracting("imprisonmentStatus").containsOnly("SENT", "DEPORT");
     }
 
     @Test
@@ -192,8 +192,8 @@ public class InmateRepositoryTest {
         final var results = foundInmates.getItems();
 
         assertThat(results).hasSize(3);
-        assertThat(results).extracting("convictedStatus").containsOnlyElementsOf(List.of("Remand"));
-        assertThat(results).extracting("imprisonmentStatus").containsOnlyElementsOf(List.of("TRL"));
+        assertThat(results).extracting("convictedStatus").containsOnly("Remand");
+        assertThat(results).extracting("imprisonmentStatus").containsOnly("TRL");
     }
 
     @Test
@@ -1210,7 +1210,7 @@ public class InmateRepositoryTest {
     @Test
     public void findPhysicalAttributes() {
         final var physicalAttributes = repository.findPhysicalAttributes(-1);
-        assertThat(physicalAttributes).get().isEqualTo(
+        assertThat(physicalAttributes.orElseThrow()).isEqualTo(
             PhysicalAttributes.builder()
                 .gender("Male")
                 .sexCode("M")
@@ -1285,8 +1285,7 @@ public class InmateRepositoryTest {
     @Test
     public void getOffenderDetailsContainsReceptionDate(){
         final var offender = repository.findOffender("A1234AA");
-        assertThat(offender.get().getReceptionDate()).isEqualTo(LocalDate.now());
-
+        assertThat(offender.orElseThrow().getReceptionDate()).isEqualTo(LocalDate.now());
     }
 
     @Test

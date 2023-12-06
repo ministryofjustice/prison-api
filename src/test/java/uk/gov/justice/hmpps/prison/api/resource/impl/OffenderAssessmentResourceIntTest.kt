@@ -17,7 +17,6 @@ import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.HttpStatus.OK
-import org.springframework.http.MediaType
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.jdbc.core.JdbcTemplate
 import uk.gov.justice.hmpps.prison.api.model.CategorisationDetail
@@ -29,7 +28,7 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper
 import uk.gov.justice.hmpps.prison.util.Extractors
 import uk.gov.justice.hmpps.prison.util.Extractors.extractString
 import java.time.LocalDate
-import java.util.Date
+import java.util.*
 
 class OffenderAssessmentResourceIntTest : ResourceTest() {
   @Autowired
@@ -54,11 +53,11 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `returns 200 when client has override role ROLE_SYSTEM_USER`() {
+    fun `returns 403 when client has override role ROLE_SYSTEM_USER`() {
       webTestClient.put().uri("/api/offender-assessments/category/-1/nextReviewDate/2018-06-05")
         .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
         .exchange()
-        .expectStatus().isOk
+        .expectStatus().isForbidden
     }
 
     @Test
@@ -86,17 +85,10 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
 
     @Test
     fun testUpdateCategoryNextReviewDateActiveCategorisationDoesNotExist() {
-      val token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE)
-      val httpEntity = createHttpEntity(token, null)
-      val response = testRestTemplate.exchange(
-        "/api/offender-assessments/category/{bookingId}/nextReviewDate/{nextReviewDate}",
-        PUT,
-        httpEntity,
-        object : ParameterizedTypeReference<String>() {},
-        "-56",
-        "2018-06-05",
-      )
-      assertThatStatus(response, NOT_FOUND.value())
+      webTestClient.put().uri("/api/offender-assessments/category/{bookingId}/nextReviewDate/{nextReviewDate}", -56, "2018-06-05")
+        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_ASSESSMENTS")))
+        .exchange()
+        .expectStatus().isNotFound
     }
   }
 
@@ -120,11 +112,11 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `returns 200 when client has override role ROLE_SYSTEM_USER`() {
+    fun `returns 403 when client has override role ROLE_SYSTEM_USER`() {
       webTestClient.put().uri("/api/offender-assessments/category/-34/inactive")
         .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
         .exchange()
-        .expectStatus().isOk
+        .expectStatus().isForbidden
     }
 
     @Test
@@ -136,26 +128,21 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `returns 200 when client has override role ROLE_SYSTEM_USER and sets pending inactive`() {
+    fun `returns 200 when client has override role ROLE_MAINTAIN_ASSESSMENTS and sets pending inactive`() {
       webTestClient.put().uri("/api/offender-assessments/category/-31/inactive?status=PENDING")
-        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_ASSESSMENTS")))
         .exchange()
         .expectStatus().isOk
     }
 
     @Test
     fun testSetPendingInactiveValidationError() {
-      val token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE)
-      val httpEntity = createHttpEntity(token, null)
-      val response = testRestTemplate.exchange(
-        "/api/offender-assessments/category/{bookingId}/inactive?status=OTHER",
-        PUT,
-        httpEntity,
-        object : ParameterizedTypeReference<String>() {},
-        "-34",
-      )
-      assertThatStatus(response, BAD_REQUEST.value())
-      assertThat(response.body).contains("Assessment status type is invalid: OTHER")
+      webTestClient.put().uri("/api/offender-assessments/category/-34/inactive?status=OTHER")
+        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_ASSESSMENTS")))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("userMessage").isEqualTo("Assessment status type is invalid: OTHER")
     }
 
     @Test
@@ -206,11 +193,11 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       }
 
       @Test
-      fun `should return success if has SYSTEM_USER override role`() {
+      fun `should return 403 if has SYSTEM_USER override role`() {
         webTestClient.get().uri("/api/offender-assessments/category/LEI?type=UNCATEGORISED")
           .headers(setClientAuthorisation(listOf("SYSTEM_USER")))
           .exchange()
-          .expectStatus().isOk
+          .expectStatus().isForbidden
       }
 
       @Test
@@ -259,7 +246,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
     @Test
     fun `should return 401 when user does not even have token`() {
       webTestClient.get().uri("/api/offender-assessments/csra/-43/assessment/2")
-        .header("Content-Type", APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isUnauthorized
     }
@@ -276,7 +262,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
     fun `should return success when has ROLE_VIEW_PRISONER_DATA override role`() {
       webTestClient.get().uri("/api/offender-assessments/csra/-43/assessment/2")
         .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
-        .header("Content-Type", APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isOk
     }
@@ -285,7 +270,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
     fun `should return success when has ROLE_GLOBAL_SEARCH override role`() {
       webTestClient.get().uri("/api/offender-assessments/csra/-43/assessment/2")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
-        .header("Content-Type", APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isOk
     }
@@ -993,7 +977,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       }
 
       @Test
-      fun `should return success if has SYSTEM_USER override role`() {
+      fun `returns 403 if user has SYSTEM role`() {
         webTestClient.put().uri("/api/offender-assessments/category/approve")
           .headers(setClientAuthorisation(listOf("SYSTEM_USER")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
@@ -1010,9 +994,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
             """,
           )
           .exchange()
-          .expectStatus().isCreated
-
-        resetApprovedCategorisation()
+          .expectStatus().isForbidden
       }
 
       @Test
@@ -1294,7 +1276,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       }
 
       @Test
-      fun `should return success if has SYSTEM_USER override role`() {
+      fun `should return 403 if has SYSTEM_USER override role`() {
         webTestClient.put().uri("/api/offender-assessments/category/reject")
           .headers(setClientAuthorisation(listOf("SYSTEM_USER")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
@@ -1310,7 +1292,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
             """,
           )
           .exchange()
-          .expectStatus().isCreated
+          .expectStatus().isForbidden
       }
 
       @Test
