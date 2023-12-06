@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.validation.annotation.Validated;
@@ -24,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.prison.api.model.Assessment;
-import uk.gov.justice.hmpps.prison.api.model.AssessmentClassification;
 import uk.gov.justice.hmpps.prison.api.model.AssessmentDetail;
 import uk.gov.justice.hmpps.prison.api.model.AssessmentSummary;
 import uk.gov.justice.hmpps.prison.api.model.CategorisationDetail;
@@ -35,8 +35,12 @@ import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCategorise;
 import uk.gov.justice.hmpps.prison.api.support.AssessmentStatusType;
 import uk.gov.justice.hmpps.prison.api.support.CategoryInformationType;
+import uk.gov.justice.hmpps.prison.core.ProgrammaticAuthorisation;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
+import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
+import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
+import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.InmateService;
 import uk.gov.justice.hmpps.prison.service.OffenderAssessmentService;
 
@@ -46,11 +50,7 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-/**
- * Implementation of Offender Assessments (/offender-assessments) endpoint.
- */
 @RestController
 @Tag(name = "offender-assessments")
 @Validated
@@ -70,6 +70,7 @@ public class OffenderAssessmentResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Offender assessment detail for multiple offenders.")
+    @ProgrammaticAuthorisation("Data is limited to the users caseload")
     @GetMapping("/{assessmentCode}")
     @SlowReportQuery
     public List<Assessment> getOffenderAssessmentsAssessmentCode(
@@ -85,6 +86,7 @@ public class OffenderAssessmentResource {
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "The assessment list is returned.")})
     @Operation(summary = "Retrieves Offender assessment details for multiple offenders - POST version to allow large offender lists.")
+    @ProgrammaticAuthorisation("Data is limited to the users caseload")
     @PostMapping("/{assessmentCode}")
     @SlowReportQuery
     public List<Assessment> postOffenderAssessmentsAssessmentCode(
@@ -110,6 +112,7 @@ public class OffenderAssessmentResource {
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "The CSRA assessment list is returned, 1 per offender.")})
     @Operation(summary = "Retrieves Offender CSRAs for multiple offenders - POST version to allow large offender lists.")
+    @ProgrammaticAuthorisation("Data is limited to the users caseload")
     @PostMapping("/csra/list")
     @SlowReportQuery
     public List<Assessment> postOffenderAssessmentsCsraList(@RequestBody @NotEmpty @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderList) {
@@ -122,6 +125,7 @@ public class OffenderAssessmentResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Retrieves CSRAs for the given offender, ordered by the latest first.")
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/csra/{offenderNo}")
     public List<AssessmentSummary> getOffenderCsraAssessments(@PathVariable("offenderNo") @Parameter(description = "The offender number") final String offenderNo) {
         return offenderAssessmentService.getOffenderAssessments(offenderNo);
@@ -132,6 +136,7 @@ public class OffenderAssessmentResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Retrieves details of a single CSRA assessment.")
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/csra/{bookingId}/assessment/{assessmentSeq}")
     public AssessmentDetail getOffenderCsraAssessment(
         @PathVariable("bookingId") @Parameter(description = "The booking id of offender") final Long bookingId, @PathVariable("assessmentSeq") @Parameter(description = "The assessment sequence number for the given offender booking") final Integer assessmentSeq
@@ -140,6 +145,7 @@ public class OffenderAssessmentResource {
     }
 
     @Operation(summary = "Returns category information on Offenders at a prison.")
+    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "VIEW_ASSESSMENTS"})
     @GetMapping("/category/{agencyId}")
     @SlowReportQuery
     public List<OffenderCategorise> getOffenderCategorisations(
@@ -167,6 +173,7 @@ public class OffenderAssessmentResource {
         @ApiResponse(responseCode = "201", description = "Created"),
         @ApiResponse(responseCode = "400", description = "Invalid request - e.g. category does not exist.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Record new offender categorisation.", description = "Create new categorisation record. The booking id and new sequence number is returned.")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER','MAINTAIN_ASSESSMENTS','CREATE_CATEGORISATION','CREATE_RECATEGORISATION')")
     @PostMapping("/category/categorise")
     @ProxyUser
     public ResponseEntity<Map<String, Long>> createCategorisation(@Valid @RequestBody @Parameter(description = "Categorisation details", required = true) final CategorisationDetail detail) {
@@ -181,6 +188,7 @@ public class OffenderAssessmentResource {
         @ApiResponse(responseCode = "400", description = "Invalid request - e.g. category does not exist.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Update a pending offender categorisation.", description = "This is intended for use by the categoriser to correct any problems with a pending (in-progress) categorisation." +
         " Fields left as null will be left unchanged")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER','MAINTAIN_ASSESSMENTS','CREATE_CATEGORISATION','CREATE_RECATEGORISATION')")
     @PutMapping("/category/categorise")
     @ProxyUser
     public ResponseEntity<Void> updateCategorisation(@Valid @RequestBody @Parameter(description = "Categorisation details", required = true) final CategorisationUpdateDetail detail) {
@@ -192,6 +200,7 @@ public class OffenderAssessmentResource {
         @ApiResponse(responseCode = "201", description = "Created"),
         @ApiResponse(responseCode = "400", description = "Validation error - e.g. category does not exist.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Approve a pending offender categorisation.", description = "Update categorisation record with approval.")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER','MAINTAIN_ASSESSMENTS','APPROVE_CATEGORISATION')")
     @PutMapping("/category/approve")
     @ProxyUser
     public ResponseEntity<Void> approveCategorisation(@Valid @RequestBody @Parameter(description = "Approval details", required = true) final CategoryApprovalDetail detail) {
@@ -203,6 +212,7 @@ public class OffenderAssessmentResource {
         @ApiResponse(responseCode = "201", description = "Created"),
         @ApiResponse(responseCode = "400", description = "Validation error - e.g. comment too long or committee code does not exist.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Reject a pending offender categorisation.", description = "Update categorisation record with rejection.")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER','MAINTAIN_ASSESSMENTS','APPROVE_CATEGORISATION')")
     @PutMapping("/category/reject")
     @ProxyUser
     public ResponseEntity<Void> rejectCategorisation(@Valid @RequestBody @Parameter(description = "Rejection details", required = true) final CategoryRejectionDetail detail) {
@@ -215,6 +225,7 @@ public class OffenderAssessmentResource {
         @ApiResponse(responseCode = "400", description = "Invalid request - e.g. invalid status.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to update categorisations.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Set all active or pending (status A or P) categorisations inactive", description = "This endpoint should only be used with edge case categorisations.")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER','MAINTAIN_ASSESSMENTS')")
     @PutMapping("/category/{bookingId}/inactive")
     @ProxyUser
     public ResponseEntity<Void> setCategorisationInactive(
@@ -239,6 +250,7 @@ public class OffenderAssessmentResource {
         @ApiResponse(responseCode = "404", description = "Active categorisation not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to update the categorisation.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Update the next review date on the latest active categorisation", description = "Update categorisation record with new next review date.")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER','MAINTAIN_ASSESSMENTS')")
     @PutMapping("/category/{bookingId}/nextReviewDate/{nextReviewDate}")
     @ProxyUser
     public ResponseEntity<Void> updateCategorisationNextReviewDate(
