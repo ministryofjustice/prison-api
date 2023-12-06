@@ -54,13 +54,6 @@ public abstract class ScheduledEventSteps extends CommonSteps {
         });
     }
 
-    @Step("Verify event status present for all scheduled events")
-    public void verifyEventStatusPresent() {
-        scheduledEvents.forEach(event -> {
-            assertThat(event.getEventStatus()).isNotBlank();
-        });
-    }
-
     @Step("Verify event type for all scheduled events")
     public void verifyEventType(final String expectedEventType) {
         scheduledEvents.forEach(event -> {
@@ -140,10 +133,6 @@ public abstract class ScheduledEventSteps extends CommonSteps {
         assertThat(scheduledEvents.isEmpty()).as("Expecting no results").isTrue();
     }
 
-    public void verifyNumber(final int number) {
-        assertThat(scheduledEvents).hasSize(number);
-    }
-
     protected void dispatchRequest(final Long bookingId, final String fromDate, final String toDate, final String sortFields, final Order sortOrder) {
         var urlModifier = "";
 
@@ -195,8 +184,7 @@ public abstract class ScheduledEventSteps extends CommonSteps {
 
     enum ScheduledEventPeriod {
         TODAY("/today"),
-        THISWEEK("/thisWeek"),
-        NEXTWEEK("/nextWeek");
+        THISWEEK("/thisWeek");
 
         private String urlModifier;
 

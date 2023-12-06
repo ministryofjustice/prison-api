@@ -136,6 +136,54 @@ class PrisonerResourceTest : ResourceTest() {
   @Nested
   @DisplayName("GET /api/prisoners/{offenderNo}/full-status")
   inner class GetPrisonerFullStatus {
+
+    @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.get().uri("/api/prisoners/A1234AA/full-status")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `returns 403 when client does not have any roles`() {
+      webTestClient.get().uri("/api/prisoners/A1234AA/full-status")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 403 when client has override role ROLE_APPROVE_CATEGORISATION`() {
+      webTestClient.get().uri("/api/prisoners/A1234AA/full-status")
+        .headers(setClientAuthorisation(listOf("ROLE_APPROVE_CATEGORISATION")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 403 when client has override role ROLE_SYSTEM_USER`() {
+      webTestClient.get().uri("/api/prisoners/A1234AA/full-status")
+        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 200 when client has override role ROLE_GLOBAL_SEARCH`() {
+      webTestClient.get().uri("/api/prisoners/A1234AA/full-status")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns 200 when client has override role ROLE_VIEW_PRISONER_DATA`() {
+      webTestClient.get().uri("/api/prisoners/A1234AA/full-status")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
     @Test
     fun testCanReturnPrisonerInformationByNomsId() {
       val httpEntity = createEmptyHttpEntity(AuthToken.VIEW_PRISONER_DATA)

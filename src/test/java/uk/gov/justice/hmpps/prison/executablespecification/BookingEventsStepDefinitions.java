@@ -30,16 +30,6 @@ public class BookingEventsStepDefinitions extends AbstractStepDefinitions {
         eventsSteps.getThisWeeksEvents(bookingId);
     }
 
-    @When("^next week's scheduled events are requested for an offender with booking id ([0-9-]+)$")
-    public void nextWeeksScheduledEventsAreRequested(final Long bookingId) throws Throwable {
-        eventsSteps.getNextWeeksEvents(bookingId);
-    }
-
-    @Then("^resource not found response is received from booking events API$")
-    public void resourceNotFoundResponseIsReceivedFromBookingsAPI() throws Throwable {
-        eventsSteps.verifyResourceNotFound();
-    }
-
     @Then("^response from booking events API is an empty list$")
     public void responseEmpty() throws Throwable {
         eventsSteps.verifyEmpty();

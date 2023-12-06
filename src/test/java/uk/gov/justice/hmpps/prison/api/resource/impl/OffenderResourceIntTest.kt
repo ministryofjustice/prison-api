@@ -63,46 +63,67 @@ class OffenderResourceIntTest : ResourceTest() {
 
   private val OFFENDER_NUMBER = "A1234AB"
 
-  @Test
-  fun testCanRetrieveSentenceDetailsForOffender() {
-    val token = authTokenHelper.getToken(AuthToken.NORMAL_USER)
-    val httpEntity = createHttpEntity(token, null)
-    val response = testRestTemplate.exchange(
-      "/api/offenders/{nomsId}/sentences",
-      GET,
-      httpEntity,
-      object : ParameterizedTypeReference<String?>() {},
-      OFFENDER_NUMBER,
-    )
-    assertThatJsonFileAndStatus(response, 200, "sentence.json")
-  }
+  @Nested
+  @DisplayName("GET /api/offenders/{offenderNo}/sentences")
+  inner class GetBookingSentences {
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("/api/offenders/A1234AB/sentences")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
 
-  @Test
-  fun testCanRetrieveSentenceDetailsForOffenderWithSystemUser() {
-    val token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE)
-    val httpEntity = createHttpEntity(token, null)
-    val response = testRestTemplate.exchange(
-      "/api/offenders/{nomsId}/sentences",
-      GET,
-      httpEntity,
-      object : ParameterizedTypeReference<String?>() {},
-      OFFENDER_NUMBER,
-    )
-    assertThatJsonFileAndStatus(response, 200, "sentence.json")
-  }
+    @Test
+    fun `should return 403 if does not have override role`() {
+      webTestClient.get().uri("/api/offenders/A1234AB/sentences")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
 
-  @Test
-  fun testCanRetrieveAlertsForOffenderWithViewDataRole() {
-    val token = authTokenHelper.getToken(VIEW_PRISONER_DATA)
-    val httpEntity = createHttpEntity(token, null)
-    val response = testRestTemplate.exchange(
-      "/api/offenders/{nomsId}/alerts/v2",
-      GET,
-      httpEntity,
-      object : ParameterizedTypeReference<String?>() {},
-      OFFENDER_NUMBER,
-    )
-    assertThatJsonFileAndStatus(response, 200, "alerts.json")
+    @Test
+    fun `should return success when has ROLE_GLOBAL_SEARCH override role`() {
+      webTestClient.get().uri("/api/offenders/A1234AB/sentences")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `should return success when has ROLE_VIEW_PRISONER_DATA override role`() {
+      webTestClient.get().uri("/api/offenders/A1234AB/sentences")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun testCanRetrieveSentenceDetailsForOffender() {
+      val token = authTokenHelper.getToken(AuthToken.NORMAL_USER)
+      val httpEntity = createHttpEntity(token, null)
+      val response = testRestTemplate.exchange(
+        "/api/offenders/{nomsId}/sentences",
+        GET,
+        httpEntity,
+        object : ParameterizedTypeReference<String?>() {},
+        OFFENDER_NUMBER,
+      )
+      assertThatJsonFileAndStatus(response, 200, "sentence.json")
+    }
+
+    @Test
+    fun testCanRetrieveAlertsForOffenderWithViewDataRole() {
+      val token = authTokenHelper.getToken(VIEW_PRISONER_DATA)
+      val httpEntity = createHttpEntity(token, null)
+      val response = testRestTemplate.exchange(
+        "/api/offenders/{nomsId}/alerts/v2",
+        GET,
+        httpEntity,
+        object : ParameterizedTypeReference<String?>() {},
+        OFFENDER_NUMBER,
+      )
+      assertThatJsonFileAndStatus(response, 200, "alerts.json")
+    }
   }
 
   @Test

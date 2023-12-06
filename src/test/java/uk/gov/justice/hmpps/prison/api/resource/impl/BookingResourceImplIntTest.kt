@@ -1,6 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.verify
@@ -267,56 +269,98 @@ class BookingResourceImplIntTest : ResourceTest() {
     assertThatJsonFileAndStatus(responseEntity, 200, "military_records.json")
   }
 
-  @Test
-  fun courtCases_returnsMatchingActiveCourtCase() {
-    `when`(offenderBookingRepository.findById(-1L)).thenReturn(
-      Optional.of(
-        OffenderBooking.builder()
-          .courtCases(
-            listOf(
-              OffenderCourtCase.builder()
-                .id(-1L)
-                .caseSeq(-1)
-                .beginDate(LocalDate.EPOCH)
-                .agencyLocation(
-                  AgencyLocation.builder()
-                    .id("MDI")
-                    .active(true)
-                    .type(AgencyLocationType.COURT_TYPE)
-                    .description("Moorland")
-                    .build(),
-                )
-                .legalCaseType(LegalCaseType("A", "Adult"))
-                .caseInfoPrefix("CIP")
-                .caseInfoNumber("CIN20177010")
-                .caseStatus(CaseStatus("A", "Active"))
-                .courtEvents(
-                  listOf(
-                    CourtEvent.builder()
-                      .id(-1L)
-                      .eventDate(LocalDate.EPOCH)
-                      .startTime(LocalDate.EPOCH.atStartOfDay())
-                      .courtLocation(
-                        AgencyLocation.builder()
-                          .id("COURT1")
-                          .description("Court 1")
-                          .type(AgencyLocationType.COURT_TYPE)
-                          .courtType(CourtType("MC", "Mag Court"))
-                          .active(true)
-                          .build(),
-                      )
+  @Nested
+  @DisplayName("GET /api/bookings/{bookingId}/court-cases")
+  inner class GetCourtCases {
+
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("/api/bookings/-1/court-cases")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return 403 if does not have override role`() {
+      webTestClient.get().uri("/api/bookings/-1/court-cases")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should return success when has ROLE_GLOBAL_SEARCH override role`() {
+      stubRepositoryCall()
+      webTestClient.get().uri("/api/bookings/-1/court-cases")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `should return success when has ROLE_VIEW_PRISONER_DATA override role`() {
+      stubRepositoryCall()
+      webTestClient.get().uri("/api/bookings/-1/court-cases")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun courtCases_returnsMatchingActiveCourtCase() {
+      stubRepositoryCall()
+      val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf(), mapOf())
+      val responseEntity = testRestTemplate.exchange("/api/bookings/-1/court-cases", GET, requestEntity, String::class.java)
+      assertThatJsonFileAndStatus(responseEntity, 200, "court_cases.json")
+    }
+
+    private fun stubRepositoryCall() {
+      `when`(offenderBookingRepository.findById(-1L)).thenReturn(
+        Optional.of(
+          OffenderBooking.builder()
+            .courtCases(
+              listOf(
+                OffenderCourtCase.builder()
+                  .id(-1L)
+                  .caseSeq(-1)
+                  .beginDate(LocalDate.EPOCH)
+                  .agencyLocation(
+                    AgencyLocation.builder()
+                      .id("MDI")
+                      .active(true)
+                      .type(AgencyLocationType.COURT_TYPE)
+                      .description("Moorland")
                       .build(),
-                  ),
-                )
-                .build(),
-            ),
-          )
-          .build(),
-      ),
-    )
-    val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf(), mapOf())
-    val responseEntity = testRestTemplate.exchange("/api/bookings/-1/court-cases", GET, requestEntity, String::class.java)
-    assertThatJsonFileAndStatus(responseEntity, 200, "court_cases.json")
+                  )
+                  .legalCaseType(LegalCaseType("A", "Adult"))
+                  .caseInfoPrefix("CIP")
+                  .caseInfoNumber("CIN20177010")
+                  .caseStatus(CaseStatus("A", "Active"))
+                  .courtEvents(
+                    listOf(
+                      CourtEvent.builder()
+                        .id(-1L)
+                        .eventDate(LocalDate.EPOCH)
+                        .startTime(LocalDate.EPOCH.atStartOfDay())
+                        .courtLocation(
+                          AgencyLocation.builder()
+                            .id("COURT1")
+                            .description("Court 1")
+                            .type(AgencyLocationType.COURT_TYPE)
+                            .courtType(CourtType("MC", "Mag Court"))
+                            .active(true)
+                            .build(),
+                        )
+                        .build(),
+                    ),
+                  )
+                  .build(),
+              ),
+            )
+            .build(),
+        ),
+      )
+    }
   }
 
   @Test
