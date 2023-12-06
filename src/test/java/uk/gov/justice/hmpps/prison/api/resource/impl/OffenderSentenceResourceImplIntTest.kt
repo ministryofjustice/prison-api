@@ -13,6 +13,59 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
   @Nested
   @DisplayName("GET /api/offender-sentences")
   inner class GetOffenderSentences {
+
+    @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.get().uri("/api/offender-sentences?agencyId=LEI")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `returns empty result when client has no override role`() {
+      webTestClient.get().uri("/api/offender-sentences?agencyId=LEI")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(0)
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_GLOBAL_SEARCH`() {
+      webTestClient.get().uri("/api/offender-sentences?agencyId=LEI")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(27)
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_VIEW_PRISONER_DATA`() {
+      webTestClient.get().uri("/api/offender-sentences?agencyId=LEI")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(27)
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_CREATE_CATEGORISATION`() {
+      webTestClient.get().uri("/api/offender-sentences?agencyId=LEI")
+        .headers(setClientAuthorisation(listOf("ROLE_CREATE_CATEGORISATION")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(27)
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_APPROVE_CATEGORISATION`() {
+      webTestClient.get().uri("/api/offender-sentences?agencyId=LEI")
+        .headers(setClientAuthorisation(listOf("ROLE_APPROVE_CATEGORISATION")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(27)
+    }
+
     @Test
     fun offenderSentence_success() {
       webTestClient.get()
@@ -158,6 +211,70 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
   @DisplayName("POST /api/offender-sentences")
   inner class PostOffenderSentences {
     @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.post().uri("/api/offender-sentences")
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"A1234AH\" ]")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `returns empty result when client has no override role`() {
+      webTestClient.post().uri("/api/offender-sentences")
+        .headers(setClientAuthorisation(listOf()))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"A1234AH\" ]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(0)
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_GLOBAL_SEARCH`() {
+      webTestClient.post().uri("/api/offender-sentences")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"A1234AH\" ]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(1)
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_VIEW_PRISONER_DATA`() {
+      webTestClient.post().uri("/api/offender-sentences")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"A1234AH\" ]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(1)
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_CREATE_CATEGORISATION`() {
+      webTestClient.post().uri("/api/offender-sentences")
+        .headers(setClientAuthorisation(listOf("ROLE_CREATE_CATEGORISATION")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"A1234AH\" ]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(1)
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_APPROVE_CATEGORISATION`() {
+      webTestClient.post().uri("/api/offender-sentences")
+        .headers(setClientAuthorisation(listOf("ROLE_APPROVE_CATEGORISATION")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"A1234AH\" ]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(1)
+    }
+
+    @Test
     fun postOffenderSentence_success() {
       webTestClient.post()
         .uri("/api/offender-sentences")
@@ -274,6 +391,71 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
   @Nested
   @DisplayName("POST /api/offender-sentences/bookings")
   inner class OffenderSentenceBookings {
+
+    @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.post().uri("/api/offender-sentences/bookings")
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue("[ -8 ]")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `returns empty result when client has no override role`() {
+      webTestClient.post().uri("/api/offender-sentences/bookings")
+        .headers(setClientAuthorisation(listOf()))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue("[ -8 ]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(0)
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_GLOBAL_SEARCH`() {
+      webTestClient.post().uri("/api/offender-sentences/bookings")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue("[ -8 ]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(1)
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_VIEW_PRISONER_DATA`() {
+      webTestClient.post().uri("/api/offender-sentences/bookings")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue("[ -8 ]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(1)
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_CREATE_CATEGORISATION`() {
+      webTestClient.post().uri("/api/offender-sentences/bookings")
+        .headers(setClientAuthorisation(listOf("ROLE_CREATE_CATEGORISATION")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue("[ -8 ]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(1)
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_APPROVE_CATEGORISATION`() {
+      webTestClient.post().uri("/api/offender-sentences/bookings")
+        .headers(setClientAuthorisation(listOf("ROLE_APPROVE_CATEGORISATION")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue("[ -8 ]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(1)
+    }
+
     @Test
     fun postOffenderSentenceBookings_success() {
       webTestClient.post()
