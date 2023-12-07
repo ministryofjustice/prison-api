@@ -18,7 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class BookingAlertSteps extends CommonSteps {
     private static final String API_REQUEST_BASE_URL = API_PREFIX + "bookings/{bookingId}/alerts/v2";
     private static final String API_REQUEST_ALERT_POST_URL_AGENCY = API_PREFIX + "bookings/offenderNo/{agencyId}/alerts";
-    private static final String API_REQUEST_ALERT_POST_URL = API_PREFIX + "bookings/offenderNo/alerts";
 
     private List<Alert> alerts;
 
@@ -63,7 +62,7 @@ public class BookingAlertSteps extends CommonSteps {
     private void doPostApiCall(final String agencyId, final List<String> offenderNoBody) {
         init();
         try {
-            final var POST_URL = agencyId == null ? API_REQUEST_ALERT_POST_URL : API_REQUEST_ALERT_POST_URL_AGENCY;
+            final var POST_URL = API_REQUEST_ALERT_POST_URL_AGENCY;
             final var response =
                     restTemplate.exchange(
                             POST_URL,

@@ -36,11 +36,3 @@ Feature: Booking Alerts
       | A1234AA    | -1        | 3       | R         | Risk                 | RSS       | Risk to Staff - Custody | Inactive Alert        | 2020-06-01  | 2020-06-01  | true    | false  | 2006-12-10T03:52:25 |
       | A1234AA    | -1        | 4       | X         | Security             | XTACT     | XTACT                   | Alert XTACT 1         | 2020-06-01  |             | false   | true   | 2006-12-10T03:52:25 |
 
-  Scenario: Alerts are requested for multiple offender numbers without agency nor authorisation
-    When alerts are requested for offender nos "A1234AA,A1234AF" and no agency
-    Then access denied response is received from alert API
-
-  Scenario: Alerts are requested for multiple offender numbers without agency but with system access
-    When a user has a token name of "VIEW_PRISONER_DATA"
-    And alerts are requested for offender nos "A1234AA,A1234AF" and no agency
-    Then "6" alerts are returned
