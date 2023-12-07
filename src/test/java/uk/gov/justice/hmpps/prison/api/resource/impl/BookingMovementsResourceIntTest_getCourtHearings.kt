@@ -9,6 +9,38 @@ import uk.gov.justice.hmpps.prison.api.model.ErrorResponse.builder
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.NORMAL_USER
 
 class BookingMovementsResourceIntTest_getCourtHearings : ResourceTest() {
+
+  @Test
+  fun `returns 401 without an auth token`() {
+    webTestClient.get().uri("/api/bookings/-3/court-hearings")
+      .exchange()
+      .expectStatus().isUnauthorized
+  }
+
+  @Test
+  fun `should return 403 if does not have override role`() {
+    webTestClient.get().uri("/api/bookings/-3/court-hearings")
+      .headers(setClientAuthorisation(listOf()))
+      .exchange()
+      .expectStatus().isForbidden
+  }
+
+  @Test
+  fun `returns success when client has override role ROLE_COURT_HEARING_MAINTAINER`() {
+    webTestClient.get().uri("/api/bookings/-3/court-hearings")
+      .headers(setClientAuthorisation(listOf("ROLE_COURT_HEARING_MAINTAINER")))
+      .exchange()
+      .expectStatus().isOk
+  }
+
+  @Test
+  fun `returns 404 if not in user caseload`() {
+    webTestClient.get().uri("/api/bookings/-3/court-hearings")
+      .headers(setAuthorisation("WAI_USER", listOf()))
+      .exchange()
+      .expectStatus().isNotFound
+  }
+
   @Test
   fun get_court_hearings_for_booking_returns_no_court_hearings() {
     val token = authTokenHelper.getToken(NORMAL_USER)
