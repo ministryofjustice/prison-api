@@ -470,6 +470,84 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
     }
 
     @Nested
+    inner class CurrentlyInPrisonWithTAPReturningToDifferentPrison {
+      private lateinit var prisoner: OffenderId
+      private lateinit var booking: OffenderBookingId
+
+      @BeforeEach
+      fun setUp() {
+        if (!::prisoner.isInitialized) {
+          NomisDataBuilder(testDataContext).build {
+            prisoner = offender(lastName = "DUBOIS") {
+              booking = booking(
+                prisonId = "MDI",
+                bookingInTime = LocalDateTime.parse("2023-07-19T10:00:00"),
+                movementReasonCode = REMAND_REASON,
+              ) {
+                temporaryAbsenceRelease(
+                  releaseTime = LocalDateTime.parse("2023-07-20T10:00:00"),
+                  movementReasonCode = DAY_RELEASE_FUNERAL_REASON,
+                )
+                temporaryAbsenceReturn(
+                  prisonId = "LEI",
+                  returnTime = LocalDateTime.parse("2023-07-20T22:00:00"),
+                  movementReasonCode = DAY_RELEASE_FUNERAL_REASON,
+                )
+              }
+            }
+          }
+        }
+      }
+
+      @Test
+      fun `will have a single period covering the various temporary absences`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk.expectBody()
+          .jsonPath("prisonPeriod.size()").isEqualTo(1)
+      }
+
+      @Test
+      fun `prison period contains only entry dates`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk.expectBody()
+          .jsonPath("prisonPeriod[0].bookingId").isEqualTo(booking.bookingId)
+          .jsonPath("prisonPeriod[0].entryDate").isEqualTo("2023-07-19T10:00:00")
+          .jsonPath("prisonPeriod[0].releaseDate").doesNotExist()
+          .jsonPath("prisonPeriod[0].prisons[0]").isEqualTo("MDI")
+          .jsonPath("prisonPeriod[0].prisons[1]").isEqualTo("LEI")
+      }
+
+      @Test
+      fun `will have two movements due to the single TAP movement which is an admission into a different prison`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk.expectBody()
+          .jsonPath("prisonPeriod[0].movementDates.length()").isEqualTo(2)
+          .jsonPath("prisonPeriod[0].movementDates[0].dateInToPrison").isEqualTo("2023-07-19T10:00:00")
+          .jsonPath("prisonPeriod[0].movementDates[0].inwardType").isEqualTo("ADM")
+          .jsonPath("prisonPeriod[0].movementDates[0].admittedIntoPrisonId").isEqualTo("MDI")
+          .jsonPath("prisonPeriod[0].movementDates[0].reasonInToPrison").isEqualTo("Unconvicted Remand")
+          .jsonPath("prisonPeriod[0].movementDates[0].dateOutOfPrison").isEqualTo("2023-07-20T10:00:00")
+          .jsonPath("prisonPeriod[0].movementDates[0].outwardType").isEqualTo("TAP")
+          .jsonPath("prisonPeriod[0].movementDates[0].releaseFromPrisonId").isEqualTo("MDI")
+          .jsonPath("prisonPeriod[0].movementDates[0].reasonOutOfPrison").isEqualTo("Funerals And Deaths")
+          .jsonPath("prisonPeriod[0].movementDates[1].dateInToPrison").isEqualTo("2023-07-20T22:00:00")
+          .jsonPath("prisonPeriod[0].movementDates[1].inwardType").isEqualTo("ADM")
+          .jsonPath("prisonPeriod[0].movementDates[1].admittedIntoPrisonId").isEqualTo("LEI")
+          .jsonPath("prisonPeriod[0].movementDates[1].reasonInToPrison").isEqualTo("Transfer Via Temporary Release")
+          .jsonPath("prisonPeriod[0].movementDates[1].dateOutOfPrison").doesNotExist()
+          .jsonPath("prisonPeriod[0].movementDates[1].outwardType").doesNotExist()
+          .jsonPath("prisonPeriod[0].movementDates[1].releaseFromPrisonId").doesNotExist()
+          .jsonPath("prisonPeriod[0].movementDates[1].reasonOutOfPrison").doesNotExist()
+      }
+    }
+
+    @Nested
     inner class CurrentlyInPrisonWithCourtMovements {
       private lateinit var prisoner: OffenderId
       private lateinit var booking: OffenderBookingId
@@ -531,6 +609,76 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
 
       @Test
       fun `will have one movement since court movements are not significant`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk.expectBody()
+          .jsonPath("prisonPeriod[0].movementDates.length()").isEqualTo(1)
+          .jsonPath("prisonPeriod[0].movementDates[0].dateInToPrison").isEqualTo("2023-07-19T10:00:00")
+          .jsonPath("prisonPeriod[0].movementDates[0].inwardType").isEqualTo("ADM")
+          .jsonPath("prisonPeriod[0].movementDates[0].admittedIntoPrisonId").isEqualTo("MDI")
+          .jsonPath("prisonPeriod[0].movementDates[0].reasonInToPrison").isEqualTo("Unconvicted Remand")
+          .jsonPath("prisonPeriod[0].movementDates[0].dateOutOfPrison").doesNotExist()
+          .jsonPath("prisonPeriod[0].movementDates[0].outwardType").doesNotExist()
+          .jsonPath("prisonPeriod[0].movementDates[0].releaseFromPrisonId").doesNotExist()
+          .jsonPath("prisonPeriod[0].movementDates[0].reasonOutOfPrison").doesNotExist()
+      }
+    }
+
+    @Nested
+    inner class CurrentlyInPrisonWithCourtMovementReturningToDifferentPrison {
+      private lateinit var prisoner: OffenderId
+      private lateinit var booking: OffenderBookingId
+
+      @BeforeEach
+      fun setUp() {
+        if (!::prisoner.isInitialized) {
+          NomisDataBuilder(testDataContext).build {
+            prisoner = offender(lastName = "DUBOIS") {
+              booking = booking(
+                prisonId = "MDI",
+                bookingInTime = LocalDateTime.parse("2023-07-19T10:00:00"),
+                movementReasonCode = REMAND_REASON,
+              ) {
+                sendToCourt(
+                  releaseTime = LocalDateTime.parse("2023-07-20T10:00:00"),
+                  movementReasonCode = COURT_APPEARANCE_REASON,
+                )
+                returnFromCourt(
+                  prisonId = "LEI",
+                  returnTime = LocalDateTime.parse("2023-07-20T22:00:00"),
+                  movementReasonCode = COURT_APPEARANCE_REASON,
+                )
+              }
+            }
+          }
+        }
+      }
+
+      @Test
+      fun `will have a single period covering the various court movements`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk.expectBody()
+          .jsonPath("prisonPeriod.size()").isEqualTo(1)
+      }
+
+      @Test
+      fun `prison period contains only entry dates and both prisons`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk.expectBody()
+          .jsonPath("prisonPeriod[0].bookingId").isEqualTo(booking.bookingId)
+          .jsonPath("prisonPeriod[0].entryDate").isEqualTo("2023-07-19T10:00:00")
+          .jsonPath("prisonPeriod[0].releaseDate").doesNotExist()
+          .jsonPath("prisonPeriod[0].prisons[0]").isEqualTo("MDI")
+          .jsonPath("prisonPeriod[0].prisons[1]").isEqualTo("LEI")
+      }
+
+      @Test
+      fun `will have one movements due to the court movement not being significant`() {
         webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
           .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
           .exchange()
