@@ -11,6 +11,7 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.http.HttpMethod.GET
 import org.springframework.http.HttpMethod.POST
+import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import uk.gov.justice.hmpps.prison.api.model.PersonalCareNeed
 import uk.gov.justice.hmpps.prison.api.model.ReasonableAdjustment
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent
@@ -96,27 +97,94 @@ class BookingResourceImplIntTest : ResourceTest() {
     assertThat(responseEntity.body).contains("Malformed request")
   }
 
-  @Test
-  fun offenderAlerts_respondsWithOKWhenOffenderNumberSupplied() {
-    val oneOffendersInRequest = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", listOf("ROLE_VIEW_PRISONER_DATA"), listOf("A1234AA"))
-    val minimumOfOneOffenderRequiredResponse = testRestTemplate.exchange("/api/bookings/offenderNo/alerts", POST, oneOffendersInRequest, String::class.java)
-    assertThatStatus(minimumOfOneOffenderRequiredResponse, 200)
-  }
+  @DisplayName("POST /api/bookings/offenderNo/alerts")
+  @Nested
+  inner class OffenderAlerts {
+    @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.post().uri("/api/offender-sentences")
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"A1234AA\" ]")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
 
-  @Test
-  fun offenderAlerts_respondsWithBadRequestWhenNoOffendersNumbersSupplied() {
-    val noOffendersInRequest = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", listOf("ROLE_VIEW_PRISONER_DATA"), listOf<Any>())
-    val minimumOfOneOffenderRequiredResponse = testRestTemplate.exchange("/api/bookings/offenderNo/alerts", POST, noOffendersInRequest, String::class.java)
-    assertThatStatus(minimumOfOneOffenderRequiredResponse, 400)
-    assertThat(minimumOfOneOffenderRequiredResponse.body).contains("A minimum of one offender number is required")
-  }
+    @Test
+    fun `returns 403 when client has no override role`() {
+      webTestClient.post().uri("/api/bookings/offenderNo/alerts")
+        .headers(setClientAuthorisation(listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"A1234AA\" ]")
+        .exchange()
+        .expectStatus().isForbidden
+    }
 
-  @Test
-  fun offenderAlerts_emptyBody() {
-    val noOffendersInRequest = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", listOf("ROLE_VIEW_PRISONER_DATA"), null)
-    val minimumOfOneOffenderRequiredResponse = testRestTemplate.exchange("/api/bookings/offenderNo/alerts", POST, noOffendersInRequest, String::class.java)
-    assertThatStatus(minimumOfOneOffenderRequiredResponse, 400)
-    assertThat(minimumOfOneOffenderRequiredResponse.body).contains("Malformed request")
+    @Test
+    fun `returns success when client has override role ROLE_GlOBAL_SEARCH`() {
+      webTestClient.post().uri("/api/bookings/offenderNo/alerts")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"A1234AA\", \"A1234AF\" ]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(6)
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_VIEW_PRISONER_DATA`() {
+      webTestClient.post().uri("/api/bookings/offenderNo/alerts")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"A1234AA\"]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(4)
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_CREATE_CATEGORISATION`() {
+      webTestClient.post().uri("/api/bookings/offenderNo/alerts")
+        .headers(setClientAuthorisation(listOf("ROLE_CREATE_CATEGORISATION")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"A1234AA\"]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(4)
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_APPROVE_CATEGORISATION`() {
+      webTestClient.post().uri("/api/bookings/offenderNo/alerts")
+        .headers(setClientAuthorisation(listOf("ROLE_APPROVE_CATEGORISATION")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"A1234AA\"]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(4)
+    }
+
+    @Test
+    fun offenderAlerts_respondsWithOKWhenOffenderNumberSupplied() {
+      val oneOffendersInRequest = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", listOf("ROLE_VIEW_PRISONER_DATA"), listOf("A1234AA"))
+      val minimumOfOneOffenderRequiredResponse = testRestTemplate.exchange("/api/bookings/offenderNo/alerts", POST, oneOffendersInRequest, String::class.java)
+      assertThatStatus(minimumOfOneOffenderRequiredResponse, 200)
+    }
+
+    @Test
+    fun offenderAlerts_respondsWithBadRequestWhenNoOffendersNumbersSupplied() {
+      val noOffendersInRequest = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", listOf("ROLE_VIEW_PRISONER_DATA"), listOf<Any>())
+      val minimumOfOneOffenderRequiredResponse = testRestTemplate.exchange("/api/bookings/offenderNo/alerts", POST, noOffendersInRequest, String::class.java)
+      assertThatStatus(minimumOfOneOffenderRequiredResponse, 400)
+      assertThat(minimumOfOneOffenderRequiredResponse.body).contains("A minimum of one offender number is required")
+    }
+
+    @Test
+    fun offenderAlerts_emptyBody() {
+      val noOffendersInRequest = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", listOf("ROLE_VIEW_PRISONER_DATA"), null)
+      val minimumOfOneOffenderRequiredResponse = testRestTemplate.exchange("/api/bookings/offenderNo/alerts", POST, noOffendersInRequest, String::class.java)
+      assertThatStatus(minimumOfOneOffenderRequiredResponse, 400)
+      assertThat(minimumOfOneOffenderRequiredResponse.body).contains("Malformed request")
+    }
   }
 
   @Test
