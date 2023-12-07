@@ -15,7 +15,10 @@ import java.time.LocalDateTime
 private const val REMAND_REASON = "N"
 private const val CONDITIONAL_RELEASE_REASON = "CR"
 private const val HOSPITAL_RELEASE_REASON = "HP"
+private const val DAY_RELEASE_FUNERAL_REASON = "C3"
+private const val DAY_RELEASE_DENTIST_REASON = "C6"
 private const val RECALL_REASON = "24"
+private const val COURT_APPEARANCE_REASON = "CRT"
 
 @WithMockUser
 class OffenderResourceTimelineIntTest : ResourceTest() {
@@ -369,6 +372,178 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
           .jsonPath("prisonPeriod[0].movementDates[1].outwardType").isEqualTo("REL")
           .jsonPath("prisonPeriod[0].movementDates[1].releaseFromPrisonId").isEqualTo("LEI")
           .jsonPath("prisonPeriod[0].movementDates[1].reasonOutOfPrison").isEqualTo("Final Discharge To Hospital-Psychiatric")
+      }
+    }
+
+    @Nested
+    inner class CurrentlyInPrisonWithTAPs {
+      private lateinit var prisoner: OffenderId
+      private lateinit var booking: OffenderBookingId
+
+      @BeforeEach
+      fun setUp() {
+        if (!::prisoner.isInitialized) {
+          NomisDataBuilder(testDataContext).build {
+            prisoner = offender(lastName = "DUBOIS") {
+              booking = booking(
+                prisonId = "MDI",
+                bookingInTime = LocalDateTime.parse("2023-07-19T10:00:00"),
+                movementReasonCode = REMAND_REASON,
+              ) {
+                temporaryAbsenceRelease(
+                  releaseTime = LocalDateTime.parse("2023-07-20T10:00:00"),
+                  movementReasonCode = DAY_RELEASE_FUNERAL_REASON,
+                )
+                temporaryAbsenceReturn(
+                  prisonId = "MDI",
+                  returnTime = LocalDateTime.parse("2023-07-20T22:00:00"),
+                  movementReasonCode = DAY_RELEASE_FUNERAL_REASON,
+                )
+                temporaryAbsenceRelease(
+                  releaseTime = LocalDateTime.parse("2023-07-21T23:00:00"),
+                  movementReasonCode = DAY_RELEASE_DENTIST_REASON,
+                )
+                temporaryAbsenceReturn(
+                  prisonId = "MDI",
+                  returnTime = LocalDateTime.parse("2023-07-22T10:00:00"),
+                  movementReasonCode = DAY_RELEASE_DENTIST_REASON,
+                )
+              }
+            }
+          }
+        }
+      }
+
+      @Test
+      fun `will have a single period covering the various temporary absences`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk.expectBody()
+          .jsonPath("prisonPeriod.size()").isEqualTo(1)
+      }
+
+      @Test
+      fun `prison period contains only entry dates`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk.expectBody()
+          .jsonPath("prisonPeriod[0].bookingId").isEqualTo(booking.bookingId)
+          .jsonPath("prisonPeriod[0].entryDate").isEqualTo("2023-07-19T10:00:00")
+          .jsonPath("prisonPeriod[0].releaseDate").doesNotExist()
+          .jsonPath("prisonPeriod[0].prisons[0]").isEqualTo("MDI")
+      }
+
+      @Test
+      fun `will have three movements due to the two TAP movements`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk.expectBody()
+          .jsonPath("prisonPeriod[0].movementDates.length()").isEqualTo(3)
+          .jsonPath("prisonPeriod[0].movementDates[0].dateInToPrison").isEqualTo("2023-07-19T10:00:00")
+          .jsonPath("prisonPeriod[0].movementDates[0].inwardType").isEqualTo("ADM")
+          .jsonPath("prisonPeriod[0].movementDates[0].admittedIntoPrisonId").isEqualTo("MDI")
+          .jsonPath("prisonPeriod[0].movementDates[0].reasonInToPrison").isEqualTo("Unconvicted Remand")
+          .jsonPath("prisonPeriod[0].movementDates[0].dateOutOfPrison").isEqualTo("2023-07-20T10:00:00")
+          .jsonPath("prisonPeriod[0].movementDates[0].outwardType").isEqualTo("TAP")
+          .jsonPath("prisonPeriod[0].movementDates[0].releaseFromPrisonId").isEqualTo("MDI")
+          .jsonPath("prisonPeriod[0].movementDates[0].reasonOutOfPrison").isEqualTo("Funerals And Deaths")
+          .jsonPath("prisonPeriod[0].movementDates[1].dateInToPrison").isEqualTo("2023-07-20T22:00:00")
+          .jsonPath("prisonPeriod[0].movementDates[1].inwardType").isEqualTo("TAP")
+          .jsonPath("prisonPeriod[0].movementDates[1].admittedIntoPrisonId").isEqualTo("MDI")
+          .jsonPath("prisonPeriod[0].movementDates[1].reasonInToPrison").isEqualTo("Funerals And Deaths")
+          .jsonPath("prisonPeriod[0].movementDates[1].dateOutOfPrison").isEqualTo("2023-07-21T23:00:00")
+          .jsonPath("prisonPeriod[0].movementDates[1].outwardType").isEqualTo("TAP")
+          .jsonPath("prisonPeriod[0].movementDates[1].releaseFromPrisonId").isEqualTo("MDI")
+          .jsonPath("prisonPeriod[0].movementDates[1].reasonOutOfPrison").isEqualTo("Medical/Dental Inpatient Appointment")
+          .jsonPath("prisonPeriod[0].movementDates[2].dateInToPrison").isEqualTo("2023-07-22T10:00:00")
+          .jsonPath("prisonPeriod[0].movementDates[2].inwardType").isEqualTo("TAP")
+          .jsonPath("prisonPeriod[0].movementDates[2].admittedIntoPrisonId").isEqualTo("MDI")
+          .jsonPath("prisonPeriod[0].movementDates[2].reasonInToPrison").isEqualTo("Medical/Dental Inpatient Appointment")
+          .jsonPath("prisonPeriod[0].movementDates[2].dateOutOfPrison").doesNotExist()
+          .jsonPath("prisonPeriod[0].movementDates[2].outwardType").doesNotExist()
+          .jsonPath("prisonPeriod[0].movementDates[2].releaseFromPrisonId").doesNotExist()
+          .jsonPath("prisonPeriod[0].movementDates[2].reasonOutOfPrison").doesNotExist()
+      }
+    }
+
+    @Nested
+    inner class CurrentlyInPrisonWithCourtMovements {
+      private lateinit var prisoner: OffenderId
+      private lateinit var booking: OffenderBookingId
+
+      @BeforeEach
+      fun setUp() {
+        if (!::prisoner.isInitialized) {
+          NomisDataBuilder(testDataContext).build {
+            prisoner = offender(lastName = "DUBOIS") {
+              booking = booking(
+                prisonId = "MDI",
+                bookingInTime = LocalDateTime.parse("2023-07-19T10:00:00"),
+                movementReasonCode = REMAND_REASON,
+              ) {
+                sendToCourt(
+                  releaseTime = LocalDateTime.parse("2023-07-20T10:00:00"),
+                  movementReasonCode = COURT_APPEARANCE_REASON,
+                )
+                returnFromCourt(
+                  prisonId = "MDI",
+                  returnTime = LocalDateTime.parse("2023-07-20T22:00:00"),
+                  movementReasonCode = COURT_APPEARANCE_REASON,
+                )
+                sendToCourt(
+                  releaseTime = LocalDateTime.parse("2023-07-21T23:00:00"),
+                  movementReasonCode = COURT_APPEARANCE_REASON,
+                )
+                returnFromCourt(
+                  prisonId = "MDI",
+                  returnTime = LocalDateTime.parse("2023-07-22T10:00:00"),
+                  movementReasonCode = COURT_APPEARANCE_REASON,
+                )
+              }
+            }
+          }
+        }
+      }
+
+      @Test
+      fun `will have a single period`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk.expectBody()
+          .jsonPath("prisonPeriod.size()").isEqualTo(1)
+      }
+
+      @Test
+      fun `prison period contains only entry dates`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk.expectBody()
+          .jsonPath("prisonPeriod[0].bookingId").isEqualTo(booking.bookingId)
+          .jsonPath("prisonPeriod[0].entryDate").isEqualTo("2023-07-19T10:00:00")
+          .jsonPath("prisonPeriod[0].releaseDate").doesNotExist()
+          .jsonPath("prisonPeriod[0].prisons[0]").isEqualTo("MDI")
+      }
+
+      @Test
+      fun `will have one movement since court movements are not significant`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk.expectBody()
+          .jsonPath("prisonPeriod[0].movementDates.length()").isEqualTo(1)
+          .jsonPath("prisonPeriod[0].movementDates[0].dateInToPrison").isEqualTo("2023-07-19T10:00:00")
+          .jsonPath("prisonPeriod[0].movementDates[0].inwardType").isEqualTo("ADM")
+          .jsonPath("prisonPeriod[0].movementDates[0].admittedIntoPrisonId").isEqualTo("MDI")
+          .jsonPath("prisonPeriod[0].movementDates[0].reasonInToPrison").isEqualTo("Unconvicted Remand")
+          .jsonPath("prisonPeriod[0].movementDates[0].dateOutOfPrison").doesNotExist()
+          .jsonPath("prisonPeriod[0].movementDates[0].outwardType").doesNotExist()
+          .jsonPath("prisonPeriod[0].movementDates[0].releaseFromPrisonId").doesNotExist()
+          .jsonPath("prisonPeriod[0].movementDates[0].reasonOutOfPrison").doesNotExist()
       }
     }
   }

@@ -1,8 +1,10 @@
 package uk.gov.justice.hmpps.prison.util.builders.dsl
 
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
+import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingCourtTransferBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingRecallBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingReleaseBuilder
+import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingTAPTransferBuilder
 import uk.gov.justice.hmpps.prison.util.builders.TestDataContext
 import java.time.LocalDateTime
 
@@ -24,6 +26,36 @@ interface BookingDsl {
     recallTime: LocalDateTime = LocalDateTime.now().minusMinutes(30),
     movementReasonCode: String = "24",
     commentText: String = "Recalled",
+  )
+
+  @BookingDslMarker
+  fun temporaryAbsenceRelease(
+    releaseTime: LocalDateTime = LocalDateTime.now().minusHours(1),
+    movementReasonCode: String = "C3",
+    commentText: String = "Day release",
+  )
+
+  @BookingDslMarker
+  fun temporaryAbsenceReturn(
+    prisonId: String = "MDI",
+    returnTime: LocalDateTime = LocalDateTime.now().minusMinutes(30),
+    movementReasonCode: String = "C3",
+    commentText: String = "Day release",
+  )
+
+  @BookingDslMarker
+  fun sendToCourt(
+    releaseTime: LocalDateTime = LocalDateTime.now().minusHours(1),
+    movementReasonCode: String = "19",
+    commentText: String = "Court appearance",
+  )
+
+  @BookingDslMarker
+  fun returnFromCourt(
+    prisonId: String = "MDI",
+    returnTime: LocalDateTime = LocalDateTime.now().minusMinutes(30),
+    movementReasonCode: String = "19",
+    commentText: String = "Court appearance",
   )
 }
 
@@ -96,6 +128,75 @@ class BookingBuilderRepository(
       jwtAuthenticationHelper = testDataContext.jwtAuthenticationHelper,
     )
   }
+
+  fun sendToCourt(
+    offenderNo: String,
+    releaseTime: LocalDateTime,
+    movementReasonCode: String,
+    commentText: String,
+  ) {
+    OffenderBookingCourtTransferBuilder(
+      offenderNo = offenderNo,
+      movementReasonCode = movementReasonCode,
+      commentText = commentText,
+    ).toCourt(
+      webTestClient = testDataContext.webTestClient,
+      jwtAuthenticationHelper = testDataContext.jwtAuthenticationHelper,
+      releaseTime = releaseTime,
+    )
+  }
+  fun returnFromCourt(
+    offenderNo: String,
+    prisonId: String,
+    returnTime: LocalDateTime,
+    movementReasonCode: String,
+    commentText: String,
+  ) {
+    OffenderBookingCourtTransferBuilder(
+      offenderNo = offenderNo,
+      movementReasonCode = movementReasonCode,
+      commentText = commentText,
+    ).fromCourt(
+      webTestClient = testDataContext.webTestClient,
+      jwtAuthenticationHelper = testDataContext.jwtAuthenticationHelper,
+      returnTime = returnTime,
+      prisonId = prisonId,
+    )
+  }
+  fun temporaryAbsenceRelease(
+    offenderNo: String,
+    releaseTime: LocalDateTime,
+    movementReasonCode: String,
+    commentText: String,
+  ) {
+    OffenderBookingTAPTransferBuilder(
+      offenderNo = offenderNo,
+      movementReasonCode = movementReasonCode,
+      commentText = commentText,
+    ).temporaryAbsenceRelease(
+      webTestClient = testDataContext.webTestClient,
+      jwtAuthenticationHelper = testDataContext.jwtAuthenticationHelper,
+      releaseTime = releaseTime,
+    )
+  }
+  fun temporaryAbsenceReturn(
+    offenderNo: String,
+    prisonId: String,
+    returnTime: LocalDateTime,
+    movementReasonCode: String,
+    commentText: String,
+  ) {
+    OffenderBookingTAPTransferBuilder(
+      offenderNo = offenderNo,
+      movementReasonCode = movementReasonCode,
+      commentText = commentText,
+    ).temporaryAbsenceReturn(
+      webTestClient = testDataContext.webTestClient,
+      jwtAuthenticationHelper = testDataContext.jwtAuthenticationHelper,
+      returnTime = returnTime,
+      prisonId = prisonId,
+    )
+  }
 }
 
 class BookingBuilderFactory(
@@ -163,6 +264,44 @@ class BookingBuilder(
       prisonId = prisonId,
       movementReasonCode = movementReasonCode,
       commentText = commentText,
+    )
+  }
+
+  override fun temporaryAbsenceRelease(releaseTime: LocalDateTime, movementReasonCode: String, commentText: String) {
+    repository.temporaryAbsenceRelease(
+      offenderNo = offenderBookingId.offenderNo,
+      releaseTime = releaseTime,
+      movementReasonCode = movementReasonCode,
+      commentText = commentText,
+    )
+  }
+
+  override fun temporaryAbsenceReturn(prisonId: String, returnTime: LocalDateTime, movementReasonCode: String, commentText: String) {
+    repository.temporaryAbsenceReturn(
+      offenderNo = offenderBookingId.offenderNo,
+      returnTime = returnTime,
+      movementReasonCode = movementReasonCode,
+      commentText = commentText,
+      prisonId = prisonId,
+    )
+  }
+
+  override fun sendToCourt(releaseTime: LocalDateTime, movementReasonCode: String, commentText: String) {
+    repository.sendToCourt(
+      offenderNo = offenderBookingId.offenderNo,
+      releaseTime = releaseTime,
+      movementReasonCode = movementReasonCode,
+      commentText = commentText,
+    )
+  }
+
+  override fun returnFromCourt(prisonId: String, returnTime: LocalDateTime, movementReasonCode: String, commentText: String) {
+    repository.returnFromCourt(
+      offenderNo = offenderBookingId.offenderNo,
+      returnTime = returnTime,
+      movementReasonCode = movementReasonCode,
+      commentText = commentText,
+      prisonId = prisonId,
     )
   }
 }

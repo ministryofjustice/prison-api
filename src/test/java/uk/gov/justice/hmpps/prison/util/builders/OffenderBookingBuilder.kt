@@ -5,7 +5,11 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.returnResult
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
+import uk.gov.justice.hmpps.prison.api.model.RequestForCourtTransferIn
 import uk.gov.justice.hmpps.prison.api.model.RequestForNewBooking
+import uk.gov.justice.hmpps.prison.api.model.RequestForTemporaryAbsenceArrival
+import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOutToCourt
+import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOutToTemporaryAbsence
 import uk.gov.justice.hmpps.prison.service.DataLoaderRepository
 import uk.gov.justice.hmpps.prison.util.JwtAuthenticationHelper
 import java.time.LocalDateTime
@@ -185,6 +189,137 @@ class OffenderBookingRecallBuilder(
             "recallTime": "${recallTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
           }
           """.trimIndent(),
+        ),
+      )
+      .exchange()
+      .expectStatus().isOk
+  }
+}
+class OffenderBookingCourtTransferBuilder(
+  private val offenderNo: String,
+  private val movementReasonCode: String,
+  private val commentText: String,
+) : WebClientEntityBuilder() {
+  fun toCourt(
+    webTestClient: WebTestClient,
+    jwtAuthenticationHelper: JwtAuthenticationHelper,
+    releaseTime: LocalDateTime,
+  ) {
+    webTestClient.put()
+      .uri("/api/offenders/{nomsId}/court-transfer-out", offenderNo)
+      .headers(
+        setAuthorisation(
+          jwtAuthenticationHelper = jwtAuthenticationHelper,
+          roles = listOf("ROLE_TRANSFER_PRISONER_ALPHA"),
+        ),
+      )
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .accept(MediaType.APPLICATION_JSON)
+      .body(
+        BodyInserters.fromValue(
+          RequestToTransferOutToCourt.builder()
+            .toLocation("COURT1")
+            .movementTime(releaseTime)
+            .transferReasonCode(movementReasonCode)
+            .commentText(commentText)
+            .shouldReleaseBed(false)
+            .courtEventId(null)
+            .build(),
+        ),
+      )
+      .exchange()
+      .expectStatus().isOk
+  }
+  fun fromCourt(
+    webTestClient: WebTestClient,
+    jwtAuthenticationHelper: JwtAuthenticationHelper,
+    returnTime: LocalDateTime,
+    prisonId: String,
+  ) {
+    webTestClient.put()
+      .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
+      .headers(
+        setAuthorisation(
+          jwtAuthenticationHelper = jwtAuthenticationHelper,
+          roles = listOf("ROLE_TRANSFER_PRISONER"),
+        ),
+      )
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .accept(MediaType.APPLICATION_JSON)
+      .body(
+        BodyInserters.fromValue(
+          RequestForCourtTransferIn.builder()
+            .agencyId(prisonId)
+            .dateTime(returnTime)
+            .movementReasonCode(movementReasonCode)
+            .commentText(commentText)
+            .build(),
+        ),
+      )
+      .exchange()
+      .expectStatus().isOk
+  }
+}
+
+class OffenderBookingTAPTransferBuilder(
+  private val offenderNo: String,
+  private val movementReasonCode: String,
+  private val commentText: String,
+) : WebClientEntityBuilder() {
+  fun temporaryAbsenceRelease(
+    webTestClient: WebTestClient,
+    jwtAuthenticationHelper: JwtAuthenticationHelper,
+    releaseTime: LocalDateTime,
+  ) {
+    webTestClient.put()
+      .uri("/api/offenders/{nomsId}/temporary-absence-out", offenderNo)
+      .headers(
+        setAuthorisation(
+          jwtAuthenticationHelper = jwtAuthenticationHelper,
+          roles = listOf("ROLE_TRANSFER_PRISONER_ALPHA"),
+        ),
+      )
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .accept(MediaType.APPLICATION_JSON)
+      .body(
+        BodyInserters.fromValue(
+          RequestToTransferOutToTemporaryAbsence.builder()
+            .toCity("18248")
+            .movementTime(releaseTime)
+            .transferReasonCode(movementReasonCode)
+            .commentText(commentText)
+            .shouldReleaseBed(false)
+            .scheduleEventId(null)
+            .build(),
+        ),
+      )
+      .exchange()
+      .expectStatus().isOk
+  }
+  fun temporaryAbsenceReturn(
+    webTestClient: WebTestClient,
+    jwtAuthenticationHelper: JwtAuthenticationHelper,
+    returnTime: LocalDateTime,
+    prisonId: String,
+  ) {
+    webTestClient.put()
+      .uri("/api/offenders/{nomsId}/temporary-absence-arrival", offenderNo)
+      .headers(
+        setAuthorisation(
+          jwtAuthenticationHelper = jwtAuthenticationHelper,
+          roles = listOf("ROLE_TRANSFER_PRISONER"),
+        ),
+      )
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .accept(MediaType.APPLICATION_JSON)
+      .body(
+        BodyInserters.fromValue(
+          RequestForTemporaryAbsenceArrival.builder()
+            .agencyId(prisonId)
+            .dateTime(returnTime)
+            .movementReasonCode(movementReasonCode)
+            .commentText(commentText)
+            .build(),
         ),
       )
       .exchange()
