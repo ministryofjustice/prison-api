@@ -8,6 +8,8 @@ import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.api.model.RequestForCourtTransferIn
 import uk.gov.justice.hmpps.prison.api.model.RequestForNewBooking
 import uk.gov.justice.hmpps.prison.api.model.RequestForTemporaryAbsenceArrival
+import uk.gov.justice.hmpps.prison.api.model.RequestToTransferIn
+import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOut
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOutToCourt
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOutToTemporaryAbsence
 import uk.gov.justice.hmpps.prison.service.DataLoaderRepository
@@ -318,6 +320,68 @@ class OffenderBookingTAPTransferBuilder(
             .agencyId(prisonId)
             .dateTime(returnTime)
             .movementReasonCode(movementReasonCode)
+            .commentText(commentText)
+            .build(),
+        ),
+      )
+      .exchange()
+      .expectStatus().isOk
+  }
+}
+class OffenderBookingTransferBuilder(
+  private val offenderNo: String,
+  private val movementReasonCode: String,
+  private val commentText: String,
+) : WebClientEntityBuilder() {
+  fun transferOut(
+    webTestClient: WebTestClient,
+    jwtAuthenticationHelper: JwtAuthenticationHelper,
+    prisonId: String,
+    releaseTime: LocalDateTime,
+  ) {
+    webTestClient.put()
+      .uri("/api/offenders/{nomsId}/transfer-out", offenderNo)
+      .headers(
+        setAuthorisation(
+          jwtAuthenticationHelper = jwtAuthenticationHelper,
+          roles = listOf("ROLE_TRANSFER_PRISONER"),
+        ),
+      )
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .accept(MediaType.APPLICATION_JSON)
+      .body(
+        BodyInserters.fromValue(
+          RequestToTransferOut.builder()
+            .toLocation(prisonId)
+            .movementTime(releaseTime)
+            .transferReasonCode(movementReasonCode)
+            .commentText(commentText)
+            .escortType("PECS")
+            .build(),
+        ),
+      )
+      .exchange()
+      .expectStatus().isOk
+  }
+  fun transferIn(
+    webTestClient: WebTestClient,
+    jwtAuthenticationHelper: JwtAuthenticationHelper,
+    returnTime: LocalDateTime,
+  ) {
+    webTestClient.put()
+      .uri("/api/offenders/{nomsId}/transfer-in", offenderNo)
+      .headers(
+        setAuthorisation(
+          jwtAuthenticationHelper = jwtAuthenticationHelper,
+          roles = listOf("ROLE_TRANSFER_PRISONER"),
+        ),
+      )
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .accept(MediaType.APPLICATION_JSON)
+      .body(
+        BodyInserters.fromValue(
+          RequestToTransferIn.builder()
+            .receiveTime(returnTime)
             .commentText(commentText)
             .build(),
         ),

@@ -5,6 +5,7 @@ import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingCourtTransferBui
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingRecallBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingReleaseBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingTAPTransferBuilder
+import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingTransferBuilder
 import uk.gov.justice.hmpps.prison.util.builders.TestDataContext
 import java.time.LocalDateTime
 
@@ -56,6 +57,21 @@ interface BookingDsl {
     returnTime: LocalDateTime = LocalDateTime.now().minusMinutes(30),
     movementReasonCode: String = "19",
     commentText: String = "Court appearance",
+  )
+
+  @BookingDslMarker
+  fun transferOut(
+    prisonId: String = "MDI",
+    transferTime: LocalDateTime = LocalDateTime.now().minusHours(1),
+    movementReasonCode: String = "CA",
+    commentText: String = "Transfer",
+  )
+
+  @BookingDslMarker
+  fun transferIn(
+    receiveTime: LocalDateTime = LocalDateTime.now().minusMinutes(30),
+    movementReasonCode: String = "CA",
+    commentText: String = "Transfer",
   )
 }
 
@@ -197,6 +213,42 @@ class BookingBuilderRepository(
       prisonId = prisonId,
     )
   }
+
+  fun transferOut(
+    offenderNo: String,
+    prisonId: String,
+    transferTime: LocalDateTime,
+    movementReasonCode: String,
+    commentText: String,
+  ) {
+    OffenderBookingTransferBuilder(
+      offenderNo = offenderNo,
+      movementReasonCode = movementReasonCode,
+      commentText = commentText,
+    ).transferOut(
+      webTestClient = testDataContext.webTestClient,
+      jwtAuthenticationHelper = testDataContext.jwtAuthenticationHelper,
+      prisonId = prisonId,
+      releaseTime = transferTime,
+    )
+  }
+
+  fun transferIn(
+    offenderNo: String,
+    receiveTime: LocalDateTime,
+    movementReasonCode: String,
+    commentText: String,
+  ) {
+    OffenderBookingTransferBuilder(
+      offenderNo = offenderNo,
+      movementReasonCode = movementReasonCode,
+      commentText = commentText,
+    ).transferIn(
+      webTestClient = testDataContext.webTestClient,
+      jwtAuthenticationHelper = testDataContext.jwtAuthenticationHelper,
+      returnTime = receiveTime,
+    )
+  }
 }
 
 class BookingBuilderFactory(
@@ -302,6 +354,34 @@ class BookingBuilder(
       movementReasonCode = movementReasonCode,
       commentText = commentText,
       prisonId = prisonId,
+    )
+  }
+
+  override fun transferOut(
+    prisonId: String,
+    transferTime: LocalDateTime,
+    movementReasonCode: String,
+    commentText: String,
+  ) {
+    repository.transferOut(
+      offenderNo = offenderBookingId.offenderNo,
+      prisonId = prisonId,
+      transferTime = transferTime,
+      movementReasonCode = movementReasonCode,
+      commentText = commentText,
+    )
+  }
+
+  override fun transferIn(
+    receiveTime: LocalDateTime,
+    movementReasonCode: String,
+    commentText: String,
+  ) {
+    repository.transferIn(
+      offenderNo = offenderBookingId.offenderNo,
+      receiveTime = receiveTime,
+      movementReasonCode = movementReasonCode,
+      commentText = commentText,
     )
   }
 }

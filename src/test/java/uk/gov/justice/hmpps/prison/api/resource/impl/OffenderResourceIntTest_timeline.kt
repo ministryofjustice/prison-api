@@ -19,13 +19,15 @@ private const val DAY_RELEASE_FUNERAL_REASON = "C3"
 private const val DAY_RELEASE_DENTIST_REASON = "C6"
 private const val RECALL_REASON = "24"
 private const val COURT_APPEARANCE_REASON = "CRT"
+private const val TRANSFER_REASON = "NOTR"
 
 @WithMockUser
 class OffenderResourceTimelineIntTest : ResourceTest() {
-
   @Nested
   @DisplayName("GET /api/offenders/{offenderNo}/prison-timeline")
   inner class GetPrisonTimeline {
+    private val builder: NomisDataBuilder by lazy { NomisDataBuilder(testDataContext) }
+
     @Nested
     inner class Security {
       private lateinit var prisoner: OffenderId
@@ -33,13 +35,13 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
       @BeforeEach
       fun setUp() {
         if (!::prisoner.isInitialized) {
-          NomisDataBuilder(testDataContext).build {
+          builder.build {
             prisoner = offender(lastName = "DUBOIS") {
               booking(
                 prisonId = "MDI",
                 bookingInTime = LocalDateTime.parse("2023-07-19T10:00:00"),
                 movementReasonCode = REMAND_REASON,
-              ) {}.bookingId
+              ) {}
             }
           }
         }
@@ -76,7 +78,7 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
       @BeforeEach
       fun setUp() {
         if (!::prisoner.isInitialized) {
-          NomisDataBuilder(testDataContext).build {
+          builder.build {
             prisoner = offender(lastName = "DUBOIS") {}
           }
         }
@@ -100,14 +102,15 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
     }
 
     @Nested
-    inner class SingleBookingWithSingleMovements {
+    @DisplayName("Person currently in prison with no movements out")
+    inner class SingleBookingWithSingleMovement {
       private lateinit var prisoner: OffenderId
       private lateinit var booking: OffenderBookingId
 
       @BeforeEach
       fun setUp() {
         if (!::prisoner.isInitialized) {
-          NomisDataBuilder(testDataContext).build {
+          builder.build {
             prisoner = offender(lastName = "DUBOIS") {
               booking = booking(
                 prisonId = "MDI",
@@ -125,7 +128,6 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
           .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
           .exchange()
           .expectStatus().isOk.expectBody()
-          .jsonPath("prisonPeriod").isArray
           .jsonPath("prisonPeriod.size()").isEqualTo(1)
       }
 
@@ -135,7 +137,6 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
           .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
           .exchange()
           .expectStatus().isOk.expectBody()
-          .jsonPath("prisonPeriod[0].movementDates").isArray
           .jsonPath("prisonPeriod[0].movementDates.size()").isEqualTo(1)
       }
 
@@ -145,8 +146,8 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
           .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
           .exchange()
           .expectStatus().isOk.expectBody()
-          .jsonPath("prisonPeriod[0].prisons").isArray
           .jsonPath("prisonPeriod[0].prisons.size()").isEqualTo(1)
+          .jsonPath("prisonPeriod[0].prisons[0]").isEqualTo("MDI")
       }
 
       @Test
@@ -166,7 +167,7 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
           .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
           .exchange()
           .expectStatus().isOk.expectBody()
-          .jsonPath("prisonPeriod[0].movementDates[0]").isNotEmpty
+          .jsonPath("prisonPeriod[0].movementDates.size()").isEqualTo(1)
           .jsonPath("prisonPeriod[0].movementDates[0].dateInToPrison").isEqualTo("2023-07-19T10:00:00")
           .jsonPath("prisonPeriod[0].movementDates[0].inwardType").isEqualTo("ADM")
           .jsonPath("prisonPeriod[0].movementDates[0].admittedIntoPrisonId").isEqualTo("MDI")
@@ -175,6 +176,7 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
     }
 
     @Nested
+    @DisplayName("Person currently in prison after a previous inactive booking")
     inner class TwoBookingsAfterRelease {
       private lateinit var prisoner: OffenderId
       private lateinit var firstBooking: OffenderBookingId
@@ -183,7 +185,7 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
       @BeforeEach
       fun setUp() {
         if (!::prisoner.isInitialized) {
-          NomisDataBuilder(testDataContext).build {
+          builder.build {
             prisoner = offender(lastName = "DUBOIS") {
               firstBooking = booking(
                 prisonId = "MDI",
@@ -206,7 +208,7 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
       }
 
       @Test
-      fun `will have a two period`() {
+      fun `will have a two periods`() {
         webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
           .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
           .exchange()
@@ -215,7 +217,7 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
       }
 
       @Test
-      fun `will have a one movements in each period`() {
+      fun `will have one movement in each of the two periods`() {
         webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
           .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
           .exchange()
@@ -225,7 +227,7 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
       }
 
       @Test
-      fun `will have a single prison in each period`() {
+      fun `will have a single prison in each of the two periods`() {
         webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
           .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
           .exchange()
@@ -259,7 +261,7 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
       }
 
       @Test
-      fun `movement from first booking period contains details for entry and exit`() {
+      fun `movement from first inactive booking period contains details for entry and exit`() {
         webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
           .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
           .exchange()
@@ -272,11 +274,12 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
           .jsonPath("prisonPeriod[0].movementDates[0].dateOutOfPrison").isEqualTo("2023-07-20T10:00:00")
           .jsonPath("prisonPeriod[0].movementDates[0].outwardType").isEqualTo("REL")
           .jsonPath("prisonPeriod[0].movementDates[0].releaseFromPrisonId").isEqualTo("MDI")
-          .jsonPath("prisonPeriod[0].movementDates[0].reasonOutOfPrison").isEqualTo("Conditional Release (CJA91) -SH Term>1YR")
+          .jsonPath("prisonPeriod[0].movementDates[0].reasonOutOfPrison")
+          .isEqualTo("Conditional Release (CJA91) -SH Term>1YR")
       }
 
       @Test
-      fun `movement from second booking period only contains details for entry`() {
+      fun `movement from second current booking period only contains details for entry`() {
         webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
           .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
           .exchange()
@@ -294,6 +297,7 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
     }
 
     @Nested
+    @DisplayName("Person has been released from prison after previously being recalled")
     inner class ReleaseRecallAndFinalRelease {
       private lateinit var prisoner: OffenderId
       private lateinit var booking: OffenderBookingId
@@ -301,7 +305,7 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
       @BeforeEach
       fun setUp() {
         if (!::prisoner.isInitialized) {
-          NomisDataBuilder(testDataContext).build {
+          builder.build {
             prisoner = offender(lastName = "DUBOIS") {
               booking = booking(
                 prisonId = "MDI",
@@ -355,7 +359,7 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
           .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
           .exchange()
           .expectStatus().isOk.expectBody()
-          .jsonPath("prisonPeriod[0].movementDates.length()").isEqualTo(2)
+          .jsonPath("prisonPeriod[0].movementDates.size()").isEqualTo(2)
           .jsonPath("prisonPeriod[0].movementDates[0].dateInToPrison").isEqualTo("2023-07-19T10:00:00")
           .jsonPath("prisonPeriod[0].movementDates[0].inwardType").isEqualTo("ADM")
           .jsonPath("prisonPeriod[0].movementDates[0].admittedIntoPrisonId").isEqualTo("MDI")
@@ -363,7 +367,8 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
           .jsonPath("prisonPeriod[0].movementDates[0].dateOutOfPrison").isEqualTo("2023-07-20T10:00:00")
           .jsonPath("prisonPeriod[0].movementDates[0].outwardType").isEqualTo("REL")
           .jsonPath("prisonPeriod[0].movementDates[0].releaseFromPrisonId").isEqualTo("MDI")
-          .jsonPath("prisonPeriod[0].movementDates[0].reasonOutOfPrison").isEqualTo("Conditional Release (CJA91) -SH Term>1YR")
+          .jsonPath("prisonPeriod[0].movementDates[0].reasonOutOfPrison")
+          .isEqualTo("Conditional Release (CJA91) -SH Term>1YR")
           .jsonPath("prisonPeriod[0].movementDates[1].dateInToPrison").isEqualTo("2023-07-21T10:00:00")
           .jsonPath("prisonPeriod[0].movementDates[1].inwardType").isEqualTo("ADM")
           .jsonPath("prisonPeriod[0].movementDates[1].admittedIntoPrisonId").isEqualTo("LEI")
@@ -371,11 +376,13 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
           .jsonPath("prisonPeriod[0].movementDates[1].dateOutOfPrison").isEqualTo("2023-07-22T10:00:00")
           .jsonPath("prisonPeriod[0].movementDates[1].outwardType").isEqualTo("REL")
           .jsonPath("prisonPeriod[0].movementDates[1].releaseFromPrisonId").isEqualTo("LEI")
-          .jsonPath("prisonPeriod[0].movementDates[1].reasonOutOfPrison").isEqualTo("Final Discharge To Hospital-Psychiatric")
+          .jsonPath("prisonPeriod[0].movementDates[1].reasonOutOfPrison")
+          .isEqualTo("Final Discharge To Hospital-Psychiatric")
       }
     }
 
     @Nested
+    @DisplayName("Person is currently in prison but has a number of temporary absences")
     inner class CurrentlyInPrisonWithTAPs {
       private lateinit var prisoner: OffenderId
       private lateinit var booking: OffenderBookingId
@@ -383,7 +390,7 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
       @BeforeEach
       fun setUp() {
         if (!::prisoner.isInitialized) {
-          NomisDataBuilder(testDataContext).build {
+          builder.build {
             prisoner = offender(lastName = "DUBOIS") {
               booking = booking(
                 prisonId = "MDI",
@@ -436,12 +443,12 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
       }
 
       @Test
-      fun `will have three movements due to the two TAP movements`() {
+      fun `will have three movements due to the two TAP movements and the initial entry`() {
         webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
           .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
           .exchange()
           .expectStatus().isOk.expectBody()
-          .jsonPath("prisonPeriod[0].movementDates.length()").isEqualTo(3)
+          .jsonPath("prisonPeriod[0].movementDates.size()").isEqualTo(3)
           .jsonPath("prisonPeriod[0].movementDates[0].dateInToPrison").isEqualTo("2023-07-19T10:00:00")
           .jsonPath("prisonPeriod[0].movementDates[0].inwardType").isEqualTo("ADM")
           .jsonPath("prisonPeriod[0].movementDates[0].admittedIntoPrisonId").isEqualTo("MDI")
@@ -457,11 +464,13 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
           .jsonPath("prisonPeriod[0].movementDates[1].dateOutOfPrison").isEqualTo("2023-07-21T23:00:00")
           .jsonPath("prisonPeriod[0].movementDates[1].outwardType").isEqualTo("TAP")
           .jsonPath("prisonPeriod[0].movementDates[1].releaseFromPrisonId").isEqualTo("MDI")
-          .jsonPath("prisonPeriod[0].movementDates[1].reasonOutOfPrison").isEqualTo("Medical/Dental Inpatient Appointment")
+          .jsonPath("prisonPeriod[0].movementDates[1].reasonOutOfPrison")
+          .isEqualTo("Medical/Dental Inpatient Appointment")
           .jsonPath("prisonPeriod[0].movementDates[2].dateInToPrison").isEqualTo("2023-07-22T10:00:00")
           .jsonPath("prisonPeriod[0].movementDates[2].inwardType").isEqualTo("TAP")
           .jsonPath("prisonPeriod[0].movementDates[2].admittedIntoPrisonId").isEqualTo("MDI")
-          .jsonPath("prisonPeriod[0].movementDates[2].reasonInToPrison").isEqualTo("Medical/Dental Inpatient Appointment")
+          .jsonPath("prisonPeriod[0].movementDates[2].reasonInToPrison")
+          .isEqualTo("Medical/Dental Inpatient Appointment")
           .jsonPath("prisonPeriod[0].movementDates[2].dateOutOfPrison").doesNotExist()
           .jsonPath("prisonPeriod[0].movementDates[2].outwardType").doesNotExist()
           .jsonPath("prisonPeriod[0].movementDates[2].releaseFromPrisonId").doesNotExist()
@@ -470,6 +479,7 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
     }
 
     @Nested
+    @DisplayName("Person is currently in prison but returned to a different prison after a temporary absence")
     inner class CurrentlyInPrisonWithTAPReturningToDifferentPrison {
       private lateinit var prisoner: OffenderId
       private lateinit var booking: OffenderBookingId
@@ -477,7 +487,7 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
       @BeforeEach
       fun setUp() {
         if (!::prisoner.isInitialized) {
-          NomisDataBuilder(testDataContext).build {
+          builder.build {
             prisoner = offender(lastName = "DUBOIS") {
               booking = booking(
                 prisonId = "MDI",
@@ -500,7 +510,7 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
       }
 
       @Test
-      fun `will have a single period covering the various temporary absences`() {
+      fun `will have a single period covering the temporary absences`() {
         webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
           .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
           .exchange()
@@ -509,7 +519,7 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
       }
 
       @Test
-      fun `prison period contains only entry dates`() {
+      fun `prison period contains only entry dates but both prisons`() {
         webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
           .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
           .exchange()
@@ -517,17 +527,18 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
           .jsonPath("prisonPeriod[0].bookingId").isEqualTo(booking.bookingId)
           .jsonPath("prisonPeriod[0].entryDate").isEqualTo("2023-07-19T10:00:00")
           .jsonPath("prisonPeriod[0].releaseDate").doesNotExist()
+          .jsonPath("prisonPeriod[0].prisons.size()").isEqualTo("2")
           .jsonPath("prisonPeriod[0].prisons[0]").isEqualTo("MDI")
           .jsonPath("prisonPeriod[0].prisons[1]").isEqualTo("LEI")
       }
 
       @Test
-      fun `will have two movements due to the single TAP movement which is an admission into a different prison`() {
+      fun `will have two movements due to the single TAP movement which is classed as an admission into a different prison`() {
         webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
           .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
           .exchange()
           .expectStatus().isOk.expectBody()
-          .jsonPath("prisonPeriod[0].movementDates.length()").isEqualTo(2)
+          .jsonPath("prisonPeriod[0].movementDates.size()").isEqualTo(2)
           .jsonPath("prisonPeriod[0].movementDates[0].dateInToPrison").isEqualTo("2023-07-19T10:00:00")
           .jsonPath("prisonPeriod[0].movementDates[0].inwardType").isEqualTo("ADM")
           .jsonPath("prisonPeriod[0].movementDates[0].admittedIntoPrisonId").isEqualTo("MDI")
@@ -548,6 +559,7 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
     }
 
     @Nested
+    @DisplayName("Person is currently in prison but has a number of court appearances")
     inner class CurrentlyInPrisonWithCourtMovements {
       private lateinit var prisoner: OffenderId
       private lateinit var booking: OffenderBookingId
@@ -555,7 +567,7 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
       @BeforeEach
       fun setUp() {
         if (!::prisoner.isInitialized) {
-          NomisDataBuilder(testDataContext).build {
+          builder.build {
             prisoner = offender(lastName = "DUBOIS") {
               booking = booking(
                 prisonId = "MDI",
@@ -613,7 +625,7 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
           .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
           .exchange()
           .expectStatus().isOk.expectBody()
-          .jsonPath("prisonPeriod[0].movementDates.length()").isEqualTo(1)
+          .jsonPath("prisonPeriod[0].movementDates.size()").isEqualTo(1)
           .jsonPath("prisonPeriod[0].movementDates[0].dateInToPrison").isEqualTo("2023-07-19T10:00:00")
           .jsonPath("prisonPeriod[0].movementDates[0].inwardType").isEqualTo("ADM")
           .jsonPath("prisonPeriod[0].movementDates[0].admittedIntoPrisonId").isEqualTo("MDI")
@@ -626,6 +638,7 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
     }
 
     @Nested
+    @DisplayName("Person is currently in prison but returned to a different prison after a court appearance")
     inner class CurrentlyInPrisonWithCourtMovementReturningToDifferentPrison {
       private lateinit var prisoner: OffenderId
       private lateinit var booking: OffenderBookingId
@@ -633,7 +646,7 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
       @BeforeEach
       fun setUp() {
         if (!::prisoner.isInitialized) {
-          NomisDataBuilder(testDataContext).build {
+          builder.build {
             prisoner = offender(lastName = "DUBOIS") {
               booking = booking(
                 prisonId = "MDI",
@@ -683,7 +696,7 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
           .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
           .exchange()
           .expectStatus().isOk.expectBody()
-          .jsonPath("prisonPeriod[0].movementDates.length()").isEqualTo(1)
+          .jsonPath("prisonPeriod[0].movementDates.size()").isEqualTo(1)
           .jsonPath("prisonPeriod[0].movementDates[0].dateInToPrison").isEqualTo("2023-07-19T10:00:00")
           .jsonPath("prisonPeriod[0].movementDates[0].inwardType").isEqualTo("ADM")
           .jsonPath("prisonPeriod[0].movementDates[0].admittedIntoPrisonId").isEqualTo("MDI")
@@ -692,6 +705,93 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
           .jsonPath("prisonPeriod[0].movementDates[0].outwardType").doesNotExist()
           .jsonPath("prisonPeriod[0].movementDates[0].releaseFromPrisonId").doesNotExist()
           .jsonPath("prisonPeriod[0].movementDates[0].reasonOutOfPrison").doesNotExist()
+      }
+    }
+
+    @Nested
+    @DisplayName("Person has been released from prison after previously being transferred between prisons")
+    inner class ReleasedFromPrisonAfterMultipleTransfers {
+      private lateinit var prisoner: OffenderId
+      private lateinit var booking: OffenderBookingId
+
+      @BeforeEach
+      fun setUp() {
+        if (!::prisoner.isInitialized) {
+          builder.build {
+            prisoner = offender(lastName = "DUBOIS") {
+              booking = booking(
+                prisonId = "MDI",
+                bookingInTime = LocalDateTime.parse("2023-07-19T10:00:00"),
+                movementReasonCode = REMAND_REASON,
+              ) {
+                transferOut(
+                  prisonId = "LEI",
+                  transferTime = LocalDateTime.parse("2023-07-20T10:00:00"),
+                  movementReasonCode = TRANSFER_REASON,
+                )
+                transferIn(
+                  receiveTime = LocalDateTime.parse("2023-07-20T11:00:00"),
+                  movementReasonCode = TRANSFER_REASON,
+                )
+                transferOut(
+                  prisonId = "SYI",
+                  transferTime = LocalDateTime.parse("2023-07-21T10:00:00"),
+                  movementReasonCode = TRANSFER_REASON,
+                )
+                transferIn(
+                  receiveTime = LocalDateTime.parse("2023-07-21T11:00:00"),
+                  movementReasonCode = TRANSFER_REASON,
+                )
+                release(
+                  releaseTime = LocalDateTime.parse("2023-07-22T10:00:00"),
+                  movementReasonCode = HOSPITAL_RELEASE_REASON,
+                )
+              }
+            }
+          }
+        }
+      }
+
+      @Test
+      fun `will have a single period covering the various transfers`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk.expectBody()
+          .jsonPath("prisonPeriod.size()").isEqualTo(1)
+      }
+
+      @Test
+      fun `prison period containing entry and exits dates and all prisons`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk.expectBody()
+          .jsonPath("prisonPeriod[0].bookingId").isEqualTo(booking.bookingId)
+          .jsonPath("prisonPeriod[0].entryDate").isEqualTo("2023-07-19T10:00:00")
+          .jsonPath("prisonPeriod[0].releaseDate").isEqualTo("2023-07-22T10:00:00")
+          .jsonPath("prisonPeriod[0].prisons.size()").isEqualTo("3")
+          .jsonPath("prisonPeriod[0].prisons[0]").isEqualTo("MDI")
+          .jsonPath("prisonPeriod[0].prisons[1]").isEqualTo("LEI")
+          .jsonPath("prisonPeriod[0].prisons[2]").isEqualTo("SYI")
+      }
+
+      @Test
+      fun `will have one movement due to the transfers not being significant`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk.expectBody()
+          .jsonPath("prisonPeriod[0].movementDates.size()").isEqualTo(1)
+          .jsonPath("prisonPeriod[0].movementDates[0].dateInToPrison").isEqualTo("2023-07-19T10:00:00")
+          .jsonPath("prisonPeriod[0].movementDates[0].inwardType").isEqualTo("ADM")
+          .jsonPath("prisonPeriod[0].movementDates[0].admittedIntoPrisonId").isEqualTo("MDI")
+          .jsonPath("prisonPeriod[0].movementDates[0].reasonInToPrison").isEqualTo("Unconvicted Remand")
+          .jsonPath("prisonPeriod[0].movementDates[0].dateOutOfPrison").isEqualTo("2023-07-22T10:00:00")
+          .jsonPath("prisonPeriod[0].movementDates[0].outwardType").isEqualTo("REL")
+          .jsonPath("prisonPeriod[0].movementDates[0].releaseFromPrisonId").isEqualTo("SYI")
+          .jsonPath("prisonPeriod[0].movementDates[0].reasonOutOfPrison")
+          .isEqualTo("Final Discharge To Hospital-Psychiatric")
       }
     }
   }
