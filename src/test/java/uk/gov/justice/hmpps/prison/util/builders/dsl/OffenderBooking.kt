@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.util.builders.dsl
 
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
+import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingRecallBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingReleaseBuilder
 import uk.gov.justice.hmpps.prison.util.builders.TestDataContext
 import java.time.LocalDateTime
@@ -15,6 +16,14 @@ interface BookingDsl {
     releaseTime: LocalDateTime = LocalDateTime.now().minusHours(1),
     movementReasonCode: String = "CR",
     commentText: String = "Conditional release",
+  )
+
+  @BookingDslMarker
+  fun recall(
+    prisonId: String = "MDI",
+    recallTime: LocalDateTime = LocalDateTime.now().minusMinutes(30),
+    movementReasonCode: String = "24",
+    commentText: String = "Recalled",
   )
 }
 
@@ -65,6 +74,24 @@ class BookingBuilderRepository(
       movementReasonCode = movementReasonCode,
       commentText = commentText,
     ).release(
+      webTestClient = testDataContext.webTestClient,
+      jwtAuthenticationHelper = testDataContext.jwtAuthenticationHelper,
+    )
+  }
+  fun recall(
+    offenderNo: String,
+    prisonId: String,
+    recallTime: LocalDateTime,
+    movementReasonCode: String,
+    commentText: String,
+  ) {
+    OffenderBookingRecallBuilder(
+      offenderNo = offenderNo,
+      prisonId = prisonId,
+      recallTime = recallTime,
+      movementReasonCode = movementReasonCode,
+      commentText = commentText,
+    ).recall(
       webTestClient = testDataContext.webTestClient,
       jwtAuthenticationHelper = testDataContext.jwtAuthenticationHelper,
     )
@@ -124,6 +151,16 @@ class BookingBuilder(
     repository.release(
       offenderNo = offenderBookingId.offenderNo,
       releaseTime = releaseTime,
+      movementReasonCode = movementReasonCode,
+      commentText = commentText,
+    )
+  }
+
+  override fun recall(prisonId: String, recallTime: LocalDateTime, movementReasonCode: String, commentText: String) {
+    repository.recall(
+      offenderNo = offenderBookingId.offenderNo,
+      recallTime = recallTime,
+      prisonId = prisonId,
       movementReasonCode = movementReasonCode,
       commentText = commentText,
     )

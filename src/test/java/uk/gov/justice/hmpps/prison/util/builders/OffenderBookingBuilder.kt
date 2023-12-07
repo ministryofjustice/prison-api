@@ -151,3 +151,43 @@ class OffenderBookingReleaseBuilder(
       .expectStatus().isOk
   }
 }
+
+class OffenderBookingRecallBuilder(
+  val offenderNo: String,
+  val prisonId: String,
+  val movementReasonCode: String,
+  val commentText: String,
+  val recallTime: LocalDateTime = LocalDateTime.now().minusHours(1),
+) : WebClientEntityBuilder() {
+  fun recall(
+    webTestClient: WebTestClient,
+    jwtAuthenticationHelper: JwtAuthenticationHelper,
+  ) {
+    webTestClient.put()
+      .uri("/api/offenders/{offenderNo}/recall", offenderNo)
+      .headers(
+        setAuthorisation(
+          jwtAuthenticationHelper = jwtAuthenticationHelper,
+          roles = listOf("ROLE_TRANSFER_PRISONER"),
+        ),
+      )
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .accept(MediaType.APPLICATION_JSON)
+      .body(
+        BodyInserters.fromValue(
+          // language=json
+          """
+          {
+            "prisonId": "$prisonId", 
+            "imprisonmentStatus": "CUR_ORA", 
+            "movementReasonCode":"$movementReasonCode",
+            "commentText":"$commentText",
+            "recallTime": "${recallTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
+          }
+          """.trimIndent(),
+        ),
+      )
+      .exchange()
+      .expectStatus().isOk
+  }
+}
