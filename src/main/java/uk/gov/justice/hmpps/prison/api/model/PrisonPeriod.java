@@ -40,6 +40,11 @@ public class PrisonPeriod {
     @Default
     @Schema(description = "List of significant period of time when in prison. The time between these periods means they person was out of prison (but not including court)", requiredMode = REQUIRED)
     private List<SignificantMovement> movementDates = new ArrayList<>();
+
+    @Default
+    @Schema(description = "List of transfers during this period. Will be empty if there have been no transfers. Transfer via court or temporary absence are also included", requiredMode = REQUIRED)
+    private List<TransferDetail> transfers = new ArrayList<>();
+
     @Default
     @Schema(description = "List of prisons the person was detained during this booking period", requiredMode = REQUIRED)
     private List<String> prisons = new ArrayList<>();
@@ -47,7 +52,7 @@ public class PrisonPeriod {
     @JsonIgnore
     public Optional<SignificantMovement> getLastMovement() {
         if (movementDates.isEmpty() ) return Optional.empty();
-        return Optional.of(movementDates.get(movementDates.size() - 1));
+        return Optional.of(movementDates.getLast());
     }
 
 

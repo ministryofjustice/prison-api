@@ -47,6 +47,22 @@ class BookingResourceIntTest_getOffenderAlert : ResourceTest() {
     }
 
     @Test
+    fun `returns success if ROLE_GLOBAL_SEARCH is an override role`() {
+      webTestClient.get().uri("/api/bookings/-4/alerts/1")
+        .headers(setAuthorisation("RO_USER", listOf("ROLE_GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns success if ROLE_VIEW_PRISONER_DATA is an override role`() {
+      webTestClient.get().uri("/api/bookings/-4/alerts/1")
+        .headers(setAuthorisation("RO_USER", listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
     fun `returns 404 if not in user caseload`() {
       webTestClient.get().uri("/api/bookings/-4/alerts/1")
         .headers(setAuthorisation("WAI_USER", listOf()))

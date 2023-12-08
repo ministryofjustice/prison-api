@@ -79,7 +79,6 @@ public class InmateAlertService {
         return alerts;
     }
 
-    @VerifyBookingAccess
     public Alert getInmateAlert(final Long bookingId, final Long alertSeqId) {
         final var alert = inmateAlertRepository.getAlert(bookingId, alertSeqId)
                 .orElseThrow(EntityNotFoundException.withId(alertSeqId));
@@ -90,7 +89,6 @@ public class InmateAlertService {
         return alert;
     }
 
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<Alert> getInmateAlertsByOffenderNosAtAgency(final String agencyId, final List<String> offenderNos) {
 
         final var alerts = Lists.partition(offenderNos, maxBatchSize)
@@ -104,7 +102,6 @@ public class InmateAlertService {
         return alerts;
     }
 
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH', 'VIEW_PRISONER_DATA','CREATE_CATEGORISATION','APPROVE_CATEGORISATION')")
     public List<Alert> getInmateAlertsByOffenderNos(final List<String> offenderNos, final boolean latestOnly, final String orderByField, final Order order) {
 
         final var alerts = inmateAlertRepository.getAlertsByOffenderNos(null, offenderNos, latestOnly,  orderByField, order);

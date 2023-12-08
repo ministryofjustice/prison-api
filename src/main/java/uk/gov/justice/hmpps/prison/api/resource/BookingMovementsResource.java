@@ -100,8 +100,8 @@ public class BookingMovementsResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @GetMapping("{bookingId}/court-hearings")
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "COURT_HEARING_MAINTAINER"})
+    @GetMapping("/{bookingId}/court-hearings")
+    @VerifyBookingAccess(overrideRoles = {"COURT_HEARING_MAINTAINER"})
     public CourtHearings getCourtHearings(@PathVariable("bookingId") @Parameter(description = "The offender booking linked to the court hearings.", required = true) final Long bookingId, @RequestParam(value = "fromDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Return court hearings on or after this date (in YYYY-MM-DD format).") final LocalDate fromDate, @RequestParam(value = "toDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Return court hearings on or before this date (in YYYY-MM-DD format).") final LocalDate toDate) {
         return courtHearingsService.getCourtHearingsFor(bookingId, fromDate, toDate);
     }

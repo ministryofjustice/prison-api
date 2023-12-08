@@ -41,7 +41,6 @@ import uk.gov.justice.hmpps.prison.api.model.AlertCreated;
 import uk.gov.justice.hmpps.prison.api.model.Alias;
 import uk.gov.justice.hmpps.prison.api.model.Assessment;
 import uk.gov.justice.hmpps.prison.api.model.BedAssignment;
-import uk.gov.justice.hmpps.prison.api.model.CaseNote;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteCount;
 import uk.gov.justice.hmpps.prison.api.model.Contact;
 import uk.gov.justice.hmpps.prison.api.model.ContactDetail;
@@ -57,7 +56,6 @@ import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.Keyworker;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
 import uk.gov.justice.hmpps.prison.api.model.NewAppointment;
-import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.OffenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenceHistoryDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifier;
@@ -75,7 +73,6 @@ import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentDetail;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendanceBatch;
-import uk.gov.justice.hmpps.prison.api.model.UpdateCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.VisitBalances;
 import uk.gov.justice.hmpps.prison.api.model.VisitDetails;
 import uk.gov.justice.hmpps.prison.api.model.VisitSummary;
@@ -88,6 +85,7 @@ import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
+import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.AdjudicationService;
@@ -145,7 +143,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Prisoners Booking Summary ", description = "Returns data that is available to the users caseload privileges, at least one attribute of a prisonId, bookingId or offenderNo must be specified")
     @GetMapping("/v2")
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
     public Page<PrisonerBookingSummary> getPrisonerBookingsV2(
         @RequestParam(value = "prisonId", required = false) @Parameter(description = "Filter by prison Id", example = "MDI") final String prisonId,
         @RequestParam(value = "bookingId", required = false) @Parameter(description = "Filter by a list of booking ids") final List<Long> bookingIds,
@@ -333,6 +331,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Offender alert detail.", description = "Offender alert detail.")
     @GetMapping("/{bookingId}/alerts/{alertId}")
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public Alert getOffenderAlert(@PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId, @PathVariable("alertId") @Parameter(description = "The Alert Id", required = true) final Long alertId) {
         return inmateAlertService.getInmateAlert(bookingId, alertId);
     }
@@ -340,6 +339,7 @@ public class BookingResource {
     @Operation(summary = "Get alerts for a list of offenders at a prison")
     @PostMapping("/offenderNo/{agencyId}/alerts")
     @SlowReportQuery
+    @VerifyAgencyAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<Alert> getAlertsByOffenderNosAtAgency(@PathVariable("agencyId") @Parameter(description = "The prison where the offenders are booked", required = true) final String agencyId, @RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderNos) {
         return inmateAlertService.getInmateAlertsByOffenderNosAtAgency(agencyId, offenderNos);
     }
@@ -347,6 +347,7 @@ public class BookingResource {
     @Operation(summary = "Get alerts for a list of offenders. Requires VIEW_PRISONER_DATA role")
     @PostMapping("/offenderNo/alerts")
     @SlowReportQuery
+    @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH', 'VIEW_PRISONER_DATA','CREATE_CATEGORISATION','APPROVE_CATEGORISATION')")
     public List<Alert> getAlertsByOffenderNos(@RequestBody @NotEmpty(message = "A minimum of one offender number is required") @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderNos) {
         return inmateAlertService.getInmateAlertsByOffenderNos(offenderNos, true, "bookingId,alertId", Order.ASC);
     }
@@ -884,17 +885,6 @@ public class BookingResource {
         final var pageIndex = page != null ? page : 0;
         final var pageSize = size != null ? size : 20;
         return bedAssignmentHistoryService.getBedAssignmentsHistory(bookingId, PageRequest.of(pageIndex, pageSize, Sort.by("assignmentDate").descending()));
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Gets the return to custody date for a booking", description = "Do not use - replaced with /fixed-term-recalls", deprecated = true, hidden = true)
-    @GetMapping("/{bookingId}/return-to-custody")
-    public ReturnToCustodyDate getReturnToCustodyDate(@PathVariable("bookingId") @Parameter(description = "The offender booking linked to the return to custody date.", required = true) final Long bookingId) {
-        return fixedTermRecallService.getReturnToCustodyDate(bookingId);
     }
 
     @ApiResponses({

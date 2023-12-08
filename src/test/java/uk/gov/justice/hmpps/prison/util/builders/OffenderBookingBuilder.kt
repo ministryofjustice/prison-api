@@ -5,7 +5,13 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.returnResult
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
+import uk.gov.justice.hmpps.prison.api.model.RequestForCourtTransferIn
 import uk.gov.justice.hmpps.prison.api.model.RequestForNewBooking
+import uk.gov.justice.hmpps.prison.api.model.RequestForTemporaryAbsenceArrival
+import uk.gov.justice.hmpps.prison.api.model.RequestToTransferIn
+import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOut
+import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOutToCourt
+import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOutToTemporaryAbsence
 import uk.gov.justice.hmpps.prison.service.DataLoaderRepository
 import uk.gov.justice.hmpps.prison.util.JwtAuthenticationHelper
 import java.time.LocalDateTime
@@ -85,30 +91,12 @@ class OffenderBookingBuilder(
       .expectStatus().isOk
       .returnResult<InmateDetail>().responseBody.blockFirst()!!.also {
       if (released) {
-        webTestClient.put()
-          .uri("/api/offenders/{nomsId}/release", offenderNo)
-          .headers(
-            setAuthorisation(
-              jwtAuthenticationHelper = jwtAuthenticationHelper,
-              roles = listOf("ROLE_RELEASE_PRISONER"),
-            ),
-          )
-          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-          .accept(MediaType.APPLICATION_JSON)
-          .body(
-            BodyInserters.fromValue(
-              """
-          {
-            "movementReasonCode":"CR",
-            "commentText":"released prisoner today",
-            "movementTime": "${LocalDateTime.now().minusHours(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
-            
-          }
-              """.trimIndent(),
-            ),
-          )
-          .exchange()
-          .expectStatus().isOk
+        OffenderBookingReleaseBuilder(
+          offenderNo = offenderNo,
+        ).release(
+          webTestClient = webTestClient,
+          jwtAuthenticationHelper = jwtAuthenticationHelper,
+        )
       }
     }.also { inmateDetail ->
       this.voBalance?.run {
@@ -130,5 +118,275 @@ class OffenderBookingBuilder(
         it.save(bookingId = inmateDetail.bookingId, dataLoader = dataLoader)
       }
     }
+  }
+}
+
+class OffenderBookingReleaseBuilder(
+  val offenderNo: String,
+  val movementReasonCode: String = "CR",
+  val commentText: String = "released prisoner today",
+  val releaseTime: LocalDateTime = LocalDateTime.now().minusHours(1),
+) : WebClientEntityBuilder() {
+  fun release(
+    webTestClient: WebTestClient,
+    jwtAuthenticationHelper: JwtAuthenticationHelper,
+  ) {
+    webTestClient.put()
+      .uri("/api/offenders/{nomsId}/release", offenderNo)
+      .headers(
+        setAuthorisation(
+          jwtAuthenticationHelper = jwtAuthenticationHelper,
+          roles = listOf("ROLE_RELEASE_PRISONER"),
+        ),
+      )
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .accept(MediaType.APPLICATION_JSON)
+      .body(
+        BodyInserters.fromValue(
+          """
+          {
+            "movementReasonCode":"$movementReasonCode",
+            "commentText":"$commentText",
+            "releaseTime": "${releaseTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
+            
+          }
+          """.trimIndent(),
+        ),
+      )
+      .exchange()
+      .expectStatus().isOk
+  }
+}
+
+class OffenderBookingRecallBuilder(
+  val offenderNo: String,
+  val prisonId: String,
+  val movementReasonCode: String,
+  val commentText: String,
+  val recallTime: LocalDateTime = LocalDateTime.now().minusHours(1),
+) : WebClientEntityBuilder() {
+  fun recall(
+    webTestClient: WebTestClient,
+    jwtAuthenticationHelper: JwtAuthenticationHelper,
+  ) {
+    webTestClient.put()
+      .uri("/api/offenders/{offenderNo}/recall", offenderNo)
+      .headers(
+        setAuthorisation(
+          jwtAuthenticationHelper = jwtAuthenticationHelper,
+          roles = listOf("ROLE_TRANSFER_PRISONER"),
+        ),
+      )
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .accept(MediaType.APPLICATION_JSON)
+      .body(
+        BodyInserters.fromValue(
+          // language=json
+          """
+          {
+            "prisonId": "$prisonId", 
+            "imprisonmentStatus": "CUR_ORA", 
+            "movementReasonCode":"$movementReasonCode",
+            "commentText":"$commentText",
+            "recallTime": "${recallTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
+          }
+          """.trimIndent(),
+        ),
+      )
+      .exchange()
+      .expectStatus().isOk
+  }
+}
+class OffenderBookingCourtTransferBuilder(
+  private val offenderNo: String,
+  private val movementReasonCode: String,
+  private val commentText: String,
+) : WebClientEntityBuilder() {
+  fun toCourt(
+    webTestClient: WebTestClient,
+    jwtAuthenticationHelper: JwtAuthenticationHelper,
+    releaseTime: LocalDateTime,
+  ) {
+    webTestClient.put()
+      .uri("/api/offenders/{nomsId}/court-transfer-out", offenderNo)
+      .headers(
+        setAuthorisation(
+          jwtAuthenticationHelper = jwtAuthenticationHelper,
+          roles = listOf("ROLE_TRANSFER_PRISONER_ALPHA"),
+        ),
+      )
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .accept(MediaType.APPLICATION_JSON)
+      .body(
+        BodyInserters.fromValue(
+          RequestToTransferOutToCourt.builder()
+            .toLocation("COURT1")
+            .movementTime(releaseTime)
+            .transferReasonCode(movementReasonCode)
+            .commentText(commentText)
+            .shouldReleaseBed(false)
+            .courtEventId(null)
+            .build(),
+        ),
+      )
+      .exchange()
+      .expectStatus().isOk
+  }
+  fun fromCourt(
+    webTestClient: WebTestClient,
+    jwtAuthenticationHelper: JwtAuthenticationHelper,
+    returnTime: LocalDateTime,
+    prisonId: String,
+  ) {
+    webTestClient.put()
+      .uri("/api/offenders/{nomsId}/court-transfer-in", offenderNo)
+      .headers(
+        setAuthorisation(
+          jwtAuthenticationHelper = jwtAuthenticationHelper,
+          roles = listOf("ROLE_TRANSFER_PRISONER"),
+        ),
+      )
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .accept(MediaType.APPLICATION_JSON)
+      .body(
+        BodyInserters.fromValue(
+          RequestForCourtTransferIn.builder()
+            .agencyId(prisonId)
+            .dateTime(returnTime)
+            .movementReasonCode(movementReasonCode)
+            .commentText(commentText)
+            .build(),
+        ),
+      )
+      .exchange()
+      .expectStatus().isOk
+  }
+}
+
+class OffenderBookingTAPTransferBuilder(
+  private val offenderNo: String,
+  private val movementReasonCode: String,
+  private val commentText: String,
+) : WebClientEntityBuilder() {
+  fun temporaryAbsenceRelease(
+    webTestClient: WebTestClient,
+    jwtAuthenticationHelper: JwtAuthenticationHelper,
+    releaseTime: LocalDateTime,
+  ) {
+    webTestClient.put()
+      .uri("/api/offenders/{nomsId}/temporary-absence-out", offenderNo)
+      .headers(
+        setAuthorisation(
+          jwtAuthenticationHelper = jwtAuthenticationHelper,
+          roles = listOf("ROLE_TRANSFER_PRISONER_ALPHA"),
+        ),
+      )
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .accept(MediaType.APPLICATION_JSON)
+      .body(
+        BodyInserters.fromValue(
+          RequestToTransferOutToTemporaryAbsence.builder()
+            .toCity("18248")
+            .movementTime(releaseTime)
+            .transferReasonCode(movementReasonCode)
+            .commentText(commentText)
+            .shouldReleaseBed(false)
+            .scheduleEventId(null)
+            .build(),
+        ),
+      )
+      .exchange()
+      .expectStatus().isOk
+  }
+  fun temporaryAbsenceReturn(
+    webTestClient: WebTestClient,
+    jwtAuthenticationHelper: JwtAuthenticationHelper,
+    returnTime: LocalDateTime,
+    prisonId: String,
+  ) {
+    webTestClient.put()
+      .uri("/api/offenders/{nomsId}/temporary-absence-arrival", offenderNo)
+      .headers(
+        setAuthorisation(
+          jwtAuthenticationHelper = jwtAuthenticationHelper,
+          roles = listOf("ROLE_TRANSFER_PRISONER"),
+        ),
+      )
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .accept(MediaType.APPLICATION_JSON)
+      .body(
+        BodyInserters.fromValue(
+          RequestForTemporaryAbsenceArrival.builder()
+            .agencyId(prisonId)
+            .dateTime(returnTime)
+            .movementReasonCode(movementReasonCode)
+            .commentText(commentText)
+            .build(),
+        ),
+      )
+      .exchange()
+      .expectStatus().isOk
+  }
+}
+class OffenderBookingTransferBuilder(
+  private val offenderNo: String,
+  private val movementReasonCode: String,
+  private val commentText: String,
+) : WebClientEntityBuilder() {
+  fun transferOut(
+    webTestClient: WebTestClient,
+    jwtAuthenticationHelper: JwtAuthenticationHelper,
+    prisonId: String,
+    releaseTime: LocalDateTime,
+  ) {
+    webTestClient.put()
+      .uri("/api/offenders/{nomsId}/transfer-out", offenderNo)
+      .headers(
+        setAuthorisation(
+          jwtAuthenticationHelper = jwtAuthenticationHelper,
+          roles = listOf("ROLE_TRANSFER_PRISONER"),
+        ),
+      )
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .accept(MediaType.APPLICATION_JSON)
+      .body(
+        BodyInserters.fromValue(
+          RequestToTransferOut.builder()
+            .toLocation(prisonId)
+            .movementTime(releaseTime)
+            .transferReasonCode(movementReasonCode)
+            .commentText(commentText)
+            .escortType("PECS")
+            .build(),
+        ),
+      )
+      .exchange()
+      .expectStatus().isOk
+  }
+  fun transferIn(
+    webTestClient: WebTestClient,
+    jwtAuthenticationHelper: JwtAuthenticationHelper,
+    returnTime: LocalDateTime,
+  ) {
+    webTestClient.put()
+      .uri("/api/offenders/{nomsId}/transfer-in", offenderNo)
+      .headers(
+        setAuthorisation(
+          jwtAuthenticationHelper = jwtAuthenticationHelper,
+          roles = listOf("ROLE_TRANSFER_PRISONER"),
+        ),
+      )
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .accept(MediaType.APPLICATION_JSON)
+      .body(
+        BodyInserters.fromValue(
+          RequestToTransferIn.builder()
+            .receiveTime(returnTime)
+            .commentText(commentText)
+            .build(),
+        ),
+      )
+      .exchange()
+      .expectStatus().isOk
   }
 }

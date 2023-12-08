@@ -32,7 +32,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.function.Consumer
 
-internal fun randomName(): String {
+fun randomName(): String {
   // return random name between 3 and 10 characters long
   return (1..(3 + (Math.random() * 7).toInt())).map {
     ('a' + (Math.random() * 26).toInt())

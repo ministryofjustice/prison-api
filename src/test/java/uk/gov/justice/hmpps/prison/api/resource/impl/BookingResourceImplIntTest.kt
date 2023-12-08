@@ -1,6 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.verify
@@ -9,6 +11,7 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.http.HttpMethod.GET
 import org.springframework.http.HttpMethod.POST
+import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import uk.gov.justice.hmpps.prison.api.model.PersonalCareNeed
 import uk.gov.justice.hmpps.prison.api.model.ReasonableAdjustment
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent
@@ -94,27 +97,94 @@ class BookingResourceImplIntTest : ResourceTest() {
     assertThat(responseEntity.body).contains("Malformed request")
   }
 
-  @Test
-  fun offenderAlerts_respondsWithOKWhenOffenderNumberSupplied() {
-    val oneOffendersInRequest = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", listOf("ROLE_VIEW_PRISONER_DATA"), listOf("A1234AA"))
-    val minimumOfOneOffenderRequiredResponse = testRestTemplate.exchange("/api/bookings/offenderNo/alerts", POST, oneOffendersInRequest, String::class.java)
-    assertThatStatus(minimumOfOneOffenderRequiredResponse, 200)
-  }
+  @DisplayName("POST /api/bookings/offenderNo/alerts")
+  @Nested
+  inner class OffenderAlerts {
+    @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.post().uri("/api/bookings/offenderNo/alerts")
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"A1234AA\" ]")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
 
-  @Test
-  fun offenderAlerts_respondsWithBadRequestWhenNoOffendersNumbersSupplied() {
-    val noOffendersInRequest = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", listOf("ROLE_VIEW_PRISONER_DATA"), listOf<Any>())
-    val minimumOfOneOffenderRequiredResponse = testRestTemplate.exchange("/api/bookings/offenderNo/alerts", POST, noOffendersInRequest, String::class.java)
-    assertThatStatus(minimumOfOneOffenderRequiredResponse, 400)
-    assertThat(minimumOfOneOffenderRequiredResponse.body).contains("A minimum of one offender number is required")
-  }
+    @Test
+    fun `returns 403 when client has no override role`() {
+      webTestClient.post().uri("/api/bookings/offenderNo/alerts")
+        .headers(setClientAuthorisation(listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"A1234AA\" ]")
+        .exchange()
+        .expectStatus().isForbidden
+    }
 
-  @Test
-  fun offenderAlerts_emptyBody() {
-    val noOffendersInRequest = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", listOf("ROLE_VIEW_PRISONER_DATA"), null)
-    val minimumOfOneOffenderRequiredResponse = testRestTemplate.exchange("/api/bookings/offenderNo/alerts", POST, noOffendersInRequest, String::class.java)
-    assertThatStatus(minimumOfOneOffenderRequiredResponse, 400)
-    assertThat(minimumOfOneOffenderRequiredResponse.body).contains("Malformed request")
+    @Test
+    fun `returns success when client has override role ROLE_GlOBAL_SEARCH`() {
+      webTestClient.post().uri("/api/bookings/offenderNo/alerts")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"A1234AA\", \"A1234AF\" ]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(6)
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_VIEW_PRISONER_DATA`() {
+      webTestClient.post().uri("/api/bookings/offenderNo/alerts")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"A1234AA\"]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(4)
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_CREATE_CATEGORISATION`() {
+      webTestClient.post().uri("/api/bookings/offenderNo/alerts")
+        .headers(setClientAuthorisation(listOf("ROLE_CREATE_CATEGORISATION")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"A1234AA\"]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(4)
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_APPROVE_CATEGORISATION`() {
+      webTestClient.post().uri("/api/bookings/offenderNo/alerts")
+        .headers(setClientAuthorisation(listOf("ROLE_APPROVE_CATEGORISATION")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"A1234AA\"]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(4)
+    }
+
+    @Test
+    fun offenderAlerts_respondsWithOKWhenOffenderNumberSupplied() {
+      val oneOffendersInRequest = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", listOf("ROLE_VIEW_PRISONER_DATA"), listOf("A1234AA"))
+      val minimumOfOneOffenderRequiredResponse = testRestTemplate.exchange("/api/bookings/offenderNo/alerts", POST, oneOffendersInRequest, String::class.java)
+      assertThatStatus(minimumOfOneOffenderRequiredResponse, 200)
+    }
+
+    @Test
+    fun offenderAlerts_respondsWithBadRequestWhenNoOffendersNumbersSupplied() {
+      val noOffendersInRequest = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", listOf("ROLE_VIEW_PRISONER_DATA"), listOf<Any>())
+      val minimumOfOneOffenderRequiredResponse = testRestTemplate.exchange("/api/bookings/offenderNo/alerts", POST, noOffendersInRequest, String::class.java)
+      assertThatStatus(minimumOfOneOffenderRequiredResponse, 400)
+      assertThat(minimumOfOneOffenderRequiredResponse.body).contains("A minimum of one offender number is required")
+    }
+
+    @Test
+    fun offenderAlerts_emptyBody() {
+      val noOffendersInRequest = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", listOf("ROLE_VIEW_PRISONER_DATA"), null)
+      val minimumOfOneOffenderRequiredResponse = testRestTemplate.exchange("/api/bookings/offenderNo/alerts", POST, noOffendersInRequest, String::class.java)
+      assertThatStatus(minimumOfOneOffenderRequiredResponse, 400)
+      assertThat(minimumOfOneOffenderRequiredResponse.body).contains("Malformed request")
+    }
   }
 
   @Test
@@ -267,56 +337,98 @@ class BookingResourceImplIntTest : ResourceTest() {
     assertThatJsonFileAndStatus(responseEntity, 200, "military_records.json")
   }
 
-  @Test
-  fun courtCases_returnsMatchingActiveCourtCase() {
-    `when`(offenderBookingRepository.findById(-1L)).thenReturn(
-      Optional.of(
-        OffenderBooking.builder()
-          .courtCases(
-            listOf(
-              OffenderCourtCase.builder()
-                .id(-1L)
-                .caseSeq(-1)
-                .beginDate(LocalDate.EPOCH)
-                .agencyLocation(
-                  AgencyLocation.builder()
-                    .id("MDI")
-                    .active(true)
-                    .type(AgencyLocationType.COURT_TYPE)
-                    .description("Moorland")
-                    .build(),
-                )
-                .legalCaseType(LegalCaseType("A", "Adult"))
-                .caseInfoPrefix("CIP")
-                .caseInfoNumber("CIN20177010")
-                .caseStatus(CaseStatus("A", "Active"))
-                .courtEvents(
-                  listOf(
-                    CourtEvent.builder()
-                      .id(-1L)
-                      .eventDate(LocalDate.EPOCH)
-                      .startTime(LocalDate.EPOCH.atStartOfDay())
-                      .courtLocation(
-                        AgencyLocation.builder()
-                          .id("COURT1")
-                          .description("Court 1")
-                          .type(AgencyLocationType.COURT_TYPE)
-                          .courtType(CourtType("MC", "Mag Court"))
-                          .active(true)
-                          .build(),
-                      )
+  @Nested
+  @DisplayName("GET /api/bookings/{bookingId}/court-cases")
+  inner class GetCourtCases {
+
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("/api/bookings/-1/court-cases")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return 403 if does not have override role`() {
+      webTestClient.get().uri("/api/bookings/-1/court-cases")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should return success when has ROLE_GLOBAL_SEARCH override role`() {
+      stubRepositoryCall()
+      webTestClient.get().uri("/api/bookings/-1/court-cases")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `should return success when has ROLE_VIEW_PRISONER_DATA override role`() {
+      stubRepositoryCall()
+      webTestClient.get().uri("/api/bookings/-1/court-cases")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun courtCases_returnsMatchingActiveCourtCase() {
+      stubRepositoryCall()
+      val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf(), mapOf())
+      val responseEntity = testRestTemplate.exchange("/api/bookings/-1/court-cases", GET, requestEntity, String::class.java)
+      assertThatJsonFileAndStatus(responseEntity, 200, "court_cases.json")
+    }
+
+    private fun stubRepositoryCall() {
+      `when`(offenderBookingRepository.findById(-1L)).thenReturn(
+        Optional.of(
+          OffenderBooking.builder()
+            .courtCases(
+              listOf(
+                OffenderCourtCase.builder()
+                  .id(-1L)
+                  .caseSeq(-1)
+                  .beginDate(LocalDate.EPOCH)
+                  .agencyLocation(
+                    AgencyLocation.builder()
+                      .id("MDI")
+                      .active(true)
+                      .type(AgencyLocationType.COURT_TYPE)
+                      .description("Moorland")
                       .build(),
-                  ),
-                )
-                .build(),
-            ),
-          )
-          .build(),
-      ),
-    )
-    val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf(), mapOf())
-    val responseEntity = testRestTemplate.exchange("/api/bookings/-1/court-cases", GET, requestEntity, String::class.java)
-    assertThatJsonFileAndStatus(responseEntity, 200, "court_cases.json")
+                  )
+                  .legalCaseType(LegalCaseType("A", "Adult"))
+                  .caseInfoPrefix("CIP")
+                  .caseInfoNumber("CIN20177010")
+                  .caseStatus(CaseStatus("A", "Active"))
+                  .courtEvents(
+                    listOf(
+                      CourtEvent.builder()
+                        .id(-1L)
+                        .eventDate(LocalDate.EPOCH)
+                        .startTime(LocalDate.EPOCH.atStartOfDay())
+                        .courtLocation(
+                          AgencyLocation.builder()
+                            .id("COURT1")
+                            .description("Court 1")
+                            .type(AgencyLocationType.COURT_TYPE)
+                            .courtType(CourtType("MC", "Mag Court"))
+                            .active(true)
+                            .build(),
+                        )
+                        .build(),
+                    ),
+                  )
+                  .build(),
+              ),
+            )
+            .build(),
+        ),
+      )
+    }
   }
 
   @Test
