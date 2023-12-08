@@ -43,35 +43,6 @@ class PrisonResource(private val bookingService: BookingService) {
       content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
     ),
   )
-  @Operation(summary = "Do not use - replaced with paginated version. Details of the active sentence envelope, a combination of the person information, the active booking and calculable sentences at a particular establishment", deprecated = true, hidden = true)
-  @PreAuthorize("hasRole('RELEASE_DATE_MANUAL_COMPARER')")
-  @GetMapping("/{establishmentId}/booking/latest/calculable-sentence-envelope")
-  fun getCalculableSentenceEnvelopeByEstablishment(
-    @PathVariable
-    @Parameter(description = "The identifier of the establishment(prison) to get the active bookings for", required = true)
-    establishmentId: String,
-  ): List<CalculableSentenceEnvelope> {
-    return this.bookingService.getCalculableSentenceEnvelopeByEstablishment(establishmentId)
-  }
-
-  @ApiResponses(
-    ApiResponse(responseCode = "200", description = "OK"),
-    ApiResponse(
-      responseCode = "400",
-      description = "Invalid request.",
-      content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
-    ),
-    ApiResponse(
-      responseCode = "404",
-      description = "Requested resource not found.",
-      content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
-    ),
-    ApiResponse(
-      responseCode = "500",
-      description = "Unrecoverable error occurred whilst processing request.",
-      content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
-    ),
-  )
   @Operation(summary = "Details of the active sentence envelope, a combination of the person information, the active booking and calculable sentences at a particular establishment (paged response)")
   @PreAuthorize("hasRole('RELEASE_DATE_MANUAL_COMPARER')")
   @GetMapping("/{establishmentId}/booking/latest/paged/calculable-sentence-envelope")

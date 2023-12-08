@@ -22,31 +22,6 @@ class PrisonResourceTest : ResourceTest() {
   @Autowired
   val objectMapper = jacksonObjectMapper()
 
-  @Test
-  fun `Test that endpoint returns a summary list when authorised`() {
-    val establishment = "LEI"
-
-    val json = getPrisonResourceAsText("prison_resource_single_calculable_sentence_envelope.json")
-    val calculableSentenceEnvelope = objectMapper.readValue<CalculableSentenceEnvelope>(json)
-
-    val fixedRecallCalculableSentenceEnvelope = objectMapper.readValue<CalculableSentenceEnvelope>(getPrisonResourceAsText("prison_resource_fixed_recall_calculable_sentence_envelope.json"))
-    fixedRecallCalculableSentenceEnvelope.person.alerts.forEach { it.dateCreated = LocalDate.now() }
-
-    webTestClient.get()
-      .uri("/api/prison/{establishment}/booking/latest/calculable-sentence-envelope", establishment)
-      .headers(
-        setAuthorisation(
-          listOf("ROLE_RELEASE_DATE_MANUAL_COMPARER"),
-        ),
-      )
-      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-      .accept(MediaType.APPLICATION_JSON)
-      .exchange()
-      .expectStatus().isOk
-      .expectBodyList(object : ParameterizedTypeReference<CalculableSentenceEnvelope>() {})
-      .contains(calculableSentenceEnvelope, fixedRecallCalculableSentenceEnvelope)
-  }
-
   @Sql(
     scripts = ["/sql/create_offender_details_used_for_calc.sql"],
     executionPhase = BEFORE_TEST_METHOD,
@@ -106,23 +81,6 @@ class PrisonResourceTest : ResourceTest() {
     assertThat(secondPageResponse.totalPages).isEqualTo(2)
     assertTrue(secondPageResponse.isLast)
     assertThat(secondPageResponse.content.size).isEqualTo(1)
-  }
-
-  @Test
-  fun `Test that endpoint returns a forbidden when unauthorised`() {
-    val establishment = "LEI"
-
-    webTestClient.get()
-      .uri("/api/prison/{establishment}/booking/latest/calculable-sentence-envelope", establishment)
-      .headers(
-        setAuthorisation(
-          listOf("ROLE_RELEASE_DATES_CALCULATOR"),
-        ),
-      )
-      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-      .accept(MediaType.APPLICATION_JSON)
-      .exchange()
-      .expectStatus().isForbidden
   }
 
   private fun getPrisonResourceAsText(path: String): String {
