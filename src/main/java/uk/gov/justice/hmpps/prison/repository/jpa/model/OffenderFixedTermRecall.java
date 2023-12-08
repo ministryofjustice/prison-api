@@ -6,7 +6,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import uk.gov.justice.hmpps.prison.api.model.FixedTermRecallDetails;
-import uk.gov.justice.hmpps.prison.api.model.ReturnToCustodyDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -41,13 +40,6 @@ public class OffenderFixedTermRecall extends AuditableEntity {
 
     @Column(name = "RECALL_LENGTH")
     private Integer recallLength;
-
-    public ReturnToCustodyDate mapToReturnToCustody() {
-        return ReturnToCustodyDate.builder()
-            .bookingId(offenderBooking.getBookingId())
-            .returnToCustodyDate(returnToCustodyDate)
-            .build();
-    }
 
     public FixedTermRecallDetails mapToFixedTermRecallDetails() {
         return FixedTermRecallDetails.builder()

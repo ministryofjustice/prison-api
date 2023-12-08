@@ -1990,33 +1990,8 @@ class BookingResourceIntTest : ResourceTest() {
   }
 
   @Nested
-  @DisplayName("GET /api/bookings/{bookingId}/return-to-custody")
+  @DisplayName("GET /api/bookings/{bookingId}/fixed-term-recall")
   inner class GetFixedTermRecallDetails {
-    @Test
-    fun success() {
-      val response = testRestTemplate.exchange(
-        "/api/bookings/{bookingId}/return-to-custody",
-        GET,
-        createHttpEntity(VIEW_PRISONER_DATA, null),
-        String::class.java,
-        -20L,
-      )
-      val bodyAsJsonContent = getBodyAsJsonContent<Any>(response)
-      assertThat(bodyAsJsonContent).extractingJsonPathNumberValue("$.bookingId").isEqualTo(-20)
-      assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.returnToCustodyDate").isEqualTo("2001-01-01")
-    }
-
-    @Test
-    fun notFound() {
-      val response = testRestTemplate.exchange(
-        "/api/bookings/{bookingId}/return-to-custody",
-        GET,
-        createHttpEntity(VIEW_PRISONER_DATA, null),
-        String::class.java,
-        -9999L,
-      )
-      assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
-    }
 
     @Test
     fun testFixedTermRecallDetails_success() {
