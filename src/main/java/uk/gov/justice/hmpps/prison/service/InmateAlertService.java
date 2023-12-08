@@ -89,7 +89,6 @@ public class InmateAlertService {
         return alert;
     }
 
-    @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<Alert> getInmateAlertsByOffenderNosAtAgency(final String agencyId, final List<String> offenderNos) {
 
         final var alerts = Lists.partition(offenderNos, maxBatchSize)
