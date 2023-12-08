@@ -157,6 +157,15 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
       }
 
       @Test
+      fun `will have no transfers during that period`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk.expectBody()
+          .jsonPath("prisonPeriod[0].transfers.size()").isEqualTo(0)
+      }
+
+      @Test
       fun `will have a single prison in that period prison set`() {
         webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
           .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
@@ -244,6 +253,16 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
           .expectStatus().isOk.expectBody()
           .jsonPath("prisonPeriod[0].movementDates.size()").isEqualTo(1)
           .jsonPath("prisonPeriod[1].movementDates.size()").isEqualTo(1)
+      }
+
+      @Test
+      fun `will have no transfers in either period`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk.expectBody()
+          .jsonPath("prisonPeriod[0].transfers.size()").isEqualTo(0)
+          .jsonPath("prisonPeriod[1].transfers.size()").isEqualTo(0)
       }
 
       @Test
@@ -403,6 +422,15 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
           .jsonPath("prisonPeriod[0].movementDates[1].reasonOutOfPrison")
           .isEqualTo("Final Discharge To Hospital-Psychiatric")
       }
+
+      @Test
+      fun `will have no transfers in this period even though they have been in different prisons`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk.expectBody()
+          .jsonPath("prisonPeriod[0].transfers.size()").isEqualTo(0)
+      }
     }
 
     @Nested
@@ -504,6 +532,15 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
           .jsonPath("prisonPeriod[0].movementDates[2].releaseFromPrisonId").doesNotExist()
           .jsonPath("prisonPeriod[0].movementDates[2].reasonOutOfPrison").doesNotExist()
       }
+
+      @Test
+      fun `will have no transfers in this period`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk.expectBody()
+          .jsonPath("prisonPeriod[0].transfers.size()").isEqualTo(0)
+      }
     }
 
     @Nested
@@ -588,6 +625,28 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
           .jsonPath("prisonPeriod[0].movementDates[1].releaseFromPrisonId").doesNotExist()
           .jsonPath("prisonPeriod[0].movementDates[1].reasonOutOfPrison").doesNotExist()
       }
+
+      @Test
+      fun `will have also have a transfer in this period since the readmission from TAP is like a transfer`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk.expectBody()
+          .jsonPath("prisonPeriod[0].transfers.size()").isEqualTo(1)
+      }
+
+      @Test
+      fun `will have details of the transfer prison and dates`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk.expectBody()
+          .jsonPath("prisonPeriod[0].transfers[0].dateOutOfPrison").isEqualTo("2023-07-20T10:00:00")
+          .jsonPath("prisonPeriod[0].transfers[0].dateInToPrison").isEqualTo("2023-07-20T22:00:00")
+          .jsonPath("prisonPeriod[0].transfers[0].transferReason").isEqualTo("Transfer Via Temporary Release")
+          .jsonPath("prisonPeriod[0].transfers[0].fromPrisonId").isEqualTo("MDI")
+          .jsonPath("prisonPeriod[0].transfers[0].toPrisonId").isEqualTo("LEI")
+      }
     }
 
     @Nested
@@ -671,6 +730,15 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
           .jsonPath("prisonPeriod[0].movementDates[0].releaseFromPrisonId").doesNotExist()
           .jsonPath("prisonPeriod[0].movementDates[0].reasonOutOfPrison").doesNotExist()
       }
+
+      @Test
+      fun `will have no have a transfers in this period`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk.expectBody()
+          .jsonPath("prisonPeriod[0].transfers.size()").isEqualTo(0)
+      }
     }
 
     @Nested
@@ -745,6 +813,28 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
           .jsonPath("prisonPeriod[0].movementDates[0].outwardType").doesNotExist()
           .jsonPath("prisonPeriod[0].movementDates[0].releaseFromPrisonId").doesNotExist()
           .jsonPath("prisonPeriod[0].movementDates[0].reasonOutOfPrison").doesNotExist()
+      }
+
+      @Test
+      fun `will have also have a transfer in this period since the readmission from court is like a transfer`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk.expectBody()
+          .jsonPath("prisonPeriod[0].transfers.size()").isEqualTo(1)
+      }
+
+      @Test
+      fun `will have details of the transfer prison and dates`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk.expectBody()
+          .jsonPath("prisonPeriod[0].transfers[0].dateOutOfPrison").isEqualTo("2023-07-20T10:00:00")
+          .jsonPath("prisonPeriod[0].transfers[0].dateInToPrison").isEqualTo("2023-07-20T22:00:00")
+          .jsonPath("prisonPeriod[0].transfers[0].transferReason").isEqualTo("Transfer Via Court")
+          .jsonPath("prisonPeriod[0].transfers[0].fromPrisonId").isEqualTo("MDI")
+          .jsonPath("prisonPeriod[0].transfers[0].toPrisonId").isEqualTo("LEI")
       }
     }
 
@@ -836,6 +926,126 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
           .jsonPath("prisonPeriod[0].movementDates[0].releaseFromPrisonId").isEqualTo("SYI")
           .jsonPath("prisonPeriod[0].movementDates[0].reasonOutOfPrison")
           .isEqualTo("Final Discharge To Hospital-Psychiatric")
+      }
+
+      @Test
+      fun `will have two transfer details`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk.expectBody()
+          .jsonPath("prisonPeriod[0].transfers.size()").isEqualTo(2)
+      }
+
+      @Test
+      fun `will have details of the prisons and dates`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk.expectBody()
+          .jsonPath("prisonPeriod[0].transfers[0].dateOutOfPrison").isEqualTo("2023-07-20T10:00:00")
+          .jsonPath("prisonPeriod[0].transfers[0].dateInToPrison").isEqualTo("2023-07-20T11:00:00")
+          .jsonPath("prisonPeriod[0].transfers[0].transferReason").isEqualTo("Normal Transfer")
+          .jsonPath("prisonPeriod[0].transfers[0].fromPrisonId").isEqualTo("MDI")
+          .jsonPath("prisonPeriod[0].transfers[0].toPrisonId").isEqualTo("LEI")
+          .jsonPath("prisonPeriod[0].transfers[1].dateOutOfPrison").isEqualTo("2023-07-21T10:00:00")
+          .jsonPath("prisonPeriod[0].transfers[1].dateInToPrison").isEqualTo("2023-07-21T11:00:00")
+          .jsonPath("prisonPeriod[0].transfers[1].transferReason").isEqualTo("Normal Transfer")
+          .jsonPath("prisonPeriod[0].transfers[1].fromPrisonId").isEqualTo("LEI")
+          .jsonPath("prisonPeriod[0].transfers[1].toPrisonId").isEqualTo("SYI")
+      }
+    }
+
+    @Nested
+    @DisplayName("Person has been tranferred out of prison but hasn't arrived in the new prison")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    inner class TransferOutOnly {
+      private lateinit var prisoner: OffenderId
+      private lateinit var booking: OffenderBookingId
+
+      @BeforeAll
+      fun createPrisoner() {
+        builder.build {
+          prisoner = offender(lastName = "DUBOIS") {
+            booking = booking(
+              prisonId = "MDI",
+              bookingInTime = LocalDateTime.parse("2023-07-19T10:00:00"),
+              movementReasonCode = REMAND_REASON,
+            ) {
+              transferOut(
+                prisonId = "LEI",
+                transferTime = LocalDateTime.parse("2023-07-20T10:00:00"),
+                movementReasonCode = TRANSFER_REASON,
+              )
+            }
+          }
+        }
+      }
+
+      @AfterAll
+      fun deletePrisoner() {
+        builder.deletePrisoner(prisoner.offenderNo)
+      }
+
+      @Test
+      fun `will have a single period covering transfer out`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk.expectBody()
+          .jsonPath("prisonPeriod.size()").isEqualTo(1)
+      }
+
+      @Test
+      fun `prison period containing just entry dates and single prison`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk.expectBody()
+          .jsonPath("prisonPeriod[0].bookingId").isEqualTo(booking.bookingId)
+          .jsonPath("prisonPeriod[0].entryDate").isEqualTo("2023-07-19T10:00:00")
+          .jsonPath("prisonPeriod[0].releaseDate").doesNotExist()
+          .jsonPath("prisonPeriod[0].prisons.size()").isEqualTo("1")
+          .jsonPath("prisonPeriod[0].prisons[0]").isEqualTo("MDI")
+      }
+
+      @Test
+      fun `will have one movement due to the transfer out not being significant`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk.expectBody()
+          .jsonPath("prisonPeriod[0].movementDates.size()").isEqualTo(1)
+          .jsonPath("prisonPeriod[0].movementDates[0].dateInToPrison").isEqualTo("2023-07-19T10:00:00")
+          .jsonPath("prisonPeriod[0].movementDates[0].inwardType").isEqualTo("ADM")
+          .jsonPath("prisonPeriod[0].movementDates[0].admittedIntoPrisonId").isEqualTo("MDI")
+          .jsonPath("prisonPeriod[0].movementDates[0].reasonInToPrison").isEqualTo("Unconvicted Remand")
+          .jsonPath("prisonPeriod[0].movementDates[0].dateOutOfPrison").doesNotExist()
+          .jsonPath("prisonPeriod[0].movementDates[0].outwardType").doesNotExist()
+          .jsonPath("prisonPeriod[0].movementDates[0].releaseFromPrisonId").doesNotExist()
+          .jsonPath("prisonPeriod[0].movementDates[0].reasonOutOfPrison").doesNotExist()
+      }
+
+      @Test
+      fun `will have single transfer detail`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk.expectBody()
+          .jsonPath("prisonPeriod[0].transfers.size()").isEqualTo(1)
+      }
+
+      @Test
+      fun `will have details only the prison they have left`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk.expectBody()
+          .jsonPath("prisonPeriod[0].transfers[0].dateOutOfPrison").isEqualTo("2023-07-20T10:00:00")
+          .jsonPath("prisonPeriod[0].transfers[0].dateInToPrison").doesNotExist()
+          .jsonPath("prisonPeriod[0].transfers[0].transferReason").isEqualTo("Normal Transfer")
+          .jsonPath("prisonPeriod[0].transfers[0].fromPrisonId").isEqualTo("MDI")
+          .jsonPath("prisonPeriod[0].transfers[0].toPrisonId").doesNotExist()
       }
     }
   }
