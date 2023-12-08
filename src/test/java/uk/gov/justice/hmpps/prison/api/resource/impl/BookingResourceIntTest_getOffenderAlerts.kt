@@ -7,8 +7,10 @@ import org.junit.jupiter.api.Test
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA
+import java.time.LocalDate
 
 @DisplayName("BookingResource get offender alerts")
 class BookingResourceIntTest_getOffenderAlerts : ResourceTest() {
@@ -31,8 +33,53 @@ class BookingResourceIntTest_getOffenderAlerts : ResourceTest() {
         INSERT INTO OFFENDER_ALERTS (ALERT_DATE, OFFENDER_BOOK_ID, ROOT_OFFENDER_ID, ALERT_SEQ, ALERT_TYPE, ALERT_CODE, ALERT_STATUS, VERIFIED_FLAG, EXPIRY_DATE, COMMENT_TEXT, CASELOAD_ID, CASELOAD_TYPE, MODIFY_DATETIME, CREATE_USER_ID, CREATE_DATETIME) VALUES (DATE '2021-07-19', -56, -1035, 12, 'X', 'XCU', 'ACTIVE', 'N', '2121-10-01', 'Test alert for expiry', 'LEI', 'INST', TIMESTAMP '2006-12-10 03:52:25.0', 'ITAG_USER', TIMESTAMP '2021-08-19 01:02:03.4');
     */
   @Nested
-  @DisplayName("GET /api/bookings/{bookingId}/alert/v2")
+  @DisplayName("GET /api/bookings/{bookingId}/alerts/v2")
   internal inner class NewSafeEndpoint {
+
+    @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.get().uri("/api/bookings/-56/alerts/v2")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return 403 if does not have override role`() {
+      webTestClient.get().uri("/api/bookings/-56/alerts/v2")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 404 if booking does not exist`() {
+      webTestClient.get().uri("/api/bookings/-99999/alerts/v2")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -99999 not found.")
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_VIEW_PRISONER_DATA `() {
+      webTestClient.get().uri("/api/bookings/-1/alerts/v2")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("totalElements").isEqualTo(4)
+        .jsonPath("content[*].alertCode").value<List<String>> { assertThat(it).containsExactlyInAnyOrder("XA", "HC", "RSS", "XTACT") }
+    }
+
+    @Test
+    fun `returns 404 if not in user caseload`() {
+      webTestClient.get().uri("/api/bookings/-3/alerts/v2")
+        .headers(setAuthorisation("WAI_USER", listOf()))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -3 not found.")
+    }
+
     @Test
     @DisplayName("should have the correct role to access booking")
     fun shouldHaveTheCorrectRoleToAccessEndpoint() {
@@ -347,6 +394,92 @@ class BookingResourceIntTest_getOffenderAlerts : ResourceTest() {
       val jsonContent = getBodyAsJsonContent<Any>(response)
       assertThat(jsonContent).extractingJsonPathArrayValue<Any>("content").hasSize(10)
       assertThat(jsonContent).extractingJsonPathNumberValue("totalElements").isEqualTo(12)
+    }
+  }
+
+  @DisplayName("POST /api/bookings/offenderNo/{agencyId}/alerts")
+  @Nested
+  inner class OffenderAlertsByAgency {
+    @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.post().uri("/api/bookings/offenderNo/LEI/alerts")
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"A1234AA\" ]")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `returns 403 when client has no override role`() {
+      webTestClient.post().uri("/api/bookings/offenderNo/LEI/alerts")
+        .headers(setClientAuthorisation(listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"A1234AA\" ]")
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_GlOBAL_SEARCH`() {
+      webTestClient.post().uri("/api/bookings/offenderNo/LEI/alerts")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"A1234AA\", \"A1234AF\" ]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(6)
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_VIEW_PRISONER_DATA`() {
+      webTestClient.post().uri("/api/bookings/offenderNo/LEI/alerts")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"A1234AA\"]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(4)
+    }
+
+    @Test
+    fun `returns 404 if not in user caseload`() {
+      webTestClient.post().uri("/api/bookings/offenderNo/LEI/alerts")
+        .headers(setAuthorisation("WAI_USER", listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""["A1234AA","A1234AF"]""")
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [LEI] not found.")
+    }
+
+    @Test
+    fun `returns success if  in user caseload`() {
+      val today = LocalDate.now().toString()
+      webTestClient.post().uri("/api/bookings/offenderNo/LEI/alerts")
+        .headers(setAuthorisation(listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""["A1234AA","A1234AF"]""")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("length()").isEqualTo(6)
+        .jsonPath("[*].offenderNo").value<List<String>> { assertThat(it).containsExactly("A1234AF", "A1234AF", "A1234AA", "A1234AA", "A1234AA", "A1234AA") }
+        .jsonPath("[*].bookingId").value<List<Int>> { assertThat(it).containsExactly(-6, -6, -1, -1, -1, -1) }
+        .jsonPath("[*].alertId").value<List<Int>> { assertThat(it).containsExactly(1, 2, 1, 2, 3, 4) }
+        .jsonPath("[*].alertType").value<List<String>> { assertThat(it).containsExactly("P", "X", "X", "H", "R", "X") }
+        .jsonPath("[*].alertCode").value<List<String>> { assertThat(it).containsExactly("P1", "XTACT", "XA", "HC", "RSS", "XTACT") }
+        .jsonPath("[0].dateCreated").isEqualTo(today)
+        .jsonPath("[4].dateCreated").isEqualTo("2020-06-01")
+        .jsonPath("[0].alertCodeDescription").isEqualTo("MAPPA Level 1 Case")
+        .jsonPath("[4].alertCodeDescription").isEqualTo("Risk to Staff - Custody")
+        .jsonPath("[0].dateExpires").doesNotExist()
+        .jsonPath("[4].dateExpires").isEqualTo("2020-06-01")
+        .jsonPath("[0].expired").isEqualTo(false)
+        .jsonPath("[4].expired").isEqualTo(true)
+        .jsonPath("[0].active").isEqualTo(true)
+        .jsonPath("[4].active").isEqualTo(false)
+        .jsonPath("[0].modifiedDateTime").doesNotExist()
+        .jsonPath("[4].modifiedDateTime").isEqualTo("2006-12-10T03:52:25")
     }
   }
 }

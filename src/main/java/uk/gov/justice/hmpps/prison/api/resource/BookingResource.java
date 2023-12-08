@@ -41,7 +41,6 @@ import uk.gov.justice.hmpps.prison.api.model.AlertCreated;
 import uk.gov.justice.hmpps.prison.api.model.Alias;
 import uk.gov.justice.hmpps.prison.api.model.Assessment;
 import uk.gov.justice.hmpps.prison.api.model.BedAssignment;
-import uk.gov.justice.hmpps.prison.api.model.CaseNote;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteCount;
 import uk.gov.justice.hmpps.prison.api.model.Contact;
 import uk.gov.justice.hmpps.prison.api.model.ContactDetail;
@@ -57,7 +56,6 @@ import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.Keyworker;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
 import uk.gov.justice.hmpps.prison.api.model.NewAppointment;
-import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.OffenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenceHistoryDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifier;
@@ -75,7 +73,6 @@ import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentDetail;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendanceBatch;
-import uk.gov.justice.hmpps.prison.api.model.UpdateCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.VisitBalances;
 import uk.gov.justice.hmpps.prison.api.model.VisitDetails;
 import uk.gov.justice.hmpps.prison.api.model.VisitSummary;
@@ -88,6 +85,7 @@ import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
+import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.AdjudicationService;
@@ -341,6 +339,7 @@ public class BookingResource {
     @Operation(summary = "Get alerts for a list of offenders at a prison")
     @PostMapping("/offenderNo/{agencyId}/alerts")
     @SlowReportQuery
+    @VerifyAgencyAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<Alert> getAlertsByOffenderNosAtAgency(@PathVariable("agencyId") @Parameter(description = "The prison where the offenders are booked", required = true) final String agencyId, @RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderNos) {
         return inmateAlertService.getInmateAlertsByOffenderNosAtAgency(agencyId, offenderNos);
     }
