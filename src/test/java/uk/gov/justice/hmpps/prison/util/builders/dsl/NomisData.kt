@@ -11,6 +11,10 @@ class NomisDataBuilder(
   fun build(dsl: NomisData.() -> Unit) = NomisData(
     offenderBuilderFactory,
   ).apply(dsl)
+
+  fun deletePrisoner(offenderNo: String) {
+    offenderBuilderFactory.deletePrisoner(offenderNo)
+  }
 }
 
 class NomisData(

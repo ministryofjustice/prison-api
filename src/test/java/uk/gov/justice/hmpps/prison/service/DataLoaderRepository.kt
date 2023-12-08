@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Service
 import uk.gov.justice.hmpps.prison.repository.BookingRepository
+import uk.gov.justice.hmpps.prison.repository.OffenderDeletionRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EscortAgencyType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus
@@ -60,6 +61,7 @@ class DataLoaderRepository(
   val externalServiceRepository: ExternalServiceRepository,
   val serviceAgencySwitchesRepository: ServiceAgencySwitchesRepository,
   val offenderNoPayPeriodRepository: OffenderNoPayPeriodRepository,
+  val offenderDeletionRepository: OffenderDeletionRepository,
   val jdbcTemplate: JdbcTemplate,
 )
 

@@ -51,6 +51,10 @@ class OffenderBuilderRepository(
     ethnicity = ethnicity,
     bookingBuilders = emptyArray(),
   ).save(testDataContext).let { OffenderId(it.offenderNo) }
+
+  fun deletePrisoner(offenderNo: String) {
+    testDataContext.dataLoader.offenderDeletionRepository.deleteAllOffenderDataIncludingBaseRecord(offenderNo)
+  }
 }
 
 class OffenderBuilderFactory(
@@ -61,6 +65,10 @@ class OffenderBuilderFactory(
 
   fun builder(): OffenderBuilder {
     return OffenderBuilder(repository, bookingBuilderFactory)
+  }
+
+  fun deletePrisoner(offenderNo: String) {
+    repository.deletePrisoner(offenderNo)
   }
 }
 

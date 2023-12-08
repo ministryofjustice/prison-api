@@ -2,10 +2,12 @@
 
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
-import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.springframework.security.test.context.support.WithMockUser
 import uk.gov.justice.hmpps.prison.util.builders.dsl.NomisDataBuilder
 import uk.gov.justice.hmpps.prison.util.builders.dsl.OffenderBookingId
@@ -29,22 +31,26 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
     private val builder: NomisDataBuilder by lazy { NomisDataBuilder(testDataContext) }
 
     @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class Security {
       private lateinit var prisoner: OffenderId
 
-      @BeforeEach
+      @BeforeAll
       fun setUp() {
-        if (!::prisoner.isInitialized) {
-          builder.build {
-            prisoner = offender(lastName = "DUBOIS") {
-              booking(
-                prisonId = "MDI",
-                bookingInTime = LocalDateTime.parse("2023-07-19T10:00:00"),
-                movementReasonCode = REMAND_REASON,
-              ) {}
-            }
+        builder.build {
+          prisoner = offender(lastName = "DUBOIS") {
+            booking(
+              prisonId = "MDI",
+              bookingInTime = LocalDateTime.parse("2023-07-19T10:00:00"),
+              movementReasonCode = REMAND_REASON,
+            ) {}
           }
         }
+      }
+
+      @AfterAll
+      fun deletePrisoner() {
+        builder.deletePrisoner(prisoner.offenderNo)
       }
 
       @Test
@@ -72,16 +78,22 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
     }
 
     @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class Validation {
       private lateinit var prisoner: OffenderId
 
-      @BeforeEach
+      @BeforeAll
       fun setUp() {
-        if (!::prisoner.isInitialized) {
-          builder.build {
-            prisoner = offender(lastName = "DUBOIS") {}
-          }
+        builder.build {
+          prisoner = offender(lastName = "DUBOIS") {}
         }
+      }
+
+      @AfterAll
+      fun deletePrisoner() {
+        // for now we can't delete a prisoner with no bookings
+        // we are unlikely to have an issues of leaving this dangling person since
+        // they are not associated with in prison
       }
 
       @Test
@@ -103,23 +115,27 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
 
     @Nested
     @DisplayName("Person currently in prison with no movements out")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class SingleBookingWithSingleMovement {
       private lateinit var prisoner: OffenderId
       private lateinit var booking: OffenderBookingId
 
-      @BeforeEach
+      @BeforeAll
       fun setUp() {
-        if (!::prisoner.isInitialized) {
-          builder.build {
-            prisoner = offender(lastName = "DUBOIS") {
-              booking = booking(
-                prisonId = "MDI",
-                bookingInTime = LocalDateTime.parse("2023-07-19T10:00:00"),
-                movementReasonCode = REMAND_REASON,
-              ) {}
-            }
+        builder.build {
+          prisoner = offender(lastName = "DUBOIS") {
+            booking = booking(
+              prisonId = "MDI",
+              bookingInTime = LocalDateTime.parse("2023-07-19T10:00:00"),
+              movementReasonCode = REMAND_REASON,
+            ) {}
           }
         }
+      }
+
+      @AfterAll
+      fun deletePrisoner() {
+        builder.deletePrisoner(prisoner.offenderNo)
       }
 
       @Test
@@ -177,34 +193,38 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
 
     @Nested
     @DisplayName("Person currently in prison after a previous inactive booking")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class TwoBookingsAfterRelease {
       private lateinit var prisoner: OffenderId
       private lateinit var firstBooking: OffenderBookingId
       private lateinit var secondBooking: OffenderBookingId
 
-      @BeforeEach
-      fun setUp() {
-        if (!::prisoner.isInitialized) {
-          builder.build {
-            prisoner = offender(lastName = "DUBOIS") {
-              firstBooking = booking(
-                prisonId = "MDI",
-                bookingInTime = LocalDateTime.parse("2023-07-19T10:00:00"),
-                movementReasonCode = REMAND_REASON,
-              ) {
-                release(
-                  releaseTime = LocalDateTime.parse("2023-07-20T10:00:00"),
-                  movementReasonCode = CONDITIONAL_RELEASE_REASON,
-                )
-              }
-              secondBooking = booking(
-                prisonId = "LEI",
-                bookingInTime = LocalDateTime.parse("2023-07-21T10:00:00"),
-                movementReasonCode = REMAND_REASON,
-              ) {}
+      @BeforeAll
+      fun createPrisoner() {
+        builder.build {
+          prisoner = offender(lastName = "DUBOIS") {
+            firstBooking = booking(
+              prisonId = "MDI",
+              bookingInTime = LocalDateTime.parse("2023-07-19T10:00:00"),
+              movementReasonCode = REMAND_REASON,
+            ) {
+              release(
+                releaseTime = LocalDateTime.parse("2023-07-20T10:00:00"),
+                movementReasonCode = CONDITIONAL_RELEASE_REASON,
+              )
             }
+            secondBooking = booking(
+              prisonId = "LEI",
+              bookingInTime = LocalDateTime.parse("2023-07-21T10:00:00"),
+              movementReasonCode = REMAND_REASON,
+            ) {}
           }
         }
+      }
+
+      @AfterAll
+      fun deletePrisoner() {
+        builder.deletePrisoner(prisoner.offenderNo)
       }
 
       @Test
@@ -298,37 +318,41 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
 
     @Nested
     @DisplayName("Person has been released from prison after previously being recalled")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class ReleaseRecallAndFinalRelease {
       private lateinit var prisoner: OffenderId
       private lateinit var booking: OffenderBookingId
 
-      @BeforeEach
-      fun setUp() {
-        if (!::prisoner.isInitialized) {
-          builder.build {
-            prisoner = offender(lastName = "DUBOIS") {
-              booking = booking(
-                prisonId = "MDI",
-                bookingInTime = LocalDateTime.parse("2023-07-19T10:00:00"),
-                movementReasonCode = REMAND_REASON,
-              ) {
-                release(
-                  releaseTime = LocalDateTime.parse("2023-07-20T10:00:00"),
-                  movementReasonCode = CONDITIONAL_RELEASE_REASON,
-                )
-                recall(
-                  prisonId = "LEI",
-                  recallTime = LocalDateTime.parse("2023-07-21T10:00:00"),
-                  movementReasonCode = RECALL_REASON,
-                )
-                release(
-                  releaseTime = LocalDateTime.parse("2023-07-22T10:00:00"),
-                  movementReasonCode = HOSPITAL_RELEASE_REASON,
-                )
-              }
+      @BeforeAll
+      fun createPrisoner() {
+        builder.build {
+          prisoner = offender(lastName = "DUBOIS") {
+            booking = booking(
+              prisonId = "MDI",
+              bookingInTime = LocalDateTime.parse("2023-07-19T10:00:00"),
+              movementReasonCode = REMAND_REASON,
+            ) {
+              release(
+                releaseTime = LocalDateTime.parse("2023-07-20T10:00:00"),
+                movementReasonCode = CONDITIONAL_RELEASE_REASON,
+              )
+              recall(
+                prisonId = "LEI",
+                recallTime = LocalDateTime.parse("2023-07-21T10:00:00"),
+                movementReasonCode = RECALL_REASON,
+              )
+              release(
+                releaseTime = LocalDateTime.parse("2023-07-22T10:00:00"),
+                movementReasonCode = HOSPITAL_RELEASE_REASON,
+              )
             }
           }
         }
+      }
+
+      @AfterAll
+      fun deletePrisoner() {
+        builder.deletePrisoner(prisoner.offenderNo)
       }
 
       @Test
@@ -383,42 +407,46 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
 
     @Nested
     @DisplayName("Person is currently in prison but has a number of temporary absences")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class CurrentlyInPrisonWithTAPs {
       private lateinit var prisoner: OffenderId
       private lateinit var booking: OffenderBookingId
 
-      @BeforeEach
-      fun setUp() {
-        if (!::prisoner.isInitialized) {
-          builder.build {
-            prisoner = offender(lastName = "DUBOIS") {
-              booking = booking(
+      @BeforeAll
+      fun createPrisoner() {
+        builder.build {
+          prisoner = offender(lastName = "DUBOIS") {
+            booking = booking(
+              prisonId = "MDI",
+              bookingInTime = LocalDateTime.parse("2023-07-19T10:00:00"),
+              movementReasonCode = REMAND_REASON,
+            ) {
+              temporaryAbsenceRelease(
+                releaseTime = LocalDateTime.parse("2023-07-20T10:00:00"),
+                movementReasonCode = DAY_RELEASE_FUNERAL_REASON,
+              )
+              temporaryAbsenceReturn(
                 prisonId = "MDI",
-                bookingInTime = LocalDateTime.parse("2023-07-19T10:00:00"),
-                movementReasonCode = REMAND_REASON,
-              ) {
-                temporaryAbsenceRelease(
-                  releaseTime = LocalDateTime.parse("2023-07-20T10:00:00"),
-                  movementReasonCode = DAY_RELEASE_FUNERAL_REASON,
-                )
-                temporaryAbsenceReturn(
-                  prisonId = "MDI",
-                  returnTime = LocalDateTime.parse("2023-07-20T22:00:00"),
-                  movementReasonCode = DAY_RELEASE_FUNERAL_REASON,
-                )
-                temporaryAbsenceRelease(
-                  releaseTime = LocalDateTime.parse("2023-07-21T23:00:00"),
-                  movementReasonCode = DAY_RELEASE_DENTIST_REASON,
-                )
-                temporaryAbsenceReturn(
-                  prisonId = "MDI",
-                  returnTime = LocalDateTime.parse("2023-07-22T10:00:00"),
-                  movementReasonCode = DAY_RELEASE_DENTIST_REASON,
-                )
-              }
+                returnTime = LocalDateTime.parse("2023-07-20T22:00:00"),
+                movementReasonCode = DAY_RELEASE_FUNERAL_REASON,
+              )
+              temporaryAbsenceRelease(
+                releaseTime = LocalDateTime.parse("2023-07-21T23:00:00"),
+                movementReasonCode = DAY_RELEASE_DENTIST_REASON,
+              )
+              temporaryAbsenceReturn(
+                prisonId = "MDI",
+                returnTime = LocalDateTime.parse("2023-07-22T10:00:00"),
+                movementReasonCode = DAY_RELEASE_DENTIST_REASON,
+              )
             }
           }
         }
+      }
+
+      @AfterAll
+      fun deletePrisoner() {
+        builder.deletePrisoner(prisoner.offenderNo)
       }
 
       @Test
@@ -480,33 +508,37 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
 
     @Nested
     @DisplayName("Person is currently in prison but returned to a different prison after a temporary absence")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class CurrentlyInPrisonWithTAPReturningToDifferentPrison {
       private lateinit var prisoner: OffenderId
       private lateinit var booking: OffenderBookingId
 
-      @BeforeEach
-      fun setUp() {
-        if (!::prisoner.isInitialized) {
-          builder.build {
-            prisoner = offender(lastName = "DUBOIS") {
-              booking = booking(
-                prisonId = "MDI",
-                bookingInTime = LocalDateTime.parse("2023-07-19T10:00:00"),
-                movementReasonCode = REMAND_REASON,
-              ) {
-                temporaryAbsenceRelease(
-                  releaseTime = LocalDateTime.parse("2023-07-20T10:00:00"),
-                  movementReasonCode = DAY_RELEASE_FUNERAL_REASON,
-                )
-                temporaryAbsenceReturn(
-                  prisonId = "LEI",
-                  returnTime = LocalDateTime.parse("2023-07-20T22:00:00"),
-                  movementReasonCode = DAY_RELEASE_FUNERAL_REASON,
-                )
-              }
+      @BeforeAll
+      fun createPrisoner() {
+        builder.build {
+          prisoner = offender(lastName = "DUBOIS") {
+            booking = booking(
+              prisonId = "MDI",
+              bookingInTime = LocalDateTime.parse("2023-07-19T10:00:00"),
+              movementReasonCode = REMAND_REASON,
+            ) {
+              temporaryAbsenceRelease(
+                releaseTime = LocalDateTime.parse("2023-07-20T10:00:00"),
+                movementReasonCode = DAY_RELEASE_FUNERAL_REASON,
+              )
+              temporaryAbsenceReturn(
+                prisonId = "LEI",
+                returnTime = LocalDateTime.parse("2023-07-20T22:00:00"),
+                movementReasonCode = DAY_RELEASE_FUNERAL_REASON,
+              )
             }
           }
         }
+      }
+
+      @AfterAll
+      fun deletePrisoner() {
+        builder.deletePrisoner(prisoner.offenderNo)
       }
 
       @Test
@@ -560,42 +592,46 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
 
     @Nested
     @DisplayName("Person is currently in prison but has a number of court appearances")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class CurrentlyInPrisonWithCourtMovements {
       private lateinit var prisoner: OffenderId
       private lateinit var booking: OffenderBookingId
 
-      @BeforeEach
-      fun setUp() {
-        if (!::prisoner.isInitialized) {
-          builder.build {
-            prisoner = offender(lastName = "DUBOIS") {
-              booking = booking(
+      @BeforeAll
+      fun createPrisoner() {
+        builder.build {
+          prisoner = offender(lastName = "DUBOIS") {
+            booking = booking(
+              prisonId = "MDI",
+              bookingInTime = LocalDateTime.parse("2023-07-19T10:00:00"),
+              movementReasonCode = REMAND_REASON,
+            ) {
+              sendToCourt(
+                releaseTime = LocalDateTime.parse("2023-07-20T10:00:00"),
+                movementReasonCode = COURT_APPEARANCE_REASON,
+              )
+              returnFromCourt(
                 prisonId = "MDI",
-                bookingInTime = LocalDateTime.parse("2023-07-19T10:00:00"),
-                movementReasonCode = REMAND_REASON,
-              ) {
-                sendToCourt(
-                  releaseTime = LocalDateTime.parse("2023-07-20T10:00:00"),
-                  movementReasonCode = COURT_APPEARANCE_REASON,
-                )
-                returnFromCourt(
-                  prisonId = "MDI",
-                  returnTime = LocalDateTime.parse("2023-07-20T22:00:00"),
-                  movementReasonCode = COURT_APPEARANCE_REASON,
-                )
-                sendToCourt(
-                  releaseTime = LocalDateTime.parse("2023-07-21T23:00:00"),
-                  movementReasonCode = COURT_APPEARANCE_REASON,
-                )
-                returnFromCourt(
-                  prisonId = "MDI",
-                  returnTime = LocalDateTime.parse("2023-07-22T10:00:00"),
-                  movementReasonCode = COURT_APPEARANCE_REASON,
-                )
-              }
+                returnTime = LocalDateTime.parse("2023-07-20T22:00:00"),
+                movementReasonCode = COURT_APPEARANCE_REASON,
+              )
+              sendToCourt(
+                releaseTime = LocalDateTime.parse("2023-07-21T23:00:00"),
+                movementReasonCode = COURT_APPEARANCE_REASON,
+              )
+              returnFromCourt(
+                prisonId = "MDI",
+                returnTime = LocalDateTime.parse("2023-07-22T10:00:00"),
+                movementReasonCode = COURT_APPEARANCE_REASON,
+              )
             }
           }
         }
+      }
+
+      @AfterAll
+      fun deletePrisoner() {
+        builder.deletePrisoner(prisoner.offenderNo)
       }
 
       @Test
@@ -639,33 +675,37 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
 
     @Nested
     @DisplayName("Person is currently in prison but returned to a different prison after a court appearance")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class CurrentlyInPrisonWithCourtMovementReturningToDifferentPrison {
       private lateinit var prisoner: OffenderId
       private lateinit var booking: OffenderBookingId
 
-      @BeforeEach
-      fun setUp() {
-        if (!::prisoner.isInitialized) {
-          builder.build {
-            prisoner = offender(lastName = "DUBOIS") {
-              booking = booking(
-                prisonId = "MDI",
-                bookingInTime = LocalDateTime.parse("2023-07-19T10:00:00"),
-                movementReasonCode = REMAND_REASON,
-              ) {
-                sendToCourt(
-                  releaseTime = LocalDateTime.parse("2023-07-20T10:00:00"),
-                  movementReasonCode = COURT_APPEARANCE_REASON,
-                )
-                returnFromCourt(
-                  prisonId = "LEI",
-                  returnTime = LocalDateTime.parse("2023-07-20T22:00:00"),
-                  movementReasonCode = COURT_APPEARANCE_REASON,
-                )
-              }
+      @BeforeAll
+      fun createPrisoner() {
+        builder.build {
+          prisoner = offender(lastName = "DUBOIS") {
+            booking = booking(
+              prisonId = "MDI",
+              bookingInTime = LocalDateTime.parse("2023-07-19T10:00:00"),
+              movementReasonCode = REMAND_REASON,
+            ) {
+              sendToCourt(
+                releaseTime = LocalDateTime.parse("2023-07-20T10:00:00"),
+                movementReasonCode = COURT_APPEARANCE_REASON,
+              )
+              returnFromCourt(
+                prisonId = "LEI",
+                returnTime = LocalDateTime.parse("2023-07-20T22:00:00"),
+                movementReasonCode = COURT_APPEARANCE_REASON,
+              )
             }
           }
         }
+      }
+
+      @AfterAll
+      fun deletePrisoner() {
+        builder.deletePrisoner(prisoner.offenderNo)
       }
 
       @Test
@@ -710,46 +750,50 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
 
     @Nested
     @DisplayName("Person has been released from prison after previously being transferred between prisons")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class ReleasedFromPrisonAfterMultipleTransfers {
       private lateinit var prisoner: OffenderId
       private lateinit var booking: OffenderBookingId
 
-      @BeforeEach
-      fun setUp() {
-        if (!::prisoner.isInitialized) {
-          builder.build {
-            prisoner = offender(lastName = "DUBOIS") {
-              booking = booking(
-                prisonId = "MDI",
-                bookingInTime = LocalDateTime.parse("2023-07-19T10:00:00"),
-                movementReasonCode = REMAND_REASON,
-              ) {
-                transferOut(
-                  prisonId = "LEI",
-                  transferTime = LocalDateTime.parse("2023-07-20T10:00:00"),
-                  movementReasonCode = TRANSFER_REASON,
-                )
-                transferIn(
-                  receiveTime = LocalDateTime.parse("2023-07-20T11:00:00"),
-                  movementReasonCode = TRANSFER_REASON,
-                )
-                transferOut(
-                  prisonId = "SYI",
-                  transferTime = LocalDateTime.parse("2023-07-21T10:00:00"),
-                  movementReasonCode = TRANSFER_REASON,
-                )
-                transferIn(
-                  receiveTime = LocalDateTime.parse("2023-07-21T11:00:00"),
-                  movementReasonCode = TRANSFER_REASON,
-                )
-                release(
-                  releaseTime = LocalDateTime.parse("2023-07-22T10:00:00"),
-                  movementReasonCode = HOSPITAL_RELEASE_REASON,
-                )
-              }
+      @BeforeAll
+      fun createPrisoner() {
+        builder.build {
+          prisoner = offender(lastName = "DUBOIS") {
+            booking = booking(
+              prisonId = "MDI",
+              bookingInTime = LocalDateTime.parse("2023-07-19T10:00:00"),
+              movementReasonCode = REMAND_REASON,
+            ) {
+              transferOut(
+                prisonId = "LEI",
+                transferTime = LocalDateTime.parse("2023-07-20T10:00:00"),
+                movementReasonCode = TRANSFER_REASON,
+              )
+              transferIn(
+                receiveTime = LocalDateTime.parse("2023-07-20T11:00:00"),
+                movementReasonCode = TRANSFER_REASON,
+              )
+              transferOut(
+                prisonId = "SYI",
+                transferTime = LocalDateTime.parse("2023-07-21T10:00:00"),
+                movementReasonCode = TRANSFER_REASON,
+              )
+              transferIn(
+                receiveTime = LocalDateTime.parse("2023-07-21T11:00:00"),
+                movementReasonCode = TRANSFER_REASON,
+              )
+              release(
+                releaseTime = LocalDateTime.parse("2023-07-22T10:00:00"),
+                movementReasonCode = HOSPITAL_RELEASE_REASON,
+              )
             }
           }
         }
+      }
+
+      @AfterAll
+      fun deletePrisoner() {
+        builder.deletePrisoner(prisoner.offenderNo)
       }
 
       @Test
