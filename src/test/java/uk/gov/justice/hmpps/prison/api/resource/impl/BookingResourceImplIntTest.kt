@@ -102,7 +102,7 @@ class BookingResourceImplIntTest : ResourceTest() {
   inner class OffenderAlerts {
     @Test
     fun `returns 401 without an auth token`() {
-      webTestClient.post().uri("/api/offender-sentences")
+      webTestClient.post().uri("/api/bookings/offenderNo/alerts")
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue("[ \"A1234AA\" ]")
         .exchange()

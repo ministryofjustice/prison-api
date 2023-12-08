@@ -12,7 +12,6 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.AdjudicationSte
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AgencySteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingActivitySteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingAlertSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingAliasSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingAppointmentSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingAssessmentSteps;
@@ -92,11 +91,6 @@ abstract class AbstractStepDefinitions {
         @Bean
         public BookingActivitySteps bookingActivity() {
             return new BookingActivitySteps();
-        }
-
-        @Bean
-        public BookingAlertSteps bookingAlert() {
-            return new BookingAlertSteps();
         }
 
         @Bean

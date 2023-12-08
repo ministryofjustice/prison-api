@@ -1,13 +1,10 @@
 package uk.gov.justice.hmpps.prison.executablespecification;
 
-import io.cucumber.java.DataTableType;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import uk.gov.justice.hmpps.prison.api.model.Alert;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingAlertSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingAliasSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingAssessmentSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingDetailSteps;
@@ -17,9 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -27,7 +22,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
  * BDD step definitions for the following Booking API endpoints:
  * <ul>
  *     <li>/booking/{bookingId}</li>
- *     <li>/booking/{bookingId}/alerts</li>
  *     <li>/booking/{bookingId}/aliases</li>
  *     <li>/bookings/{bookingId}/sentenceDetail</li>
  *     <li>/bookings/{bookingId}/balances</li>
@@ -43,9 +37,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
 
     @Autowired
     private BookingDetailSteps bookingDetail;
-
-    @Autowired
-    private BookingAlertSteps bookingAlerts;
 
     @Autowired
     private BookingAssessmentSteps bookingAssessment;
@@ -169,48 +160,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @And("^characteristics match \"([^\"]*)\"$")
     public void characteristicsMatch(final String characteristicsList) {
         bookingDetail.verifyOffenderPhysicalCharacteristics(characteristicsList);
-    }
-
-    // ----------------------------- Alerts --------------------------
-
-    @When("^alerts are requested for an offender booking \"([^\"]*)\"$")
-    public void alertsAreRequestedForOffenderBooking(final Long bookingId) {
-        bookingAlerts.getAlerts(bookingId);
-    }
-
-    @Then("^\"([^\"]*)\" alerts are returned$")
-    public void numberAlertsAreReturned(final String expectedCount) {
-        bookingAlerts.verifyResourceRecordsReturned(Long.parseLong(expectedCount));
-    }
-
-    @And("alerts codes match \"([^\"]*)\"$")
-    public void alertsCodesMatch(final String codes) {
-        bookingAlerts.verifyCodeList(codes);
-    }
-
-    @When("^alerts are requested for offender nos \"([^\"]*)\" and agency \"([^\"]*)\"$")
-    public void alertsRequestedForOffenderBooking(final String offenderNos, final String agencyId) {
-        bookingAlerts.getAlerts(agencyId, Arrays.asList(StringUtils.split(offenderNos, ",")));
-    }
-
-    @When("^alerts are requested for offender nos \"([^\"]*)\" and no agency$")
-    public void alertsRequestedForOffenderBookingNoAgency(final String offenderNos) {
-        bookingAlerts.getAlerts(null, Arrays.asList(StringUtils.split(offenderNos, ",")));
-    }
-
-    @Then("^alert details are returned as follows:$")
-    public void alertsAreReturnedAsFollows(final List<Alert> expected) {
-        bookingAlerts.verifyAlerts(expected);
-    }
-
-    @Then("^resource not found response is received from alert API$")
-    public void resourceNotFoundResponseIsReceivedFromAlertAPI() {
-        bookingAlerts.verifyResourceNotFound();
-    }
-
-    @Then("^access denied response is received from alert API$")
-    public void accessDeniedResponseIsReceivedFromAlertAPI() {
-        bookingAlerts.verifyAccessDenied();
     }
 
     // ----------------------------- Assessments --------------------------
@@ -421,24 +370,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingDetail.verifyOffenderCount(size);
     }
 
-    @DataTableType
-    public Alert alertEntry(Map<String, String> entry) {
-        return Alert.builder()
-            .offenderNo(entry.get("offenderNo"))
-            .bookingId(Long.valueOf(entry.get("bookingId")))
-            .alertId(Long.valueOf(entry.get("alertId")))
-            .alertType(entry.get("alertType"))
-            .alertTypeDescription(entry.get("alertTypeDescription"))
-            .alertCode(entry.get("alertCode"))
-            .alertCodeDescription(entry.get("alertCodeDescription"))
-            .comment(entry.get("comment"))
-            .dateCreated(convertTodayAndParse(entry.get("dateCreated")))
-            .dateExpires(convertTodayAndParse(entry.get("dateExpires")))
-            .expired(Boolean.parseBoolean(entry.get("expired")))
-            .active(Boolean.parseBoolean(entry.get("active")))
-            .modifiedDateTime(convertTodayAndParseDateTime(entry.get("dateModified")))
-            .build();
-    }
 
     private LocalDate convertTodayAndParse(final String dateAsString) {
         if (StringUtils.isBlank(dateAsString)) return null;
