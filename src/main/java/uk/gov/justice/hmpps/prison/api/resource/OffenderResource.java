@@ -148,7 +148,136 @@ public class OffenderResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Summary of the different periods this prisoner has been in prison.", description = "This is a summary of the different periods this prisoner has been in prison. It includes the dates of each period, the prison and the reason for the movement. Each booking is divided into periods of time spent in prison separated by periods when the were out either via a release or a temporary absence (periods at court are not included). The periods are ordered by date ascending, therefore the final period will be their last time in prison. For each period the prison admitted into and optionally released from will be listed. These can be different if there has been transfers in between the dates. Transfers are not listed but prisons the person was detailed at are listed in the unordered prison list")
+    @Operation(
+        summary = "Summary of the different periods this prisoner has been in prison.",
+        description = """
+            This is a summary of the different periods this prisoner has been in prison grouped by booking. 
+            
+            It includes the dates of each period, the prison and the reason for the movement. Each booking is divided into periods of time spent in prison separated by periods when the were out either via a release or a temporary absence (periods at court are not included). 
+            
+            The periods are ordered by date ascending, therefore the final period will be their last time in prison. For each period the prison admitted into and optionally released from will be listed. These can be different if there has been transfers in between the dates. 
+            
+            Transfers are also listed separately.
+            
+            
+            **Example response:**
+            #### Booking 47828A
+            Has 2 periods of temporary absence. In the second absence they return to a different prison. They are eventually released.
+            
+            #### Booking 47829A
+            The person is still is prison but has been transferred to a 2nd prison.
+            
+            There are a number of transfers during this booking.
+            ```
+            {
+              "prisonerNumber": "A7748DZ",
+              "prisonPeriod": [
+                {
+                  "bookNumber": "47828A",
+                  "bookingId": 1211013,
+                  "entryDate": "2023-12-08T15:50:37",
+                  "releaseDate": "2023-12-08T16:21:24",
+                  "movementDates": [
+                    {
+                      "reasonInToPrison": "Imprisonment Without Option",
+                      "dateInToPrison": "2023-12-08T15:50:37",
+                      "inwardType": "ADM",
+                      "reasonOutOfPrison": "Wedding/Civil Ceremony",
+                      "dateOutOfPrison": "2023-12-08T15:53:37",
+                      "outwardType": "TAP",
+                      "admittedIntoPrisonId": "BMI",
+                      "releaseFromPrisonId": "BSI"
+                    },
+                    {
+                      "reasonInToPrison": "Wedding/Civil Ceremony",
+                      "dateInToPrison": "2023-12-08T15:54:12",
+                      "inwardType": "TAP",
+                      "reasonOutOfPrison": "Conditional Release (CJA91) -SH Term>1YR",
+                      "dateOutOfPrison": "2023-12-08T16:20:19",
+                      "outwardType": "REL",
+                      "admittedIntoPrisonId": "BSI",
+                      "releaseFromPrisonId": "AYI"
+                    },
+                    {
+                      "reasonInToPrison": "Recall From Intermittent Custody",
+                      "dateInToPrison": "2023-12-08T16:20:45",
+                      "inwardType": "ADM",
+                      "reasonOutOfPrison": "Conditional Release (CJA91) -SH Term>1YR",
+                      "dateOutOfPrison": "2023-12-08T16:21:24",
+                      "outwardType": "REL",
+                      "admittedIntoPrisonId": "AYI",
+                      "releaseFromPrisonId": "AYI"
+                    }
+                  ],
+                  "transfers": [
+                    {
+                      "dateOutOfPrison": "2023-12-08T15:51:09",
+                      "dateInToPrison": "2023-12-08T15:52:32",
+                      "transferReason": "Compassionate Transfer",
+                      "fromPrisonId": "BMI",
+                      "toPrisonId": "BSI"
+                    },
+                    {
+                      "dateOutOfPrison": "2023-12-08T15:54:56",
+                      "dateInToPrison": "2023-12-08T15:55:54",
+                      "transferReason": "Transfer Via Court",
+                      "fromPrisonId": "BSI",
+                      "toPrisonId": "BRI"
+                    },
+                    {
+                      "dateOutOfPrison": "2023-12-08T15:56:05",
+                      "dateInToPrison": "2023-12-08T15:57:25",
+                      "transferReason": "Appeals",
+                      "fromPrisonId": "BRI",
+                      "toPrisonId": "DAI"
+                    },
+                    {
+                      "dateOutOfPrison": "2023-12-08T16:18:45",
+                      "dateInToPrison": "2023-12-08T16:19:45",
+                      "transferReason": "Medical",
+                      "fromPrisonId": "DAI",
+                      "toPrisonId": "AYI"
+                    }
+                  ],
+                  "prisons": [
+                    "BMI",
+                    "BSI",
+                    "BRI",
+                    "DAI",
+                    "AYI"
+                  ]
+                },
+                {
+                  "bookNumber": "47829A",
+                  "bookingId": 1211014,
+                  "entryDate": "2023-12-08T16:21:21",
+                  "movementDates": [
+                    {
+                      "reasonInToPrison": "Imprisonment Without Option",
+                      "dateInToPrison": "2023-12-08T16:21:21",
+                      "inwardType": "ADM",
+                      "admittedIntoPrisonId": "DGI"
+                    }
+                  ],
+                  "transfers": [
+                    {
+                      "dateOutOfPrison": "2023-12-08T16:22:02",
+                      "dateInToPrison": "2023-12-08T16:23:32",
+                      "transferReason": "Overcrowding Draft",
+                      "fromPrisonId": "DGI",
+                      "toPrisonId": "BLI"
+                    }
+                  ],
+                  "prisons": [
+                    "DGI",
+                    "BLI"
+                  ]
+                }
+              ]
+            }
+            ```
+            
+            """)
     @GetMapping("/{offenderNo}/prison-timeline")
     @PreAuthorize("hasAnyRole('SYSTEM_USER', 'VIEW_PRISONER_DATA')")
     public PrisonerInPrisonSummary getOffenderPrisonPeriods(@Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", example = "A1234AA", required = true) final String offenderNo) {
