@@ -1,6 +1,10 @@
-package uk.gov.justice.hmpps.prison.util.builders.dsl
+package uk.gov.justice.hmpps.prison.dsl
 
-import uk.gov.justice.hmpps.prison.util.builders.TestDataContext
+import org.springframework.stereotype.Component
+import uk.gov.justice.hmpps.prison.api.model.RequestToCreate
+import uk.gov.justice.hmpps.prison.repository.OffenderDeletionRepository
+import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
+import uk.gov.justice.hmpps.prison.service.enteringandleaving.PrisonerCreationService
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -26,8 +30,10 @@ interface OffenderDsl {
   ): OffenderBookingId
 }
 
+@Component
 class OffenderBuilderRepository(
-  private val testDataContext: TestDataContext,
+  private val prisonerCreationService: PrisonerCreationService,
+  private val offenderDeletionRepository: OffenderDeletionRepository,
 ) {
   fun save(
     pncNumber: String?,
@@ -39,29 +45,41 @@ class OffenderBuilderRepository(
     birthDate: LocalDate,
     genderCode: String,
     ethnicity: String? = null,
-  ): OffenderId = uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder(
-    pncNumber = pncNumber,
-    croNumber = croNumber,
-    lastName = lastName,
-    firstName = firstName,
-    middleName1 = middleName1,
-    middleName2 = middleName2,
-    birthDate = birthDate,
-    genderCode = genderCode,
-    ethnicity = ethnicity,
-    bookingBuilders = emptyArray(),
-  ).save(testDataContext).let { OffenderId(it.offenderNo) }
+  ): OffenderId =
+    prisonerCreationService.createPrisoner(
+      RequestToCreate
+        .builder()
+        .pncNumber(pncNumber)
+        .croNumber(croNumber)
+        .lastName(lastName)
+        .firstName(firstName)
+        .middleName1(middleName1)
+        .middleName2(middleName2)
+        .dateOfBirth(birthDate)
+        .gender(genderCode)
+        .ethnicity(ethnicity)
+        .build(),
+    ).let {
+      OffenderId(it.offenderNo)
+    }
 
   fun deletePrisoner(offenderNo: String) {
-    testDataContext.dataLoader.offenderDeletionRepository.deleteAllOffenderDataIncludingBaseRecord(offenderNo)
+    kotlin.runCatching {
+      offenderDeletionRepository.deleteAllOffenderDataIncludingBaseRecord(offenderNo)
+    }.onFailure {
+      when (it) {
+        is EntityNotFoundException -> println("Ignoring delete of a prisoner that does not exist")
+        else -> throw it
+      }
+    }
   }
 }
 
+@Component
 class OffenderBuilderFactory(
-  testDataContext: TestDataContext,
+  private val bookingBuilderFactory: BookingBuilderFactory,
+  private val repository: OffenderBuilderRepository,
 ) {
-  private val bookingBuilderFactory: BookingBuilderFactory = BookingBuilderFactory(testDataContext = testDataContext)
-  private val repository: OffenderBuilderRepository = OffenderBuilderRepository(testDataContext = testDataContext)
 
   fun builder(): OffenderBuilder {
     return OffenderBuilder(repository, bookingBuilderFactory)

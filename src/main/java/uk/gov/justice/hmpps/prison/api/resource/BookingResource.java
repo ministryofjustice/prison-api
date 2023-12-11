@@ -42,7 +42,6 @@ import uk.gov.justice.hmpps.prison.api.model.Alias;
 import uk.gov.justice.hmpps.prison.api.model.Assessment;
 import uk.gov.justice.hmpps.prison.api.model.BedAssignment;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteCount;
-import uk.gov.justice.hmpps.prison.api.model.Contact;
 import uk.gov.justice.hmpps.prison.api.model.ContactDetail;
 import uk.gov.justice.hmpps.prison.api.model.CourtCase;
 import uk.gov.justice.hmpps.prison.api.model.CourtEventOutcome;
@@ -59,14 +58,12 @@ import uk.gov.justice.hmpps.prison.api.model.NewAppointment;
 import uk.gov.justice.hmpps.prison.api.model.OffenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenceHistoryDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifier;
-import uk.gov.justice.hmpps.prison.api.model.OffenderRelationship;
 import uk.gov.justice.hmpps.prison.api.model.PersonalCareCounterDto;
 import uk.gov.justice.hmpps.prison.api.model.PersonalCareNeeds;
 import uk.gov.justice.hmpps.prison.api.model.PrisonDetails;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerBookingSummary;
 import uk.gov.justice.hmpps.prison.api.model.PropertyContainer;
 import uk.gov.justice.hmpps.prison.api.model.ReasonableAdjustments;
-import uk.gov.justice.hmpps.prison.api.model.ReturnToCustodyDate;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.SecondaryLanguage;
 import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentDetail;
@@ -607,27 +604,6 @@ public class BookingResource {
     @GetMapping("/{bookingId}/reasonable-adjustments")
     public ReasonableAdjustments getReasonableAdjustments(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId, @RequestParam(value = "type", required = false) @NotEmpty(message = "treatmentCodes: must not be empty") @Parameter(description = "a list of treatment codes to search.", example = "PEEP", required = true) final List<String> treatmentCodes) {
         return inmateService.getReasonableAdjustments(bookingId, treatmentCodes);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "The contact details and their relationship to the offender", description = "The contact details and their relationship to the offender")
-    @GetMapping("/{bookingId}/relationships")
-    public List<Contact> getRelationships(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId, @RequestParam(value = "relationshipType", required = false) @Parameter(description = "filter by the relationship type") final String relationshipType) {
-        return contactService.getRelationships(bookingId, relationshipType, true);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "If successful the Contact object is returned.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Contact.class))})})
-    @Operation(summary = "Create a relationship with an offender", description = "Create a relationship with an offender")
-    @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/{bookingId}/relationships")
-    @ProxyUser
-    public Contact createRelationship(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId, @RequestBody @Parameter(description = "The person details and their relationship to the offender", required = true) final OffenderRelationship relationshipDetail) {
-        return contactService.createRelationship(bookingId, relationshipDetail);
     }
 
     @ApiResponses({
