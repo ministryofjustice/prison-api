@@ -701,8 +701,7 @@ class OffenderResourceIntTest_dischargeToHospital : ResourceTest() {
 
   private fun createOffenderWithNoBooking() {
     builder.build {
-      offenderNo = offender {
-      }.offenderNo
+      offenderNo = offender().offenderNo
     }
     bookingId = null
   }
