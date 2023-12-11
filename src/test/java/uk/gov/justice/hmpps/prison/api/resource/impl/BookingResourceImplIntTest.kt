@@ -575,13 +575,6 @@ class BookingResourceImplIntTest : ResourceTest() {
     assertThat(responseEntity.statusCode.value()).isEqualTo(403)
   }
 
-  @Test
-  fun offenderContacts() {
-    val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf(), mapOf())
-    val responseEntity = testRestTemplate.exchange("/api/bookings/-1/contacts", GET, requestEntity, String::class.java)
-    assertThatJsonFileAndStatus(responseEntity, 200, "offender_contacts.json")
-  }
-
   private fun createEvent(type: String, time: String?): ScheduledEvent {
     return ScheduledEvent.builder().bookingId(-1L)
       .startTime(Optional.ofNullable(time).map { t: String -> "2019-01-02T$t" }.map { text: String? -> LocalDateTime.parse(text) }.orElse(null))

@@ -25,7 +25,7 @@ public class ContactService {
         this.repository = contactRepository;
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public ContactDetail getContacts(final Long bookingId) {
         final var contacts = repository.getOffenderRelationships(bookingId, null);
 
