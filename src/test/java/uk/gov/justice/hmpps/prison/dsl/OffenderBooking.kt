@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.util.builders.dsl
+package uk.gov.justice.hmpps.prison.dsl
 
 import org.springframework.stereotype.Component
 import uk.gov.justice.hmpps.prison.api.model.RequestForCourtTransferIn

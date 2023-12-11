@@ -10,9 +10,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.test.context.support.WithMockUser
-import uk.gov.justice.hmpps.prison.util.builders.dsl.NomisDataBuilder
-import uk.gov.justice.hmpps.prison.util.builders.dsl.OffenderBookingId
-import uk.gov.justice.hmpps.prison.util.builders.dsl.OffenderId
+import uk.gov.justice.hmpps.prison.dsl.NomisDataBuilder
+import uk.gov.justice.hmpps.prison.dsl.OffenderBookingId
+import uk.gov.justice.hmpps.prison.dsl.OffenderId
 import java.time.LocalDateTime
 
 private const val REMAND_REASON = "N"

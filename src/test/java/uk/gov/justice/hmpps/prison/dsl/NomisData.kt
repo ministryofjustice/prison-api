@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.util.builders.dsl
+package uk.gov.justice.hmpps.prison.dsl
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
