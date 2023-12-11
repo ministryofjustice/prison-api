@@ -1,12 +1,19 @@
 package uk.gov.justice.hmpps.prison.util.builders.dsl
 
-import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
-import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingCourtTransferBuilder
-import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingRecallBuilder
-import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingReleaseBuilder
-import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingTAPTransferBuilder
-import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingTransferBuilder
-import uk.gov.justice.hmpps.prison.util.builders.TestDataContext
+import org.springframework.stereotype.Component
+import uk.gov.justice.hmpps.prison.api.model.RequestForCourtTransferIn
+import uk.gov.justice.hmpps.prison.api.model.RequestForNewBooking
+import uk.gov.justice.hmpps.prison.api.model.RequestForTemporaryAbsenceArrival
+import uk.gov.justice.hmpps.prison.api.model.RequestToRecall
+import uk.gov.justice.hmpps.prison.api.model.RequestToReleasePrisoner
+import uk.gov.justice.hmpps.prison.api.model.RequestToTransferIn
+import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOut
+import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOutToCourt
+import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOutToTemporaryAbsence
+import uk.gov.justice.hmpps.prison.service.PrisonerTransferService
+import uk.gov.justice.hmpps.prison.service.enteringandleaving.BookingIntoPrisonService
+import uk.gov.justice.hmpps.prison.service.enteringandleaving.ReleasePrisonerService
+import uk.gov.justice.hmpps.prison.service.enteringandleaving.TransferIntoPrisonService
 import java.time.LocalDateTime
 
 @DslMarker
@@ -75,8 +82,12 @@ interface BookingDsl {
   )
 }
 
+@Component
 class BookingBuilderRepository(
-  private val testDataContext: TestDataContext,
+  private val releasePrisonerService: ReleasePrisonerService,
+  private val transferIntoPrisonService: TransferIntoPrisonService,
+  private val prisonerTransferService: PrisonerTransferService,
+  private val bookingIntoPrisonService: BookingIntoPrisonService,
 ) {
   fun save(
     offenderId: OffenderId,
@@ -91,23 +102,18 @@ class BookingBuilderRepository(
     voBalance: Int?,
     pvoBalance: Int?,
     youthOffender: Boolean,
-  ): OffenderBookingId = OffenderBookingBuilder(
-    prisonId = prisonId,
-    bookingInTime = bookingInTime,
-    fromLocationId = fromLocationId,
-    movementReasonCode = movementReasonCode,
-    cellLocation = cellLocation,
-    imprisonmentStatus = imprisonmentStatus,
-    iepLevel = iepLevel,
-    iepLevelComment = iepLevelComment,
-    voBalance = voBalance,
-    pvoBalance = pvoBalance,
-    youthOffender = youthOffender,
-  ).save(
-    webTestClient = testDataContext.webTestClient,
-    jwtAuthenticationHelper = testDataContext.jwtAuthenticationHelper,
-    offenderNo = offenderId.offenderNo,
-    dataLoader = testDataContext.dataLoader,
+  ): OffenderBookingId = bookingIntoPrisonService.newBooking(
+    offenderId.offenderNo,
+    RequestForNewBooking
+      .builder()
+      .bookingInTime(bookingInTime)
+      .cellLocation(cellLocation)
+      .fromLocationId(fromLocationId)
+      .imprisonmentStatus(imprisonmentStatus)
+      .movementReasonCode(movementReasonCode)
+      .prisonId(prisonId)
+      .youthOffender(youthOffender)
+      .build(),
   ).let { OffenderBookingId(offenderNo = offenderId.offenderNo, it.bookingId) }
 
   fun release(
@@ -116,16 +122,17 @@ class BookingBuilderRepository(
     movementReasonCode: String,
     commentText: String,
   ) {
-    OffenderBookingReleaseBuilder(
-      offenderNo = offenderNo,
-      releaseTime = releaseTime,
-      movementReasonCode = movementReasonCode,
-      commentText = commentText,
-    ).release(
-      webTestClient = testDataContext.webTestClient,
-      jwtAuthenticationHelper = testDataContext.jwtAuthenticationHelper,
+    releasePrisonerService.releasePrisoner(
+      offenderNo,
+      RequestToReleasePrisoner
+        .builder()
+        .releaseTime(releaseTime)
+        .movementReasonCode(movementReasonCode)
+        .commentText(commentText)
+        .build(),
     )
   }
+
   fun recall(
     offenderNo: String,
     prisonId: String,
@@ -133,15 +140,14 @@ class BookingBuilderRepository(
     movementReasonCode: String,
     commentText: String,
   ) {
-    OffenderBookingRecallBuilder(
-      offenderNo = offenderNo,
-      prisonId = prisonId,
-      recallTime = recallTime,
-      movementReasonCode = movementReasonCode,
-      commentText = commentText,
-    ).recall(
-      webTestClient = testDataContext.webTestClient,
-      jwtAuthenticationHelper = testDataContext.jwtAuthenticationHelper,
+    bookingIntoPrisonService.recallPrisoner(
+      offenderNo,
+      RequestToRecall
+        .builder()
+        .recallTime(recallTime)
+        .movementReasonCode(movementReasonCode)
+        .prisonId(prisonId)
+        .build(),
     )
   }
 
@@ -151,16 +157,20 @@ class BookingBuilderRepository(
     movementReasonCode: String,
     commentText: String,
   ) {
-    OffenderBookingCourtTransferBuilder(
-      offenderNo = offenderNo,
-      movementReasonCode = movementReasonCode,
-      commentText = commentText,
-    ).toCourt(
-      webTestClient = testDataContext.webTestClient,
-      jwtAuthenticationHelper = testDataContext.jwtAuthenticationHelper,
-      releaseTime = releaseTime,
+    prisonerTransferService.transferOutPrisonerToCourt(
+      offenderNo,
+      RequestToTransferOutToCourt
+        .builder()
+        .movementTime(releaseTime)
+        .commentText(commentText)
+        .toLocation("COURT1")
+        .shouldReleaseBed(false)
+        .courtEventId(null)
+        .transferReasonCode(movementReasonCode)
+        .build(),
     )
   }
+
   fun returnFromCourt(
     offenderNo: String,
     prisonId: String,
@@ -168,33 +178,36 @@ class BookingBuilderRepository(
     movementReasonCode: String,
     commentText: String,
   ) {
-    OffenderBookingCourtTransferBuilder(
-      offenderNo = offenderNo,
-      movementReasonCode = movementReasonCode,
-      commentText = commentText,
-    ).fromCourt(
-      webTestClient = testDataContext.webTestClient,
-      jwtAuthenticationHelper = testDataContext.jwtAuthenticationHelper,
-      returnTime = returnTime,
-      prisonId = prisonId,
+    transferIntoPrisonService.transferInViaCourt(
+      offenderNo,
+      RequestForCourtTransferIn.builder()
+        .agencyId(prisonId)
+        .dateTime(returnTime)
+        .movementReasonCode(movementReasonCode)
+        .commentText(commentText)
+        .build(),
     )
   }
+
   fun temporaryAbsenceRelease(
     offenderNo: String,
     releaseTime: LocalDateTime,
     movementReasonCode: String,
     commentText: String,
   ) {
-    OffenderBookingTAPTransferBuilder(
-      offenderNo = offenderNo,
-      movementReasonCode = movementReasonCode,
-      commentText = commentText,
-    ).temporaryAbsenceRelease(
-      webTestClient = testDataContext.webTestClient,
-      jwtAuthenticationHelper = testDataContext.jwtAuthenticationHelper,
-      releaseTime = releaseTime,
+    prisonerTransferService.transferOutPrisonerToTemporaryAbsence(
+      offenderNo,
+      RequestToTransferOutToTemporaryAbsence.builder()
+        .toCity("18248")
+        .movementTime(releaseTime)
+        .transferReasonCode(movementReasonCode)
+        .commentText(commentText)
+        .shouldReleaseBed(false)
+        .scheduleEventId(null)
+        .build(),
     )
   }
+
   fun temporaryAbsenceReturn(
     offenderNo: String,
     prisonId: String,
@@ -202,15 +215,14 @@ class BookingBuilderRepository(
     movementReasonCode: String,
     commentText: String,
   ) {
-    OffenderBookingTAPTransferBuilder(
-      offenderNo = offenderNo,
-      movementReasonCode = movementReasonCode,
-      commentText = commentText,
-    ).temporaryAbsenceReturn(
-      webTestClient = testDataContext.webTestClient,
-      jwtAuthenticationHelper = testDataContext.jwtAuthenticationHelper,
-      returnTime = returnTime,
-      prisonId = prisonId,
+    transferIntoPrisonService.transferInAfterTemporaryAbsence(
+      offenderNo,
+      RequestForTemporaryAbsenceArrival.builder()
+        .agencyId(prisonId)
+        .dateTime(returnTime)
+        .movementReasonCode(movementReasonCode)
+        .commentText(commentText)
+        .build(),
     )
   }
 
@@ -221,15 +233,16 @@ class BookingBuilderRepository(
     movementReasonCode: String,
     commentText: String,
   ) {
-    OffenderBookingTransferBuilder(
-      offenderNo = offenderNo,
-      movementReasonCode = movementReasonCode,
-      commentText = commentText,
-    ).transferOut(
-      webTestClient = testDataContext.webTestClient,
-      jwtAuthenticationHelper = testDataContext.jwtAuthenticationHelper,
-      prisonId = prisonId,
-      releaseTime = transferTime,
+    prisonerTransferService.transferOutPrisoner(
+      offenderNo,
+      RequestToTransferOut.builder()
+        .toLocation(prisonId)
+        .movementTime(transferTime)
+        .transferReasonCode(movementReasonCode)
+        .commentText(commentText)
+        .escortType("PECS")
+        .build(),
+
     )
   }
 
@@ -239,29 +252,21 @@ class BookingBuilderRepository(
     movementReasonCode: String,
     commentText: String,
   ) {
-    OffenderBookingTransferBuilder(
-      offenderNo = offenderNo,
-      movementReasonCode = movementReasonCode,
-      commentText = commentText,
-    ).transferIn(
-      webTestClient = testDataContext.webTestClient,
-      jwtAuthenticationHelper = testDataContext.jwtAuthenticationHelper,
-      returnTime = receiveTime,
+    transferIntoPrisonService.transferInFromPrison(
+      offenderNo,
+      RequestToTransferIn.builder()
+        .receiveTime(receiveTime)
+        .commentText(commentText)
+        .build(),
     )
   }
 }
 
+@Component
 class BookingBuilderFactory(
-  testDataContext: TestDataContext,
+  private val repository: BookingBuilderRepository,
 ) {
-
-  val repository: BookingBuilderRepository = BookingBuilderRepository(
-    testDataContext,
-  )
-
-  fun builder() = BookingBuilder(
-    repository,
-  )
+  fun builder() = BookingBuilder(repository)
 }
 
 class BookingBuilder(
@@ -328,7 +333,12 @@ class BookingBuilder(
     )
   }
 
-  override fun temporaryAbsenceReturn(prisonId: String, returnTime: LocalDateTime, movementReasonCode: String, commentText: String) {
+  override fun temporaryAbsenceReturn(
+    prisonId: String,
+    returnTime: LocalDateTime,
+    movementReasonCode: String,
+    commentText: String,
+  ) {
     repository.temporaryAbsenceReturn(
       offenderNo = offenderBookingId.offenderNo,
       returnTime = returnTime,
@@ -347,7 +357,12 @@ class BookingBuilder(
     )
   }
 
-  override fun returnFromCourt(prisonId: String, returnTime: LocalDateTime, movementReasonCode: String, commentText: String) {
+  override fun returnFromCourt(
+    prisonId: String,
+    returnTime: LocalDateTime,
+    movementReasonCode: String,
+    commentText: String,
+  ) {
     repository.returnFromCourt(
       offenderNo = offenderBookingId.offenderNo,
       returnTime = returnTime,
