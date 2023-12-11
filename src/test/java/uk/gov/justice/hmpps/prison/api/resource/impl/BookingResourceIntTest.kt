@@ -31,6 +31,7 @@ import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendanceBatch
 import uk.gov.justice.hmpps.prison.api.support.Order
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
+import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.INACTIVE_BOOKING_USER
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.NORMAL_USER
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA
 import uk.gov.justice.hmpps.prison.repository.BookingRepository
@@ -1994,11 +1995,60 @@ class BookingResourceIntTest : ResourceTest() {
   inner class GetFixedTermRecallDetails {
 
     @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.get().uri("/api/bookings/-1/fixed-term-recall")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `returns 403 when client does not have authorised role`() {
+      webTestClient.get().uri("/api/bookings/-1/fixed-term-recall")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 200 when client has override role`() {
+      webTestClient.get().uri("/api/bookings/-1/fixed-term-recall")
+        .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns 404 if booking does not exist`() {
+      webTestClient.get().uri("/api/bookings/-99999/fixed-term-recall")
+        .headers(setAuthorisation(listOf("ROLE_RELEASE_DATE_MANUAL_COMPARER")))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -99999 not found.")
+    }
+
+    @Test
+    fun `returns 404 when user does not have booking in caseload`() {
+      webTestClient.get().uri("/api/bookings/-1/fixed-term-recall")
+        .headers(setAuthorisation("WAI_USER", listOf()))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -1 not found.")
+    }
+
+    @Test
+    fun `returns success when user has booking in caseload`() {
+      webTestClient.get().uri("/api/bookings/-1/fixed-term-recall")
+        .headers(setAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
     fun testFixedTermRecallDetails_success() {
       val response = testRestTemplate.exchange(
         "/api/bookings/{bookingId}/fixed-term-recall",
         GET,
-        createHttpEntity(VIEW_PRISONER_DATA, null),
+        createHttpEntity(INACTIVE_BOOKING_USER, null),
         String::class.java,
         -20L,
       )
@@ -2006,18 +2056,6 @@ class BookingResourceIntTest : ResourceTest() {
       assertThat(bodyAsJsonContent).extractingJsonPathNumberValue("$.bookingId").isEqualTo(-20)
       assertThat(bodyAsJsonContent).extractingJsonPathNumberValue("$.recallLength").isEqualTo(14)
       assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$.returnToCustodyDate").isEqualTo("2001-01-01")
-    }
-
-    @Test
-    fun testFixedTermRecallDetails_notFound() {
-      val response = testRestTemplate.exchange(
-        "/api/bookings/{bookingId}/fixed-term-recall",
-        GET,
-        createHttpEntity(VIEW_PRISONER_DATA, null),
-        String::class.java,
-        -9999L,
-      )
-      assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
     }
   }
 
