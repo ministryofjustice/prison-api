@@ -42,9 +42,9 @@ class BookingResourceIntTest_getCalculableSentenceEnvelope : ResourceTest() {
   @Test
   fun `returns 200 when client has authorised role ROLE_RELEASE_DATE_MANUAL_COMPARER and override role`() {
     webTestClient.get().uri("/api/bookings/latest/calculable-sentence-envelope?offenderNo=A1234AB")
-      .headers(setClientAuthorisation(listOf("ROLE_RELEASE_DATE_MANUAL_COMPARER", "VIEW_PRISONER_DATA")))
+      .headers(setClientAuthorisation(listOf("ROLE_RELEASE_DATE_MANUAL_COMPARER", "ROLE_VIEW_PRISONER_DATA")))
       .exchange()
-      .expectStatus().isForbidden
+      .expectStatus().isOk
   }
 
   @Test
