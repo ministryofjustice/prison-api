@@ -121,18 +121,20 @@ public class OffenderDeletionRepository extends RepositoryBase {
 
         log.info("Deleting 'Base Record' Booking data for booking ID's: {} for offender: {}", bookIds, offenderIds);
 
-        executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_PROFILE_DETAILS, bookIds);
-        executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_PHYSICAL_ATTRIBUTES, bookIds);
-        executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_IMAGES, bookIds);
-        executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_IDENTIFYING_MARKS, bookIds);
-        executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_EXTERNAL_MOVEMENTS, bookIds);
-        executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_BOOKING_DETAILS, bookIds);
-        executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_ALERTS, bookIds);
-        deleteOffenderGangAffiliations(bookIds);
-        deleteOffenderNonAssociations(bookIds);
-        deleteOffenderSentCalculations(bookIds);
-        executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_ASSESSMENT_ITEMS, bookIds);
-        executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_ASSESSMENTS, bookIds);
+        if (!bookIds.isEmpty()) {
+            executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_PROFILE_DETAILS, bookIds);
+            executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_PHYSICAL_ATTRIBUTES, bookIds);
+            executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_IMAGES, bookIds);
+            executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_IDENTIFYING_MARKS, bookIds);
+            executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_EXTERNAL_MOVEMENTS, bookIds);
+            executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_BOOKING_DETAILS, bookIds);
+            executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_ALERTS, bookIds);
+            deleteOffenderGangAffiliations(bookIds);
+            deleteOffenderNonAssociations(bookIds);
+            deleteOffenderSentCalculations(bookIds);
+            executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_ASSESSMENT_ITEMS, bookIds);
+            executeNamedSqlWithBookingIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_ASSESSMENTS, bookIds);
+        }
 
         var bookingRowsDeleted = executeNamedSqlWithOffenderIds(OffenderDeletionRepositorySql.OD_DELETE_OFFENDER_BOOKINGS, offenderIds);
 

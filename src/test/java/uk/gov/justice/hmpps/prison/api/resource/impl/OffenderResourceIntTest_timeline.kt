@@ -93,9 +93,7 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
 
       @AfterAll
       fun deletePrisoner() {
-        // for now we can't delete a prisoner with no bookings
-        // we are unlikely to have an issues of leaving this dangling person since
-        // they are not associated with in prison
+        builder.deletePrisoner(prisoner.offenderNo)
       }
 
       @Test

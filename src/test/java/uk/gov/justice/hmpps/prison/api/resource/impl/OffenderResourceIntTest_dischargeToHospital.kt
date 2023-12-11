@@ -17,15 +17,11 @@ import uk.gov.justice.hmpps.prison.api.resource.impl.OffenderResourceIntTest_dis
 import uk.gov.justice.hmpps.prison.api.resource.impl.OffenderResourceIntTest_dischargeToHospital.Companion.OffenderType.NO_BOOKING
 import uk.gov.justice.hmpps.prison.api.resource.impl.OffenderResourceIntTest_dischargeToHospital.Companion.OffenderType.RELEASED
 import uk.gov.justice.hmpps.prison.api.resource.impl.OffenderResourceIntTest_dischargeToHospital.Companion.OffenderType.TEMPORARY_ABSENCE
+import uk.gov.justice.hmpps.prison.dsl.NomisDataBuilder
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason.AWAIT_REMOVAL_TO_PSY_HOSPITAL
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason.DISCHARGE_TO_PSY_HOSPITAL
 import uk.gov.justice.hmpps.prison.service.DataLoaderTransaction
 import uk.gov.justice.hmpps.prison.util.builders.ExternalServiceBuilder
-import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
-import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
-import uk.gov.justice.hmpps.prison.util.builders.OffenderNoPayPeriodBuilder
-import uk.gov.justice.hmpps.prison.util.builders.OffenderPayStatusBuilder
-import uk.gov.justice.hmpps.prison.util.builders.OffenderProgramProfileBuilder
 import uk.gov.justice.hmpps.prison.util.builders.ServiceAgencySwitchBuilder
 import uk.gov.justice.hmpps.prison.util.builders.getBedAssignments
 import uk.gov.justice.hmpps.prison.util.builders.getCaseNotes
@@ -36,8 +32,6 @@ import uk.gov.justice.hmpps.prison.util.builders.getOffenderNoPayPeriods
 import uk.gov.justice.hmpps.prison.util.builders.getOffenderPayStatus
 import uk.gov.justice.hmpps.prison.util.builders.getOffenderProgramProfiles
 import uk.gov.justice.hmpps.prison.util.builders.getSentenceAdjustments
-import uk.gov.justice.hmpps.prison.util.builders.release
-import uk.gov.justice.hmpps.prison.util.builders.transferOutToCourt
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -51,6 +45,9 @@ class OffenderResourceIntTest_dischargeToHospital : ResourceTest() {
 
   @Autowired
   private lateinit var dataLoaderTransaction: DataLoaderTransaction
+
+  @Autowired
+  private lateinit var builder: NomisDataBuilder
 
   companion object {
     enum class OffenderType {
@@ -96,17 +93,7 @@ class OffenderResourceIntTest_dischargeToHospital : ResourceTest() {
       if (::externalServiceName.isInitialized) {
         testDataContext.dataLoader.externalServiceRepository.deleteById(externalServiceName)
       }
-      bookingId?.let {
-        dataLoaderTransaction.transaction {
-          with(testDataContext.dataLoader) {
-            bedAssignmentHistoriesRepository.deleteByOffenderBooking_BookingId(it)
-            offenderProgramProfileRepository.deleteByOffenderBooking_BookingId(it)
-            offenderPayStatusRepository.deleteByBookingId(it)
-            offenderBookingRepository.deleteById(it)
-            offenderNoPayPeriodRepository.deleteByBookingId(it)
-          }
-        }
-      }
+      builder.deletePrisoner(offenderNo)
     }
 
     @Nested
@@ -705,34 +692,38 @@ class OffenderResourceIntTest_dischargeToHospital : ResourceTest() {
   }
 
   private fun createOffenderBooking() {
-    OffenderBuilder().withBooking(
-      OffenderBookingBuilder(
-        prisonId = "SYI",
-        cellLocation = "SYI-A-1-1",
-        programProfiles = listOf(OffenderProgramProfileBuilder()),
-        payStatuses = listOf(OffenderPayStatusBuilder()),
-        noPayPeriods = listOf(OffenderNoPayPeriodBuilder()),
-      ),
-    )
-      .save(testDataContext)
-      .also {
-        offenderNo = it.offenderNo
-        bookingId = it.bookingId
-      }
-  }
-
-  private fun createOffenderWithNoBooking() {
-    OffenderBuilder(bookingBuilders = arrayOf()).save(testDataContext).also {
-      offenderNo = it.offenderNo
-      bookingId = it.bookingId
+    builder.build {
+      offenderNo = offender {
+        bookingId = booking(prisonId = "SYI", cellLocation = "SYI-A-1-1") { }.bookingId
+      }.offenderNo
     }
   }
 
+  private fun createOffenderWithNoBooking() {
+    builder.build {
+      offenderNo = offender {
+      }.offenderNo
+    }
+    bookingId = null
+  }
+
   private fun createOffenderOutAtCourt() {
-    createOffenderBooking().also { testDataContext.transferOutToCourt(offenderNo, "COURT1", expectedAgency = "SYI") }
+    builder.build {
+      offenderNo = offender {
+        bookingId = booking(prisonId = "SYI", cellLocation = "SYI-A-1-1") {
+          sendToCourt()
+        }.bookingId
+      }.offenderNo
+    }
   }
 
   private fun createOffenderAndRelease(movementReasonCode: String = "HP") {
-    createOffenderBooking().also { testDataContext.release(offenderNo, movementReasonCode) }
+    builder.build {
+      offenderNo = offender {
+        bookingId = booking(prisonId = "SYI", cellLocation = "SYI-A-1-1") {
+          release(movementReasonCode = movementReasonCode, releaseTime = LocalDateTime.now().minusHours(1), commentText = "released prisoner today")
+        }.bookingId
+      }.offenderNo
+    }
   }
 }
