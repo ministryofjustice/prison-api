@@ -70,7 +70,8 @@ class StaffResourceIntTest : ResourceTest() {
         .expectStatus().isOk
         .expectBody()
         .jsonPath("$.length()").isEqualTo(4)
-        .jsonPath("[*].staffId").value<List<Int>> { Assertions.assertThat(it).containsExactlyInAnyOrder(-1, -4, -11, -12) }
+        .jsonPath("[*].staffId")
+        .value<List<Int>> { Assertions.assertThat(it).containsExactlyInAnyOrder(-1, -4, -11, -12) }
     }
 
     @Test
@@ -168,6 +169,19 @@ class StaffResourceIntTest : ResourceTest() {
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
+    }
+
+    @Test
+    fun `Should find KW role for staff member`() {
+      assert(
+        webTestClient.get()
+          .uri("/api/staff/-9/roles/BMI/roles/KW")
+          .headers(setClientAuthorisation(listOf()))
+          .accept(MediaType.APPLICATION_JSON)
+          .exchange()
+          .expectStatus().isOk
+          .expectBody().equals("true"),
+      )
     }
   }
 }

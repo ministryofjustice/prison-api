@@ -8,6 +8,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.StaffDetail;
 import uk.gov.justice.hmpps.prison.repository.CaseLoadRepository;
 import uk.gov.justice.hmpps.prison.repository.StaffRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Staff;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffJobRole;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffRole;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffJobRoleRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRoleRepository;
 
@@ -46,11 +51,14 @@ public class StaffServiceImplTest {
     @Mock
     private UserCaseloadRoleRepository userCaseloadRoleRepository;
 
+    @Mock
+    private StaffJobRoleRepository staffJobRoleRepository;
+
     private StaffService staffService;
 
     @BeforeEach
     public void init() {
-        staffService = new StaffService(staffRepository, staffUserAccountRepository, caseLoadRepository, userCaseloadRoleRepository);
+        staffService = new StaffService(staffRepository, staffUserAccountRepository, caseLoadRepository, userCaseloadRoleRepository, staffJobRoleRepository);
     }
 
     @Test
@@ -98,6 +106,122 @@ public class StaffServiceImplTest {
         assertThatThrownBy(() -> staffService.getStaffEmailAddresses(ID_BAD)).isInstanceOf(EntityNotFoundException.class);
 
         verify(staffRepository, times(1)).findByStaffId(ID_BAD);
+    }
+
+
+@Test
+public void testFiltersOutOldRoles() {
+
+        when(staffJobRoleRepository.findAllByAgencyIdAndStaffStaffId("MDI", -1L )).thenReturn(List.of(
+            new StaffJobRole(Staff.builder().staffId(-1L).build(),
+                AgencyLocation.builder().id("MDI").build(),
+               LocalDate.now().minusDays(1),
+                "POS",
+                new StaffRole("KW","Key worker 1"),
+                null
+            ),
+            new StaffJobRole(Staff.builder().staffId(-1L).build(),
+                AgencyLocation.builder().id("MDI").build(),
+                LocalDate.now().minusDays(2),
+                "POS",
+                new StaffRole("KW","Key worker 2"),
+                null
+            ),
+            new StaffJobRole(Staff.builder().staffId(-1L).build(),
+                AgencyLocation.builder().id("MDI").build(),
+                LocalDate.now().minusDays(3),
+                "POS",
+                new StaffRole("KW","Key worker 3"),
+                LocalDate.now().minusDays(2)
+            ),
+            new StaffJobRole(Staff.builder().staffId(-1L).build(),
+                AgencyLocation.builder().id("MDI").build(),
+                LocalDate.now().minusDays(5),
+                "POS",
+                new StaffRole("POM","POM 1"),
+                LocalDate.now().minusDays(2)
+            ),
+            new StaffJobRole(Staff.builder().staffId(-1L).build(),
+                AgencyLocation.builder().id("MDI").build(),
+                LocalDate.now().minusDays(2),
+                "POS",
+                new StaffRole("POM","POM 2"),
+                null
+            ),
+            new StaffJobRole(Staff.builder().staffId(-1L).build(),
+                AgencyLocation.builder().id("MDI").build(),
+                LocalDate.now().minusDays(3),
+                "POS",
+                new StaffRole("POM","POM 3"),
+                null
+            )
+        ));
+
+        final var returnedData = staffService.getAllRolesForAgency(-1L, "MDI");
+
+        assertThat(returnedData).hasSize(2);
+
+        assertThat(returnedData.get(0).getRoleDescription()).isEqualTo("POM 2");
+        assertThat(returnedData.get(1).getRoleDescription()).isEqualTo("Key worker 1");
+    }
+
+    @Test
+    public void testFindRole() {
+
+        when(staffJobRoleRepository.findAllByAgencyIdAndStaffStaffIdAndRoleCode("MDI", -1L, "KW" )).thenReturn(List.of(
+            new StaffJobRole(Staff.builder().staffId(-1L).build(),
+                AgencyLocation.builder().id("MDI").build(),
+                LocalDate.now().minusDays(1),
+                "POS",
+                new StaffRole("KW","Key worker 1"),
+                null
+            ),
+            new StaffJobRole(Staff.builder().staffId(-1L).build(),
+                AgencyLocation.builder().id("MDI").build(),
+                LocalDate.now().minusDays(2),
+                "POS",
+                new StaffRole("KW","Key worker 2"),
+                null
+            ),
+            new StaffJobRole(Staff.builder().staffId(-1L).build(),
+                AgencyLocation.builder().id("MDI").build(),
+                LocalDate.now().minusDays(3),
+                "POS",
+                new StaffRole("KW","Key worker 3"),
+                LocalDate.now().minusDays(2)
+            )
+        ));
+
+        final var found = staffService.hasStaffRole(-1L, "MDI", StaffJobType.KW);
+
+        assertThat(found).isTrue();
+
+    }
+
+    @Test
+    public void testDoesNotFindRole() {
+
+        when(staffJobRoleRepository.findAllByAgencyIdAndStaffStaffIdAndRoleCode("MDI", -1L, "KW" )).thenReturn(List.of(
+            new StaffJobRole(Staff.builder().staffId(-1L).build(),
+                AgencyLocation.builder().id("MDI").build(),
+                LocalDate.now().minusDays(2),
+                "POS",
+                new StaffRole("KW","Key worker 2"),
+                LocalDate.now().minusDays(1)
+            ),
+            new StaffJobRole(Staff.builder().staffId(-1L).build(),
+                AgencyLocation.builder().id("MDI").build(),
+                LocalDate.now().minusDays(3),
+                "POS",
+                new StaffRole("KW","Key worker 3"),
+                LocalDate.now().minusDays(2)
+            )
+        ));
+
+        final var found = staffService.hasStaffRole(-1L, "MDI", StaffJobType.KW);
+
+        assertThat(found).isFalse();
+
     }
 
     private Optional<StaffDetail> getValidStaffDetails(final Long staffId) {

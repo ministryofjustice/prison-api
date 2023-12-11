@@ -12,17 +12,13 @@ import uk.gov.justice.hmpps.prison.api.model.StaffDetail;
 import uk.gov.justice.hmpps.prison.api.model.StaffDetailDto;
 import uk.gov.justice.hmpps.prison.api.model.StaffLocationRole;
 import uk.gov.justice.hmpps.prison.api.model.StaffLocationRoleDto;
-import uk.gov.justice.hmpps.prison.api.model.StaffRole;
-import uk.gov.justice.hmpps.prison.api.model.StaffRoleDto;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.repository.mapping.DataClassByColumnRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.PageAwareRowMapper;
 import uk.gov.justice.hmpps.prison.repository.sql.StaffRepositorySql;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
-import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -36,10 +32,6 @@ public class StaffRepository extends RepositoryBase {
 
     private static final DataClassByColumnRowMapper<StaffLocationRoleDto> STAFF_LOCATION_ROLE_ROW_MAPPER =
             new DataClassByColumnRowMapper<>(StaffLocationRoleDto.class);
-
-    private static final RowMapper<StaffRoleDto> STAFF_ROLES_MAPPER =
-            new DataClassByColumnRowMapper<>(StaffRoleDto.class);
-
 
 
     @Cacheable(value = "findByStaffId", unless = "#result == null")
@@ -149,19 +141,6 @@ public class StaffRepository extends RepositoryBase {
         return new Page<>(staffDetails, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
     }
 
-
-    public List<StaffRole> getAllRolesForAgency(final Long staffId, final String agencyId) {
-        Validate.notNaN(staffId, "A staffId code is required.");
-        Validate.notBlank(agencyId, "An agency id is required.");
-
-        final var sql = StaffRepositorySql.GET_STAFF_ROLES_FOR_AGENCY.getSql();
-
-        final var staffRoles = jdbcTemplate.query(
-                sql,
-                createParams("staffId", staffId, "agencyId", agencyId, "currentDate", DateTimeConverter.toDate(LocalDate.now())),
-                STAFF_ROLES_MAPPER);
-        return staffRoles.stream().map(StaffRoleDto::toStaffRole).collect(Collectors.toList());
-    }
 
     private String applyNameFilterQuery(final String baseSql, final String nameFilter) {
         var nameFilterQuery = baseSql;
