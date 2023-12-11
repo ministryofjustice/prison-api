@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.dsl
 import org.springframework.stereotype.Component
 import uk.gov.justice.hmpps.prison.api.model.RequestToCreate
 import uk.gov.justice.hmpps.prison.repository.OffenderDeletionRepository
+import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.PrisonerCreationService
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -63,7 +64,14 @@ class OffenderBuilderRepository(
     }
 
   fun deletePrisoner(offenderNo: String) {
-    offenderDeletionRepository.deleteAllOffenderDataIncludingBaseRecord(offenderNo)
+    kotlin.runCatching {
+      offenderDeletionRepository.deleteAllOffenderDataIncludingBaseRecord(offenderNo)
+    }.onFailure {
+      when (it) {
+        is EntityNotFoundException -> println("Ignoring delete of a prisoner that does not exist")
+        else -> throw it
+      }
+    }
   }
 }
 
