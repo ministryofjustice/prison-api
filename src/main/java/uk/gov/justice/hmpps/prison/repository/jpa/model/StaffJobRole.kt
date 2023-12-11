@@ -41,6 +41,9 @@ class StaffJobRole(
   val position: String,
 
   @Id
+  @Column(name = "ROLE", nullable = false)
+  val role: String,
+
   @ManyToOne(optional = false)
   @JoinColumnsOrFormulas(
     value = [
@@ -53,7 +56,7 @@ class StaffJobRole(
       JoinColumnOrFormula(column = JoinColumn(name = "ROLE", referencedColumnName = "code")),
     ],
   )
-  val role: StaffRole,
+  val staffRole: StaffRole,
 
   @Column(name = "TO_DATE")
   val toDate: LocalDate? = null,
@@ -66,10 +69,10 @@ class StaffJobRole(
 
 class StaffJobRoleId(
   val staff: Staff? = null,
-  val agency: AgencyLocation,
-  val fromDate: LocalDate,
-  val position: String,
-  val role: StaffRole,
+  val agency: AgencyLocation? = null,
+  val fromDate: LocalDate? = null,
+  val position: String? = null,
+  val role: String? = null,
 ) : Serializable {
 
   override fun equals(other: Any?): Boolean {

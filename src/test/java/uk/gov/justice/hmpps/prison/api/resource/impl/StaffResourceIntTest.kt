@@ -173,15 +173,29 @@ class StaffResourceIntTest : ResourceTest() {
 
     @Test
     fun `Should find KW role for staff member`() {
-      assert(
-        webTestClient.get()
-          .uri("/api/staff/-9/roles/BMI/roles/KW")
-          .headers(setClientAuthorisation(listOf()))
-          .accept(MediaType.APPLICATION_JSON)
-          .exchange()
-          .expectStatus().isOk
-          .expectBody().equals("true"),
-      )
+      webTestClient.get()
+        .uri("/api/staff/-1/LEI/roles/KW")
+        .headers(setClientAuthorisation(listOf()))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+        .expectBody(String::class.java)
+        .consumeWith {
+          Assertions.assertThat(it.responseBody).isEqualTo("true")
+        }
+    }
+
+    @Test
+    fun `Should find roles for staff member`() {
+      webTestClient.get()
+        .uri("/api/staff/-2/LEI/roles")
+        .headers(setClientAuthorisation(listOf()))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.length()").isEqualTo(1)
+        .jsonPath("$[0].role").isEqualTo("OS")
     }
   }
 }

@@ -8,5 +8,5 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffJobRoleId
 @Repository
 interface StaffJobRoleRepository : JpaRepository<StaffJobRole, StaffJobRoleId> {
   fun findAllByAgencyIdAndStaffStaffId(agencyId: String, staffId: Long): List<StaffJobRole>
-  fun findAllByAgencyIdAndStaffStaffIdAndRoleCode(agencyId: String, staffId: Long, roleCode: String): List<StaffJobRole>
+  fun findAllByAgencyIdAndStaffStaffIdAndRole(agencyId: String, staffId: Long, role: String): List<StaffJobRole>
 }

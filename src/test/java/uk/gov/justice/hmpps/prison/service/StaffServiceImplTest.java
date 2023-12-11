@@ -117,6 +117,7 @@ public void testFiltersOutOldRoles() {
                 AgencyLocation.builder().id("MDI").build(),
                LocalDate.now().minusDays(1),
                 "POS",
+                "KW",
                 new StaffRole("KW","Key worker 1"),
                 null
             ),
@@ -124,6 +125,7 @@ public void testFiltersOutOldRoles() {
                 AgencyLocation.builder().id("MDI").build(),
                 LocalDate.now().minusDays(2),
                 "POS",
+                "KW",
                 new StaffRole("KW","Key worker 2"),
                 null
             ),
@@ -131,6 +133,7 @@ public void testFiltersOutOldRoles() {
                 AgencyLocation.builder().id("MDI").build(),
                 LocalDate.now().minusDays(3),
                 "POS",
+                "KW",
                 new StaffRole("KW","Key worker 3"),
                 LocalDate.now().minusDays(2)
             ),
@@ -138,6 +141,7 @@ public void testFiltersOutOldRoles() {
                 AgencyLocation.builder().id("MDI").build(),
                 LocalDate.now().minusDays(5),
                 "POS",
+                "POM",
                 new StaffRole("POM","POM 1"),
                 LocalDate.now().minusDays(2)
             ),
@@ -145,6 +149,7 @@ public void testFiltersOutOldRoles() {
                 AgencyLocation.builder().id("MDI").build(),
                 LocalDate.now().minusDays(2),
                 "POS",
+                "POM",
                 new StaffRole("POM","POM 2"),
                 null
             ),
@@ -152,6 +157,7 @@ public void testFiltersOutOldRoles() {
                 AgencyLocation.builder().id("MDI").build(),
                 LocalDate.now().minusDays(3),
                 "POS",
+                "POM",
                 new StaffRole("POM","POM 3"),
                 null
             )
@@ -168,11 +174,12 @@ public void testFiltersOutOldRoles() {
     @Test
     public void testFindRole() {
 
-        when(staffJobRoleRepository.findAllByAgencyIdAndStaffStaffIdAndRoleCode("MDI", -1L, "KW" )).thenReturn(List.of(
+        when(staffJobRoleRepository.findAllByAgencyIdAndStaffStaffIdAndRole("MDI", -1L, "KW" )).thenReturn(List.of(
             new StaffJobRole(Staff.builder().staffId(-1L).build(),
                 AgencyLocation.builder().id("MDI").build(),
                 LocalDate.now().minusDays(1),
                 "POS",
+                "KW",
                 new StaffRole("KW","Key worker 1"),
                 null
             ),
@@ -180,6 +187,7 @@ public void testFiltersOutOldRoles() {
                 AgencyLocation.builder().id("MDI").build(),
                 LocalDate.now().minusDays(2),
                 "POS",
+                "KW",
                 new StaffRole("KW","Key worker 2"),
                 null
             ),
@@ -187,6 +195,7 @@ public void testFiltersOutOldRoles() {
                 AgencyLocation.builder().id("MDI").build(),
                 LocalDate.now().minusDays(3),
                 "POS",
+                "KW",
                 new StaffRole("KW","Key worker 3"),
                 LocalDate.now().minusDays(2)
             )
@@ -201,11 +210,12 @@ public void testFiltersOutOldRoles() {
     @Test
     public void testDoesNotFindRole() {
 
-        when(staffJobRoleRepository.findAllByAgencyIdAndStaffStaffIdAndRoleCode("MDI", -1L, "KW" )).thenReturn(List.of(
+        when(staffJobRoleRepository.findAllByAgencyIdAndStaffStaffIdAndRole("MDI", -1L, "KW" )).thenReturn(List.of(
             new StaffJobRole(Staff.builder().staffId(-1L).build(),
                 AgencyLocation.builder().id("MDI").build(),
                 LocalDate.now().minusDays(2),
                 "POS",
+                "KW",
                 new StaffRole("KW","Key worker 2"),
                 LocalDate.now().minusDays(1)
             ),
@@ -213,6 +223,7 @@ public void testFiltersOutOldRoles() {
                 AgencyLocation.builder().id("MDI").build(),
                 LocalDate.now().minusDays(3),
                 "POS",
+                "KW",
                 new StaffRole("KW","Key worker 3"),
                 LocalDate.now().minusDays(2)
             )

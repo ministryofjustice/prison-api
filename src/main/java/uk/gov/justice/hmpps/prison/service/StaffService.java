@@ -148,21 +148,21 @@ public class StaffService {
             .filter(
                 staffJobRole -> staffJobRole.isWithinRange(LocalDate.now())
             )
-            .collect(Collectors.groupingBy(StaffJobRole::getRole))
+            .collect(Collectors.groupingBy(StaffJobRole::getStaffRole))
             .values().stream()
             .map(staffJobRoles -> staffJobRoles.stream()
                 .max(Comparator.comparing(StaffJobRole::getFromDate)))
             .filter(Optional::isPresent)
             .map(
                 staffJobRole -> StaffRole.builder()
-                    .role(staffJobRole.get().getRole().getCode())
-                    .roleDescription(staffJobRole.get().getRole().getDescription())
+                    .role(staffJobRole.get().getStaffRole().getCode())
+                    .roleDescription(staffJobRole.get().getStaffRole().getDescription())
                     .build()
             ).toList();
     }
 
     public boolean hasStaffRole(Long staffId, String agencyId, StaffJobType staffJobType) {
-        return staffJobRoleRepository.findAllByAgencyIdAndStaffStaffIdAndRoleCode(agencyId, staffId, staffJobType.name())
+        return staffJobRoleRepository.findAllByAgencyIdAndStaffStaffIdAndRole(agencyId, staffId, staffJobType.name())
             .stream()
             .max(Comparator.comparing(StaffJobRole::getFromDate))
             .filter(

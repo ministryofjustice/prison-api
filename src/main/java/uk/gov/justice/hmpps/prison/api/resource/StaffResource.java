@@ -113,7 +113,7 @@ public class StaffResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Check if staff member has a role", description = "Check if staff member has a role")
+    @Operation(summary = "Check if staff member has a role", description = "Check if staff member has a role, either KW or POM")
     @GetMapping("/{staffId}/{agencyId}/roles/{roleType}")
     public boolean hasStaffRole( @PathVariable("staffId")
                                  @Parameter(description = "The staff id of the staff member.", required = true, example = "1111111")
