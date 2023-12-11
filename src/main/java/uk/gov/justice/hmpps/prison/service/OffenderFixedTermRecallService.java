@@ -23,7 +23,7 @@ public class OffenderFixedTermRecallService {
         this.repository = repository;
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
     public FixedTermRecallDetails getFixedTermRecallDetails(final Long bookingId) {
         return repository.findById(bookingId)
             .map(OffenderFixedTermRecall::mapToFixedTermRecallDetails)

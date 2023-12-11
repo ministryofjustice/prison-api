@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import io.opentelemetry.sdk.testing.assertj.OpenTelemetryAssertions.assertThat
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.ParameterizedTypeReference
@@ -90,5 +91,47 @@ class PrisonResourceTest : ResourceTest() {
   @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
   private fun getResourceAsText(path: String): String {
     return object {}.javaClass.getResource(path).readText()
+  }
+
+  @Nested
+  inner class Authorisation {
+    @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.get().uri("/api/prison/LEI/booking/latest/paged/calculable-sentence-envelope")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return 403 if does not authorised role and override role`() {
+      webTestClient.get().uri("/api/prison/LEI/booking/latest/paged/calculable-sentence-envelope")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should return 200 if has authorised role and override role`() {
+      webTestClient.get().uri("/api/prison/LEI/booking/latest/paged/calculable-sentence-envelope")
+        .headers(setClientAuthorisation(listOf("ROLE_RELEASE_DATE_MANUAL_COMPARER", "VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `should return 403 if does not have prison in caseload`() {
+      webTestClient.get().uri("/api/prison/LEI/booking/latest/paged/calculable-sentence-envelope")
+        .headers(setAuthorisation(listOf("WAI_USER", "ROLE_RELEASE_DATE_MANUAL_COMPARER")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `should return 200 if has prison in caseload`() {
+      webTestClient.get().uri("/api/prison/LEI/booking/latest/paged/calculable-sentence-envelope")
+        .headers(setAuthorisation(listOf("ROLE_RELEASE_DATE_MANUAL_COMPARER")))
+        .exchange()
+        .expectStatus().isOk
+    }
   }
 }
