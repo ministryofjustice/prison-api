@@ -1,16 +1,27 @@
-package uk.gov.justice.hmpps.prison.util.builders.dsl
+package uk.gov.justice.hmpps.prison.dsl
 
-import uk.gov.justice.hmpps.prison.util.builders.TestDataContext
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.core.userdetails.User
+import org.springframework.stereotype.Component
 import uk.gov.justice.hmpps.prison.util.builders.randomName
 import java.time.LocalDate
 
-class NomisDataBuilder(
-  testDataContext: TestDataContext,
-) {
-  private val offenderBuilderFactory: OffenderBuilderFactory = OffenderBuilderFactory(testDataContext = testDataContext)
-  fun build(dsl: NomisData.() -> Unit) = NomisData(
-    offenderBuilderFactory,
-  ).apply(dsl)
+@Component
+class NomisDataBuilder(private val offenderBuilderFactory: OffenderBuilderFactory) {
+  fun build(dsl: NomisData.() -> Unit) {
+    SecurityContextHolder.setContext(
+      SecurityContextHolder.createEmptyContext().apply {
+        val principal = User("ITAG_USER", "", true, true, true, true, emptyList())
+        this.authentication = UsernamePasswordAuthenticationToken.authenticated(
+          principal,
+          principal.password,
+          principal.authorities,
+        )
+      },
+    )
+    NomisData(offenderBuilderFactory).apply(dsl)
+  }
 
   fun deletePrisoner(offenderNo: String) {
     offenderBuilderFactory.deletePrisoner(offenderNo)
