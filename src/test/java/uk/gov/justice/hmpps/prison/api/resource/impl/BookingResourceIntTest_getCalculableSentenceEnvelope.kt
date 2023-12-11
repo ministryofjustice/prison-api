@@ -17,6 +17,54 @@ class BookingResourceIntTest_getCalculableSentenceEnvelope : ResourceTest() {
   lateinit var objectMapper: ObjectMapper
 
   @Test
+  fun `returns 401 without an auth token`() {
+    webTestClient.get().uri("/api/bookings/latest/calculable-sentence-envelope")
+      .exchange()
+      .expectStatus().isUnauthorized
+  }
+
+  @Test
+  fun `returns 403 when client does not have authorised role`() {
+    webTestClient.get().uri("/api/bookings/latest/calculable-sentence-envelope?offenderNo=A1234AB")
+      .headers(setClientAuthorisation(listOf()))
+      .exchange()
+      .expectStatus().isForbidden
+  }
+
+  @Test
+  fun `returns 403 when client has authorised role ROLE_RELEASE_DATE_MANUAL_COMPARER and no user in context`() {
+    webTestClient.get().uri("/api/bookings/latest/calculable-sentence-envelope?offenderNo=A1234AB")
+      .headers(setClientAuthorisation(listOf("ROLE_RELEASE_DATE_MANUAL_COMPARER")))
+      .exchange()
+      .expectStatus().isForbidden
+  }
+
+  @Test
+  fun `returns 200 when client has authorised role ROLE_RELEASE_DATE_MANUAL_COMPARER and override role`() {
+    webTestClient.get().uri("/api/bookings/latest/calculable-sentence-envelope?offenderNo=A1234AB")
+      .headers(setClientAuthorisation(listOf("ROLE_RELEASE_DATE_MANUAL_COMPARER", "VIEW_PRISONER_DATA")))
+      .exchange()
+      .expectStatus().isForbidden
+  }
+
+  @Test
+  fun `returns 404 when user does not have offender in caseload`() {
+    webTestClient.get().uri("/api/bookings/latest/calculable-sentence-envelope?offenderNo=A1234AB")
+      .headers(setAuthorisation("WAI_USER", listOf("ROLE_RELEASE_DATE_MANUAL_COMPARER")))
+      .exchange()
+      .expectStatus().isNotFound
+      .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -2 not found.")
+  }
+
+  @Test
+  fun `returns success when user has offender in caseload`() {
+    webTestClient.get().uri("/api/bookings/latest/calculable-sentence-envelope?offenderNo=A1234AB")
+      .headers(setAuthorisation(listOf("ROLE_RELEASE_DATE_MANUAL_COMPARER")))
+      .exchange()
+      .expectStatus().isOk
+  }
+
+  @Test
   fun `Test that endpoint returns a summary list when authorised`() {
     val json = getPrisonResourceAsText("prison_resource_single_calculable_sentence_envelope.json")
     val calculableSentenceEnvelope = objectMapper.readValue<CalculableSentenceEnvelope>(json)
