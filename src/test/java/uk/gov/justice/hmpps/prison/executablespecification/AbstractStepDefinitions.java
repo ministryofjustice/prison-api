@@ -24,7 +24,6 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.KeyWorkerAlloca
 import uk.gov.justice.hmpps.prison.executablespecification.steps.MovementsSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.MyAssignmentsSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.OffenderAdjudicationSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.PersonIdentifierSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.PrisonContactDetailsSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.PrisonerSearchSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.ReferenceDomainsSteps;
@@ -150,11 +149,6 @@ abstract class AbstractStepDefinitions {
         @Bean
         public StaffSteps staff() {
             return new StaffSteps();
-        }
-
-        @Bean
-        public PersonIdentifierSteps personIdentifierSteps() {
-            return new PersonIdentifierSteps();
         }
     }
 
