@@ -8,10 +8,11 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.test.context.support.WithMockUser
-import uk.gov.justice.hmpps.prison.util.builders.dsl.NomisDataBuilder
-import uk.gov.justice.hmpps.prison.util.builders.dsl.OffenderBookingId
-import uk.gov.justice.hmpps.prison.util.builders.dsl.OffenderId
+import uk.gov.justice.hmpps.prison.dsl.NomisDataBuilder
+import uk.gov.justice.hmpps.prison.dsl.OffenderBookingId
+import uk.gov.justice.hmpps.prison.dsl.OffenderId
 import java.time.LocalDateTime
 
 private const val REMAND_REASON = "N"
@@ -25,11 +26,12 @@ private const val TRANSFER_REASON = "NOTR"
 
 @WithMockUser
 class OffenderResourceTimelineIntTest : ResourceTest() {
+  @Autowired
+  private lateinit var builder: NomisDataBuilder
+
   @Nested
   @DisplayName("GET /api/offenders/{offenderNo}/prison-timeline")
   inner class GetPrisonTimeline {
-    private val builder: NomisDataBuilder by lazy { NomisDataBuilder(testDataContext) }
-
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class Security {
