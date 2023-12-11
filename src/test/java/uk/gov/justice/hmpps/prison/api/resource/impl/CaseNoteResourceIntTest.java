@@ -105,7 +105,6 @@ public class CaseNoteResourceIntTest extends ResourceTest {
                 new PrisonerCaseNoteTypeAndSubType(-18L, "NEG", "IEP_WARN", fromDate3.minusDays(5)),
                 new PrisonerCaseNoteTypeAndSubType(-18L, "NEG", "IEP_WARN", fromDate3.minusDays(1)),
                 new PrisonerCaseNoteTypeAndSubType(-18L, "NEG", "IEP_WARN", fromDate3.minusDays(2))
-
             )
         );
 

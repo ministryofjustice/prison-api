@@ -31,7 +31,6 @@ import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageByBookingId;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageRequest;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
-import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.CaseNoteService;
 
 import java.time.LocalDate;
@@ -133,7 +132,7 @@ public class CaseNoteResource {
     @Hidden
     @GetMapping("/events_no_limit")
     @SlowReportQuery
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','CASE_NOTE_EVENTS')")
+    @PreAuthorize("hasRole('CASE_NOTE_EVENTS')")
     public List<CaseNoteEvent> getCaseNotesEventsNoLimit(
         @RequestParam("type") @NotEmpty @Parameter(description = "a list of types and optionally subtypes (joined with +) to search.", example = "ACP+ASSESSMENT", required = true) final List<String> noteTypes,
         @RequestParam("createdDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @Parameter(description = "Only case notes occurring on or after this date and time (ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS) will be considered.") final LocalDateTime createdDate
@@ -152,7 +151,7 @@ public class CaseNoteResource {
         "The note type only filters at the top note type level not the sub type.<br/>" +
         "note_type can be presented multiples times in the URL to filter by multiple note types.")
     @GetMapping("/events")
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','CASE_NOTE_EVENTS')")
+    @PreAuthorize("hasRole('CASE_NOTE_EVENTS')")
     public List<CaseNoteEvent> getCaseNotesEvents(
         @RequestParam("type") @NotEmpty @Parameter(description = "a list of types and optionally subtypes (joined with +) to search.", example = "ACP+ASSESSMENT", required = true) final List<String> noteTypes,
         @RequestParam("createdDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @Parameter(description = "Only case notes occurring on or after this date and time (ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS) will be considered.") final LocalDateTime createdDate,
@@ -171,7 +170,7 @@ public class CaseNoteResource {
     @GetMapping("/summary")
     @SlowReportQuery
     // NEEDS new role
-    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_CASE_NOTES"})
+    @PreAuthorize("hasRole('VIEW_CASE_NOTES')")
     public List<CaseNoteUsageByBookingId> getCaseNoteSummaryByBookingId(
         @RequestParam("bookingId") @NotEmpty @Parameter(description = "a list of booking ids to search.", required = true) final List<Long> bookingIds,
         @RequestParam(value = "numMonths", required = false, defaultValue = "1") @Parameter(description = "Number of month to look forward (if fromDate only defined), or back (if toDate only defined). Default is 1 month") final Integer numMonths,
