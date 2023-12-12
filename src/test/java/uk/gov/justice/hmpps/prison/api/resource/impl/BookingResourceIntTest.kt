@@ -126,6 +126,29 @@ class BookingResourceIntTest : ResourceTest() {
       )
       assertThatJsonFileAndStatus(response, 200, "booking_offender_-1.json")
     }
+
+    @Test
+    fun `returns success when client has override role ROLE_GLOBAL_SEARCH for inactive booking `() {
+      webTestClient.get().uri("/api/bookings/-13")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns 404 if prison booking is inactive and does not have role ROLE_INACTIVE_BOOKINGS`() {
+      webTestClient.get().uri("/api/bookings/-13")
+        .headers(setAuthorisation(listOf())).exchange()
+        .expectStatus().isNotFound
+    }
+
+    @Test
+    fun `returns success if prison booking is inactive and has role ROLE_INACTIVE_BOOKINGS`() {
+      webTestClient.get().uri("/api/bookings/-13")
+        .headers(setAuthorisation(listOf("ROLE_INACTIVE_BOOKINGS"))).exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("bookingNo").isEqualTo("A00123")
+    }
   }
 
   @Nested
