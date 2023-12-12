@@ -10,6 +10,9 @@ import uk.gov.justice.hmpps.prison.api.model.RequestToTransferIn
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOut
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOutToCourt
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOutToTemporaryAbsence
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIndividualSchedule
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTeamAssignment
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Team
 import uk.gov.justice.hmpps.prison.service.PrisonerTransferService
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.BookingIntoPrisonService
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.ReleasePrisonerService
@@ -44,6 +47,8 @@ interface BookingDsl {
     releaseTime: LocalDateTime = LocalDateTime.now().minusHours(1),
     movementReasonCode: String = "C3",
     commentText: String = "Day release",
+    toLocation: String = "18248",
+    shouldReleaseBed: Boolean = false,
   )
 
   @MovementActionDslMarker
@@ -98,6 +103,18 @@ interface BookingDsl {
     courtId: String = "COURT1",
     dsl: CourtCaseDsl.() -> Unit = {},
   )
+
+  @TemporaryAbsenceScheduleDslMarker
+  fun scheduleTemporaryAbsence(
+    startTime: LocalDateTime = LocalDateTime.now().plusDays(1),
+    toAddressId: Long = -22,
+  ): OffenderIndividualSchedule
+
+  @TeamAssignmentDslMarker
+  fun teamAssignment(
+    teamToAssign: Team,
+    functionTypeCode: String = "AUTO_TRN",
+  ): OffenderTeamAssignment
 }
 
 @Component
@@ -215,15 +232,17 @@ class BookingBuilderRepository(
     releaseTime: LocalDateTime,
     movementReasonCode: String,
     commentText: String,
+    toLocation: String,
+    shouldReleaseBed: Boolean,
   ) {
     prisonerTransferService.transferOutPrisonerToTemporaryAbsence(
       offenderNo,
       RequestToTransferOutToTemporaryAbsence.builder()
-        .toCity("18248")
+        .toCity(toLocation)
         .movementTime(releaseTime)
         .transferReasonCode(movementReasonCode)
         .commentText(commentText)
-        .shouldReleaseBed(false)
+        .shouldReleaseBed(shouldReleaseBed)
         .scheduleEventId(null)
         .build(),
     )
@@ -288,14 +307,25 @@ class BookingBuilderFactory(
   private val repository: BookingBuilderRepository,
   private val visitBalanceBuilderFactory: VisitBalanceBuilderFactory,
   private val courtCaseBuilderFactory: CourtCaseBuilderFactory,
+  private val teamAssignmentBuilderFactory: TeamAssignmentBuilderFactory,
+  private val temporaryAbsenceScheduleBuilderFactory: TemporaryAbsenceScheduleBuilderFactory,
 ) {
-  fun builder() = BookingBuilder(repository, visitBalanceBuilderFactory, courtCaseBuilderFactory)
+  fun builder() =
+    BookingBuilder(
+      repository,
+      visitBalanceBuilderFactory,
+      courtCaseBuilderFactory,
+      teamAssignmentBuilderFactory,
+      temporaryAbsenceScheduleBuilderFactory,
+    )
 }
 
 class BookingBuilder(
   private val repository: BookingBuilderRepository,
   private val visitBalanceBuilderFactory: VisitBalanceBuilderFactory,
   private val courtCaseBuilderFactory: CourtCaseBuilderFactory,
+  private val teamAssignmentBuilderFactory: TeamAssignmentBuilderFactory,
+  private val temporaryAbsenceScheduleBuilderFactory: TemporaryAbsenceScheduleBuilderFactory,
 ) : BookingDsl {
 
   private lateinit var offenderBookingId: OffenderBookingId
@@ -349,12 +379,20 @@ class BookingBuilder(
     )
   }
 
-  override fun temporaryAbsenceRelease(releaseTime: LocalDateTime, movementReasonCode: String, commentText: String) {
+  override fun temporaryAbsenceRelease(
+    releaseTime: LocalDateTime,
+    movementReasonCode: String,
+    commentText: String,
+    toLocation: String,
+    shouldReleaseBed: Boolean,
+  ) {
     repository.temporaryAbsenceRelease(
       offenderNo = offenderBookingId.offenderNo,
       releaseTime = releaseTime,
       movementReasonCode = movementReasonCode,
       commentText = commentText,
+      toLocation = toLocation,
+      shouldReleaseBed = shouldReleaseBed,
     )
   }
 
@@ -456,6 +494,20 @@ class BookingBuilder(
       }
     }
   }
+
+  override fun scheduleTemporaryAbsence(startTime: LocalDateTime, toAddressId: Long) =
+    temporaryAbsenceScheduleBuilderFactory.builder().build(
+      bookingId = offenderBookingId.bookingId,
+      startTime = startTime,
+      toAddressId = toAddressId,
+    )
+
+  override fun teamAssignment(teamToAssign: Team, functionTypeCode: String) =
+    teamAssignmentBuilderFactory.builder().build(
+      offenderBookingId = offenderBookingId,
+      teamToAssign = teamToAssign,
+      functionTypeCode = functionTypeCode,
+    )
 }
 
 data class OffenderBookingId(val offenderNo: String, val bookingId: Long)
