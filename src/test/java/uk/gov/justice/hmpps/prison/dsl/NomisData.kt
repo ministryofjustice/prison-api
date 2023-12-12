@@ -4,11 +4,16 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.User
 import org.springframework.stereotype.Component
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Team
 import uk.gov.justice.hmpps.prison.util.builders.randomName
 import java.time.LocalDate
+import java.util.UUID
 
 @Component
-class NomisDataBuilder(private val offenderBuilderFactory: OffenderBuilderFactory) {
+class NomisDataBuilder(
+  private val offenderBuilderFactory: OffenderBuilderFactory,
+  private val teamBuilderFactory: TeamBuilderFactory,
+) {
   fun build(dsl: NomisData.() -> Unit) {
     SecurityContextHolder.setContext(
       SecurityContextHolder.createEmptyContext().apply {
@@ -20,7 +25,7 @@ class NomisDataBuilder(private val offenderBuilderFactory: OffenderBuilderFactor
         )
       },
     )
-    NomisData(offenderBuilderFactory).apply(dsl)
+    NomisData(offenderBuilderFactory, teamBuilderFactory).apply(dsl)
   }
 
   fun deletePrisoner(offenderNo: String) {
@@ -30,6 +35,7 @@ class NomisDataBuilder(private val offenderBuilderFactory: OffenderBuilderFactor
 
 class NomisData(
   private val offenderBuilderFactory: OffenderBuilderFactory,
+  private val teamBuilderFactory: TeamBuilderFactory,
 ) : NomisDataDsl {
 
   @OffenderDslMarker
@@ -62,6 +68,29 @@ class NomisData(
             builder.apply(dsl)
           }
       }
+
+  @TeamDslMarker
+  override fun team(
+    code: String,
+    description: String,
+    areaCode: String,
+    categoryCode: String,
+    agencyId: String,
+    dsl: TeamDsl.() -> Unit,
+  ): Team =
+    teamBuilderFactory.builder()
+      .let { builder ->
+        builder.build(
+          code = code,
+          description = description,
+          areaCode = areaCode,
+          categoryCode = categoryCode,
+          agencyId = agencyId,
+        )
+          .also {
+            builder.apply(dsl)
+          }
+      }
 }
 
 @NomisDataDslMarker
@@ -79,6 +108,16 @@ interface NomisDataDsl {
     ethnicity: String? = null,
     dsl: OffenderDsl.() -> Unit = {},
   ): OffenderId
+
+  @TeamDslMarker
+  fun team(
+    code: String = UUID.randomUUID().toString().takeLast(20),
+    description: String = UUID.randomUUID().toString().takeLast(40),
+    areaCode: String = "LON",
+    categoryCode: String = "MANAGE",
+    agencyId: String = "MDI",
+    dsl: TeamDsl.() -> Unit = {},
+  ): Team
 }
 
 @DslMarker
