@@ -173,11 +173,50 @@ class OffenderResourceIntTest : ResourceTest() {
   inner class OffenderDetails {
 
     @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.get().uri("/api/offenders/$OFFENDER_NUMBER")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `returns 403 when client does not have any roles`() {
+      webTestClient.get().uri("/api/offenders/$OFFENDER_NUMBER")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 403 if has authorised ROLE_SYSTEM_USER`() {
+      webTestClient.get().uri("/api/offenders/$OFFENDER_NUMBER")
+        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns success if has authorised ROLE_GLOBAL_SEARCH`() {
+      webTestClient.get().uri("/api/offenders/$OFFENDER_NUMBER")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns success if has authorised ROLE_VIEW_PRISONER_DATA`() {
+      webTestClient.get().uri("/api/offenders/$OFFENDER_NUMBER")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
     fun testGetFullOffenderInformation() {
       val token = authTokenHelper.getToken(VIEW_PRISONER_DATA)
       val httpEntity = createHttpEntity(token, null)
       val response = testRestTemplate.exchange(
-        "/api/offenders/{nomsId}",
+        "/api/offenders/{offenderNo}",
         GET,
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
@@ -191,7 +230,7 @@ class OffenderResourceIntTest : ResourceTest() {
       val token = authTokenHelper.getToken(VIEW_PRISONER_DATA)
       val httpEntityV1 = createHttpEntity(token, null, mapOf("version" to "1.0"))
       val responseV1 = testRestTemplate.exchange(
-        "/api/offenders/{nomsId}",
+        "/api/offenders/{offenderNo}",
         GET,
         httpEntityV1,
         object : ParameterizedTypeReference<String?>() {},
@@ -200,7 +239,7 @@ class OffenderResourceIntTest : ResourceTest() {
       assertThatJsonFileAndStatus(responseV1, 200, "offender_detail_v1.1.json")
       val httpEntityV1_1 = createHttpEntity(token, null, mapOf("version" to "1.1_beta"))
       val responseV1_1 = testRestTemplate.exchange(
-        "/api/offenders/{nomsId}",
+        "/api/offenders/{offenderNo}",
         GET,
         httpEntityV1_1,
         object : ParameterizedTypeReference<String>() {},
@@ -214,7 +253,7 @@ class OffenderResourceIntTest : ResourceTest() {
       val token = authTokenHelper.getToken(VIEW_PRISONER_DATA)
       val httpEntity = createHttpEntity(token, null)
       val response = testRestTemplate.exchange(
-        "/api/offenders/{nomsId}",
+        "/api/offenders/{offenderNo}",
         GET,
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
@@ -228,7 +267,7 @@ class OffenderResourceIntTest : ResourceTest() {
       val token = authTokenHelper.getToken(VIEW_PRISONER_DATA)
       val httpEntity = createHttpEntity(token, null)
       val response = testRestTemplate.exchange(
-        "/api/offenders/{nomsId}",
+        "/api/offenders/{offenderNo}",
         GET,
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
@@ -242,7 +281,7 @@ class OffenderResourceIntTest : ResourceTest() {
       val token = authTokenHelper.getToken(VIEW_PRISONER_DATA)
       val httpEntity = createHttpEntity(token, null)
       val response = testRestTemplate.exchange(
-        "/api/offenders/{nomsId}",
+        "/api/offenders/{offenderNo}",
         GET,
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
@@ -256,7 +295,7 @@ class OffenderResourceIntTest : ResourceTest() {
       val token = authTokenHelper.getToken(VIEW_PRISONER_DATA)
       val httpEntity = createHttpEntity(token, null)
       val response = testRestTemplate.exchange(
-        "/api/offenders/{nomsId}",
+        "/api/offenders/{offenderNo}",
         GET,
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
@@ -270,7 +309,7 @@ class OffenderResourceIntTest : ResourceTest() {
       val token = authTokenHelper.getToken(VIEW_PRISONER_DATA)
       val httpEntity = createHttpEntity(token, null)
       val response = testRestTemplate.exchange(
-        "/api/offenders/{nomsId}",
+        "/api/offenders/{offenderNo}",
         GET,
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
@@ -519,7 +558,7 @@ class OffenderResourceIntTest : ResourceTest() {
     assertThat(noMovement.directionCode).isEqualTo("OUT")
     assertThat(noMovement.movementReason).isEqualTo("Final Discharge To Hospital-Psychiatric")
     val response = testRestTemplate.exchange(
-      "/api/offenders/{nomsId}",
+      "/api/offenders/{offenderNo}",
       GET,
       createHttpEntity(token, null),
       object : ParameterizedTypeReference<String?>() {},
@@ -528,11 +567,10 @@ class OffenderResourceIntTest : ResourceTest() {
     assertThatOKResponseContainsJson(
       response,
       """
-              {
-                  "locationDescription": "Outside - released from SHREWSBURY",
-                  "latestLocationId": "SYI"
-              }
-            
+        {
+          "locationDescription": "Outside - released from SHREWSBURY",
+          "latestLocationId": "SYI"
+        }
       """.trimIndent(),
     )
     val caseNotes: ResponseEntity<RestResponsePage<CaseNote>> = testRestTemplate.exchange<RestResponsePage<CaseNote>>(

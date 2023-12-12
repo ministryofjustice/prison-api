@@ -1160,7 +1160,6 @@ public class BookingService {
         return AGENCY_LOCATION_ID_KEY + ":eq:'" + agencyId + "'";
     }
 
-    @VerifyOffenderAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
     public InmateDetail getOffender(final String offenderNo) {
         return  offenderRepository.findOffenderByNomsId(offenderNo)
                 .map(offenderTransformer::transform)
