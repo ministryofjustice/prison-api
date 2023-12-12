@@ -3,7 +3,9 @@ package uk.gov.justice.hmpps.prison.dsl
 import org.springframework.stereotype.Component
 import uk.gov.justice.hmpps.prison.api.model.RequestToCreate
 import uk.gov.justice.hmpps.prison.repository.OffenderDeletionRepository
+import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.PrisonerCreationService
+import uk.gov.justice.hmpps.prison.util.builders.randomName
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -27,6 +29,13 @@ interface OffenderDsl {
     youthOffender: Boolean = false,
     dsl: BookingDsl.() -> Unit = {},
   ): OffenderBookingId
+
+  @AliasDslMarker
+  fun alias(
+    lastName: String = "ALIAS",
+    firstName: String = randomName(),
+    birthDate: LocalDate = LocalDate.of(1990, 8, 20),
+  ): AliasId
 }
 
 @Component
@@ -63,18 +72,26 @@ class OffenderBuilderRepository(
     }
 
   fun deletePrisoner(offenderNo: String) {
-    offenderDeletionRepository.deleteAllOffenderDataIncludingBaseRecord(offenderNo)
+    kotlin.runCatching {
+      offenderDeletionRepository.deleteAllOffenderDataIncludingBaseRecord(offenderNo)
+    }.onFailure {
+      when (it) {
+        is EntityNotFoundException -> println("Ignoring delete of a prisoner that does not exist")
+        else -> throw it
+      }
+    }
   }
 }
 
 @Component
 class OffenderBuilderFactory(
   private val bookingBuilderFactory: BookingBuilderFactory,
+  private val aliasBuilderFactory: AliasBuilderFactory,
   private val repository: OffenderBuilderRepository,
 ) {
 
   fun builder(): OffenderBuilder {
-    return OffenderBuilder(repository, bookingBuilderFactory)
+    return OffenderBuilder(repository, bookingBuilderFactory, aliasBuilderFactory)
   }
 
   fun deletePrisoner(offenderNo: String) {
@@ -85,6 +102,7 @@ class OffenderBuilderFactory(
 class OffenderBuilder(
   private val repository: OffenderBuilderRepository,
   private val bookingBuilderFactory: BookingBuilderFactory,
+  private val aliasBuilderFactory: AliasBuilderFactory,
 ) : OffenderDsl {
   private lateinit var offenderId: OffenderId
 
@@ -145,6 +163,13 @@ class OffenderBuilder(
           builder.apply(dsl)
         }
     }
+
+  override fun alias(lastName: String, firstName: String, birthDate: LocalDate) = aliasBuilderFactory.builder().build(
+    offenderId = offenderId,
+    lastName = lastName,
+    firstName = firstName,
+    birthDate = birthDate,
+  )
 }
 
 data class OffenderId(val offenderNo: String)
