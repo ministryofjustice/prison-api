@@ -108,26 +108,6 @@ enum class InmateRepositorySql(val sql: String) {
     """,
   ),
 
-  FIND_BASIC_INMATE_DETAIL_BY_BOOKING_IDS(
-    """
-        SELECT OB.OFFENDER_BOOK_ID  as BOOKING_ID,
-        OB.BOOKING_NO,
-        OB.AGY_LOC_ID        as AGENCY_ID,
-        OB.LIVING_UNIT_ID    as ASSIGNED_LIVING_UNIT_ID,
-        I.DESCRIPTION        as ASSIGNED_LIVING_UNIT_DESC,
-        O.OFFENDER_ID_DISPLAY as OFFENDER_NO,
-        O.FIRST_NAME,
-        CONCAT(O.middle_name, CASE WHEN middle_name_2 IS NOT NULL THEN concat(' ', O.middle_name_2) ELSE '' END) MIDDLE_NAME,
-        O.LAST_NAME,
-        O.BIRTH_DATE as DATE_OF_BIRTH
-        FROM OFFENDER_BOOKINGS OB
-        INNER JOIN OFFENDERS O ON OB.OFFENDER_ID = O.OFFENDER_ID
-        LEFT JOIN AGENCY_INTERNAL_LOCATIONS I ON OB.LIVING_UNIT_ID = I.INTERNAL_LOCATION_ID
-                WHERE OB.OFFENDER_BOOK_ID IN (:bookingIds)
-        AND OB.AGY_LOC_ID = :caseloadId
-    """,
-  ),
-
   FIND_ASSIGNED_LIVING_UNIT(
     """
         SELECT B.AGY_LOC_ID,
