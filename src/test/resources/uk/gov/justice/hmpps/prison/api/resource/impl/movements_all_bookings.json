@@ -13,7 +13,8 @@
     "directionCode": "OUT",
     "movementDate": "2018-05-01",
     "movementTime": "13:00:00",
-    "movementReason": "Abscond"
+    "movementReason": "Abscond",
+    "movementReasonCode": "UAL"
   },
   {
     "offenderNo": "A1179MT",
@@ -29,6 +30,7 @@
     "directionCode": "IN",
     "movementDate": "2019-05-01",
     "movementTime": "13:00:00",
-    "movementReason": "Recapture (Escapee)"
+    "movementReason": "Recapture (Escapee)",
+    "movementReasonCode": "RECA"
   }
 ]

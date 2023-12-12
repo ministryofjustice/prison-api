@@ -37,6 +37,7 @@ enum class MovementsRepositorySql(val sql: String) {
         AL2.DESCRIPTION               AS TO_AGENCY_DESCRIPTION,
         RC1.DESCRIPTION               AS MOVEMENT_TYPE_DESCRIPTION,
         RC2.DESCRIPTION               AS MOVEMENT_REASON,
+        RC2.CODE                      AS MOVEMENT_REASON_CODE,
         RC3.DESCRIPTION               AS FROM_CITY,
         RC4.DESCRIPTION               AS TO_CITY
         FROM OFFENDER_EXTERNAL_MOVEMENTS OEM
@@ -73,6 +74,7 @@ enum class MovementsRepositorySql(val sql: String) {
         AL2.DESCRIPTION               AS TO_AGENCY_DESCRIPTION,
         RC1.DESCRIPTION               AS MOVEMENT_TYPE_DESCRIPTION,
         RC2.DESCRIPTION               AS MOVEMENT_REASON,
+        RC2.CODE                      AS MOVEMENT_REASON_CODE,
         RC3.DESCRIPTION               AS FROM_CITY,
         RC4.DESCRIPTION               AS TO_CITY
         FROM OFFENDER_EXTERNAL_MOVEMENTS OEM
