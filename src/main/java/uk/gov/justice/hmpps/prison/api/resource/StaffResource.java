@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +24,7 @@ import uk.gov.justice.hmpps.prison.api.model.StaffRole;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
+import uk.gov.justice.hmpps.prison.service.StaffJobType;
 import uk.gov.justice.hmpps.prison.service.StaffService;
 import uk.gov.justice.hmpps.prison.service.support.GetStaffRoleRequest;
 
@@ -106,5 +108,25 @@ public class StaffResource {
     public List<StaffRole>  getAllRolesForAgency(@PathVariable("staffId") @Parameter(description = "The staff id of the staff member.", required = true) final Long staffId, @PathVariable("agencyId") @Parameter(description = "Agency Id.", required = true) final String agencyId) {
         return staffService.getAllRolesForAgency(staffId, agencyId);
     }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Check if staff member has a role", description = "Check if staff member has a role, either KW or POM")
+    @GetMapping("/{staffId}/{agencyId}/roles/{roleType}")
+    public boolean hasStaffRole( @PathVariable("staffId")
+                                 @Parameter(description = "The staff id of the staff member.", required = true, example = "1111111")
+                                 @NotNull final Long staffId,
+                                 @PathVariable("agencyId")
+                                 @Parameter(description = "Agency Id.", required = true, example = "MDI")
+                                 @NotNull final String agencyId,
+                                 @PathVariable("roleType")
+                                 @Parameter(description = "Type of role", required = true, example = "KW")
+                                 @NotNull final StaffJobType roleType
+    ) {
+        return staffService.hasStaffRole(staffId, agencyId, roleType);
+    }
+
 
 }

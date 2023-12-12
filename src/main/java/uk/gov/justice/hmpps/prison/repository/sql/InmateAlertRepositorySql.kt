@@ -86,16 +86,6 @@ enum class InmateAlertRepositorySql(val sql: String) {
     """,
   ),
 
-  GET_ALERT_CANDIDATES(
-    """
-        select distinct o.offender_id_display as offender_no
-        from OFFENDER_ALERTS icp
-        join OFFENDER_BOOKINGS ob on ob.offender_book_id = icp.offender_book_id
-        join OFFENDERS o on o.offender_id = ob.offender_id
-        where icp.modify_datetime > :cutoffTimestamp
-    """,
-  ),
-
   CREATE_ALERT(
     """
         INSERT INTO OFFENDER_ALERTS (
