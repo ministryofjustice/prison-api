@@ -32,9 +32,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection.OUT
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Team
 import uk.gov.justice.hmpps.prison.service.DataLoaderTransaction
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.WorkflowTaskService
-import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
-import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
-import uk.gov.justice.hmpps.prison.util.builders.OffenderTeamAssignmentBuilder
 import uk.gov.justice.hmpps.prison.util.builders.createScheduledTemporaryAbsence
 import uk.gov.justice.hmpps.prison.util.builders.getBedAssignments
 import uk.gov.justice.hmpps.prison.util.builders.getCaseNotes
@@ -770,7 +767,11 @@ class OffendersResourceTransferImpTest : ResourceTest() {
                 BedAssignmentHistory::getAssignmentEndDate,
               )
               .containsExactly(
-                tuple("ADM", bookingInTime.toLocalDate(), transferOutDateTime.toLocalDate()), // admission to original prison
+                tuple(
+                  "ADM",
+                  bookingInTime.toLocalDate(),
+                  transferOutDateTime.toLocalDate(),
+                ), // admission to original prison
                 tuple(
                   "19",
                   transferOutDateTime.toLocalDate(),
@@ -1045,28 +1046,18 @@ class OffendersResourceTransferImpTest : ResourceTest() {
       private lateinit var offenderNo: String
       private var bookingId: Long = 0
       private val bookingInTime = LocalDateTime.now().minusDays(1)
-      private lateinit var transferOutDateTime: LocalDateTime
+      private var transferOutDateTime: LocalDateTime = LocalDateTime.now().minusHours(1)
 
       @BeforeEach
       internal fun setUp() {
-        dataLoaderTransaction.load(
-          OffenderBuilder().withBooking(
-            OffenderBookingBuilder(
-              prisonId = "LEI",
-              bookingInTime = bookingInTime,
-              cellLocation = "LEI-RECP",
-            )
-              .withTeamAssignment(OffenderTeamAssignmentBuilder(team)),
-          ),
-          testDataContext,
-        )
-          .also {
-            offenderNo = it.offenderNo
-            bookingId = it.bookingId
-          }
-
-        transferOutDateTime =
-          testDataContext.transferOutToCourt(offenderNo, toLocation = "COURT1", shouldReleaseBed = false)
+        builder.build {
+          offenderNo = offender {
+            bookingId = booking(prisonId = "LEI", bookingInTime = bookingInTime, cellLocation = "LEI-RECP") {
+              teamAssignment(teamToAssign = team)
+              sendToCourt(toLocation = "COURT1", shouldReleaseBed = false, releaseTime = transferOutDateTime)
+            }.bookingId
+          }.offenderNo
+        }
       }
 
       @Nested
@@ -1149,14 +1140,16 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
       @BeforeEach
       internal fun setUp() {
-        OffenderBuilder().withBooking(
-          OffenderBookingBuilder(
-            prisonId = "LEI",
-            bookingInTime = LocalDateTime.now().minusDays(10),
-            cellLocation = "LEI-RECP",
-          ).withIEPLevel("ENH").withInitialVoBalances(2, 8),
-        ).save(testDataContext).also {
-          offenderNo = it.offenderNo
+        builder.build {
+          offenderNo = offender {
+            booking(
+              prisonId = "LEI",
+              bookingInTime = LocalDateTime.now().minusDays(10),
+              cellLocation = "LEI-RECP",
+            ) {
+              visitBalance(voBalance = 2, pvoBalance = 8)
+            }
+          }.offenderNo
         }
       }
 
@@ -1284,22 +1277,17 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
       @BeforeEach
       internal fun setUp() {
-        dataLoaderTransaction.load(
-          OffenderBuilder().withBooking(
-            OffenderBookingBuilder(
+        builder.build {
+          offenderNo = offender {
+            bookingId = booking(
               prisonId = "LEI",
               bookingInTime = bookingInTime,
               cellLocation = "LEI-RECP",
-            )
-              .withIEPLevel("ENH")
-              .withInitialVoBalances(2, 8),
-          ),
-          testDataContext,
-        )
-          .also {
-            offenderNo = it.offenderNo
-            bookingId = it.bookingId
-          }
+            ) {
+              visitBalance(voBalance = 2, pvoBalance = 8)
+            }.bookingId
+          }.offenderNo
+        }
       }
 
       @Nested
@@ -1813,32 +1801,22 @@ class OffendersResourceTransferImpTest : ResourceTest() {
       private lateinit var offenderNo: String
       private var bookingId: Long = 0
       private val bookingInTime = LocalDateTime.now().minusDays(1)
-      private lateinit var transferOutDateTime: LocalDateTime
+      private val transferOutDateTime: LocalDateTime = LocalDateTime.now().minusHours(1)
 
       @BeforeEach
       internal fun setUp() {
-        dataLoaderTransaction.load(
-          OffenderBuilder().withBooking(
-            OffenderBookingBuilder(
+        builder.build {
+          offenderNo = offender {
+            bookingId = booking(
               prisonId = "LEI",
               bookingInTime = bookingInTime,
               cellLocation = "LEI-RECP",
-            )
-              .withTeamAssignment(OffenderTeamAssignmentBuilder(team)),
-          ),
-          testDataContext,
-        )
-          .also {
-            offenderNo = it.offenderNo
-            bookingId = it.bookingId
-          }
-
-        transferOutDateTime =
-          testDataContext.transferOutToTemporaryAbsence(
-            offenderNo,
-            toLocation = "18248",
-            shouldReleaseBed = false,
-          )
+            ) {
+              teamAssignment(teamToAssign = team)
+              temporaryAbsenceRelease(toLocation = "18248", shouldReleaseBed = false, releaseTime = transferOutDateTime)
+            }.bookingId
+          }.offenderNo
+        }
       }
 
       @Nested
@@ -1897,14 +1875,16 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
       @BeforeEach
       internal fun setUp() {
-        OffenderBuilder().withBooking(
-          OffenderBookingBuilder(
-            prisonId = "LEI",
-            bookingInTime = LocalDateTime.now().minusDays(10),
-            cellLocation = "LEI-RECP",
-          ).withIEPLevel("ENH").withInitialVoBalances(2, 8),
-        ).save(testDataContext).also {
-          offenderNo = it.offenderNo
+        builder.build {
+          offenderNo = offender {
+            booking(
+              prisonId = "LEI",
+              bookingInTime = LocalDateTime.now().minusDays(10),
+              cellLocation = "LEI-RECP",
+            ) {
+              visitBalance(voBalance = 2, pvoBalance = 8)
+            }
+          }.offenderNo
         }
       }
 
