@@ -23,6 +23,7 @@ import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.reactive.server.StatusAssertions
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.api.model.CaseNote
+import uk.gov.justice.hmpps.prison.dsl.NomisDataBuilder
 import uk.gov.justice.hmpps.prison.exception.CustomErrorCodes
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
@@ -33,10 +34,7 @@ import uk.gov.justice.hmpps.prison.service.DataLoaderTransaction
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.WorkflowTaskService
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
-import uk.gov.justice.hmpps.prison.util.builders.OffenderCourtCaseBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderTeamAssignmentBuilder
-import uk.gov.justice.hmpps.prison.util.builders.TeamBuilder
-import uk.gov.justice.hmpps.prison.util.builders.createCourtHearing
 import uk.gov.justice.hmpps.prison.util.builders.createScheduledTemporaryAbsence
 import uk.gov.justice.hmpps.prison.util.builders.getBedAssignments
 import uk.gov.justice.hmpps.prison.util.builders.getCaseNotes
@@ -44,7 +42,6 @@ import uk.gov.justice.hmpps.prison.util.builders.getCourtHearings
 import uk.gov.justice.hmpps.prison.util.builders.getMovements
 import uk.gov.justice.hmpps.prison.util.builders.getScheduledMovements
 import uk.gov.justice.hmpps.prison.util.builders.release
-import uk.gov.justice.hmpps.prison.util.builders.transferOut
 import uk.gov.justice.hmpps.prison.util.builders.transferOutToCourt
 import uk.gov.justice.hmpps.prison.util.builders.transferOutToTemporaryAbsence
 import java.time.LocalDate
@@ -59,11 +56,18 @@ class OffendersResourceTransferImpTest : ResourceTest() {
   @Autowired
   private lateinit var dataLoaderTransaction: DataLoaderTransaction
 
+  @Autowired
+  private lateinit var builder: NomisDataBuilder
+
   @MockBean
   private lateinit var workflowTaskService: WorkflowTaskService
 
   private val team: Team by lazy {
-    dataLoaderTransaction.load(TeamBuilder(), testDataContext)
+    lateinit var team: Team
+    builder.build {
+      team = team()
+    }
+    team
   }
 
   @Nested
@@ -78,17 +82,14 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
       @BeforeEach
       internal fun setUp() {
-        OffenderBuilder().withBooking(
-          OffenderBookingBuilder(
-            prisonId = "LEI",
-            bookingInTime = bookingInTime,
-          ).withIEPLevel("ENH").withInitialVoBalances(2, 8),
-        ).save(testDataContext).also {
-          offenderNo = it.offenderNo
-          bookingId = it.bookingId
+        builder.build {
+          offenderNo = offender {
+            bookingId = booking(prisonId = "LEI", bookingInTime = bookingInTime) {
+              visitBalance(voBalance = 2, pvoBalance = 8)
+              transferOut(prisonId = "MDI")
+            }.bookingId
+          }.offenderNo
         }
-
-        testDataContext.transferOut(offenderNo, "MDI")
       }
 
       @Test
@@ -287,134 +288,145 @@ class OffendersResourceTransferImpTest : ResourceTest() {
     @Nested
     @DisplayName("Failed transfer in")
     inner class Failed {
-      private lateinit var offenderNo: String
+      @Nested
+      inner class WhenInTransit {
+        private lateinit var offenderNo: String
 
-      @BeforeEach
-      internal fun setUp() {
-        offenderNo =
-          OffenderBuilder().withBooking(
-            OffenderBookingBuilder(
-              prisonId = "LEI",
-              bookingInTime = LocalDateTime.now().minusDays(1),
-            ),
-          ).save(testDataContext).offenderNo
-      }
+        @BeforeEach
+        internal fun setUp() {
+          builder.build {
+            offenderNo = offender {
+              booking(prisonId = "LEI", bookingInTime = LocalDateTime.now().minusDays(1)) {
+                transferOut(prisonId = "MDI")
+              }
+            }.offenderNo
+          }
+        }
 
-      @Test
-      internal fun `cannot transfer a prisoner in to a full cell`() {
-        testDataContext.transferOut(offenderNo, "MDI")
-
-        webTestClient.put()
-          .uri("/api/offenders/{nomsId}/transfer-in", offenderNo)
-          .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
-          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-          .accept(MediaType.APPLICATION_JSON)
-          .body(
-            BodyInserters.fromValue(
-              """
+        @Test
+        internal fun `cannot transfer a prisoner in to a full cell`() {
+          webTestClient.put()
+            .uri("/api/offenders/{nomsId}/transfer-in", offenderNo)
+            .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
+            .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+            .accept(MediaType.APPLICATION_JSON)
+            .body(
+              BodyInserters.fromValue(
+                """
           {
             "transferReasonCode":"NOTR",
             "commentText":"admitted",
             "cellLocation":"MDI-FULL",
             "receiveTime": "${
-              LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-              }"
+                LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                }"
             
           }
-              """.trimIndent(),
-            ),
-          )
-          .exchange()
-          .expectStatus().isEqualTo(409)
-          .expectBody()
-          .jsonPath("errorCode").isEqualTo(CustomErrorCodes.NO_CELL_CAPACITY)
-          .jsonPath("userMessage").isEqualTo("The cell MDI-FULL does not have any available capacity")
+                """.trimIndent(),
+              ),
+            )
+            .exchange()
+            .expectStatus().isEqualTo(409)
+            .expectBody()
+            .jsonPath("errorCode").isEqualTo(CustomErrorCodes.NO_CELL_CAPACITY)
+            .jsonPath("userMessage").isEqualTo("The cell MDI-FULL does not have any available capacity")
+        }
+
+        @Test
+        internal fun `cannot transfer with a time in the future`() {
+          webTestClient.put()
+            .uri("/api/offenders/{nomsId}/transfer-in", offenderNo)
+            .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
+            .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+            .accept(MediaType.APPLICATION_JSON)
+            .body(
+              BodyInserters.fromValue(
+                """
+          {
+            "transferReasonCode":"NOTR",
+            "commentText":"admitted",
+            "receiveTime": "${
+                LocalDateTime.now().plusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                }"
+            
+          }
+                """.trimIndent(),
+              ),
+            )
+            .exchange()
+            .expectStatus().isEqualTo(400)
+            .expectBody()
+            .jsonPath("userMessage").isEqualTo("Movement cannot be done in the future")
+        }
+
+        @Test
+        internal fun `cannot transfer with a time before transfer out time`() {
+          webTestClient.put()
+            .uri("/api/offenders/{nomsId}/transfer-in", offenderNo)
+            .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
+            .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+            .accept(MediaType.APPLICATION_JSON)
+            .body(
+              BodyInserters.fromValue(
+                """
+          {
+            "transferReasonCode":"NOTR",
+            "commentText":"admitted",
+            "receiveTime": "${
+                LocalDateTime.now().minusHours(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                }"
+            
+          }
+                """.trimIndent(),
+              ),
+            )
+            .exchange()
+            .expectStatus().isEqualTo(400)
+            .expectBody()
+            .jsonPath("userMessage").isEqualTo("Movement cannot be before the previous active movement")
+        }
       }
 
-      @Test
-      internal fun `cannot transfer in when not already in transit`() {
-        webTestClient.put()
-          .uri("/api/offenders/{nomsId}/transfer-in", offenderNo)
-          .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
-          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-          .accept(MediaType.APPLICATION_JSON)
-          .body(
-            BodyInserters.fromValue(
-              """
+      @Nested
+      inner class WhenNotInTransit {
+        private lateinit var offenderNo: String
+
+        @BeforeEach
+        internal fun setUp() {
+          builder.build {
+            offenderNo = offender {
+              booking(prisonId = "LEI", bookingInTime = LocalDateTime.now().minusDays(1))
+            }.offenderNo
+          }
+        }
+
+        @Test
+        internal fun `cannot transfer in when not already in transit`() {
+          webTestClient.put()
+            .uri("/api/offenders/{nomsId}/transfer-in", offenderNo)
+            .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
+            .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+            .accept(MediaType.APPLICATION_JSON)
+            .body(
+              BodyInserters.fromValue(
+                """
           {
             "transferReasonCode":"NOTR",
             "commentText":"admitted",
             "cellLocation":"MDI-RECP",
             "receiveTime": "${
-              LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-              }"
+                LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                }"
             
           }
-              """.trimIndent(),
-            ),
-          )
-          .exchange()
-          .expectStatus().isEqualTo(400)
-          .expectBody()
-          .jsonPath("userMessage").isEqualTo("Prisoner is not currently being transferred")
-      }
-
-      @Test
-      internal fun `cannot transfer with a time in the future`() {
-        testDataContext.transferOut(offenderNo, "MDI")
-
-        webTestClient.put()
-          .uri("/api/offenders/{nomsId}/transfer-in", offenderNo)
-          .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
-          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-          .accept(MediaType.APPLICATION_JSON)
-          .body(
-            BodyInserters.fromValue(
-              """
-          {
-            "transferReasonCode":"NOTR",
-            "commentText":"admitted",
-            "receiveTime": "${
-              LocalDateTime.now().plusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-              }"
-            
-          }
-              """.trimIndent(),
-            ),
-          )
-          .exchange()
-          .expectStatus().isEqualTo(400)
-          .expectBody()
-          .jsonPath("userMessage").isEqualTo("Movement cannot be done in the future")
-      }
-
-      @Test
-      internal fun `cannot transfer with a time before transfer out time`() {
-        testDataContext.transferOut(offenderNo, "MDI")
-
-        webTestClient.put()
-          .uri("/api/offenders/{nomsId}/transfer-in", offenderNo)
-          .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
-          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-          .accept(MediaType.APPLICATION_JSON)
-          .body(
-            BodyInserters.fromValue(
-              """
-          {
-            "transferReasonCode":"NOTR",
-            "commentText":"admitted",
-            "receiveTime": "${
-              LocalDateTime.now().minusHours(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-              }"
-            
-          }
-              """.trimIndent(),
-            ),
-          )
-          .exchange()
-          .expectStatus().isEqualTo(400)
-          .expectBody()
-          .jsonPath("userMessage").isEqualTo("Movement cannot be before the previous active movement")
+                """.trimIndent(),
+              ),
+            )
+            .exchange()
+            .expectStatus().isEqualTo(400)
+            .expectBody()
+            .jsonPath("userMessage").isEqualTo("Prisoner is not currently being transferred")
+        }
       }
     }
   }
@@ -429,36 +441,22 @@ class OffendersResourceTransferImpTest : ResourceTest() {
       private var bookingId: Long = 0
       private val bookingInTime = LocalDateTime.now().minusDays(1)
 
-      @BeforeEach
-      internal fun setUp() {
-        dataLoaderTransaction.load(
-          OffenderBuilder().withBooking(
-            OffenderBookingBuilder(
-              prisonId = "LEI",
-              bookingInTime = bookingInTime,
-              cellLocation = "LEI-RECP",
-            )
-              .withIEPLevel("ENH")
-              .withInitialVoBalances(2, 8)
-              .withCourtCases(OffenderCourtCaseBuilder()),
-          ),
-          testDataContext,
-        )
-          .also {
-            offenderNo = it.offenderNo
-            bookingId = it.bookingId
-          }
-      }
-
       @Nested
       @DisplayName("When bed is released")
       inner class BedReleased {
-        private lateinit var transferOutDateTime: LocalDateTime
+        private var transferOutDateTime: LocalDateTime = bookingInTime.plusHours(1)
 
         @BeforeEach
         internal fun setUp() {
-          transferOutDateTime =
-            testDataContext.transferOutToCourt(offenderNo, toLocation = "COURT1", shouldReleaseBed = true)
+          builder.build {
+            offenderNo = offender {
+              bookingId = booking(prisonId = "LEI", bookingInTime = bookingInTime, cellLocation = "LEI-RECP") {
+                visitBalance(voBalance = 2, pvoBalance = 8)
+                courtCase()
+                sendToCourt(toLocation = "COURT1", shouldReleaseBed = true, releaseTime = transferOutDateTime)
+              }.bookingId
+            }.offenderNo
+          }
         }
 
         @Nested
@@ -742,7 +740,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
                 BedAssignmentHistory::getAssignmentEndDate,
               )
               .containsExactly(
-                tuple("ADM", bookingInTime.toLocalDate(), LocalDate.now()),
+                tuple("ADM", bookingInTime.toLocalDate(), transferOutDateTime.toLocalDate()),
                 tuple("19", transferOutDateTime.toLocalDate(), null),
               )
 
@@ -772,7 +770,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
                 BedAssignmentHistory::getAssignmentEndDate,
               )
               .containsExactly(
-                tuple("ADM", bookingInTime.toLocalDate(), LocalDate.now()), // admission to original prison
+                tuple("ADM", bookingInTime.toLocalDate(), transferOutDateTime.toLocalDate()), // admission to original prison
                 tuple(
                   "19",
                   transferOutDateTime.toLocalDate(),
@@ -828,12 +826,19 @@ class OffendersResourceTransferImpTest : ResourceTest() {
       @Nested
       @DisplayName("When bed is not released")
       inner class BedNotReleased {
-        private lateinit var transferOutDateTime: LocalDateTime
+        private var transferOutDateTime: LocalDateTime = bookingInTime.plusHours(1)
 
         @BeforeEach
         internal fun setUp() {
-          transferOutDateTime =
-            testDataContext.transferOutToCourt(offenderNo, toLocation = "COURT1", shouldReleaseBed = false)
+          builder.build {
+            offenderNo = offender {
+              bookingId = booking(prisonId = "LEI", bookingInTime = bookingInTime, cellLocation = "LEI-RECP") {
+                visitBalance(voBalance = 2, pvoBalance = 8)
+                courtCase()
+                sendToCourt(toLocation = "COURT1", shouldReleaseBed = false, releaseTime = transferOutDateTime)
+              }.bookingId
+            }.offenderNo
+          }
         }
 
         @Nested
@@ -993,9 +998,17 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
         @BeforeEach
         internal fun setUp() {
-          courtHearingEventId = testDataContext.createCourtHearing(bookingId)
-          assertThat(testDataContext.getCourtHearings(bookingId)).extracting("eventStatus.code").containsExactly("SCH")
-          testDataContext.transferOutToCourt(offenderNo = offenderNo, toLocation = "COURT1", false, courtHearingEventId)
+          builder.build {
+            offenderNo = offender {
+              bookingId = booking(prisonId = "LEI", bookingInTime = bookingInTime, cellLocation = "LEI-RECP") {
+                visitBalance(voBalance = 2, pvoBalance = 8)
+                courtCase(courtId = "COURT1") {
+                  courtHearingEventId = hearing().id
+                }
+                sendToCourt(toLocation = "COURT1", shouldReleaseBed = false, courtEventId = courtHearingEventId)
+              }.bookingId
+            }.offenderNo
+          }
         }
 
         @Test
