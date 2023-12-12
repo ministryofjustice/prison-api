@@ -67,6 +67,53 @@ class BookingResourceIntTest : ResourceTest() {
   @DisplayName("GET /api/bookings/{bookingId}")
   inner class GetBooking {
     @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("/api/bookings/-2")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return 403 if does not have override role`() {
+      webTestClient.get().uri("/api/bookings/-2")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should return 403 when client has role ROLE_SYSTEM_USER `() {
+      webTestClient.get().uri("/api/bookings/-2")
+        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_GLOBAL_SEARCH `() {
+      webTestClient.get().uri("/api/bookings/-2")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_VIEW_PRISONER_DATA `() {
+      webTestClient.get().uri("/api/bookings/-2")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns 404 if prison is not in user caseload`() {
+      webTestClient.get().uri("/api/bookings/-2")
+        .headers(setAuthorisation("WAI_USER", listOf())).exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -2 not found.")
+    }
+
+    @Test
     fun testGetBooking() {
       val token = authTokenHelper.getToken(NORMAL_USER)
       val httpEntity = createHttpEntity(token, null)
@@ -697,10 +744,27 @@ class BookingResourceIntTest : ResourceTest() {
         .exchange()
         .expectStatus().isOk
         .expectBody()
+        .jsonPath("firstName").isEqualTo("ARTHUR")
+        .jsonPath("lastName").isEqualTo("ANDERSON")
         .jsonPath("profileInformation").isNotEmpty
         .jsonPath("physicalAttributes").isNotEmpty
         .jsonPath("physicalCharacteristics").isNotEmpty
         .jsonPath("physicalMarks").isNotEmpty
+    }
+
+    @Test
+    fun `should return success when has ROLE_GLOBAL_SEARCH override role - basic details`() {
+      webTestClient.get().uri("/api/bookings/offenderNo/{offenderNo}", "A1234AA")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("firstName").isEqualTo("ARTHUR")
+        .jsonPath("lastName").isEqualTo("ANDERSON")
+        .jsonPath("profileInformation").doesNotExist()
+        .jsonPath("physicalAttributes").doesNotExist()
+        .jsonPath("physicalCharacteristics").doesNotExist()
+        .jsonPath("physicalMarks").doesNotExist()
     }
 
     @Test

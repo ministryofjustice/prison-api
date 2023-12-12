@@ -133,9 +133,10 @@ public class OffenderResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Full details about the current state of an offender")
     @GetMapping("/{offenderNo}")
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public InmateDetail getOffender(
-        @RequestHeader(value = "version", defaultValue = "1.0", required = false) @Parameter(description = "Version of Offender details, default is 1.0, Beta is version 1.1_beta and is WIP (do not use in production)") final String version,
-        @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", example = "A1234AA", required = true) final String offenderNo) {
+        @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", example = "A1234AA", required = true) final String offenderNo,
+        @RequestHeader(value = "version", defaultValue = "1.0", required = false) @Parameter(description = "Version of Offender details, default is 1.0, Beta is version 1.1_beta and is WIP (do not use in production)") final String version) {
         if ("1.1_beta".equals(version)) {
             // TODO: This is WIP as not all data is yet mapped
             return bookingService.getOffender(offenderNo);
