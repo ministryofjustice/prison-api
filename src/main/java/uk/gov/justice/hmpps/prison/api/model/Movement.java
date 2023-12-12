@@ -71,7 +71,7 @@ public class Movement {
     @Schema(requiredMode = REQUIRED, description = "Description of movement reason")
     private String movementReason;
 
-    @Schema(requiredMode = REQUIRED, description = "Description of movement reason")
+    @Schema(requiredMode = REQUIRED, description = "Code of movement reason")
     private String movementReasonCode;
 
     @Schema(description = "Comment")
