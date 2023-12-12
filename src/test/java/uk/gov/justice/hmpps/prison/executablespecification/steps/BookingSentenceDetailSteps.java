@@ -29,7 +29,6 @@ public class BookingSentenceDetailSteps extends CommonSteps {
 
     private static final String OFFENDER_SENTENCE_DETAIL_API_URL = API_PREFIX + "offender-sentences";
     private static final String HOME_DETENTION_CURFEW_CANDIDATES = OFFENDER_SENTENCE_DETAIL_API_URL + "/home-detention-curfew-candidates?minimumChecksPassedDateForAssessedCurfews={iso8601Date}";
-    private static final String BOOKING_SENTENCE_TERMS_API_URL = OFFENDER_SENTENCE_DETAIL_API_URL + "/booking/{bookingId}/sentenceTerms";
 
     private static final ParameterizedTypeReference<List<OffenderSentenceDetail>> LIST_OF_OFFENDER_SENTENCE_DETAIL_TYPE = new ParameterizedTypeReference<>() {
     };
@@ -332,22 +331,6 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         }
     }
 
-    private void dispatchSentenceTerms(final String bookingId) {
-        init();
-
-        try {
-            final ResponseEntity<List<OffenderSentenceTerms>> response;
-            response = restTemplate.exchange(BOOKING_SENTENCE_TERMS_API_URL, HttpMethod.GET, createEntity(),
-                new ParameterizedTypeReference<>() {
-                }, bookingId);
-
-            offenderSentenceTermsList = response.getBody();
-
-        } catch (final PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
-
     private void dispatchOffenderSentences(final String offenderNos, final String agencyId) {
         init();
 
@@ -414,10 +397,6 @@ public class BookingSentenceDetailSteps extends CommonSteps {
 
     private String initialiseUrlModifier(final StringBuilder urlModifier) {
         return urlModifier.length() > 0 ? "&" : "?";
-    }
-
-    public void requestSentenceTerms(final String bookingId) {
-        dispatchSentenceTerms(bookingId);
     }
 
     @Deprecated
