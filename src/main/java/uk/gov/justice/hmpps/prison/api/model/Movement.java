@@ -71,10 +71,13 @@ public class Movement {
     @Schema(requiredMode = REQUIRED, description = "Description of movement reason")
     private String movementReason;
 
+    @Schema(requiredMode = REQUIRED, description = "Description of movement reason")
+    private String movementReasonCode;
+
     @Schema(description = "Comment")
     private String commentText;
 
-    public Movement(@NotBlank String offenderNo, @NotNull LocalDateTime createDateTime, @NotBlank String fromAgency, String fromAgencyDescription, @NotBlank String toAgency, String toAgencyDescription, String fromCity, String toCity, @NotBlank String movementType, String movementTypeDescription, @NotBlank String directionCode, LocalDate movementDate, LocalTime movementTime, String movementReason, String commentText) {
+    public Movement(@NotBlank String offenderNo, @NotNull LocalDateTime createDateTime, @NotBlank String fromAgency, String fromAgencyDescription, @NotBlank String toAgency, String toAgencyDescription, String fromCity, String toCity, @NotBlank String movementType, String movementTypeDescription, @NotBlank String directionCode, LocalDate movementDate, LocalTime movementTime, String movementReason, String movementReasonCode, String commentText) {
         this.offenderNo = offenderNo;
         this.createDateTime = createDateTime;
         this.fromAgency = fromAgency;
@@ -89,6 +92,7 @@ public class Movement {
         this.movementDate = movementDate;
         this.movementTime = movementTime;
         this.movementReason = movementReason;
+        this.movementReasonCode = movementReasonCode;
         this.commentText = commentText;
     }
 

@@ -17,6 +17,7 @@ data class MovementDto(
   val movementDate: LocalDate?,
   val movementTime: LocalTime?,
   val movementReason: String?,
+  val movementReasonCode: String?,
   val commentText: String?,
 ) {
   fun toMovement() = Movement(
@@ -34,6 +35,7 @@ data class MovementDto(
     this.movementDate,
     this.movementTime,
     this.movementReason,
+    this.movementReasonCode,
     this.commentText,
   )
 }
