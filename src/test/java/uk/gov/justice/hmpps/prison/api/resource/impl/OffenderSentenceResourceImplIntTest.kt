@@ -186,6 +186,54 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
   inner class OffenderSentenceTerms {
 
     @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.get().uri("/api/offender-sentences/booking/-5/sentenceTerms")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `returns 403 when client has no override role`() {
+      webTestClient.get().uri("/api/offender-sentences/booking/-5/sentenceTerms")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_GLOBAL_SEARCH`() {
+      webTestClient.get().uri("/api/offender-sentences/booking/-5/sentenceTerms")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(3)
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_VIEW_PRISONER_DATA`() {
+      webTestClient.get().uri("/api/offender-sentences/booking/-5/sentenceTerms")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(3)
+    }
+
+    @Test
+    fun `returns 404 if not in user caseload`() {
+      webTestClient.get().uri("/api/offender-sentences/booking/-5/sentenceTerms")
+        .headers(setAuthorisation("WAI_USER", listOf())).exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -5 not found.")
+    }
+
+    @Test
+    fun `returns success if in user caseload`() {
+      webTestClient.get().uri("/api/offender-sentences/booking/-5/sentenceTerms")
+        .headers(setAuthorisation(listOf())).exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
     fun offenderSentenceTerms_with_filterParam_success() {
       webTestClient.get()
         .uri { uriBuilder ->
@@ -194,8 +242,6 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
             .build()
         }
         .headers(setAuthorisation("RO_USER", listOf("ROLE_VIEW_PRISONER_DATA")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -207,8 +253,6 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
       webTestClient.get()
         .uri("/api/offender-sentences/booking/-5/sentenceTerms")
         .headers(setAuthorisation("RO_USER", listOf("ROLE_VIEW_PRISONER_DATA")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .expectBody()

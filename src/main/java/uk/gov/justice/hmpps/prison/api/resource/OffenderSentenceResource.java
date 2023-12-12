@@ -206,6 +206,7 @@ public class OffenderSentenceResource {
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Sentence term details for a prisoner")
     @GetMapping("/booking/{bookingId}/sentenceTerms")
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<OffenderSentenceTerms> getOffenderSentenceTerms(@PathVariable("bookingId") @Parameter(description = "The required booking id (mandatory)", required = true) final Long bookingId, @RequestParam(value = "filterBySentenceTermCodes", required = false) final List<String> filterBySentenceTermCodes) {
         return bookingService.getOffenderSentenceTerms(bookingId, filterBySentenceTermCodes);
     }
