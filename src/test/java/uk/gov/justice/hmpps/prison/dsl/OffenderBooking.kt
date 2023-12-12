@@ -70,7 +70,7 @@ interface BookingDsl {
   fun transferOut(
     prisonId: String = "MDI",
     transferTime: LocalDateTime = LocalDateTime.now().minusHours(1),
-    movementReasonCode: String = "CA",
+    movementReasonCode: String = "NOTR",
     commentText: String = "Transfer",
   )
 
