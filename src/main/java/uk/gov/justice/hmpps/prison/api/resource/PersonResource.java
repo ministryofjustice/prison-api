@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,7 +37,8 @@ public class PersonResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "The addresses for person", description = "The addresses for person")
+    @Operation(summary = "The addresses for person", description = "Requires role ROLE_VIEW_CONTACTS")
+    @PreAuthorize("hasRole('ROLE_VIEW_CONTACTS')")
     @GetMapping("/{personId}/addresses")
     public List<AddressDto> getPersonAddresses(@PathVariable("personId") @Parameter(description = "The persons NOMIS identifier (personId).", required = true) final Long personId) {
         return service.getAddresses(personId);
@@ -47,7 +49,8 @@ public class PersonResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "The phone numbers for person", description = "The phone numbers for person")
+    @Operation(summary = "The phone numbers for person", description = "Requires role ROLE_VIEW_CONTACTS")
+    @PreAuthorize("hasRole('ROLE_VIEW_CONTACTS')")
     @GetMapping("/{personId}/phones")
     public List<Telephone> getPersonPhones(@PathVariable("personId") @Parameter(description = "The persons NOMIS identifier (personId).", required = true) final Long personId) {
         return service.getPhones(personId);
@@ -58,7 +61,8 @@ public class PersonResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "The emails for person", description = "The emails for person")
+    @Operation(summary = "The emails for person", description = "Requires role ROLE_VIEW_CONTACTS")
+    @PreAuthorize("hasRole('ROLE_VIEW_CONTACTS')")
     @GetMapping("/{personId}/emails")
     public List<Email> getPersonEmails(@PathVariable("personId") @Parameter(description = "The persons NOMIS identifier (personId).", required = true) final Long personId) {
         return service.getEmails(personId);
