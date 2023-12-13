@@ -1468,9 +1468,17 @@ class BookingResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `returns 200 when client has override role ROLE_SYSTEM_USER`() {
+    fun `returns 403 when client has override role ROLE_SYSTEM_USER`() {
       webTestClient.get().uri("/api/bookings/-3/reasonable-adjustments?type=WHEELCHR_ACC")
         .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 200 when client has override role ROLE_GLOBAL_SEARCH`() {
+      webTestClient.get().uri("/api/bookings/-3/reasonable-adjustments?type=WHEELCHR_ACC")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
         .exchange()
         .expectStatus().isOk
     }
