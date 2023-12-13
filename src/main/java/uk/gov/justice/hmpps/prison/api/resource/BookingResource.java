@@ -383,8 +383,9 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Assessment Information", description = "Assessment Information")
+    @Operation(summary = "Assessment Information", description = "Assessment Information. Requires booking access (via caseload) or VIEW_ASSESSMENTS role")
     @GetMapping("/{bookingId}/assessments")
+    @VerifyBookingAccess(overrideRoles = {"VIEW_ASSESSMENTS"})
     public List<Assessment> getAssessments(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
         return inmateService.getAssessments(bookingId);
     }
