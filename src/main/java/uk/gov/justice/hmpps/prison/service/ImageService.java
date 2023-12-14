@@ -2,13 +2,9 @@ package uk.gov.justice.hmpps.prison.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
-import uk.gov.justice.hmpps.prison.api.model.OffenderNumber;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImage;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImageRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
@@ -61,7 +57,6 @@ public class ImageService {
             .map(i -> fullSizeImage ? i.getFullSizeImage() : i.getThumbnailImage());
     }
 
-    @PreAuthorize("hasRole('IMAGE_UPLOAD') and hasAuthority('SCOPE_write')")
     @Transactional
     public ImageDetail putImageForOffender(final String offenderNumber, final InputStream receivedImage) {
         // Uses a 4:3 aspect ratio - will distort square photos! Compact cameras and phones use 4:3 for portrait.
