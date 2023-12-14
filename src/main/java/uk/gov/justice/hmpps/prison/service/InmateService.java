@@ -370,7 +370,6 @@ public class InmateService {
         return repository.findPhysicalMarks(bookingId);
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     public ReasonableAdjustments getReasonableAdjustments(final Long bookingId, final List<String> treatmentCodes) {
         return new ReasonableAdjustments(repository.findReasonableAdjustments(bookingId, treatmentCodes));
     }
